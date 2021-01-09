@@ -42,7 +42,7 @@ public final class IDAssigner
 
     public static File getDir()
     {
-        return ServerLifecycleHooks.getCurrentServer().func_240776_a_( FOLDER ).toFile();
+        return ServerLifecycleHooks.getCurrentServer().getWorldPath( FOLDER ).toFile();
     }
 
     private static MinecraftServer getCachedServer()

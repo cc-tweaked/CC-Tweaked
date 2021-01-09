@@ -24,7 +24,7 @@ public enum ComputerState implements IStringSerializable
 
     @Nonnull
     @Override
-    public String getString()
+    public String getSerializedName()
     {
         return name;
     }

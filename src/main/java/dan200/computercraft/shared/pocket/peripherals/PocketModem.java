@@ -47,7 +47,7 @@ public class PocketModem extends AbstractPocketUpgrade
 
         PocketModemPeripheral modem = (PocketModemPeripheral) peripheral;
 
-        if( entity != null ) modem.setLocation( entity.getEntityWorld(), entity.getEyePosition( 1 ) );
+        if( entity != null ) modem.setLocation( entity.getCommandSenderWorld(), entity.getEyePosition( 1 ) );
 
         ModemState state = modem.getModemState();
         if( state.pollChanged() ) access.setLight( state.isOpen() ? 0xBA0000 : -1 );

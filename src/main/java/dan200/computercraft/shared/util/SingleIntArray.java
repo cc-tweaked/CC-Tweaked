@@ -24,7 +24,7 @@ public interface SingleIntArray extends IIntArray
     }
 
     @Override
-    default int size()
+    default int getCount()
     {
         return 1;
     }

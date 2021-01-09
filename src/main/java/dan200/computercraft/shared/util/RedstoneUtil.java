@@ -21,8 +21,8 @@ public final class RedstoneUtil
         BlockState block = world.getBlockState( pos );
         if( ForgeEventFactory.onNeighborNotify( world, pos, block, EnumSet.of( side ), false ).isCanceled() ) return;
 
-        BlockPos neighbourPos = pos.offset( side );
+        BlockPos neighbourPos = pos.relative( side );
         world.neighborChanged( neighbourPos, block.getBlock(), pos );
-        world.notifyNeighborsOfStateExcept( neighbourPos, block.getBlock(), side.getOpposite() );
+        world.updateNeighborsAtExceptFromFacing( neighbourPos, block.getBlock(), side.getOpposite() );
     }
 }

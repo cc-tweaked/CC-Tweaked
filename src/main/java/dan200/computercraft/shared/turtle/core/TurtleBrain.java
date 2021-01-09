@@ -124,7 +124,7 @@ public class TurtleBrain implements ITurtleAccess
     public void update()
     {
         World world = getWorld();
-        if( !world.isRemote )
+        if( !world.isClientSide )
         {
             // Advance movement
             updateCommands();
@@ -273,20 +273,20 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public World getWorld()
     {
-        return m_owner.getWorld();
+        return m_owner.getLevel();
     }
 
     @Nonnull
     @Override
     public BlockPos getPosition()
     {
-        return m_owner.getPos();
+        return m_owner.getBlockPos();
     }
 
     @Override
     public boolean teleportTo( @Nonnull World world, @Nonnull BlockPos pos )
     {
-        if( world.isRemote || getWorld().isRemote )
+        if( world.isClientSide || getWorld().isClientSide )
         {
             throw new UnsupportedOperationException( "Cannot teleport on the client" );
         }
@@ -294,7 +294,7 @@ public class TurtleBrain implements ITurtleAccess
         // Cache info about the old turtle (so we don't access this after we delete ourselves)
         World oldWorld = getWorld();
         TileTurtle oldOwner = m_owner;
-        BlockPos oldPos = m_owner.getPos();
+        BlockPos oldPos = m_owner.getBlockPos();
         BlockState oldBlock = m_owner.getBlockState();
 
         if( oldWorld == world && oldPos.equals( pos ) )
@@ -307,31 +307,31 @@ public class TurtleBrain implements ITurtleAccess
         if( !world.isAreaLoaded( pos, 0 ) ) return false;
 
         // Ensure we're inside the world border
-        if( !world.getWorldBorder().contains( pos ) ) return false;
+        if( !world.getWorldBorder().isWithinBounds( pos ) ) return false;
 
         FluidState existingFluid = world.getBlockState( pos ).getFluidState();
         BlockState newState = oldBlock
             // We only mark this as waterlogged when travelling into a source block. This prevents us from spreading
             // fluid by creating a new source when moving into a block, causing the next block to be almost full and
             // then moving into that.
-            .with( WATERLOGGED, existingFluid.isTagged( FluidTags.WATER ) && existingFluid.isSource() );
+            .setValue( WATERLOGGED, existingFluid.is( FluidTags.WATER ) && existingFluid.isSource() );
 
         oldOwner.notifyMoveStart();
 
         try
         {
             // Create a new turtle
-            if( world.setBlockState( pos, newState, 0 ) )
+            if( world.setBlock( pos, newState, 0 ) )
             {
                 Block block = world.getBlockState( pos ).getBlock();
                 if( block == oldBlock.getBlock() )
                 {
-                    TileEntity newTile = world.getTileEntity( pos );
+                    TileEntity newTile = world.getBlockEntity( pos );
                     if( newTile instanceof TileTurtle )
                     {
                         // Copy the old turtle state into the new turtle
                         TileTurtle newTurtle = (TileTurtle) newTile;
-                        newTurtle.setWorldAndPos( world, pos );
+                        newTurtle.setLevelAndPosition( world, pos );
                         newTurtle.transferStateFrom( oldOwner );
                         newTurtle.createServerComputer().setWorld( world );
                         newTurtle.createServerComputer().setPosition( pos );
@@ -365,7 +365,7 @@ public class TurtleBrain implements ITurtleAccess
     public Vector3d getVisualPosition( float f )
     {
         Vector3d offset = getRenderOffset( f );
-        BlockPos pos = m_owner.getPos();
+        BlockPos pos = m_owner.getBlockPos();
         return new Vector3d(
             pos.getX() + 0.5 + offset.x,
             pos.getY() + 0.5 + offset.y,
@@ -376,7 +376,7 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public float getVisualYaw( float f )
     {
-        float yaw = getDirection().getHorizontalAngle();
+        float yaw = getDirection().toYRot();
         switch( m_animation )
         {
             case TURN_LEFT:
@@ -423,9 +423,9 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public void setSelectedSlot( int slot )
     {
-        if( getWorld().isRemote ) throw new UnsupportedOperationException( "Cannot set the slot on the client" );
+        if( getWorld().isClientSide ) throw new UnsupportedOperationException( "Cannot set the slot on the client" );
 
-        if( slot >= 0 && slot < m_owner.getSizeInventory() )
+        if( slot >= 0 && slot < m_owner.getContainerSize() )
         {
             m_selectedSlot = slot;
             m_owner.onTileEntityChange();
@@ -481,7 +481,7 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public boolean consumeFuel( int fuel )
     {
-        if( getWorld().isRemote ) throw new UnsupportedOperationException( "Cannot consume fuel on the client" );
+        if( getWorld().isClientSide ) throw new UnsupportedOperationException( "Cannot consume fuel on the client" );
 
         if( !isFuelNeeded() ) return true;
 
@@ -497,7 +497,7 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public void addFuel( int fuel )
     {
-        if( getWorld().isRemote ) throw new UnsupportedOperationException( "Cannot add fuel on the client" );
+        if( getWorld().isClientSide ) throw new UnsupportedOperationException( "Cannot add fuel on the client" );
 
         int addition = Math.max( fuel, 0 );
         setFuelLevel( getFuelLevel() + addition );
@@ -513,7 +513,7 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public MethodResult executeCommand( @Nonnull ITurtleCommand command )
     {
-        if( getWorld().isRemote ) throw new UnsupportedOperationException( "Cannot run commands on the client" );
+        if( getWorld().isClientSide ) throw new UnsupportedOperationException( "Cannot run commands on the client" );
 
         // Issue command
         int commandID = issueCommand( command );
@@ -523,7 +523,7 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public void playAnimation( @Nonnull TurtleAnimation animation )
     {
-        if( getWorld().isRemote ) throw new UnsupportedOperationException( "Cannot play animations on the client" );
+        if( getWorld().isClientSide ) throw new UnsupportedOperationException( "Cannot play animations on the client" );
 
         m_animation = animation;
         if( m_animation == TurtleAnimation.SHORT_WAIT )
@@ -636,7 +636,7 @@ public class TurtleBrain implements ITurtleAccess
         if( upgrade != null ) m_upgrades.put( side, upgrade );
 
         // Notify clients and create peripherals
-        if( m_owner.getWorld() != null )
+        if( m_owner.getLevel() != null )
         {
             updatePeripherals( m_owner.createServerComputer() );
             m_owner.updateBlock();
@@ -694,9 +694,9 @@ public class TurtleBrain implements ITurtleAccess
 
                 double distance = -1.0 + getAnimationFraction( f );
                 return new Vector3d(
-                    distance * dir.getXOffset(),
-                    distance * dir.getYOffset(),
-                    distance * dir.getZOffset()
+                    distance * dir.getStepX(),
+                    distance * dir.getStepY(),
+                    distance * dir.getStepZ()
                 );
             }
             default:
@@ -848,41 +848,41 @@ public class TurtleBrain implements ITurtleAccess
 
                     float pushFrac = 1.0f - (float) (m_animationProgress + 1) / ANIM_DURATION;
                     float push = Math.max( pushFrac + 0.0125f, 0.0f );
-                    if( moveDir.getXOffset() < 0 )
+                    if( moveDir.getStepX() < 0 )
                     {
-                        minX += moveDir.getXOffset() * push;
+                        minX += moveDir.getStepX() * push;
                     }
                     else
                     {
-                        maxX -= moveDir.getXOffset() * push;
+                        maxX -= moveDir.getStepX() * push;
                     }
 
-                    if( moveDir.getYOffset() < 0 )
+                    if( moveDir.getStepY() < 0 )
                     {
-                        minY += moveDir.getYOffset() * push;
+                        minY += moveDir.getStepY() * push;
                     }
                     else
                     {
-                        maxY -= moveDir.getYOffset() * push;
+                        maxY -= moveDir.getStepY() * push;
                     }
 
-                    if( moveDir.getZOffset() < 0 )
+                    if( moveDir.getStepZ() < 0 )
                     {
-                        minZ += moveDir.getZOffset() * push;
+                        minZ += moveDir.getStepZ() * push;
                     }
                     else
                     {
-                        maxZ -= moveDir.getZOffset() * push;
+                        maxZ -= moveDir.getStepZ() * push;
                     }
 
                     AxisAlignedBB aabb = new AxisAlignedBB( minX, minY, minZ, maxX, maxY, maxZ );
-                    List<Entity> list = world.getEntitiesWithinAABB( Entity.class, aabb, EntityPredicates.NOT_SPECTATING );
+                    List<Entity> list = world.getEntitiesOfClass( Entity.class, aabb, EntityPredicates.NO_SPECTATORS );
                     if( !list.isEmpty() )
                     {
                         double pushStep = 1.0f / ANIM_DURATION;
-                        double pushStepX = moveDir.getXOffset() * pushStep;
-                        double pushStepY = moveDir.getYOffset() * pushStep;
-                        double pushStepZ = moveDir.getZOffset() * pushStep;
+                        double pushStepX = moveDir.getStepX() * pushStep;
+                        double pushStepY = moveDir.getStepY() * pushStep;
+                        double pushStepZ = moveDir.getStepZ() * pushStep;
                         for( Entity entity : list )
                         {
                             entity.move( MoverType.PISTON, new Vector3d( pushStepX, pushStepY, pushStepZ ) );
@@ -892,7 +892,7 @@ public class TurtleBrain implements ITurtleAccess
             }
 
             // Advance valentines day easter egg
-            if( world.isRemote && m_animation == TurtleAnimation.MOVE_FORWARD && m_animationProgress == 4 )
+            if( world.isClientSide && m_animation == TurtleAnimation.MOVE_FORWARD && m_animationProgress == 4 )
             {
                 // Spawn love pfx if valentines day
                 Holiday currentHoliday = HolidayUtil.getCurrentHoliday();
@@ -901,14 +901,14 @@ public class TurtleBrain implements ITurtleAccess
                     Vector3d position = getVisualPosition( 1.0f );
                     if( position != null )
                     {
-                        double x = position.x + world.rand.nextGaussian() * 0.1;
-                        double y = position.y + 0.5 + world.rand.nextGaussian() * 0.1;
-                        double z = position.z + world.rand.nextGaussian() * 0.1;
+                        double x = position.x + world.random.nextGaussian() * 0.1;
+                        double y = position.y + 0.5 + world.random.nextGaussian() * 0.1;
+                        double z = position.z + world.random.nextGaussian() * 0.1;
                         world.addParticle(
                             ParticleTypes.HEART, x, y, z,
-                            world.rand.nextGaussian() * 0.02,
-                            world.rand.nextGaussian() * 0.02,
-                            world.rand.nextGaussian() * 0.02
+                            world.random.nextGaussian() * 0.02,
+                            world.random.nextGaussian() * 0.02,
+                            world.random.nextGaussian() * 0.02
                         );
                     }
                 }

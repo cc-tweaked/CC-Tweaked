@@ -104,7 +104,7 @@ public final class ResourceMount implements IMount
     {
         boolean hasAny = false;
         FileEntry newRoot = new FileEntry( new ResourceLocation( namespace, subPath ) );
-        for( ResourceLocation file : manager.getAllResourceLocations( subPath, s -> true ) )
+        for( ResourceLocation file : manager.listResources( subPath, s -> true ) )
         {
             if( !file.getNamespace().equals( namespace ) ) continue;
 
@@ -297,7 +297,7 @@ public final class ResourceMount implements IMount
 
         synchronized void add( IReloadableResourceManager manager, ResourceMount mount )
         {
-            if( managers.add( manager ) ) manager.addReloadListener( this );
+            if( managers.add( manager ) ) manager.registerReloadListener( this );
             mounts.add( mount );
         }
     }

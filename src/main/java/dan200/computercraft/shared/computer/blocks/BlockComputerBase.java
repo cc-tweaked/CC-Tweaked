@@ -35,6 +35,8 @@ import net.minecraftforge.fml.RegistryObject;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import net.minecraft.block.AbstractBlock.Properties;
+
 public abstract class BlockComputerBase<T extends TileComputerBase> extends BlockGeneric implements IBundledRedstoneBlock
 {
     private static final ResourceLocation DROP = new ResourceLocation( ComputerCraft.MOD_ID, "computer" );
@@ -49,26 +51,26 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     @Override
     @Deprecated
-    public void onBlockAdded( @Nonnull BlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState oldState, boolean isMoving )
+    public void onPlace( @Nonnull BlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState oldState, boolean isMoving )
     {
-        super.onBlockAdded( state, world, pos, oldState, isMoving );
+        super.onPlace( state, world, pos, oldState, isMoving );
 
-        TileEntity tile = world.getTileEntity( pos );
+        TileEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileComputerBase ) ((TileComputerBase) tile).updateInput();
     }
 
     @Override
     @Deprecated
-    public boolean canProvidePower( @Nonnull BlockState state )
+    public boolean isSignalSource( @Nonnull BlockState state )
     {
         return true;
     }
 
     @Override
     @Deprecated
-    public int getStrongPower( @Nonnull BlockState state, IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction incomingSide )
+    public int getDirectSignal( @Nonnull BlockState state, IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction incomingSide )
     {
-        TileEntity entity = world.getTileEntity( pos );
+        TileEntity entity = world.getBlockEntity( pos );
         if( !(entity instanceof TileComputerBase) ) return 0;
 
         TileComputerBase computerEntity = (TileComputerBase) entity;
@@ -89,9 +91,9 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     @Override
     @Deprecated
-    public int getWeakPower( @Nonnull BlockState state, @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction incomingSide )
+    public int getSignal( @Nonnull BlockState state, @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction incomingSide )
     {
-        return getStrongPower( state, world, pos, incomingSide );
+        return getDirectSignal( state, world, pos, incomingSide );
     }
 
     @Override
@@ -103,7 +105,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     @Override
     public int getBundledRedstoneOutput( World world, BlockPos pos, Direction side )
     {
-        TileEntity entity = world.getTileEntity( pos );
+        TileEntity entity = world.getBlockEntity( pos );
         if( !(entity instanceof TileComputerBase) ) return 0;
 
         TileComputerBase computerEntity = (TileComputerBase) entity;
@@ -118,7 +120,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     @Override
     public ItemStack getPickBlock( BlockState state, RayTraceResult target, IBlockReader world, BlockPos pos, PlayerEntity player )
     {
-        TileEntity tile = world.getTileEntity( pos );
+        TileEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileComputerBase )
         {
             ItemStack result = getItem( (TileComputerBase) tile );
@@ -129,15 +131,15 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     }
 
     @Override
-    public void harvestBlock( @Nonnull World world, PlayerEntity player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable TileEntity tile, @Nonnull ItemStack tool )
+    public void playerDestroy( @Nonnull World world, PlayerEntity player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable TileEntity tile, @Nonnull ItemStack tool )
     {
         // Don't drop blocks here - see onBlockHarvested.
-        player.addStat( Stats.BLOCK_MINED.get( this ) );
-        player.addExhaustion( 0.005F );
+        player.awardStat( Stats.BLOCK_MINED.get( this ) );
+        player.causeFoodExhaustion( 0.005F );
     }
 
     @Override
-    public void onBlockHarvested( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull PlayerEntity player )
+    public void playerWillDestroy( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull PlayerEntity player )
     {
         if( !(world instanceof ServerWorld) ) return;
         ServerWorld serverWorld = (ServerWorld) world;
@@ -145,33 +147,33 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
         // We drop the item here instead of doing it in the harvest method, as we should
         // drop computers for creative players too.
 
-        TileEntity tile = world.getTileEntity( pos );
+        TileEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileComputerBase )
         {
             TileComputerBase computer = (TileComputerBase) tile;
             LootContext.Builder context = new LootContext.Builder( serverWorld )
-                .withRandom( world.rand )
-                .withParameter( LootParameters.field_237457_g_, Vector3d.copyCentered( pos ) )
-                .withParameter( LootParameters.TOOL, player.getHeldItemMainhand() )
+                .withRandom( world.random )
+                .withParameter( LootParameters.ORIGIN, Vector3d.atCenterOf( pos ) )
+                .withParameter( LootParameters.TOOL, player.getMainHandItem() )
                 .withParameter( LootParameters.THIS_ENTITY, player )
                 .withParameter( LootParameters.BLOCK_ENTITY, tile )
                 .withDynamicDrop( DROP, ( ctx, out ) -> out.accept( getItem( computer ) ) );
             for( ItemStack item : state.getDrops( context ) )
             {
-                spawnAsEntity( world, pos, item );
+                popResource( world, pos, item );
             }
 
-            state.spawnAdditionalDrops( serverWorld, pos, player.getHeldItemMainhand() );
+            state.spawnAfterBreak( serverWorld, pos, player.getMainHandItem() );
         }
     }
 
     @Override
-    public void onBlockPlacedBy( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, @Nonnull ItemStack stack )
+    public void setPlacedBy( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, @Nonnull ItemStack stack )
     {
-        super.onBlockPlacedBy( world, pos, state, placer, stack );
+        super.setPlacedBy( world, pos, state, placer, stack );
 
-        TileEntity tile = world.getTileEntity( pos );
-        if( !world.isRemote && tile instanceof IComputerTile && stack.getItem() instanceof IComputerItem )
+        TileEntity tile = world.getBlockEntity( pos );
+        if( !world.isClientSide && tile instanceof IComputerTile && stack.getItem() instanceof IComputerItem )
         {
             IComputerTile computer = (IComputerTile) tile;
             IComputerItem item = (IComputerItem) stack.getItem();

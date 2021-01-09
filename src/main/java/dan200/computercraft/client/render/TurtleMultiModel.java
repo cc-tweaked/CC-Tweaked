@@ -90,9 +90,9 @@ public class TurtleMultiModel implements IBakedModel
     }
 
     @Override
-    public boolean isAmbientOcclusion()
+    public boolean useAmbientOcclusion()
     {
-        return m_baseModel.isAmbientOcclusion();
+        return m_baseModel.useAmbientOcclusion();
     }
 
     @Override
@@ -102,31 +102,31 @@ public class TurtleMultiModel implements IBakedModel
     }
 
     @Override
-    public boolean isBuiltInRenderer()
+    public boolean isCustomRenderer()
     {
-        return m_baseModel.isBuiltInRenderer();
+        return m_baseModel.isCustomRenderer();
     }
 
     @Override
-    public boolean isSideLit()
+    public boolean usesBlockLight()
     {
-        return m_baseModel.isSideLit();
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public TextureAtlasSprite getParticleTexture()
-    {
-        return m_baseModel.getParticleTexture();
+        return m_baseModel.usesBlockLight();
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public net.minecraft.client.renderer.model.ItemCameraTransforms getItemCameraTransforms()
+    public TextureAtlasSprite getParticleIcon()
     {
-        return m_baseModel.getItemCameraTransforms();
+        return m_baseModel.getParticleIcon();
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public net.minecraft.client.renderer.model.ItemCameraTransforms getTransforms()
+    {
+        return m_baseModel.getTransforms();
     }
 
     @Nonnull

@@ -39,7 +39,7 @@ public class Recipes extends RecipeProvider
     }
 
     @Override
-    protected void registerRecipes( @Nonnull Consumer<IFinishedRecipe> add )
+    protected void buildShapelessRecipes( @Nonnull Consumer<IFinishedRecipe> add )
     {
         basicRecipes( add );
         diskColours( add );
@@ -57,13 +57,13 @@ public class Recipes extends RecipeProvider
         for( Colour colour : Colour.VALUES )
         {
             ShapelessRecipeBuilder
-                .shapelessRecipe( Registry.ModItems.DISK.get() )
-                .addIngredient( Tags.Items.DUSTS_REDSTONE )
-                .addIngredient( Items.PAPER )
-                .addIngredient( DyeItem.getItem( ofColour( colour ) ) )
-                .setGroup( "computercraft:disk" )
-                .addCriterion( "has_drive", inventoryChange( Registry.ModBlocks.DISK_DRIVE.get() ) )
-                .build( RecipeWrapper.wrap(
+                .shapeless( Registry.ModItems.DISK.get() )
+                .requires( Tags.Items.DUSTS_REDSTONE )
+                .requires( Items.PAPER )
+                .requires( DyeItem.byColor( ofColour( colour ) ) )
+                .group( "computercraft:disk" )
+                .unlockedBy( "has_drive", inventoryChange( Registry.ModBlocks.DISK_DRIVE.get() ) )
+                .save( RecipeWrapper.wrap(
                     ImpostorShapelessRecipe.SERIALIZER, add,
                     x -> x.putInt( IColouredItem.NBT_COLOUR, colour.getHex() )
                 ), new ResourceLocation( ComputerCraft.MOD_ID, "disk_" + (colour.ordinal() + 1) ) );
@@ -87,14 +87,14 @@ public class Recipes extends RecipeProvider
             TurtleUpgrades.getVanillaUpgrades().forEach( upgrade -> {
                 ItemStack result = TurtleItemFactory.create( -1, null, -1, family, null, upgrade, -1, null );
                 ShapedRecipeBuilder
-                    .shapedRecipe( result.getItem() )
-                    .setGroup( String.format( "%s:turtle_%s", ComputerCraft.MOD_ID, nameId ) )
-                    .patternLine( "#T" )
-                    .key( '#', base.getItem() )
-                    .key( 'T', upgrade.getCraftingItem().getItem() )
-                    .addCriterion( "has_items",
+                    .shaped( result.getItem() )
+                    .group( String.format( "%s:turtle_%s", ComputerCraft.MOD_ID, nameId ) )
+                    .pattern( "#T" )
+                    .define( '#', base.getItem() )
+                    .define( 'T', upgrade.getCraftingItem().getItem() )
+                    .unlockedBy( "has_items",
                         inventoryChange( base.getItem(), upgrade.getCraftingItem().getItem() ) )
-                    .build(
+                    .save(
                         RecipeWrapper.wrap( ImpostorRecipe.SERIALIZER, add, result.getTag() ),
                         new ResourceLocation( ComputerCraft.MOD_ID, String.format( "turtle_%s/%s/%s",
                             nameId, upgrade.getUpgradeID().getNamespace(), upgrade.getUpgradeID().getPath()
@@ -121,15 +121,15 @@ public class Recipes extends RecipeProvider
             PocketUpgrades.getVanillaUpgrades().forEach( upgrade -> {
                 ItemStack result = PocketComputerItemFactory.create( -1, null, -1, family, null );
                 ShapedRecipeBuilder
-                    .shapedRecipe( result.getItem() )
-                    .setGroup( String.format( "%s:pocket_%s", ComputerCraft.MOD_ID, nameId ) )
-                    .patternLine( "#" )
-                    .patternLine( "P" )
-                    .key( '#', base.getItem() )
-                    .key( 'P', upgrade.getCraftingItem().getItem() )
-                    .addCriterion( "has_items",
+                    .shaped( result.getItem() )
+                    .group( String.format( "%s:pocket_%s", ComputerCraft.MOD_ID, nameId ) )
+                    .pattern( "#" )
+                    .pattern( "P" )
+                    .define( '#', base.getItem() )
+                    .define( 'P', upgrade.getCraftingItem().getItem() )
+                    .unlockedBy( "has_items",
                         inventoryChange( base.getItem(), upgrade.getCraftingItem().getItem() ) )
-                    .build(
+                    .save(
                         RecipeWrapper.wrap( ImpostorRecipe.SERIALIZER, add, result.getTag() ),
                         new ResourceLocation( ComputerCraft.MOD_ID, String.format( "pocket_%s/%s/%s",
                             nameId, upgrade.getUpgradeID().getNamespace(), upgrade.getUpgradeID().getPath()
@@ -142,167 +142,167 @@ public class Recipes extends RecipeProvider
     private void basicRecipes( @Nonnull Consumer<IFinishedRecipe> add )
     {
         ShapedRecipeBuilder
-            .shapedRecipe( Registry.ModItems.CABLE.get(), 6 )
-            .patternLine( " # " )
-            .patternLine( "#R#" )
-            .patternLine( " # " )
-            .key( '#', Tags.Items.STONE )
-            .key( 'R', Tags.Items.DUSTS_REDSTONE )
-            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
-            .addCriterion( "has_modem", inventoryChange( CCTags.COMPUTER ) )
-            .build( add );
+            .shaped( Registry.ModItems.CABLE.get(), 6 )
+            .pattern( " # " )
+            .pattern( "#R#" )
+            .pattern( " # " )
+            .define( '#', Tags.Items.STONE )
+            .define( 'R', Tags.Items.DUSTS_REDSTONE )
+            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .unlockedBy( "has_modem", inventoryChange( CCTags.COMPUTER ) )
+            .save( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( Registry.ModBlocks.COMPUTER_NORMAL.get() )
-            .patternLine( "###" )
-            .patternLine( "#R#" )
-            .patternLine( "#G#" )
-            .key( '#', Tags.Items.STONE )
-            .key( 'R', Tags.Items.DUSTS_REDSTONE )
-            .key( 'G', Tags.Items.GLASS_PANES )
-            .addCriterion( "has_redstone", inventoryChange( Tags.Items.DUSTS_REDSTONE ) )
-            .build( add );
+            .shaped( Registry.ModBlocks.COMPUTER_NORMAL.get() )
+            .pattern( "###" )
+            .pattern( "#R#" )
+            .pattern( "#G#" )
+            .define( '#', Tags.Items.STONE )
+            .define( 'R', Tags.Items.DUSTS_REDSTONE )
+            .define( 'G', Tags.Items.GLASS_PANES )
+            .unlockedBy( "has_redstone", inventoryChange( Tags.Items.DUSTS_REDSTONE ) )
+            .save( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( Registry.ModBlocks.COMPUTER_ADVANCED.get() )
-            .patternLine( "###" )
-            .patternLine( "#R#" )
-            .patternLine( "#G#" )
-            .key( '#', Tags.Items.INGOTS_GOLD )
-            .key( 'R', Tags.Items.DUSTS_REDSTONE )
-            .key( 'G', Tags.Items.GLASS_PANES )
-            .addCriterion( "has_components", inventoryChange( Items.REDSTONE, Items.GOLD_INGOT ) )
-            .build( add );
+            .shaped( Registry.ModBlocks.COMPUTER_ADVANCED.get() )
+            .pattern( "###" )
+            .pattern( "#R#" )
+            .pattern( "#G#" )
+            .define( '#', Tags.Items.INGOTS_GOLD )
+            .define( 'R', Tags.Items.DUSTS_REDSTONE )
+            .define( 'G', Tags.Items.GLASS_PANES )
+            .unlockedBy( "has_components", inventoryChange( Items.REDSTONE, Items.GOLD_INGOT ) )
+            .save( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( Registry.ModBlocks.COMPUTER_COMMAND.get() )
-            .patternLine( "###" )
-            .patternLine( "#R#" )
-            .patternLine( "#G#" )
-            .key( '#', Tags.Items.INGOTS_GOLD )
-            .key( 'R', Blocks.COMMAND_BLOCK )
-            .key( 'G', Tags.Items.GLASS_PANES )
-            .addCriterion( "has_components", inventoryChange( Blocks.COMMAND_BLOCK ) )
-            .build( add );
+            .shaped( Registry.ModBlocks.COMPUTER_COMMAND.get() )
+            .pattern( "###" )
+            .pattern( "#R#" )
+            .pattern( "#G#" )
+            .define( '#', Tags.Items.INGOTS_GOLD )
+            .define( 'R', Blocks.COMMAND_BLOCK )
+            .define( 'G', Tags.Items.GLASS_PANES )
+            .unlockedBy( "has_components", inventoryChange( Blocks.COMMAND_BLOCK ) )
+            .save( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( Registry.ModBlocks.DISK_DRIVE.get() )
-            .patternLine( "###" )
-            .patternLine( "#R#" )
-            .patternLine( "#R#" )
-            .key( '#', Tags.Items.STONE )
-            .key( 'R', Tags.Items.DUSTS_REDSTONE )
-            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
-            .build( add );
+            .shaped( Registry.ModBlocks.DISK_DRIVE.get() )
+            .pattern( "###" )
+            .pattern( "#R#" )
+            .pattern( "#R#" )
+            .define( '#', Tags.Items.STONE )
+            .define( 'R', Tags.Items.DUSTS_REDSTONE )
+            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .save( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( Registry.ModBlocks.MONITOR_NORMAL.get() )
-            .patternLine( "###" )
-            .patternLine( "#G#" )
-            .patternLine( "###" )
-            .key( '#', Tags.Items.STONE )
-            .key( 'G', Tags.Items.GLASS_PANES )
-            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
-            .build( add );
+            .shaped( Registry.ModBlocks.MONITOR_NORMAL.get() )
+            .pattern( "###" )
+            .pattern( "#G#" )
+            .pattern( "###" )
+            .define( '#', Tags.Items.STONE )
+            .define( 'G', Tags.Items.GLASS_PANES )
+            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .save( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( Registry.ModBlocks.MONITOR_ADVANCED.get(), 4 )
-            .patternLine( "###" )
-            .patternLine( "#G#" )
-            .patternLine( "###" )
-            .key( '#', Tags.Items.INGOTS_GOLD )
-            .key( 'G', Tags.Items.GLASS_PANES )
-            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
-            .build( add );
+            .shaped( Registry.ModBlocks.MONITOR_ADVANCED.get(), 4 )
+            .pattern( "###" )
+            .pattern( "#G#" )
+            .pattern( "###" )
+            .define( '#', Tags.Items.INGOTS_GOLD )
+            .define( 'G', Tags.Items.GLASS_PANES )
+            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .save( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( Registry.ModItems.POCKET_COMPUTER_NORMAL.get() )
-            .patternLine( "###" )
-            .patternLine( "#A#" )
-            .patternLine( "#G#" )
-            .key( '#', Tags.Items.STONE )
-            .key( 'A', Items.GOLDEN_APPLE )
-            .key( 'G', Tags.Items.GLASS_PANES )
-            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
-            .addCriterion( "has_apple", inventoryChange( Items.GOLDEN_APPLE ) )
-            .build( add );
+            .shaped( Registry.ModItems.POCKET_COMPUTER_NORMAL.get() )
+            .pattern( "###" )
+            .pattern( "#A#" )
+            .pattern( "#G#" )
+            .define( '#', Tags.Items.STONE )
+            .define( 'A', Items.GOLDEN_APPLE )
+            .define( 'G', Tags.Items.GLASS_PANES )
+            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .unlockedBy( "has_apple", inventoryChange( Items.GOLDEN_APPLE ) )
+            .save( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( Registry.ModItems.POCKET_COMPUTER_ADVANCED.get() )
-            .patternLine( "###" )
-            .patternLine( "#A#" )
-            .patternLine( "#G#" )
-            .key( '#', Tags.Items.INGOTS_GOLD )
-            .key( 'A', Items.GOLDEN_APPLE )
-            .key( 'G', Tags.Items.GLASS_PANES )
-            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
-            .addCriterion( "has_apple", inventoryChange( Items.GOLDEN_APPLE ) )
-            .build( add );
+            .shaped( Registry.ModItems.POCKET_COMPUTER_ADVANCED.get() )
+            .pattern( "###" )
+            .pattern( "#A#" )
+            .pattern( "#G#" )
+            .define( '#', Tags.Items.INGOTS_GOLD )
+            .define( 'A', Items.GOLDEN_APPLE )
+            .define( 'G', Tags.Items.GLASS_PANES )
+            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .unlockedBy( "has_apple", inventoryChange( Items.GOLDEN_APPLE ) )
+            .save( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( Registry.ModBlocks.PRINTER.get() )
-            .patternLine( "###" )
-            .patternLine( "#R#" )
-            .patternLine( "#D#" )
-            .key( '#', Tags.Items.STONE )
-            .key( 'R', Tags.Items.DUSTS_REDSTONE )
-            .key( 'D', Tags.Items.DYES )
-            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
-            .build( add );
+            .shaped( Registry.ModBlocks.PRINTER.get() )
+            .pattern( "###" )
+            .pattern( "#R#" )
+            .pattern( "#D#" )
+            .define( '#', Tags.Items.STONE )
+            .define( 'R', Tags.Items.DUSTS_REDSTONE )
+            .define( 'D', Tags.Items.DYES )
+            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .save( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( Registry.ModBlocks.SPEAKER.get() )
-            .patternLine( "###" )
-            .patternLine( "#N#" )
-            .patternLine( "#R#" )
-            .key( '#', Tags.Items.STONE )
-            .key( 'N', Blocks.NOTE_BLOCK )
-            .key( 'R', Tags.Items.DUSTS_REDSTONE )
-            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
-            .build( add );
+            .shaped( Registry.ModBlocks.SPEAKER.get() )
+            .pattern( "###" )
+            .pattern( "#N#" )
+            .pattern( "#R#" )
+            .define( '#', Tags.Items.STONE )
+            .define( 'N', Blocks.NOTE_BLOCK )
+            .define( 'R', Tags.Items.DUSTS_REDSTONE )
+            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .save( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( Registry.ModItems.WIRED_MODEM.get() )
-            .patternLine( "###" )
-            .patternLine( "#R#" )
-            .patternLine( "###" )
-            .key( '#', Tags.Items.STONE )
-            .key( 'R', Tags.Items.DUSTS_REDSTONE )
-            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
-            .addCriterion( "has_cable", inventoryChange( Registry.ModItems.CABLE.get() ) )
-            .build( add );
+            .shaped( Registry.ModItems.WIRED_MODEM.get() )
+            .pattern( "###" )
+            .pattern( "#R#" )
+            .pattern( "###" )
+            .define( '#', Tags.Items.STONE )
+            .define( 'R', Tags.Items.DUSTS_REDSTONE )
+            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .unlockedBy( "has_cable", inventoryChange( Registry.ModItems.CABLE.get() ) )
+            .save( add );
 
         ShapelessRecipeBuilder
-            .shapelessRecipe( Registry.ModBlocks.WIRED_MODEM_FULL.get() )
-            .addIngredient( Registry.ModItems.WIRED_MODEM.get() )
-            .addCriterion( "has_modem", inventoryChange( CCTags.WIRED_MODEM ) )
-            .build( add, new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full_from" ) );
+            .shapeless( Registry.ModBlocks.WIRED_MODEM_FULL.get() )
+            .requires( Registry.ModItems.WIRED_MODEM.get() )
+            .unlockedBy( "has_modem", inventoryChange( CCTags.WIRED_MODEM ) )
+            .save( add, new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full_from" ) );
         ShapelessRecipeBuilder
-            .shapelessRecipe( Registry.ModItems.WIRED_MODEM.get() )
-            .addIngredient( Registry.ModBlocks.WIRED_MODEM_FULL.get() )
-            .addCriterion( "has_modem", inventoryChange( CCTags.WIRED_MODEM ) )
-            .build( add, new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full_to" ) );
+            .shapeless( Registry.ModItems.WIRED_MODEM.get() )
+            .requires( Registry.ModBlocks.WIRED_MODEM_FULL.get() )
+            .unlockedBy( "has_modem", inventoryChange( CCTags.WIRED_MODEM ) )
+            .save( add, new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full_to" ) );
 
         ShapedRecipeBuilder
-            .shapedRecipe( Registry.ModBlocks.WIRELESS_MODEM_NORMAL.get() )
-            .patternLine( "###" )
-            .patternLine( "#E#" )
-            .patternLine( "###" )
-            .key( '#', Tags.Items.STONE )
-            .key( 'E', Tags.Items.ENDER_PEARLS )
-            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
-            .build( add );
+            .shaped( Registry.ModBlocks.WIRELESS_MODEM_NORMAL.get() )
+            .pattern( "###" )
+            .pattern( "#E#" )
+            .pattern( "###" )
+            .define( '#', Tags.Items.STONE )
+            .define( 'E', Tags.Items.ENDER_PEARLS )
+            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .save( add );
 
         ShapedRecipeBuilder
-            .shapedRecipe( Registry.ModBlocks.WIRELESS_MODEM_ADVANCED.get() )
-            .patternLine( "###" )
-            .patternLine( "#E#" )
-            .patternLine( "###" )
-            .key( '#', Tags.Items.INGOTS_GOLD )
-            .key( 'E', Items.ENDER_EYE )
-            .addCriterion( "has_computer", inventoryChange( CCTags.COMPUTER ) )
-            .addCriterion( "has_wireless", inventoryChange( Registry.ModBlocks.WIRELESS_MODEM_NORMAL.get() ) )
-            .build( add );
+            .shaped( Registry.ModBlocks.WIRELESS_MODEM_ADVANCED.get() )
+            .pattern( "###" )
+            .pattern( "#E#" )
+            .pattern( "###" )
+            .define( '#', Tags.Items.INGOTS_GOLD )
+            .define( 'E', Items.ENDER_EYE )
+            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .unlockedBy( "has_wireless", inventoryChange( Registry.ModBlocks.WIRELESS_MODEM_NORMAL.get() ) )
+            .save( add );
     }
 
     private static DyeColor ofColour( Colour colour )
@@ -312,11 +312,11 @@ public class Recipes extends RecipeProvider
 
     private static InventoryChangeTrigger.Instance inventoryChange( ITag<Item> stack )
     {
-        return InventoryChangeTrigger.Instance.forItems( ItemPredicate.Builder.create().tag( stack ).build() );
+        return InventoryChangeTrigger.Instance.hasItems( ItemPredicate.Builder.item().of( stack ).build() );
     }
 
     private static InventoryChangeTrigger.Instance inventoryChange( IItemProvider... stack )
     {
-        return InventoryChangeTrigger.Instance.forItems( stack );
+        return InventoryChangeTrigger.Instance.hasItems( stack );
     }
 }

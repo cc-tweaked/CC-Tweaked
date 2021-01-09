@@ -35,7 +35,7 @@ public final class FixedPointTileEntityType<T extends TileEntity> extends TileEn
     }
 
     @Override
-    public boolean isValidBlock( @Nonnull Block block )
+    public boolean isValid( @Nonnull Block block )
     {
         return block == this.block.get();
     }

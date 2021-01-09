@@ -141,7 +141,7 @@ public final class WiredModemLocalPeripheral
     @Nullable
     private IPeripheral getPeripheralFrom( World world, BlockPos pos, Direction direction )
     {
-        BlockPos offset = pos.offset( direction );
+        BlockPos offset = pos.relative( direction );
 
         Block block = world.getBlockState( offset ).getBlock();
         if( block == Registry.ModBlocks.WIRED_MODEM_FULL.get() || block == Registry.ModBlocks.CABLE.get() ) return null;

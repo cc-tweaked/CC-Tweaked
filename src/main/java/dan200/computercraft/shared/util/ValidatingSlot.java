@@ -19,7 +19,7 @@ public class ValidatingSlot extends Slot
     }
 
     @Override
-    public boolean isItemValid( @Nonnull ItemStack stack )
+    public boolean mayPlace( @Nonnull ItemStack stack )
     {
         return true; // inventory.isItemValidForSlot( slotNumber, stack );
     }

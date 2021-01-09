@@ -146,18 +146,18 @@ public final class PrintoutRenderer
 
     private static void drawTexture( Matrix4f matrix, IVertexBuilder buffer, float x, float y, float z, float u, float v, float width, float height )
     {
-        buffer.pos( matrix, x, y + height, z ).tex( u / BG_SIZE, (v + height) / BG_SIZE ).endVertex();
-        buffer.pos( matrix, x + width, y + height, z ).tex( (u + width) / BG_SIZE, (v + height) / BG_SIZE ).endVertex();
-        buffer.pos( matrix, x + width, y, z ).tex( (u + width) / BG_SIZE, v / BG_SIZE ).endVertex();
-        buffer.pos( matrix, x, y, z ).tex( u / BG_SIZE, v / BG_SIZE ).endVertex();
+        buffer.vertex( matrix, x, y + height, z ).uv( u / BG_SIZE, (v + height) / BG_SIZE ).endVertex();
+        buffer.vertex( matrix, x + width, y + height, z ).uv( (u + width) / BG_SIZE, (v + height) / BG_SIZE ).endVertex();
+        buffer.vertex( matrix, x + width, y, z ).uv( (u + width) / BG_SIZE, v / BG_SIZE ).endVertex();
+        buffer.vertex( matrix, x, y, z ).uv( u / BG_SIZE, v / BG_SIZE ).endVertex();
     }
 
     private static void drawTexture( Matrix4f matrix, IVertexBuilder buffer, float x, float y, float z, float width, float height, float u, float v, float tWidth, float tHeight )
     {
-        buffer.pos( matrix, x, y + height, z ).tex( u / BG_SIZE, (v + tHeight) / BG_SIZE ).endVertex();
-        buffer.pos( matrix, x + width, y + height, z ).tex( (u + tWidth) / BG_SIZE, (v + tHeight) / BG_SIZE ).endVertex();
-        buffer.pos( matrix, x + width, y, z ).tex( (u + tWidth) / BG_SIZE, v / BG_SIZE ).endVertex();
-        buffer.pos( matrix, x, y, z ).tex( u / BG_SIZE, v / BG_SIZE ).endVertex();
+        buffer.vertex( matrix, x, y + height, z ).uv( u / BG_SIZE, (v + tHeight) / BG_SIZE ).endVertex();
+        buffer.vertex( matrix, x + width, y + height, z ).uv( (u + tWidth) / BG_SIZE, (v + tHeight) / BG_SIZE ).endVertex();
+        buffer.vertex( matrix, x + width, y, z ).uv( (u + tWidth) / BG_SIZE, v / BG_SIZE ).endVertex();
+        buffer.vertex( matrix, x, y, z ).uv( u / BG_SIZE, v / BG_SIZE ).endVertex();
     }
 
     public static float offsetAt( int page )
@@ -167,14 +167,14 @@ public final class PrintoutRenderer
 
     private static final class Type extends RenderState
     {
-        static final RenderType TYPE = RenderType.makeType(
+        static final RenderType TYPE = RenderType.create(
             "printout_background", DefaultVertexFormats.POSITION_TEX, GL11.GL_QUADS, 1024,
             false, false, // useDelegate, needsSorting
-            RenderType.State.getBuilder()
-                .texture( new RenderState.TextureState( BG, false, false ) ) // blur, minimap
-                .alpha( DEFAULT_ALPHA )
-                .lightmap( LIGHTMAP_DISABLED )
-                .build( false )
+            RenderType.State.builder()
+                .setTextureState( new RenderState.TextureState( BG, false, false ) ) // blur, minimap
+                .setAlphaState( DEFAULT_ALPHA )
+                .setLightmapState( NO_LIGHTMAP )
+                .createCompositeState( false )
         );
 
         private Type( String name, Runnable setup, Runnable destroy )

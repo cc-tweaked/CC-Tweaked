@@ -29,14 +29,14 @@ public final class TurtleUpgradeRecipe extends SpecialRecipe
     }
 
     @Override
-    public boolean canFit( int x, int y )
+    public boolean canCraftInDimensions( int x, int y )
     {
         return x >= 3 && y >= 1;
     }
 
     @Nonnull
     @Override
-    public ItemStack getRecipeOutput()
+    public ItemStack getResultItem()
     {
         return TurtleItemFactory.create( -1, null, -1, ComputerFamily.NORMAL, null, null, 0, null );
     }
@@ -44,12 +44,12 @@ public final class TurtleUpgradeRecipe extends SpecialRecipe
     @Override
     public boolean matches( @Nonnull CraftingInventory inventory, @Nonnull World world )
     {
-        return !getCraftingResult( inventory ).isEmpty();
+        return !assemble( inventory ).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull CraftingInventory inventory )
+    public ItemStack assemble( @Nonnull CraftingInventory inventory )
     {
         // Scan the grid for a row containing a turtle and 1 or 2 items
         ItemStack leftItem = ItemStack.EMPTY;
@@ -64,7 +64,7 @@ public final class TurtleUpgradeRecipe extends SpecialRecipe
                 boolean finishedRow = false;
                 for( int x = 0; x < inventory.getWidth(); x++ )
                 {
-                    ItemStack item = inventory.getStackInSlot( x + y * inventory.getWidth() );
+                    ItemStack item = inventory.getItem( x + y * inventory.getWidth() );
                     if( !item.isEmpty() )
                     {
                         if( finishedRow )
@@ -122,7 +122,7 @@ public final class TurtleUpgradeRecipe extends SpecialRecipe
                 // Turtle is already found, just check this row is empty
                 for( int x = 0; x < inventory.getWidth(); x++ )
                 {
-                    ItemStack item = inventory.getStackInSlot( x + y * inventory.getWidth() );
+                    ItemStack item = inventory.getItem( x + y * inventory.getWidth() );
                     if( !item.isEmpty() )
                     {
                         return ItemStack.EMPTY;

@@ -27,6 +27,8 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import net.minecraft.block.AbstractBlock.Properties;
+
 public class BlockPrinter extends BlockGeneric
 {
     private static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -36,14 +38,14 @@ public class BlockPrinter extends BlockGeneric
     public BlockPrinter( Properties settings )
     {
         super( settings, Registry.ModTiles.PRINTER );
-        setDefaultState( getStateContainer().getBaseState()
-            .with( FACING, Direction.NORTH )
-            .with( TOP, false )
-            .with( BOTTOM, false ) );
+        registerDefaultState( getStateDefinition().any()
+            .setValue( FACING, Direction.NORTH )
+            .setValue( TOP, false )
+            .setValue( BOTTOM, false ) );
     }
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, BlockState> properties )
+    protected void createBlockStateDefinition( StateContainer.Builder<Block, BlockState> properties )
     {
         properties.add( FACING, TOP, BOTTOM );
     }
@@ -52,34 +54,34 @@ public class BlockPrinter extends BlockGeneric
     @Override
     public BlockState getStateForPlacement( BlockItemUseContext placement )
     {
-        return getDefaultState().with( FACING, placement.getPlacementHorizontalFacing().getOpposite() );
+        return defaultBlockState().setValue( FACING, placement.getHorizontalDirection().getOpposite() );
     }
 
     @Override
-    public void harvestBlock( @Nonnull World world, @Nonnull PlayerEntity player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable TileEntity te, @Nonnull ItemStack stack )
+    public void playerDestroy( @Nonnull World world, @Nonnull PlayerEntity player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable TileEntity te, @Nonnull ItemStack stack )
     {
         if( te instanceof INameable && ((INameable) te).hasCustomName() )
         {
-            player.addStat( Stats.BLOCK_MINED.get( this ) );
-            player.addExhaustion( 0.005F );
+            player.awardStat( Stats.BLOCK_MINED.get( this ) );
+            player.causeFoodExhaustion( 0.005F );
 
             ItemStack result = new ItemStack( this );
-            result.setDisplayName( ((INameable) te).getCustomName() );
-            spawnAsEntity( world, pos, result );
+            result.setHoverName( ((INameable) te).getCustomName() );
+            popResource( world, pos, result );
         }
         else
         {
-            super.harvestBlock( world, player, pos, state, te, stack );
+            super.playerDestroy( world, player, pos, state, te, stack );
         }
     }
 
     @Override
-    public void onBlockPlacedBy( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, ItemStack stack )
+    public void setPlacedBy( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, ItemStack stack )
     {
-        if( stack.hasDisplayName() )
+        if( stack.hasCustomHoverName() )
         {
-            TileEntity tileentity = world.getTileEntity( pos );
-            if( tileentity instanceof TilePrinter ) ((TilePrinter) tileentity).customName = stack.getDisplayName();
+            TileEntity tileentity = world.getBlockEntity( pos );
+            if( tileentity instanceof TilePrinter ) ((TilePrinter) tileentity).customName = stack.getHoverName();
         }
     }
 }

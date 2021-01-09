@@ -31,6 +31,9 @@ import java.util.stream.Collectors;
 import static net.minecraftforge.common.ForgeConfigSpec.Builder;
 import static net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 
+import net.minecraftforge.common.ForgeConfigSpec.Builder;
+import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
+
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD )
 public final class Config
 {

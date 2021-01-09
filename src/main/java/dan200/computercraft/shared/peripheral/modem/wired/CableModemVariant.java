@@ -53,19 +53,19 @@ public enum CableModemVariant implements IStringSerializable
     @Nonnull
     public static CableModemVariant from( Direction facing )
     {
-        return facing == null ? None : VALUES[1 + facing.getIndex()];
+        return facing == null ? None : VALUES[1 + facing.get3DDataValue()];
     }
 
     @Nonnull
     public static CableModemVariant from( Direction facing, boolean modem, boolean peripheral )
     {
         int state = (modem ? 2 : 0) + (peripheral ? 1 : 0);
-        return facing == null ? None : VALUES[1 + 6 * state + facing.getIndex()];
+        return facing == null ? None : VALUES[1 + 6 * state + facing.get3DDataValue()];
     }
 
     @Nonnull
     @Override
-    public String getString()
+    public String getSerializedName()
     {
         return name;
     }

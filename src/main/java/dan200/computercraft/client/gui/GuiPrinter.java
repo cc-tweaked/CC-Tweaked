@@ -33,13 +33,13 @@ public class GuiPrinter extends ContainerScreen<ContainerPrinter>
     }*/
 
     @Override
-    protected void drawGuiContainerBackgroundLayer( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
+    protected void renderBg( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
         RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        minecraft.getTextureManager().bindTexture( BACKGROUND );
-        blit( transform, guiLeft, guiTop, 0, 0, xSize, ySize );
+        minecraft.getTextureManager().bind( BACKGROUND );
+        blit( transform, leftPos, topPos, 0, 0, imageWidth, imageHeight );
 
-        if( getContainer().isPrinting() ) blit( transform, guiLeft + 34, guiTop + 21, 176, 0, 25, 45 );
+        if( getMenu().isPrinting() ) blit( transform, leftPos + 34, topPos + 21, 176, 0, 25, 45 );
     }
 
     @Override
@@ -47,6 +47,6 @@ public class GuiPrinter extends ContainerScreen<ContainerPrinter>
     {
         renderBackground( stack );
         super.render( stack, mouseX, mouseY, partialTicks );
-        renderHoveredTooltip( stack, mouseX, mouseY );
+        renderTooltip( stack, mouseX, mouseY );
     }
 }

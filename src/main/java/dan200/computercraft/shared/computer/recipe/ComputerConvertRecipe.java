@@ -37,9 +37,9 @@ public abstract class ComputerConvertRecipe extends ShapedRecipe
     {
         if( !super.matches( inventory, world ) ) return false;
 
-        for( int i = 0; i < inventory.getSizeInventory(); i++ )
+        for( int i = 0; i < inventory.getContainerSize(); i++ )
         {
-            if( inventory.getStackInSlot( i ).getItem() instanceof IComputerItem ) return true;
+            if( inventory.getItem( i ).getItem() instanceof IComputerItem ) return true;
         }
 
         return false;
@@ -47,12 +47,12 @@ public abstract class ComputerConvertRecipe extends ShapedRecipe
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull CraftingInventory inventory )
+    public ItemStack assemble( @Nonnull CraftingInventory inventory )
     {
         // Find our computer item and convert it.
-        for( int i = 0; i < inventory.getSizeInventory(); i++ )
+        for( int i = 0; i < inventory.getContainerSize(); i++ )
         {
-            ItemStack stack = inventory.getStackInSlot( i );
+            ItemStack stack = inventory.getItem( i );
             if( stack.getItem() instanceof IComputerItem ) return convert( (IComputerItem) stack.getItem(), stack );
         }
 

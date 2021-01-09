@@ -368,7 +368,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     {
         if( player == null ) return null;
 
-        Container container = player.openContainer;
+        Container container = player.containerMenu;
         if( !(container instanceof IContainerComputer) ) return null;
 
         IContainerComputer computerContainer = (IContainerComputer) container;

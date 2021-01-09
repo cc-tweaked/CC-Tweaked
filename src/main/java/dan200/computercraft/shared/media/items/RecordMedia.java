@@ -41,7 +41,7 @@ public final class RecordMedia implements IMedia
         Item item = stack.getItem();
         if( !(item instanceof MusicDiscItem) ) return null;
 
-        return new TranslationTextComponent( item.getTranslationKey() + ".desc" ).getString();
+        return new TranslationTextComponent( item.getDescriptionId() + ".desc" ).getString();
     }
 
     @Override
@@ -52,7 +52,7 @@ public final class RecordMedia implements IMedia
 
         try
         {
-            return ObfuscationReflectionHelper.getPrivateValue( MusicDiscItem.class, (MusicDiscItem) item, "field_185076_b" );
+            return ObfuscationReflectionHelper.getPrivateValue( MusicDiscItem.class, (MusicDiscItem) item, "sound" );
         }
         catch( UnableToAccessFieldException | UnableToFindFieldException e )
         {

@@ -78,7 +78,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
 
         // Check we've not got anything vaguely interesting on the item. We allow other mods to add their
         // own NBT, with the understanding such details will be lost to the mist of time.
-        if( stack.isDamaged() || stack.isEnchanted() || stack.hasDisplayName() ) return false;
+        if( stack.isDamaged() || stack.isEnchanted() || stack.hasCustomHoverName() ) return false;
         if( tag.contains( "AttributeModifiers", Constants.NBT.TAG_LIST ) &&
             !tag.getList( "AttributeModifiers", Constants.NBT.TAG_COMPOUND ).isEmpty() )
         {
@@ -123,7 +123,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         Block block = state.getBlock();
         return !state.isAir()
             && block != Blocks.BEDROCK
-            && state.getPlayerRelativeBlockHardness( player, world, pos ) > 0
+            && state.getDestroyProgress( player, world, pos ) > 0
             && block.canEntityDestroy( state, world, pos, player );
     }
 
@@ -137,14 +137,14 @@ public class TurtleTool extends AbstractTurtleUpgrade
         // Create a fake player, and orient it appropriately
         World world = turtle.getWorld();
         BlockPos position = turtle.getPosition();
-        TileEntity turtleTile = turtle instanceof TurtleBrain ? ((TurtleBrain) turtle).getOwner() : world.getTileEntity( position );
+        TileEntity turtleTile = turtle instanceof TurtleBrain ? ((TurtleBrain) turtle).getOwner() : world.getBlockEntity( position );
         if( turtleTile == null ) return TurtleCommandResult.failure( "Turtle has vanished from existence." );
 
         final TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, position, direction );
 
         // See if there is an entity present
-        Vector3d turtlePos = turtlePlayer.getPositionVec();
-        Vector3d rayDir = turtlePlayer.getLook( 1.0f );
+        Vector3d turtlePos = turtlePlayer.position();
+        Vector3d rayDir = turtlePlayer.getViewVector( 1.0f );
         Pair<Entity, Vector3d> hit = WorldUtil.rayTraceEntities( world, turtlePos, rayDir, 1.5 );
         if( hit != null )
         {
@@ -155,7 +155,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
             Entity hitEntity = hit.getKey();
 
             // Fire several events to ensure we have permissions.
-            if( MinecraftForge.EVENT_BUS.post( new AttackEntityEvent( turtlePlayer, hitEntity ) ) || !hitEntity.canBeAttackedWithItem() )
+            if( MinecraftForge.EVENT_BUS.post( new AttackEntityEvent( turtlePlayer, hitEntity ) ) || !hitEntity.isAttackable() )
             {
                 return TurtleCommandResult.failure( "Nothing to attack here" );
             }
@@ -171,26 +171,26 @@ public class TurtleTool extends AbstractTurtleUpgrade
 
             // Attack the entity
             boolean attacked = false;
-            if( !hitEntity.hitByEntity( turtlePlayer ) )
+            if( !hitEntity.skipAttackInteraction( turtlePlayer ) )
             {
                 float damage = (float) turtlePlayer.getAttributeValue( Attributes.ATTACK_DAMAGE );
                 damage *= getDamageMultiplier();
                 if( damage > 0.0f )
                 {
-                    DamageSource source = DamageSource.causePlayerDamage( turtlePlayer );
+                    DamageSource source = DamageSource.playerAttack( turtlePlayer );
                     if( hitEntity instanceof ArmorStandEntity )
                     {
                         // Special case for armor stands: attack twice to guarantee destroy
-                        hitEntity.attackEntityFrom( source, damage );
+                        hitEntity.hurt( source, damage );
                         if( hitEntity.isAlive() )
                         {
-                            hitEntity.attackEntityFrom( source, damage );
+                            hitEntity.hurt( source, damage );
                         }
                         attacked = true;
                     }
                     else
                     {
-                        if( hitEntity.attackEntityFrom( source, damage ) )
+                        if( hitEntity.hurt( source, damage ) )
                         {
                             attacked = true;
                         }
@@ -217,11 +217,11 @@ public class TurtleTool extends AbstractTurtleUpgrade
         // Get ready to dig
         World world = turtle.getWorld();
         BlockPos turtlePosition = turtle.getPosition();
-        TileEntity turtleTile = turtle instanceof TurtleBrain ? ((TurtleBrain) turtle).getOwner() : world.getTileEntity( turtlePosition );
+        TileEntity turtleTile = turtle instanceof TurtleBrain ? ((TurtleBrain) turtle).getOwner() : world.getBlockEntity( turtlePosition );
         if( turtleTile == null ) return TurtleCommandResult.failure( "Turtle has vanished from existence." );
 
-        BlockPos blockPosition = turtlePosition.offset( direction );
-        if( world.isAirBlock( blockPosition ) || WorldUtil.isLiquidBlock( world, blockPosition ) )
+        BlockPos blockPosition = turtlePosition.relative( direction );
+        if( world.isEmptyBlock( blockPosition ) || WorldUtil.isLiquidBlock( world, blockPosition ) )
         {
             return TurtleCommandResult.failure( "Nothing to dig here" );
         }
@@ -262,21 +262,21 @@ public class TurtleTool extends AbstractTurtleUpgrade
         // Consume the items the block drops
         DropConsumer.set( world, blockPosition, turtleDropConsumer( turtleTile, turtle ) );
 
-        TileEntity tile = world.getTileEntity( blockPosition );
+        TileEntity tile = world.getBlockEntity( blockPosition );
 
         // Much of this logic comes from PlayerInteractionManager#tryHarvestBlock, so it's a good idea
         // to consult there before making any changes.
 
         // Play the destruction sound and particles
-        world.playEvent( 2001, blockPosition, Block.getStateId( state ) );
+        world.levelEvent( 2001, blockPosition, Block.getId( state ) );
 
         // Destroy the block
         boolean canHarvest = state.canHarvestBlock( world, blockPosition, turtlePlayer );
         boolean canBreak = state.removedByPlayer( world, blockPosition, turtlePlayer, canHarvest, fluidState );
-        if( canBreak ) state.getBlock().onPlayerDestroy( world, blockPosition, state );
+        if( canBreak ) state.getBlock().destroy( world, blockPosition, state );
         if( canHarvest && canBreak )
         {
-            state.getBlock().harvestBlock( world, turtlePlayer, blockPosition, state, tile, turtlePlayer.getHeldItemMainhand() );
+            state.getBlock().playerDestroy( world, turtlePlayer, blockPosition, state, tile, turtlePlayer.getMainHandItem() );
         }
 
         stopConsuming( turtleTile, turtle );

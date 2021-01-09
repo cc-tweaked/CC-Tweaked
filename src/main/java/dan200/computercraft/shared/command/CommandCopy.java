@@ -39,7 +39,7 @@ public final class CommandCopy
             .then( literal( "copy" ) )
             .then( argument( "message", StringArgumentType.greedyString() ) )
             .executes( context -> {
-                Minecraft.getInstance().keyboardListener.setClipboardString( context.getArgument( "message", String.class ) );
+                Minecraft.getInstance().keyboardHandler.setClipboard( context.getArgument( "message", String.class ) );
                 return 1;
             } )
         );
@@ -51,15 +51,15 @@ public final class CommandCopy
         // Emulate the command on the client side
         if( event.getMessage().startsWith( PREFIX ) )
         {
-            Minecraft.getInstance().keyboardListener.setClipboardString( event.getMessage().substring( PREFIX.length() ) );
+            Minecraft.getInstance().keyboardHandler.setClipboard( event.getMessage().substring( PREFIX.length() ) );
             event.setCanceled( true );
         }
     }
 
     public static ITextComponent createCopyText( String text )
     {
-        return new StringTextComponent( text ).mergeStyle( Style.EMPTY
-            .setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, PREFIX + text ) )
-            .setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new TranslationTextComponent( "gui.computercraft.tooltip.copy" ) ) ) );
+        return new StringTextComponent( text ).withStyle( Style.EMPTY
+            .withClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, PREFIX + text ) )
+            .withHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new TranslationTextComponent( "gui.computercraft.tooltip.copy" ) ) ) );
     }
 }

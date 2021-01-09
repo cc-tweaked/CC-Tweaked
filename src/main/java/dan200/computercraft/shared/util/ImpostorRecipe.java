@@ -45,7 +45,7 @@ public final class ImpostorRecipe extends ShapedRecipe
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull CraftingInventory inventory )
+    public ItemStack assemble( @Nonnull CraftingInventory inventory )
     {
         return ItemStack.EMPTY;
     }
@@ -60,34 +60,34 @@ public final class ImpostorRecipe extends ShapedRecipe
     public static final IRecipeSerializer<ImpostorRecipe> SERIALIZER = new BasicRecipeSerializer<ImpostorRecipe>()
     {
         @Override
-        public ImpostorRecipe read( @Nonnull ResourceLocation identifier, @Nonnull JsonObject json )
+        public ImpostorRecipe fromJson( @Nonnull ResourceLocation identifier, @Nonnull JsonObject json )
         {
-            String group = JSONUtils.getString( json, "group", "" );
-            ShapedRecipe recipe = IRecipeSerializer.CRAFTING_SHAPED.read( identifier, json );
-            ItemStack result = CraftingHelper.getItemStack( JSONUtils.getJsonObject( json, "result" ), true );
+            String group = JSONUtils.getAsString( json, "group", "" );
+            ShapedRecipe recipe = IRecipeSerializer.SHAPED_RECIPE.fromJson( identifier, json );
+            ItemStack result = CraftingHelper.getItemStack( JSONUtils.getAsJsonObject( json, "result" ), true );
             return new ImpostorRecipe( identifier, group, recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), result );
         }
 
         @Override
-        public ImpostorRecipe read( @Nonnull ResourceLocation identifier, @Nonnull PacketBuffer buf )
+        public ImpostorRecipe fromNetwork( @Nonnull ResourceLocation identifier, @Nonnull PacketBuffer buf )
         {
             int width = buf.readVarInt();
             int height = buf.readVarInt();
-            String group = buf.readString( Short.MAX_VALUE );
+            String group = buf.readUtf( Short.MAX_VALUE );
             NonNullList<Ingredient> items = NonNullList.withSize( width * height, Ingredient.EMPTY );
-            for( int k = 0; k < items.size(); ++k ) items.set( k, Ingredient.read( buf ) );
-            ItemStack result = buf.readItemStack();
+            for( int k = 0; k < items.size(); ++k ) items.set( k, Ingredient.fromNetwork( buf ) );
+            ItemStack result = buf.readItem();
             return new ImpostorRecipe( identifier, group, width, height, items, result );
         }
 
         @Override
-        public void write( @Nonnull PacketBuffer buf, @Nonnull ImpostorRecipe recipe )
+        public void toNetwork( @Nonnull PacketBuffer buf, @Nonnull ImpostorRecipe recipe )
         {
             buf.writeVarInt( recipe.getRecipeWidth() );
             buf.writeVarInt( recipe.getRecipeHeight() );
-            buf.writeString( recipe.getGroup() );
-            for( Ingredient ingredient : recipe.getIngredients() ) ingredient.write( buf );
-            buf.writeItemStack( recipe.getRecipeOutput() );
+            buf.writeUtf( recipe.getGroup() );
+            for( Ingredient ingredient : recipe.getIngredients() ) ingredient.toNetwork( buf );
+            buf.writeItem( recipe.getResultItem() );
         }
     };
 }

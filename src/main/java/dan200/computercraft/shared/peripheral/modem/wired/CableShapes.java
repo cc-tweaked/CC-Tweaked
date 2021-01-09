@@ -22,15 +22,15 @@ public final class CableShapes
     private static final double MIN = 0.375;
     private static final double MAX = 1 - MIN;
 
-    private static final VoxelShape SHAPE_CABLE_CORE = VoxelShapes.create( MIN, MIN, MIN, MAX, MAX, MAX );
+    private static final VoxelShape SHAPE_CABLE_CORE = VoxelShapes.box( MIN, MIN, MIN, MAX, MAX, MAX );
     private static final EnumMap<Direction, VoxelShape> SHAPE_CABLE_ARM =
         new EnumMap<>( new ImmutableMap.Builder<Direction, VoxelShape>()
-            .put( Direction.DOWN, VoxelShapes.create( MIN, 0, MIN, MAX, MIN, MAX ) )
-            .put( Direction.UP, VoxelShapes.create( MIN, MAX, MIN, MAX, 1, MAX ) )
-            .put( Direction.NORTH, VoxelShapes.create( MIN, MIN, 0, MAX, MAX, MIN ) )
-            .put( Direction.SOUTH, VoxelShapes.create( MIN, MIN, MAX, MAX, MAX, 1 ) )
-            .put( Direction.WEST, VoxelShapes.create( 0, MIN, MIN, MIN, MAX, MAX ) )
-            .put( Direction.EAST, VoxelShapes.create( MAX, MIN, MIN, 1, MAX, MAX ) )
+            .put( Direction.DOWN, VoxelShapes.box( MIN, 0, MIN, MAX, MIN, MAX ) )
+            .put( Direction.UP, VoxelShapes.box( MIN, MAX, MIN, MAX, 1, MAX ) )
+            .put( Direction.NORTH, VoxelShapes.box( MIN, MIN, 0, MAX, MAX, MIN ) )
+            .put( Direction.SOUTH, VoxelShapes.box( MIN, MIN, MAX, MAX, MAX, 1 ) )
+            .put( Direction.WEST, VoxelShapes.box( 0, MIN, MIN, MIN, MAX, MAX ) )
+            .put( Direction.EAST, VoxelShapes.box( MAX, MIN, MIN, 1, MAX, MAX ) )
             .build()
         );
 
@@ -46,7 +46,7 @@ public final class CableShapes
         int index = 0;
         for( Direction facing : DirectionUtil.FACINGS )
         {
-            if( state.get( CONNECTIONS.get( facing ) ) ) index |= 1 << facing.ordinal();
+            if( state.getValue( CONNECTIONS.get( facing ) ) ) index |= 1 << facing.ordinal();
         }
 
         return index;
@@ -71,20 +71,20 @@ public final class CableShapes
 
     public static VoxelShape getCableShape( BlockState state )
     {
-        if( !state.get( CABLE ) ) return VoxelShapes.empty();
+        if( !state.getValue( CABLE ) ) return VoxelShapes.empty();
         return getCableShape( getCableIndex( state ) );
     }
 
     public static VoxelShape getModemShape( BlockState state )
     {
-        Direction facing = state.get( MODEM ).getFacing();
+        Direction facing = state.getValue( MODEM ).getFacing();
         return facing == null ? VoxelShapes.empty() : ModemShapes.getBounds( facing );
     }
 
     public static VoxelShape getShape( BlockState state )
     {
-        Direction facing = state.get( MODEM ).getFacing();
-        if( !state.get( CABLE ) ) return getModemShape( state );
+        Direction facing = state.getValue( MODEM ).getFacing();
+        if( !state.getValue( CABLE ) ) return getModemShape( state );
 
         int cableIndex = getCableIndex( state );
         int index = cableIndex + ((facing == null ? 0 : facing.ordinal() + 1) << 6);

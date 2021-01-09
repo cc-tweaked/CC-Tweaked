@@ -17,6 +17,8 @@ import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Set;
 
+import net.minecraft.loot.conditions.ILootCondition.IBuilder;
+
 /**
  * A loot condition which checks if the tile entity has a name.
  */
@@ -33,20 +35,20 @@ public final class BlockNamedEntityLootCondition implements ILootCondition
     @Override
     public boolean test( LootContext lootContext )
     {
-        TileEntity tile = lootContext.get( LootParameters.BLOCK_ENTITY );
+        TileEntity tile = lootContext.getParamOrNull( LootParameters.BLOCK_ENTITY );
         return tile instanceof INameable && ((INameable) tile).hasCustomName();
     }
 
     @Nonnull
     @Override
-    public Set<LootParameter<?>> getRequiredParameters()
+    public Set<LootParameter<?>> getReferencedContextParams()
     {
         return Collections.singleton( LootParameters.BLOCK_ENTITY );
     }
 
     @Override
     @Nonnull
-    public LootConditionType func_230419_b_()
+    public LootConditionType getType()
     {
         return TYPE;
     }

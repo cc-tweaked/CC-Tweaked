@@ -31,6 +31,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import net.minecraft.item.Item.Properties;
+
 public class ItemDisk extends Item implements IMedia, IColouredItem
 {
     private static final String NBT_ID = "DiskId";
@@ -51,9 +53,9 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     }
 
     @Override
-    public void fillItemGroup( @Nonnull ItemGroup tabs, @Nonnull NonNullList<ItemStack> list )
+    public void fillItemCategory( @Nonnull ItemGroup tabs, @Nonnull NonNullList<ItemStack> list )
     {
-        if( !isInGroup( tabs ) ) return;
+        if( !allowdedIn( tabs ) ) return;
         for( int colour = 0; colour < 16; colour++ )
         {
             list.add( createFromIDAndColour( -1, null, Colour.VALUES[colour].getHex() ) );
@@ -61,7 +63,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     }
 
     @Override
-    public void addInformation( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, ITooltipFlag options )
+    public void appendHoverText( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, ITooltipFlag options )
     {
         if( options.isAdvanced() )
         {
@@ -69,7 +71,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
             if( id >= 0 )
             {
                 list.add( new TranslationTextComponent( "gui.computercraft.tooltip.disk_id", id )
-                    .mergeStyle( TextFormatting.GRAY ) );
+                    .withStyle( TextFormatting.GRAY ) );
             }
         }
     }
@@ -83,7 +85,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     @Override
     public String getLabel( @Nonnull ItemStack stack )
     {
-        return stack.hasDisplayName() ? stack.getDisplayName().getString() : null;
+        return stack.hasCustomHoverName() ? stack.getHoverName().getString() : null;
     }
 
     @Override
@@ -91,11 +93,11 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     {
         if( label != null )
         {
-            stack.setDisplayName( new StringTextComponent( label ) );
+            stack.setHoverName( new StringTextComponent( label ) );
         }
         else
         {
-            stack.clearCustomName();
+            stack.resetHoverName();
         }
         return true;
     }

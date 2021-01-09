@@ -76,13 +76,13 @@ public final class CommandComputerCraft
                     List<ServerComputer> computers = new ArrayList<>( ComputerCraft.serverComputerRegistry.getComputers() );
 
                     // Unless we're on a server, limit the number of rows we can send.
-                    World world = source.getWorld();
-                    BlockPos pos = new BlockPos( source.getPos() );
+                    World world = source.getLevel();
+                    BlockPos pos = new BlockPos( source.getPosition() );
 
                     computers.sort( ( a, b ) -> {
                         if( a.getWorld() == b.getWorld() && a.getWorld() == world )
                         {
-                            return Double.compare( a.getPosition().distanceSq( pos ), b.getPosition().distanceSq( pos ) );
+                            return Double.compare( a.getPosition().distSqr( pos ), b.getPosition().distSqr( pos ) );
                         }
                         else if( a.getWorld() == world )
                         {
@@ -146,7 +146,7 @@ public final class CommandComputerCraft
                         if( computer.isOn() ) shutdown++;
                         computer.shutdown();
                     }
-                    context.getSource().sendFeedback( translate( "commands.computercraft.shutdown.done", shutdown, computers.size() ), false );
+                    context.getSource().sendSuccess( translate( "commands.computercraft.shutdown.done", shutdown, computers.size() ), false );
                     return shutdown;
                 } ) )
 
@@ -160,7 +160,7 @@ public final class CommandComputerCraft
                         if( !computer.isOn() ) on++;
                         computer.turnOn();
                     }
-                    context.getSource().sendFeedback( translate( "commands.computercraft.turn_on.done", on, computers.size() ), false );
+                    context.getSource().sendSuccess( translate( "commands.computercraft.turn_on.done", on, computers.size() ), false );
                     return on;
                 } ) )
 
@@ -174,20 +174,20 @@ public final class CommandComputerCraft
 
                     if( world == null || pos == null ) throw TP_NOT_THERE.create();
 
-                    Entity entity = context.getSource().assertIsEntity();
+                    Entity entity = context.getSource().getEntityOrException();
                     if( !(entity instanceof ServerPlayerEntity) ) throw TP_NOT_PLAYER.create();
 
                     ServerPlayerEntity player = (ServerPlayerEntity) entity;
-                    if( player.getEntityWorld() == world )
+                    if( player.getCommandSenderWorld() == world )
                     {
-                        player.connection.setPlayerLocation(
+                        player.connection.teleport(
                             pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0,
                             EnumSet.noneOf( SPlayerPositionLookPacket.Flags.class )
                         );
                     }
                     else
                     {
-                        player.teleport( (ServerWorld) world,
+                        player.teleportTo( (ServerWorld) world,
                             pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0
                         );
                     }
@@ -220,7 +220,7 @@ public final class CommandComputerCraft
                 .requires( UserLevel.OP )
                 .arg( "computer", oneComputer() )
                 .executes( context -> {
-                    ServerPlayerEntity player = context.getSource().asPlayer();
+                    ServerPlayerEntity player = context.getSource().getPlayerOrException();
                     ServerComputer computer = getComputerArgument( context, "computer" );
                     new ViewComputerContainerData( computer ).open( player, new INamedContainerProvider()
                     {
@@ -248,7 +248,7 @@ public final class CommandComputerCraft
                         getTimingContext( context.getSource() ).start();
 
                         String stopCommand = "/computercraft track stop";
-                        context.getSource().sendFeedback( translate( "commands.computercraft.track.start.stop",
+                        context.getSource().sendSuccess( translate( "commands.computercraft.track.start.stop",
                             link( text( stopCommand ), stopCommand, translate( "commands.computercraft.track.stop.action" ) ) ), false );
                         return 1;
                     } ) )
@@ -301,19 +301,19 @@ public final class CommandComputerCraft
         }
 
         // And ID
-        out.appendString( " (id " + computerId + ")" );
+        out.append( " (id " + computerId + ")" );
 
         // And, if we're a player, some useful links
         if( serverComputer != null && UserLevel.OP.test( source ) && isPlayer( source ) )
         {
             out
-                .appendString( " " )
+                .append( " " )
                 .append( link(
                     text( "\u261b" ),
                     "/computercraft tp " + serverComputer.getInstanceID(),
                     translate( "commands.computercraft.tp.action" )
                 ) )
-                .appendString( " " )
+                .append( " " )
                 .append( link(
                     text( "\u20e2" ),
                     "/computercraft view " + serverComputer.getInstanceID(),
@@ -344,7 +344,7 @@ public final class CommandComputerCraft
     private static TrackingContext getTimingContext( CommandSource source )
     {
         Entity entity = source.getEntity();
-        return entity instanceof PlayerEntity ? Tracking.getContext( entity.getUniqueID() ) : Tracking.getContext( SYSTEM_UUID );
+        return entity instanceof PlayerEntity ? Tracking.getContext( entity.getUUID() ) : Tracking.getContext( SYSTEM_UUID );
     }
 
     private static final List<TrackingField> DEFAULT_FIELDS = Arrays.asList( TrackingField.TASKS, TrackingField.TOTAL_TIME, TrackingField.AVERAGE_TIME, TrackingField.MAX_TIME );

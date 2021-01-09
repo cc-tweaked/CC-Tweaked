@@ -45,16 +45,16 @@ public class TurtleShovel extends TurtleTool
         if( !super.canBreakBlock( state, world, pos, player ) ) return false;
 
         Material material = state.getMaterial();
-        return material == Material.EARTH ||
+        return material == Material.DIRT ||
             material == Material.SAND ||
-            material == Material.SNOW ||
+            material == Material.TOP_SNOW ||
             material == Material.CLAY ||
-            material == Material.SNOW_BLOCK ||
-            material == Material.PLANTS ||
+            material == Material.SNOW ||
+            material == Material.PLANT ||
             material == Material.CACTUS ||
-            material == Material.GOURD ||
+            material == Material.VEGETABLE ||
             material == Material.LEAVES ||
-            material == Material.TALL_PLANTS;
+            material == Material.REPLACEABLE_PLANT;
     }
 
     @Nonnull

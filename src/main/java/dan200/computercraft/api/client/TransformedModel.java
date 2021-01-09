@@ -43,7 +43,7 @@ public final class TransformedModel
 
     public static TransformedModel of( @Nonnull ItemStack item, @Nonnull TransformationMatrix transform )
     {
-        IBakedModel model = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getItemModel( item );
+        IBakedModel model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel( item );
         return new TransformedModel( model, transform );
     }
 

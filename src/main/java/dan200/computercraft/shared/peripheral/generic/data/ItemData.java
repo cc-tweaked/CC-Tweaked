@@ -52,12 +52,12 @@ public class ItemData
 
         fillBasic( data, stack );
 
-        data.put( "displayName", stack.getDisplayName().getString() );
+        data.put( "displayName", stack.getHoverName().getString() );
         data.put( "maxCount", stack.getMaxStackSize() );
 
-        if( stack.isDamageable() )
+        if( stack.isDamageableItem() )
         {
-            data.put( "damage", stack.getDamage() );
+            data.put( "damage", stack.getDamageValue() );
             data.put( "maxDamage", stack.getMaxDamage() );
         }
 
@@ -106,7 +106,7 @@ public class ItemData
     {
         try
         {
-            return ITextComponent.Serializer.getComponentFromJson( x.getString() );
+            return ITextComponent.Serializer.fromJson( x.getAsString() );
         }
         catch( JsonParseException e )
         {
@@ -138,7 +138,7 @@ public class ItemData
              * I'll do that to have the same data than ones displayed in tooltip.
              * @see EnchantmentHelper.getEnchantments(ItemStack stack)
              */
-            addEnchantments( stack.getEnchantmentTagList(), enchants );
+            addEnchantments( stack.getEnchantmentTags(), enchants );
         }
 
         return enchants;
@@ -164,7 +164,7 @@ public class ItemData
             HashMap<String, Object> enchant = new HashMap<>( 3 );
             enchant.put( "name", DataHelpers.getId( enchantment ) );
             enchant.put( "level", level );
-            enchant.put( "displayName", enchantment.getDisplayName( level ).getString() );
+            enchant.put( "displayName", enchantment.getFullname( level ).getString() );
             enchants.add( enchant );
         }
     }

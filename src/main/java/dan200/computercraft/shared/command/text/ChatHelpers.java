@@ -21,12 +21,12 @@ public final class ChatHelpers
 
     public static IFormattableTextComponent coloured( String text, TextFormatting colour )
     {
-        return new StringTextComponent( text == null ? "" : text ).mergeStyle( colour );
+        return new StringTextComponent( text == null ? "" : text ).withStyle( colour );
     }
 
     public static <T extends IFormattableTextComponent> T coloured( T component, TextFormatting colour )
     {
-        component.mergeStyle( colour );
+        component.withStyle( colour );
         return component;
     }
 
@@ -72,9 +72,9 @@ public final class ChatHelpers
     {
         Style style = component.getStyle();
 
-        if( style.getColor() == null ) style = style.setFormatting( TextFormatting.YELLOW );
-        style = style.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, command ) );
-        style = style.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, toolTip ) );
+        if( style.getColor() == null ) style = style.withColor( TextFormatting.YELLOW );
+        style = style.withClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, command ) );
+        style = style.withHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, toolTip ) );
 
         return component.setStyle( style );
     }

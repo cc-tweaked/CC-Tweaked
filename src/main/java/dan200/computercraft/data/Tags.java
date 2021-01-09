@@ -36,18 +36,18 @@ public class Tags extends ItemTagsProvider
     }
 
     @Override
-    protected void registerTags()
+    protected void addTags()
     {
-        getOrCreateBuilder( COMPUTER ).add(
+        tag( COMPUTER ).add(
             Registry.ModItems.COMPUTER_NORMAL.get(),
             Registry.ModItems.COMPUTER_ADVANCED.get(),
             Registry.ModItems.COMPUTER_COMMAND.get()
         );
-        getOrCreateBuilder( TURTLE ).add( Registry.ModItems.TURTLE_NORMAL.get(), Registry.ModItems.TURTLE_ADVANCED.get() );
-        getOrCreateBuilder( WIRED_MODEM ).add( Registry.ModItems.WIRED_MODEM.get(), Registry.ModItems.WIRED_MODEM_FULL.get() );
-        getOrCreateBuilder( MONITOR ).add( Registry.ModItems.MONITOR_NORMAL.get(), Registry.ModItems.MONITOR_ADVANCED.get() );
+        tag( TURTLE ).add( Registry.ModItems.TURTLE_NORMAL.get(), Registry.ModItems.TURTLE_ADVANCED.get() );
+        tag( WIRED_MODEM ).add( Registry.ModItems.WIRED_MODEM.get(), Registry.ModItems.WIRED_MODEM_FULL.get() );
+        tag( MONITOR ).add( Registry.ModItems.MONITOR_NORMAL.get(), Registry.ModItems.MONITOR_ADVANCED.get() );
 
-        getOrCreateBuilder( PIGLIN_LOVED ).add(
+        tag( PIGLIN_LOVED ).add(
             Registry.ModItems.COMPUTER_ADVANCED.get(), Registry.ModItems.TURTLE_ADVANCED.get(),
             Registry.ModItems.WIRELESS_MODEM_ADVANCED.get(), Registry.ModItems.POCKET_COMPUTER_ADVANCED.get(),
             Registry.ModItems.MONITOR_ADVANCED.get()
@@ -56,6 +56,6 @@ public class Tags extends ItemTagsProvider
 
     private static ITag.INamedTag<Item> item( String name )
     {
-        return ItemTags.makeWrapperTag( new ResourceLocation( ComputerCraft.MOD_ID, name ).toString() );
+        return ItemTags.bind( new ResourceLocation( ComputerCraft.MOD_ID, name ).toString() );
     }
 }

@@ -42,15 +42,15 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
         m_family = container.getFamily();
         m_computer = (ClientComputer) container.getComputer();
 
-        xSize = 254;
-        ySize = 217;
+        imageWidth = 254;
+        imageHeight = 217;
     }
 
     @Override
     protected void init()
     {
         super.init();
-        minecraft.keyboardListener.enableRepeatEvents( true );
+        minecraft.keyboardHandler.setSendRepeatsToGui( true );
 
         int termPxWidth = ComputerCraft.turtleTermWidth * FixedWidthFontRenderer.FONT_WIDTH;
         int termPxHeight = ComputerCraft.turtleTermHeight * FixedWidthFontRenderer.FONT_HEIGHT;
@@ -61,19 +61,19 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
             ComputerCraft.turtleTermHeight,
             2, 2, 2, 2
         );
-        terminalWrapper = new WidgetWrapper( terminal, 2 + 8 + guiLeft, 2 + 8 + guiTop, termPxWidth, termPxHeight );
+        terminalWrapper = new WidgetWrapper( terminal, 2 + 8 + leftPos, 2 + 8 + topPos, termPxWidth, termPxHeight );
 
         children.add( terminalWrapper );
-        setListener( terminalWrapper );
+        setFocused( terminalWrapper );
     }
 
     @Override
-    public void onClose()
+    public void removed()
     {
-        super.onClose();
+        super.removed();
         children.remove( terminal );
         terminal = null;
-        minecraft.keyboardListener.enableRepeatEvents( false );
+        minecraft.keyboardHandler.setSendRepeatsToGui( false );
     }
 
     @Override
@@ -87,16 +87,16 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     public boolean keyPressed( int key, int scancode, int modifiers )
     {
         // Forward the tab key to the terminal, rather than moving between controls.
-        if( key == GLFW.GLFW_KEY_TAB && getListener() != null && getListener() == terminalWrapper )
+        if( key == GLFW.GLFW_KEY_TAB && getFocused() != null && getFocused() == terminalWrapper )
         {
-            return getListener().keyPressed( key, scancode, modifiers );
+            return getFocused().keyPressed( key, scancode, modifiers );
         }
 
         return super.keyPressed( key, scancode, modifiers );
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
+    protected void renderBg( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
         // Draw term
         ResourceLocation texture = m_family == ComputerFamily.ADVANCED ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL;
@@ -104,8 +104,8 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
 
         // Draw border/inventory
         RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        minecraft.getTextureManager().bindTexture( texture );
-        blit( transform, guiLeft, guiTop, 0, 0, xSize, ySize );
+        minecraft.getTextureManager().bind( texture );
+        blit( transform, leftPos, topPos, 0, 0, imageWidth, imageHeight );
 
         // Draw selection slot
         int slot = m_container.getSelectedSlot();
@@ -114,8 +114,8 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
             int slotX = slot % 4;
             int slotY = slot / 4;
             blit( transform,
-                guiLeft + ContainerTurtle.TURTLE_START_X - 2 + slotX * 18,
-                guiTop + ContainerTurtle.PLAYER_START_Y - 2 + slotY * 18,
+                leftPos + ContainerTurtle.TURTLE_START_X - 2 + slotX * 18,
+                topPos + ContainerTurtle.PLAYER_START_Y - 2 + slotY * 18,
                 0, 217, 24, 24
             );
         }
@@ -126,18 +126,18 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     {
         renderBackground( stack );
         super.render( stack, mouseX, mouseY, partialTicks );
-        renderHoveredTooltip( stack, mouseX, mouseY );
+        renderTooltip( stack, mouseX, mouseY );
     }
 
     @Override
     public boolean mouseDragged( double x, double y, int button, double deltaX, double deltaY )
     {
-        return (getListener() != null && getListener().mouseDragged( x, y, button, deltaX, deltaY ))
+        return (getFocused() != null && getFocused().mouseDragged( x, y, button, deltaX, deltaY ))
             || super.mouseDragged( x, y, button, deltaX, deltaY );
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer( @Nonnull MatrixStack transform, int mouseX, int mouseY )
+    protected void renderLabels( @Nonnull MatrixStack transform, int mouseX, int mouseY )
     {
         // Skip rendering labels.
     }

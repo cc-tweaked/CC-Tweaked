@@ -24,8 +24,8 @@ import javax.annotation.Nonnull;
 
 public class DiskRecipe extends SpecialRecipe
 {
-    private final Ingredient paper = Ingredient.fromItems( Items.PAPER );
-    private final Ingredient redstone = Ingredient.fromItems( Items.REDSTONE );
+    private final Ingredient paper = Ingredient.of( Items.PAPER );
+    private final Ingredient redstone = Ingredient.of( Items.REDSTONE );
     // TODO: Ingredient.fromTag( Tags.Items.DUSTS_REDSTONE );
 
     public DiskRecipe( ResourceLocation id )
@@ -39,9 +39,9 @@ public class DiskRecipe extends SpecialRecipe
         boolean paperFound = false;
         boolean redstoneFound = false;
 
-        for( int i = 0; i < inv.getSizeInventory(); i++ )
+        for( int i = 0; i < inv.getContainerSize(); i++ )
         {
-            ItemStack stack = inv.getStackInSlot( i );
+            ItemStack stack = inv.getItem( i );
 
             if( !stack.isEmpty() )
             {
@@ -67,13 +67,13 @@ public class DiskRecipe extends SpecialRecipe
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull CraftingInventory inv )
+    public ItemStack assemble( @Nonnull CraftingInventory inv )
     {
         ColourTracker tracker = new ColourTracker();
 
-        for( int i = 0; i < inv.getSizeInventory(); i++ )
+        for( int i = 0; i < inv.getContainerSize(); i++ )
         {
-            ItemStack stack = inv.getStackInSlot( i );
+            ItemStack stack = inv.getItem( i );
 
             if( stack.isEmpty() ) continue;
 
@@ -88,14 +88,14 @@ public class DiskRecipe extends SpecialRecipe
     }
 
     @Override
-    public boolean canFit( int x, int y )
+    public boolean canCraftInDimensions( int x, int y )
     {
         return x >= 2 && y >= 2;
     }
 
     @Nonnull
     @Override
-    public ItemStack getRecipeOutput()
+    public ItemStack getResultItem()
     {
         return ItemDisk.createFromIDAndColour( -1, null, Colour.BLUE.getHex() );
     }

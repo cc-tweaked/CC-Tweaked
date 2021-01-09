@@ -54,12 +54,12 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         if( entity instanceof PlayerEntity )
         {
             PlayerInventory inventory = ((PlayerEntity) entity).inventory;
-            return inventory.mainInventory.contains( m_stack ) || inventory.offHandInventory.contains( m_stack ) ? entity : null;
+            return inventory.items.contains( m_stack ) || inventory.offhand.contains( m_stack ) ? entity : null;
         }
         else if( entity instanceof LivingEntity )
         {
             LivingEntity living = (LivingEntity) entity;
-            return living.getHeldItemMainhand() == m_stack || living.getHeldItemOffhand() == m_stack ? entity : null;
+            return living.getMainHandItem() == m_stack || living.getOffhandItem() == m_stack ? entity : null;
         }
         else
         {
@@ -116,7 +116,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public void updateUpgradeNBTData()
     {
-        if( m_entity instanceof PlayerEntity ) ((PlayerEntity) m_entity).inventory.markDirty();
+        if( m_entity instanceof PlayerEntity ) ((PlayerEntity) m_entity).inventory.setChanged();
     }
 
     @Override
@@ -162,8 +162,8 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     {
         if( entity != null )
         {
-            setWorld( entity.getEntityWorld() );
-            setPosition( entity.getPosition() );
+            setWorld( entity.getCommandSenderWorld() );
+            setPosition( entity.blockPosition() );
         }
 
         // If a new entity has picked it up then rebroadcast the terminal to them

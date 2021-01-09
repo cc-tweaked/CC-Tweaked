@@ -39,7 +39,7 @@ public class TurtleInspectCommand implements ITurtleCommand
         // Check if thing in front is air or not
         World world = turtle.getWorld();
         BlockPos oldPosition = turtle.getPosition();
-        BlockPos newPosition = oldPosition.offset( direction );
+        BlockPos newPosition = oldPosition.relative( direction );
 
         BlockState state = world.getBlockState( newPosition );
         if( state.getBlock().isAir( state, world, newPosition ) )

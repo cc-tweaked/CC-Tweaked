@@ -34,7 +34,7 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
     {
         super( container, player, title );
 
-        ySize = Y_SIZE;
+        imageHeight = Y_SIZE;
 
         String[] text = ItemPrintout.getText( container.getStack() );
         m_text = new TextBuffer[text.length];
@@ -91,17 +91,17 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
+    protected void renderBg( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
         // Draw the printout
         RenderSystem.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
         RenderSystem.enableDepthTest();
 
-        IRenderTypeBuffer.Impl renderer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
-        Matrix4f matrix = transform.getLast().getMatrix();
-        drawBorder( matrix, renderer, guiLeft, guiTop, getBlitOffset(), m_page, m_pages, m_book );
-        drawText( matrix, renderer, guiLeft + X_TEXT_MARGIN, guiTop + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * m_page, m_text, m_colours );
-        renderer.finish();
+        IRenderTypeBuffer.Impl renderer = Minecraft.getInstance().renderBuffers().bufferSource();
+        Matrix4f matrix = transform.last().pose();
+        drawBorder( matrix, renderer, leftPos, topPos, getBlitOffset(), m_page, m_pages, m_book );
+        drawText( matrix, renderer, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * m_page, m_text, m_colours );
+        renderer.endBatch();
     }
 
     @Override
@@ -116,7 +116,7 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer( @Nonnull MatrixStack transform, int mouseX, int mouseY )
+    protected void renderLabels( @Nonnull MatrixStack transform, int mouseX, int mouseY )
     {
         // Skip rendering labels.
     }

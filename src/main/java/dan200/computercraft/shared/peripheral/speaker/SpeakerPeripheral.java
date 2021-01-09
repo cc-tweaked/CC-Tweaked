@@ -117,7 +117,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
         NoteBlockInstrument instrument = null;
         for( NoteBlockInstrument testInstrument : NoteBlockInstrument.values() )
         {
-            if( testInstrument.getString().equalsIgnoreCase( name ) )
+            if( testInstrument.getSerializedName().equalsIgnoreCase( name ) )
             {
                 instrument = testInstrument;
                 break;
@@ -128,7 +128,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
         if( instrument == null ) throw new LuaException( "Invalid instrument, \"" + name + "\"!" );
 
         // If the resource location for note block notes changes, this method call will need to be updated
-        boolean success = playSound( context, instrument.getSound().getRegistryName(), volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true );
+        boolean success = playSound( context, instrument.getSoundEvent().getRegistryName(), volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true );
         if( success ) m_notesThisTick.incrementAndGet();
         return success;
     }
@@ -151,8 +151,8 @@ public abstract class SpeakerPeripheral implements IPeripheral
             if( server == null ) return null;
 
             float adjVolume = Math.min( volume, 3.0f );
-            server.getPlayerList().sendToAllNearExcept(
-                null, pos.x, pos.y, pos.z, adjVolume > 1.0f ? 16 * adjVolume : 16.0, world.getDimensionKey(),
+            server.getPlayerList().broadcast(
+                null, pos.x, pos.y, pos.z, adjVolume > 1.0f ? 16 * adjVolume : 16.0, world.dimension(),
                 new SPlaySoundPacket( name, SoundCategory.RECORDS, pos, adjVolume, pitch )
             );
             return null;

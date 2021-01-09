@@ -77,30 +77,30 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     @Override
     protected void init()
     {
-        minecraft.keyboardListener.enableRepeatEvents( true );
+        minecraft.keyboardHandler.setSendRepeatsToGui( true );
 
         int termPxWidth = termWidth * FixedWidthFontRenderer.FONT_WIDTH;
         int termPxHeight = termHeight * FixedWidthFontRenderer.FONT_HEIGHT;
 
-        xSize = termPxWidth + MARGIN * 2 + BORDER * 2;
-        ySize = termPxHeight + MARGIN * 2 + BORDER * 2;
+        imageWidth = termPxWidth + MARGIN * 2 + BORDER * 2;
+        imageHeight = termPxHeight + MARGIN * 2 + BORDER * 2;
 
         super.init();
 
         terminal = new WidgetTerminal( minecraft, () -> computer, termWidth, termHeight, MARGIN, MARGIN, MARGIN, MARGIN );
-        terminalWrapper = new WidgetWrapper( terminal, MARGIN + BORDER + guiLeft, MARGIN + BORDER + guiTop, termPxWidth, termPxHeight );
+        terminalWrapper = new WidgetWrapper( terminal, MARGIN + BORDER + leftPos, MARGIN + BORDER + topPos, termPxWidth, termPxHeight );
 
         children.add( terminalWrapper );
-        setListener( terminalWrapper );
+        setFocused( terminalWrapper );
     }
 
     @Override
-    public void onClose()
+    public void removed()
     {
-        super.onClose();
+        super.removed();
         children.remove( terminal );
         terminal = null;
-        minecraft.keyboardListener.enableRepeatEvents( false );
+        minecraft.keyboardHandler.setSendRepeatsToGui( false );
     }
 
     @Override
@@ -114,23 +114,23 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     public boolean keyPressed( int key, int scancode, int modifiers )
     {
         // Forward the tab key to the terminal, rather than moving between controls.
-        if( key == GLFW.GLFW_KEY_TAB && getListener() != null && getListener() == terminalWrapper )
+        if( key == GLFW.GLFW_KEY_TAB && getFocused() != null && getFocused() == terminalWrapper )
         {
-            return getListener().keyPressed( key, scancode, modifiers );
+            return getFocused().keyPressed( key, scancode, modifiers );
         }
 
         return super.keyPressed( key, scancode, modifiers );
     }
 
     @Override
-    public void drawGuiContainerBackgroundLayer( @Nonnull MatrixStack stack, float partialTicks, int mouseX, int mouseY )
+    public void renderBg( @Nonnull MatrixStack stack, float partialTicks, int mouseX, int mouseY )
     {
         // Draw terminal
         terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
 
         // Draw a border around the terminal
         RenderSystem.color4f( 1, 1, 1, 1 );
-        minecraft.getTextureManager().bindTexture( ComputerBorderRenderer.getTexture( family ) );
+        minecraft.getTextureManager().bind( ComputerBorderRenderer.getTexture( family ) );
         ComputerBorderRenderer.render(
             terminalWrapper.getX() - MARGIN, terminalWrapper.getY() - MARGIN, getBlitOffset(),
             terminalWrapper.getWidth() + MARGIN * 2, terminalWrapper.getHeight() + MARGIN * 2
@@ -141,18 +141,18 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     public void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
     {
         super.render( stack, mouseX, mouseY, partialTicks );
-        renderHoveredTooltip( stack, mouseX, mouseY );
+        renderTooltip( stack, mouseX, mouseY );
     }
 
     @Override
     public boolean mouseDragged( double x, double y, int button, double deltaX, double deltaY )
     {
-        return (getListener() != null && getListener().mouseDragged( x, y, button, deltaX, deltaY ))
+        return (getFocused() != null && getFocused().mouseDragged( x, y, button, deltaX, deltaY ))
             || super.mouseDragged( x, y, button, deltaX, deltaY );
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer( @Nonnull MatrixStack transform, int mouseX, int mouseY )
+    protected void renderLabels( @Nonnull MatrixStack transform, int mouseX, int mouseY )
     {
         // Skip rendering labels.
     }

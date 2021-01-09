@@ -47,8 +47,8 @@ public class LootTables extends LootTableProvider
         computerDrop( add, Registry.ModBlocks.TURTLE_ADVANCED );
 
         add.accept( ComputerCraftProxyCommon.ForgeHandlers.LOOT_TREASURE_DISK, LootTable
-            .builder()
-            .setParameterSet( LootParameterSets.GENERIC )
+            .lootTable()
+            .setParamSet( LootParameterSets.ALL_PARAMS )
             .build() );
     }
 
@@ -56,13 +56,13 @@ public class LootTables extends LootTableProvider
     {
         Block block = wrapper.get();
         add.accept( block.getLootTable(), LootTable
-            .builder()
-            .setParameterSet( LootParameterSets.BLOCK )
-            .addLootPool( LootPool.builder()
+            .lootTable()
+            .setParamSet( LootParameterSets.BLOCK )
+            .withPool( LootPool.lootPool()
                 .name( "main" )
-                .rolls( ConstantRange.of( 1 ) )
-                .addEntry( ItemLootEntry.builder( block ) )
-                .acceptCondition( SurvivesExplosion.builder() )
+                .setRolls( ConstantRange.exactly( 1 ) )
+                .add( ItemLootEntry.lootTableItem( block ) )
+                .when( SurvivesExplosion.survivesExplosion() )
             ).build() );
     }
 
@@ -70,16 +70,16 @@ public class LootTables extends LootTableProvider
     {
         Block block = wrapper.get();
         add.accept( block.getLootTable(), LootTable
-            .builder()
-            .setParameterSet( LootParameterSets.BLOCK )
-            .addLootPool( LootPool.builder()
+            .lootTable()
+            .setParamSet( LootParameterSets.BLOCK )
+            .withPool( LootPool.lootPool()
                 .name( "main" )
-                .rolls( ConstantRange.of( 1 ) )
-                .addEntry( DynamicLootEntry.func_216162_a( new ResourceLocation( ComputerCraft.MOD_ID, "computer" ) ) )
-                .acceptCondition( Alternative.builder(
+                .setRolls( ConstantRange.exactly( 1 ) )
+                .add( DynamicLootEntry.dynamicEntry( new ResourceLocation( ComputerCraft.MOD_ID, "computer" ) ) )
+                .when( Alternative.alternative(
                     BlockNamedEntityLootCondition.BUILDER,
                     HasComputerIdLootCondition.BUILDER,
-                    PlayerCreativeLootCondition.BUILDER.inverted()
+                    PlayerCreativeLootCondition.BUILDER.invert()
                 ) )
             ).build() );
     }

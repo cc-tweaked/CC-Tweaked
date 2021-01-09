@@ -52,7 +52,7 @@ public class TurtleSuckCommand implements ITurtleCommand
         // Get inventory for thing in front
         World world = turtle.getWorld();
         BlockPos turtlePosition = turtle.getPosition();
-        BlockPos blockPosition = turtlePosition.offset( direction );
+        BlockPos blockPosition = turtlePosition.relative( direction );
         Direction side = direction.getOpposite();
 
         IItemHandler inventory = InventoryUtil.getInventory( world, blockPosition, side );
@@ -97,7 +97,7 @@ public class TurtleSuckCommand implements ITurtleCommand
                 blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(),
                 blockPosition.getX() + 1.0, blockPosition.getY() + 1.0, blockPosition.getZ() + 1.0
             );
-            List<ItemEntity> list = world.getEntitiesWithinAABB( ItemEntity.class, aabb, EntityPredicates.IS_ALIVE );
+            List<ItemEntity> list = world.getEntitiesOfClass( ItemEntity.class, aabb, EntityPredicates.ENTITY_STILL_ALIVE );
             if( list.isEmpty() ) return TurtleCommandResult.failure( "No items to take" );
 
             for( ItemEntity entity : list )
@@ -141,7 +141,7 @@ public class TurtleSuckCommand implements ITurtleCommand
                     }
 
                     // Play fx
-                    world.playBroadcastSound( 1000, turtlePosition, 0 ); // BLOCK_DISPENSER_DISPENSE
+                    world.globalLevelEvent( 1000, turtlePosition, 0 ); // BLOCK_DISPENSER_DISPENSE
                     turtle.playAnimation( TurtleAnimation.WAIT );
                     return TurtleCommandResult.success();
                 }

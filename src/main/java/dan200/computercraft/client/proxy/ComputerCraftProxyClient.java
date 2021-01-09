@@ -43,12 +43,12 @@ public final class ComputerCraftProxyClient
         registerContainers();
 
         // While turtles themselves are not transparent, their upgrades may be.
-        RenderTypeLookup.setRenderLayer( Registry.ModBlocks.TURTLE_NORMAL.get(), RenderType.getTranslucent() );
-        RenderTypeLookup.setRenderLayer( Registry.ModBlocks.TURTLE_ADVANCED.get(), RenderType.getTranslucent() );
+        RenderTypeLookup.setRenderLayer( Registry.ModBlocks.TURTLE_NORMAL.get(), RenderType.translucent() );
+        RenderTypeLookup.setRenderLayer( Registry.ModBlocks.TURTLE_ADVANCED.get(), RenderType.translucent() );
 
         // Monitors' textures have transparent fronts and so count as cutouts.
-        RenderTypeLookup.setRenderLayer( Registry.ModBlocks.MONITOR_NORMAL.get(), RenderType.getCutout() );
-        RenderTypeLookup.setRenderLayer( Registry.ModBlocks.MONITOR_ADVANCED.get(), RenderType.getCutout() );
+        RenderTypeLookup.setRenderLayer( Registry.ModBlocks.MONITOR_NORMAL.get(), RenderType.cutout() );
+        RenderTypeLookup.setRenderLayer( Registry.ModBlocks.MONITOR_ADVANCED.get(), RenderType.cutout() );
 
         // Setup TESRs
         ClientRegistry.bindTileEntityRenderer( Registry.ModTiles.MONITOR_NORMAL.get(), TileEntityMonitorRenderer::new );
@@ -74,7 +74,7 @@ public final class ComputerCraftProxyClient
         ResourceLocation id = new ResourceLocation( ComputerCraft.MOD_ID, name );
         for( Supplier<? extends Item> item : items )
         {
-            ItemModelsProperties.registerProperty( item.get(), id, getter );
+            ItemModelsProperties.register( item.get(), id, getter );
         }
     }
 
@@ -82,15 +82,15 @@ public final class ComputerCraftProxyClient
     {
         // My IDE doesn't think so, but we do actually need these generics.
 
-        ScreenManager.<ContainerComputer, GuiComputer<ContainerComputer>>registerFactory( Registry.ModContainers.COMPUTER.get(), GuiComputer::create );
-        ScreenManager.<ContainerPocketComputer, GuiComputer<ContainerPocketComputer>>registerFactory( Registry.ModContainers.POCKET_COMPUTER.get(), GuiComputer::createPocket );
-        ScreenManager.registerFactory( Registry.ModContainers.TURTLE.get(), GuiTurtle::new );
+        ScreenManager.<ContainerComputer, GuiComputer<ContainerComputer>>register( Registry.ModContainers.COMPUTER.get(), GuiComputer::create );
+        ScreenManager.<ContainerPocketComputer, GuiComputer<ContainerPocketComputer>>register( Registry.ModContainers.POCKET_COMPUTER.get(), GuiComputer::createPocket );
+        ScreenManager.register( Registry.ModContainers.TURTLE.get(), GuiTurtle::new );
 
-        ScreenManager.registerFactory( Registry.ModContainers.PRINTER.get(), GuiPrinter::new );
-        ScreenManager.registerFactory( Registry.ModContainers.DISK_DRIVE.get(), GuiDiskDrive::new );
-        ScreenManager.registerFactory( Registry.ModContainers.PRINTOUT.get(), GuiPrintout::new );
+        ScreenManager.register( Registry.ModContainers.PRINTER.get(), GuiPrinter::new );
+        ScreenManager.register( Registry.ModContainers.DISK_DRIVE.get(), GuiDiskDrive::new );
+        ScreenManager.register( Registry.ModContainers.PRINTOUT.get(), GuiPrintout::new );
 
-        ScreenManager.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>registerFactory( Registry.ModContainers.VIEW_COMPUTER.get(), GuiComputer::createView );
+        ScreenManager.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>register( Registry.ModContainers.VIEW_COMPUTER.get(), GuiComputer::createView );
     }
 
     @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
@@ -99,7 +99,7 @@ public final class ComputerCraftProxyClient
         @SubscribeEvent
         public static void onWorldUnload( WorldEvent.Unload event )
         {
-            if( event.getWorld().isRemote() )
+            if( event.getWorld().isClientSide() )
             {
                 ClientMonitor.destroyAll();
             }
