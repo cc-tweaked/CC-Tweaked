@@ -353,7 +353,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         TileEntity existingTile = turtle.getWorld().getTileEntity( position );
 
         // See PlayerInteractionManager.processRightClickBlock
-        PlayerInteractEvent.RightClickBlock event = ForgeHooks.onRightClickBlock( turtlePlayer, Hand.MAIN_HAND, position, side );
+        PlayerInteractEvent.RightClickBlock event = ForgeHooks.onRightClickBlock( turtlePlayer, Hand.MAIN_HAND, position, hit );
         if( !event.isCanceled() )
         {
             if( item.onItemUseFirst( stack, context ).isSuccessOrConsume() )
