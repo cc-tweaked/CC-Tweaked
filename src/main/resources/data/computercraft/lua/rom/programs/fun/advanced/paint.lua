@@ -350,7 +350,7 @@ local function accessMenu()
                     selection = #mChoices
                 end
 
-            elseif key == keys.enter then
+            elseif key == keys.enter or key == keys.numPadEnter then
                 -- Select an option
                 return menu_choices[mChoices[selection]]()
             elseif key == keys.leftCtrl or keys == keys.rightCtrl then

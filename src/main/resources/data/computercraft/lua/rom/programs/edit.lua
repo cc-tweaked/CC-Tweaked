@@ -667,8 +667,8 @@ while bRunning do
                 end
             end
 
-        elseif param == keys.enter then
-            -- Enter
+        elseif param == keys.enter or param == keys.numPadEnter then
+            -- Enter/Numpad Enter
             if not bMenu and not bReadOnly then
                 -- Newline
                 local sLine = tLines[y]

@@ -50,7 +50,7 @@ minecraft {
         }
 
         server {
-            workingDirectory project.file("run/server-${mc_version}")
+            workingDirectory project.file("run/server")
             property 'forge.logging.markers', 'REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
 
@@ -388,14 +388,14 @@ license {
     it.configure {
         include("**/*.java")
         exclude("dan200/computercraft/api/**")
-        header rootProject.file('config/license/main.txt')
+        header file('config/license/main.txt')
     }
 }
 
 [licenseTest, licenseFormatTest].forEach {
     it.configure {
         include("**/*.java")
-        header rootProject.file('config/license/main.txt')
+        header file('config/license/main.txt')
     }
 }
 
@@ -412,7 +412,7 @@ task licenseFormatAPI(type: LicenseFormat);
     it.configure {
         source = sourceSets.main.java
         include("dan200/computercraft/api/**")
-        header rootProject.file('config/license/api.txt')
+        header file('config/license/api.txt')
     }
 }
 
@@ -430,7 +430,7 @@ task checkRelease {
         def ok = true
 
         // Check we're targetting the current version
-        def whatsnew = new File("src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt").readLines()
+        def whatsnew = new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt").readLines()
         if (whatsnew[0] != "New features in CC: Tweaked $mod_version") {
             ok = false
             project.logger.error("Expected `whatsnew.txt' to target $mod_version.")
@@ -447,7 +447,7 @@ task checkRelease {
 
         // Check whatsnew and changelog match.
         def versionChangelog = "# " + whatsnew.join("\n")
-        def changelog = new File("src/main/resources/data/computercraft/lua/rom/help/changelog.txt").getText()
+        def changelog = new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/changelog.txt").getText()
         if (!changelog.startsWith(versionChangelog)) {
             ok = false
             project.logger.error("whatsnew and changelog are not in sync")
@@ -535,7 +535,7 @@ githubRelease {
     tagName "v${mc_version}-${mod_version}"
     releaseName "[${mc_version}] ${mod_version}"
     body {
-        "## " + new File("src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt")
+        "## " + new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt")
             .readLines()
             .takeWhile { it != 'Type "help changelog" to see the full version history.' }
             .join("\n").trim()
