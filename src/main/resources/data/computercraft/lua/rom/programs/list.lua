@@ -30,8 +30,4 @@ end
 table.sort(tDirs)
 table.sort(tFiles)
 
-if term.isColour() then
-    textutils.pagedTabulate(colors.green, tDirs, colors.white, tFiles)
-else
-    textutils.pagedTabulate(tDirs, tFiles)
-end
+textutils.pagedTabulate(colors.green, tDirs, colors.white, tFiles)
