@@ -10,6 +10,7 @@ import dan200.computercraft.data.Tags.CCTags;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.TurtleUpgrades;
+import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
@@ -64,7 +65,7 @@ public class Recipes extends RecipeProvider
                 .addCriterion( "has_drive", inventoryChange( Registry.ModBlocks.DISK_DRIVE.get() ) )
                 .build( RecipeWrapper.wrap(
                     ImpostorShapelessRecipe.SERIALIZER, add,
-                    x -> x.putInt( "color", colour.getHex() )
+                    x -> x.putInt( IColouredItem.NBT_COLOUR, colour.getHex() )
                 ), new ResourceLocation( ComputerCraft.MOD_ID, "disk_" + (colour.ordinal() + 1) ) );
         }
     }
