@@ -1,0 +1,6 @@
+/mc-*
+/.idea
+/.gradle
+/logs
+/gradle*
+/*.gradle

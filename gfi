@@ -1,0 +1,160 @@
+#!/usr/bin/env python3
+
+"""
+The main build script for CC: Tweaked.
+
+This sets up work trees for each branch, ensures they are up-to-date with the
+remotes and then merges the primary branch (mc-1.15.x) into each other branch.
+
+We then build each branch, push changes, and upload all versions.
+"""
+
+import argparse
+import subprocess
+import shutil
+import sys
+import os.path
+from dataclasses import dataclass
+from typing import List, Tuple, Optional
+
+
+@dataclass
+class Branch:
+    name: str
+    parent: Optional[str] = None
+
+
+BRANCHES: List[Branch] = [
+    Branch('mc-1.15.x'),
+    Branch('mc-1.16.x', parent='mc-1.15.x'),
+]
+
+
+def log(msg: str, *args) -> None:
+    """Print a format string to the console"""
+    print("\033[32m" + msg % tuple(args) + "\033[0m")
+
+
+def git_in(branch: Branch, *cmd: str, **kwargs) -> subprocess.CompletedProcess:
+    """Run a git command on a specific branch."""
+    return subprocess.run(["git", "-C", branch.name, *cmd], **kwargs)
+
+
+def run_in(branch: Branch, *cmd: str, **kwargs) -> subprocess.CompletedProcess:
+    """Run a command within the context of a specific branch."""
+    return subprocess.run(cmd, cwd=branch.name, **kwargs)
+
+
+def setup() -> None:
+    """
+    Setup the repository suitable for working with multiple versions. Namely:
+    - Register all remotes.
+    - Copy gradle files from the default branch.
+    """
+    # Update git remote.
+    log("Updating from remotes")
+    subprocess.check_call(["git", "fetch", "origin"])
+
+    # Setup git repository.
+    for branch in BRANCHES:
+        if not os.path.isdir(branch.name):
+            log(f"Creating worktree for {branch.name}")
+            subprocess.check_call(["git", "worktree", "add", branch.name, branch.name])
+
+    # Setup gradle.
+    log("Setting up gradle project")
+    for file in ["gradle", "gradlew", "gradlew.bat"]:
+        src = f"{BRANCHES[0].name}/{file}"
+        if os.path.isdir(src):
+            shutil.copytree(src, file, dirs_exist_ok=True)
+        else:
+            shutil.copy2(src, file)
+
+    with open("settings.gradle", "w") as h:
+        h.write("rootProject.name = 'cc-tweaked'\n")
+        for branch in BRANCHES:
+            h.write(f"include '{branch.name}'\n")
+
+    with open("build.gradle", "w") as h:
+        pass
+
+
+def build() -> None:
+    """
+    Ensure the git repository is in a clean state.
+    """
+    setup()
+
+    # Ensure every tree is clean.
+    ok = True
+    for branch in BRANCHES:
+        status = git_in(branch, "status", "--porcelain", check=True, stdout=subprocess.PIPE).stdout
+        if len(status.strip()) > 0:
+            log(f"{branch.name} has changes. Build will not continue.")
+            ok = False
+    if not ok:
+        sys.exit(1)
+
+    # Ensure every tree is up-to-date.
+    primary = BRANCHES[0]
+    for branch in BRANCHES:
+        if git_in(branch, "merge-base", "--is-ancestor", f"origin/{branch.name}", branch.name).returncode != 0:
+            log(f"{branch.name} is not up-to-date with remote.")
+            # TODO: We should possibly attempt to merge/rebase here instead of aborting.
+            sys.exit(1)
+
+        if (
+            branch.parent is not None and
+            git_in(branch, "merge-base", "--is-ancestor", branch.parent, branch.name).returncode != 0
+        ):
+            log(f"{branch.name} is not up-to-date with {branch.parent}.")
+            ret = git_in(branch, "merge", "--no-edit", branch.parent).returncode
+            if ret != 0:
+                log(f"Merge {branch.parent} -> {branch.name} failed. Aborting.")
+                sys.exit(ret)
+
+    log("Git state is up-to-date. Preparing to build - you might want to make a cup of tea.")
+
+    for branch in BRANCHES:
+        log(f"Building {branch.name}")
+        ret = run_in(branch, "./gradlew", "build", "--no-daemon").returncode
+        if ret != 0:
+            log(f"Build failed")
+            sys.exit(ret)
+
+
+def release() -> None:
+    """Publish releases for each version."""
+    build()
+
+    check = input("Are you sure you want to release? Make sure you've performed some manual checks first! [y/N]").lower()
+    if check != "y":
+        sys.exit(1)
+
+    subprocess.check_call(["git", "push", "--all", "origin"])
+    for branch in BRANCHES:
+        log(f"Uploading {branch.name}")
+        ret = run_in(branch, "./gradlew", "uploadAll", "--no-daemon").returncode
+        if ret != 0:
+            log(f"Upload failed. Good luck in recovering from this!")
+            sys.exit(ret)
+
+    log(f"Finished. Well done, you may now enjoy your tea!")
+
+
+def main() -> None:
+    # Validate arguments.
+    parser = argparse.ArgumentParser(description="Build scripts for CC: Tweaked")
+    subparsers = parser.add_subparsers(
+        description="The subcommand to run. Subcommands implicitly run their dependencies.",
+        dest="subcommand",
+        required=True,
+    )
+    subparsers.add_parser("setup", help="Setup the git repository and build environment.").set_defaults(func=setup)
+    subparsers.add_parser("build", help="Merge and build all branches.").set_defaults(func=build)
+    subparsers.add_parser("release", help="Publish a release.").set_defaults(func=release)
+
+    parser.parse_args().func()
+
+if __name__ == "__main__":
+    main()
