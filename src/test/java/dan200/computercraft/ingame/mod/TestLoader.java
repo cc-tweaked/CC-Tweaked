@@ -12,10 +12,10 @@ import net.minecraft.test.TestRegistry;
 import net.minecraft.test.TestTrackerHolder;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.unsafe.UnsafeHacks;
 import net.minecraftforge.forgespi.language.ModFileScanData;
 import org.objectweb.asm.Type;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -89,10 +89,7 @@ class TestLoader
     {
         try
         {
-            Constructor<TestFunctionInfo> ctor = TestFunctionInfo.class.getDeclaredConstructor();
-            ctor.setAccessible( true );
-
-            TestFunctionInfo func = ctor.newInstance();
+            TestFunctionInfo func = UnsafeHacks.newInstance( TestFunctionInfo.class );
             setFinalField( func, "batchName", batchName );
             setFinalField( func, "testName", testName );
             setFinalField( func, "structureName", structureName );
