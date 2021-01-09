@@ -27,6 +27,8 @@ import javax.annotation.Nullable;
 
 import static dan200.computercraft.shared.turtle.core.TurtleBrain.*;
 
+import net.minecraft.item.Item.Properties;
+
 public class ItemTurtle extends ItemComputerBase implements ITurtleItem
 {
     public ItemTurtle( BlockTurtle block, Properties settings )
@@ -38,7 +40,7 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     {
         // Build the stack
         ItemStack stack = new ItemStack( this );
-        if( label != null ) stack.setDisplayName( new StringTextComponent( label ) );
+        if( label != null ) stack.setHoverName( new StringTextComponent( label ) );
         if( id >= 0 ) stack.getOrCreateTag().putInt( NBT_ID, id );
         IColouredItem.setColourBasic( stack, colour );
         if( fuelLevel > 0 ) stack.getOrCreateTag().putInt( NBT_FUEL, fuelLevel );
@@ -58,9 +60,9 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     }
 
     @Override
-    public void fillItemGroup( @Nonnull ItemGroup group, @Nonnull NonNullList<ItemStack> list )
+    public void fillItemCategory( @Nonnull ItemGroup group, @Nonnull NonNullList<ItemStack> list )
     {
-        if( !isInGroup( group ) ) return;
+        if( !allowdedIn( group ) ) return;
 
         ComputerFamily family = getFamily();
 
@@ -73,9 +75,9 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
 
     @Nonnull
     @Override
-    public ITextComponent getDisplayName( @Nonnull ItemStack stack )
+    public ITextComponent getName( @Nonnull ItemStack stack )
     {
-        String baseString = getTranslationKey( stack );
+        String baseString = getDescriptionId( stack );
         ITurtleUpgrade left = getUpgrade( stack, TurtleSide.LEFT );
         ITurtleUpgrade right = getUpgrade( stack, TurtleSide.RIGHT );
         if( left != null && right != null )

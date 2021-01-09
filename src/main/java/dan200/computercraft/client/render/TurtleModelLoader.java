@@ -43,7 +43,7 @@ public final class TurtleModelLoader implements IModelLoader<TurtleModelLoader.T
     @Override
     public TurtleModel read( @Nonnull JsonDeserializationContext deserializationContext, @Nonnull JsonObject modelContents )
     {
-        ResourceLocation model = new ResourceLocation( JSONUtils.getString( modelContents, "model" ) );
+        ResourceLocation model = new ResourceLocation( JSONUtils.getAsString( modelContents, "model" ) );
         return new TurtleModel( model );
     }
 
@@ -60,8 +60,8 @@ public final class TurtleModelLoader implements IModelLoader<TurtleModelLoader.T
         public Collection<Material> getTextures( IModelConfiguration owner, Function<ResourceLocation, IUnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors )
         {
             Set<Material> materials = new HashSet<>();
-            materials.addAll( modelGetter.apply( family ).getTextures( modelGetter, missingTextureErrors ) );
-            materials.addAll( modelGetter.apply( COLOUR_TURTLE_MODEL ).getTextures( modelGetter, missingTextureErrors ) );
+            materials.addAll( modelGetter.apply( family ).getMaterials( modelGetter, missingTextureErrors ) );
+            materials.addAll( modelGetter.apply( COLOUR_TURTLE_MODEL ).getMaterials( modelGetter, missingTextureErrors ) );
             return materials;
         }
 

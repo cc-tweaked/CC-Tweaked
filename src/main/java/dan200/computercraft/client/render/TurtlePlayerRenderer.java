@@ -23,7 +23,7 @@ public class TurtlePlayerRenderer extends EntityRenderer<TurtlePlayer>
 
     @Nonnull
     @Override
-    public ResourceLocation getEntityTexture( @Nonnull TurtlePlayer entity )
+    public ResourceLocation getTextureLocation( @Nonnull TurtlePlayer entity )
     {
         return ComputerBorderRenderer.BACKGROUND_NORMAL;
     }

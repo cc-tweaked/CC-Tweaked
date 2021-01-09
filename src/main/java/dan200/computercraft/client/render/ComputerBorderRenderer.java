@@ -85,13 +85,13 @@ public class ComputerBorderRenderer
     public static void render( int x, int y, int z, int width, int height )
     {
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
+        BufferBuilder buffer = tessellator.getBuilder();
         buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR_TEX );
 
         render( IDENTITY, buffer, x, y, z, width, height );
 
         RenderSystem.enableAlphaTest();
-        tessellator.draw();
+        tessellator.end();
     }
 
     public static void render( Matrix4f transform, IVertexBuilder buffer, int x, int y, int z, int width, int height )
@@ -166,9 +166,9 @@ public class ComputerBorderRenderer
 
     private void renderTexture( int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight )
     {
-        builder.pos( transform, x, y + height, z ).color( r, g, b, 1.0f ).tex( u * TEX_SCALE, (v + textureHeight) * TEX_SCALE ).endVertex();
-        builder.pos( transform, x + width, y + height, z ).color( r, g, b, 1.0f ).tex( (u + textureWidth) * TEX_SCALE, (v + textureHeight) * TEX_SCALE ).endVertex();
-        builder.pos( transform, x + width, y, z ).color( r, g, b, 1.0f ).tex( (u + textureWidth) * TEX_SCALE, v * TEX_SCALE ).endVertex();
-        builder.pos( transform, x, y, z ).color( r, g, b, 1.0f ).tex( u * TEX_SCALE, v * TEX_SCALE ).endVertex();
+        builder.vertex( transform, x, y + height, z ).color( r, g, b, 1.0f ).uv( u * TEX_SCALE, (v + textureHeight) * TEX_SCALE ).endVertex();
+        builder.vertex( transform, x + width, y + height, z ).color( r, g, b, 1.0f ).uv( (u + textureWidth) * TEX_SCALE, (v + textureHeight) * TEX_SCALE ).endVertex();
+        builder.vertex( transform, x + width, y, z ).color( r, g, b, 1.0f ).uv( (u + textureWidth) * TEX_SCALE, v * TEX_SCALE ).endVertex();
+        builder.vertex( transform, x, y, z ).color( r, g, b, 1.0f ).uv( u * TEX_SCALE, v * TEX_SCALE ).endVertex();
     }
 }

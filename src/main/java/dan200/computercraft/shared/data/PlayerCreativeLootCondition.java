@@ -16,6 +16,8 @@ import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Set;
 
+import net.minecraft.world.storage.loot.conditions.ILootCondition.IBuilder;
+
 /**
  * A loot condition which checks if the entity is in creative mode.
  */
@@ -30,13 +32,13 @@ public final class PlayerCreativeLootCondition implements ILootCondition
     @Override
     public boolean test( LootContext lootContext )
     {
-        Entity entity = lootContext.get( LootParameters.THIS_ENTITY );
-        return entity instanceof PlayerEntity && ((PlayerEntity) entity).abilities.isCreativeMode;
+        Entity entity = lootContext.getParamOrNull( LootParameters.THIS_ENTITY );
+        return entity instanceof PlayerEntity && ((PlayerEntity) entity).abilities.instabuild;
     }
 
     @Nonnull
     @Override
-    public Set<LootParameter<?>> getRequiredParameters()
+    public Set<LootParameter<?>> getReferencedContextParams()
     {
         return Collections.singleton( LootParameters.THIS_ENTITY );
     }

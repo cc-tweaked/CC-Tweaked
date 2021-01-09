@@ -86,13 +86,13 @@ public class TileMonitor extends TileGeneric
         // TODO: Call this before using the block
         if( m_destroyed ) return;
         m_destroyed = true;
-        if( !getWorld().isRemote ) contractNeighbours();
+        if( !getLevel().isClientSide ) contractNeighbours();
     }
 
     @Override
-    public void remove()
+    public void setRemoved()
     {
-        super.remove();
+        super.setRemoved();
         if( m_clientMonitor != null && m_xIndex == 0 && m_yIndex == 0 ) m_clientMonitor.destroy();
     }
 
@@ -107,14 +107,14 @@ public class TileMonitor extends TileGeneric
     @Override
     public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
     {
-        if( !player.isCrouching() && getFront() == hit.getFace() )
+        if( !player.isCrouching() && getFront() == hit.getDirection() )
         {
-            if( !getWorld().isRemote )
+            if( !getLevel().isClientSide )
             {
                 monitorTouched(
-                    (float) (hit.getHitVec().x - hit.getPos().getX()),
-                    (float) (hit.getHitVec().y - hit.getPos().getY()),
-                    (float) (hit.getHitVec().z - hit.getPos().getZ())
+                    (float) (hit.getLocation().x - hit.getBlockPos().getX()),
+                    (float) (hit.getLocation().y - hit.getBlockPos().getY()),
+                    (float) (hit.getLocation().z - hit.getBlockPos().getZ())
                 );
             }
             return ActionResultType.SUCCESS;
@@ -125,19 +125,19 @@ public class TileMonitor extends TileGeneric
 
     @Nonnull
     @Override
-    public CompoundNBT write( CompoundNBT tag )
+    public CompoundNBT save( CompoundNBT tag )
     {
         tag.putInt( NBT_X, m_xIndex );
         tag.putInt( NBT_Y, m_yIndex );
         tag.putInt( NBT_WIDTH, m_width );
         tag.putInt( NBT_HEIGHT, m_height );
-        return super.write( tag );
+        return super.save( tag );
     }
 
     @Override
-    public void read( @Nonnull CompoundNBT tag )
+    public void load( @Nonnull CompoundNBT tag )
     {
-        super.read( tag );
+        super.load( tag );
         m_xIndex = tag.getInt( NBT_X );
         m_yIndex = tag.getInt( NBT_Y );
         m_width = tag.getInt( NBT_WIDTH );
@@ -233,8 +233,8 @@ public class TileMonitor extends TileGeneric
         {
             // Otherwise fetch the origin and attempt to get its monitor
             // Note this may load chunks, but we don't really have a choice here.
-            BlockPos pos = getPos();
-            TileEntity te = world.getTileEntity( pos.offset( getRight(), -m_xIndex ).offset( getDown(), -m_yIndex ) );
+            BlockPos pos = getBlockPos();
+            TileEntity te = level.getBlockEntity( pos.relative( getRight(), -m_xIndex ).relative( getDown(), -m_yIndex ) );
             if( !(te instanceof TileMonitor) ) return null;
 
             return m_serverMonitor = ((TileMonitor) te).createServerMonitor();
@@ -245,8 +245,8 @@ public class TileMonitor extends TileGeneric
     {
         if( m_clientMonitor != null ) return m_clientMonitor;
 
-        BlockPos pos = getPos();
-        TileEntity te = world.getTileEntity( pos.offset( getRight(), -m_xIndex ).offset( getDown(), -m_yIndex ) );
+        BlockPos pos = getBlockPos();
+        TileEntity te = level.getBlockEntity( pos.relative( getRight(), -m_xIndex ).relative( getDown(), -m_yIndex ) );
         if( !(te instanceof TileMonitor) ) return null;
 
         return m_clientMonitor = ((TileMonitor) te).m_clientMonitor;
@@ -305,7 +305,7 @@ public class TileMonitor extends TileGeneric
     {
         if( m_xIndex != 0 || m_yIndex != 0 )
         {
-            ComputerCraft.log.warn( "Receiving monitor state for non-origin terminal at {}", getPos() );
+            ComputerCraft.log.warn( "Receiving monitor state for non-origin terminal at {}", getBlockPos() );
             return;
         }
 
@@ -317,8 +317,8 @@ public class TileMonitor extends TileGeneric
 
     private void updateBlockState()
     {
-        getWorld().setBlockState( getPos(), getBlockState()
-            .with( BlockMonitor.STATE, MonitorEdgeState.fromConnections(
+        getLevel().setBlock( getBlockPos(), getBlockState()
+            .setValue( BlockMonitor.STATE, MonitorEdgeState.fromConnections(
                 m_yIndex < m_height - 1, m_yIndex > 0,
                 m_xIndex > 0, m_xIndex < m_width - 1 ) ), 2 );
     }
@@ -329,13 +329,13 @@ public class TileMonitor extends TileGeneric
         // Ensure we're actually a monitor block. This _should_ always be the case, but sometimes there's
         // fun problems with the block being missing on the client.
         BlockState state = getBlockState();
-        return state.has( BlockMonitor.FACING ) ? state.get( BlockMonitor.FACING ) : Direction.NORTH;
+        return state.hasProperty( BlockMonitor.FACING ) ? state.getValue( BlockMonitor.FACING ) : Direction.NORTH;
     }
 
     public Direction getOrientation()
     {
         BlockState state = getBlockState();
-        return state.has( BlockMonitor.ORIENTATION ) ? state.get( BlockMonitor.ORIENTATION ) : Direction.NORTH;
+        return state.hasProperty( BlockMonitor.ORIENTATION ) ? state.getValue( BlockMonitor.ORIENTATION ) : Direction.NORTH;
     }
 
     public Direction getFront()
@@ -346,7 +346,7 @@ public class TileMonitor extends TileGeneric
 
     public Direction getRight()
     {
-        return getDirection().rotateYCCW();
+        return getDirection().getCounterClockWise();
     }
 
     public Direction getDown()
@@ -378,13 +378,13 @@ public class TileMonitor extends TileGeneric
 
     private TileMonitor getSimilarMonitorAt( BlockPos pos )
     {
-        if( pos.equals( getPos() ) ) return this;
+        if( pos.equals( getBlockPos() ) ) return this;
 
         int y = pos.getY();
-        World world = getWorld();
+        World world = getLevel();
         if( world == null || !world.isAreaLoaded( pos, 0 ) ) return null;
 
-        TileEntity tile = world.getTileEntity( pos );
+        TileEntity tile = world.getBlockEntity( pos );
         if( !(tile instanceof TileMonitor) ) return null;
 
         TileMonitor monitor = (TileMonitor) tile;
@@ -395,12 +395,12 @@ public class TileMonitor extends TileGeneric
 
     private TileMonitor getNeighbour( int x, int y )
     {
-        BlockPos pos = getPos();
+        BlockPos pos = getBlockPos();
         Direction right = getRight();
         Direction down = getDown();
         int xOffset = -m_xIndex + x;
         int yOffset = -m_yIndex + y;
-        return getSimilarMonitorAt( pos.offset( right, xOffset ).offset( down, yOffset ) );
+        return getSimilarMonitorAt( pos.relative( right, xOffset ).relative( down, yOffset ) );
     }
 
     private TileMonitor getOrigin()
@@ -677,8 +677,8 @@ public class TileMonitor extends TileGeneric
         TileMonitor end = getNeighbour( m_width - 1, m_height - 1 );
         if( start != null && end != null )
         {
-            BlockPos startPos = start.getPos();
-            BlockPos endPos = end.getPos();
+            BlockPos startPos = start.getBlockPos();
+            BlockPos endPos = end.getBlockPos();
             int minX = Math.min( startPos.getX(), endPos.getX() );
             int minY = Math.min( startPos.getY(), endPos.getY() );
             int minZ = Math.min( startPos.getZ(), endPos.getZ() );
@@ -689,13 +689,13 @@ public class TileMonitor extends TileGeneric
         }
         else
         {
-            BlockPos pos = getPos();
+            BlockPos pos = getBlockPos();
             return new AxisAlignedBB( pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1 );
         }
     }
 
     @Override
-    public double getMaxRenderDistanceSquared()
+    public double getViewDistance()
     {
         return ComputerCraft.monitorDistanceSq;
     }

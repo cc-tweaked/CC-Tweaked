@@ -12,6 +12,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
 
+import net.minecraft.block.Block.Properties;
+
 public class BlockWiredModemFull extends BlockGeneric
 {
     public static final BooleanProperty MODEM_ON = BooleanProperty.create( "modem" );
@@ -20,14 +22,14 @@ public class BlockWiredModemFull extends BlockGeneric
     public BlockWiredModemFull( Properties settings )
     {
         super( settings, Registry.ModTiles.WIRED_MODEM_FULL );
-        setDefaultState( getStateContainer().getBaseState()
-            .with( MODEM_ON, false )
-            .with( PERIPHERAL_ON, false )
+        registerDefaultState( getStateDefinition().any()
+            .setValue( MODEM_ON, false )
+            .setValue( PERIPHERAL_ON, false )
         );
     }
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, BlockState> builder )
+    protected void createBlockStateDefinition( StateContainer.Builder<Block, BlockState> builder )
     {
         builder.add( MODEM_ON, PERIPHERAL_ON );
     }

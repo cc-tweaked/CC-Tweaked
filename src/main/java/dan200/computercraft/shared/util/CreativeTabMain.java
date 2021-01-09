@@ -24,7 +24,7 @@ public class CreativeTabMain extends ItemGroup
     @Nonnull
     @Override
     @OnlyIn( Dist.CLIENT )
-    public ItemStack createIcon()
+    public ItemStack makeIcon()
     {
         return new ItemStack( Registry.ModBlocks.COMPUTER_NORMAL.get() );
     }

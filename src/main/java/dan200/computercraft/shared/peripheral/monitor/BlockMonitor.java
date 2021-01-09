@@ -25,6 +25,8 @@ import net.minecraftforge.fml.RegistryObject;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import net.minecraft.block.Block.Properties;
+
 public class BlockMonitor extends BlockGeneric
 {
     public static final DirectionProperty ORIENTATION = DirectionProperty.create( "orientation",
@@ -38,14 +40,14 @@ public class BlockMonitor extends BlockGeneric
     {
         super( settings, type );
         // TODO: Test underwater - do we need isSolid at all?
-        setDefaultState( getStateContainer().getBaseState()
-            .with( ORIENTATION, Direction.NORTH )
-            .with( FACING, Direction.NORTH )
-            .with( STATE, MonitorEdgeState.NONE ) );
+        registerDefaultState( getStateDefinition().any()
+            .setValue( ORIENTATION, Direction.NORTH )
+            .setValue( FACING, Direction.NORTH )
+            .setValue( STATE, MonitorEdgeState.NONE ) );
     }
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, BlockState> builder )
+    protected void createBlockStateDefinition( StateContainer.Builder<Block, BlockState> builder )
     {
         builder.add( ORIENTATION, FACING, STATE );
     }
@@ -54,7 +56,7 @@ public class BlockMonitor extends BlockGeneric
     @Nullable
     public BlockState getStateForPlacement( BlockItemUseContext context )
     {
-        float pitch = context.getPlayer() == null ? 0 : context.getPlayer().rotationPitch;
+        float pitch = context.getPlayer() == null ? 0 : context.getPlayer().xRot;
         Direction orientation;
         if( pitch > 66.5f )
         {
@@ -71,18 +73,18 @@ public class BlockMonitor extends BlockGeneric
             orientation = Direction.NORTH;
         }
 
-        return getDefaultState()
-            .with( FACING, context.getPlacementHorizontalFacing().getOpposite() )
-            .with( ORIENTATION, orientation );
+        return defaultBlockState()
+            .setValue( FACING, context.getHorizontalDirection().getOpposite() )
+            .setValue( ORIENTATION, orientation );
     }
 
     @Override
-    public void onBlockPlacedBy( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState blockState, @Nullable LivingEntity livingEntity, @Nonnull ItemStack itemStack )
+    public void setPlacedBy( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState blockState, @Nullable LivingEntity livingEntity, @Nonnull ItemStack itemStack )
     {
-        super.onBlockPlacedBy( world, pos, blockState, livingEntity, itemStack );
+        super.setPlacedBy( world, pos, blockState, livingEntity, itemStack );
 
-        TileEntity entity = world.getTileEntity( pos );
-        if( entity instanceof TileMonitor && !world.isRemote )
+        TileEntity entity = world.getBlockEntity( pos );
+        if( entity instanceof TileMonitor && !world.isClientSide )
         {
             TileMonitor monitor = (TileMonitor) entity;
             monitor.contractNeighbours();

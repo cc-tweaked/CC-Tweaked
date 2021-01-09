@@ -26,8 +26,8 @@ public class TurtleCompareToCommand implements ITurtleCommand
     @Override
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
-        ItemStack selectedStack = turtle.getInventory().getStackInSlot( turtle.getSelectedSlot() );
-        ItemStack stack = turtle.getInventory().getStackInSlot( m_slot );
+        ItemStack selectedStack = turtle.getInventory().getItem( turtle.getSelectedSlot() );
+        ItemStack stack = turtle.getInventory().getItem( m_slot );
         if( InventoryUtil.areItemsStackable( selectedStack, stack ) )
         {
             return TurtleCommandResult.success();

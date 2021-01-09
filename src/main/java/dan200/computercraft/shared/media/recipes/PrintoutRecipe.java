@@ -20,9 +20,9 @@ import javax.annotation.Nonnull;
 
 public final class PrintoutRecipe extends SpecialRecipe
 {
-    private final Ingredient paper = Ingredient.fromItems( net.minecraft.item.Items.PAPER );
-    private final Ingredient leather = Ingredient.fromItems( net.minecraft.item.Items.LEATHER );
-    private final Ingredient string = Ingredient.fromItems( Items.STRING );
+    private final Ingredient paper = Ingredient.of( net.minecraft.item.Items.PAPER );
+    private final Ingredient leather = Ingredient.of( net.minecraft.item.Items.LEATHER );
+    private final Ingredient string = Ingredient.of( Items.STRING );
 
     private PrintoutRecipe( ResourceLocation id )
     {
@@ -30,14 +30,14 @@ public final class PrintoutRecipe extends SpecialRecipe
     }
 
     @Override
-    public boolean canFit( int x, int y )
+    public boolean canCraftInDimensions( int x, int y )
     {
         return x >= 3 && y >= 3;
     }
 
     @Nonnull
     @Override
-    public ItemStack getRecipeOutput()
+    public ItemStack getResultItem()
     {
         return ItemPrintout.createMultipleFromTitleAndText( null, null, null );
     }
@@ -45,12 +45,12 @@ public final class PrintoutRecipe extends SpecialRecipe
     @Override
     public boolean matches( @Nonnull CraftingInventory inventory, @Nonnull World world )
     {
-        return !getCraftingResult( inventory ).isEmpty();
+        return !assemble( inventory ).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull CraftingInventory inventory )
+    public ItemStack assemble( @Nonnull CraftingInventory inventory )
     {
         // See if we match the recipe, and extract the input disk ID and dye colour
         int numPages = 0;
@@ -63,7 +63,7 @@ public final class PrintoutRecipe extends SpecialRecipe
         {
             for( int x = 0; x < inventory.getWidth(); x++ )
             {
-                ItemStack stack = inventory.getStackInSlot( x + y * inventory.getWidth() );
+                ItemStack stack = inventory.getItem( x + y * inventory.getWidth() );
                 if( !stack.isEmpty() )
                 {
                     if( stack.getItem() instanceof ItemPrintout && ((ItemPrintout) stack.getItem()).getType() != ItemPrintout.Type.BOOK )

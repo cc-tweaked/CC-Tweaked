@@ -31,7 +31,7 @@ public final class InventoryUtil
 
     public static boolean areItemsEqual( @Nonnull ItemStack a, @Nonnull ItemStack b )
     {
-        return a == b || ItemStack.areItemStacksEqual( a, b );
+        return a == b || ItemStack.matches( a, b );
     }
 
     public static boolean areItemsStackable( @Nonnull ItemStack a, @Nonnull ItemStack b )
@@ -44,7 +44,7 @@ public final class InventoryUtil
     public static IItemHandler getInventory( World world, BlockPos pos, Direction side )
     {
         // Look for tile with inventory
-        TileEntity tileEntity = world.getTileEntity( pos );
+        TileEntity tileEntity = world.getBlockEntity( pos );
         if( tileEntity != null )
         {
             LazyOptional<IItemHandler> itemHandler = tileEntity.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side );
@@ -64,13 +64,13 @@ public final class InventoryUtil
 
         // Look for entity with inventory
         Vec3d vecStart = new Vec3d(
-            pos.getX() + 0.5 + 0.6 * side.getXOffset(),
-            pos.getY() + 0.5 + 0.6 * side.getYOffset(),
-            pos.getZ() + 0.5 + 0.6 * side.getZOffset()
+            pos.getX() + 0.5 + 0.6 * side.getStepX(),
+            pos.getY() + 0.5 + 0.6 * side.getStepY(),
+            pos.getZ() + 0.5 + 0.6 * side.getStepZ()
         );
         Direction dir = side.getOpposite();
         Vec3d vecDir = new Vec3d(
-            dir.getXOffset(), dir.getYOffset(), dir.getZOffset()
+            dir.getStepX(), dir.getStepY(), dir.getStepZ()
         );
         Pair<Entity, Vec3d> hit = WorldUtil.rayTraceEntities( world, vecStart, vecDir, 1.1 );
         if( hit != null )

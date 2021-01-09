@@ -24,7 +24,7 @@ public enum DiskDriveState implements IStringSerializable
 
     @Override
     @Nonnull
-    public String getName()
+    public String getSerializedName()
     {
         return name;
     }

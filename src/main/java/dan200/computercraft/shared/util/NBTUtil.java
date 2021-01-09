@@ -76,12 +76,12 @@ public final class NBTUtil
         switch( tag.getId() )
         {
             case TAG_BYTE:
-                return ((ByteNBT) tag).getByte() > 0;
+                return ((ByteNBT) tag).getAsByte() > 0;
             case TAG_DOUBLE:
-                return ((DoubleNBT) tag).getDouble();
+                return ((DoubleNBT) tag).getAsDouble();
             default:
             case TAG_STRING:
-                return tag.getString();
+                return tag.getAsString();
             case TAG_COMPOUND:
             {
                 CompoundNBT c = (CompoundNBT) tag;
@@ -109,17 +109,17 @@ public final class NBTUtil
             case Constants.NBT.TAG_SHORT:
             case Constants.NBT.TAG_INT:
             case Constants.NBT.TAG_LONG:
-                return ((NumberNBT) tag).getLong();
+                return ((NumberNBT) tag).getAsLong();
             case Constants.NBT.TAG_FLOAT:
             case Constants.NBT.TAG_DOUBLE:
-                return ((NumberNBT) tag).getDouble();
+                return ((NumberNBT) tag).getAsDouble();
             case Constants.NBT.TAG_STRING: // String
-                return tag.getString();
+                return tag.getAsString();
             case Constants.NBT.TAG_COMPOUND: // Compound
             {
                 CompoundNBT compound = (CompoundNBT) tag;
                 Map<String, Object> map = new HashMap<>( compound.size() );
-                for( String key : compound.keySet() )
+                for( String key : compound.getAllKeys() )
                 {
                     Object value = toLua( compound.get( key ) );
                     if( value != null ) map.put( key, value );
@@ -135,14 +135,14 @@ public final class NBTUtil
             }
             case Constants.NBT.TAG_BYTE_ARRAY:
             {
-                byte[] array = ((ByteArrayNBT) tag).getByteArray();
+                byte[] array = ((ByteArrayNBT) tag).getAsByteArray();
                 Map<Integer, Byte> map = new HashMap<>( array.length );
                 for( int i = 0; i < array.length; i++ ) map.put( i + 1, array[i] );
                 return map;
             }
             case Constants.NBT.TAG_INT_ARRAY:
             {
-                int[] array = ((IntArrayNBT) tag).getIntArray();
+                int[] array = ((IntArrayNBT) tag).getAsIntArray();
                 Map<Integer, Integer> map = new HashMap<>( array.length );
                 for( int i = 0; i < array.length; i++ ) map.put( i + 1, array[i] );
                 return map;

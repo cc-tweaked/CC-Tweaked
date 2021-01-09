@@ -151,7 +151,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
         @Override
         public int run( CommandContext<CommandSource> context )
         {
-            context.getSource().sendFeedback( getHelp( context, node, id, command ), false );
+            context.getSource().sendSuccess( getHelp( context, node, id, command ), false );
             return 0;
         }
     }
@@ -159,7 +159,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
     private static Command<CommandSource> helpForChild( CommandNode<CommandSource> node, String id, String command )
     {
         return context -> {
-            context.getSource().sendFeedback( getHelp( context, node, id + "." + node.getName().replace( '-', '_' ), command + " " + node.getName() ), false );
+            context.getSource().sendSuccess( getHelp( context, node, id + "." + node.getName().replace( '-', '_' ), command + " " + node.getName() ), false );
             return 0;
         };
     }
@@ -168,17 +168,17 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
     {
         // An ugly hack to extract usage information from the dispatcher. We generate a temporary node, generate
         // the shorthand usage, and emit that.
-        CommandDispatcher<CommandSource> dispatcher = context.getSource().getServer().getCommandManager().getDispatcher();
+        CommandDispatcher<CommandSource> dispatcher = context.getSource().getServer().getCommands().getDispatcher();
         CommandNode<CommandSource> temp = new LiteralCommandNode<>( "_", null, x -> true, null, null, false );
         temp.addChild( node );
         String usage = dispatcher.getSmartUsage( temp, context.getSource() ).get( node ).substring( node.getName().length() );
 
         ITextComponent output = new StringTextComponent( "" )
-            .appendSibling( coloured( "/" + command + usage, HEADER ) )
-            .appendText( " " )
-            .appendSibling( coloured( translate( "commands." + id + ".synopsis" ), SYNOPSIS ) )
-            .appendText( "\n" )
-            .appendSibling( translate( "commands." + id + ".desc" ) );
+            .append( coloured( "/" + command + usage, HEADER ) )
+            .append( " " )
+            .append( coloured( translate( "commands." + id + ".synopsis" ), SYNOPSIS ) )
+            .append( "\n" )
+            .append( translate( "commands." + id + ".desc" ) );
 
         for( CommandNode<CommandSource> child : node.getChildren() )
         {
@@ -187,16 +187,16 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
                 continue;
             }
 
-            output.appendText( "\n" );
+            output.append( "\n" );
 
             ITextComponent component = coloured( child.getName(), NAME );
             component.getStyle().setClickEvent( new ClickEvent(
                 ClickEvent.Action.SUGGEST_COMMAND,
                 "/" + command + " " + child.getName()
             ) );
-            output.appendSibling( component );
+            output.append( component );
 
-            output.appendText( " - " ).appendSibling( translate( "commands." + id + "." + child.getName() + ".synopsis" ) );
+            output.append( " - " ).append( translate( "commands." + id + "." + child.getName() + ".synopsis" ) );
         }
 
         return output;

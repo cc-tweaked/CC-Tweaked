@@ -24,6 +24,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import net.minecraft.item.Item.Properties;
+
 public abstract class ItemComputerBase extends BlockItem implements IComputerItem, IMedia
 {
     private final ComputerFamily family;
@@ -35,7 +37,7 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     }
 
     @Override
-    public void addInformation( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag options )
+    public void appendHoverText( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag options )
     {
         if( options.isAdvanced() || getLabel( stack ) == null )
         {
@@ -43,7 +45,7 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
             if( id >= 0 )
             {
                 list.add( new TranslationTextComponent( "gui.computercraft.tooltip.computer_id", id )
-                    .applyTextStyle( TextFormatting.GRAY ) );
+                    .withStyle( TextFormatting.GRAY ) );
             }
         }
     }
@@ -67,11 +69,11 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     {
         if( label != null )
         {
-            stack.setDisplayName( new StringTextComponent( label ) );
+            stack.setHoverName( new StringTextComponent( label ) );
         }
         else
         {
-            stack.clearCustomName();
+            stack.resetHoverName();
         }
         return true;
     }

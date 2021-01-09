@@ -128,27 +128,27 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
     public static class Serializer implements IArgumentSerializer<RepeatArgumentType<?, ?>>
     {
         @Override
-        public void write( @Nonnull RepeatArgumentType<?, ?> arg, @Nonnull PacketBuffer buf )
+        public void serializeToNetwork( @Nonnull RepeatArgumentType<?, ?> arg, @Nonnull PacketBuffer buf )
         {
             buf.writeBoolean( arg.flatten );
             ArgumentTypes.serialize( buf, arg.child );
-            buf.writeTextComponent( getMessage( arg ) );
+            buf.writeComponent( getMessage( arg ) );
         }
 
         @Nonnull
         @Override
         @SuppressWarnings( { "unchecked", "rawtypes" } )
-        public RepeatArgumentType<?, ?> read( @Nonnull PacketBuffer buf )
+        public RepeatArgumentType<?, ?> deserializeFromNetwork( @Nonnull PacketBuffer buf )
         {
             boolean isList = buf.readBoolean();
             ArgumentType<?> child = ArgumentTypes.deserialize( buf );
-            ITextComponent message = buf.readTextComponent();
+            ITextComponent message = buf.readComponent();
             BiConsumer<List<Object>, ?> appender = isList ? ( list, x ) -> list.addAll( (Collection) x ) : List::add;
             return new RepeatArgumentType( child, appender, isList, new SimpleCommandExceptionType( message ) );
         }
 
         @Override
-        public void write( @Nonnull RepeatArgumentType<?, ?> arg, @Nonnull JsonObject json )
+        public void serializeToJson( @Nonnull RepeatArgumentType<?, ?> arg, @Nonnull JsonObject json )
         {
             json.addProperty( "flatten", arg.flatten );
             json.addProperty( "child", "<<cannot serialize>>" ); // TODO: Potentially serialize this using reflection.

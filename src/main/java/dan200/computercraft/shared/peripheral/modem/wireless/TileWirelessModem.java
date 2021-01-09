@@ -41,14 +41,14 @@ public class TileWirelessModem extends TileGeneric
         @Override
         public World getWorld()
         {
-            return entity.getWorld();
+            return entity.getLevel();
         }
 
         @Nonnull
         @Override
         public Vec3d getPosition()
         {
-            BlockPos pos = entity.getPos().offset( entity.modemDirection );
+            BlockPos pos = entity.getBlockPos().relative( entity.modemDirection );
             return new Vec3d( pos.getX(), pos.getY(), pos.getZ() );
         }
 
@@ -99,11 +99,11 @@ public class TileWirelessModem extends TileGeneric
     }
 
     @Override
-    public void updateContainingBlockInfo()
+    public void clearCache()
     {
-        super.updateContainingBlockInfo();
+        super.clearCache();
         hasModemDirection = false;
-        world.getPendingBlockTicks().scheduleTick( getPos(), getBlockState().getBlock(), 0 );
+        level.getBlockTicks().scheduleTick( getBlockPos(), getBlockState().getBlock(), 0 );
     }
 
     @Override
@@ -124,16 +124,16 @@ public class TileWirelessModem extends TileGeneric
         if( hasModemDirection ) return;
 
         hasModemDirection = true;
-        modemDirection = getBlockState().get( BlockWirelessModem.FACING );
+        modemDirection = getBlockState().getValue( BlockWirelessModem.FACING );
     }
 
     private void updateBlockState()
     {
         boolean on = modem.getModemState().isOpen();
         BlockState state = getBlockState();
-        if( state.get( BlockWirelessModem.ON ) != on )
+        if( state.getValue( BlockWirelessModem.ON ) != on )
         {
-            getWorld().setBlockState( getPos(), state.with( BlockWirelessModem.ON, on ) );
+            getLevel().setBlockAndUpdate( getBlockPos(), state.setValue( BlockWirelessModem.ON, on ) );
         }
     }
 

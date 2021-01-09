@@ -75,7 +75,7 @@ minecraft {
         }
     }
 
-    mappings channel: 'snapshot', version: "${mappings_version}".toString()
+    mappings channel: 'official', version: project.mc_version
 
     accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
 }

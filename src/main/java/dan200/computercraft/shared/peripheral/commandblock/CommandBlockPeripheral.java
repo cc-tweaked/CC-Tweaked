@@ -64,7 +64,7 @@ public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
     @LuaFunction( mainThread = true )
     public final String getCommand()
     {
-        return commandBlock.getCommandBlockLogic().getCommand();
+        return commandBlock.getCommandBlock().getCommand();
     }
 
     /**
@@ -75,8 +75,8 @@ public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
     @LuaFunction( mainThread = true )
     public final void setCommand( String command )
     {
-        commandBlock.getCommandBlockLogic().setCommand( command );
-        commandBlock.getCommandBlockLogic().updateCommand();
+        commandBlock.getCommandBlock().setCommand( command );
+        commandBlock.getCommandBlock().onUpdated();
     }
 
     /**
@@ -89,8 +89,8 @@ public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
     @LuaFunction( mainThread = true )
     public final Object[] runCommand()
     {
-        commandBlock.getCommandBlockLogic().trigger( commandBlock.getWorld() );
-        int result = commandBlock.getCommandBlockLogic().getSuccessCount();
+        commandBlock.getCommandBlock().performCommand( commandBlock.getLevel() );
+        int result = commandBlock.getCommandBlock().getSuccessCount();
         return result > 0 ? new Object[] { true } : new Object[] { false, "Command failed" };
     }
 

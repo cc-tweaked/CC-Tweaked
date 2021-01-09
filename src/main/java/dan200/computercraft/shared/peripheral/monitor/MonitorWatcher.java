@@ -49,7 +49,7 @@ public final class MonitorWatcher
         Chunk chunk = (Chunk) event.getWorld().getChunk( chunkPos.x, chunkPos.z, ChunkStatus.FULL, false );
         if( chunk == null ) return;
 
-        for( TileEntity te : chunk.getTileEntityMap().values() )
+        for( TileEntity te : chunk.getBlockEntities().values() )
         {
             // Find all origin monitors who are not already on the queue.
             if( !(te instanceof TileMonitor) ) continue;
@@ -61,7 +61,7 @@ public final class MonitorWatcher
             // We use the cached terminal state if available - this is guaranteed to
             TerminalState state = monitor.cached;
             if( state == null ) state = monitor.cached = serverMonitor.write();
-            NetworkHandler.sendToPlayer( event.getPlayer(), new MonitorClientMessage( monitor.getPos(), state ) );
+            NetworkHandler.sendToPlayer( event.getPlayer(), new MonitorClientMessage( monitor.getBlockPos(), state ) );
         }
     }
 
@@ -80,12 +80,12 @@ public final class MonitorWatcher
             ServerMonitor monitor = getMonitor( tile );
             if( monitor == null ) continue;
 
-            BlockPos pos = tile.getPos();
-            World world = tile.getWorld();
+            BlockPos pos = tile.getBlockPos();
+            World world = tile.getLevel();
             if( !(world instanceof ServerWorld) ) continue;
 
             Chunk chunk = world.getChunkAt( pos );
-            if( !((ServerWorld) world).getChunkProvider().chunkManager.getTrackingPlayers( chunk.getPos(), false ).findAny().isPresent() )
+            if( !((ServerWorld) world).getChunkSource().chunkMap.getPlayers( chunk.getPos(), false ).findAny().isPresent() )
             {
                 continue;
             }

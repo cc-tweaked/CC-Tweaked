@@ -52,7 +52,7 @@ public class BlockModelProvider extends BlockStateProvider
     private void registerComputer( BlockComputer block )
     {
         VariantBlockStateBuilder builder = getVariantBuilder( block );
-        for( ComputerState state : BlockComputer.STATE.getAllowedValues() )
+        for( ComputerState state : BlockComputer.STATE.getPossibleValues() )
         {
             BlockModelBuilder model = models()
                 .getBuilder( suffix( block, "_" + state ) )
@@ -61,7 +61,7 @@ public class BlockModelProvider extends BlockStateProvider
                 .texture( "side", suffix( block, "_side" ) )
                 .texture( "front", suffix( block, "_front" + toSuffix( state ) ) );
 
-            for( Direction facing : BlockComputer.FACING.getAllowedValues() )
+            for( Direction facing : BlockComputer.FACING.getPossibleValues() )
             {
                 builder.partialState()
                     .with( BlockComputer.STATE, state )
@@ -92,14 +92,14 @@ public class BlockModelProvider extends BlockStateProvider
         registerMonitorModel( name, "_ud", 21, 6, 0, 37 );
 
         VariantBlockStateBuilder builder = getVariantBuilder( block );
-        for( MonitorEdgeState edge : BlockMonitor.STATE.getAllowedValues() )
+        for( MonitorEdgeState edge : BlockMonitor.STATE.getPossibleValues() )
         {
-            String suffix = edge == MonitorEdgeState.NONE ? "" : "_" + edge.getName();
+            String suffix = edge == MonitorEdgeState.NONE ? "" : "_" + edge.getSerializedName();
             ModelFile model = models().getBuilder( suffix( block, suffix ) );
 
-            for( Direction facing : BlockMonitor.FACING.getAllowedValues() )
+            for( Direction facing : BlockMonitor.FACING.getPossibleValues() )
             {
-                for( Direction orientation : BlockMonitor.ORIENTATION.getAllowedValues() )
+                for( Direction orientation : BlockMonitor.ORIENTATION.getPossibleValues() )
                 {
                     builder.partialState()
                         .with( BlockMonitor.STATE, edge )
@@ -137,7 +137,7 @@ public class BlockModelProvider extends BlockStateProvider
 
     private static int toYAngle( Direction direction )
     {
-        return ((int) direction.getHorizontalAngle() + 180) % 360;
+        return ((int) direction.toYRot() + 180) % 360;
     }
 
     private static String toSuffix( ComputerState state )

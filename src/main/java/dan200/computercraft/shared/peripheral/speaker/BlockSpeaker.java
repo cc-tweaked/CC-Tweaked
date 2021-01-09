@@ -17,6 +17,8 @@ import net.minecraft.util.Direction;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.block.Block.Properties;
+
 public class BlockSpeaker extends BlockGeneric
 {
     private static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -24,12 +26,12 @@ public class BlockSpeaker extends BlockGeneric
     public BlockSpeaker( Properties settings )
     {
         super( settings, Registry.ModTiles.SPEAKER );
-        setDefaultState( getStateContainer().getBaseState()
-            .with( FACING, Direction.NORTH ) );
+        registerDefaultState( getStateDefinition().any()
+            .setValue( FACING, Direction.NORTH ) );
     }
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, BlockState> properties )
+    protected void createBlockStateDefinition( StateContainer.Builder<Block, BlockState> properties )
     {
         properties.add( FACING );
     }
@@ -38,6 +40,6 @@ public class BlockSpeaker extends BlockGeneric
     @Override
     public BlockState getStateForPlacement( BlockItemUseContext placement )
     {
-        return getDefaultState().with( FACING, placement.getPlacementHorizontalFacing().getOpposite() );
+        return defaultBlockState().setValue( FACING, placement.getHorizontalDirection().getOpposite() );
     }
 }

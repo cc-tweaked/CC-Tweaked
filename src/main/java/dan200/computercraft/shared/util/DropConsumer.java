@@ -40,8 +40,8 @@ public final class DropConsumer
         dropConsumer = consumer;
         remainingDrops = new ArrayList<>();
         dropEntity = entity;
-        dropWorld = entity.world;
-        dropBounds = new AxisAlignedBB( entity.getPosition() ).grow( 2, 2, 2 );
+        dropWorld = entity.level;
+        dropBounds = new AxisAlignedBB( entity.getCommandSenderBlockPosition() ).inflate( 2, 2, 2 );
     }
 
     public static void set( World world, BlockPos pos, Function<ItemStack, ItemStack> consumer )
@@ -50,7 +50,7 @@ public final class DropConsumer
         remainingDrops = new ArrayList<>( 2 );
         dropEntity = null;
         dropWorld = world;
-        dropBounds = new AxisAlignedBB( pos ).grow( 2, 2, 2 );
+        dropBounds = new AxisAlignedBB( pos ).inflate( 2, 2, 2 );
     }
 
     public static List<ItemStack> clear()
@@ -77,7 +77,7 @@ public final class DropConsumer
     {
         // Capture any nearby item spawns
         if( dropWorld == event.getWorld() && event.getEntity() instanceof ItemEntity
-            && dropBounds.contains( event.getEntity().getPositionVector() ) )
+            && dropBounds.contains( event.getEntity().getCommandSenderWorldPosition() ) )
         {
             handleDrops( ((ItemEntity) event.getEntity()).getItem() );
             event.setCanceled( true );

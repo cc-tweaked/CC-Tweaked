@@ -80,14 +80,14 @@ public class TileWiredModemFull extends TileGeneric
         @Override
         public World getWorld()
         {
-            return m_entity.getWorld();
+            return m_entity.getLevel();
         }
 
         @Nonnull
         @Override
         public Vec3d getPosition()
         {
-            BlockPos pos = m_entity.getPos();
+            BlockPos pos = m_entity.getBlockPos();
             return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
     }
@@ -113,14 +113,14 @@ public class TileWiredModemFull extends TileGeneric
         super( type );
         for( int i = 0; i < m_peripherals.length; i++ )
         {
-            Direction facing = Direction.byIndex( i );
+            Direction facing = Direction.from3DDataValue( i );
             m_peripherals[i] = new WiredModemLocalPeripheral( () -> refreshPeripheral( facing ) );
         }
     }
 
     private void doRemove()
     {
-        if( world == null || !world.isRemote )
+        if( level == null || !level.isClientSide )
         {
             m_node.remove();
             m_connectionsFormed = false;
@@ -154,9 +154,9 @@ public class TileWiredModemFull extends TileGeneric
     }
 
     @Override
-    public void remove()
+    public void setRemoved()
     {
-        super.remove();
+        super.setRemoved();
         doRemove();
     }
 
@@ -169,11 +169,11 @@ public class TileWiredModemFull extends TileGeneric
     @Override
     public void onNeighbourTileEntityChange( @Nonnull BlockPos neighbour )
     {
-        if( !world.isRemote && m_peripheralAccessAllowed )
+        if( !level.isClientSide && m_peripheralAccessAllowed )
         {
             for( Direction facing : DirectionUtil.FACINGS )
             {
-                if( getPos().offset( facing ).equals( neighbour ) ) refreshPeripheral( facing );
+                if( getBlockPos().relative( facing ).equals( neighbour ) ) refreshPeripheral( facing );
             }
         }
     }
@@ -181,7 +181,7 @@ public class TileWiredModemFull extends TileGeneric
     private void refreshPeripheral( @Nonnull Direction facing )
     {
         WiredModemLocalPeripheral peripheral = m_peripherals[facing.ordinal()];
-        if( world != null && !isRemoved() && peripheral.attach( world, getPos(), facing ) )
+        if( level != null && !isRemoved() && peripheral.attach( level, getBlockPos(), facing ) )
         {
             updateConnectedPeripherals();
         }
@@ -191,7 +191,7 @@ public class TileWiredModemFull extends TileGeneric
     @Override
     public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
     {
-        if( getWorld().isRemote ) return ActionResultType.SUCCESS;
+        if( getLevel().isClientSide ) return ActionResultType.SUCCESS;
 
         // On server, we interacted if a peripheral was found
         Set<String> oldPeriphNames = getConnectedPeripheralNames();
@@ -217,37 +217,37 @@ public class TileWiredModemFull extends TileGeneric
         StringTextComponent base = new StringTextComponent( "" );
         for( int i = 0; i < names.size(); i++ )
         {
-            if( i > 0 ) base.appendText( ", " );
-            base.appendSibling( CommandCopy.createCopyText( names.get( i ) ) );
+            if( i > 0 ) base.append( ", " );
+            base.append( CommandCopy.createCopyText( names.get( i ) ) );
         }
 
-        player.sendStatusMessage( new TranslationTextComponent( kind, base ), false );
+        player.displayClientMessage( new TranslationTextComponent( kind, base ), false );
     }
 
     @Override
-    public void read( @Nonnull CompoundNBT nbt )
+    public void load( @Nonnull CompoundNBT nbt )
     {
-        super.read( nbt );
+        super.load( nbt );
         m_peripheralAccessAllowed = nbt.getBoolean( NBT_PERIPHERAL_ENABLED );
         for( int i = 0; i < m_peripherals.length; i++ ) m_peripherals[i].read( nbt, Integer.toString( i ) );
     }
 
     @Nonnull
     @Override
-    public CompoundNBT write( CompoundNBT nbt )
+    public CompoundNBT save( CompoundNBT nbt )
     {
         nbt.putBoolean( NBT_PERIPHERAL_ENABLED, m_peripheralAccessAllowed );
         for( int i = 0; i < m_peripherals.length; i++ ) m_peripherals[i].write( nbt, Integer.toString( i ) );
-        return super.write( nbt );
+        return super.save( nbt );
     }
 
     private void updateBlockState()
     {
         BlockState state = getBlockState();
         boolean modemOn = m_modemState.isOpen(), peripheralOn = m_peripheralAccessAllowed;
-        if( state.get( MODEM_ON ) == modemOn && state.get( PERIPHERAL_ON ) == peripheralOn ) return;
+        if( state.getValue( MODEM_ON ) == modemOn && state.getValue( PERIPHERAL_ON ) == peripheralOn ) return;
 
-        getWorld().setBlockState( getPos(), state.with( MODEM_ON, modemOn ).with( PERIPHERAL_ON, peripheralOn ) );
+        getLevel().setBlockAndUpdate( getBlockPos(), state.setValue( MODEM_ON, modemOn ).setValue( PERIPHERAL_ON, peripheralOn ) );
     }
 
     @Override
@@ -260,7 +260,7 @@ public class TileWiredModemFull extends TileGeneric
     @Override
     public void blockTick()
     {
-        if( getWorld().isRemote ) return;
+        if( getLevel().isClientSide ) return;
 
         if( m_modemState.pollChanged() ) updateBlockState();
 
@@ -273,7 +273,7 @@ public class TileWiredModemFull extends TileGeneric
             {
                 for( Direction facing : DirectionUtil.FACINGS )
                 {
-                    m_peripherals[facing.ordinal()].attach( world, getPos(), facing );
+                    m_peripherals[facing.ordinal()].attach( level, getBlockPos(), facing );
                 }
                 updateConnectedPeripherals();
             }
@@ -282,13 +282,13 @@ public class TileWiredModemFull extends TileGeneric
 
     private void connectionsChanged()
     {
-        if( getWorld().isRemote ) return;
+        if( getLevel().isClientSide ) return;
 
-        World world = getWorld();
-        BlockPos current = getPos();
+        World world = getLevel();
+        BlockPos current = getBlockPos();
         for( Direction facing : DirectionUtil.FACINGS )
         {
-            BlockPos offset = current.offset( facing );
+            BlockPos offset = current.relative( facing );
             if( !world.isAreaLoaded( offset, 0 ) ) continue;
 
             LazyOptional<IWiredElement> element = ComputerCraftAPI.getWiredElementAt( world, offset, facing.getOpposite() );
@@ -307,7 +307,7 @@ public class TileWiredModemFull extends TileGeneric
             for( Direction facing : DirectionUtil.FACINGS )
             {
                 WiredModemLocalPeripheral peripheral = m_peripherals[facing.ordinal()];
-                peripheral.attach( world, getPos(), facing );
+                peripheral.attach( level, getBlockPos(), facing );
                 hasAny |= peripheral.hasPeripheral();
             }
 
@@ -401,7 +401,7 @@ public class TileWiredModemFull extends TileGeneric
             @Override
             public Vec3d getPosition()
             {
-                BlockPos pos = getPos().offset( side );
+                BlockPos pos = getBlockPos().relative( side );
                 return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
             }
 

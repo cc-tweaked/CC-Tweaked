@@ -73,13 +73,13 @@ public class TileSpeaker extends TileGeneric implements ITickableTileEntity
         @Override
         public World getWorld()
         {
-            return speaker.getWorld();
+            return speaker.getLevel();
         }
 
         @Override
         public Vec3d getPosition()
         {
-            BlockPos pos = speaker.getPos();
+            BlockPos pos = speaker.getBlockPos();
             return new Vec3d( pos.getX(), pos.getY(), pos.getZ() );
         }
 

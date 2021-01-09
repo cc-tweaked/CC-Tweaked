@@ -29,14 +29,14 @@ public class ComputerActionServerMessage extends ComputerServerMessage
     public void toBytes( @Nonnull PacketBuffer buf )
     {
         super.toBytes( buf );
-        buf.writeEnumValue( action );
+        buf.writeEnum( action );
     }
 
     @Override
     public void fromBytes( @Nonnull PacketBuffer buf )
     {
         super.fromBytes( buf );
-        action = buf.readEnumValue( Action.class );
+        action = buf.readEnum( Action.class );
     }
 
     @Override

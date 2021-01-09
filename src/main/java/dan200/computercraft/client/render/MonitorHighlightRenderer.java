@@ -40,12 +40,12 @@ public final class MonitorHighlightRenderer
     public static void drawHighlight( DrawHighlightEvent.HighlightBlock event )
     {
         // Preserve normal behaviour when crouching.
-        if( event.getInfo().getRenderViewEntity().isCrouching() ) return;
+        if( event.getInfo().getEntity().isCrouching() ) return;
 
-        World world = event.getInfo().getRenderViewEntity().getEntityWorld();
-        BlockPos pos = event.getTarget().getPos();
+        World world = event.getInfo().getEntity().getCommandSenderWorld();
+        BlockPos pos = event.getTarget().getBlockPos();
 
-        TileEntity tile = world.getTileEntity( pos );
+        TileEntity tile = world.getBlockEntity( pos );
         if( !(tile instanceof TileMonitor) ) return;
 
         TileMonitor monitor = (TileMonitor) tile;
@@ -61,13 +61,13 @@ public final class MonitorHighlightRenderer
         if( monitor.getYIndex() != monitor.getHeight() - 1 ) faces.remove( monitor.getDown() );
 
         MatrixStack transformStack = event.getMatrix();
-        Vec3d cameraPos = event.getInfo().getProjectedView();
-        transformStack.push();
-        transformStack.translate( pos.getX() - cameraPos.getX(), pos.getY() - cameraPos.getY(), pos.getZ() - cameraPos.getZ() );
+        Vec3d cameraPos = event.getInfo().getPosition();
+        transformStack.pushPose();
+        transformStack.translate( pos.getX() - cameraPos.x(), pos.getY() - cameraPos.y(), pos.getZ() - cameraPos.z() );
 
         // I wish I could think of a better way to do this
-        IVertexBuilder buffer = event.getBuffers().getBuffer( RenderType.getLines() );
-        Matrix4f transform = transformStack.getLast().getMatrix();
+        IVertexBuilder buffer = event.getBuffers().getBuffer( RenderType.lines() );
+        Matrix4f transform = transformStack.last().pose();
         if( faces.contains( NORTH ) || faces.contains( WEST ) ) line( buffer, transform, 0, 0, 0, UP );
         if( faces.contains( SOUTH ) || faces.contains( WEST ) ) line( buffer, transform, 0, 0, 1, UP );
         if( faces.contains( NORTH ) || faces.contains( EAST ) ) line( buffer, transform, 1, 0, 0, UP );
@@ -81,16 +81,16 @@ public final class MonitorHighlightRenderer
         if( faces.contains( WEST ) || faces.contains( UP ) ) line( buffer, transform, 0, 1, 0, SOUTH );
         if( faces.contains( EAST ) || faces.contains( UP ) ) line( buffer, transform, 1, 1, 0, SOUTH );
 
-        transformStack.pop();
+        transformStack.popPose();
     }
 
     private static void line( IVertexBuilder buffer, Matrix4f transform, float x, float y, float z, Direction direction )
     {
-        buffer.pos( transform, x, y, z ).color( 0, 0, 0, 0.4f ).endVertex();
-        buffer.pos( transform,
-            x + direction.getXOffset(),
-            y + direction.getYOffset(),
-            z + direction.getZOffset()
+        buffer.vertex( transform, x, y, z ).color( 0, 0, 0, 0.4f ).endVertex();
+        buffer.vertex( transform,
+            x + direction.getStepX(),
+            y + direction.getStepY(),
+            z + direction.getStepZ()
         ).color( 0, 0, 0, 0.4f ).endVertex();
     }
 }

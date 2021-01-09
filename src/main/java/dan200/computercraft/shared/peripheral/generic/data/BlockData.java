@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.peripheral.generic.data;
 
-import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.IProperty;
 
@@ -21,7 +20,7 @@ public class BlockData
         data.put( "name", DataHelpers.getId( state.getBlock() ) );
 
         Map<Object, Object> stateTable = new HashMap<>();
-        for( ImmutableMap.Entry<IProperty<?>, ? extends Comparable<?>> entry : state.getValues().entrySet() )
+        for( Map.Entry<IProperty<?>, ? extends Comparable<?>> entry : state.getValues().entrySet() )
         {
             IProperty<?> property = entry.getKey();
             stateTable.put( property.getName(), getPropertyValue( property, entry.getValue() ) );

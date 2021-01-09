@@ -38,13 +38,13 @@ public class ChatTableClientMessage implements NetworkMessage
         buf.writeBoolean( table.getHeaders() != null );
         if( table.getHeaders() != null )
         {
-            for( ITextComponent header : table.getHeaders() ) buf.writeTextComponent( header );
+            for( ITextComponent header : table.getHeaders() ) buf.writeComponent( header );
         }
 
         buf.writeVarInt( table.getRows().size() );
         for( ITextComponent[] row : table.getRows() )
         {
-            for( ITextComponent column : row ) buf.writeTextComponent( column );
+            for( ITextComponent column : row ) buf.writeComponent( column );
         }
 
         buf.writeVarInt( table.getAdditional() );
@@ -59,7 +59,7 @@ public class ChatTableClientMessage implements NetworkMessage
         if( buf.readBoolean() )
         {
             ITextComponent[] headers = new ITextComponent[columns];
-            for( int i = 0; i < columns; i++ ) headers[i] = buf.readTextComponent();
+            for( int i = 0; i < columns; i++ ) headers[i] = buf.readComponent();
             table = new TableBuilder( id, headers );
         }
         else
@@ -71,7 +71,7 @@ public class ChatTableClientMessage implements NetworkMessage
         for( int i = 0; i < rows; i++ )
         {
             ITextComponent[] row = new ITextComponent[columns];
-            for( int j = 0; j < columns; j++ ) row[j] = buf.readTextComponent();
+            for( int j = 0; j < columns; j++ ) row[j] = buf.readComponent();
             table.row( row );
         }
 

@@ -61,7 +61,7 @@ public final class TurtlePlayer extends FakePlayer
             // Constructing a player overrides the "active player" variable in advancements. As fake players cannot
             // get advancements, this prevents a normal player who has placed a turtle from getting advancements.
             // We try to locate the "actual" player and restore them.
-            ServerPlayerEntity actualPlayer = world.getServer().getPlayerList().getPlayerByUUID( profile.getId() );
+            ServerPlayerEntity actualPlayer = world.getServer().getPlayerList().getPlayer( profile.getId() );
             if( actualPlayer != null ) player.getAdvancements().setPlayer( actualPlayer );
         }
 
@@ -75,19 +75,19 @@ public final class TurtlePlayer extends FakePlayer
 
     private void setState( ITurtleAccess turtle )
     {
-        if( openContainer != container )
+        if( containerMenu != inventoryMenu )
         {
-            ComputerCraft.log.warn( "Turtle has open container ({})", openContainer );
-            closeContainer();
+            ComputerCraft.log.warn( "Turtle has open container ({})", containerMenu );
+            doCloseContainer();
         }
 
         BlockPos position = turtle.getPosition();
-        setRawPosition( position.getX() + 0.5, position.getY() + 0.5, position.getZ() + 0.5 );
+        setPosRaw( position.getX() + 0.5, position.getY() + 0.5, position.getZ() + 0.5 );
 
-        rotationYaw = turtle.getDirection().getHorizontalAngle();
-        rotationPitch = 0.0f;
+        yRot = turtle.getDirection().toYRot();
+        xRot = 0.0f;
 
-        inventory.clear();
+        inventory.clearContent();
     }
 
     public static TurtlePlayer get( ITurtleAccess access )
@@ -97,7 +97,7 @@ public final class TurtlePlayer extends FakePlayer
         TurtleBrain brain = (TurtleBrain) access;
         TurtlePlayer player = brain.m_cachedPlayer;
         if( player == null || player.getGameProfile() != getProfile( access.getOwningPlayer() )
-            || player.getEntityWorld() != access.getWorld() )
+            || player.getCommandSenderWorld() != access.getWorld() )
         {
             player = brain.m_cachedPlayer = create( brain );
         }
@@ -112,22 +112,22 @@ public final class TurtlePlayer extends FakePlayer
     public void loadInventory( @Nonnull ItemStack currentStack )
     {
         // Load up the fake inventory
-        inventory.currentItem = 0;
-        inventory.setInventorySlotContents( 0, currentStack );
+        inventory.selected = 0;
+        inventory.setItem( 0, currentStack );
     }
 
     public ItemStack unloadInventory( ITurtleAccess turtle )
     {
         // Get the item we placed with
-        ItemStack results = inventory.getStackInSlot( 0 );
-        inventory.setInventorySlotContents( 0, ItemStack.EMPTY );
+        ItemStack results = inventory.getItem( 0 );
+        inventory.setItem( 0, ItemStack.EMPTY );
 
         // Store (or drop) anything else we found
         BlockPos dropPosition = turtle.getPosition();
         Direction dropDirection = turtle.getDirection().getOpposite();
-        for( int i = 0; i < inventory.getSizeInventory(); i++ )
+        for( int i = 0; i < inventory.getContainerSize(); i++ )
         {
-            ItemStack stack = inventory.getStackInSlot( i );
+            ItemStack stack = inventory.getItem( i );
             if( !stack.isEmpty() )
             {
                 ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
@@ -135,10 +135,10 @@ public final class TurtlePlayer extends FakePlayer
                 {
                     WorldUtil.dropItemStack( remainder, turtle.getWorld(), dropPosition, dropDirection );
                 }
-                inventory.setInventorySlotContents( i, ItemStack.EMPTY );
+                inventory.setItem( i, ItemStack.EMPTY );
             }
         }
-        inventory.markDirty();
+        inventory.setChanged();
         return results;
     }
 
@@ -150,9 +150,9 @@ public final class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    public Vec3d getPositionVector()
+    public Vec3d getCommandSenderWorldPosition()
     {
-        return getPositionVec();
+        return position();
     }
 
     @Override
@@ -170,18 +170,18 @@ public final class TurtlePlayer extends FakePlayer
     //region Code which depends on the connection
     @Nonnull
     @Override
-    public OptionalInt openContainer( @Nullable INamedContainerProvider prover )
+    public OptionalInt openMenu( @Nullable INamedContainerProvider prover )
     {
         return OptionalInt.empty();
     }
 
     @Override
-    public void sendEnterCombat()
+    public void onEnterCombat()
     {
     }
 
     @Override
-    public void sendEndCombat()
+    public void onLeaveCombat()
     {
     }
 
@@ -197,7 +197,7 @@ public final class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    public void openSignEditor( @Nonnull SignTileEntity signTile )
+    public void openTextEdit( @Nonnull SignTileEntity signTile )
     {
     }
 
@@ -207,32 +207,32 @@ public final class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    public void openBook( @Nonnull ItemStack stack, @Nonnull Hand hand )
+    public void openItemGui( @Nonnull ItemStack stack, @Nonnull Hand hand )
     {
     }
 
     @Override
-    public void closeScreen()
+    public void closeContainer()
     {
     }
 
     @Override
-    public void updateHeldItem()
+    public void broadcastCarriedItem()
     {
     }
 
     @Override
-    protected void onNewPotionEffect( @Nonnull EffectInstance id )
+    protected void onEffectAdded( @Nonnull EffectInstance id )
     {
     }
 
     @Override
-    protected void onChangedPotionEffect( @Nonnull EffectInstance id, boolean apply )
+    protected void onEffectUpdated( @Nonnull EffectInstance id, boolean apply )
     {
     }
 
     @Override
-    protected void onFinishedPotionEffect( @Nonnull EffectInstance effect )
+    protected void onEffectRemoved( @Nonnull EffectInstance effect )
     {
     }
     //endregion

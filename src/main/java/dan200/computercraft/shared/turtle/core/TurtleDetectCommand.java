@@ -34,9 +34,9 @@ public class TurtleDetectCommand implements ITurtleCommand
         // Check if thing in front is air or not
         World world = turtle.getWorld();
         BlockPos oldPosition = turtle.getPosition();
-        BlockPos newPosition = oldPosition.offset( direction );
+        BlockPos newPosition = oldPosition.relative( direction );
 
-        return !WorldUtil.isLiquidBlock( world, newPosition ) && !world.isAirBlock( newPosition )
+        return !WorldUtil.isLiquidBlock( world, newPosition ) && !world.isEmptyBlock( newPosition )
             ? TurtleCommandResult.success()
             : TurtleCommandResult.failure();
     }

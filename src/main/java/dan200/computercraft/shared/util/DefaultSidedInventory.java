@@ -15,13 +15,13 @@ import javax.annotation.Nullable;
 public interface DefaultSidedInventory extends DefaultInventory, ISidedInventory
 {
     @Override
-    default boolean canInsertItem( int slot, @Nonnull ItemStack stack, @Nullable Direction side )
+    default boolean canPlaceItemThroughFace( int slot, @Nonnull ItemStack stack, @Nullable Direction side )
     {
-        return isItemValidForSlot( slot, stack );
+        return canPlaceItem( slot, stack );
     }
 
     @Override
-    default boolean canExtractItem( int slot, @Nonnull ItemStack stack, @Nonnull Direction side )
+    default boolean canTakeItemThroughFace( int slot, @Nonnull ItemStack stack, @Nonnull Direction side )
     {
         return true;
     }

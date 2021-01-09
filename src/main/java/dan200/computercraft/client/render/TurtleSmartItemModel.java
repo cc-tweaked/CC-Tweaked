@@ -42,7 +42,7 @@ public class TurtleSmartItemModel implements IBakedModel
         stack.translate( 0, 0, 1 );
 
         identity = TransformationMatrix.identity();
-        flip = new TransformationMatrix( stack.getLast().getMatrix() );
+        flip = new TransformationMatrix( stack.last().pose() );
     }
 
     private static class TurtleModelCombination
@@ -109,7 +109,7 @@ public class TurtleSmartItemModel implements IBakedModel
         {
             @Nonnull
             @Override
-            public IBakedModel getModelWithOverrides( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable World world, @Nullable LivingEntity entity )
+            public IBakedModel resolve( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable World world, @Nullable LivingEntity entity )
             {
                 ItemTurtle turtle = (ItemTurtle) stack.getItem();
                 int colour = turtle.getColour( stack );
@@ -138,7 +138,7 @@ public class TurtleSmartItemModel implements IBakedModel
     private IBakedModel buildModel( TurtleModelCombination combo )
     {
         Minecraft mc = Minecraft.getInstance();
-        ModelManager modelManager = mc.getItemRenderer().getItemModelMesher().getModelManager();
+        ModelManager modelManager = mc.getItemRenderer().getItemModelShaper().getModelManager();
         ModelResourceLocation overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.m_overlay, combo.m_christmas );
 
         IBakedModel baseModel = combo.m_colour ? colourModel : familyModel;
@@ -166,9 +166,9 @@ public class TurtleSmartItemModel implements IBakedModel
     }
 
     @Override
-    public boolean isAmbientOcclusion()
+    public boolean useAmbientOcclusion()
     {
-        return familyModel.isAmbientOcclusion();
+        return familyModel.useAmbientOcclusion();
     }
 
     @Override
@@ -178,31 +178,31 @@ public class TurtleSmartItemModel implements IBakedModel
     }
 
     @Override
-    public boolean isBuiltInRenderer()
+    public boolean isCustomRenderer()
     {
-        return familyModel.isBuiltInRenderer();
+        return familyModel.isCustomRenderer();
     }
 
     @Override
-    public boolean func_230044_c_()
+    public boolean usesBlockLight()
     {
-        return familyModel.func_230044_c_();
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public TextureAtlasSprite getParticleTexture()
-    {
-        return familyModel.getParticleTexture();
+        return familyModel.usesBlockLight();
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public ItemCameraTransforms getItemCameraTransforms()
+    public TextureAtlasSprite getParticleIcon()
     {
-        return familyModel.getItemCameraTransforms();
+        return familyModel.getParticleIcon();
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public ItemCameraTransforms getTransforms()
+    {
+        return familyModel.getTransforms();
     }
 
 }

@@ -42,7 +42,7 @@ class MonitorTextureBufferShader
     static void setupUniform( Matrix4f transform, int width, int height, Palette palette, boolean greyscale )
     {
         MATRIX_BUFFER.rewind();
-        transform.write( MATRIX_BUFFER );
+        transform.store( MATRIX_BUFFER );
         MATRIX_BUFFER.rewind();
         RenderSystem.glUniformMatrix4( uniformMv, false, MATRIX_BUFFER );
 
@@ -71,7 +71,7 @@ class MonitorTextureBufferShader
     {
         if( initialised )
         {
-            if( ok ) GlStateManager.useProgram( program );
+            if( ok ) GlStateManager._glUseProgram( program );
             return ok;
         }
 
@@ -94,14 +94,14 @@ class MonitorTextureBufferShader
             int vertexShader = loadShader( GL20.GL_VERTEX_SHADER, "assets/computercraft/shaders/monitor.vert" );
             int fragmentShader = loadShader( GL20.GL_FRAGMENT_SHADER, "assets/computercraft/shaders/monitor.frag" );
 
-            program = GlStateManager.createProgram();
-            GlStateManager.attachShader( program, vertexShader );
-            GlStateManager.attachShader( program, fragmentShader );
+            program = GlStateManager.glCreateProgram();
+            GlStateManager.glAttachShader( program, vertexShader );
+            GlStateManager.glAttachShader( program, fragmentShader );
             GL20.glBindAttribLocation( program, 0, "v_pos" );
 
-            GlStateManager.linkProgram( program );
-            boolean ok = GlStateManager.getProgram( program, GL20.GL_LINK_STATUS ) != 0;
-            String log = GlStateManager.getProgramInfoLog( program, Short.MAX_VALUE ).trim();
+            GlStateManager.glLinkProgram( program );
+            boolean ok = GlStateManager.glGetProgrami( program, GL20.GL_LINK_STATUS ) != 0;
+            String log = GlStateManager.glGetProgramInfoLog( program, Short.MAX_VALUE ).trim();
             if( !Strings.isNullOrEmpty( log ) )
             {
                 ComputerCraft.log.warn( "Problems when linking monitor shader: {}", log );
@@ -109,8 +109,8 @@ class MonitorTextureBufferShader
 
             GL20.glDetachShader( program, vertexShader );
             GL20.glDetachShader( program, fragmentShader );
-            GlStateManager.deleteShader( vertexShader );
-            GlStateManager.deleteShader( fragmentShader );
+            GlStateManager.glDeleteShader( vertexShader );
+            GlStateManager.glDeleteShader( fragmentShader );
 
             if( !ok ) return false;
 
@@ -137,13 +137,13 @@ class MonitorTextureBufferShader
         if( stream == null ) throw new IllegalArgumentException( "Cannot find " + path );
         String contents = TextureUtil.readResourceAsString( stream );
 
-        int shader = GlStateManager.createShader( kind );
+        int shader = GlStateManager.glCreateShader( kind );
 
-        GlStateManager.shaderSource( shader, contents );
-        GlStateManager.compileShader( shader );
+        GlStateManager.glShaderSource( shader, contents );
+        GlStateManager.glCompileShader( shader );
 
-        boolean ok = GlStateManager.getShader( shader, GL20.GL_COMPILE_STATUS ) != 0;
-        String log = GlStateManager.getShaderInfoLog( shader, Short.MAX_VALUE ).trim();
+        boolean ok = GlStateManager.glGetShaderi( shader, GL20.GL_COMPILE_STATUS ) != 0;
+        String log = GlStateManager.glGetShaderInfoLog( shader, Short.MAX_VALUE ).trim();
         if( !Strings.isNullOrEmpty( log ) )
         {
             ComputerCraft.log.warn( "Problems when loading monitor shader {}: {}", path, log );
@@ -155,7 +155,7 @@ class MonitorTextureBufferShader
 
     private static int getUniformLocation( int program, String name )
     {
-        int uniform = GlStateManager.getUniformLocation( program, name );
+        int uniform = GlStateManager._glGetUniformLocation( program, name );
         if( uniform == -1 ) throw new IllegalStateException( "Cannot find uniform " + name );
         return uniform;
     }

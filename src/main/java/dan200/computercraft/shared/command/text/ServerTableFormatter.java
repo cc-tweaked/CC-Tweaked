@@ -45,6 +45,6 @@ public class ServerTableFormatter implements TableFormatter
     @Override
     public void writeLine( int id, ITextComponent component )
     {
-        source.sendFeedback( component, false );
+        source.sendSuccess( component, false );
     }
 }
