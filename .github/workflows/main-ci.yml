@@ -29,6 +29,7 @@ jobs:
     - name: Run in-game tests
       run: |
         ./gradlew setupServer --no-daemon
+        ./gradlew prepareRunTestServerRun --no-daemon || ./gradlew prepareRunTestServerRun --no-daemon
         ./gradlew runTestServerRun --no-daemon
 
     - name: Upload Jar
