@@ -16,6 +16,32 @@ end
 
 local term = _ENV
 
+local function colourToColor(redirectTarget, missingKey)
+    local backupKey = missingKey:gsub("colour", "color") or missingKey:gsub("Colour", "Color")
+
+    return redirectTarget[backupKey]
+end
+
+local function colorToColour(redirectTarget, missingKey)
+    local backupKey = missingKey:gsub("color", "colour") or missingKey:gsub("Color", "Colour")
+
+    return redirectTarget[backupKey]
+end
+
+local function makeMissingMethod(redirectTarget, missingKey)
+    local lowerKey = missingKey:lower()
+    local replacementMethod
+    if lowerKey:find("colour") then
+        replacementMethod = colorToColour(redirectTarget, missingKey)
+    elseif lowerKey:find("color") then
+        replacementMethod = colourToColor(redirectTarget, missingKey)
+    end
+
+    return replacementMethod or function()
+        error("Redirect object is missing method " .. missingKey .. ".", 2)
+    end
+end
+
 --- Redirects terminal output to a monitor, a @{window}, or any other custom
 -- terminal object. Once the redirect is performed, any calls to a "term"
 -- function - or to a function that makes use of a term function, as @{print} -
@@ -42,9 +68,7 @@ term.redirect = function(target)
     for k, v in pairs(native) do
         if type(k) == "string" and type(v) == "function" then
             if type(target[k]) ~= "function" then
-                target[k] = function()
-                    error("Redirect object is missing method " .. k .. ".", 2)
-                end
+                target[k] = makeMissingMethod(target, k)
             end
         end
     end
