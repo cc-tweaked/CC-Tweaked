@@ -598,3 +598,10 @@ c5694ea9661c7a40021ebd280c378bd7bdc56988
 Merge branch 'mc-1.15.x' into mc-1.16.x
 ```
 Update to 1.16.4.
+
+```
+1f84480a80677cfaaf19d319290f5b44635eba47
+
+Make rightAlt only close menu, never open it. (#672)
+```
+Lua changes.
