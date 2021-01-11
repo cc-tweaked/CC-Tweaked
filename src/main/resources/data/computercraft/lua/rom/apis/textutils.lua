@@ -281,6 +281,9 @@ local function serializeImpl(t, tTracking, sIndent, opts)
             for k, v in ipairs(t) do
                 tSeen[k] = true
                 sResult = sResult .. sSubIndent .. serializeImpl(v, tTracking, sSubIndent, opts) .. "," .. (opts.compact and "" or "\n")
+                if opts.advancedComparing then
+                    tTracking[v] = nil
+                end
             end
             for k, v in pairs(t) do
                 if not tSeen[k] then
@@ -289,6 +292,9 @@ local function serializeImpl(t, tTracking, sIndent, opts)
                         sEntry = k .. " = " .. serializeImpl(v, tTracking, sSubIndent, opts) .. "," .. (opts.compact and "" or "\n")
                     else
                         sEntry = "[ " .. serializeImpl(k, tTracking, sSubIndent, opts) .. " ] = " .. serializeImpl(v, tTracking, sSubIndent, opts) .. "," .. (opts.compact and "" or "\n")
+                    end
+                    if opts.advancedComparing then
+                        tTracking[v] = nil
                     end
                     sResult = sResult .. sSubIndent .. sEntry
                 end
