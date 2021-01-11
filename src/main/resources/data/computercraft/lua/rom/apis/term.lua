@@ -17,18 +17,18 @@ end
 local term = _ENV
 
 local function colourToColor(redirectTarget, missingKey)
-    local backupKey = missingKey:gsub("colour", "color")
+    local backupKey = missingKey:gsub("Colour", "Color")
     if backupKey == missingKey then
-        backupKey = missingKey:gsub("Colour", "Color")
+        backupKey = missingKey:gsub("colour", "color")
     end
 
     return redirectTarget[backupKey]
 end
 
 local function colorToColour(redirectTarget, missingKey)
-    local backupKey = missingKey:gsub("color", "colour")
+    local backupKey = missingKey:gsub("Color", "Colour")
     if backupKey == missingKey then
-        backupKey = missingKey:gsub("Color", "Colour")
+        backupKey = missingKey:gsub("color", "colour")
     end
 
     return redirectTarget[backupKey]
