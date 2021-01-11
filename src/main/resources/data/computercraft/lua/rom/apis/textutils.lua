@@ -262,16 +262,9 @@ local g_tLuaKeywords = {
     ["while"] = true,
 }
 
-local function serializeImpl(t, tTracking2, sIndent, opts)
-    local sType, tTracking = type(t), {}
+local function serializeImpl(t, tTracking, sIndent, opts)
+    local sType = type(t)
     if sType == "table" then
-				if opts.advancedComparing then
-					for k, v in next, tTracking2 do
-						tTracking[k] = v
-					end
-				else
-					tTracking = tTracking2
-				end
         if tTracking[t] ~= nil then
             error("Cannot serialize table with recursive entries", 0)
         end
@@ -282,20 +275,20 @@ local function serializeImpl(t, tTracking2, sIndent, opts)
             return "{}"
         else
             -- Other tables take more work
-            local sResult = "{" .. (opts.noWrap and "" or "\n")
-            local sSubIndent = opts.noWhiteSpace and "" or sIndent .. "  "
+            local sResult = "{" .. (opts.compact and "" or "\n")
+            local sSubIndent = opts.compact and "" or sIndent .. "  "
             local tSeen = {}
             for k, v in ipairs(t) do
                 tSeen[k] = true
-                sResult = sResult .. sSubIndent .. serializeImpl(v, tTracking, sSubIndent, opts) .. "," .. (opts.noWrap and "" or "\n")
+                sResult = sResult .. sSubIndent .. serializeImpl(v, tTracking, sSubIndent, opts) .. "," .. (opts.compact and "" or "\n")
             end
             for k, v in pairs(t) do
                 if not tSeen[k] then
                     local sEntry
                     if type(k) == "string" and not g_tLuaKeywords[k] and string.match(k, "^[%a_][%a%d_]*$") then
-                        sEntry = k .. " = " .. serializeImpl(v, tTracking, sSubIndent, opts) .. "," .. (opts.noWrap and "" or "\n")
+                        sEntry = k .. " = " .. serializeImpl(v, tTracking, sSubIndent, opts) .. "," .. (opts.compact and "" or "\n")
                     else
-                        sEntry = "[ " .. serializeImpl(k, tTracking, sSubIndent, opts) .. " ] = " .. serializeImpl(v, tTracking, sSubIndent, opts) .. "," .. (opts.noWrap and "" or "\n")
+                        sEntry = "[ " .. serializeImpl(k, tTracking, sSubIndent, opts) .. " ] = " .. serializeImpl(v, tTracking, sSubIndent, opts) .. "," .. (opts.compact and "" or "\n")
                     end
                     sResult = sResult .. sSubIndent .. sEntry
                 end
@@ -303,7 +296,9 @@ local function serializeImpl(t, tTracking2, sIndent, opts)
             sResult = sResult .. sIndent .. "}"
             return sResult
         end
-
+				if opts.advancedComparing then
+					tTracking[t] = nil
+				end
     elseif sType == "string" then
         return string.format("%q", t)
 
@@ -656,8 +651,7 @@ function serialize(t, opts)
     local tTracking = {}
 		expect(2, opts, "table", "nil")
 		if opts then
-			field(opts, "noWrap", "boolean", "nil")
-			field(opts, "noWhiteSpace", "boolean", "nil")
+			field(opts, "compact", "boolean", "nil")
 			field(opts, "advancedComparing", "boolean", "nil")
 		else
 			opts = {}
