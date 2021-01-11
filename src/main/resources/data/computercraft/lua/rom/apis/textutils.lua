@@ -296,9 +296,6 @@ local function serializeImpl(t, tTracking, sIndent, opts)
             sResult = sResult .. sIndent .. "}"
             return sResult
         end
-		if opts.advancedComparing then
-			tTracking[t] = nil
-		end
     elseif sType == "string" then
         return string.format("%q", t)
 
