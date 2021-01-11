@@ -31,10 +31,10 @@ end
 local function makeMissingMethod(redirectTarget, missingKey)
     local lowerKey = missingKey:lower()
     local replacementMethod
-    if lowerKey:find("color") then
-        replacementMethod = colorToColour(redirectTarget, missingKey)
-    elseif lowerKey:find("colour") then
+    if lowerKey:find("colour") then
         replacementMethod = colourToColor(redirectTarget, missingKey)
+    elseif lowerKey:find("color") then
+        replacementMethod = colorToColour(redirectTarget, missingKey)
     end
 
     return replacementMethod or function()
