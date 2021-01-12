@@ -341,6 +341,18 @@ public final class Environment implements IAPIEnvironment
     }
 
     @Override
+    public Boolean isTransitory()
+    {
+        return computer.isTransitory();
+    }
+
+    @Override
+    public void setTransitory( Boolean isTransitory )
+    {
+        computer.setTransitory( isTransitory );
+    }
+
+    @Override
     public int startTimer( long ticks )
     {
         synchronized( timers )

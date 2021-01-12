@@ -61,6 +61,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         m_family = family;
         m_computer = new Computer( this, getTerminal(), computerID );
         m_computer.setLabel( label );
+        m_computer.setTransitory( false );
         m_userData = null;
         m_changed = false;
 
@@ -213,6 +214,16 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     public int getInstanceID()
     {
         return m_instanceID;
+    }
+
+    public Boolean isTransitory()
+    {
+        return m_computer.isTransitory();
+    }
+
+    public void setTransitory( boolean isTransitory )
+    {
+        m_computer.setTransitory( isTransitory );
     }
 
     public int getID()

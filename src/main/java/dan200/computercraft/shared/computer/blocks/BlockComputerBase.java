@@ -147,6 +147,9 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
         if( tile instanceof TileComputerBase )
         {
             TileComputerBase computer = (TileComputerBase) tile;
+
+            if (computer.isTransitory())
+                computer.setComputerID(-1);
             LootContext.Builder context = new LootContext.Builder( (ServerWorld) world )
                 .withRandom( world.rand )
                 .withParameter( LootParameters.POSITION, pos )

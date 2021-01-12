@@ -66,6 +66,10 @@ public interface IAPIEnvironment
 
     void setLabel( @Nullable String label );
 
+    Boolean isTransitory();
+
+    void setTransitory( @Nullable Boolean isTransitory );
+
     int startTimer( long ticks );
 
     void cancelTimer( int id );

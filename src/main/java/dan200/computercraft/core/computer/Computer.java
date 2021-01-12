@@ -34,6 +34,7 @@ public class Computer
     // Various properties of the computer
     private int m_id;
     private String m_label = null;
+    private Boolean m_isTransitory = false;
 
     // Read-only fields about the computer
     private final IComputerEnvironment m_environment;
@@ -159,6 +160,20 @@ public class Computer
         if( !Objects.equal( label, m_label ) )
         {
             m_label = label;
+            externalOutputChanged.set( true );
+        }
+    }
+
+    public Boolean isTransitory()
+    {
+        return m_isTransitory;
+    }
+
+    public void setTransitory( Boolean isTransitory )
+    {
+        if( !Objects.equal( isTransitory, m_isTransitory ) )
+        {
+            m_isTransitory = isTransitory;
             externalOutputChanged.set( true );
         }
     }

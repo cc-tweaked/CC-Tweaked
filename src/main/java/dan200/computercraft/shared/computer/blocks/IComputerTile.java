@@ -17,5 +17,9 @@ public interface IComputerTile
 
     void setLabel( String label );
 
+    boolean isTransitory();
+
+    void setTransitory( Boolean isTransitory );
+
     ComputerFamily getFamily();
 }

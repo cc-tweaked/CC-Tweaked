@@ -297,6 +297,31 @@ public class OSAPI implements ILuaAPI
     }
 
     /**
+     * Returns whether the computer will lose it's code when broken.
+     *
+     * @return Whether the computer will lose it's code when broken.
+     * @cc.treturn bool Whether the computer will lose it's code when broken.
+     */
+    @LuaFunction( { "isTransitory", "isTransitory" } )
+    public final boolean isTransitory()
+    {
+        return apiEnvironment.isTransitory();
+    }
+
+    /**
+     * Set whether the computer will lose it's code when broken.
+     *
+     * @param isTransitory Whether the computer will lose it's code when
+     * broken. Defualts to true.
+     */
+    @LuaFunction
+    public final void setTransitory( Optional<Boolean> isTransitory )
+    {
+        apiEnvironment.setTransitory( isTransitory.orElse(true) );
+    }
+
+
+    /**
      * Returns the number of seconds that the computer has been running.
      *
      * @return The computer's uptime.

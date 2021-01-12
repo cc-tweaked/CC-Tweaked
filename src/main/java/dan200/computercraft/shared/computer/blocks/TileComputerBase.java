@@ -52,6 +52,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     private static final String NBT_LABEL = "Label";
     private static final String NBT_ON = "On";
 
+    private boolean isTransitory = false;
     private int m_instanceID = -1;
     private int m_computerID = -1;
     protected String label = null;
@@ -350,6 +351,23 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         this.label = label;
         ServerComputer computer = getServerComputer();
         if( computer != null ) computer.setLabel( label );
+        markDirty();
+    }
+
+    @Override
+    public final boolean isTransitory()
+    {
+        return this.isTransitory;
+    }
+
+    @Override
+    public final void setTransitory( Boolean isTransitory )
+    {
+        if( getWorld().isRemote || Objects.equals( this.isTransitory, isTransitory ) ) return;
+
+        this.isTransitory = isTransitory;
+        ServerComputer computer = getServerComputer();
+        if( computer != null ) computer.setTransitory( isTransitory );
         markDirty();
     }
 
