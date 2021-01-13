@@ -605,3 +605,10 @@ Update to 1.16.4.
 Make rightAlt only close menu, never open it. (#672)
 ```
 Lua changes.
+
+```
+1255bd00fd21247a50046020d7d9a396f66bc6bd
+
+Fix mounts being usable after a disk is ejected
+```
+Reverted a lot of code style changes made by Zundrel, so the diffs are huge.
