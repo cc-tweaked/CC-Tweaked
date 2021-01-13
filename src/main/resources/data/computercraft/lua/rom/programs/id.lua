@@ -32,7 +32,7 @@ else
 
     local id = disk.getID(sDrive)
     if id then
-        print("The disk is #" .. disk.getID(sDrive))
+        print("The disk is #" .. id)
     else
         print("Non-disk data medium")
     end
