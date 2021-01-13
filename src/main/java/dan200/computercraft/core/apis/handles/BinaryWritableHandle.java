@@ -9,6 +9,7 @@ import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.LuaValues;
+import dan200.computercraft.core.filesystem.TrackingCloseable;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -30,14 +31,14 @@ public class BinaryWritableHandle extends HandleGeneric
     final SeekableByteChannel seekable;
     private final ByteBuffer single = ByteBuffer.allocate( 1 );
 
-    protected BinaryWritableHandle( WritableByteChannel writer, SeekableByteChannel seekable, Closeable closeable )
+    protected BinaryWritableHandle( WritableByteChannel writer, SeekableByteChannel seekable, TrackingCloseable closeable )
     {
         super( closeable );
         this.writer = writer;
         this.seekable = seekable;
     }
 
-    public static BinaryWritableHandle of( WritableByteChannel channel, Closeable closeable )
+    public static BinaryWritableHandle of( WritableByteChannel channel, TrackingCloseable closeable )
     {
         SeekableByteChannel seekable = asSeekable( channel );
         return seekable == null ? new BinaryWritableHandle( channel, null, closeable ) : new Seekable( seekable, closeable );
@@ -45,7 +46,7 @@ public class BinaryWritableHandle extends HandleGeneric
 
     public static BinaryWritableHandle of( WritableByteChannel channel )
     {
-        return of( channel, channel );
+        return of( channel, new TrackingCloseable.Impl( channel ) );
     }
 
     /**
@@ -108,7 +109,7 @@ public class BinaryWritableHandle extends HandleGeneric
 
     public static class Seekable extends BinaryWritableHandle
     {
-        public Seekable( SeekableByteChannel seekable, Closeable closeable )
+        public Seekable( SeekableByteChannel seekable, TrackingCloseable closeable )
         {
             super( seekable, seekable, closeable );
         }

@@ -7,6 +7,7 @@ package dan200.computercraft.core.apis.handles;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.core.filesystem.TrackingCloseable;
 
 import javax.annotation.Nonnull;
 import java.io.BufferedReader;
@@ -32,7 +33,7 @@ public class EncodedReadableHandle extends HandleGeneric
 
     private final BufferedReader reader;
 
-    public EncodedReadableHandle( @Nonnull BufferedReader reader, @Nonnull Closeable closable )
+    public EncodedReadableHandle( @Nonnull BufferedReader reader, @Nonnull TrackingCloseable closable )
     {
         super( closable );
         this.reader = reader;
@@ -40,7 +41,7 @@ public class EncodedReadableHandle extends HandleGeneric
 
     public EncodedReadableHandle( @Nonnull BufferedReader reader )
     {
-        this( reader, reader );
+        this( reader, new TrackingCloseable.Impl( reader ) );
     }
 
     /**

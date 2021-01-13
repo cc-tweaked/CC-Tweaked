@@ -95,7 +95,29 @@ public class FileSystem
 
     public synchronized void unmount( String path )
     {
-        mounts.remove( sanitizePath( path ) );
+        MountWrapper mount = mounts.remove( sanitizePath( path ) );
+        if( mount == null ) return;
+
+        cleanup();
+
+        // Close any files which belong to this mount - don't want people writing to a disk after it's been ejected!
+        // There's no point storing a Mount -> Wrapper[] map, as m_openFiles is small and unmount isn't called very
+        // often.
+        synchronized( m_openFiles )
+        {
+            for( Iterator<WeakReference<FileSystemWrapper<?>>> iterator = m_openFiles.keySet().iterator(); iterator.hasNext(); )
+            {
+                WeakReference<FileSystemWrapper<?>> reference = iterator.next();
+                FileSystemWrapper<?> wrapper = reference.get();
+                if( wrapper == null ) continue;
+
+                if( wrapper.mount == mount )
+                {
+                    wrapper.closeExternally();
+                    iterator.remove();
+                }
+            }
+        }
     }
 
     public String combine( String path, String childPath )
@@ -371,7 +393,7 @@ public class FileSystem
         }
     }
 
-    private synchronized <T extends Closeable> FileSystemWrapper<T> openFile( @Nonnull Channel channel, @Nonnull T file ) throws FileSystemException
+    private synchronized <T extends Closeable> FileSystemWrapper<T> openFile( @Nonnull MountWrapper mount, @Nonnull Channel channel, @Nonnull T file ) throws FileSystemException
     {
         synchronized( m_openFiles )
         {
@@ -384,13 +406,13 @@ public class FileSystem
             }
 
             ChannelWrapper<T> channelWrapper = new ChannelWrapper<>( file, channel );
-            FileSystemWrapper<T> fsWrapper = new FileSystemWrapper<>( this, channelWrapper, m_openFileQueue );
+            FileSystemWrapper<T> fsWrapper = new FileSystemWrapper<>( this, mount, channelWrapper, m_openFileQueue );
             m_openFiles.put( fsWrapper.self, channelWrapper );
             return fsWrapper;
         }
     }
 
-    synchronized void removeFile( FileSystemWrapper<?> handle )
+    void removeFile( FileSystemWrapper<?> handle )
     {
         synchronized( m_openFiles )
         {
@@ -405,11 +427,7 @@ public class FileSystem
         path = sanitizePath( path );
         MountWrapper mount = getMount( path );
         ReadableByteChannel channel = mount.openForRead( path );
-        if( channel != null )
-        {
-            return openFile( channel, open.apply( channel ) );
-        }
-        return null;
+        return channel != null ? openFile( mount, channel, open.apply( channel ) ) : null;
     }
 
     public synchronized <T extends Closeable> FileSystemWrapper<T> openForWrite( String path, boolean append, Function<WritableByteChannel, T> open ) throws FileSystemException
@@ -419,11 +437,7 @@ public class FileSystem
         path = sanitizePath( path );
         MountWrapper mount = getMount( path );
         WritableByteChannel channel = append ? mount.openForAppend( path ) : mount.openForWrite( path );
-        if( channel != null )
-        {
-            return openFile( channel, open.apply( channel ) );
-        }
-        return null;
+        return channel != null ? openFile( mount, channel, open.apply( channel ) ) : null;
     }
 
     public synchronized long getFreeSpace( String path ) throws FileSystemException
