@@ -90,7 +90,7 @@ public class InventoryMethods implements GenericSource
      * Get detailed information about an item.
      *
      * @param inventory The current inventory.
-     * @param slot The slot to get information about.
+     * @param slot      The slot to get information about.
      * @return Information about the item in this slot, or {@code nil} if not present.
      * @throws LuaException If the slot is out of range.
      * @cc.treturn table Information about the item in this slot, or {@code nil} if not present.
@@ -111,17 +111,16 @@ public class InventoryMethods implements GenericSource
      * This allows you to push an item in an inventory to another inventory <em>on the same wired network</em>. Both
      * inventories must attached to wired modems which are connected via a cable.
      *
-     * @param from Inventory to move items from.
+     * @param from     Inventory to move items from.
      * @param computer The current computer.
-     * @param toName The name of the peripheral/inventory to push to. This is the string given to @{peripheral.wrap},
-     * and displayed by the wired modem.
+     * @param toName   The name of the peripheral/inventory to push to. This is the string given to @{peripheral.wrap},
+     *                 and displayed by the wired modem.
      * @param fromSlot The slot in the current inventory to move items to.
-     * @param limit The maximum number of items to move. Defaults to the current stack limit.
-     * @param toSlot The slot in the target inventory to move to. If not given, the item will be inserted into any slot.
+     * @param limit    The maximum number of items to move. Defaults to the current stack limit.
+     * @param toSlot   The slot in the target inventory to move to. If not given, the item will be inserted into any slot.
      * @return The number of transferred items.
      * @throws LuaException If the peripheral to transfer to doesn't exist or isn't an inventory.
      * @throws LuaException If either source or destination slot is out of range.
-     *
      * @cc.see peripheral.getName Allows you to get the name of a @{peripheral.wrap|wrapped} peripheral.
      * @cc.usage Wrap two chests, and push an item from one to another.
      * <pre>{@code
@@ -159,17 +158,16 @@ public class InventoryMethods implements GenericSource
      * This allows you to transfer items between inventories <em>on the same wired network</em>. Both this and the source
      * inventory must attached to wired modems which are connected via a cable.
      *
-     * @param to Inventory to move items to.
+     * @param to       Inventory to move items to.
      * @param computer The current computer.
      * @param fromName The name of the peripheral/inventory to pull from. This is the string given to @{peripheral.wrap},
-     * and displayed by the wired modem.
+     *                 and displayed by the wired modem.
      * @param fromSlot The slot in the source inventory to move items from.
-     * @param limit The maximum number of items to move. Defaults to the current stack limit.
-     * @param toSlot The slot in current inventory to move to. If not given, the item will be inserted into any slot.
+     * @param limit    The maximum number of items to move. Defaults to the current stack limit.
+     * @param toSlot   The slot in current inventory to move to. If not given, the item will be inserted into any slot.
      * @return The number of transferred items.
      * @throws LuaException If the peripheral to transfer to doesn't exist or isn't an inventory.
      * @throws LuaException If either source or destination slot is out of range.
-     *
      * @cc.see peripheral.getName Allows you to get the name of a @{peripheral.wrap|wrapped} peripheral.
      * @cc.usage Wrap two chests, and push an item from one to another.
      * <pre>{@code

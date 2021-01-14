@@ -31,8 +31,6 @@ import javax.annotation.Nullable;
 
 import static dan200.computercraft.shared.util.WaterloggableHelpers.*;
 
-import net.minecraft.block.Block.Properties;
-
 public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
 {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;

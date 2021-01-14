@@ -12,8 +12,6 @@ import net.minecraft.util.text.StringTextComponent;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.Item.Properties;
-
 public class ItemComputer extends ItemComputerBase
 {
     public ItemComputer( BlockComputer block, Properties settings )

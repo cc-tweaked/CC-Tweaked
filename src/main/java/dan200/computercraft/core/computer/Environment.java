@@ -20,8 +20,6 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import dan200.computercraft.core.apis.IAPIEnvironment.IPeripheralChangeListener;
-
 /**
  * Represents the "environment" that a {@link Computer} exists in.
  *

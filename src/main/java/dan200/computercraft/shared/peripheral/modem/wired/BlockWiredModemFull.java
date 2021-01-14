@@ -12,8 +12,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
 
-import net.minecraft.block.Block.Properties;
-
 public class BlockWiredModemFull extends BlockGeneric
 {
     public static final BooleanProperty MODEM_ON = BooleanProperty.create( "modem" );

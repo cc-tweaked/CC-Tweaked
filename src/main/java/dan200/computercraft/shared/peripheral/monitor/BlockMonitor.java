@@ -25,8 +25,6 @@ import net.minecraftforge.fml.RegistryObject;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.Block.Properties;
-
 public class BlockMonitor extends BlockGeneric
 {
     public static final DirectionProperty ORIENTATION = DirectionProperty.create( "orientation",

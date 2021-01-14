@@ -17,8 +17,6 @@ import net.minecraft.util.Direction;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.block.Block.Properties;
-
 public class BlockSpeaker extends BlockGeneric
 {
     private static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;

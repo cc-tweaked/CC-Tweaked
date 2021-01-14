@@ -45,8 +45,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import net.minecraft.item.Item.Properties;
-
 public class ItemPocketComputer extends Item implements IComputerItem, IMedia, IColouredItem
 {
     private static final String NBT_UPGRADE = "Upgrade";

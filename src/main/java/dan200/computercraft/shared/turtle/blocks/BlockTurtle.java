@@ -44,8 +44,6 @@ import javax.annotation.Nullable;
 import static dan200.computercraft.shared.util.WaterloggableHelpers.*;
 import static net.minecraft.state.properties.BlockStateProperties.WATERLOGGED;
 
-import net.minecraft.block.Block.Properties;
-
 public class BlockTurtle extends BlockComputerBase<TileTurtle> implements IWaterLoggable
 {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;

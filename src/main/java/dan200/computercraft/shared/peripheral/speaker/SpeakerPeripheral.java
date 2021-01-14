@@ -66,9 +66,9 @@ public abstract class SpeakerPeripheral implements IPeripheral
      * with an optional volume and speed multiplier, and plays it through the speaker.
      *
      * @param context The Lua context
-     * @param name The name of the sound to play.
+     * @param name    The name of the sound to play.
      * @param volumeA The volume to play the sound at, from 0.0 to 3.0. Defaults to 1.0.
-     * @param pitchA The speed to play the sound at, from 0.5 to 2.0. Defaults to 1.0.
+     * @param pitchA  The speed to play the sound at, from 0.5 to 2.0. Defaults to 1.0.
      * @return Whether the sound could be played.
      * @throws LuaException If the sound name couldn't be decoded.
      */
@@ -102,9 +102,9 @@ public abstract class SpeakerPeripheral implements IPeripheral
      * and 6 and 18 map to C.
      *
      * @param context The Lua context
-     * @param name The name of the note to play.
+     * @param name    The name of the note to play.
      * @param volumeA The volume to play the note at, from 0.0 to 3.0. Defaults to 1.0.
-     * @param pitchA The pitch to play the note at in semitones, from 0 to 24. Defaults to 12.
+     * @param pitchA  The pitch to play the note at in semitones, from 0 to 24. Defaults to 12.
      * @return Whether the note could be played.
      * @throws LuaException If the instrument doesn't exist.
      */

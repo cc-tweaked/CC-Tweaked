@@ -24,8 +24,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
 
-import net.minecraft.block.Block.Properties;
-
 public abstract class BlockGeneric extends Block
 {
     private final RegistryObject<? extends TileEntityType<? extends TileGeneric>> type;

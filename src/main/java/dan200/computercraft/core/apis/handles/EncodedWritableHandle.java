@@ -13,7 +13,6 @@ import dan200.computercraft.shared.util.StringUtil;
 
 import javax.annotation.Nonnull;
 import java.io.BufferedWriter;
-import java.io.Closeable;
 import java.io.IOException;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;

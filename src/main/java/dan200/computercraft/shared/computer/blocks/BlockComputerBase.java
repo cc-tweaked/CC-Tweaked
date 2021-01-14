@@ -34,8 +34,6 @@ import net.minecraftforge.fml.RegistryObject;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.Block.Properties;
-
 public abstract class BlockComputerBase<T extends TileComputerBase> extends BlockGeneric implements IBundledRedstoneBlock
 {
     private static final ResourceLocation DROP = new ResourceLocation( ComputerCraft.MOD_ID, "computer" );

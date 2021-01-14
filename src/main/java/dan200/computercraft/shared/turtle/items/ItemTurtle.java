@@ -27,8 +27,6 @@ import javax.annotation.Nullable;
 
 import static dan200.computercraft.shared.turtle.core.TurtleBrain.*;
 
-import net.minecraft.item.Item.Properties;
-
 public class ItemTurtle extends ItemComputerBase implements ITurtleItem
 {
     public ItemTurtle( BlockTurtle block, Properties settings )

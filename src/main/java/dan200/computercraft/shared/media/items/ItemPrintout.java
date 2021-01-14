@@ -23,8 +23,6 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-import net.minecraft.item.Item.Properties;
-
 public class ItemPrintout extends Item
 {
     private static final String NBT_TITLE = "Title";
