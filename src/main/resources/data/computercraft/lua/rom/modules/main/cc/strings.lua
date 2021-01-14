@@ -5,17 +5,24 @@
 
 local expect = require "cc.expect".expect
 
---- Wraps a block of text, so that each line fits within the given width.
---
--- This may be useful if you want to wrap text before displaying it to a
--- @{monitor} or @{printer} without using @{_G.print|print}.
---
--- @tparam string text The string to wrap.
--- @tparam[opt] number width The width to constrain to, defaults to the width of
--- the terminal.
---
--- @treturn { string... } The wrapped input string.
--- @usage require "cc.strings".wrap("This is a long piece of text", 10)
+--[[- Wraps a block of text, so that each line fits within the given width.
+
+This may be useful if you want to wrap text before displaying it to a
+@{monitor} or @{printer} without using @{_G.print|print}.
+
+@tparam string text The string to wrap.
+@tparam[opt] number width The width to constrain to, defaults to the width of
+the terminal.
+@treturn { string... } The wrapped input string as a list of lines.
+@usage Wrap a string and write it to the terminal.
+
+    term.clear()
+    local lines = require "cc.strings".wrap("This is a long piece of text", 10)
+    for i = 1, #lines do
+      term.setCursorPos(1, i)
+      term.write(lines[i])
+    end
+]]
 local function wrap(text, width)
     expect(1, text, "string")
     expect(2, width, "number", "nil")
