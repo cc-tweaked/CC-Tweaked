@@ -16,7 +16,7 @@ jobs:
                   java-version: 8
 
             - name: Cache gradle dependencies
-              uses: actions/cache@v1
+              uses: actions/cache@v2
               with:
                   path: ~/.gradle/caches
                   key: ${{ runner.os }}-gradle-${{ hashFiles('gradle.properties') }}
