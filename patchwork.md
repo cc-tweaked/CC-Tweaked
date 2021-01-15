@@ -612,3 +612,10 @@ Lua changes.
 Fix mounts being usable after a disk is ejected
 ```
 Reverted a lot of code style changes made by Zundrel, so the diffs are huge.
+
+```
+b90611b4b4c176ec1c80df002cc4ac36aa0c4dc8
+
+Preserve registration order of upgrades
+```
+Again, a huge diff because of code style changes.
