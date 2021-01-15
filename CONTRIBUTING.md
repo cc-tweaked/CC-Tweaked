@@ -8,6 +8,10 @@ If you've any other questions, [just ask the community][community] or [open an i
 If you have a bug, suggestion, or other feedback, the best thing to do is [file an issue][new-issue]. When doing so,
 do use the issue templates - they provide a useful hint on what information to provide.
 
+## Translations
+Translations are managed through [Weblate], an online interface for managing language strings. This is synced
+automatically with GitHub, so please don't submit PRs adding/changing translations!
+
 ## Developing
 In order to develop CC: Tweaked, you'll need to download the source code and then run it. This is a pretty simple
 process. When building on Windows, Use `gradlew.bat` instead of `./gradlew`.
@@ -20,6 +24,11 @@ If you want to run CC:T in a normal Minecraft instance, run `./gradlew build` an
 These commands may take a few minutes to run the first time, as the environment is set up, but should be much faster
 afterwards.
 
+The following sections describe the more niche sections of CC: Tweaked's build system. Some bits of these are
+quite-complex, and (dare I say) over-engineered, so you may wish to ignore them. Well tested/documented PRs are always
+preferred (and I'd definitely recommend setting up the tooling if you're doing serious development work), but for
+small changes it can be a lot.
+
 ### Code linters
 CC: Tweaked uses a couple of "linters" on its source code, to enforce a consistent style across the project. While these
 are run whenever you submit a PR, it's often useful to run this before committing.
@@ -27,15 +36,83 @@ are run whenever you submit a PR, it's often useful to run this before committin
  - **[Checkstyle]:** Checks Java code to ensure it is consistently formatted. This can be run with `./gradlew build` or
    `./gradle check`.
  - **[illuaminate]:** Checks Lua code for semantic and styleistic issues. See [the usage section][illuaminate-usage] for
-   how to download and run it.
+   how to download and run it. You may need to generate the Java documentation stubs (see "Documentation" below) for all
+   lints to pass.
 
-## Translations
-Translations are managed through [Weblate], an online interface for managing language strings. This is synced
-automatically with GitHub, so please don't submit PRs adding/changing translations!
+### Documentation
+When writing documentation for [CC: Tweaked's documentation website][docs], it may be useful to build the documentation
+and preview it yourself before submitting a PR.
+
+Building all documentation is, sadly, a multi-stage process (though this is largely hidden by Gradle). First we need to
+convert Java doc-comments into Lua ones, we also generate some Javascript to embed. All of this is then finally fed into
+illuaminate, which spits out our HTML.
+
+#### Setting up the tooling
+For various reasons, getting the environment set up to build documentation can be pretty complex. I'd quite like to
+automate this via Docker and/or nix in the future, but this needs to be done manually for now.
+
+First, you will need JDK 9+ (in addition to JDK 8 which is required to build Minecraft itself). Sadly our version of
+Gradle doesn't support multiple toolchains, and so you need to install this yourself.
+
+Gradle needs to be told about this JDK via the `JAVA_HOME_11_X64` environment variable or adding `java11Home` to 
+`~/.gradle/gradle.properties`. On my system this looks like:
+
+```properties
+java11Home=/usr/lib/jvm/java-11-openjdk/
+```
+
+If you just want to build the documentation stubs for linting, this is enough. However, if you want to build the full
+website, you will also need to install a few Node packages by running `npm ci`.
+
+#### Building documentation
+Gradle should be your entrypoint to building most documentation. There's two tasks which are of interest:
+
+ - `./gradlew luaJavadoc` - Generate documentation stubs for Java methods.
+ - `./gradlew docWebsite` - Generate the whole website (including Javascript pages). The resulting HTML is stored at
+   `./build/docs/lua/`.
+
+#### Writing documentation
+illuaminate's documentation system is not currently documented (somewhat ironic), but is _largely_ the same as
+[ldoc][ldoc]. Documentation comments are written in Markdown, 
+
+Our markdown engine does _not_ support GitHub flavoured markdown, and so does not support all the features one might
+expect (such as tables). It is very much recommended that you build and preview the docs locally first.
+
+### Testing
+Thankfully running tests is much simpler than running the documentation generator! `./gradlew check` will run the
+entire test suite (and some additional bits of verification).
+
+Before we get into writing tests, it's worth mentioning the various test suites that CC: Tweaked has:
+ - "Core" Java (`./src/test/java`): These test core bits of the mod which don't require any Minecraft interaction.
+   This includes the `@LuaFunction` system, file system code, etc...
+   
+   These tests are run by `./gradlew test`.
+
+ - CraftOS (`./src/test/resources/test-rom/`): These tests are written in Lua, and ensure the Lua environment, libraries
+   and programs work as expected. These are (generally) written to be able to be run on emulators too, to provide some
+   sort of compliance test.
+   
+   These tests are run by the '"Core" Java' test suite, and so are also run with `./gradlew test`.
+
+ - In-game (`./src/test/java/dan200/computercraft/ingame/`): These tests are run on an actual Minecraft server, using
+   [the same system Mojang do][mc-test]. The aim of these is to test in-game behaviour of blocks and peripherals.
+   
+   These are run by `./gradlew testInGame`.
+
+## CraftOS tests
+CraftOS's tests are written using a test system called "mcfly", heavily inspired by [busted] (and thus RSpec). Groups of
+tests go inside `describe` blocks, and a single test goes inside `it`.
+
+Assertions are generally written using `expect` (inspired by Hamcrest and the like). For instance, `expect(foo):eq("bar")`
+asserts that your variable `foo` is equal to the expected value `"bar"`.
 
 [new-issue]: https://github.com/SquidDev-CC/CC-Tweaked/issues/new/choose "Create a new issue"
 [community]: README.md#Community "Get in touch with the community."
 [checkstyle]: https://checkstyle.org/
-[illuaminate]: https://github.com/SquidDev/illuaminate/
-[illuaminate-usage]: https://github.com/SquidDev/illuaminate/blob/master/README.md#usage
-[weblate]: https://i18n.tweaked.cc/projects/cc-tweaked/minecraft/
+[illuaminate]: https://github.com/SquidDev/illuaminate/ "Illuaminate on GitHub"
+[illuaminate-usage]: https://github.com/SquidDev/illuaminate/blob/master/README.md#usage "Installing Illuaminate"
+[weblate]: https://i18n.tweaked.cc/projects/cc-tweaked/minecraft/ "CC: Tweaked weblate instance"
+[docs]: https://tweaked.cc/ "CC: Tweaked documentation"
+[ldoc]: http://stevedonovan.github.io/ldoc/ "ldoc, a Lua documentation generator."
+[mc-test]: https://www.youtube.com/watch?v=vXaWOJTCYNg
+[busted]: https://github.com/Olivine-Labs/busted "busted: Elegant Lua unit testing."
