@@ -79,30 +79,45 @@ def setup() -> None:
         pass
 
 
-def build() -> None:
+def check_git() -> None:
     """
-    Ensure the git repository is in a clean state.
+    Check all worktrees are in a sensible state prior to merging.
     """
     setup()
 
-    # Ensure every tree is clean.
+    # Ensure every worktree is on the right branch, has no uncommited changes and is
+    # up-to-date with the remote.
     ok = True
     for branch in BRANCHES:
         status = git_in(branch, "status", "--porcelain", check=True, stdout=subprocess.PIPE).stdout
         if len(status.strip()) > 0:
             log(f"{branch.name} has changes. Build will not continue.")
             ok = False
+            continue
+
+        actual_branch = git_in(branch, "rev-parse", "--abbrev-ref", "HEAD", check=True, stdout=subprocess.PIPE).stdout.decode("utf-8").strip()
+        if actual_branch != branch.name:
+            log(f"{branch.name} is actually on {actual_branch} right now")
+            ok = False
+            continue
+
+        if git_in(branch, "merge-base", "--is-ancestor", f"origin/{branch.name}", branch.name).returncode != 0:
+            log(f"{branch.name} is not up-to-date with remote.")
+            ok = False
+            continue
+
     if not ok:
         sys.exit(1)
 
-    # Ensure every tree is up-to-date.
-    primary = BRANCHES[0]
-    for branch in BRANCHES:
-        if git_in(branch, "merge-base", "--is-ancestor", f"origin/{branch.name}", branch.name).returncode != 0:
-            log(f"{branch.name} is not up-to-date with remote.")
-            # TODO: We should possibly attempt to merge/rebase here instead of aborting.
-            sys.exit(1)
 
+def build() -> None:
+    """
+    Merge in parent branches, then build all branches.
+    """
+    check_git()
+
+    # Merge each branch into the next one.
+    for branch in BRANCHES:
         if (
             branch.parent is not None and
             git_in(branch, "merge-base", "--is-ancestor", branch.parent, branch.name).returncode != 0
@@ -151,6 +166,7 @@ def main() -> None:
         required=True,
     )
     subparsers.add_parser("setup", help="Setup the git repository and build environment.").set_defaults(func=setup)
+    subparsers.add_parser("check-git", help="Check the git worktrees are in a state ready for merging.").set_defaults(func=check_git)
     subparsers.add_parser("build", help="Merge and build all branches.").set_defaults(func=build)
     subparsers.add_parser("release", help="Publish a release.").set_defaults(func=release)
 
