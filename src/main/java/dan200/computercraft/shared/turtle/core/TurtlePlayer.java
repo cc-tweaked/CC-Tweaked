@@ -95,11 +95,11 @@ public final class TurtlePlayer extends FakePlayer
         if( !(access instanceof TurtleBrain) ) return create( access );
 
         TurtleBrain brain = (TurtleBrain) access;
-        TurtlePlayer player = brain.m_cachedPlayer;
+        TurtlePlayer player = brain.cachedPlayer;
         if( player == null || player.getGameProfile() != getProfile( access.getOwningPlayer() )
             || player.getCommandSenderWorld() != access.getWorld() )
         {
-            player = brain.m_cachedPlayer = create( brain );
+            player = brain.cachedPlayer = create( brain );
         }
         else
         {

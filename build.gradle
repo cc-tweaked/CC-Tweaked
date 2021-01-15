@@ -471,6 +471,7 @@ tasks.register('testInGame', JavaExec.class).configure {
     jacoco.applyTo(it)
     it.jacoco.setIncludes(["dan200.computercraft.*"])
     it.jacoco.setClassDumpDir(coverageOut)
+    it.outputs.dir(coverageOut)
     // Older versions of modlauncher don't include a protection domain (and thus no code
     // source). Jacoco skips such classes by default, so we need to explicitly include them.
     it.jacoco.setIncludeNoLocationClasses(true)

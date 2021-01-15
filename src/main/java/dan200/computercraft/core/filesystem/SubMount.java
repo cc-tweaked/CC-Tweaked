@@ -15,8 +15,8 @@ import java.util.List;
 
 public class SubMount implements IMount
 {
-    private IMount parent;
-    private String subPath;
+    private final IMount parent;
+    private final String subPath;
 
     public SubMount( IMount parent, String subPath )
     {

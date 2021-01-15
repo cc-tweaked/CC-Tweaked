@@ -20,13 +20,13 @@ import org.lwjgl.glfw.GLFW;
 
 public class GuiTurtle extends ContainerScreen<ContainerTurtle>
 {
-    private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation( "computercraft", "textures/gui/turtle_normal.png" );
-    private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( "computercraft", "textures/gui/turtle_advanced.png" );
+    private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/turtle_normal.png" );
+    private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/turtle_advanced.png" );
 
-    private ContainerTurtle m_container;
+    private final ContainerTurtle container;
 
-    private final ComputerFamily m_family;
-    private final ClientComputer m_computer;
+    private final ComputerFamily family;
+    private final ClientComputer computer;
 
     private WidgetTerminal terminal;
     private WidgetWrapper terminalWrapper;
@@ -35,9 +35,9 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     {
         super( container, player, title );
 
-        m_container = container;
-        m_family = container.getFamily();
-        m_computer = (ClientComputer) container.getComputer();
+        this.container = container;
+        family = container.getFamily();
+        computer = (ClientComputer) container.getComputer();
 
         imageWidth = 254;
         imageHeight = 217;
@@ -53,7 +53,7 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
         int termPxHeight = ComputerCraft.turtleTermHeight * FixedWidthFontRenderer.FONT_HEIGHT;
 
         terminal = new WidgetTerminal(
-            minecraft, () -> m_computer,
+            minecraft, () -> computer,
             ComputerCraft.turtleTermWidth,
             ComputerCraft.turtleTermHeight,
             2, 2, 2, 2
@@ -95,7 +95,7 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     private void drawSelectionSlot( boolean advanced )
     {
         // Draw selection slot
-        int slot = m_container.getSelectedSlot();
+        int slot = container.getSelectedSlot();
         if( slot >= 0 )
         {
             RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
@@ -110,7 +110,7 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     protected void renderBg( float partialTicks, int mouseX, int mouseY )
     {
         // Draw term
-        boolean advanced = m_family == ComputerFamily.ADVANCED;
+        boolean advanced = family == ComputerFamily.ADVANCED;
         terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
 
         // Draw border/inventory

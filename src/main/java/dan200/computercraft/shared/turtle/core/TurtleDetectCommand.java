@@ -17,11 +17,11 @@ import javax.annotation.Nonnull;
 
 public class TurtleDetectCommand implements ITurtleCommand
 {
-    private final InteractDirection m_direction;
+    private final InteractDirection direction;
 
     public TurtleDetectCommand( InteractDirection direction )
     {
-        m_direction = direction;
+        this.direction = direction;
     }
 
     @Nonnull
@@ -29,7 +29,7 @@ public class TurtleDetectCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         // Get world direction from direction
-        Direction direction = m_direction.toWorldDir( turtle );
+        Direction direction = this.direction.toWorldDir( turtle );
 
         // Check if thing in front is air or not
         World world = turtle.getWorld();

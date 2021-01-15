@@ -32,28 +32,28 @@ public class Computer
     private static final int START_DELAY = 50;
 
     // Various properties of the computer
-    private int m_id;
-    private String m_label = null;
+    private int id;
+    private String label = null;
 
     // Read-only fields about the computer
-    private final IComputerEnvironment m_environment;
-    private final Terminal m_terminal;
+    private final IComputerEnvironment environment;
+    private final Terminal terminal;
     private final ComputerExecutor executor;
     private final MainThreadExecutor serverExecutor;
 
     // Additional state about the computer and its environment.
-    private boolean m_blinking = false;
+    private boolean blinking = false;
     private final Environment internalEnvironment = new Environment( this );
     private final AtomicBoolean externalOutputChanged = new AtomicBoolean();
 
     private boolean startRequested;
-    private int m_ticksSinceStart = -1;
+    private int ticksSinceStart = -1;
 
     public Computer( IComputerEnvironment environment, Terminal terminal, int id )
     {
-        m_id = id;
-        m_environment = environment;
-        m_terminal = terminal;
+        this.id = id;
+        this.environment = environment;
+        this.terminal = terminal;
 
         executor = new ComputerExecutor( this );
         serverExecutor = new MainThreadExecutor( this );
@@ -61,7 +61,7 @@ public class Computer
 
     IComputerEnvironment getComputerEnvironment()
     {
-        return m_environment;
+        return environment;
     }
 
     FileSystem getFileSystem()
@@ -71,7 +71,7 @@ public class Computer
 
     Terminal getTerminal()
     {
-        return m_terminal;
+        return terminal;
     }
 
     public Environment getEnvironment()
@@ -132,33 +132,33 @@ public class Computer
 
     public int getID()
     {
-        return m_id;
+        return id;
     }
 
     public int assignID()
     {
-        if( m_id < 0 )
+        if( id < 0 )
         {
-            m_id = m_environment.assignNewID();
+            id = environment.assignNewID();
         }
-        return m_id;
+        return id;
     }
 
     public void setID( int id )
     {
-        m_id = id;
+        this.id = id;
     }
 
     public String getLabel()
     {
-        return m_label;
+        return label;
     }
 
     public void setLabel( String label )
     {
-        if( !Objects.equal( label, m_label ) )
+        if( !Objects.equal( label, this.label ) )
         {
-            m_label = label;
+            this.label = label;
             externalOutputChanged.set( true );
         }
     }
@@ -166,14 +166,14 @@ public class Computer
     public void tick()
     {
         // We keep track of the number of ticks since the last start, only
-        if( m_ticksSinceStart >= 0 && m_ticksSinceStart <= START_DELAY ) m_ticksSinceStart++;
+        if( ticksSinceStart >= 0 && ticksSinceStart <= START_DELAY ) ticksSinceStart++;
 
-        if( startRequested && (m_ticksSinceStart < 0 || m_ticksSinceStart > START_DELAY) )
+        if( startRequested && (ticksSinceStart < 0 || ticksSinceStart > START_DELAY) )
         {
             startRequested = false;
             if( !executor.isOn() )
             {
-                m_ticksSinceStart = 0;
+                ticksSinceStart = 0;
                 executor.queueStart();
             }
         }
@@ -187,12 +187,12 @@ public class Computer
         if( internalEnvironment.updateOutput() ) externalOutputChanged.set( true );
 
         // Set output changed if the terminal has changed from blinking to not
-        boolean blinking = m_terminal.getCursorBlink() &&
-            m_terminal.getCursorX() >= 0 && m_terminal.getCursorX() < m_terminal.getWidth() &&
-            m_terminal.getCursorY() >= 0 && m_terminal.getCursorY() < m_terminal.getHeight();
-        if( blinking != m_blinking )
+        boolean blinking = terminal.getCursorBlink() &&
+            terminal.getCursorX() >= 0 && terminal.getCursorX() < terminal.getWidth() &&
+            terminal.getCursorY() >= 0 && terminal.getCursorY() < terminal.getHeight();
+        if( blinking != this.blinking )
         {
-            m_blinking = blinking;
+            this.blinking = blinking;
             externalOutputChanged.set( true );
         }
     }
@@ -209,7 +209,7 @@ public class Computer
 
     public boolean isBlinking()
     {
-        return isOn() && m_blinking;
+        return isOn() && blinking;
     }
 
     public void addApi( ILuaAPI api )

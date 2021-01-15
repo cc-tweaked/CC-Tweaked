@@ -26,13 +26,13 @@ import java.util.List;
 
 public class TurtleSuckCommand implements ITurtleCommand
 {
-    private final InteractDirection m_direction;
-    private final int m_quantity;
+    private final InteractDirection direction;
+    private final int quantity;
 
     public TurtleSuckCommand( InteractDirection direction, int quantity )
     {
-        m_direction = direction;
-        m_quantity = quantity;
+        this.direction = direction;
+        this.quantity = quantity;
     }
 
     @Nonnull
@@ -40,14 +40,14 @@ public class TurtleSuckCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         // Sucking nothing is easy
-        if( m_quantity == 0 )
+        if( quantity == 0 )
         {
             turtle.playAnimation( TurtleAnimation.WAIT );
             return TurtleCommandResult.success();
         }
 
         // Get world direction from direction
-        Direction direction = m_direction.toWorldDir( turtle );
+        Direction direction = this.direction.toWorldDir( turtle );
 
         // Get inventory for thing in front
         World world = turtle.getWorld();
@@ -68,7 +68,7 @@ public class TurtleSuckCommand implements ITurtleCommand
         if( inventory != null )
         {
             // Take from inventory of thing in front
-            ItemStack stack = InventoryUtil.takeItems( m_quantity, inventory );
+            ItemStack stack = InventoryUtil.takeItems( quantity, inventory );
             if( stack.isEmpty() ) return TurtleCommandResult.failure( "No items to take" );
 
             // Try to place into the turtle
@@ -107,9 +107,9 @@ public class TurtleSuckCommand implements ITurtleCommand
 
                 ItemStack storeStack;
                 ItemStack leaveStack;
-                if( stack.getCount() > m_quantity )
+                if( stack.getCount() > quantity )
                 {
-                    storeStack = stack.split( m_quantity );
+                    storeStack = stack.split( quantity );
                     leaveStack = stack;
                 }
                 else

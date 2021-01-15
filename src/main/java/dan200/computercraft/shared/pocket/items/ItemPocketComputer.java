@@ -38,8 +38,6 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -361,14 +359,12 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         stack.getOrCreateTag().putInt( NBT_SESSION, sessionID );
     }
 
-    @OnlyIn( Dist.CLIENT )
     public static ComputerState getState( @Nonnull ItemStack stack )
     {
         ClientComputer computer = getClientComputer( stack );
         return computer == null ? ComputerState.OFF : computer.getState();
     }
 
-    @OnlyIn( Dist.CLIENT )
     public static int getLightState( @Nonnull ItemStack stack )
     {
         ClientComputer computer = getClientComputer( stack );

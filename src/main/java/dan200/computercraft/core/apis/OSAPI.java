@@ -32,29 +32,29 @@ public class OSAPI implements ILuaAPI
 {
     private final IAPIEnvironment apiEnvironment;
 
-    private final Int2ObjectMap<Alarm> m_alarms = new Int2ObjectOpenHashMap<>();
-    private int m_clock;
-    private double m_time;
-    private int m_day;
+    private final Int2ObjectMap<Alarm> alarms = new Int2ObjectOpenHashMap<>();
+    private int clock;
+    private double time;
+    private int day;
 
-    private int m_nextAlarmToken = 0;
+    private int nextAlarmToken = 0;
 
     private static class Alarm implements Comparable<Alarm>
     {
-        final double m_time;
-        final int m_day;
+        final double time;
+        final int day;
 
         Alarm( double time, int day )
         {
-            m_time = time;
-            m_day = day;
+            this.time = time;
+            this.day = day;
         }
 
         @Override
         public int compareTo( @Nonnull Alarm o )
         {
-            double t = m_day * 24.0 + m_time;
-            double ot = m_day * 24.0 + m_time;
+            double t = day * 24.0 + time;
+            double ot = day * 24.0 + time;
             return Double.compare( t, ot );
         }
     }
@@ -73,38 +73,38 @@ public class OSAPI implements ILuaAPI
     @Override
     public void startup()
     {
-        m_time = apiEnvironment.getComputerEnvironment().getTimeOfDay();
-        m_day = apiEnvironment.getComputerEnvironment().getDay();
-        m_clock = 0;
+        time = apiEnvironment.getComputerEnvironment().getTimeOfDay();
+        day = apiEnvironment.getComputerEnvironment().getDay();
+        clock = 0;
 
-        synchronized( m_alarms )
+        synchronized( alarms )
         {
-            m_alarms.clear();
+            alarms.clear();
         }
     }
 
     @Override
     public void update()
     {
-        m_clock++;
+        clock++;
 
         // Wait for all of our alarms
-        synchronized( m_alarms )
+        synchronized( alarms )
         {
-            double previousTime = m_time;
-            int previousDay = m_day;
+            double previousTime = time;
+            int previousDay = day;
             double time = apiEnvironment.getComputerEnvironment().getTimeOfDay();
             int day = apiEnvironment.getComputerEnvironment().getDay();
 
             if( time > previousTime || day > previousDay )
             {
-                double now = m_day * 24.0 + m_time;
-                Iterator<Int2ObjectMap.Entry<Alarm>> it = m_alarms.int2ObjectEntrySet().iterator();
+                double now = this.day * 24.0 + this.time;
+                Iterator<Int2ObjectMap.Entry<Alarm>> it = alarms.int2ObjectEntrySet().iterator();
                 while( it.hasNext() )
                 {
                     Int2ObjectMap.Entry<Alarm> entry = it.next();
                     Alarm alarm = entry.getValue();
-                    double t = alarm.m_day * 24.0 + alarm.m_time;
+                    double t = alarm.day * 24.0 + alarm.time;
                     if( now >= t )
                     {
                         apiEnvironment.queueEvent( "alarm", entry.getIntKey() );
@@ -113,17 +113,17 @@ public class OSAPI implements ILuaAPI
                 }
             }
 
-            m_time = time;
-            m_day = day;
+            this.time = time;
+            this.day = day;
         }
     }
 
     @Override
     public void shutdown()
     {
-        synchronized( m_alarms )
+        synchronized( alarms )
         {
-            m_alarms.clear();
+            alarms.clear();
         }
     }
 
@@ -219,11 +219,11 @@ public class OSAPI implements ILuaAPI
     {
         checkFinite( 0, time );
         if( time < 0.0 || time >= 24.0 ) throw new LuaException( "Number out of range" );
-        synchronized( m_alarms )
+        synchronized( alarms )
         {
-            int day = time > m_time ? m_day : m_day + 1;
-            m_alarms.put( m_nextAlarmToken, new Alarm( time, day ) );
-            return m_nextAlarmToken++;
+            int day = time > this.time ? this.day : this.day + 1;
+            alarms.put( nextAlarmToken, new Alarm( time, day ) );
+            return nextAlarmToken++;
         }
     }
 
@@ -237,9 +237,9 @@ public class OSAPI implements ILuaAPI
     @LuaFunction
     public final void cancelAlarm( int token )
     {
-        synchronized( m_alarms )
+        synchronized( alarms )
         {
-            m_alarms.remove( token );
+            alarms.remove( token );
         }
     }
 
@@ -304,7 +304,7 @@ public class OSAPI implements ILuaAPI
     @LuaFunction
     public final double clock()
     {
-        return m_clock * 0.05;
+        return clock * 0.05;
     }
 
     /**
@@ -341,7 +341,7 @@ public class OSAPI implements ILuaAPI
             case "local": // Get Hour of day (local time)
                 return getTimeForCalendar( Calendar.getInstance() );
             case "ingame": // Get in-game hour
-                return m_time;
+                return time;
             default:
                 throw new LuaException( "Unsupported operation" );
         }
@@ -371,7 +371,7 @@ public class OSAPI implements ILuaAPI
             case "local": // Get numbers of days since 1970-01-01 (local time)
                 return getDayForCalendar( Calendar.getInstance() );
             case "ingame":// Get game day
-                return m_day;
+                return day;
             default:
                 throw new LuaException( "Unsupported operation" );
         }
@@ -410,9 +410,9 @@ public class OSAPI implements ILuaAPI
             }
             case "ingame":
                 // Get in-game epoch
-                synchronized( m_alarms )
+                synchronized( alarms )
                 {
-                    return m_day * 86400000L + (long) (m_time * 3600000.0);
+                    return day * 86400000L + (long) (time * 3600000.0);
                 }
             default:
                 throw new LuaException( "Unsupported operation" );

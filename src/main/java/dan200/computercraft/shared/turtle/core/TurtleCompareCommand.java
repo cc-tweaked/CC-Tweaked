@@ -23,11 +23,11 @@ import java.util.List;
 
 public class TurtleCompareCommand implements ITurtleCommand
 {
-    private final InteractDirection m_direction;
+    private final InteractDirection direction;
 
     public TurtleCompareCommand( InteractDirection direction )
     {
-        m_direction = direction;
+        this.direction = direction;
     }
 
     @Nonnull
@@ -35,7 +35,7 @@ public class TurtleCompareCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         // Get world direction from direction
-        Direction direction = m_direction.toWorldDir( turtle );
+        Direction direction = this.direction.toWorldDir( turtle );
 
         // Get currently selected stack
         ItemStack selectedStack = turtle.getInventory().getItem( turtle.getSelectedSlot() );

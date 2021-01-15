@@ -52,12 +52,12 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     private static final String NBT_LABEL = "Label";
     private static final String NBT_ON = "On";
 
-    private int m_instanceID = -1;
-    private int m_computerID = -1;
+    private int instanceID = -1;
+    private int computerID = -1;
     protected String label = null;
-    private boolean m_on = false;
-    boolean m_startOn = false;
-    private boolean m_fresh = false;
+    private boolean on = false;
+    boolean startOn = false;
+    private boolean fresh = false;
     private final NonNullConsumer<LazyOptional<IPeripheral>>[] invalidate;
 
     private final ComputerFamily family;
@@ -78,10 +78,10 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     protected void unload()
     {
-        if( m_instanceID >= 0 )
+        if( instanceID >= 0 )
         {
-            if( !getLevel().isClientSide ) ComputerCraft.serverComputerRegistry.remove( m_instanceID );
-            m_instanceID = -1;
+            if( !getLevel().isClientSide ) ComputerCraft.serverComputerRegistry.remove( instanceID );
+            instanceID = -1;
         }
     }
 
@@ -162,18 +162,18 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             if( computer == null ) return;
 
             // If the computer isn't on and should be, then turn it on
-            if( m_startOn || (m_fresh && m_on) )
+            if( startOn || (fresh && on) )
             {
                 computer.turnOn();
-                m_startOn = false;
+                startOn = false;
             }
 
             computer.keepAlive();
 
-            m_fresh = false;
-            m_computerID = computer.getID();
+            fresh = false;
+            computerID = computer.getID();
             label = computer.getLabel();
-            m_on = computer.isOn();
+            on = computer.isOn();
 
             if( computer.hasOutputChanged() ) updateOutput();
 
@@ -192,9 +192,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     public CompoundNBT save( @Nonnull CompoundNBT nbt )
     {
         // Save ID, label and power state
-        if( m_computerID >= 0 ) nbt.putInt( NBT_ID, m_computerID );
+        if( computerID >= 0 ) nbt.putInt( NBT_ID, computerID );
         if( label != null ) nbt.putString( NBT_LABEL, label );
-        nbt.putBoolean( NBT_ON, m_on );
+        nbt.putBoolean( NBT_ON, on );
 
         return super.save( nbt );
     }
@@ -205,9 +205,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         super.load( nbt );
 
         // Load ID, label and power state
-        m_computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
+        computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
         label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
-        m_on = m_startOn = nbt.getBoolean( NBT_ON );
+        on = startOn = nbt.getBoolean( NBT_ON );
     }
 
     protected boolean isPeripheralBlockedOnSide( ComputerSide localSide )
@@ -322,7 +322,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public final int getComputerID()
     {
-        return m_computerID;
+        return computerID;
     }
 
     @Override
@@ -334,11 +334,11 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public final void setComputerID( int id )
     {
-        if( getLevel().isClientSide || m_computerID == id ) return;
+        if( getLevel().isClientSide || computerID == id ) return;
 
-        m_computerID = id;
+        computerID = id;
         ServerComputer computer = getServerComputer();
-        if( computer != null ) computer.setID( m_computerID );
+        if( computer != null ) computer.setID( computerID );
         setChanged();
     }
 
@@ -364,16 +364,16 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         if( getLevel().isClientSide ) return null;
 
         boolean changed = false;
-        if( m_instanceID < 0 )
+        if( instanceID < 0 )
         {
-            m_instanceID = ComputerCraft.serverComputerRegistry.getUnusedInstanceID();
+            instanceID = ComputerCraft.serverComputerRegistry.getUnusedInstanceID();
             changed = true;
         }
-        if( !ComputerCraft.serverComputerRegistry.contains( m_instanceID ) )
+        if( !ComputerCraft.serverComputerRegistry.contains( instanceID ) )
         {
-            ServerComputer computer = createComputer( m_instanceID, m_computerID );
-            ComputerCraft.serverComputerRegistry.add( m_instanceID, computer );
-            m_fresh = true;
+            ServerComputer computer = createComputer( instanceID, computerID );
+            ComputerCraft.serverComputerRegistry.add( instanceID, computer );
+            fresh = true;
             changed = true;
         }
         if( changed )
@@ -381,12 +381,12 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             updateBlock();
             updateInput();
         }
-        return ComputerCraft.serverComputerRegistry.get( m_instanceID );
+        return ComputerCraft.serverComputerRegistry.get( instanceID );
     }
 
     public ServerComputer getServerComputer()
     {
-        return getLevel().isClientSide ? null : ComputerCraft.serverComputerRegistry.get( m_instanceID );
+        return getLevel().isClientSide ? null : ComputerCraft.serverComputerRegistry.get( instanceID );
     }
 
     // Networking stuff
@@ -396,7 +396,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     {
         super.writeDescription( nbt );
         if( label != null ) nbt.putString( NBT_LABEL, label );
-        if( m_computerID >= 0 ) nbt.putInt( NBT_ID, m_computerID );
+        if( computerID >= 0 ) nbt.putInt( NBT_ID, computerID );
     }
 
     @Override
@@ -404,22 +404,22 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     {
         super.readDescription( nbt );
         label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
-        m_computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
+        computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
     }
 
     protected void transferStateFrom( TileComputerBase copy )
     {
-        if( copy.m_computerID != m_computerID || copy.m_instanceID != m_instanceID )
+        if( copy.computerID != computerID || copy.instanceID != instanceID )
         {
             unload();
-            m_instanceID = copy.m_instanceID;
-            m_computerID = copy.m_computerID;
+            instanceID = copy.instanceID;
+            computerID = copy.computerID;
             label = copy.label;
-            m_on = copy.m_on;
-            m_startOn = copy.m_startOn;
+            on = copy.on;
+            startOn = copy.startOn;
             updateBlock();
         }
-        copy.m_instanceID = -1;
+        copy.instanceID = -1;
     }
 
     @Nonnull

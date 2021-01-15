@@ -10,8 +10,6 @@ import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
@@ -80,7 +78,6 @@ public class ChatTableClientMessage implements NetworkMessage
     }
 
     @Override
-    @OnlyIn( Dist.CLIENT )
     public void handle( NetworkEvent.Context context )
     {
         ClientTableFormatter.INSTANCE.display( table );

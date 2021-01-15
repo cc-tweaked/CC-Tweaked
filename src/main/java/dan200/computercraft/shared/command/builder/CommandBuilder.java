@@ -31,7 +31,7 @@ import static dan200.computercraft.shared.command.builder.HelpingArgumentBuilder
  */
 public class CommandBuilder<S> implements CommandNodeBuilder<S, Command<S>>
 {
-    private List<ArgumentBuilder<S, ?>> args = new ArrayList<>();
+    private final List<ArgumentBuilder<S, ?>> args = new ArrayList<>();
     private Predicate<S> requires;
 
     public static CommandBuilder<CommandSource> args()

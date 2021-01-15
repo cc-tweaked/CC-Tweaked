@@ -42,13 +42,13 @@ import java.util.List;
 
 public class TurtlePlaceCommand implements ITurtleCommand
 {
-    private final InteractDirection m_direction;
-    private final Object[] m_extraArguments;
+    private final InteractDirection direction;
+    private final Object[] extraArguments;
 
     public TurtlePlaceCommand( InteractDirection direction, Object[] arguments )
     {
-        m_direction = direction;
-        m_extraArguments = arguments;
+        this.direction = direction;
+        extraArguments = arguments;
     }
 
     @Nonnull
@@ -63,7 +63,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
 
         // Remember old block
-        Direction direction = m_direction.toWorldDir( turtle );
+        Direction direction = this.direction.toWorldDir( turtle );
         BlockPos coordinates = turtle.getPosition().relative( direction );
 
         // Create a fake player, and orient it appropriately
@@ -78,7 +78,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Do the deploying
         String[] errorMessage = new String[1];
-        ItemStack remainder = deploy( stack, turtle, turtlePlayer, direction, m_extraArguments, errorMessage );
+        ItemStack remainder = deploy( stack, turtle, turtlePlayer, direction, extraArguments, errorMessage );
         if( remainder != stack )
         {
             // Put the remaining items back
