@@ -174,6 +174,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             m_fresh = false;
             m_computerID = computer.getID();
             label = computer.getLabel();
+            isTransitory = computer.isTransitory();
             m_on = computer.isOn();
 
             if( computer.hasOutputChanged() ) updateOutput();
