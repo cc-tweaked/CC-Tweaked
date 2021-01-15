@@ -13,16 +13,30 @@ if sDrive == nil then
     end
 
 else
-    local bData = disk.hasData(sDrive)
-    if not bData then
+    if disk.hasAudio(sDrive) then
+        local title = disk.getAudioTitle(sDrive)
+        if title then
+            print("Has audio track \"" .. title .. "\"")
+        else
+            print("Has untitled audio")
+        end
+        return
+    end
+
+    if not disk.hasData(sDrive) then
         print("No disk in drive " .. sDrive)
         return
     end
 
-    print("The disk is #" .. disk.getID(sDrive))
+    local id = disk.getID(sDrive)
+    if id then
+        print("The disk is #" .. id)
+    else
+        print("Non-disk data source")
+    end
 
     local label = disk.getLabel(sDrive)
     if label then
-        print("The disk is labelled \"" .. label .. "\"")
+        print("Labelled \"" .. label .. "\"")
     end
 end
