@@ -20,5 +20,3 @@ while true do
   print(("The mouse button %s was dragged at %d, %d"):format(button, x, y))
 end
 ```
-
-
