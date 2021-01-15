@@ -86,13 +86,6 @@ minecraft {
                 }
             }
         }
-
-        testServerRun {
-            parent runs.testServer
-            property 'forge.logging.console.level', 'info'
-            property 'cctest.run', 'true'
-            forceExit false
-        }
     }
 
     mappings channel: 'official', version: project.mc_version
@@ -392,6 +385,7 @@ test {
 }
 
 jacocoTestReport {
+    dependsOn('test')
     reports {
         xml.enabled true
         html.enabled true
@@ -440,12 +434,64 @@ task licenseFormatAPI(type: LicenseFormat);
 }
 
 task setupServer(type: Copy) {
+    group "test server"
+    description "Sets up the environment for the test server."
+
     from("src/test/server-files") {
         include "eula.txt"
         include "server.properties"
     }
     into "test-files/server"
 }
+
+tasks.register('testInGame', JavaExec.class).configure {
+    it.group('test server')
+    it.description("Runs tests on a temporary Minecraft server.")
+    it.dependsOn(setupServer, 'prepareRunTestServer')
+
+    // Copy from runTestServer. We do it in this slightly odd way as runTestServer
+    // isn't created until the task is configured (which is no good for us).
+    JavaExec exec = tasks.getByName('runTestServer')
+    it.setWorkingDir(exec.getWorkingDir())
+    it.setSystemProperties(exec.getSystemProperties())
+    it.setBootstrapClasspath(exec.getBootstrapClasspath())
+    it.setClasspath(exec.getClasspath())
+    it.setMain(exec.getMain())
+    it.setEnvironment(exec.getEnvironment())
+    it.setArgs(exec.getArgs())
+    it.setJvmArgs(exec.getJvmArgs())
+
+    it.systemProperty('forge.logging.console.level', 'info')
+    it.systemProperty('cctest.run', 'true')
+
+    // Jacoco and modlauncher don't play well together as the classes loaded in-game don't
+    // match up with those written to disk. We get Jacoco to dump all classes to disk, and
+    // use that when generating the report.
+    def coverageOut = new File(buildDir, 'jacocoClassDump/testInGame')
+    jacoco.applyTo(it)
+    it.jacoco.setIncludes(["dan200.computercraft.*"])
+    it.jacoco.setClassDumpDir(coverageOut)
+    // Older versions of modlauncher don't include a protection domain (and thus no code
+    // source). Jacoco skips such classes by default, so we need to explicitly include them.
+    it.jacoco.setIncludeNoLocationClasses(true)
+}
+
+tasks.register('jacocoTestInGameReport', JacocoReport.class).configure {
+    it.group('test server')
+    it.description('Generate coverage reports for in-game tests (testInGame)')
+    it.dependsOn('testInGame')
+
+    it.executionData(new File(buildDir, 'jacoco/testInGame.exec'))
+    it.setSourceDirectories(project.files(sourceSets.main.allJava.srcDirs))
+    it.setClassDirectories(project.files(new File(buildDir, 'jacocoClassDump/testInGame')))
+
+    it.reports {
+        xml.enabled true
+        html.enabled true
+    }
+}
+check.dependsOn('jacocoTestInGameReport')
+
 
 // Upload tasks
 

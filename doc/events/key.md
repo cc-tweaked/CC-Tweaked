@@ -21,6 +21,6 @@ Prints each key when the user presses it, and if the key is being held.
 ```lua
 while true do
   local event, key, is_held = os.pullEvent("key")  
-  print(("%s held=%b"):format(keys.getName(key), is_held))
+  print(("%s held=%s"):format(keys.getName(key), is_held))
 end
 ```

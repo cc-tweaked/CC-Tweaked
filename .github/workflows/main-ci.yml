@@ -24,13 +24,10 @@ jobs:
           ${{ runner.os }}-gradle-
 
     - name: Build with Gradle
-      run: ./gradlew build --no-daemon || ./gradlew build --no-daemon
-
-    - name: Run in-game tests
       run: |
-        ./gradlew setupServer --no-daemon
-        ./gradlew prepareRunTestServerRun --no-daemon || ./gradlew prepareRunTestServerRun --no-daemon
-        ./gradlew runTestServerRun --no-daemon
+        ./gradlew assemble --no-daemon || ./gradlew assemble --no-daemon
+        ./gradlew downloadAssets --no-daemon || ./gradlew downloadAssets --no-daemon
+        ./gradlew build
 
     - name: Upload Jar
       uses: actions/upload-artifact@v1
