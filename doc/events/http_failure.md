@@ -10,7 +10,7 @@ This event is normally handled inside @{http.get} and @{http.post}, but it can s
 ## Return Values
 1. @{string}: The URL of the site requested.
 2. @{string}: An error describing the failure.
-3. @{Response|nil}: A response handle if the connection succeeded, but the server's response indicated failure.
+3. @{http.Response|nil}: A response handle if the connection succeeded, but the server's response indicated failure.
 
 ## Example
 Prints an error why the website cannot be contacted:
