@@ -2,7 +2,7 @@
 module: [kind=event] computer_command
 ---
 
-The @{computer_command} event is fired when the @{/computer} command is run for the current computer.
+The @{computer_command} event is fired when the `/computer}` command is run for the current computer.
 
 ## Return Values
 ... @{string}: The arguments passed to the command.
