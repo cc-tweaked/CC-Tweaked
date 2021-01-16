@@ -1,9 +1,12 @@
-New features in CC: Restitched 1.95.1
+New features in CC: Restitched 1.95.2
+
+* Add `isReadOnly` to `fs.attributes` (Lupus590)
+* Many more programs now support numpad enter (Wojbie)
 
 Several bug fixes:
-* Command computers now drop items again.
-* Restore crafting of disks with dyes.
-* Fix CraftTweaker integrations for damageable items.
-* Catch reflection errors in the generic peripheral system, resolving crashes with Botania.
+* Fix some commands failing to parse on dedicated servers.
+* Hopefully improve edit's behaviour with AltGr on some European keyboards.
+* Prevent files being usable after their mount was removed.
+* Fix the `id` program crashing on non-disk items (Wojbie).
 
 Type "help changelog" to see the full version history.
