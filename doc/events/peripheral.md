@@ -3,7 +3,7 @@ module: [kind=event] peripheral
 see: peripheral_detach For the event fired when a peripheral is detached.
 ---
 
-The @{peripheral} event is fired when a peripheral is attached on a side.
+The @{peripheral} event is fired when a peripheral is attached on a side or to a modem.
 
 ## Return Values
 1. @{string}: The side the peripheral was attached to.
