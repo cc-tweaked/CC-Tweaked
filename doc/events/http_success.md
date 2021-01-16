@@ -9,7 +9,7 @@ This event is normally handled inside @{http.get} and @{http.post}, but it can s
 
 ## Return Values
 1. @{string}: The URL of the site requested.
-2. @{Response}: The handle for the response text.
+2. @{http.Response}: The handle for the response text.
 
 ## Example
 Prints the content of a website (this may fail if the request fails):
