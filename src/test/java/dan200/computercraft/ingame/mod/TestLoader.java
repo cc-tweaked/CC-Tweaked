@@ -19,7 +19,6 @@ import org.objectweb.asm.Type;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
@@ -110,13 +109,6 @@ class TestLoader
     private static void setFinalField( TestFunctionInfo func, String name, Object value ) throws ReflectiveOperationException
     {
         Field field = TestFunctionInfo.class.getDeclaredField( name );
-        if( (field.getModifiers() & Modifier.FINAL) != 0 )
-        {
-            Field modifiers = Field.class.getDeclaredField( "modifiers" );
-            modifiers.setAccessible( true );
-            modifiers.set( field, field.getModifiers() & ~Modifier.FINAL );
-        }
-
         field.setAccessible( true );
         field.set( func, value );
     }

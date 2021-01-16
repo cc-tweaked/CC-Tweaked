@@ -6,12 +6,17 @@ buildscript {
             name = "forge"
             url = "https://files.minecraftforge.net/maven"
         }
+        maven {
+            name = "mixin"
+            url = "https://dist.creeper.host/Sponge/maven"
+        }
     }
     dependencies {
         classpath 'com.google.code.gson:gson:2.8.1'
         classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.190'
         classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
         classpath 'org.ajoberstar.grgit:grgit-gradle:3.0.0'
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
 
@@ -25,6 +30,7 @@ plugins {
 }
 
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'org.ajoberstar.grgit'
 apply plugin: 'maven-publish'
 apply plugin: 'maven'
@@ -79,6 +85,10 @@ minecraft {
         testServer {
             workingDirectory project.file('test-files/server')
             parent runs.server
+            properties 'mixin.env.disableRefMap': 'true'
+
+            arg "-mixin.config=cctest.mixin.json"
+            arg "--nogui"
 
             mods {
                 cctest {
@@ -91,6 +101,10 @@ minecraft {
     mappings channel: 'official', version: mc_version
 
     accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
+}
+
+mixin {
+    add sourceSets.test, "cctest.refmap.json"
 }
 
 sourceSets {
