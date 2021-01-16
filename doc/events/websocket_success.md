@@ -14,7 +14,7 @@ This event is normally handled inside @{http.websocket}, but it can still be see
 ## Example
 Prints the content of a website (this may fail if the request fails):
 ```lua
-http.websocketAsync("http://echo.websocket.org")
+http.websocketAsync("ws://echo.websocket.org")
 local event, url, handle = os.pullEvent("websocket_success")
 print("Connected to " .. url)
 handle.send("Hello!")
