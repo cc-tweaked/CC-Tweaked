@@ -4,7 +4,7 @@ module: [kind=event] websocket_message
 
 The @{websocket_message} event is fired when a message is received on an open WebSocket connection.
 
-This event is normally handled by @{Websocket.receive}, but it can also be pulled manually.
+This event is normally handled by @{http.Websocket.receive}, but it can also be pulled manually.
 
 ## Return Values
 1. @{string}: The URL of the WebSocket.
