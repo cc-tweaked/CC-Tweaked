@@ -9,7 +9,7 @@ This event is normally handled inside @{http.websocket}, but it can still be see
 
 ## Return Values
 1. @{string}: The URL of the site.
-2. @{Websocket}: The handle for the WebSocket.
+2. @{http.Websocket}: The handle for the WebSocket.
 
 ## Example
 Prints the content of a website (this may fail if the request fails):
