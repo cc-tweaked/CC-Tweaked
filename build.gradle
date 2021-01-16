@@ -11,7 +11,6 @@ buildscript {
         classpath 'com.google.code.gson:gson:2.8.1'
         classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.190'
         classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
-        classpath 'org.ajoberstar.grgit:grgit-gradle:3.0.0'
     }
 }
 
@@ -25,7 +24,6 @@ plugins {
 }
 
 apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.ajoberstar.grgit'
 apply plugin: 'maven-publish'
 apply plugin: 'maven'
 
@@ -200,7 +198,6 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.hierynomus.gradle.license.tasks.LicenseCheck
 import com.hierynomus.gradle.license.tasks.LicenseFormat
-import org.ajoberstar.grgit.Grgit
 import proguard.gradle.ProGuardTask
 
 task proguard(type: ProGuardTask, dependsOn: jar) {
@@ -253,16 +250,15 @@ processResources {
     def hash = 'none'
     Set<String> contributors = []
     try {
-        def grgit = Grgit.open(dir: '.')
-        hash = grgit.head().id
+        hash = ["git", "-C", projectDir, "rev-parse", "HEAD"].execute().text.trim()
 
         def blacklist = ['GitHub', 'dan200', 'Daniel Ratcliffe']
-        grgit.log().each {
-            if (!blacklist.contains(it.author.name)) contributors.add(it.author.name)
-            if (!blacklist.contains(it.committer.name)) contributors.add(it.committer.name)
+        ["git", "-C", projectDir, "log", "--format=tformat:%an%n%cn"].execute().text.split('\n').each {
+            if (!blacklist.contains(it)) contributors.add(it)
         }
-    } catch(Exception ignored) { }
-
+    } catch(Exception e) {
+        e.printStackTrace()
+    }
     inputs.property "commithash", hash
 
     from(sourceSets.main.resources.srcDirs) {
@@ -606,18 +602,23 @@ githubRelease {
     token project.hasProperty('githubApiKey') ? project.githubApiKey : ''
     owner 'SquidDev-CC'
     repo 'CC-Tweaked'
-    try {
-        targetCommitish = Grgit.open(dir: '.').branch.current().name
-    } catch(Exception ignored) { }
+    targetCommitish.set(project.provider({
+        try {
+            return ["git", "-C", projectDir, "rev-parse", "--abbrev-ref", "HEAD"].execute().text.trim()
+        } catch (Exception e) {
+            e.printStackTrace()
+        }
+        return "master"
+    }))
 
     tagName "v${mc_version}-${mod_version}"
     releaseName "[${mc_version}] ${mod_version}"
-    body {
+    body.set(project.provider({
         "## " + new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt")
             .readLines()
             .takeWhile { it != 'Type "help changelog" to see the full version history.' }
             .join("\n").trim()
-    }
+    }))
     prerelease false
 }
 
