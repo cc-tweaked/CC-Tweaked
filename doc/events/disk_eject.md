@@ -3,7 +3,7 @@ module: [kind=event] disk_eject
 see: disk For the event sent when a disk is inserted.
 ---
 
-The @{disk_eject} event is fired when a disk is removed from an adjacent disk drive.
+The @{disk_eject} event is fired when a disk is removed from an adjacent or networked disk drive.
 
 ## Return Values
 1. @{string}: The side of the disk drive that had a disk removed.
