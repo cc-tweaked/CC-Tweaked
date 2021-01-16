@@ -17,7 +17,10 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.*;
+import net.minecraft.item.DyeColor;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.*;
@@ -52,14 +55,14 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     ITextComponent customName;
 
-    private final NonNullList<ItemStack> m_inventory = NonNullList.withSize( SLOTS, ItemStack.EMPTY );
+    private final NonNullList<ItemStack> inventory = NonNullList.withSize( SLOTS, ItemStack.EMPTY );
     private final SidedCaps<IItemHandler> itemHandlerCaps =
         SidedCaps.ofNullable( facing -> facing == null ? new InvWrapper( this ) : new SidedInvWrapper( this, facing ) );
     private LazyOptional<IPeripheral> peripheralCap;
 
-    private final Terminal m_page = new Terminal( ItemPrintout.LINE_MAX_LENGTH, ItemPrintout.LINES_PER_PAGE );
-    private String m_pageTitle = "";
-    private boolean m_printing = false;
+    private final Terminal page = new Terminal( ItemPrintout.LINE_MAX_LENGTH, ItemPrintout.LINES_PER_PAGE );
+    private String pageTitle = "";
+    private boolean printing = false;
 
     public TilePrinter( TileEntityType<TilePrinter> type )
     {
@@ -98,15 +101,15 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         customName = nbt.contains( NBT_NAME ) ? ITextComponent.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
 
         // Read page
-        synchronized( m_page )
+        synchronized( page )
         {
-            m_printing = nbt.getBoolean( NBT_PRINTING );
-            m_pageTitle = nbt.getString( NBT_PAGE_TITLE );
-            m_page.readFromNBT( nbt );
+            printing = nbt.getBoolean( NBT_PRINTING );
+            pageTitle = nbt.getString( NBT_PAGE_TITLE );
+            page.readFromNBT( nbt );
         }
 
         // Read inventory
-        ItemStackHelper.loadAllItems( nbt, m_inventory );
+        ItemStackHelper.loadAllItems( nbt, inventory );
     }
 
     @Nonnull
@@ -116,35 +119,35 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         if( customName != null ) nbt.putString( NBT_NAME, ITextComponent.Serializer.toJson( customName ) );
 
         // Write page
-        synchronized( m_page )
+        synchronized( page )
         {
-            nbt.putBoolean( NBT_PRINTING, m_printing );
-            nbt.putString( NBT_PAGE_TITLE, m_pageTitle );
-            m_page.writeToNBT( nbt );
+            nbt.putBoolean( NBT_PRINTING, printing );
+            nbt.putString( NBT_PAGE_TITLE, pageTitle );
+            page.writeToNBT( nbt );
         }
 
         // Write inventory
-        ItemStackHelper.saveAllItems( nbt, m_inventory );
+        ItemStackHelper.saveAllItems( nbt, inventory );
 
         return super.save( nbt );
     }
 
     boolean isPrinting()
     {
-        return m_printing;
+        return printing;
     }
 
     // IInventory implementation
     @Override
     public int getContainerSize()
     {
-        return m_inventory.size();
+        return inventory.size();
     }
 
     @Override
     public boolean isEmpty()
     {
-        for( ItemStack stack : m_inventory )
+        for( ItemStack stack : inventory )
         {
             if( !stack.isEmpty() ) return false;
         }
@@ -155,15 +158,15 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     @Override
     public ItemStack getItem( int slot )
     {
-        return m_inventory.get( slot );
+        return inventory.get( slot );
     }
 
     @Nonnull
     @Override
     public ItemStack removeItemNoUpdate( int slot )
     {
-        ItemStack result = m_inventory.get( slot );
-        m_inventory.set( slot, ItemStack.EMPTY );
+        ItemStack result = inventory.get( slot );
+        inventory.set( slot, ItemStack.EMPTY );
         setChanged();
         updateBlockState();
         return result;
@@ -173,7 +176,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     @Override
     public ItemStack removeItem( int slot, int count )
     {
-        ItemStack stack = m_inventory.get( slot );
+        ItemStack stack = inventory.get( slot );
         if( stack.isEmpty() ) return ItemStack.EMPTY;
 
         if( stack.getCount() <= count )
@@ -183,9 +186,9 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         }
 
         ItemStack part = stack.split( count );
-        if( m_inventory.get( slot ).isEmpty() )
+        if( inventory.get( slot ).isEmpty() )
         {
-            m_inventory.set( slot, ItemStack.EMPTY );
+            inventory.set( slot, ItemStack.EMPTY );
             updateBlockState();
         }
         setChanged();
@@ -195,7 +198,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     @Override
     public void setItem( int slot, @Nonnull ItemStack stack )
     {
-        m_inventory.set( slot, stack );
+        inventory.set( slot, stack );
         setChanged();
         updateBlockState();
     }
@@ -203,7 +206,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     @Override
     public void clearContent()
     {
-        for( int i = 0; i < m_inventory.size(); i++ ) m_inventory.set( i, ItemStack.EMPTY );
+        for( int i = 0; i < inventory.size(); i++ ) inventory.set( i, ItemStack.EMPTY );
         setChanged();
         updateBlockState();
     }
@@ -251,33 +254,33 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     @Nullable
     Terminal getCurrentPage()
     {
-        synchronized( m_page )
+        synchronized( page )
         {
-            return m_printing ? m_page : null;
+            return printing ? page : null;
         }
     }
 
     boolean startNewPage()
     {
-        synchronized( m_page )
+        synchronized( page )
         {
             if( !canInputPage() ) return false;
-            if( m_printing && !outputPage() ) return false;
+            if( printing && !outputPage() ) return false;
             return inputPage();
         }
     }
 
     boolean endCurrentPage()
     {
-        synchronized( m_page )
+        synchronized( page )
         {
-            return m_printing && outputPage();
+            return printing && outputPage();
         }
     }
 
     int getInkLevel()
     {
-        ItemStack inkStack = m_inventory.get( 0 );
+        ItemStack inkStack = inventory.get( 0 );
         return isInk( inkStack ) ? inkStack.getCount() : 0;
     }
 
@@ -286,7 +289,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         int count = 0;
         for( int i = 1; i < 7; i++ )
         {
-            ItemStack paperStack = m_inventory.get( i );
+            ItemStack paperStack = inventory.get( i );
             if( isPaper( paperStack ) ) count += paperStack.getCount();
         }
         return count;
@@ -294,9 +297,9 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     void setPageTitle( String title )
     {
-        synchronized( m_page )
+        synchronized( page )
         {
-            if( m_printing ) m_pageTitle = title;
+            if( printing ) pageTitle = title;
         }
     }
 
@@ -314,55 +317,55 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     private boolean canInputPage()
     {
-        ItemStack inkStack = m_inventory.get( 0 );
+        ItemStack inkStack = inventory.get( 0 );
         return !inkStack.isEmpty() && isInk( inkStack ) && getPaperLevel() > 0;
     }
 
     private boolean inputPage()
     {
-        ItemStack inkStack = m_inventory.get( 0 );
+        ItemStack inkStack = inventory.get( 0 );
         DyeColor dye = ColourUtils.getStackColour( inkStack );
         if( dye == null ) return false;
 
         for( int i = 1; i < 7; i++ )
         {
-            ItemStack paperStack = m_inventory.get( i );
+            ItemStack paperStack = inventory.get( i );
             if( paperStack.isEmpty() || !isPaper( paperStack ) ) continue;
 
             // Setup the new page
-            m_page.setTextColour( dye.getId() );
+            page.setTextColour( dye.getId() );
 
-            m_page.clear();
+            page.clear();
             if( paperStack.getItem() instanceof ItemPrintout )
             {
-                m_pageTitle = ItemPrintout.getTitle( paperStack );
+                pageTitle = ItemPrintout.getTitle( paperStack );
                 String[] text = ItemPrintout.getText( paperStack );
                 String[] textColour = ItemPrintout.getColours( paperStack );
-                for( int y = 0; y < m_page.getHeight(); y++ )
+                for( int y = 0; y < page.getHeight(); y++ )
                 {
-                    m_page.setLine( y, text[y], textColour[y], "" );
+                    page.setLine( y, text[y], textColour[y], "" );
                 }
             }
             else
             {
-                m_pageTitle = "";
+                pageTitle = "";
             }
-            m_page.setCursorPos( 0, 0 );
+            page.setCursorPos( 0, 0 );
 
             // Decrement ink
             inkStack.shrink( 1 );
-            if( inkStack.isEmpty() ) m_inventory.set( 0, ItemStack.EMPTY );
+            if( inkStack.isEmpty() ) inventory.set( 0, ItemStack.EMPTY );
 
             // Decrement paper
             paperStack.shrink( 1 );
             if( paperStack.isEmpty() )
             {
-                m_inventory.set( i, ItemStack.EMPTY );
+                inventory.set( i, ItemStack.EMPTY );
                 updateBlockState();
             }
 
             setChanged();
-            m_printing = true;
+            printing = true;
             return true;
         }
         return false;
@@ -370,22 +373,22 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     private boolean outputPage()
     {
-        int height = m_page.getHeight();
+        int height = page.getHeight();
         String[] lines = new String[height];
         String[] colours = new String[height];
         for( int i = 0; i < height; i++ )
         {
-            lines[i] = m_page.getLine( i ).toString();
-            colours[i] = m_page.getTextColourLine( i ).toString();
+            lines[i] = page.getLine( i ).toString();
+            colours[i] = page.getTextColourLine( i ).toString();
         }
 
-        ItemStack stack = ItemPrintout.createSingleFromTitleAndText( m_pageTitle, lines, colours );
+        ItemStack stack = ItemPrintout.createSingleFromTitleAndText( pageTitle, lines, colours );
         for( int slot : BOTTOM_SLOTS )
         {
-            if( m_inventory.get( slot ).isEmpty() )
+            if( inventory.get( slot ).isEmpty() )
             {
                 setItem( slot, stack );
-                m_printing = false;
+                printing = false;
                 return true;
             }
         }
@@ -396,7 +399,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     {
         for( int i = 0; i < 13; i++ )
         {
-            ItemStack stack = m_inventory.get( i );
+            ItemStack stack = inventory.get( i );
             if( !stack.isEmpty() )
             {
                 // Remove the stack from the inventory
@@ -413,7 +416,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         boolean top = false, bottom = false;
         for( int i = 1; i < 7; i++ )
         {
-            ItemStack stack = m_inventory.get( i );
+            ItemStack stack = inventory.get( i );
             if( !stack.isEmpty() && isPaper( stack ) )
             {
                 top = true;
@@ -422,7 +425,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         }
         for( int i = 7; i < 13; i++ )
         {
-            ItemStack stack = m_inventory.get( i );
+            ItemStack stack = inventory.get( i );
             if( !stack.isEmpty() && isPaper( stack ) )
             {
                 bottom = true;

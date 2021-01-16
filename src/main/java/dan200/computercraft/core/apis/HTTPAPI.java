@@ -34,7 +34,7 @@ import static dan200.computercraft.core.apis.TableHelper.*;
  */
 public class HTTPAPI implements ILuaAPI
 {
-    private final IAPIEnvironment m_apiEnvironment;
+    private final IAPIEnvironment apiEnvironment;
 
     private final ResourceGroup<CheckUrl> checkUrls = new ResourceGroup<>();
     private final ResourceGroup<HttpRequest> requests = new ResourceQueue<>( () -> ComputerCraft.httpMaxRequests );
@@ -42,7 +42,7 @@ public class HTTPAPI implements ILuaAPI
 
     public HTTPAPI( IAPIEnvironment environment )
     {
-        m_apiEnvironment = environment;
+        apiEnvironment = environment;
     }
 
     @Override
@@ -123,7 +123,7 @@ public class HTTPAPI implements ILuaAPI
         try
         {
             URI uri = HttpRequest.checkUri( address );
-            HttpRequest request = new HttpRequest( requests, m_apiEnvironment, address, postString, headers, binary, redirect );
+            HttpRequest request = new HttpRequest( requests, apiEnvironment, address, postString, headers, binary, redirect );
 
             // Make the request
             request.queue( r -> r.request( uri, httpMethod ) );
@@ -142,7 +142,7 @@ public class HTTPAPI implements ILuaAPI
         try
         {
             URI uri = HttpRequest.checkUri( address );
-            new CheckUrl( checkUrls, m_apiEnvironment, address, uri ).queue( CheckUrl::run );
+            new CheckUrl( checkUrls, apiEnvironment, address, uri ).queue( CheckUrl::run );
 
             return new Object[] { true };
         }
@@ -165,7 +165,7 @@ public class HTTPAPI implements ILuaAPI
         try
         {
             URI uri = Websocket.checkUri( address );
-            if( !new Websocket( websockets, m_apiEnvironment, uri, address, headers ).queue( Websocket::connect ) )
+            if( !new Websocket( websockets, apiEnvironment, uri, address, headers ).queue( Websocket::connect ) )
             {
                 throw new LuaException( "Too many websockets already open" );
             }

@@ -17,8 +17,6 @@ import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Set;
 
-import net.minecraft.loot.conditions.ILootCondition.IBuilder;
-
 /**
  * A loot condition which checks if the entity is in creative mode.
  */

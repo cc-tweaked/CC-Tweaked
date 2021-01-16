@@ -40,8 +40,6 @@ import java.util.EnumMap;
 
 import static dan200.computercraft.shared.util.WaterloggableHelpers.*;
 
-import net.minecraft.block.AbstractBlock.Properties;
-
 public class BlockCable extends BlockGeneric implements IWaterLoggable
 {
     public static final EnumProperty<CableModemVariant> MODEM = EnumProperty.create( "modem", CableModemVariant.class );

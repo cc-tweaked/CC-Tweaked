@@ -56,6 +56,7 @@ import dan200.computercraft.shared.util.CreativeTabMain;
 import dan200.computercraft.shared.util.FixedPointTileEntityType;
 import dan200.computercraft.shared.util.ImpostorRecipe;
 import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityClassification;
@@ -80,8 +81,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.function.BiFunction;
 import java.util.function.Function;
-
-import net.minecraft.block.AbstractBlock;
 
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD )
 public final class Registry

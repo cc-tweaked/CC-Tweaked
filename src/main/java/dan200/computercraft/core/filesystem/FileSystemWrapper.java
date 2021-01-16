@@ -5,6 +5,8 @@
  */
 package dan200.computercraft.core.filesystem;
 
+import dan200.computercraft.shared.util.IoUtil;
+
 import javax.annotation.Nonnull;
 import java.io.Closeable;
 import java.io.IOException;
@@ -24,15 +26,18 @@ import java.lang.ref.WeakReference;
  *
  * @param <T> The type of writer or channel to wrap.
  */
-public class FileSystemWrapper<T extends Closeable> implements Closeable
+public class FileSystemWrapper<T extends Closeable> implements TrackingCloseable
 {
     private final FileSystem fileSystem;
+    final MountWrapper mount;
     private final ChannelWrapper<T> closeable;
     final WeakReference<FileSystemWrapper<?>> self;
+    private boolean isOpen = true;
 
-    FileSystemWrapper( FileSystem fileSystem, ChannelWrapper<T> closeable, ReferenceQueue<FileSystemWrapper<?>> queue )
+    FileSystemWrapper( FileSystem fileSystem, MountWrapper mount, ChannelWrapper<T> closeable, ReferenceQueue<FileSystemWrapper<?>> queue )
     {
         this.fileSystem = fileSystem;
+        this.mount = mount;
         this.closeable = closeable;
         self = new WeakReference<>( this, queue );
     }
@@ -40,8 +45,21 @@ public class FileSystemWrapper<T extends Closeable> implements Closeable
     @Override
     public void close() throws IOException
     {
+        isOpen = false;
         fileSystem.removeFile( this );
         closeable.close();
+    }
+
+    void closeExternally()
+    {
+        isOpen = false;
+        IoUtil.closeQuietly( closeable );
+    }
+
+    @Override
+    public boolean isOpen()
+    {
+        return isOpen;
     }
 
     @Nonnull

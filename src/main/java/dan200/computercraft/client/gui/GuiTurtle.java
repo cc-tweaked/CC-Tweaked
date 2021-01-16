@@ -23,13 +23,13 @@ import javax.annotation.Nonnull;
 
 public class GuiTurtle extends ContainerScreen<ContainerTurtle>
 {
-    private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation( "computercraft", "textures/gui/turtle_normal.png" );
-    private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( "computercraft", "textures/gui/turtle_advanced.png" );
+    private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/turtle_normal.png" );
+    private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/turtle_advanced.png" );
 
-    private ContainerTurtle m_container;
+    private final ContainerTurtle container;
 
-    private final ComputerFamily m_family;
-    private final ClientComputer m_computer;
+    private final ComputerFamily family;
+    private final ClientComputer computer;
 
     private WidgetTerminal terminal;
     private WidgetWrapper terminalWrapper;
@@ -38,9 +38,9 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     {
         super( container, player, title );
 
-        m_container = container;
-        m_family = container.getFamily();
-        m_computer = (ClientComputer) container.getComputer();
+        this.container = container;
+        family = container.getFamily();
+        computer = (ClientComputer) container.getComputer();
 
         imageWidth = 254;
         imageHeight = 217;
@@ -56,7 +56,7 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
         int termPxHeight = ComputerCraft.turtleTermHeight * FixedWidthFontRenderer.FONT_HEIGHT;
 
         terminal = new WidgetTerminal(
-            minecraft, () -> m_computer,
+            minecraft, () -> computer,
             ComputerCraft.turtleTermWidth,
             ComputerCraft.turtleTermHeight,
             2, 2, 2, 2
@@ -99,7 +99,7 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     protected void renderBg( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
         // Draw term
-        ResourceLocation texture = m_family == ComputerFamily.ADVANCED ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL;
+        ResourceLocation texture = family == ComputerFamily.ADVANCED ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL;
         terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
 
         // Draw border/inventory
@@ -108,7 +108,7 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
         blit( transform, leftPos, topPos, 0, 0, imageWidth, imageHeight );
 
         // Draw selection slot
-        int slot = m_container.getSelectedSlot();
+        int slot = container.getSelectedSlot();
         if( slot >= 0 )
         {
             int slotX = slot % 4;

@@ -42,7 +42,7 @@ class ChannelWrapper<T extends Closeable> implements Closeable
         }
     }
 
-    public T get()
+    T get()
     {
         return wrapper;
     }

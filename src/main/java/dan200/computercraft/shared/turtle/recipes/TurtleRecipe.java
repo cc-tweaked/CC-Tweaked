@@ -17,8 +17,6 @@ import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
-import dan200.computercraft.shared.computer.recipe.ComputerFamilyRecipe.Serializer;
-
 public final class TurtleRecipe extends ComputerFamilyRecipe
 {
     private TurtleRecipe( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )

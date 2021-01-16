@@ -23,8 +23,6 @@ import net.minecraftforge.fml.RegistryObject;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.AbstractBlock.Properties;
-
 public class BlockComputer extends BlockComputerBase<TileComputer>
 {
     public static final EnumProperty<ComputerState> STATE = EnumProperty.create( "state", ComputerState.class );

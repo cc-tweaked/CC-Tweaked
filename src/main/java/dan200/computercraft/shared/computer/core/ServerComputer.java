@@ -37,116 +37,109 @@ import java.io.InputStream;
 
 public class ServerComputer extends ServerTerminal implements IComputer, IComputerEnvironment
 {
-    private final int m_instanceID;
+    private final int instanceID;
 
-    private World m_world;
-    private BlockPos m_position;
+    private World world;
+    private BlockPos position;
 
-    private final ComputerFamily m_family;
-    private final Computer m_computer;
-    private CompoundNBT m_userData;
-    private boolean m_changed;
+    private final ComputerFamily family;
+    private final Computer computer;
+    private CompoundNBT userData;
+    private boolean changed;
 
-    private boolean m_changedLastFrame;
-    private int m_ticksSincePing;
+    private boolean changedLastFrame;
+    private int ticksSincePing;
 
     public ServerComputer( World world, int computerID, String label, int instanceID, ComputerFamily family, int terminalWidth, int terminalHeight )
     {
         super( family != ComputerFamily.NORMAL, terminalWidth, terminalHeight );
-        m_instanceID = instanceID;
+        this.instanceID = instanceID;
 
-        m_world = world;
-        m_position = null;
-
-        m_family = family;
-        m_computer = new Computer( this, getTerminal(), computerID );
-        m_computer.setLabel( label );
-        m_userData = null;
-        m_changed = false;
-
-        m_changedLastFrame = false;
-        m_ticksSincePing = 0;
+        this.world = world;
+        this.family = family;
+        computer = new Computer( this, getTerminal(), computerID );
+        computer.setLabel( label );
     }
 
     public ComputerFamily getFamily()
     {
-        return m_family;
+        return family;
     }
 
     public World getWorld()
     {
-        return m_world;
+        return world;
     }
 
     public void setWorld( World world )
     {
-        m_world = world;
+        this.world = world;
     }
 
     public BlockPos getPosition()
     {
-        return m_position;
+        return position;
     }
 
     public void setPosition( BlockPos pos )
     {
-        m_position = new BlockPos( pos );
+        position = new BlockPos( pos );
     }
 
     public IAPIEnvironment getAPIEnvironment()
     {
-        return m_computer.getAPIEnvironment();
+        return computer.getAPIEnvironment();
     }
 
     public Computer getComputer()
     {
-        return m_computer;
+        return computer;
     }
 
     @Override
     public void update()
     {
         super.update();
-        m_computer.tick();
+        computer.tick();
 
-        m_changedLastFrame = m_computer.pollAndResetChanged() || m_changed;
-        m_changed = false;
+        changedLastFrame = computer.pollAndResetChanged() || changed;
+        changed = false;
 
-        m_ticksSincePing++;
+        ticksSincePing++;
     }
 
     public void keepAlive()
     {
-        m_ticksSincePing = 0;
+        ticksSincePing = 0;
     }
 
     public boolean hasTimedOut()
     {
-        return m_ticksSincePing > 100;
+        return ticksSincePing > 100;
     }
 
     public boolean hasOutputChanged()
     {
-        return m_changedLastFrame;
+        return changedLastFrame;
     }
 
     public void unload()
     {
-        m_computer.unload();
+        computer.unload();
     }
 
     public CompoundNBT getUserData()
     {
-        if( m_userData == null )
+        if( userData == null )
         {
-            m_userData = new CompoundNBT();
+            userData = new CompoundNBT();
         }
-        return m_userData;
+        return userData;
     }
 
     public void updateUserData()
     {
-        m_changed = true;
+        changed = true;
     }
 
     private NetworkMessage createComputerPacket()
@@ -204,7 +197,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     public void setID( int id )
     {
-        m_computer.setID( id );
+        computer.setID( id );
     }
 
     // IComputer
@@ -212,97 +205,97 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public int getInstanceID()
     {
-        return m_instanceID;
+        return instanceID;
     }
 
     public int getID()
     {
-        return m_computer.getID();
+        return computer.getID();
     }
 
     public String getLabel()
     {
-        return m_computer.getLabel();
+        return computer.getLabel();
     }
 
     @Override
     public boolean isOn()
     {
-        return m_computer.isOn();
+        return computer.isOn();
     }
 
     @Override
     public boolean isCursorDisplayed()
     {
-        return m_computer.isOn() && m_computer.isBlinking();
+        return computer.isOn() && computer.isBlinking();
     }
 
     @Override
     public void turnOn()
     {
         // Turn on
-        m_computer.turnOn();
+        computer.turnOn();
     }
 
     @Override
     public void shutdown()
     {
         // Shutdown
-        m_computer.shutdown();
+        computer.shutdown();
     }
 
     @Override
     public void reboot()
     {
         // Reboot
-        m_computer.reboot();
+        computer.reboot();
     }
 
     @Override
     public void queueEvent( String event, Object[] arguments )
     {
         // Queue event
-        m_computer.queueEvent( event, arguments );
+        computer.queueEvent( event, arguments );
     }
 
     public int getRedstoneOutput( ComputerSide side )
     {
-        return m_computer.getEnvironment().getExternalRedstoneOutput( side );
+        return computer.getEnvironment().getExternalRedstoneOutput( side );
     }
 
     public void setRedstoneInput( ComputerSide side, int level )
     {
-        m_computer.getEnvironment().setRedstoneInput( side, level );
+        computer.getEnvironment().setRedstoneInput( side, level );
     }
 
     public int getBundledRedstoneOutput( ComputerSide side )
     {
-        return m_computer.getEnvironment().getExternalBundledRedstoneOutput( side );
+        return computer.getEnvironment().getExternalBundledRedstoneOutput( side );
     }
 
     public void setBundledRedstoneInput( ComputerSide side, int combination )
     {
-        m_computer.getEnvironment().setBundledRedstoneInput( side, combination );
+        computer.getEnvironment().setBundledRedstoneInput( side, combination );
     }
 
     public void addAPI( ILuaAPI api )
     {
-        m_computer.addApi( api );
+        computer.addApi( api );
     }
 
     public void setPeripheral( ComputerSide side, IPeripheral peripheral )
     {
-        m_computer.getEnvironment().setPeripheral( side, peripheral );
+        computer.getEnvironment().setPeripheral( side, peripheral );
     }
 
     public IPeripheral getPeripheral( ComputerSide side )
     {
-        return m_computer.getEnvironment().getPeripheral( side );
+        return computer.getEnvironment().getPeripheral( side );
     }
 
     public void setLabel( String label )
     {
-        m_computer.setLabel( label );
+        computer.setLabel( label );
     }
 
     // IComputerEnvironment implementation
@@ -310,19 +303,19 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public double getTimeOfDay()
     {
-        return (m_world.getDayTime() + 6000) % 24000 / 1000.0;
+        return (world.getDayTime() + 6000) % 24000 / 1000.0;
     }
 
     @Override
     public int getDay()
     {
-        return (int) ((m_world.getDayTime() + 6000) / 24000) + 1;
+        return (int) ((world.getDayTime() + 6000) / 24000) + 1;
     }
 
     @Override
     public IWritableMount createSaveDirMount( String subPath, long capacity )
     {
-        return ComputerCraftAPI.createSaveDirMount( m_world, subPath, capacity );
+        return ComputerCraftAPI.createSaveDirMount( world, subPath, capacity );
     }
 
     @Override
@@ -360,7 +353,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public int assignNewID()
     {
-        return ComputerCraftAPI.createUniqueNumberedSaveDir( m_world, "computer" );
+        return ComputerCraftAPI.createUniqueNumberedSaveDir( world, "computer" );
     }
 
     @Nullable

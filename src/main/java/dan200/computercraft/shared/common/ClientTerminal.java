@@ -10,21 +10,21 @@ import dan200.computercraft.shared.network.client.TerminalState;
 
 public class ClientTerminal implements ITerminal
 {
-    private boolean m_colour;
-    private Terminal m_terminal;
-    private boolean m_terminalChanged;
+    private boolean colour;
+    private Terminal terminal;
+    private boolean terminalChanged;
 
     public ClientTerminal( boolean colour )
     {
-        m_colour = colour;
-        m_terminal = null;
-        m_terminalChanged = false;
+        this.colour = colour;
+        terminal = null;
+        terminalChanged = false;
     }
 
     public boolean pollTerminalChanged()
     {
-        boolean changed = m_terminalChanged;
-        m_terminalChanged = false;
+        boolean changed = terminalChanged;
+        terminalChanged = false;
         return changed;
     }
 
@@ -33,22 +33,22 @@ public class ClientTerminal implements ITerminal
     @Override
     public Terminal getTerminal()
     {
-        return m_terminal;
+        return terminal;
     }
 
     @Override
     public boolean isColour()
     {
-        return m_colour;
+        return colour;
     }
 
     public void read( TerminalState state )
     {
-        m_colour = state.colour;
+        colour = state.colour;
         if( state.hasTerminal() )
         {
             resizeTerminal( state.width, state.height );
-            state.apply( m_terminal );
+            state.apply( terminal );
         }
         else
         {
@@ -58,23 +58,23 @@ public class ClientTerminal implements ITerminal
 
     private void resizeTerminal( int width, int height )
     {
-        if( m_terminal == null )
+        if( terminal == null )
         {
-            m_terminal = new Terminal( width, height, () -> m_terminalChanged = true );
-            m_terminalChanged = true;
+            terminal = new Terminal( width, height, () -> terminalChanged = true );
+            terminalChanged = true;
         }
         else
         {
-            m_terminal.resize( width, height );
+            terminal.resize( width, height );
         }
     }
 
     private void deleteTerminal()
     {
-        if( m_terminal != null )
+        if( terminal != null )
         {
-            m_terminal = null;
-            m_terminalChanged = true;
+            terminal = null;
+            terminalChanged = true;
         }
     }
 }

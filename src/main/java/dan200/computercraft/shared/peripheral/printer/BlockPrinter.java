@@ -27,8 +27,6 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import net.minecraft.block.AbstractBlock.Properties;
-
 public class BlockPrinter extends BlockGeneric
 {
     private static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;

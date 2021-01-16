@@ -23,8 +23,6 @@ import javax.annotation.Nonnull;
 
 import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.*;
 
-import net.minecraft.item.Item.Properties;
-
 public abstract class ItemBlockCable extends BlockItem
 {
     private String translationKey;

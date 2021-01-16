@@ -15,11 +15,11 @@ import javax.annotation.Nonnull;
 
 public class TurtleCompareToCommand implements ITurtleCommand
 {
-    private final int m_slot;
+    private final int slot;
 
     public TurtleCompareToCommand( int slot )
     {
-        m_slot = slot;
+        this.slot = slot;
     }
 
     @Nonnull
@@ -27,14 +27,9 @@ public class TurtleCompareToCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         ItemStack selectedStack = turtle.getInventory().getItem( turtle.getSelectedSlot() );
-        ItemStack stack = turtle.getInventory().getItem( m_slot );
-        if( InventoryUtil.areItemsStackable( selectedStack, stack ) )
-        {
-            return TurtleCommandResult.success();
-        }
-        else
-        {
-            return TurtleCommandResult.failure();
-        }
+        ItemStack stack = turtle.getInventory().getItem( slot );
+        return InventoryUtil.areItemsStackable( selectedStack, stack )
+            ? TurtleCommandResult.success()
+            : TurtleCommandResult.failure();
     }
 }

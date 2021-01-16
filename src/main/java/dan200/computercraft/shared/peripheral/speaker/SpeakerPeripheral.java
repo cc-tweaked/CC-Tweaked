@@ -32,14 +32,14 @@ import static dan200.computercraft.api.lua.LuaValues.checkFinite;
  */
 public abstract class SpeakerPeripheral implements IPeripheral
 {
-    private long m_clock = 0;
-    private long m_lastPlayTime = 0;
-    private final AtomicInteger m_notesThisTick = new AtomicInteger();
+    private long clock = 0;
+    private long lastPlayTime = 0;
+    private final AtomicInteger notesThisTick = new AtomicInteger();
 
     public void update()
     {
-        m_clock++;
-        m_notesThisTick.set( 0 );
+        clock++;
+        notesThisTick.set( 0 );
     }
 
     public abstract World getWorld();
@@ -48,7 +48,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
     public boolean madeSound( long ticks )
     {
-        return m_clock - m_lastPlayTime <= ticks;
+        return clock - lastPlayTime <= ticks;
     }
 
     @Nonnull
@@ -129,14 +129,14 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
         // If the resource location for note block notes changes, this method call will need to be updated
         boolean success = playSound( context, instrument.getSoundEvent().getRegistryName(), volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true );
-        if( success ) m_notesThisTick.incrementAndGet();
+        if( success ) notesThisTick.incrementAndGet();
         return success;
     }
 
     private synchronized boolean playSound( ILuaContext context, ResourceLocation name, float volume, float pitch, boolean isNote ) throws LuaException
     {
-        if( m_clock - m_lastPlayTime < TileSpeaker.MIN_TICKS_BETWEEN_SOUNDS &&
-            (!isNote || m_clock - m_lastPlayTime != 0 || m_notesThisTick.get() >= ComputerCraft.maxNotesPerTick) )
+        if( clock - lastPlayTime < TileSpeaker.MIN_TICKS_BETWEEN_SOUNDS &&
+            (!isNote || clock - lastPlayTime != 0 || notesThisTick.get() >= ComputerCraft.maxNotesPerTick) )
         {
             // Rate limiting occurs when we've already played a sound within the last tick, or we've
             // played more notes than allowable within the current tick.
@@ -158,7 +158,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
             return null;
         } );
 
-        m_lastPlayTime = m_clock;
+        lastPlayTime = clock;
         return true;
     }
 }

@@ -29,8 +29,6 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
 
-import net.minecraft.item.Item.Properties;
-
 public class ItemTreasureDisk extends Item implements IMedia
 {
     private static final String NBT_TITLE = "Title";

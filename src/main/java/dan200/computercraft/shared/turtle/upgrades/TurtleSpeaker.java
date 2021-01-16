@@ -25,6 +25,9 @@ import javax.annotation.Nonnull;
 
 public class TurtleSpeaker extends AbstractTurtleUpgrade
 {
+    private static final ModelResourceLocation leftModel = new ModelResourceLocation( "computercraft:turtle_speaker_upgrade_left", "inventory" );
+    private static final ModelResourceLocation rightModel = new ModelResourceLocation( "computercraft:turtle_speaker_upgrade_right", "inventory" );
+
     private static class Peripheral extends SpeakerPeripheral
     {
         ITurtleAccess turtle;
@@ -54,12 +57,6 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
         }
     }
 
-    @OnlyIn( Dist.CLIENT )
-    private ModelResourceLocation m_leftModel;
-
-    @OnlyIn( Dist.CLIENT )
-    private ModelResourceLocation m_rightModel;
-
     public TurtleSpeaker( ResourceLocation id )
     {
         super( id, TurtleUpgradeType.PERIPHERAL, Registry.ModBlocks.SPEAKER );
@@ -71,33 +68,18 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
         return new TurtleSpeaker.Peripheral( turtle );
     }
 
-    @OnlyIn( Dist.CLIENT )
-    private void loadModelLocations()
-    {
-        if( m_leftModel == null )
-        {
-            m_leftModel = new ModelResourceLocation( "computercraft:turtle_speaker_upgrade_left", "inventory" );
-            m_rightModel = new ModelResourceLocation( "computercraft:turtle_speaker_upgrade_right", "inventory" );
-        }
-    }
-
     @Nonnull
     @Override
     @OnlyIn( Dist.CLIENT )
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
-        loadModelLocations();
-        return TransformedModel.of( side == TurtleSide.LEFT ? m_leftModel : m_rightModel );
+        return TransformedModel.of( side == TurtleSide.LEFT ? leftModel : rightModel );
     }
 
     @Override
     public void update( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide turtleSide )
     {
         IPeripheral turtlePeripheral = turtle.getPeripheral( turtleSide );
-        if( turtlePeripheral instanceof Peripheral )
-        {
-            Peripheral peripheral = (Peripheral) turtlePeripheral;
-            peripheral.update();
-        }
+        if( turtlePeripheral instanceof Peripheral ) ((Peripheral) turtlePeripheral).update();
     }
 }
