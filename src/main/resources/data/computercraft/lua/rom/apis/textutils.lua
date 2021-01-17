@@ -396,15 +396,16 @@ local function serializeJSONImpl(t, tTracking, bNBTStyle)
                         sObjectResult = sObjectResult .. "," .. sEntry
                     end
                     nObjectSize = nObjectSize + 1
-                elseif type(k) == "number" and k>largestArrayIndex then --the largest index is kept to avoid losing half the array if there is any single nil in that array
-                    largestArrayIndex=k
+                elseif type(k) == "number" and k > largestArrayIndex then --the largest index is kept to avoid losing half the array if there is any single nil in that array
+                    largestArrayIndex = k
                 end
             end
-            for k=1,largestArrayIndex,1 do --the array is read up to the very last valid array index, ipairs() would stop at the first nil value and we would lose any data after.
-                if t[k]==nil then ---if the array is nil at index k the value is "null" as to keep the unused indexes in between used ones.
-                    local sEntry="null"
+            for k = 1, largestArrayIndex, 1 do --the array is read up to the very last valid array index, ipairs() would stop at the first nil value and we would lose any data after.
+                local sEntry
+                if t[k] == nil then --if the array is nil at index k the value is "null" as to keep the unused indexes in between used ones.
+                    sEntry = "null"
                 else -- if the array index does not point to a nil we serialise it's content.
-                    local sEntry = serializeJSONImpl(t[k], tTracking, bNBTStyle)
+                    sEntry = serializeJSONImpl(t[k], tTracking, bNBTStyle)
                 end
                 if nArraySize == 0 then
                     sArrayResult = sArrayResult .. sEntry
