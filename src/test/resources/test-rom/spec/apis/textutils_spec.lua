@@ -101,6 +101,12 @@ describe("The textutils library", function()
             expect(textutils.serializeJSON(string.char(0x81))):eq('"\\u0081"')
             expect(textutils.serializeJSON(string.char(0xFF))):eq('"\\u00FF"')
         end)
+        
+        it("serializes arrays until the last index with content", function()
+            expect(textutils.serializeJSON({5, "test", nil, nil, 7})):eq('[5,"test",null,null,7]')
+            expect(textutils.serializeJSON({5, "test", nil, nil, textutils.json_null})):eq('[5,"test",null,null,null]')
+            expect(textutils.serializeJSON({nil, nil, nil, nil, "text"})):eq('[null,null,null,null,"text"]')
+        end)
     end)
 
     describe("textutils.unserializeJSON", function()
