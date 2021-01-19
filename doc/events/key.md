@@ -11,9 +11,9 @@ If the button pressed represented a printable character, then the @{key} event w
 event. If you are consuming text input, use a @{char} event instead!
 
 ## Return values
-1. [`string`]: The event name.
-2. [`number`]: The numerical key value of the key pressed.
-3. [`boolean`]: Whether the key event was generated while holding the key (@{true}), rather than pressing it the first time (@{false}).
+1. @{string}: The event name.
+2. @{number}: The numerical key value of the key pressed.
+3. @{boolean}: Whether the key event was generated while holding the key (@{true}), rather than pressing it the first time (@{false}).
 
 ## Example
 Prints each key when the user presses it, and if the key is being held.
