@@ -2,7 +2,7 @@
 module: [kind=event] turtle_inventory
 ---
 
-The @{turtle_inventory} event is fired when a Turtle's inventory is changed.
+The @{turtle_inventory} event is fired when a turtle's inventory is changed.
 
 ## Example
 Prints a message when the inventory is changed:

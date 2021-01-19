@@ -2,7 +2,7 @@
 module: [kind=event] terminate
 ---
 
-The @{terminate} event is fired when Ctrl-T is held down.
+The @{terminate} event is fired when <kbd>Ctrl-T</kbd> is held down.
 
 This event is normally handled by @{os.pullEvent}, and will not be returned. However, @{os.pullEventRaw} will return this event when fired.
 
