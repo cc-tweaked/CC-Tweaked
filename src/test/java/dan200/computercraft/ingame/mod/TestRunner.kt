@@ -4,7 +4,6 @@ import dan200.computercraft.ingame.api.TestContext
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import net.minecraft.test.TestCollection
 import net.minecraft.test.TestTrackerHolder
 import java.lang.reflect.Method
 import java.util.*
@@ -50,7 +49,8 @@ internal object MainThread : AbstractCoroutineContextElement(ContinuationInterce
         }
     }
 
-    override fun <T> interceptContinuation(continuation: Continuation<T>): Continuation<T> = MainThreadInterception(continuation)
+    override fun <T> interceptContinuation(continuation: Continuation<T>): Continuation<T> =
+        MainThreadInterception(continuation)
 
     private class MainThreadInterception<T>(val cont: Continuation<T>) : Continuation<T> {
         override val context: CoroutineContext get() = cont.context

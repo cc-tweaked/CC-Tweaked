@@ -1,6 +1,6 @@
 --- Extend the test API with some convenience functions.
 --
--- It's much easier to declare these in Lua rather than Java..
+-- It's much easier to declare these in Lua rather than Java.
 
 function test.assert(ok, ...)
     if ok then return ... end
