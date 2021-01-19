@@ -11,9 +11,10 @@ This event is usually handled by @{rednet.receive}, but it can also be pulled ma
 @{rednet_message} events are sent by @{rednet.run} in the top-level coroutine in response to @{modem_message} events. A @{rednet_message} event is always preceded by a @{modem_message} event. They are generated inside CraftOS rather than being sent by the ComputerCraft machine.
 
 ## Return Values
-1. @{number}: The ID of the sending computer.
-2. @{any}: The message sent.
-3. @{string|nil}: The protocol of the message, if provided.
+1. @{string}: The event name.
+2. @{number}: The ID of the sending computer.
+3. @{any}: The message sent.
+4. @{string|nil}: The protocol of the message, if provided.
 
 ## Example
 Prints a message when one is sent:

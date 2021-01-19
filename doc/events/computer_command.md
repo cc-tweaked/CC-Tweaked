@@ -5,6 +5,7 @@ module: [kind=event] computer_command
 The @{computer_command} event is fired when the `/computercraft queue` command is run for the current computer.
 
 ## Return Values
+1. @{string}: The event name.
 ... @{string}: The arguments passed to the command.
 
 ## Example
