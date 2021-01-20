@@ -10,7 +10,6 @@ import static dan200.computercraft.shared.ComputerCraftRegistry.ModBlocks;
 import static dan200.computercraft.shared.ComputerCraftRegistry.init;
 
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -19,7 +18,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import dan200.computercraft.api.turtle.event.TurtleAction;
-import dan200.computercraft.core.apis.AddressPredicate;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
@@ -86,13 +84,6 @@ public final class ComputerCraft implements ModInitializer {
     // Logging
     public static final Logger log = LogManager.getLogger(MOD_ID);
     public static ItemGroup MAIN_GROUP = FabricItemGroupBuilder.build(new Identifier(MOD_ID, "main"), () -> new ItemStack(ModBlocks.COMPUTER_NORMAL));
-    public static List<AddressRule> httpRules = Collections.unmodifiableList(Stream.concat(Stream.of(DEFAULT_HTTP_BLACKLIST)
-                                                                                                 .map(x -> AddressRule.parse(x, Action.DENY.toPartial()))
-                                                                                                 .filter(Objects::nonNull),
-                                                                                           Stream.of(DEFAULT_HTTP_WHITELIST)
-                                                                                                 .map(x -> AddressRule.parse(x, Action.ALLOW.toPartial()))
-                                                                                                 .filter(Objects::nonNull))
-                                                                                   .collect(Collectors.toList()));
     public static boolean commandRequireCreative = false;
     public static MonitorRenderer monitorRenderer = MonitorRenderer.BEST;
     public static int computerSpaceLimit = 1000 * 1000;
@@ -107,8 +98,6 @@ public final class ComputerCraft implements ModInitializer {
     public static long maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos(5);
     public static boolean http_enable = true;
     public static boolean http_websocket_enable = true;
-    public static AddressPredicate http_whitelist = new AddressPredicate(DEFAULT_HTTP_WHITELIST);
-    public static AddressPredicate http_blacklist = new AddressPredicate(DEFAULT_HTTP_BLACKLIST);
     public static int httpTimeout = 30000;
     public static int httpMaxRequests = 16;
     public static long httpMaxDownload = 16 * 1024 * 1024;
@@ -130,6 +119,18 @@ public final class ComputerCraft implements ModInitializer {
     public static int monitorWidth = 8;
     public static int monitorHeight = 6;
     public static double monitorDistanceSq = 4096;
+
+    public static List<AddressRule> httpRules = buildHttpRulesFromConfig(DEFAULT_HTTP_BLACKLIST, DEFAULT_HTTP_WHITELIST);
+
+    public static List<AddressRule> buildHttpRulesFromConfig(String[] blacklist, String[] whitelist) {
+        return Stream.concat(Stream.of(blacklist)
+                        .map(x -> AddressRule.parse(x, Action.DENY.toPartial()))
+                        .filter(Objects::nonNull),
+                Stream.of(whitelist)
+                        .map(x -> AddressRule.parse(x, Action.ALLOW.toPartial()))
+                        .filter(Objects::nonNull))
+                .collect(Collectors.toList());
+    }
 
     @Override
     public void onInitialize() {
