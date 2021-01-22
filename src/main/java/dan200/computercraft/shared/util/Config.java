@@ -13,7 +13,6 @@ import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.event.TurtleAction;
-import dan200.computercraft.core.apis.AddressPredicate;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
 
 public class Config {
@@ -84,8 +83,7 @@ public class Config {
         // HTTP
         ComputerCraft.http_enable = config.http.enabled;
         ComputerCraft.http_websocket_enable = config.http.websocket_enabled;
-        ComputerCraft.http_whitelist = new AddressPredicate(config.http.whitelist);
-        ComputerCraft.http_blacklist = new AddressPredicate(config.http.blacklist);
+        ComputerCraft.httpRules = ComputerCraft.buildHttpRulesFromConfig(config.http.blacklist, config.http.whitelist);
 
         ComputerCraft.httpTimeout = Math.max(0, config.http.timeout);
         ComputerCraft.httpMaxRequests = Math.max(1, config.http.max_requests);
