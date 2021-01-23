@@ -14,7 +14,7 @@ This event is normally handled by @{http.Websocket.receive}, but it can also be 
 ## Example
 Prints a message sent by a WebSocket:
 ```lua
-local myURL = "ws://echo.websocket.org"
+local myURL = "wss://example.tweaked.cc/echo"
 local ws = http.websocket(myURL)
 ws.send("Hello!")
 local event, url, message

@@ -11,7 +11,7 @@ The @{websocket_closed} event is fired when an open WebSocket connection is clos
 ## Example
 Prints a message when a WebSocket is closed (this may take a minute):
 ```lua
-local myURL = "ws://echo.websocket.org"
+local myURL = "wss://example.tweaked.cc/echo"
 local ws = http.websocket(myURL)
 local event, url
 repeat

@@ -16,7 +16,7 @@ This event is normally handled inside @{http.get} and @{http.post}, but it can s
 ## Example
 Prints an error why the website cannot be contacted:
 ```lua
-local myURL = "http://this.website.does.not.exist"
+local myURL = "https://does.not.exist.tweaked.cc"
 http.request(myURL)
 local event, url, err
 repeat
