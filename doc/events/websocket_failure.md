@@ -15,7 +15,7 @@ This event is normally handled inside @{http.websocket}, but it can still be see
 ## Example
 Prints an error why the website cannot be contacted:
 ```lua
-local myURL = "ws://this.website.does.not.exist"
+local myURL = "wss://example.tweaked.cc/not-a-websocket"
 http.websocketAsync(myURL)
 local event, url, err
 repeat

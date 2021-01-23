@@ -15,7 +15,7 @@ This event is normally handled inside @{http.websocket}, but it can still be see
 ## Example
 Prints the content of a website (this may fail if the request fails):
 ```lua
-local myURL = "ws://echo.websocket.org"
+local myURL = "wss://example.tweaked.cc/echo"
 http.websocketAsync(myURL)
 local event, url, handle
 repeat
