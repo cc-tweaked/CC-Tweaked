@@ -560,6 +560,9 @@ curseforge {
         relations {
             incompatible "computercraft"
         }
+
+        addGameVersion '1.16.4'
+        addGameVersion '1.16.5'
     }
 }
 
