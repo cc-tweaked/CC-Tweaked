@@ -21,3 +21,6 @@ The "equip" programs let you add upgrades to a turtle without crafting.
 You can change the color of a disk by crafting or right clicking it with dye.
 You can print on a printed page again to get multiple colors.
 Holding the Ctrl and T keys terminates the running program.
+By default, a connected disk's startup file will override the computer's.
+You can use "pastebin run" to directly run a program from pastebin.
+"ls" can be used as a shorter alternative to "list".
