@@ -18,6 +18,7 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.api.turtle.event.TurtleEvent;
 
+import dan200.computercraft.shared.peripheral.generic.data.BlockData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.property.Property;
@@ -49,20 +50,7 @@ public class TurtleInspectCommand implements ITurtleCommand {
             return TurtleCommandResult.failure("No block to inspect");
         }
 
-        Block block = state.getBlock();
-        String name = Registry.BLOCK.getId(block)
-                                    .toString();
-
-        Map<String, Object> table = new HashMap<>();
-        table.put("name", name);
-
-        Map<Object, Object> stateTable = new HashMap<>();
-        for (ImmutableMap.Entry<Property<?>, ? extends Comparable<?>> entry : state.getEntries()
-                                                                                   .entrySet()) {
-            Property<?> property = entry.getKey();
-            stateTable.put(property.getName(), getPropertyValue(property, entry.getValue()));
-        }
-        table.put("state", stateTable);
+        Map<String, Object> table = BlockData.fill( new HashMap<>(), state );
 
         // Fire the event, exiting if it is cancelled
         TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer(turtle, oldPosition, direction);
@@ -72,7 +60,6 @@ public class TurtleInspectCommand implements ITurtleCommand {
         }
 
         return TurtleCommandResult.success(new Object[] {table});
-
     }
 
     @SuppressWarnings ({

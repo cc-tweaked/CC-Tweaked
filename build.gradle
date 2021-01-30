@@ -38,6 +38,9 @@ dependencies {
     implementation "blue.endless:jankson:${jankson_version}"
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
+    compileOnly 'com.google.auto.service:auto-service:1.0-rc7'
+    annotationProcessor 'com.google.auto.service:auto-service:1.0-rc7'
+
     include "me.shedaniel.cloth:config-2:${cloth_config_version}"
     include "blue.endless:jankson:${jankson_version}"
     include 'javax.vecmath:vecmath:1.5.2'
