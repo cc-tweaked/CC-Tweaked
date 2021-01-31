@@ -5,10 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.generic;
 
-import dan200.computercraft.api.lua.IArguments;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.MethodResult;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -35,14 +32,7 @@ class GenericPeripheral implements IDynamicPeripheral
     {
         Identifier type = BlockEntityType.getId(tile.getType());
         this.tile = tile;
-
-        if ( tile instanceof Nameable && ((Nameable) tile).hasCustomName() )
-        {
-            this.type = ((Nameable) tile).getName().asString();
-        } else {
-            this.type = type == null ? "unknown" : type.toString();
-        }
-
+        this.type = type == null ? "unknown" : type.toString();
         this.methods = methods;
     }
 

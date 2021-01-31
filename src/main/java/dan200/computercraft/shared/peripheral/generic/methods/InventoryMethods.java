@@ -16,6 +16,7 @@ import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Nameable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -52,6 +53,18 @@ public class InventoryMethods implements GenericSource
     public static int size( Inventory inventory )
     {
         return inventory.size();
+    }
+
+    /**
+     * Get the name of this inventory.
+     *
+     * @param inventory The current inventory.
+     * @return The name of this inventory, or {@code nil} if not present.
+     */
+    @LuaFunction( mainThread = true )
+    public static String name( Nameable inventory )
+    {
+        return inventory.hasCustomName() ? inventory.getName().asString() : null;
     }
 
     /**
