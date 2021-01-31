@@ -181,17 +181,19 @@ public class BlockCable extends BlockGeneric implements Waterloggable {
     //            : new ItemStack( ComputerCraftRegistry.ModItems.CABLE.get() );
     //    }
 
-    @Override
-    @Deprecated
-    public boolean canPlaceAt(BlockState state, @Nonnull WorldView world, @Nonnull BlockPos pos) {
-        Direction facing = state.get(MODEM)
-                                .getFacing();
-        if (facing == null) {
-            return true;
-        }
-
-        return sideCoversSmallSquare(world, pos.offset(facing), facing.getOpposite());
-    }
+    // Commenting override to allow cable modems to be placed on chests, so that chests can be generic inventory peripherals.
+    // TODO Perhaps there is a more selective way to achieve this?
+    //    @Override
+    //    @Deprecated
+    //    public boolean canPlaceAt(BlockState state, @Nonnull WorldView world, @Nonnull BlockPos pos) {
+    //        Direction facing = state.get(MODEM)
+    //                                .getFacing();
+    //        if (facing == null) {
+    //            return true;
+    //        }
+    //
+    //        return sideCoversSmallSquare(world, pos.offset(facing), facing.getOpposite());
+    //    }
 
     @Nonnull
     @Override
