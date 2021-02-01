@@ -227,33 +227,39 @@ public class InventoryMethods implements GenericSource
      */
     private static int moveItem( Inventory from, int fromSlot, Inventory to, int toSlot, final int limit )
     {
-        // See how much we can get out of this slot
-        // ItemStack extracted = from.extractItem( fromSlot, limit, true );
-        // if( extracted.isEmpty() ) return 0;
 
-        // Limit the amount to extract
-        // int extractCount = Math.min( extracted.getCount(), limit );
-        // extracted.setCount( extractCount );
+        /* ORIGINAL FORGE CODE
+            // See how much we can get out of this slot
+            // ItemStack extracted = from.extractItem( fromSlot, limit, true );
+            if( extracted.isEmpty() ) return 0;
 
-        // ItemStack remainder = toSlot < 0 ? ItemHandlerHelper.insertItem( to, extracted, false ) : to.insertItem( toSlot, extracted, false );
-        // int inserted = remainder.isEmpty() ? extractCount : extractCount - remainder.getCount();
-        // if( inserted <= 0 ) return 0;
+            // Limit the amount to extract
+            int extractCount = Math.min( extracted.getCount(), limit );
+            extracted.setCount( extractCount );
 
-        // Remove the item from the original inventory. Technically this could fail, but there's little we can do
-        // about that.
-        //from.extractItem( fromSlot, inserted, false );
+            // ItemStack remainder = toSlot < 0 ?  bItemHandlerHelper.insertItem( to, extracted, false ) : to.insertItem( toSlot, extracted, false );
+            int inserted = remainder.isEmpty() ? extractCount : extractCount - remainder.getCount();
+            if( inserted <= 0 ) return 0;
 
+            // Remove the item from the original inventory. Technically this could fail, but there's little we can do
+            // about that.
+            from.extractItem( fromSlot, inserted, false );
+         */
+
+        // Vanilla minecraft inventory manipulation code
         Boolean recurse = false;
-
         ItemStack source = from.getStack( fromSlot );
         int count = 0;
 
-        if (toSlot > 0) {
+        // If target slot was selected, only push items to that slot.
+        if (toSlot >= 0) {
             int space = amountStackCanAddFrom(to.getStack(toSlot), source, to);
             if (space == 0) return 0;
             count = space;
         }
-        if (toSlot < 0) {
+        // If target slot not selected, push items where they will fit, possibly
+        // across slots (by recurring on this method).
+        else if (toSlot < 0) {
             recurse = true;
             int[] result = getFirstValidSlotAndSpace(source, to);
             toSlot = result[0];
@@ -261,10 +267,12 @@ public class InventoryMethods implements GenericSource
             count = result[1];
         }
 
+        // Compare count available in target ItemStack to limit specified.
         count = Math.min(count, limit);
         if (count == 0) return 0;
-        ItemStack destination = to.getStack(toSlot);
 
+        // Mutate destination and source ItemStack
+        ItemStack destination = to.getStack(toSlot);
         if (destination == ItemStack.EMPTY) {
             ItemStack newStack = source.copy();
             newStack.setCount(count);
@@ -278,10 +286,13 @@ public class InventoryMethods implements GenericSource
         to.markDirty();
         from.markDirty();
 
+        // Recurse if no explicit destination slot and more items exist in source slot
+        // and limit hasn't been reached. Else, return items moved.
         if (recurse && !source.isEmpty()) return count + moveItem(from, fromSlot, to, -1, limit - count);
         return count;
     }
 
+    // Maybe there is a nicer existing way to do this in the minecraft codebase. I couldn't find it.
     private static int[] getFirstValidSlotAndSpace(ItemStack fromStack, Inventory inventory) {
         for (int i = 0; i < inventory.size(); i++) {
             ItemStack stack = inventory.getStack(i);
