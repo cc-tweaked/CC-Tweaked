@@ -273,7 +273,7 @@ public class InventoryMethods implements GenericSource
 
         // Mutate destination and source ItemStack
         ItemStack destination = to.getStack(toSlot);
-        if (destination == ItemStack.EMPTY) {
+        if (destination.isEmpty()) {
             ItemStack newStack = source.copy();
             newStack.setCount(count);
             to.setStack(toSlot, newStack);
