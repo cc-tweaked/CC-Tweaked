@@ -13,10 +13,20 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.asm.GenericSource;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ChestBlock;
+import net.minecraft.block.InventoryProvider;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Nameable;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -52,6 +62,9 @@ public class InventoryMethods implements GenericSource
     @LuaFunction( mainThread = true )
     public static int size( Inventory inventory )
     {
+        // Get appropriate inventory for source peripheral
+        inventory = extractHandler(inventory);
+
         return inventory.size();
     }
 
@@ -84,6 +97,9 @@ public class InventoryMethods implements GenericSource
     @LuaFunction( mainThread = true )
     public static Map<Integer, Map<String, ?>> list( Inventory inventory )
     {
+        // Get appropriate inventory for source peripheral
+        inventory = extractHandler(inventory);
+
         Map<Integer, Map<String, ?>> result = new HashMap<>();
         int size = inventory.size();
         for( int i = 0; i < size; i++ )
@@ -108,6 +124,9 @@ public class InventoryMethods implements GenericSource
     @LuaFunction( mainThread = true )
     public static Map<String, ?> getItemDetail( Inventory inventory, int slot ) throws LuaException
     {
+        // Get appropriate inventory
+        inventory  = extractHandler(inventory);
+
         assertBetween( slot, 1, inventory.size(), "Slot out of range (%s)" );
 
         ItemStack stack = inventory.getStack( slot - 1 );
@@ -145,6 +164,9 @@ public class InventoryMethods implements GenericSource
         String toName, int fromSlot, Optional<Integer> limit, Optional<Integer> toSlot
     ) throws LuaException
     {
+        // Get appropriate inventory for source peripheral
+        from = extractHandler(from);
+
         // Find location to transfer to
         IPeripheral location = computer.getAvailablePeripheral( toName );
         if( location == null ) throw new LuaException( "Target '" + toName + "' does not exist" );
@@ -192,6 +214,9 @@ public class InventoryMethods implements GenericSource
         String fromName, int fromSlot, Optional<Integer> limit, Optional<Integer> toSlot
     ) throws LuaException
     {
+        // Get appropriate inventory for source peripheral
+        to = extractHandler(to);
+
         // Find location to transfer to
         IPeripheral location = computer.getAvailablePeripheral( fromName );
         if( location == null ) throw new LuaException( "Source '" + fromName + "' does not exist" );
@@ -207,12 +232,38 @@ public class InventoryMethods implements GenericSource
         if( actualLimit <= 0 ) return 0;
         return moveItem( from, fromSlot - 1, to, toSlot.orElse( 0 ) - 1, actualLimit );
     }
-    
+
+
+    /**
+     * Extracts the most appropriate inventory from the object
+     * e.g., the correct inventory for a double chest or a sided inventory.
+     *
+     * @param object     The handler to move from.
+     * @return The appropriate Inventory.
+     */
     @Nullable
     private static Inventory extractHandler( @Nullable Object object )
     {
-        if ( object instanceof Inventory ) return (Inventory) object;
-        return null;
+        Inventory inventory = null;
+
+        if (object instanceof BlockEntity ) {
+            BlockEntity blockEntity = (BlockEntity) object;
+            World world = blockEntity.getWorld();
+            BlockPos blockPos = blockEntity.getPos();
+            BlockState blockState = world.getBlockState(blockPos);
+            Block block = blockState.getBlock();
+
+            if (block instanceof InventoryProvider) {
+                inventory = ((InventoryProvider)block).getInventory(blockState, world, blockPos);
+            } else if (blockEntity instanceof Inventory) {
+                inventory = (Inventory)blockEntity;
+                if (inventory instanceof ChestBlockEntity && block instanceof ChestBlock) {
+                    inventory = ChestBlock.getInventory((ChestBlock) block, blockState, world, blockPos, true);
+                }
+            }
+        }
+
+        return inventory;
     }
 
     /**
