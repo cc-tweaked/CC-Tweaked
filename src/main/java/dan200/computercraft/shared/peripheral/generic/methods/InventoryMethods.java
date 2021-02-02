@@ -318,6 +318,9 @@ public class InventoryMethods implements GenericSource
             count = result[1];
         }
 
+        // Respect slot restrictions
+        if (!to.isValid(toSlot, source)) { return 0; }
+
         // Compare count available in target ItemStack to limit specified.
         count = Math.min(count, limit);
         if (count == 0) return 0;
