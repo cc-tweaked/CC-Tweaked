@@ -17,6 +17,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 
+import dan200.computercraft.shared.peripheral.generic.GenericPeripheralProvider;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -53,7 +54,7 @@ public final class Peripherals {
             }
         }
 
-        return null;
+        return GenericPeripheralProvider.getPeripheral(world, pos, side);
     }
 
 }

@@ -21,6 +21,7 @@ import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
+import dan200.computercraft.core.asm.GenericSource;
 import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.computer.core.ClientComputerRegistry;
 import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
@@ -48,6 +49,7 @@ import dan200.computercraft.shared.turtle.upgrades.TurtleTool;
 import dan200.computercraft.shared.util.Config;
 import dan200.computercraft.shared.util.ImpostorRecipe;
 import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
+import dan200.computercraft.shared.util.ServiceUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -154,6 +156,7 @@ public final class ComputerCraft implements ModInitializer {
         Registry.register(Registry.LOOT_CONDITION_TYPE, new Identifier(ComputerCraft.MOD_ID, "player_creative"), PlayerCreativeLootCondition.TYPE);
         Registry.register(Registry.LOOT_CONDITION_TYPE, new Identifier(ComputerCraft.MOD_ID, "has_id"), HasComputerIdLootCondition.TYPE);
         init();
+        GenericSource.setup( () -> ServiceUtil.loadServices( GenericSource.class ));
     }
 
 }
