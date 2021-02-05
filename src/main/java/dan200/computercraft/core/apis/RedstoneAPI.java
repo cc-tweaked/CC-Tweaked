@@ -191,7 +191,7 @@ public class RedstoneAPI implements ILuaAPI
     @LuaFunction
     public final int getBundledInput( ComputerSide side )
     {
-        return environment.getBundledOutput( side );
+        return environment.getBundledInput( side );
     }
 
     /**
