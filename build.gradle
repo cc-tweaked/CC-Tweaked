@@ -9,7 +9,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.code.gson:gson:2.8.1'
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.190'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:4.0.16'
         classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
     }
 }
@@ -18,8 +18,8 @@ plugins {
     id "checkstyle"
     id "jacoco"
     id "com.github.hierynomus.license" version "0.15.0"
-    id "com.matthewprenger.cursegradle" version "1.3.0"
-    id "com.github.breadmoirai.github-release" version "2.2.4"
+    id "com.matthewprenger.cursegradle" version "1.4.0"
+    id "com.github.breadmoirai.github-release" version "2.2.12"
     id "org.jetbrains.kotlin.jvm" version "1.3.72"
 }
 
@@ -32,7 +32,11 @@ version = mod_version
 group = "org.squiddev"
 archivesBaseName = "cc-tweaked-${mc_version}"
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
 
 minecraft {
     runs {
@@ -156,11 +160,10 @@ task luaJavadoc(type: Javadoc) {
 
     options.docletpath = configurations.cctJavadoc.files as List
     options.doclet = "cc.tweaked.javadoc.LuaDoclet"
+    options.noTimestamp = false
 
-    // Attempt to run under Java 11 (any Java >= 9 will work though).
-    if(System.getProperty("java.version").startsWith("1.")
-        && (System.getenv("JAVA_HOME_11_X64") != null || project.hasProperty("java11Home"))) {
-        executable = "${System.getenv("JAVA_HOME_11_X64") ?: project.property("java11Home")}/bin/javadoc"
+    javadocTool = javaToolchains.javadocToolFor {
+        languageVersion = JavaLanguageVersion.of(11)
     }
 }
 
