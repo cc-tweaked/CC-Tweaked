@@ -21,14 +21,12 @@ import javax.annotation.Nonnull;
 
 public class BlockModelProvider extends BlockStateProvider
 {
-    private final ModelFile monitorBase;
-    private final ModelFile orientable;
+    private ModelFile monitorBase;
+    private ModelFile orientable;
 
     public BlockModelProvider( DataGenerator generator, ExistingFileHelper existingFileHelper )
     {
         super( generator, ComputerCraft.MOD_ID, existingFileHelper );
-        monitorBase = models().getExistingFile( new ResourceLocation( ComputerCraft.MOD_ID, "block/monitor_base" ) );
-        orientable = models().getExistingFile( new ResourceLocation( "block/orientable" ) );
     }
 
     @Nonnull
@@ -41,6 +39,9 @@ public class BlockModelProvider extends BlockStateProvider
     @Override
     protected void registerStatesAndModels()
     {
+        monitorBase = models().getExistingFile( new ResourceLocation( ComputerCraft.MOD_ID, "block/monitor_base" ) );
+        orientable = models().getExistingFile( new ResourceLocation( "block/orientable" ) );
+
         registerMonitors( Registry.ModBlocks.MONITOR_NORMAL.get() );
         registerMonitors( Registry.ModBlocks.MONITOR_ADVANCED.get() );
 
