@@ -482,8 +482,8 @@ tasks.register('jacocoTestInGameReport', JacocoReport.class).configure {
     it.dependsOn('testInGame')
 
     it.executionData(new File(buildDir, 'jacoco/testInGame.exec'))
-    it.setSourceDirectories(project.files(sourceSets.main.allJava.srcDirs))
-    it.setClassDirectories(project.files(new File(buildDir, 'jacocoClassDump/testInGame')))
+    it.sourceDirectories.from(sourceSets.main.allJava.srcDirs)
+    it.classDirectories.from(new File(buildDir, 'jacocoClassDump/testInGame'))
 
     it.reports {
         xml.enabled true
