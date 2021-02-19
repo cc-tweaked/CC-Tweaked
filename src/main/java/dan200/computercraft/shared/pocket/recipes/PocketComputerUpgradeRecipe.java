@@ -28,14 +28,14 @@ public final class PocketComputerUpgradeRecipe extends SpecialRecipe
     }
 
     @Override
-    public boolean canFit( int x, int y )
+    public boolean canCraftInDimensions( int x, int y )
     {
         return x >= 2 && y >= 2;
     }
 
     @Nonnull
     @Override
-    public ItemStack getRecipeOutput()
+    public ItemStack getResultItem()
     {
         return PocketComputerItemFactory.create( -1, null, -1, ComputerFamily.NORMAL, null );
     }
@@ -43,12 +43,12 @@ public final class PocketComputerUpgradeRecipe extends SpecialRecipe
     @Override
     public boolean matches( @Nonnull CraftingInventory inventory, @Nonnull World world )
     {
-        return !getCraftingResult( inventory ).isEmpty();
+        return !assemble( inventory ).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull CraftingInventory inventory )
+    public ItemStack assemble( @Nonnull CraftingInventory inventory )
     {
         // Scan the grid for a pocket computer
         ItemStack computer = ItemStack.EMPTY;
@@ -59,7 +59,7 @@ public final class PocketComputerUpgradeRecipe extends SpecialRecipe
         {
             for( int x = 0; x < inventory.getWidth(); x++ )
             {
-                ItemStack item = inventory.getStackInSlot( x + y * inventory.getWidth() );
+                ItemStack item = inventory.getItem( x + y * inventory.getWidth() );
                 if( !item.isEmpty() && item.getItem() instanceof ItemPocketComputer )
                 {
                     computer = item;
@@ -81,7 +81,7 @@ public final class PocketComputerUpgradeRecipe extends SpecialRecipe
         {
             for( int x = 0; x < inventory.getWidth(); x++ )
             {
-                ItemStack item = inventory.getStackInSlot( x + y * inventory.getWidth() );
+                ItemStack item = inventory.getItem( x + y * inventory.getWidth() );
                 if( x == computerX && y == computerY ) continue;
 
                 if( x == computerX && y == computerY - 1 )

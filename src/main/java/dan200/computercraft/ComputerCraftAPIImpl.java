@@ -54,7 +54,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
 
     public static InputStream getResourceFile( String domain, String subPath )
     {
-        IReloadableResourceManager manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
+        IReloadableResourceManager manager = ServerLifecycleHooks.getCurrentServer().getResources();
         try
         {
             return manager.getResource( new ResourceLocation( domain, subPath ) ).getInputStream();
@@ -97,7 +97,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     @Override
     public IMount createResourceMount( @Nonnull String domain, @Nonnull String subPath )
     {
-        IReloadableResourceManager manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
+        IReloadableResourceManager manager = ServerLifecycleHooks.getCurrentServer().getResources();
         ResourceMount mount = ResourceMount.get( domain, subPath, manager );
         return mount.exists( "" ) ? mount : null;
     }
@@ -162,7 +162,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     @Override
     public LazyOptional<IWiredElement> getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
-        TileEntity tile = world.getTileEntity( pos );
+        TileEntity tile = world.getBlockEntity( pos );
         return tile == null ? LazyOptional.empty() : tile.getCapability( CAPABILITY_WIRED_ELEMENT, side );
     }
 }

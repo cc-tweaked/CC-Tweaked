@@ -25,9 +25,9 @@ public interface InventoryDelegate extends IInventory
     IInventory getInventory();
 
     @Override
-    default int getSizeInventory()
+    default int getContainerSize()
     {
-        return getInventory().getSizeInventory();
+        return getInventory().getContainerSize();
     }
 
     @Override
@@ -38,82 +38,82 @@ public interface InventoryDelegate extends IInventory
 
     @Nonnull
     @Override
-    default ItemStack getStackInSlot( int slot )
+    default ItemStack getItem( int slot )
     {
-        return getInventory().getStackInSlot( slot );
+        return getInventory().getItem( slot );
     }
 
     @Nonnull
     @Override
-    default ItemStack decrStackSize( int slot, int count )
+    default ItemStack removeItem( int slot, int count )
     {
-        return getInventory().decrStackSize( slot, count );
+        return getInventory().removeItem( slot, count );
     }
 
     @Nonnull
     @Override
-    default ItemStack removeStackFromSlot( int slot )
+    default ItemStack removeItemNoUpdate( int slot )
     {
-        return getInventory().removeStackFromSlot( slot );
+        return getInventory().removeItemNoUpdate( slot );
     }
 
     @Override
-    default void setInventorySlotContents( int slot, @Nonnull ItemStack stack )
+    default void setItem( int slot, @Nonnull ItemStack stack )
     {
-        getInventory().setInventorySlotContents( slot, stack );
+        getInventory().setItem( slot, stack );
     }
 
     @Override
-    default int getInventoryStackLimit()
+    default int getMaxStackSize()
     {
-        return getInventory().getInventoryStackLimit();
+        return getInventory().getMaxStackSize();
     }
 
     @Override
-    default void markDirty()
+    default void setChanged()
     {
-        getInventory().markDirty();
+        getInventory().setChanged();
     }
 
     @Override
-    default boolean isUsableByPlayer( @Nonnull PlayerEntity player )
+    default boolean stillValid( @Nonnull PlayerEntity player )
     {
-        return getInventory().isUsableByPlayer( player );
+        return getInventory().stillValid( player );
     }
 
     @Override
-    default void openInventory( @Nonnull PlayerEntity player )
+    default void startOpen( @Nonnull PlayerEntity player )
     {
-        getInventory().openInventory( player );
+        getInventory().startOpen( player );
     }
 
     @Override
-    default void closeInventory( @Nonnull PlayerEntity player )
+    default void stopOpen( @Nonnull PlayerEntity player )
     {
-        getInventory().closeInventory( player );
+        getInventory().stopOpen( player );
     }
 
     @Override
-    default boolean isItemValidForSlot( int slot, @Nonnull ItemStack stack )
+    default boolean canPlaceItem( int slot, @Nonnull ItemStack stack )
     {
-        return getInventory().isItemValidForSlot( slot, stack );
+        return getInventory().canPlaceItem( slot, stack );
     }
 
     @Override
-    default void clear()
+    default void clearContent()
     {
-        getInventory().clear();
+        getInventory().clearContent();
     }
 
     @Override
-    default int count( @Nonnull Item stack )
+    default int countItem( @Nonnull Item stack )
     {
-        return getInventory().count( stack );
+        return getInventory().countItem( stack );
     }
 
     @Override
-    default boolean hasAny( @Nonnull Set<Item> set )
+    default boolean hasAnyOf( @Nonnull Set<Item> set )
     {
-        return getInventory().hasAny( set );
+        return getInventory().hasAnyOf( set );
     }
 }

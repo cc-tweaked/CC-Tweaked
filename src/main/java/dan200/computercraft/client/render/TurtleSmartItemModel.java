@@ -42,26 +42,26 @@ public class TurtleSmartItemModel implements IBakedModel
         stack.translate( 0, 0, 1 );
 
         identity = TransformationMatrix.identity();
-        flip = new TransformationMatrix( stack.getLast().getMatrix() );
+        flip = new TransformationMatrix( stack.last().pose() );
     }
 
     private static class TurtleModelCombination
     {
-        final boolean m_colour;
-        final ITurtleUpgrade m_leftUpgrade;
-        final ITurtleUpgrade m_rightUpgrade;
-        final ResourceLocation m_overlay;
-        final boolean m_christmas;
-        final boolean m_flip;
+        final boolean colour;
+        final ITurtleUpgrade leftUpgrade;
+        final ITurtleUpgrade rightUpgrade;
+        final ResourceLocation overlay;
+        final boolean christmas;
+        final boolean flip;
 
         TurtleModelCombination( boolean colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, ResourceLocation overlay, boolean christmas, boolean flip )
         {
-            m_colour = colour;
-            m_leftUpgrade = leftUpgrade;
-            m_rightUpgrade = rightUpgrade;
-            m_overlay = overlay;
-            m_christmas = christmas;
-            m_flip = flip;
+            this.colour = colour;
+            this.leftUpgrade = leftUpgrade;
+            this.rightUpgrade = rightUpgrade;
+            this.overlay = overlay;
+            this.christmas = christmas;
+            this.flip = flip;
         }
 
         @Override
@@ -71,12 +71,12 @@ public class TurtleSmartItemModel implements IBakedModel
             if( !(other instanceof TurtleModelCombination) ) return false;
 
             TurtleModelCombination otherCombo = (TurtleModelCombination) other;
-            return otherCombo.m_colour == m_colour &&
-                otherCombo.m_leftUpgrade == m_leftUpgrade &&
-                otherCombo.m_rightUpgrade == m_rightUpgrade &&
-                Objects.equal( otherCombo.m_overlay, m_overlay ) &&
-                otherCombo.m_christmas == m_christmas &&
-                otherCombo.m_flip == m_flip;
+            return otherCombo.colour == colour &&
+                otherCombo.leftUpgrade == leftUpgrade &&
+                otherCombo.rightUpgrade == rightUpgrade &&
+                Objects.equal( otherCombo.overlay, overlay ) &&
+                otherCombo.christmas == christmas &&
+                otherCombo.flip == flip;
         }
 
         @Override
@@ -84,12 +84,12 @@ public class TurtleSmartItemModel implements IBakedModel
         {
             final int prime = 31;
             int result = 0;
-            result = prime * result + (m_colour ? 1 : 0);
-            result = prime * result + (m_leftUpgrade != null ? m_leftUpgrade.hashCode() : 0);
-            result = prime * result + (m_rightUpgrade != null ? m_rightUpgrade.hashCode() : 0);
-            result = prime * result + (m_overlay != null ? m_overlay.hashCode() : 0);
-            result = prime * result + (m_christmas ? 1 : 0);
-            result = prime * result + (m_flip ? 1 : 0);
+            result = prime * result + (colour ? 1 : 0);
+            result = prime * result + (leftUpgrade != null ? leftUpgrade.hashCode() : 0);
+            result = prime * result + (rightUpgrade != null ? rightUpgrade.hashCode() : 0);
+            result = prime * result + (overlay != null ? overlay.hashCode() : 0);
+            result = prime * result + (christmas ? 1 : 0);
+            result = prime * result + (flip ? 1 : 0);
             return result;
         }
     }
@@ -97,19 +97,19 @@ public class TurtleSmartItemModel implements IBakedModel
     private final IBakedModel familyModel;
     private final IBakedModel colourModel;
 
-    private final HashMap<TurtleModelCombination, IBakedModel> m_cachedModels = new HashMap<>();
-    private final ItemOverrideList m_overrides;
+    private final HashMap<TurtleModelCombination, IBakedModel> cachedModels = new HashMap<>();
+    private final ItemOverrideList overrides;
 
     public TurtleSmartItemModel( IBakedModel familyModel, IBakedModel colourModel )
     {
         this.familyModel = familyModel;
         this.colourModel = colourModel;
 
-        m_overrides = new ItemOverrideList()
+        overrides = new ItemOverrideList()
         {
             @Nonnull
             @Override
-            public IBakedModel getModelWithOverrides( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable World world, @Nullable LivingEntity entity )
+            public IBakedModel resolve( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable World world, @Nullable LivingEntity entity )
             {
                 ItemTurtle turtle = (ItemTurtle) stack.getItem();
                 int colour = turtle.getColour( stack );
@@ -121,8 +121,8 @@ public class TurtleSmartItemModel implements IBakedModel
                 boolean flip = label != null && (label.equals( "Dinnerbone" ) || label.equals( "Grumm" ));
                 TurtleModelCombination combo = new TurtleModelCombination( colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip );
 
-                IBakedModel model = m_cachedModels.get( combo );
-                if( model == null ) m_cachedModels.put( combo, model = buildModel( combo ) );
+                IBakedModel model = cachedModels.get( combo );
+                if( model == null ) cachedModels.put( combo, model = buildModel( combo ) );
                 return model;
             }
         };
@@ -132,20 +132,20 @@ public class TurtleSmartItemModel implements IBakedModel
     @Override
     public ItemOverrideList getOverrides()
     {
-        return m_overrides;
+        return overrides;
     }
 
     private IBakedModel buildModel( TurtleModelCombination combo )
     {
         Minecraft mc = Minecraft.getInstance();
-        ModelManager modelManager = mc.getItemRenderer().getItemModelMesher().getModelManager();
-        ModelResourceLocation overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.m_overlay, combo.m_christmas );
+        ModelManager modelManager = mc.getItemRenderer().getItemModelShaper().getModelManager();
+        ModelResourceLocation overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.overlay, combo.christmas );
 
-        IBakedModel baseModel = combo.m_colour ? colourModel : familyModel;
+        IBakedModel baseModel = combo.colour ? colourModel : familyModel;
         IBakedModel overlayModel = overlayModelLocation != null ? modelManager.getModel( overlayModelLocation ) : null;
-        TransformationMatrix transform = combo.m_flip ? flip : identity;
-        TransformedModel leftModel = combo.m_leftUpgrade != null ? combo.m_leftUpgrade.getModel( null, TurtleSide.LEFT ) : null;
-        TransformedModel rightModel = combo.m_rightUpgrade != null ? combo.m_rightUpgrade.getModel( null, TurtleSide.RIGHT ) : null;
+        TransformationMatrix transform = combo.flip ? flip : identity;
+        TransformedModel leftModel = combo.leftUpgrade != null ? combo.leftUpgrade.getModel( null, TurtleSide.LEFT ) : null;
+        TransformedModel rightModel = combo.rightUpgrade != null ? combo.rightUpgrade.getModel( null, TurtleSide.RIGHT ) : null;
         return new TurtleMultiModel( baseModel, overlayModel, transform, leftModel, rightModel );
     }
 
@@ -166,9 +166,9 @@ public class TurtleSmartItemModel implements IBakedModel
     }
 
     @Override
-    public boolean isAmbientOcclusion()
+    public boolean useAmbientOcclusion()
     {
-        return familyModel.isAmbientOcclusion();
+        return familyModel.useAmbientOcclusion();
     }
 
     @Override
@@ -178,31 +178,31 @@ public class TurtleSmartItemModel implements IBakedModel
     }
 
     @Override
-    public boolean isBuiltInRenderer()
+    public boolean isCustomRenderer()
     {
-        return familyModel.isBuiltInRenderer();
+        return familyModel.isCustomRenderer();
     }
 
     @Override
-    public boolean func_230044_c_()
+    public boolean usesBlockLight()
     {
-        return familyModel.func_230044_c_();
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public TextureAtlasSprite getParticleTexture()
-    {
-        return familyModel.getParticleTexture();
+        return familyModel.usesBlockLight();
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public ItemCameraTransforms getItemCameraTransforms()
+    public TextureAtlasSprite getParticleIcon()
     {
-        return familyModel.getItemCameraTransforms();
+        return familyModel.getParticleIcon();
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public ItemCameraTransforms getTransforms()
+    {
+        return familyModel.getTransforms();
     }
 
 }

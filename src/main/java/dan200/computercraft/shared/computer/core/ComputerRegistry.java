@@ -12,38 +12,37 @@ import java.util.Random;
 
 public class ComputerRegistry<T extends IComputer>
 {
-    private Map<Integer, T> m_computers;
-    private int m_nextUnusedInstanceID;
-    private int m_sessionID;
+    private final Map<Integer, T> computers = new HashMap<>();
+    private int nextUnusedInstanceID;
+    private int sessionID;
 
     protected ComputerRegistry()
     {
-        m_computers = new HashMap<>();
         reset();
     }
 
     public int getSessionID()
     {
-        return m_sessionID;
+        return sessionID;
     }
 
     public int getUnusedInstanceID()
     {
-        return m_nextUnusedInstanceID++;
+        return nextUnusedInstanceID++;
     }
 
     public Collection<T> getComputers()
     {
-        return m_computers.values();
+        return computers.values();
     }
 
     public T get( int instanceID )
     {
         if( instanceID >= 0 )
         {
-            if( m_computers.containsKey( instanceID ) )
+            if( computers.containsKey( instanceID ) )
             {
-                return m_computers.get( instanceID );
+                return computers.get( instanceID );
             }
         }
         return null;
@@ -51,28 +50,28 @@ public class ComputerRegistry<T extends IComputer>
 
     public boolean contains( int instanceID )
     {
-        return m_computers.containsKey( instanceID );
+        return computers.containsKey( instanceID );
     }
 
     public void add( int instanceID, T computer )
     {
-        if( m_computers.containsKey( instanceID ) )
+        if( computers.containsKey( instanceID ) )
         {
             remove( instanceID );
         }
-        m_computers.put( instanceID, computer );
-        m_nextUnusedInstanceID = Math.max( m_nextUnusedInstanceID, instanceID + 1 );
+        computers.put( instanceID, computer );
+        nextUnusedInstanceID = Math.max( nextUnusedInstanceID, instanceID + 1 );
     }
 
     public void remove( int instanceID )
     {
-        m_computers.remove( instanceID );
+        computers.remove( instanceID );
     }
 
     public void reset()
     {
-        m_computers.clear();
-        m_nextUnusedInstanceID = 0;
-        m_sessionID = new Random().nextInt();
+        computers.clear();
+        nextUnusedInstanceID = 0;
+        sessionID = new Random().nextInt();
     }
 }

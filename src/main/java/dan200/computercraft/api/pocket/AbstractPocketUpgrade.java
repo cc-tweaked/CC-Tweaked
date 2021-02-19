@@ -35,7 +35,7 @@ public abstract class AbstractPocketUpgrade implements IPocketUpgrade
 
     protected AbstractPocketUpgrade( ResourceLocation id, NonNullSupplier<ItemStack> item )
     {
-        this( id, Util.makeTranslationKey( "upgrade", id ) + ".adjective", item );
+        this( id, Util.makeDescriptionId( "upgrade", id ) + ".adjective", item );
     }
 
     protected AbstractPocketUpgrade( ResourceLocation id, String adjective, ItemStack stack )

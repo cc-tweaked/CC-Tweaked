@@ -308,7 +308,7 @@ public class TurtleAPI implements ILuaAPI
     public final int getItemCount( Optional<Integer> slot ) throws LuaException
     {
         int actualSlot = checkSlot( slot ).orElse( turtle.getSelectedSlot() );
-        return turtle.getInventory().getStackInSlot( actualSlot ).getCount();
+        return turtle.getInventory().getItem( actualSlot ).getCount();
     }
 
     /**
@@ -324,7 +324,7 @@ public class TurtleAPI implements ILuaAPI
     public final int getItemSpace( Optional<Integer> slot ) throws LuaException
     {
         int actualSlot = checkSlot( slot ).orElse( turtle.getSelectedSlot() );
-        ItemStack stack = turtle.getInventory().getStackInSlot( actualSlot );
+        ItemStack stack = turtle.getInventory().getItem( actualSlot );
         return stack.isEmpty() ? 64 : Math.min( stack.getMaxStackSize(), 64 ) - stack.getCount();
     }
 
@@ -600,7 +600,7 @@ public class TurtleAPI implements ILuaAPI
 
     private Object[] getItemDetail( int slot, boolean detailed )
     {
-        ItemStack stack = turtle.getInventory().getStackInSlot( slot );
+        ItemStack stack = turtle.getInventory().getItem( slot );
         if( stack.isEmpty() ) return new Object[] { null };
 
         Map<String, Object> table = detailed

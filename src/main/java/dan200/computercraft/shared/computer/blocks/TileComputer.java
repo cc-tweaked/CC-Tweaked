@@ -42,11 +42,11 @@ public class TileComputer extends TileComputerBase
     {
         ComputerFamily family = getFamily();
         ServerComputer computer = new ServerComputer(
-            getWorld(), id, label, instanceID, family,
+            getLevel(), id, label, instanceID, family,
             ComputerCraft.computerTermWidth,
             ComputerCraft.computerTermHeight
         );
-        computer.setPosition( getPos() );
+        computer.setPosition( getBlockPos() );
         return computer;
     }
 
@@ -58,16 +58,16 @@ public class TileComputer extends TileComputerBase
     @Override
     public Direction getDirection()
     {
-        return getBlockState().get( BlockComputer.FACING );
+        return getBlockState().getValue( BlockComputer.FACING );
     }
 
     @Override
     protected void updateBlockState( ComputerState newState )
     {
         BlockState existing = getBlockState();
-        if( existing.get( BlockComputer.STATE ) != newState )
+        if( existing.getValue( BlockComputer.STATE ) != newState )
         {
-            getWorld().setBlockState( getPos(), existing.with( BlockComputer.STATE, newState ), 3 );
+            getLevel().setBlock( getBlockPos(), existing.setValue( BlockComputer.STATE, newState ), 3 );
         }
     }
 

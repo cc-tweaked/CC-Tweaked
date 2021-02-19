@@ -33,7 +33,7 @@ public final class ComputerProxy
         ServerComputer computer = tile.getServerComputer();
         if( computer == null )
         {
-            tile.m_startOn = true;
+            tile.startOn = true;
         }
         else
         {
@@ -47,7 +47,7 @@ public final class ComputerProxy
         ServerComputer computer = tile.getServerComputer();
         if( computer == null )
         {
-            tile.m_startOn = false;
+            tile.startOn = false;
         }
         else
         {
@@ -61,7 +61,7 @@ public final class ComputerProxy
         ServerComputer computer = tile.getServerComputer();
         if( computer == null )
         {
-            tile.m_startOn = true;
+            tile.startOn = true;
         }
         else
         {

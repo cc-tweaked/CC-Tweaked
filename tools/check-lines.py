@@ -3,7 +3,11 @@ import pathlib, sys
 problems = False
 
 # Skip images and files without extensions
-exclude = [ "*.png", "**/data/json-parsing/*.json" ]
+exclude = [
+    "*.png",
+    "**/data/json-parsing/*.json",
+    "**/computers/ids.json",
+]
 
 for path in pathlib.Path("src").glob("**/*"):
     # Ideally we'd use generated as a glob, but .match("generated/**/*.json") doesn't work!

@@ -41,12 +41,12 @@ public class ItemTreasureDisk extends Item implements IMedia
     }
 
     @Override
-    public void fillItemGroup( @Nonnull ItemGroup group, @Nonnull NonNullList<ItemStack> stacks )
+    public void fillItemCategory( @Nonnull ItemGroup group, @Nonnull NonNullList<ItemStack> stacks )
     {
     }
 
     @Override
-    public void addInformation( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag tooltipOptions )
+    public void appendHoverText( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag tooltipOptions )
     {
         String label = getTitle( stack );
         if( !label.isEmpty() ) list.add( new StringTextComponent( label ) );

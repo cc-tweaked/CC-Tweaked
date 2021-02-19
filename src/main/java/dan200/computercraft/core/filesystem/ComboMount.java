@@ -19,11 +19,11 @@ import java.util.Set;
 
 public class ComboMount implements IMount
 {
-    private IMount[] m_parts;
+    private final IMount[] parts;
 
     public ComboMount( IMount[] parts )
     {
-        m_parts = parts;
+        this.parts = parts;
     }
 
     // IMount implementation
@@ -31,9 +31,9 @@ public class ComboMount implements IMount
     @Override
     public boolean exists( @Nonnull String path ) throws IOException
     {
-        for( int i = m_parts.length - 1; i >= 0; --i )
+        for( int i = parts.length - 1; i >= 0; --i )
         {
-            IMount part = m_parts[i];
+            IMount part = parts[i];
             if( part.exists( path ) )
             {
                 return true;
@@ -45,9 +45,9 @@ public class ComboMount implements IMount
     @Override
     public boolean isDirectory( @Nonnull String path ) throws IOException
     {
-        for( int i = m_parts.length - 1; i >= 0; --i )
+        for( int i = parts.length - 1; i >= 0; --i )
         {
-            IMount part = m_parts[i];
+            IMount part = parts[i];
             if( part.isDirectory( path ) )
             {
                 return true;
@@ -62,9 +62,9 @@ public class ComboMount implements IMount
         // Combine the lists from all the mounts
         List<String> foundFiles = null;
         int foundDirs = 0;
-        for( int i = m_parts.length - 1; i >= 0; --i )
+        for( int i = parts.length - 1; i >= 0; --i )
         {
-            IMount part = m_parts[i];
+            IMount part = parts[i];
             if( part.exists( path ) && part.isDirectory( path ) )
             {
                 if( foundFiles == null )
@@ -102,9 +102,9 @@ public class ComboMount implements IMount
     @Override
     public long getSize( @Nonnull String path ) throws IOException
     {
-        for( int i = m_parts.length - 1; i >= 0; --i )
+        for( int i = parts.length - 1; i >= 0; --i )
         {
-            IMount part = m_parts[i];
+            IMount part = parts[i];
             if( part.exists( path ) )
             {
                 return part.getSize( path );
@@ -117,9 +117,9 @@ public class ComboMount implements IMount
     @Override
     public ReadableByteChannel openForRead( @Nonnull String path ) throws IOException
     {
-        for( int i = m_parts.length - 1; i >= 0; --i )
+        for( int i = parts.length - 1; i >= 0; --i )
         {
-            IMount part = m_parts[i];
+            IMount part = parts[i];
             if( part.exists( path ) && !part.isDirectory( path ) )
             {
                 return part.openForRead( path );
@@ -132,9 +132,9 @@ public class ComboMount implements IMount
     @Override
     public BasicFileAttributes getAttributes( @Nonnull String path ) throws IOException
     {
-        for( int i = m_parts.length - 1; i >= 0; --i )
+        for( int i = parts.length - 1; i >= 0; --i )
         {
-            IMount part = m_parts[i];
+            IMount part = parts[i];
             if( part.exists( path ) && !part.isDirectory( path ) )
             {
                 return part.getAttributes( path );

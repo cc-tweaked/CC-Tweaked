@@ -31,12 +31,12 @@ public final class BundledRedstone
 
     public static int getDefaultOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
-        return World.isValid( pos ) ? DefaultBundledRedstoneProvider.getDefaultBundledRedstoneOutput( world, pos, side ) : -1;
+        return World.isInWorldBounds( pos ) ? DefaultBundledRedstoneProvider.getDefaultBundledRedstoneOutput( world, pos, side ) : -1;
     }
 
     private static int getUnmaskedOutput( World world, BlockPos pos, Direction side )
     {
-        if( !World.isValid( pos ) ) return -1;
+        if( !World.isInWorldBounds( pos ) ) return -1;
 
         // Try the providers in order:
         int combinedSignal = -1;

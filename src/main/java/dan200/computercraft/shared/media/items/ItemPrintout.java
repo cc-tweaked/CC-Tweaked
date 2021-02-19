@@ -50,7 +50,7 @@ public class ItemPrintout extends Item
     }
 
     @Override
-    public void addInformation( @Nonnull ItemStack stack, World world, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag options )
+    public void appendHoverText( @Nonnull ItemStack stack, World world, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag options )
     {
         String title = getTitle( stack );
         if( title != null && !title.isEmpty() ) list.add( new StringTextComponent( title ) );
@@ -58,14 +58,14 @@ public class ItemPrintout extends Item
 
     @Nonnull
     @Override
-    public ActionResult<ItemStack> onItemRightClick( World world, @Nonnull PlayerEntity player, @Nonnull Hand hand )
+    public ActionResult<ItemStack> use( World world, @Nonnull PlayerEntity player, @Nonnull Hand hand )
     {
-        if( !world.isRemote )
+        if( !world.isClientSide )
         {
             new HeldItemContainerData( hand )
-                .open( player, new ContainerHeldItem.Factory( Registry.ModContainers.PRINTOUT.get(), player.getHeldItem( hand ), hand ) );
+                .open( player, new ContainerHeldItem.Factory( Registry.ModContainers.PRINTOUT.get(), player.getItemInHand( hand ), hand ) );
         }
-        return new ActionResult<>( ActionResultType.SUCCESS, player.getHeldItem( hand ) );
+        return new ActionResult<>( ActionResultType.SUCCESS, player.getItemInHand( hand ) );
     }
 
     @Nonnull

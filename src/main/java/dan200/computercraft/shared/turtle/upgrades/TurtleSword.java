@@ -37,9 +37,9 @@ public class TurtleSword extends TurtleTool
         if( !super.canBreakBlock( state, world, pos, player ) ) return false;
 
         Material material = state.getMaterial();
-        return material == Material.PLANTS ||
+        return material == Material.PLANT ||
             material == Material.LEAVES ||
-            material == Material.TALL_PLANTS ||
+            material == Material.REPLACEABLE_PLANT ||
             material == Material.WOOL ||
             material == Material.WEB;
     }

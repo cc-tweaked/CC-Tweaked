@@ -20,13 +20,13 @@ public final class TurtlePermissions
     public static boolean isBlockEnterable( World world, BlockPos pos, PlayerEntity player )
     {
         MinecraftServer server = world.getServer();
-        return server == null || world.isRemote || !server.isBlockProtected( world, pos, player );
+        return server == null || world.isClientSide || !server.isUnderSpawnProtection( world, pos, player );
     }
 
     public static boolean isBlockEditable( World world, BlockPos pos, PlayerEntity player )
     {
         MinecraftServer server = world.getServer();
-        return server == null || world.isRemote || !server.isBlockProtected( world, pos, player );
+        return server == null || world.isClientSide || !server.isUnderSpawnProtection( world, pos, player );
     }
 
     @SubscribeEvent

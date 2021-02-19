@@ -40,17 +40,17 @@ public abstract class LootTableProvider implements IDataProvider
     }
 
     @Override
-    public void act( @Nonnull DirectoryCache cache )
+    public void run( @Nonnull DirectoryCache cache )
     {
         Map<ResourceLocation, LootTable> tables = new HashMap<>();
-        ValidationTracker validation = new ValidationTracker( LootParameterSets.GENERIC, x -> null, tables::get );
+        ValidationTracker validation = new ValidationTracker( LootParameterSets.ALL_PARAMS, x -> null, tables::get );
 
         registerLoot( ( id, table ) -> {
-            if( tables.containsKey( id ) ) validation.addProblem( "Duplicate loot tables for " + id );
+            if( tables.containsKey( id ) ) validation.reportProblem( "Duplicate loot tables for " + id );
             tables.put( id, table );
         } );
 
-        tables.forEach( ( key, value ) -> LootTableManager.func_227508_a_( validation, key, value ) );
+        tables.forEach( ( key, value ) -> LootTableManager.validate( validation, key, value ) );
 
         Multimap<String, String> problems = validation.getProblems();
         if( !problems.isEmpty() )
@@ -64,7 +64,7 @@ public abstract class LootTableProvider implements IDataProvider
             Path path = getPath( key );
             try
             {
-                IDataProvider.save( GSON, cache, LootTableManager.toJson( value ), path );
+                IDataProvider.save( GSON, cache, LootTableManager.serialize( value ), path );
             }
             catch( IOException e )
             {

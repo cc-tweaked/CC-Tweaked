@@ -38,7 +38,7 @@ public final class CommandCopy
             .then( literal( "copy" ) )
             .then( argument( "message", StringArgumentType.greedyString() ) )
             .executes( context -> {
-                Minecraft.getInstance().keyboardListener.setClipboardString( context.getArgument( "message", String.class ) );
+                Minecraft.getInstance().keyboardHandler.setClipboard( context.getArgument( "message", String.class ) );
                 return 1;
             } )
         );
@@ -50,7 +50,7 @@ public final class CommandCopy
         // Emulate the command on the client side
         if( event.getMessage().startsWith( PREFIX ) )
         {
-            Minecraft.getInstance().keyboardListener.setClipboardString( event.getMessage().substring( PREFIX.length() ) );
+            Minecraft.getInstance().keyboardHandler.setClipboard( event.getMessage().substring( PREFIX.length() ) );
             event.setCanceled( true );
         }
     }

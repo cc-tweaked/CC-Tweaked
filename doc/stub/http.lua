@@ -58,10 +58,10 @@ function request(...) end
 -- @treturn string A message detailing why the request failed.
 -- @treturn Response|nil The failing http response, if available.
 --
--- @usage Make a request to [example.computercraft.cc](https://example.computercraft.cc),
+-- @usage Make a request to [example.tweaked.cc](https://example.tweaked.cc),
 -- and print the returned page.
 -- ```lua
--- local request = http.get("https://example.computercraft.cc")
+-- local request = http.get("https://example.tweaked.cc")
 -- print(request.readAll())
 -- -- => HTTP is working!
 -- request.close()
@@ -123,7 +123,7 @@ function checkURLAsync(url) end
 --
 -- @usage
 -- ```lua
--- print(http.checkURL("https://example.computercraft.cc/"))
+-- print(http.checkURL("https://example.tweaked.cc/"))
 -- -- => true
 -- print(http.checkURL("http://localhost/"))
 -- -- => false Domain not permitted

@@ -14,24 +14,24 @@ import net.minecraft.world.World;
 
 public abstract class WirelessModemPeripheral extends ModemPeripheral
 {
-    private final boolean m_advanced;
+    private final boolean advanced;
 
     public WirelessModemPeripheral( ModemState state, boolean advanced )
     {
         super( state );
-        m_advanced = advanced;
+        this.advanced = advanced;
     }
 
     @Override
     public boolean isInterdimensional()
     {
-        return m_advanced;
+        return advanced;
     }
 
     @Override
     public double getRange()
     {
-        if( m_advanced )
+        if( advanced )
         {
             return Integer.MAX_VALUE;
         }
@@ -50,7 +50,7 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral
                 }
                 if( position.y > 96.0 && maxRange > minRange )
                 {
-                    return minRange + (position.y - 96.0) * ((maxRange - minRange) / ((world.getHeight() - 1) - 96.0));
+                    return minRange + (position.y - 96.0) * ((maxRange - minRange) / ((world.getMaxBuildHeight() - 1) - 96.0));
                 }
                 return minRange;
             }

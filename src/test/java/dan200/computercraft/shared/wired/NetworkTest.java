@@ -259,7 +259,7 @@ public class NetworkTest
             grid.forEach( ( existing, pos ) -> {
                 for( Direction facing : DirectionUtil.FACINGS )
                 {
-                    BlockPos offset = pos.offset( facing );
+                    BlockPos offset = pos.relative( facing );
                     if( offset.getX() > BRUTE_SIZE / 2 == pos.getX() > BRUTE_SIZE / 2 )
                     {
                         IWiredNode other = grid.get( offset );

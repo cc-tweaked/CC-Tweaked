@@ -89,9 +89,9 @@ public class FSAPI implements ILuaAPI
      *
      * @param arguments The paths to combine.
      * @return The new path, with separators added between parts as needed.
+     * @throws LuaException On argument errors.
      * @cc.tparam string path The first part of the path. For example, a parent directory path.
      * @cc.tparam string ... Additional parts of the path to combine.
-     * @throws LuaException On argument errors.
      */
     @LuaFunction
     public final String combine( IArguments arguments ) throws LuaException

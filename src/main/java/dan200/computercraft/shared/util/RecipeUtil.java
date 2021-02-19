@@ -42,7 +42,7 @@ public final class RecipeUtil
     public static ShapedTemplate getTemplate( JsonObject json )
     {
         Map<Character, Ingredient> ingMap = Maps.newHashMap();
-        for( Map.Entry<String, JsonElement> entry : JSONUtils.getJsonObject( json, "key" ).entrySet() )
+        for( Map.Entry<String, JsonElement> entry : JSONUtils.getAsJsonObject( json, "key" ).entrySet() )
         {
             if( entry.getKey().length() != 1 )
             {
@@ -53,12 +53,12 @@ public final class RecipeUtil
                 throw new JsonSyntaxException( "Invalid key entry: ' ' is a reserved symbol." );
             }
 
-            ingMap.put( entry.getKey().charAt( 0 ), Ingredient.deserialize( entry.getValue() ) );
+            ingMap.put( entry.getKey().charAt( 0 ), Ingredient.fromJson( entry.getValue() ) );
         }
 
         ingMap.put( ' ', Ingredient.EMPTY );
 
-        JsonArray patternJ = JSONUtils.getJsonArray( json, "pattern" );
+        JsonArray patternJ = JSONUtils.getAsJsonArray( json, "pattern" );
 
         if( patternJ.size() == 0 )
         {
@@ -68,7 +68,7 @@ public final class RecipeUtil
         String[] pattern = new String[patternJ.size()];
         for( int x = 0; x < pattern.length; x++ )
         {
-            String line = JSONUtils.getString( patternJ.get( x ), "pattern[" + x + "]" );
+            String line = JSONUtils.convertToString( patternJ.get( x ), "pattern[" + x + "]" );
             if( x > 0 && pattern[0].length() != line.length() )
             {
                 throw new JsonSyntaxException( "Invalid pattern: each row must  be the same width" );
@@ -108,7 +108,7 @@ public final class RecipeUtil
 
     public static ComputerFamily getFamily( JsonObject json, String name )
     {
-        String familyName = JSONUtils.getString( json, name );
+        String familyName = JSONUtils.getAsString( json, name );
         for( ComputerFamily family : ComputerFamily.values() )
         {
             if( family.name().equalsIgnoreCase( familyName ) ) return family;

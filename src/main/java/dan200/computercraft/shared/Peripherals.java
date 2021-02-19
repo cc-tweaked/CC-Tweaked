@@ -40,13 +40,13 @@ public final class Peripherals
     @Nullable
     public static IPeripheral getPeripheral( World world, BlockPos pos, Direction side, NonNullConsumer<LazyOptional<IPeripheral>> invalidate )
     {
-        return World.isValid( pos ) && !world.isRemote ? getPeripheralAt( world, pos, side, invalidate ) : null;
+        return World.isInWorldBounds( pos ) && !world.isClientSide ? getPeripheralAt( world, pos, side, invalidate ) : null;
     }
 
     @Nullable
     private static IPeripheral getPeripheralAt( World world, BlockPos pos, Direction side, NonNullConsumer<LazyOptional<IPeripheral>> invalidate )
     {
-        TileEntity block = world.getTileEntity( pos );
+        TileEntity block = world.getBlockEntity( pos );
         if( block != null )
         {
             LazyOptional<IPeripheral> peripheral = block.getCapability( CAPABILITY_PERIPHERAL, side );

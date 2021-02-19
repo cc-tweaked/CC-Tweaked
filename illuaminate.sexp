@@ -2,6 +2,7 @@
 
 (sources
   /doc/stub/
+  /doc/events/
   /build/docs/luaJavadoc/
   /src/main/resources/*/computercraft/lua/bios.lua
   /src/main/resources/*/computercraft/lua/rom/
@@ -25,7 +26,8 @@
 
   (module-kinds
     (peripheral Peripherals)
-    (generic_peripheral "Generic Peripherals"))
+    (generic_peripheral "Generic Peripherals")
+    (event Events))
 
   (library-path
     /doc/stub/

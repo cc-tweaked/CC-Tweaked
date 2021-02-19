@@ -23,21 +23,21 @@ public class GuiPrinter extends ContainerScreen<ContainerPrinter>
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer( int mouseX, int mouseY )
+    protected void renderLabels( int mouseX, int mouseY )
     {
-        String title = getTitle().getFormattedText();
-        font.drawString( title, (xSize - font.getStringWidth( title )) / 2.0f, 6, 0x404040 );
-        font.drawString( I18n.format( "container.inventory" ), 8, ySize - 96 + 2, 0x404040 );
+        String title = getTitle().getColoredString();
+        font.draw( title, (imageWidth - font.width( title )) / 2.0f, 6, 0x404040 );
+        font.draw( I18n.get( "container.inventory" ), 8, imageHeight - 96 + 2, 0x404040 );
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
+    protected void renderBg( float partialTicks, int mouseX, int mouseY )
     {
         RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        minecraft.getTextureManager().bindTexture( BACKGROUND );
-        blit( guiLeft, guiTop, 0, 0, xSize, ySize );
+        minecraft.getTextureManager().bind( BACKGROUND );
+        blit( leftPos, topPos, 0, 0, imageWidth, imageHeight );
 
-        if( getContainer().isPrinting() ) blit( guiLeft + 34, guiTop + 21, 176, 0, 25, 45 );
+        if( getMenu().isPrinting() ) blit( leftPos + 34, topPos + 21, 176, 0, 25, 45 );
     }
 
     @Override
@@ -45,6 +45,6 @@ public class GuiPrinter extends ContainerScreen<ContainerPrinter>
     {
         renderBackground();
         super.render( mouseX, mouseY, partialTicks );
-        renderHoveredToolTip( mouseX, mouseY );
+        renderTooltip( mouseX, mouseY );
     }
 }
