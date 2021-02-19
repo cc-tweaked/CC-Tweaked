@@ -44,9 +44,9 @@ public class MonitorClientMessage implements NetworkMessage
     public void handle( NetworkEvent.Context context )
     {
         ClientPlayerEntity player = Minecraft.getInstance().player;
-        if( player == null || player.world == null ) return;
+        if( player == null || player.level == null ) return;
 
-        TileEntity te = player.world.getTileEntity( pos );
+        TileEntity te = player.level.getBlockEntity( pos );
         if( !(te instanceof TileMonitor) ) return;
 
         ((TileMonitor) te).read( state );

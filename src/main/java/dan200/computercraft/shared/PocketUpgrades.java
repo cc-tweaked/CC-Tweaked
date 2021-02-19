@@ -7,7 +7,9 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenCustomHashMap;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Util;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModLoadingContext;
 
@@ -18,7 +20,7 @@ import java.util.*;
 public final class PocketUpgrades
 {
     private static final Map<String, IPocketUpgrade> upgrades = new HashMap<>();
-    private static final IdentityHashMap<IPocketUpgrade, String> upgradeOwners = new IdentityHashMap<>();
+    private static final Map<IPocketUpgrade, String> upgradeOwners = new Object2ObjectLinkedOpenCustomHashMap<>( Util.identityStrategy() );
 
     private PocketUpgrades() {}
 

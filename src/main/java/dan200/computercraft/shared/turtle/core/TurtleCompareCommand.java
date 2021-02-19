@@ -15,19 +15,17 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import javax.annotation.Nonnull;
-import java.lang.reflect.Method;
 import java.util.List;
 
 public class TurtleCompareCommand implements ITurtleCommand
 {
-    private final InteractDirection m_direction;
+    private final InteractDirection direction;
 
     public TurtleCompareCommand( InteractDirection direction )
     {
-        m_direction = direction;
+        this.direction = direction;
     }
 
     @Nonnull
@@ -35,41 +33,28 @@ public class TurtleCompareCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         // Get world direction from direction
-        Direction direction = m_direction.toWorldDir( turtle );
+        Direction direction = this.direction.toWorldDir( turtle );
 
         // Get currently selected stack
-        ItemStack selectedStack = turtle.getInventory().getStackInSlot( turtle.getSelectedSlot() );
+        ItemStack selectedStack = turtle.getInventory().getItem( turtle.getSelectedSlot() );
 
         // Get stack representing thing in front
         World world = turtle.getWorld();
         BlockPos oldPosition = turtle.getPosition();
-        BlockPos newPosition = oldPosition.offset( direction );
+        BlockPos newPosition = oldPosition.relative( direction );
 
         ItemStack lookAtStack = ItemStack.EMPTY;
-        if( !world.isAirBlock( newPosition ) )
+        if( !world.isEmptyBlock( newPosition ) )
         {
             BlockState lookAtState = world.getBlockState( newPosition );
             Block lookAtBlock = lookAtState.getBlock();
             if( !lookAtBlock.isAir( lookAtState, world, newPosition ) )
             {
-                // Try getSilkTouchDrop first
-                if( !lookAtBlock.hasTileEntity( lookAtState ) )
-                {
-                    try
-                    {
-                        Method method = ObfuscationReflectionHelper.findMethod( Block.class, "func_180643_i", BlockState.class );
-                        lookAtStack = (ItemStack) method.invoke( lookAtBlock, lookAtState );
-                    }
-                    catch( ReflectiveOperationException | RuntimeException ignored )
-                    {
-                    }
-                }
-
                 // See if the block drops anything with the same ID as itself
                 // (try 5 times to try and beat random number generators)
                 for( int i = 0; i < 5 && lookAtStack.isEmpty(); i++ )
                 {
-                    List<ItemStack> drops = Block.getDrops( lookAtState, (ServerWorld) world, newPosition, world.getTileEntity( newPosition ) );
+                    List<ItemStack> drops = Block.getDrops( lookAtState, (ServerWorld) world, newPosition, world.getBlockEntity( newPosition ) );
                     if( !drops.isEmpty() )
                     {
                         for( ItemStack drop : drops )

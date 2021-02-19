@@ -386,6 +386,7 @@ local function serializeJSONImpl(t, tTracking, bNBTStyle)
             local sArrayResult = "["
             local nObjectSize = 0
             local nArraySize = 0
+            local largestArrayIndex = 0
             for k, v in pairs(t) do
                 if type(k) == "string" then
                     local sEntry
@@ -400,10 +401,17 @@ local function serializeJSONImpl(t, tTracking, bNBTStyle)
                         sObjectResult = sObjectResult .. "," .. sEntry
                     end
                     nObjectSize = nObjectSize + 1
+                elseif type(k) == "number" and k > largestArrayIndex then --the largest index is kept to avoid losing half the array if there is any single nil in that array
+                    largestArrayIndex = k
                 end
             end
-            for _, v in ipairs(t) do
-                local sEntry = serializeJSONImpl(v, tTracking, bNBTStyle)
+            for k = 1, largestArrayIndex, 1 do --the array is read up to the very last valid array index, ipairs() would stop at the first nil value and we would lose any data after.
+                local sEntry
+                if t[k] == nil then --if the array is nil at index k the value is "null" as to keep the unused indexes in between used ones.
+                    sEntry = "null"
+                else -- if the array index does not point to a nil we serialise it's content.
+                    sEntry = serializeJSONImpl(t[k], tTracking, bNBTStyle)
+                end
                 if nArraySize == 0 then
                     sArrayResult = sArrayResult .. sEntry
                 else

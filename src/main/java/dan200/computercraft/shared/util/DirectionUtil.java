@@ -20,8 +20,8 @@ public final class DirectionUtil
 
         if( dir == front ) return ComputerSide.FRONT;
         if( dir == front.getOpposite() ) return ComputerSide.BACK;
-        if( dir == front.rotateYCCW() ) return ComputerSide.LEFT;
-        if( dir == front.rotateY() ) return ComputerSide.RIGHT;
+        if( dir == front.getCounterClockWise() ) return ComputerSide.LEFT;
+        if( dir == front.getClockWise() ) return ComputerSide.RIGHT;
         if( dir == Direction.UP ) return ComputerSide.TOP;
         return ComputerSide.BOTTOM;
     }

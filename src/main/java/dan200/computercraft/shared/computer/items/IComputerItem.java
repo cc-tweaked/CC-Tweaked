@@ -23,7 +23,7 @@ public interface IComputerItem
 
     default String getLabel( @Nonnull ItemStack stack )
     {
-        return stack.hasDisplayName() ? stack.getDisplayName().getString() : null;
+        return stack.hasCustomHoverName() ? stack.getHoverName().getString() : null;
     }
 
     ComputerFamily getFamily();

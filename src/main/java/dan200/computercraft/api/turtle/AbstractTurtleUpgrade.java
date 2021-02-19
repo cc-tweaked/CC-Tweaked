@@ -37,7 +37,7 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
 
     protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, NonNullSupplier<ItemStack> stack )
     {
-        this( id, type, Util.makeTranslationKey( "upgrade", id ) + ".adjective", stack );
+        this( id, type, Util.makeDescriptionId( "upgrade", id ) + ".adjective", stack );
     }
 
     protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, ItemStack stack )

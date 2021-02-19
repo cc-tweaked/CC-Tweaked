@@ -1,2 +1,3 @@
 # Ignore changes in generated files
 src/generated/resources/data/** linguist-generated
+src/test/server-files/structures linguist-generated

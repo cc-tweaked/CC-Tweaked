@@ -26,7 +26,7 @@ public final class ContainerPocketComputer extends ContainerComputerBase
     private ContainerPocketComputer( int id, ServerComputer computer, ItemPocketComputer item, Hand hand )
     {
         super( Registry.ModContainers.POCKET_COMPUTER.get(), id, p -> {
-            ItemStack stack = p.getHeldItem( hand );
+            ItemStack stack = p.getItemInHand( hand );
             return stack.getItem() == item && ItemPocketComputer.getServerComputer( stack ) == computer;
         }, computer, item.getFamily() );
     }
@@ -46,7 +46,7 @@ public final class ContainerPocketComputer extends ContainerComputerBase
         public Factory( ServerComputer computer, ItemStack stack, ItemPocketComputer item, Hand hand )
         {
             this.computer = computer;
-            this.name = stack.getDisplayName();
+            this.name = stack.getHoverName();
             this.item = item;
             this.hand = hand;
         }

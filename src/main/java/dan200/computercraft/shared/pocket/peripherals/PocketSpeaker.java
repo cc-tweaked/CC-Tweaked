@@ -39,7 +39,7 @@ public class PocketSpeaker extends AbstractPocketUpgrade
         Entity entity = access.getEntity();
         if( entity != null )
         {
-            speaker.setLocation( entity.getEntityWorld(), entity.getEyePosition( 1 ) );
+            speaker.setLocation( entity.getCommandSenderWorld(), entity.getEyePosition( 1 ) );
         }
 
         speaker.update();

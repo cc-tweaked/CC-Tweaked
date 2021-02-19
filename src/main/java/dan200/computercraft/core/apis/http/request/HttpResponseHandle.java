@@ -58,10 +58,10 @@ public class HttpResponseHandle implements ObjectSource
      * If multiple headers are sent with the same name, they will be combined with a comma.
      *
      * @return The response's headers.
-     * @cc.usage Make a request to [example.computercraft.cc](https://example.computercraft.cc), and print the
+     * @cc.usage Make a request to [example.tweaked.cc](https://example.tweaked.cc), and print the
      * returned headers.
      * <pre>{@code
-     * local request = http.get("https://example.computercraft.cc")
+     * local request = http.get("https://example.tweaked.cc")
      * print(textutils.serialize(request.getResponseHeaders()))
      * -- => {
      * --  [ "Content-Type" ] = "text/plain; charset=utf8",

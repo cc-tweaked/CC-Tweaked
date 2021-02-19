@@ -32,15 +32,15 @@ public class Tags extends ItemTagsProvider
     }
 
     @Override
-    protected void registerTags()
+    protected void addTags()
     {
-        getBuilder( COMPUTER )
+        tag( COMPUTER )
             .add( Registry.ModItems.COMPUTER_NORMAL.get() )
             .add( Registry.ModItems.COMPUTER_ADVANCED.get() )
             .add( Registry.ModItems.COMPUTER_COMMAND.get() );
-        getBuilder( TURTLE ).add( Registry.ModItems.TURTLE_NORMAL.get(), Registry.ModItems.TURTLE_ADVANCED.get() );
-        getBuilder( WIRED_MODEM ).add( Registry.ModItems.WIRED_MODEM.get(), Registry.ModItems.WIRED_MODEM_FULL.get() );
-        getBuilder( MONITOR )
+        tag( TURTLE ).add( Registry.ModItems.TURTLE_NORMAL.get(), Registry.ModItems.TURTLE_ADVANCED.get() );
+        tag( WIRED_MODEM ).add( Registry.ModItems.WIRED_MODEM.get(), Registry.ModItems.WIRED_MODEM_FULL.get() );
+        tag( MONITOR )
             .add( Registry.ModItems.MONITOR_NORMAL.get() )
             .add( Registry.ModItems.MONITOR_ADVANCED.get() );
     }

@@ -79,12 +79,12 @@ public interface TableFormatter
             StringTextComponent line = new StringTextComponent( "" );
             for( int i = 0; i < columns - 1; i++ )
             {
-                line.appendSibling( headers[i] );
+                line.append( headers[i] );
                 ITextComponent padding = getPadding( headers[i], maxWidths[i] );
-                if( padding != null ) line.appendSibling( padding );
-                line.appendSibling( SEPARATOR );
+                if( padding != null ) line.append( padding );
+                line.append( SEPARATOR );
             }
-            line.appendSibling( headers[columns - 1] );
+            line.append( headers[columns - 1] );
 
             writeLine( rowId++, line );
 
@@ -100,12 +100,12 @@ public interface TableFormatter
             StringTextComponent line = new StringTextComponent( "" );
             for( int i = 0; i < columns - 1; i++ )
             {
-                line.appendSibling( row[i] );
+                line.append( row[i] );
                 ITextComponent padding = getPadding( row[i], maxWidths[i] );
-                if( padding != null ) line.appendSibling( padding );
-                line.appendSibling( SEPARATOR );
+                if( padding != null ) line.append( padding );
+                line.append( SEPARATOR );
             }
-            line.appendSibling( row[columns - 1] );
+            line.append( row[columns - 1] );
             writeLine( rowId++, line );
         }
 

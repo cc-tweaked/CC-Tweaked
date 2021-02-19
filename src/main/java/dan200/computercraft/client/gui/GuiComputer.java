@@ -74,18 +74,18 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     @Override
     protected void init()
     {
-        minecraft.keyboardListener.enableRepeatEvents( true );
+        minecraft.keyboardHandler.setSendRepeatsToGui( true );
 
         int termPxWidth = termWidth * FixedWidthFontRenderer.FONT_WIDTH;
         int termPxHeight = termHeight * FixedWidthFontRenderer.FONT_HEIGHT;
 
-        xSize = termPxWidth + MARGIN * 2 + BORDER * 2;
-        ySize = termPxHeight + MARGIN * 2 + BORDER * 2;
+        imageWidth = termPxWidth + MARGIN * 2 + BORDER * 2;
+        imageHeight = termPxHeight + MARGIN * 2 + BORDER * 2;
 
         super.init();
 
         terminal = new WidgetTerminal( minecraft, () -> computer, termWidth, termHeight, MARGIN, MARGIN, MARGIN, MARGIN );
-        terminalWrapper = new WidgetWrapper( terminal, MARGIN + BORDER + guiLeft, MARGIN + BORDER + guiTop, termPxWidth, termPxHeight );
+        terminalWrapper = new WidgetWrapper( terminal, MARGIN + BORDER + leftPos, MARGIN + BORDER + topPos, termPxWidth, termPxHeight );
 
         children.add( terminalWrapper );
         setFocused( terminalWrapper );
@@ -97,7 +97,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
         super.removed();
         children.remove( terminal );
         terminal = null;
-        minecraft.keyboardListener.enableRepeatEvents( false );
+        minecraft.keyboardHandler.setSendRepeatsToGui( false );
     }
 
     @Override
@@ -120,14 +120,14 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     }
 
     @Override
-    public void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
+    public void renderBg( float partialTicks, int mouseX, int mouseY )
     {
         // Draw terminal
         terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
 
         // Draw a border around the terminal
         RenderSystem.color4f( 1, 1, 1, 1 );
-        minecraft.getTextureManager().bindTexture( ComputerBorderRenderer.getTexture( family ) );
+        minecraft.getTextureManager().bind( ComputerBorderRenderer.getTexture( family ) );
         ComputerBorderRenderer.render(
             terminalWrapper.getX() - MARGIN, terminalWrapper.getY() - MARGIN, getBlitOffset(),
             terminalWrapper.getWidth() + MARGIN * 2, terminalWrapper.getHeight() + MARGIN * 2
@@ -139,7 +139,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     {
         renderBackground();
         super.render( mouseX, mouseY, partialTicks );
-        renderHoveredToolTip( mouseX, mouseY );
+        renderTooltip( mouseX, mouseY );
     }
 
     @Override

@@ -48,7 +48,7 @@ public class PlayRecordClientMessage implements NetworkMessage
         pos = buf.readBlockPos();
         if( buf.readBoolean() )
         {
-            name = buf.readString( Short.MAX_VALUE );
+            name = buf.readUtf( Short.MAX_VALUE );
             soundEvent = buf.readRegistryIdSafe( SoundEvent.class );
         }
         else
@@ -69,7 +69,7 @@ public class PlayRecordClientMessage implements NetworkMessage
         else
         {
             buf.writeBoolean( true );
-            buf.writeString( name );
+            buf.writeUtf( name );
             buf.writeRegistryId( soundEvent );
         }
     }
@@ -79,7 +79,7 @@ public class PlayRecordClientMessage implements NetworkMessage
     public void handle( NetworkEvent.Context context )
     {
         Minecraft mc = Minecraft.getInstance();
-        mc.worldRenderer.playRecord( soundEvent, pos );
-        if( name != null ) mc.ingameGUI.setRecordPlayingMessage( name );
+        mc.levelRenderer.playStreamingMusic( soundEvent, pos );
+        if( name != null ) mc.gui.setNowPlaying( name );
     }
 }

@@ -32,10 +32,10 @@ public abstract class TileGeneric extends TileEntity
 
     public final void updateBlock()
     {
-        markDirty();
-        BlockPos pos = getPos();
+        setChanged();
+        BlockPos pos = getBlockPos();
         BlockState state = getBlockState();
-        getWorld().notifyBlockUpdate( pos, state, state, 3 );
+        getLevel().sendBlockUpdated( pos, state, state, 3 );
     }
 
     @Nonnull
@@ -63,13 +63,13 @@ public abstract class TileGeneric extends TileEntity
 
     public boolean isUsable( PlayerEntity player, boolean ignoreRange )
     {
-        if( player == null || !player.isAlive() || getWorld().getTileEntity( getPos() ) != this ) return false;
+        if( player == null || !player.isAlive() || getLevel().getBlockEntity( getBlockPos() ) != this ) return false;
         if( ignoreRange ) return true;
 
         double range = getInteractRange( player );
-        BlockPos pos = getPos();
-        return player.getEntityWorld() == getWorld() &&
-            player.getDistanceSq( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
+        BlockPos pos = getBlockPos();
+        return player.getCommandSenderWorld() == getLevel() &&
+            player.distanceToSqr( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
     }
 
     protected void writeDescription( @Nonnull CompoundNBT nbt )
@@ -86,13 +86,13 @@ public abstract class TileGeneric extends TileEntity
     {
         CompoundNBT nbt = new CompoundNBT();
         writeDescription( nbt );
-        return new SUpdateTileEntityPacket( pos, 0, nbt );
+        return new SUpdateTileEntityPacket( worldPosition, 0, nbt );
     }
 
     @Override
     public final void onDataPacket( NetworkManager net, SUpdateTileEntityPacket packet )
     {
-        if( packet.getTileEntityType() == 0 ) readDescription( packet.getNbtCompound() );
+        if( packet.getType() == 0 ) readDescription( packet.getTag() );
     }
 
     @Nonnull

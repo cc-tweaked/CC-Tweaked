@@ -30,7 +30,7 @@ public class ContainerPrinter extends Container
         this.properties = properties;
         this.inventory = inventory;
 
-        trackIntArray( properties );
+        addDataSlots( properties );
 
         // Ink slot
         addSlot( new Slot( inventory, 0, 13, 35 ) );
@@ -73,44 +73,44 @@ public class ContainerPrinter extends Container
     }
 
     @Override
-    public boolean canInteractWith( @Nonnull PlayerEntity player )
+    public boolean stillValid( @Nonnull PlayerEntity player )
     {
-        return inventory.isUsableByPlayer( player );
+        return inventory.stillValid( player );
     }
 
     @Nonnull
     @Override
-    public ItemStack transferStackInSlot( @Nonnull PlayerEntity player, int index )
+    public ItemStack quickMoveStack( @Nonnull PlayerEntity player, int index )
     {
-        Slot slot = inventorySlots.get( index );
-        if( slot == null || !slot.getHasStack() ) return ItemStack.EMPTY;
-        ItemStack stack = slot.getStack();
+        Slot slot = slots.get( index );
+        if( slot == null || !slot.hasItem() ) return ItemStack.EMPTY;
+        ItemStack stack = slot.getItem();
         ItemStack result = stack.copy();
         if( index < 13 )
         {
             // Transfer from printer to inventory
-            if( !mergeItemStack( stack, 13, 49, true ) ) return ItemStack.EMPTY;
+            if( !moveItemStackTo( stack, 13, 49, true ) ) return ItemStack.EMPTY;
         }
         else
         {
             // Transfer from inventory to printer
             if( TilePrinter.isInk( stack ) )
             {
-                if( !mergeItemStack( stack, 0, 1, false ) ) return ItemStack.EMPTY;
+                if( !moveItemStackTo( stack, 0, 1, false ) ) return ItemStack.EMPTY;
             }
             else //if is paper
             {
-                if( !mergeItemStack( stack, 1, 13, false ) ) return ItemStack.EMPTY;
+                if( !moveItemStackTo( stack, 1, 13, false ) ) return ItemStack.EMPTY;
             }
         }
 
         if( stack.isEmpty() )
         {
-            slot.putStack( ItemStack.EMPTY );
+            slot.set( ItemStack.EMPTY );
         }
         else
         {
-            slot.onSlotChanged();
+            slot.setChanged();
         }
 
         if( stack.getCount() == result.getCount() ) return ItemStack.EMPTY;

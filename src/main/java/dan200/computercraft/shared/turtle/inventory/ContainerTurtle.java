@@ -40,7 +40,7 @@ public class ContainerTurtle extends ContainerComputerBase
         super( Registry.ModContainers.TURTLE.get(), id, canUse, computer, family );
         this.properties = properties;
 
-        trackIntArray( properties );
+        addDataSlots( properties );
 
         // Turtle inventory
         for( int y = 0; y < 4; y++ )
@@ -70,7 +70,7 @@ public class ContainerTurtle extends ContainerComputerBase
     public ContainerTurtle( int id, PlayerInventory player, TurtleBrain turtle )
     {
         this(
-            id, p -> turtle.getOwner().isUsableByPlayer( p ), turtle.getOwner().createServerComputer(), turtle.getFamily(),
+            id, p -> turtle.getOwner().stillValid( p ), turtle.getOwner().createServerComputer(), turtle.getFamily(),
             player, turtle.getInventory(), (SingleIntArray) turtle::getSelectedSlot
         );
     }
@@ -91,24 +91,24 @@ public class ContainerTurtle extends ContainerComputerBase
     @Nonnull
     private ItemStack tryItemMerge( PlayerEntity player, int slotNum, int firstSlot, int lastSlot, boolean reverse )
     {
-        Slot slot = inventorySlots.get( slotNum );
+        Slot slot = slots.get( slotNum );
         ItemStack originalStack = ItemStack.EMPTY;
-        if( slot != null && slot.getHasStack() )
+        if( slot != null && slot.hasItem() )
         {
-            ItemStack clickedStack = slot.getStack();
+            ItemStack clickedStack = slot.getItem();
             originalStack = clickedStack.copy();
-            if( !mergeItemStack( clickedStack, firstSlot, lastSlot, reverse ) )
+            if( !moveItemStackTo( clickedStack, firstSlot, lastSlot, reverse ) )
             {
                 return ItemStack.EMPTY;
             }
 
             if( clickedStack.isEmpty() )
             {
-                slot.putStack( ItemStack.EMPTY );
+                slot.set( ItemStack.EMPTY );
             }
             else
             {
-                slot.onSlotChanged();
+                slot.setChanged();
             }
 
             if( clickedStack.getCount() != originalStack.getCount() )
@@ -125,7 +125,7 @@ public class ContainerTurtle extends ContainerComputerBase
 
     @Nonnull
     @Override
-    public ItemStack transferStackInSlot( @Nonnull PlayerEntity player, int slotNum )
+    public ItemStack quickMoveStack( @Nonnull PlayerEntity player, int slotNum )
     {
         if( slotNum >= 0 && slotNum < 16 )
         {

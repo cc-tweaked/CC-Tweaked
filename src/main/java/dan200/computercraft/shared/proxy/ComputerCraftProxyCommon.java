@@ -68,19 +68,19 @@ public final class ComputerCraftProxyCommon
 
     public static void registerLoot()
     {
-        LootConditionManager.registerCondition( ConstantLootConditionSerializer.of(
+        LootConditionManager.register( ConstantLootConditionSerializer.of(
             new ResourceLocation( ComputerCraft.MOD_ID, "block_named" ),
             BlockNamedEntityLootCondition.class,
             BlockNamedEntityLootCondition.INSTANCE
         ) );
 
-        LootConditionManager.registerCondition( ConstantLootConditionSerializer.of(
+        LootConditionManager.register( ConstantLootConditionSerializer.of(
             new ResourceLocation( ComputerCraft.MOD_ID, "player_creative" ),
             PlayerCreativeLootCondition.class,
             PlayerCreativeLootCondition.INSTANCE
         ) );
 
-        LootConditionManager.registerCondition( ConstantLootConditionSerializer.of(
+        LootConditionManager.register( ConstantLootConditionSerializer.of(
             new ResourceLocation( ComputerCraft.MOD_ID, "has_id" ),
             HasComputerIdLootCondition.class,
             HasComputerIdLootCondition.INSTANCE
@@ -176,16 +176,16 @@ public final class ComputerCraftProxyCommon
         public static final ResourceLocation LOOT_TREASURE_DISK = new ResourceLocation( ComputerCraft.MOD_ID, "treasure_disk" );
 
         private static final Set<ResourceLocation> TABLES = new HashSet<>( Arrays.asList(
-            LootTables.CHESTS_SIMPLE_DUNGEON,
-            LootTables.CHESTS_ABANDONED_MINESHAFT,
-            LootTables.CHESTS_STRONGHOLD_CORRIDOR,
-            LootTables.CHESTS_STRONGHOLD_CROSSING,
-            LootTables.CHESTS_STRONGHOLD_LIBRARY,
-            LootTables.CHESTS_DESERT_PYRAMID,
-            LootTables.CHESTS_JUNGLE_TEMPLE,
-            LootTables.CHESTS_IGLOO_CHEST,
-            LootTables.CHESTS_WOODLAND_MANSION,
-            LootTables.CHESTS_VILLAGE_VILLAGE_CARTOGRAPHER
+            LootTables.SIMPLE_DUNGEON,
+            LootTables.ABANDONED_MINESHAFT,
+            LootTables.STRONGHOLD_CORRIDOR,
+            LootTables.STRONGHOLD_CROSSING,
+            LootTables.STRONGHOLD_LIBRARY,
+            LootTables.DESERT_PYRAMID,
+            LootTables.JUNGLE_TEMPLE,
+            LootTables.IGLOO_CHEST,
+            LootTables.WOODLAND_MANSION,
+            LootTables.VILLAGE_CARTOGRAPHER
         ) );
 
         @SubscribeEvent
@@ -194,9 +194,9 @@ public final class ComputerCraftProxyCommon
             ResourceLocation name = event.getName();
             if( !name.getNamespace().equals( "minecraft" ) || !TABLES.contains( name ) ) return;
 
-            event.getTable().addPool( LootPool.builder()
-                .addEntry( TableLootEntry.builder( LOOT_TREASURE_DISK ) )
-                .rolls( ConstantRange.of( 1 ) )
+            event.getTable().addPool( LootPool.lootPool()
+                .add( TableLootEntry.lootTableReference( LOOT_TREASURE_DISK ) )
+                .setRolls( ConstantRange.exactly( 1 ) )
                 .name( "computercraft_treasure" )
                 .build() );
         }

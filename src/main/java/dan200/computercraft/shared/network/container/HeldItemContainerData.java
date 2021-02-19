@@ -28,13 +28,13 @@ public class HeldItemContainerData implements ContainerData
 
     public HeldItemContainerData( PacketBuffer buffer )
     {
-        hand = buffer.readEnumValue( Hand.class );
+        hand = buffer.readEnum( Hand.class );
     }
 
     @Override
     public void toBytes( PacketBuffer buf )
     {
-        buf.writeEnumValue( hand );
+        buf.writeEnum( hand );
     }
 
     @Nonnull

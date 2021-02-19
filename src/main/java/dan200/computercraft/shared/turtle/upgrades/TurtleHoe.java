@@ -45,12 +45,12 @@ public class TurtleHoe extends TurtleTool
         if( !super.canBreakBlock( state, world, pos, player ) ) return false;
 
         Material material = state.getMaterial();
-        return material == Material.PLANTS ||
+        return material == Material.PLANT ||
             material == Material.CACTUS ||
-            material == Material.GOURD ||
+            material == Material.VEGETABLE ||
             material == Material.LEAVES ||
-            material == Material.OCEAN_PLANT ||
-            material == Material.TALL_PLANTS;
+            material == Material.WATER_PLANT ||
+            material == Material.REPLACEABLE_PLANT;
     }
 
     @Nonnull

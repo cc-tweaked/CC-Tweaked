@@ -14,23 +14,23 @@ import javax.annotation.Nonnull;
 public interface DefaultInventory extends IInventory
 {
     @Override
-    default int getInventoryStackLimit()
+    default int getMaxStackSize()
     {
         return 64;
     }
 
     @Override
-    default void openInventory( @Nonnull PlayerEntity player )
+    default void startOpen( @Nonnull PlayerEntity player )
     {
     }
 
     @Override
-    default void closeInventory( @Nonnull PlayerEntity player )
+    default void stopOpen( @Nonnull PlayerEntity player )
     {
     }
 
     @Override
-    default boolean isItemValidForSlot( int slot, @Nonnull ItemStack stack )
+    default boolean canPlaceItem( int slot, @Nonnull ItemStack stack )
     {
         return true;
     }

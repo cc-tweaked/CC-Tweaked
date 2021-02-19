@@ -23,14 +23,14 @@ public class ComputerContainerData implements ContainerData
     public ComputerContainerData( PacketBuffer buf )
     {
         this.id = buf.readInt();
-        this.family = buf.readEnumValue( ComputerFamily.class );
+        this.family = buf.readEnum( ComputerFamily.class );
     }
 
     @Override
     public void toBytes( PacketBuffer buf )
     {
         buf.writeInt( id );
-        buf.writeEnumValue( family );
+        buf.writeEnum( family );
     }
 
     public int getInstanceId()

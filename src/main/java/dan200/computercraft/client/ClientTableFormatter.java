@@ -25,11 +25,11 @@ public class ClientTableFormatter implements TableFormatter
 {
     public static final ClientTableFormatter INSTANCE = new ClientTableFormatter();
 
-    private static Int2IntOpenHashMap lastHeights = new Int2IntOpenHashMap();
+    private static final Int2IntOpenHashMap lastHeights = new Int2IntOpenHashMap();
 
     private static FontRenderer renderer()
     {
-        return Minecraft.getInstance().fontRenderer;
+        return Minecraft.getInstance().font;
     }
 
     @Override
@@ -41,7 +41,7 @@ public class ClientTableFormatter implements TableFormatter
 
         FontRenderer renderer = renderer();
 
-        float spaceWidth = renderer.getStringWidth( " " );
+        float spaceWidth = renderer.width( " " );
         int spaces = MathHelper.floor( extraWidth / spaceWidth );
         int extra = extraWidth - (int) (spaces * spaceWidth);
 
@@ -57,32 +57,32 @@ public class ClientTableFormatter implements TableFormatter
     @Override
     public int getWidth( ITextComponent component )
     {
-        return renderer().getStringWidth( component.getFormattedText() );
+        return renderer().width( component.getColoredString() );
     }
 
     @Override
     public void writeLine( int id, ITextComponent component )
     {
         Minecraft mc = Minecraft.getInstance();
-        NewChatGui chat = mc.ingameGUI.getChatGUI();
+        NewChatGui chat = mc.gui.getChat();
 
         // Trim the text if it goes over the allowed length
-        int maxWidth = MathHelper.floor( chat.getChatWidth() / chat.getScale() );
-        List<ITextComponent> list = RenderComponentsUtil.splitText( component, maxWidth, mc.fontRenderer, false, false );
-        if( !list.isEmpty() ) chat.printChatMessageWithOptionalDeletion( list.get( 0 ), id );
+        int maxWidth = MathHelper.floor( chat.getWidth() / chat.getScale() );
+        List<ITextComponent> list = RenderComponentsUtil.wrapComponents( component, maxWidth, mc.font, false, false );
+        if( !list.isEmpty() ) chat.addMessage( list.get( 0 ), id );
     }
 
     @Override
     public int display( TableBuilder table )
     {
-        NewChatGui chat = Minecraft.getInstance().ingameGUI.getChatGUI();
+        NewChatGui chat = Minecraft.getInstance().gui.getChat();
 
         int lastHeight = lastHeights.get( table.getId() );
 
         int height = TableFormatter.super.display( table );
         lastHeights.put( table.getId(), height );
 
-        for( int i = height; i < lastHeight; i++ ) chat.deleteChatLine( i + table.getId() );
+        for( int i = height; i < lastHeight; i++ ) chat.removeById( i + table.getId() );
         return height;
     }
 }

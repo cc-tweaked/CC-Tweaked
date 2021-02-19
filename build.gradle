@@ -9,9 +9,8 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.code.gson:gson:2.8.1'
-        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.190'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:4.0.16'
         classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
-        classpath 'org.ajoberstar.grgit:grgit-gradle:3.0.0'
     }
 }
 
@@ -19,12 +18,12 @@ plugins {
     id "checkstyle"
     id "jacoco"
     id "com.github.hierynomus.license" version "0.15.0"
-    id "com.matthewprenger.cursegradle" version "1.3.0"
-    id "com.github.breadmoirai.github-release" version "2.2.4"
+    id "com.matthewprenger.cursegradle" version "1.4.0"
+    id "com.github.breadmoirai.github-release" version "2.2.12"
+    id "org.jetbrains.kotlin.jvm" version "1.3.72"
 }
 
 apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.ajoberstar.grgit'
 apply plugin: 'maven-publish'
 apply plugin: 'maven'
 
@@ -33,7 +32,11 @@ version = mod_version
 group = "org.squiddev"
 archivesBaseName = "cc-tweaked-${mc_version}"
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
 
 minecraft {
     runs {
@@ -50,9 +53,10 @@ minecraft {
         }
 
         server {
-            workingDirectory project.file("run/server-${mc_version}")
-            property 'forge.logging.markers', 'REGISTRIES,REGISTRYDUMP'
+            workingDirectory project.file("run/server")
+            property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
+            arg "--nogui"
 
             mods {
                 computercraft {
@@ -63,7 +67,7 @@ minecraft {
 
         data {
             workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
 
             args '--mod', 'computercraft', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
@@ -73,9 +77,20 @@ minecraft {
                 }
             }
         }
+
+        testServer {
+            workingDirectory project.file('test-files/server')
+            parent runs.server
+
+            mods {
+                cctest {
+                    source sourceSets.test
+                }
+            }
+        }
     }
 
-    mappings channel: 'snapshot', version: "${mappings_version}".toString()
+    mappings channel: 'official', version: project.mc_version
 
     accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
 }
@@ -120,6 +135,9 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
     testImplementation 'org.hamcrest:hamcrest:2.2'
+    testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.72'
+    testImplementation 'org.jetbrains.kotlin:kotlin-reflect:1.3.72'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8'
 
     deployerJars "org.apache.maven.wagon:wagon-ssh:3.0.0"
 
@@ -142,11 +160,10 @@ task luaJavadoc(type: Javadoc) {
 
     options.docletpath = configurations.cctJavadoc.files as List
     options.doclet = "cc.tweaked.javadoc.LuaDoclet"
+    options.noTimestamp = false
 
-    // Attempt to run under Java 11 (any Java >= 9 will work though).
-    if(System.getProperty("java.version").startsWith("1.")
-        && (System.getenv("JAVA_HOME_11_X64") != null || project.hasProperty("java11Home"))) {
-        executable = "${System.getenv("JAVA_HOME_11_X64") ?: project.property("java11Home")}/bin/javadoc"
+    javadocTool = javaToolchains.javadocToolFor {
+        languageVersion = JavaLanguageVersion.of(11)
     }
 }
 
@@ -184,7 +201,6 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.hierynomus.gradle.license.tasks.LicenseCheck
 import com.hierynomus.gradle.license.tasks.LicenseFormat
-import org.ajoberstar.grgit.Grgit
 import proguard.gradle.ProGuardTask
 
 task proguard(type: ProGuardTask, dependsOn: jar) {
@@ -237,16 +253,15 @@ processResources {
     def hash = 'none'
     Set<String> contributors = []
     try {
-        def grgit = Grgit.open(dir: '.')
-        hash = grgit.head().id
+        hash = ["git", "-C", projectDir, "rev-parse", "HEAD"].execute().text.trim()
 
         def blacklist = ['GitHub', 'dan200', 'Daniel Ratcliffe']
-        grgit.log().each {
-            if (!blacklist.contains(it.author.name)) contributors.add(it.author.name)
-            if (!blacklist.contains(it.committer.name)) contributors.add(it.committer.name)
+        ["git", "-C", projectDir, "log", "--format=tformat:%an%n%cn"].execute().text.split('\n').each {
+            if (!blacklist.contains(it)) contributors.add(it)
         }
-    } catch(Exception ignored) { }
-
+    } catch(Exception e) {
+        e.printStackTrace()
+    }
     inputs.property "commithash", hash
 
     from(sourceSets.main.resources.srcDirs) {
@@ -369,6 +384,7 @@ test {
 }
 
 jacocoTestReport {
+    dependsOn('test')
     reports {
         xml.enabled true
         html.enabled true
@@ -388,14 +404,14 @@ license {
     it.configure {
         include("**/*.java")
         exclude("dan200/computercraft/api/**")
-        header rootProject.file('config/license/main.txt')
+        header file('config/license/main.txt')
     }
 }
 
 [licenseTest, licenseFormatTest].forEach {
     it.configure {
         include("**/*.java")
-        header rootProject.file('config/license/main.txt')
+        header file('config/license/main.txt')
     }
 }
 
@@ -412,9 +428,70 @@ task licenseFormatAPI(type: LicenseFormat);
     it.configure {
         source = sourceSets.main.java
         include("dan200/computercraft/api/**")
-        header rootProject.file('config/license/api.txt')
+        header file('config/license/api.txt')
     }
 }
+
+task setupServer(type: Copy) {
+    group "test server"
+    description "Sets up the environment for the test server."
+
+    from("src/test/server-files") {
+        include "eula.txt"
+        include "server.properties"
+    }
+    into "test-files/server"
+}
+
+tasks.register('testInGame', JavaExec.class).configure {
+    it.group('test server')
+    it.description("Runs tests on a temporary Minecraft server.")
+    it.dependsOn(setupServer, 'prepareRunTestServer')
+
+    // Copy from runTestServer. We do it in this slightly odd way as runTestServer
+    // isn't created until the task is configured (which is no good for us).
+    JavaExec exec = tasks.getByName('runTestServer')
+    it.setWorkingDir(exec.getWorkingDir())
+    it.setSystemProperties(exec.getSystemProperties())
+    it.setBootstrapClasspath(exec.getBootstrapClasspath())
+    it.setClasspath(exec.getClasspath())
+    it.setMain(exec.getMain())
+    it.setEnvironment(exec.getEnvironment())
+    it.setArgs(exec.getArgs())
+    it.setJvmArgs(exec.getJvmArgs())
+
+    it.systemProperty('forge.logging.console.level', 'info')
+    it.systemProperty('cctest.run', 'true')
+
+    // Jacoco and modlauncher don't play well together as the classes loaded in-game don't
+    // match up with those written to disk. We get Jacoco to dump all classes to disk, and
+    // use that when generating the report.
+    def coverageOut = new File(buildDir, 'jacocoClassDump/testInGame')
+    jacoco.applyTo(it)
+    it.jacoco.setIncludes(["dan200.computercraft.*"])
+    it.jacoco.setClassDumpDir(coverageOut)
+    it.outputs.dir(coverageOut)
+    // Older versions of modlauncher don't include a protection domain (and thus no code
+    // source). Jacoco skips such classes by default, so we need to explicitly include them.
+    it.jacoco.setIncludeNoLocationClasses(true)
+}
+
+tasks.register('jacocoTestInGameReport', JacocoReport.class).configure {
+    it.group('test server')
+    it.description('Generate coverage reports for in-game tests (testInGame)')
+    it.dependsOn('testInGame')
+
+    it.executionData(new File(buildDir, 'jacoco/testInGame.exec'))
+    it.sourceDirectories.from(sourceSets.main.allJava.srcDirs)
+    it.classDirectories.from(new File(buildDir, 'jacocoClassDump/testInGame'))
+
+    it.reports {
+        xml.enabled true
+        html.enabled true
+    }
+}
+check.dependsOn('jacocoTestInGameReport')
+
 
 // Upload tasks
 
@@ -430,7 +507,7 @@ task checkRelease {
         def ok = true
 
         // Check we're targetting the current version
-        def whatsnew = new File("src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt").readLines()
+        def whatsnew = new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt").readLines()
         if (whatsnew[0] != "New features in CC: Tweaked $mod_version") {
             ok = false
             project.logger.error("Expected `whatsnew.txt' to target $mod_version.")
@@ -447,7 +524,7 @@ task checkRelease {
 
         // Check whatsnew and changelog match.
         def versionChangelog = "# " + whatsnew.join("\n")
-        def changelog = new File("src/main/resources/data/computercraft/lua/rom/help/changelog.txt").getText()
+        def changelog = new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/changelog.txt").getText()
         if (!changelog.startsWith(versionChangelog)) {
             ok = false
             project.logger.error("whatsnew and changelog are not in sync")
@@ -528,18 +605,23 @@ githubRelease {
     token project.hasProperty('githubApiKey') ? project.githubApiKey : ''
     owner 'SquidDev-CC'
     repo 'CC-Tweaked'
-    try {
-        targetCommitish = Grgit.open(dir: '.').branch.current().name
-    } catch(Exception ignored) { }
+    targetCommitish.set(project.provider({
+        try {
+            return ["git", "-C", projectDir, "rev-parse", "--abbrev-ref", "HEAD"].execute().text.trim()
+        } catch (Exception e) {
+            e.printStackTrace()
+        }
+        return "master"
+    }))
 
     tagName "v${mc_version}-${mod_version}"
     releaseName "[${mc_version}] ${mod_version}"
-    body {
-        "## " + new File("src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt")
+    body.set(project.provider({
+        "## " + new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt")
             .readLines()
             .takeWhile { it != 'Type "help changelog" to see the full version history.' }
             .join("\n").trim()
-    }
+    }))
     prerelease false
 }
 

@@ -35,13 +35,13 @@ public abstract class ItemBlockCable extends BlockItem
     boolean placeAt( World world, BlockPos pos, BlockState state, PlayerEntity player )
     {
         // TODO: Check entity collision.
-        if( !state.isValidPosition( world, pos ) ) return false;
+        if( !state.canSurvive( world, pos ) ) return false;
 
-        world.setBlockState( pos, state, 3 );
+        world.setBlock( pos, state, 3 );
         SoundType soundType = state.getBlock().getSoundType( state, world, pos, player );
         world.playSound( null, pos, soundType.getPlaceSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
 
-        TileEntity tile = world.getTileEntity( pos );
+        TileEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileCable )
         {
             TileCable cable = (TileCable) tile;
@@ -58,18 +58,18 @@ public abstract class ItemBlockCable extends BlockItem
     }
 
     @Override
-    public void fillItemGroup( @Nonnull ItemGroup group, @Nonnull NonNullList<ItemStack> list )
+    public void fillItemCategory( @Nonnull ItemGroup group, @Nonnull NonNullList<ItemStack> list )
     {
-        if( isInGroup( group ) ) list.add( new ItemStack( this ) );
+        if( allowdedIn( group ) ) list.add( new ItemStack( this ) );
     }
 
     @Nonnull
     @Override
-    public String getTranslationKey()
+    public String getDescriptionId()
     {
         if( translationKey == null )
         {
-            translationKey = Util.makeTranslationKey( "block", ForgeRegistries.ITEMS.getKey( this ) );
+            translationKey = Util.makeDescriptionId( "block", ForgeRegistries.ITEMS.getKey( this ) );
         }
         return translationKey;
     }
@@ -83,22 +83,22 @@ public abstract class ItemBlockCable extends BlockItem
 
         @Nonnull
         @Override
-        public ActionResultType tryPlace( BlockItemUseContext context )
+        public ActionResultType place( BlockItemUseContext context )
         {
-            ItemStack stack = context.getItem();
+            ItemStack stack = context.getItemInHand();
             if( stack.isEmpty() ) return ActionResultType.FAIL;
 
-            World world = context.getWorld();
-            BlockPos pos = context.getPos();
+            World world = context.getLevel();
+            BlockPos pos = context.getClickedPos();
             BlockState existingState = world.getBlockState( pos );
 
             // Try to add a modem to a cable
-            if( existingState.getBlock() == Registry.ModBlocks.CABLE.get() && existingState.get( MODEM ) == CableModemVariant.None )
+            if( existingState.getBlock() == Registry.ModBlocks.CABLE.get() && existingState.getValue( MODEM ) == CableModemVariant.None )
             {
-                Direction side = context.getFace().getOpposite();
+                Direction side = context.getClickedFace().getOpposite();
                 BlockState newState = existingState
-                    .with( MODEM, CableModemVariant.from( side ) )
-                    .with( CONNECTIONS.get( side ), existingState.get( CABLE ) );
+                    .setValue( MODEM, CableModemVariant.from( side ) )
+                    .setValue( CONNECTIONS.get( side ), existingState.getValue( CABLE ) );
                 if( placeAt( world, pos, newState, context.getPlayer() ) )
                 {
                     stack.shrink( 1 );
@@ -106,7 +106,7 @@ public abstract class ItemBlockCable extends BlockItem
                 }
             }
 
-            return super.tryPlace( context );
+            return super.place( context );
         }
     }
 
@@ -119,19 +119,19 @@ public abstract class ItemBlockCable extends BlockItem
 
         @Nonnull
         @Override
-        public ActionResultType tryPlace( BlockItemUseContext context )
+        public ActionResultType place( BlockItemUseContext context )
         {
-            ItemStack stack = context.getItem();
+            ItemStack stack = context.getItemInHand();
             if( stack.isEmpty() ) return ActionResultType.FAIL;
 
-            World world = context.getWorld();
-            BlockPos pos = context.getPos();
+            World world = context.getLevel();
+            BlockPos pos = context.getClickedPos();
 
             // Try to add a cable to a modem inside the block we're clicking on.
-            BlockPos insidePos = pos.offset( context.getFace().getOpposite() );
+            BlockPos insidePos = pos.relative( context.getClickedFace().getOpposite() );
             BlockState insideState = world.getBlockState( insidePos );
-            if( insideState.getBlock() == Registry.ModBlocks.CABLE.get() && !insideState.get( BlockCable.CABLE )
-                && placeAtCorrected( world, insidePos, insideState.with( BlockCable.CABLE, true ) ) )
+            if( insideState.getBlock() == Registry.ModBlocks.CABLE.get() && !insideState.getValue( BlockCable.CABLE )
+                && placeAtCorrected( world, insidePos, insideState.setValue( BlockCable.CABLE, true ) ) )
             {
                 stack.shrink( 1 );
                 return ActionResultType.SUCCESS;
@@ -139,14 +139,14 @@ public abstract class ItemBlockCable extends BlockItem
 
             // Try to add a cable to a modem adjacent to this block
             BlockState existingState = world.getBlockState( pos );
-            if( existingState.getBlock() == Registry.ModBlocks.CABLE.get() && !existingState.get( BlockCable.CABLE )
-                && placeAtCorrected( world, pos, existingState.with( BlockCable.CABLE, true ) ) )
+            if( existingState.getBlock() == Registry.ModBlocks.CABLE.get() && !existingState.getValue( BlockCable.CABLE )
+                && placeAtCorrected( world, pos, existingState.setValue( BlockCable.CABLE, true ) ) )
             {
                 stack.shrink( 1 );
                 return ActionResultType.SUCCESS;
             }
 
-            return super.tryPlace( context );
+            return super.place( context );
         }
     }
 }

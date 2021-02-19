@@ -31,14 +31,14 @@ public class BlockComputer extends BlockComputerBase<TileComputer>
     public BlockComputer( Properties settings, ComputerFamily family, RegistryObject<? extends TileEntityType<? extends TileComputer>> type )
     {
         super( settings, family, type );
-        setDefaultState( getDefaultState()
-            .with( FACING, Direction.NORTH )
-            .with( STATE, ComputerState.OFF )
+        registerDefaultState( defaultBlockState()
+            .setValue( FACING, Direction.NORTH )
+            .setValue( STATE, ComputerState.OFF )
         );
     }
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, BlockState> builder )
+    protected void createBlockStateDefinition( StateContainer.Builder<Block, BlockState> builder )
     {
         builder.add( FACING, STATE );
     }
@@ -47,7 +47,7 @@ public class BlockComputer extends BlockComputerBase<TileComputer>
     @Override
     public BlockState getStateForPlacement( BlockItemUseContext placement )
     {
-        return getDefaultState().with( FACING, placement.getPlacementHorizontalFacing().getOpposite() );
+        return defaultBlockState().setValue( FACING, placement.getHorizontalDirection().getOpposite() );
     }
 
     @Nonnull

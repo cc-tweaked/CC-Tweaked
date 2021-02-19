@@ -14,6 +14,6 @@
   ],
   "result": {
     "item": "computercraft:disk",
-    "nbt": "{color:15790320}"
+    "nbt": "{Color:15790320}"
   }
 }

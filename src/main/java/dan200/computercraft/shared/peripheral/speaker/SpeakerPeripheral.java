@@ -32,14 +32,14 @@ import static dan200.computercraft.api.lua.LuaValues.checkFinite;
  */
 public abstract class SpeakerPeripheral implements IPeripheral
 {
-    private long m_clock = 0;
-    private long m_lastPlayTime = 0;
-    private final AtomicInteger m_notesThisTick = new AtomicInteger();
+    private long clock = 0;
+    private long lastPlayTime = 0;
+    private final AtomicInteger notesThisTick = new AtomicInteger();
 
     public void update()
     {
-        m_clock++;
-        m_notesThisTick.set( 0 );
+        clock++;
+        notesThisTick.set( 0 );
     }
 
     public abstract World getWorld();
@@ -48,7 +48,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
     public boolean madeSound( long ticks )
     {
-        return m_clock - m_lastPlayTime <= ticks;
+        return clock - lastPlayTime <= ticks;
     }
 
     @Nonnull
@@ -66,9 +66,9 @@ public abstract class SpeakerPeripheral implements IPeripheral
      * with an optional volume and speed multiplier, and plays it through the speaker.
      *
      * @param context The Lua context
-     * @param name The name of the sound to play.
+     * @param name    The name of the sound to play.
      * @param volumeA The volume to play the sound at, from 0.0 to 3.0. Defaults to 1.0.
-     * @param pitchA The speed to play the sound at, from 0.5 to 2.0. Defaults to 1.0.
+     * @param pitchA  The speed to play the sound at, from 0.5 to 2.0. Defaults to 1.0.
      * @return Whether the sound could be played.
      * @throws LuaException If the sound name couldn't be decoded.
      */
@@ -102,9 +102,9 @@ public abstract class SpeakerPeripheral implements IPeripheral
      * and 6 and 18 map to C.
      *
      * @param context The Lua context
-     * @param name The name of the note to play.
+     * @param name    The name of the note to play.
      * @param volumeA The volume to play the note at, from 0.0 to 3.0. Defaults to 1.0.
-     * @param pitchA The pitch to play the note at in semitones, from 0 to 24. Defaults to 12.
+     * @param pitchA  The pitch to play the note at in semitones, from 0 to 24. Defaults to 12.
      * @return Whether the note could be played.
      * @throws LuaException If the instrument doesn't exist.
      */
@@ -117,7 +117,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
         NoteBlockInstrument instrument = null;
         for( NoteBlockInstrument testInstrument : NoteBlockInstrument.values() )
         {
-            if( testInstrument.getName().equalsIgnoreCase( name ) )
+            if( testInstrument.getSerializedName().equalsIgnoreCase( name ) )
             {
                 instrument = testInstrument;
                 break;
@@ -128,15 +128,15 @@ public abstract class SpeakerPeripheral implements IPeripheral
         if( instrument == null ) throw new LuaException( "Invalid instrument, \"" + name + "\"!" );
 
         // If the resource location for note block notes changes, this method call will need to be updated
-        boolean success = playSound( context, instrument.getSound().getRegistryName(), volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true );
-        if( success ) m_notesThisTick.incrementAndGet();
+        boolean success = playSound( context, instrument.getSoundEvent().getRegistryName(), volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true );
+        if( success ) notesThisTick.incrementAndGet();
         return success;
     }
 
     private synchronized boolean playSound( ILuaContext context, ResourceLocation name, float volume, float pitch, boolean isNote ) throws LuaException
     {
-        if( m_clock - m_lastPlayTime < TileSpeaker.MIN_TICKS_BETWEEN_SOUNDS &&
-            (!isNote || m_clock - m_lastPlayTime != 0 || m_notesThisTick.get() >= ComputerCraft.maxNotesPerTick) )
+        if( clock - lastPlayTime < TileSpeaker.MIN_TICKS_BETWEEN_SOUNDS &&
+            (!isNote || clock - lastPlayTime != 0 || notesThisTick.get() >= ComputerCraft.maxNotesPerTick) )
         {
             // Rate limiting occurs when we've already played a sound within the last tick, or we've
             // played more notes than allowable within the current tick.
@@ -151,14 +151,14 @@ public abstract class SpeakerPeripheral implements IPeripheral
             if( server == null ) return null;
 
             float adjVolume = Math.min( volume, 3.0f );
-            server.getPlayerList().sendToAllNearExcept(
+            server.getPlayerList().broadcast(
                 null, pos.x, pos.y, pos.z, adjVolume > 1.0f ? 16 * adjVolume : 16.0, world.dimension.getType(),
                 new SPlaySoundPacket( name, SoundCategory.RECORDS, pos, adjVolume, pitch )
             );
             return null;
         } );
 
-        m_lastPlayTime = m_clock;
+        lastPlayTime = clock;
         return true;
     }
 }

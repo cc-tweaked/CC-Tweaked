@@ -45,7 +45,7 @@ public final class CommandUtils
         }
         else
         {
-            return ((ISuggestionProvider) source).getSuggestionsFromServer( (CommandContext<ISuggestionProvider>) context, builder );
+            return ((ISuggestionProvider) source).customSuggestion( (CommandContext<ISuggestionProvider>) context, builder );
         }
     }
 

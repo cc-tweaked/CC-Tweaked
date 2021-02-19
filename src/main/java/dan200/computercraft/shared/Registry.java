@@ -96,17 +96,17 @@ public final class Registry
 
         private static Block.Properties properties()
         {
-            return Block.Properties.create( Material.ROCK ).hardnessAndResistance( 2 );
+            return Block.Properties.of( Material.STONE ).strength( 2 );
         }
 
         private static Block.Properties turtleProperties()
         {
-            return Block.Properties.create( Material.ROCK ).hardnessAndResistance( 2.5f );
+            return Block.Properties.of( Material.STONE ).strength( 2.5f );
         }
 
         private static Block.Properties modemProperties()
         {
-            return Block.Properties.create( Material.ROCK ).hardnessAndResistance( 1.5f );
+            return Block.Properties.of( Material.STONE ).strength( 1.5f );
         }
 
         public static final RegistryObject<BlockComputer> COMPUTER_NORMAL = BLOCKS.register( "computer_normal",
@@ -115,7 +115,7 @@ public final class Registry
             () -> new BlockComputer( properties(), ComputerFamily.ADVANCED, ModTiles.COMPUTER_ADVANCED ) );
 
         public static final RegistryObject<BlockComputer> COMPUTER_COMMAND = BLOCKS.register( "computer_command", () -> new BlockComputer(
-            Block.Properties.create( Material.ROCK ).hardnessAndResistance( -1, 6000000.0F ),
+            Block.Properties.of( Material.STONE ).strength( -1, 6000000.0F ),
             ComputerFamily.COMMAND, ModTiles.COMPUTER_COMMAND
         ) );
 
@@ -187,7 +187,7 @@ public final class Registry
 
         private static Item.Properties properties()
         {
-            return new Item.Properties().group( mainItemGroup );
+            return new Item.Properties().tab( mainItemGroup );
         }
 
         private static <B extends Block, I extends Item> RegistryObject<I> ofBlock( RegistryObject<B> parent, BiFunction<B, Item.Properties, I> supplier )
@@ -200,24 +200,24 @@ public final class Registry
         public static final RegistryObject<ItemComputer> COMPUTER_COMMAND = ofBlock( ModBlocks.COMPUTER_COMMAND, ItemComputer::new );
 
         public static final RegistryObject<ItemPocketComputer> POCKET_COMPUTER_NORMAL = ITEMS.register( "pocket_computer_normal",
-            () -> new ItemPocketComputer( properties().maxStackSize( 1 ), ComputerFamily.NORMAL ) );
+            () -> new ItemPocketComputer( properties().stacksTo( 1 ), ComputerFamily.NORMAL ) );
         public static final RegistryObject<ItemPocketComputer> POCKET_COMPUTER_ADVANCED = ITEMS.register( "pocket_computer_advanced",
-            () -> new ItemPocketComputer( properties().maxStackSize( 1 ), ComputerFamily.ADVANCED ) );
+            () -> new ItemPocketComputer( properties().stacksTo( 1 ), ComputerFamily.ADVANCED ) );
 
         public static final RegistryObject<ItemTurtle> TURTLE_NORMAL = ofBlock( ModBlocks.TURTLE_NORMAL, ItemTurtle::new );
         public static final RegistryObject<ItemTurtle> TURTLE_ADVANCED = ofBlock( ModBlocks.TURTLE_ADVANCED, ItemTurtle::new );
 
         public static final RegistryObject<ItemDisk> DISK =
-            ITEMS.register( "disk", () -> new ItemDisk( properties().maxStackSize( 1 ) ) );
+            ITEMS.register( "disk", () -> new ItemDisk( properties().stacksTo( 1 ) ) );
         public static final RegistryObject<ItemTreasureDisk> TREASURE_DISK =
-            ITEMS.register( "treasure_disk", () -> new ItemTreasureDisk( properties().maxStackSize( 1 ) ) );
+            ITEMS.register( "treasure_disk", () -> new ItemTreasureDisk( properties().stacksTo( 1 ) ) );
 
         public static final RegistryObject<ItemPrintout> PRINTED_PAGE = ITEMS.register( "printed_page",
-            () -> new ItemPrintout( properties().maxStackSize( 1 ), ItemPrintout.Type.PAGE ) );
+            () -> new ItemPrintout( properties().stacksTo( 1 ), ItemPrintout.Type.PAGE ) );
         public static final RegistryObject<ItemPrintout> PRINTED_PAGES = ITEMS.register( "printed_pages",
-            () -> new ItemPrintout( properties().maxStackSize( 1 ), ItemPrintout.Type.PAGES ) );
+            () -> new ItemPrintout( properties().stacksTo( 1 ), ItemPrintout.Type.PAGES ) );
         public static final RegistryObject<ItemPrintout> PRINTED_BOOK = ITEMS.register( "printed_book",
-            () -> new ItemPrintout( properties().maxStackSize( 1 ), ItemPrintout.Type.BOOK ) );
+            () -> new ItemPrintout( properties().stacksTo( 1 ), ItemPrintout.Type.BOOK ) );
 
         public static final RegistryObject<BlockItem> SPEAKER = ofBlock( ModBlocks.SPEAKER, BlockItem::new );
         public static final RegistryObject<BlockItem> DISK_DRIVE = ofBlock( ModBlocks.DISK_DRIVE, BlockItem::new );
@@ -284,10 +284,10 @@ public final class Registry
         static final DeferredRegister<EntityType<?>> ENTITIES = new DeferredRegister<>( ForgeRegistries.ENTITIES, ComputerCraft.MOD_ID );
 
         public static final RegistryObject<EntityType<TurtlePlayer>> TURTLE_PLAYER = ENTITIES.register( "turtle_player", () ->
-            EntityType.Builder.<TurtlePlayer>create( EntityClassification.MISC )
-                .disableSerialization()
-                .disableSummoning()
-                .size( 0, 0 )
+            EntityType.Builder.<TurtlePlayer>createNothing( EntityClassification.MISC )
+                .noSave()
+                .noSummon()
+                .sized( 0, 0 )
                 .build( ComputerCraft.MOD_ID + ":turtle_player" ) );
     }
 

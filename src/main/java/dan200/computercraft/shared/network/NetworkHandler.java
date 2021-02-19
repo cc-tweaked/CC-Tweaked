@@ -60,7 +60,7 @@ public final class NetworkHandler
 
     public static void sendToPlayer( PlayerEntity player, NetworkMessage packet )
     {
-        network.sendTo( packet, ((ServerPlayerEntity) player).connection.netManager, NetworkDirection.PLAY_TO_CLIENT );
+        network.sendTo( packet, ((ServerPlayerEntity) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT );
     }
 
     public static void sendToAllPlayers( NetworkMessage packet )

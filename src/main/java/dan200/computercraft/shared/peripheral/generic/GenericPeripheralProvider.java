@@ -35,7 +35,7 @@ public class GenericPeripheralProvider
     @Nullable
     public static IPeripheral getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side, NonNullConsumer<LazyOptional<IPeripheral>> invalidate )
     {
-        TileEntity tile = world.getTileEntity( pos );
+        TileEntity tile = world.getBlockEntity( pos );
         if( tile == null ) return null;
 
         ArrayList<SaturatedMethod> saturated = new ArrayList<>( 0 );

@@ -39,14 +39,14 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
     public BlockWirelessModem( Properties settings, RegistryObject<? extends TileEntityType<? extends TileWirelessModem>> type )
     {
         super( settings, type );
-        setDefaultState( getStateContainer().getBaseState()
-            .with( FACING, Direction.NORTH )
-            .with( ON, false )
-            .with( WATERLOGGED, false ) );
+        registerDefaultState( getStateDefinition().any()
+            .setValue( FACING, Direction.NORTH )
+            .setValue( ON, false )
+            .setValue( WATERLOGGED, false ) );
     }
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, BlockState> builder )
+    protected void createBlockStateDefinition( StateContainer.Builder<Block, BlockState> builder )
     {
         builder.add( FACING, ON, WATERLOGGED );
     }
@@ -56,7 +56,7 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
     @Deprecated
     public VoxelShape getShape( BlockState blockState, @Nonnull IBlockReader blockView, @Nonnull BlockPos blockPos, @Nonnull ISelectionContext context )
     {
-        return ModemShapes.getBounds( blockState.get( FACING ) );
+        return ModemShapes.getBounds( blockState.getValue( FACING ) );
     }
 
     @Nonnull
@@ -70,30 +70,30 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
     @Nonnull
     @Override
     @Deprecated
-    public BlockState updatePostPlacement( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull IWorld world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
+    public BlockState updateShape( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull IWorld world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
     {
         updateWaterloggedPostPlacement( state, world, pos );
-        return side == state.get( FACING ) && !state.isValidPosition( world, pos )
-            ? state.getFluidState().getBlockState()
+        return side == state.getValue( FACING ) && !state.canSurvive( world, pos )
+            ? state.getFluidState().createLegacyBlock()
             : state;
     }
 
     @Override
     @Deprecated
-    public boolean isValidPosition( BlockState state, IWorldReader world, BlockPos pos )
+    public boolean canSurvive( BlockState state, IWorldReader world, BlockPos pos )
     {
-        Direction facing = state.get( FACING );
-        BlockPos offsetPos = pos.offset( facing );
+        Direction facing = state.getValue( FACING );
+        BlockPos offsetPos = pos.relative( facing );
         BlockState offsetState = world.getBlockState( offsetPos );
-        return hasSolidSide( offsetState, world, offsetPos, facing.getOpposite() );
+        return isFaceSturdy( offsetState, world, offsetPos, facing.getOpposite() );
     }
 
     @Nullable
     @Override
     public BlockState getStateForPlacement( BlockItemUseContext placement )
     {
-        return getDefaultState()
-            .with( FACING, placement.getFace().getOpposite() )
-            .with( WATERLOGGED, getWaterloggedStateForPlacement( placement ) );
+        return defaultBlockState()
+            .setValue( FACING, placement.getClickedFace().getOpposite() )
+            .setValue( WATERLOGGED, getWaterloggedStateForPlacement( placement ) );
     }
 }

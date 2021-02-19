@@ -42,7 +42,7 @@ public final class IDAssigner
     public static File getDir()
     {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-        File worldDirectory = server.getWorld( DimensionType.OVERWORLD ).getSaveHandler().getWorldDirectory();
+        File worldDirectory = server.getLevel( DimensionType.OVERWORLD ).getLevelStorage().getFolder();
         return new File( worldDirectory, ComputerCraft.MOD_ID );
     }
 

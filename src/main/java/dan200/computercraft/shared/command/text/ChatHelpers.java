@@ -52,7 +52,7 @@ public final class ChatHelpers
         ITextComponent component = new StringTextComponent( "" );
         for( ITextComponent child : children )
         {
-            component.appendSibling( child );
+            component.append( child );
         }
         return component;
     }

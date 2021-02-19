@@ -36,16 +36,16 @@ public class ComputerDataClientMessage extends ComputerClientMessage
     public void toBytes( @Nonnull PacketBuffer buf )
     {
         super.toBytes( buf );
-        buf.writeEnumValue( state );
-        buf.writeCompoundTag( userData );
+        buf.writeEnum( state );
+        buf.writeNbt( userData );
     }
 
     @Override
     public void fromBytes( @Nonnull PacketBuffer buf )
     {
         super.fromBytes( buf );
-        state = buf.readEnumValue( ComputerState.class );
-        userData = buf.readCompoundTag();
+        state = buf.readEnum( ComputerState.class );
+        userData = buf.readNbt();
     }
 
     @Override
