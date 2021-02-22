@@ -90,3 +90,10 @@ Fix incorrect open container check
 Was this always broken, or did it happen in a Minecraft update? Don't
 know, but it's a very silly mistake either way. Fixes #544
 ```
+
+```
+0832974725b2478c5227b81f82c35bbf03cf6aba
+Translations for Swedish
+
+Co-authored-by: David Isaksson <davidisaksson93@gmail.com>
+```
