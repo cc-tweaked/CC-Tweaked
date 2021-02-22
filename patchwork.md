@@ -82,3 +82,11 @@ Use tags to check if something is a dye
 We half did this already, just needed to change a couple of checks.
 Closes #541.
 ```
+
+```
+6cee4efcd3610536ee74330cd728f7371011e5a8
+Fix incorrect open container check
+
+Was this always broken, or did it happen in a Minecraft update? Don't
+know, but it's a very silly mistake either way. Fixes #544
+```

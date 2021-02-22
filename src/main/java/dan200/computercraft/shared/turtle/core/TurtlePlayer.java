@@ -54,10 +54,9 @@ public final class TurtlePlayer extends FakePlayer {
     }
 
     private void setState(ITurtleAccess turtle) {
-        if (this.currentScreenHandler != null) {
+        if (this.currentScreenHandler != playerScreenHandler) {
             ComputerCraft.log.warn("Turtle has open container ({})", this.currentScreenHandler);
-            this.currentScreenHandler.close(this);
-            this.currentScreenHandler = null;
+            closeCurrentScreen();
         }
 
         BlockPos position = turtle.getPosition();
