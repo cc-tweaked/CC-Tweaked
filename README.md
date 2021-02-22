@@ -2,7 +2,7 @@
 # This is a Work In Progress Port
 *it runs and works-ish*
 
-## Reached Parity with CC:T 1.92.0
+## Reached Parity with CC:T 1.93.0
 
 THis is just a quick patchwork of my attempts at getting CC:R up to date with CC:T
 
