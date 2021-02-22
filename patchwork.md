@@ -7,6 +7,9 @@ commit2   // Shows a commit that is the same thing, just a clean up, only if rig
 Title     // Commit Title
 SubScript // Desc of commit
 ```
+
+If a edit that is present in CC:T is not needed, i will skip over it
+
 ```md
 5155e18de279a193c558aa029963486fd1294769
 Added translation for Vietnamese
