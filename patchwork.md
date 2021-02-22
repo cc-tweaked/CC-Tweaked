@@ -160,3 +160,11 @@ In my defence, they weren't out when I started the 1.15 update.
 bf6053906dc6a3c7b0d40d5b097e745dce1f33bc
 Fix TBO norm issues on old GPUs
 ```
+
+``` 
+Not Needed
+113b560a201dbdea9de2a2ef536bcce1d6e51978
+Update configuration to match latest illuaminate
+
+Ooooooh, it's all fancy now. Well, that or horrifically broken.
+```
