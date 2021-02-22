@@ -80,7 +80,7 @@ public final class ClientMonitor extends ClientTerminal {
             GL15.glBufferData(GL31.GL_TEXTURE_BUFFER, 0, GL15.GL_STATIC_DRAW);
             this.tboTexture = GlStateManager.genTextures();
             GL11.glBindTexture(GL31.GL_TEXTURE_BUFFER, this.tboTexture);
-            GL31.glTexBuffer(GL31.GL_TEXTURE_BUFFER, GL30.GL_R8, this.tboBuffer);
+            GL31.glTexBuffer(GL31.GL_TEXTURE_BUFFER, GL30.GL_R8UI, this.tboBuffer);
             GL11.glBindTexture(GL31.GL_TEXTURE_BUFFER, 0);
 
             GlStateManager.bindBuffers(GL31.GL_TEXTURE_BUFFER, 0);

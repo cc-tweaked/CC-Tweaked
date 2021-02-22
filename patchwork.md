@@ -155,3 +155,8 @@ Bump JEI/crafttweaker versions
 
 In my defence, they weren't out when I started the 1.15 update.
 ```
+
+``` 
+bf6053906dc6a3c7b0d40d5b097e745dce1f33bc
+Fix TBO norm issues on old GPUs
+```
