@@ -29,3 +29,20 @@ Co-authored-by: Boom <boom@flyingpackets.net>
 Handle tabs when parsing JSON
 Fixes #539
 ```
+
+```
+748ebbe66bf0a4239bde34f557e4b4b75d61d990
+Bump to 1.92.0
+A tiny release, but there's new features so it's technically a minor
+bump.
+```
+
+Cherry Picked because this update was partially related to forge updates rather than mod updates
+```
+8b4a01df27ff7f6fa9ffd9c2188c6e3166edd515
+Update to Minecraft 1.16.3
+
+I hope the Fabric folks now realise this is gonna be a race of who can
+update first :p. Either way, this was a very easy update - only changes
+were due to unrelated Forge changes.
+```
