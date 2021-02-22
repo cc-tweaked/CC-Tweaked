@@ -9,7 +9,9 @@ SubScript // Desc of commit
 ```
 
 If a edit that is present in CC:T is not needed, I will skip over it.
-Any and all references to an issue number, are to be found on CC:T's repo. not this oen
+Any and all references to an issue number, are to be found on CC:T's repo. 
+
+Lines that are found above a commit in this log like this one, (excluding this one) are comments about how i had to implement things that are not a simple 1:1 (excluding fabric/forge differences) conversion
 
 ```md
 5155e18de279a193c558aa029963486fd1294769
@@ -103,4 +105,20 @@ Co-authored-by: David Isaksson <davidisaksson93@gmail.com>
 Fix io.open documentation
 
 Well, that was silly.
+```
+
+I set the default properties for computers as `Block.GLASS` and then set their strength to `2F` and their soundgroup to stone
+```
+8472112fc1eaad18ed6ed2c6c62b040fe421e81a
+Don't propagate adjacent redstone signals for computers (#549)
+
+Minecraft propagates "strong" redstone signals (such as those directly
+from comparators or repeaters) through solid blocks. This includes
+computers, which is a little annoying as it means one cannot feed
+redstone wire from one side and a repeater from another.
+
+This changes computers to not propagate strong redstone signals, in the
+same way transparent blocks like glass do.
+
+Closes #548.
 ```
