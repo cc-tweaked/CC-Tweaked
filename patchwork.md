@@ -200,3 +200,11 @@ to expose this.
 
 Closes #452
 ```
+
+``` 
+Not Needed
+6aae4e576621090840724e094aa25e51696530fc
+Remove superfluous imports
+
+Hah, this is embarassing
+```
