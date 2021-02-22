@@ -15,7 +15,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ArrayPropertyDelegate;
 import net.minecraft.screen.PropertyDelegate;
@@ -87,7 +86,7 @@ public class ContainerPrinter extends ScreenHandler {
             }
         } else {
             // Transfer from inventory to printer
-            if (stack.getItem() instanceof DyeItem) {
+            if( TilePrinter.isInk( stack ) ) {
                 if (!this.insertItem(stack, 0, 1, false)) {
                     return ItemStack.EMPTY;
                 }

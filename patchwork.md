@@ -73,3 +73,12 @@ port :8080.
 
 Closes #540
 ```
+
+The alterations in ColourUtils.java were not needed so they were not ported over
+```
+6f868849ab2f264508e12c184cc56f2632aaf5bc
+Use tags to check if something is a dye
+
+We half did this already, just needed to change a couple of checks.
+Closes #541.
+```
