@@ -47,6 +47,30 @@ else
     stringColour = colours.white
 end
 
+local runHeader = [[local current = term.current()
+local ok,err = load([===============]] .. [[==================[]]
+local runHandler = [[]===============]] .. [[==================], "@.temp", nil, _ENV)
+if ok then ok,err = pcall(ok,...) end
+term.redirect(current)
+term.setTextColor(%i)
+term.setBackgroundColor(%i)
+term.setCursorBlink(false)
+local _,y = term.getCursorPos()
+local _,h = term.getSize()
+if y >= h then
+    term.scroll(1)
+    term.setCursorPos(1,h)
+end
+if err then
+    printError(err)
+else
+    write("Execution finished. ")
+end
+write("Press any key to continue")
+os.pullEvent('key')
+]]
+runHandler = string.format(runHandler, highlightColour, bgColour)
+
 -- Menus
 local bMenu = false
 local nMenuItem = 1
@@ -89,7 +113,7 @@ local function load(_sPath)
     end
 end
 
-local function save(_sPath)
+local function save(_sPath, bRun)
     -- Create intervening folder
     local sDir = _sPath:sub(1, _sPath:len() - fs.getName(_sPath):len())
     if not fs.exists(sDir) then
@@ -101,9 +125,11 @@ local function save(_sPath)
     local function innerSave()
         file, fileerr = fs.open(_sPath, "w")
         if file then
+            if bRun then file.write(runHeader) end
             for _, sLine in ipairs(tLines) do
                 file.write(sLine .. "\n")
             end
+            if bRun then file.write(runHandler) end
         else
             error("Failed to open " .. _sPath)
         end
@@ -390,8 +416,8 @@ local tMenuFuncs = {
         bRunning = false
     end,
     Run = function()
-        local sTempPath = "/.temp"
-        local ok = save(sTempPath)
+        local sTempPath = bReadOnly and "/.temp" or fs.combine(fs.getDir(sPath), "/.temp")
+        local ok = save(sTempPath, true)
         if ok then
             local nTask = shell.openTab(sTempPath)
             if nTask then
