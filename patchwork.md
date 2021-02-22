@@ -147,3 +147,11 @@ Document remaining OS functions (#554)
 01d81cb91da938836f953b290ad6b8fc87cb7e35
 Update illuaminate CSS for deprecation (#556)
 ```
+
+``` 
+Not Needed
+4766833cf2d041ed179529eecb9402ad09b2b79b
+Bump JEI/crafttweaker versions
+
+In my defence, they weren't out when I started the 1.15 update.
+```
