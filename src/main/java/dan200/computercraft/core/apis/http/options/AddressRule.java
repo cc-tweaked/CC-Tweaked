@@ -8,6 +8,7 @@ package dan200.computercraft.core.apis.http.options;
 
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nonnull;
@@ -26,15 +27,22 @@ public final class AddressRule {
     public static final int WEBSOCKET_MESSAGE = 128 * 1024;
     private final HostRange ip;
     private final Pattern domainPattern;
+    private final Integer port;
     private final PartialOptions partial;
-    private AddressRule(@Nullable HostRange ip, @Nullable Pattern domainPattern, @Nonnull PartialOptions partial) {
+	private AddressRule(
+        @Nullable HostRange ip,
+        @Nullable Pattern domainPattern,
+        @Nullable Integer port,
+        @Nonnull PartialOptions partial )
+	{
         this.ip = ip;
         this.domainPattern = domainPattern;
         this.partial = partial;
+		this.port = port;
     }
 
     @Nullable
-    public static AddressRule parse(String filter, @Nonnull PartialOptions partial) {
+    public static AddressRule parse( String filter, @Nullable Integer port, @Nonnull PartialOptions partial ) {
         int cidr = filter.indexOf('/');
         if (cidr >= 0) {
             String addressStr = filter.substring(0, cidr);
@@ -73,14 +81,14 @@ public final class AddressRule {
                 size -= 8;
             }
 
-            return new AddressRule(new HostRange(minBytes, maxBytes), null, partial);
+            return new AddressRule(new HostRange(minBytes, maxBytes), null, port, partial);
         } else {
             Pattern pattern = Pattern.compile("^\\Q" + filter.replaceAll("\\*", "\\\\E.*\\\\Q") + "\\E$");
-            return new AddressRule(null, pattern, partial);
+            return new AddressRule(null, pattern, port, partial);
         }
     }
 
-    public static Options apply(Iterable<? extends AddressRule> rules, String domain, InetAddress address) {
+    public static Options apply(Iterable<? extends AddressRule> rules, String domain, InetSocketAddress address) {
         PartialOptions options = null;
         boolean hasMany = false;
 
@@ -108,11 +116,14 @@ public final class AddressRule {
     /**
      * Determine whether the given address matches a series of patterns.
      *
-     * @param domain The domain to match
-     * @param address The address to check.
+     * @param domain        The domain to match
+     * @param socketAddress The address to check.
      * @return Whether it matches any of these patterns.
      */
-    private boolean matches(String domain, InetAddress address) {
+    private boolean matches(String domain, InetSocketAddress socketAddress) {
+		InetAddress address = socketAddress.getAddress();
+        if( port != null && port != socketAddress.getPort() ) return false;
+
         if (this.domainPattern != null) {
             if (this.domainPattern.matcher(domain)
                                   .matches()) {

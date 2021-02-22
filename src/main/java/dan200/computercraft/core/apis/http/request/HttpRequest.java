@@ -131,7 +131,7 @@ public class HttpRequest extends Resource<HttpRequest> {
         try {
             boolean ssl = uri.getScheme()
                              .equalsIgnoreCase("https");
-            InetSocketAddress socketAddress = NetworkUtils.getAddress(uri.getHost(), uri.getPort(), ssl);
+            InetSocketAddress socketAddress = NetworkUtils.getAddress(uri, ssl);
             Options options = NetworkUtils.getOptions(uri.getHost(), socketAddress);
             SslContext sslContext = ssl ? NetworkUtils.getSslContext() : null;
 

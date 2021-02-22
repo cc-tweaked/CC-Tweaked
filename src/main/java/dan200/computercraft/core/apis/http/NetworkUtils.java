@@ -7,6 +7,7 @@
 package dan200.computercraft.core.apis.http;
 
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.security.KeyStore;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
@@ -95,6 +96,21 @@ public final class NetworkUtils {
     }
 
     /**
+     * Create a {@link InetSocketAddress} from a {@link java.net.URI}.
+     *
+     * Note, this may require a DNS lookup, and so should not be executed on the main CC thread.
+     *
+     * @param uri The URI to fetch.
+     * @param ssl Whether to connect with SSL. This is used to find the default port if not otherwise specified.
+     * @return The resolved address.
+     * @throws HTTPRequestException If the host is not malformed.
+     */
+    public static InetSocketAddress getAddress( URI uri, boolean ssl ) throws HTTPRequestException
+    {
+        return getAddress( uri.getHost(), uri.getPort(), ssl );
+    }
+
+    /**
      * Create a {@link InetSocketAddress} from the resolved {@code host} and port.
      *
      * Note, this may require a DNS lookup, and so should not be executed on the main CC thread.
@@ -125,7 +141,7 @@ public final class NetworkUtils {
      * @throws HTTPRequestException If the host is not permitted
      */
     public static Options getOptions(String host, InetSocketAddress address) throws HTTPRequestException {
-        Options options = AddressRule.apply(ComputerCraft.httpRules, host, address.getAddress());
+        Options options = AddressRule.apply( ComputerCraft.httpRules, host, address );
         if (options.action == Action.DENY) {
             throw new HTTPRequestException("Domain not permitted");
         }

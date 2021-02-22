@@ -53,3 +53,23 @@ Fix additional `-` in docs
 
 Why isn't this automatically stripped! Bad squid.
 ```
+
+```
+275ca58a82c627128a145a8754cbe32568536bd9
+HTTP rules now allow filtering by port
+
+The HTTP filtering system becomes even more complex! Though in this
+case, it's pretty minimal, and definitely worth doing.
+
+For instance, the following rule will allow connecting to localhost on
+port :8080.
+
+    [[http.rules]]
+    host = "127.0.0.1"
+    port = 8080
+    action = "allow"
+
+    # Other rules as before.
+
+Closes #540
+```
