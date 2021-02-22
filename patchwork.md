@@ -132,3 +132,8 @@ Fix my docs
 Thanks @plt-hokusai. Kinda embarrassing this slipped through - I
 evidently need to lint examples too.
 ```
+
+```
+34a2c835d412c0d9e1fb20a42b7f2cd2738289c7
+Add color table to docs (#553)
+```
