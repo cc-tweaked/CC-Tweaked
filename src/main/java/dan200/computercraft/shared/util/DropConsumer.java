@@ -35,8 +35,6 @@ public final class DropConsumer {
         dropWorld = new WeakReference<>(entity.world);
         dropPos = null;
         dropBounds = new Box(entity.getBlockPos()).expand(2, 2, 2);
-
-        // entity.getScale().captureDrops( new ArrayList<>() );
     }
 
     public static void set(World world, BlockPos pos, Function<ItemStack, ItemStack> consumer) {
