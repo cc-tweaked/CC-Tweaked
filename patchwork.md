@@ -137,3 +137,13 @@ evidently need to lint examples too.
 34a2c835d412c0d9e1fb20a42b7f2cd2738289c7
 Add color table to docs (#553)
 ```
+
+All API Documentation updates, 
+`Not Needed` for this repo.
+``` 
+93068402a2ffec00eedb8fe2d859ebdc005a1989
+Document remaining OS functions (#554)
+
+01d81cb91da938836f953b290ad6b8fc87cb7e35
+Update illuaminate CSS for deprecation (#556)
+```
