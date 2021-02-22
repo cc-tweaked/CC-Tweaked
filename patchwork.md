@@ -177,3 +177,26 @@ Closes #562
 
 Co-authored-by: devomaa <lmao@distruzione.org>
 ```
+
+[WARN] Could not implement changes to the following files
+* `src/main/java/dan200/computercraft/ComputerCraft.java` < Structure too different, cannot find equivalent to alter
+* `src/main/java/dan200/computercraft/shared/Config.java` < Files Does not exist in this repo
+```
+84a6bb1cf3b0668ddc7d8c409a2477a42390e3f7
+Make generic peripherals on by default
+
+This is a long way away from "feature complete" as it were. However,
+it's definitely at a point where it's suitable for general usage - I'm
+happy with the API, and don't think I'm going to be breaking things any
+time soon.
+
+That said, things aren't exposed yet for Java-side public consumption. I
+was kinda waiting until working on Plethora to actually do that, but not
+sure if/when that'll happen.
+
+If someone else wants to work on an integration mod (or just adding
+integrations for their own mod), do get in touch and I can work out how
+to expose this.
+
+Closes #452
+```
