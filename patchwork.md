@@ -97,3 +97,10 @@ Translations for Swedish
 
 Co-authored-by: David Isaksson <davidisaksson93@gmail.com>
 ```
+
+```
+84036d97d99efd8762e0170002060ae3471508bf
+Fix io.open documentation
+
+Well, that was silly.
+```
