@@ -11,6 +11,8 @@ SubScript // Desc of commit
 If a edit that is present in CC:T is not needed, I will skip over it.
 Any and all references to an issue number, are to be found on CC:T's repo. 
 
+Any commit that starts with `[Patchwork]` are purely edits made by my hand, and not based on other commits from CC:T, this is to help differentiate my changes from the official changes
+
 Lines that are found above a commit in this log like this one, (excluding this one) are comments about how i had to implement things that are not a simple 1:1 (excluding fabric/forge differences) conversion
 
 ```md
@@ -121,4 +123,12 @@ This changes computers to not propagate strong redstone signals, in the
 same way transparent blocks like glass do.
 
 Closes #548.
+```
+
+```
+30d35883b83831900b34040f0131c7e06f5c3e52
+Fix my docs
+
+Thanks @plt-hokusai. Kinda embarrassing this slipped through - I
+evidently need to lint examples too.
 ```

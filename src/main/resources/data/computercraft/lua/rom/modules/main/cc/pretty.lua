@@ -13,7 +13,7 @@
 -- @module cc.pretty
 -- @usage Print a table to the terminal
 --     local pretty = require "cc.pretty"
---     pretty.write(pretty.dump({ 1, 2, 3 }))
+--     pretty.write(pretty.pretty({ 1, 2, 3 }))
 --
 -- @usage Build a custom document and display it
 --     local pretty = require "cc.pretty"
