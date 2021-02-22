@@ -125,7 +125,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     -- Helper functions
     local function updateCursorPos()
         if nCursorX >= 1 and nCursorY >= 1 and
-           nCursorX <= nWidth and nCursorY <= nHeight then
+            nCursorX <= nWidth and nCursorY <= nHeight then
             parent.setCursorPos(nX + nCursorX - 1, nY + nCursorY - 1)
         else
             parent.setCursorPos(0, 0)
@@ -474,6 +474,14 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
         end
     end
 
+    --- Get whether this window is visible. Invisible windows will not be
+    -- drawn to the screen until they are made visible again.
+    --
+    -- @treturn boolean Whether this window is visible.
+    -- @see Window:setVisible
+    function window.isVisible()
+        return bVisible
+    end
     --- Draw this window. This does nothing if the window is not visible.
     --
     -- @see Window:setVisible

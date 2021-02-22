@@ -168,3 +168,12 @@ Update configuration to match latest illuaminate
 
 Ooooooh, it's all fancy now. Well, that or horrifically broken.
 ```
+
+```
+c334423d42ba3b653ac3a8c27bce7970457f8f96
+Add function to get window visibility
+
+Closes #562
+
+Co-authored-by: devomaa <lmao@distruzione.org>
+```
