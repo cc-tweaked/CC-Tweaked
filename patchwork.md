@@ -8,7 +8,8 @@ Title     // Commit Title
 SubScript // Desc of commit
 ```
 
-If a edit that is present in CC:T is not needed, i will skip over it
+If a edit that is present in CC:T is not needed, I will skip over it.
+Any and all references to an issue number, are to be found on CC:T's repo. not this oen
 
 ```md
 5155e18de279a193c558aa029963486fd1294769
@@ -21,4 +22,10 @@ Co-authored-by: Boom <boom@flyingpackets.net>
 ae6124d1f477487abab1858abde8c4ec49dfee3c
 Translations for Vienamese
 Co-authored-by: Boom <boom@flyingpackets.net>
+```
+
+```
+59de21eae29849988e77fad6bc335f5ce78dfec7
+Handle tabs when parsing JSON
+Fixes #539
 ```
