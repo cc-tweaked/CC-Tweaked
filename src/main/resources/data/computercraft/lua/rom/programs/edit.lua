@@ -57,13 +57,14 @@ term.setBackgroundColor(%i)
 term.setCursorBlink(false)
 local _,y = term.getCursorPos()
 local _,h = term.getSize()
-if y >= h then
-    term.scroll(1)
-    term.setCursorPos(1,h)
-end
 if err then
     printError(err)
-else
+end
+if not err and y >= h then
+    term.scroll(1)
+end
+term.setCursorPos(1,h)
+if not err then
     write("Execution finished. ")
 end
 write("Press any key to continue")
