@@ -46,3 +46,10 @@ I hope the Fabric folks now realise this is gonna be a race of who can
 update first :p. Either way, this was a very easy update - only changes
 were due to unrelated Forge changes.
 ```
+
+```
+87393e8aef9ddfaca465d626ee7cff5ff499a7e8
+Fix additional `-` in docs
+
+Why isn't this automatically stripped! Bad squid.
+```
