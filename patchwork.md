@@ -256,3 +256,8 @@ Correctly handle:
 
 Fixes #559
 ```
+
+``` 
+e2a635b6e5f5942f999213434054e06833c5cb06
+Dont fail when codecov is being finicky
+```
