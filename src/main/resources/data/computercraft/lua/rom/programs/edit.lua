@@ -422,7 +422,7 @@ local tMenuFuncs = {
         if sTitle:sub(-4) == ".lua" then
             sTitle = sTitle:sub(1, -5)
         end
-        local sTempPath = bReadOnly and "/.temp." .. sTitle or fs.combine(fs.getDir(sPath), "/.temp." .. sTitle)
+        local sTempPath = bReadOnly and ".temp." .. sTitle or fs.combine(fs.getDir(sPath), ".temp." .. sTitle)
         if fs.exists(sTempPath) then
             sStatus = "Error saving to " .. sTempPath
             return
