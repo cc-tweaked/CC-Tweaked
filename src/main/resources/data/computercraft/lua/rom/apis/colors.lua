@@ -196,7 +196,7 @@ green = 0x2000
 red = 0x4000
 
 --- Black: Written as `f` in paint files and @{term.blit}, has a default
--- terminal colour of #191919.
+-- terminal colour of #111111.
 black = 0x8000
 
 --- Combines a set of colors (or sets of colors) into a larger set. Useful for
@@ -248,7 +248,6 @@ end
 --- Tests whether `color` is contained within `colors`. Useful for Bundled
 -- Cables.
 --
---
 -- @tparam number colors A color, or color set
 -- @tparam number color A color or set of colors that `colors` should contain.
 -- @treturn boolean If `colors` contains all colors within `color`.
@@ -279,7 +278,7 @@ function packRGB(r, g, b)
     expect(2, g, "number")
     expect(3, b, "number")
     return
-        bit32.band(r * 255, 0xFF) * 2 ^ 16 +
+    bit32.band(r * 255, 0xFF) * 2 ^ 16 +
         bit32.band(g * 255, 0xFF) * 2 ^ 8 +
         bit32.band(b * 255, 0xFF)
 end
@@ -299,9 +298,9 @@ end
 function unpackRGB(rgb)
     expect(1, rgb, "number")
     return
-        bit32.band(bit32.rshift(rgb, 16), 0xFF) / 255,
-        bit32.band(bit32.rshift(rgb, 8), 0xFF) / 255,
-        bit32.band(rgb, 0xFF) / 255
+    bit32.band(bit32.rshift(rgb, 16), 0xFF) / 255,
+    bit32.band(bit32.rshift(rgb, 8), 0xFF) / 255,
+    bit32.band(rgb, 0xFF) / 255
 end
 
 --- Either calls @{colors.packRGB} or @{colors.unpackRGB}, depending on how many
@@ -332,4 +331,22 @@ function rgb8(r, g, b)
     else
         return packRGB(r, g, b)
     end
+end
+
+-- Colour to hex lookup table for toBlit
+local color_hex_lookup = {}
+for i = 0, 15 do
+    color_hex_lookup[2 ^ i] = string.format("%x", i)
+end
+
+--- Converts the given color to a paint/blit hex character (0-9a-f).
+--
+-- This is equivalent to converting floor(log_2(color)) to hexadecimal.
+--
+-- @tparam number color The color to convert.
+-- @treturn string The blit hex code of the color.
+function toBlit(color)
+    expect(1, color, "number")
+    return color_hex_lookup[color] or
+        string.format("%x", math.floor(math.log(color) / math.log(2)))
 end

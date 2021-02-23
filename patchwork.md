@@ -269,3 +269,9 @@ Fix JSON objects failing to pass
 Maybe I should run the whole test suite, not just the things I think
 matter? Nah....
 ```
+
+``` 
+741adfa7bb2b950d2851c3f0072d6a4769f22773
+
+Use blit to draw boxes, add colors.toBlit (#570)
+```
