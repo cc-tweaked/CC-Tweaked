@@ -227,3 +227,10 @@ resolve this properly.
 
 Fixes #564
 ```
+
+``` 
+17a932920711a5c0361a5048c9e0a5e7a58e6364
+Bump cct-javadoc version
+
+Documentation will now be sorted (somewhat) correctly!
+```
