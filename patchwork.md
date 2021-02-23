@@ -244,3 +244,15 @@ Tesselator, but this'll do for now.
 
 Fixes Zundrel/cc-tweaked-fabric#20.
 ```
+
+``` 
+c58441b29c3715f092e7f3747bb3ec65ae5a3d29
+Various SNBT parsing improvements
+
+Correctly handle:
+ - Typed arrays ([I; 1, 2, 3])
+ - All suffixed numbers (1.2d)
+ - Single-quoted strings
+
+Fixes #559
+```
