@@ -47,30 +47,29 @@ else
     stringColour = colours.white
 end
 
-local runHeader = [[local current = term.current()
-local ok,err = load([===============]] .. [[==================[]]
-local runHandler = [[]===============]] .. [[==================], "@.temp", nil, _ENV)
-if ok then ok,err = pcall(ok,...) end
+local runHandler = [[multishell.setTitle(multishell.getCurrent(), %q)
+local current = term.current()
+local ok, err = load(%q, %q, nil, _ENV)
+if ok then ok, err = pcall(ok, ...) end
 term.redirect(current)
-term.setTextColor(%i)
-term.setBackgroundColor(%i)
+term.setTextColor(term.isColour() and colours.yellow or colours.white)
+term.setBackgroundColor(colours.black)
 term.setCursorBlink(false)
-local _,y = term.getCursorPos()
-local _,h = term.getSize()
-if err then
+local _, y = term.getCursorPos()
+local _, h = term.getSize()
+if not ok then
     printError(err)
 end
-if not err and y >= h then
+if ok and y >= h then
     term.scroll(1)
 end
 term.setCursorPos(1,h)
-if not err then
-    write("Execution finished. ")
+if ok then
+    write("Program finished. ")
 end
 write("Press any key to continue")
 os.pullEvent('key')
 ]]
-runHandler = string.format(runHandler, highlightColour, bgColour)
 
 -- Menus
 local bMenu = false
@@ -114,7 +113,7 @@ local function load(_sPath)
     end
 end
 
-local function save(_sPath, bRun)
+local function save(_sPath, fWrite)
     -- Create intervening folder
     local sDir = _sPath:sub(1, _sPath:len() - fs.getName(_sPath):len())
     if not fs.exists(sDir) then
@@ -126,11 +125,9 @@ local function save(_sPath, bRun)
     local function innerSave()
         file, fileerr = fs.open(_sPath, "w")
         if file then
-            if bRun then file.write(runHeader) end
-            for _, sLine in ipairs(tLines) do
-                file.write(sLine .. "\n")
+            if file then
+                fWrite(file)
             end
-            if bRun then file.write(runHandler) end
         else
             error("Failed to open " .. _sPath)
         end
@@ -320,7 +317,11 @@ local tMenuFuncs = {
         if bReadOnly then
             sStatus = "Access denied"
         else
-            local ok, _, fileerr  = save(sPath)
+            local ok, _, fileerr  = save(sPath, function(file)
+                for _, sLine in ipairs(tLines) do
+                    file.write(sLine .. "\n")
+                end
+            end)
             if ok then
                 sStatus = "Saved to " .. sPath
             else
@@ -417,8 +418,18 @@ local tMenuFuncs = {
         bRunning = false
     end,
     Run = function()
-        local sTempPath = bReadOnly and "/.temp" or fs.combine(fs.getDir(sPath), "/.temp")
-        local ok = save(sTempPath, true)
+        local sTitle = fs.getName(sPath)
+        if sTitle:sub(-4) == ".lua" then
+            sTitle = sTitle:sub(1, -5)
+        end
+        local sTempPath = bReadOnly and sTitle .. ".temp" or fs.combine(fs.getDir(sPath), sTitle .. ".temp")
+        if fs.exists(sTempPath) then
+            sStatus = "Error saving to " .. sTempPath
+            return
+        end
+        local ok = save(sTempPath, function(file)
+            file.write(runHandler:format(sTitle, table.concat(tLines, "\n"), "@" .. fs.getName(sPath)))
+        end)
         if ok then
             local nTask = shell.openTab(sTempPath)
             if nTask then
