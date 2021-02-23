@@ -261,3 +261,11 @@ Fixes #559
 e2a635b6e5f5942f999213434054e06833c5cb06
 Dont fail when codecov is being finicky
 ```
+
+```
+666e83cf4fd0eb327f465d5b919a708790f99b00
+Fix JSON objects failing to pass
+
+Maybe I should run the whole test suite, not just the things I think
+matter? Nah....
+```
