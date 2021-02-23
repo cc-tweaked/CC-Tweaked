@@ -63,7 +63,7 @@ end
 if ok and y >= h then
     term.scroll(1)
 end
-term.setCursorPos(1,h)
+term.setCursorPos(1, h)
 if ok then
     write("Program finished. ")
 end
