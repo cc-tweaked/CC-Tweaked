@@ -234,3 +234,13 @@ Bump cct-javadoc version
 
 Documentation will now be sorted (somewhat) correctly!
 ```
+
+```
+a6fcfb6af2fc1bef8ca3a19122c9267549202424
+Draw in-hand pocket computers with blending
+
+It might be worth switching to RenderTypes here, rather than a pure
+Tesselator, but this'll do for now.
+
+Fixes Zundrel/cc-tweaked-fabric#20.
+```
