@@ -208,3 +208,22 @@ Remove superfluous imports
 
 Hah, this is embarassing
 ```
+
+[TODO] [M3R1-01] Code has been applied, players still dont get achievments
+``` 
+f6160bdc57b3d9850607c2c7c2ce9734b4963478
+Fix players not getting advancements when they own turtles
+
+When we construct a new ServerPlayerEntity (and thus TurtlePlayer), we
+get the current (global) advancement state and call .setPlayer() on it.
+
+As grantCriterion blocks FakePlayers from getting advancements, this
+means a player will no longer receive any advancements, as the "wrong"
+player object is being consulted.
+
+As a temporary work around, we attempt to restore the previous player to
+the advancement store. I'll try to upstream something into Forge to
+resolve this properly.
+
+Fixes #564
+```

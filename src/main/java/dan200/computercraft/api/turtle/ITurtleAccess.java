@@ -135,7 +135,7 @@ public interface ITurtleAccess {
      *
      * @return This turtle's owner.
      */
-    @Nonnull
+    @Nullable
     GameProfile getOwningPlayer();
 
     /**
