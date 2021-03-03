@@ -1,5 +1,5 @@
 --- A collection of helper methods for working with input completion, such
--- as that require by @{read}.
+-- as that require by @{_G.read}.
 --
 -- @module cc.completion
 -- @see cc.shell.completion For additional helpers to use with
@@ -29,7 +29,7 @@ end
 -- @tparam { string... } choices The list of choices to complete from.
 -- @tparam[opt] boolean add_space Whether to add a space after the completed item.
 -- @treturn { string... } A list of suffixes of matching strings.
--- @usage Call @{read}, completing the names of various animals.
+-- @usage Call @{_G.read}, completing the names of various animals.
 --
 --     local animals = { "dog", "cat", "lion", "unicorn" }
 --     read(nil, nil, function(text) return choice(text, animals) end)

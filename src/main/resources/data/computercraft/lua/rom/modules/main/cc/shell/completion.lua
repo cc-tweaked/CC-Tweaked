@@ -8,7 +8,7 @@
 -- wrap them using @{build}, or your own custom function.
 --
 -- @module cc.shell.completion
--- @see cc.completion For more general helpers, suitable for use with @{read}.
+-- @see cc.completion For more general helpers, suitable for use with @{_G.read}.
 -- @see shell.setCompletionFunction
 
 local expect = require "cc.expect".expect

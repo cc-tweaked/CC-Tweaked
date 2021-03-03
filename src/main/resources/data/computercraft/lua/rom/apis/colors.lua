@@ -270,7 +270,7 @@ end
 -- @treturn number The combined hexadecimal colour.
 -- @usage
 -- ```lua
--- colors.rgb(0.7, 0.2, 0.6)
+-- colors.unpackRGB(0.7, 0.2, 0.6)
 -- -- => 0xb23399
 -- ```
 function packRGB(r, g, b)
@@ -291,7 +291,7 @@ end
 -- @treturn number The blue channel, will be between 0 and 1.
 -- @usage
 -- ```lua
--- colors.rgb(0xb23399)
+-- colors.unpackRGB(0xb23399)
 -- -- => 0.7, 0.2, 0.6
 -- ```
 -- @see colors.packRGB
@@ -317,12 +317,12 @@ end
 -- @deprecated Use @{packRGB} or @{unpackRGB} directly.
 -- @usage
 -- ```lua
--- colors.rgb(0xb23399)
+-- colors.unpackRGB(0xb23399)
 -- -- => 0.7, 0.2, 0.6
 -- ```
 -- @usage
 -- ```lua
--- colors.rgb(0.7, 0.2, 0.6)
+-- colors.unpackRGB(0.7, 0.2, 0.6)
 -- -- => 0xb23399
 -- ```
 function rgb8(r, g, b)

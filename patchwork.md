@@ -305,3 +305,9 @@ little more detail.
 [1] https://github.com/SquidDev-CC/CC-Tweaked/wiki/Monitor-texture-reference
 ```
 
+7f90f2f7cadce0d5b9177b16626979591bce8137
+``` 
+Clean up some examples a little bit
+
+Would be good if they didn't crash and burn on entry :).
+```
