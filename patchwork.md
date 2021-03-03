@@ -281,3 +281,9 @@ d13bd2cce8d102ad7f61f557e707d6fe3731bc37
 
 use arg[0] in all usage printouts (#571)
 ```
+
+```
+74ac5bb3d17e5bee30643a5d6702696600c06229
+
+Bump to 1.94.0
+```
