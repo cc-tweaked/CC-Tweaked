@@ -275,3 +275,9 @@ matter? Nah....
 
 Use blit to draw boxes, add colors.toBlit (#570)
 ```
+
+``` 
+d13bd2cce8d102ad7f61f557e707d6fe3731bc37
+
+use arg[0] in all usage printouts (#571)
+```
