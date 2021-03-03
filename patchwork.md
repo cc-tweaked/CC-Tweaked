@@ -287,3 +287,21 @@ use arg[0] in all usage printouts (#571)
 
 Bump to 1.94.0
 ```
+
+[TODO] [M3R1-02] Zero Clue how to reimplement this in fabric.
+``` 
+c8aeddedd4ed430f9cb6428676ebb4fa39834182
+
+Auto-generate monitor models
+
+I didn't think it was worth it, and then I found myself needing to
+update a dozen of them. The code isn't especially pretty, but it works,
+so that's fine.
+
+Also fixes several issues with us using the wrong texture (closes #572).
+I've put together a wiki page[1] which describes each texture in a
+little more detail.
+
+[1] https://github.com/SquidDev-CC/CC-Tweaked/wiki/Monitor-texture-reference
+```
+
