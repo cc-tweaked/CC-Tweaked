@@ -21,14 +21,14 @@ public class CheckUrl extends Resource<CheckUrl> {
     private static final String EVENT = "http_check";
     private final IAPIEnvironment environment;
     private final String address;
-    private final String host;
+    private final URI uri;
     private Future<?> future;
 
     public CheckUrl(ResourceGroup<CheckUrl> limiter, IAPIEnvironment environment, String address, URI uri) {
         super(limiter);
         this.environment = environment;
         this.address = address;
-        this.host = uri.getHost();
+        this.uri = uri;
     }
 
     public void run() {
@@ -45,8 +45,9 @@ public class CheckUrl extends Resource<CheckUrl> {
         }
 
         try {
-            InetSocketAddress netAddress = NetworkUtils.getAddress(this.host, 80, false);
-            NetworkUtils.getOptions(this.host, netAddress);
+            boolean ssl = uri.getScheme().equalsIgnoreCase( "https" );
+            InetSocketAddress netAddress = NetworkUtils.getAddress( uri, ssl );
+            NetworkUtils.getOptions( uri.getHost(), netAddress );
 
             if (this.tryClose()) {
                 this.environment.queueEvent(EVENT, this.address, true);

@@ -22,7 +22,7 @@ end
 --
 -- @tparam string name The name of the disk drive.
 -- @treturn boolean If something is in the disk drive.
--- @usage disk.isPresent(false)
+-- @usage disk.isPresent("top")
 function isPresent(name)
     if isDrive(name) then
         return peripheral.call(name, "isDiskPresent")

@@ -19,6 +19,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.google.common.base.Objects;
 import com.mojang.authlib.GameProfile;
@@ -341,7 +342,7 @@ public class TurtleBrain implements ITurtleAccess {
         }
     }
 
-    @Nonnull
+    @Nullable
     @Override
     public GameProfile getOwningPlayer() {
         return this.m_owningPlayer;

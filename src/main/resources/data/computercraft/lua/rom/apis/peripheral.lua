@@ -191,7 +191,7 @@ end
 -- filter function, which takes the peripheral's name and wrapped table
 -- and returns if it should be included in the result.
 -- @treturn table... 0 or more wrapped peripherals matching the given filters.
--- @usage local monitors = { peripheral.find("monitor") }
+-- @usage { peripheral.find("monitor") }
 -- @usage peripheral.find("modem", rednet.open)
 function find(ty, filter)
     expect(1, ty, "string")

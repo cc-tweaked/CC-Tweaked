@@ -9,6 +9,8 @@ package dan200.computercraft.core.apis.http.options;
 public class AddressRuleConfig {
     // TODO haha config is gone, do fix
 
+    // TODO FIGURE OUT WHY THE HELL THE PREVIOUS GUY HAD TO COMMENT THIS OUT
+
     //    public static UnmodifiableConfig makeRule( String host, Action action )
     //    {
     //        CommentedConfig config = InMemoryCommentedFormat.defaultInstance().createConfig( ConcurrentHashMap::new );
@@ -39,17 +41,19 @@ public class AddressRuleConfig {
     //    {
     //        String hostObj = get( builder, "host", String.class ).orElse( null );
     //        return hostObj != null && checkEnum( builder, "action", Action.class )
+    //            && check( builder, "port", Number.class )
     //            && check( builder, "timeout", Number.class )
     //            && check( builder, "max_upload", Number.class )
     //            && check( builder, "max_download", Number.class )
     //            && check( builder, "websocket_message", Number.class )
-    //            && AddressRule.parse( hostObj, PartialOptions.DEFAULT ) != null;
+    //            && AddressRule.parse( hostObj, port, PartialOptions.DEFAULT ) != null;
     //    }
     //
     //    @Nullable
     //    public static AddressRule parseRule( UnmodifiableConfig builder )
     //    {
     //        String hostObj = get( builder, "host", String.class ).orElse( null );
+    //        Integer port = get( builder, "port", Number.class ).map( Number::intValue ).orElse( null );
     //        if( hostObj == null ) return null;
     //
     //        Action action = getEnum( builder, "action", Action.class ).orElse( null );
@@ -66,7 +70,7 @@ public class AddressRuleConfig {
     //            websocketMessage
     //        );
     //
-    //        return AddressRule.parse( hostObj, options );
+    //        return AddressRule.parse( hostObj, port, options );
     //    }
     //
     //    private static <T> boolean check( UnmodifiableConfig config, String field, Class<T> klass )

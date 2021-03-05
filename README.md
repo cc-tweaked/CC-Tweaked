@@ -1,4 +1,9 @@
-# CC:T for Fabric
-# This is a 'complete' port
-*complete as in it runs and works-ish*
-I'm busy with other projects and so if anyone else wants to maintain this be my guest
+# CC:Restitched Patchwork
+# This is a Work In Progress Port
+*it runs and works-ish*
+
+## Reached Parity with CC:T 1.94.0
+
+THis is just a quick patchwork of my attempts at getting CC:R up to date with CC:T
+
+The changelog is located at [PatchWork.md](patchwork.md)

@@ -5,7 +5,8 @@ end
 
 local tArgs = { ... }
 if #tArgs < 1 then
-    print("Usage: go <direction> <distance>")
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
+    print("Usage: " .. programName .. " <direction> <distance>")
     return
 end
 

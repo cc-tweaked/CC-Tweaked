@@ -1,10 +1,11 @@
 local tArgs = { ... }
 
 local function printUsage()
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
     print("Usages:")
-    print("dj play")
-    print("dj play <drive>")
-    print("dj stop")
+    print(programName .. " play")
+    print(programName .. " play <drive>")
+    print(programName .. " stop")
 end
 
 if #tArgs > 2 then

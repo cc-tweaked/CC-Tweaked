@@ -9,7 +9,7 @@ local expect, field = expect.expect, expect.field
 --- Slowly writes string text at current cursor position,
 -- character-by-character.
 --
--- Like @{write}, this does not insert a newline at the end.
+-- Like @{_G.write}, this does not insert a newline at the end.
 --
 -- @tparam string sText The the text to write to the screen
 -- @tparam[opt] number nRate The number of characters to write each second,
@@ -119,8 +119,8 @@ end
 -- displayed before prompting.
 -- @treturn number The number of lines printed.
 -- @usage
--- local width, height = term.getSize()
--- textutils.pagedPrint(("This is a rather verbose dose of repetition.\n"):rep(30), height - 2)
+--     local width, height = term.getSize()
+--     textutils.pagedPrint(("This is a rather verbose dose of repetition.\n"):rep(30), height - 2)
 function pagedPrint(_sText, _nFreeLines)
     expect(2, _nFreeLines, "number", "nil")
     -- Setup a redirector
@@ -432,7 +432,7 @@ do
 
     --- Skip any whitespace
     local function skip(str, pos)
-        local _, last = find(str, "^[ \n\r\v]+", pos)
+        local _, last = find(str, "^[ \n\r\t]+", pos)
         if last then return last + 1 else return pos end
     end
 
@@ -453,13 +453,13 @@ do
         error_at(pos, "Unexpected %s, expected %s.", actual, exp)
     end
 
-    local function parse_string(str, pos)
+    local function parse_string(str, pos, terminate)
         local buf, n = {}, 1
 
         while true do
             local c = sub(str, pos, pos)
             if c == "" then error_at(pos, "Unexpected end of input, expected '\"'.") end
-            if c == '"' then break end
+            if c == terminate then break end
 
             if c == '\\' then
                 -- Handle the various escapes
@@ -472,7 +472,7 @@ do
                     buf[n], n, pos = utf8.char(tonumber(num_str, 16)), n + 1, pos + 6
                 else
                     local unesc = escapes[c]
-                    if not unesc then error_at(pos + 1, "Unknown escape character %q.", unesc) end
+                    if not unesc then error_at(pos + 1, "Unknown escape character %q.", c) end
                     buf[n], n, pos = unesc, n + 1, pos + 2
                 end
             elseif c >= '\x20' then
@@ -485,13 +485,13 @@ do
         return concat(buf, "", 1, n - 1), pos + 1
     end
 
-    local valid = { b = true, B = true, s = true, S = true, l = true, L = true, f = true, F = true, d = true, D = true }
+    local num_types = { b = true, B = true, s = true, S = true, l = true, L = true, f = true, F = true, d = true, D = true }
     local function parse_number(str, pos, opts)
         local _, last, num_str = find(str, '^(-?%d+%.?%d*[eE]?[+-]?%d*)', pos)
         local val = tonumber(num_str)
         if not val then error_at(pos, "Malformed number %q.", num_str) end
 
-        if opts.nbt_style and valid[sub(str, pos + 1, pos + 1)] then return val, last + 2 end
+        if opts.nbt_style and num_types[sub(str, last + 1, last + 1)] then return val, last + 2 end
 
         return val, last + 1
     end
@@ -501,9 +501,11 @@ do
         return val, last + 1
     end
 
+    local arr_types = { I = true, L = true, B = true }
     local function decode_impl(str, pos, opts)
         local c = sub(str, pos, pos)
-        if c == '"' then return parse_string(str, pos + 1)
+        if c == '"' then return parse_string(str, pos + 1, '"')
+        elseif c == "'" and opts.nbt_style then return parse_string(str, pos + 1, "\'")
         elseif c == "-" or c >= "0" and c <= "9" then return parse_number(str, pos, opts)
         elseif c == "t" then
             if sub(str, pos + 1, pos + 3) == "rue" then return true, pos + 4 end
@@ -528,7 +530,7 @@ do
 
             while true do
                 local key, value
-                if c == "\"" then key, pos = parse_string(str, pos + 1)
+                if c == "\"" then key, pos = parse_string(str, pos + 1, "\"")
                 elseif opts.nbt_style then key, pos = parse_ident(str, pos)
                 else return expected(pos, c, "object key")
                 end
@@ -559,6 +561,11 @@ do
 
             pos = skip(str, pos + 1)
             c = sub(str, pos, pos)
+
+            if arr_types[c] and sub(str, pos + 1, pos + 1) == ";" and opts.nbt_style then
+                pos = skip(str, pos + 2)
+                c = sub(str, pos, pos)
+            end
 
             if c == "" then return expected(pos, c, "']'") end
             if c == "]" then return empty_json_array, pos + 1 end
@@ -699,7 +706,7 @@ unserialiseJSON = unserialise_json
 --
 -- @tparam string str The string to encode
 -- @treturn string The encoded string.
--- @usage print("https://example.com/?view=" .. textutils.urlEncode(read()))
+-- @usage print("https://example.com/?view=" .. textutils.urlEncode("some text&things"))
 function urlEncode(str)
     expect(1, str, "string")
     if str then
@@ -712,7 +719,7 @@ function urlEncode(str)
             else
                 -- Non-ASCII (encode as UTF-8)
                 return
-                    string.format("%%%02X", 192 + bit32.band(bit32.arshift(n, 6), 31)) ..
+                string.format("%%%02X", 192 + bit32.band(bit32.arshift(n, 6), 31)) ..
                     string.format("%%%02X", 128 + bit32.band(n, 63))
             end
         end)
@@ -737,8 +744,8 @@ local tEmpty = {}
 --
 -- @treturn { string... } The (possibly empty) list of completions.
 -- @see shell.setCompletionFunction
--- @see read
--- @usage textutils.complete( "pa", getfenv() )
+-- @see _G.read
+-- @usage textutils.complete( "pa", _ENV )
 function complete(sSearchText, tSearchTable)
     expect(1, sSearchText, "string")
     expect(2, tSearchTable, "table", "nil")

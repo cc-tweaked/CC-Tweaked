@@ -34,7 +34,8 @@ end
 -- Determines if the file exists, and can be edited on this computer
 local tArgs = { ... }
 if #tArgs == 0 then
-    print("Usage: paint <path>")
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
+    print("Usage: " .. programName .. " <path>")
     return
 end
 local sPath = shell.resolve(tArgs[1])

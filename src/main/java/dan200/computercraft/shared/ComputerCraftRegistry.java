@@ -55,6 +55,7 @@ import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.turtle.upgrades.*;
 import dan200.computercraft.shared.util.FixedPointTileEntityType;
 
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.Material;
@@ -68,6 +69,7 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
@@ -121,8 +123,12 @@ public final class ComputerCraftRegistry {
         public static final BlockCable CABLE = register("cable", new BlockCable(emProperties()));
 
         private static Block.Settings properties() {
-            return FabricBlockSettings.copyOf(Blocks.STONE)
-                                      .strength(2);
+            //return FabricBlockSettings.copyOf(Blocks.GLASS)
+              //                        .strength(2);
+            return AbstractBlock.Settings.of(Material.GLASS)
+                .strength(2F)
+                .sounds(BlockSoundGroup.STONE)
+                .nonOpaque();
         }
 
         private static Block.Settings turtleProperties() {

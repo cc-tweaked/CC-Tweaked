@@ -117,7 +117,6 @@ public class CommandAPI implements ILuaAPI {
      * @param command The command to execute.
      * @return The "task id". When this command has been executed, it will queue a `task_complete` event with a matching id.
      * @throws LuaException (hidden) If the task cannot be created.
-     * @cc.tparam string command The command to execute.
      * @cc.usage Asynchronously sets the block above the computer to stone.
      *     <pre>
      *     commands.execAsync("~ ~1 ~ minecraft:stone")

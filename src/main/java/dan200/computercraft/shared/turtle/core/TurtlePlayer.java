@@ -33,6 +33,7 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
@@ -42,22 +43,41 @@ import net.minecraft.util.math.Vec3d;
 @SuppressWarnings ("EntityConstructor")
 public final class TurtlePlayer extends FakePlayer {
     private static final GameProfile DEFAULT_PROFILE = new GameProfile(UUID.fromString("0d0c4ca0-4ff1-11e4-916c-0800200c9a66"), "[ComputerCraft]");
-
-    private TurtlePlayer(ITurtleAccess turtle) {
-        super((ServerWorld) turtle.getWorld(), getProfile(turtle.getOwningPlayer()));
-        this.networkHandler = new FakeNetHandler(this);
-        this.setState(turtle);
+// TODO [M3R1-01] Fix Turtle not giving player achievement for actions
+    private TurtlePlayer( ServerWorld world, GameProfile name )
+    {
+        super( world, name );
     }
+
+    private static TurtlePlayer create( ITurtleAccess turtle )
+    {
+        ServerWorld world = (ServerWorld) turtle.getWorld();
+        GameProfile profile = turtle.getOwningPlayer();
+
+        TurtlePlayer player = new TurtlePlayer( world, getProfile( profile ) );
+        player.networkHandler = new FakeNetHandler( player );
+        player.setState( turtle );
+
+        if( profile != null && profile.getId() != null )
+        {
+            // Constructing a player overrides the "active player" variable in advancements. As fake players cannot
+            // get advancements, this prevents a normal player who has placed a turtle from getting advancements.
+            // We try to locate the "actual" player and restore them.
+            ServerPlayerEntity actualPlayer = world.getServer().getPlayerManager().getPlayer(player.getUuid());
+            if( actualPlayer != null ) player.getAdvancementTracker().setOwner(actualPlayer);
+        }
+
+        return player;
+        }
 
     private static GameProfile getProfile(@Nullable GameProfile profile) {
         return profile != null && profile.isComplete() ? profile : DEFAULT_PROFILE;
     }
 
     private void setState(ITurtleAccess turtle) {
-        if (this.currentScreenHandler != null) {
+        if (this.currentScreenHandler != playerScreenHandler) {
             ComputerCraft.log.warn("Turtle has open container ({})", this.currentScreenHandler);
-            this.currentScreenHandler.close(this);
-            this.currentScreenHandler = null;
+            closeCurrentScreen();
         }
 
         BlockPos position = turtle.getPosition();
@@ -71,14 +91,17 @@ public final class TurtlePlayer extends FakePlayer {
     }
 
     public static TurtlePlayer get(ITurtleAccess access) {
-        if (!(access instanceof TurtleBrain)) {
-            return new TurtlePlayer(access);
-        }
+         ServerWorld world = (ServerWorld) access.getWorld();
+        if( !(access instanceof TurtleBrain) ) return create( access );
+
+         /*if (!(access instanceof TurtleBrain)) {
+            return new TurtlePlayer(world, access.getOwningPlayer());
+        }*/
 
         TurtleBrain brain = (TurtleBrain) access;
         TurtlePlayer player = brain.m_cachedPlayer;
         if (player == null || player.getGameProfile() != getProfile(access.getOwningPlayer()) || player.getEntityWorld() != access.getWorld()) {
-            player = brain.m_cachedPlayer = new TurtlePlayer(brain);
+            player = brain.m_cachedPlayer = create(brain);
         } else {
             player.setState(access);
         }

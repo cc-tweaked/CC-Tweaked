@@ -13,11 +13,11 @@
 -- @module cc.pretty
 -- @usage Print a table to the terminal
 --     local pretty = require "cc.pretty"
---     pretty.write(pretty.dump({ 1, 2, 3 }))
+--     pretty.print(pretty.pretty({ 1, 2, 3 }))
 --
 -- @usage Build a custom document and display it
 --     local pretty = require "cc.pretty"
---     pretty.write(pretty.group(pretty.text("hello") .. pretty.space_line .. pretty.text("world")))
+--     pretty.print(pretty.group(pretty.text("hello") .. pretty.space_line .. pretty.text("world")))
 
 local expect = require "cc.expect"
 local expect, field = expect.expect, expect.field

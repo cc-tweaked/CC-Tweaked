@@ -1,12 +1,14 @@
 local function printUsage()
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
     print("Usages:")
-    print("label get")
-    print("label get <drive>")
-    print("label set <text>")
-    print("label set <drive> <text>")
-    print("label clear")
-    print("label clear <drive>")
+    print(programName .. " get")
+    print(programName .. " get <drive>")
+    print(programName .. " set <text>")
+    print(programName .. " set <drive> <text>")
+    print(programName .. " clear")
+    print(programName .. " clear <drive>")
 end
+
 
 local function checkDrive(sDrive)
     if peripheral.getType(sDrive) == "drive" then

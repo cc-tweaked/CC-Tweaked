@@ -1,8 +1,9 @@
 local function printUsage()
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
     print("Usages:")
-    print("gps host")
-    print("gps host <x> <y> <z>")
-    print("gps locate")
+    print(programName .. " host")
+    print(programName .. " host <x> <y> <z>")
+    print(programName .. " locate")
 end
 
 local tArgs = { ... }

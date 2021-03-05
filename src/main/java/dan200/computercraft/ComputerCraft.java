@@ -126,10 +126,10 @@ public final class ComputerCraft implements ModInitializer {
 
     public static List<AddressRule> buildHttpRulesFromConfig(String[] blacklist, String[] whitelist) {
         return Stream.concat(Stream.of(blacklist)
-                        .map(x -> AddressRule.parse(x, Action.DENY.toPartial()))
+                        .map( x -> AddressRule.parse( x, null, Action.DENY.toPartial()))
                         .filter(Objects::nonNull),
                 Stream.of(whitelist)
-                        .map(x -> AddressRule.parse(x, Action.ALLOW.toPartial()))
+                        .map( x -> AddressRule.parse( x, null, Action.ALLOW.toPartial()))
                         .filter(Objects::nonNull))
                 .collect(Collectors.toList());
     }

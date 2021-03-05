@@ -1,5 +1,6 @@
 if not turtle then
-    printError("Requires a Turtle")
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
+    print("Usage: " .. programName .. " [number]")
     return
 end
 

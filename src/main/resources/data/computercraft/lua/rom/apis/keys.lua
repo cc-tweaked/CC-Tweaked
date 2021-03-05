@@ -145,6 +145,7 @@ keys.cimcumflex = keys.circumflex --- @local
 --
 -- @tparam number code The key code to look up.
 -- @treturn string|nil The name of the key, or `nil` if not a valid key code.
+-- @usage keys.getName(keys.enter)
 function getName(_nKey)
     expect(1, _nKey, "number")
     return tKeys[_nKey]
