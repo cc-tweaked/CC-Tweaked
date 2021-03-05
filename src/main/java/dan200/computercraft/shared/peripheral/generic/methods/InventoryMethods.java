@@ -13,6 +13,8 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.asm.GenericSource;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
+import dan200.computercraft.shared.util.InventoryUtil;
+import dan200.computercraft.shared.util.ItemStorage;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ChestBlock;
@@ -60,10 +62,7 @@ public class InventoryMethods implements GenericSource
     @LuaFunction( mainThread = true )
     public static int size( Inventory inventory )
     {
-        // Get appropriate inventory for source peripheral
-        inventory = extractHandler(inventory);
-
-        return inventory.size();
+        return extractHandler(inventory).size();
     }
 
     /**
@@ -73,9 +72,13 @@ public class InventoryMethods implements GenericSource
      * @return The name of this inventory, or {@code nil} if not present.
      */
     @LuaFunction( mainThread = true )
-    public static String name( Nameable inventory )
+    public static String name( Inventory inventory )
     {
-        return inventory.hasCustomName() ? inventory.getName().asString() : null;
+        if ( inventory instanceof Nameable ) {
+            Nameable i = (Nameable)inventory;
+            return i.hasCustomName() ? i.getName().asString() : null;
+        }
+        return null;
     }
 
     /**
@@ -95,14 +98,13 @@ public class InventoryMethods implements GenericSource
     @LuaFunction( mainThread = true )
     public static Map<Integer, Map<String, ?>> list( Inventory inventory )
     {
-        // Get appropriate inventory for source peripheral
-        inventory = extractHandler(inventory);
+        ItemStorage itemStorage = extractHandler(inventory);
 
         Map<Integer, Map<String, ?>> result = new HashMap<>();
-        int size = inventory.size();
+        int size = itemStorage.size();
         for( int i = 0; i < size; i++ )
         {
-            ItemStack stack = inventory.getStack( i );
+            ItemStack stack = itemStorage.getStack( i );
             if( !stack.isEmpty() ) result.put( i + 1, ItemData.fillBasic( new HashMap<>( 4 ), stack ) );
         }
 
@@ -122,12 +124,11 @@ public class InventoryMethods implements GenericSource
     @LuaFunction( mainThread = true )
     public static Map<String, ?> getItemDetail( Inventory inventory, int slot ) throws LuaException
     {
-        // Get appropriate inventory
-        inventory  = extractHandler(inventory);
+        ItemStorage itemStorage = extractHandler(inventory);
 
-        assertBetween( slot, 1, inventory.size(), "Slot out of range (%s)" );
+        assertBetween( slot, 1, itemStorage.size(), "Slot out of range (%s)" );
 
-        ItemStack stack = inventory.getStack( slot - 1 );
+        ItemStack stack = itemStorage.getStack( slot - 1 );
         return stack.isEmpty() ? null : ItemData.fill( new HashMap<>(), stack );
     }
 
@@ -162,23 +163,22 @@ public class InventoryMethods implements GenericSource
         String toName, int fromSlot, Optional<Integer> limit, Optional<Integer> toSlot
     ) throws LuaException
     {
-        // Get appropriate inventory for source peripheral
-        from = extractHandler(from);
+        ItemStorage fromStorage = extractHandler( from );
 
         // Find location to transfer to
         IPeripheral location = computer.getAvailablePeripheral( toName );
         if( location == null ) throw new LuaException( "Target '" + toName + "' does not exist" );
 
-        Inventory to = extractHandler( location.getTarget() );
-        if( to == null ) throw new LuaException( "Target '" + toName + "' is not an inventory" );
+        ItemStorage toStorage = extractHandler( location.getTarget() );
+        if( toStorage == null ) throw new LuaException( "Target '" + toName + "' is not an inventory" );
 
         // Validate slots
         int actualLimit = limit.orElse( Integer.MAX_VALUE );
-        assertBetween( fromSlot, 1, from.size(), "From slot out of range (%s)" );
-        if( toSlot.isPresent() ) assertBetween( toSlot.get(), 1, to.size(), "To slot out of range (%s)" );
+        assertBetween( fromSlot, 1, fromStorage.size(), "From slot out of range (%s)" );
+        if( toSlot.isPresent() ) assertBetween( toSlot.get(), 1, toStorage.size(), "To slot out of range (%s)" );
 
         if( actualLimit <= 0 ) return 0;
-        return moveItem( from, fromSlot - 1, to, toSlot.orElse( 0 ) - 1, actualLimit );
+        return moveItem( fromStorage, fromSlot - 1, toStorage, toSlot.orElse( 0 ) - 1, actualLimit );
     }
 
     /**
@@ -213,55 +213,36 @@ public class InventoryMethods implements GenericSource
     ) throws LuaException
     {
         // Get appropriate inventory for source peripheral
-        to = extractHandler(to);
+        ItemStorage toStorage = extractHandler( to );
 
         // Find location to transfer to
         IPeripheral location = computer.getAvailablePeripheral( fromName );
         if( location == null ) throw new LuaException( "Source '" + fromName + "' does not exist" );
 
-        Inventory from = extractHandler( location.getTarget() );
-        if( from == null ) throw new LuaException( "Source '" + fromName + "' is not an inventory" );
+        ItemStorage fromStorage = extractHandler( location.getTarget() );
+        if( fromStorage == null ) throw new LuaException( "Source '" + fromName + "' is not an inventory" );
 
         // Validate slots
         int actualLimit = limit.orElse( Integer.MAX_VALUE );
-        assertBetween( fromSlot, 1, from.size(), "From slot out of range (%s)" );
-        if( toSlot.isPresent() ) assertBetween( toSlot.get(), 1, to.size(), "To slot out of range (%s)" );
+        assertBetween( fromSlot, 1, fromStorage.size(), "From slot out of range (%s)" );
+        if( toSlot.isPresent() ) assertBetween( toSlot.get(), 1, toStorage.size(), "To slot out of range (%s)" );
 
         if( actualLimit <= 0 ) return 0;
-        return moveItem( from, fromSlot - 1, to, toSlot.orElse( 0 ) - 1, actualLimit );
+        return moveItem( fromStorage, fromSlot - 1, toStorage, toSlot.orElse( 0 ) - 1, actualLimit );
     }
 
 
-    /**
-     * Extracts the most appropriate inventory from the object
-     * e.g., the correct inventory for a double chest or a sided inventory.
-     *
-     * @param object     The handler to move from.
-     * @return The appropriate Inventory.
-     */
     @Nullable
-    private static Inventory extractHandler( @Nullable Object object )
+    private static ItemStorage extractHandler( @Nullable Object object )
     {
-        Inventory inventory = null;
-
-        if (object instanceof BlockEntity ) {
-            BlockEntity blockEntity = (BlockEntity) object;
-            World world = blockEntity.getWorld();
-            BlockPos blockPos = blockEntity.getPos();
-            BlockState blockState = world.getBlockState(blockPos);
-            Block block = blockState.getBlock();
-
-            if (block instanceof InventoryProvider) {
-                inventory = ((InventoryProvider)block).getInventory(blockState, world, blockPos);
-            } else if (blockEntity instanceof Inventory) {
-                inventory = (Inventory)blockEntity;
-                if (inventory instanceof ChestBlockEntity && block instanceof ChestBlock) {
-                    inventory = ChestBlock.getInventory((ChestBlock) block, blockState, world, blockPos, true);
-                }
+        if ( object instanceof BlockEntity ) {
+            Inventory inventory = InventoryUtil.getInventory((BlockEntity) object);
+            if ( inventory != null ) {
+                return ItemStorage.wrap(inventory);
             }
         }
 
-        return inventory;
+        return null;
     }
 
     /**
@@ -274,109 +255,36 @@ public class InventoryMethods implements GenericSource
      * @param limit    The max number to move. {@link Integer#MAX_VALUE} for no limit.
      * @return The number of items moved.
      */
-    private static int moveItem( Inventory from, int fromSlot, Inventory to, int toSlot, final int limit )
+    private static int moveItem( ItemStorage from, int fromSlot, ItemStorage to, int toSlot, final int limit )
     {
-
-        /* ORIGINAL FORGE CODE
-            // See how much we can get out of this slot
-            // ItemStack extracted = from.extractItem( fromSlot, limit, true );
-            if( extracted.isEmpty() ) return 0;
-
-            // Limit the amount to extract
-            int extractCount = Math.min( extracted.getCount(), limit );
-            extracted.setCount( extractCount );
-
-            // ItemStack remainder = toSlot < 0 ?  bItemHandlerHelper.insertItem( to, extracted, false ) : to.insertItem( toSlot, extracted, false );
-            int inserted = remainder.isEmpty() ? extractCount : extractCount - remainder.getCount();
-            if( inserted <= 0 ) return 0;
-
-            // Remove the item from the original inventory. Technically this could fail, but there's little we can do
-            // about that.
-            from.extractItem( fromSlot, inserted, false );
-         */
-
-        // Vanilla minecraft inventory manipulation code
-        Boolean recurse = false;
-        ItemStack source = from.getStack( fromSlot );
-        int count = 0;
-
-        // If target slot was selected, only push items to that slot.
-        if (toSlot >= 0) {
-            int space = amountStackCanAddFrom(to.getStack(toSlot), source, to);
-            if (space == 0) return 0;
-            count = space;
-        }
-        // If target slot not selected, push items where they will fit, possibly
-        // across slots (by recurring on this method).
-        else if (toSlot < 0) {
-            recurse = true;
-            int[] result = getFirstValidSlotAndSpace(source, to);
-            toSlot = result[0];
-            if(toSlot < 0) return 0;
-            count = result[1];
-        }
-
-        // Respect slot restrictions
-        if (!to.isValid(toSlot, source)) { return 0; }
-
-        // Compare count available in target ItemStack to limit specified.
-        count = Math.min(count, limit);
-        if (count == 0) return 0;
-
-        // Mutate destination and source ItemStack
-        ItemStack destination = to.getStack(toSlot);
-        if (destination.isEmpty()) {
-            ItemStack newStack = source.copy();
-            newStack.setCount(count);
-            to.setStack(toSlot, newStack);
-        } else {
-            destination.increment(count);
-        }
-        source.decrement(count);
-        if (source.isEmpty()) from.setStack(fromSlot, ItemStack.EMPTY);
-
-        to.markDirty();
-        from.markDirty();
-
-        // Recurse if no explicit destination slot and more items exist in source slot
-        // and limit hasn't been reached. Else, return items moved.
-        if (recurse && !source.isEmpty()) return count + moveItem(from, fromSlot, to, -1, limit - count);
-        return count;
-    }
-
-    // Maybe there is a nicer existing way to do this in the minecraft codebase. I couldn't find it.
-    private static int[] getFirstValidSlotAndSpace(ItemStack fromStack, Inventory inventory) {
-        for (int i = 0; i < inventory.size(); i++) {
-            ItemStack stack = inventory.getStack(i);
-            int space = amountStackCanAddFrom(stack, fromStack, inventory);
-            if (space > 0) {
-                return new int[]{i, space};
-            }
-        }
-        return new int[]{-1, 0};
-    }
-
-    private static int amountStackCanAddFrom(ItemStack existingStack, ItemStack fromStack, Inventory inventory) {
-        if (fromStack.isEmpty()) {
+        // Moving nothing is easy
+        if (limit == 0) {
             return 0;
         }
-        else if (existingStack.isEmpty()) {
-            return Math.min(Math.min(existingStack.getMaxCount(),
-                                     inventory.getMaxCountPerStack()),
-                                     fromStack.getCount());
-        }
-        else if (InventoryMethods.areItemsEqual(existingStack, fromStack) &&
-                  existingStack.isStackable() &&
-                  existingStack.getCount() < existingStack.getMaxCount() &&
-                  existingStack.getCount() < inventory.getMaxCountPerStack()) {
-            int stackSpace = existingStack.getMaxCount() - existingStack.getCount();
-            int invSpace = inventory.getMaxCountPerStack() - existingStack.getCount();
-            return Math.min(Math.min(stackSpace, invSpace), fromStack.getCount());
-        }
-        return 0;
-    }
 
-    private static boolean areItemsEqual(ItemStack stack1, ItemStack stack2) {
-        return stack1.getItem() == stack2.getItem() && ItemStack.areTagsEqual(stack1, stack2);
+        // Get stack to move
+        ItemStack stack = InventoryUtil.takeItems(limit, from, fromSlot, 1, fromSlot);
+        if (stack.isEmpty()) {
+            return 0;
+        }
+        int stackCount = stack.getCount();
+
+        // Move items in
+        ItemStack remainder;
+        if (toSlot < 0) {
+            remainder = InventoryUtil.storeItems(stack, to);
+        } else {
+            remainder = InventoryUtil.storeItems(stack, to, toSlot, 1, toSlot);
+        }
+
+        // Calculate items moved
+        int count = stackCount - remainder.getCount();
+
+        if (!remainder.isEmpty()) {
+            // Put the remainder back
+            InventoryUtil.storeItems(remainder, from, fromSlot, 1, fromSlot);
+        }
+
+        return count;
     }
 }
