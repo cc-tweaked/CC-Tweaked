@@ -295,7 +295,7 @@ public class TurtlePlaceCommand implements ITurtleCommand {
         BlockEntity existingTile = turtle.getWorld()
                                          .getBlockEntity(position);
 
-        if (stackCopy.useOnBlock(context) == ActionResult.SUCCESS) {
+        if (stackCopy.useOnBlock(context).isAccepted()) {
             placed = true;
             turtlePlayer.loadInventory(stackCopy);
         }
