@@ -14,8 +14,8 @@ import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormatElement;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.render.model.BakedQuad;
+import net.minecraft.client.util.math.Vector4f;
 import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Quaternion;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -50,41 +50,31 @@ public final class ModelTransformer {
     }
 
     private static BakedQuad doTransformQuad(VertexFormat format, BakedQuad quad, Matrix4f transform) {
-        int[] vertexData = quad.getVertexData()
-                               .clone();
-        int offset = 0;
+        int[] vertexData = quad.getVertexData().clone();
         BakedQuad copy = new BakedQuad(vertexData, -1, quad.getFace(), ((BakedQuadAccess)quad).getSprite(), true);
-        for (int i = 0; i < format.getElements()
-                                  .size(); ++i) // For each vertex element
-        {
-            VertexFormatElement element = format.getElements()
-                                                .get(i);
-            if (element.getType() == VertexFormatElement.Type.POSITION && element.getFormat() == VertexFormatElement.Format.FLOAT && element.getSize() == 3) // When we find a position
-            // element
+
+        int offsetBytes = 0;
+        for (int v = 0; v < 4; ++v) {
+            for (VertexFormatElement element : format.getElements()) // For each vertex element
             {
-                for (int j = 0; j < 4; ++j) // For each corner of the quad
+                int start = offsetBytes / Integer.BYTES;
+                if (element.getType() == VertexFormatElement.Type.POSITION && element.getFormat() == VertexFormatElement.Format.FLOAT) // When we find a position element
                 {
-                    int start = offset + j * format.getVertexSize();
-                    if ((start % 4) == 0) {
-                        start = start / 4;
+                    Vector4f pos = new Vector4f(Float.intBitsToFloat(vertexData[start]),
+                            Float.intBitsToFloat(vertexData[start+1]),
+                            Float.intBitsToFloat(vertexData[start+2]),
+                            1);
 
-                        // Extract the position
-                        Quaternion pos = new Quaternion(Float.intBitsToFloat(vertexData[start]),
-                                                        Float.intBitsToFloat(vertexData[start + 1]),
-                                                        Float.intBitsToFloat(vertexData[start + 2]),
-                                                        1);
+                    // Transform the position
+                    pos.transform(transform);
 
-                        // Transform the position
-                        transform.multiply(pos);
-
-                        // Insert the position
-                        vertexData[start] = Float.floatToRawIntBits(pos.getX());
-                        vertexData[start + 1] = Float.floatToRawIntBits(pos.getY());
-                        vertexData[start + 2] = Float.floatToRawIntBits(pos.getZ());
-                    }
+                    // Insert the position
+                    vertexData[start] = Float.floatToRawIntBits(pos.getX());
+                    vertexData[start+1] = Float.floatToRawIntBits(pos.getY());
+                    vertexData[start+2] = Float.floatToRawIntBits(pos.getZ());
                 }
+                offsetBytes += element.getSize();
             }
-            offset += element.getSize();
         }
         return copy;
     }
