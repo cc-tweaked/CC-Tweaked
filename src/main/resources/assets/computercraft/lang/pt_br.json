@@ -38,5 +38,21 @@
     "upgrade.computercraft.speaker.adjective": "(Alto-Falante)",
     "chat.computercraft.wired_modem.peripheral_connected": "Periférico \"%s\" conectado à rede",
     "chat.computercraft.wired_modem.peripheral_disconnected": "Periférico \"%s\" desconectado da rede",
-    "gui.computercraft.tooltip.copy": "Copiar para a área de transferência"
+    "gui.computercraft.tooltip.copy": "Copiar para a área de transferência",
+    "commands.computercraft.tp.synopsis": "Teleprota para um computador específico.",
+    "commands.computercraft.turn_on.done": "Ligou %s/%s computadores",
+    "commands.computercraft.turn_on.desc": "Liga os computadores em escuta. Você pode especificar o id de instância do computador (ex.: 123), id do computador (ex.: #123) ou o rótulo (ex.: \"@MeuComputador\").",
+    "commands.computercraft.turn_on.synopsis": "Liga computadores remotamente.",
+    "commands.computercraft.shutdown.done": "Desliga %s/%s computadores",
+    "commands.computercraft.shutdown.desc": "Desliga os computadores em escuta ou todos caso não tenha sido especificado. Você pode especificar o id de instância do computador (ex.: 123), id do computador (ex.: #123) ou o rótulo (ex.: \"@MeuComputador\").",
+    "commands.computercraft.shutdown.synopsis": "Desliga computadores remotamente.",
+    "commands.computercraft.dump.action": "Ver mais informação sobre este computador",
+    "commands.computercraft.dump.desc": "Mostra o status de todos os computadores ou uma informação específica sobre um computador. Você pode especificar o id de instância do computador (ex.: 123), id do computador (ex.: #123) ou o rótulo (ex.: \"@MeuComputador\").",
+    "commands.computercraft.dump.synopsis": "Mostra status de computadores.",
+    "commands.computercraft.help.no_command": "Comando '%s' não existe",
+    "commands.computercraft.help.no_children": "%s não tem sub-comandos",
+    "commands.computercraft.help.desc": "Mostra essa mensagem de ajuda",
+    "commands.computercraft.help.synopsis": "Providencia ajuda para um comando específico",
+    "commands.computercraft.desc": "O comando /computercraft providencia várias ferramentas de depuração e administração para controle e interação com computadores.",
+    "commands.computercraft.synopsis": "Vários comandos para controlar computadores."
 }

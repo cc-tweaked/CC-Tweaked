@@ -52,7 +52,7 @@ public final class RecordMedia implements IMedia
 
         try
         {
-            return ObfuscationReflectionHelper.getPrivateValue( MusicDiscItem.class, (MusicDiscItem) item, "sound" );
+            return ObfuscationReflectionHelper.getPrivateValue( MusicDiscItem.class, (MusicDiscItem) item, "field_185076_b" );
         }
         catch( UnableToAccessFieldException | UnableToFindFieldException e )
         {

@@ -51,18 +51,10 @@ illuaminate, which spits out our HTML.
 For various reasons, getting the environment set up to build documentation can be pretty complex. I'd quite like to
 automate this via Docker and/or nix in the future, but this needs to be done manually for now.
 
-First, you will need JDK 9+ (in addition to JDK 8 which is required to build Minecraft itself). Sadly our version of
-Gradle doesn't support multiple toolchains, and so you need to install this yourself.
-
-Gradle needs to be told about this JDK via the `JAVA_HOME_11_X64` environment variable or adding `java11Home` to 
-`~/.gradle/gradle.properties`. On my system this looks like:
-
-```properties
-java11Home=/usr/lib/jvm/java-11-openjdk/
-```
-
-If you just want to build the documentation stubs for linting, this is enough. However, if you want to build the full
-website, you will also need to install a few Node packages by running `npm ci`.
+This tooling is only needed if you need to build the whole website. If you just want to generate the Lua stubs, you can
+skp this section.
+ - Install Node/npm and install our Node packages with `npm ci`.
+ - Install [illuaminate][illuaminate-usage] as described above.
 
 #### Building documentation
 Gradle should be your entrypoint to building most documentation. There's two tasks which are of interest:

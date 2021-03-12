@@ -10,7 +10,7 @@ class ComputerTest {
     /**
      * Ensures redstone signals do not travel through computers.
      *
-     * @see [Issue #548](https://github.com/SquidDev-CC/CC-Tweaked/issues/548)
+     * @see [#548](https://github.com/SquidDev-CC/CC-Tweaked/issues/548)
      */
     @GameTest
     suspend fun `No through signal`(context: TestContext) {

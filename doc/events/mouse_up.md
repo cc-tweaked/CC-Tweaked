@@ -19,6 +19,3 @@ while true do
   print(("The mouse button %s was released at %d, %d"):format(button, x, y))
 end
 ```
-
-[`string`]: string
-[`number`]: number
