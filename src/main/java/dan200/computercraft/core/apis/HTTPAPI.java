@@ -14,6 +14,7 @@ import dan200.computercraft.core.apis.http.*;
 import dan200.computercraft.core.apis.http.request.HttpRequest;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 
@@ -179,7 +180,7 @@ public class HTTPAPI implements ILuaAPI
     }
 
     @Nonnull
-    private static HttpHeaders getHeaders( @Nonnull Map<?, ?> headerTable ) throws LuaException
+    private HttpHeaders getHeaders( @Nonnull Map<?, ?> headerTable ) throws LuaException
     {
         HttpHeaders headers = new DefaultHttpHeaders();
         for( Map.Entry<?, ?> entry : headerTable.entrySet() )
@@ -196,6 +197,11 @@ public class HTTPAPI implements ILuaAPI
                     throw new LuaException( e.getMessage() );
                 }
             }
+        }
+
+        if( !headers.contains( HttpHeaderNames.USER_AGENT ) )
+        {
+            headers.set( HttpHeaderNames.USER_AGENT, apiEnvironment.getComputerEnvironment().getUserAgent() );
         }
         return headers;
     }
