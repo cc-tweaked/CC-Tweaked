@@ -1,3 +1,12 @@
+# New features in CC: Tweaked 1.95.3
+
+Several bug fixes:
+* Correctly serialise sparse arrays into JSON (livegamer999)
+* Fix hasAudio/playAudio failing on record discs.
+* Fix rs.getBundledInput returning the output instead (SkyTheCodeMaster)
+* Programs run via edit are now a little better behaved (Wojbie)
+* Add User-Agent to a websocket's headers.
+
 # New features in CC: Tweaked 1.95.2
 
 * Add `isReadOnly` to `fs.attributes` (Lupus590)

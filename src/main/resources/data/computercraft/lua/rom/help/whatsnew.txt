@@ -1,14 +1,10 @@
-New features in CC: Tweaked 1.95.2
-
-* Add `isReadOnly` to `fs.attributes` (Lupus590)
-* Many more programs now support numpad enter (Wojbie)
+New features in CC: Tweaked 1.95.3
 
 Several bug fixes:
-* Fix some commands failing to parse on dedicated servers.
-* Fix all disk recipes appearing to produce a white disk in JEI/recipe book.
-* Hopefully improve edit's behaviour with AltGr on some European keyboards.
-* Prevent files being usable after their mount was removed.
-* Fix the `id` program crashing on non-disk items (Wojbie).
-* Preserve registration order of turtle/pocket upgrades when displaying in JEI.
+* Correctly serialise sparse arrays into JSON (livegamer999)
+* Fix hasAudio/playAudio failing on record discs.
+* Fix rs.getBundledInput returning the output instead (SkyTheCodeMaster)
+* Programs run via edit are now a little better behaved (Wojbie)
+* Add User-Agent to a websocket's headers.
 
 Type "help changelog" to see the full version history.
