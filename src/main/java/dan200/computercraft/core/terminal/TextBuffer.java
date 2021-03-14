@@ -42,11 +42,10 @@ public class TextBuffer
 
     public void write( TextBuffer text )
     {
-        int start = 0;
-        int end = Math.min( start + text.length(), this.text.length );
-        for( int i = start; i < end; i++ )
+        int end = Math.min( text.length(), this.text.length );
+        for( int i = 0; i < end; i++ )
         {
-            this.text[i] = text.charAt( i - start );
+            this.text[i] = text.charAt( i );
         }
     }
 
