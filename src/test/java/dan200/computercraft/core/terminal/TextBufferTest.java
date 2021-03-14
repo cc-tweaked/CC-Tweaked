@@ -120,6 +120,22 @@ class TextBufferTest
     }
 
     @Test
+    void testSetCharWithNegativeIndex()
+    {
+        TextBuffer textBuffer = new TextBuffer( "test" );
+        textBuffer.setChar( -5, 'n' );
+        assertEquals( "test", textBuffer.toString(), "Buffer should not change after setting char with negative index." );
+    }
+
+    @Test
+    void testSetCharWithIndexBeyondBufferEnd()
+    {
+        TextBuffer textBuffer = new TextBuffer( "test" );
+        textBuffer.setChar( 10, 'n' );
+        assertEquals( "test", textBuffer.toString(), "Buffer should not change after setting char beyond buffer end." );
+    }
+
+    @Test
     void testMultipleOperations()
     {
         TextBuffer textBuffer = new TextBuffer( ' ', 5 );
