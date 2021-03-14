@@ -33,21 +33,6 @@ class TextBufferTest
     }
 
     @Test
-    void testRead()
-    {
-        TextBuffer textBuffer = new TextBuffer( "test" );
-        assertEquals( "test", textBuffer.read() );
-    }
-
-    @Test
-    void testSubsequentRead()
-    {
-        TextBuffer textBuffer = new TextBuffer( "test" );
-        textBuffer.read();
-        assertEquals( "test", textBuffer.read(), "Subsequent reads should yield the same text." );
-    }
-
-    @Test
     void testWrite()
     {
         TextBuffer textBuffer = new TextBuffer( ' ', 4 );
@@ -77,7 +62,7 @@ class TextBufferTest
     {
         TextBuffer textBuffer = new TextBuffer( "test" );
         textBuffer.write( "abcdefg", -5 );
-        assertEquals( "abcd", textBuffer.read() );
+        assertEquals( "abcd", textBuffer.toString() );
     }
 
     @Test
@@ -101,7 +86,7 @@ class TextBufferTest
     {
         TextBuffer textBuffer = new TextBuffer( "test" );
         textBuffer.fill( 'c', -5, 5 );
-        assertEquals( "cccc", textBuffer.read() );
+        assertEquals( "cccc", textBuffer.toString() );
     }
 
     @Test

@@ -25,11 +25,6 @@ public class TextBuffer
         return text.length;
     }
 
-    public String read()
-    {
-        return this.toString();
-    }
-
     public void write( String text )
     {
         write( text, 0 );
@@ -47,7 +42,12 @@ public class TextBuffer
 
     public void write( TextBuffer text )
     {
-        this.write( text.toString() );
+        int start = 0;
+        int end = Math.min( start + text.length(), this.text.length );
+        for( int i = start; i < end; i++ )
+        {
+            this.text[i] = text.charAt( i - start );
+        }
     }
 
     public void fill( char c )
