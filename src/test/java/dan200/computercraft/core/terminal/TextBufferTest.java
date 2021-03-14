@@ -12,17 +12,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class TextBufferTest
 {
     @Test
-    void testCreation()
+    void testStringConstructor()
     {
         TextBuffer textBuffer = new TextBuffer( "test" );
         assertEquals( "test", textBuffer.toString() );
-    }
-
-    @Test
-    void testLength()
-    {
-        TextBuffer textBuffer = new TextBuffer( "test" );
-        assertEquals( 4, textBuffer.length() );
     }
 
     @Test
@@ -33,31 +26,17 @@ class TextBufferTest
     }
 
     @Test
-    void testStringRepetitionConstructor()
+    void testLength()
     {
-        TextBuffer textBuffer = new TextBuffer( "test", 3 );
-        assertEquals( "testtesttest", textBuffer.toString() );
+        TextBuffer textBuffer = new TextBuffer( "test" );
+        assertEquals( 4, textBuffer.length() );
     }
 
     @Test
-    void testReadNoArgs()
+    void testRead()
     {
         TextBuffer textBuffer = new TextBuffer( "test" );
         assertEquals( "test", textBuffer.read() );
-    }
-
-    @Test
-    void testReadFromPos()
-    {
-        TextBuffer textBuffer = new TextBuffer( "test" );
-        assertEquals( "st", textBuffer.read( 2 ) );
-    }
-
-    @Test
-    void testReadSubstring()
-    {
-        TextBuffer textBuffer = new TextBuffer( "test" );
-        assertEquals( "es", textBuffer.read( 1, 3 ) );
     }
 
     @Test
@@ -65,23 +44,24 @@ class TextBufferTest
     {
         TextBuffer textBuffer = new TextBuffer( "test" );
         textBuffer.read();
-        assertEquals( "test", textBuffer.read() );
+        assertEquals( "test", textBuffer.read(), "Subsequent reads should yield the same text." );
     }
 
     @Test
-    void testReadOutOfBounds()
-    {
-        TextBuffer textBuffer = new TextBuffer( "test" );
-        textBuffer.read( -5, 5 );
-        assertEquals( "test", textBuffer.read() );
-    }
-
-    @Test
-    void testWriteNoArgs()
+    void testWrite()
     {
         TextBuffer textBuffer = new TextBuffer( ' ', 4 );
         textBuffer.write( "test" );
         assertEquals( "test", textBuffer.toString() );
+    }
+
+    @Test
+    void testWriteTextBuffer()
+    {
+        TextBuffer source = new TextBuffer( "test" );
+        TextBuffer target = new TextBuffer( "    " );
+        target.write( source );
+        assertEquals( "test", target.toString() );
     }
 
     @Test
@@ -93,19 +73,11 @@ class TextBufferTest
     }
 
     @Test
-    void testWriteSubstring()
-    {
-        TextBuffer textBuffer = new TextBuffer( "test" );
-        textBuffer.write( "il", 1, 2 );
-        assertEquals( "tist", textBuffer.toString() );
-    }
-
-    @Test
     void testWriteOutOfBounds()
     {
         TextBuffer textBuffer = new TextBuffer( "test" );
-        textBuffer.write( "abcdefghijklmnop", -5, 5 );
-        assertEquals( "fghi", textBuffer.read() );
+        textBuffer.write( "abcdefg", -5 );
+        assertEquals( "abcd", textBuffer.read() );
     }
 
     @Test
@@ -114,14 +86,6 @@ class TextBufferTest
         TextBuffer textBuffer = new TextBuffer( "test" );
         textBuffer.fill( 'c' );
         assertEquals( "cccc", textBuffer.toString() );
-    }
-
-    @Test
-    void testFillFromPos()
-    {
-        TextBuffer textBuffer = new TextBuffer( "test" );
-        textBuffer.fill( 'c', 2 );
-        assertEquals( "tecc", textBuffer.toString() );
     }
 
     @Test
@@ -153,5 +117,25 @@ class TextBufferTest
         TextBuffer textBuffer = new TextBuffer( "test" );
         textBuffer.setChar( 2, 'n' );
         assertEquals( "tent", textBuffer.toString() );
+    }
+
+    @Test
+    void testMultipleOperations()
+    {
+        TextBuffer textBuffer = new TextBuffer( ' ', 5 );
+        textBuffer.setChar( 0, 'H' );
+        textBuffer.setChar( 1, 'e' );
+        textBuffer.setChar( 2, 'l' );
+        textBuffer.write( "lo", 3 );
+        assertEquals( "Hello", textBuffer.toString(), "TextBuffer failed to persist over multiple operations." );
+    }
+
+    @Test
+    void testEmptyBuffer()
+    {
+        TextBuffer textBuffer = new TextBuffer( "" );
+        // exception on writing to empty buffer would fail the test
+        textBuffer.write( "test" );
+        assertEquals( "", textBuffer.toString() );
     }
 }
