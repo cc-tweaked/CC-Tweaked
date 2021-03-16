@@ -61,8 +61,16 @@ class TextBufferTest
     void testWriteOutOfBounds()
     {
         TextBuffer textBuffer = new TextBuffer( "test" );
-        textBuffer.write( "abcdefg", -5 );
-        assertEquals( "abcd", textBuffer.toString() );
+        textBuffer.write( "abcdefghijklmnop", -5 );
+        assertEquals( "fghi", textBuffer.toString() );
+    }
+
+    @Test
+    void testWriteOutOfBounds2()
+    {
+        TextBuffer textBuffer = new TextBuffer( "             " );
+        textBuffer.write( "Hello, world!", -3 );
+        assertEquals( "lo, world!   ", textBuffer.toString() );
     }
 
     @Test

@@ -32,11 +32,13 @@ public class TextBuffer
 
     public void write( String text, int start )
     {
+        int pos = start;
         start = Math.max( start, 0 );
-        int end = Math.min( start + text.length(), this.text.length );
+        int end = Math.min( start + text.length(), pos + text.length() );
+        end = Math.min( end, this.text.length );
         for( int i = start; i < end; i++ )
         {
-            this.text[i] = text.charAt( i - start );
+            this.text[i] = text.charAt( i - pos );
         }
     }
 
