@@ -80,10 +80,6 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
         {
             request.headers().set( HttpHeaderNames.ACCEPT_CHARSET, "UTF-8" );
         }
-        if( !request.headers().contains( HttpHeaderNames.USER_AGENT ) )
-        {
-            request.headers().set( HttpHeaderNames.USER_AGENT, this.request.environment().getComputerEnvironment().getUserAgent() );
-        }
         request.headers().set( HttpHeaderNames.HOST, uri.getPort() < 0 ? uri.getHost() : uri.getHost() + ":" + uri.getPort() );
         request.headers().set( HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE );
 
