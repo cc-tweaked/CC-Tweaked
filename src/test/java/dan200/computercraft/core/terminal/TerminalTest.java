@@ -1,87 +1,46 @@
 package dan200.computercraft.core.terminal;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 class TerminalTest
 {
-    class TerminalTestHelper {
-        private final Terminal terminal;
+    private static class TerminalTestHelper {
+        private final List<String> textLines;
+        private final List<String> textColourLines;
+        private final List<String> backgroundColourLines;
 
         public TerminalTestHelper( Terminal terminal ) {
-            this.terminal = terminal;
-        }
-
-        private boolean bufferMatches(String[] snapshot, TextBuffer[] buffer) {
-            if ( snapshot.length != buffer.length ) {
-                return false;
-            }
-
-            for ( int i = 0; i < snapshot.length; i++ ) {
-                if ( !snapshot[i].equals( buffer[i].toString() ) ) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        public Result textMatches( String[] snapshot ) {
-            TextBuffer[] buffer = new TextBuffer[terminal.getHeight()];
+            textLines = new ArrayList<>( terminal.getHeight() );
+            textColourLines = new ArrayList<>( terminal.getHeight() );
+            backgroundColourLines = new ArrayList<>(terminal.getHeight());
 
             for ( int i = 0; i < terminal.getHeight(); i++ ) {
-                buffer[i] = terminal.getLine(i);
+                textLines.add(terminal.getLine(i).toString());
+                textColourLines.add(terminal.getTextColourLine(i).toString());
+                backgroundColourLines.add(terminal.getBackgroundColourLine(i).toString());
             }
-
-            return new Result(bufferMatches(snapshot, buffer), snapshot, buffer);
         }
 
-        public Result textColourMatches( String[] snapshot ) {
-            TextBuffer[] buffer = new TextBuffer[terminal.getHeight()];
-
-            for ( int i = 0; i < terminal.getHeight(); i++ ) {
-                buffer[i] = terminal.getTextColourLine(i);
-            }
-
-            return new Result(bufferMatches(snapshot, buffer), snapshot, buffer);
+        public TerminalTestHelper assertTextMatches( String[] snapshot ) {
+            List<String> snapshotLines = new ArrayList<>(Arrays.asList(snapshot));
+            assertLinesMatch(snapshotLines, textLines);
+            return this;
         }
 
-        public Result backgroundColourMatches( String[] snapshot ) {
-            TextBuffer[] buffer = new TextBuffer[terminal.getHeight()];
-
-            for ( int i = 0; i < terminal.getHeight(); i++ ) {
-                buffer[i] = terminal.getBackgroundColourLine(i);
-            }
-
-            return new Result(bufferMatches(snapshot, buffer), snapshot, buffer);
-        }
-    }
-
-    class Result {
-        private final boolean pass;
-        private final String message;
-
-        public Result(boolean pass, String[] expected, TextBuffer[] actual) {
-            this.pass = pass;
-            String[] actualStrings = new String[actual.length];
-            for ( int i = 0; i < actual.length; i++ ) {
-                actualStrings[i] = actual[i].toString();
-            }
-
-            this.message = String.format("Expected buffer: [%s] - Actual buffer: [%s]",
-                String.join("|", expected),
-                String.join("|", actualStrings)
-            );
+        public TerminalTestHelper assertTextColourMatches( String[] snapshot ) {
+            List<String> snapshotLines = new ArrayList<>(Arrays.asList(snapshot));
+            assertLinesMatch(snapshotLines, textColourLines);
+            return this;
         }
 
-        public boolean passed()
-        {
-            return pass;
-        }
-
-        public String getMessage()
-        {
-            return message;
+        public TerminalTestHelper assertBackgroundColourMatches( String[] snapshot ) {
+            List<String> snapshotLines = new ArrayList<>(Arrays.asList(snapshot));
+            assertLinesMatch(snapshotLines, backgroundColourLines);
+            return this;
         }
     }
 
@@ -117,72 +76,39 @@ class TerminalTest
     @Test
     void testDefaultTextBuffer()
     {
-        TerminalTestHelper testHelper = new TerminalTestHelper(new Terminal( 4, 3 ));
-        Result result = testHelper.textMatches(new String[] {
-            "    ",
-            "    ",
-            "    ",
-        });
-        assertTrue(result.passed(), result.getMessage());
-    }
-
-    @Test
-    void negativeTestDefaultTextBuffer()
-    {
-        TerminalTestHelper testHelper = new TerminalTestHelper(new Terminal( 4, 3 ));
-        Result result = testHelper.textMatches(new String[] {
-            "this",
-            "fail",
-            " :) ",
-        });
-        assertFalse(result.passed());
+        new TerminalTestHelper(new Terminal(4, 3))
+            .assertTextMatches(
+                new String[] {
+                    "    ",
+                    "    ",
+                    "    ",
+                }
+            );
     }
 
     @Test
     void testDefaultTextColourBuffer()
     {
-        TerminalTestHelper testHelper = new TerminalTestHelper(new Terminal( 4, 3 ));
-        Result result = testHelper.textColourMatches(new String[] {
-            "0000",
-            "0000",
-            "0000",
-        });
-        assertTrue(result.passed(), result.getMessage());
-    }
-
-    @Test
-    void negativeTestDefaultTextColourBuffer()
-    {
-        TerminalTestHelper testHelper = new TerminalTestHelper(new Terminal( 4, 3 ));
-        Result result = testHelper.textColourMatches(new String[] {
-            "abcd",
-            "abcd",
-            "abcd",
-        });
-        assertFalse(result.passed(), result.getMessage());
+        new TerminalTestHelper(new Terminal(4, 3))
+            .assertTextColourMatches(
+                new String[] {
+                    "0000",
+                    "0000",
+                    "0000",
+                }
+            );
     }
 
     @Test
     void testDefaultBackgroundColourBuffer()
     {
-        TerminalTestHelper testHelper = new TerminalTestHelper(new Terminal( 4, 3 ));
-        Result result = testHelper.backgroundColourMatches(new String[] {
-            "ffff",
-            "ffff",
-            "ffff",
-        });
-        assertTrue(result.passed(), result.getMessage());
-    }
-
-    @Test
-    void negativeTestDefaultBackgroundColourBuffer()
-    {
-        TerminalTestHelper testHelper = new TerminalTestHelper(new Terminal( 4, 3 ));
-        Result result = testHelper.backgroundColourMatches(new String[] {
-            "abcd",
-            "abcd",
-            "abcd",
-        });
-        assertFalse(result.passed(), result.getMessage());
+        new TerminalTestHelper(new Terminal(4, 3))
+            .assertBackgroundColourMatches(
+                new String[] {
+                    "ffff",
+                    "ffff",
+                    "ffff",
+                }
+            );
     }
 }
