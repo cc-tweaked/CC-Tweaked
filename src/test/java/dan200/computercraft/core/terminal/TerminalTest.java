@@ -8,6 +8,28 @@ import org.junit.jupiter.api.Test;
 
 class TerminalTest
 {
+    private static class MockOnChangedCallback implements Runnable {
+        private int timesCalled = 0;
+
+        @Override
+        public void run()
+        {
+            timesCalled++;
+        }
+
+        public void assertNotCalled() {
+            assertEquals(0, timesCalled, "onChanged callback should not have been called");
+        }
+
+        public void assertCalled() {
+            assertTrue(timesCalled > 0, "onChanged callback should have been called");
+        }
+
+        public void assertCalledTimes(int expectedTimesCalled) {
+            assertEquals(expectedTimesCalled, timesCalled, "onChanged callback was not called the correct number of times");
+        }
+    }
+
     private static class TerminalTestHelper {
         private final List<String> textLines;
         private final List<String> textColourLines;
@@ -77,38 +99,163 @@ class TerminalTest
     void testDefaultTextBuffer()
     {
         new TerminalTestHelper(new Terminal(4, 3))
-            .assertTextMatches(
-                new String[] {
-                    "    ",
-                    "    ",
-                    "    ",
-                }
-            );
+            .assertTextMatches( new String[] {
+                "    ",
+                "    ",
+                "    ",
+            } );
     }
 
     @Test
     void testDefaultTextColourBuffer()
     {
         new TerminalTestHelper(new Terminal(4, 3))
-            .assertTextColourMatches(
-                new String[] {
-                    "0000",
-                    "0000",
-                    "0000",
-                }
-            );
+            .assertTextColourMatches( new String[] {
+                "0000",
+                "0000",
+                "0000",
+            } );
     }
 
     @Test
     void testDefaultBackgroundColourBuffer()
     {
         new TerminalTestHelper(new Terminal(4, 3))
-            .assertBackgroundColourMatches(
-                new String[] {
-                    "ffff",
-                    "ffff",
-                    "ffff",
-                }
-            );
+            .assertBackgroundColourMatches( new String[] {
+                "ffff",
+                "ffff",
+                "ffff",
+            } );
+    }
+
+    @Test
+    void testResizeHeight()
+    {
+        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
+        Terminal terminal = new Terminal(4, 3, mockOnChangedCallback);
+        terminal.resize(4, 5);
+
+        new TerminalTestHelper( terminal )
+            .assertTextMatches( new String[] {
+                "    ",
+                "    ",
+                "    ",
+                "    ",
+                "    ",
+            } ).assertTextColourMatches( new String[] {
+                "0000",
+                "0000",
+                "0000",
+                "0000",
+                "0000",
+            } ).assertBackgroundColourMatches( new String[] {
+                "ffff",
+                "ffff",
+                "ffff",
+                "ffff",
+                "ffff",
+            } );
+
+        mockOnChangedCallback.assertCalledTimes(1);
+    }
+
+    @Test
+    void testResizeWidth()
+    {
+        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
+        Terminal terminal = new Terminal(4, 3, mockOnChangedCallback);
+        terminal.resize(6, 3);
+
+        new TerminalTestHelper( terminal )
+            .assertTextMatches( new String[] {
+                "      ",
+                "      ",
+                "      ",
+            } ).assertTextColourMatches( new String[] {
+                "000000",
+                "000000",
+                "000000",
+            } ).assertBackgroundColourMatches( new String[] {
+                "ffffff",
+                "ffffff",
+                "ffffff",
+            } );
+
+        mockOnChangedCallback.assertCalledTimes(1);
+    }
+
+    @Test
+    void testResizeWidthAndHeight()
+    {
+        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
+        Terminal terminal = new Terminal(4, 3, mockOnChangedCallback);
+        terminal.resize(6, 4);
+
+        new TerminalTestHelper( terminal )
+        .assertTextMatches( new String[] {
+            "      ",
+            "      ",
+            "      ",
+            "      ",
+        } ).assertTextColourMatches( new String[] {
+            "000000",
+            "000000",
+            "000000",
+            "000000",
+        } ).assertBackgroundColourMatches( new String[] {
+            "ffffff",
+            "ffffff",
+            "ffffff",
+            "ffffff",
+        } );
+
+        mockOnChangedCallback.assertCalledTimes(1);
+    }
+
+    @Test
+    void testResizeSmaller()
+    {
+        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
+        Terminal terminal = new Terminal(4, 3, mockOnChangedCallback);
+        terminal.resize(2, 2);
+
+        new TerminalTestHelper( terminal )
+        .assertTextMatches( new String[] {
+            "  ",
+            "  ",
+        } ).assertTextColourMatches( new String[] {
+            "00",
+            "00",
+        } ).assertBackgroundColourMatches( new String[] {
+            "ff",
+            "ff",
+        } );
+
+        mockOnChangedCallback.assertCalledTimes(1);
+    }
+
+    @Test
+    void testResizeWithSameDimensions()
+    {
+        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
+        Terminal terminal = new Terminal(4, 3, mockOnChangedCallback);
+        terminal.resize(4, 3);
+
+        new TerminalTestHelper( terminal )
+        .assertTextMatches( new String[] {
+            "    ",
+            "    ",
+            "    ",
+        } ).assertTextColourMatches( new String[] {
+            "0000",
+            "0000",
+            "0000",
+        } ).assertBackgroundColourMatches( new String[] {
+            "ffff",
+            "ffff",
+            "ffff",
+        } );
+
+        mockOnChangedCallback.assertNotCalled();
     }
 }
