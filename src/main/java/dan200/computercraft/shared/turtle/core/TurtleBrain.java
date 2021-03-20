@@ -640,6 +640,7 @@ public class TurtleBrain implements ITurtleAccess
         {
             updatePeripherals( owner.createServerComputer() );
             owner.updateBlock();
+            owner.updateInput();
         }
     }
 
