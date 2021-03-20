@@ -136,6 +136,21 @@ class TerminalTest
     }
 
     @Test
+    void testGetLineOutOfBounds()
+    {
+        Terminal terminal = new Terminal( 16, 9 );
+
+        assertNull( terminal.getLine( -5 ) );
+        assertNull( terminal.getLine( 12 ) );
+
+        assertNull( terminal.getTextColourLine( -5 ) );
+        assertNull( terminal.getTextColourLine( 12 ) );
+
+        assertNull( terminal.getBackgroundColourLine( -5 ) );
+        assertNull( terminal.getBackgroundColourLine( 12 ) );
+    }
+
+    @Test
     void testDefaults()
     {
         Terminal terminal = new Terminal( 16, 9 );
