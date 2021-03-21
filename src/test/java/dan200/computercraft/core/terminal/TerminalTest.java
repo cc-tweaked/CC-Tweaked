@@ -282,18 +282,24 @@ class TerminalTest
     {
         MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
         Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+
+        terminal.setLine( 0, "test", "aaaa", "eeee" );
+        terminal.setLine( 1, "smol", "aaaa", "eeee" );
+        terminal.setLine( 2, "term", "aaaa", "eeee" );
+        mockOnChangedCallback.mockClear();
+
         terminal.resize( 2, 2 );
 
         new TerminalBufferSnapshot( terminal )
             .assertTextMatches( new String[] {
-                "  ",
-                "  ",
+                "te",
+                "sm",
             } ).assertTextColourMatches( new String[] {
-                "00",
-                "00",
+                "aa",
+                "aa",
             } ).assertBackgroundColourMatches( new String[] {
-                "ff",
-                "ff",
+                "ee",
+                "ee",
             } );
 
         mockOnChangedCallback.assertCalledTimes( 1 );
