@@ -11,7 +11,7 @@ import java.util.OptionalInt;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
-import javax.crypto.SecretKey;
+import javax.crypto.Cipher;
 
 import com.mojang.authlib.GameProfile;
 import io.netty.channel.ChannelHandlerContext;
@@ -48,7 +48,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.village.TraderOfferList;
+import net.minecraft.village.TradeOfferList;
 import net.minecraft.world.GameMode;
 
 /**
@@ -105,7 +105,7 @@ public class FakePlayer extends ServerPlayerEntity {
     }
 
     @Override
-    public void sendTradeOffers(int id, TraderOfferList list, int level, int experience, boolean levelled, boolean refreshable) { }
+    public void sendTradeOffers(int id, TradeOfferList list, int level, int experience, boolean levelled, boolean refreshable) { }
 
     @Override
     public void openHorseInventory(HorseBaseEntity horse, Inventory inventory) { }
@@ -252,7 +252,8 @@ public class FakePlayer extends ServerPlayerEntity {
         }
 
         @Override
-        public void setupEncryption(SecretKey key) {
+        public void setupEncryption(Cipher cipher, Cipher cipher2) {
+            super.setupEncryption(cipher, cipher2);
         }
 
         @Override

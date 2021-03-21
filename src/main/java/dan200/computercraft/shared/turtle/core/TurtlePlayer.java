@@ -26,7 +26,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.passive.HorseBaseEntity;
 import net.minecraft.inventory.Inventory;
@@ -34,7 +33,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -77,7 +75,7 @@ public final class TurtlePlayer extends FakePlayer {
     private void setState(ITurtleAccess turtle) {
         if (this.currentScreenHandler != playerScreenHandler) {
             ComputerCraft.log.warn("Turtle has open container ({})", this.currentScreenHandler);
-            closeCurrentScreen();
+            closeHandledScreen();
         }
 
         BlockPos position = turtle.getPosition();

@@ -35,7 +35,7 @@ public final class Peripherals {
 
     @Nullable
     public static IPeripheral getPeripheral(World world, BlockPos pos, Direction side) {
-        return World.method_24794(pos) && !world.isClient ? getPeripheralAt(world, pos, side) : null;
+        return World.isInBuildLimit(pos) && !world.isClient ? getPeripheralAt(world, pos, side) : null;
     }
 
     @Nullable

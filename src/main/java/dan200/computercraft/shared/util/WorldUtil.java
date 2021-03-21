@@ -40,7 +40,7 @@ public final class WorldUtil {
                                                                         .makeMap();
 
     public static boolean isLiquidBlock(World world, BlockPos pos) {
-        if (!World.method_24794(pos)) {
+        if (!World.isInBuildLimit(pos)) {
             return false;
         }
         return world.getBlockState(pos)

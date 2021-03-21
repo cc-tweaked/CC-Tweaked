@@ -251,7 +251,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile {
     }
 
     @Override
-    public double getSquaredRenderDistance() {
+    public double getRenderDistance() {
         return ComputerCraft.monitorDistanceSq;
     }
 
