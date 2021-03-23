@@ -25,8 +25,6 @@ end
 
 -- Sorts pairs of startX/startY/endX/endY such that startX is always less than startY
 local function sortCoords(startX, startY, endX, endY)
-    local minX, maxX, minY, maxY
-
     if startX <= endX then
         return startX, startY, endX, endY
     else
@@ -196,7 +194,7 @@ function drawBox(startX, startY, endX, endY, nColour)
     local width = endX - startX + 1
 
     local step = 1
-    if (startY > endY) then
+    if startY > endY then
         step = -1
     end
 
@@ -254,7 +252,7 @@ function drawFilledBox(startX, startY, endX, endY, nColour)
     local width = endX - startX + 1
 
     local step = 1
-    if (startY > endY) then
+    if startY > endY then
         step = -1
     end
 
