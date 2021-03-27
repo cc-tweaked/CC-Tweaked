@@ -29,6 +29,8 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
+    compile 'com.electronwill.night-config:json:3.6.0'
+
     modImplementation "me.shedaniel.cloth:config-2:${cloth_config_version}"
     modImplementation "io.github.prospector:modmenu:${modmenu_version}"
 
