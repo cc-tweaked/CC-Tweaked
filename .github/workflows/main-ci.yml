@@ -29,7 +29,7 @@ jobs:
             - name: Upload Jar
               uses: actions/upload-artifact@v1
               with:
-                  name: CC-Tweaked
+                  name: cc-restiched
                   path: build/libs
 
             - name: Upload Coverage

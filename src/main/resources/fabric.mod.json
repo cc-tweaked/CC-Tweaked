@@ -1,20 +1,21 @@
 {
     "schemaVersion": 1,
     "id": "computercraft",
-    "name": "CC:T for Fabric",
+    "name": "CC:Restitched",
     "version": "${version}",
-    "description": "A fork of CC: Tweaked for use with the latest Fabric.",
+    "description": "CC: Tweaked for Fabric.",
     "license": "ComputerCraft Public License",
     "icon": "assets/computercraft/pack.png",
     "contact": {
-        "homepage": "https://github.com/mystiacraft/cc-tweaked-fabric",
-        "issues": "https://github.com/mystiacraft/cc-tweaked-fabric/issues"
+        "homepage": "https://github.com/Merith-TK/cc-restiched",
+        "issues": "https://github.com/Merith-TK/cc-restiched/issues"
     },
     "authors": [
         "Daniel Ratcliffe",
         "Aaron Mills",
         "SquidDev",
-        "parly"
+        "parly",
+        "Merith.TK"
     ],
     "depends": {
         "fabricloader": ">=0.4.0",
