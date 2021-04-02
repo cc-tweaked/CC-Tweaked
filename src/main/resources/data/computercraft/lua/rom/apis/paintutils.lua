@@ -23,13 +23,23 @@ local function parseLine(tImageArg, sLine)
     table.insert(tImageArg, tLine)
 end
 
--- Sorts pairs of startX/startY/endX/endY such that startX is always less than startY
+-- Sorts pairs of startX/startY/endX/endY such that the start is always the min
 local function sortCoords(startX, startY, endX, endY)
+    local minX, maxX, minY, maxY
+
     if startX <= endX then
-        return startX, startY, endX, endY
+        minX, maxX = startX, endX
     else
-        return endX, endY, startX, startY
+        minX, maxX = endX, startX
     end
+
+    if startY <= endY then
+        minY, maxY = startY, endY
+    else
+        minY, maxY = endY, startY
+    end
+
+    return minX, maxX, minY, maxY
 end
 
 --- Parses an image from a multi-line string
@@ -122,30 +132,40 @@ function drawLine(startX, startY, endX, endY, colour)
         return
     end
 
-    startX, startY, endX, endY = sortCoords(startX, startY, endX, endY)
+    local minX = math.min(startX, endX)
+    local maxX, minY, maxY
+    if minX == startX then
+        minY = startY
+        maxX = endX
+        maxY = endY
+    else
+        minY = endY
+        maxX = startX
+        maxY = startY
+    end
 
     -- TODO: clip to screen rectangle?
 
-    local xDiff = endX - startX --always positive
-    local yDiff = endY - startY --might be negative
+    local xDiff = maxX - minX
+    local yDiff = maxY - minY
 
     if xDiff > math.abs(yDiff) then
-        local y = startY
-        local dy = yDiff / xDiff --negative when yDiff is negative
-        for x = startX, endX do
+        local y = minY
+        local dy = yDiff / xDiff
+        for x = minX, maxX do
             drawPixelInternal(x, math.floor(y + 0.5))
             y = y + dy
         end
     else
-        local x = startX
-        local dx = xDiff / yDiff --negative when yDiff is negative
-        if endY >= startY then --dx > 0
-            for y = startY, endY do
+        local x = minX
+        local dx = xDiff / yDiff
+        if maxY >= minY then
+            for y = minY, maxY do
                 drawPixelInternal(math.floor(x + 0.5), y)
                 x = x + dx
             end
-        else --dx < 0
-            for y = startY, endY, -1 do
+        else
+            for y = minY, maxY, -1 do
                 drawPixelInternal(math.floor(x + 0.5), y)
                 x = x - dx
             end
@@ -190,22 +210,17 @@ function drawBox(startX, startY, endX, endY, nColour)
         return
     end
 
-    startX, startY, endX, endY = sortCoords(startX, startY, endX, endY)
-    local width = endX - startX + 1
+    local minX, maxX, minY, maxY = sortCoords(startX, startY, endX, endY)
+    local width = maxX - minX + 1
 
-    local step = 1
-    if startY > endY then
-        step = -1
-    end
-
-    for y = startY, endY, step do
-        if y == startY or y == endY then
-            term.setCursorPos(startX, y)
+    for y = minY, maxY do
+        if y == minY or y == maxY then
+            term.setCursorPos(minX, y)
             term.blit((" "):rep(width), colourHex:rep(width), colourHex:rep(width))
         else
-            term.setCursorPos(startX, y)
+            term.setCursorPos(minX, y)
             term.blit(" ", colourHex, colourHex)
-            term.setCursorPos(endX, y)
+            term.setCursorPos(maxX, y)
             term.blit(" ", colourHex, colourHex)
         end
     end
@@ -248,16 +263,11 @@ function drawFilledBox(startX, startY, endX, endY, nColour)
         return
     end
 
-    startX, startY, endX, endY = sortCoords(startX, startY, endX, endY)
-    local width = endX - startX + 1
+    local minX, maxX, minY, maxY = sortCoords(startX, startY, endX, endY)
+    local width = maxX - minX + 1
 
-    local step = 1
-    if startY > endY then
-        step = -1
-    end
-
-    for y = startY, endY, step do
-        term.setCursorPos(startX, y)
+    for y = minY, maxY do
+        term.setCursorPos(minX, y)
         term.blit((" "):rep(width), colourHex:rep(width), colourHex:rep(width))
     end
 end
