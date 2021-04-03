@@ -117,7 +117,7 @@ public class JEIComputerCraft implements IModPlugin
         if( !(item instanceof ITurtleItem) ) return ISubtypeInterpreter.NONE;
 
         ITurtleItem turtle = (ITurtleItem) item;
-        StringBuilder name = new StringBuilder("turtle:");
+        StringBuilder name = new StringBuilder( "turtle:" );
 
         // Add left and right upgrades to the identifier
         ITurtleUpgrade left = turtle.getUpgrade( stack, TurtleSide.LEFT );
@@ -136,7 +136,7 @@ public class JEIComputerCraft implements IModPlugin
         Item item = stack.getItem();
         if( !(item instanceof ItemPocketComputer) ) return ISubtypeInterpreter.NONE;
 
-        StringBuilder name = new StringBuilder("pocket:");
+        StringBuilder name = new StringBuilder( "pocket:" );
 
         // Add the upgrade to the identifier
         IPocketUpgrade upgrade = ItemPocketComputer.getUpgrade( stack );
