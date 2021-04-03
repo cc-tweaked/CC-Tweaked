@@ -386,16 +386,34 @@ public class TurtleAPI implements ILuaAPI {
         return this.trackCommand(new TurtleDetectCommand(InteractDirection.DOWN));
     }
 
+    /**
+     * Check if the block in front of the turtle is equal to the item in the currently selected slot.
+     *
+     * @return If the block and item are equal.
+     * @cc.treturn boolean If the block and item are equal.
+     */
     @LuaFunction
     public final MethodResult compare() {
         return this.trackCommand(new TurtleCompareCommand(InteractDirection.FORWARD));
     }
 
+    /**
+     * Check if the block above the turtle is equal to the item in the currently selected slot.
+     *
+     * @return If the block and item are equal.
+     * @cc.treturn boolean If the block and item are equal.
+     */
     @LuaFunction
     public final MethodResult compareUp() {
         return this.trackCommand(new TurtleCompareCommand(InteractDirection.UP));
     }
 
+    /**
+     * Check if the block below the turtle is equal to the item in the currently selected slot.
+     *
+     * @return If the block and item are equal.
+     * @cc.treturn boolean If the block and item are equal.
+     */
     @LuaFunction
     public final MethodResult compareDown() {
         return this.trackCommand(new TurtleCompareCommand(InteractDirection.DOWN));
@@ -484,11 +502,56 @@ public class TurtleAPI implements ILuaAPI {
         return this.trackCommand(new TurtleSuckCommand(InteractDirection.DOWN, checkCount(count)));
     }
 
+    /**
+     * Get the maximum amount of fuel this turtle currently holds.
+     *
+     * @return The fuel level, or "unlimited".
+     * @cc.treturn[1] number The current amount of fuel a turtle this turtle has.
+     * @cc.treturn[2] "unlimited" If turtles do not consume fuel when moving.
+     * @see #getFuelLimit()
+     * @see #refuel(Optional)
+     */
     @LuaFunction
     public final Object getFuelLevel() {
         return this.turtle.isFuelNeeded() ? this.turtle.getFuelLevel() : "unlimited";
     }
 
+    /**
+     * Refuel this turtle.
+     *
+     * While most actions a turtle can perform (such as digging or placing blocks), moving consumes fuel from the
+     * turtle's internal buffer. If a turtle has no fuel, it will not move.
+     *
+     * {@link #refuel} refuels the turtle, consuming fuel items (such as coal or lava buckets) from the currently
+     * selected slot and converting them into energy. This finishes once the turtle is fully refuelled or all items have
+     * been consumed.
+     *
+     * @param countA The maximum number of items to consume. One can pass `0` to check if an item is combustable or not.
+     * @return If this turtle could be refuelled.
+     * @throws LuaException If the refuel count is out of range.
+     * @cc.treturn[1] true If the turtle was refuelled.
+     * @cc.treturn[2] false If the turtle was not refuelled.
+     * @cc.treturn[2] string The reason the turtle was not refuelled (
+     * @cc.usage Refuel a turtle from the currently selected slot.
+     * <pre>{@code
+     * local level = turtle.getFuelLevel()
+     * if new_level == "unlimited" then error("Turtle does not need fuel", 0) end
+     *
+     * local ok, err = turtle.refuel()
+     * if ok then
+     *   local new_level = turtle.getFuelLevel()
+     *   print(("Refuelled %d, current level is %d"):format(new_level - level, new_level))
+     * else
+     *   printError(err)
+     * end}</pre>
+     * @cc.usage Check if the current item is a valid fuel source.
+     * <pre>{@code
+     * local is_fuel, reason = turtle.refuel(0)
+     * if not is_fuel then printError(reason) end
+     * }</pre>
+     * @see #getFuelLevel()
+     * @see #getFuelLimit()
+     */
     @LuaFunction
     public final MethodResult refuel(Optional<Integer> countA) throws LuaException {
         int count = countA.orElse(Integer.MAX_VALUE);
@@ -498,11 +561,29 @@ public class TurtleAPI implements ILuaAPI {
         return this.trackCommand(new TurtleRefuelCommand(count));
     }
 
+    /**
+     * Compare the item in the currently selected slot to the item in another slot.
+     *
+     * @param slot The slot to compare to.
+     * @return If the items are the same.
+     * @throws LuaException If the slot is out of range.
+     * @cc.treturn boolean If the two items are equal.
+     */
     @LuaFunction
     public final MethodResult compareTo(int slot) throws LuaException {
         return this.trackCommand(new TurtleCompareToCommand(checkSlot(slot)));
     }
 
+    /**
+     * Move an item from the selected slot to another one.
+     *
+     * @param slotArg  The slot to move this item to.
+     * @param countArg The maximum number of items to move.
+     * @return If the item was moved or not.
+     * @throws LuaException If the slot is out of range.
+     * @throws LuaException If the number of items is out of range.
+     * @cc.treturn boolean If some items were successfully moved.
+     */
     @LuaFunction
     public final MethodResult transferTo(int slotArg, Optional<Integer> countArg) throws LuaException {
         int slot = checkSlot(slotArg);
@@ -521,16 +602,53 @@ public class TurtleAPI implements ILuaAPI {
         return this.turtle.getSelectedSlot() + 1;
     }
 
+    /**
+     * Get the maximum amount of fuel this turtle can hold.
+     *
+     * By default, normal turtles have a limit of 20,000 and advanced turtles of 100,000.
+     *
+     * @return The limit, or "unlimited".
+     * @cc.treturn[1] number The maximum amount of fuel a turtle can hold.
+     * @cc.treturn[2] "unlimited" If turtles do not consume fuel when moving.
+     * @see #getFuelLevel()
+     * @see #refuel(Optional)
+     */
     @LuaFunction
     public final Object getFuelLimit() {
         return this.turtle.isFuelNeeded() ? this.turtle.getFuelLimit() : "unlimited";
     }
 
+    /**
+     * Equip (or unequip) an item on the left side of this turtle.
+     *
+     * This finds the item in the currently selected slot and attempts to equip it to the left side of the turtle. The
+     * previous upgrade is removed and placed into the turtle's inventory. If there is no item in the slot, the previous
+     * upgrade is removed, but no new one is equipped.
+     *
+     * @return Whether an item was equiped or not.
+     * @cc.treturn[1] true If the item was equipped.
+     * @cc.treturn[2] false If we could not equip the item.
+     * @cc.treturn[2] string The reason equipping this item failed.
+     * @see #equipRight()
+     */
     @LuaFunction
     public final MethodResult equipLeft() {
         return this.trackCommand(new TurtleEquipCommand(TurtleSide.LEFT));
     }
 
+    /**
+     * Equip (or unequip) an item on the right side of this turtle.
+     *
+     * This finds the item in the currently selected slot and attempts to equip it to the right side of the turtle. The
+     * previous upgrade is removed and placed into the turtle's inventory. If there is no item in the slot, the previous
+     * upgrade is removed, but no new one is equipped.
+     *
+     * @return Whether an item was equiped or not.
+     * @cc.treturn[1] true If the item was equipped.
+     * @cc.treturn[2] false If we could not equip the item.
+     * @cc.treturn[2] string The reason equipping this item failed.
+     * @see #equipRight()
+     */
     @LuaFunction
     public final MethodResult equipRight() {
         return this.trackCommand(new TurtleEquipCommand(TurtleSide.RIGHT));
