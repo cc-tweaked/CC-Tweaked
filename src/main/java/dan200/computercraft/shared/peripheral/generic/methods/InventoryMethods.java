@@ -65,8 +65,8 @@ public class InventoryMethods implements GenericSource
      * {@link dan200.computercraft.shared.turtle.apis.TurtleAPI#getItemDetail} includes. More information can be fetched
      * with {@link #getItemDetail}.
      *
-     * The table is sparse, and so empty slots will be `nil` - it is recommended to loop over using `pairs` rather than
-     * `ipairs`.
+     * The returned table is sparse, and so empty slots will be `nil` - it is recommended to loop over using `pairs`
+     * rather than `ipairs`.
      *
      * @param inventory The current inventory.
      * @return All items in this inventory.
