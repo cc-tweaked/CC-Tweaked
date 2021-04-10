@@ -305,9 +305,16 @@ little more detail.
 [1] https://github.com/SquidDev-CC/CC-Tweaked/wiki/Monitor-texture-reference
 ```
 
+```
 7f90f2f7cadce0d5b9177b16626979591bce8137
-``` 
+
 Clean up some examples a little bit
 
 Would be good if they didn't crash and burn on entry :).
+```
+
+```
+f194f4fa3a17c48ff1a9088d50063f4a675a23b6
+
+Fix epoch documentation to use milliseconds (#580)
 ```
