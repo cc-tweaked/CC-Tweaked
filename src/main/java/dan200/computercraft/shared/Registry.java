@@ -37,6 +37,8 @@ import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.peripheral.printer.BlockPrinter;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
+import dan200.computercraft.shared.peripheral.redstoneIntegrator.BlockRedstoneIntegrator;
+import dan200.computercraft.shared.peripheral.redstoneIntegrator.TileRedstoneIntegrator;
 import dan200.computercraft.shared.peripheral.speaker.BlockSpeaker;
 import dan200.computercraft.shared.peripheral.speaker.TileSpeaker;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
@@ -141,6 +143,9 @@ public final class Registry
         public static final RegistryObject<BlockWiredModemFull> WIRED_MODEM_FULL = BLOCKS.register( "wired_modem_full",
             () -> new BlockWiredModemFull( modemProperties() ) );
         public static final RegistryObject<BlockCable> CABLE = BLOCKS.register( "cable", () -> new BlockCable( modemProperties() ) );
+
+        public static final RegistryObject<BlockRedstoneIntegrator> REDSTONE_INTEGRATOR = BLOCKS.register( "redstone_integrator",
+            () -> new BlockRedstoneIntegrator( properties()));//, ModTiles.REDSTONE_INTEGRATOR ) );
     }
 
     public static class ModTiles
@@ -179,6 +184,10 @@ public final class Registry
             ofBlock( ModBlocks.WIRELESS_MODEM_NORMAL, f -> new TileWirelessModem( f, false ) );
         public static final RegistryObject<TileEntityType<TileWirelessModem>> WIRELESS_MODEM_ADVANCED =
             ofBlock( ModBlocks.WIRELESS_MODEM_ADVANCED, f -> new TileWirelessModem( f, true ) );
+
+
+        public static final RegistryObject<TileEntityType<TileRedstoneIntegrator>> REDSTONE_INTEGRATOR =
+            ofBlock( ModBlocks.REDSTONE_INTEGRATOR, f -> new TileRedstoneIntegrator( f ) );
     }
 
     public static final class ModItems
