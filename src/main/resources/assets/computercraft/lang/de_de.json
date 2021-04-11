@@ -19,6 +19,8 @@
     "block.computercraft.turtle_advanced": "Erweiterte Turtle",
     "block.computercraft.turtle_advanced.upgraded": "Erweiterte Turtle (%s)",
     "block.computercraft.turtle_advanced.upgraded_twice": "Erweiterte Turtle (%s, %s)",
+    "tile.plethora.redstone_integrator.name": "Redstone-Integrierer",
+    "tile.plethora.redstone_integrator.desc": "Ändert die Redstonesignalstärke dieses Blockes.",
     "item.computercraft.disk": "Diskette",
     "item.computercraft.treasure_disk": "Diskette",
     "item.computercraft.printed_page": "Gedruckte Seite",

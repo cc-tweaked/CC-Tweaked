@@ -19,6 +19,8 @@
     "block.computercraft.turtle_advanced": "Advanced Turtle",
     "block.computercraft.turtle_advanced.upgraded": "Advanced %s Turtle",
     "block.computercraft.turtle_advanced.upgraded_twice": "Advanced %s %s Turtle",
+    "block.computercraft.redstone_integrator.name": "Redstone integrator",
+    "block.computercraft.redstone_integrator.desc": "Get and set redstone levels for this block",
     "item.computercraft.disk": "Floppy Disk",
     "item.computercraft.treasure_disk": "Floppy Disk",
     "item.computercraft.printed_page": "Printed Page",

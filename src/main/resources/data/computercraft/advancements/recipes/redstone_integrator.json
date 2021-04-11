@@ -1,0 +1,32 @@
+{
+    "parent": "minecraft:recipes/root",
+    "rewards": {
+        "recipes": [
+            "computercraft:redstone_integrator"
+        ]
+    },
+    "criteria": {
+        "has_cable": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "items": [
+                    {
+                        "item": "computercraft:cable"
+                    }
+                ]
+            }
+        },
+        "has_the_recipe": {
+            "trigger": "minecraft:recipe_unlocked",
+            "conditions": {
+                "recipe": "computercraft:redstone_integrator"
+            }
+        }
+    },
+    "requirements": [
+        [
+            "has_cable",
+            "has_the_recipe"
+        ]
+    ]
+}

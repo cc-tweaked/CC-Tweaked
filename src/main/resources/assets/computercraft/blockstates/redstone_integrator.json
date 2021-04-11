@@ -1,0 +1,7 @@
+{
+    "variants": {
+        "normal": {
+            "model": "computercraft:redstone_integrator"
+        }
+    }
+}
