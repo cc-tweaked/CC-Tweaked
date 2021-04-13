@@ -619,3 +619,9 @@ b90611b4b4c176ec1c80df002cc4ac36aa0c4dc8
 Preserve registration order of upgrades
 ```
 Again, a huge diff because of code style changes.
+
+```
+8494ba8ce29cd8d7b9105eef497fe3fe3f89d350
+
+Improve UX when a resource mount cannot be found
+```
