@@ -98,7 +98,9 @@ public final class ComputerCraftAPI
      * resource folder onto a computer's file system.
      *
      * The files in this mount will be a combination of files in all mod jar, and data packs that contain
-     * resources with the same domain and path.
+     * resources with the same domain and path. For instance, ComputerCraft's resources are stored in
+     * "/data/computercraft/lua/rom". We construct a mount for that with
+     * {@code createResourceMount("computercraft", "lua/rom")}.
      *
      * @param domain  The domain under which to look for resources. eg: "mymod".
      * @param subPath The subPath under which to look for resources. eg: "lua/myfiles".
