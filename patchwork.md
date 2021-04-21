@@ -318,3 +318,10 @@ f194f4fa3a17c48ff1a9088d50063f4a675a23b6
 
 Fix epoch documentation to use milliseconds (#580)
 ```
+
+```
+d2a1a00dc43e5b65f6b64111ce76dd3db16c919f
+
+Clear gets an option to reset the palette (#582)
+
+Fixes #555.
