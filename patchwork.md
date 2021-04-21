@@ -325,3 +325,13 @@ d2a1a00dc43e5b65f6b64111ce76dd3db16c919f
 Clear gets an option to reset the palette (#582)
 
 Fixes #555.
+```
+
+```
+aab0cd34cd64fdf837ff1c3b91a957a25c2cf7f9
+
+Use term.blit on original paint render
+
+This makes it super speedy, meaning an initial refresh doesn't take ages
+to load.
+```
