@@ -9,8 +9,8 @@
 -- @usage Construct the package and require function, and insert them into a
 -- custom environment.
 --
---     local env = setmetatable({}, { __index = _ENV })
 --     local r = require "cc.require"
+--     local env = setmetatable({}, { __index = _ENV })
 --     env.require, env.package = r.make(env, "/")
 
 local expect = require and require("cc.expect") or dofile("rom/modules/main/cc/expect.lua")

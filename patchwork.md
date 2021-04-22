@@ -335,3 +335,9 @@ Use term.blit on original paint render
 This makes it super speedy, meaning an initial refresh doesn't take ages
 to load.
 ```
+
+```
+b0651082f472baee8f0fa8ec7ba95f433e2637bb
+
+Cleanup examples for the various modules
+```

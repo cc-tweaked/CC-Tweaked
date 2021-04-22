@@ -67,6 +67,9 @@ end
 -- @tparam[opt] number colour The colour this text should be printed with. If not given, we default to the current
 -- colour.
 -- @treturn Doc The document with the provided text.
+-- @usage Write some blue text.
+--     local pretty = require "cc.pretty"
+--     pretty.print(pretty.text("Hello!", colours.blue))
 local function text(text, colour)
     expect(1, text, "string")
     expect(2, colour, "number", "nil")
@@ -101,8 +104,11 @@ end
 --
 -- @tparam Doc|string ... The documents to concatenate.
 -- @treturn Doc The concatenated documents.
--- @usage pretty.concat(doc1, " - ", doc2)
--- @usage doc1 .. " - " .. doc2
+-- @usage <!-- -->
+--     local pretty = require "cc.pretty"
+--     local doc1, doc2 = pretty.text("doc1"), pretty.text("doc2")
+--     print(pretty.concat(doc1, " - ", doc2))
+--     print(doc1 .. " - " .. doc2) -- Also supports ..
 local function concat(...)
     local args = table.pack(...)
     for i = 1, args.n do
@@ -135,7 +141,9 @@ Doc.__concat = concat --- @local
 -- @tparam number depth The number of spaces with which the document should be indented.
 -- @tparam Doc    doc   The document to indent.
 -- @treturn Doc The nested document.
--- @usage pretty.nest(2, pretty.text("foo\nbar"))
+-- @usage <!-- -->
+--     local pretty = require "cc.pretty"
+--     print(pretty.nest(2, pretty.text("foo\nbar")))
 local function nest(depth, doc)
     expect(1, depth, "number")
     if getmetatable(doc) ~= Doc then expect(2, doc, "document") end
@@ -169,6 +177,12 @@ end
 --
 -- @tparam Doc doc The document to group.
 -- @treturn Doc The grouped document.
+-- @usage Uses group to show things being displayed on one or multiple lines.
+--
+--     local pretty = require "cc.pretty"
+--     local doc = pretty.group("Hello" .. pretty.space_line .. "World")
+--     print(pretty.render(doc, 5)) -- On multiple lines
+--     print(pretty.render(doc, 20)) -- Collapsed onto one.
 local function group(doc)
     if getmetatable(doc) ~= Doc then expect(1, doc, "document") end
 
