@@ -356,3 +356,9 @@ fff8353451451be5ae31e0f63d8e529b127fd186
 
 Remove extra space (#586)
 ```
+
+```
+486f41f08286ddcfad91d72b83a9361bd9c215cb
+
+Fixed length check on function name in `expect` (#589)
+```
