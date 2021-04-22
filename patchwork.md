@@ -350,3 +350,9 @@ Ignored Documentation Changes, these are locate
 
 Strict Globals (#583)
 ```
+
+```
+fff8353451451be5ae31e0f63d8e529b127fd186
+
+Remove extra space (#586)
+```
