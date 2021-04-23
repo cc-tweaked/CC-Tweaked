@@ -4,12 +4,12 @@ buildscript {
         mavenCentral()
         maven {
             name = "forge"
-            url = "https://files.minecraftforge.net/maven"
+            url = "https://maven.minecraftforge.net"
         }
     }
     dependencies {
         classpath 'com.google.code.gson:gson:2.8.1'
-        classpath 'net.minecraftforge.gradle:ForgeGradle:4.1.3'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:4.1.9'
         classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
     }
 }
