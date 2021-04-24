@@ -13,6 +13,8 @@ import argparse
 import subprocess
 import shutil
 import sys
+import re
+import os
 import os.path
 from dataclasses import dataclass
 from typing import List, Tuple, Optional
@@ -110,11 +112,23 @@ def check_git() -> None:
         sys.exit(1)
 
 
+def check_java() -> None:
+    home = os.getenv("JAVA_HOME")
+    java = "java" if home is None else os.path.join(home, "bin/java")
+
+    result = subprocess.check_output([java, "-version"], encoding="utf-8", stderr=subprocess.STDOUT)
+    if not re.search(r"\b1\.8\.\b", result): # Who needs actual version checks!
+        log(f"Not running under Java 8! Things are probably not going to go well.")
+        sys.stdout.write(result)
+        sys.exit(1)
+
+
 def build() -> None:
     """
     Merge in parent branches, then build all branches.
     """
     check_git()
+    check_java()
 
     # Merge each branch into the next one.
     for branch in BRANCHES:
