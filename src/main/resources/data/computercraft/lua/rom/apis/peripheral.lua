@@ -161,7 +161,9 @@ end
 -- @tparam string name The name of the peripheral to wrap.
 -- @treturn table|nil The table containing the peripheral's methods, or `nil` if
 -- there is no peripheral present with the given name.
--- @usage peripheral.wrap("top").open(1)
+-- @usage Open the modem on the top of this computer.
+--
+--     peripheral.wrap("top").open(1)
 function wrap(name)
     expect(1, name, "string")
 
@@ -183,16 +185,25 @@ function wrap(name)
     return result
 end
 
---- Find all peripherals of a specific type, and return the
--- @{peripheral.wrap|wrapped} peripherals.
---
--- @tparam string ty The type of peripheral to look for.
--- @tparam[opt] function(name:string, wrapped:table):boolean filter A
--- filter function, which takes the peripheral's name and wrapped table
--- and returns if it should be included in the result.
--- @treturn table... 0 or more wrapped peripherals matching the given filters.
--- @usage { peripheral.find("monitor") }
--- @usage peripheral.find("modem", rednet.open)
+--[[- Find all peripherals of a specific type, and return the
+@{peripheral.wrap|wrapped} peripherals.
+
+@tparam string ty The type of peripheral to look for.
+@tparam[opt] function(name:string, wrapped:table):boolean filter A
+filter function, which takes the peripheral's name and wrapped table
+and returns if it should be included in the result.
+@treturn table... 0 or more wrapped peripherals matching the given filters.
+@usage Find all monitors and store them in a table, writing "Hello" on each one.
+
+    local monitors = { peripheral.find("monitor") }
+    for _, monitor in pairs(monitors) do
+      monitor.write("Hello")
+    end
+
+@usage This abuses the `filter` argument to call @{rednet.open} on every modem.
+
+    peripheral.find("modem", rednet.open)
+]]
 function find(ty, filter)
     expect(1, ty, "string")
     expect(2, filter, "function", "nil")

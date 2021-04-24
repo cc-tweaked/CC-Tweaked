@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
         maven {
             name = "forge"
-            url = "https://files.minecraftforge.net/maven"
+            url = "https://maven.minecraftforge.net"
         }
         maven {
             name = "Sponge (Mixin)"
@@ -14,7 +14,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.code.gson:gson:2.8.1'
-        classpath 'net.minecraftforge.gradle:ForgeGradle:4.1.3'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:4.1.9'
         classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
@@ -23,6 +23,7 @@ buildscript {
 plugins {
     id "checkstyle"
     id "jacoco"
+    id "maven-publish"
     id "com.github.hierynomus.license" version "0.15.0"
     id "com.matthewprenger.cursegradle" version "1.4.0"
     id "com.github.breadmoirai.github-release" version "2.2.12"
@@ -31,8 +32,6 @@ plugins {
 
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
-apply plugin: 'maven-publish'
-apply plugin: 'maven'
 
 version = mod_version
 
@@ -43,6 +42,9 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(8)
     }
+
+    withSourcesJar()
+    withJavadocJar()
 }
 
 minecraft {
@@ -127,7 +129,6 @@ repositories {
 configurations {
     shade
     compile.extendsFrom shade
-    deployerJars
     cctJavadoc
 }
 
@@ -153,8 +154,7 @@ dependencies {
     testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.72'
     testImplementation 'org.jetbrains.kotlin:kotlin-reflect:1.3.72'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8'
-
-    deployerJars "org.apache.maven.wagon:wagon-ssh:3.0.0"
+    testAnnotationProcessor 'org.spongepowered:mixin:0.8.2:processor'
 
     cctJavadoc 'cc.tweaked:cct-javadoc:1.3.0'
 }
@@ -183,8 +183,6 @@ task luaJavadoc(type: Javadoc) {
 }
 
 jar {
-    dependsOn javadoc
-
     manifest {
         attributes(["Specification-Title": "computercraft",
                     "Specification-Vendor": "SquidDev",
@@ -193,10 +191,6 @@ jar {
                     "Implementation-Version": "${mod_version}",
                     "Implementation-Vendor" :"SquidDev",
                     "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
-    }
-
-    from (sourceSets.main.allSource) {
-        include "dan200/computercraft/api/**/*.java"
     }
 
     from configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
@@ -568,51 +562,41 @@ curseforge {
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        maven(MavenPublication) {
             from components.java
-            // artifact sourceJar
+
+            pom {
+                name = 'CC: Tweaked'
+                description = 'CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles and more to Minecraft.'
+                url = 'https://github.com/SquidDev-CC/CC-Tweaked'
+
+                scm {
+                    url = 'https://github.com/SquidDev-CC/CC-Tweaked.git'
+                }
+
+                issueManagement {
+                    system = 'github'
+                    url = 'https://github.com/SquidDev-CC/CC-Tweaked/issues'
+                }
+
+                licenses {
+                    license {
+                        name = 'ComputerCraft Public License, Version 1.0'
+                        url = 'https://github.com/SquidDev-CC/CC-Tweaked/blob/mc-1.15.x/LICENSE'
+                    }
+                }
+            }
         }
     }
-}
 
-uploadArchives {
     repositories {
-        if(project.hasProperty('mavenUploadUrl')) {
-            mavenDeployer {
-                configuration = configurations.deployerJars
-
-                repository(url: project.property('mavenUploadUrl')) {
-                    authentication(
-                        userName: project.property('mavenUploadUser'),
-                        privateKey: project.property('mavenUploadKey'))
-                }
-
-                pom.project {
-                    name 'CC: Tweaked'
-                    packaging 'jar'
-                    description 'CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles and more to Minecraft.'
-                    url 'https://github.com/SquidDev-CC/CC-Tweaked'
-
-                    scm {
-                        url 'https://github.com/SquidDev-CC/CC-Tweaked.git'
-                    }
-
-                    issueManagement {
-                        system 'github'
-                        url 'https://github.com/SquidDev-CC/CC-Tweaked/issues'
-                    }
-
-                    licenses {
-                        license {
-                            name 'ComputerCraft Public License, Version 1.0'
-                            url 'https://github.com/SquidDev-CC/CC-Tweaked/blob/master/LICENSE'
-                            distribution 'repo'
-                        }
-                    }
-                }
-
-                pom.whenConfigured { pom ->
-                    pom.dependencies.clear()
+        if (project.hasProperty("mavenUser")) {
+            maven {
+                name = "SquidDev"
+                url = "https://squiddev.cc/maven"
+                credentials {
+                    username = project.property("mavenUser") as String
+                    password = project.property("mavenPass") as String
                 }
             }
         }
@@ -643,7 +627,7 @@ githubRelease {
     prerelease false
 }
 
-def uploadTasks = ["uploadArchives", "curseforge", "githubRelease"]
+def uploadTasks = ["publish", "curseforge", "githubRelease"]
 uploadTasks.forEach { tasks.getByName(it).dependsOn checkRelease }
 
 task uploadAll(dependsOn: uploadTasks) {

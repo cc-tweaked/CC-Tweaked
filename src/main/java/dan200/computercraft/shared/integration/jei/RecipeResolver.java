@@ -200,7 +200,7 @@ class RecipeResolver implements IRecipeManagerPlugin
             for( UpgradeInfo upgrade : upgrades )
             {
                 ItemStack craftingStack = upgrade.stack;
-                if( !craftingStack.isEmpty() && craftingStack.getItem() == stack.getItem() && upgrade.upgrade.isItemSuitable( stack ) )
+                if( craftingStack.isEmpty() || craftingStack.getItem() != stack.getItem() || !upgrade.upgrade.isItemSuitable( stack ) )
                 {
                     continue;
                 }
@@ -317,13 +317,6 @@ class RecipeResolver implements IRecipeManagerPlugin
         Shaped( int width, int height, NonNullList<Ingredient> input, ItemStack output )
         {
             super( ID, null, width, height, input, output );
-        }
-
-        @Nonnull
-        @Override
-        public ResourceLocation getId()
-        {
-            return null;
         }
 
         @Nonnull
