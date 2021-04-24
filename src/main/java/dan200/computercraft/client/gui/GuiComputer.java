@@ -108,6 +108,11 @@ public final class GuiComputer<T extends ContainerComputerBase> extends HandledS
         return (this.getFocused() != null && this.getFocused().mouseDragged(x, y, button, deltaX, deltaY)) || super.mouseDragged(x, y, button, deltaX, deltaY);
     }
 
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		return (this.getFocused() != null && this.getFocused().mouseReleased(mouseX, mouseY, button)) || super.mouseReleased(x, y, button);
+	}
+
     @Override
     public boolean keyPressed(int key, int scancode, int modifiers) {
         // Forward the tab key to the terminal, rather than moving between controls.
