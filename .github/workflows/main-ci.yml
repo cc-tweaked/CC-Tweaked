@@ -23,10 +23,15 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
+    - name: Disable Gradle daemon
+      run: |
+        mkdir -p ~/.gradle
+        echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
+
     - name: Build with Gradle
       run: |
-        ./gradlew assemble --no-daemon || ./gradlew assemble --no-daemon
-        ./gradlew downloadAssets --no-daemon || ./gradlew downloadAssets --no-daemon
+        ./gradlew assemble || ./gradlew assemble
+        ./gradlew downloadAssets || ./gradlew downloadAssets
         ./gradlew build
 
     - name: Upload Jar
@@ -39,15 +44,14 @@ jobs:
       run: bash <(curl -s https://codecov.io/bash)
       continue-on-error: true
 
-    - name: Generate Java documentation stubs
-      run: ./gradlew luaJavadoc --no-daemon
-
-    - name: Lint Lua code
+    - name: Cache pre-commit
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pre-commit
+        key: ${{ runner.os }}-pre-commit-${{ hashFiles('config/pre-commit/config.yml') }}
+        restore-keys: |
+          ${{ runner.os }}-pre-commit-
+    - name: Run linters
       run: |
-        test -d bin || mkdir bin
-        test -f bin/illuaminate || wget -q -Obin/illuaminate https://squiddev.cc/illuaminate/linux-x86-64/illuaminate
-        chmod +x bin/illuaminate
-        bin/illuaminate lint
-
-    - name: Check whitespace
-      run: python3 tools/check-lines.py
+        pip install pre-commit
+        pre-commit run --config config/pre-commit/config.yml --show-diff-on-failure --all --color=always
