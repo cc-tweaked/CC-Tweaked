@@ -104,7 +104,6 @@ sourceSets {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven {
         name "SquidDev"
