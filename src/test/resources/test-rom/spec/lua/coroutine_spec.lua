@@ -7,7 +7,7 @@ describe("Coroutines", function()
     --- Run a function in a coroutine, "echoing" the yielded value back as the resumption value.
     local function coroutine_echo(f)
         local co = coroutine.create(f)
-        local result = {n = 0}
+        local result = { n = 0 }
         while coroutine.status(co) ~= "dead" do
             result = assert_resume(coroutine.resume(co, table.unpack(result, 1, result.n)))
         end
@@ -148,7 +148,7 @@ describe("Coroutines", function()
                         expect(y):eq(b)
 
                         return a.x < b.x
-                    end
+                    end,
                 }
 
                 local function create(val) return setmetatable({ x = val }, meta) end
