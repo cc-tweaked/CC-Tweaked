@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Rewrites language files in order to be consistent with en_us.
 
