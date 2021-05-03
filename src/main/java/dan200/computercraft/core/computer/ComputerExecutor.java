@@ -13,9 +13,9 @@ import dan200.computercraft.api.lua.ILuaAPIFactory;
 import dan200.computercraft.core.apis.*;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
-import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.lua.MachineResult;
+import dan200.computercraft.core.lua.waluaigi.WaluaigiLuaMachine;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.util.Colour;
@@ -386,7 +386,7 @@ final class ComputerExecutor
         }
 
         // Create the lua machine
-        ILuaMachine machine = new CobaltLuaMachine( computer, timeout );
+        ILuaMachine machine = new WaluaigiLuaMachine( computer, timeout );
 
         // Add the APIs. We unwrap them (yes, this is horrible) to get access to the underlying object.
         for( ILuaAPI api : apis ) machine.addAPI( api instanceof ApiWrapper ? ((ApiWrapper) api).getDelegate() : api );

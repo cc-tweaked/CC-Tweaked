@@ -104,6 +104,7 @@ sourceSets {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven {
         name "SquidDev"
@@ -130,6 +131,7 @@ dependencies {
     compileOnly 'com.google.auto.service:auto-service:1.0-rc7'
     annotationProcessor 'com.google.auto.service:auto-service:1.0-rc7'
 
+    shade 'cc.tweaked.waluaigi:waluaigi:1.0-SNAPSHOT'
     shade 'org.squiddev:Cobalt:0.5.1-SNAPSHOT'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
