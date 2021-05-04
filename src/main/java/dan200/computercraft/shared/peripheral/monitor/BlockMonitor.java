@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.shared.common.BlockGeneric;
+import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
@@ -85,9 +86,12 @@ public class BlockMonitor extends BlockGeneric
         if( entity instanceof TileMonitor && !world.isClientSide )
         {
             TileMonitor monitor = (TileMonitor) entity;
-            monitor.contractNeighbours();
-            monitor.contract();
-            monitor.expand();
+            if (livingEntity instanceof TurtlePlayer) {
+                monitor.updateNeighborsNextTick();
+                return;
+            }
+
+            monitor.updateNeighbors();
         }
     }
 }
