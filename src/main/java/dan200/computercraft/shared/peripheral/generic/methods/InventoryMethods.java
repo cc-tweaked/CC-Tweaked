@@ -15,20 +15,11 @@ import dan200.computercraft.core.asm.GenericSource;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.ItemStorage;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ChestBlock;
-import net.minecraft.block.InventoryProvider;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Nameable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -85,8 +76,9 @@ public class InventoryMethods implements GenericSource
      * List all items in this inventory. This returns a table, with an entry for each slot.
      *
      * Each item in the inventory is represented by a table containing some basic information, much like
-     * @link dan200.computercraft.shared.turtle.apis.TurtleAPI#getItemDetail includes. More information can be fetched
-     * with {@link #getItemDetail}.
+     * {@link dan200.computercraft.shared.turtle.apis.TurtleAPI#getItemDetail} includes. More information can be fetched
+     * with {@link #getItemDetail}. The table contains the item `name`, the `count` and an a (potentially nil) hash of
+     * the item's `nbt.` This NBT data doesn't contain anything useful, but allows you to distinguish identical items.
      *
      * The returned table is sparse, and so empty slots will be `nil` - it is recommended to loop over using `pairs`
      * rather than `ipairs`.
@@ -94,6 +86,14 @@ public class InventoryMethods implements GenericSource
      * @param inventory The current inventory.
      * @return All items in this inventory.
      * @cc.treturn { (table|nil)... } All items in this inventory.
+     * @cc.usage Find an adjacent chest and print all items in it.
+     *
+     * <pre>{@code
+     * local chest = peripheral.find("minecraft:chest")
+     * for slot, item in pairs(chest.list()) do
+     *   print(("%d x %s in slot %d"):format(item.count, item.name, slot))
+     * end
+     * }</pre>
      */
     @LuaFunction( mainThread = true )
     public static Map<Integer, Map<String, ?>> list( Inventory inventory )
@@ -114,11 +114,32 @@ public class InventoryMethods implements GenericSource
     /**
      * Get detailed information about an item.
      *
+     * The returned information contains the same information as each item in
+     * {@link #list}, as well as additional details like the display name
+     * (`displayName`) and item durability (`damage`, `maxDamage`, `durability`).
+     *
+     * Some items include more information (such as enchantments) - it is
+     * recommended to print it out using @{textutils.serialize} or in the Lua
+     * REPL, to explore what is available.
+     *
      * @param inventory The current inventory.
      * @param slot      The slot to get information about.
      * @return Information about the item in this slot, or {@code nil} if not present.
      * @throws LuaException If the slot is out of range.
      * @cc.treturn table Information about the item in this slot, or {@code nil} if not present.
+     * @cc.usage Print some information about the first in a chest.
+     *
+     * <pre>{@code
+     * local chest = peripheral.find("minecraft:chest")
+     * local item = chest.getItemDetail(1)
+     * if not item then print("No item") return end
+     *
+     * print(("%s (%s)"):format(item.displayName, item.name))
+     * print(("Count: %d/%d"):format(item.count, item.maxCount))
+     * if item.damage then
+     *   print(("Damage: %d/%d"):format(item.damage, item.maxDamage))
+     * end
+     * }</pre>
      */
     @Nullable
     @LuaFunction( mainThread = true )

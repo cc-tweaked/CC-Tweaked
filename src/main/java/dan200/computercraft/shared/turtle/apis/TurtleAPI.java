@@ -699,6 +699,7 @@ public class TurtleAPI implements ILuaAPI {
      *     cost of taking longer to run.
      * @return The command result.
      * @throws LuaException If the slot is out of range.
+     * @see InventoryMethods#getItemDetail Describes the information returned by a detailed query.
      * @cc.treturn nil|table Information about the given slot, or {@code nil} if it is empty.
      * @cc.usage Print the current slot, assuming it contains 13 dirt.
      *
