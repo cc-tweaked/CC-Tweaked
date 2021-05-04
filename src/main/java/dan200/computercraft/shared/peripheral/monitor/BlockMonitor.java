@@ -9,6 +9,7 @@ package dan200.computercraft.shared.peripheral.monitor;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import dan200.computercraft.api.turtle.FakePlayer;
 import dan200.computercraft.shared.common.BlockGeneric;
 
 import net.minecraft.block.Block;
@@ -71,9 +72,14 @@ public class BlockMonitor extends BlockGeneric {
         BlockEntity entity = world.getBlockEntity(pos);
         if (entity instanceof TileMonitor && !world.isClient) {
             TileMonitor monitor = (TileMonitor) entity;
-            monitor.contractNeighbours();
-            monitor.contract();
-            monitor.expand();
+            // Defer the block update if we're being placed by another TE. See #691
+            if ( livingEntity == null || livingEntity instanceof FakePlayer )
+            {
+                monitor.updateNeighborsDeferred();
+                return;
+            }
+
+            monitor.updateNeighbors();
         }
     }
 

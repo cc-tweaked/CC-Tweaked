@@ -54,6 +54,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile {
     private ServerMonitor m_serverMonitor;
     private ClientMonitor m_clientMonitor;
     private MonitorPeripheral peripheral;
+    private boolean needsUpdate = false;
     private boolean m_destroyed = false;
     private boolean visiting = false;
     private int m_width = 1;
@@ -98,6 +99,12 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile {
 
     @Override
     public void blockTick() {
+        if ( needsUpdate )
+        {
+            needsUpdate = false;
+            updateNeighbors();
+        }
+
         if (this.m_xIndex != 0 || this.m_yIndex != 0 || this.m_serverMonitor == null) {
             return;
         }
@@ -528,6 +535,18 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile {
         }
         below.expand();
         return true;
+    }
+
+    void updateNeighborsDeferred()
+    {
+        needsUpdate = true;
+    }
+
+    void updateNeighbors()
+    {
+        contractNeighbours();
+        contract();
+        expand();
     }
 
     @SuppressWarnings ("StatementWithEmptyBody")
