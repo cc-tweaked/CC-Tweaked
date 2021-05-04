@@ -16,6 +16,7 @@ import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.asm.TaskCallback;
 import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
+import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.turtle.core.*;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
@@ -702,6 +703,7 @@ public class TurtleAPI implements ILuaAPI
      *                 more information about the item at the cost of taking longer to run.
      * @return The command result.
      * @throws LuaException If the slot is out of range.
+     * @see InventoryMethods#getItemDetail Describes the information returned by a detailed query.
      * @cc.treturn nil|table Information about the given slot, or {@code nil} if it is empty.
      * @cc.usage Print the current slot, assuming it contains 13 dirt.
      *
