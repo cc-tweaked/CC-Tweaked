@@ -20,6 +20,7 @@ import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.RegistryObject;
 
 import javax.annotation.Nonnull;
@@ -85,9 +86,14 @@ public class BlockMonitor extends BlockGeneric
         if( entity instanceof TileMonitor && !world.isClientSide )
         {
             TileMonitor monitor = (TileMonitor) entity;
-            monitor.contractNeighbours();
-            monitor.contract();
-            monitor.expand();
+            // Defer the block update if we're being placed by another TE. See #691
+            if ( livingEntity == null || livingEntity instanceof FakePlayer )
+            {
+                monitor.updateNeighborsDeferred();
+                return;
+            }
+
+            monitor.updateNeighbors();
         }
     }
 }

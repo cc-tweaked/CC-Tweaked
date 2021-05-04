@@ -55,6 +55,7 @@ public class TileMonitor extends TileGeneric
     private LazyOptional<IPeripheral> peripheralCap;
     private final Set<IComputerAccess> computers = new HashSet<>();
 
+    private boolean needsUpdate = false;
     private boolean destroyed = false;
     private boolean visiting = false;
 
@@ -147,6 +148,12 @@ public class TileMonitor extends TileGeneric
     @Override
     public void blockTick()
     {
+        if ( needsUpdate )
+        {
+            needsUpdate = false;
+            updateNeighbors();
+        }
+
         if( xIndex != 0 || yIndex != 0 || serverMonitor == null ) return;
 
         serverMonitor.clearChanged();
@@ -523,6 +530,18 @@ public class TileMonitor extends TileGeneric
         if( origin != null ) origin.resize( width, height );
         below.expand();
         return true;
+    }
+
+    void updateNeighborsDeferred()
+    {
+        needsUpdate = true;
+    }
+
+    void updateNeighbors()
+    {
+        contractNeighbours();
+        contract();
+        expand();
     }
 
     @SuppressWarnings( "StatementWithEmptyBody" )
