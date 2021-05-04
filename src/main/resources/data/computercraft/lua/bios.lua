@@ -16,22 +16,7 @@ end
 
 if _VERSION == "Lua 5.1" then
     -- If we're on Lua 5.1, install parts of the Lua 5.2/5.3 API so that programs can be written against it
-    local type = type
     local nativeload = load
-    local nativeloadstring = loadstring
-    local nativesetfenv = setfenv
-
-    -- Historically load/loadstring would handle the chunk name as if it has
-    -- been prefixed with "=". We emulate that behaviour here.
-    local function prefix(chunkname)
-        if type(chunkname) ~= "string" then return chunkname end
-        local head = chunkname:sub(1, 1)
-        if head == "=" or head == "@" then
-            return chunkname
-        else
-            return "=" .. chunkname
-        end
-    end
 
     function load(x, name, mode, env)
         expect(1, x, "function", "string")
@@ -40,29 +25,11 @@ if _VERSION == "Lua 5.1" then
         expect(4, env, "table", "nil")
 
         local ok, p1, p2 = pcall(function()
-            if type(x) == "string" then
-                local result, err = nativeloadstring(x, name)
-                if result then
-                    if env then
-                        env._ENV = env
-                        nativesetfenv(result, env)
-                    end
-                    return result
-                else
-                    return nil, err
-                end
-            else
-                local result, err = nativeload(x, name)
-                if result then
-                    if env then
-                        env._ENV = env
-                        nativesetfenv(result, env)
-                    end
-                    return result
-                else
-                    return nil, err
-                end
+            local result, err = nativeload(x, name, mode, env)
+            if result and env then
+                env._ENV = env
             end
+            return result, err
         end)
         if ok then
             return p1, p2
@@ -81,7 +48,7 @@ if _VERSION == "Lua 5.1" then
         math.log10 = nil
         table.maxn = nil
     else
-        loadstring = function(string, chunkname) return nativeloadstring(string, prefix(chunkname)) end
+        loadstring = function(string, chunkname) return nativeload(string, chunkname) end
 
         -- Inject a stub for the old bit library
         _G.bit = {
