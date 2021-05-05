@@ -44,6 +44,7 @@ import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.EnumSet;
 import java.util.Objects;
 
 public abstract class TileComputerBase extends TileGeneric implements IComputerTile, ITickableTileEntity, INameable, INamedContainerProvider
@@ -59,7 +60,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     boolean startOn = false;
     private boolean fresh = false;
     private final NonNullConsumer<LazyOptional<IPeripheral>>[] invalidate;
-    private Direction[] deferredInvalidations;
+    private final EnumSet<Direction> deferredInvalidations = EnumSet.allOf(Direction.class);
 
     private final ComputerFamily family;
 
@@ -74,14 +75,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         for( Direction direction : Direction.values() )
         {
             // Defer invalidations to next tick to avoid grabbing stale TEs, fixes #696
-            invalidate[direction.ordinal()] = o -> {
-                if ( deferredInvalidations == null )
-                {
-                    deferredInvalidations = new Direction[6];
-                }
-
-                deferredInvalidations[direction.ordinal()] = direction;
-            };
+            invalidate[direction.ordinal()] = o -> deferredInvalidations.add(direction);
         }
     }
 
@@ -165,15 +159,14 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public void tick()
     {
-        if ( deferredInvalidations != null )
+        if ( !deferredInvalidations.isEmpty() )
         {
             for ( Direction direction : deferredInvalidations )
             {
-                if ( direction == null ) continue;
                 updateInput( direction );
             }
 
-            deferredInvalidations = null;
+            deferredInvalidations.clear();
         }
 
         if( !getLevel().isClientSide )
