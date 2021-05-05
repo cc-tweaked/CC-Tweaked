@@ -33,5 +33,5 @@ table.sort(tFiles)
 if term.isColour() then
     textutils.pagedTabulate(colors.green, tDirs, colors.white, tFiles)
 else
-    textutils.pagedTabulate(tDirs, tFiles)
+    textutils.pagedTabulate(colors.lightGray, tDirs, colors.white, tFiles)
 end
