@@ -12,6 +12,7 @@ import com.google.common.io.ByteStreams;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
+import dan200.computercraft.shared.util.IoUtil;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResource;
 import net.minecraft.resources.IResourceManager;
@@ -244,11 +245,20 @@ public final class ResourceMount implements IMount
             byte[] contents = CONTENTS_CACHE.getIfPresent( file );
             if( contents != null ) return new ArrayByteChannel( contents );
 
-            try( InputStream stream = manager.getResource( file.identifier ).getInputStream() )
+            try
             {
+                InputStream stream = manager.getResource( file.identifier ).getInputStream();
                 if( stream.available() > MAX_CACHED_SIZE ) return Channels.newChannel( stream );
 
-                contents = ByteStreams.toByteArray( stream );
+                try
+                {
+                    contents = ByteStreams.toByteArray( stream );
+                }
+                finally
+                {
+                    IoUtil.closeQuietly( stream );
+                }
+
                 CONTENTS_CACHE.put( file, contents );
                 return new ArrayByteChannel( contents );
             }
