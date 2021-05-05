@@ -60,7 +60,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     boolean startOn = false;
     private boolean fresh = false;
     private final NonNullConsumer<LazyOptional<IPeripheral>>[] invalidate;
-    private final EnumSet<Direction> deferredInvalidations = EnumSet.allOf(Direction.class);
+    private final EnumSet<Direction> deferredInvalidations = EnumSet.allOf( Direction.class );
 
     private final ComputerFamily family;
 
@@ -75,7 +75,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         for( Direction direction : Direction.values() )
         {
             // Defer invalidations to next tick to avoid grabbing stale TEs, fixes #696
-            invalidate[direction.ordinal()] = o -> deferredInvalidations.add(direction);
+            invalidate[direction.ordinal()] = o -> deferredInvalidations.add( direction );
         }
     }
 
