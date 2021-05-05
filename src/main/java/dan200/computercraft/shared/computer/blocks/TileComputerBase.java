@@ -59,6 +59,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     boolean startOn = false;
     private boolean fresh = false;
     private final NonNullConsumer<LazyOptional<IPeripheral>>[] invalidate;
+    private Direction[] deferredInvalidations;
 
     private final ComputerFamily family;
 
@@ -72,7 +73,14 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         NonNullConsumer<LazyOptional<IPeripheral>>[] invalidate = this.invalidate = new NonNullConsumer[6];
         for( Direction direction : Direction.values() )
         {
-            invalidate[direction.ordinal()] = o -> updateInput( direction );
+            // Defer invalidations to next tick to avoid grabbing stale TEs, fixes #696
+            invalidate[direction.ordinal()] = o -> {
+                if (deferredInvalidations == null) {
+                    deferredInvalidations = new Direction[6];
+                }
+
+                deferredInvalidations[direction.ordinal()] = direction;
+            };
         }
     }
 
@@ -156,6 +164,15 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public void tick()
     {
+        if (deferredInvalidations != null) {
+            for (Direction direction : deferredInvalidations) {
+                if (direction == null) continue;
+                updateInput(direction);
+            }
+
+            deferredInvalidations = null;
+        }
+
         if( !getLevel().isClientSide )
         {
             ServerComputer computer = createServerComputer();
