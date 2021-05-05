@@ -75,7 +75,8 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         {
             // Defer invalidations to next tick to avoid grabbing stale TEs, fixes #696
             invalidate[direction.ordinal()] = o -> {
-                if (deferredInvalidations == null) {
+                if ( deferredInvalidations == null )
+                {
                     deferredInvalidations = new Direction[6];
                 }
 
@@ -164,10 +165,12 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public void tick()
     {
-        if (deferredInvalidations != null) {
-            for (Direction direction : deferredInvalidations) {
-                if (direction == null) continue;
-                updateInput(direction);
+        if ( deferredInvalidations != null )
+        {
+            for ( Direction direction : deferredInvalidations )
+            {
+                if ( direction == null ) continue;
+                updateInput( direction );
             }
 
             deferredInvalidations = null;
