@@ -362,3 +362,15 @@ Remove extra space (#586)
 
 Fixed length check on function name in `expect` (#589)
 ```
+
+```
+04f9644ae75dafc72da4c4790f334d2e90b03e6f
+
+Allow strings or numbers in textutils.*tabulate
+
+A little dubious, but apparently CC used to support it. This means we're
+consistent with methods like io.write or string.len which accept strings
+or numbers.
+
+Fixes #591
+```
