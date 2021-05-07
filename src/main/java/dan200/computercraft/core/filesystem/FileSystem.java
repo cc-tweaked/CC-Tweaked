@@ -76,7 +76,7 @@ public class FileSystem {
         this.mounts.put(location, wrapper);
     }
 
-    private static String sanitizePath(String path, boolean allowWildcards) {
+    public static String sanitizePath(String path, boolean allowWildcards) {
         // Allow windowsy slashes
         path = path.replace('\\', '/');
 
@@ -231,7 +231,7 @@ public class FileSystem {
         this.mounts.remove(sanitizePath(path));
     }
 
-    public synchronized String combine(String path, String childPath) {
+    public String combine( String path, String childPath ) {
         path = sanitizePath(path, true);
         childPath = sanitizePath(childPath, true);
 

@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.OptionalLong;
 import java.util.function.Function;
 
+
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -75,15 +77,27 @@ public class FSAPI implements ILuaAPI {
     }
 
     /**
-     * Combines two parts of a path into one full path, adding separators as needed.
+     * Combines several parts of a path into one full path, adding separators as
+     * needed
      *
-     * @param pathA The first part of the path. For example, a parent directory path.
-     * @param pathB The second part of the path. For example, a file name.
+     * @param arguments The paths to combine.
      * @return The new path, with separators added between parts as needed.
+     * @cc.tparam string path The first part of the path. For example, a parent directory path.
+     * @cc.tparam string ... Additional parts of the path to combine.
+     * @throws LuaException On argument errors.
      */
     @LuaFunction
-    public final String combine(String pathA, String pathB) {
-        return this.fileSystem.combine(pathA, pathB);
+    public final String combine( IArguments arguments ) throws LuaException {
+        StringBuilder result = new StringBuilder();
+        result.append(FileSystem.sanitizePath(arguments.getString(0), true));
+
+        for (int i = 1, n = arguments.count(); i < n; i++) {
+            String part = FileSystem.sanitizePath(arguments.getString(i), true);
+            if (result.length() != 0 && !part.isEmpty()) result.append('/');
+            result.append(part);
+        }
+
+        return FileSystem.sanitizePath(result.toString(), true);
     }
 
     /**

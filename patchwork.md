@@ -374,3 +374,17 @@ or numbers.
 
 Fixes #591
 ```
+
+```
+d4199064ae5ae8023c589f80f12d94e1c6bbc2b5
+
+Make fs.combine accept multiple arguments
+
+Means we can now do fs.combine("a", "b", "c"). Of course, one may just
+write "a/b/c" in this case, but it's definitely useful elsewhere.
+
+This is /technically/ a breaking change as fs.combine(a, b:gsub(...))
+will no longer function (as gsub returns multiple arguments). However,
+I've done a quick search through GH and my Pastebin archives and can't
+find any programs which would break. Fingers crossed.
+```
