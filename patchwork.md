@@ -388,3 +388,11 @@ will no longer function (as gsub returns multiple arguments). However,
 I've done a quick search through GH and my Pastebin archives and can't
 find any programs which would break. Fingers crossed.
 ```
+
+```
+24af36743d08fcdb58439c52bf587b33ed828263
+
+Try to handle a turtle being broken while ticked
+
+Hopefully fixes #585. Hopefully.
+```

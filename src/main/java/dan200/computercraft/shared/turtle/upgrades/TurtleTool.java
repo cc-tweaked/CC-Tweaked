@@ -23,6 +23,7 @@ import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.shared.TurtlePermissions;
+import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.util.DropConsumer;
@@ -94,10 +95,13 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         return TransformedModel.of(this.getCraftingItem(), new AffineTransformation(new Vector3f(xOffset + 1, 0, 1), Vector3f.POSITIVE_Y.getDegreesQuaternion(270), new Vector3f(1, 1, 1), Vector3f.POSITIVE_Z.getDegreesQuaternion(90)));
     }
 
-    private TurtleCommandResult attack(final ITurtleAccess turtle, Direction direction, TurtleSide side) {
+    private TurtleCommandResult attack( ITurtleAccess turtle, Direction direction, TurtleSide side ) {
         // Create a fake player, and orient it appropriately
-        final World world = turtle.getWorld();
-        final BlockPos position = turtle.getPosition();
+        World world = turtle.getWorld();
+        BlockPos position = turtle.getPosition();
+        BlockEntity turtleBlock = turtle instanceof TurtleBrain ? ((TurtleBrain) turtle).getOwner() : world.getBlockEntity( position );
+        if( turtleBlock == null ) return TurtleCommandResult.failure( "Turtle has vanished from existence." );
+
         final TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer(turtle, position, direction);
 
         // See if there is an entity present
@@ -105,7 +109,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         Vec3d rayDir = turtlePlayer.getRotationVec(1.0f);
         Pair<Entity, Vec3d> hit = WorldUtil.rayTraceEntities(world, turtlePos, rayDir, 1.5);
         if (hit != null) {
-            // Load up the turtle's inventory
+            // Load up the turtle's inventoryf
             ItemStack stackCopy = this.item.copy();
             turtlePlayer.loadInventory(stackCopy);
 
@@ -127,7 +131,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
             }
 
             // Start claiming entity drops
-            DropConsumer.set(hitEntity, turtleDropConsumer(turtle));
+            DropConsumer.set( hitEntity, turtleDropConsumer( turtleBlock, turtle ) );
 
             // Attack the entity
             boolean attacked = false;
@@ -152,7 +156,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
             }
 
             // Stop claiming drops
-            stopConsuming(turtle);
+            stopConsuming( turtleBlock, turtle );
 
             // Put everything we collected into the turtles inventory, then return
             if (attacked) {
@@ -168,6 +172,10 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         // Get ready to dig
         World world = turtle.getWorld();
         BlockPos turtlePosition = turtle.getPosition();
+        BlockEntity turtleBlock = turtle instanceof TurtleBrain ? ((TurtleBrain) turtle).getOwner() : world.getBlockEntity( turtlePosition );
+        if( turtleBlock == null ) return TurtleCommandResult.failure( "Turtle has vanished from existence." );
+
+
         BlockPos blockPosition = turtlePosition.offset(direction);
 
         if (world.isAir(blockPosition) || WorldUtil.isLiquidBlock(world, blockPosition)) {
@@ -198,7 +206,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         }
 
         // Consume the items the block drops
-        DropConsumer.set(world, blockPosition, turtleDropConsumer(turtle));
+        DropConsumer.set( world, blockPosition, turtleDropConsumer( turtleBlock, turtle ) );
 
         BlockEntity tile = world.getBlockEntity(blockPosition);
 
@@ -220,28 +228,28 @@ public class TurtleTool extends AbstractTurtleUpgrade {
             }
         }
 
-        stopConsuming(turtle);
+        stopConsuming(turtleBlock, turtle);
 
         return TurtleCommandResult.success();
 
     }
 
-    private static Function<ItemStack, ItemStack> turtleDropConsumer(ITurtleAccess turtle) {
-        return drop -> InventoryUtil.storeItems(drop, turtle.getItemHandler(), turtle.getSelectedSlot());
+    private static Function<ItemStack, ItemStack> turtleDropConsumer(BlockEntity turtleBlock, ITurtleAccess turtle) {
+        return drop -> turtleBlock.isRemoved() ? drop : InventoryUtil.storeItems(drop, turtle.getItemHandler(), turtle.getSelectedSlot());
     }
 
     protected float getDamageMultiplier() {
         return 3.0f;
     }
 
-    private static void stopConsuming(ITurtleAccess turtle) {
+    private static void stopConsuming(BlockEntity turtleBlock, ITurtleAccess turtle) {
+        Direction direction = turtleBlock.isRemoved() ? null : turtle.getDirection().getOpposite();
         List<ItemStack> extra = DropConsumer.clear();
         for (ItemStack remainder : extra) {
             WorldUtil.dropItemStack(remainder,
                                     turtle.getWorld(),
                                     turtle.getPosition(),
-                                    turtle.getDirection()
-                                          .getOpposite());
+                                    direction);
         }
     }
 
