@@ -50,7 +50,7 @@ dependencies {
 
     compile 'javax.vecmath:vecmath:1.5.2'
 
-    shade 'org.squiddev:Cobalt:0.5.1-SNAPSHOT'
+    shade 'org.squiddev:Cobalt:0.5.2-SNAPSHOT'
 
     modRuntime "me.shedaniel:RoughlyEnoughItems-api:5.8.9"
     modRuntime "me.shedaniel:RoughlyEnoughItems:5.8.9"
