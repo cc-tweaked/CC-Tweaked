@@ -136,6 +136,33 @@ public class InventoryMethods implements GenericSource
     }
 
     /**
+     * Get the maximum number of items which can be stored in this slot.
+     *
+     * Typically this will be limited to 64 items. However, some inventories (such as barrels or caches) can store
+     * hundreds or thousands of items in one slot.
+     *
+     * @param inventory Inventory to probe.
+     * @param slot      The slot
+     * @return The maximum number of items in this slot.
+     * @throws LuaException If the slot is out of range.
+     * @cc.usage Count the maximum number of items an adjacent chest can hold.
+     * <pre>{@code
+     * local chest = peripheral.find("minecraft:chest")
+     * local total = 0
+     * for i = 1, chest.size() do
+     *   total = total + chest.getItemLimit(i)
+     * end
+     * print(total)
+     * }</pre>
+     */
+    @LuaFunction( mainThread = true )
+    public static int getItemLimit( IItemHandler inventory, int slot ) throws LuaException
+    {
+        assertBetween( slot, 1, inventory.getSlots(), "Slot out of range (%s)" );
+        return inventory.getSlotLimit( slot );
+    }
+
+    /**
      * Push items from one inventory to another connected one.
      *
      * This allows you to push an item in an inventory to another inventory <em>on the same wired network</em>. Both
