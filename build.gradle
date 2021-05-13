@@ -130,7 +130,7 @@ dependencies {
     compileOnly 'com.google.auto.service:auto-service:1.0-rc7'
     annotationProcessor 'com.google.auto.service:auto-service:1.0-rc7'
 
-    shade 'org.squiddev:Cobalt:0.5.1-SNAPSHOT'
+    shade 'org.squiddev:Cobalt:0.5.2-SNAPSHOT'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
