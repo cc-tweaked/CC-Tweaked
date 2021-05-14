@@ -8,7 +8,6 @@ package dan200.computercraft.core.apis.http.options;
 
 
 import com.electronwill.nightconfig.core.CommentedConfig;
-import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.InMemoryCommentedFormat;
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import dan200.computercraft.ComputerCraft;

@@ -3,7 +3,10 @@ package dan200.computercraft.shared.util;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import blue.endless.jankson.Comment;
 import blue.endless.jankson.Jankson;
@@ -13,6 +16,8 @@ import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.event.TurtleAction;
+import dan200.computercraft.core.apis.http.options.Action;
+import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
 
 public class Config {
@@ -83,7 +88,13 @@ public class Config {
         // HTTP
         ComputerCraft.http_enable = config.http.enabled;
         ComputerCraft.http_websocket_enable = config.http.websocket_enabled;
-        ComputerCraft.httpRules = ComputerCraft.buildHttpRulesFromConfig(config.http.blacklist, config.http.whitelist);
+        ComputerCraft.httpRules = Stream.concat(Stream.of(config.http.blacklist)
+                .map( x -> AddressRule.parse( x, null, Action.DENY.toPartial()))
+                .filter(Objects::nonNull),
+        Stream.of(config.http.whitelist)
+                .map( x -> AddressRule.parse( x, null, Action.ALLOW.toPartial()))
+                .filter(Objects::nonNull))
+        .collect(Collectors.toList());
 
         ComputerCraft.httpTimeout = Math.max(0, config.http.timeout);
         ComputerCraft.httpMaxRequests = Math.max(1, config.http.max_requests);
@@ -158,9 +169,9 @@ public class Config {
             ComputerCraft.http_websocket_enable;
 
         @Comment ("\nA list of wildcards for domains or IP ranges that can be accessed through the " + "\"http\" API on Computers.\n" + "Set this to " +
-                  "\"*\" to access to the entire internet. Example: \"*.pastebin.com\" will restrict access to " + "just subdomains of pastebin.com.\n" + "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\").") public String[] whitelist = ComputerCraft.DEFAULT_HTTP_WHITELIST.clone();
+                  "\"*\" to access to the entire internet. Example: \"*.pastebin.com\" will restrict access to " + "just subdomains of pastebin.com.\n" + "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\").") public String[] whitelist = new String[] {"*"};
 
-        @Comment ("\nA list of wildcards for domains or IP ranges that cannot be accessed through the " + "\"http\" API on Computers.\n" + "If this is " + "empty then all whitelisted domains will be accessible. Example: \"*.github.com\" will block " + "access to all subdomains of github" + ".com.\n" + "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\").") public String[] blacklist = ComputerCraft.DEFAULT_HTTP_BLACKLIST.clone();
+        @Comment ("\nA list of wildcards for domains or IP ranges that cannot be accessed through the " + "\"http\" API on Computers.\n" + "If this is " + "empty then all whitelisted domains will be accessible. Example: \"*.github.com\" will block " + "access to all subdomains of github" + ".com.\n" + "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\").") public String[] blacklist = new String[] {"$private"};
 
         @Comment ("\nThe period of time (in milliseconds) to wait before a HTTP request times out. Set to 0 for unlimited.") public int timeout =
             ComputerCraft.httpTimeout;
