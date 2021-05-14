@@ -343,7 +343,6 @@ Cleanup examples for the various modules
 ```
 
 Ignored Documentation Changes, these are locate
-```
 
 ```
 9a749642d294506095e697a3a4345dfe260bd68c
@@ -396,3 +395,30 @@ Try to handle a turtle being broken while ticked
 
 Hopefully fixes #585. Hopefully.
 ```
+
+```
+511eea39a11956c82e2c11a47b2e7cad27f9887e
+
+Remove <!-- -->s in usages 
+```
+
+```
+826797cbd579e867f0f35f0be44b6a28c8c094a9
+
+Added documentation for global functions (#592)
+```
+Didn't port the docs over.
+
+```
+d83a68f3ff6e3833278a38798d06215293656e85
+
+Allow $private HTTP rule to block any private IP
+```
+The config still uses a `blacklist` and `whitelist` array.
+
+```
+24d3777722812f975d2bc4594437fbbb0431d910
+
+Added improved help viewer (#595)
+```
+Didn't port the lua tests over.
