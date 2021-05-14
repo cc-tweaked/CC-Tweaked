@@ -660,6 +660,18 @@ public class TurtleAPI implements ILuaAPI {
      * @return The turtle command result.
      * @cc.treturn boolean Whether there is a block in front of the turtle.
      * @cc.treturn table|string Information about the block in front, or a message explaining that there is no block.
+     * @cc.usage <pre>{@code
+     * local has_block, data = turtle.inspect()
+     * if has_block then
+     *   print(textutils.serialize(data))
+     *   -- {
+     *   --   name = "minecraft:oak_log",
+     *   --   state = { axis = "x" },
+     *   --   tags = { ["minecraft:logs"] = true, ... },
+     *   -- }
+     * else
+     *   print("No block in front of the turtle")
+     * end}</pre>
      */
     @LuaFunction
     public final MethodResult inspect() {
