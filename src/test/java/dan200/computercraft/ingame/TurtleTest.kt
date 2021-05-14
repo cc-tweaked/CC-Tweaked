@@ -55,4 +55,11 @@ class TurtleTest {
      */
     @GameTest
     suspend fun `Place monitor`(context: TestContext) = context.checkComputerOk(10)
+
+    /**
+     * Checks computers can place into compostors. These are non-typical inventories, so
+     * worth ensuring.
+     */
+    @GameTest
+    suspend fun `Use compostors`(context: TestContext) = context.checkComputerOk(11)
 }
