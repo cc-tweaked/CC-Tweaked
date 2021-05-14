@@ -25,8 +25,8 @@
 --
 -- This table form is an expanded version of the previous syntax. All arguments
 -- from above are passed in as fields instead (for instance,
--- `http.request("https://example.com")` becomes `http.request { url =
--- "https://example.com" }`).
+-- `http.request("https://example.com/")` becomes `http.request { url =
+-- "https://example.com/" }`).
 --
 -- This table also accepts several additional options:
 --
@@ -58,10 +58,10 @@ function request(...) end
 -- @treturn string A message detailing why the request failed.
 -- @treturn Response|nil The failing http response, if available.
 --
--- @usage Make a request to [example.tweaked.cc](https://example.tweaked.cc),
+-- @usage Make a request to [example.tweaked.cc](https://example.tweaked.cc/),
 -- and print the returned page.
 -- ```lua
--- local request = http.get("https://example.tweaked.cc")
+-- local request = http.get("https://example.tweaked.cc/")
 -- print(request.readAll())
 -- -- => HTTP is working!
 -- request.close()
