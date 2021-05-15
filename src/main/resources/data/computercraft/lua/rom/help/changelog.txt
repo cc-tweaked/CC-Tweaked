@@ -1,3 +1,63 @@
+# New features in CC: Restitched 1.95.0
+
+* Optimise the paint program's initial render.
+* Several documentation improvments (Gibbo3771, MCJack123).
+* `fs.combine` now accepts multiple arguments.
+* Add a setting (`bios.strict_globals`) to error when accidentally declaring a global. (Lupus590).
+* Add an improved help viewer which allows scrolling up and down (MCJack123).
+* Add `cc.strings` module, with utilities for wrapping text (Lupus590).
+* The `clear` program now allows resetting the palette too (Luca0208).
+
+And several bug fixes:
+* Fix memory leak in generic peripherals.
+* Fix crash when a turtle is broken while being ticked.
+* `textutils.*tabulate` now accepts strings _or_ numbers.
+* We now deny _all_ local IPs, using the magic `$private` host. Previously the IPv6 loopback interface was not blocked.
+* Fix crash when rendering monitors if the block has not yet been synced. You will need to regenerate the config file to apply this change.
+* `read` now supports numpad enter (TheWireLord)
+* Correctly handle HTTP redirects to URLs containing escape characters.
+* Fix integer overflow in `os.epoch`.
+* Allow using pickaxes (and other items) for turtle upgrades which have mod-specific NBT.
+* Fix duplicate turtle/pocket upgrade recipes appearing in JEI.
+
+# New features in CC: Tweaked 1.94.0
+
+* Add getter for window visibility (devomaa)
+* Generic peripherals are no longer experimental, and on by default.
+* Use term.blit to draw boxes in paintutils (Lemmmy).
+
+And several bug fixes:
+* Fix turtles not getting advancements when turtles are on.
+* Draw in-hand pocket computers with the correct transparent flags enabled.
+* Several bug fixes to SNBT parsing.
+* Fix several programs using their original name instead of aliases in usage hints (Lupus590).
+
+# New features in CC: Tweaked 1.93.1
+
+* Various documentation improvements (Lemmmy).
+* Fix TBO monitor renderer on some older graphics cards (Lemmmy).
+
+# New features in CC: Tweaked 1.93.0
+
+* Update Swedish translations (Granddave).
+* Printers use item tags to check dyes.
+* HTTP rules may now be targetted for a specific port.
+* Don't propagate adjacent redstone signals through computers.
+
+And several bug fixes:
+* Fix NPEs when turtles interact with containers.
+
+# New features in CC: Tweaked 1.92.0
+
+* Bump Cobalt version:
+  * Add support for the __pairs metamethod.
+  * string.format now uses the __tostring metamethod.
+* Add date-specific MOTDs (MCJack123).
+
+And several bug fixes:
+* Correctly handle tabs within textutils.unserailizeJSON.
+* Fix sheep not dropping items when sheared by turtles.
+
 # New features in CC: Tweaked 1.91.0
 
 * [Generic peripherals] Expose NBT hashes of items to inventory methods.
