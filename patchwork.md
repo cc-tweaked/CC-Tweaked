@@ -449,3 +449,16 @@ Use `getCachedState` instead of forge's `getBlockState` and `contains` instead o
 Generate docs for generic peripherals
 ```
 Skipped everything except some removed whitespace.
+
+```
+85cf2d5ff1b63010de4661301801aa504e5b9015
+
+Docs for energy and inventory methods
+```
+and
+```
+5865e9c41a0140b9f1acdd2fb095353c467fbb45
+
+Not sure what irritates me more
+```
+both skipped because the changes where already ported.
