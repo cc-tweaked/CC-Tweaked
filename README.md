@@ -1,11 +1,11 @@
+# CC:Restitched Patchwork
+# This is a Work In Progress Port
+*it runs and works-ish*
+<img src="logo.png" alt="CC: Restitched" width="100%"/>
 
-# ![CC: Restitched](logo.png)
-This is an [fork](https://github.com/Zundrel/cc-tweaked-fabric) of a [fork](https://github.com/ArchivedProjects/cc-tweaked-fabric)  of a [fork/port](https://github.com/mystiacraft/cc-tweaked-fabric) of an [update/port/fork](https://github.com/SquidDev-CC/CC-Tweaked) of [ComputerCraft](https://github.com/dan200/ComputerCraft), adding programmable computers,
-turtles and more to Minecraft.
+[![Current build status](https://github.com/Merith-TK/cc-restitched/workflows/Build/badge.svg)](https://github.com/o-iM-nI/cc-restitched/actions "Current build status") [![Download CC: Restitched  on CurseForge](http://cf.way2muchnoise.eu/title/cc-restitched.svg)](https://www.curseforge.com/minecraft/mc-mods/cc-restitched-updated "Download CC: Restitched on CurseForge")
 
-## What?
-ComputerCraft is the first mod that I have ever used and also one of my favorite mods.
-The only problem I have with is... the old textures so I manually am fixing and tweaking them along with some other things.
+This is an fork of [Zundrel/cc-tweaked-fabric](https://github.com/Zundrel/cc-tweaked-fabric) who's goal was to port [SquidDev-CC/CC-Tweaked](https://github.com/SquidDev-CC/CC-Tweaked) to fabric. I picked up maintaining the mod because the team working on Zundrel's fork, admitted they had gotten lazy so I picked it up to make it up to snuff with CC:T
 
 ## Contributing
 Any contribution is welcome, be that using the mod, reporting bugs or contributing code. In order to start helping develop CC:R there are a few rules
@@ -42,8 +42,4 @@ Main Known issue
 ## Known Working mods that add Peripherals
 * Please let me know of other mods that work with this one
 	* Better End
-		* Chests and Inventories
 	* Better Nether
-		* Chests and Inventories
-## [Building from sources](https://github.com/CaffeineMC/sodium-fabric#building-from-sources)
-
