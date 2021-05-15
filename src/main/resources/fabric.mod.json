@@ -7,15 +7,16 @@
     "license": "ComputerCraft Public License",
     "icon": "assets/computercraft/pack.png",
     "contact": {
-        "homepage": "https://github.com/Merith-TK/cc-restiched",
-        "issues": "https://github.com/Merith-TK/cc-restiched/issues"
+        "homepage": "https://github.com/Merith-TK/cc-restitched",
+        "issues": "https://github.com/Merith-TK/cc-restitched/issues"
     },
     "authors": [
         "Daniel Ratcliffe",
         "Aaron Mills",
         "SquidDev",
         "parly",
-        "Merith.TK"
+        "Merith.TK",
+        "Jummit"
     ],
     "depends": {
         "fabricloader": ">=0.4.0",
