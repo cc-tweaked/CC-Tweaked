@@ -36,9 +36,6 @@ jobs:
               run: bash <(curl -s https://codecov.io/bash)
               continue-on-error: true
 
-            - name: Generate Java documentation stubs
-              run: ./gradlew luaJavadoc --no-daemon
-
             - name: Lint Lua code
               run: |
                   test -d bin || mkdir bin
