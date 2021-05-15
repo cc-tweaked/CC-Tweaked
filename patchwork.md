@@ -422,3 +422,10 @@ The config still uses a `blacklist` and `whitelist` array.
 Added improved help viewer (#595)
 ```
 Didn't port the lua tests over.
+
+```
+737b3cb57696fb5517252e7db38bc88ce960b4d8
+
+Don't use capabilities for generic peripherals 
+```
+Not ported, related to forges capability system which is not used in the port.
