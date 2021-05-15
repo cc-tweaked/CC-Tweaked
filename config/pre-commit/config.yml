@@ -31,6 +31,13 @@ repos:
     entry: ./gradlew checkstyleMain checkstyleTest
     pass_filenames: false
     require_serial: true
+  - id: license
+    name: Check Java license headers
+    files: ".*\\.java$"
+    language: system
+    entry: ./gradlew licenseFormat
+    pass_filenames: false
+    require_serial: true
   - id: illuaminate
     name: Check Lua code
     files: ".*\\.(lua|java|md)"

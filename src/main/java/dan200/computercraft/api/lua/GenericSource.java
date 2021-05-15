@@ -1,7 +1,7 @@
 /*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
+ * This file is part of the public ComputerCraft API - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
+ * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
 package dan200.computercraft.api.lua;
 
@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
  *
  * <pre>{@code
  * public class InventoryMethods implements GenericSource {
- *     @LuaFunction( mainThread = true )
+ *     \@LuaFunction( mainThread = true )
  *     public static int size(IItemHandler inventory) {
  *         return inventory.getSlots();
  *     }
