@@ -36,8 +36,6 @@ import java.util.Optional;
 
 import static dan200.computercraft.shared.peripheral.generic.methods.ArgumentHelpers.assertBetween;
 
-
-
 /**
  * Methods for interacting with inventories.
  *

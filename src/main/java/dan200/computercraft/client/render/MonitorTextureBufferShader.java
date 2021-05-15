@@ -49,7 +49,6 @@ class MonitorTextureBufferShader {
         RenderSystem.glUniform1i(uniformWidth, width);
         RenderSystem.glUniform1i(uniformHeight, height);
 
-        // TODO: Cache this? Maybe??
         PALETTE_BUFFER.rewind();
         for (int i = 0; i < 16; i++) {
             double[] colour = palette.getColour(i);

@@ -422,3 +422,43 @@ The config still uses a `blacklist` and `whitelist` array.
 Added improved help viewer (#595)
 ```
 Didn't port the lua tests over.
+
+```
+737b3cb57696fb5517252e7db38bc88ce960b4d8
+
+Don't use capabilities for generic peripherals 
+```
+Not ported, related to forges capability system which is not used in the port.
+
+```
+ea3a16036794357c3a44edffc90fdb652e03881e
+
+Remove a couple of todos
+```
+
+```
+bb8f4c624bf87169b73fb631d8250cfc38181e15
+
+Some sanity checks for get{Direction,Orientation}
+```
+Use `getCachedState` instead of forge's `getBlockState` and `contains` instead of `has`.
+
+```
+05c3c8ad3269c9025757f9261e7f609889fb6bdc
+
+Generate docs for generic peripherals
+```
+Skipped everything except some removed whitespace.
+
+```
+85cf2d5ff1b63010de4661301801aa504e5b9015
+
+Docs for energy and inventory methods
+```
+and
+```
+5865e9c41a0140b9f1acdd2fb095353c467fbb45
+
+Not sure what irritates me more
+```
+both skipped because the changes where already ported.
