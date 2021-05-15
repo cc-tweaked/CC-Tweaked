@@ -14,7 +14,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -26,53 +25,6 @@ public final class InventoryUtil {
 
     public static boolean areItemsStackable(@Nonnull ItemStack a, @Nonnull ItemStack b) {
         return a == b || (a.getItem() == b.getItem() && ItemStack.areTagsEqual(a, b));
-    }
-
-    /**
-     * Determines if two items are "mostly" equivalent. Namely, they have the same item and damage, and identical share stacks.
-     *
-     * sufficient to ensure basic information (such as enchantments) are the same, while not having to worry about capabilities.
-     *
-     * @param a The first stack to check
-     * @param b The second stack to check
-     * @return If these items are largely the same.
-     */
-    public static boolean areItemsSimilar(@Nonnull ItemStack a, @Nonnull ItemStack b) {
-        if (a == b) {
-            return true;
-        }
-        if (a.isEmpty()) {
-            return !b.isEmpty();
-        }
-
-        if (a.getItem() != b.getItem()) {
-            return false;
-        }
-
-        // A more expanded form of ItemStack.areShareTagsEqual, but allowing an empty tag to be equal to a
-        // null one.
-        CompoundTag shareTagA = a.getTag();
-        CompoundTag shareTagB = b.getTag();
-        if (shareTagA == shareTagB) {
-            return true;
-        }
-        if (shareTagA == null) {
-            return shareTagB.isEmpty();
-        }
-        if (shareTagB == null) {
-            return shareTagA.isEmpty();
-        }
-        return shareTagA.equals(shareTagB);
-    }
-
-    @Nonnull
-    public static ItemStack copyItem(@Nonnull ItemStack a) {
-        return a.copy();
-    }
-
-    public static ItemStorage getStorage(World world, BlockPos pos, Direction side) {
-        Inventory inventory = getInventory(world, pos, side);
-        return inventory == null ? null : ItemStorage.wrap(inventory, side);
     }
 
     // Methods for finding inventories:

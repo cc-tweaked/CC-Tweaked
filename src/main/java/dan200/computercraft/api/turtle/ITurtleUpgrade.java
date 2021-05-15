@@ -10,11 +10,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.IUpgradeBase;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.peripheral.IPeripheral;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
 import net.fabricmc.api.EnvType;
@@ -25,27 +24,8 @@ import net.fabricmc.api.Environment;
  *
  * @see ComputerCraftAPI#registerTurtleUpgrade(ITurtleUpgrade)
  */
-public interface ITurtleUpgrade {
-    /**
-     * Gets a unique identifier representing this type of turtle upgrade. eg: "computercraft:wireless_modem" or "my_mod:my_upgrade". You should use a unique
-     * resource domain to ensure this upgrade is uniquely identified. The turtle will fail registration if an already used ID is specified.
-     *
-     * @return The unique ID for this upgrade.
-     * @see ComputerCraftAPI#registerTurtleUpgrade(ITurtleUpgrade)
-     */
-    @Nonnull
-    Identifier getUpgradeID();
-
-    /**
-     * Return an unlocalised string to describe this type of turtle in turtle item names.
-     *
-     * Examples of built-in adjectives are "Wireless", "Mining" and "Crafty".
-     *
-     * @return The localisation key for this upgrade's adjective.
-     */
-    @Nonnull
-    String getUnlocalisedAdjective();
-
+public interface ITurtleUpgrade extends IUpgradeBase
+{
     /**
      * Return whether this turtle adds a tool or a peripheral to the turtle.
      *
@@ -54,18 +34,6 @@ public interface ITurtleUpgrade {
      */
     @Nonnull
     TurtleUpgradeType getType();
-
-    /**
-     * Return an item stack representing the type of item that a turtle must be crafted with to create a turtle which holds this upgrade. This item stack is
-     * also used to determine the upgrade given by {@code turtle.equip()}
-     *
-     * Ideally this should be constant over a session. It is recommended that you cache the item too, in order to prevent constructing it every time the
-     * method is called.
-     *
-     * @return The item stack to craft with, or {@link ItemStack#EMPTY} if it cannot be crafted.
-     */
-    @Nonnull
-    ItemStack getCraftingItem();
 
     /**
      * Will only be called for peripheral upgrades. Creates a peripheral for a turtle being placed using this upgrade.
