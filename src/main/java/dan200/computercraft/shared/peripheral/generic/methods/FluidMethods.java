@@ -5,12 +5,12 @@
  */
 package dan200.computercraft.shared.peripheral.generic.methods;
 
-import com.google.auto.service.AutoService;
+import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.asm.GenericSource;
 import dan200.computercraft.shared.peripheral.generic.data.FluidData;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.util.ResourceLocation;
@@ -20,7 +20,6 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.versions.forge.ForgeVersion;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,14 +34,13 @@ import static dan200.computercraft.shared.peripheral.generic.methods.ArgumentHel
  *
  * @cc.module fluid_storage
  */
-@AutoService( GenericSource.class )
 public class FluidMethods implements GenericSource
 {
     @Nonnull
     @Override
     public ResourceLocation id()
     {
-        return new ResourceLocation( ForgeVersion.MOD_ID, "fluid" );
+        return new ResourceLocation( ComputerCraft.MOD_ID, "fluid" );
     }
 
     /**

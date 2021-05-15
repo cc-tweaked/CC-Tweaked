@@ -5,12 +5,12 @@
  */
 package dan200.computercraft.shared.peripheral.generic.methods;
 
-import com.google.auto.service.AutoService;
+import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.asm.GenericSource;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -21,7 +21,6 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.versions.forge.ForgeVersion;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -36,14 +35,13 @@ import static dan200.computercraft.shared.peripheral.generic.methods.ArgumentHel
  *
  * @cc.module inventory
  */
-@AutoService( GenericSource.class )
 public class InventoryMethods implements GenericSource
 {
     @Nonnull
     @Override
     public ResourceLocation id()
     {
-        return new ResourceLocation( ForgeVersion.MOD_ID, "inventory" );
+        return new ResourceLocation( ComputerCraft.MOD_ID, "inventory" );
     }
 
     /**

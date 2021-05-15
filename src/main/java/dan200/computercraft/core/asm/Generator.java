@@ -11,10 +11,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.primitives.Primitives;
 import com.google.common.reflect.TypeToken;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.IArguments;
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.api.lua.MethodResult;
+import dan200.computercraft.api.lua.*;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
@@ -111,7 +108,7 @@ public final class Generator<T>
             addMethod( methods, method, annotation, instance );
         }
 
-        for( GenericSource.GenericMethod method : GenericSource.GenericMethod.all() )
+        for( GenericMethod method : GenericMethod.all() )
         {
             if( !method.target.isAssignableFrom( klass ) ) continue;
 

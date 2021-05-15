@@ -127,9 +127,6 @@ dependencies {
 
     runtimeOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.3")
 
-    compileOnly 'com.google.auto.service:auto-service:1.0-rc7'
-    annotationProcessor 'com.google.auto.service:auto-service:1.0-rc7'
-
     shade 'org.squiddev:Cobalt:0.5.2-SNAPSHOT'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
@@ -140,7 +137,7 @@ dependencies {
     testImplementation 'org.jetbrains.kotlin:kotlin-reflect:1.3.72'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8'
 
-    cctJavadoc 'cc.tweaked:cct-javadoc:1.3.0'
+    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.0'
 }
 
 // Compile tasks

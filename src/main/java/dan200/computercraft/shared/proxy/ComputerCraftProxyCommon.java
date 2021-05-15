@@ -24,6 +24,9 @@ import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.media.items.RecordMedia;
 import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.peripheral.generic.methods.EnergyMethods;
+import dan200.computercraft.shared.peripheral.generic.methods.FluidMethods;
+import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.util.NullStorage;
 import net.minecraft.inventory.container.Container;
@@ -36,15 +39,19 @@ import net.minecraft.world.storage.loot.LootTables;
 import net.minecraft.world.storage.loot.TableLootEntry;
 import net.minecraft.world.storage.loot.conditions.LootConditionManager;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
+import net.minecraftforge.items.CapabilityItemHandler;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -59,11 +66,15 @@ public final class ComputerCraftProxyCommon
     {
         NetworkHandler.setup();
 
-        net.minecraftforge.fml.DeferredWorkQueue.runLater( () -> {
+        DeferredWorkQueue.runLater( () -> {
             registerProviders();
             ArgumentSerializers.register();
             registerLoot();
         } );
+
+        ComputerCraftAPI.registerGenericSource( new InventoryMethods() );
+        ComputerCraftAPI.registerGenericSource( new FluidMethods() );
+        ComputerCraftAPI.registerGenericSource( new EnergyMethods() );
     }
 
     public static void registerLoot()
@@ -103,6 +114,12 @@ public final class ComputerCraftProxyCommon
         // Register capabilities
         CapabilityManager.INSTANCE.register( IWiredElement.class, new NullStorage<>(), () -> null );
         CapabilityManager.INSTANCE.register( IPeripheral.class, new NullStorage<>(), () -> null );
+
+        // Register generic capabilities. This can technically be done off-thread, but we need it to happen
+        // after Forge's common setup, so this is easiest.
+        ComputerCraftAPI.registerGenericCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY );
+        ComputerCraftAPI.registerGenericCapability( CapabilityEnergy.ENERGY );
+        ComputerCraftAPI.registerGenericCapability( CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY );
     }
 
     @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )
