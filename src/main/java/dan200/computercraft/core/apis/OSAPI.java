@@ -353,7 +353,7 @@ public class OSAPI implements ILuaAPI {
         case "ingame":
             // Get in-game epoch
             synchronized (this.m_alarms) {
-                return this.m_day * 86400000 + (int) (this.m_time * 3600000.0f);
+                return this.m_day * 86400000L + (long) (this.m_time * 3600000.0);
             }
         default:
             throw new LuaException("Unsupported operation");

@@ -11,6 +11,8 @@ import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.AbstractTurtleUpgrade;
@@ -29,8 +31,6 @@ import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
-import org.apache.commons.lang3.tuple.Pair;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -41,9 +41,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.fluid.FluidState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -59,6 +59,9 @@ import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 public class TurtleTool extends AbstractTurtleUpgrade {
     protected final ItemStack item;
 
+    private static final int TAG_LIST = 9;
+    private static final int TAG_COMPOUND = 10;
+
     public TurtleTool(Identifier id, String adjective, Item item) {
         super(id, TurtleUpgradeType.TOOL, adjective, item);
         this.item = new ItemStack(item);
@@ -72,6 +75,24 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     public TurtleTool(Identifier id, ItemStack craftItem, ItemStack toolItem) {
         super(id, TurtleUpgradeType.TOOL, craftItem);
         this.item = toolItem;
+    }
+
+    @Override
+    public boolean isItemSuitable( @Nonnull ItemStack stack )
+    {
+        CompoundTag tag = stack.getTag();
+        if( tag == null || tag.isEmpty() ) return true;
+
+        // Check we've not got anything vaguely interesting on the item. We allow other mods to add their
+        // own NBT, with the understanding such details will be lost to the mist of time.
+        if( stack.isDamaged() || stack.hasEnchantments() || stack.hasCustomName() ) return false;
+        if( tag.contains( "AttributeModifiers", TAG_LIST ) &&
+            !tag.getList( "AttributeModifiers", TAG_COMPOUND ).isEmpty() )
+        {
+            return false;
+        }
+
+        return true;
     }
 
     @Nonnull
@@ -183,7 +204,6 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         }
 
         BlockState state = world.getBlockState(blockPosition);
-        FluidState fluidState = world.getFluidState(blockPosition);
 
         TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer(turtle, turtlePosition, direction);
         turtlePlayer.loadInventory(this.item.copy());
