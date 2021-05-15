@@ -500,4 +500,40 @@ Skipped because there seems to be no REI integration.
 
 Make upgrade recipe requirements a little more lax
 ```
-Crafting is still messed up, but this port didn't change the behavior.
+[TODO] [JUMT-01] Crafting is still messed up, but this port didn't change the behavior.
+[TODO] [JUMT-02] Tag comparison code doesn't need to be that verbose, a simple `isEqual` check would suffice.
+
+```
+7f9a707f75636d5816f752dc93d7b6b998c61a03
+
+Bump version to 1.95.0
+```
+Changed the name from CC: Tweaked to CC: Restitched in the changelog and whatsnew files. New version is 1.95.0-beta.
+
+```
+4af5bcc0b0ff464e7e7428c389d47140580ea7a7
+
+Fix serveral 1.15 -> 1.16 issues
+```
+Skipped, changes where already made.
+
+```
+b8d5a89446ac02fc5b38cc5c0b4805de9d11a7d5
+
+Add explicit @module annotation
+```
+Tiny lua change.
+
+```
+8b17ec76a8e94251803e6f4ba4e65970c6a70b7f
+
+Fixed missing argument names in file handle docs (#632)
+```
+A java doc change.
+
+```
+e4b0a5b3ce035eb23feb4191432fc49af5772c5b
+
+2020 -> 2021
+```
+A huge amount of changes.
