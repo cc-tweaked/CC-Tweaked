@@ -7,6 +7,8 @@
 
 This is an fork of [Zundrel/cc-tweaked-fabric](https://github.com/Zundrel/cc-tweaked-fabric) who's goal was to port [SquidDev-CC/CC-Tweaked](https://github.com/SquidDev-CC/CC-Tweaked) to fabric. I picked up maintaining the mod because the team working on Zundrel's fork, admitted they had gotten lazy so I picked it up to make it up to snuff with CC:T
 
+This mod includes textures that are more in-line with the style of Mojang's new texture-artist, Jappa. If you prefer the original textures, enable the "Programer Art" resource pack provided by the mod.
+
 ## Contributing
 Any contribution is welcome, be that using the mod, reporting bugs or contributing code. In order to start helping develop CC:R there are a few rules
 1) Any updates that port commits from CC:T, ***MUST*** follow the format defined in [patchwork.md](patchwork.md) otherwise they will not be accepted,
