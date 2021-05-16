@@ -90,19 +90,30 @@ public final class ResourceMount implements IMount {
 
     private void load() {
         boolean hasAny = false;
-        FileEntry newRoot = new FileEntry(new Identifier(this.namespace, this.subPath));
-        for (Identifier file : this.manager.findResources(this.subPath, s -> true)) {
-            if (!file.getNamespace()
-                     .equals(this.namespace)) {
-                continue;
-            }
+        String existingNamespace = null;
+
+        FileEntry newRoot = new FileEntry( new Identifier( namespace, subPath ) );
+        for( Identifier file : manager.findResources( subPath, s -> true ) )
+        {
+            existingNamespace = file.getNamespace();
+
+            if( !file.getNamespace().equals( namespace ) ) continue;
 
             String localPath = FileSystem.toLocal(file.getPath(), this.subPath);
             this.create(newRoot, localPath);
             hasAny = true;
         }
 
-        this.root = hasAny ? newRoot : null;
+        root = hasAny ? newRoot : null;
+
+        if( !hasAny )
+        {
+            ComputerCraft.log.warn("Cannot find any files under /data/{}/{} for resource mount.", namespace, subPath);
+            if( newRoot != null )
+            {
+                ComputerCraft.log.warn("There are files under /data/{}/{} though. Did you get the wrong namespace?", existingNamespace, subPath);
+            }
+        }
     }
 
     private void create(FileEntry lastEntry, String path) {

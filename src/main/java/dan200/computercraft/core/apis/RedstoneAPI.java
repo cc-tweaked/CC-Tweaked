@@ -185,8 +185,9 @@ public class RedstoneAPI implements ILuaAPI {
      * @see #testBundledInput To determine if a specific colour is set.
      */
     @LuaFunction
-    public final int getBundledInput(ComputerSide side) {
-        return this.environment.getBundledOutput(side);
+    public final int getBundledInput( ComputerSide side )
+    {
+        return environment.getBundledInput( side );
     }
 
     /**

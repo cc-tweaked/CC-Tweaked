@@ -89,12 +89,7 @@ public final class TurtlePlayer extends FakePlayer {
     }
 
     public static TurtlePlayer get(ITurtleAccess access) {
-         ServerWorld world = (ServerWorld) access.getWorld();
         if( !(access instanceof TurtleBrain) ) return create( access );
-
-         /*if (!(access instanceof TurtleBrain)) {
-            return new TurtlePlayer(world, access.getOwningPlayer());
-        }*/
 
         TurtleBrain brain = (TurtleBrain) access;
         TurtlePlayer player = brain.m_cachedPlayer;

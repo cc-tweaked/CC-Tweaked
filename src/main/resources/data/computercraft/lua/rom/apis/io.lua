@@ -137,6 +137,15 @@ handleMetatable = {
             return handle.seek(whence, offset)
         end,
 
+        --[[- Sets the buffering mode for an output file.
+
+        This has no effect under ComputerCraft, and exists with compatility
+        with base Lua.
+        @tparam string mode The buffering mode.
+        @tparam[opt] number size The size of the buffer.
+        @see file:setvbuf Lua's documentation for `setvbuf`.
+        @deprecated This has no effect in CC.
+        ]]
         setvbuf = function(self, mode, size) end,
 
         --- Write one or more values to the file

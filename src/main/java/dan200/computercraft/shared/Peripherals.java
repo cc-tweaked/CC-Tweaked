@@ -40,8 +40,6 @@ public final class Peripherals {
 
     @Nullable
     private static IPeripheral getPeripheralAt(World world, BlockPos pos, Direction side) {
-        BlockEntity block = world.getBlockEntity(pos);
-
         // Try the handlers in order:
         for (IPeripheralProvider peripheralProvider : providers) {
             try {
