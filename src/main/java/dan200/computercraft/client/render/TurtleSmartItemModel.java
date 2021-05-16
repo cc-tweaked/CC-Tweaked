@@ -78,9 +78,10 @@ public class TurtleSmartItemModel implements BakedModel {
                 Identifier overlay = turtle.getOverlay(stack);
                 boolean christmas = HolidayUtil.getCurrentHoliday() == Holiday.CHRISTMAS;
                 String label = turtle.getLabel(stack);
-                boolean flip = label != null && (label.equals("Dinnerbone") || label.equals("Grumm"));
-                // TODO Make TurtleTool render for turtle items again.
-                TurtleModelCombination combo = new TurtleModelCombination(colour != -1, !(leftUpgrade instanceof TurtleTool) ? leftUpgrade : null, !(rightUpgrade instanceof TurtleTool) ? rightUpgrade : null, overlay, christmas, flip);
+                // TODO make upside down turtle items render properly (currently inivisible)
+                //boolean flip = label != null && (label.equals("Dinnerbone") || label.equals("Grumm"));
+                boolean flip = false;
+                TurtleModelCombination combo = new TurtleModelCombination(colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip);
 
                 BakedModel model = TurtleSmartItemModel.this.m_cachedModels.get(combo);
                 if (model == null) {

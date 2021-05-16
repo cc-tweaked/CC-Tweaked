@@ -28,7 +28,6 @@ public class GenericPeripheralProvider
 
         ArrayList<SaturatedMethod> saturated = new ArrayList<>( 0 );
 
-        // This seems to add inventory methods, how???
         List<NamedMethod<PeripheralMethod>> tileMethods = PeripheralMethod.GENERATOR.getMethods( tile.getClass() );
         if( !tileMethods.isEmpty() ) addSaturated( saturated, tile, tileMethods );
 

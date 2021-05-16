@@ -22,6 +22,7 @@ import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
+import net.minecraft.item.*;
 import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraft.block.BlockState;
@@ -29,16 +30,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BoatItem;
-import net.minecraft.item.BucketItem;
-import net.minecraft.item.GlassBottleItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.item.LilyPadItem;
-import net.minecraft.item.SignItem;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -224,27 +215,18 @@ public class TurtlePlaceCommand implements ITurtleCommand {
         // Place on the entity
         boolean placed = false;
         ActionResult cancelResult = hitEntity.interactAt(turtlePlayer, hitPos, Hand.MAIN_HAND);
-        if (cancelResult == null) {
-            cancelResult = hitEntity.interactAt(turtlePlayer, hitPos, Hand.MAIN_HAND);
-        }
 
         if (cancelResult != null && cancelResult.isAccepted()) {
             placed = true;
-        } else if (hitEntity instanceof LivingEntity) {
-            // See EntityPlayer.interactOn
-            cancelResult = stackCopy.useOnEntity(turtlePlayer, (LivingEntity) hitEntity, Hand.MAIN_HAND);
+        }
+        else {
+            cancelResult = hitEntity.interact(turtlePlayer, Hand.MAIN_HAND);
             if (cancelResult != null && cancelResult.isAccepted()) {
                 placed = true;
-            } else if (cancelResult == null) {
-                if (hitEntity.interact(turtlePlayer, Hand.MAIN_HAND) == ActionResult.CONSUME) {
-                    placed = true;
-                } else {
-                    placed = stackCopy.useOnEntity(turtlePlayer, (LivingEntity) hitEntity, Hand.MAIN_HAND)
-                                      .isAccepted();
-                    if (placed) {
-                        turtlePlayer.loadInventory(stackCopy);
-                    }
-                }
+            }
+            else if (hitEntity instanceof LivingEntity) {
+                placed = stackCopy.useOnEntity(turtlePlayer, (LivingEntity) hitEntity, Hand.MAIN_HAND).isAccepted();
+                if (placed) turtlePlayer.loadInventory(stackCopy);
             }
         }
 
@@ -304,11 +286,9 @@ public class TurtlePlaceCommand implements ITurtleCommand {
         BlockEntity existingTile = turtle.getWorld()
                                          .getBlockEntity(position);
 
-        if (placementContext.canPlace()) {
-            if (stackCopy.useOnBlock(context) == ActionResult.SUCCESS) {
-                placed = true;
-                turtlePlayer.loadInventory(stackCopy);
-            }
+        if (stackCopy.useOnBlock(context).isAccepted()) {
+            placed = true;
+            turtlePlayer.loadInventory(stackCopy);
         }
 
         if (!placed && (item instanceof BucketItem || item instanceof BoatItem || item instanceof LilyPadItem || item instanceof GlassBottleItem)) {

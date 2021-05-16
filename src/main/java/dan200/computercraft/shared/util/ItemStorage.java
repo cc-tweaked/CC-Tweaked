@@ -36,6 +36,9 @@ public interface ItemStorage {
     int size();
 
     @Nonnull
+    ItemStack getStack(int slot);
+
+    @Nonnull
     ItemStack take(int slot, int limit, @Nonnull ItemStack filter, boolean simulate);
 
     @Nonnull
@@ -55,6 +58,12 @@ public interface ItemStorage {
         @Override
         public int size() {
             return this.inventory.size();
+        }
+
+        @Override
+        @Nonnull
+        public ItemStack getStack(int slot) {
+            return this.inventory.getStack(slot);
         }
 
         @Override
@@ -201,6 +210,15 @@ public interface ItemStorage {
         @Override
         public int size() {
             return this.size;
+        }
+
+        @Override
+        @Nonnull
+        public ItemStack getStack(int slot) {
+            if (slot < this.start || slot >= this.start + this.size) {
+                return ItemStack.EMPTY;
+            }
+            return this.parent.getStack(slot - this.start );
         }
 
         @Nonnull

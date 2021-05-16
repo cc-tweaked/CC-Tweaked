@@ -8,6 +8,11 @@ package dan200.computercraft.shared.util;
 
 import javax.annotation.Nonnull;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ChestBlock;
+import net.minecraft.block.InventoryProvider;
+import net.minecraft.block.entity.ChestBlockEntity;
 import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraft.block.entity.BlockEntity;
@@ -33,9 +38,20 @@ public final class InventoryUtil {
         // Look for tile with inventory
         int y = pos.getY();
         if (y >= 0 && y < world.getHeight()) {
-            BlockEntity tileEntity = world.getBlockEntity(pos);
-            if (tileEntity instanceof Inventory) {
-                return (Inventory) tileEntity;
+            // Check if block is InventoryProvider
+            BlockState blockState = world.getBlockState(pos);
+            Block block = blockState.getBlock();
+            if (block instanceof InventoryProvider) {
+                return ((InventoryProvider)block).getInventory(blockState, world, pos);
+            }
+            // Check if block is BlockEntity w/ Inventory
+            if (block.hasBlockEntity()) {
+                BlockEntity tileEntity = world.getBlockEntity(pos);
+
+                Inventory inventory = getInventory(tileEntity);
+                if (inventory != null) {
+                    return inventory;
+                }
             }
         }
 
@@ -52,6 +68,23 @@ public final class InventoryUtil {
                 return (Inventory) entity;
             }
         }
+        return null;
+    }
+
+    public static Inventory getInventory(BlockEntity tileEntity) {
+        World world = tileEntity.getWorld();
+        BlockPos pos = tileEntity.getPos();
+        BlockState blockState = world.getBlockState(pos);
+        Block block = blockState.getBlock();
+
+        if (tileEntity instanceof Inventory) {
+            Inventory inventory = (Inventory)tileEntity;
+            if (inventory instanceof ChestBlockEntity && block instanceof ChestBlock) {
+                return ChestBlock.getInventory((ChestBlock) block, blockState, world, pos, true);
+            }
+            return inventory;
+        }
+
         return null;
     }
 
