@@ -88,7 +88,30 @@ local function field(tbl, index, ...)
     end
 end
 
+--- Expect a number to be within a specific range.
+--
+-- @tparam number num, The value to check.
+-- @tparam min The minimum value, if nil then `-math.huge` is used.
+-- @tparam max The maximum value, if nil then `math.huge` is used.
+-- @return The given `value`.
+-- @throws If the value is outside of the allowed range.
+local function range(num, min, max)
+  expect(1, num, "number")
+  local min = expect(2, min, "number", "nil") or -math.huge
+  local max = expect(3, max, "number", "nil") or math.huge
+  if min > max then
+      error("min must be less than or equal to max)", 2)
+  end
+  
+  if num < min or num > max then
+      error(("number outside of range (expected value to be within %d and %d)"):format(min, max), 3)
+  end
+  
+  return num
+end
+
 return {
     expect = expect,
     field = field,
+    range = range,
 }
