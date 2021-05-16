@@ -83,9 +83,9 @@ end
 
 --- Tries to retrieve the computer or turtles own location.
 --
--- @tparam[opt] number timeout The maximum time taken to establish our
--- position. Defaults to 2 seconds if not specified.
--- @tparam[opt] boolean debug Print debugging messages
+-- @tparam[opt=2] number timeout The maximum time in seconds taken to establish our
+-- position.
+-- @tparam[opt=false] boolean debug Print debugging messages
 -- @treturn[1] number This computer's `x` position.
 -- @treturn[1] number This computer's `y` position.
 -- @treturn[1] number This computer's `z` position.

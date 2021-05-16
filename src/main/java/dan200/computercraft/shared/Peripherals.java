@@ -35,13 +35,11 @@ public final class Peripherals {
 
     @Nullable
     public static IPeripheral getPeripheral(World world, BlockPos pos, Direction side) {
-        return World.method_24794(pos) && !world.isClient ? getPeripheralAt(world, pos, side) : null;
+        return World.isValid(pos) && !world.isClient ? getPeripheralAt(world, pos, side) : null;
     }
 
     @Nullable
     private static IPeripheral getPeripheralAt(World world, BlockPos pos, Direction side) {
-        BlockEntity block = world.getBlockEntity(pos);
-
         // Try the handlers in order:
         for (IPeripheralProvider peripheralProvider : providers) {
             try {

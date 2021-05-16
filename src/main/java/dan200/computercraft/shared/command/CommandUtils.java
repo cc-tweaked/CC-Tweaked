@@ -17,7 +17,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dan200.computercraft.api.turtle.FakePlayer;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.server.command.CommandSource;
+import net.minecraft.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 

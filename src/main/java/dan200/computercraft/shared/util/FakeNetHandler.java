@@ -14,7 +14,6 @@ import dan200.computercraft.api.turtle.FakePlayer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.network.NetworkState;
@@ -25,15 +24,12 @@ import net.minecraft.network.packet.c2s.play.BoatPaddleStateC2SPacket;
 import net.minecraft.network.packet.c2s.play.BookUpdateC2SPacket;
 import net.minecraft.network.packet.c2s.play.ButtonClickC2SPacket;
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
-import net.minecraft.network.packet.c2s.play.ClickWindowC2SPacket;
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.network.packet.c2s.play.ClientSettingsC2SPacket;
 import net.minecraft.network.packet.c2s.play.ClientStatusC2SPacket;
-import net.minecraft.network.packet.c2s.play.ConfirmGuiActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.CraftRequestC2SPacket;
 import net.minecraft.network.packet.c2s.play.CreativeInventoryActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.network.packet.c2s.play.GuiCloseC2SPacket;
 import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
 import net.minecraft.network.packet.c2s.play.KeepAliveC2SPacket;
 import net.minecraft.network.packet.c2s.play.PickFromInventoryC2SPacket;
@@ -48,7 +44,6 @@ import net.minecraft.network.packet.c2s.play.QueryEntityNbtC2SPacket;
 import net.minecraft.network.packet.c2s.play.RenameItemC2SPacket;
 import net.minecraft.network.packet.c2s.play.RequestCommandCompletionsC2SPacket;
 import net.minecraft.network.packet.c2s.play.ResourcePackStatusC2SPacket;
-import net.minecraft.network.packet.c2s.play.SelectVillagerTradeC2SPacket;
 import net.minecraft.network.packet.c2s.play.SpectatorTeleportC2SPacket;
 import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
 import net.minecraft.network.packet.c2s.play.UpdateBeaconC2SPacket;
@@ -128,10 +123,6 @@ public class FakeNetHandler extends ServerPlayNetworkHandler {
     }
 
     @Override
-    public void onVillagerTradeSelect(@Nonnull SelectVillagerTradeC2SPacket packet) {
-    }
-
-    @Override
     public void onBookUpdate(@Nonnull BookUpdateC2SPacket packet) {
     }
 
@@ -208,14 +199,6 @@ public class FakeNetHandler extends ServerPlayNetworkHandler {
     }
 
     @Override
-    public void onGuiClose(@Nonnull GuiCloseC2SPacket packet) {
-    }
-
-    @Override
-    public void onClickWindow(@Nonnull ClickWindowC2SPacket packet) {
-    }
-
-    @Override
     public void onCraftRequest(@Nonnull CraftRequestC2SPacket packet) {
     }
 
@@ -225,10 +208,6 @@ public class FakeNetHandler extends ServerPlayNetworkHandler {
 
     @Override
     public void onCreativeInventoryAction(@Nonnull CreativeInventoryActionC2SPacket packet) {
-    }
-
-    @Override
-    public void onConfirmTransaction(@Nonnull ConfirmGuiActionC2SPacket packet) {
     }
 
     @Override
@@ -307,10 +286,6 @@ public class FakeNetHandler extends ServerPlayNetworkHandler {
         @Override
         public void disconnect(@Nonnull Text message) {
             this.closeReason = message;
-        }
-
-        @Override
-        public void setupEncryption(@Nonnull SecretKey key) {
         }
 
         @Nonnull

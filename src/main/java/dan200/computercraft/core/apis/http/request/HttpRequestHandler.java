@@ -3,18 +3,7 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.apis.http.request;
-
-import static dan200.computercraft.core.apis.http.request.HttpRequest.getHeaderSize;
-
-import java.io.Closeable;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
@@ -29,22 +18,20 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpRequest;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderValues;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpObject;
-import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpUtil;
-import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http.*;
 
-public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> implements Closeable {
+import java.io.Closeable;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+
+import static dan200.computercraft.core.apis.http.request.HttpRequest.getHeaderSize;
+
+public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> implements Closeable
+{
     /**
      * Same as {@link io.netty.handler.codec.MessageAggregator}.
      */
@@ -53,16 +40,19 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     private static final byte[] EMPTY_BYTES = new byte[0];
 
     private final HttpRequest request;
+    private boolean closed = false;
+
     private final URI uri;
     private final HttpMethod method;
     private final Options options;
-    private final HttpHeaders responseHeaders = new DefaultHttpHeaders();
-    private boolean closed = false;
+
     private Charset responseCharset;
+    private final HttpHeaders responseHeaders = new DefaultHttpHeaders();
     private HttpResponseStatus responseStatus;
     private CompositeByteBuf responseBody;
 
-    HttpRequestHandler(HttpRequest request, URI uri, HttpMethod method, Options options) {
+    HttpRequestHandler( HttpRequest request, URI uri, HttpMethod method, Options options )
+    {
         this.request = request;
 
         this.uri = uri;
@@ -71,203 +61,199 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        if (this.request.checkClosed()) {
-            return;
-        }
+    public void channelActive( ChannelHandlerContext ctx ) throws Exception
+    {
+        if( request.checkClosed() ) return;
 
-        ByteBuf body = this.request.body();
-        body.resetReaderIndex()
-            .retain();
+        ByteBuf body = request.body();
+        body.resetReaderIndex().retain();
 
-        String requestUri = this.uri.getRawPath();
-        if (this.uri.getRawQuery() != null) {
-            requestUri += "?" + this.uri.getRawQuery();
-        }
+        String requestUri = uri.getRawPath();
+        if( uri.getRawQuery() != null ) requestUri += "?" + uri.getRawQuery();
 
-        FullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, requestUri, body);
-        request.setMethod(this.method);
-        request.headers()
-               .set(this.request.headers());
+        FullHttpRequest request = new DefaultFullHttpRequest( HttpVersion.HTTP_1_1, HttpMethod.GET, requestUri, body );
+        request.setMethod( method );
+        request.headers().set( this.request.headers() );
 
         // We force some headers to be always applied
-        if (!request.headers()
-                    .contains(HttpHeaderNames.ACCEPT_CHARSET)) {
-            request.headers()
-                   .set(HttpHeaderNames.ACCEPT_CHARSET, "UTF-8");
+        if( !request.headers().contains( HttpHeaderNames.ACCEPT_CHARSET ) )
+        {
+            request.headers().set( HttpHeaderNames.ACCEPT_CHARSET, "UTF-8" );
         }
-        if (!request.headers()
-                    .contains(HttpHeaderNames.USER_AGENT)) {
-            request.headers()
-                   .set(HttpHeaderNames.USER_AGENT,
-                        this.request.environment()
-                                    .getComputerEnvironment()
-                                    .getUserAgent());
-        }
-        request.headers()
-               .set(HttpHeaderNames.HOST, this.uri.getPort() < 0 ? this.uri.getHost() : this.uri.getHost() + ":" + this.uri.getPort());
-        request.headers()
-               .set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
+        request.headers().set( HttpHeaderNames.HOST, uri.getPort() < 0 ? uri.getHost() : uri.getHost() + ":" + uri.getPort() );
+        request.headers().set( HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE );
 
-        ctx.channel()
-           .writeAndFlush(request);
+        ctx.channel().writeAndFlush( request );
 
-        super.channelActive(ctx);
+        super.channelActive( ctx );
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if (!this.closed) {
-            this.request.failure("Could not connect");
-        }
-        super.channelInactive(ctx);
+    public void channelInactive( ChannelHandlerContext ctx ) throws Exception
+    {
+        if( !closed ) request.failure( "Could not connect" );
+        super.channelInactive( ctx );
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        if (ComputerCraft.logPeripheralErrors) {
-            ComputerCraft.log.error("Error handling HTTP response", cause);
-        }
-        this.request.failure(cause);
-    }
+    public void channelRead0( ChannelHandlerContext ctx, HttpObject message )
+    {
+        if( closed || request.checkClosed() ) return;
 
-    @Override
-    public void channelRead0(ChannelHandlerContext ctx, HttpObject message) {
-        if (this.closed || this.request.checkClosed()) {
-            return;
-        }
-
-        if (message instanceof HttpResponse) {
+        if( message instanceof HttpResponse )
+        {
             HttpResponse response = (HttpResponse) message;
 
-            if (this.request.redirects.get() > 0) {
-                URI redirect = this.getRedirect(response.status(), response.headers());
-                if (redirect != null && !this.uri.equals(redirect) && this.request.redirects.getAndDecrement() > 0) {
+            if( request.redirects.get() > 0 )
+            {
+                URI redirect = getRedirect( response.status(), response.headers() );
+                if( redirect != null && !uri.equals( redirect ) && request.redirects.getAndDecrement() > 0 )
+                {
                     // If we have a redirect, and don't end up at the same place, then follow it.
 
                     // We mark ourselves as disposed first though, to avoid firing events when the channel
                     // becomes inactive or disposed.
-                    this.closed = true;
+                    closed = true;
                     ctx.close();
 
-                    try {
-                        HttpRequest.checkUri(redirect);
-                    } catch (HTTPRequestException e) {
+                    try
+                    {
+                        HttpRequest.checkUri( redirect );
+                    }
+                    catch( HTTPRequestException e )
+                    {
                         // If we cannot visit this uri, then fail.
-                        this.request.failure(e.getMessage());
+                        request.failure( e.getMessage() );
                         return;
                     }
 
-                    this.request.request(redirect,
-                                    response.status()
-                                            .code() == 303 ? HttpMethod.GET : this.method);
+                    request.request( redirect, response.status().code() == 303 ? HttpMethod.GET : method );
                     return;
                 }
             }
 
-            this.responseCharset = HttpUtil.getCharset(response, StandardCharsets.UTF_8);
-            this.responseStatus = response.status();
-            this.responseHeaders.add(response.headers());
+            responseCharset = HttpUtil.getCharset( response, StandardCharsets.UTF_8 );
+            responseStatus = response.status();
+            responseHeaders.add( response.headers() );
         }
 
-        if (message instanceof HttpContent) {
+        if( message instanceof HttpContent )
+        {
             HttpContent content = (HttpContent) message;
 
-            if (this.responseBody == null) {
-                this.responseBody = ctx.alloc()
-                                       .compositeBuffer(DEFAULT_MAX_COMPOSITE_BUFFER_COMPONENTS);
+            if( responseBody == null )
+            {
+                responseBody = ctx.alloc().compositeBuffer( DEFAULT_MAX_COMPOSITE_BUFFER_COMPONENTS );
             }
 
             ByteBuf partial = content.content();
-            if (partial.isReadable()) {
+            if( partial.isReadable() )
+            {
                 // If we've read more than we're allowed to handle, abort as soon as possible.
-                if (this.options.maxDownload != 0 && this.responseBody.readableBytes() + partial.readableBytes() > this.options.maxDownload) {
-                    this.closed = true;
+                if( options.maxDownload != 0 && responseBody.readableBytes() + partial.readableBytes() > options.maxDownload )
+                {
+                    closed = true;
                     ctx.close();
 
-                    this.request.failure("Response is too large");
+                    request.failure( "Response is too large" );
                     return;
                 }
 
-                this.responseBody.addComponent(true, partial.retain());
+                responseBody.addComponent( true, partial.retain() );
             }
 
-            if (message instanceof LastHttpContent) {
+            if( message instanceof LastHttpContent )
+            {
                 LastHttpContent last = (LastHttpContent) message;
-                this.responseHeaders.add(last.trailingHeaders());
+                responseHeaders.add( last.trailingHeaders() );
 
                 // Set the content length, if not already given.
-                if (this.responseHeaders.contains(HttpHeaderNames.CONTENT_LENGTH)) {
-                    this.responseHeaders.set(HttpHeaderNames.CONTENT_LENGTH, this.responseBody.readableBytes());
+                if( responseHeaders.contains( HttpHeaderNames.CONTENT_LENGTH ) )
+                {
+                    responseHeaders.set( HttpHeaderNames.CONTENT_LENGTH, responseBody.readableBytes() );
                 }
 
                 ctx.close();
-                this.sendResponse();
+                sendResponse();
             }
+        }
+    }
+
+    @Override
+    public void exceptionCaught( ChannelHandlerContext ctx, Throwable cause )
+    {
+        if( ComputerCraft.logPeripheralErrors ) ComputerCraft.log.error( "Error handling HTTP response", cause );
+        request.failure( cause );
+    }
+
+    private void sendResponse()
+    {
+        // Read the ByteBuf into a channel.
+        CompositeByteBuf body = responseBody;
+        byte[] bytes = body == null ? EMPTY_BYTES : NetworkUtils.toBytes( body );
+
+        // Decode the headers
+        HttpResponseStatus status = responseStatus;
+        Map<String, String> headers = new HashMap<>();
+        for( Map.Entry<String, String> header : responseHeaders )
+        {
+            String existing = headers.get( header.getKey() );
+            headers.put( header.getKey(), existing == null ? header.getValue() : existing + "," + header.getValue() );
+        }
+
+        // Fire off a stats event
+        request.environment().addTrackingChange( TrackingField.HTTP_DOWNLOAD, getHeaderSize( responseHeaders ) + bytes.length );
+
+        // Prepare to queue an event
+        ArrayByteChannel contents = new ArrayByteChannel( bytes );
+        HandleGeneric reader = request.isBinary()
+            ? BinaryReadableHandle.of( contents )
+            : new EncodedReadableHandle( EncodedReadableHandle.open( contents, responseCharset ) );
+        HttpResponseHandle stream = new HttpResponseHandle( reader, status.code(), status.reasonPhrase(), headers );
+
+        if( status.code() >= 200 && status.code() < 400 )
+        {
+            request.success( stream );
+        }
+        else
+        {
+            request.failure( status.reasonPhrase(), stream );
         }
     }
 
     /**
      * Determine the redirect from this response.
      *
-     * @param status The status of the HTTP response.
+     * @param status  The status of the HTTP response.
      * @param headers The headers of the HTTP response.
      * @return The URI to redirect to, or {@code null} if no redirect should occur.
      */
-    private URI getRedirect(HttpResponseStatus status, HttpHeaders headers) {
+    private URI getRedirect( HttpResponseStatus status, HttpHeaders headers )
+    {
         int code = status.code();
-        if (code < 300 || code > 307 || code == 304 || code == 306) {
+        if( code < 300 || code > 307 || code == 304 || code == 306 ) return null;
+
+        String location = headers.get( HttpHeaderNames.LOCATION );
+        if( location == null ) return null;
+
+        try
+        {
+            return uri.resolve( new URI( location ) );
+        }
+        catch( IllegalArgumentException | URISyntaxException e )
+        {
             return null;
-        }
-
-        String location = headers.get(HttpHeaderNames.LOCATION);
-        if (location == null) {
-            return null;
-        }
-
-        try {
-            return this.uri.resolve(new URI( location ));
-        } catch( IllegalArgumentException | URISyntaxException e ) {
-            return null;
-        }
-    }
-
-    private void sendResponse() {
-        // Read the ByteBuf into a channel.
-        CompositeByteBuf body = this.responseBody;
-        byte[] bytes = body == null ? EMPTY_BYTES : NetworkUtils.toBytes(body);
-
-        // Decode the headers
-        HttpResponseStatus status = this.responseStatus;
-        Map<String, String> headers = new HashMap<>();
-        for (Map.Entry<String, String> header : this.responseHeaders) {
-            String existing = headers.get(header.getKey());
-            headers.put(header.getKey(), existing == null ? header.getValue() : existing + "," + header.getValue());
-        }
-
-        // Fire off a stats event
-        this.request.environment()
-                    .addTrackingChange(TrackingField.HTTP_DOWNLOAD, getHeaderSize(this.responseHeaders) + bytes.length);
-
-        // Prepare to queue an event
-        ArrayByteChannel contents = new ArrayByteChannel(bytes);
-        HandleGeneric reader = this.request.isBinary() ? BinaryReadableHandle.of(contents) : new EncodedReadableHandle(EncodedReadableHandle.open(contents,
-                                                                                                                                                  this.responseCharset));
-        HttpResponseHandle stream = new HttpResponseHandle(reader, status.code(), status.reasonPhrase(), headers);
-
-        if (status.code() >= 200 && status.code() < 400) {
-            this.request.success(stream);
-        } else {
-            this.request.failure(status.reasonPhrase(), stream);
         }
     }
 
     @Override
-    public void close() {
-        this.closed = true;
-        if (this.responseBody != null) {
-            this.responseBody.release();
-            this.responseBody = null;
+    public void close()
+    {
+        closed = true;
+        if( responseBody != null )
+        {
+            responseBody.release();
+            responseBody = null;
         }
     }
 }

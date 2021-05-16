@@ -77,7 +77,7 @@ public final class TurtlePlayer extends FakePlayer {
     private void setState(ITurtleAccess turtle) {
         if (this.currentScreenHandler != playerScreenHandler) {
             ComputerCraft.log.warn("Turtle has open container ({})", this.currentScreenHandler);
-            closeCurrentScreen();
+            closeHandledScreen();
         }
 
         BlockPos position = turtle.getPosition();
@@ -91,12 +91,7 @@ public final class TurtlePlayer extends FakePlayer {
     }
 
     public static TurtlePlayer get(ITurtleAccess access) {
-         ServerWorld world = (ServerWorld) access.getWorld();
         if( !(access instanceof TurtleBrain) ) return create( access );
-
-         /*if (!(access instanceof TurtleBrain)) {
-            return new TurtlePlayer(world, access.getOwningPlayer());
-        }*/
 
         TurtleBrain brain = (TurtleBrain) access;
         TurtlePlayer player = brain.m_cachedPlayer;

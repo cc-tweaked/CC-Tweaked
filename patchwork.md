@@ -537,3 +537,91 @@ e4b0a5b3ce035eb23feb4191432fc49af5772c5b
 2020 -> 2021
 ```
 A huge amount of changes.
+
+```
+542b66c79a9b08e080c39c9a73d74ffe71c0106a
+
+Add back command computer block drops
+```
+Didn't port some forge-related changes, but it works.
+
+```
+dd6f97622e6c18ce0d8988da6a5bede45c94ca5d
+
+Prevent reflection errors crashing the game
+```
+
+```
+92be0126df63927d07fc695945f8b98e328f945a
+
+Fix disk recipes
+```
+Dye recipes actually work now.
+
+```
+1edb7288b974aec3764b0a820edce7e9eee38e66
+
+Merge branch 'mc-1.15.x' into mc-1.16.x
+```
+New version: 1.95.1.
+
+```
+41226371f3b5fd35f48b6d39c2e8e0c277125b21
+
+Add isReadOnly to fs.attributes (#639)
+```
+Also changed some lua test files, but made the changes anyway.
+
+```
+b2e54014869fac4b819b01b6c24e550ca113ce8a
+
+Added Numpad Enter Support in rom lua programs. (#657)
+```
+Just lua changes.
+
+```
+247c05305d106af430fcdaee41371a152bf7c38c
+
+Fix problem with RepeatArgumentType
+```
+
+```
+c864576619751077a0d8ac1a18123e14b095ec03
+
+Fix impostor recipes for disks
+```
+[TODO] [JUMT-03] REI still shows white disks, probably because it doesn' show nbt items.
+
+```
+c5694ea9661c7a40021ebd280c378bd7bdc56988
+
+Merge branch 'mc-1.15.x' into mc-1.16.x
+```
+Update to 1.16.4.
+
+```
+1f84480a80677cfaaf19d319290f5b44635eba47
+
+Make rightAlt only close menu, never open it. (#672)
+```
+Lua changes.
+
+```
+1255bd00fd21247a50046020d7d9a396f66bc6bd
+
+Fix mounts being usable after a disk is ejected
+```
+Reverted a lot of code style changes made by Zundrel, so the diffs are huge.
+
+```
+b90611b4b4c176ec1c80df002cc4ac36aa0c4dc8
+
+Preserve registration order of upgrades
+```
+Again, a huge diff because of code style changes.
+
+```
+8494ba8ce29cd8d7b9105eef497fe3fe3f89d350
+
+Improve UX when a resource mount cannot be found
+```

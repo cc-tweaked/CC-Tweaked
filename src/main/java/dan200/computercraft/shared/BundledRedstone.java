@@ -31,7 +31,7 @@ public final class BundledRedstone {
     }
 
     public static int getDefaultOutput(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side) {
-        return World.method_24794(pos) ? DefaultBundledRedstoneProvider.getDefaultBundledRedstoneOutput(world, pos, side) : -1;
+        return World.isValid(pos) ? DefaultBundledRedstoneProvider.getDefaultBundledRedstoneOutput(world, pos, side) : -1;
     }
 
     public static int getOutput(World world, BlockPos pos, Direction side) {
@@ -40,7 +40,7 @@ public final class BundledRedstone {
     }
 
     private static int getUnmaskedOutput(World world, BlockPos pos, Direction side) {
-        if (!World.method_24794(pos)) {
+        if (!World.isValid(pos)) {
             return -1;
         }
 

@@ -1,23 +1,9 @@
-New features in CC: Restitched 1.95.0
+New features in CC: Restitched 1.95.3
 
-* Optimise the paint program's initial render.
-* Several documentation improvments (Gibbo3771, MCJack123).
-* `fs.combine` now accepts multiple arguments.
-* Add a setting (`bios.strict_globals`) to error when accidentally declaring a global. (Lupus590).
-* Add an improved help viewer which allows scrolling up and down (MCJack123).
-* Add `cc.strings` module, with utilities for wrapping text (Lupus590).
-* The `clear` program now allows resetting the palette too (Luca0208).
-
-And several bug fixes:
-* Fix memory leak in generic peripherals.
-* Fix crash when a turtle is broken while being ticked.
-* `textutils.*tabulate` now accepts strings _or_ numbers.
-* We now deny _all_ local IPs, using the magic `$private` host. Previously the IPv6 loopback interface was not blocked.
-* Fix crash when rendering monitors if the block has not yet been synced. You will need to regenerate the config file to apply this change.
-* `read` now supports numpad enter (TheWireLord)
-* Correctly handle HTTP redirects to URLs containing escape characters.
-* Fix integer overflow in `os.epoch`.
-* Allow using pickaxes (and other items) for turtle upgrades which have mod-specific NBT.
-* Fix duplicate turtle/pocket upgrade recipes appearing in JEI.
+Several bug fixes:
+* Correctly serialise sparse arrays into JSON (livegamer999)
+* Fix rs.getBundledInput returning the output instead (SkyTheCodeMaster)
+* Programs run via edit are now a little better behaved (Wojbie)
+* Add User-Agent to a websocket's headers.
 
 Type "help changelog" to see the full version history.
