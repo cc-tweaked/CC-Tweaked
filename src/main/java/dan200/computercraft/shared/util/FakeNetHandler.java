@@ -8,6 +8,7 @@ package dan200.computercraft.shared.util;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 
 import dan200.computercraft.api.turtle.FakePlayer;
@@ -19,44 +20,7 @@ import net.minecraft.network.NetworkSide;
 import net.minecraft.network.NetworkState;
 import net.minecraft.network.Packet;
 import net.minecraft.network.listener.PacketListener;
-import net.minecraft.network.packet.c2s.play.AdvancementTabC2SPacket;
-import net.minecraft.network.packet.c2s.play.BoatPaddleStateC2SPacket;
-import net.minecraft.network.packet.c2s.play.BookUpdateC2SPacket;
-import net.minecraft.network.packet.c2s.play.ButtonClickC2SPacket;
-import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
-import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
-import net.minecraft.network.packet.c2s.play.ClientSettingsC2SPacket;
-import net.minecraft.network.packet.c2s.play.ClientStatusC2SPacket;
-import net.minecraft.network.packet.c2s.play.CraftRequestC2SPacket;
-import net.minecraft.network.packet.c2s.play.CreativeInventoryActionC2SPacket;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.network.packet.c2s.play.HandSwingC2SPacket;
-import net.minecraft.network.packet.c2s.play.KeepAliveC2SPacket;
-import net.minecraft.network.packet.c2s.play.PickFromInventoryC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerInputC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerInteractItemC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.network.packet.c2s.play.QueryBlockNbtC2SPacket;
-import net.minecraft.network.packet.c2s.play.QueryEntityNbtC2SPacket;
-import net.minecraft.network.packet.c2s.play.RenameItemC2SPacket;
-import net.minecraft.network.packet.c2s.play.RequestCommandCompletionsC2SPacket;
-import net.minecraft.network.packet.c2s.play.ResourcePackStatusC2SPacket;
-import net.minecraft.network.packet.c2s.play.SpectatorTeleportC2SPacket;
-import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
-import net.minecraft.network.packet.c2s.play.UpdateBeaconC2SPacket;
-import net.minecraft.network.packet.c2s.play.UpdateCommandBlockC2SPacket;
-import net.minecraft.network.packet.c2s.play.UpdateCommandBlockMinecartC2SPacket;
-import net.minecraft.network.packet.c2s.play.UpdateDifficultyC2SPacket;
-import net.minecraft.network.packet.c2s.play.UpdateDifficultyLockC2SPacket;
-import net.minecraft.network.packet.c2s.play.UpdateJigsawC2SPacket;
-import net.minecraft.network.packet.c2s.play.UpdatePlayerAbilitiesC2SPacket;
-import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
-import net.minecraft.network.packet.c2s.play.UpdateSignC2SPacket;
-import net.minecraft.network.packet.c2s.play.UpdateStructureBlockC2SPacket;
-import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket;
+import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.text.Text;
 
@@ -123,7 +87,24 @@ public class FakeNetHandler extends ServerPlayNetworkHandler {
     }
 
     @Override
+    public void onJigsawGenerating(JigsawGeneratingC2SPacket packet) {
+    }
+
+    @Override
+    public void onMerchantTradeSelect(SelectMerchantTradeC2SPacket packet) {
+    }
+
+    @Override
     public void onBookUpdate(@Nonnull BookUpdateC2SPacket packet) {
+    }
+
+    @Override
+    public void onRecipeBookData(RecipeBookDataC2SPacket packet) {
+    }
+
+    @Override
+    public void onRecipeCategoryOptions(RecipeCategoryOptionsC2SPacket packet) {
+        super.onRecipeCategoryOptions(packet);
     }
 
     @Override
@@ -199,6 +180,14 @@ public class FakeNetHandler extends ServerPlayNetworkHandler {
     }
 
     @Override
+    public void onCloseHandledScreen(CloseHandledScreenC2SPacket packet) {
+    }
+
+    @Override
+    public void onClickSlot(ClickSlotC2SPacket packet) {
+    }
+
+    @Override
     public void onCraftRequest(@Nonnull CraftRequestC2SPacket packet) {
     }
 
@@ -208,6 +197,10 @@ public class FakeNetHandler extends ServerPlayNetworkHandler {
 
     @Override
     public void onCreativeInventoryAction(@Nonnull CreativeInventoryActionC2SPacket packet) {
+    }
+
+    @Override
+    public void onConfirmScreenAction(ConfirmScreenActionC2SPacket packet) {
     }
 
     @Override
@@ -286,6 +279,10 @@ public class FakeNetHandler extends ServerPlayNetworkHandler {
         @Override
         public void disconnect(@Nonnull Text message) {
             this.closeReason = message;
+        }
+
+        @Override
+        public void setupEncryption(Cipher cipher, Cipher cipher2) {
         }
 
         @Nonnull

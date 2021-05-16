@@ -11,7 +11,7 @@ import java.util.OptionalInt;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
-import javax.crypto.SecretKey;
+import javax.crypto.Cipher;
 
 import com.mojang.authlib.GameProfile;
 import io.netty.channel.ChannelHandlerContext;
@@ -249,6 +249,11 @@ public class FakePlayer extends ServerPlayerEntity {
 
         @Override
         public void disconnect(Text message) {
+        }
+
+        @Override
+        public void setupEncryption(Cipher cipher, Cipher cipher2) {
+            super.setupEncryption(cipher, cipher2);
         }
 
         @Override
