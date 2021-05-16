@@ -50,6 +50,8 @@ import net.minecraft.util.registry.Registry;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 
 public final class ComputerCraft implements ModInitializer {
@@ -131,6 +133,9 @@ public final class ComputerCraft implements ModInitializer {
         Registry.register(Registry.LOOT_CONDITION_TYPE, new Identifier(ComputerCraft.MOD_ID, "has_id"), HasComputerIdLootCondition.TYPE);
         init();
         GenericSource.setup( () -> ServiceUtil.loadServices( GenericSource.class ));
+        FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer -> {
+            ResourceManagerHelper.registerBuiltinResourcePack(new Identifier(MOD_ID, "programmer_art"), modContainer, ResourcePackActivationType.NORMAL);
+        });
     }
 
 }
