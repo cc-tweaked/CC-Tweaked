@@ -6,6 +6,7 @@
 
 package dan200.computercraft.client.render;
 
+import static dan200.computercraft.client.render.ComputerBorderRenderer.*;
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
@@ -31,12 +32,13 @@ import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Matrix4f;
 
+import static dan200.computercraft.client.render.ComputerBorderRenderer.*;
+
 /**
  * Emulates map rendering for pocket computers.
  */
 public final class ItemPocketRenderer extends ItemMapLikeRenderer {
     public static final ItemPocketRenderer INSTANCE = new ItemPocketRenderer();
-    private static final int LIGHT_HEIGHT = 8;
 
     private ItemPocketRenderer() {
     }
@@ -108,7 +110,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer {
         BufferBuilder buffer = tessellator.getBuffer();
         buffer.begin(GL11.GL_QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
 
-        ComputerBorderRenderer.render(transform, buffer, 0, 0, 0, width, height, LIGHT_HEIGHT, r, g, b);
+        ComputerBorderRenderer.render(transform, buffer, 0, 0, 0, width, height, true, r, g, b);
 
         tessellator.draw();
     }
