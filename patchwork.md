@@ -537,3 +537,44 @@ e4b0a5b3ce035eb23feb4191432fc49af5772c5b
 2020 -> 2021
 ```
 A huge amount of changes.
+
+```
+542b66c79a9b08e080c39c9a73d74ffe71c0106a
+
+Add back command computer block drops
+```
+Didn't port some forge-related changes, but it works.
+
+```
+dd6f97622e6c18ce0d8988da6a5bede45c94ca5d
+
+Prevent reflection errors crashing the game
+```
+
+```
+92be0126df63927d07fc695945f8b98e328f945a
+
+Fix disk recipes
+```
+Dye recipes actually work now.
+
+```
+1edb7288b974aec3764b0a820edce7e9eee38e66
+
+Merge branch 'mc-1.15.x' into mc-1.16.x
+```
+New version: 1.95.1.
+
+```
+41226371f3b5fd35f48b6d39c2e8e0c277125b21
+
+Add isReadOnly to fs.attributes (#639)
+```
+Also changed some lua test files, but made the changes anyway.
+
+```
+b2e54014869fac4b819b01b6c24e550ca113ce8a
+
+Added Numpad Enter Support in rom lua programs. (#657)
+```
+Just lua changes.
