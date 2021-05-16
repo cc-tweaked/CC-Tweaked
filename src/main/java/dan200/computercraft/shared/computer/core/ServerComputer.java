@@ -316,7 +316,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Nonnull
     @Override
     public String getHostString() {
-        return String.format("ComputerCraft %s (Minecraft %s)", ComputerCraftAPI.getInstalledVersion(), "1.16.2");
+        return String.format("ComputerCraft %s (Minecraft %s)", ComputerCraftAPI.getInstalledVersion(), "1.16.4");
     }
 
     @Nonnull

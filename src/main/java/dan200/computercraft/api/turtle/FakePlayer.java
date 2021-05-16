@@ -48,7 +48,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.village.TraderOfferList;
+import net.minecraft.village.TradeOfferList;
 import net.minecraft.world.GameMode;
 
 /**
@@ -105,7 +105,7 @@ public class FakePlayer extends ServerPlayerEntity {
     }
 
     @Override
-    public void sendTradeOffers(int id, TraderOfferList list, int level, int experience, boolean levelled, boolean refreshable) { }
+    public void sendTradeOffers(int id, TradeOfferList list, int level, int experience, boolean levelled, boolean refreshable) { }
 
     @Override
     public void openHorseInventory(HorseBaseEntity horse, Inventory inventory) { }
@@ -249,10 +249,6 @@ public class FakePlayer extends ServerPlayerEntity {
 
         @Override
         public void disconnect(Text message) {
-        }
-
-        @Override
-        public void setupEncryption(SecretKey key) {
         }
 
         @Override
