@@ -108,7 +108,7 @@ local function range(num, min, max)
   end
   
   if isNan(num) or num < min or num > max then
-      error(("number outside of range (expected value to be within %d and %d)"):format(min, max), 3)
+      error(("number outside of range (expected %d to be within %d and %d)"):format(num, min, max), 3)
   end
   
   return num
