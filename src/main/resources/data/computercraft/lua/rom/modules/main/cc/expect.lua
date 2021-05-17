@@ -88,6 +88,10 @@ local function field(tbl, index, ...)
     end
 end
 
+local function isNan(num)
+  return num ~= num
+end
+
 --- Expect a number to be within a specific range.
 --
 -- @tparam number num, The value to check.
@@ -103,7 +107,7 @@ local function range(num, min, max)
       error("min must be less than or equal to max)", 2)
   end
   
-  if num < min or num > max then
+  if isNan(num) or num < min or num > max then
       error(("number outside of range (expected value to be within %d and %d)"):format(min, max), 3)
   end
   
