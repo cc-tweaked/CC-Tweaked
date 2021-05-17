@@ -88,7 +88,7 @@ local function field(tbl, index, ...)
     end
 end
 
-local function isNan(num)
+local function is_nan(num)
   return num ~= num
 end
 
@@ -107,7 +107,7 @@ local function range(num, min, max)
       error("min must be less than or equal to max)", 2)
   end
 
-  if isNan(num) or num < min or num > max then
+  if is_nan(num) or num < min or num > max then
       error(("number outside of range (expected %s to be within %s and %s)"):format(num, min, max), 3)
   end
 
