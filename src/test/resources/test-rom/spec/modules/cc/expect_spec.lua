@@ -59,7 +59,7 @@ describe("cc.expect", function()
             expect.error(e.range, 2, 0, 1):eq("number outside of range (expected 2 to be within 0 and 1)")
             expect.error(e.range, 0, 1, 2):eq("number outside of range (expected 0 to be within 1 and 2)")
             local NaN = 0 / 0
-            expect.error(e.range, NaN, 1, 2):eq("number outside of range (expected nan to be within 1 and 2)")
+            expect.error(e.range, NaN, 1, 2):eq("number outside of range (expected "..tostring(NaN).." to be within 1 and 2)")
         end)
                     
         it("fills in min and max if they are nil", function()
