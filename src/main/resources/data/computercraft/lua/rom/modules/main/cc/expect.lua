@@ -95,8 +95,8 @@ end
 --- Expect a number to be within a specific range.
 --
 -- @tparam number num, The value to check.
--- @tparam number min The minimum value, if nil then `-math.huge` is used.
--- @tparam number max The maximum value, if nil then `math.huge` is used.
+-- @tparam min The minimum value, if nil then `-math.huge` is used.
+-- @tparam max The maximum value, if nil then `math.huge` is used.
 -- @return The given `value`.
 -- @throws If the value is outside of the allowed range.
 local function range(num, min, max)
@@ -106,11 +106,11 @@ local function range(num, min, max)
   if min > max then
       error("min must be less than or equal to max)", 2)
   end
-  
+
   if isNan(num) or num < min or num > max then
-      error(("number outside of range (expected %d to be within %d and %d)"):format(num, min, max), 3)
+      error(("number outside of range (expected %s to be within %s and %s)"):format(tostring(num), tostring(min), tostring(max)), 3)
   end
-  
+
   return num
 end
 
