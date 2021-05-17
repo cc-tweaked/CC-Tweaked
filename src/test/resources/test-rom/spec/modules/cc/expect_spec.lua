@@ -54,7 +54,7 @@ describe("cc.expect", function()
     describe("range", function()
         it("checks a single type", function()
             expect(e.range(1, 1, 1)):eq(1)
-            expect(e.range(2, 1, 3):eq(2)
+            expect(e.range(2, 1, 3)):eq(2)
 
             expect.error(e.range, 2, 0, 1):eq("number outside of range (expected value to be within 0 and 1)")
             expect.error(e.range, 0, 1, 2):eq("number outside of range (expected value to be within 1 and 2)")
