@@ -108,8 +108,8 @@ public final class ResourceMount implements IMount {
 
         if( !hasAny )
         {
-            ComputerCraft.log.warn("Cannot find any files under /data/{}/{} for resource mount.", namespace, subPath);
-            if( newRoot != null )
+            ComputerCraft.log.warn( "Cannot find any files under /data/{}/{} for resource mount.", namespace, subPath );
+            if( existingNamespace != null )
             {
                 ComputerCraft.log.warn("There are files under /data/{}/{} though. Did you get the wrong namespace?", existingNamespace, subPath);
             }
