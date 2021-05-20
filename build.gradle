@@ -538,6 +538,11 @@ curseforge {
     }
 }
 
+tasks.withType(GenerateModuleMetadata) {
+    // We can't generate metadata as that includes Forge as a dependency.
+    enabled = false
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
@@ -563,6 +568,8 @@ publishing {
                         url = 'https://github.com/SquidDev-CC/CC-Tweaked/blob/mc-1.15.x/LICENSE'
                     }
                 }
+
+                withXml { asNode().remove(asNode().get("dependencies")) }
             }
         }
     }
