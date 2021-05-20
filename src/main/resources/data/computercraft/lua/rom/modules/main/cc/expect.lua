@@ -114,8 +114,8 @@ local function range(num, min, max)
   return num
 end
 
-return {
+return setmetatable({
     expect = expect,
     field = field,
     range = range,
-}
+}, { __call = function(_, ...) return expect(...) end })
