@@ -30,8 +30,7 @@ import org.lwjgl.opengl.GL11;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
-import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
-import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
+import static dan200.computercraft.client.render.ComputerBorderRenderer.*;
 
 /**
  * Emulates map rendering for pocket computers.
@@ -39,8 +38,6 @@ import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
 public final class ItemPocketRenderer extends ItemMapLikeRenderer
 {
-    private static final int LIGHT_HEIGHT = 8;
-
     private static final ItemPocketRenderer INSTANCE = new ItemPocketRenderer();
 
     private ItemPocketRenderer()
@@ -131,7 +128,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         BufferBuilder buffer = tessellator.getBuilder();
         buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR_TEX );
 
-        ComputerBorderRenderer.render( transform, buffer, 0, 0, 0, width, height, LIGHT_HEIGHT, r, g, b );
+        ComputerBorderRenderer.render( transform, buffer, 0, 0, 0, width, height, true, r, g, b );
 
         tessellator.end();
     }

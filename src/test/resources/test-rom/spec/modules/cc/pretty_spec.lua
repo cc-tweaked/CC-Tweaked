@@ -177,7 +177,7 @@ describe("cc.pretty", function()
             end)
 
             it("displays mixed tables", function()
-                expect(pretty({ n = 3, 1, 2, 3 })):eq("{ n = 3, 1, 2, 3 }")
+                expect(pretty({ n = 3, 1, 2, 3 })):eq("{ 1, 2, 3, n = 3 }")
             end)
 
             it("escapes keys", function()
@@ -190,6 +190,13 @@ describe("cc.pretty", function()
 
             it("groups tables", function()
                 expect(pretty({ 1, 2, 3 }, 4)):eq("{\n  1,\n  2,\n  3\n}")
+            end)
+
+            it("handles sparse tables", function()
+                local tbl = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
+                tbl[4] = nil
+
+                expect(tostring(pp.pretty(tbl))):eq("{ 1, 2, 3, nil, 5, 6, 7, 8, 9, 10 }")
             end)
         end)
 

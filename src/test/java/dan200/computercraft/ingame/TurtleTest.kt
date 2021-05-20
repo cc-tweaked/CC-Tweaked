@@ -13,7 +13,7 @@ class TurtleTest {
      *
      * @see [#537](https://github.com/SquidDev-CC/CC-Tweaked/issues/537)
      */
-    @GameTest(required = false)
+    @GameTest
     suspend fun `Shears sheep`(context: TestContext) = context.checkComputerOk(5)
 
     /**
@@ -21,7 +21,7 @@ class TurtleTest {
      *
      * @see [#518](https://github.com/SquidDev-CC/CC-Tweaked/issues/518)
      */
-    @GameTest(required = false)
+    @GameTest
     suspend fun `Place lava`(context: TestContext) = context.checkComputerOk(5)
 
     /**
@@ -29,7 +29,7 @@ class TurtleTest {
      *
      * @see [#385](https://github.com/SquidDev-CC/CC-Tweaked/issues/385)
      */
-    @GameTest(required = false)
+    @GameTest
     suspend fun `Place waterlogged`(context: TestContext) = context.checkComputerOk(7)
 
     /**
@@ -37,7 +37,7 @@ class TurtleTest {
      *
      * @see [#297](https://github.com/SquidDev-CC/CC-Tweaked/issues/297)
      */
-    @GameTest(required = false)
+    @GameTest
     suspend fun `Gather lava`(context: TestContext) = context.checkComputerOk(8)
 
     /**
@@ -45,6 +45,21 @@ class TurtleTest {
      *
      * @see [#258](https://github.com/SquidDev-CC/CC-Tweaked/issues/258)
      */
-    @GameTest(required = false)
+    @GameTest
     suspend fun `Hoe dirt`(context: TestContext) = context.checkComputerOk(9)
+
+    /**
+     * Checks turtles can place monitors
+     *
+     * @see [#691](https://github.com/SquidDev-CC/CC-Tweaked/issues/691)
+     */
+    @GameTest
+    suspend fun `Place monitor`(context: TestContext) = context.checkComputerOk(10)
+
+    /**
+     * Checks computers can place into compostors. These are non-typical inventories, so
+     * worth ensuring.
+     */
+    @GameTest
+    suspend fun `Use compostors`(context: TestContext) = context.checkComputerOk(11)
 }

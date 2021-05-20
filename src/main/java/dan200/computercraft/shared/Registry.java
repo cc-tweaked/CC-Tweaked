@@ -246,7 +246,7 @@ public final class Registry
     {
         // Upgrades
         ComputerCraft.TurtleUpgrades.wirelessModemNormal = new TurtleModem( false, new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_normal" ) );
-        TurtleUpgrades.register( ComputerCraft.TurtleUpgrades.wirelessModemNormal );
+        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.wirelessModemNormal );
 
         ComputerCraft.TurtleUpgrades.wirelessModemAdvanced = new TurtleModem( true, new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_advanced" ) );
         ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.wirelessModemAdvanced );

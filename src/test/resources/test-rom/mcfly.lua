@@ -612,6 +612,9 @@ local function do_run(test)
     elseif test.action then
         local state = push_state()
 
+        -- Flush the event queue and ensure we're running with 0 timeout.
+        os.queueEvent("start_test") os.pullEvent("start_test")
+
         local ok
         ok, err = try(test.action)
         status = ok and "pass" or (err.fail and "fail" or "error")

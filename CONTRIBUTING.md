@@ -65,7 +65,7 @@ Gradle should be your entrypoint to building most documentation. There's two tas
 
 #### Writing documentation
 illuaminate's documentation system is not currently documented (somewhat ironic), but is _largely_ the same as
-[ldoc][ldoc]. Documentation comments are written in Markdown, 
+[ldoc][ldoc]. Documentation comments are written in Markdown,
 
 Our markdown engine does _not_ support GitHub flavoured markdown, and so does not support all the features one might
 expect (such as tables). It is very much recommended that you build and preview the docs locally first.
@@ -77,18 +77,18 @@ entire test suite (and some additional bits of verification).
 Before we get into writing tests, it's worth mentioning the various test suites that CC: Tweaked has:
  - "Core" Java (`./src/test/java`): These test core bits of the mod which don't require any Minecraft interaction.
    This includes the `@LuaFunction` system, file system code, etc...
-   
+
    These tests are run by `./gradlew test`.
 
  - CraftOS (`./src/test/resources/test-rom/`): These tests are written in Lua, and ensure the Lua environment, libraries
    and programs work as expected. These are (generally) written to be able to be run on emulators too, to provide some
    sort of compliance test.
-   
+
    These tests are run by the '"Core" Java' test suite, and so are also run with `./gradlew test`.
 
  - In-game (`./src/test/java/dan200/computercraft/ingame/`): These tests are run on an actual Minecraft server, using
    [the same system Mojang do][mc-test]. The aim of these is to test in-game behaviour of blocks and peripherals.
-   
+
    These are run by `./gradlew testInGame`.
 
 ## CraftOS tests
