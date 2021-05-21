@@ -10,7 +10,6 @@ buildscript {
     dependencies {
         classpath 'com.google.code.gson:gson:2.8.1'
         classpath 'net.minecraftforge.gradle:ForgeGradle:4.1.9'
-        classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
     }
 }
 
@@ -183,59 +182,6 @@ jar {
     }
 }
 
-import java.nio.charset.StandardCharsets
-import java.nio.file.*
-import java.util.zip.*
-
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonElement
-import com.hierynomus.gradle.license.tasks.LicenseCheck
-import com.hierynomus.gradle.license.tasks.LicenseFormat
-import proguard.gradle.ProGuardTask
-
-task proguard(type: ProGuardTask, dependsOn: jar) {
-    description "Removes unused shadowed classes from the jar"
-    group "compact"
-
-    injars jar.archivePath
-    outjars "${jar.archivePath.absolutePath.replace(".jar", "")}-min.jar"
-
-    // Add the main runtime jar and all non-shadowed dependencies
-    libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
-    libraryjars "${System.getProperty('java.home')}/lib/jce.jar"
-    doFirst {
-        sourceSets.main.compileClasspath
-            .filter { !it.name.contains("Cobalt") }
-            .each { libraryjars it }
-    }
-
-    // We want to avoid as much obfuscation as possible. We're only doing this to shrink code size.
-    dontobfuscate; dontoptimize; keepattributes; keepparameternames
-
-    // Proguard will remove directories by default, but that breaks JarMount.
-    keepdirectories 'data/computercraft/lua**'
-
-    // Preserve ComputerCraft classes - we only want to strip shadowed files.
-    keep 'class dan200.computercraft.** { *; }'
-
-    // LWJGL and Apache bundle Java 9 versions, which is great, but rather breaks Proguard
-    dontwarn 'module-info'
-    dontwarn 'org.apache.**,org.lwjgl.**'
-}
-
-task proguardMove(dependsOn: proguard) {
-    description "Replace the original jar with the minified version"
-    group "compact"
-
-    doLast {
-        Files.move(
-            file("${jar.archivePath.absolutePath.replace(".jar", "")}-min.jar").toPath(),
-            file(jar.archivePath).toPath(),
-            StandardCopyOption.REPLACE_EXISTING
-        )
-    }
-}
-
 processResources {
     inputs.property "version", mod_version
     inputs.property "mcversion", mc_version
@@ -268,49 +214,6 @@ processResources {
         exclude 'data/computercraft/lua/rom/help/credits.txt'
     }
 }
-
-task compressJson(dependsOn: jar) {
-    group "compact"
-    description "Minifies all JSON files, stripping whitespace"
-
-    def jarPath = file(jar.archivePath)
-
-    def tempPath = File.createTempFile("input", ".jar", temporaryDir)
-    tempPath.deleteOnExit()
-
-    def gson = new GsonBuilder().create()
-
-    doLast {
-        // Copy over all files in the current jar to the new one, running json files from GSON. As pretty printing
-        // is turned off, they should be minified.
-        new ZipFile(jarPath).withCloseable { inJar ->
-            tempPath.getParentFile().mkdirs()
-            new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(tempPath))).withCloseable { outJar ->
-                inJar.entries().each { entry ->
-                    if(entry.directory) {
-                        outJar.putNextEntry(entry)
-                    } else if(!entry.name.endsWith(".json")) {
-                        outJar.putNextEntry(entry)
-                        inJar.getInputStream(entry).withCloseable { outJar << it }
-                    } else {
-                        ZipEntry newEntry = new ZipEntry(entry.name)
-                        newEntry.setTime(entry.time)
-                        outJar.putNextEntry(newEntry)
-
-                        def element = inJar.getInputStream(entry).withCloseable { gson.fromJson(it.newReader("UTF8"), JsonElement.class) }
-                        outJar.write(gson.toJson(element).getBytes(StandardCharsets.UTF_8))
-                    }
-                }
-
-            }
-        }
-
-        // And replace the original jar again
-        Files.move(tempPath.toPath(), jarPath.toPath(), StandardCopyOption.REPLACE_EXISTING)
-    }
-}
-
-assemble.dependsOn compressJson
 
 // Web tasks
 
@@ -382,6 +285,10 @@ jacocoTestReport {
 }
 
 check.dependsOn jacocoTestReport
+
+
+import com.hierynomus.gradle.license.tasks.LicenseCheck
+import com.hierynomus.gradle.license.tasks.LicenseFormat
 
 license {
     mapping("java", "SLASHSTAR_STYLE")
