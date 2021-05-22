@@ -20,7 +20,7 @@
         "HeldItemRendererAccess",
         "MixinHeldItemRenderer",
         "MixinItemFrameEntityRenderer",
-        "MixinMinecraftGame",
+        "MixinMinecraftClient",
         "MixinScreen",
         "MixinWorldRenderer"
     ],

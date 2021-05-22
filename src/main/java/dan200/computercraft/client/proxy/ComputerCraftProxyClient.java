@@ -20,6 +20,7 @@ import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.client.render.TurtleModelLoader;
 import dan200.computercraft.client.render.TurtlePlayerRenderer;
+import dan200.computercraft.events.ClientUnloadWorldEvent;
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.common.IColouredItem;
@@ -47,14 +48,13 @@ import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegi
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.mixin.object.builder.ModelPredicateProviderRegistrySpecificAccessor;
 
 @Environment (EnvType.CLIENT)
 public final class ComputerCraftProxyClient implements ClientModInitializer {
 
-    public static void initEvents() {
-
+    private static void initEvents() {
+        ClientUnloadWorldEvent.EVENT.register( () -> ClientMonitor.destroyAll() );
     }
 
     @Override
@@ -96,12 +96,8 @@ public final class ComputerCraftProxyClient implements ClientModInitializer {
                              () -> ComputerCraftRegistry.ModItems.POCKET_COMPUTER_ADVANCED);
         ClientRegistry.onItemColours();
 
-        // TODO Verify this does things properly
-        ServerWorldEvents.UNLOAD.register(((minecraftServer, serverWorld) -> {
-            ClientMonitor.destroyAll();
-        }));
+        initEvents();
     }
-
 
     // My IDE doesn't think so, but we do actually need these generics.
     private static void registerContainers() {
@@ -125,15 +121,4 @@ public final class ComputerCraftProxyClient implements ClientModInitializer {
             ModelPredicateProviderRegistrySpecificAccessor.callRegister(item.get(), id, getter);
         }
     }
-
-    //    @Mod.EventBusSubscriber (modid = ComputerCraft.MOD_ID, value = Dist.CLIENT)
-    //    public static final class ForgeHandlers {
-    //        @SubscribeEvent
-    //        public static void onWorldUnload(WorldEvent.Unload event) {
-    //            if (event.getWorld()
-    //                     .isClient()) {
-    //                ClientMonitor.destroyAll();
-    //            }
-    //        }
-    //    }
 }
