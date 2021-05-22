@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 import dan200.computercraft.api.ComputerCraftAPI.IComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
 import dan200.computercraft.api.media.IMediaProvider;
 import dan200.computercraft.api.network.IPacketNetwork;
@@ -26,6 +27,7 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.core.apis.ApiFactories;
+import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.ResourceMount;
 import dan200.computercraft.mixin.MinecraftServerAccess;
@@ -141,6 +143,12 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI {
     @Override
     public void registerPocketUpgrade(@Nonnull IPocketUpgrade upgrade) {
         PocketUpgrades.register(upgrade);
+    }
+
+    @Override
+    public void registerGenericSource( @Nonnull GenericSource source )
+    {
+        GenericMethod.register( source );
     }
 
     @Nonnull

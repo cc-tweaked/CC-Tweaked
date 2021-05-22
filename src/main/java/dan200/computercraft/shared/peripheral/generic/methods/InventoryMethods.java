@@ -5,13 +5,12 @@
  */
 package dan200.computercraft.shared.peripheral.generic.methods;
 
-import com.google.auto.service.AutoService;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.asm.GenericSource;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.ItemStorage;
@@ -34,14 +33,13 @@ import static dan200.computercraft.shared.peripheral.generic.methods.ArgumentHel
  *
  * @cc.module inventory
  */
-@AutoService( GenericSource.class )
 public class InventoryMethods implements GenericSource
 {
     @Nonnull
     @Override
     public Identifier id()
     {
-        return new Identifier(ComputerCraft.MOD_ID, "inventory" );
+        return new Identifier( ComputerCraft.MOD_ID, "inventory" );
     }
 
     /**
