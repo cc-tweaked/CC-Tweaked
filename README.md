@@ -45,6 +45,9 @@ Main Known issue
 	* This is because of the differences between forge and fabric, and that mod devs, to my knowledge have not agreed upon a standard method in which to implement cross compatibility between mods,
 * [Fixed (d10f297c): please report if bug persists]</br> ~~Storage Peripherals throw a java "StackOverflowError" when using `pushItems()`,~~ 
     * ~~Work around, you are probably using `pushItems(chest, 1)` or similar. please use `pushItems(chest, 1, nil, 1)`.~~ 
+* Computers will not run built in commands, saying "File not found"
+    * This is a know bug, dont know what causes it, but just restart the computer (`ctrl+r` for one second) and it will work again
+    * Occurs when server runs `/reload` or a datapack is updated
 
 ## Known Working mods that add Peripherals
 * Please let me know of other mods that work with this one
