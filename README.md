@@ -16,8 +16,11 @@ This mod includes textures that are more in-line with the style of Mojang's new 
 <img src="https://raw.githubusercontent.com/3prm3/cc-pack/main/pack.png" alt="CC: Restitched" width="16"  height="16"/> [3prm3/cc-pack](https://github.com/3prm3/cc-pack/)
 We also have a second resourcepack made by [3prm3](https://github.com/3prm3), it features a complete overhaul and can be enabled by enabling the `overhaul` resource pack, go check out his resource pack over here!
 
-## Relation to Stitching?
-The "stitched" is becuase of the name of the modloader ;the ["Fabric"](https://fabricmc.net/) modloader 
+## Major Tasks Planned
+* Rewrite the config system
+    * **Planned for 1.96.0 release**
+	* it currently sets the values that would normally be read from `config/computercraft.json` to the default values, because it does not read the file at all
+	
 ## Contributing
 Any contribution is welcome, be that using the mod, reporting bugs or contributing code. In order to start helping develop CC:R there are a few rules
 1) Any updates that port commits from CC:T, ***MUST*** follow the format defined in [patchwork.md](patchwork.md) otherwise they will not be accepted,
