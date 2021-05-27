@@ -11,6 +11,7 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.MainThread;
+import dan200.computercraft.core.tracking.ComputerMBean;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.command.arguments.ArgumentSerializers;
@@ -32,6 +33,8 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.MusicDiscItem;
 import net.minecraft.loot.*;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -46,6 +49,7 @@ import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
 import net.minecraftforge.items.CapabilityItemHandler;
 
@@ -162,11 +166,22 @@ public final class ComputerCraftProxyCommon
         }
 
         @SubscribeEvent
+        public static void onServerStarting( FMLServerStartingEvent event )
+        {
+            MinecraftServer server = event.getServer();
+            if( server instanceof DedicatedServer && ((DedicatedServer) server).getProperties().enableJmxMonitoring )
+            {
+                ComputerMBean.register();
+            }
+        }
+
+        @SubscribeEvent
         public static void onServerStarted( FMLServerStartedEvent event )
         {
             ComputerCraft.serverComputerRegistry.reset();
             WirelessNetwork.resetNetworks();
             Tracking.reset();
+            ComputerMBean.registerTracker();
         }
 
         @SubscribeEvent
