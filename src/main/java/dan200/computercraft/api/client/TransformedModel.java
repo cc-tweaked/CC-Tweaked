@@ -10,7 +10,7 @@ import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
-import dan200.computercraft.mixin.AffineTransformationAccess;
+import dan200.computercraft.fabric.mixin.AffineTransformationAccess;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.model.BakedModel;

@@ -4,7 +4,7 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.mixin;
+package dan200.computercraft.fabric.mixin;
 
 import dan200.computercraft.shared.util.DropConsumer;
 import org.spongepowered.asm.mixin.Mixin;

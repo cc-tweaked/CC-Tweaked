@@ -8,7 +8,7 @@ package dan200.computercraft.client.render;
 
 import java.util.List;
 
-import dan200.computercraft.mixin.BakedQuadAccess;
+import dan200.computercraft.fabric.mixin.BakedQuadAccess;
 
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormatElement;

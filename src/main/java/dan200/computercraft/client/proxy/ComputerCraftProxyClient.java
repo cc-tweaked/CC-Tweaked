@@ -20,7 +20,7 @@ import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.client.render.TurtleModelLoader;
 import dan200.computercraft.client.render.TurtlePlayerRenderer;
-import dan200.computercraft.events.ClientUnloadWorldEvent;
+import dan200.computercraft.fabric.events.ClientUnloadWorldEvent;
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.common.IColouredItem;

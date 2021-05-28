@@ -1,4 +1,4 @@
-package dan200.computercraft.events;
+package dan200.computercraft.fabric.events;
 
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;

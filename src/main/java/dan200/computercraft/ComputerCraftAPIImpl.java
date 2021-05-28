@@ -30,7 +30,7 @@ import dan200.computercraft.core.apis.ApiFactories;
 import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.ResourceMount;
-import dan200.computercraft.mixin.MinecraftServerAccess;
+import dan200.computercraft.fabric.mixin.MinecraftServerAccess;
 import dan200.computercraft.shared.BundledRedstone;
 import dan200.computercraft.shared.MediaProviders;
 import dan200.computercraft.shared.Peripherals;

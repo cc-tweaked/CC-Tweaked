@@ -4,10 +4,10 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.mixin;
+package dan200.computercraft.fabric.mixin;
 
 import dan200.computercraft.client.FrameInfo;
-import dan200.computercraft.events.ClientUnloadWorldEvent;
+import dan200.computercraft.fabric.events.ClientUnloadWorldEvent;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.world.ClientWorld;
 import org.spongepowered.asm.mixin.Mixin;

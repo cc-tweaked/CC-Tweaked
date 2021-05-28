@@ -6,7 +6,7 @@ import java.util.Map;
 import com.google.common.eventbus.Subscribe;
 
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
-import dan200.computercraft.mixin.SignBlockEntityAccess;
+import dan200.computercraft.fabric.mixin.SignBlockEntityAccess;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.SignBlockEntity;
