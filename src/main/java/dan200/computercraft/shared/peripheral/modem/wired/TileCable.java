@@ -83,6 +83,13 @@ public class TileCable extends TileGeneric implements IPeripheralTile {
         }
     }
 
+    @Override
+    public void onChunkUnloaded()
+    {
+        super.onChunkUnloaded();
+        onRemove();
+    }
+
     private void onRemove() {
         if (this.world == null || !this.world.isClient) {
             this.m_node.remove();

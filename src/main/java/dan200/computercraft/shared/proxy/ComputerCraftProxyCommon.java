@@ -17,6 +17,7 @@ import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.command.arguments.ArgumentSerializers;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
+import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
 import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
@@ -28,6 +29,7 @@ import dan200.computercraft.shared.turtle.FurnaceRefuelHandler;
 import dan200.computercraft.shared.turtle.SignInspectHandler;
 import dan200.computercraft.shared.util.TickScheduler;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.CommandBlockBlockEntity;
 import net.minecraft.item.Item;
@@ -104,6 +106,12 @@ public final class ComputerCraftProxyCommon {
             MainThread.reset();
             Tracking.reset();
             ComputerCraftProxyCommon.server = null;
+        });
+
+        ServerBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register( ( blockEntity, world ) -> {
+            if(blockEntity instanceof TileGeneric ) {
+                ((TileGeneric)blockEntity).onChunkUnloaded();
+            }
         });
 
         TurtleEvent.EVENT_BUS.register(FurnaceRefuelHandler.INSTANCE);

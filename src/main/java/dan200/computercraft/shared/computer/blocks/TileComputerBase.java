@@ -77,6 +77,12 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         }
     }
 
+    @Override
+    public void onChunkUnloaded()
+    {
+        unload();
+    }
+
     protected void unload() {
         if (this.m_instanceID >= 0) {
             if (!this.getWorld().isClient) {

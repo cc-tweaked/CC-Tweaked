@@ -24,6 +24,7 @@ import dan200.computercraft.events.ClientUnloadWorldEvent;
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.common.IColouredItem;
+import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
@@ -33,6 +34,7 @@ import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientBlockEntityEvents;
 import net.minecraft.client.item.ModelPredicateProvider;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.item.Item;
@@ -54,6 +56,12 @@ import net.fabricmc.fabric.mixin.object.builder.ModelPredicateProviderRegistrySp
 public final class ComputerCraftProxyClient implements ClientModInitializer {
 
     private static void initEvents() {
+        ClientBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register( ( blockEntity, world ) -> {
+            if(blockEntity instanceof TileGeneric ) {
+                ((TileGeneric)blockEntity).onChunkUnloaded();
+            }
+        });
+
         ClientUnloadWorldEvent.EVENT.register( () -> ClientMonitor.destroyAll() );
     }
 
