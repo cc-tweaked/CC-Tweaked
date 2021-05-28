@@ -37,8 +37,8 @@ public class ViewComputerContainerData extends ComputerContainerData {
     }
 
     public ViewComputerContainerData(PacketByteBuf packetByteBuf) {
-        super(packetByteBuf);
-        this.toBytes(packetByteBuf);
+        super(new PacketByteBuf(packetByteBuf.copy()));
+        this.fromBytes(packetByteBuf);
     }
 
     @Override

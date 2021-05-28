@@ -29,6 +29,13 @@ public class ContainerViewComputer extends ContainerComputerBase implements ICon
         this.width = this.height = 0;
     }
 
+    public ContainerViewComputer(int id, PlayerInventory player, PacketByteBuf packetByteBuf) {
+        super(ComputerCraftRegistry.ModContainers.VIEW_COMPUTER, id, player, packetByteBuf);
+        ViewComputerContainerData data = new ViewComputerContainerData(new PacketByteBuf(packetByteBuf.copy()));
+        this.width = data.getWidth();
+        this.height = data.getHeight();
+    }
+
     private static boolean canInteractWith(@Nonnull ServerComputer computer, @Nonnull PlayerEntity player) {
         // If this computer no longer exists then discard it.
         if (ComputerCraft.serverComputerRegistry.get(computer.getInstanceID()) != computer) {
@@ -37,13 +44,6 @@ public class ContainerViewComputer extends ContainerComputerBase implements ICon
 
         // If we're a command computer then ensure we're in creative
         return computer.getFamily() != ComputerFamily.COMMAND || TileCommandComputer.isUsable(player);
-    }
-
-    public ContainerViewComputer(int id, PlayerInventory player, PacketByteBuf packetByteBuf) {
-        super(ComputerCraftRegistry.ModContainers.VIEW_COMPUTER, id, player, packetByteBuf);
-        ViewComputerContainerData data = new ViewComputerContainerData((PacketByteBuf) packetByteBuf.copy());
-        this.width = data.getWidth();
-        this.height = data.getHeight();
     }
 
     public int getWidth() {

@@ -49,6 +49,7 @@
     "commands.computercraft.dump.synopsis": "Display the status of computers.",
     "commands.computercraft.dump.desc": "Display the status of all computers or specific information about one computer. You can specify the computer's instance id (e.g. 123), computer id (e.g #123) or label (e.g. \"@My Computer\").",
     "commands.computercraft.dump.action": "View more info about this computer",
+    "commands.computercraft.dump.open_path": "View this computer's files",
     "commands.computercraft.shutdown.synopsis": "Shutdown computers remotely.",
     "commands.computercraft.shutdown.desc": "Shutdown the listed computers or all if none are specified. You can specify the computer's instance id (e.g. 123), computer id (e.g #123) or label (e.g. \"@My Computer\").",
     "commands.computercraft.shutdown.done": "Shutdown %s/%s computers",
