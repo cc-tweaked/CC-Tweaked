@@ -21,6 +21,7 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.network.container.ViewComputerContainerData;
+import dan200.computercraft.shared.util.IDAssigner;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -37,6 +38,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nonnull;
+import java.io.File;
 import java.util.*;
 
 import static dan200.computercraft.shared.command.CommandUtils.isPlayer;
@@ -320,6 +322,12 @@ public final class CommandComputerCraft
                 ) );
         }
 
+        if( UserLevel.OWNER.test( source ) && isPlayer( source ) )
+        {
+            ITextComponent linkPath = linkStorage( computerId );
+            if( linkPath != null ) out.append( " " ).append( linkPath );
+        }
+
         return out;
     }
 
@@ -337,6 +345,18 @@ public final class CommandComputerCraft
         {
             return position( computer.getPosition() );
         }
+    }
+
+    private static ITextComponent linkStorage( int id )
+    {
+        File file = new File( IDAssigner.getDir(), "computer/" + id );
+        if( !file.isDirectory() ) return null;
+
+        return link(
+            text( "\u270E" ),
+            ClientCommands.OPEN_COMPUTER + id,
+            translate( "commands.computercraft.dump.open_path" )
+        );
     }
 
     @Nonnull

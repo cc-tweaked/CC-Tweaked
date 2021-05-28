@@ -57,14 +57,15 @@ public enum UserLevel implements Predicate<CommandSource>
     {
         if( this == ANYONE ) return true;
 
-        // We *always* allow level 0 stuff, even if the
-        MinecraftServer server = source.getServer();
-        Entity sender = source.getEntity();
-
-        if( server.isSingleplayer() && sender instanceof PlayerEntity &&
-            ((PlayerEntity) sender).getGameProfile().getName().equalsIgnoreCase( server.getServerModName() ) )
+        if( this == OWNER || this == OWNER_OP )
         {
-            if( this == OWNER || this == OWNER_OP ) return true;
+            MinecraftServer server = source.getServer();
+            Entity sender = source.getEntity();
+            if( server.isSingleplayer() && sender instanceof PlayerEntity &&
+                ((PlayerEntity) sender).getGameProfile().getName().equalsIgnoreCase( server.getServerModName() ) )
+            {
+                return true;
+            }
         }
 
         return source.hasPermission( toLevel() );
