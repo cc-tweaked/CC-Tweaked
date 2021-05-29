@@ -652,14 +652,32 @@ do
     end
 end
 
---- Convert a Lua object into a textual representation, suitable for
--- saving in a file or pretty-printing.
---
--- @param t The object to serialise
--- @treturn string The serialised representation
--- @throws If the object contains a value which cannot be
--- serialised. This includes functions and tables which appear multiple
--- times.
+--[[- Convert a Lua object into a textual representation, suitable for
+saving in a file or pretty-printing.
+
+@param t The object to serialise
+@tparam { compact? = boolean, allow_repetitions? = boolean } opts Options for serialisation.
+ - `compact`: Do not emit indentation and other whitespace between terms.
+ - `allow_repetitions`: Relax the check for recursive tables, allowing them to appear multiple
+   times (as long as tables do not appear inside themselves).
+
+@treturn string The serialised representation
+@throws If the object contains a value which cannot be
+serialised. This includes functions and tables which appear multiple
+times.
+@see cc.pretty.pretty An alternative way to display a table, often more suitable for
+pretty printing.
+@usage Pretty print a basic table.
+
+    textutils.serialise({ 1, 2, 3, a = 1, ["another key"] = { true } })
+
+@usage Demonstrates some of the other options
+
+    local tbl = { 1, 2, 3 }
+    print(textutils.serialize({ tbl, tbl }, { allow_repetitions = true }))
+
+    print(textutils.serialize(tbl, { compact = true }))
+]]
 function serialize(t, opts)
     local tTracking = {}
     expect(2, opts, "table", "nil")
