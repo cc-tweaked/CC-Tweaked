@@ -20,6 +20,8 @@ We also have a second resourcepack made by [3prm3](https://github.com/3prm3), it
 * Rewrite the config system
     * **Planned for 1.96.0 release**
 	* it currently sets the values that would normally be read from `config/computercraft.json` to the default values, because it does not read the file at all
+* Fixing `/computercraft` commands,
+    * No clue why they broken, they just are
 	
 ## Contributing
 Any contribution is welcome, be that using the mod, reporting bugs or contributing code. In order to start helping develop CC:R there are a few rules
