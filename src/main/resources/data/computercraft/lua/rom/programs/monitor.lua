@@ -1,6 +1,8 @@
 local function printUsage()
     local programName = arg[0] or fs.getName(shell.getRunningProgram())
-    print("Usage: " .. programName .. " <name> <program> <arguments>")
+    print("Usage:")
+    print("  " .. programName .. " <name> <program> <arguments>")
+    print("  " .. programName .. " scale <name> <scale>")
     return
 end
 

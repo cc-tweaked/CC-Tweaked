@@ -3,7 +3,14 @@ local capture = require "test_helpers".capture_program
 describe("The monitor program", function()
     it("displays its usage when given no arguments", function()
         expect(capture(stub, "monitor"))
-            :matches { ok = true, output = "Usage: monitor <name> <program> <arguments>\n", error = "" }
+            :matches {
+                ok = true,
+                output =
+                    "Usage:\n" ..
+                    "  monitor <name> <program> <arguments>\n" ..
+                    "  monitor scale <name> <scale>\n",
+                error = "",
+            }
     end)
 
     it("changes the text scale with the scale command", function()
