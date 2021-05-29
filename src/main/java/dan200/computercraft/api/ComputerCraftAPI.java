@@ -7,6 +7,7 @@ package dan200.computercraft.api;
 
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.media.IMediaProvider;
@@ -23,6 +24,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
@@ -98,7 +100,9 @@ public final class ComputerCraftAPI
      * resource folder onto a computer's file system.
      *
      * The files in this mount will be a combination of files in all mod jar, and data packs that contain
-     * resources with the same domain and path.
+     * resources with the same domain and path. For instance, ComputerCraft's resources are stored in
+     * "/data/computercraft/lua/rom". We construct a mount for that with
+     * {@code createResourceMount("computercraft", "lua/rom")}.
      *
      * @param domain  The domain under which to look for resources. eg: "mymod".
      * @param subPath The subPath under which to look for resources. eg: "lua/myfiles".
@@ -114,7 +118,7 @@ public final class ComputerCraftAPI
     }
 
     /**
-     * Registers a peripheral provider to convert blocks into {@link IPeripheral} implementations.
+     * rers a peripheral provider to convert blocks into {@link IPeripheral} implementations.
      *
      * @param provider The peripheral provider to register.
      * @see IPeripheral
@@ -123,6 +127,28 @@ public final class ComputerCraftAPI
     public static void registerPeripheralProvider( @Nonnull IPeripheralProvider provider )
     {
         getInstance().registerPeripheralProvider( provider );
+    }
+
+    /**
+     * Registers a method source for generic peripherals.
+     *
+     * @param source The method source to register.
+     * @see GenericSource
+     */
+    public static void registerGenericSource( @Nonnull GenericSource source )
+    {
+        getInstance().registerGenericSource( source );
+    }
+
+    /**
+     * Registers a capability that can be used by generic peripherals.
+     *
+     * @param capability The capability to register.
+     * @see GenericSource
+     */
+    public static void registerGenericCapability( @Nonnull Capability<?> capability )
+    {
+        getInstance().registerGenericCapability( capability );
     }
 
     /**
@@ -255,6 +281,10 @@ public final class ComputerCraftAPI
         IMount createResourceMount( @Nonnull String domain, @Nonnull String subPath );
 
         void registerPeripheralProvider( @Nonnull IPeripheralProvider provider );
+
+        void registerGenericSource( @Nonnull GenericSource source );
+
+        void registerGenericCapability( @Nonnull Capability<?> capability );
 
         void registerTurtleUpgrade( @Nonnull ITurtleUpgrade upgrade );
 

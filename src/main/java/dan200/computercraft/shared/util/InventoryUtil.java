@@ -5,9 +5,11 @@
  */
 package dan200.computercraft.shared.util;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.inventory.ISidedInventoryProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -23,6 +25,7 @@ import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public final class InventoryUtil
 {
@@ -41,7 +44,8 @@ public final class InventoryUtil
 
     // Methods for finding inventories:
 
-    public static IItemHandler getInventory( World world, BlockPos pos, Direction side )
+    @Nullable
+    public static IItemHandler getInventory( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         // Look for tile with inventory
         TileEntity tileEntity = world.getBlockEntity( pos );
@@ -52,7 +56,7 @@ public final class InventoryUtil
             {
                 return itemHandler.orElseThrow( NullPointerException::new );
             }
-            else if( side != null && tileEntity instanceof ISidedInventory )
+            else if( tileEntity instanceof ISidedInventory )
             {
                 return new SidedInvWrapper( (ISidedInventory) tileEntity, side );
             }
@@ -60,6 +64,13 @@ public final class InventoryUtil
             {
                 return new InvWrapper( (IInventory) tileEntity );
             }
+        }
+
+        BlockState block = world.getBlockState( pos );
+        if( block.getBlock() instanceof ISidedInventoryProvider )
+        {
+            ISidedInventory inventory = ((ISidedInventoryProvider) block.getBlock()).getContainer( block, world, pos );
+            return new SidedInvWrapper( inventory, side );
         }
 
         // Look for entity with inventory

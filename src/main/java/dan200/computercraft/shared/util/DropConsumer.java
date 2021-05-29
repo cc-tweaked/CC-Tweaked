@@ -9,6 +9,7 @@ import dan200.computercraft.ComputerCraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -64,6 +65,12 @@ public final class DropConsumer
         dropBounds = null;
 
         return remainingStacks;
+    }
+
+    public static void clearAndDrop( World world, BlockPos pos, Direction direction )
+    {
+        List<ItemStack> remainingDrops = clear();
+        for( ItemStack remaining : remainingDrops ) WorldUtil.dropItemStack( remaining, world, pos, direction );
     }
 
     private static void handleDrops( ItemStack stack )

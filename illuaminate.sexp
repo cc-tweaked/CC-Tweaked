@@ -88,27 +88,16 @@
 
 ;; Suppress warnings for currently undocumented modules.
 (at
-  (; Java APIs
-   /doc/stub/http.lua
-   /doc/stub/os.lua
-   /doc/stub/turtle.lua
-   /doc/stub/global.lua
-   ; Java generated APIs
-   /build/docs/luaJavadoc/turtle.lua
-   ; Peripherals
-   /build/docs/luaJavadoc/drive.lua
-   /build/docs/luaJavadoc/speaker.lua
-   /build/docs/luaJavadoc/printer.lua
-   ; Generic peripherals
-   /build/docs/luaJavadoc/fluid_storage.lua
-   ; Lua APIs
+  (; Lua APIs
    /src/main/resources/*/computercraft/lua/rom/apis/io.lua
    /src/main/resources/*/computercraft/lua/rom/apis/window.lua)
 
   (linters -doc:undocumented -doc:undocumented-arg -doc:undocumented-return))
 
-;; Suppress warnings for the BIOS using its own deprecated members for now.
-(at /src/main/resources/*/computercraft/lua/bios.lua
+;; Suppress warnings for various APIs using its own deprecated members.
+(at
+  (/src/main/resources/*/computercraft/lua/bios.lua
+   /src/main/resources/*/computercraft/lua/rom/apis/turtle/turtle.lua)
   (linters -var:deprecated))
 
 (at /src/test/resources/test-rom

@@ -50,4 +50,25 @@ describe("cc.expect", function()
                 :eq("bad field 'l' (expected string, table or number, got boolean)")
         end)
     end)
+
+    describe("range", function()
+        it("works fith full args", function()
+            expect(e.range(1, 1, 1)):eq(1)
+            expect(e.range(2, 1, 3)):eq(2)
+
+            expect.error(e.range, 2, 0, 1):eq("number outside of range (expected 2 to be within 0 and 1)")
+            expect.error(e.range, 0, 1, 2):eq("number outside of range (expected 0 to be within 1 and 2)")
+            local NaN = 0 / 0
+            expect.error(e.range, NaN, 1, 2):eq(("number outside of range (expected %s to be within 1 and 2)"):format(tostring(NaN)))
+        end)
+
+        it("fills in min and max if they are nil", function()
+            expect(e.range(1, 1)):eq(1)
+            expect(e.range(2, nil, 3)):eq(2)
+            expect(e.range(2)):eq(2)
+
+            expect.error(e.range, 2, nil, 1):eq("number outside of range (expected 2 to be within -inf and 1)")
+            expect.error(e.range, 0, 1):eq("number outside of range (expected 0 to be within 1 and inf)")
+        end)
+    end)
 end)

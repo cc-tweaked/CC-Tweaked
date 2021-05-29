@@ -4,19 +4,19 @@ buildscript {
         mavenCentral()
         maven {
             name = "forge"
-            url = "https://files.minecraftforge.net/maven"
+            url = "https://maven.minecraftforge.net"
         }
     }
     dependencies {
         classpath 'com.google.code.gson:gson:2.8.1'
-        classpath 'net.minecraftforge.gradle:ForgeGradle:4.1.3'
-        classpath 'net.sf.proguard:proguard-gradle:6.1.0beta2'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:4.1.9'
     }
 }
 
 plugins {
     id "checkstyle"
     id "jacoco"
+    id "maven-publish"
     id "com.github.hierynomus.license" version "0.15.0"
     id "com.matthewprenger.cursegradle" version "1.4.0"
     id "com.github.breadmoirai.github-release" version "2.2.12"
@@ -24,8 +24,6 @@ plugins {
 }
 
 apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'maven-publish'
-apply plugin: 'maven'
 
 version = mod_version
 
@@ -36,6 +34,9 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(8)
     }
+
+    withSourcesJar()
+    withJavadocJar()
 }
 
 minecraft {
@@ -112,7 +113,6 @@ repositories {
 configurations {
     shade
     compile.extendsFrom shade
-    deployerJars
     cctJavadoc
 }
 
@@ -126,10 +126,7 @@ dependencies {
 
     runtimeOnly fg.deobf("mezz.jei:jei-1.15.2:6.0.0.3")
 
-    compileOnly 'com.google.auto.service:auto-service:1.0-rc7'
-    annotationProcessor 'com.google.auto.service:auto-service:1.0-rc7'
-
-    shade 'org.squiddev:Cobalt:0.5.1-SNAPSHOT'
+    shade 'org.squiddev:Cobalt:0.5.2-SNAPSHOT'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
@@ -139,9 +136,7 @@ dependencies {
     testImplementation 'org.jetbrains.kotlin:kotlin-reflect:1.3.72'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8'
 
-    deployerJars "org.apache.maven.wagon:wagon-ssh:3.0.0"
-
-    cctJavadoc 'cc.tweaked:cct-javadoc:1.3.0'
+    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.0'
 }
 
 // Compile tasks
@@ -168,8 +163,6 @@ task luaJavadoc(type: Javadoc) {
 }
 
 jar {
-    dependsOn javadoc
-
     manifest {
         attributes(["Specification-Title": "computercraft",
                     "Specification-Vendor": "SquidDev",
@@ -180,69 +173,12 @@ jar {
                     "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
     }
 
-    from (sourceSets.main.allSource) {
-        include "dan200/computercraft/api/**/*.java"
-    }
-
     from configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
 }
 
 [compileJava, compileTestJava].forEach {
     it.configure {
         options.compilerArgs << "-Xlint" << "-Xlint:-processing"
-    }
-}
-
-import java.nio.charset.StandardCharsets
-import java.nio.file.*
-import java.util.zip.*
-
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonElement
-import com.hierynomus.gradle.license.tasks.LicenseCheck
-import com.hierynomus.gradle.license.tasks.LicenseFormat
-import proguard.gradle.ProGuardTask
-
-task proguard(type: ProGuardTask, dependsOn: jar) {
-    description "Removes unused shadowed classes from the jar"
-    group "compact"
-
-    injars jar.archivePath
-    outjars "${jar.archivePath.absolutePath.replace(".jar", "")}-min.jar"
-
-    // Add the main runtime jar and all non-shadowed dependencies
-    libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
-    libraryjars "${System.getProperty('java.home')}/lib/jce.jar"
-    doFirst {
-        sourceSets.main.compileClasspath
-            .filter { !it.name.contains("Cobalt") }
-            .each { libraryjars it }
-    }
-
-    // We want to avoid as much obfuscation as possible. We're only doing this to shrink code size.
-    dontobfuscate; dontoptimize; keepattributes; keepparameternames
-
-    // Proguard will remove directories by default, but that breaks JarMount.
-    keepdirectories 'data/computercraft/lua**'
-
-    // Preserve ComputerCraft classes - we only want to strip shadowed files.
-    keep 'class dan200.computercraft.** { *; }'
-
-    // LWJGL and Apache bundle Java 9 versions, which is great, but rather breaks Proguard
-    dontwarn 'module-info'
-    dontwarn 'org.apache.**,org.lwjgl.**'
-}
-
-task proguardMove(dependsOn: proguard) {
-    description "Replace the original jar with the minified version"
-    group "compact"
-
-    doLast {
-        Files.move(
-            file("${jar.archivePath.absolutePath.replace(".jar", "")}-min.jar").toPath(),
-            file(jar.archivePath).toPath(),
-            StandardCopyOption.REPLACE_EXISTING
-        )
     }
 }
 
@@ -278,49 +214,6 @@ processResources {
         exclude 'data/computercraft/lua/rom/help/credits.txt'
     }
 }
-
-task compressJson(dependsOn: jar) {
-    group "compact"
-    description "Minifies all JSON files, stripping whitespace"
-
-    def jarPath = file(jar.archivePath)
-
-    def tempPath = File.createTempFile("input", ".jar", temporaryDir)
-    tempPath.deleteOnExit()
-
-    def gson = new GsonBuilder().create()
-
-    doLast {
-        // Copy over all files in the current jar to the new one, running json files from GSON. As pretty printing
-        // is turned off, they should be minified.
-        new ZipFile(jarPath).withCloseable { inJar ->
-            tempPath.getParentFile().mkdirs()
-            new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(tempPath))).withCloseable { outJar ->
-                inJar.entries().each { entry ->
-                    if(entry.directory) {
-                        outJar.putNextEntry(entry)
-                    } else if(!entry.name.endsWith(".json")) {
-                        outJar.putNextEntry(entry)
-                        inJar.getInputStream(entry).withCloseable { outJar << it }
-                    } else {
-                        ZipEntry newEntry = new ZipEntry(entry.name)
-                        newEntry.setTime(entry.time)
-                        outJar.putNextEntry(newEntry)
-
-                        def element = inJar.getInputStream(entry).withCloseable { gson.fromJson(it.newReader("UTF8"), JsonElement.class) }
-                        outJar.write(gson.toJson(element).getBytes(StandardCharsets.UTF_8))
-                    }
-                }
-
-            }
-        }
-
-        // And replace the original jar again
-        Files.move(tempPath.toPath(), jarPath.toPath(), StandardCopyOption.REPLACE_EXISTING)
-    }
-}
-
-assemble.dependsOn compressJson
 
 // Web tasks
 
@@ -393,6 +286,10 @@ jacocoTestReport {
 
 check.dependsOn jacocoTestReport
 
+
+import com.hierynomus.gradle.license.tasks.LicenseCheck
+import com.hierynomus.gradle.license.tasks.LicenseFormat
+
 license {
     mapping("java", "SLASHSTAR_STYLE")
     strictCheck true
@@ -446,7 +343,7 @@ task setupServer(type: Copy) {
 tasks.register('testInGame', JavaExec.class).configure {
     it.group('test server')
     it.description("Runs tests on a temporary Minecraft server.")
-    it.dependsOn(setupServer, 'prepareRunTestServer')
+    it.dependsOn(setupServer, 'prepareRunTestServer', 'cleanTestInGame')
 
     // Copy from runTestServer. We do it in this slightly odd way as runTestServer
     // isn't created until the task is configured (which is no good for us).
@@ -548,53 +445,50 @@ curseforge {
     }
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            // artifact sourceJar
-        }
-    }
+tasks.withType(GenerateModuleMetadata) {
+    // We can't generate metadata as that includes Forge as a dependency.
+    enabled = false
 }
 
-uploadArchives {
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+
+            pom {
+                name = 'CC: Tweaked'
+                description = 'CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles and more to Minecraft.'
+                url = 'https://github.com/SquidDev-CC/CC-Tweaked'
+
+                scm {
+                    url = 'https://github.com/SquidDev-CC/CC-Tweaked.git'
+                }
+
+                issueManagement {
+                    system = 'github'
+                    url = 'https://github.com/SquidDev-CC/CC-Tweaked/issues'
+                }
+
+                licenses {
+                    license {
+                        name = 'ComputerCraft Public License, Version 1.0'
+                        url = 'https://github.com/SquidDev-CC/CC-Tweaked/blob/mc-1.15.x/LICENSE'
+                    }
+                }
+
+                withXml { asNode().remove(asNode().get("dependencies")) }
+            }
+        }
+    }
+
     repositories {
-        if(project.hasProperty('mavenUploadUrl')) {
-            mavenDeployer {
-                configuration = configurations.deployerJars
-
-                repository(url: project.property('mavenUploadUrl')) {
-                    authentication(
-                        userName: project.property('mavenUploadUser'),
-                        privateKey: project.property('mavenUploadKey'))
-                }
-
-                pom.project {
-                    name 'CC: Tweaked'
-                    packaging 'jar'
-                    description 'CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles and more to Minecraft.'
-                    url 'https://github.com/SquidDev-CC/CC-Tweaked'
-
-                    scm {
-                        url 'https://github.com/SquidDev-CC/CC-Tweaked.git'
-                    }
-
-                    issueManagement {
-                        system 'github'
-                        url 'https://github.com/SquidDev-CC/CC-Tweaked/issues'
-                    }
-
-                    licenses {
-                        license {
-                            name 'ComputerCraft Public License, Version 1.0'
-                            url 'https://github.com/SquidDev-CC/CC-Tweaked/blob/master/LICENSE'
-                            distribution 'repo'
-                        }
-                    }
-                }
-
-                pom.whenConfigured { pom ->
-                    pom.dependencies.clear()
+        if (project.hasProperty("mavenUser")) {
+            maven {
+                name = "SquidDev"
+                url = "https://squiddev.cc/maven"
+                credentials {
+                    username = project.property("mavenUser") as String
+                    password = project.property("mavenPass") as String
                 }
             }
         }
@@ -625,7 +519,7 @@ githubRelease {
     prerelease false
 }
 
-def uploadTasks = ["uploadArchives", "curseforge", "githubRelease"]
+def uploadTasks = ["publish", "curseforge", "githubRelease"]
 uploadTasks.forEach { tasks.getByName(it).dependsOn checkRelease }
 
 task uploadAll(dependsOn: uploadTasks) {

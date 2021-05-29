@@ -1,0 +1,18 @@
+{
+    "problemMatcher": [
+        {
+            "owner": "illuaminate",
+            "severity": "warning",
+            "pattern": [
+                {
+                    "regexp": "^([\\w./-]+):\\[(\\d+):(\\d+)\\-(?:\\d+):(?:\\d+)\\]: (.*) \\[([a-z:-]+)\\]$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "message": 4,
+                    "code": 5
+                }
+            ]
+        }
+    ]
+}

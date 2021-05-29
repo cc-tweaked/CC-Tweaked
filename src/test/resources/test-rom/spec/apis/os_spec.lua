@@ -108,6 +108,11 @@ describe("The os library", function()
                     error("Non letter character in zone: " .. zone)
                 end
             end)
+
+            local t2 = os.time { year = 2000, month = 10, day = 1, hour = 3, min = 12, sec = 17 }
+            it("for code '%I' #2", function()
+                expect(os.date("%I", t2)):eq("03")
+            end)
         end)
     end)
 

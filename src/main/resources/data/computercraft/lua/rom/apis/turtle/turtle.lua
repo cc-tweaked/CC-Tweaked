@@ -10,6 +10,7 @@ end
 --
 -- Generally you should not need to use this table - it only exists for
 -- backwards compatibility reasons.
+-- @deprecated
 native = turtle.native or turtle
 
 local function addCraftMethod(object)
