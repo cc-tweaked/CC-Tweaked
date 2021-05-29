@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.network.container;
@@ -23,14 +23,14 @@ public class ComputerContainerData implements ContainerData
     public ComputerContainerData( PacketBuffer buf )
     {
         this.id = buf.readInt();
-        this.family = buf.readEnumValue( ComputerFamily.class );
+        this.family = buf.readEnum( ComputerFamily.class );
     }
 
     @Override
     public void toBytes( PacketBuffer buf )
     {
         buf.writeInt( id );
-        buf.writeEnumValue( family );
+        buf.writeEnum( family );
     }
 
     public int getInstanceId()

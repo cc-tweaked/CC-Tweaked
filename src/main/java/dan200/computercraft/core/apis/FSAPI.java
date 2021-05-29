@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis;
@@ -89,9 +89,9 @@ public class FSAPI implements ILuaAPI
      *
      * @param arguments The paths to combine.
      * @return The new path, with separators added between parts as needed.
+     * @throws LuaException On argument errors.
      * @cc.tparam string path The first part of the path. For example, a parent directory path.
      * @cc.tparam string ... Additional parts of the path to combine.
-     * @throws LuaException On argument errors.
      */
     @LuaFunction
     public final String combine( IArguments arguments ) throws LuaException
@@ -471,8 +471,8 @@ public class FSAPI implements ILuaAPI
     /**
      * Get attributes about a specific file or folder.
      *
-     * The returned attributes table contains information about the size of the file, whether it is a directory, and
-     * when it was created and last modified.
+     * The returned attributes table contains information about the size of the file, whether it is a directory,
+     * when it was created and last modified, and whether it is read only.
      *
      * The creation and modification times are given as the number of milliseconds since the UNIX epoch. This may be
      * given to {@link OSAPI#date} in order to convert it to more usable form.
@@ -480,7 +480,7 @@ public class FSAPI implements ILuaAPI
      * @param path The path to get attributes for.
      * @return The resulting attributes.
      * @throws LuaException If the path does not exist.
-     * @cc.treturn { size = number, isDir = boolean, created = number, modified = number } The resulting attributes.
+     * @cc.treturn { size = number, isDir = boolean, isReadOnly = boolean, created = number, modified = number } The resulting attributes.
      * @see #getSize If you only care about the file's size.
      * @see #isDir If you only care whether a path is a directory or not.
      */
@@ -496,6 +496,7 @@ public class FSAPI implements ILuaAPI
             result.put( "created", getFileTime( attributes.creationTime() ) );
             result.put( "size", attributes.isDirectory() ? 0 : attributes.size() );
             result.put( "isDir", attributes.isDirectory() );
+            result.put( "isReadOnly", fileSystem.isReadOnly( path ) );
             return result;
         }
         catch( FileSystemException e )

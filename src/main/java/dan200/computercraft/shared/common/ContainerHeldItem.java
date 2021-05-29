@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.common;
@@ -29,7 +29,7 @@ public class ContainerHeldItem extends Container
         super( type, id );
 
         this.hand = hand;
-        stack = player.getHeldItem( hand ).copy();
+        stack = player.getItemInHand( hand ).copy();
     }
 
     public static ContainerHeldItem createPrintout( int id, PlayerInventory inventory, HeldItemContainerData data )
@@ -44,11 +44,11 @@ public class ContainerHeldItem extends Container
     }
 
     @Override
-    public boolean canInteractWith( @Nonnull PlayerEntity player )
+    public boolean stillValid( @Nonnull PlayerEntity player )
     {
         if( !player.isAlive() ) return false;
 
-        ItemStack stack = player.getHeldItem( hand );
+        ItemStack stack = player.getItemInHand( hand );
         return stack == this.stack || !stack.isEmpty() && !this.stack.isEmpty() && stack.getItem() == this.stack.getItem();
     }
 
@@ -61,7 +61,7 @@ public class ContainerHeldItem extends Container
         public Factory( ContainerType<ContainerHeldItem> type, ItemStack stack, Hand hand )
         {
             this.type = type;
-            this.name = stack.getDisplayName();
+            this.name = stack.getHoverName();
             this.hand = hand;
         }
 

@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.client.render;
@@ -45,35 +45,35 @@ public final class CableHighlightRenderer
     public static void drawHighlight( DrawHighlightEvent.HighlightBlock event )
     {
         BlockRayTraceResult hit = event.getTarget();
-        BlockPos pos = hit.getPos();
-        World world = event.getInfo().getRenderViewEntity().getEntityWorld();
+        BlockPos pos = hit.getBlockPos();
+        World world = event.getInfo().getEntity().getCommandSenderWorld();
         ActiveRenderInfo info = event.getInfo();
 
         BlockState state = world.getBlockState( pos );
 
         // We only care about instances with both cable and modem.
-        if( state.getBlock() != Registry.ModBlocks.CABLE.get() || state.get( BlockCable.MODEM ).getFacing() == null || !state.get( BlockCable.CABLE ) )
+        if( state.getBlock() != Registry.ModBlocks.CABLE.get() || state.getValue( BlockCable.MODEM ).getFacing() == null || !state.getValue( BlockCable.CABLE ) )
         {
             return;
         }
 
         event.setCanceled( true );
 
-        VoxelShape shape = WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getHitVec().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
+        VoxelShape shape = WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getLocation().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
             ? CableShapes.getModemShape( state )
             : CableShapes.getCableShape( state );
 
-        Vec3d cameraPos = info.getProjectedView();
-        double xOffset = pos.getX() - cameraPos.getX();
-        double yOffset = pos.getY() - cameraPos.getY();
-        double zOffset = pos.getZ() - cameraPos.getZ();
+        Vec3d cameraPos = info.getPosition();
+        double xOffset = pos.getX() - cameraPos.x();
+        double yOffset = pos.getY() - cameraPos.y();
+        double zOffset = pos.getZ() - cameraPos.z();
 
-        IVertexBuilder buffer = event.getBuffers().getBuffer( RenderType.getLines() );
-        Matrix4f matrix4f = event.getMatrix().getLast().getMatrix();
-        shape.forEachEdge( ( x1, y1, z1, x2, y2, z2 ) -> {
-            buffer.pos( matrix4f, (float) (x1 + xOffset), (float) (y1 + yOffset), (float) (z1 + zOffset) )
+        IVertexBuilder buffer = event.getBuffers().getBuffer( RenderType.lines() );
+        Matrix4f matrix4f = event.getMatrix().last().pose();
+        shape.forAllEdges( ( x1, y1, z1, x2, y2, z2 ) -> {
+            buffer.vertex( matrix4f, (float) (x1 + xOffset), (float) (y1 + yOffset), (float) (z1 + zOffset) )
                 .color( 0, 0, 0, 0.4f ).endVertex();
-            buffer.pos( matrix4f, (float) (x2 + xOffset), (float) (y2 + yOffset), (float) (z2 + zOffset) )
+            buffer.vertex( matrix4f, (float) (x2 + xOffset), (float) (y2 + yOffset), (float) (z2 + zOffset) )
                 .color( 0, 0, 0, 0.4f ).endVertex();
         } );
     }

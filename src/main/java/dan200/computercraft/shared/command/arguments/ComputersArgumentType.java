@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.command.arguments;
@@ -175,20 +175,20 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
     {
 
         @Override
-        public void write( @Nonnull ComputersArgumentType arg, @Nonnull PacketBuffer buf )
+        public void serializeToNetwork( @Nonnull ComputersArgumentType arg, @Nonnull PacketBuffer buf )
         {
             buf.writeBoolean( arg.requireSome );
         }
 
         @Nonnull
         @Override
-        public ComputersArgumentType read( @Nonnull PacketBuffer buf )
+        public ComputersArgumentType deserializeFromNetwork( @Nonnull PacketBuffer buf )
         {
             return buf.readBoolean() ? SOME : MANY;
         }
 
         @Override
-        public void write( @Nonnull ComputersArgumentType arg, @Nonnull JsonObject json )
+        public void serializeToJson( @Nonnull ComputersArgumentType arg, @Nonnull JsonObject json )
         {
             json.addProperty( "requireSome", arg.requireSome );
         }

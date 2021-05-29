@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.speaker;
@@ -73,13 +73,13 @@ public class TileSpeaker extends TileGeneric implements ITickableTileEntity
         @Override
         public World getWorld()
         {
-            return speaker.getWorld();
+            return speaker.getLevel();
         }
 
         @Override
         public Vec3d getPosition()
         {
-            BlockPos pos = speaker.getPos();
+            BlockPos pos = speaker.getBlockPos();
             return new Vec3d( pos.getX(), pos.getY(), pos.getZ() );
         }
 

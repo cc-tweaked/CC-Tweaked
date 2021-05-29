@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.diskdrive;
@@ -48,38 +48,38 @@ public class ContainerDiskDrive extends Container
     }
 
     @Override
-    public boolean canInteractWith( @Nonnull PlayerEntity player )
+    public boolean stillValid( @Nonnull PlayerEntity player )
     {
-        return inventory.isUsableByPlayer( player );
+        return inventory.stillValid( player );
     }
 
     @Nonnull
     @Override
-    public ItemStack transferStackInSlot( @Nonnull PlayerEntity player, int slotIndex )
+    public ItemStack quickMoveStack( @Nonnull PlayerEntity player, int slotIndex )
     {
-        Slot slot = inventorySlots.get( slotIndex );
-        if( slot == null || !slot.getHasStack() ) return ItemStack.EMPTY;
+        Slot slot = slots.get( slotIndex );
+        if( slot == null || !slot.hasItem() ) return ItemStack.EMPTY;
 
-        ItemStack existing = slot.getStack().copy();
+        ItemStack existing = slot.getItem().copy();
         ItemStack result = existing.copy();
         if( slotIndex == 0 )
         {
             // Insert into player inventory
-            if( !mergeItemStack( existing, 1, 37, true ) ) return ItemStack.EMPTY;
+            if( !moveItemStackTo( existing, 1, 37, true ) ) return ItemStack.EMPTY;
         }
         else
         {
             // Insert into drive inventory
-            if( !mergeItemStack( existing, 0, 1, false ) ) return ItemStack.EMPTY;
+            if( !moveItemStackTo( existing, 0, 1, false ) ) return ItemStack.EMPTY;
         }
 
         if( existing.isEmpty() )
         {
-            slot.putStack( ItemStack.EMPTY );
+            slot.set( ItemStack.EMPTY );
         }
         else
         {
-            slot.onSlotChanged();
+            slot.setChanged();
         }
 
         if( existing.getCount() == result.getCount() ) return ItemStack.EMPTY;

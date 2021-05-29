@@ -1,11 +1,10 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.common;
 
-import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
 import net.minecraft.inventory.CraftingInventory;
@@ -31,9 +30,9 @@ public final class ColourableRecipe extends SpecialRecipe
     {
         boolean hasColourable = false;
         boolean hasDye = false;
-        for( int i = 0; i < inv.getSizeInventory(); i++ )
+        for( int i = 0; i < inv.getContainerSize(); i++ )
         {
-            ItemStack stack = inv.getStackInSlot( i );
+            ItemStack stack = inv.getItem( i );
             if( stack.isEmpty() ) continue;
 
             if( stack.getItem() instanceof IColouredItem )
@@ -56,15 +55,15 @@ public final class ColourableRecipe extends SpecialRecipe
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull CraftingInventory inv )
+    public ItemStack assemble( @Nonnull CraftingInventory inv )
     {
         ItemStack colourable = ItemStack.EMPTY;
 
         ColourTracker tracker = new ColourTracker();
 
-        for( int i = 0; i < inv.getSizeInventory(); i++ )
+        for( int i = 0; i < inv.getContainerSize(); i++ )
         {
-            ItemStack stack = inv.getStackInSlot( i );
+            ItemStack stack = inv.getItem( i );
 
             if( stack.isEmpty() ) continue;
 
@@ -75,19 +74,19 @@ public final class ColourableRecipe extends SpecialRecipe
             else
             {
                 DyeColor dye = ColourUtils.getStackColour( stack );
-                if( dye == null ) continue;
-
-                Colour colour = Colour.fromInt( 15 - dye.getId() );
-                tracker.addColour( colour.getR(), colour.getG(), colour.getB() );
+                if( dye != null ) tracker.addColour( dye );
             }
         }
 
         if( colourable.isEmpty() ) return ItemStack.EMPTY;
-        return ((IColouredItem) colourable.getItem()).withColour( colourable, tracker.getColour() );
+
+        ItemStack stack = ((IColouredItem) colourable.getItem()).withColour( colourable, tracker.getColour() );
+        stack.setCount( 1 );
+        return stack;
     }
 
     @Override
-    public boolean canFit( int x, int y )
+    public boolean canCraftInDimensions( int x, int y )
     {
         return x >= 2 && y >= 2;
     }

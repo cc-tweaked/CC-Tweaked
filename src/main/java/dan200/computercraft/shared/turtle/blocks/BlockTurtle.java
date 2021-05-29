@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.turtle.blocks;
@@ -48,7 +48,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements IWater
 {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    private static final VoxelShape DEFAULT_SHAPE = VoxelShapes.create(
+    private static final VoxelShape DEFAULT_SHAPE = VoxelShapes.box(
         0.125, 0.125, 0.125,
         0.875, 0.875, 0.875
     );
@@ -56,14 +56,14 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements IWater
     public BlockTurtle( Properties settings, ComputerFamily family, RegistryObject<? extends TileEntityType<? extends TileTurtle>> type )
     {
         super( settings, family, type );
-        setDefaultState( getStateContainer().getBaseState()
-            .with( FACING, Direction.NORTH )
-            .with( WATERLOGGED, false )
+        registerDefaultState( getStateDefinition().any()
+            .setValue( FACING, Direction.NORTH )
+            .setValue( WATERLOGGED, false )
         );
     }
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, BlockState> builder )
+    protected void createBlockStateDefinition( StateContainer.Builder<Block, BlockState> builder )
     {
         builder.add( FACING, WATERLOGGED );
     }
@@ -71,7 +71,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements IWater
     @Nonnull
     @Override
     @Deprecated
-    public BlockRenderType getRenderType( @Nonnull BlockState state )
+    public BlockRenderType getRenderShape( @Nonnull BlockState state )
     {
         return BlockRenderType.ENTITYBLOCK_ANIMATED;
     }
@@ -81,18 +81,18 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements IWater
     @Deprecated
     public VoxelShape getShape( @Nonnull BlockState state, IBlockReader world, @Nonnull BlockPos pos, @Nonnull ISelectionContext context )
     {
-        TileEntity tile = world.getTileEntity( pos );
+        TileEntity tile = world.getBlockEntity( pos );
         Vec3d offset = tile instanceof TileTurtle ? ((TileTurtle) tile).getRenderOffset( 1.0f ) : Vec3d.ZERO;
-        return offset.equals( Vec3d.ZERO ) ? DEFAULT_SHAPE : DEFAULT_SHAPE.withOffset( offset.x, offset.y, offset.z );
+        return offset.equals( Vec3d.ZERO ) ? DEFAULT_SHAPE : DEFAULT_SHAPE.move( offset.x, offset.y, offset.z );
     }
 
     @Nullable
     @Override
     public BlockState getStateForPlacement( BlockItemUseContext placement )
     {
-        return getDefaultState()
-            .with( FACING, placement.getPlacementHorizontalFacing() )
-            .with( WATERLOGGED, getWaterloggedStateForPlacement( placement ) );
+        return defaultBlockState()
+            .setValue( FACING, placement.getHorizontalDirection() )
+            .setValue( WATERLOGGED, getWaterloggedStateForPlacement( placement ) );
     }
 
     @Nonnull
@@ -106,19 +106,19 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements IWater
     @Nonnull
     @Override
     @Deprecated
-    public BlockState updatePostPlacement( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull IWorld world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
+    public BlockState updateShape( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull IWorld world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
     {
         updateWaterloggedPostPlacement( state, world, pos );
         return state;
     }
 
     @Override
-    public void onBlockPlacedBy( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity player, @Nonnull ItemStack stack )
+    public void setPlacedBy( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity player, @Nonnull ItemStack stack )
     {
-        super.onBlockPlacedBy( world, pos, state, player, stack );
+        super.setPlacedBy( world, pos, state, player, stack );
 
-        TileEntity tile = world.getTileEntity( pos );
-        if( !world.isRemote && tile instanceof TileTurtle )
+        TileEntity tile = world.getBlockEntity( pos );
+        if( !world.isClientSide && tile instanceof TileTurtle )
         {
             TileTurtle turtle = (TileTurtle) tile;
 

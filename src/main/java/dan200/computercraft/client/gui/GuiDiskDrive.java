@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.client.gui;
@@ -22,19 +22,19 @@ public class GuiDiskDrive extends ContainerScreen<ContainerDiskDrive>
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer( int mouseX, int mouseY )
+    protected void renderLabels( int mouseX, int mouseY )
     {
-        String title = this.title.getFormattedText();
-        font.drawString( title, (xSize - font.getStringWidth( title )) / 2.0f, 6, 0x404040 );
-        font.drawString( title, 8, ySize - 96 + 2, 0x404040 );
+        String title = this.title.getColoredString();
+        font.draw( title, (imageWidth - font.width( title )) / 2.0f, 6, 0x404040 );
+        font.draw( title, 8, imageHeight - 96 + 2, 0x404040 );
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
+    protected void renderBg( float partialTicks, int mouseX, int mouseY )
     {
         RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        minecraft.getTextureManager().bindTexture( BACKGROUND );
-        blit( guiLeft, guiTop, 0, 0, xSize, ySize );
+        minecraft.getTextureManager().bind( BACKGROUND );
+        blit( leftPos, topPos, 0, 0, imageWidth, imageHeight );
     }
 
     @Override
@@ -42,6 +42,6 @@ public class GuiDiskDrive extends ContainerScreen<ContainerDiskDrive>
     {
         renderBackground();
         super.render( mouseX, mouseY, partialTicks );
-        renderHoveredToolTip( mouseX, mouseY );
+        renderTooltip( mouseX, mouseY );
     }
 }

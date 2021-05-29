@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.network.client;
@@ -10,8 +10,6 @@ import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
@@ -38,13 +36,13 @@ public class ChatTableClientMessage implements NetworkMessage
         buf.writeBoolean( table.getHeaders() != null );
         if( table.getHeaders() != null )
         {
-            for( ITextComponent header : table.getHeaders() ) buf.writeTextComponent( header );
+            for( ITextComponent header : table.getHeaders() ) buf.writeComponent( header );
         }
 
         buf.writeVarInt( table.getRows().size() );
         for( ITextComponent[] row : table.getRows() )
         {
-            for( ITextComponent column : row ) buf.writeTextComponent( column );
+            for( ITextComponent column : row ) buf.writeComponent( column );
         }
 
         buf.writeVarInt( table.getAdditional() );
@@ -59,7 +57,7 @@ public class ChatTableClientMessage implements NetworkMessage
         if( buf.readBoolean() )
         {
             ITextComponent[] headers = new ITextComponent[columns];
-            for( int i = 0; i < columns; i++ ) headers[i] = buf.readTextComponent();
+            for( int i = 0; i < columns; i++ ) headers[i] = buf.readComponent();
             table = new TableBuilder( id, headers );
         }
         else
@@ -71,7 +69,7 @@ public class ChatTableClientMessage implements NetworkMessage
         for( int i = 0; i < rows; i++ )
         {
             ITextComponent[] row = new ITextComponent[columns];
-            for( int j = 0; j < columns; j++ ) row[j] = buf.readTextComponent();
+            for( int j = 0; j < columns; j++ ) row[j] = buf.readComponent();
             table.row( row );
         }
 
@@ -80,7 +78,6 @@ public class ChatTableClientMessage implements NetworkMessage
     }
 
     @Override
-    @OnlyIn( Dist.CLIENT )
     public void handle( NetworkEvent.Context context )
     {
         ClientTableFormatter.INSTANCE.display( table );

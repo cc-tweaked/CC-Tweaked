@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.client.gui;
@@ -62,22 +62,22 @@ public final class FixedWidthFontRenderer
         int xStart = 1 + column * (FONT_WIDTH + 2);
         int yStart = 1 + row * (FONT_HEIGHT + 2);
 
-        buffer.pos( transform, x, y, 0f ).color( r, g, b, 1.0f ).tex( xStart / WIDTH, yStart / WIDTH ).endVertex();
-        buffer.pos( transform, x, y + FONT_HEIGHT, 0f ).color( r, g, b, 1.0f ).tex( xStart / WIDTH, (yStart + FONT_HEIGHT) / WIDTH ).endVertex();
-        buffer.pos( transform, x + FONT_WIDTH, y, 0f ).color( r, g, b, 1.0f ).tex( (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH ).endVertex();
-        buffer.pos( transform, x + FONT_WIDTH, y, 0f ).color( r, g, b, 1.0f ).tex( (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH ).endVertex();
-        buffer.pos( transform, x, y + FONT_HEIGHT, 0f ).color( r, g, b, 1.0f ).tex( xStart / WIDTH, (yStart + FONT_HEIGHT) / WIDTH ).endVertex();
-        buffer.pos( transform, x + FONT_WIDTH, y + FONT_HEIGHT, 0f ).color( r, g, b, 1.0f ).tex( (xStart + FONT_WIDTH) / WIDTH, (yStart + FONT_HEIGHT) / WIDTH ).endVertex();
+        buffer.vertex( transform, x, y, 0f ).color( r, g, b, 1.0f ).uv( xStart / WIDTH, yStart / WIDTH ).endVertex();
+        buffer.vertex( transform, x, y + FONT_HEIGHT, 0f ).color( r, g, b, 1.0f ).uv( xStart / WIDTH, (yStart + FONT_HEIGHT) / WIDTH ).endVertex();
+        buffer.vertex( transform, x + FONT_WIDTH, y, 0f ).color( r, g, b, 1.0f ).uv( (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH ).endVertex();
+        buffer.vertex( transform, x + FONT_WIDTH, y, 0f ).color( r, g, b, 1.0f ).uv( (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH ).endVertex();
+        buffer.vertex( transform, x, y + FONT_HEIGHT, 0f ).color( r, g, b, 1.0f ).uv( xStart / WIDTH, (yStart + FONT_HEIGHT) / WIDTH ).endVertex();
+        buffer.vertex( transform, x + FONT_WIDTH, y + FONT_HEIGHT, 0f ).color( r, g, b, 1.0f ).uv( (xStart + FONT_WIDTH) / WIDTH, (yStart + FONT_HEIGHT) / WIDTH ).endVertex();
     }
 
     private static void drawQuad( Matrix4f transform, IVertexBuilder buffer, float x, float y, float width, float height, float r, float g, float b )
     {
-        buffer.pos( transform, x, y, 0 ).color( r, g, b, 1.0f ).tex( BACKGROUND_START, BACKGROUND_START ).endVertex();
-        buffer.pos( transform, x, y + height, 0 ).color( r, g, b, 1.0f ).tex( BACKGROUND_START, BACKGROUND_END ).endVertex();
-        buffer.pos( transform, x + width, y, 0 ).color( r, g, b, 1.0f ).tex( BACKGROUND_END, BACKGROUND_START ).endVertex();
-        buffer.pos( transform, x + width, y, 0 ).color( r, g, b, 1.0f ).tex( BACKGROUND_END, BACKGROUND_START ).endVertex();
-        buffer.pos( transform, x, y + height, 0 ).color( r, g, b, 1.0f ).tex( BACKGROUND_START, BACKGROUND_END ).endVertex();
-        buffer.pos( transform, x + width, y + height, 0 ).color( r, g, b, 1.0f ).tex( BACKGROUND_END, BACKGROUND_END ).endVertex();
+        buffer.vertex( transform, x, y, 0 ).color( r, g, b, 1.0f ).uv( BACKGROUND_START, BACKGROUND_START ).endVertex();
+        buffer.vertex( transform, x, y + height, 0 ).color( r, g, b, 1.0f ).uv( BACKGROUND_START, BACKGROUND_END ).endVertex();
+        buffer.vertex( transform, x + width, y, 0 ).color( r, g, b, 1.0f ).uv( BACKGROUND_END, BACKGROUND_START ).endVertex();
+        buffer.vertex( transform, x + width, y, 0 ).color( r, g, b, 1.0f ).uv( BACKGROUND_END, BACKGROUND_START ).endVertex();
+        buffer.vertex( transform, x, y + height, 0 ).color( r, g, b, 1.0f ).uv( BACKGROUND_START, BACKGROUND_END ).endVertex();
+        buffer.vertex( transform, x + width, y + height, 0 ).color( r, g, b, 1.0f ).uv( BACKGROUND_END, BACKGROUND_END ).endVertex();
     }
 
     private static void drawQuad( Matrix4f transform, IVertexBuilder buffer, float x, float y, float width, float height, Palette palette, boolean greyscale, char colourIndex )
@@ -178,9 +178,9 @@ public final class FixedWidthFontRenderer
     {
         bindFont();
 
-        IRenderTypeBuffer.Impl renderer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
+        IRenderTypeBuffer.Impl renderer = Minecraft.getInstance().renderBuffers().bufferSource();
         drawString( IDENTITY, ((IRenderTypeBuffer) renderer).getBuffer( TYPE ), x, y, text, textColour, backgroundColour, palette, greyscale, leftMarginSize, rightMarginSize );
-        renderer.finish();
+        renderer.endBatch();
     }
 
     public static void drawTerminalWithoutCursor(
@@ -263,10 +263,10 @@ public final class FixedWidthFontRenderer
     {
         bindFont();
 
-        IRenderTypeBuffer.Impl renderer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
+        IRenderTypeBuffer.Impl renderer = Minecraft.getInstance().renderBuffers().bufferSource();
         IVertexBuilder buffer = renderer.getBuffer( TYPE );
         drawTerminal( transform, buffer, x, y, terminal, greyscale, topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize );
-        renderer.finish( TYPE );
+        renderer.endBatch( TYPE );
     }
 
     public static void drawTerminal(
@@ -287,9 +287,9 @@ public final class FixedWidthFontRenderer
     {
         bindFont();
 
-        IRenderTypeBuffer.Impl renderer = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
+        IRenderTypeBuffer.Impl renderer = Minecraft.getInstance().renderBuffers().bufferSource();
         drawEmptyTerminal( transform, renderer, x, y, width, height );
-        renderer.finish();
+        renderer.endBatch();
     }
 
     public static void drawEmptyTerminal( float x, float y, float width, float height )
@@ -305,7 +305,7 @@ public final class FixedWidthFontRenderer
 
     private static void bindFont()
     {
-        Minecraft.getInstance().getTextureManager().bindTexture( FONT );
+        Minecraft.getInstance().getTextureManager().bind( FONT );
         RenderSystem.texParameter( GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP );
     }
 
@@ -315,26 +315,26 @@ public final class FixedWidthFontRenderer
 
         private static final VertexFormat FORMAT = DefaultVertexFormats.POSITION_COLOR_TEX;
 
-        static final RenderType MAIN = RenderType.makeType(
+        static final RenderType MAIN = RenderType.create(
             "terminal_font", FORMAT, GL_MODE, 1024,
             false, false, // useDelegate, needsSorting
-            RenderType.State.getBuilder()
-                .texture( new RenderState.TextureState( FONT, false, false ) ) // blur, minimap
-                .alpha( DEFAULT_ALPHA )
-                .lightmap( LIGHTMAP_DISABLED )
-                .writeMask( COLOR_WRITE )
-                .build( false )
+            RenderType.State.builder()
+                .setTextureState( new RenderState.TextureState( FONT, false, false ) ) // blur, minimap
+                .setAlphaState( DEFAULT_ALPHA )
+                .setLightmapState( NO_LIGHTMAP )
+                .setWriteMaskState( COLOR_WRITE )
+                .createCompositeState( false )
         );
 
-        static final RenderType BLOCKER = RenderType.makeType(
+        static final RenderType BLOCKER = RenderType.create(
             "terminal_blocker", FORMAT, GL_MODE, 256,
             false, false, // useDelegate, needsSorting
-            RenderType.State.getBuilder()
-                .texture( new RenderState.TextureState( FONT, false, false ) ) // blur, minimap
-                .alpha( DEFAULT_ALPHA )
-                .writeMask( DEPTH_WRITE )
-                .lightmap( LIGHTMAP_DISABLED )
-                .build( false )
+            RenderType.State.builder()
+                .setTextureState( new RenderState.TextureState( FONT, false, false ) ) // blur, minimap
+                .setAlphaState( DEFAULT_ALPHA )
+                .setWriteMaskState( DEPTH_WRITE )
+                .setLightmapState( NO_LIGHTMAP )
+                .createCompositeState( false )
         );
 
         private Type( String name, Runnable setup, Runnable destroy )

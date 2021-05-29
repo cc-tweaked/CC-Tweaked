@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.client.render;
@@ -23,22 +23,22 @@ import java.util.*;
 
 public class TurtleMultiModel implements IBakedModel
 {
-    private final IBakedModel m_baseModel;
-    private final IBakedModel m_overlayModel;
-    private final TransformationMatrix m_generalTransform;
-    private final TransformedModel m_leftUpgradeModel;
-    private final TransformedModel m_rightUpgradeModel;
-    private List<BakedQuad> m_generalQuads = null;
-    private Map<Direction, List<BakedQuad>> m_faceQuads = new EnumMap<>( Direction.class );
+    private final IBakedModel baseModel;
+    private final IBakedModel overlayModel;
+    private final TransformationMatrix generalTransform;
+    private final TransformedModel leftUpgradeModel;
+    private final TransformedModel rightUpgradeModel;
+    private List<BakedQuad> generalQuads = null;
+    private final Map<Direction, List<BakedQuad>> faceQuads = new EnumMap<>( Direction.class );
 
     public TurtleMultiModel( IBakedModel baseModel, IBakedModel overlayModel, TransformationMatrix generalTransform, TransformedModel leftUpgradeModel, TransformedModel rightUpgradeModel )
     {
         // Get the models
-        m_baseModel = baseModel;
-        m_overlayModel = overlayModel;
-        m_leftUpgradeModel = leftUpgradeModel;
-        m_rightUpgradeModel = rightUpgradeModel;
-        m_generalTransform = generalTransform;
+        this.baseModel = baseModel;
+        this.overlayModel = overlayModel;
+        this.leftUpgradeModel = leftUpgradeModel;
+        this.rightUpgradeModel = rightUpgradeModel;
+        this.generalTransform = generalTransform;
     }
 
     @Nonnull
@@ -55,13 +55,13 @@ public class TurtleMultiModel implements IBakedModel
     {
         if( side != null )
         {
-            if( !m_faceQuads.containsKey( side ) ) m_faceQuads.put( side, buildQuads( state, side, rand ) );
-            return m_faceQuads.get( side );
+            if( !faceQuads.containsKey( side ) ) faceQuads.put( side, buildQuads( state, side, rand ) );
+            return faceQuads.get( side );
         }
         else
         {
-            if( m_generalQuads == null ) m_generalQuads = buildQuads( state, side, rand );
-            return m_generalQuads;
+            if( generalQuads == null ) generalQuads = buildQuads( state, side, rand );
+            return generalQuads;
         }
     }
 
@@ -70,63 +70,63 @@ public class TurtleMultiModel implements IBakedModel
         ArrayList<BakedQuad> quads = new ArrayList<>();
 
 
-        transformQuadsTo( quads, m_baseModel.getQuads( state, side, rand, EmptyModelData.INSTANCE ), m_generalTransform );
-        if( m_overlayModel != null )
+        transformQuadsTo( quads, baseModel.getQuads( state, side, rand, EmptyModelData.INSTANCE ), generalTransform );
+        if( overlayModel != null )
         {
-            transformQuadsTo( quads, m_overlayModel.getQuads( state, side, rand, EmptyModelData.INSTANCE ), m_generalTransform );
+            transformQuadsTo( quads, overlayModel.getQuads( state, side, rand, EmptyModelData.INSTANCE ), generalTransform );
         }
-        if( m_leftUpgradeModel != null )
+        if( leftUpgradeModel != null )
         {
-            TransformationMatrix upgradeTransform = m_generalTransform.compose( m_leftUpgradeModel.getMatrix() );
-            transformQuadsTo( quads, m_leftUpgradeModel.getModel().getQuads( state, side, rand, EmptyModelData.INSTANCE ), upgradeTransform );
+            TransformationMatrix upgradeTransform = generalTransform.compose( leftUpgradeModel.getMatrix() );
+            transformQuadsTo( quads, leftUpgradeModel.getModel().getQuads( state, side, rand, EmptyModelData.INSTANCE ), upgradeTransform );
         }
-        if( m_rightUpgradeModel != null )
+        if( rightUpgradeModel != null )
         {
-            TransformationMatrix upgradeTransform = m_generalTransform.compose( m_rightUpgradeModel.getMatrix() );
-            transformQuadsTo( quads, m_rightUpgradeModel.getModel().getQuads( state, side, rand, EmptyModelData.INSTANCE ), upgradeTransform );
+            TransformationMatrix upgradeTransform = generalTransform.compose( rightUpgradeModel.getMatrix() );
+            transformQuadsTo( quads, rightUpgradeModel.getModel().getQuads( state, side, rand, EmptyModelData.INSTANCE ), upgradeTransform );
         }
         quads.trimToSize();
         return quads;
     }
 
     @Override
-    public boolean isAmbientOcclusion()
+    public boolean useAmbientOcclusion()
     {
-        return m_baseModel.isAmbientOcclusion();
+        return baseModel.useAmbientOcclusion();
     }
 
     @Override
     public boolean isGui3d()
     {
-        return m_baseModel.isGui3d();
+        return baseModel.isGui3d();
     }
 
     @Override
-    public boolean isBuiltInRenderer()
+    public boolean isCustomRenderer()
     {
-        return m_baseModel.isBuiltInRenderer();
+        return baseModel.isCustomRenderer();
     }
 
     @Override
-    public boolean func_230044_c_()
+    public boolean usesBlockLight()
     {
-        return m_baseModel.func_230044_c_();
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public TextureAtlasSprite getParticleTexture()
-    {
-        return m_baseModel.getParticleTexture();
+        return baseModel.usesBlockLight();
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public net.minecraft.client.renderer.model.ItemCameraTransforms getItemCameraTransforms()
+    public TextureAtlasSprite getParticleIcon()
     {
-        return m_baseModel.getItemCameraTransforms();
+        return baseModel.getParticleIcon();
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public net.minecraft.client.renderer.model.ItemCameraTransforms getTransforms()
+    {
+        return baseModel.getTransforms();
     }
 
     @Nonnull

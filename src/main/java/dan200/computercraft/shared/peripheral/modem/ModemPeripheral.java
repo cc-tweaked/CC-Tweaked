@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.modem;
@@ -27,32 +27,32 @@ import java.util.Set;
  */
 public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPacketReceiver
 {
-    private IPacketNetwork m_network;
-    private final Set<IComputerAccess> m_computers = new HashSet<>( 1 );
-    private final ModemState m_state;
+    private IPacketNetwork network;
+    private final Set<IComputerAccess> computers = new HashSet<>( 1 );
+    private final ModemState state;
 
     protected ModemPeripheral( ModemState state )
     {
-        m_state = state;
+        this.state = state;
     }
 
     public ModemState getModemState()
     {
-        return m_state;
+        return state;
     }
 
     private synchronized void setNetwork( IPacketNetwork network )
     {
-        if( m_network == network ) return;
+        if( this.network == network ) return;
 
         // Leave old network
-        if( m_network != null ) m_network.removeReceiver( this );
+        if( this.network != null ) this.network.removeReceiver( this );
 
         // Set new network
-        m_network = network;
+        this.network = network;
 
         // Join new network
-        if( m_network != null ) m_network.addReceiver( this );
+        if( this.network != null ) this.network.addReceiver( this );
     }
 
     public void destroy()
@@ -63,11 +63,11 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @Override
     public void receiveSameDimension( @Nonnull Packet packet, double distance )
     {
-        if( packet.getSender() == this || !m_state.isOpen( packet.getChannel() ) ) return;
+        if( packet.getSender() == this || !state.isOpen( packet.getChannel() ) ) return;
 
-        synchronized( m_computers )
+        synchronized( computers )
         {
-            for( IComputerAccess computer : m_computers )
+            for( IComputerAccess computer : computers )
             {
                 computer.queueEvent( "modem_message",
                     computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload(), distance );
@@ -78,11 +78,11 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @Override
     public void receiveDifferentDimension( @Nonnull Packet packet )
     {
-        if( packet.getSender() == this || !m_state.isOpen( packet.getChannel() ) ) return;
+        if( packet.getSender() == this || !state.isOpen( packet.getChannel() ) ) return;
 
-        synchronized( m_computers )
+        synchronized( computers )
         {
-            for( IComputerAccess computer : m_computers )
+            for( IComputerAccess computer : computers )
             {
                 computer.queueEvent( "modem_message",
                     computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload() );
@@ -116,7 +116,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @LuaFunction
     public final void open( int channel ) throws LuaException
     {
-        m_state.open( parseChannel( channel ) );
+        state.open( parseChannel( channel ) );
     }
 
     /**
@@ -129,7 +129,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @LuaFunction
     public final boolean isOpen( int channel ) throws LuaException
     {
-        return m_state.isOpen( parseChannel( channel ) );
+        return state.isOpen( parseChannel( channel ) );
     }
 
     /**
@@ -141,7 +141,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @LuaFunction
     public final void close( int channel ) throws LuaException
     {
-        m_state.close( parseChannel( channel ) );
+        state.close( parseChannel( channel ) );
     }
 
     /**
@@ -150,7 +150,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @LuaFunction
     public final void closeAll()
     {
-        m_state.closeAll();
+        state.closeAll();
     }
 
     /**
@@ -172,7 +172,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
 
         World world = getWorld();
         Vec3d position = getPosition();
-        IPacketNetwork network = m_network;
+        IPacketNetwork network = this.network;
 
         if( world == null || position == null || network == null ) return;
 
@@ -198,16 +198,16 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @LuaFunction
     public final boolean isWireless()
     {
-        IPacketNetwork network = m_network;
+        IPacketNetwork network = this.network;
         return network != null && network.isWireless();
     }
 
     @Override
     public synchronized void attach( @Nonnull IComputerAccess computer )
     {
-        synchronized( m_computers )
+        synchronized( computers )
         {
-            m_computers.add( computer );
+            computers.add( computer );
         }
 
         setNetwork( getNetwork() );
@@ -217,10 +217,10 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     public synchronized void detach( @Nonnull IComputerAccess computer )
     {
         boolean empty;
-        synchronized( m_computers )
+        synchronized( computers )
         {
-            m_computers.remove( computer );
-            empty = m_computers.isEmpty();
+            computers.remove( computer );
+            empty = computers.isEmpty();
         }
 
         if( empty ) setNetwork( null );
@@ -230,15 +230,15 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @Override
     public String getSenderID()
     {
-        synchronized( m_computers )
+        synchronized( computers )
         {
-            if( m_computers.size() != 1 )
+            if( computers.size() != 1 )
             {
                 return "unknown";
             }
             else
             {
-                IComputerAccess computer = m_computers.iterator().next();
+                IComputerAccess computer = computers.iterator().next();
                 return computer.getID() + "_" + computer.getAttachmentName();
             }
         }

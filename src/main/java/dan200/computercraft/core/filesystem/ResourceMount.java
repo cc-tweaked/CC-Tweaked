@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.filesystem;
@@ -12,6 +12,7 @@ import com.google.common.io.ByteStreams;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
+import dan200.computercraft.shared.util.IoUtil;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResource;
 import net.minecraft.resources.IResourceManager;
@@ -103,9 +104,13 @@ public final class ResourceMount implements IMount
     private void load()
     {
         boolean hasAny = false;
+        String existingNamespace = null;
+
         FileEntry newRoot = new FileEntry( new ResourceLocation( namespace, subPath ) );
-        for( ResourceLocation file : manager.getAllResourceLocations( subPath, s -> true ) )
+        for( ResourceLocation file : manager.listResources( subPath, s -> true ) )
         {
+            existingNamespace = file.getNamespace();
+
             if( !file.getNamespace().equals( namespace ) ) continue;
 
             String localPath = FileSystem.toLocal( file.getPath(), subPath );
@@ -114,6 +119,15 @@ public final class ResourceMount implements IMount
         }
 
         root = hasAny ? newRoot : null;
+
+        if( !hasAny )
+        {
+            ComputerCraft.log.warn( "Cannot find any files under /data/{}/{} for resource mount.", namespace, subPath );
+            if( existingNamespace != null )
+            {
+                ComputerCraft.log.warn( "There are files under /data/{}/{} though. Did you get the wrong namespace?", existingNamespace, subPath );
+            }
+        }
     }
 
     private FileEntry get( String path )
@@ -231,11 +245,20 @@ public final class ResourceMount implements IMount
             byte[] contents = CONTENTS_CACHE.getIfPresent( file );
             if( contents != null ) return new ArrayByteChannel( contents );
 
-            try( InputStream stream = manager.getResource( file.identifier ).getInputStream() )
+            try
             {
+                InputStream stream = manager.getResource( file.identifier ).getInputStream();
                 if( stream.available() > MAX_CACHED_SIZE ) return Channels.newChannel( stream );
 
-                contents = ByteStreams.toByteArray( stream );
+                try
+                {
+                    contents = ByteStreams.toByteArray( stream );
+                }
+                finally
+                {
+                    IoUtil.closeQuietly( stream );
+                }
+
                 CONTENTS_CACHE.put( file, contents );
                 return new ArrayByteChannel( contents );
             }
@@ -297,7 +320,7 @@ public final class ResourceMount implements IMount
 
         synchronized void add( IReloadableResourceManager manager, ResourceMount mount )
         {
-            if( managers.add( manager ) ) manager.addReloadListener( this );
+            if( managers.add( manager ) ) manager.registerReloadListener( this );
             mounts.add( mount );
         }
     }

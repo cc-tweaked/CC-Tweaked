@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.util;
@@ -22,7 +22,7 @@ public class FakeNetHandler extends ServerPlayNetHandler
 {
     public FakeNetHandler( @Nonnull FakePlayer player )
     {
-        super( player.getServerWorld().getServer(), new FakeNetworkManager(), player );
+        super( player.getLevel().getServer(), new FakeNetworkManager(), player );
     }
 
     @Override
@@ -41,32 +41,32 @@ public class FakeNetHandler extends ServerPlayNetHandler
     }
 
     @Override
-    public void sendPacket( @Nonnull IPacket<?> packet )
+    public void send( @Nonnull IPacket<?> packet )
     {
     }
 
     @Override
-    public void sendPacket( @Nonnull IPacket<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> whenSent )
+    public void send( @Nonnull IPacket<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> whenSent )
     {
     }
 
     @Override
-    public void processInput( @Nonnull CInputPacket packet )
+    public void handlePlayerInput( @Nonnull CInputPacket packet )
     {
     }
 
     @Override
-    public void processVehicleMove( @Nonnull CMoveVehiclePacket packet )
+    public void handleMoveVehicle( @Nonnull CMoveVehiclePacket packet )
     {
     }
 
     @Override
-    public void processConfirmTeleport( @Nonnull CConfirmTeleportPacket packet )
+    public void handleAcceptTeleportPacket( @Nonnull CConfirmTeleportPacket packet )
     {
     }
 
     @Override
-    public void handleRecipeBookUpdate( @Nonnull CRecipeInfoPacket packet )
+    public void handleRecipeBookUpdatePacket( @Nonnull CRecipeInfoPacket packet )
     {
     }
 
@@ -76,192 +76,192 @@ public class FakeNetHandler extends ServerPlayNetHandler
     }
 
     @Override
-    public void processTabComplete( @Nonnull CTabCompletePacket packet )
+    public void handleCustomCommandSuggestions( @Nonnull CTabCompletePacket packet )
     {
     }
 
     @Override
-    public void processUpdateCommandBlock( @Nonnull CUpdateCommandBlockPacket packet )
+    public void handleSetCommandBlock( @Nonnull CUpdateCommandBlockPacket packet )
     {
     }
 
     @Override
-    public void processUpdateCommandMinecart( @Nonnull CUpdateMinecartCommandBlockPacket packet )
+    public void handleSetCommandMinecart( @Nonnull CUpdateMinecartCommandBlockPacket packet )
     {
     }
 
     @Override
-    public void processPickItem( @Nonnull CPickItemPacket packet )
+    public void handlePickItem( @Nonnull CPickItemPacket packet )
     {
     }
 
     @Override
-    public void processRenameItem( @Nonnull CRenameItemPacket packet )
+    public void handleRenameItem( @Nonnull CRenameItemPacket packet )
     {
     }
 
     @Override
-    public void processUpdateBeacon( @Nonnull CUpdateBeaconPacket packet )
+    public void handleSetBeaconPacket( @Nonnull CUpdateBeaconPacket packet )
     {
     }
 
     @Override
-    public void processUpdateStructureBlock( @Nonnull CUpdateStructureBlockPacket packet )
+    public void handleSetStructureBlock( @Nonnull CUpdateStructureBlockPacket packet )
     {
     }
 
     @Override
-    public void func_217262_a( @Nonnull CUpdateJigsawBlockPacket packet )
+    public void handleSetJigsawBlock( @Nonnull CUpdateJigsawBlockPacket packet )
     {
     }
 
     @Override
-    public void processSelectTrade( @Nonnull CSelectTradePacket packet )
+    public void handleSelectTrade( @Nonnull CSelectTradePacket packet )
     {
     }
 
     @Override
-    public void processEditBook( @Nonnull CEditBookPacket packet )
+    public void handleEditBook( @Nonnull CEditBookPacket packet )
     {
     }
 
     @Override
-    public void processNBTQueryEntity( @Nonnull CQueryEntityNBTPacket packet )
+    public void handleEntityTagQuery( @Nonnull CQueryEntityNBTPacket packet )
     {
     }
 
     @Override
-    public void processNBTQueryBlockEntity( @Nonnull CQueryTileEntityNBTPacket packet )
+    public void handleBlockEntityTagQuery( @Nonnull CQueryTileEntityNBTPacket packet )
     {
     }
 
     @Override
-    public void processPlayer( @Nonnull CPlayerPacket packet )
+    public void handleMovePlayer( @Nonnull CPlayerPacket packet )
     {
     }
 
     @Override
-    public void processPlayerDigging( @Nonnull CPlayerDiggingPacket packet )
+    public void handlePlayerAction( @Nonnull CPlayerDiggingPacket packet )
     {
     }
 
     @Override
-    public void processTryUseItemOnBlock( @Nonnull CPlayerTryUseItemOnBlockPacket packet )
+    public void handleUseItemOn( @Nonnull CPlayerTryUseItemOnBlockPacket packet )
     {
     }
 
     @Override
-    public void processTryUseItem( @Nonnull CPlayerTryUseItemPacket packet )
+    public void handleUseItem( @Nonnull CPlayerTryUseItemPacket packet )
     {
     }
 
     @Override
-    public void handleSpectate( @Nonnull CSpectatePacket packet )
+    public void handleTeleportToEntityPacket( @Nonnull CSpectatePacket packet )
     {
     }
 
     @Override
-    public void handleResourcePackStatus( @Nonnull CResourcePackStatusPacket packet )
+    public void handleResourcePackResponse( @Nonnull CResourcePackStatusPacket packet )
     {
     }
 
     @Override
-    public void processSteerBoat( @Nonnull CSteerBoatPacket packet )
+    public void handlePaddleBoat( @Nonnull CSteerBoatPacket packet )
     {
     }
 
     @Override
-    public void processHeldItemChange( @Nonnull CHeldItemChangePacket packet )
+    public void handleSetCarriedItem( @Nonnull CHeldItemChangePacket packet )
     {
     }
 
     @Override
-    public void processChatMessage( @Nonnull CChatMessagePacket packet )
+    public void handleChat( @Nonnull CChatMessagePacket packet )
     {
     }
 
     @Override
-    public void handleAnimation( @Nonnull CAnimateHandPacket packet )
+    public void handleAnimate( @Nonnull CAnimateHandPacket packet )
     {
     }
 
     @Override
-    public void processEntityAction( @Nonnull CEntityActionPacket packet )
+    public void handlePlayerCommand( @Nonnull CEntityActionPacket packet )
     {
     }
 
     @Override
-    public void processUseEntity( @Nonnull CUseEntityPacket packet )
+    public void handleInteract( @Nonnull CUseEntityPacket packet )
     {
     }
 
     @Override
-    public void processClientStatus( @Nonnull CClientStatusPacket packet )
+    public void handleClientCommand( @Nonnull CClientStatusPacket packet )
     {
     }
 
     @Override
-    public void processCloseWindow( @Nonnull CCloseWindowPacket packet )
+    public void handleContainerClose( @Nonnull CCloseWindowPacket packet )
     {
     }
 
     @Override
-    public void processClickWindow( @Nonnull CClickWindowPacket packet )
+    public void handleContainerClick( @Nonnull CClickWindowPacket packet )
     {
     }
 
     @Override
-    public void processPlaceRecipe( @Nonnull CPlaceRecipePacket packet )
+    public void handlePlaceRecipe( @Nonnull CPlaceRecipePacket packet )
     {
     }
 
     @Override
-    public void processEnchantItem( @Nonnull CEnchantItemPacket packet )
+    public void handleContainerButtonClick( @Nonnull CEnchantItemPacket packet )
     {
     }
 
     @Override
-    public void processCreativeInventoryAction( @Nonnull CCreativeInventoryActionPacket packet )
+    public void handleSetCreativeModeSlot( @Nonnull CCreativeInventoryActionPacket packet )
     {
     }
 
     @Override
-    public void processConfirmTransaction( @Nonnull CConfirmTransactionPacket packet )
+    public void handleContainerAck( @Nonnull CConfirmTransactionPacket packet )
     {
     }
 
     @Override
-    public void processUpdateSign( @Nonnull CUpdateSignPacket packet )
+    public void handleSignUpdate( @Nonnull CUpdateSignPacket packet )
     {
     }
 
     @Override
-    public void processKeepAlive( @Nonnull CKeepAlivePacket packet )
+    public void handleKeepAlive( @Nonnull CKeepAlivePacket packet )
     {
     }
 
     @Override
-    public void processPlayerAbilities( @Nonnull CPlayerAbilitiesPacket packet )
+    public void handlePlayerAbilities( @Nonnull CPlayerAbilitiesPacket packet )
     {
     }
 
     @Override
-    public void processClientSettings( @Nonnull CClientSettingsPacket packet )
+    public void handleClientInformation( @Nonnull CClientSettingsPacket packet )
     {
     }
 
     @Override
-    public void processCustomPayload( @Nonnull CCustomPayloadPacket packet )
+    public void handleCustomPayload( @Nonnull CCustomPayloadPacket packet )
     {
     }
 
     @Override
-    public void func_217263_a( @Nonnull CSetDifficultyPacket packet )
+    public void handleChangeDifficulty( @Nonnull CSetDifficultyPacket packet )
     {
     }
 
     @Override
-    public void func_217261_a( @Nonnull CLockDifficultyPacket packet )
+    public void handleLockDifficulty( @Nonnull CLockDifficultyPacket packet )
     {
     }
 
@@ -281,7 +281,7 @@ public class FakeNetHandler extends ServerPlayNetHandler
         }
 
         @Override
-        public void setConnectionState( @Nonnull ProtocolType state )
+        public void setProtocol( @Nonnull ProtocolType state )
         {
         }
 
@@ -301,18 +301,18 @@ public class FakeNetHandler extends ServerPlayNetHandler
         }
 
         @Override
-        public void setNetHandler( @Nonnull INetHandler handler )
+        public void setListener( @Nonnull INetHandler handler )
         {
             this.handler = handler;
         }
 
         @Override
-        public void sendPacket( @Nonnull IPacket<?> packet )
+        public void send( @Nonnull IPacket<?> packet )
         {
         }
 
         @Override
-        public void sendPacket( @Nonnull IPacket<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> whenSent )
+        public void send( @Nonnull IPacket<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> whenSent )
         {
         }
 
@@ -322,37 +322,37 @@ public class FakeNetHandler extends ServerPlayNetHandler
         }
 
         @Override
-        public void closeChannel( @Nonnull ITextComponent message )
+        public void disconnect( @Nonnull ITextComponent message )
         {
             this.closeReason = message;
         }
 
         @Override
-        public void enableEncryption( @Nonnull SecretKey key )
+        public void setEncryptionKey( @Nonnull SecretKey key )
         {
         }
 
         @Nonnull
         @Override
-        public INetHandler getNetHandler()
+        public INetHandler getPacketListener()
         {
             return handler;
         }
 
         @Nullable
         @Override
-        public ITextComponent getExitMessage()
+        public ITextComponent getDisconnectedReason()
         {
             return closeReason;
         }
 
         @Override
-        public void disableAutoRead()
+        public void setReadOnly()
         {
         }
 
         @Override
-        public void setCompressionThreshold( int threshold )
+        public void setupCompression( int threshold )
         {
         }
     }

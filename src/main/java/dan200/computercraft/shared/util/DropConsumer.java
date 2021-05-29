@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.util;
@@ -9,6 +9,7 @@ import dan200.computercraft.ComputerCraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -40,8 +41,8 @@ public final class DropConsumer
         dropConsumer = consumer;
         remainingDrops = new ArrayList<>();
         dropEntity = entity;
-        dropWorld = entity.world;
-        dropBounds = new AxisAlignedBB( entity.getPosition() ).grow( 2, 2, 2 );
+        dropWorld = entity.level;
+        dropBounds = new AxisAlignedBB( entity.getCommandSenderBlockPosition() ).inflate( 2, 2, 2 );
     }
 
     public static void set( World world, BlockPos pos, Function<ItemStack, ItemStack> consumer )
@@ -50,7 +51,7 @@ public final class DropConsumer
         remainingDrops = new ArrayList<>( 2 );
         dropEntity = null;
         dropWorld = world;
-        dropBounds = new AxisAlignedBB( pos ).grow( 2, 2, 2 );
+        dropBounds = new AxisAlignedBB( pos ).inflate( 2, 2, 2 );
     }
 
     public static List<ItemStack> clear()
@@ -66,6 +67,12 @@ public final class DropConsumer
         return remainingStacks;
     }
 
+    public static void clearAndDrop( World world, BlockPos pos, Direction direction )
+    {
+        List<ItemStack> remainingDrops = clear();
+        for( ItemStack remaining : remainingDrops ) WorldUtil.dropItemStack( remaining, world, pos, direction );
+    }
+
     private static void handleDrops( ItemStack stack )
     {
         ItemStack remaining = dropConsumer.apply( stack );
@@ -77,7 +84,7 @@ public final class DropConsumer
     {
         // Capture any nearby item spawns
         if( dropWorld == event.getWorld() && event.getEntity() instanceof ItemEntity
-            && dropBounds.contains( event.getEntity().getPositionVector() ) )
+            && dropBounds.contains( event.getEntity().getCommandSenderWorldPosition() ) )
         {
             handleDrops( ((ItemEntity) event.getEntity()).getItem() );
             event.setCanceled( true );

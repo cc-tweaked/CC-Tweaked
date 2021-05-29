@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.computer.apis;
@@ -48,18 +48,18 @@ public class CommandAPI implements ILuaAPI
 
     private Object[] doCommand( String command )
     {
-        MinecraftServer server = computer.getWorld().getServer();
+        MinecraftServer server = computer.getLevel().getServer();
         if( server == null || !server.isCommandBlockEnabled() )
         {
             return new Object[] { false, createOutput( "Command blocks disabled by server" ) };
         }
 
-        Commands commandManager = server.getCommandManager();
+        Commands commandManager = server.getCommands();
         TileCommandComputer.CommandReceiver receiver = computer.getReceiver();
         try
         {
             receiver.clearOutput();
-            int result = commandManager.handleCommand( computer.getSource(), command );
+            int result = commandManager.performCommand( computer.getSource(), command );
             return new Object[] { result > 0, receiver.copyOutput(), result };
         }
         catch( Throwable t )
@@ -75,8 +75,8 @@ public class CommandAPI implements ILuaAPI
         BlockState state = world.getBlockState( pos );
         Map<String, Object> table = BlockData.fill( new HashMap<>(), state );
 
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.write( new CompoundNBT() ) ) );
+        TileEntity tile = world.getBlockEntity( pos );
+        if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.save( new CompoundNBT() ) ) );
 
         return table;
     }
@@ -139,10 +139,10 @@ public class CommandAPI implements ILuaAPI
     @LuaFunction( mainThread = true )
     public final List<String> list( IArguments args ) throws LuaException
     {
-        MinecraftServer server = computer.getWorld().getServer();
+        MinecraftServer server = computer.getLevel().getServer();
 
         if( server == null ) return Collections.emptyList();
-        CommandNode<CommandSource> node = server.getCommandManager().getDispatcher().getRoot();
+        CommandNode<CommandSource> node = server.getCommands().getDispatcher().getRoot();
         for( int j = 0; j < args.count(); j++ )
         {
             String name = args.getString( j );
@@ -171,7 +171,7 @@ public class CommandAPI implements ILuaAPI
     public final Object[] getBlockPosition()
     {
         // This is probably safe to do on the Lua thread. Probably.
-        BlockPos pos = computer.getPos();
+        BlockPos pos = computer.getBlockPos();
         return new Object[] { pos.getX(), pos.getY(), pos.getZ() };
     }
 
@@ -198,7 +198,7 @@ public class CommandAPI implements ILuaAPI
     public final List<Map<?, ?>> getBlockInfos( int minX, int minY, int minZ, int maxX, int maxY, int maxZ ) throws LuaException
     {
         // Get the details of the block
-        World world = computer.getWorld();
+        World world = computer.getLevel();
         BlockPos min = new BlockPos(
             Math.min( minX, maxX ),
             Math.min( minY, maxY ),
@@ -209,7 +209,7 @@ public class CommandAPI implements ILuaAPI
             Math.max( minY, maxY ),
             Math.max( minZ, maxZ )
         );
-        if( !World.isValid( min ) || !World.isValid( max ) )
+        if( !World.isInWorldBounds( min ) || !World.isInWorldBounds( max ) )
         {
             throw new LuaException( "Co-ordinates out of range" );
         }
@@ -250,9 +250,9 @@ public class CommandAPI implements ILuaAPI
     public final Map<?, ?> getBlockInfo( int x, int y, int z ) throws LuaException
     {
         // Get the details of the block
-        World world = computer.getWorld();
+        World world = computer.getLevel();
         BlockPos position = new BlockPos( x, y, z );
-        if( World.isValid( position ) )
+        if( World.isInWorldBounds( position ) )
         {
             return getBlockInfo( world, position );
         }

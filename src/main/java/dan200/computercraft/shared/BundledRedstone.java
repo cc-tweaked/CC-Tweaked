@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared;
@@ -31,12 +31,12 @@ public final class BundledRedstone
 
     public static int getDefaultOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
-        return World.isValid( pos ) ? DefaultBundledRedstoneProvider.getDefaultBundledRedstoneOutput( world, pos, side ) : -1;
+        return World.isInWorldBounds( pos ) ? DefaultBundledRedstoneProvider.getDefaultBundledRedstoneOutput( world, pos, side ) : -1;
     }
 
     private static int getUnmaskedOutput( World world, BlockPos pos, Direction side )
     {
-        if( !World.isValid( pos ) ) return -1;
+        if( !World.isInWorldBounds( pos ) ) return -1;
 
         // Try the providers in order:
         int combinedSignal = -1;

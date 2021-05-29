@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.data;
 
 import dan200.computercraft.ComputerCraft;
@@ -43,12 +42,13 @@ public class LootTables extends LootTableProvider
 
         computerDrop( add, Registry.ModBlocks.COMPUTER_NORMAL );
         computerDrop( add, Registry.ModBlocks.COMPUTER_ADVANCED );
+        computerDrop( add, Registry.ModBlocks.COMPUTER_COMMAND );
         computerDrop( add, Registry.ModBlocks.TURTLE_NORMAL );
         computerDrop( add, Registry.ModBlocks.TURTLE_ADVANCED );
 
         add.accept( ComputerCraftProxyCommon.ForgeHandlers.LOOT_TREASURE_DISK, LootTable
-            .builder()
-            .setParameterSet( LootParameterSets.GENERIC )
+            .lootTable()
+            .setParamSet( LootParameterSets.ALL_PARAMS )
             .build() );
     }
 
@@ -56,13 +56,13 @@ public class LootTables extends LootTableProvider
     {
         Block block = wrapper.get();
         add.accept( block.getLootTable(), LootTable
-            .builder()
-            .setParameterSet( LootParameterSets.BLOCK )
-            .addLootPool( LootPool.builder()
+            .lootTable()
+            .setParamSet( LootParameterSets.BLOCK )
+            .withPool( LootPool.lootPool()
                 .name( "main" )
-                .rolls( ConstantRange.of( 1 ) )
-                .addEntry( ItemLootEntry.builder( block ) )
-                .acceptCondition( SurvivesExplosion.builder() )
+                .setRolls( ConstantRange.exactly( 1 ) )
+                .add( ItemLootEntry.lootTableItem( block ) )
+                .when( SurvivesExplosion.survivesExplosion() )
             ).build() );
     }
 
@@ -70,16 +70,16 @@ public class LootTables extends LootTableProvider
     {
         Block block = wrapper.get();
         add.accept( block.getLootTable(), LootTable
-            .builder()
-            .setParameterSet( LootParameterSets.BLOCK )
-            .addLootPool( LootPool.builder()
+            .lootTable()
+            .setParamSet( LootParameterSets.BLOCK )
+            .withPool( LootPool.lootPool()
                 .name( "main" )
-                .rolls( ConstantRange.of( 1 ) )
-                .addEntry( DynamicLootEntry.func_216162_a( new ResourceLocation( ComputerCraft.MOD_ID, "computer" ) ) )
-                .acceptCondition( Alternative.builder(
+                .setRolls( ConstantRange.exactly( 1 ) )
+                .add( DynamicLootEntry.dynamicEntry( new ResourceLocation( ComputerCraft.MOD_ID, "computer" ) ) )
+                .when( Alternative.alternative(
                     BlockNamedEntityLootCondition.builder(),
                     HasComputerIdLootCondition.builder(),
-                    PlayerCreativeLootCondition.builder().inverted()
+                    PlayerCreativeLootCondition.builder().invert()
                 ) )
             ).build() );
     }

@@ -1,5 +1,5 @@
 Please report bugs at https://github.com/SquidDev-CC/CC-Tweaked. Thanks!
-View the documentation at https://wiki.computercraft.cc
+View the documentation at https://tweaked.cc
 Show off your programs or ask for help at our forum: https://forums.computercraft.cc
 You can disable these messages by running "set motd.enable false".
 Use "pastebin put" to upload a program to pastebin.

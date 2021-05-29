@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.data;
 
 import com.google.gson.JsonObject;
@@ -51,42 +50,42 @@ public final class RecipeWrapper implements IFinishedRecipe
     }
 
     @Override
-    public void serialize( @Nonnull JsonObject jsonObject )
+    public void serializeRecipeData( @Nonnull JsonObject jsonObject )
     {
-        recipe.serialize( jsonObject );
+        recipe.serializeRecipeData( jsonObject );
 
         if( resultData != null )
         {
-            JsonObject object = JSONUtils.getJsonObject( jsonObject, "result" );
+            JsonObject object = JSONUtils.getAsJsonObject( jsonObject, "result" );
             object.addProperty( "nbt", resultData.toString() );
         }
     }
 
     @Nonnull
     @Override
-    public ResourceLocation getID()
+    public ResourceLocation getId()
     {
-        return recipe.getID();
+        return recipe.getId();
     }
 
     @Nonnull
     @Override
-    public IRecipeSerializer<?> getSerializer()
+    public IRecipeSerializer<?> getType()
     {
         return serializer;
     }
 
     @Nullable
     @Override
-    public JsonObject getAdvancementJson()
+    public JsonObject serializeAdvancement()
     {
-        return recipe.getAdvancementJson();
+        return recipe.serializeAdvancement();
     }
 
     @Nullable
     @Override
-    public ResourceLocation getAdvancementID()
+    public ResourceLocation getAdvancementId()
     {
-        return recipe.getAdvancementID();
+        return recipe.getAdvancementId();
     }
 }

@@ -1,207 +1,86 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.terminal;
 
 public class TextBuffer
 {
-    private final char[] m_text;
+    private final char[] text;
 
     public TextBuffer( char c, int length )
     {
-        m_text = new char[length];
-        for( int i = 0; i < length; i++ )
-        {
-            m_text[i] = c;
-        }
+        text = new char[length];
+        this.fill( c );
     }
 
     public TextBuffer( String text )
     {
-        this( text, 1 );
-    }
-
-    public TextBuffer( String text, int repetitions )
-    {
-        int textLength = text.length();
-        m_text = new char[textLength * repetitions];
-        for( int i = 0; i < repetitions; i++ )
-        {
-            for( int j = 0; j < textLength; j++ )
-            {
-                m_text[j + i * textLength] = text.charAt( j );
-            }
-        }
-    }
-
-    public TextBuffer( TextBuffer text )
-    {
-        this( text, 1 );
-    }
-
-    public TextBuffer( TextBuffer text, int repetitions )
-    {
-        int textLength = text.length();
-        m_text = new char[textLength * repetitions];
-        for( int i = 0; i < repetitions; i++ )
-        {
-            for( int j = 0; j < textLength; j++ )
-            {
-                m_text[j + i * textLength] = text.charAt( j );
-            }
-        }
+        this.text = text.toCharArray();
     }
 
     public int length()
     {
-        return m_text.length;
-    }
-
-    public String read()
-    {
-        return read( 0, m_text.length );
-    }
-
-    public String read( int start )
-    {
-        return read( start, m_text.length );
-    }
-
-    public String read( int start, int end )
-    {
-        start = Math.max( start, 0 );
-        end = Math.min( end, m_text.length );
-        int textLength = Math.max( end - start, 0 );
-        return new String( m_text, start, textLength );
+        return text.length;
     }
 
     public void write( String text )
     {
-        write( text, 0, text.length() );
+        write( text, 0 );
     }
 
     public void write( String text, int start )
     {
-        write( text, start, start + text.length() );
-    }
-
-    public void write( String text, int start, int end )
-    {
         int pos = start;
         start = Math.max( start, 0 );
-        end = Math.min( end, pos + text.length() );
-        end = Math.min( end, m_text.length );
+        int end = Math.min( start + text.length(), pos + text.length() );
+        end = Math.min( end, this.text.length );
         for( int i = start; i < end; i++ )
         {
-            m_text[i] = text.charAt( i - pos );
+            this.text[i] = text.charAt( i - pos );
         }
     }
 
     public void write( TextBuffer text )
     {
-        write( text, 0, text.length() );
-    }
-
-    public void write( TextBuffer text, int start )
-    {
-        write( text, start, start + text.length() );
-    }
-
-    public void write( TextBuffer text, int start, int end )
-    {
-        int pos = start;
-        start = Math.max( start, 0 );
-        end = Math.min( end, pos + text.length() );
-        end = Math.min( end, m_text.length );
-        for( int i = start; i < end; i++ )
+        int end = Math.min( text.length(), this.text.length );
+        for( int i = 0; i < end; i++ )
         {
-            m_text[i] = text.charAt( i - pos );
+            this.text[i] = text.charAt( i );
         }
     }
 
     public void fill( char c )
     {
-        fill( c, 0, m_text.length );
-    }
-
-    public void fill( char c, int start )
-    {
-        fill( c, start, m_text.length );
+        fill( c, 0, text.length );
     }
 
     public void fill( char c, int start, int end )
     {
         start = Math.max( start, 0 );
-        end = Math.min( end, m_text.length );
+        end = Math.min( end, text.length );
         for( int i = start; i < end; i++ )
         {
-            m_text[i] = c;
-        }
-    }
-
-    public void fill( String text )
-    {
-        fill( text, 0, m_text.length );
-    }
-
-    public void fill( String text, int start )
-    {
-        fill( text, start, m_text.length );
-    }
-
-    public void fill( String text, int start, int end )
-    {
-        int pos = start;
-        start = Math.max( start, 0 );
-        end = Math.min( end, m_text.length );
-
-        int textLength = text.length();
-        for( int i = start; i < end; i++ )
-        {
-            m_text[i] = text.charAt( (i - pos) % textLength );
-        }
-    }
-
-    public void fill( TextBuffer text )
-    {
-        fill( text, 0, m_text.length );
-    }
-
-    public void fill( TextBuffer text, int start )
-    {
-        fill( text, start, m_text.length );
-    }
-
-    public void fill( TextBuffer text, int start, int end )
-    {
-        int pos = start;
-        start = Math.max( start, 0 );
-        end = Math.min( end, m_text.length );
-
-        int textLength = text.length();
-        for( int i = start; i < end; i++ )
-        {
-            m_text[i] = text.charAt( (i - pos) % textLength );
+            text[i] = c;
         }
     }
 
     public char charAt( int i )
     {
-        return m_text[i];
+        return text[i];
     }
 
     public void setChar( int i, char c )
     {
-        if( i >= 0 && i < m_text.length )
+        if( i >= 0 && i < text.length )
         {
-            m_text[i] = c;
+            text[i] = c;
         }
     }
 
     public String toString()
     {
-        return new String( m_text );
+        return new String( text );
     }
 }

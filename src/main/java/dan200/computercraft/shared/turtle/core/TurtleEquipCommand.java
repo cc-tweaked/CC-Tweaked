@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.turtle.core;
@@ -20,11 +20,11 @@ import javax.annotation.Nonnull;
 
 public class TurtleEquipCommand implements ITurtleCommand
 {
-    private final TurtleSide m_side;
+    private final TurtleSide side;
 
     public TurtleEquipCommand( TurtleSide side )
     {
-        m_side = side;
+        this.side = side;
     }
 
     @Nonnull
@@ -53,7 +53,7 @@ public class TurtleEquipCommand implements ITurtleCommand
 
         // Determine the upgrade to replace
         ItemStack oldUpgradeStack;
-        ITurtleUpgrade oldUpgrade = turtle.getUpgrade( m_side );
+        ITurtleUpgrade oldUpgrade = turtle.getUpgrade( side );
         if( oldUpgrade != null )
         {
             ItemStack craftingItem = oldUpgrade.getCraftingItem();
@@ -87,7 +87,7 @@ public class TurtleEquipCommand implements ITurtleCommand
                 WorldUtil.dropItemStack( remainder, turtle.getWorld(), position, turtle.getDirection() );
             }
         }
-        turtle.setUpgrade( m_side, newUpgrade );
+        turtle.setUpgrade( side, newUpgrade );
 
         // Animate
         if( newUpgrade != null || oldUpgrade != null )

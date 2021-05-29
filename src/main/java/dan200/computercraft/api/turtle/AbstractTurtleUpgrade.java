@@ -1,6 +1,6 @@
 /*
  * This file is part of the public ComputerCraft API - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. This API may be redistributed unmodified and in full only.
+ * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
 package dan200.computercraft.api.turtle;
@@ -37,7 +37,7 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
 
     protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, NonNullSupplier<ItemStack> stack )
     {
-        this( id, type, Util.makeTranslationKey( "upgrade", id ) + ".adjective", stack );
+        this( id, type, Util.makeDescriptionId( "upgrade", id ) + ".adjective", stack );
     }
 
     protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, ItemStack stack )

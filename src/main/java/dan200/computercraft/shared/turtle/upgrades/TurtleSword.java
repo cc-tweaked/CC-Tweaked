@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.turtle.upgrades;
@@ -37,9 +37,9 @@ public class TurtleSword extends TurtleTool
         if( !super.canBreakBlock( state, world, pos, player ) ) return false;
 
         Material material = state.getMaterial();
-        return material == Material.PLANTS ||
+        return material == Material.PLANT ||
             material == Material.LEAVES ||
-            material == Material.TALL_PLANTS ||
+            material == Material.REPLACEABLE_PLANT ||
             material == Material.WOOL ||
             material == Material.WEB;
     }

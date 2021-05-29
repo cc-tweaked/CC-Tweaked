@@ -67,6 +67,19 @@ describe("The paintutils library", function()
                 { "   ", "000", "ffe" },
             })
         end)
+
+        it("draws a line going diagonally from bottom left", function()
+            local w = with_window(3, 3, function()
+                term.setBackgroundColour(colours.red)
+                paintutils.drawLine(1, 3, 3, 1)
+            end)
+
+            window_eq(w, {
+                { "   ", "000", "ffe" },
+                { "   ", "000", "fef" },
+                { "   ", "000", "eff" },
+            })
+        end)
     end)
 
     describe("paintutils.drawBox", function()

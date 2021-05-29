@@ -10,12 +10,12 @@ table.pretty-table td, table.pretty-table th {
 }
 
 table.pretty-table th {
-    background-color: #f0f0f0;
+    background-color: var(--background-2);
 }
 
-.highlight.highlight-lua {
+pre.highlight.highlight-lua {
     position: relative;
-    background: #eee;
+    background: var(--background-2);
     padding: 2px;
 }
 

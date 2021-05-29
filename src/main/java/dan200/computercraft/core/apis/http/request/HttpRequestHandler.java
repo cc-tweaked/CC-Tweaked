@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis.http.request;
@@ -79,10 +79,6 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
         if( !request.headers().contains( HttpHeaderNames.ACCEPT_CHARSET ) )
         {
             request.headers().set( HttpHeaderNames.ACCEPT_CHARSET, "UTF-8" );
-        }
-        if( !request.headers().contains( HttpHeaderNames.USER_AGENT ) )
-        {
-            request.headers().set( HttpHeaderNames.USER_AGENT, this.request.environment().getComputerEnvironment().getUserAgent() );
         }
         request.headers().set( HttpHeaderNames.HOST, uri.getPort() < 0 ? uri.getHost() : uri.getHost() + ":" + uri.getPort() );
         request.headers().set( HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE );

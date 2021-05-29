@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.client.gui;
@@ -20,13 +20,13 @@ import org.lwjgl.glfw.GLFW;
 
 public class GuiTurtle extends ContainerScreen<ContainerTurtle>
 {
-    private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation( "computercraft", "textures/gui/turtle_normal.png" );
-    private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( "computercraft", "textures/gui/turtle_advanced.png" );
+    private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/turtle_normal.png" );
+    private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/turtle_advanced.png" );
 
-    private ContainerTurtle m_container;
+    private final ContainerTurtle container;
 
-    private final ComputerFamily m_family;
-    private final ClientComputer m_computer;
+    private final ComputerFamily family;
+    private final ClientComputer computer;
 
     private WidgetTerminal terminal;
     private WidgetWrapper terminalWrapper;
@@ -35,30 +35,30 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     {
         super( container, player, title );
 
-        m_container = container;
-        m_family = container.getFamily();
-        m_computer = (ClientComputer) container.getComputer();
+        this.container = container;
+        family = container.getFamily();
+        computer = (ClientComputer) container.getComputer();
 
-        xSize = 254;
-        ySize = 217;
+        imageWidth = 254;
+        imageHeight = 217;
     }
 
     @Override
     protected void init()
     {
         super.init();
-        minecraft.keyboardListener.enableRepeatEvents( true );
+        minecraft.keyboardHandler.setSendRepeatsToGui( true );
 
         int termPxWidth = ComputerCraft.turtleTermWidth * FixedWidthFontRenderer.FONT_WIDTH;
         int termPxHeight = ComputerCraft.turtleTermHeight * FixedWidthFontRenderer.FONT_HEIGHT;
 
         terminal = new WidgetTerminal(
-            minecraft, () -> m_computer,
+            minecraft, () -> computer,
             ComputerCraft.turtleTermWidth,
             ComputerCraft.turtleTermHeight,
             2, 2, 2, 2
         );
-        terminalWrapper = new WidgetWrapper( terminal, 2 + 8 + guiLeft, 2 + 8 + guiTop, termPxWidth, termPxHeight );
+        terminalWrapper = new WidgetWrapper( terminal, 2 + 8 + leftPos, 2 + 8 + topPos, termPxWidth, termPxHeight );
 
         children.add( terminalWrapper );
         setFocused( terminalWrapper );
@@ -70,7 +70,7 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
         super.removed();
         children.remove( terminal );
         terminal = null;
-        minecraft.keyboardListener.enableRepeatEvents( false );
+        minecraft.keyboardHandler.setSendRepeatsToGui( false );
     }
 
     @Override
@@ -95,28 +95,28 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     private void drawSelectionSlot( boolean advanced )
     {
         // Draw selection slot
-        int slot = m_container.getSelectedSlot();
+        int slot = container.getSelectedSlot();
         if( slot >= 0 )
         {
             RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
             int slotX = slot % 4;
             int slotY = slot / 4;
-            minecraft.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
-            blit( guiLeft + ContainerTurtle.TURTLE_START_X - 2 + slotX * 18, guiTop + ContainerTurtle.PLAYER_START_Y - 2 + slotY * 18, 0, 217, 24, 24 );
+            minecraft.getTextureManager().bind( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
+            blit( leftPos + ContainerTurtle.TURTLE_START_X - 2 + slotX * 18, topPos + ContainerTurtle.PLAYER_START_Y - 2 + slotY * 18, 0, 217, 24, 24 );
         }
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer( float partialTicks, int mouseX, int mouseY )
+    protected void renderBg( float partialTicks, int mouseX, int mouseY )
     {
         // Draw term
-        boolean advanced = m_family == ComputerFamily.ADVANCED;
+        boolean advanced = family == ComputerFamily.ADVANCED;
         terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
 
         // Draw border/inventory
         RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        minecraft.getTextureManager().bindTexture( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
-        blit( guiLeft, guiTop, 0, 0, xSize, ySize );
+        minecraft.getTextureManager().bind( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
+        blit( leftPos, topPos, 0, 0, imageWidth, imageHeight );
 
         drawSelectionSlot( advanced );
     }
@@ -126,7 +126,7 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     {
         renderBackground();
         super.render( mouseX, mouseY, partialTicks );
-        renderHoveredToolTip( mouseX, mouseY );
+        renderTooltip( mouseX, mouseY );
     }
 
     @Override

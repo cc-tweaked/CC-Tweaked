@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.util;
@@ -36,7 +36,7 @@ public final class WaterloggableHelpers
      */
     public static IFluidState getWaterloggedFluidState( BlockState state )
     {
-        return state.get( WATERLOGGED ) ? Fluids.WATER.getStillFluidState( false ) : Fluids.EMPTY.getDefaultState();
+        return state.getValue( WATERLOGGED ) ? Fluids.WATER.getSource( false ) : Fluids.EMPTY.defaultFluidState();
     }
 
     /**
@@ -48,14 +48,14 @@ public final class WaterloggableHelpers
      */
     public static void updateWaterloggedPostPlacement( BlockState state, IWorld world, BlockPos pos )
     {
-        if( state.get( WATERLOGGED ) )
+        if( state.getValue( WATERLOGGED ) )
         {
-            world.getPendingFluidTicks().scheduleTick( pos, Fluids.WATER, Fluids.WATER.getTickRate( world ) );
+            world.getLiquidTicks().scheduleTick( pos, Fluids.WATER, Fluids.WATER.getTickDelay( world ) );
         }
     }
 
     public static boolean getWaterloggedStateForPlacement( BlockItemUseContext context )
     {
-        return context.getWorld().getFluidState( context.getPos() ).getFluid() == Fluids.WATER;
+        return context.getLevel().getFluidState( context.getClickedPos() ).getType() == Fluids.WATER;
     }
 }

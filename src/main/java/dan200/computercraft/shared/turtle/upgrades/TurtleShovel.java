@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.turtle.upgrades;
@@ -45,16 +45,16 @@ public class TurtleShovel extends TurtleTool
         if( !super.canBreakBlock( state, world, pos, player ) ) return false;
 
         Material material = state.getMaterial();
-        return material == Material.EARTH ||
+        return material == Material.DIRT ||
             material == Material.SAND ||
-            material == Material.SNOW ||
+            material == Material.TOP_SNOW ||
             material == Material.CLAY ||
-            material == Material.SNOW_BLOCK ||
-            material == Material.PLANTS ||
+            material == Material.SNOW ||
+            material == Material.PLANT ||
             material == Material.CACTUS ||
-            material == Material.GOURD ||
+            material == Material.VEGETABLE ||
             material == Material.LEAVES ||
-            material == Material.TALL_PLANTS;
+            material == Material.REPLACEABLE_PLANT;
     }
 
     @Nonnull
@@ -63,9 +63,7 @@ public class TurtleShovel extends TurtleTool
     {
         if( verb == TurtleVerb.DIG )
         {
-            ItemStack shovel = item.copy();
-            ItemStack remainder = TurtlePlaceCommand.deploy( shovel, turtle, direction, null, null );
-            if( remainder != shovel )
+            if( TurtlePlaceCommand.deployCopiedItem( item.copy(), turtle, direction, null, null ) )
             {
                 return TurtleCommandResult.success();
             }

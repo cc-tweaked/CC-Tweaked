@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.asm;
 
 import com.google.common.cache.CacheBuilder;
@@ -12,10 +11,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.primitives.Primitives;
 import com.google.common.reflect.TypeToken;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.IArguments;
-import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.api.lua.MethodResult;
+import dan200.computercraft.api.lua.*;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
@@ -57,11 +53,11 @@ public final class Generator<T>
 
     private final LoadingCache<Class<?>, List<NamedMethod<T>>> classCache = CacheBuilder
         .newBuilder()
-        .build( CacheLoader.from( this::build ) );
+        .build( CacheLoader.from( catching( this::build, Collections.emptyList() ) ) );
 
     private final LoadingCache<Method, Optional<T>> methodCache = CacheBuilder
         .newBuilder()
-        .build( CacheLoader.from( this::build ) );
+        .build( CacheLoader.from( catching( this::build, Optional.empty() ) ) );
 
     Generator( Class<T> base, List<Class<?>> context, Function<T, T> wrap )
     {
@@ -112,7 +108,7 @@ public final class Generator<T>
             addMethod( methods, method, annotation, instance );
         }
 
-        for( GenericSource.GenericMethod method : GenericSource.GenericMethod.all() )
+        for( GenericMethod method : GenericMethod.all() )
         {
             if( !method.target.isAssignableFrom( klass ) ) continue;
 
@@ -358,5 +354,23 @@ public final class Generator<T>
         ComputerCraft.log.error( "Unknown parameter type {} for method {}.{}.",
             arg.getName(), method.getDeclaringClass().getName(), method.getName() );
         return null;
+    }
+
+    @SuppressWarnings( "Guava" )
+    private static <T, U> com.google.common.base.Function<T, U> catching( Function<T, U> function, U def )
+    {
+        return x -> {
+            try
+            {
+                return function.apply( x );
+            }
+            catch( Exception | LinkageError e )
+            {
+                // LinkageError due to possible codegen bugs and NoClassDefFoundError. The latter occurs when fetching
+                // methods on a class which references non-existent (i.e. client-only) types.
+                ComputerCraft.log.error( "Error generating @LuaFunctions", e );
+                return def;
+            }
+        };
     }
 }

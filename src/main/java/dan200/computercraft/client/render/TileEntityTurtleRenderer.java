@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.client.render;
@@ -72,31 +72,31 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
     }
 
     @Override
-    public void render( @Nonnull TileTurtle turtle, float partialTicks, @Nonnull MatrixStack transform, @Nonnull IRenderTypeBuffer renderer, int lightmapCoord, int overlayLight )
+    public void render( @Nonnull TileTurtle turtle, float partialTicks, @Nonnull MatrixStack transform, @Nonnull IRenderTypeBuffer buffers, int lightmapCoord, int overlayLight )
     {
         // Render the label
         String label = turtle.createProxy().getLabel();
-        RayTraceResult hit = renderDispatcher.cameraHitResult;
-        if( label != null && hit.getType() == RayTraceResult.Type.BLOCK && turtle.getPos().equals( ((BlockRayTraceResult) hit).getPos() ) )
+        RayTraceResult hit = renderer.cameraHitResult;
+        if( label != null && hit.getType() == RayTraceResult.Type.BLOCK && turtle.getBlockPos().equals( ((BlockRayTraceResult) hit).getBlockPos() ) )
         {
             Minecraft mc = Minecraft.getInstance();
-            FontRenderer font = renderDispatcher.fontRenderer;
+            FontRenderer font = renderer.font;
 
-            transform.push();
+            transform.pushPose();
             transform.translate( 0.5, 1.2, 0.5 );
-            transform.rotate( mc.getRenderManager().getCameraOrientation() );
+            transform.mulPose( mc.getEntityRenderDispatcher().cameraOrientation() );
             transform.scale( -0.025f, -0.025f, 0.025f );
 
-            Matrix4f matrix = transform.getLast().getMatrix();
-            int opacity = (int) (mc.gameSettings.getTextBackgroundOpacity( 0.25f ) * 255) << 24;
-            float width = -font.getStringWidth( label ) / 2.0f;
-            font.renderString( label, width, (float) 0, 0x20ffffff, false, matrix, renderer, true, opacity, lightmapCoord );
-            font.renderString( label, width, (float) 0, 0xffffffff, false, matrix, renderer, false, 0, lightmapCoord );
+            Matrix4f matrix = transform.last().pose();
+            int opacity = (int) (mc.options.getBackgroundOpacity( 0.25f ) * 255) << 24;
+            float width = -font.width( label ) / 2.0f;
+            font.drawInBatch( label, width, (float) 0, 0x20ffffff, false, matrix, buffers, true, opacity, lightmapCoord );
+            font.drawInBatch( label, width, (float) 0, 0xffffffff, false, matrix, buffers, false, 0, lightmapCoord );
 
-            transform.pop();
+            transform.popPose();
         }
 
-        transform.push();
+        transform.pushPose();
 
         // Setup the transform.
         Vec3d offset = turtle.getRenderOffset( partialTicks );
@@ -104,7 +104,7 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
         transform.translate( offset.x, offset.y, offset.z );
 
         transform.translate( 0.5f, 0.5f, 0.5f );
-        transform.rotate( Vector3f.YP.rotationDegrees( 180.0f - yaw ) );
+        transform.mulPose( Vector3f.YP.rotationDegrees( 180.0f - yaw ) );
         if( label != null && (label.equals( "Dinnerbone" ) || label.equals( "Grumm" )) )
         {
             // Flip the model
@@ -117,7 +117,7 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
         ComputerFamily family = turtle.getFamily();
         ResourceLocation overlay = turtle.getOverlay();
 
-        IVertexBuilder buffer = renderer.getBuffer( Atlases.getTranslucentCullBlockType() );
+        IVertexBuilder buffer = buffers.getBuffer( Atlases.translucentCullBlockSheet() );
         renderModel( transform, buffer, lightmapCoord, overlayLight, getTurtleModel( family, colour != -1 ), colour == -1 ? null : new int[] { colour } );
 
         // Render the overlay
@@ -131,31 +131,31 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
         renderUpgrade( transform, buffer, lightmapCoord, overlayLight, turtle, TurtleSide.LEFT, partialTicks );
         renderUpgrade( transform, buffer, lightmapCoord, overlayLight, turtle, TurtleSide.RIGHT, partialTicks );
 
-        transform.pop();
+        transform.popPose();
     }
 
     private void renderUpgrade( @Nonnull MatrixStack transform, @Nonnull IVertexBuilder renderer, int lightmapCoord, int overlayLight, TileTurtle turtle, TurtleSide side, float f )
     {
         ITurtleUpgrade upgrade = turtle.getUpgrade( side );
         if( upgrade == null ) return;
-        transform.push();
+        transform.pushPose();
 
         float toolAngle = turtle.getToolRenderAngle( side, f );
         transform.translate( 0.0f, 0.5f, 0.5f );
-        transform.rotate( Vector3f.XN.rotationDegrees( toolAngle ) );
+        transform.mulPose( Vector3f.XN.rotationDegrees( toolAngle ) );
         transform.translate( 0.0f, -0.5f, -0.5f );
 
         TransformedModel model = upgrade.getModel( turtle.getAccess(), side );
         model.getMatrix().push( transform );
         renderModel( transform, renderer, lightmapCoord, overlayLight, model.getModel(), null );
-        transform.pop();
+        transform.popPose();
 
-        transform.pop();
+        transform.popPose();
     }
 
     private void renderModel( @Nonnull MatrixStack transform, @Nonnull IVertexBuilder renderer, int lightmapCoord, int overlayLight, ModelResourceLocation modelLocation, int[] tints )
     {
-        ModelManager modelManager = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getModelManager();
+        ModelManager modelManager = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getModelManager();
         renderModel( transform, renderer, lightmapCoord, overlayLight, modelManager.getModel( modelLocation ), tints );
     }
 
@@ -171,12 +171,12 @@ public class TileEntityTurtleRenderer extends TileEntityRenderer<TileTurtle>
 
     private static void renderQuads( @Nonnull MatrixStack transform, @Nonnull IVertexBuilder buffer, int lightmapCoord, int overlayLight, List<BakedQuad> quads, int[] tints )
     {
-        MatrixStack.Entry matrix = transform.getLast();
+        MatrixStack.Entry matrix = transform.last();
 
         for( BakedQuad bakedquad : quads )
         {
             int tint = -1;
-            if( tints != null && bakedquad.hasTintIndex() )
+            if( tints != null && bakedquad.isTinted() )
             {
                 int idx = bakedquad.getTintIndex();
                 if( idx >= 0 && idx < tints.length ) tint = tints[bakedquad.getTintIndex()];

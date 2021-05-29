@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.turtle.core;
@@ -23,13 +23,13 @@ import javax.annotation.Nonnull;
 
 public class TurtleDropCommand implements ITurtleCommand
 {
-    private final InteractDirection m_direction;
-    private final int m_quantity;
+    private final InteractDirection direction;
+    private final int quantity;
 
     public TurtleDropCommand( InteractDirection direction, int quantity )
     {
-        m_direction = direction;
-        m_quantity = quantity;
+        this.direction = direction;
+        this.quantity = quantity;
     }
 
     @Nonnull
@@ -37,17 +37,17 @@ public class TurtleDropCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         // Dropping nothing is easy
-        if( m_quantity == 0 )
+        if( quantity == 0 )
         {
             turtle.playAnimation( TurtleAnimation.WAIT );
             return TurtleCommandResult.success();
         }
 
         // Get world direction from direction
-        Direction direction = m_direction.toWorldDir( turtle );
+        Direction direction = this.direction.toWorldDir( turtle );
 
         // Get things to drop
-        ItemStack stack = InventoryUtil.takeItems( m_quantity, turtle.getItemHandler(), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
+        ItemStack stack = InventoryUtil.takeItems( quantity, turtle.getItemHandler(), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
         if( stack.isEmpty() )
         {
             return TurtleCommandResult.failure( "No items to drop" );
@@ -56,13 +56,13 @@ public class TurtleDropCommand implements ITurtleCommand
         // Get inventory for thing in front
         World world = turtle.getWorld();
         BlockPos oldPosition = turtle.getPosition();
-        BlockPos newPosition = oldPosition.offset( direction );
+        BlockPos newPosition = oldPosition.relative( direction );
         Direction side = direction.getOpposite();
 
         IItemHandler inventory = InventoryUtil.getInventory( world, newPosition, side );
 
         // Fire the event, restoring the inventory and exiting if it is cancelled.
-        TurtlePlayer player = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );
+        TurtlePlayer player = TurtlePlayer.getWithPosition( turtle, oldPosition, direction );
         TurtleInventoryEvent.Drop event = new TurtleInventoryEvent.Drop( turtle, player, world, newPosition, inventory, stack );
         if( MinecraftForge.EVENT_BUS.post( event ) )
         {
@@ -95,7 +95,7 @@ public class TurtleDropCommand implements ITurtleCommand
         {
             // Drop the item into the world
             WorldUtil.dropItemStack( stack, world, oldPosition, direction );
-            world.playBroadcastSound( 1000, newPosition, 0 );
+            world.globalLevelEvent( 1000, newPosition, 0 );
             turtle.playAnimation( TurtleAnimation.WAIT );
             return TurtleCommandResult.success();
         }

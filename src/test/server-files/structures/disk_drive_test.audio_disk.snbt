@@ -1,0 +1,149 @@
+{
+    size: [3, 3, 3],
+    entities: [],
+    blocks: [
+        {
+            pos: [0, 0, 0],
+            state: 0
+        },
+        {
+            pos: [1, 0, 0],
+            state: 0
+        },
+        {
+            pos: [2, 0, 0],
+            state: 0
+        },
+        {
+            pos: [0, 0, 1],
+            state: 0
+        },
+        {
+            pos: [1, 0, 1],
+            state: 0
+        },
+        {
+            pos: [2, 0, 1],
+            state: 0
+        },
+        {
+            pos: [0, 0, 2],
+            state: 0
+        },
+        {
+            pos: [1, 0, 2],
+            state: 0
+        },
+        {
+            pos: [2, 0, 2],
+            state: 0
+        },
+        {
+            nbt: {
+                Item: {
+                    id: "minecraft:music_disc_13",
+                    Count: 1b
+                },
+                id: "computercraft:disk_drive"
+            },
+            pos: [0, 1, 1],
+            state: 1
+        },
+        {
+            nbt: {
+                id: "computercraft:computer_advanced",
+                ComputerId: 3,
+                On: 1b
+            },
+            pos: [1, 1, 1],
+            state: 2
+        },
+        {
+            pos: [0, 1, 0],
+            state: 3
+        },
+        {
+            pos: [1, 1, 0],
+            state: 3
+        },
+        {
+            pos: [2, 1, 0],
+            state: 3
+        },
+        {
+            pos: [0, 2, 0],
+            state: 3
+        },
+        {
+            pos: [1, 2, 0],
+            state: 3
+        },
+        {
+            pos: [2, 2, 0],
+            state: 3
+        },
+        {
+            pos: [2, 1, 1],
+            state: 3
+        },
+        {
+            pos: [0, 2, 1],
+            state: 3
+        },
+        {
+            pos: [1, 2, 1],
+            state: 3
+        },
+        {
+            pos: [2, 2, 1],
+            state: 3
+        },
+        {
+            pos: [0, 1, 2],
+            state: 3
+        },
+        {
+            pos: [1, 1, 2],
+            state: 3
+        },
+        {
+            pos: [2, 1, 2],
+            state: 3
+        },
+        {
+            pos: [0, 2, 2],
+            state: 3
+        },
+        {
+            pos: [1, 2, 2],
+            state: 3
+        },
+        {
+            pos: [2, 2, 2],
+            state: 3
+        }
+    ],
+    palette: [
+        {
+            Name: "minecraft:polished_andesite"
+        },
+        {
+            Properties: {
+                facing: "north",
+                state: "full"
+            },
+            Name: "computercraft:disk_drive"
+        },
+        {
+            Properties: {
+                facing: "north",
+                state: "blinking"
+            },
+            Name: "computercraft:computer_advanced"
+        },
+        {
+            Name: "minecraft:air"
+        }
+    ],
+    DataVersion: 2230
+}

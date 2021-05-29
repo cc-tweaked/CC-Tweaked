@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.monitor;
@@ -64,15 +64,15 @@ public final class ClientMonitor extends ClientTerminal
 
                 deleteBuffers();
 
-                tboBuffer = GlStateManager.genBuffers();
-                GlStateManager.bindBuffer( GL31.GL_TEXTURE_BUFFER, tboBuffer );
+                tboBuffer = GlStateManager._glGenBuffers();
+                GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, tboBuffer );
                 GL15.glBufferData( GL31.GL_TEXTURE_BUFFER, 0, GL15.GL_STATIC_DRAW );
-                tboTexture = GlStateManager.genTexture();
+                tboTexture = GlStateManager._genTexture();
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, tboTexture );
                 GL31.glTexBuffer( GL31.GL_TEXTURE_BUFFER, GL30.GL_R8UI, tboBuffer );
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, 0 );
 
-                GlStateManager.bindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
+                GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
 
                 addMonitor();
                 return true;
@@ -82,7 +82,7 @@ public final class ClientMonitor extends ClientTerminal
                 if( buffer != null ) return false;
 
                 deleteBuffers();
-                buffer = new VertexBuffer( FixedWidthFontRenderer.TYPE.getVertexFormat() );
+                buffer = new VertexBuffer( FixedWidthFontRenderer.TYPE.format() );
                 addMonitor();
                 return true;
 
@@ -110,7 +110,7 @@ public final class ClientMonitor extends ClientTerminal
 
         if( tboTexture != 0 )
         {
-            GlStateManager.deleteTexture( tboTexture );
+            GlStateManager._deleteTexture( tboTexture );
             tboTexture = 0;
         }
 

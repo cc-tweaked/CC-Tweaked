@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.data;
@@ -30,13 +30,13 @@ public final class BlockNamedEntityLootCondition implements ILootCondition
     @Override
     public boolean test( LootContext lootContext )
     {
-        TileEntity tile = lootContext.get( LootParameters.BLOCK_ENTITY );
+        TileEntity tile = lootContext.getParamOrNull( LootParameters.BLOCK_ENTITY );
         return tile instanceof INameable && ((INameable) tile).hasCustomName();
     }
 
     @Nonnull
     @Override
-    public Set<LootParameter<?>> getRequiredParameters()
+    public Set<LootParameter<?>> getReferencedContextParams()
     {
         return Collections.singleton( LootParameters.BLOCK_ENTITY );
     }

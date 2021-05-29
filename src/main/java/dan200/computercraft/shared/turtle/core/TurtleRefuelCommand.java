@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.turtle.core;
@@ -29,7 +29,7 @@ public class TurtleRefuelCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         int slot = turtle.getSelectedSlot();
-        ItemStack stack = turtle.getInventory().getStackInSlot( slot );
+        ItemStack stack = turtle.getInventory().getItem( slot );
         if( stack.isEmpty() ) return TurtleCommandResult.failure( "No items to combust" );
 
         TurtleRefuelEvent event = new TurtleRefuelEvent( turtle, stack );

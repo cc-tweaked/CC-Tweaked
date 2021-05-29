@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.proxy;
@@ -24,6 +24,9 @@ import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.media.items.RecordMedia;
 import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.peripheral.generic.methods.EnergyMethods;
+import dan200.computercraft.shared.peripheral.generic.methods.FluidMethods;
+import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.util.NullStorage;
 import net.minecraft.inventory.container.Container;
@@ -36,15 +39,19 @@ import net.minecraft.world.storage.loot.LootTables;
 import net.minecraft.world.storage.loot.TableLootEntry;
 import net.minecraft.world.storage.loot.conditions.LootConditionManager;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
+import net.minecraftforge.items.CapabilityItemHandler;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -59,28 +66,32 @@ public final class ComputerCraftProxyCommon
     {
         NetworkHandler.setup();
 
-        net.minecraftforge.fml.DeferredWorkQueue.runLater( () -> {
+        DeferredWorkQueue.runLater( () -> {
             registerProviders();
             ArgumentSerializers.register();
             registerLoot();
         } );
+
+        ComputerCraftAPI.registerGenericSource( new InventoryMethods() );
+        ComputerCraftAPI.registerGenericSource( new FluidMethods() );
+        ComputerCraftAPI.registerGenericSource( new EnergyMethods() );
     }
 
     public static void registerLoot()
     {
-        LootConditionManager.registerCondition( ConstantLootConditionSerializer.of(
+        LootConditionManager.register( ConstantLootConditionSerializer.of(
             new ResourceLocation( ComputerCraft.MOD_ID, "block_named" ),
             BlockNamedEntityLootCondition.class,
             BlockNamedEntityLootCondition.INSTANCE
         ) );
 
-        LootConditionManager.registerCondition( ConstantLootConditionSerializer.of(
+        LootConditionManager.register( ConstantLootConditionSerializer.of(
             new ResourceLocation( ComputerCraft.MOD_ID, "player_creative" ),
             PlayerCreativeLootCondition.class,
             PlayerCreativeLootCondition.INSTANCE
         ) );
 
-        LootConditionManager.registerCondition( ConstantLootConditionSerializer.of(
+        LootConditionManager.register( ConstantLootConditionSerializer.of(
             new ResourceLocation( ComputerCraft.MOD_ID, "has_id" ),
             HasComputerIdLootCondition.class,
             HasComputerIdLootCondition.INSTANCE
@@ -103,6 +114,12 @@ public final class ComputerCraftProxyCommon
         // Register capabilities
         CapabilityManager.INSTANCE.register( IWiredElement.class, new NullStorage<>(), () -> null );
         CapabilityManager.INSTANCE.register( IPeripheral.class, new NullStorage<>(), () -> null );
+
+        // Register generic capabilities. This can technically be done off-thread, but we need it to happen
+        // after Forge's common setup, so this is easiest.
+        ComputerCraftAPI.registerGenericCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY );
+        ComputerCraftAPI.registerGenericCapability( CapabilityEnergy.ENERGY );
+        ComputerCraftAPI.registerGenericCapability( CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY );
     }
 
     @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )
@@ -176,16 +193,16 @@ public final class ComputerCraftProxyCommon
         public static final ResourceLocation LOOT_TREASURE_DISK = new ResourceLocation( ComputerCraft.MOD_ID, "treasure_disk" );
 
         private static final Set<ResourceLocation> TABLES = new HashSet<>( Arrays.asList(
-            LootTables.CHESTS_SIMPLE_DUNGEON,
-            LootTables.CHESTS_ABANDONED_MINESHAFT,
-            LootTables.CHESTS_STRONGHOLD_CORRIDOR,
-            LootTables.CHESTS_STRONGHOLD_CROSSING,
-            LootTables.CHESTS_STRONGHOLD_LIBRARY,
-            LootTables.CHESTS_DESERT_PYRAMID,
-            LootTables.CHESTS_JUNGLE_TEMPLE,
-            LootTables.CHESTS_IGLOO_CHEST,
-            LootTables.CHESTS_WOODLAND_MANSION,
-            LootTables.CHESTS_VILLAGE_VILLAGE_CARTOGRAPHER
+            LootTables.SIMPLE_DUNGEON,
+            LootTables.ABANDONED_MINESHAFT,
+            LootTables.STRONGHOLD_CORRIDOR,
+            LootTables.STRONGHOLD_CROSSING,
+            LootTables.STRONGHOLD_LIBRARY,
+            LootTables.DESERT_PYRAMID,
+            LootTables.JUNGLE_TEMPLE,
+            LootTables.IGLOO_CHEST,
+            LootTables.WOODLAND_MANSION,
+            LootTables.VILLAGE_CARTOGRAPHER
         ) );
 
         @SubscribeEvent
@@ -194,9 +211,9 @@ public final class ComputerCraftProxyCommon
             ResourceLocation name = event.getName();
             if( !name.getNamespace().equals( "minecraft" ) || !TABLES.contains( name ) ) return;
 
-            event.getTable().addPool( LootPool.builder()
-                .addEntry( TableLootEntry.builder( LOOT_TREASURE_DISK ) )
-                .rolls( ConstantRange.of( 1 ) )
+            event.getTable().addPool( LootPool.lootPool()
+                .add( TableLootEntry.lootTableReference( LOOT_TREASURE_DISK ) )
+                .setRolls( ConstantRange.exactly( 1 ) )
                 .name( "computercraft_treasure" )
                 .build() );
         }

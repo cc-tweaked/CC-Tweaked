@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.data;
 
 import dan200.computercraft.ComputerCraft;
@@ -33,15 +32,15 @@ public class Tags extends ItemTagsProvider
     }
 
     @Override
-    protected void registerTags()
+    protected void addTags()
     {
-        getBuilder( COMPUTER )
+        tag( COMPUTER )
             .add( Registry.ModItems.COMPUTER_NORMAL.get() )
             .add( Registry.ModItems.COMPUTER_ADVANCED.get() )
             .add( Registry.ModItems.COMPUTER_COMMAND.get() );
-        getBuilder( TURTLE ).add( Registry.ModItems.TURTLE_NORMAL.get(), Registry.ModItems.TURTLE_ADVANCED.get() );
-        getBuilder( WIRED_MODEM ).add( Registry.ModItems.WIRED_MODEM.get(), Registry.ModItems.WIRED_MODEM_FULL.get() );
-        getBuilder( MONITOR )
+        tag( TURTLE ).add( Registry.ModItems.TURTLE_NORMAL.get(), Registry.ModItems.TURTLE_ADVANCED.get() );
+        tag( WIRED_MODEM ).add( Registry.ModItems.WIRED_MODEM.get(), Registry.ModItems.WIRED_MODEM_FULL.get() );
+        tag( MONITOR )
             .add( Registry.ModItems.MONITOR_NORMAL.get() )
             .add( Registry.ModItems.MONITOR_ADVANCED.get() );
     }

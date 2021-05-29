@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.media.items;
@@ -51,9 +51,9 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     }
 
     @Override
-    public void fillItemGroup( @Nonnull ItemGroup tabs, @Nonnull NonNullList<ItemStack> list )
+    public void fillItemCategory( @Nonnull ItemGroup tabs, @Nonnull NonNullList<ItemStack> list )
     {
-        if( !isInGroup( tabs ) ) return;
+        if( !allowdedIn( tabs ) ) return;
         for( int colour = 0; colour < 16; colour++ )
         {
             list.add( createFromIDAndColour( -1, null, Colour.VALUES[colour].getHex() ) );
@@ -61,7 +61,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     }
 
     @Override
-    public void addInformation( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, ITooltipFlag options )
+    public void appendHoverText( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, ITooltipFlag options )
     {
         if( options.isAdvanced() )
         {
@@ -69,7 +69,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
             if( id >= 0 )
             {
                 list.add( new TranslationTextComponent( "gui.computercraft.tooltip.disk_id", id )
-                    .applyTextStyle( TextFormatting.GRAY ) );
+                    .withStyle( TextFormatting.GRAY ) );
             }
         }
     }
@@ -83,7 +83,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     @Override
     public String getLabel( @Nonnull ItemStack stack )
     {
-        return stack.hasDisplayName() ? stack.getDisplayName().getString() : null;
+        return stack.hasCustomHoverName() ? stack.getHoverName().getString() : null;
     }
 
     @Override
@@ -91,11 +91,11 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     {
         if( label != null )
         {
-            stack.setDisplayName( new StringTextComponent( label ) );
+            stack.setHoverName( new StringTextComponent( label ) );
         }
         else
         {
-            stack.clearCustomName();
+            stack.resetHoverName();
         }
         return true;
     }

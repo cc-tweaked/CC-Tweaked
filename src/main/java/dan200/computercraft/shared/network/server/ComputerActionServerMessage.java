@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.network.server;
@@ -29,14 +29,14 @@ public class ComputerActionServerMessage extends ComputerServerMessage
     public void toBytes( @Nonnull PacketBuffer buf )
     {
         super.toBytes( buf );
-        buf.writeEnumValue( action );
+        buf.writeEnum( action );
     }
 
     @Override
     public void fromBytes( @Nonnull PacketBuffer buf )
     {
         super.fromBytes( buf );
-        action = buf.readEnumValue( Action.class );
+        action = buf.readEnum( Action.class );
     }
 
     @Override

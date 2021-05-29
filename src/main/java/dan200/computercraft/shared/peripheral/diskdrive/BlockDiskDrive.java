@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.diskdrive;
@@ -35,14 +35,14 @@ public class BlockDiskDrive extends BlockGeneric
     public BlockDiskDrive( Properties settings )
     {
         super( settings, Registry.ModTiles.DISK_DRIVE );
-        setDefaultState( getStateContainer().getBaseState()
-            .with( FACING, Direction.NORTH )
-            .with( STATE, DiskDriveState.EMPTY ) );
+        registerDefaultState( getStateDefinition().any()
+            .setValue( FACING, Direction.NORTH )
+            .setValue( STATE, DiskDriveState.EMPTY ) );
     }
 
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, BlockState> properties )
+    protected void createBlockStateDefinition( StateContainer.Builder<Block, BlockState> properties )
     {
         properties.add( FACING, STATE );
     }
@@ -51,34 +51,34 @@ public class BlockDiskDrive extends BlockGeneric
     @Override
     public BlockState getStateForPlacement( BlockItemUseContext placement )
     {
-        return getDefaultState().with( FACING, placement.getPlacementHorizontalFacing().getOpposite() );
+        return defaultBlockState().setValue( FACING, placement.getHorizontalDirection().getOpposite() );
     }
 
     @Override
-    public void harvestBlock( @Nonnull World world, @Nonnull PlayerEntity player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable TileEntity te, @Nonnull ItemStack stack )
+    public void playerDestroy( @Nonnull World world, @Nonnull PlayerEntity player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable TileEntity te, @Nonnull ItemStack stack )
     {
         if( te instanceof INameable && ((INameable) te).hasCustomName() )
         {
-            player.addStat( Stats.BLOCK_MINED.get( this ) );
-            player.addExhaustion( 0.005F );
+            player.awardStat( Stats.BLOCK_MINED.get( this ) );
+            player.causeFoodExhaustion( 0.005F );
 
             ItemStack result = new ItemStack( this );
-            result.setDisplayName( ((INameable) te).getCustomName() );
-            spawnAsEntity( world, pos, result );
+            result.setHoverName( ((INameable) te).getCustomName() );
+            popResource( world, pos, result );
         }
         else
         {
-            super.harvestBlock( world, player, pos, state, te, stack );
+            super.playerDestroy( world, player, pos, state, te, stack );
         }
     }
 
     @Override
-    public void onBlockPlacedBy( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, ItemStack stack )
+    public void setPlacedBy( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, ItemStack stack )
     {
-        if( stack.hasDisplayName() )
+        if( stack.hasCustomHoverName() )
         {
-            TileEntity tileentity = world.getTileEntity( pos );
-            if( tileentity instanceof TileDiskDrive ) ((TileDiskDrive) tileentity).customName = stack.getDisplayName();
+            TileEntity tileentity = world.getBlockEntity( pos );
+            if( tileentity instanceof TileDiskDrive ) ((TileDiskDrive) tileentity).customName = stack.getHoverName();
         }
     }
 }

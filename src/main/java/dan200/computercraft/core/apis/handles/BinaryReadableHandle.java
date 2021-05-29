@@ -1,15 +1,15 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis.handles;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.core.filesystem.TrackingCloseable;
 
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
@@ -32,14 +32,14 @@ public class BinaryReadableHandle extends HandleGeneric
     final SeekableByteChannel seekable;
     private final ByteBuffer single = ByteBuffer.allocate( 1 );
 
-    BinaryReadableHandle( ReadableByteChannel reader, SeekableByteChannel seekable, Closeable closeable )
+    BinaryReadableHandle( ReadableByteChannel reader, SeekableByteChannel seekable, TrackingCloseable closeable )
     {
         super( closeable );
         this.reader = reader;
         this.seekable = seekable;
     }
 
-    public static BinaryReadableHandle of( ReadableByteChannel channel, Closeable closeable )
+    public static BinaryReadableHandle of( ReadableByteChannel channel, TrackingCloseable closeable )
     {
         SeekableByteChannel seekable = asSeekable( channel );
         return seekable == null ? new BinaryReadableHandle( channel, null, closeable ) : new Seekable( seekable, closeable );
@@ -47,7 +47,7 @@ public class BinaryReadableHandle extends HandleGeneric
 
     public static BinaryReadableHandle of( ReadableByteChannel channel )
     {
-        return of( channel, channel );
+        return of( channel, new TrackingCloseable.Impl( channel ) );
     }
 
     /**
@@ -237,7 +237,7 @@ public class BinaryReadableHandle extends HandleGeneric
 
     public static class Seekable extends BinaryReadableHandle
     {
-        Seekable( SeekableByteChannel seekable, Closeable closeable )
+        Seekable( SeekableByteChannel seekable, TrackingCloseable closeable )
         {
             super( seekable, seekable, closeable );
         }

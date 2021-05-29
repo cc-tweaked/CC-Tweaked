@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.client;
@@ -78,7 +78,7 @@ public final class ClientRegistry
     @SubscribeEvent
     public static void onTextureStitchEvent( TextureStitchEvent.Pre event )
     {
-        if( !event.getMap().getTextureLocation().equals( PlayerContainer.LOCATION_BLOCKS_TEXTURE ) ) return;
+        if( !event.getMap().location().equals( PlayerContainer.BLOCK_ATLAS ) ) return;
 
         for( String extra : EXTRA_TEXTURES )
         {
@@ -96,10 +96,10 @@ public final class ClientRegistry
         for( String modelName : EXTRA_MODELS )
         {
             ResourceLocation location = new ResourceLocation( ComputerCraft.MOD_ID, "item/" + modelName );
-            IUnbakedModel model = loader.getUnbakedModel( location );
-            model.getTextures( loader::getUnbakedModel, new HashSet<>() );
+            IUnbakedModel model = loader.getModel( location );
+            model.getMaterials( loader::getModel, new HashSet<>() );
 
-            IBakedModel baked = model.bakeModel( loader, ModelLoader.defaultTextureGetter(), SimpleModelTransform.IDENTITY, location );
+            IBakedModel baked = model.bake( loader, ModelLoader.defaultTextureGetter(), SimpleModelTransform.IDENTITY, location );
             if( baked != null )
             {
                 registry.put( new ModelResourceLocation( new ResourceLocation( ComputerCraft.MOD_ID, modelName ), "inventory" ), baked );

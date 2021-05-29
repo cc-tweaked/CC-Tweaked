@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.computer.inventory;
@@ -40,7 +40,7 @@ public class ContainerComputerBase extends Container implements IContainerComput
     protected static IComputer getComputer( PlayerInventory player, ComputerContainerData data )
     {
         int id = data.getInstanceId();
-        if( !player.player.world.isRemote ) return ComputerCraft.serverComputerRegistry.get( id );
+        if( !player.player.level.isClientSide ) return ComputerCraft.serverComputerRegistry.get( id );
 
         ClientComputer computer = ComputerCraft.clientComputerRegistry.get( id );
         if( computer == null ) ComputerCraft.clientComputerRegistry.add( id, computer = new ClientComputer( id ) );
@@ -48,7 +48,7 @@ public class ContainerComputerBase extends Container implements IContainerComput
     }
 
     @Override
-    public boolean canInteractWith( @Nonnull PlayerEntity player )
+    public boolean stillValid( @Nonnull PlayerEntity player )
     {
         return canUse.test( player );
     }
@@ -74,9 +74,9 @@ public class ContainerComputerBase extends Container implements IContainerComput
     }
 
     @Override
-    public void onContainerClosed( @Nonnull PlayerEntity player )
+    public void removed( @Nonnull PlayerEntity player )
     {
-        super.onContainerClosed( player );
+        super.removed( player );
         input.close();
     }
 }

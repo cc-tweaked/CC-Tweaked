@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.generic;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -16,27 +15,27 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullConsumer;
-import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class GenericPeripheralProvider
 {
-    private static final Capability<?>[] CAPABILITIES = new Capability<?>[] {
-        CapabilityItemHandler.ITEM_HANDLER_CAPABILITY,
-        CapabilityEnergy.ENERGY,
-        CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY,
-    };
+    private static final ArrayList<Capability<?>> capabilities = new ArrayList<>();
+
+    public static synchronized void addCapability( Capability<?> capability )
+    {
+        Objects.requireNonNull( capability, "Capability cannot be null" );
+        if( !capabilities.contains( capability ) ) capabilities.add( capability );
+    }
 
     @Nullable
     public static IPeripheral getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side, NonNullConsumer<LazyOptional<IPeripheral>> invalidate )
     {
-        TileEntity tile = world.getTileEntity( pos );
+        TileEntity tile = world.getBlockEntity( pos );
         if( tile == null ) return null;
 
         ArrayList<SaturatedMethod> saturated = new ArrayList<>( 0 );
@@ -44,7 +43,7 @@ public class GenericPeripheralProvider
         List<NamedMethod<PeripheralMethod>> tileMethods = PeripheralMethod.GENERATOR.getMethods( tile.getClass() );
         if( !tileMethods.isEmpty() ) addSaturated( saturated, tile, tileMethods );
 
-        for( Capability<?> capability : CAPABILITIES )
+        for( Capability<?> capability : capabilities )
         {
             LazyOptional<?> wrapper = tile.getCapability( capability );
             wrapper.ifPresent( contents -> {

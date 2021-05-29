@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.computer.recipe;
@@ -39,42 +39,42 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
 
         @Nonnull
         @Override
-        public T read( @Nonnull ResourceLocation identifier, @Nonnull JsonObject json )
+        public T fromJson( @Nonnull ResourceLocation identifier, @Nonnull JsonObject json )
         {
-            String group = JSONUtils.getString( json, "group", "" );
+            String group = JSONUtils.getAsString( json, "group", "" );
             ComputerFamily family = RecipeUtil.getFamily( json, "family" );
 
             RecipeUtil.ShapedTemplate template = RecipeUtil.getTemplate( json );
-            ItemStack result = deserializeItem( JSONUtils.getJsonObject( json, "result" ) );
+            ItemStack result = itemFromJson( JSONUtils.getAsJsonObject( json, "result" ) );
 
             return create( identifier, group, template.width, template.height, template.ingredients, result, family );
         }
 
         @Nonnull
         @Override
-        public T read( @Nonnull ResourceLocation identifier, @Nonnull PacketBuffer buf )
+        public T fromNetwork( @Nonnull ResourceLocation identifier, @Nonnull PacketBuffer buf )
         {
             int width = buf.readVarInt();
             int height = buf.readVarInt();
-            String group = buf.readString( Short.MAX_VALUE );
+            String group = buf.readUtf( Short.MAX_VALUE );
 
             NonNullList<Ingredient> ingredients = NonNullList.withSize( width * height, Ingredient.EMPTY );
-            for( int i = 0; i < ingredients.size(); i++ ) ingredients.set( i, Ingredient.read( buf ) );
+            for( int i = 0; i < ingredients.size(); i++ ) ingredients.set( i, Ingredient.fromNetwork( buf ) );
 
-            ItemStack result = buf.readItemStack();
-            ComputerFamily family = buf.readEnumValue( ComputerFamily.class );
+            ItemStack result = buf.readItem();
+            ComputerFamily family = buf.readEnum( ComputerFamily.class );
             return create( identifier, group, width, height, ingredients, result, family );
         }
 
         @Override
-        public void write( @Nonnull PacketBuffer buf, @Nonnull T recipe )
+        public void toNetwork( @Nonnull PacketBuffer buf, @Nonnull T recipe )
         {
             buf.writeVarInt( recipe.getWidth() );
             buf.writeVarInt( recipe.getHeight() );
-            buf.writeString( recipe.getGroup() );
-            for( Ingredient ingredient : recipe.getIngredients() ) ingredient.write( buf );
-            buf.writeItemStack( recipe.getRecipeOutput() );
-            buf.writeEnumValue( recipe.getFamily() );
+            buf.writeUtf( recipe.getGroup() );
+            for( Ingredient ingredient : recipe.getIngredients() ) ingredient.toNetwork( buf );
+            buf.writeItem( recipe.getResultItem() );
+            buf.writeEnum( recipe.getFamily() );
         }
     }
 }

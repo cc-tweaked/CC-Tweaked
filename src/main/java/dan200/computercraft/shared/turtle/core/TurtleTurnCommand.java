@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.turtle.core;
@@ -17,11 +17,11 @@ import javax.annotation.Nonnull;
 
 public class TurtleTurnCommand implements ITurtleCommand
 {
-    private final TurnDirection m_direction;
+    private final TurnDirection direction;
 
     public TurtleTurnCommand( TurnDirection direction )
     {
-        m_direction = direction;
+        this.direction = direction;
     }
 
     @Nonnull
@@ -34,17 +34,17 @@ public class TurtleTurnCommand implements ITurtleCommand
             return TurtleCommandResult.failure( event.getFailureMessage() );
         }
 
-        switch( m_direction )
+        switch( direction )
         {
             case LEFT:
             {
-                turtle.setDirection( turtle.getDirection().rotateYCCW() );
+                turtle.setDirection( turtle.getDirection().getCounterClockWise() );
                 turtle.playAnimation( TurtleAnimation.TURN_LEFT );
                 return TurtleCommandResult.success();
             }
             case RIGHT:
             {
-                turtle.setDirection( turtle.getDirection().rotateY() );
+                turtle.setDirection( turtle.getDirection().getClockWise() );
                 turtle.playAnimation( TurtleAnimation.TURN_RIGHT );
                 return TurtleCommandResult.success();
             }

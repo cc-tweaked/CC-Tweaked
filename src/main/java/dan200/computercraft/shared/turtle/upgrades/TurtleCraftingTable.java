@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.turtle.upgrades;
@@ -21,11 +21,8 @@ import javax.annotation.Nonnull;
 
 public class TurtleCraftingTable extends AbstractTurtleUpgrade
 {
-    @OnlyIn( Dist.CLIENT )
-    private ModelResourceLocation m_leftModel;
-
-    @OnlyIn( Dist.CLIENT )
-    private ModelResourceLocation m_rightModel;
+    private static final ModelResourceLocation leftModel = new ModelResourceLocation( "computercraft:turtle_crafting_table_left", "inventory" );
+    private static final ModelResourceLocation rightModel = new ModelResourceLocation( "computercraft:turtle_crafting_table_right", "inventory" );
 
     public TurtleCraftingTable( ResourceLocation id )
     {
@@ -38,22 +35,11 @@ public class TurtleCraftingTable extends AbstractTurtleUpgrade
         return new CraftingTablePeripheral( turtle );
     }
 
-    @OnlyIn( Dist.CLIENT )
-    private void loadModelLocations()
-    {
-        if( m_leftModel == null )
-        {
-            m_leftModel = new ModelResourceLocation( "computercraft:turtle_crafting_table_left", "inventory" );
-            m_rightModel = new ModelResourceLocation( "computercraft:turtle_crafting_table_right", "inventory" );
-        }
-    }
-
     @Nonnull
     @Override
     @OnlyIn( Dist.CLIENT )
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
-        loadModelLocations();
-        return TransformedModel.of( side == TurtleSide.LEFT ? m_leftModel : m_rightModel );
+        return TransformedModel.of( side == TurtleSide.LEFT ? leftModel : rightModel );
     }
 }

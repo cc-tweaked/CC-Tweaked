@@ -1,13 +1,15 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.util;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.inventory.ISidedInventoryProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
@@ -23,6 +25,7 @@ import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public final class InventoryUtil
 {
@@ -31,7 +34,7 @@ public final class InventoryUtil
 
     public static boolean areItemsEqual( @Nonnull ItemStack a, @Nonnull ItemStack b )
     {
-        return a == b || ItemStack.areItemStacksEqual( a, b );
+        return a == b || ItemStack.matches( a, b );
     }
 
     public static boolean areItemsStackable( @Nonnull ItemStack a, @Nonnull ItemStack b )
@@ -41,10 +44,11 @@ public final class InventoryUtil
 
     // Methods for finding inventories:
 
-    public static IItemHandler getInventory( World world, BlockPos pos, Direction side )
+    @Nullable
+    public static IItemHandler getInventory( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         // Look for tile with inventory
-        TileEntity tileEntity = world.getTileEntity( pos );
+        TileEntity tileEntity = world.getBlockEntity( pos );
         if( tileEntity != null )
         {
             LazyOptional<IItemHandler> itemHandler = tileEntity.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side );
@@ -52,7 +56,7 @@ public final class InventoryUtil
             {
                 return itemHandler.orElseThrow( NullPointerException::new );
             }
-            else if( side != null && tileEntity instanceof ISidedInventory )
+            else if( tileEntity instanceof ISidedInventory )
             {
                 return new SidedInvWrapper( (ISidedInventory) tileEntity, side );
             }
@@ -62,15 +66,22 @@ public final class InventoryUtil
             }
         }
 
+        BlockState block = world.getBlockState( pos );
+        if( block.getBlock() instanceof ISidedInventoryProvider )
+        {
+            ISidedInventory inventory = ((ISidedInventoryProvider) block.getBlock()).getContainer( block, world, pos );
+            return new SidedInvWrapper( inventory, side );
+        }
+
         // Look for entity with inventory
         Vec3d vecStart = new Vec3d(
-            pos.getX() + 0.5 + 0.6 * side.getXOffset(),
-            pos.getY() + 0.5 + 0.6 * side.getYOffset(),
-            pos.getZ() + 0.5 + 0.6 * side.getZOffset()
+            pos.getX() + 0.5 + 0.6 * side.getStepX(),
+            pos.getY() + 0.5 + 0.6 * side.getStepY(),
+            pos.getZ() + 0.5 + 0.6 * side.getStepZ()
         );
         Direction dir = side.getOpposite();
         Vec3d vecDir = new Vec3d(
-            dir.getXOffset(), dir.getYOffset(), dir.getZOffset()
+            dir.getStepX(), dir.getStepY(), dir.getStepZ()
         );
         Pair<Entity, Vec3d> hit = WorldUtil.rayTraceEntities( world, vecStart, vecDir, 1.1 );
         if( hit != null )

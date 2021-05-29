@@ -1,16 +1,16 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis.handles;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.core.filesystem.TrackingCloseable;
 import dan200.computercraft.shared.util.IoUtil;
 
 import javax.annotation.Nonnull;
-import java.io.Closeable;
 import java.io.IOException;
 import java.nio.channels.Channel;
 import java.nio.channels.SeekableByteChannel;
@@ -18,25 +18,23 @@ import java.util.Optional;
 
 public abstract class HandleGeneric
 {
-    private Closeable closable;
-    private boolean open = true;
+    private TrackingCloseable closeable;
 
-    protected HandleGeneric( @Nonnull Closeable closable )
+    protected HandleGeneric( @Nonnull TrackingCloseable closeable )
     {
-        this.closable = closable;
+        this.closeable = closeable;
     }
 
     protected void checkOpen() throws LuaException
     {
-        if( !open ) throw new LuaException( "attempt to use a closed file" );
+        TrackingCloseable closeable = this.closeable;
+        if( closeable == null || !closeable.isOpen() ) throw new LuaException( "attempt to use a closed file" );
     }
 
     protected final void close()
     {
-        open = false;
-
-        IoUtil.closeQuietly( closable );
-        closable = null;
+        IoUtil.closeQuietly( closeable );
+        closeable = null;
     }
 
     /**

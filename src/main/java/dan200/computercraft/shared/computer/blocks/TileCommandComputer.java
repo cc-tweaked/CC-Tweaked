@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.computer.blocks;
@@ -54,21 +54,21 @@ public class TileCommandComputer extends TileComputer
         }
 
         @Override
-        public boolean shouldReceiveFeedback()
+        public boolean acceptsSuccess()
         {
-            return getWorld().getGameRules().getBoolean( GameRules.SEND_COMMAND_FEEDBACK );
+            return getLevel().getGameRules().getBoolean( GameRules.RULE_SENDCOMMANDFEEDBACK );
         }
 
         @Override
-        public boolean shouldReceiveErrors()
+        public boolean acceptsFailure()
         {
             return true;
         }
 
         @Override
-        public boolean allowLogging()
+        public boolean shouldInformAdmins()
         {
-            return getWorld().getGameRules().getBoolean( GameRules.COMMAND_BLOCK_OUTPUT );
+            return getLevel().getGameRules().getBoolean( GameRules.RULE_COMMANDBLOCKOUTPUT );
         }
     }
 
@@ -96,10 +96,10 @@ public class TileCommandComputer extends TileComputer
         }
 
         return new CommandSource( receiver,
-            new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ), Vec2f.ZERO,
-            (ServerWorld) getWorld(), 2,
+            new Vec3d( worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5 ), Vec2f.ZERO,
+            (ServerWorld) getLevel(), 2,
             name, new StringTextComponent( name ),
-            getWorld().getServer(), null
+            getLevel().getServer(), null
         );
     }
 
@@ -122,12 +122,12 @@ public class TileCommandComputer extends TileComputer
         MinecraftServer server = player.getServer();
         if( server == null || !server.isCommandBlockEnabled() )
         {
-            player.sendStatusMessage( new TranslationTextComponent( "advMode.notEnabled" ), true );
+            player.displayClientMessage( new TranslationTextComponent( "advMode.notEnabled" ), true );
             return false;
         }
-        else if( ComputerCraft.commandRequireCreative ? !player.canUseCommandBlock() : !server.getPlayerList().canSendCommands( player.getGameProfile() ) )
+        else if( ComputerCraft.commandRequireCreative ? !player.canUseGameMasterBlocks() : !server.getPlayerList().isOp( player.getGameProfile() ) )
         {
-            player.sendStatusMessage( new TranslationTextComponent( "advMode.notAllowed" ), true );
+            player.displayClientMessage( new TranslationTextComponent( "advMode.notAllowed" ), true );
             return false;
         }
 

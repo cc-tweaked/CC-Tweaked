@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.speaker;
@@ -24,12 +24,12 @@ public class BlockSpeaker extends BlockGeneric
     public BlockSpeaker( Properties settings )
     {
         super( settings, Registry.ModTiles.SPEAKER );
-        setDefaultState( getStateContainer().getBaseState()
-            .with( FACING, Direction.NORTH ) );
+        registerDefaultState( getStateDefinition().any()
+            .setValue( FACING, Direction.NORTH ) );
     }
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, BlockState> properties )
+    protected void createBlockStateDefinition( StateContainer.Builder<Block, BlockState> properties )
     {
         properties.add( FACING );
     }
@@ -38,6 +38,6 @@ public class BlockSpeaker extends BlockGeneric
     @Override
     public BlockState getStateForPlacement( BlockItemUseContext placement )
     {
-        return getDefaultState().with( FACING, placement.getPlacementHorizontalFacing().getOpposite() );
+        return defaultBlockState().setValue( FACING, placement.getHorizontalDirection().getOpposite() );
     }
 }

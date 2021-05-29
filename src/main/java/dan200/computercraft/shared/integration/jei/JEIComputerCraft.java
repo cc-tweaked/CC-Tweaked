@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.integration.jei;
@@ -114,10 +114,10 @@ public class JEIComputerCraft implements IModPlugin
      */
     private static final ISubtypeInterpreter turtleSubtype = stack -> {
         Item item = stack.getItem();
-        if( !(item instanceof ITurtleItem) ) return "";
+        if( !(item instanceof ITurtleItem) ) return ISubtypeInterpreter.NONE;
 
         ITurtleItem turtle = (ITurtleItem) item;
-        StringBuilder name = new StringBuilder();
+        StringBuilder name = new StringBuilder( "turtle:" );
 
         // Add left and right upgrades to the identifier
         ITurtleUpgrade left = turtle.getUpgrade( stack, TurtleSide.LEFT );
@@ -134,9 +134,9 @@ public class JEIComputerCraft implements IModPlugin
      */
     private static final ISubtypeInterpreter pocketSubtype = stack -> {
         Item item = stack.getItem();
-        if( !(item instanceof ItemPocketComputer) ) return "";
+        if( !(item instanceof ItemPocketComputer) ) return ISubtypeInterpreter.NONE;
 
-        StringBuilder name = new StringBuilder();
+        StringBuilder name = new StringBuilder( "pocket:" );
 
         // Add the upgrade to the identifier
         IPocketUpgrade upgrade = ItemPocketComputer.getUpgrade( stack );
@@ -150,11 +150,11 @@ public class JEIComputerCraft implements IModPlugin
      */
     private static final ISubtypeInterpreter diskSubtype = stack -> {
         Item item = stack.getItem();
-        if( !(item instanceof ItemDisk) ) return "";
+        if( !(item instanceof ItemDisk) ) return ISubtypeInterpreter.NONE;
 
         ItemDisk disk = (ItemDisk) item;
 
         int colour = disk.getColour( stack );
-        return colour == -1 ? "" : String.format( "%06x", colour );
+        return colour == -1 ? ISubtypeInterpreter.NONE : String.format( "%06x", colour );
     };
 }

@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.generic.data;
 
 import com.google.gson.JsonParseException;
@@ -53,12 +52,12 @@ public class ItemData
 
         fillBasic( data, stack );
 
-        data.put( "displayName", stack.getDisplayName().getString() );
+        data.put( "displayName", stack.getHoverName().getString() );
         data.put( "maxCount", stack.getMaxStackSize() );
 
-        if( stack.isDamageable() )
+        if( stack.isDamageableItem() )
         {
-            data.put( "damage", stack.getDamage() );
+            data.put( "damage", stack.getDamageValue() );
             data.put( "maxDamage", stack.getMaxDamage() );
         }
 
@@ -107,7 +106,7 @@ public class ItemData
     {
         try
         {
-            return ITextComponent.Serializer.fromJson( x.getString() );
+            return ITextComponent.Serializer.fromJson( x.getAsString() );
         }
         catch( JsonParseException e )
         {
@@ -139,7 +138,7 @@ public class ItemData
              * I'll do that to have the same data than ones displayed in tooltip.
              * @see EnchantmentHelper.getEnchantments(ItemStack stack)
              */
-            addEnchantments( stack.getEnchantmentTagList(), enchants );
+            addEnchantments( stack.getEnchantmentTags(), enchants );
         }
 
         return enchants;
@@ -158,14 +157,14 @@ public class ItemData
 
         enchants.ensureCapacity( enchants.size() + rawEnchants.size() );
 
-        for( Map.Entry<Enchantment, Integer> entry : EnchantmentHelper.func_226652_a_( rawEnchants ).entrySet() )
+        for( Map.Entry<Enchantment, Integer> entry : EnchantmentHelper.deserializeEnchantments( rawEnchants ).entrySet() )
         {
             Enchantment enchantment = entry.getKey();
             Integer level = entry.getValue();
             HashMap<String, Object> enchant = new HashMap<>( 3 );
             enchant.put( "name", DataHelpers.getId( enchantment ) );
             enchant.put( "level", level );
-            enchant.put( "displayName", enchantment.getDisplayName( level ).getString() );
+            enchant.put( "displayName", enchantment.getFullname( level ).getString() );
             enchants.add( enchant );
         }
     }

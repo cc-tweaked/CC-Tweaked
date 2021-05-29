@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.data;
@@ -30,13 +30,13 @@ public final class PlayerCreativeLootCondition implements ILootCondition
     @Override
     public boolean test( LootContext lootContext )
     {
-        Entity entity = lootContext.get( LootParameters.THIS_ENTITY );
-        return entity instanceof PlayerEntity && ((PlayerEntity) entity).abilities.isCreativeMode;
+        Entity entity = lootContext.getParamOrNull( LootParameters.THIS_ENTITY );
+        return entity instanceof PlayerEntity && ((PlayerEntity) entity).abilities.instabuild;
     }
 
     @Nonnull
     @Override
-    public Set<LootParameter<?>> getRequiredParameters()
+    public Set<LootParameter<?>> getReferencedContextParams()
     {
         return Collections.singleton( LootParameters.THIS_ENTITY );
     }

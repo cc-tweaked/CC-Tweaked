@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.util;
@@ -21,8 +21,8 @@ public final class RedstoneUtil
         BlockState block = world.getBlockState( pos );
         if( ForgeEventFactory.onNeighborNotify( world, pos, block, EnumSet.of( side ), false ).isCanceled() ) return;
 
-        BlockPos neighbourPos = pos.offset( side );
+        BlockPos neighbourPos = pos.relative( side );
         world.neighborChanged( neighbourPos, block.getBlock(), pos );
-        world.notifyNeighborsOfStateExcept( neighbourPos, block.getBlock(), side.getOpposite() );
+        world.updateNeighborsAtExceptFromFacing( neighbourPos, block.getBlock(), side.getOpposite() );
     }
 }

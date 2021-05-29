@@ -2,6 +2,7 @@
 
 (sources
   /doc/stub/
+  /doc/events/
   /build/docs/luaJavadoc/
   /src/main/resources/*/computercraft/lua/bios.lua
   /src/main/resources/*/computercraft/lua/rom/
@@ -10,29 +11,35 @@
 
 
 (doc
-  (title "CC: Tweaked")
   (destination build/docs/lua)
-  (logo src/main/resources/pack.png)
   (index doc/index.md)
-  (styles src/web/styles.css)
-  (scripts build/rollup/index.js)
-  (source-link https://github.com/SquidDev-CC/CC-Tweaked/blob/${commit}/${path}#L${line})
+
+  (site
+    (title "CC: Tweaked")
+    (logo src/main/resources/pack.png)
+    (url https://tweaked.cc/)
+    (source-link https://github.com/SquidDev-CC/CC-Tweaked/blob/${commit}/${path}#L${line})
+
+    (styles src/web/styles.css)
+    (scripts build/rollup/index.js)
+    (head doc/head.html))
 
   (module-kinds
     (peripheral Peripherals)
-    (generic_peripheral "Generic Peripherals"))
+    (generic_peripheral "Generic Peripherals")
+    (event Events))
 
   (library-path
     /doc/stub/
     /build/docs/luaJavadoc/
 
-    /src/main/resources/*/computercraft/lua/rom/apis
-    /src/main/resources/*/computercraft/lua/rom/apis/command
-    /src/main/resources/*/computercraft/lua/rom/apis/turtle
+    /src/main/resources/*/computercraft/lua/rom/apis/
+    /src/main/resources/*/computercraft/lua/rom/apis/command/
+    /src/main/resources/*/computercraft/lua/rom/apis/turtle/
 
-    /src/main/resources/*/computercraft/lua/rom/modules/main
-    /src/main/resources/*/computercraft/lua/rom/modules/command
-    /src/main/resources/*/computercraft/lua/rom/modules/turtle))
+    /src/main/resources/*/computercraft/lua/rom/modules/main/
+    /src/main/resources/*/computercraft/lua/rom/modules/command/
+    /src/main/resources/*/computercraft/lua/rom/modules/turtle/))
 
 (at /
   (linters
@@ -81,27 +88,16 @@
 
 ;; Suppress warnings for currently undocumented modules.
 (at
-  (; Java APIs
-   /doc/stub/http.lua
-   /doc/stub/os.lua
-   /doc/stub/turtle.lua
-   /doc/stub/global.lua
-   ; Java generated APIs
-   /build/docs/luaJavadoc/turtle.lua
-   ; Peripherals
-   /build/docs/luaJavadoc/drive.lua
-   /build/docs/luaJavadoc/speaker.lua
-   /build/docs/luaJavadoc/printer.lua
-   ; Generic peripherals
-   /build/docs/luaJavadoc/fluid_storage.lua
-   ; Lua APIs
+  (; Lua APIs
    /src/main/resources/*/computercraft/lua/rom/apis/io.lua
    /src/main/resources/*/computercraft/lua/rom/apis/window.lua)
 
   (linters -doc:undocumented -doc:undocumented-arg -doc:undocumented-return))
 
-;; Suppress warnings for the BIOS using its own deprecated members for now.
-(at /src/main/resources/*/computercraft/lua/bios.lua
+;; Suppress warnings for various APIs using its own deprecated members.
+(at
+  (/src/main/resources/*/computercraft/lua/bios.lua
+   /src/main/resources/*/computercraft/lua/rom/apis/turtle/turtle.lua)
   (linters -var:deprecated))
 
 (at /src/test/resources/test-rom

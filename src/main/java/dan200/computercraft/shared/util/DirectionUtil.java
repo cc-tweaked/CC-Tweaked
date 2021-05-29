@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.util;
@@ -20,8 +20,8 @@ public final class DirectionUtil
 
         if( dir == front ) return ComputerSide.FRONT;
         if( dir == front.getOpposite() ) return ComputerSide.BACK;
-        if( dir == front.rotateYCCW() ) return ComputerSide.LEFT;
-        if( dir == front.rotateY() ) return ComputerSide.RIGHT;
+        if( dir == front.getCounterClockWise() ) return ComputerSide.LEFT;
+        if( dir == front.getClockWise() ) return ComputerSide.RIGHT;
         if( dir == Direction.UP ) return ComputerSide.TOP;
         return ComputerSide.BOTTOM;
     }

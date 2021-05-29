@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis;
@@ -32,29 +32,29 @@ public class OSAPI implements ILuaAPI
 {
     private final IAPIEnvironment apiEnvironment;
 
-    private final Int2ObjectMap<Alarm> m_alarms = new Int2ObjectOpenHashMap<>();
-    private int m_clock;
-    private double m_time;
-    private int m_day;
+    private final Int2ObjectMap<Alarm> alarms = new Int2ObjectOpenHashMap<>();
+    private int clock;
+    private double time;
+    private int day;
 
-    private int m_nextAlarmToken = 0;
+    private int nextAlarmToken = 0;
 
     private static class Alarm implements Comparable<Alarm>
     {
-        final double m_time;
-        final int m_day;
+        final double time;
+        final int day;
 
         Alarm( double time, int day )
         {
-            m_time = time;
-            m_day = day;
+            this.time = time;
+            this.day = day;
         }
 
         @Override
         public int compareTo( @Nonnull Alarm o )
         {
-            double t = m_day * 24.0 + m_time;
-            double ot = m_day * 24.0 + m_time;
+            double t = day * 24.0 + time;
+            double ot = day * 24.0 + time;
             return Double.compare( t, ot );
         }
     }
@@ -73,38 +73,38 @@ public class OSAPI implements ILuaAPI
     @Override
     public void startup()
     {
-        m_time = apiEnvironment.getComputerEnvironment().getTimeOfDay();
-        m_day = apiEnvironment.getComputerEnvironment().getDay();
-        m_clock = 0;
+        time = apiEnvironment.getComputerEnvironment().getTimeOfDay();
+        day = apiEnvironment.getComputerEnvironment().getDay();
+        clock = 0;
 
-        synchronized( m_alarms )
+        synchronized( alarms )
         {
-            m_alarms.clear();
+            alarms.clear();
         }
     }
 
     @Override
     public void update()
     {
-        m_clock++;
+        clock++;
 
         // Wait for all of our alarms
-        synchronized( m_alarms )
+        synchronized( alarms )
         {
-            double previousTime = m_time;
-            int previousDay = m_day;
+            double previousTime = time;
+            int previousDay = day;
             double time = apiEnvironment.getComputerEnvironment().getTimeOfDay();
             int day = apiEnvironment.getComputerEnvironment().getDay();
 
             if( time > previousTime || day > previousDay )
             {
-                double now = m_day * 24.0 + m_time;
-                Iterator<Int2ObjectMap.Entry<Alarm>> it = m_alarms.int2ObjectEntrySet().iterator();
+                double now = this.day * 24.0 + this.time;
+                Iterator<Int2ObjectMap.Entry<Alarm>> it = alarms.int2ObjectEntrySet().iterator();
                 while( it.hasNext() )
                 {
                     Int2ObjectMap.Entry<Alarm> entry = it.next();
                     Alarm alarm = entry.getValue();
-                    double t = alarm.m_day * 24.0 + alarm.m_time;
+                    double t = alarm.day * 24.0 + alarm.time;
                     if( now >= t )
                     {
                         apiEnvironment.queueEvent( "alarm", entry.getIntKey() );
@@ -113,17 +113,17 @@ public class OSAPI implements ILuaAPI
                 }
             }
 
-            m_time = time;
-            m_day = day;
+            this.time = time;
+            this.day = day;
         }
     }
 
     @Override
     public void shutdown()
     {
-        synchronized( m_alarms )
+        synchronized( alarms )
         {
-            m_alarms.clear();
+            alarms.clear();
         }
     }
 
@@ -180,7 +180,7 @@ public class OSAPI implements ILuaAPI
      *
      * @param timer The number of seconds until the timer fires.
      * @return The ID of the new timer. This can be used to filter the
-     *   {@code timer} event, or {@link #cancelTimer cancel the timer}.
+     * {@code timer} event, or {@link #cancelTimer cancel the timer}.
      * @throws LuaException If the time is below zero.
      * @see #cancelTimer To cancel a timer.
      */
@@ -210,7 +210,7 @@ public class OSAPI implements ILuaAPI
      *
      * @param time The time at which to fire the alarm, in the range [0.0, 24.0).
      * @return The ID of the new alarm. This can be used to filter the
-     *   {@code alarm} event, or {@link #cancelAlarm cancel the alarm}.
+     * {@code alarm} event, or {@link #cancelAlarm cancel the alarm}.
      * @throws LuaException If the time is out of range.
      * @see #cancelAlarm To cancel an alarm.
      */
@@ -219,11 +219,11 @@ public class OSAPI implements ILuaAPI
     {
         checkFinite( 0, time );
         if( time < 0.0 || time >= 24.0 ) throw new LuaException( "Number out of range" );
-        synchronized( m_alarms )
+        synchronized( alarms )
         {
-            int day = time > m_time ? m_day : m_day + 1;
-            m_alarms.put( m_nextAlarmToken, new Alarm( time, day ) );
-            return m_nextAlarmToken++;
+            int day = time > this.time ? this.day : this.day + 1;
+            alarms.put( nextAlarmToken, new Alarm( time, day ) );
+            return nextAlarmToken++;
         }
     }
 
@@ -237,9 +237,9 @@ public class OSAPI implements ILuaAPI
     @LuaFunction
     public final void cancelAlarm( int token )
     {
-        synchronized( m_alarms )
+        synchronized( alarms )
         {
-            m_alarms.remove( token );
+            alarms.remove( token );
         }
     }
 
@@ -304,7 +304,7 @@ public class OSAPI implements ILuaAPI
     @LuaFunction
     public final double clock()
     {
-        return m_clock * 0.05;
+        return clock * 0.05;
     }
 
     /**
@@ -312,10 +312,10 @@ public class OSAPI implements ILuaAPI
      * always be in the range [0.0, 24.0).
      *
      * * If called with {@code ingame}, the current world time will be returned.
-     *   This is the default if nothing is passed.
+     * This is the default if nothing is passed.
      * * If called with {@code utc}, returns the hour of the day in UTC time.
      * * If called with {@code local}, returns the hour of the day in the
-     *   timezone the server is located in.
+     * timezone the server is located in.
      *
      * This function can also be called with a table returned from {@link #date},
      * which will convert the date fields into a UNIX timestamp (number of
@@ -323,9 +323,9 @@ public class OSAPI implements ILuaAPI
      *
      * @param args The locale of the time, or a table filled by {@code os.date("*t")} to decode. Defaults to {@code ingame} locale if not specified.
      * @return The hour of the selected locale, or a UNIX timestamp from the table, depending on the argument passed in.
+     * @throws LuaException If an invalid locale is passed.
      * @cc.tparam [opt] string|table locale The locale of the time, or a table filled by {@code os.date("*t")} to decode. Defaults to {@code ingame} locale if not specified.
      * @see #date To get a date table that can be converted with this function.
-     * @throws LuaException If an invalid locale is passed.
      */
     @LuaFunction
     public final Object time( IArguments args ) throws LuaException
@@ -341,7 +341,7 @@ public class OSAPI implements ILuaAPI
             case "local": // Get Hour of day (local time)
                 return getTimeForCalendar( Calendar.getInstance() );
             case "ingame": // Get in-game hour
-                return m_time;
+                return time;
             default:
                 throw new LuaException( "Unsupported operation" );
         }
@@ -351,11 +351,11 @@ public class OSAPI implements ILuaAPI
      * Returns the day depending on the locale specified.
      *
      * * If called with {@code ingame}, returns the number of days since the
-     *   world was created. This is the default.
+     * world was created. This is the default.
      * * If called with {@code utc}, returns the number of days since 1 January
-     *   1970 in the UTC timezone.
+     * 1970 in the UTC timezone.
      * * If called with {@code local}, returns the number of days since 1
-     *   January 1970 in the server's local timezone.
+     * January 1970 in the server's local timezone.
      *
      * @param args The locale to get the day for. Defaults to {@code ingame} if not set.
      * @return The day depending on the selected locale.
@@ -371,7 +371,7 @@ public class OSAPI implements ILuaAPI
             case "local": // Get numbers of days since 1970-01-01 (local time)
                 return getDayForCalendar( Calendar.getInstance() );
             case "ingame":// Get game day
-                return m_day;
+                return day;
             default:
                 throw new LuaException( "Unsupported operation" );
         }
@@ -381,11 +381,11 @@ public class OSAPI implements ILuaAPI
      * Returns the number of milliseconds since an epoch depending on the locale.
      *
      * * If called with {@code ingame}, returns the number of milliseconds since the
-     *   world was created. This is the default.
+     * world was created. This is the default.
      * * If called with {@code utc}, returns the number of milliseconds since 1
-     *   January 1970 in the UTC timezone.
+     * January 1970 in the UTC timezone.
      * * If called with {@code local}, returns the number of milliseconds since 1
-     *   January 1970 in the server's local timezone.
+     * January 1970 in the server's local timezone.
      *
      * @param args The locale to get the milliseconds for. Defaults to {@code ingame} if not set.
      * @return The milliseconds since the epoch depending on the selected locale.
@@ -410,9 +410,9 @@ public class OSAPI implements ILuaAPI
             }
             case "ingame":
                 // Get in-game epoch
-                synchronized( m_alarms )
+                synchronized( alarms )
                 {
-                    return m_day * 86400000L + (long) (m_time * 3600000.0);
+                    return day * 86400000L + (long) (time * 3600000.0);
                 }
             default:
                 throw new LuaException( "Unsupported operation" );
@@ -435,7 +435,7 @@ public class OSAPI implements ILuaAPI
      * timestamp (days since 1 January 1970) with {@link #date}.
      *
      * @param formatA The format of the string to return. This defaults to {@code %c}, which expands to a string similar to "Sat Dec 24 16:58:00 2011".
-     * @param timeA The time to convert to a string. This defaults to the current time.
+     * @param timeA   The time to convert to a string. This defaults to the current time.
      * @return The resulting format string.
      * @throws LuaException If an invalid format is passed.
      */

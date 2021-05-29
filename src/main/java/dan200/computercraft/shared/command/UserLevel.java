@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.command;
@@ -57,16 +57,17 @@ public enum UserLevel implements Predicate<CommandSource>
     {
         if( this == ANYONE ) return true;
 
-        // We *always* allow level 0 stuff, even if the
-        MinecraftServer server = source.getServer();
-        Entity sender = source.getEntity();
-
-        if( server.isSinglePlayer() && sender instanceof PlayerEntity &&
-            ((PlayerEntity) sender).getGameProfile().getName().equalsIgnoreCase( server.getServerModName() ) )
+        if( this == OWNER || this == OWNER_OP )
         {
-            if( this == OWNER || this == OWNER_OP ) return true;
+            MinecraftServer server = source.getServer();
+            Entity sender = source.getEntity();
+            if( server.isSingleplayer() && sender instanceof PlayerEntity &&
+                ((PlayerEntity) sender).getGameProfile().getName().equalsIgnoreCase( server.getServerModName() ) )
+            {
+                return true;
+            }
         }
 
-        return source.hasPermissionLevel( toLevel() );
+        return source.hasPermission( toLevel() );
     }
 }
