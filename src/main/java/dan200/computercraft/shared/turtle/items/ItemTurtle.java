@@ -13,14 +13,21 @@ import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.ItemComputerBase;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.CauldronBlock;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -160,5 +167,28 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     {
         CompoundNBT tag = stack.getTag();
         return tag != null && tag.contains( NBT_FUEL ) ? tag.getInt( NBT_FUEL ) : 0;
+    }
+
+    @Override
+    public ActionResultType onItemUseFirst( ItemStack stack, ItemUseContext context )
+    {
+        if( context.isSecondaryUseActive() || getColour( stack ) == -1 ) return ActionResultType.PASS;
+
+        World level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+
+        BlockState blockState = level.getBlockState( pos );
+        if( blockState.getBlock() != Blocks.CAULDRON ) return ActionResultType.PASS;
+
+        int waterLevel = blockState.getValue( CauldronBlock.LEVEL );
+        if( waterLevel <= 0 ) return ActionResultType.PASS;
+
+        if( !level.isClientSide )
+        {
+            ((CauldronBlock) blockState.getBlock()).setWaterLevel( level, pos, blockState, waterLevel - 1 );
+            IColouredItem.setColourBasic( stack, -1 );
+        }
+
+        return ActionResultType.SUCCESS;
     }
 }
