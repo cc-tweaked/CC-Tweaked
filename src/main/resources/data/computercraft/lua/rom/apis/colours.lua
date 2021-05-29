@@ -5,7 +5,7 @@
 
 local colours = _ENV
 for k, v in pairs(colors) do
-	colours[k] = v
+    colours[k] = v
 end
 
 --- Grey. Written as `7` in paint files and @{term.blit}, has a default

@@ -801,6 +801,7 @@ while bRunning do
                 end
             else
                 bMenu = false
+                term.setCursorBlink(true)
                 redrawMenu()
             end
         end
