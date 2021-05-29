@@ -6,110 +6,20 @@
 package dan200.computercraft.core.terminal;
 
 import dan200.computercraft.shared.util.Colour;
+import dan200.computercraft.utils.CallCounter;
 import io.netty.buffer.Unpooled;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
-
-import static org.junit.jupiter.api.Assertions.*;
-
+import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
+
+import static dan200.computercraft.core.terminal.TerminalMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TerminalTest
 {
-    // for PacketBuffer read/write tests
-    private static final byte[] packetBufferSnapshot = {
-        0, 0, 0, 2, 0, 0, 0, 5, 0, 83, 104, -31, 105, -31, 17, 17, 17, -52, 76, 76, 87, -90, 78, 127,
-        102, 76, 51, 102, -52, -78, 102, -27, 76, -103, -78, -103, -103, -103, 76, 76, 76, -14, -78,
-        -52, 127, -52, 25, -34, -34, 108, -103, -78, -14, -27, 127, -40, -14, -78, 51, -16, -16, -16,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0,
-    };
-
-    private static class MockOnChangedCallback implements Runnable
-    {
-        private int timesCalled = 0;
-
-        @Override
-        public void run()
-        {
-            timesCalled++;
-        }
-
-        public void assertCalledTimes( int expectedTimesCalled )
-        {
-            assertEquals( expectedTimesCalled, timesCalled, "onChanged callback was not called the correct number of times" );
-        }
-
-        public void assertNotCalled()
-        {
-            this.assertCalledTimes( 0 );
-        }
-
-        public void mockClear()
-        {
-            this.timesCalled = 0;
-        }
-    }
-
-    private static final class TerminalBufferSnapshot
-    {
-        private final List<String> textLines;
-        private final List<String> textColourLines;
-        private final List<String> backgroundColourLines;
-
-        private TerminalBufferSnapshot( Terminal terminal )
-        {
-            textLines = new ArrayList<>( terminal.getHeight() );
-            textColourLines = new ArrayList<>( terminal.getHeight() );
-            backgroundColourLines = new ArrayList<>( terminal.getHeight() );
-
-            for( int i = 0; i < terminal.getHeight(); i++ )
-            {
-                textLines.add( terminal.getLine( i ).toString() );
-                textColourLines.add( terminal.getTextColourLine( i ).toString() );
-                backgroundColourLines.add( terminal.getBackgroundColourLine( i ).toString() );
-            }
-        }
-
-        public TerminalBufferSnapshot assertTextMatches( String[] snapshot )
-        {
-            List<String> snapshotLines = new ArrayList<>( Arrays.asList( snapshot ) );
-            assertLinesMatch( snapshotLines, textLines );
-            return this;
-        }
-
-        public TerminalBufferSnapshot assertTextColourMatches( String[] snapshot )
-        {
-            List<String> snapshotLines = new ArrayList<>( Arrays.asList( snapshot ) );
-            assertLinesMatch( snapshotLines, textColourLines );
-            return this;
-        }
-
-        public TerminalBufferSnapshot assertBackgroundColourMatches( String[] snapshot )
-        {
-            List<String> snapshotLines = new ArrayList<>( Arrays.asList( snapshot ) );
-            assertLinesMatch( snapshotLines, backgroundColourLines );
-            return this;
-        }
-
-        public void assertBufferUnchanged( TerminalBufferSnapshot old )
-        {
-            this.assertTextMatches( old.textLines.toArray( new String[0] ) );
-            this.assertTextColourMatches( old.textColourLines.toArray( new String[0] ) );
-            this.assertBackgroundColourMatches( old.backgroundColourLines.toArray( new String[0] ) );
-        }
-    }
-
     @Test
     void testCreation()
     {
@@ -157,674 +67,602 @@ class TerminalTest
     @Test
     void testDefaultTextBuffer()
     {
-        new TerminalBufferSnapshot( new Terminal( 4, 3 ) )
-            .assertTextMatches( new String[] {
-                "    ",
-                "    ",
-                "    ",
-            } );
+        assertThat( new Terminal( 4, 3 ), textMatches( new String[] {
+            "    ",
+            "    ",
+            "    ",
+        } ) );
     }
 
     @Test
     void testDefaultTextColourBuffer()
     {
-        new TerminalBufferSnapshot( new Terminal( 4, 3 ) )
-            .assertTextColourMatches( new String[] {
-                "0000",
-                "0000",
-                "0000",
-            } );
+        assertThat( new Terminal( 4, 3 ), textColourMatches( new String[] {
+            "0000",
+            "0000",
+            "0000",
+        } ) );
     }
 
     @Test
     void testDefaultBackgroundColourBuffer()
     {
-        new TerminalBufferSnapshot( new Terminal( 4, 3 ) )
-            .assertBackgroundColourMatches( new String[] {
-                "ffff",
-                "ffff",
-                "ffff",
-            } );
+        assertThat( new Terminal( 4, 3 ), TerminalMatchers.backgroundColourMatches( new String[] {
+            "ffff",
+            "ffff",
+            "ffff",
+        } ) );
     }
 
     @Test
     void testZeroSizeBuffers()
     {
-        new TerminalBufferSnapshot( new Terminal( 0, 0 ) )
-            .assertTextMatches( new String[] {} )
-            .assertTextColourMatches( new String[] {} )
-            .assertBackgroundColourMatches( new String[] {} );
-    }
-
-    @Test
-    void testResizeHeight()
-    {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
-        terminal.resize( 4, 4 );
-
-        new TerminalBufferSnapshot( terminal )
-            .assertTextMatches( new String[] {
-                "    ",
-                "    ",
-                "    ",
-                "    ",
-            } ).assertTextColourMatches( new String[] {
-                "0000",
-                "0000",
-                "0000",
-                "0000",
-            } ).assertBackgroundColourMatches( new String[] {
-                "ffff",
-                "ffff",
-                "ffff",
-                "ffff",
-            } );
-
-        mockOnChangedCallback.assertCalledTimes( 1 );
-    }
-
-    @Test
-    void testResizeWidth()
-    {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
-        terminal.resize( 5, 3 );
-
-        new TerminalBufferSnapshot( terminal )
-            .assertTextMatches( new String[] {
-                "     ",
-                "     ",
-                "     ",
-            } ).assertTextColourMatches( new String[] {
-                "00000",
-                "00000",
-                "00000",
-            } ).assertBackgroundColourMatches( new String[] {
-                "fffff",
-                "fffff",
-                "fffff",
-            } );
-
-        mockOnChangedCallback.assertCalledTimes( 1 );
+        String[] x = new String[0];
+        assertThat( new Terminal( 0, 0 ), allOf(
+            textMatches( new String[0] ),
+            textColourMatches( x ),
+            TerminalMatchers.backgroundColourMatches( x )
+        ) );
     }
 
     @Test
     void testResizeWidthAndHeight()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
+        terminal.setLine( 0, "test", "aaaa", "eeee" );
+        callCounter.reset();
+
         terminal.resize( 5, 4 );
 
-        new TerminalBufferSnapshot( terminal )
-            .assertTextMatches( new String[] {
+        assertThat( terminal, allOf(
+            textMatches( new String[] {
+                "test ",
                 "     ",
                 "     ",
                 "     ",
-                "     ",
-            } ).assertTextColourMatches( new String[] {
+            } ),
+            textColourMatches( new String[] {
+                "aaaa0",
                 "00000",
                 "00000",
                 "00000",
-                "00000",
-            } ).assertBackgroundColourMatches( new String[] {
+            } ), TerminalMatchers.backgroundColourMatches( new String[] {
+                "eeeef",
                 "fffff",
                 "fffff",
                 "fffff",
-                "fffff",
-            } );
+            } )
+        ) );
 
-        mockOnChangedCallback.assertCalledTimes( 1 );
+        callCounter.assertCalledTimes( 1 );
     }
 
     @Test
     void testResizeSmaller()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
-
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
         terminal.setLine( 0, "test", "aaaa", "eeee" );
         terminal.setLine( 1, "smol", "aaaa", "eeee" );
         terminal.setLine( 2, "term", "aaaa", "eeee" );
-        mockOnChangedCallback.mockClear();
+        callCounter.reset();
 
         terminal.resize( 2, 2 );
 
-        new TerminalBufferSnapshot( terminal )
-            .assertTextMatches( new String[] {
+        assertThat( terminal, allOf(
+            textMatches( new String[] {
                 "te",
                 "sm",
-            } ).assertTextColourMatches( new String[] {
+            } ),
+            textColourMatches( new String[] {
                 "aa",
                 "aa",
-            } ).assertBackgroundColourMatches( new String[] {
+            } ),
+            TerminalMatchers.backgroundColourMatches( new String[] {
                 "ee",
                 "ee",
-            } );
+            } )
+        ) );
 
-        mockOnChangedCallback.assertCalledTimes( 1 );
+        callCounter.assertCalledTimes( 1 );
     }
 
     @Test
     void testResizeWithSameDimensions()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
         TerminalBufferSnapshot old = new TerminalBufferSnapshot( terminal );
         terminal.resize( 4, 3 );
 
-        new TerminalBufferSnapshot( terminal ).assertBufferUnchanged( old );
+        assertThat( "Terminal should be unchanged", terminal, old.matches() );
 
-        mockOnChangedCallback.assertNotCalled();
+        callCounter.assertNotCalled();
     }
 
     @Test
     void testSetAndGetCursorPos()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
 
         terminal.setCursorPos( 2, 1 );
 
         assertEquals( 2, terminal.getCursorX() );
         assertEquals( 1, terminal.getCursorY() );
-        mockOnChangedCallback.assertCalledTimes( 1 );
+        callCounter.assertCalledTimes( 1 );
     }
 
     @Test
     void testSetCursorPosUnchanged()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
 
         terminal.setCursorPos( 2, 1 );
-        mockOnChangedCallback.mockClear();
+        callCounter.reset();
         terminal.setCursorPos( 2, 1 );
 
         assertEquals( 2, terminal.getCursorX() );
         assertEquals( 1, terminal.getCursorY() );
-        mockOnChangedCallback.assertNotCalled();
+        callCounter.assertNotCalled();
     }
 
     @Test
     void testSetCursorBlink()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
 
         terminal.setCursorBlink( true );
 
         assertTrue( terminal.getCursorBlink() );
-        mockOnChangedCallback.assertCalledTimes( 1 );
+        callCounter.assertCalledTimes( 1 );
     }
 
     @Test
     void testSetCursorBlinkUnchanged()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
 
         terminal.setCursorBlink( true );
-        mockOnChangedCallback.mockClear();
+        callCounter.reset();
         terminal.setCursorBlink( true );
 
         assertTrue( terminal.getCursorBlink() );
-        mockOnChangedCallback.assertNotCalled();
+        callCounter.assertNotCalled();
     }
 
     @Test
     void testSetTextColour()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
 
         terminal.setTextColour( 5 );
 
         assertEquals( terminal.getTextColour(), 5 );
-        mockOnChangedCallback.assertCalledTimes( 1 );
+        callCounter.assertCalledTimes( 1 );
     }
 
     @Test
     void testSetTextColourUnchanged()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
 
         terminal.setTextColour( 5 );
-        mockOnChangedCallback.mockClear();
+        callCounter.reset();
         terminal.setTextColour( 5 );
 
         assertEquals( terminal.getTextColour(), 5 );
-        mockOnChangedCallback.assertNotCalled();
+        callCounter.assertNotCalled();
     }
 
     @Test
     void testSetBackgroundColour()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
 
         terminal.setBackgroundColour( 5 );
 
         assertEquals( terminal.getBackgroundColour(), 5 );
-        mockOnChangedCallback.assertCalledTimes( 1 );
+        callCounter.assertCalledTimes( 1 );
     }
 
     @Test
     void testSetBackgroundColourUnchanged()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
 
         terminal.setBackgroundColour( 5 );
-        mockOnChangedCallback.mockClear();
+        callCounter.reset();
         terminal.setBackgroundColour( 5 );
 
         assertEquals( terminal.getBackgroundColour(), 5 );
-        mockOnChangedCallback.assertNotCalled();
+        callCounter.assertNotCalled();
     }
 
     @Test
     void testBlitFromOrigin()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
 
         terminal.blit( "test", "1234", "abcd" );
 
-        new TerminalBufferSnapshot( terminal )
-            .assertTextMatches( new String[] {
+        assertThat( terminal, allOf(
+            textMatches( new String[] {
                 "test",
                 "    ",
                 "    ",
-            } ).assertTextColourMatches( new String[] {
+            } ), textColourMatches( new String[] {
                 "1234",
                 "0000",
                 "0000",
-            } ).assertBackgroundColourMatches( new String[] {
+            } ), backgroundColourMatches( new String[] {
                 "abcd",
                 "ffff",
                 "ffff",
-            } );
+            } )
+        ) );
 
-        mockOnChangedCallback.assertCalledTimes( 1 );
+        callCounter.assertCalledTimes( 1 );
     }
 
     @Test
     void testBlitWithOffset()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
 
         terminal.setCursorPos( 2, 1 );
-        mockOnChangedCallback.mockClear();
+        callCounter.reset();
         terminal.blit( "hi", "11", "ee" );
 
-        new TerminalBufferSnapshot( terminal )
-            .assertTextMatches( new String[] {
+        assertThat( terminal, allOf(
+            textMatches( new String[] {
                 "    ",
                 "  hi",
                 "    ",
-            } ).assertTextColourMatches( new String[] {
+            } ),
+            textColourMatches( new String[] {
                 "0000",
                 "0011",
                 "0000",
-            } ).assertBackgroundColourMatches( new String[] {
+            } ),
+            backgroundColourMatches( new String[] {
                 "ffff",
                 "ffee",
                 "ffff",
-            } );
+            } )
+        ) );
 
-        mockOnChangedCallback.assertCalledTimes( 1 );
+        callCounter.assertCalledTimes( 1 );
     }
 
     @Test
     void testBlitOutOfBounds()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
         TerminalBufferSnapshot old = new TerminalBufferSnapshot( terminal );
 
         terminal.setCursorPos( 2, -5 );
-        mockOnChangedCallback.mockClear();
+        callCounter.reset();
         terminal.blit( "hi", "11", "ee" );
-        new TerminalBufferSnapshot( terminal ).assertBufferUnchanged( old );
-        mockOnChangedCallback.assertNotCalled();
+        assertThat( terminal, old.matches() );
+        callCounter.assertNotCalled();
 
         terminal.setCursorPos( 2, 5 );
-        mockOnChangedCallback.mockClear();
+        callCounter.reset();
         terminal.blit( "hi", "11", "ee" );
-        new TerminalBufferSnapshot( terminal ).assertBufferUnchanged( old );
-        mockOnChangedCallback.assertNotCalled();
+        assertThat( terminal, old.matches() );
+        callCounter.assertNotCalled();
     }
 
     @Test
     void testWriteFromOrigin()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
 
         terminal.write( "test" );
 
-        new TerminalBufferSnapshot( terminal )
-            .assertTextMatches( new String[] {
+        assertThat( terminal, allOf(
+            textMatches( new String[] {
                 "test",
                 "    ",
                 "    ",
-            } ).assertTextColourMatches( new String[] {
+            } ), textColourMatches( new String[] {
                 "0000",
                 "0000",
                 "0000",
-            } ).assertBackgroundColourMatches( new String[] {
+            } ), backgroundColourMatches( new String[] {
                 "ffff",
                 "ffff",
                 "ffff",
-            } );
+            } )
+        ) );
 
-        mockOnChangedCallback.assertCalledTimes( 1 );
+        callCounter.assertCalledTimes( 1 );
     }
 
     @Test
     void testWriteWithOffset()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
 
         terminal.setCursorPos( 2, 1 );
-        mockOnChangedCallback.mockClear();
+        callCounter.reset();
         terminal.write( "hi" );
 
-        new TerminalBufferSnapshot( terminal )
-            .assertTextMatches( new String[] {
+        assertThat( terminal, allOf(
+            textMatches( new String[] {
                 "    ",
                 "  hi",
                 "    ",
-            } ).assertTextColourMatches( new String[] {
+            } ),
+            textColourMatches( new String[] {
                 "0000",
                 "0000",
                 "0000",
-            } ).assertBackgroundColourMatches( new String[] {
+            } ),
+            backgroundColourMatches( new String[] {
                 "ffff",
                 "ffff",
                 "ffff",
-            } );
+            } )
+        ) );
 
-        mockOnChangedCallback.assertCalledTimes( 1 );
+        callCounter.assertCalledTimes( 1 );
     }
 
     @Test
     void testWriteOutOfBounds()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
         TerminalBufferSnapshot old = new TerminalBufferSnapshot( terminal );
 
         terminal.setCursorPos( 2, -5 );
-        mockOnChangedCallback.mockClear();
+        callCounter.reset();
         terminal.write( "hi" );
-        new TerminalBufferSnapshot( terminal ).assertBufferUnchanged( old );
-        mockOnChangedCallback.assertNotCalled();
+
+        assertThat( terminal, old.matches() );
+        callCounter.assertNotCalled();
 
         terminal.setCursorPos( 2, 5 );
-        mockOnChangedCallback.mockClear();
+        callCounter.reset();
         terminal.write( "hi" );
-        new TerminalBufferSnapshot( terminal ).assertBufferUnchanged( old );
-        mockOnChangedCallback.assertNotCalled();
+        assertThat( terminal, old.matches() );
+        callCounter.assertNotCalled();
     }
 
     @Test
     void testScrollUp()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
 
         terminal.setLine( 1, "test", "1111", "eeee" );
-        mockOnChangedCallback.mockClear();
+        callCounter.reset();
         terminal.scroll( 1 );
 
-        new TerminalBufferSnapshot( terminal )
-            .assertTextMatches( new String[] {
+        assertThat( terminal, allOf(
+            textMatches( new String[] {
                 "test",
                 "    ",
                 "    ",
-            } ).assertTextColourMatches( new String[] {
+            } ),
+            textColourMatches( new String[] {
                 "1111",
                 "0000",
                 "0000",
-            } ).assertBackgroundColourMatches( new String[] {
+            } ),
+            backgroundColourMatches( new String[] {
                 "eeee",
                 "ffff",
                 "ffff",
-            } );
+            } )
+        ) );
 
-        mockOnChangedCallback.assertCalledTimes( 1 );
+        callCounter.assertCalledTimes( 1 );
     }
 
     @Test
     void testScrollDown()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
 
         terminal.setLine( 1, "test", "1111", "eeee" );
-        mockOnChangedCallback.mockClear();
+        callCounter.reset();
         terminal.scroll( -1 );
 
-        new TerminalBufferSnapshot( terminal )
-            .assertTextMatches( new String[] {
+        assertThat( terminal, allOf(
+            textMatches( new String[] {
                 "    ",
                 "    ",
                 "test",
-            } ).assertTextColourMatches( new String[] {
+            } ),
+            textColourMatches( new String[] {
                 "0000",
                 "0000",
                 "1111",
-            } ).assertBackgroundColourMatches( new String[] {
+            } ),
+            backgroundColourMatches( new String[] {
                 "ffff",
                 "ffff",
                 "eeee",
-            } );
+            } )
+        ) );
 
-        mockOnChangedCallback.assertCalledTimes( 1 );
+        callCounter.assertCalledTimes( 1 );
     }
 
     @Test
     void testScrollZeroLinesUnchanged()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
 
         terminal.setLine( 1, "test", "1111", "eeee" );
         TerminalBufferSnapshot old = new TerminalBufferSnapshot( terminal );
-        mockOnChangedCallback.mockClear();
+        callCounter.reset();
         terminal.scroll( 0 );
 
-        new TerminalBufferSnapshot( terminal ).assertBufferUnchanged( old );
+        assertThat( terminal, old.matches() );
 
-        mockOnChangedCallback.assertNotCalled();
+        callCounter.assertNotCalled();
     }
 
     @Test
     void testClear()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
         TerminalBufferSnapshot old = new TerminalBufferSnapshot( terminal );
 
         terminal.setLine( 1, "test", "1111", "eeee" );
-        mockOnChangedCallback.mockClear();
+        callCounter.reset();
         terminal.clear();
 
-        new TerminalBufferSnapshot( terminal ).assertBufferUnchanged( old );
+        assertThat( terminal, old.matches() );
 
-        mockOnChangedCallback.assertCalledTimes( 1 );
+        callCounter.assertCalledTimes( 1 );
     }
 
     @Test
     void testClearLine()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
         TerminalBufferSnapshot old = new TerminalBufferSnapshot( terminal );
 
         terminal.setLine( 1, "test", "1111", "eeee" );
         terminal.setCursorPos( 0, 1 );
-        mockOnChangedCallback.mockClear();
+        callCounter.reset();
         terminal.clearLine();
 
-        new TerminalBufferSnapshot( terminal ).assertBufferUnchanged( old );
+        assertThat( terminal, old.matches() );
 
-        mockOnChangedCallback.assertCalledTimes( 1 );
+        callCounter.assertCalledTimes( 1 );
     }
 
     @Test
     void testClearLineOutOfBounds()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 4, 3, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal terminal = new Terminal( 4, 3, callCounter );
         TerminalBufferSnapshot old;
 
         terminal.setLine( 1, "test", "1111", "eeee" );
         old = new TerminalBufferSnapshot( terminal );
         terminal.setCursorPos( 0, -5 );
-        mockOnChangedCallback.mockClear();
+        callCounter.reset();
         terminal.clearLine();
-        new TerminalBufferSnapshot( terminal ).assertBufferUnchanged( old );
-        mockOnChangedCallback.assertNotCalled();
+        assertThat( terminal, old.matches() );
+        callCounter.assertNotCalled();
 
         terminal.setLine( 1, "test", "1111", "eeee" );
         old = new TerminalBufferSnapshot( terminal );
         terminal.setCursorPos( 0, 5 );
-        mockOnChangedCallback.mockClear();
+        callCounter.reset();
         terminal.clearLine();
-        new TerminalBufferSnapshot( terminal ).assertBufferUnchanged( old );
-        mockOnChangedCallback.assertNotCalled();
+        assertThat( terminal, old.matches() );
+        callCounter.assertNotCalled();
     }
 
     @Test
-    void testWriteToPacketBuffer()
+    void testPacketBufferRoundtrip()
     {
-        Terminal terminal = new Terminal( 2, 1 );
+        Terminal writeTerminal = new Terminal( 2, 1 );
 
-        terminal.blit( "hi", "11", "ee" );
-        terminal.setCursorPos( 2, 5 );
-        terminal.setTextColour( 3 );
-        terminal.setBackgroundColour( 5 );
+        writeTerminal.blit( "hi", "11", "ee" );
+        writeTerminal.setCursorPos( 2, 5 );
+        writeTerminal.setTextColour( 3 );
+        writeTerminal.setBackgroundColour( 5 );
 
         PacketBuffer packetBuffer = new PacketBuffer( Unpooled.buffer() );
-        terminal.write( packetBuffer );
+        writeTerminal.write( packetBuffer );
 
-        assertArrayEquals( packetBufferSnapshot, packetBuffer.array() );
+        CallCounter callCounter = new CallCounter();
+        Terminal readTerminal = new Terminal( 2, 1, callCounter );
+        packetBuffer.writeBytes( packetBuffer );
+        readTerminal.read( packetBuffer );
+
+        assertThat( readTerminal, allOf(
+            textMatches( new String[] { "hi", } ),
+            textColourMatches( new String[] { "11", } ),
+            backgroundColourMatches( new String[] { "ee", } )
+        ) );
+
+        assertEquals( 2, readTerminal.getCursorX() );
+        assertEquals( 5, readTerminal.getCursorY() );
+        assertEquals( 3, readTerminal.getTextColour() );
+        assertEquals( 5, readTerminal.getBackgroundColour() );
+        callCounter.assertCalledTimes( 1 );
     }
 
     @Test
-    void testReadFromPacketBuffer()
+    void testNbtRoundtrip()
     {
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        Terminal terminal = new Terminal( 2, 1, mockOnChangedCallback );
-
-        PacketBuffer packetBuffer = new PacketBuffer( Unpooled.buffer() );
-        packetBuffer.writeBytes( packetBufferSnapshot );
-        terminal.read( packetBuffer );
-
-        new TerminalBufferSnapshot( terminal )
-            .assertTextMatches( new String[] {
-                "hi",
-            } ).assertTextColourMatches( new String[] {
-                "11",
-            } ).assertBackgroundColourMatches( new String[] {
-                "ee",
-            } );
-
-        assertEquals( 2, terminal.getCursorX() );
-        assertEquals( 5, terminal.getCursorY() );
-        assertEquals( 3, terminal.getTextColour() );
-        assertEquals( 5, terminal.getBackgroundColour() );
-        mockOnChangedCallback.assertCalledTimes( 1 );
-    }
-
-    @Test
-    void testWriteAndReadNBT()
-    {
-        final String nbtSnapshot =
-            "{term_cursorX:2,term_cursorBlink:0b,term_palette:" +
-            "[I;1118481,13388876,5744206,8349260,3368652,11691749,5020082,10066329," +
-            "5000268,15905484,8375321,14605932,10072818,15040472,15905331,15790320]," +
-            "term_bgColour:5,term_text_0:\"hi\",term_cursorY:5,term_textColour:3," +
-            "term_textBgColour_0:\"ee\",term_textColour_0:\"11\"}";
-
-        // WRITE
-        Terminal terminal = new Terminal( 2, 1 );
-
-        terminal.blit( "hi", "11", "ee" );
-        terminal.setCursorPos( 2, 5 );
-        terminal.setTextColour( 3 );
-        terminal.setBackgroundColour( 5 );
+        Terminal writeTerminal = new Terminal( 10, 5 );
+        writeTerminal.blit( "hi", "11", "ee" );
+        writeTerminal.setCursorPos( 2, 5 );
+        writeTerminal.setTextColour( 3 );
+        writeTerminal.setBackgroundColour( 5 );
 
         CompoundNBT nbt = new CompoundNBT();
-        terminal.writeToNBT( nbt );
-        assertEquals( nbtSnapshot, nbt.toString() );
+        writeTerminal.writeToNBT( nbt );
 
-        // READ
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        terminal = new Terminal( 2, 1, mockOnChangedCallback );
+        CallCounter callCounter = new CallCounter();
+        Terminal readTerminal = new Terminal( 2, 1, callCounter );
 
-        terminal.readFromNBT( nbt );
+        readTerminal.readFromNBT( nbt );
 
-        new TerminalBufferSnapshot( terminal )
-            .assertTextMatches( new String[] {
-                "hi",
-            } ).assertTextColourMatches( new String[] {
-                "11",
-            } ).assertBackgroundColourMatches( new String[] {
-                "ee",
-            } );
+        assertThat( readTerminal, allOf(
+            textMatches( new String[] { "hi", } ),
+            textColourMatches( new String[] { "11", } ),
+            backgroundColourMatches( new String[] { "ee", } )
+        ) );
 
-        assertEquals( 2, terminal.getCursorX() );
-        assertEquals( 5, terminal.getCursorY() );
-        assertEquals( 3, terminal.getTextColour() );
-        assertEquals( 5, terminal.getBackgroundColour() );
-        mockOnChangedCallback.assertCalledTimes( 1 );
+        assertEquals( 2, readTerminal.getCursorX() );
+        assertEquals( 5, readTerminal.getCursorY() );
+        assertEquals( 3, readTerminal.getTextColour() );
+        assertEquals( 5, readTerminal.getBackgroundColour() );
+        callCounter.assertCalledTimes( 1 );
     }
 
     @Test
-    void testWriteAndReadNBTHeightBiggerThanNBTData()
+    void testReadWriteNBTEmpty()
     {
-        final String nbtSnapshot =
-            "{term_cursorX:0,term_cursorBlink:0b,term_palette:" +
-            "[I;1118481,13388876,5744206,8349260,3368652,11691749,5020082,10066329," +
-            "5000268,15905484,8375321,14605932,10072818,15040472,15905331,15790320]," +
-            "term_bgColour:15,term_cursorY:0,term_textColour:0}";
-
-        // WRITE
         Terminal terminal = new Terminal( 0, 0 );
 
         CompoundNBT nbt = new CompoundNBT();
         terminal.writeToNBT( nbt );
-        assertEquals( nbtSnapshot, nbt.toString() );
 
-        // READ
-        MockOnChangedCallback mockOnChangedCallback = new MockOnChangedCallback();
-        terminal = new Terminal( 0, 1, mockOnChangedCallback );
-
+        CallCounter callCounter = new CallCounter();
+        terminal = new Terminal( 0, 1, callCounter );
         terminal.readFromNBT( nbt );
 
-        new TerminalBufferSnapshot( terminal )
-            .assertTextMatches( new String[] {
-                "",
-            } )
-            .assertTextColourMatches( new String[] {
-                "",
-            } )
-            .assertBackgroundColourMatches( new String[] {
-                "",
-            } );
+        assertThat( terminal, allOf(
+            textMatches( new String[] { "", } ),
+            textColourMatches( new String[] { "", } ),
+            backgroundColourMatches( new String[] { "", } )
+        ) );
 
         assertEquals( 0, terminal.getCursorX() );
         assertEquals( 0, terminal.getCursorY() );
         assertEquals( 0, terminal.getTextColour() );
         assertEquals( 15, terminal.getBackgroundColour() );
-        mockOnChangedCallback.assertCalledTimes( 1 );
+        callCounter.assertCalledTimes( 1 );
     }
 
     @Test
@@ -847,5 +685,33 @@ class TerminalTest
         assertEquals( 0, Terminal.getColour( '!', Colour.WHITE ) );
         assertEquals( 0, Terminal.getColour( 'Z', Colour.WHITE ) );
         assertEquals( 5, Terminal.getColour( 'Z', Colour.LIME ) );
+    }
+
+    private static final class TerminalBufferSnapshot
+    {
+        final String[] textLines;
+        final String[] textColourLines;
+        final String[] backgroundColourLines;
+
+        private TerminalBufferSnapshot( Terminal terminal )
+        {
+            textLines = new String[terminal.getHeight()];
+            textColourLines = new String[terminal.getHeight()];
+            backgroundColourLines = new String[terminal.getHeight()];
+
+            for( int i = 0; i < terminal.getHeight(); i++ )
+            {
+                textLines[i] = terminal.getLine( i ).toString();
+                textColourLines[i] = terminal.getTextColourLine( i ).toString();
+                backgroundColourLines[i] = terminal.getBackgroundColourLine( i ).toString();
+            }
+        }
+
+        public Matcher<Terminal> matches()
+        {
+            return allOf(
+                textMatches( textLines ), textColourMatches( textColourLines ), TerminalMatchers.backgroundColourMatches( backgroundColourLines )
+            );
+        }
     }
 }
