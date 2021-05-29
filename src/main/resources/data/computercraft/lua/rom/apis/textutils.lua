@@ -262,40 +262,47 @@ local g_tLuaKeywords = {
     ["while"] = true,
 }
 
-local function serializeImpl(t, tTracking, sIndent)
+local function serialize_impl(t, tracking, indent, opts)
     local sType = type(t)
     if sType == "table" then
-        if tTracking[t] ~= nil then
+        if tracking[t] ~= nil then
             error("Cannot serialize table with recursive entries", 0)
         end
-        tTracking[t] = true
+        tracking[t] = true
 
+        local result
         if next(t) == nil then
             -- Empty tables are simple
-            return "{}"
+            result = "{}"
         else
             -- Other tables take more work
-            local sResult = "{\n"
-            local sSubIndent = sIndent .. "  "
-            local tSeen = {}
+            local open, sub_indent, open_key, close_key, equal, comma = "{\n", indent .. "  ", "[ ", " ] = ", " = ", ",\n"
+            if opts.compact then
+                open, sub_indent, open_key, close_key, equal, comma = "{", "", "[", "]=", "=", ","
+            end
+
+            result = open
+            local seen_keys = {}
             for k, v in ipairs(t) do
-                tSeen[k] = true
-                sResult = sResult .. sSubIndent .. serializeImpl(v, tTracking, sSubIndent) .. ",\n"
+                seen_keys[k] = true
+                result = result .. sub_indent .. serialize_impl(v, tracking, sub_indent, opts) .. comma
             end
             for k, v in pairs(t) do
-                if not tSeen[k] then
+                if not seen_keys[k] then
                     local sEntry
                     if type(k) == "string" and not g_tLuaKeywords[k] and string.match(k, "^[%a_][%a%d_]*$") then
-                        sEntry = k .. " = " .. serializeImpl(v, tTracking, sSubIndent) .. ",\n"
+                        sEntry = k .. equal .. serialize_impl(v, tracking, sub_indent, opts) .. comma
                     else
-                        sEntry = "[ " .. serializeImpl(k, tTracking, sSubIndent) .. " ] = " .. serializeImpl(v, tTracking, sSubIndent) .. ",\n"
+                        sEntry = open_key .. serialize_impl(k, tracking, sub_indent, opts) .. close_key .. serialize_impl(v, tracking, sub_indent, opts) .. comma
                     end
-                    sResult = sResult .. sSubIndent .. sEntry
+                    result = result .. sub_indent .. sEntry
                 end
             end
-            sResult = sResult .. sIndent .. "}"
-            return sResult
+            result = result .. indent .. "}"
         end
+
+        if opts.allow_repetitions then tracking[t] = nil end
+        return result
 
     elseif sType == "string" then
         return string.format("%q", t)
@@ -645,17 +652,43 @@ do
     end
 end
 
---- Convert a Lua object into a textual representation, suitable for
--- saving in a file or pretty-printing.
---
--- @param t The object to serialise
--- @treturn string The serialised representation
--- @throws If the object contains a value which cannot be
--- serialised. This includes functions and tables which appear multiple
--- times.
-function serialize(t)
+--[[- Convert a Lua object into a textual representation, suitable for
+saving in a file or pretty-printing.
+
+@param t The object to serialise
+@tparam { compact? = boolean, allow_repetitions? = boolean } opts Options for serialisation.
+ - `compact`: Do not emit indentation and other whitespace between terms.
+ - `allow_repetitions`: Relax the check for recursive tables, allowing them to appear multiple
+   times (as long as tables do not appear inside themselves).
+
+@treturn string The serialised representation
+@throws If the object contains a value which cannot be
+serialised. This includes functions and tables which appear multiple
+times.
+@see cc.pretty.pretty An alternative way to display a table, often more suitable for
+pretty printing.
+@usage Pretty print a basic table.
+
+    textutils.serialise({ 1, 2, 3, a = 1, ["another key"] = { true } })
+
+@usage Demonstrates some of the other options
+
+    local tbl = { 1, 2, 3 }
+    print(textutils.serialize({ tbl, tbl }, { allow_repetitions = true }))
+
+    print(textutils.serialize(tbl, { compact = true }))
+]]
+function serialize(t, opts)
     local tTracking = {}
-    return serializeImpl(t, tTracking, "")
+    expect(2, opts, "table", "nil")
+
+    if opts then
+        field(opts, "compact", "boolean", "nil")
+        field(opts, "allow_repetitions", "boolean", "nil")
+    else
+        opts = {}
+    end
+    return serialize_impl(t, tTracking, "", opts)
 end
 
 serialise = serialize -- GB version
