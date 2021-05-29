@@ -12,7 +12,6 @@ import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
-import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.InventoryUtil;
@@ -45,7 +44,6 @@ import net.minecraftforge.event.world.BlockEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 import java.util.function.Function;
 
 public class TurtleTool extends AbstractTurtleUpgrade
@@ -140,7 +138,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         TileEntity turtleTile = turtle instanceof TurtleBrain ? ((TurtleBrain) turtle).getOwner() : world.getBlockEntity( position );
         if( turtleTile == null ) return TurtleCommandResult.failure( "Turtle has vanished from existence." );
 
-        final TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, position, direction );
+        final TurtlePlayer turtlePlayer = TurtlePlayer.getWithPosition( turtle, position, direction );
 
         // See if there is an entity present
         Vec3d turtlePos = turtlePlayer.position();
@@ -204,7 +202,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
             // Put everything we collected into the turtles inventory, then return
             if( attacked )
             {
-                turtlePlayer.unloadInventory( turtle );
+                turtlePlayer.inventory.clearContent();
                 return TurtleCommandResult.success();
             }
         }
@@ -229,7 +227,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         BlockState state = world.getBlockState( blockPosition );
         IFluidState fluidState = world.getFluidState( blockPosition );
 
-        TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, turtlePosition, direction );
+        TurtlePlayer turtlePlayer = TurtlePlayer.getWithPosition( turtle, turtlePosition, direction );
         turtlePlayer.loadInventory( item.copy() );
 
         if( ComputerCraft.turtlesObeyBlockProtection )
@@ -293,10 +291,6 @@ public class TurtleTool extends AbstractTurtleUpgrade
     private static void stopConsuming( TileEntity tile, ITurtleAccess turtle )
     {
         Direction direction = tile.isRemoved() ? null : turtle.getDirection().getOpposite();
-        List<ItemStack> extra = DropConsumer.clear();
-        for( ItemStack remainder : extra )
-        {
-            WorldUtil.dropItemStack( remainder, turtle.getWorld(), turtle.getPosition(), direction );
-        }
+        DropConsumer.clearAndDrop( turtle.getWorld(), turtle.getPosition(), direction );
     }
 }

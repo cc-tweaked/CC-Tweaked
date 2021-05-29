@@ -343,7 +343,7 @@ task setupServer(type: Copy) {
 tasks.register('testInGame', JavaExec.class).configure {
     it.group('test server')
     it.description("Runs tests on a temporary Minecraft server.")
-    it.dependsOn(setupServer, 'prepareRunTestServer')
+    it.dependsOn(setupServer, 'prepareRunTestServer', 'cleanTestInGame')
 
     // Copy from runTestServer. We do it in this slightly odd way as runTestServer
     // isn't created until the task is configured (which is no good for us).
