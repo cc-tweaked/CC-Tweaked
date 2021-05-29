@@ -62,6 +62,42 @@ describe("The textutils library", function()
         end)
     end)
 
+    describe("textutils.serialise", function()
+        it("serialises basic tables", function()
+            expect(textutils.serialise({ 1, 2, 3, a = 1, b = {} }))
+                :eq("{\n  1,\n  2,\n  3,\n  a = 1,\n  b = {},\n}")
+        end)
+
+        it("fails on recursive tables", function()
+            local rep = {}
+            expect.error(textutils.serialise, { rep, rep }):eq("Cannot serialize table with recursive entries")
+
+            local rep2 = { 1 }
+            expect.error(textutils.serialise, { rep2, rep2 }):eq("Cannot serialize table with recursive entries")
+
+            local recurse = {}
+            recurse[1] = recurse
+            expect.error(textutils.serialise, recurse):eq("Cannot serialize table with recursive entries")
+        end)
+
+        it("can allow repeated tables", function()
+            local rep = {}
+            expect(textutils.serialise({ rep, rep }, { allow_repetitions = true })):eq("{\n  {},\n  {},\n}")
+
+            local rep2 = { 1 }
+            expect(textutils.serialise({ rep2, rep2 }, { allow_repetitions = true })):eq("{\n  {\n    1,\n  },\n  {\n    1,\n  },\n}")
+
+            local recurse = {}
+            recurse[1] = recurse
+            expect.error(textutils.serialise, recurse, { allow_repetitions = true }):eq("Cannot serialize table with recursive entries")
+        end)
+
+        it("can emit in a compact form", function()
+            expect(textutils.serialise({ 1, 2, 3, a = 1, [false] = {} }, { compact = true }))
+                :eq("{1,2,3,a=1,[false]={},}")
+        end)
+    end)
+
     describe("textutils.unserialise", function()
         it("validates arguments", function()
             textutils.unserialise("")
