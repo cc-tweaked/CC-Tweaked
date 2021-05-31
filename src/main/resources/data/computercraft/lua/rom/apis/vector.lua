@@ -151,6 +151,15 @@ local vector = {
     tostring = function(self)
         return self.x .. "," .. self.y .. "," .. self.z
     end,
+    
+    --- Check for equality between two vectors.
+    --
+    -- @tparam Vector self The first vector.
+    -- @tparam Vector other The vector to compare to.
+    -- @treturn boolean Whether or not the vectors are equal or not.
+    equals = function(self, other)
+        return self.x == other.x and self.y == other.y and self.z == other.z
+    end,
 }
 
 local vmetatable = {
@@ -161,6 +170,7 @@ local vmetatable = {
     __div = vector.div,
     __unm = vector.unm,
     __tostring = vector.tostring,
+    __eq = vector.equals,
 }
 
 --- Construct a new @{Vector} with the given coordinates.
