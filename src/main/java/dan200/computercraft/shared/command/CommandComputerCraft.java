@@ -225,6 +225,7 @@ public final class CommandComputerCraft
                 .executes( context -> {
                     ServerPlayerEntity player = context.getSource().getPlayer();
                     ServerComputer computer = getComputerArgument( context, "computer" );
+                    computer.sendTerminalState( player );
                     ViewComputerContainerData container = new ViewComputerContainerData( computer );
                     container.open( player, new ExtendedScreenHandlerFactory()
                     {
