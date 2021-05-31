@@ -151,7 +151,7 @@ local vector = {
     tostring = function(self)
         return self.x .. "," .. self.y .. "," .. self.z
     end,
-    
+
     --- Check for equality between two vectors.
     --
     -- @tparam Vector self The first vector to compare.
