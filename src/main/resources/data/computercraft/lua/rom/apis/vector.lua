@@ -154,9 +154,9 @@ local vector = {
     
     --- Check for equality between two vectors.
     --
-    -- @tparam Vector self The first vector.
-    -- @tparam Vector other The vector to compare to.
-    -- @treturn boolean Whether or not the vectors are equal or not.
+    -- @tparam Vector self The first vector to compare.
+    -- @tparam Vector other The second vector to compare to.
+    -- @treturn boolean Whether or not the vectors are equal.
     equals = function(self, other)
         return self.x == other.x and self.y == other.y and self.z == other.z
     end,
