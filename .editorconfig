@@ -16,6 +16,3 @@ indent_size = 2
 
 [*.yml]
 indent_size = 2
-
-[*.properties]
-insert_final_newline = false

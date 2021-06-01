@@ -5,12 +5,11 @@
  */
 package dan200.computercraft.shared.peripheral.generic.methods;
 
-import com.google.auto.service.AutoService;
+import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.core.asm.GenericSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.energy.IEnergyStorage;
-import net.minecraftforge.versions.forge.ForgeVersion;
 
 import javax.annotation.Nonnull;
 
@@ -26,14 +25,13 @@ import javax.annotation.Nonnull;
  *
  * @cc.module energy_storage
  */
-@AutoService( GenericSource.class )
 public class EnergyMethods implements GenericSource
 {
     @Nonnull
     @Override
     public ResourceLocation id()
     {
-        return new ResourceLocation( ForgeVersion.MOD_ID, "energy" );
+        return new ResourceLocation( ComputerCraft.MOD_ID, "energy" );
     }
 
     /**

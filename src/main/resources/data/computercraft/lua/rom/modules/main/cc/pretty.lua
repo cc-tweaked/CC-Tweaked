@@ -1,23 +1,28 @@
---- Provides a "pretty printer", for rendering data structures in an
--- aesthetically pleasing manner.
---
--- In order to display something using @{cc.pretty}, you build up a series of
--- @{Doc|documents}. These behave a little bit like strings; you can concatenate
--- them together and then print them to the screen.
---
--- However, documents also allow you to control how they should be printed. There
--- are several functions (such as @{nest} and @{group}) which allow you to control
--- the "layout" of the document. When you come to display the document, the 'best'
--- (most compact) layout is used.
---
--- @module cc.pretty
--- @usage Print a table to the terminal
---     local pretty = require "cc.pretty"
---     pretty.print(pretty.pretty({ 1, 2, 3 }))
---
--- @usage Build a custom document and display it
---     local pretty = require "cc.pretty"
---     pretty.print(pretty.group(pretty.text("hello") .. pretty.space_line .. pretty.text("world")))
+--[[- Provides a "pretty printer", for rendering data structures in an
+aesthetically pleasing manner.
+
+In order to display something using @{cc.pretty}, you build up a series of
+@{Doc|documents}. These behave a little bit like strings; you can concatenate
+them together and then print them to the screen.
+
+However, documents also allow you to control how they should be printed. There
+are several functions (such as @{nest} and @{group}) which allow you to control
+the "layout" of the document. When you come to display the document, the 'best'
+(most compact) layout is used.
+
+The structure of this module is based on [A Prettier Printer][prettier].
+
+[prettier]: https://homepages.inf.ed.ac.uk/wadler/papers/prettier/prettier.pdf "A Prettier Printer"
+
+@module cc.pretty
+@usage Print a table to the terminal
+    local pretty = require "cc.pretty"
+    pretty.print(pretty.pretty({ 1, 2, 3 }))
+
+@usage Build a custom document and display it
+    local pretty = require "cc.pretty"
+    pretty.print(pretty.group(pretty.text("hello") .. pretty.space_line .. pretty.text("world")))
+]]
 
 local expect = require "cc.expect"
 local expect, field = expect.expect, expect.field
@@ -40,17 +45,19 @@ end
 -- @type Doc
 local Doc = { }
 
+local function mk_doc(tbl) return setmetatable(tbl, Doc) end
+
 --- An empty document.
-local empty = setmetatable({ tag = "nil" }, Doc)
+local empty = mk_doc({ tag = "nil" })
 
 --- A document with a single space in it.
-local space = setmetatable({ tag = "text", text = " " }, Doc)
+local space = mk_doc({ tag = "text", text = " " })
 
 --- A line break. When collapsed with @{group}, this will be replaced with @{empty}.
-local line = setmetatable({ tag = "line", flat = empty }, Doc)
+local line = mk_doc({ tag = "line", flat = empty })
 
 --- A line break. When collapsed with @{group}, this will be replaced with @{space}.
-local space_line = setmetatable({ tag = "line", flat = space }, Doc)
+local space_line = mk_doc({ tag = "line", flat = space })
 
 local text_cache = { [""] = empty, [" "] = space, ["\n"] = space_line }
 
@@ -404,18 +411,24 @@ local function pretty_impl(obj, options, tracking)
         local doc = setmetatable({ tag = "concat", n = 1, space_line }, Doc)
 
         local length, keys, keysn = #obj, {}, 1
-        for k in pairs(obj) do keys[keysn], keysn = k, keysn + 1 end
+        for k in pairs(obj) do
+            if type(k) ~= "number" or k % 1 ~= 0 or k < 1 or k > length then
+                keys[keysn], keysn = k, keysn + 1
+            end
+        end
         table.sort(keys, key_compare)
 
-        for i = 1, keysn - 1 do
+        for i = 1, length do
             if i > 1 then append(doc, comma) append(doc, space_line) end
+            append(doc, pretty_impl(obj[i], options, tracking))
+        end
+
+        for i = 1, keysn - 1 do
+            if i > 1 or length >= 1 then append(doc, comma) append(doc, space_line) end
 
             local k = keys[i]
             local v = obj[k]
-            local ty = type(k)
-            if ty == "number" and k % 1 == 0 and k >= 1 and k <= length then
-                append(doc, pretty_impl(v, options, tracking))
-            elseif ty == "string" and not keywords[k] and k:match("^[%a_][%a%d_]*$") then
+            if type(k) == "string" and not keywords[k] and k:match("^[%a_][%a%d_]*$") then
                 append(doc, text(k .. " = "))
                 append(doc, pretty_impl(v, options, tracking))
             else

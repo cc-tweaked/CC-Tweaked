@@ -62,7 +62,7 @@ public class TurtleDropCommand implements ITurtleCommand
         IItemHandler inventory = InventoryUtil.getInventory( world, newPosition, side );
 
         // Fire the event, restoring the inventory and exiting if it is cancelled.
-        TurtlePlayer player = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );
+        TurtlePlayer player = TurtlePlayer.getWithPosition( turtle, oldPosition, direction );
         TurtleInventoryEvent.Drop event = new TurtleInventoryEvent.Drop( turtle, player, world, newPosition, inventory, stack );
         if( MinecraftForge.EVENT_BUS.post( event ) )
         {

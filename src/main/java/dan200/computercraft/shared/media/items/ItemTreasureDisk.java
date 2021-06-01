@@ -68,6 +68,8 @@ public class ItemTreasureDisk extends Item implements IMedia
     public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )
     {
         IMount rootTreasure = getTreasureMount();
+        if( rootTreasure == null ) return null;
+
         String subPath = getSubPath( stack );
         try
         {
@@ -121,7 +123,7 @@ public class ItemTreasureDisk extends Item implements IMedia
     private static String getTitle( @Nonnull ItemStack stack )
     {
         CompoundNBT nbt = stack.getTag();
-        return nbt != null && nbt.contains( NBT_TITLE ) ? nbt.getString( NBT_TITLE ) : "'alongtimeago' by dan200";
+        return nbt != null && nbt.contains( NBT_TITLE ) ? nbt.getString( NBT_TITLE ) : "'missingno' by how did you get this anyway?";
     }
 
     @Nonnull

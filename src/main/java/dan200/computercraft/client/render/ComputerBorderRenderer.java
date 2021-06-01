@@ -47,7 +47,10 @@ public class ComputerBorderRenderer
     private static final int CORNER_LEFT_X = BORDER;
     private static final int CORNER_RIGHT_X = CORNER_LEFT_X + BORDER;
     private static final int BORDER_RIGHT_X = 36;
-    private static final int GAP = 4;
+    private static final int LIGHT_BORDER_Y = 56;
+    private static final int LIGHT_CORNER_Y = 80;
+
+    public static final int LIGHT_HEIGHT = 8;
 
     private static final float TEX_SCALE = 1 / 256.0f;
 
@@ -101,15 +104,15 @@ public class ComputerBorderRenderer
 
     public static void render( Matrix4f transform, IVertexBuilder buffer, int x, int y, int z, int width, int height, float r, float g, float b )
     {
-        render( transform, buffer, x, y, z, width, height, 0, r, g, b );
+        render( transform, buffer, x, y, z, width, height, false, r, g, b );
     }
 
-    public static void render( Matrix4f transform, IVertexBuilder buffer, int x, int y, int z, int width, int height, int borderHeight, float r, float g, float b )
+    public static void render( Matrix4f transform, IVertexBuilder buffer, int x, int y, int z, int width, int height, boolean withLight, float r, float g, float b )
     {
-        new ComputerBorderRenderer( transform, buffer, z, r, g, b ).doRender( x, y, width, height, borderHeight );
+        new ComputerBorderRenderer( transform, buffer, z, r, g, b ).doRender( x, y, width, height, withLight );
     }
 
-    public void doRender( int x, int y, int width, int height, int bottomHeight )
+    public void doRender( int x, int y, int width, int height, boolean withLight )
     {
         int endX = x + width;
         int endY = y + height;
@@ -125,27 +128,17 @@ public class ComputerBorderRenderer
 
         // Bottom bar. We allow for drawing a stretched version, which allows for additional elements (such as the
         // pocket computer's lights).
-        if( bottomHeight <= 0 )
+        if( withLight )
+        {
+            renderTexture( x, endY, 0, LIGHT_BORDER_Y, endX - x, BORDER + LIGHT_HEIGHT, BORDER, BORDER + LIGHT_HEIGHT );
+            renderTexture( x - BORDER, endY, CORNER_LEFT_X, LIGHT_CORNER_Y, BORDER, BORDER + LIGHT_HEIGHT );
+            renderTexture( endX, endY, CORNER_RIGHT_X, LIGHT_CORNER_Y, BORDER, BORDER + LIGHT_HEIGHT );
+        }
+        else
         {
             renderLine( x, endY, 0, BORDER, endX - x, BORDER );
             renderCorner( x - BORDER, endY, CORNER_LEFT_X, CORNER_BOTTOM_Y );
             renderCorner( endX, endY, CORNER_RIGHT_X, CORNER_BOTTOM_Y );
-        }
-        else
-        {
-            // Bottom left, middle, right. We do this in three portions: the top inner corners, an extended region for
-            // lights, and then the bottom outer corners.
-            renderTexture( x - BORDER, endY, CORNER_LEFT_X, CORNER_BOTTOM_Y, BORDER, BORDER / 2 );
-            renderTexture( x, endY, 0, BORDER, width, BORDER / 2, BORDER, BORDER / 2 );
-            renderTexture( endX, endY, CORNER_RIGHT_X, CORNER_BOTTOM_Y, BORDER, BORDER / 2 );
-
-            renderTexture( x - BORDER, endY + BORDER / 2, CORNER_LEFT_X, CORNER_BOTTOM_Y + GAP, BORDER, bottomHeight, BORDER, GAP );
-            renderTexture( x, endY + BORDER / 2, 0, BORDER + GAP, width, bottomHeight, BORDER, GAP );
-            renderTexture( endX, endY + BORDER / 2, CORNER_RIGHT_X, CORNER_BOTTOM_Y + GAP, BORDER, bottomHeight, BORDER, GAP );
-
-            renderTexture( x - BORDER, endY + bottomHeight + BORDER / 2, CORNER_LEFT_X, CORNER_BOTTOM_Y + BORDER / 2, BORDER, BORDER / 2 );
-            renderTexture( x, endY + bottomHeight + BORDER / 2, 0, BORDER + BORDER / 2, width, BORDER / 2 );
-            renderTexture( endX, endY + bottomHeight + BORDER / 2, CORNER_RIGHT_X, CORNER_BOTTOM_Y + BORDER / 2, BORDER, BORDER / 2 );
         }
     }
 

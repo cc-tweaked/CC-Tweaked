@@ -67,10 +67,25 @@ shell.setCompletionFunction("rom/programs/label.lua", completion.build(
 ))
 shell.setCompletionFunction("rom/programs/list.lua", completion.build(completion.dir))
 shell.setCompletionFunction("rom/programs/mkdir.lua", completion.build({ completion.dir, many = true }))
+
+local complete_monitor_extra = { "scale" }
 shell.setCompletionFunction("rom/programs/monitor.lua", completion.build(
-    { completion.peripheral, true },
-    completion.program
+    function(shell, text, previous)
+        local choices = completion.peripheral(shell, text, previous, true)
+        for _, option in pairs(completion.choice(shell, text, previous, complete_monitor_extra, true)) do
+            choices[#choices + 1] = option
+        end
+        return choices
+    end,
+    function(shell, text, previous)
+        if previous[2] == "scale" then
+            return completion.peripheral(shell, text, previous, true)
+        else
+            return completion.program(shell, text, previous)
+        end
+    end
 ))
+
 shell.setCompletionFunction("rom/programs/move.lua", completion.build(
     { completion.dirOrFile, true },
     completion.dirOrFile

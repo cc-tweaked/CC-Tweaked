@@ -132,7 +132,17 @@ function drawLine(startX, startY, endX, endY, colour)
         return
     end
 
-    local minX, maxX, minY, maxY = sortCoords(startX, startY, endX, endY)
+    local minX = math.min(startX, endX)
+    local maxX, minY, maxY
+    if minX == startX then
+        minY = startY
+        maxX = endX
+        maxY = endY
+    else
+        minY = endY
+        maxX = startX
+        maxY = startY
+    end
 
     -- TODO: clip to screen rectangle?
 

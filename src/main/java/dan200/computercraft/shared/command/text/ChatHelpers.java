@@ -72,10 +72,15 @@ public final class ChatHelpers
 
     public static ITextComponent link( ITextComponent component, String command, ITextComponent toolTip )
     {
+        return link( component, new ClickEvent( ClickEvent.Action.RUN_COMMAND, command ), toolTip );
+    }
+
+    public static ITextComponent link( ITextComponent component, ClickEvent click, ITextComponent toolTip )
+    {
         Style style = component.getStyle();
 
         if( style.getColor() == null ) style.setColor( TextFormatting.YELLOW );
-        style.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, command ) );
+        style.setClickEvent( click );
         style.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, toolTip ) );
 
         return component;
@@ -84,5 +89,14 @@ public final class ChatHelpers
     public static ITextComponent header( String text )
     {
         return coloured( text, HEADER );
+    }
+
+    public static ITextComponent copy( String text )
+    {
+        StringTextComponent name = new StringTextComponent( text );
+        name.getStyle()
+            .setClickEvent( new ClickEvent( ClickEvent.Action.COPY_TO_CLIPBOARD, text ) )
+            .setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new TranslationTextComponent( "gui.computercraft.tooltip.copy" ) ) );
+        return name;
     }
 }

@@ -79,7 +79,10 @@ public final class ColourableRecipe extends SpecialRecipe
         }
 
         if( colourable.isEmpty() ) return ItemStack.EMPTY;
-        return ((IColouredItem) colourable.getItem()).withColour( colourable, tracker.getColour() );
+
+        ItemStack stack = ((IColouredItem) colourable.getItem()).withColour( colourable, tracker.getColour() );
+        stack.setCount( 1 );
+        return stack;
     }
 
     @Override

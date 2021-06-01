@@ -175,12 +175,12 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             label = computer.getLabel();
             on = computer.isOn();
 
-            if( computer.hasOutputChanged() ) updateOutput();
-
             // Update the block state if needed. We don't fire a block update intentionally,
             // as this only really is needed on the client side.
             updateBlockState( computer.getState() );
 
+            // TODO: This should ideally be split up into label/id/on (which should save NBT and sync to client) and
+            //  redstone (which should update outputs)
             if( computer.hasOutputChanged() ) updateOutput();
         }
     }
@@ -376,11 +376,8 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             fresh = true;
             changed = true;
         }
-        if( changed )
-        {
-            updateBlock();
-            updateInput();
-        }
+
+        if( changed ) updateInput();
         return ComputerCraft.serverComputerRegistry.get( instanceID );
     }
 
