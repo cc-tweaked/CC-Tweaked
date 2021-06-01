@@ -11,12 +11,19 @@ import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.shared.util.ThreadUtils;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ConnectTimeoutException;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.handler.codec.DecoderException;
+import io.netty.handler.codec.TooLongFrameException;
+import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.timeout.ReadTimeoutException;
 
+import javax.annotation.Nonnull;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.TrustManagerFactory;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -160,5 +167,30 @@ public final class NetworkUtils
         byte[] bytes = new byte[buffer.readableBytes()];
         buffer.readBytes( bytes );
         return bytes;
+    }
+
+    @Nonnull
+    public static String toFriendlyError( @Nonnull Throwable cause )
+    {
+        if( cause instanceof WebSocketHandshakeException || cause instanceof HTTPRequestException )
+        {
+            return cause.getMessage();
+        }
+        else if( cause instanceof TooLongFrameException )
+        {
+            return "Message is too large";
+        }
+        else if( cause instanceof ReadTimeoutException || cause instanceof ConnectTimeoutException )
+        {
+            return "Timed out";
+        }
+        else if( cause instanceof SSLHandshakeException || (cause instanceof DecoderException && cause.getCause() instanceof SSLHandshakeException) )
+        {
+            return "Could not create a secure connection";
+        }
+        else
+        {
+            return "Could not connect";
+        }
     }
 }
