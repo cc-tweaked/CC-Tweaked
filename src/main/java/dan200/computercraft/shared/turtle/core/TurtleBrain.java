@@ -624,7 +624,11 @@ public class TurtleBrain implements ITurtleAccess
         // This is a separate function to avoid updating the block when reading the NBT. We don't need to do this as
         // either the block is newly placed (and so won't have changed) or is being updated with /data, which calls
         // updateBlock for us.
-        if( owner.getLevel() != null ) owner.updateBlock();
+        if( owner.getLevel() != null )
+        {
+            owner.updateBlock();
+            owner.updateInput();
+        }
     }
 
     private boolean setUpgradeDirect( @Nonnull TurtleSide side, ITurtleUpgrade upgrade )

@@ -5,7 +5,7 @@ import dan200.computercraft.ingame.api.TestContext
 import dan200.computercraft.ingame.api.checkComputerOk
 
 class TurtleTest {
-    @GameTest(required = false)
+    @GameTest
     suspend fun `Unequip refreshes peripheral`(context: TestContext) = context.checkComputerOk(1)
 
     /**
