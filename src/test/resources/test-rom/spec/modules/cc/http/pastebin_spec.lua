@@ -2,7 +2,7 @@ describe("cc.http.pastebin", function()
   local paste = require("cc.http.pastebin")
   
   describe("get", function()
-    it("gets a string from pastebin",function()
+    it("gets a string from pastebin", function()
       local pasteString = paste.get("9y5DpvAW")
       expect(pasteString):eq("test")
     end)
