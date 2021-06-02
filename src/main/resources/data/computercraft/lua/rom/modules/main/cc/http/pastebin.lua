@@ -1,5 +1,5 @@
 --- Provides a pastebin api to interact with pastebin without using the pastebin shell command.
--- @module[kind=misc] pastebin
+-- @module cc.http.pastebin
 
 local function extractId(paste)
   local patterns = {
