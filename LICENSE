@@ -19,14 +19,14 @@ Mod: The mod code designated by the present license, in source form, binary
 form, as obtained standalone, as part of a wider distribution or resulting from
 the compilation of the original or modified sources.
 
-Dependency: Code required for the mod to work properly. This includes 
+Dependency: Code required for the mod to work properly. This includes
 dependencies required to compile the code as well as any file or modification
 that is explicitly or implicitly required for the mod to be working.
 
 1. Scope
 --------
 
-The present license is granted to any user of the mod. As a prerequisite, 
+The present license is granted to any user of the mod. As a prerequisite,
 a user must own a legally acquired copy of Minecraft
 
 2. Liability
@@ -41,13 +41,13 @@ or misuse of this mod fall on the user.
 3. Play rights
 --------------
 
-The user is allowed to install this mod on a Minecraft client or server and to play 
+The user is allowed to install this mod on a Minecraft client or server and to play
 without restriction.
 
 4. Modification rights
 ----------------------
 
-The user has the right to decompile the source code, look at either the 
+The user has the right to decompile the source code, look at either the
 decompiled version or the original source code, and to modify it.
 
 5. Distribution of original or modified copy rights
@@ -61,10 +61,10 @@ include:
    - patch to its source or binary files
    - any copy of a portion of its binary source files
 
-The user is allowed to redistribute this mod partially, in totality, or 
+The user is allowed to redistribute this mod partially, in totality, or
 included in a distribution.
 
-When distributing binary files, the user must provide means to obtain its 
+When distributing binary files, the user must provide means to obtain its
 entire set of sources or modified sources at no cost.
 
 All distributions of this mod must remain licensed under the CCPL.
@@ -92,7 +92,7 @@ must be made available at no cost and remain licensed under the CCPL.
 ---------------
 
 If you choose to contribute code or assets to be included in this mod, you
-agree that, if added to to the main repository at 
+agree that, if added to to the main repository at
 https://github.com/dan200/ComputerCraft, your contributions will be covered by
 this license, and that Daniel Ratcliffe will retain the right to re-license the
 mod, including your contributions, in part or in whole, under other licenses.

@@ -58,7 +58,7 @@ public class TurtleSuckCommand implements ITurtleCommand
         IItemHandler inventory = InventoryUtil.getInventory( world, blockPosition, side );
 
         // Fire the event, exiting if it is cancelled.
-        TurtlePlayer player = TurtlePlaceCommand.createPlayer( turtle, turtlePosition, direction );
+        TurtlePlayer player = TurtlePlayer.getWithPosition( turtle, turtlePosition, direction );
         TurtleInventoryEvent.Suck event = new TurtleInventoryEvent.Suck( turtle, player, world, blockPosition, inventory );
         if( MinecraftForge.EVENT_BUS.post( event ) )
         {

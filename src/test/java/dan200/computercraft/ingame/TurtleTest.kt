@@ -5,7 +5,7 @@ import dan200.computercraft.ingame.api.TestContext
 import dan200.computercraft.ingame.api.checkComputerOk
 
 class TurtleTest {
-    @GameTest(required = false)
+    @GameTest
     suspend fun `Unequip refreshes peripheral`(context: TestContext) = context.checkComputerOk(1)
 
     /**
@@ -13,7 +13,7 @@ class TurtleTest {
      *
      * @see [#537](https://github.com/SquidDev-CC/CC-Tweaked/issues/537)
      */
-    @GameTest(required = false)
+    @GameTest
     suspend fun `Shears sheep`(context: TestContext) = context.checkComputerOk(5)
 
     /**
@@ -21,7 +21,7 @@ class TurtleTest {
      *
      * @see [#518](https://github.com/SquidDev-CC/CC-Tweaked/issues/518)
      */
-    @GameTest(required = false)
+    @GameTest
     suspend fun `Place lava`(context: TestContext) = context.checkComputerOk(5)
 
     /**
@@ -29,22 +29,43 @@ class TurtleTest {
      *
      * @see [#385](https://github.com/SquidDev-CC/CC-Tweaked/issues/385)
      */
-    @GameTest(required = false)
+    @GameTest
     suspend fun `Place waterlogged`(context: TestContext) = context.checkComputerOk(7)
 
     /**
-     * Checks turtles can place when waterlogged.
+     * Checks turtles can pick up lava
      *
      * @see [#297](https://github.com/SquidDev-CC/CC-Tweaked/issues/297)
      */
-    @GameTest(required = false)
+    @GameTest
     suspend fun `Gather lava`(context: TestContext) = context.checkComputerOk(8)
 
     /**
-     * Checks turtles can place when waterlogged.
+     * Checks turtles can hoe dirt.
      *
      * @see [#258](https://github.com/SquidDev-CC/CC-Tweaked/issues/258)
      */
-    @GameTest(required = false)
+    @GameTest
     suspend fun `Hoe dirt`(context: TestContext) = context.checkComputerOk(9)
+
+    /**
+     * Checks turtles can place monitors
+     *
+     * @see [#691](https://github.com/SquidDev-CC/CC-Tweaked/issues/691)
+     */
+    @GameTest
+    suspend fun `Place monitor`(context: TestContext) = context.checkComputerOk(10)
+
+    /**
+     * Checks turtles can place into compostors. These are non-typical inventories, so
+     * worth testing.
+     */
+    @GameTest
+    suspend fun `Use compostors`(context: TestContext) = context.checkComputerOk(11)
+
+    /**
+     * Checks turtles can be cleaned in cauldrons.
+     */
+    @GameTest
+    suspend fun `Cleaned with cauldrons`(context: TestContext) = context.checkComputerOk(12)
 }

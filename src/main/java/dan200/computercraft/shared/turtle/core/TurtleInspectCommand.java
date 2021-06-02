@@ -50,7 +50,7 @@ public class TurtleInspectCommand implements ITurtleCommand
         Map<String, Object> table = BlockData.fill( new HashMap<>(), state );
 
         // Fire the event, exiting if it is cancelled
-        TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );
+        TurtlePlayer turtlePlayer = TurtlePlayer.getWithPosition( turtle, oldPosition, direction );
         TurtleBlockEvent.Inspect event = new TurtleBlockEvent.Inspect( turtle, turtlePlayer, world, newPosition, state, table );
         if( MinecraftForge.EVENT_BUS.post( event ) ) return TurtleCommandResult.failure( event.getFailureMessage() );
 

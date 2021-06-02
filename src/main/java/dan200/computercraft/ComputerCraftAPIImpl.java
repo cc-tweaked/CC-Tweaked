@@ -8,6 +8,7 @@ package dan200.computercraft;
 import dan200.computercraft.api.ComputerCraftAPI.IComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
 import dan200.computercraft.api.media.IMediaProvider;
 import dan200.computercraft.api.network.IPacketNetwork;
@@ -18,9 +19,11 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.core.apis.ApiFactories;
+import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.ResourceMount;
 import dan200.computercraft.shared.*;
+import dan200.computercraft.shared.peripheral.generic.GenericPeripheralProvider;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.wired.WiredNode;
@@ -31,6 +34,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
@@ -106,6 +110,18 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     public void registerPeripheralProvider( @Nonnull IPeripheralProvider provider )
     {
         Peripherals.register( provider );
+    }
+
+    @Override
+    public void registerGenericSource( @Nonnull GenericSource source )
+    {
+        GenericMethod.register( source );
+    }
+
+    @Override
+    public void registerGenericCapability( @Nonnull Capability<?> capability )
+    {
+        GenericPeripheralProvider.addCapability( capability );
     }
 
     @Override

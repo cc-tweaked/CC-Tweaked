@@ -45,17 +45,19 @@ end
 -- @type Doc
 local Doc = { }
 
+local function mk_doc(tbl) return setmetatable(tbl, Doc) end
+
 --- An empty document.
-local empty = setmetatable({ tag = "nil" }, Doc)
+local empty = mk_doc({ tag = "nil" })
 
 --- A document with a single space in it.
-local space = setmetatable({ tag = "text", text = " " }, Doc)
+local space = mk_doc({ tag = "text", text = " " })
 
 --- A line break. When collapsed with @{group}, this will be replaced with @{empty}.
-local line = setmetatable({ tag = "line", flat = empty }, Doc)
+local line = mk_doc({ tag = "line", flat = empty })
 
 --- A line break. When collapsed with @{group}, this will be replaced with @{space}.
-local space_line = setmetatable({ tag = "line", flat = space }, Doc)
+local space_line = mk_doc({ tag = "line", flat = space })
 
 local text_cache = { [""] = empty, [" "] = space, ["\n"] = space_line }
 
@@ -409,18 +411,24 @@ local function pretty_impl(obj, options, tracking)
         local doc = setmetatable({ tag = "concat", n = 1, space_line }, Doc)
 
         local length, keys, keysn = #obj, {}, 1
-        for k in pairs(obj) do keys[keysn], keysn = k, keysn + 1 end
+        for k in pairs(obj) do
+            if type(k) ~= "number" or k % 1 ~= 0 or k < 1 or k > length then
+                keys[keysn], keysn = k, keysn + 1
+            end
+        end
         table.sort(keys, key_compare)
 
-        for i = 1, keysn - 1 do
+        for i = 1, length do
             if i > 1 then append(doc, comma) append(doc, space_line) end
+            append(doc, pretty_impl(obj[i], options, tracking))
+        end
+
+        for i = 1, keysn - 1 do
+            if i > 1 or length >= 1 then append(doc, comma) append(doc, space_line) end
 
             local k = keys[i]
             local v = obj[k]
-            local ty = type(k)
-            if ty == "number" and k % 1 == 0 and k >= 1 and k <= length then
-                append(doc, pretty_impl(v, options, tracking))
-            elseif ty == "string" and not keywords[k] and k:match("^[%a_][%a%d_]*$") then
+            if type(k) == "string" and not keywords[k] and k:match("^[%a_][%a%d_]*$") then
                 append(doc, text(k .. " = "))
                 append(doc, pretty_impl(v, options, tracking))
             else

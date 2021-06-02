@@ -59,9 +59,7 @@ public class TurtleHoe extends TurtleTool
     {
         if( verb == TurtleVerb.DIG )
         {
-            ItemStack hoe = item.copy();
-            ItemStack remainder = TurtlePlaceCommand.deploy( hoe, turtle, direction, null, null );
-            if( remainder != hoe )
+            if( TurtlePlaceCommand.deployCopiedItem( item.copy(), turtle, direction, null, null ) )
             {
                 return TurtleCommandResult.success();
             }
