@@ -6,7 +6,7 @@
 
 package dan200.computercraft.mixin;
 
-import dan200.computercraft.shared.command.CommandCopy;
+import dan200.computercraft.shared.command.ClientCommands;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,7 +22,7 @@ import net.fabricmc.api.Environment;
 public class MixinScreen {
     @Inject (method = "sendMessage(Ljava/lang/String;Z)V", at = @At ("HEAD"), cancellable = true)
     public void sendClientCommand(String message, boolean add, CallbackInfo info) {
-        if (CommandCopy.onClientSendMessage(message)) {
+        if (ClientCommands.onClientSendMessage(message)) {
             info.cancel();
         }
     }

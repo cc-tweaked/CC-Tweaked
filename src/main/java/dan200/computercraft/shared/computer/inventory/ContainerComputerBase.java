@@ -37,7 +37,7 @@ public class ContainerComputerBase extends ScreenHandler implements IContainerCo
              id,
              x -> true,
              getComputer(player, new ComputerContainerData(new PacketByteBuf(packetByteBuf.copy()))),
-             new ComputerContainerData(packetByteBuf).getFamily());
+                new ComputerContainerData(new PacketByteBuf(packetByteBuf.copy())).getFamily());
     }
 
     protected ContainerComputerBase(ScreenHandlerType<? extends ContainerComputerBase> type, int id, Predicate<PlayerEntity> canUse, IComputer computer,

@@ -25,7 +25,6 @@ import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
-import dan200.computercraft.shared.network.container.ViewComputerContainerData;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
