@@ -3,8 +3,8 @@ describe("cc.http.pastebin", function()
   
   describe("get", function()
     it("gets a string from pastebin", function()
-      local pasteString = paste.get("9y5DpvAW")
-      expect(pasteString):eq("test")
+      local pasteString = paste.get("GW6SRgk8")
+      expect(pasteString):eq("This is a test.")
     end)
   end)
   
