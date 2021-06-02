@@ -10,7 +10,8 @@
         "MixinWorld",
         "SignBlockEntityAccess",
         "SoundEventAccess",
-        "WorldSavePathAccess"
+        "WorldSavePathAccess",
+        "MixinServerPlayerInteractionManager"
     ],
     "client": [
         "AffineTransformationAccess",
