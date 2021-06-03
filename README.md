@@ -57,10 +57,11 @@ Main Known issue
 * Computers will not run built in commands, saying "File not found"
     * This is a know bug, dont know what causes it, but just restart the computer (`ctrl+r` for one second) and it will work again
     * Occurs when server runs `/reload` or a datapack is updated
+	
+## Perpherals
+Unfortunately, unlike the original CC:Tweaked project, CC:Restitched, does not have any actual peripheral mods, currently the only one we have is an example for mod devs to get started with making/adding the peripheral API to their mods!
 
-## Known Working mods that add Peripherals
-* Please let me know of other mods that work with this one
-	* Better End 
-      * adds chests that are compatible with ComputerCraft
-	* Better Nether
-	  * adds chests that are compatible with ComputerCraft
+If your a mod dev made a mod with CC:R peripheral support, OR if your a player who found a mod with CC:R support, please open an [issue here](https://github.com/Merith-TK/cc-restitched/issues/new?assignees=&labels=peripheralShoutout&template=peripheral_shoutout.md) to let us know so we can add it to the list!
+
+* ![icon](https://raw.githubusercontent.com/Toad-Dev/cc-peripheral-test/master/src/main/resources/assets/cc_test/textures/block/test_peripheral.png) [CC Peripheral Test](https://github.com/Toad-Dev/cc-peripheral-test)
+	* This is an example mod for how to make peripherals that work as a block, or as a turtle upgrade!

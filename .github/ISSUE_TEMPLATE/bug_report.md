@@ -11,5 +11,5 @@ labels: bug
 
 ## Useful information to include:
  - Minecraft version
- - CC: Tweaked version
+ - CC: Restitched version
  - Detailed reproduction steps: sometimes I can spot a bug pretty easily, but often it's much more obscure. The more information I have to help reproduce it, the quicker it'll get fixed.
