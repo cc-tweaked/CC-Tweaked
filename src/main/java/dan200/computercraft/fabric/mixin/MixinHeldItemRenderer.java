@@ -4,12 +4,11 @@
  * Send enquiries to dratcliffe@gmail.com
  */
 
-package dan200.computercraft.mixin;
+package dan200.computercraft.fabric.mixin;
 
 import dan200.computercraft.client.render.ItemPocketRenderer;
 import dan200.computercraft.client.render.ItemPrintoutRenderer;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import dan200.computercraft.shared.mixed.MixedFirstPersonRenderer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,20 +29,10 @@ import net.fabricmc.api.Environment;
 
 @Mixin (HeldItemRenderer.class)
 @Environment (EnvType.CLIENT)
-public class MixinHeldItemRenderer implements MixedFirstPersonRenderer {
-    @Override
-    public void renderArmFirstPerson_CC(MatrixStack stack, VertexConsumerProvider consumerProvider, int light, float equip, float swing, Arm hand) {
-        this.renderArmHoldingItem(stack, consumerProvider, light, equip, swing, hand);
-    }
-
+public class MixinHeldItemRenderer {
     @Shadow
     private void renderArmHoldingItem(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, float equipProgress, float swingProgress,
                                       Arm arm) {
-    }
-
-    @Override
-    public float getMapAngleFromPitch_CC(float pitch) {
-        return this.getMapAngle(pitch);
     }
 
     @Shadow

@@ -74,6 +74,13 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile {
         super.destroy();
     }
 
+    @Override
+    public void onChunkUnloaded()
+    {
+        super.onChunkUnloaded();
+        doRemove();
+    }
+
     private void doRemove() {
         if (this.world == null || !this.world.isClient) {
             this.m_node.remove();

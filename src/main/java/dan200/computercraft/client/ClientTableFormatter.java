@@ -8,7 +8,7 @@ package dan200.computercraft.client;
 
 import javax.annotation.Nullable;
 
-import dan200.computercraft.mixin.ChatHudAccess;
+import dan200.computercraft.fabric.mixin.ChatHudAccess;
 import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.command.text.TableFormatter;

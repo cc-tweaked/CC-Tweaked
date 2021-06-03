@@ -8,7 +8,7 @@ package dan200.computercraft.shared.network.client;
 
 import javax.annotation.Nonnull;
 
-import dan200.computercraft.mixin.SoundEventAccess;
+import dan200.computercraft.fabric.mixin.SoundEventAccess;
 import dan200.computercraft.shared.network.NetworkMessage;
 
 import net.minecraft.client.MinecraftClient;

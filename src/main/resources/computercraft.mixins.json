@@ -1,6 +1,6 @@
 {
     "required": true,
-    "package": "dan200.computercraft.mixin",
+    "package": "dan200.computercraft.fabric.mixin",
     "compatibilityLevel": "JAVA_8",
     "mixins": [
         "MinecraftServerAccess",
@@ -20,7 +20,7 @@
         "HeldItemRendererAccess",
         "MixinHeldItemRenderer",
         "MixinItemFrameEntityRenderer",
-        "MixinMinecraftGame",
+        "MixinMinecraftClient",
         "MixinScreen",
         "MixinWorldRenderer"
     ],

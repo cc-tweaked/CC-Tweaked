@@ -28,6 +28,9 @@ public abstract class TileGeneric extends BlockEntity implements BlockEntityClie
     public void destroy() {
     }
 
+    public void onChunkUnloaded() {
+    }
+
     public final void updateBlock() {
         this.markDirty();
         BlockPos pos = this.getPos();

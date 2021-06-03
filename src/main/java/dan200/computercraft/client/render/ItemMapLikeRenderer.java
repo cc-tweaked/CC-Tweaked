@@ -6,7 +6,7 @@
 
 package dan200.computercraft.client.render;
 
-import dan200.computercraft.mixin.HeldItemRendererAccess;
+import dan200.computercraft.fabric.mixin.HeldItemRendererAccess;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;

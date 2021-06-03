@@ -18,7 +18,7 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.mixin.SoundEventAccess;
+import dan200.computercraft.fabric.mixin.SoundEventAccess;
 
 import net.minecraft.block.enums.Instrument;
 import net.minecraft.network.packet.s2c.play.PlaySoundIdS2CPacket;
@@ -100,13 +100,13 @@ public abstract class SpeakerPeripheral implements IPeripheral {
 
             float adjVolume = Math.min(volume, 3.0f);
             server.getPlayerManager()
-                  .sendToAround(null,
-                                pos.x,
-                                pos.y,
-                                pos.z,
-                                adjVolume > 1.0f ? 16 * adjVolume : 16.0,
-                                world.getRegistryKey(),
-                                new PlaySoundIdS2CPacket(name, SoundCategory.RECORDS, pos, adjVolume, pitch));
+                .sendToAround(null,
+                    pos.x,
+                    pos.y,
+                    pos.z,
+                    adjVolume > 1.0f ? 16 * adjVolume : 16.0,
+                    world.getRegistryKey(),
+                    new PlaySoundIdS2CPacket(name, SoundCategory.RECORDS, pos, adjVolume, pitch));
             return null;
         });
 
@@ -141,7 +141,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         Instrument instrument = null;
         for (Instrument testInstrument : Instrument.values()) {
             if (testInstrument.asString()
-                              .equalsIgnoreCase(name)) {
+                .equalsIgnoreCase(name)) {
                 instrument = testInstrument;
                 break;
             }
@@ -154,10 +154,10 @@ public abstract class SpeakerPeripheral implements IPeripheral {
 
         // If the resource location for note block notes changes, this method call will need to be updated
         boolean success = this.playSound(context,
-                                         ((SoundEventAccess)instrument.getSound()).getId(),
-                                         volume,
-                                         (float) Math.pow(2.0, (pitch - 12.0) / 12.0),
-                                         true);
+            ((SoundEventAccess)instrument.getSound()).getId(),
+            volume,
+            (float) Math.pow(2.0, (pitch - 12.0) / 12.0),
+            true);
         if (success) {
             this.m_notesThisTick.incrementAndGet();
         }

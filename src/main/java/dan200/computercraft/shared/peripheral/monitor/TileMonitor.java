@@ -79,6 +79,23 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile {
         }
     }
 
+    @Override
+    public void markRemoved() {
+        super.markRemoved();
+        if (this.m_clientMonitor != null && this.m_xIndex == 0 && this.m_yIndex ==  0) {
+            this.m_clientMonitor.destroy();
+        }
+    }
+
+    @Override
+    public void onChunkUnloaded() {
+        super.onChunkUnloaded();
+        if (this.m_clientMonitor != null && this.m_xIndex == 0 && this.m_yIndex == 0) {
+            this.m_clientMonitor.destroy();
+        }
+        this.m_clientMonitor = null;
+    }
+
     @Nonnull
     @Override
     public ActionResult onActivate(PlayerEntity player, Hand hand, BlockHitResult hit) {
@@ -260,15 +277,6 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile {
     @Override
     public double getRenderDistance() {
         return ComputerCraft.monitorDistanceSq;
-    }
-
-    @Override
-    @Environment (EnvType.CLIENT)
-    public void markRemoved() {
-        super.markRemoved();
-        if (this.m_clientMonitor != null && this.m_xIndex == 0 && this.m_yIndex == 0) {
-            this.m_clientMonitor.destroy();
-        }
     }
 
     // Sizing and placement stuff
