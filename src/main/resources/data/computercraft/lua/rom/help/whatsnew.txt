@@ -1,9 +1,19 @@
-New features in CC: Restitched 1.95.3
+New features in CC: Restitched 1.96.0
 
-Several bug fixes:
-* Correctly serialise sparse arrays into JSON (livegamer999)
-* Fix rs.getBundledInput returning the output instead (SkyTheCodeMaster)
-* Programs run via edit are now a little better behaved (Wojbie)
-* Add User-Agent to a websocket's headers.
+* Use lightGrey for folders within the "list" program.
+* Add getLimit to inventory peripherals.
+* Expose the generic peripheral system to the public API.
+* Add cc.expect.range (Lupus590).
+* Allow calling cc.expect directly (MCJack123).
+* Numerous improvements to documentation.
+
+And several bug fixes:
+* Fix paintutils.drawLine incorrectly sorting coordinates (lilyzeiset).
+* Improve JEI's handling of turtle/pocket upgrade recipes.
+* Correctly handle sparse arrays in cc.pretty.
+* Fix crashes when a turtle places a monitor (baeuric).
+* Fix very large resource files being considered empty.
+* Allow turtles to use compostors.
+* Fix dupe bug when colouring turtles.
 
 Type "help changelog" to see the full version history.

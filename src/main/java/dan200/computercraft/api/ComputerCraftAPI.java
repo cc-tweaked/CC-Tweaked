@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.media.IMediaProvider;
@@ -137,6 +138,17 @@ public final class ComputerCraftAPI {
     }
 
     /**
+     * Registers a method source for generic peripherals.
+     *
+     * @param source The method source to register.
+     * @see GenericSource
+     */
+    public static void registerGenericSource( @Nonnull GenericSource source )
+    {
+        getInstance().registerGenericSource( source );
+    }
+
+    /**
      * Registers a new turtle turtle for use in ComputerCraft. After calling this, users should be able to craft Turtles with your new turtle. It is
      * recommended to call this during the load() method of your mod.
      *
@@ -237,6 +249,8 @@ public final class ComputerCraftAPI {
         IMount createResourceMount(@Nonnull String domain, @Nonnull String subPath);
 
         void registerPeripheralProvider(@Nonnull IPeripheralProvider provider);
+
+        void registerGenericSource( @Nonnull GenericSource source );
 
         void registerTurtleUpgrade(@Nonnull ITurtleUpgrade upgrade);
 

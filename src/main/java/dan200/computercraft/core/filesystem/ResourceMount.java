@@ -31,7 +31,7 @@ import com.google.common.io.ByteStreams;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
-
+import dan200.computercraft.shared.util.IoUtil;
 import net.minecraft.resource.ReloadableResourceManager;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
@@ -108,8 +108,8 @@ public final class ResourceMount implements IMount {
 
         if( !hasAny )
         {
-            ComputerCraft.log.warn("Cannot find any files under /data/{}/{} for resource mount.", namespace, subPath);
-            if( newRoot != null )
+            ComputerCraft.log.warn( "Cannot find any files under /data/{}/{} for resource mount.", namespace, subPath );
+            if( existingNamespace != null )
             {
                 ComputerCraft.log.warn("There are files under /data/{}/{} though. Did you get the wrong namespace?", existingNamespace, subPath);
             }
@@ -186,13 +186,19 @@ public final class ResourceMount implements IMount {
                 return new ArrayByteChannel(contents);
             }
 
-            try (InputStream stream = this.manager.getResource(file.identifier)
-                                                  .getInputStream()) {
-                if (stream.available() > MAX_CACHED_SIZE) {
-                    return Channels.newChannel(stream);
-                }
+            try
+            {
+                InputStream stream = manager.getResource( file.identifier ).getInputStream();
+                if( stream.available() > MAX_CACHED_SIZE ) return Channels.newChannel( stream );
 
-                contents = ByteStreams.toByteArray(stream);
+                try
+                {
+                    contents = ByteStreams.toByteArray( stream );
+                }
+                finally
+                {
+                    IoUtil.closeQuietly( stream );
+                }
                 CONTENTS_CACHE.put(file, contents);
                 return new ArrayByteChannel(contents);
             } catch (FileNotFoundException ignored) {

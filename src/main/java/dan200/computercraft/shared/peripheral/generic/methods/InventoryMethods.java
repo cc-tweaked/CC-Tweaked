@@ -5,30 +5,20 @@
  */
 package dan200.computercraft.shared.peripheral.generic.methods;
 
-import com.google.auto.service.AutoService;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.asm.GenericSource;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.ItemStorage;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ChestBlock;
-import net.minecraft.block.InventoryProvider;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Nameable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,14 +33,13 @@ import static dan200.computercraft.shared.peripheral.generic.methods.ArgumentHel
  *
  * @cc.module inventory
  */
-@AutoService( GenericSource.class )
 public class InventoryMethods implements GenericSource
 {
     @Nonnull
     @Override
     public Identifier id()
     {
-        return new Identifier(ComputerCraft.MOD_ID, "inventory" );
+        return new Identifier( ComputerCraft.MOD_ID, "inventory" );
     }
 
     /**
@@ -85,8 +74,9 @@ public class InventoryMethods implements GenericSource
      * List all items in this inventory. This returns a table, with an entry for each slot.
      *
      * Each item in the inventory is represented by a table containing some basic information, much like
-     * @link dan200.computercraft.shared.turtle.apis.TurtleAPI#getItemDetail includes. More information can be fetched
-     * with {@link #getItemDetail}.
+     * {@link dan200.computercraft.shared.turtle.apis.TurtleAPI#getItemDetail} includes. More information can be fetched
+     * with {@link #getItemDetail}. The table contains the item `name`, the `count` and an a (potentially nil) hash of
+     * the item's `nbt.` This NBT data doesn't contain anything useful, but allows you to distinguish identical items.
      *
      * The returned table is sparse, and so empty slots will be `nil` - it is recommended to loop over using `pairs`
      * rather than `ipairs`.
@@ -94,6 +84,14 @@ public class InventoryMethods implements GenericSource
      * @param inventory The current inventory.
      * @return All items in this inventory.
      * @cc.treturn { (table|nil)... } All items in this inventory.
+     * @cc.usage Find an adjacent chest and print all items in it.
+     *
+     * <pre>{@code
+     * local chest = peripheral.find("minecraft:chest")
+     * for slot, item in pairs(chest.list()) do
+     *   print(("%d x %s in slot %d"):format(item.count, item.name, slot))
+     * end
+     * }</pre>
      */
     @LuaFunction( mainThread = true )
     public static Map<Integer, Map<String, ?>> list( Inventory inventory )
@@ -114,11 +112,32 @@ public class InventoryMethods implements GenericSource
     /**
      * Get detailed information about an item.
      *
+     * The returned information contains the same information as each item in
+     * {@link #list}, as well as additional details like the display name
+     * (`displayName`) and item durability (`damage`, `maxDamage`, `durability`).
+     *
+     * Some items include more information (such as enchantments) - it is
+     * recommended to print it out using @{textutils.serialize} or in the Lua
+     * REPL, to explore what is available.
+     *
      * @param inventory The current inventory.
      * @param slot      The slot to get information about.
      * @return Information about the item in this slot, or {@code nil} if not present.
      * @throws LuaException If the slot is out of range.
      * @cc.treturn table Information about the item in this slot, or {@code nil} if not present.
+     * @cc.usage Print some information about the first in a chest.
+     *
+     * <pre>{@code
+     * local chest = peripheral.find("minecraft:chest")
+     * local item = chest.getItemDetail(1)
+     * if not item then print("No item") return end
+     *
+     * print(("%s (%s)"):format(item.displayName, item.name))
+     * print(("Count: %d/%d"):format(item.count, item.maxCount))
+     * if item.damage then
+     *   print(("Damage: %d/%d"):format(item.damage, item.maxDamage))
+     * end
+     * }</pre>
      */
     @Nullable
     @LuaFunction( mainThread = true )
@@ -130,6 +149,33 @@ public class InventoryMethods implements GenericSource
 
         ItemStack stack = itemStorage.getStack( slot - 1 );
         return stack.isEmpty() ? null : ItemData.fill( new HashMap<>(), stack );
+    }
+
+    /**
+     * Get the maximum number of items which can be stored in this slot.
+     *
+     * Typically this will be limited to 64 items. However, some inventories (such as barrels or caches) can store
+     * hundreds or thousands of items in one slot.
+     *
+     * @param inventory Inventory to probe.
+     * @param slot      The slot
+     * @return The maximum number of items in this slot.
+     * @throws LuaException If the slot is out of range.
+     * @cc.usage Count the maximum number of items an adjacent chest can hold.
+     * <pre>{@code
+     * local chest = peripheral.find("minecraft:chest")
+     * local total = 0
+     * for i = 1, chest.size() do
+     *   total = total + chest.getItemLimit(i)
+     * end
+     * print(total)
+     * }</pre>
+     */
+    @LuaFunction( mainThread = true )
+    public static int getItemLimit( Inventory inventory, int slot ) throws LuaException
+    {
+        assertBetween( slot, 1, inventory.size(), "Slot out of range (%s)" );
+        return inventory.getMaxCountPerStack();
     }
 
     /**

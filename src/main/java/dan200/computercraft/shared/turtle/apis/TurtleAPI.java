@@ -661,6 +661,18 @@ public class TurtleAPI implements ILuaAPI {
      * @return The turtle command result.
      * @cc.treturn boolean Whether there is a block in front of the turtle.
      * @cc.treturn table|string Information about the block in front, or a message explaining that there is no block.
+     * @cc.usage <pre>{@code
+     * local has_block, data = turtle.inspect()
+     * if has_block then
+     *   print(textutils.serialize(data))
+     *   -- {
+     *   --   name = "minecraft:oak_log",
+     *   --   state = { axis = "x" },
+     *   --   tags = { ["minecraft:logs"] = true, ... },
+     *   -- }
+     * else
+     *   print("No block in front of the turtle")
+     * end}</pre>
      */
     @LuaFunction
     public final MethodResult inspect() {
@@ -700,6 +712,7 @@ public class TurtleAPI implements ILuaAPI {
      *     cost of taking longer to run.
      * @return The command result.
      * @throws LuaException If the slot is out of range.
+     * @see InventoryMethods#getItemDetail Describes the information returned by a detailed query.
      * @cc.treturn nil|table Information about the given slot, or {@code nil} if it is empty.
      * @cc.usage Print the current slot, assuming it contains 13 dirt.
      *
