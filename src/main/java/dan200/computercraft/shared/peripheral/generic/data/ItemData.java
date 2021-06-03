@@ -16,6 +16,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.tag.ServerTagManagerHolder;
 import net.minecraft.tag.Tag;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -86,7 +87,7 @@ public class ItemData
             data.put( "unbreakable", true );
         }
 
-        // data.put("tags", DataHelpers.getTags( ??? ));
+        data.put("tags", DataHelpers.getTags( ServerTagManagerHolder.getTagManager().getItems().getTagsFor(stack.getItem()) )); // chaos
 
         return data;
     }
