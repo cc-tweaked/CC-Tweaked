@@ -26,6 +26,7 @@ import dan200.computercraft.api.turtle.event.TurtleInspectItemEvent;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.asm.TaskCallback;
 import dan200.computercraft.core.tracking.TrackingField;
+import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.turtle.core.InteractDirection;
 import dan200.computercraft.shared.turtle.core.MoveDirection;
 import dan200.computercraft.shared.turtle.core.TurnDirection;
@@ -724,13 +725,9 @@ public class TurtleAPI implements ILuaAPI {
             return new Object[] {null};
         }
 
-        Item item = stack.getItem();
-        String name = Registry.ITEM.getId(item)
-                                   .toString();
-        int count = stack.getCount();
-        Map<String, Object> table = new HashMap<>();
-        table.put("name", name);
-        table.put("count", count);
+        Map<String, Object> table = detailed
+            ? ItemData.fill( new HashMap<>(), stack )
+            : ItemData.fillBasicSafe( new HashMap<>(), stack );
 
         TurtleActionEvent event = new TurtleInspectItemEvent(this.turtle, stack, table, detailed);
         if (TurtleEvent.post(event)) {
