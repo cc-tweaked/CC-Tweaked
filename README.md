@@ -1,5 +1,6 @@
 # CC:Restitched Patchwork
-# This is a W.I.P Port
+# CC:R Version VS CC:T Version
+CC:R Strives to maintaim perfect pairity with CC:R, however in some cases this is not possible, or atleast, not yet, so just because you might be on CC:R 1.96.6, doesnt mean you are on CC:T 1.96.6. 
 
 <img src="logo.png" alt="CC: Restitched" width="100%"/>
 

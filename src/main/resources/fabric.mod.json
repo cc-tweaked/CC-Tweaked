@@ -16,7 +16,8 @@
         "SquidDev",
         "parly",
         "Merith.TK",
-        "Jummit"
+        "Jummit",
+		"Toad-Dev"
     ],
     "depends": {
         "fabricloader": ">=0.4.0",

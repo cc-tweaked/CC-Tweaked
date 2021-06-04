@@ -5,15 +5,12 @@ New features in CC: Restitched 1.96.0
 * Expose the generic peripheral system to the public API.
 * Add cc.expect.range (Lupus590).
 * Allow calling cc.expect directly (MCJack123).
-* Numerous improvements to documentation.
+* Shift Right clicking a disk drive while holding a disk inserts disk
+* `getItemDetails()` now returns full output as one would expect from CC:T
 
 And several bug fixes:
 * Fix paintutils.drawLine incorrectly sorting coordinates (lilyzeiset).
-* Improve JEI's handling of turtle/pocket upgrade recipes.
-* Correctly handle sparse arrays in cc.pretty.
-* Fix crashes when a turtle places a monitor (baeuric).
-* Fix very large resource files being considered empty.
-* Allow turtles to use compostors.
-* Fix dupe bug when colouring turtles.
+* Fix crash with music disk
+* Fix Display peripheral chat messages in multiplayer and improve /computercraft command. 
 
 Type "help changelog" to see the full version history.
