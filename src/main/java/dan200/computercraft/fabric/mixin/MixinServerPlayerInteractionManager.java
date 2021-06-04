@@ -1,4 +1,4 @@
-package dan200.computercraft.mixin;
+package dan200.computercraft.fabric.mixin;
 
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import net.minecraft.advancement.criterion.Criteria;
