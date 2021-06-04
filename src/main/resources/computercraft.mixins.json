@@ -11,7 +11,8 @@
         "SignBlockEntityAccess",
         "SoundEventAccess",
         "WorldSavePathAccess",
-        "MixinServerPlayerInteractionManager"
+        "MixinServerPlayerInteractionManager",
+        "MusicDiscItemAccessor"
     ],
     "client": [
         "AffineTransformationAccess",

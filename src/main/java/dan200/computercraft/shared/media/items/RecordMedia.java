@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 
 import dan200.computercraft.api.media.IMedia;
 
+import dan200.computercraft.fabric.mixin.MusicDiscItemAccessor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MusicDiscItem;
@@ -42,6 +43,10 @@ public final class RecordMedia implements IMedia {
 
     @Override
     public SoundEvent getAudio(@Nonnull ItemStack stack) {
-        return ((MusicDiscItem) stack.getItem()).getSound();
+        Item item = stack.getItem();
+        if (!(item instanceof MusicDiscItem)) {
+            return null;
+        }
+        return ((MusicDiscItemAccessor) item).getSound();
     }
 }
