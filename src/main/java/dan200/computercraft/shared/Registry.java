@@ -7,8 +7,13 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.media.IMedia;
+import dan200.computercraft.api.network.wired.IWiredElement;
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.command.arguments.ArgumentSerializers;
 import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.ContainerHeldItem;
+import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
@@ -17,11 +22,17 @@ import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.computer.items.ItemComputer;
 import dan200.computercraft.shared.computer.recipe.ComputerUpgradeRecipe;
+import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
+import dan200.computercraft.shared.data.ConstantLootConditionSerializer;
+import dan200.computercraft.shared.data.HasComputerIdLootCondition;
+import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
+import dan200.computercraft.shared.media.items.RecordMedia;
 import dan200.computercraft.shared.media.recipes.DiskRecipe;
 import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
+import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.network.container.HeldItemContainerData;
@@ -29,6 +40,9 @@ import dan200.computercraft.shared.network.container.ViewComputerContainerData;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
+import dan200.computercraft.shared.peripheral.generic.methods.EnergyMethods;
+import dan200.computercraft.shared.peripheral.generic.methods.FluidMethods;
+import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.peripheral.modem.wired.*;
 import dan200.computercraft.shared.peripheral.modem.wireless.BlockWirelessModem;
 import dan200.computercraft.shared.peripheral.modem.wireless.TileWirelessModem;
@@ -52,29 +66,30 @@ import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.turtle.upgrades.*;
-import dan200.computercraft.shared.util.CreativeTabMain;
-import dan200.computercraft.shared.util.FixedPointTileEntityType;
-import dan200.computercraft.shared.util.ImpostorRecipe;
-import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
+import dan200.computercraft.shared.util.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
 import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.storage.loot.conditions.LootConditionManager;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -331,6 +346,68 @@ public final class Registry
             ImpostorShapelessRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "impostor_shapeless" ) ),
             ImpostorRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "impostor_shaped" ) )
         );
+    }
+
+    @SubscribeEvent
+    @SuppressWarnings( "deprecation" )
+    public static void init( FMLCommonSetupEvent event )
+    {
+        NetworkHandler.setup();
+
+        DeferredWorkQueue.runLater( () -> {
+            registerProviders();
+            ArgumentSerializers.register();
+            registerLoot();
+        } );
+
+        ComputerCraftAPI.registerGenericSource( new InventoryMethods() );
+        ComputerCraftAPI.registerGenericSource( new FluidMethods() );
+        ComputerCraftAPI.registerGenericSource( new EnergyMethods() );
+    }
+
+    private static void registerProviders()
+    {
+        // Register bundled power providers
+        ComputerCraftAPI.registerBundledRedstoneProvider( new DefaultBundledRedstoneProvider() );
+
+        // Register media providers
+        ComputerCraftAPI.registerMediaProvider( stack -> {
+            Item item = stack.getItem();
+            if( item instanceof IMedia ) return (IMedia) item;
+            if( item instanceof MusicDiscItem ) return RecordMedia.INSTANCE;
+            return null;
+        } );
+
+        // Register capabilities
+        CapabilityManager.INSTANCE.register( IWiredElement.class, new NullStorage<>(), () -> null );
+        CapabilityManager.INSTANCE.register( IPeripheral.class, new NullStorage<>(), () -> null );
+
+        // Register generic capabilities. This can technically be done off-thread, but we need it to happen
+        // after Forge's common setup, so this is easiest.
+        ComputerCraftAPI.registerGenericCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY );
+        ComputerCraftAPI.registerGenericCapability( CapabilityEnergy.ENERGY );
+        ComputerCraftAPI.registerGenericCapability( CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY );
+    }
+
+    public static void registerLoot()
+    {
+        LootConditionManager.register( ConstantLootConditionSerializer.of(
+            new ResourceLocation( ComputerCraft.MOD_ID, "block_named" ),
+            BlockNamedEntityLootCondition.class,
+            BlockNamedEntityLootCondition.INSTANCE
+        ) );
+
+        LootConditionManager.register( ConstantLootConditionSerializer.of(
+            new ResourceLocation( ComputerCraft.MOD_ID, "player_creative" ),
+            PlayerCreativeLootCondition.class,
+            PlayerCreativeLootCondition.INSTANCE
+        ) );
+
+        LootConditionManager.register( ConstantLootConditionSerializer.of(
+            new ResourceLocation( ComputerCraft.MOD_ID, "has_id" ),
+            HasComputerIdLootCondition.class,
+            HasComputerIdLootCondition.INSTANCE
+        ) );
     }
 
     public static void setup()
