@@ -40,6 +40,11 @@ public final class FixedPointTileEntityType<T extends TileEntity> extends TileEn
         return block == this.block.get();
     }
 
+    public Block getBlock()
+    {
+        return block.get();
+    }
+
     private static final class FixedPointSupplier<T extends TileEntity> implements Supplier<T>
     {
         final FixedPointTileEntityType<T> factory;

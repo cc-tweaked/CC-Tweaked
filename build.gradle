@@ -53,6 +53,9 @@ minecraft {
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
 
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
+
             mods {
                 computercraft {
                     source sourceSets.main
@@ -138,6 +141,7 @@ dependencies {
 
     compileOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.0.104:api")
     compileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.5:7.1.0.313")
+    compileOnly fg.deobf("commoble.morered:morered-1.16.5:2.1.1.0")
 
     runtimeOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.0.104")
 
@@ -180,12 +184,12 @@ task luaJavadoc(type: Javadoc) {
 
 jar {
     manifest {
-        attributes(["Specification-Title": "computercraft",
-                    "Specification-Vendor": "SquidDev",
-                    "Specification-Version": "1",
-                    "Implementation-Title": "CC: Tweaked",
-                    "Implementation-Version": "${mod_version}",
-                    "Implementation-Vendor" :"SquidDev",
+        attributes(["Specification-Title"     : "computercraft",
+                    "Specification-Vendor"    : "SquidDev",
+                    "Specification-Version"   : "1",
+                    "Implementation-Title"    : "CC: Tweaked",
+                    "Implementation-Version"  : "${mod_version}",
+                    "Implementation-Vendor"   : "SquidDev",
                     "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
     }
 
@@ -211,7 +215,7 @@ processResources {
         ["git", "-C", projectDir, "log", "--format=tformat:%an%n%cn"].execute().text.split('\n').each {
             if (!blacklist.contains(it)) contributors.add(it)
         }
-    } catch(Exception e) {
+    } catch (Exception e) {
         e.printStackTrace()
     }
     inputs.property "commithash", hash
@@ -221,8 +225,8 @@ processResources {
         include 'data/computercraft/lua/rom/help/credits.txt'
 
         expand 'version': mod_version,
-               'mcversion': mc_version,
-               'gitcontributors': contributors.sort(false, String.CASE_INSENSITIVE_ORDER).join('\n')
+                'mcversion': mc_version,
+                'gitcontributors': contributors.sort(false, String.CASE_INSENSITIVE_ORDER).join('\n')
     }
 
     from(sourceSets.main.resources.srcDirs) {
@@ -233,6 +237,9 @@ processResources {
 
 // Web tasks
 
+
+import com.hierynomus.gradle.license.tasks.LicenseCheck
+import com.hierynomus.gradle.license.tasks.LicenseFormat
 import org.apache.tools.ant.taskdefs.condition.Os
 
 List<String> mkCommand(String command) {
@@ -302,10 +309,6 @@ jacocoTestReport {
 
 check.dependsOn jacocoTestReport
 
-
-import com.hierynomus.gradle.license.tasks.LicenseCheck
-import com.hierynomus.gradle.license.tasks.LicenseFormat
-
 license {
     mapping("java", "SLASHSTAR_STYLE")
     strictCheck true
@@ -335,8 +338,8 @@ gradle.projectsEvaluated {
 }
 
 
-task licenseAPI(type: LicenseCheck);
-task licenseFormatAPI(type: LicenseFormat);
+task licenseAPI(type: LicenseCheck)
+task licenseFormatAPI(type: LicenseFormat)
 [licenseAPI, licenseFormatAPI].forEach {
     it.configure {
         source = sourceSets.main.java
@@ -432,7 +435,7 @@ task checkRelease {
             ok = false
             project.logger.error("Must mention the changelog in whatsnew.txt")
         } else {
-            whatsnew = whatsnew.getAt(0 ..< idx)
+            whatsnew = whatsnew.getAt(0..<idx)
         }
 
         // Check whatsnew and changelog match.
@@ -528,9 +531,9 @@ githubRelease {
     releaseName "[${mc_version}] ${mod_version}"
     body.set(project.provider({
         "## " + new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt")
-            .readLines()
-            .takeWhile { it != 'Type "help changelog" to see the full version history.' }
-            .join("\n").trim()
+                .readLines()
+                .takeWhile { it != 'Type "help changelog" to see the full version history.' }
+                .join("\n").trim()
     }))
     prerelease false
 }

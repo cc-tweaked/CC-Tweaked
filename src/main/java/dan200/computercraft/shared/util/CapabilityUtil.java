@@ -43,4 +43,10 @@ public final class CapabilityUtil
         p.addListener( invalidate );
         return p.orElseThrow( NullPointerException::new );
     }
+
+    @Nullable
+    public static <T> T unwrapUnsafe( LazyOptional<T> p )
+    {
+        return !p.isPresent() ? null : p.orElseThrow( NullPointerException::new );
+    }
 }
