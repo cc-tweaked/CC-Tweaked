@@ -13,24 +13,15 @@ import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.IUnbakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
-import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.client.model.SimpleModelTransform;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-
-import java.util.HashSet;
-import java.util.Map;
 
 /**
  * Registers textures and models for items.
@@ -39,6 +30,7 @@ import java.util.Map;
 public final class ClientRegistry
 {
     private static final String[] EXTRA_MODELS = new String[] {
+        // Turtle upgrades
         "turtle_modem_normal_off_left",
         "turtle_modem_normal_on_left",
         "turtle_modem_normal_off_right",
@@ -54,17 +46,9 @@ public final class ClientRegistry
         "turtle_speaker_upgrade_left",
         "turtle_speaker_upgrade_right",
 
+        // Turtle block renderer
         "turtle_colour",
         "turtle_elf_overlay",
-    };
-
-    private static final String[] EXTRA_TEXTURES = new String[] {
-        // TODO: Gather these automatically from the model. Sadly the model loader isn't available
-        //  when stitching textures.
-        "block/turtle_colour",
-        "block/turtle_elf_overlay",
-        "block/turtle_crafty_face",
-        "block/turtle_speaker_face",
     };
 
     private ClientRegistry() {}
@@ -73,37 +57,9 @@ public final class ClientRegistry
     public static void registerModels( ModelRegistryEvent event )
     {
         ModelLoaderRegistry.registerLoader( new ResourceLocation( ComputerCraft.MOD_ID, "turtle" ), TurtleModelLoader.INSTANCE );
-    }
-
-    @SubscribeEvent
-    public static void onTextureStitchEvent( TextureStitchEvent.Pre event )
-    {
-        if( !event.getMap().location().equals( PlayerContainer.BLOCK_ATLAS ) ) return;
-
-        for( String extra : EXTRA_TEXTURES )
+        for( String model : EXTRA_MODELS )
         {
-            event.addSprite( new ResourceLocation( ComputerCraft.MOD_ID, extra ) );
-        }
-    }
-
-    @SubscribeEvent
-    public static void onModelBakeEvent( ModelBakeEvent event )
-    {
-        // Load all extra models
-        ModelLoader loader = event.getModelLoader();
-        Map<ResourceLocation, IBakedModel> registry = event.getModelRegistry();
-
-        for( String modelName : EXTRA_MODELS )
-        {
-            ResourceLocation location = new ResourceLocation( ComputerCraft.MOD_ID, "item/" + modelName );
-            IUnbakedModel model = loader.getModel( location );
-            model.getMaterials( loader::getModel, new HashSet<>() );
-
-            IBakedModel baked = model.bake( loader, ModelLoader.defaultTextureGetter(), SimpleModelTransform.IDENTITY, location );
-            if( baked != null )
-            {
-                registry.put( new ModelResourceLocation( new ResourceLocation( ComputerCraft.MOD_ID, modelName ), "inventory" ), baked );
-            }
+            ModelLoader.addSpecialModel( new ModelResourceLocation( new ResourceLocation( ComputerCraft.MOD_ID, model ), "inventory" ) );
         }
     }
 
