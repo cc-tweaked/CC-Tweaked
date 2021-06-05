@@ -140,6 +140,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     @Override
     public void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
     {
+        renderBackground( stack );
         super.render( stack, mouseX, mouseY, partialTicks );
         renderTooltip( stack, mouseX, mouseY );
     }

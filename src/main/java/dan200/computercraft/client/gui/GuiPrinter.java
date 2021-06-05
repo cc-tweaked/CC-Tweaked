@@ -24,14 +24,6 @@ public class GuiPrinter extends ContainerScreen<ContainerPrinter>
         super( container, player, title );
     }
 
-    /*@Override
-    protected void drawGuiContainerForegroundLayer( int mouseX, int mouseY )
-    {
-        String title = getTitle().getFormattedText();
-        font.drawString( title, (xSize - font.getStringWidth( title )) / 2.0f, 6, 0x404040 );
-        font.drawString( I18n.format( "container.inventory" ), 8, ySize - 96 + 2, 0x404040 );
-    }*/
-
     @Override
     protected void renderBg( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
