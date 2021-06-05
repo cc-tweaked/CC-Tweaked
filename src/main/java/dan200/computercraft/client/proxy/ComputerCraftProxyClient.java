@@ -34,7 +34,9 @@ import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 
+import dan200.computercraft.shared.util.Config;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientBlockEntityEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.item.ModelPredicateProvider;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.item.Item;
@@ -63,6 +65,9 @@ public final class ComputerCraftProxyClient implements ClientModInitializer {
         });
 
         ClientUnloadWorldEvent.EVENT.register( () -> ClientMonitor.destroyAll() );
+
+        // Config
+        ClientLifecycleEvents.CLIENT_STARTED.register(Config::clientStarted);
     }
 
     @Override

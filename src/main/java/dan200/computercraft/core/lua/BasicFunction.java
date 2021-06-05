@@ -45,7 +45,7 @@ class BasicFunction extends VarArgFunction {
         } catch (LuaException e) {
             throw wrap(e);
         } catch (Throwable t) {
-            if (ComputerCraft.logPeripheralErrors) {
+            if (ComputerCraft.logComputerErrors) {
                 ComputerCraft.log.error("Error calling " + this.name + " on " + this.instance, t);
             }
             throw new LuaError("Java Exception Thrown: " + t, 0);

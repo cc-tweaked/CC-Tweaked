@@ -67,8 +67,8 @@ public class TileComputer extends TileComputerBase {
                                                      id, this.label,
                                                      instanceID,
                                                      family,
-                                                     ComputerCraft.terminalWidth_computer,
-                                                     ComputerCraft.terminalHeight_computer);
+                                                     ComputerCraft.computerTermWidth,
+                                                     ComputerCraft.computerTermHeight);
         computer.setPosition(this.getPos());
         return computer;
     }

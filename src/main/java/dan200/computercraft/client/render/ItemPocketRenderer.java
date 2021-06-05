@@ -50,8 +50,8 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer {
 
         int termWidth, termHeight;
         if (terminal == null) {
-            termWidth = ComputerCraft.terminalWidth_pocketComputer;
-            termHeight = ComputerCraft.terminalHeight_pocketComputer;
+            termWidth = ComputerCraft.pocketTermWidth;
+            termHeight = ComputerCraft.pocketTermHeight;
         } else {
             termWidth = terminal.getWidth();
             termHeight = terminal.getHeight();
