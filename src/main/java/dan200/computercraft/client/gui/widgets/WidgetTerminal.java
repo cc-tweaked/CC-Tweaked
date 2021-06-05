@@ -324,4 +324,14 @@ public class WidgetTerminal extends Widget
     {
         return true;
     }
+
+    public static int getWidth( int termWidth )
+    {
+        return termWidth * FONT_WIDTH + MARGIN * 2;
+    }
+
+    public static int getHeight( int termHeight )
+    {
+        return termHeight * FONT_HEIGHT + MARGIN * 2;
+    }
 }

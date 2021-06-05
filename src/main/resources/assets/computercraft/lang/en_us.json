@@ -110,5 +110,8 @@
     "tracking_field.computercraft.coroutines_dead.name": "Coroutines disposed",
     "gui.computercraft.tooltip.copy": "Copy to clipboard",
     "gui.computercraft.tooltip.computer_id": "Computer ID: %s",
-    "gui.computercraft.tooltip.disk_id": "Disk ID: %s"
+    "gui.computercraft.tooltip.disk_id": "Disk ID: %s",
+    "gui.computercraft.tooltip.turn_on": "Turn this computer on",
+    "gui.computercraft.tooltip.turn_off": "Turn this computer off",
+    "gui.computercraft.tooltip.terminate": "Stop the currently running code"
 }

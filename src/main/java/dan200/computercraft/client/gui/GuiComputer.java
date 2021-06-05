@@ -7,6 +7,7 @@ package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
@@ -16,12 +17,12 @@ import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.text.ITextComponent;
 import org.lwjgl.glfw.GLFW;
 
 import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
-import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
 
 public final class GuiComputer<T extends ContainerComputerBase> extends ContainerScreen<T>
 {
@@ -42,8 +43,8 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
         this.termWidth = termWidth;
         this.termHeight = termHeight;
 
-        imageWidth = termWidth * FixedWidthFontRenderer.FONT_WIDTH + MARGIN * 2 + BORDER * 2;
-        imageHeight = termHeight * FixedWidthFontRenderer.FONT_HEIGHT + MARGIN * 2 + BORDER * 2;
+        imageWidth = WidgetTerminal.getWidth( termWidth ) + BORDER * 2 + ComputerSidebar.WIDTH;
+        imageHeight = WidgetTerminal.getHeight( termHeight ) + BORDER * 2;
     }
 
     public static GuiComputer<ContainerComputer> create( ContainerComputer container, PlayerInventory inventory, ITextComponent component )
@@ -78,7 +79,10 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
 
         minecraft.keyboardHandler.setSendRepeatsToGui( true );
 
-        terminal = addButton( new WidgetTerminal( computer, BORDER + leftPos, BORDER + topPos, termWidth, termHeight ) );
+        terminal = addButton( new WidgetTerminal( computer,
+            leftPos + ComputerSidebar.WIDTH + BORDER, topPos + BORDER, termWidth, termHeight
+        ) );
+        ComputerSidebar.addButtons( this, computer, this::addButton, leftPos, topPos + BORDER );
         setFocused( terminal );
     }
 
@@ -114,10 +118,9 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
         // Draw a border around the terminal
         RenderSystem.color4f( 1, 1, 1, 1 );
         minecraft.getTextureManager().bind( ComputerBorderRenderer.getTexture( family ) );
-        ComputerBorderRenderer.render(
-            terminal.x, terminal.y, getBlitOffset(),
-            terminal.getWidth(), terminal.getHeight()
-        );
+
+        ComputerBorderRenderer.render( terminal.x, terminal.y, getBlitOffset(), terminal.getWidth(), terminal.getHeight() );
+        ComputerSidebar.renderBackground( leftPos, topPos + BORDER );
     }
 
     @Override
@@ -126,6 +129,11 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
         renderBackground();
         super.render( mouseX, mouseY, partialTicks );
         renderTooltip( mouseX, mouseY );
+
+        for( Widget widget : buttons )
+        {
+            if( widget.isHovered() ) widget.renderToolTip( mouseX, mouseY );
+        }
     }
 
     @Override
