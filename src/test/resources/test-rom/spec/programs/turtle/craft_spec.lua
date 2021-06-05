@@ -52,7 +52,7 @@ describe("The craft program", function()
             :matches { ok = true, output = "1 item crafted\n", error = "" }
     end)
 
-     it("crafts no items", function()
+    it("crafts no items", function()
         local item_count = 2
         stub(_G, "turtle", {
             craft = function()
