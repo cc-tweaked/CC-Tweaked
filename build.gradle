@@ -136,10 +136,10 @@ dependencies {
 
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
-    compileOnly fg.deobf("mezz.jei:jei-1.16.4:7.6.0.58:api")
-    compileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.4:7.0.0.63")
+    compileOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.0.104:api")
+    compileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.5:7.1.0.313")
 
-    runtimeOnly fg.deobf("mezz.jei:jei-1.16.4:7.6.0.58")
+    runtimeOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.0.104")
 
     shade 'org.squiddev:Cobalt:0.5.2-SNAPSHOT'
 
@@ -458,9 +458,6 @@ curseforge {
         relations {
             incompatible "computercraft"
         }
-
-        addGameVersion '1.16.4'
-        addGameVersion '1.16.5'
     }
 }
 

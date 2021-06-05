@@ -22,7 +22,7 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaRecipeCategoryUid;
 import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
+import mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter;
 import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IAdvancedRegistration;
@@ -90,13 +90,13 @@ public class JEIComputerCraft implements IModPlugin
         runtime.getIngredientManager().addIngredientsAtRuntime( VanillaTypes.ITEM, upgradeItems );
 
         // Hide all upgrade recipes
-        IRecipeCategory<?> category = (IRecipeCategory<?>) registry.getRecipeCategory( VanillaRecipeCategoryUid.CRAFTING );
+        IRecipeCategory<?> category = registry.getRecipeCategory( VanillaRecipeCategoryUid.CRAFTING );
         if( category != null )
         {
             for( Object wrapper : registry.getRecipes( category ) )
             {
                 if( !(wrapper instanceof IRecipe) ) continue;
-                ResourceLocation id = ((IRecipe) wrapper).getId();
+                ResourceLocation id = ((IRecipe<?>) wrapper).getId();
                 if( !id.getNamespace().equals( ComputerCraft.MOD_ID ) ) continue;
 
                 String path = id.getPath();
@@ -112,9 +112,9 @@ public class JEIComputerCraft implements IModPlugin
     /**
      * Distinguishes turtles by upgrades and family.
      */
-    private static final ISubtypeInterpreter turtleSubtype = stack -> {
+    private static final IIngredientSubtypeInterpreter<ItemStack> turtleSubtype = ( stack, ctx ) -> {
         Item item = stack.getItem();
-        if( !(item instanceof ITurtleItem) ) return ISubtypeInterpreter.NONE;
+        if( !(item instanceof ITurtleItem) ) return IIngredientSubtypeInterpreter.NONE;
 
         ITurtleItem turtle = (ITurtleItem) item;
         StringBuilder name = new StringBuilder( "turtle:" );
@@ -132,9 +132,9 @@ public class JEIComputerCraft implements IModPlugin
     /**
      * Distinguishes pocket computers by upgrade and family.
      */
-    private static final ISubtypeInterpreter pocketSubtype = stack -> {
+    private static final IIngredientSubtypeInterpreter<ItemStack> pocketSubtype = ( stack, ctx ) -> {
         Item item = stack.getItem();
-        if( !(item instanceof ItemPocketComputer) ) return ISubtypeInterpreter.NONE;
+        if( !(item instanceof ItemPocketComputer) ) return IIngredientSubtypeInterpreter.NONE;
 
         StringBuilder name = new StringBuilder( "pocket:" );
 
@@ -148,13 +148,13 @@ public class JEIComputerCraft implements IModPlugin
     /**
      * Distinguishes disks by colour.
      */
-    private static final ISubtypeInterpreter diskSubtype = stack -> {
+    private static final IIngredientSubtypeInterpreter<ItemStack> diskSubtype = ( stack, ctx ) -> {
         Item item = stack.getItem();
-        if( !(item instanceof ItemDisk) ) return ISubtypeInterpreter.NONE;
+        if( !(item instanceof ItemDisk) ) return IIngredientSubtypeInterpreter.NONE;
 
         ItemDisk disk = (ItemDisk) item;
 
         int colour = disk.getColour( stack );
-        return colour == -1 ? ISubtypeInterpreter.NONE : String.format( "%06x", colour );
+        return colour == -1 ? IIngredientSubtypeInterpreter.NONE : String.format( "%06x", colour );
     };
 }
