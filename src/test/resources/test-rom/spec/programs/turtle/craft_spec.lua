@@ -15,10 +15,10 @@ describe("The craft program", function()
             :matches { ok = true, output = "Requires a Crafty Turtle\n", error = "" }
     end)
 
-    it("displays its usage when given no arguments", function()
+    it("displays its usage when given incorrect arguments", function()
         stub(_G, "turtle", { craft = function() end })
 
-        expect(capture(stub, "/rom/programs/turtle/craft.lua"))
+        expect(capture(stub, "/rom/programs/turtle/craft.lua a"))
             :matches { ok = true, output = "Usage: /rom/programs/turtle/craft.lua [number]\n", error = "" }
     end)
 
@@ -65,5 +65,18 @@ describe("The craft program", function()
 
         expect(capture(stub, "/rom/programs/turtle/craft.lua 1"))
             :matches { ok = true, output = "No items crafted\n", error = "" }
+    end)
+
+    it("crafts all items", function()
+        stub(_G, "turtle", {
+            craft = function()
+                return true
+            end
+            getItemCount = function() return 17 end,
+            getSelectedSlot = function() return 1 end,
+        })
+
+        expect(capture(stub, "/rom/programs/turtle/craft.lua"))
+            :matches {ok = true, output = "17 items crafted\n", error = "" }
     end)
 end)
