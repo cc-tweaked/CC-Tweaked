@@ -9,6 +9,7 @@ import com.mojang.authlib.GameProfile;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.FakeNetHandler;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
@@ -73,23 +74,6 @@ public final class TurtlePlayer extends FakePlayer
         return profile != null && profile.isComplete() ? profile : DEFAULT_PROFILE;
     }
 
-    private void setState( ITurtleAccess turtle )
-    {
-        if( containerMenu != inventoryMenu )
-        {
-            ComputerCraft.log.warn( "Turtle has open container ({})", containerMenu );
-            doCloseContainer();
-        }
-
-        BlockPos position = turtle.getPosition();
-        setPosRaw( position.getX() + 0.5, position.getY() + 0.5, position.getZ() + 0.5 );
-
-        yRot = turtle.getDirection().toYRot();
-        xRot = 0.0f;
-
-        inventory.clearContent();
-    }
-
     public static TurtlePlayer get( ITurtleAccess access )
     {
         if( !(access instanceof TurtleBrain) ) return create( access );
@@ -109,37 +93,114 @@ public final class TurtlePlayer extends FakePlayer
         return player;
     }
 
-    public void loadInventory( @Nonnull ItemStack currentStack )
+    public static TurtlePlayer getWithPosition( ITurtleAccess turtle, BlockPos position, Direction direction )
     {
-        // Load up the fake inventory
-        inventory.selected = 0;
-        inventory.setItem( 0, currentStack );
+        TurtlePlayer turtlePlayer = get( turtle );
+        turtlePlayer.setPosition( turtle, position, direction );
+        return turtlePlayer;
     }
 
-    public ItemStack unloadInventory( ITurtleAccess turtle )
+    private void setState( ITurtleAccess turtle )
     {
-        // Get the item we placed with
-        ItemStack results = inventory.getItem( 0 );
-        inventory.setItem( 0, ItemStack.EMPTY );
+        if( containerMenu != inventoryMenu )
+        {
+            ComputerCraft.log.warn( "Turtle has open container ({})", containerMenu );
+            doCloseContainer();
+        }
+
+        BlockPos position = turtle.getPosition();
+        setPosRaw( position.getX() + 0.5, position.getY() + 0.5, position.getZ() + 0.5 );
+
+        yRot = turtle.getDirection().toYRot();
+        xRot = 0.0f;
+
+        inventory.clearContent();
+    }
+
+    public void setPosition( ITurtleAccess turtle, BlockPos position, Direction direction )
+    {
+        double posX = position.getX() + 0.5;
+        double posY = position.getY() + 0.5;
+        double posZ = position.getZ() + 0.5;
+
+        // Stop intersection with the turtle itself
+        if( turtle.getPosition().equals( position ) )
+        {
+            posX += 0.48 * direction.getStepX();
+            posY += 0.48 * direction.getStepY();
+            posZ += 0.48 * direction.getStepZ();
+        }
+
+        if( direction.getAxis() != Direction.Axis.Y )
+        {
+            yRot = direction.toYRot();
+            xRot = 0.0f;
+        }
+        else
+        {
+            yRot = turtle.getDirection().toYRot();
+            xRot = DirectionUtil.toPitchAngle( direction );
+        }
+
+        setPosRaw( posX, posY, posZ );
+        xo = posX;
+        yo = posY;
+        zo = posZ;
+        xRotO = xRot;
+        yRotO = yRot;
+
+        yHeadRot = yRot;
+        yHeadRotO = yHeadRot;
+    }
+
+    public void loadInventory( @Nonnull ItemStack stack )
+    {
+        inventory.clearContent();
+        inventory.selected = 0;
+        inventory.setItem( 0, stack );
+    }
+
+    public void loadInventory( @Nonnull ITurtleAccess turtle )
+    {
+        inventory.clearContent();
+
+        int currentSlot = turtle.getSelectedSlot();
+        int slots = turtle.getItemHandler().getSlots();
+
+        // Load up the fake inventory
+        inventory.selected = 0;
+        for( int i = 0; i < slots; i++ )
+        {
+            inventory.setItem( i, turtle.getItemHandler().getStackInSlot( (currentSlot + i) % slots ) );
+        }
+    }
+
+    public void unloadInventory( ITurtleAccess turtle )
+    {
+        int currentSlot = turtle.getSelectedSlot();
+        int slots = turtle.getItemHandler().getSlots();
+
+        // Load up the fake inventory
+        inventory.selected = 0;
+        for( int i = 0; i < slots; i++ )
+        {
+            turtle.getItemHandler().setStackInSlot( (currentSlot + i) % slots, inventory.getItem( i ) );
+        }
 
         // Store (or drop) anything else we found
         BlockPos dropPosition = turtle.getPosition();
         Direction dropDirection = turtle.getDirection().getOpposite();
-        for( int i = 0; i < inventory.getContainerSize(); i++ )
+        int totalSize = inventory.getContainerSize();
+        for( int i = slots; i < totalSize; i++ )
         {
-            ItemStack stack = inventory.getItem( i );
-            if( !stack.isEmpty() )
+            ItemStack remainder = InventoryUtil.storeItems( inventory.getItem( i ), turtle.getItemHandler(), turtle.getSelectedSlot() );
+            if( !remainder.isEmpty() )
             {
-                ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
-                if( !remainder.isEmpty() )
-                {
-                    WorldUtil.dropItemStack( remainder, turtle.getWorld(), dropPosition, dropDirection );
-                }
-                inventory.setItem( i, ItemStack.EMPTY );
+                WorldUtil.dropItemStack( remainder, turtle.getWorld(), dropPosition, dropDirection );
             }
         }
+
         inventory.setChanged();
-        return results;
     }
 
     @Nonnull

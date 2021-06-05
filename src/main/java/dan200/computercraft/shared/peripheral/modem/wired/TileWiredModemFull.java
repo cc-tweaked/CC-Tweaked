@@ -10,7 +10,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.command.CommandCopy;
+import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.util.CapabilityUtil;
@@ -218,7 +218,7 @@ public class TileWiredModemFull extends TileGeneric
         for( int i = 0; i < names.size(); i++ )
         {
             if( i > 0 ) base.append( ", " );
-            base.append( CommandCopy.createCopyText( names.get( i ) ) );
+            base.append( ChatHelpers.copy( names.get( i ) ) );
         }
 
         player.displayClientMessage( new TranslationTextComponent( kind, base ), false );

@@ -11,7 +11,7 @@ import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.Registry;
-import dan200.computercraft.shared.command.CommandCopy;
+import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.util.CapabilityUtil;
@@ -268,12 +268,12 @@ public class TileCable extends TileGeneric
             if( oldName != null )
             {
                 player.displayClientMessage( new TranslationTextComponent( "chat.computercraft.wired_modem.peripheral_disconnected",
-                    CommandCopy.createCopyText( oldName ) ), false );
+                    ChatHelpers.copy( oldName ) ), false );
             }
             if( newName != null )
             {
                 player.displayClientMessage( new TranslationTextComponent( "chat.computercraft.wired_modem.peripheral_connected",
-                    CommandCopy.createCopyText( newName ) ), false );
+                    ChatHelpers.copy( newName ) ), false );
             }
         }
 

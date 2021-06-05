@@ -57,7 +57,7 @@ public class TileCommandComputer extends TileComputer
         @Override
         public boolean acceptsSuccess()
         {
-            return getLevel().getGameRules().getBoolean( GameRules.RULE_SENDCOMMANDFEEDBACK );
+            return true;
         }
 
         @Override

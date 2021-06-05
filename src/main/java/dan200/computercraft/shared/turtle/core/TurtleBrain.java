@@ -160,8 +160,8 @@ public class TurtleBrain implements ITurtleAccess
         overlay = nbt.contains( NBT_OVERLAY ) ? new ResourceLocation( nbt.getString( NBT_OVERLAY ) ) : null;
 
         // Read upgrades
-        setUpgrade( TurtleSide.LEFT, nbt.contains( NBT_LEFT_UPGRADE ) ? TurtleUpgrades.get( nbt.getString( NBT_LEFT_UPGRADE ) ) : null );
-        setUpgrade( TurtleSide.RIGHT, nbt.contains( NBT_RIGHT_UPGRADE ) ? TurtleUpgrades.get( nbt.getString( NBT_RIGHT_UPGRADE ) ) : null );
+        setUpgradeDirect( TurtleSide.LEFT, nbt.contains( NBT_LEFT_UPGRADE ) ? TurtleUpgrades.get( nbt.getString( NBT_LEFT_UPGRADE ) ) : null );
+        setUpgradeDirect( TurtleSide.RIGHT, nbt.contains( NBT_RIGHT_UPGRADE ) ? TurtleUpgrades.get( nbt.getString( NBT_RIGHT_UPGRADE ) ) : null );
 
         // NBT
         upgradeNBTData.clear();
@@ -619,15 +619,29 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public void setUpgrade( @Nonnull TurtleSide side, ITurtleUpgrade upgrade )
     {
+        if( !setUpgradeDirect( side, upgrade ) ) return;
+
+        // This is a separate function to avoid updating the block when reading the NBT. We don't need to do this as
+        // either the block is newly placed (and so won't have changed) or is being updated with /data, which calls
+        // updateBlock for us.
+        if( owner.getLevel() != null )
+        {
+            owner.updateBlock();
+            owner.updateInput();
+        }
+    }
+
+    private boolean setUpgradeDirect( @Nonnull TurtleSide side, ITurtleUpgrade upgrade )
+    {
         // Remove old upgrade
         if( upgrades.containsKey( side ) )
         {
-            if( upgrades.get( side ) == upgrade ) return;
+            if( upgrades.get( side ) == upgrade ) return false;
             upgrades.remove( side );
         }
         else
         {
-            if( upgrade == null ) return;
+            if( upgrade == null ) return false;
         }
 
         upgradeNBTData.remove( side );
@@ -639,8 +653,9 @@ public class TurtleBrain implements ITurtleAccess
         if( owner.getLevel() != null )
         {
             updatePeripherals( owner.createServerComputer() );
-            owner.updateBlock();
         }
+
+        return true;
     }
 
     @Override

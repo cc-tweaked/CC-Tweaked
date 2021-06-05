@@ -68,19 +68,33 @@ public final class ChatHelpers
             : coloured( translate( "commands.computercraft.generic.no" ), TextFormatting.RED );
     }
 
-    public static IFormattableTextComponent link( IFormattableTextComponent component, String command, ITextComponent toolTip )
+    public static ITextComponent link( IFormattableTextComponent component, String command, ITextComponent toolTip )
+    {
+        return link( component, new ClickEvent( ClickEvent.Action.RUN_COMMAND, command ), toolTip );
+    }
+
+    public static ITextComponent link( ITextComponent component, ClickEvent click, ITextComponent toolTip )
     {
         Style style = component.getStyle();
 
         if( style.getColor() == null ) style = style.withColor( TextFormatting.YELLOW );
-        style = style.withClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, command ) );
+        style = style.withClickEvent( click );
         style = style.withHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, toolTip ) );
 
-        return component.setStyle( style );
+        return component.copy().withStyle( style );
     }
 
     public static IFormattableTextComponent header( String text )
     {
         return coloured( text, HEADER );
+    }
+
+    public static IFormattableTextComponent copy( String text )
+    {
+        StringTextComponent name = new StringTextComponent( text );
+        Style style = name.getStyle()
+            .withClickEvent( new ClickEvent( ClickEvent.Action.COPY_TO_CLIPBOARD, text ) )
+            .withHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new TranslationTextComponent( "gui.computercraft.tooltip.copy" ) ) );
+        return name.withStyle( style );
     }
 }

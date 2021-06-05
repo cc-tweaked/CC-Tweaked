@@ -47,7 +47,7 @@ public class TurtleMoveCommand implements ITurtleCommand
         BlockPos oldPosition = turtle.getPosition();
         BlockPos newPosition = oldPosition.relative( direction );
 
-        TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );
+        TurtlePlayer turtlePlayer = TurtlePlayer.getWithPosition( turtle, oldPosition, direction );
         TurtleCommandResult canEnterResult = canEnter( turtlePlayer, oldWorld, newPosition );
         if( !canEnterResult.isSuccess() )
         {

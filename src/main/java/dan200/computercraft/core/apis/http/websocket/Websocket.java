@@ -166,7 +166,7 @@ public class Websocket extends Resource<Websocket>
                 .remoteAddress( socketAddress )
                 .connect()
                 .addListener( c -> {
-                    if( !c.isSuccess() ) failure( c.cause().getMessage() );
+                    if( !c.isSuccess() ) failure( NetworkUtils.toFriendlyError( c.cause() ) );
                 } );
 
             // Do an additional check for cancellation
@@ -178,7 +178,7 @@ public class Websocket extends Resource<Websocket>
         }
         catch( Exception e )
         {
-            failure( "Could not connect" );
+            failure( NetworkUtils.toFriendlyError( e ) );
             if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error in websocket", e );
         }
     }

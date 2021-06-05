@@ -10,7 +10,7 @@ import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
 import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
-import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
+import dan200.computercraft.shared.CommonHooks;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.loot.*;
@@ -46,7 +46,7 @@ public class LootTables extends LootTableProvider
         computerDrop( add, Registry.ModBlocks.TURTLE_NORMAL );
         computerDrop( add, Registry.ModBlocks.TURTLE_ADVANCED );
 
-        add.accept( ComputerCraftProxyCommon.ForgeHandlers.LOOT_TREASURE_DISK, LootTable
+        add.accept( CommonHooks.LOOT_TREASURE_DISK, LootTable
             .lootTable()
             .setParamSet( LootParameterSets.ALL_PARAMS )
             .build() );

@@ -183,7 +183,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     public void exceptionCaught( ChannelHandlerContext ctx, Throwable cause )
     {
         if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error handling HTTP response", cause );
-        request.failure( cause );
+        request.failure( NetworkUtils.toFriendlyError( cause ) );
     }
 
     private void sendResponse()

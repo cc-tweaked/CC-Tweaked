@@ -5,7 +5,7 @@ import dan200.computercraft.ingame.api.TestContext
 import dan200.computercraft.ingame.api.checkComputerOk
 
 class TurtleTest {
-    @GameTest(required = false)
+    @GameTest
     suspend fun `Unequip refreshes peripheral`(context: TestContext) = context.checkComputerOk(1)
 
     /**
@@ -33,7 +33,7 @@ class TurtleTest {
     suspend fun `Place waterlogged`(context: TestContext) = context.checkComputerOk(7)
 
     /**
-     * Checks turtles can place when waterlogged.
+     * Checks turtles can pick up lava
      *
      * @see [#297](https://github.com/SquidDev-CC/CC-Tweaked/issues/297)
      */
@@ -41,7 +41,7 @@ class TurtleTest {
     suspend fun `Gather lava`(context: TestContext) = context.checkComputerOk(8)
 
     /**
-     * Checks turtles can place when waterlogged.
+     * Checks turtles can hoe dirt.
      *
      * @see [#258](https://github.com/SquidDev-CC/CC-Tweaked/issues/258)
      */
@@ -57,9 +57,15 @@ class TurtleTest {
     suspend fun `Place monitor`(context: TestContext) = context.checkComputerOk(10)
 
     /**
-     * Checks computers can place into compostors. These are non-typical inventories, so
-     * worth ensuring.
+     * Checks turtles can place into compostors. These are non-typical inventories, so
+     * worth testing.
      */
     @GameTest
     suspend fun `Use compostors`(context: TestContext) = context.checkComputerOk(11)
+
+    /**
+     * Checks turtles can be cleaned in cauldrons.
+     */
+    @GameTest
+    suspend fun `Cleaned with cauldrons`(context: TestContext) = context.checkComputerOk(12)
 }
