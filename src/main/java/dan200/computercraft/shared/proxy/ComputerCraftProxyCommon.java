@@ -24,6 +24,7 @@ import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.media.items.RecordMedia;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
+import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.turtle.FurnaceRefuelHandler;
 import dan200.computercraft.shared.turtle.SignInspectHandler;
@@ -53,6 +54,8 @@ public final class ComputerCraftProxyCommon {
         registerHandlers();
 
         ArgumentSerializers.register();
+
+        ComputerCraftAPI.registerGenericSource(new InventoryMethods());
     }
 
     private static void registerProviders() {
