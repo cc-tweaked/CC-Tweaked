@@ -7,15 +7,20 @@ package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
+import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import org.lwjgl.glfw.GLFW;
+
+import static dan200.computercraft.shared.turtle.inventory.ContainerTurtle.*;
 
 public class GuiTurtle extends ContainerScreen<ContainerTurtle>
 {
@@ -48,8 +53,10 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
         minecraft.keyboardHandler.setSendRepeatsToGui( true );
 
         terminal = addButton( new WidgetTerminal(
-            computer, 8 + leftPos, 8 + topPos, ComputerCraft.turtleTermWidth, ComputerCraft.turtleTermHeight
+            computer, leftPos + BORDER + ComputerSidebar.WIDTH, topPos + BORDER,
+            ComputerCraft.turtleTermWidth, ComputerCraft.turtleTermHeight
         ) );
+        ComputerSidebar.addButtons( this, computer, this::addButton, leftPos, topPos + BORDER );
         setFocused( terminal );
     }
 
@@ -86,7 +93,10 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
 
         RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
         minecraft.getTextureManager().bind( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
-        blit( leftPos, topPos, 0, 0, imageWidth, imageHeight );
+        blit( leftPos + ComputerSidebar.WIDTH, topPos, 0, 0, imageWidth, imageHeight );
+
+        minecraft.getTextureManager().bind( advanced ? ComputerBorderRenderer.BACKGROUND_ADVANCED : ComputerBorderRenderer.BACKGROUND_NORMAL );
+        ComputerSidebar.renderBackground( leftPos, topPos + BORDER );
 
         int slot = container.getSelectedSlot();
         if( slot >= 0 )
@@ -95,7 +105,7 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
             int slotX = slot % 4;
             int slotY = slot / 4;
             blit(
-                leftPos + ContainerTurtle.TURTLE_START_X - 2 + slotX * 18, topPos + ContainerTurtle.PLAYER_START_Y - 2 + slotY * 18,
+                leftPos + TURTLE_START_X - 2 + slotX * 18, topPos + PLAYER_START_Y - 2 + slotY * 18,
                 0, 217, 24, 24
             );
         }
@@ -107,6 +117,11 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
         renderBackground();
         super.render( mouseX, mouseY, partialTicks );
         renderTooltip( mouseX, mouseY );
+
+        for( Widget widget : buttons )
+        {
+            if( widget.isHovered() ) widget.renderToolTip( mouseX, mouseY );
+        }
     }
 
     @Override

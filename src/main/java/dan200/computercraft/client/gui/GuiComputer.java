@@ -118,7 +118,6 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
         // Draw a border around the terminal
         RenderSystem.color4f( 1, 1, 1, 1 );
         minecraft.getTextureManager().bind( ComputerBorderRenderer.getTexture( family ) );
-
         ComputerBorderRenderer.render( terminal.x, terminal.y, getBlitOffset(), terminal.getWidth(), terminal.getHeight() );
         ComputerSidebar.renderBackground( leftPos, topPos + BORDER );
     }

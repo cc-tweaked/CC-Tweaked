@@ -9,11 +9,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.function.IntSupplier;
 
 /**
@@ -29,18 +29,18 @@ public class DynamicImageButton extends Button
     private final int yDiffTex;
     private final int textureWidth;
     private final int textureHeight;
-    private final NonNullSupplier<String> message;
+    private final NonNullSupplier<List<String>> tooltip;
 
     public DynamicImageButton(
         Screen screen, int x, int y, int width, int height, int xTexStart, int yTexStart, int yDiffTex,
         ResourceLocation texture, int textureWidth, int textureHeight,
-        IPressable onPress, String message
+        IPressable onPress, List<String> tooltip
     )
     {
         this(
             screen, x, y, width, height, () -> xTexStart, yTexStart, yDiffTex,
             texture, textureWidth, textureHeight,
-            onPress, () -> message
+            onPress, () -> tooltip
         );
     }
 
@@ -48,7 +48,7 @@ public class DynamicImageButton extends Button
     public DynamicImageButton(
         Screen screen, int x, int y, int width, int height, IntSupplier xTexStart, int yTexStart, int yDiffTex,
         ResourceLocation texture, int textureWidth, int textureHeight,
-        IPressable onPress, NonNullSupplier<String> message
+        IPressable onPress, NonNullSupplier<List<String>> tooltip
     )
     {
         super( x, y, width, height, "", onPress );
@@ -59,7 +59,7 @@ public class DynamicImageButton extends Button
         this.yTexStart = yTexStart;
         this.yDiffTex = yDiffTex;
         this.texture = texture;
-        this.message = message;
+        this.tooltip = tooltip;
     }
 
     public void renderButton( int mouseX, int mouseY, float partialTicks )
@@ -79,12 +79,14 @@ public class DynamicImageButton extends Button
     @Override
     public String getMessage()
     {
-        return I18n.get( message.get() );
+        List<String> tooltip = this.tooltip.get();
+        return tooltip.isEmpty() ? "" : tooltip.get( 0 );
     }
 
     @Override
     public void renderToolTip( int mouseX, int mouseY )
     {
-        screen.renderTooltip( getMessage(), mouseX, mouseY );
+        List<String> tooltip = this.tooltip.get();
+        if( !tooltip.isEmpty() ) screen.renderTooltip( tooltip, mouseX, mouseY );
     }
 }

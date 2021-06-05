@@ -10,8 +10,11 @@ import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextFormatting;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 /**
@@ -48,7 +51,13 @@ public final class ComputerSidebar
         add.accept( new DynamicImageButton(
             screen, x, y, ICON_WIDTH, ICON_HEIGHT, () -> computer.isOn() ? 15 : 1, 1, ICON_TEX_Y_DIFF,
             TEXTURE, TEX_SIZE, TEX_SIZE, b -> toggleComputer( computer ),
-            () -> computer.isOn() ? "gui.computercraft.tooltip.turn_off" : "gui.computercraft.tooltip.turn_on"
+            () -> computer.isOn() ? Arrays.asList(
+                I18n.get( "gui.computercraft.tooltip.turn_off" ),
+                TextFormatting.GRAY + I18n.get( "gui.computercraft.tooltip.turn_off.key" )
+            ) : Arrays.asList(
+                I18n.get( "gui.computercraft.tooltip.turn_on" ),
+                TextFormatting.GRAY + I18n.get( "gui.computercraft.tooltip.turn_off.key" )
+            )
         ) );
 
         y += ICON_HEIGHT + ICON_MARGIN * 2;
@@ -56,7 +65,10 @@ public final class ComputerSidebar
         add.accept( new DynamicImageButton(
             screen, x, y, ICON_WIDTH, ICON_HEIGHT, 29, 1, ICON_TEX_Y_DIFF,
             TEXTURE, TEX_SIZE, TEX_SIZE, b -> computer.queueEvent( "terminate" ),
-            "gui.computercraft.tooltip.terminate"
+            Arrays.asList(
+                I18n.get( "gui.computercraft.tooltip.terminate" ),
+                TextFormatting.GRAY + I18n.get( "gui.computercraft.tooltip.terminate.key" )
+            )
         ) );
     }
 
