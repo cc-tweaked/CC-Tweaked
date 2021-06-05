@@ -147,7 +147,7 @@ public final class ClientRegistry
             ( stack, world, player ) -> ItemPocketComputer.getState( stack ).ordinal(),
             Registry.ModItems.POCKET_COMPUTER_NORMAL, Registry.ModItems.POCKET_COMPUTER_ADVANCED
         );
-        registerItemProperty( "state",
+        registerItemProperty( "coloured",
             ( stack, world, player ) -> IColouredItem.getColourBasic( stack ) != -1 ? 1 : 0,
             Registry.ModItems.POCKET_COMPUTER_NORMAL, Registry.ModItems.POCKET_COMPUTER_ADVANCED
         );
