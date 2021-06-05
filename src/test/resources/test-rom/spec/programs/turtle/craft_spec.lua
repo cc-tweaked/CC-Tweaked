@@ -71,7 +71,7 @@ describe("The craft program", function()
         stub(_G, "turtle", {
             craft = function()
                 return true
-            end
+            end,
             getItemCount = function() return 17 end,
             getSelectedSlot = function() return 1 end,
         })
