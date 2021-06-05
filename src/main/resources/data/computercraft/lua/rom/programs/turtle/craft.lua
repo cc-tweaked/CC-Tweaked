@@ -11,9 +11,9 @@ end
 local tArgs = { ... }
 local nLimit = tonumber(tArgs[1])
 
-if not nLimit and tArgs[1] then
+if not nLimit and tArgs[1] ~= "all" then
     local programName = arg[0] or fs.getName(shell.getRunningProgram())
-    print("Usage: " .. programName .. " [number]")
+    print("Usage: " .. programName .. " [all/number]")
     return
 end
 
