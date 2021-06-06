@@ -1,3 +1,27 @@
 {
-	"java.configuration.updateBuildConfiguration": "automatic"
+	"files.exclude": {
+		// Default Java Dev
+        "**/.classpath": true,
+        "**/.project": true,
+        "**/.settings": true,
+        "**/.factorypath": true,
+
+		// Custom Hidden Files
+		"**/.bin": true,
+		"**/.editorconfig": true,
+    },	
+	
+	"java.configuration.updateBuildConfiguration": "automatic",
+	"java.home": "/home/gitpod/.sdkman/candidates/java/11.0.10.fx-zulu",
+	"java.configuration.runtimes": [
+		{
+		  "name": "JavaSE-1.8",
+		  "path": "/home/gitpod/.sdkman/candidates/java/current",
+		  "default": true
+		},
+		{
+		  "name": "JavaSE-11",
+		  "path": "/home/gitpod/.sdkman/candidates/java/11.0.10.fx-zulu",
+		}
+	]
 }

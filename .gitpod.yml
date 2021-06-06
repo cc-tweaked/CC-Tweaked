@@ -1,4 +1,19 @@
 image:
   file: .gitpod.Dockerfile
+
+ports:
+  - port: 25565
+    onOpen: notify
+
+vscode:
+  extensions:
+    - eamodio.gitlens
+    - github.vscode-pull-request-github
+    - redhat.java
+    - richardwillis.vscode-gradle
+    - vscjava.vscode-java-debug
+
+
 tasks:
   - init: ./gradlew
+    command: ./gradlew genSources
