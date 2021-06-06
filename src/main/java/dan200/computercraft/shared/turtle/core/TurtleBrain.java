@@ -503,20 +503,15 @@ public class TurtleBrain implements ITurtleAccess
         setFuelLevel( getFuelLevel() + addition );
     }
 
-    private int issueCommand( ITurtleCommand command )
-    {
-        commandQueue.offer( new TurtleCommandQueueEntry( ++commandsIssued, command ) );
-        return commandsIssued;
-    }
-
     @Nonnull
     @Override
     public MethodResult executeCommand( @Nonnull ITurtleCommand command )
     {
         if( getWorld().isClientSide ) throw new UnsupportedOperationException( "Cannot run commands on the client" );
+        if( commandQueue.size() > 16 ) return MethodResult.of( false, "Too many ongoing turtle commands" );
 
-        // Issue command
-        int commandID = issueCommand( command );
+        commandQueue.offer( new TurtleCommandQueueEntry( ++commandsIssued, command ) );
+        int commandID = commandsIssued;
         return new CommandCallback( commandID ).pull;
     }
 
