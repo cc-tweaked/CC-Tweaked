@@ -13,7 +13,7 @@ local nLimit = tonumber(tArgs[1])
 
 if not nLimit and tArgs[1] ~= "all" then
     local programName = arg[0] or fs.getName(shell.getRunningProgram())
-    print("Usage: " .. programName .. " [all/number]")
+    print("Usage: " .. programName .. " all|<number>")
     return
 end
 

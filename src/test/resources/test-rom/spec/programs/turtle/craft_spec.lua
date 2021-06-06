@@ -19,14 +19,14 @@ describe("The craft program", function()
         stub(_G, "turtle", { craft = function() end })
 
         expect(capture(stub, "/rom/programs/turtle/craft.lua"))
-            :matches { ok = true, output = "Usage: /rom/programs/turtle/craft.lua [all/number]\n", error = "" }
+            :matches { ok = true, output = "Usage: /rom/programs/turtle/craft.lua all|<number>\n", error = "" }
     end)
 
     it("displays its usage when given incorrect arguments", function()
         stub(_G, "turtle", { craft = function() end })
 
         expect(capture(stub, "/rom/programs/turtle/craft.lua a"))
-            :matches { ok = true, output = "Usage: /rom/programs/turtle/craft.lua [all/number]\n", error = "" }
+            :matches { ok = true, output = "Usage: /rom/programs/turtle/craft.lua all|<number>\n", error = "" }
     end)
 
     it("crafts multiple items", function()
