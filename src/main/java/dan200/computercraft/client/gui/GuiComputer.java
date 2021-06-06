@@ -7,8 +7,8 @@ package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
-import dan200.computercraft.client.gui.widgets.WidgetWrapper;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -17,12 +17,12 @@ import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.text.ITextComponent;
 import org.lwjgl.glfw.GLFW;
 
 import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
-import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
 
 public final class GuiComputer<T extends ContainerComputerBase> extends ContainerScreen<T>
 {
@@ -31,8 +31,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     private final int termWidth;
     private final int termHeight;
 
-    private WidgetTerminal terminal;
-    private WidgetWrapper terminalWrapper;
+    private WidgetTerminal terminal = null;
 
     private GuiComputer(
         T container, PlayerInventory player, ITextComponent title, int termWidth, int termHeight
@@ -43,7 +42,9 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
         computer = (ClientComputer) container.getComputer();
         this.termWidth = termWidth;
         this.termHeight = termHeight;
-        terminal = null;
+
+        imageWidth = WidgetTerminal.getWidth( termWidth ) + BORDER * 2 + ComputerSidebar.WIDTH;
+        imageHeight = WidgetTerminal.getHeight( termHeight ) + BORDER * 2;
     }
 
     public static GuiComputer<ContainerComputer> create( ContainerComputer container, PlayerInventory inventory, ITextComponent component )
@@ -74,29 +75,21 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     @Override
     protected void init()
     {
-        minecraft.keyboardHandler.setSendRepeatsToGui( true );
-
-        int termPxWidth = termWidth * FixedWidthFontRenderer.FONT_WIDTH;
-        int termPxHeight = termHeight * FixedWidthFontRenderer.FONT_HEIGHT;
-
-        imageWidth = termPxWidth + MARGIN * 2 + BORDER * 2;
-        imageHeight = termPxHeight + MARGIN * 2 + BORDER * 2;
-
         super.init();
 
-        terminal = new WidgetTerminal( minecraft, () -> computer, termWidth, termHeight, MARGIN, MARGIN, MARGIN, MARGIN );
-        terminalWrapper = new WidgetWrapper( terminal, MARGIN + BORDER + leftPos, MARGIN + BORDER + topPos, termPxWidth, termPxHeight );
+        minecraft.keyboardHandler.setSendRepeatsToGui( true );
 
-        children.add( terminalWrapper );
-        setFocused( terminalWrapper );
+        terminal = addButton( new WidgetTerminal( computer,
+            leftPos + ComputerSidebar.WIDTH + BORDER, topPos + BORDER, termWidth, termHeight
+        ) );
+        ComputerSidebar.addButtons( this, computer, this::addButton, leftPos, topPos + BORDER );
+        setFocused( terminal );
     }
 
     @Override
     public void removed()
     {
         super.removed();
-        children.remove( terminal );
-        terminal = null;
         minecraft.keyboardHandler.setSendRepeatsToGui( false );
     }
 
@@ -111,7 +104,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     public boolean keyPressed( int key, int scancode, int modifiers )
     {
         // Forward the tab key to the terminal, rather than moving between controls.
-        if( key == GLFW.GLFW_KEY_TAB && getFocused() != null && getFocused() == terminalWrapper )
+        if( key == GLFW.GLFW_KEY_TAB && getFocused() != null && getFocused() == terminal )
         {
             return getFocused().keyPressed( key, scancode, modifiers );
         }
@@ -122,16 +115,11 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
     @Override
     public void renderBg( float partialTicks, int mouseX, int mouseY )
     {
-        // Draw terminal
-        terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
-
         // Draw a border around the terminal
         RenderSystem.color4f( 1, 1, 1, 1 );
         minecraft.getTextureManager().bind( ComputerBorderRenderer.getTexture( family ) );
-        ComputerBorderRenderer.render(
-            terminalWrapper.getX() - MARGIN, terminalWrapper.getY() - MARGIN, getBlitOffset(),
-            terminalWrapper.getWidth() + MARGIN * 2, terminalWrapper.getHeight() + MARGIN * 2
-        );
+        ComputerBorderRenderer.render( terminal.x, terminal.y, getBlitOffset(), terminal.getWidth(), terminal.getHeight() );
+        ComputerSidebar.renderBackground( leftPos, topPos + BORDER );
     }
 
     @Override
@@ -140,6 +128,11 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Containe
         renderBackground();
         super.render( mouseX, mouseY, partialTicks );
         renderTooltip( mouseX, mouseY );
+
+        for( Widget widget : buttons )
+        {
+            if( widget.isHovered() ) widget.renderToolTip( mouseX, mouseY );
+        }
     }
 
     @Override
