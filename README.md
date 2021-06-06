@@ -1,14 +1,12 @@
-# CC:Restitched Patchwork
-# CC:R Version VS CC:T Version
-CC:R Strives to maintaim perfect pairity with CC:R, however in some cases this is not possible, or atleast, not yet, so just because you might be on CC:R 1.96.6, doesnt mean you are on CC:T 1.96.6. 
+# CC:Restitched Updated
 
 <img src="logo.png" alt="CC: Restitched" width="100%"/>
 
-*it works and runs-ish*
-
 [![Current build status](https://github.com/Merith-TK/cc-restitched/workflows/Build/badge.svg)](https://github.com/Merith-TK/cc-restitched/actions "Current build status") [![Download CC: Restitched  on CurseForge](http://cf.way2muchnoise.eu/title/cc-restitched.svg)](https://www.curseforge.com/minecraft/mc-mods/cc-restitched-updated "Download CC: Restitched on CurseForge")
 
-## What?
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/Merith-TK/cc-restitched/)
+
+## What is CC: Restiched
 This is an fork of [Zundrel/cc-tweaked-fabric](https://github.com/Zundrel/cc-tweaked-fabric) who's goal was to port [SquidDev-CC/CC-Tweaked](https://github.com/SquidDev-CC/CC-Tweaked) to the [Fabric](https://fabricmc.net/) modloader. I picked up maintaining the mod because the team working on Zundrel's fork, admitted they had gotten lethargic so I picked it up to make it equal with CC:T
 
 ## Resource Packs
@@ -19,11 +17,9 @@ We also have a second resourcepack made by [3prm3](https://github.com/3prm3), it
 
 ## Major Tasks Planned
 * Rewrite the config system
-    * **Planned for 1.96.0 release**
+    * **Planned for 1.96.3 release**
 	* it currently sets the values that would normally be read from `config/computercraft.json` to the default values, because it does not read the file at all
-* Fixing `/computercraft` commands,
-    * No clue why they broken, they just are
-	
+
 ## Contributing
 Any contribution is welcome, be that using the mod, reporting bugs or contributing code. In order to start helping develop CC:R there are a few rules
 1) Any updates that port commits from CC:T, ***MUST*** follow the format defined in [patchwork.md](patchwork.md) otherwise they will not be accepted,
