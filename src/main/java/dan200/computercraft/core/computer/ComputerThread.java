@@ -506,6 +506,8 @@ public final class ComputerThread
                 catch( Exception | LinkageError | VirtualMachineError e )
                 {
                     ComputerCraft.log.error( "Error running task on computer #" + executor.getComputer().getID(), e );
+                    // Tear down the computer immediately. There's no guarantee it's well behaved from now on.
+                    executor.fastFail();
                 }
                 finally
                 {
