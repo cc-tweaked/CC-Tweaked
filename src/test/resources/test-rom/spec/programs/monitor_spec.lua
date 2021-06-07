@@ -36,9 +36,9 @@ describe("The monitor program", function()
                 error = "",
             }
         expect(capture(stub, "monitor", "scale", "top", "0.5"))
-            :matches { ok = true, output = "No monitor named top", error = "" }
+            :matches { ok = true, output = "No monitor named top\n", error = "" }
         expect(capture(stub, "monitor", "scale", "left", "aaa"))
-            :matches { ok = true, output = "Invalid scale: aaa", error = "" }
+            :matches { ok = true, output = "Invalid scale: aaa\n", error = "" }
         expect(r):equals(1)
     end)
 end)
