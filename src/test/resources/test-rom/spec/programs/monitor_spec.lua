@@ -21,7 +21,7 @@ describe("The monitor program", function()
             :matches { ok = true, output = "", error = "" }
         expect(r):equals(0.5)
     end)
-        
+
     it("displays correct error messages", function()
         local r = 1
         stub(peripheral, "call", function(s, f, t) r = t end)
