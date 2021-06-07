@@ -20,6 +20,10 @@ process. When building on Windows, Use `gradlew.bat` instead of `./gradlew`.
  - **Setup Forge:** `./gradlew build`
  - **Run Minecraft:** `./gradlew runClient` (or run the `GradleStart` class from your IDE).
 
+ - **Optionally:** You can use Gitpod, Do note you will need to download the mod after compiling to test.
+
+   [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-2b2b2b?logo=gitpod)](https://gitpod.io/#https://github.com/SquidDev-CC/CC-Tweaked/)
+
 If you want to run CC:T in a normal Minecraft instance, run `./gradlew build` and copy the `.jar` from `build/libs`.
 These commands may take a few minutes to run the first time, as the environment is set up, but should be much faster
 afterwards.
