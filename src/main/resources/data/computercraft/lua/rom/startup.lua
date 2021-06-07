@@ -106,6 +106,7 @@ shell.setCompletionFunction("rom/programs/rename.lua", completion.build(
     { completion.dirOrFile, true },
     completion.dirOrFile
 ))
+shell.setCompletionFunction("rom/programs/shell.lua", completion.build({ completion.programWithArgs, 2, many = true }))
 shell.setCompletionFunction("rom/programs/type.lua", completion.build(completion.dirOrFile))
 shell.setCompletionFunction("rom/programs/set.lua", completion.build({ completion.setting, true }))
 shell.setCompletionFunction("rom/programs/advanced/bg.lua", completion.build({ completion.programWithArgs, 2, many = true }))
