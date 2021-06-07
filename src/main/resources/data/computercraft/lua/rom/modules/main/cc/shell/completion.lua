@@ -110,7 +110,7 @@ local function programWithArgs(shell, text, previous, starting)
         if not resolved then return end
         local tCompletion = shell.getCompletionInfo()[resolved]
         if not tCompletion then return end
-        return tCompletion.fnComplete(shell, #previous - starting + 1, text, {program, table.unpack(previous,starting+1,#previous)})
+        return tCompletion.fnComplete(shell, #previous - starting + 1, text, { program, table.unpack(previous, starting + 1, #previous) })
     end
 end
 

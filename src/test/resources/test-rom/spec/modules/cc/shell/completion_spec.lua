@@ -27,14 +27,14 @@ describe("cc.shell.completion", function()
 
     describe("programWithArgs", function()
         it("completes program name", function()
-            shell.setCompletionFunction("rom/motd.txt",function() end)
-            expect(c.programWithArgs(shell, "rom/", {"rom/programs/shell.lua"}, 2)):same {
+            shell.setCompletionFunction("rom/motd.txt", function() end)
+            expect(c.programWithArgs(shell, "rom/", { "rom/programs/shell.lua" }, 2)):same {
                 "apis/", "autorun/", "help/", "modules/", "motd.txt ", "programs/", "startup.lua",
             }
         end)
 
         it("completes program arguments", function()
-            expect(c.programWithArgs(shell, "", {"rom/programs/shell.lua","pastebin"}, 2)):same {
+            expect(c.programWithArgs(shell, "", { "rom/programs/shell.lua", "pastebin" }, 2)):same {
                 "put ", "get ", "run ",
             }
         end)
