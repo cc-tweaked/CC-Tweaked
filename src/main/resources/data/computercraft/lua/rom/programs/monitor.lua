@@ -7,7 +7,7 @@ local function printUsage()
 end
 
 local tArgs = { ... }
-if #tArgs < 2 or (tArgs[1] == "scale" and #tArgs < 3) then
+if #tArgs < 2 or tArgs[1] == "scale" and #tArgs < 3 then
     printUsage()
     return
 end
