@@ -31,7 +31,6 @@ local completion = require "cc.completion"
 --
 -- @tparam table shell The shell we're completing in.
 -- @tparam string text Current text to complete.
--- @tparam { string... } previous The shell arguments before this one.
 -- @treturn { string... } A list of suffixes of matching files.
 local function file(shell, text)
     return fs.complete(text, shell.dir(), true, false)
@@ -41,7 +40,6 @@ end
 --
 -- @tparam table shell The shell we're completing in.
 -- @tparam string text Current text to complete.
--- @tparam { string... } previous The shell arguments before this one.
 -- @treturn { string... } A list of suffixes of matching directories.
 local function dir(shell, text)
     return fs.complete(text, shell.dir(), false, true)
@@ -78,22 +76,10 @@ end
 --
 -- @tparam table shell The shell we're completing in.
 -- @tparam string text Current text to complete.
--- @tparam { string... } previous The shell arguments before this one.
--- @tparam[opt] boolean completion_space Whether to add a space after the completed item if there is completion for this program.
 -- @treturn { string... } A list of suffixes of matching programs.
 -- @see shell.completeProgram
-local function program(shell, text, previous, completion_space)
-    local results = shell.completeProgram(text)
-    if completion_space then
-        local tCompletionInfo = shell.getCompletionInfo()
-        for n = 1, #results do
-            local sResult = results[n]
-            if sResult:sub(-1) ~= "/" and tCompletionInfo[shell.resolveProgram(text .. sResult)] then
-                results[n] = sResult .. " "
-            end
-        end
-    end
-    return results
+local function program(shell, text)
+    return shell.completeProgram(text)
 end
 
 --- Complete arguments of a program.
@@ -101,16 +87,31 @@ end
 -- @tparam table shell The shell we're completing in.
 -- @tparam string text Current text to complete.
 -- @tparam { string... } previous The shell arguments before this one.
--- @tparam string|number program Path of program to complete args for, or a number of argument index which specified program.
--- @tparam number starting Which argument index this program args started at.
--- @treturn { string... } A list of suffixes of matching programs.
--- @see shell.completeProgram
-local function programArgs(shell, text, previous, program, starting)
-    local resolved = type(program) == "string" and program or shell.resolveProgram(previous[program])
-    if not resolved then return end
-    local tCompletionInfo = shell.getCompletionInfo()
-    if not tCompletionInfo[resolved] then return end
-    return tCompletionInfo[resolved].fnComplete(shell, #previous - starting + 2, text, {resolved, table.unpack(previous,starting,#previous)})
+-- @tparam number starting Which argument index this program and args start at.
+-- @treturn { string... } A list of suffixes of matching programs or arguments.
+local function programWithArgs(shell, text, previous, starting)
+    if #previous + 1 == starting then
+        local tCompletionInfo = shell.getCompletionInfo()
+        if text:sub(-1) ~= "/" and tCompletionInfo[shell.resolveProgram(text)] then
+            return { " " }
+        else
+            local results = shell.completeProgram(text)
+            for n = 1, #results do
+                local sResult = results[n]
+                if sResult:sub(-1) ~= "/" and tCompletionInfo[shell.resolveProgram(text .. sResult)] then
+                    results[n] = sResult .. " "
+                end
+            end
+            return results
+        end
+    else
+        local program = previous[starting]
+        local resolved = shell.resolveProgram(program)
+        if not resolved then return end
+        local tCompletion = shell.getCompletionInfo()[resolved]
+        if not tCompletion then return end
+        return tCompletion.fnComplete(shell, #previous - starting + 1, text, {program, table.unpack(previous,starting+1,#previous)})
+    end
 end
 
 --[[- A helper function for building shell completion arguments.
@@ -175,7 +176,7 @@ return {
     dir = dir,
     dirOrFile = dirOrFile,
     program = program,
-    programArgs = programArgs,
+    programWithArgs = programWithArgs,
 
     -- Re-export various other functions
     help = wrap(help.completeTopic), --- Wraps @{help.completeTopic} as a @{build} compatible function.

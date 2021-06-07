@@ -23,24 +23,18 @@ describe("cc.shell.completion", function()
                 "apis/", "autorun/", "help/", "modules/", "motd.txt", "programs/", "startup.lua",
             }
         end)
+    end)
 
-        it("adds a space", function()
+    describe("programWithArgs", function()
+        it("completes program name", function()
             shell.setCompletionFunction("rom/motd.txt",function() end)
-            expect(c.program(shell, "rom/", nil, true)):same {
+            expect(c.programWithArgs(shell, "rom/", {"rom/programs/shell.lua"}, 2)):same {
                 "apis/", "autorun/", "help/", "modules/", "motd.txt ", "programs/", "startup.lua",
             }
         end)
-    end)
 
-    describe("programArgs", function()
-        it("completes program from arguments", function()
-            expect(c.programArgs(shell, "", {"rom/programs/shell.lua", "pastebin"}, 2, 3)):same {
-                "put ", "get ", "run ",
-            }
-        end)
-
-        it("completes program from parameter", function()
-            expect(c.programArgs(shell, "", {"rom/programs/shell.lua"}, "rom/programs/http/pastebin.lua", 2)):same {
+        it("completes program arguments", function()
+            expect(c.programWithArgs(shell, "", {"rom/programs/shell.lua","pastebin"}, 2)):same {
                 "put ", "get ", "run ",
             }
         end)

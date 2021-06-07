@@ -81,13 +81,13 @@ shell.setCompletionFunction("rom/programs/monitor.lua", completion.build(
         if previous[2] == "scale" then
             return completion.peripheral(shell, text, previous, true)
         else
-            return completion.program(shell, text, previous, true)
+            return completion.programWithArgs(shell, text, previous, 3)
         end
     end,
     {
         function(shell, text, previous)
             if previous[2] ~= "scale" then
-                return completion.programArgs(shell, text, previous, 3, 4)
+                return completion.programWithArgs(shell, text, previous, 3)
             end
         end,
         many = true
@@ -106,20 +106,11 @@ shell.setCompletionFunction("rom/programs/rename.lua", completion.build(
     { completion.dirOrFile, true },
     completion.dirOrFile
 ))
-shell.setCompletionFunction("rom/programs/shell.lua", completion.build(
-    { completion.program, true},
-    { completion.programArgs, 2, 3, many = true}
-))
+shell.setCompletionFunction("rom/programs/shell.lua", completion.build({ completion.programWithArgs, 2, many = true}))
 shell.setCompletionFunction("rom/programs/type.lua", completion.build(completion.dirOrFile))
 shell.setCompletionFunction("rom/programs/set.lua", completion.build({ completion.setting, true }))
-shell.setCompletionFunction("rom/programs/advanced/bg.lua", completion.build(
-    { completion.program, true},
-    { completion.programArgs, 2, 3, many = true}
-))
-shell.setCompletionFunction("rom/programs/advanced/fg.lua", completion.build(
-    { completion.program, true},
-    { completion.programArgs, 2, 3, many = true}
-))
+shell.setCompletionFunction("rom/programs/advanced/bg.lua", completion.build({ completion.programWithArgs, 2, many = true}))
+shell.setCompletionFunction("rom/programs/advanced/fg.lua", completion.build({ completion.programWithArgs, 2, many = true}))
 shell.setCompletionFunction("rom/programs/fun/dj.lua", completion.build(
     { completion.choice, { "play", "play ", "stop " } },
     completion.peripheral
