@@ -1,4 +1,4 @@
-FROM gitpod/workspace-full
+FROM gitpod/workspace-base
 
 USER gitpod
 
@@ -11,4 +11,9 @@ USER gitpod
 #
 # More information: https://www.gitpod.io/docs/config-docker/
 
-RUN bash -c ". /home/gitpod/.sdkman/bin/sdkman-init.sh && sdk install java 8.0.292.hs-adpt"
+# Install Java 8 and 16
+RUN sudo apt-get -q update && \
+    sudo apt install -yq openjdk-8-jdk openjdk-16-jdk
+
+# This is so that you can use java 8 until such a time as you switch to java 16
+RUN sudo update-java-alternatives --set java-1.8.0-openjdk-amd64
