@@ -1,6 +1,8 @@
 plugins {
-    id 'fabric-loom' version '0.6-SNAPSHOT'
+    id 'fabric-loom' version '0.7-SNAPSHOT'
     id 'maven-publish'
+    id "checkstyle"
+    id "com.github.hierynomus.license" version "0.15.0"
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -22,10 +24,12 @@ repositories {
 }
 
 configurations {
-    compile.extendsFrom shade
+    implementation.extendsFrom shade
 }
 
 dependencies {
+    checkstyle "com.puppycrawl.tools:checkstyle:8.25"
+
     minecraft "com.mojang:minecraft:${mc_version}"
     mappings "net.fabricmc:yarn:${mc_version}+build.${mappings_version}:v2"
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
@@ -37,7 +41,7 @@ dependencies {
     modImplementation "io.github.prospector:modmenu:${modmenu_version}"
     modImplementation "me.shedaniel.cloth.api:cloth-utils-v1:${cloth_api_version}"
 
-    compile 'com.electronwill.night-config:toml:3.6.3'
+    implementation 'com.electronwill.night-config:toml:3.6.3'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
     shade 'org.squiddev:Cobalt:0.5.2-SNAPSHOT'
@@ -83,6 +87,49 @@ jar {
     from "LICENSE"
 
     from configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
+}
+
+
+import com.hierynomus.gradle.license.tasks.LicenseCheck
+import com.hierynomus.gradle.license.tasks.LicenseFormat
+
+license {
+    mapping("java", "SLASHSTAR_STYLE")
+    strictCheck true
+
+    ext.year = Calendar.getInstance().get(Calendar.YEAR)
+}
+
+[licenseMain, licenseFormatMain].forEach {
+    it.configure {
+        include("**/*.java")
+        exclude("dan200/computercraft/api/**")
+        header file('config/license/main.txt')
+    }
+}
+
+[licenseTest, licenseFormatTest].forEach {
+    it.configure {
+        include("**/*.java")
+        header file('config/license/main.txt')
+    }
+}
+
+gradle.projectsEvaluated {
+    tasks.withType(LicenseFormat) {
+        outputs.upToDateWhen { false }
+    }
+}
+
+
+task licenseAPI(type: LicenseCheck);
+task licenseFormatAPI(type: LicenseFormat);
+[licenseAPI, licenseFormatAPI].forEach {
+    it.configure {
+        source = sourceSets.main.java
+        include("dan200/computercraft/api/**")
+        header file('config/license/api.txt')
+    }
 }
 
 // configure the maven publication
