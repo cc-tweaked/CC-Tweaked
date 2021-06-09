@@ -37,109 +37,109 @@ import java.io.InputStream;
 
 public class ServerComputer extends ServerTerminal implements IComputer, IComputerEnvironment
 {
-    private final int m_instanceID;
-    private final ComputerFamily m_family;
-    private final Computer m_computer;
-    private World m_world;
-    private BlockPos m_position;
-    private CompoundTag m_userData;
-    private boolean m_changed;
+    private final int instanceID;
+    private final ComputerFamily family;
+    private final Computer computer;
+    private World world;
+    private BlockPos position;
+    private CompoundTag userData;
+    private boolean changed;
 
-    private boolean m_changedLastFrame;
-    private int m_ticksSincePing;
+    private boolean changedLastFrame;
+    private int ticksSincePing;
 
     public ServerComputer( World world, int computerID, String label, int instanceID, ComputerFamily family, int terminalWidth, int terminalHeight )
     {
         super( family != ComputerFamily.NORMAL, terminalWidth, terminalHeight );
-        this.m_instanceID = instanceID;
+        this.instanceID = instanceID;
 
-        this.m_world = world;
-        this.m_position = null;
+        this.world = world;
+        this.position = null;
 
-        this.m_family = family;
-        this.m_computer = new Computer( this, this.getTerminal(), computerID );
-        this.m_computer.setLabel( label );
-        this.m_userData = null;
-        this.m_changed = false;
+        this.family = family;
+        this.computer = new Computer( this, this.getTerminal(), computerID );
+        this.computer.setLabel( label );
+        this.userData = null;
+        this.changed = false;
 
-        this.m_changedLastFrame = false;
-        this.m_ticksSincePing = 0;
+        this.changedLastFrame = false;
+        this.ticksSincePing = 0;
     }
 
     public ComputerFamily getFamily()
     {
-        return this.m_family;
+        return this.family;
     }
 
     public World getWorld()
     {
-        return this.m_world;
+        return this.world;
     }
 
     public void setWorld( World world )
     {
-        this.m_world = world;
+        this.world = world;
     }
 
     public BlockPos getPosition()
     {
-        return this.m_position;
+        return this.position;
     }
 
     public void setPosition( BlockPos pos )
     {
-        this.m_position = new BlockPos( pos );
+        this.position = new BlockPos( pos );
     }
 
     public IAPIEnvironment getAPIEnvironment()
     {
-        return this.m_computer.getAPIEnvironment();
+        return this.computer.getAPIEnvironment();
     }
 
     public Computer getComputer()
     {
-        return this.m_computer;
+        return this.computer;
     }
 
     @Override
     public void update()
     {
         super.update();
-        this.m_computer.tick();
+        this.computer.tick();
 
-        this.m_changedLastFrame = this.m_computer.pollAndResetChanged() || this.m_changed;
-        this.m_changed = false;
+        this.changedLastFrame = this.computer.pollAndResetChanged() || this.changed;
+        this.changed = false;
 
-        this.m_ticksSincePing++;
+        this.ticksSincePing++;
     }
 
     public void keepAlive()
     {
-        this.m_ticksSincePing = 0;
+        this.ticksSincePing = 0;
     }
 
     public boolean hasTimedOut()
     {
-        return this.m_ticksSincePing > 100;
+        return this.ticksSincePing > 100;
     }
 
     public void unload()
     {
-        this.m_computer.unload();
+        this.computer.unload();
     }
 
     public CompoundTag getUserData()
     {
-        if( this.m_userData == null )
+        if( this.userData == null )
         {
-            this.m_userData = new CompoundTag();
+            this.userData = new CompoundTag();
         }
-        return this.m_userData;
+        return this.userData;
     }
 
     public void updateUserData()
     {
-        this.m_changed = true;
+        this.changed = true;
     }
 
     public void broadcastState( boolean force )
@@ -180,7 +180,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     public boolean hasOutputChanged()
     {
-        return this.m_changedLastFrame;
+        return this.changedLastFrame;
     }
 
     private NetworkMessage createComputerPacket()
@@ -219,14 +219,14 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public int getInstanceID()
     {
-        return this.m_instanceID;
+        return this.instanceID;
     }
 
     @Override
     public void turnOn()
     {
         // Turn on
-        this.m_computer.turnOn();
+        this.computer.turnOn();
     }
 
     // IComputer
@@ -235,33 +235,33 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     public void shutdown()
     {
         // Shutdown
-        this.m_computer.shutdown();
+        this.computer.shutdown();
     }
 
     @Override
     public void reboot()
     {
         // Reboot
-        this.m_computer.reboot();
+        this.computer.reboot();
     }
 
     @Override
     public void queueEvent( String event, Object[] arguments )
     {
         // Queue event
-        this.m_computer.queueEvent( event, arguments );
+        this.computer.queueEvent( event, arguments );
     }
 
     @Override
     public boolean isOn()
     {
-        return this.m_computer.isOn();
+        return this.computer.isOn();
     }
 
     @Override
     public boolean isCursorDisplayed()
     {
-        return this.m_computer.isOn() && this.m_computer.isBlinking();
+        return this.computer.isOn() && this.computer.isBlinking();
     }
 
     public void sendComputerState( PlayerEntity player )
@@ -288,77 +288,77 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     public int getID()
     {
-        return this.m_computer.getID();
+        return this.computer.getID();
     }
 
     public void setID( int id )
     {
-        this.m_computer.setID( id );
+        this.computer.setID( id );
     }
 
     public String getLabel()
     {
-        return this.m_computer.getLabel();
+        return this.computer.getLabel();
     }
 
     public void setLabel( String label )
     {
-        this.m_computer.setLabel( label );
+        this.computer.setLabel( label );
     }
 
     public int getRedstoneOutput( ComputerSide side )
     {
-        return this.m_computer.getEnvironment()
+        return this.computer.getEnvironment()
             .getExternalRedstoneOutput( side );
     }
 
     public void setRedstoneInput( ComputerSide side, int level )
     {
-        this.m_computer.getEnvironment()
+        this.computer.getEnvironment()
             .setRedstoneInput( side, level );
     }
 
     public int getBundledRedstoneOutput( ComputerSide side )
     {
-        return this.m_computer.getEnvironment()
+        return this.computer.getEnvironment()
             .getExternalBundledRedstoneOutput( side );
     }
 
     public void setBundledRedstoneInput( ComputerSide side, int combination )
     {
-        this.m_computer.getEnvironment()
+        this.computer.getEnvironment()
             .setBundledRedstoneInput( side, combination );
     }
 
     public void addAPI( ILuaAPI api )
     {
-        this.m_computer.addApi( api );
+        this.computer.addApi( api );
     }
 
     // IComputerEnvironment implementation
 
     public void setPeripheral( ComputerSide side, IPeripheral peripheral )
     {
-        this.m_computer.getEnvironment()
+        this.computer.getEnvironment()
             .setPeripheral( side, peripheral );
     }
 
     public IPeripheral getPeripheral( ComputerSide side )
     {
-        return this.m_computer.getEnvironment()
+        return this.computer.getEnvironment()
             .getPeripheral( side );
     }
 
     @Override
     public int getDay()
     {
-        return (int) ((this.m_world.getTimeOfDay() + 6000) / 24000) + 1;
+        return (int) ((this.world.getTimeOfDay() + 6000) / 24000) + 1;
     }
 
     @Override
     public double getTimeOfDay()
     {
-        return (this.m_world.getTimeOfDay() + 6000) % 24000 / 1000.0;
+        return (this.world.getTimeOfDay() + 6000) % 24000 / 1000.0;
     }
 
     @Override
@@ -384,13 +384,13 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public int assignNewID()
     {
-        return ComputerCraftAPI.createUniqueNumberedSaveDir( this.m_world, "computer" );
+        return ComputerCraftAPI.createUniqueNumberedSaveDir( this.world, "computer" );
     }
 
     @Override
     public IWritableMount createSaveDirMount( String subPath, long capacity )
     {
-        return ComputerCraftAPI.createSaveDirMount( this.m_world, subPath, capacity );
+        return ComputerCraftAPI.createSaveDirMount( this.world, subPath, capacity );
     }
 
     @Override

@@ -28,13 +28,13 @@ public class TurtleModem extends AbstractTurtleUpgrade
 {
     private final boolean advanced;
     @Environment( EnvType.CLIENT )
-    private ModelIdentifier m_leftOffModel;
+    private ModelIdentifier leftOffModel;
     @Environment( EnvType.CLIENT )
-    private ModelIdentifier m_rightOffModel;
+    private ModelIdentifier rightOffModel;
     @Environment( EnvType.CLIENT )
-    private ModelIdentifier m_leftOnModel;
+    private ModelIdentifier leftOnModel;
     @Environment( EnvType.CLIENT )
-    private ModelIdentifier m_rightOnModel;
+    private ModelIdentifier rightOnModel;
 
     public TurtleModem( boolean advanced, Identifier id )
     {
@@ -71,27 +71,27 @@ public class TurtleModem extends AbstractTurtleUpgrade
             active = turtleNBT.contains( "active" ) && turtleNBT.getBoolean( "active" );
         }
 
-        return side == TurtleSide.LEFT ? TransformedModel.of( active ? this.m_leftOnModel : this.m_leftOffModel ) : TransformedModel.of( active ? this.m_rightOnModel : this.m_rightOffModel );
+        return side == TurtleSide.LEFT ? TransformedModel.of( active ? this.leftOnModel : this.leftOffModel ) : TransformedModel.of( active ? this.rightOnModel : this.rightOffModel );
     }
 
     @Environment( EnvType.CLIENT )
     private void loadModelLocations()
     {
-        if( this.m_leftOffModel == null )
+        if( this.leftOffModel == null )
         {
             if( this.advanced )
             {
-                this.m_leftOffModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_off_left", "inventory" );
-                this.m_rightOffModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_off_right", "inventory" );
-                this.m_leftOnModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_on_left", "inventory" );
-                this.m_rightOnModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_on_right", "inventory" );
+                this.leftOffModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_off_left", "inventory" );
+                this.rightOffModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_off_right", "inventory" );
+                this.leftOnModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_on_left", "inventory" );
+                this.rightOnModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_on_right", "inventory" );
             }
             else
             {
-                this.m_leftOffModel = new ModelIdentifier( "computercraft:turtle_modem_normal_off_left", "inventory" );
-                this.m_rightOffModel = new ModelIdentifier( "computercraft:turtle_modem_normal_off_right", "inventory" );
-                this.m_leftOnModel = new ModelIdentifier( "computercraft:turtle_modem_normal_on_left", "inventory" );
-                this.m_rightOnModel = new ModelIdentifier( "computercraft:turtle_modem_normal_on_right", "inventory" );
+                this.leftOffModel = new ModelIdentifier( "computercraft:turtle_modem_normal_off_left", "inventory" );
+                this.rightOffModel = new ModelIdentifier( "computercraft:turtle_modem_normal_off_right", "inventory" );
+                this.leftOnModel = new ModelIdentifier( "computercraft:turtle_modem_normal_on_left", "inventory" );
+                this.rightOnModel = new ModelIdentifier( "computercraft:turtle_modem_normal_on_right", "inventory" );
             }
         }
     }

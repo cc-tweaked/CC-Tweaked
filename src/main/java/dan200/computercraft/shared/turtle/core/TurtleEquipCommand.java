@@ -22,11 +22,11 @@ import javax.annotation.Nonnull;
 
 public class TurtleEquipCommand implements ITurtleCommand
 {
-    private final TurtleSide m_side;
+    private final TurtleSide side;
 
     public TurtleEquipCommand( TurtleSide side )
     {
-        this.m_side = side;
+        this.side = side;
     }
 
     @Nonnull
@@ -55,7 +55,7 @@ public class TurtleEquipCommand implements ITurtleCommand
 
         // Determine the upgrade to replace
         ItemStack oldUpgradeStack;
-        ITurtleUpgrade oldUpgrade = turtle.getUpgrade( this.m_side );
+        ITurtleUpgrade oldUpgrade = turtle.getUpgrade( this.side );
         if( oldUpgrade != null )
         {
             ItemStack craftingItem = oldUpgrade.getCraftingItem();
@@ -89,7 +89,7 @@ public class TurtleEquipCommand implements ITurtleCommand
                 WorldUtil.dropItemStack( remainder, turtle.getWorld(), position, turtle.getDirection() );
             }
         }
-        turtle.setUpgrade( this.m_side, newUpgrade );
+        turtle.setUpgrade( this.side, newUpgrade );
 
         // Animate
         if( newUpgrade != null || oldUpgrade != null )

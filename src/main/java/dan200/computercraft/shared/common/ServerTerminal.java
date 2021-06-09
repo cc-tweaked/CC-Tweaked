@@ -14,86 +14,86 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ServerTerminal implements ITerminal
 {
-    private final boolean m_colour;
-    private final AtomicBoolean m_terminalChanged = new AtomicBoolean( false );
-    private Terminal m_terminal;
-    private boolean m_terminalChangedLastFrame = false;
+    private final boolean colour;
+    private final AtomicBoolean terminalChanged = new AtomicBoolean( false );
+    private Terminal terminal;
+    private boolean terminalChangedLastFrame = false;
 
     public ServerTerminal( boolean colour )
     {
-        this.m_colour = colour;
-        this.m_terminal = null;
+        this.colour = colour;
+        this.terminal = null;
     }
 
     public ServerTerminal( boolean colour, int terminalWidth, int terminalHeight )
     {
-        this.m_colour = colour;
-        this.m_terminal = new Terminal( terminalWidth, terminalHeight, this::markTerminalChanged );
+        this.colour = colour;
+        this.terminal = new Terminal( terminalWidth, terminalHeight, this::markTerminalChanged );
     }
 
     protected void markTerminalChanged()
     {
-        this.m_terminalChanged.set( true );
+        this.terminalChanged.set( true );
     }
 
     protected void resize( int width, int height )
     {
-        if( this.m_terminal == null )
+        if( this.terminal == null )
         {
-            this.m_terminal = new Terminal( width, height, this::markTerminalChanged );
+            this.terminal = new Terminal( width, height, this::markTerminalChanged );
             this.markTerminalChanged();
         }
         else
         {
-            this.m_terminal.resize( width, height );
+            this.terminal.resize( width, height );
         }
     }
 
     public void delete()
     {
-        if( this.m_terminal != null )
+        if( this.terminal != null )
         {
-            this.m_terminal = null;
+            this.terminal = null;
             this.markTerminalChanged();
         }
     }
 
     public void update()
     {
-        this.m_terminalChangedLastFrame = this.m_terminalChanged.getAndSet( false );
+        this.terminalChangedLastFrame = this.terminalChanged.getAndSet( false );
     }
 
     public boolean hasTerminalChanged()
     {
-        return this.m_terminalChangedLastFrame;
+        return this.terminalChangedLastFrame;
     }
 
     @Override
     public Terminal getTerminal()
     {
-        return this.m_terminal;
+        return this.terminal;
     }
 
     @Override
     public boolean isColour()
     {
-        return this.m_colour;
+        return this.colour;
     }
 
     public TerminalState write()
     {
-        return new TerminalState( this.m_colour, this.m_terminal );
+        return new TerminalState( this.colour, this.terminal );
     }
 
     public void writeDescription( CompoundTag nbt )
     {
-        nbt.putBoolean( "colour", this.m_colour );
-        if( this.m_terminal != null )
+        nbt.putBoolean( "colour", this.colour );
+        if( this.terminal != null )
         {
             CompoundTag terminal = new CompoundTag();
-            terminal.putInt( "term_width", this.m_terminal.getWidth() );
-            terminal.putInt( "term_height", this.m_terminal.getHeight() );
-            this.m_terminal.writeToNBT( terminal );
+            terminal.putInt( "term_width", this.terminal.getWidth() );
+            terminal.putInt( "term_height", this.terminal.getHeight() );
+            this.terminal.writeToNBT( terminal );
             nbt.put( "terminal", terminal );
         }
     }

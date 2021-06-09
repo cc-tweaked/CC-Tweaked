@@ -57,8 +57,8 @@ public class TurtleSmartItemModel implements BakedModel
 
     private final BakedModel familyModel;
     private final BakedModel colourModel;
-    private final HashMap<TurtleModelCombination, BakedModel> m_cachedModels = new HashMap<>();
-    private final ModelOverrideList m_overrides;
+    private final HashMap<TurtleModelCombination, BakedModel> cachedModels = new HashMap<>();
+    private final ModelOverrideList overrides;
 
     public TurtleSmartItemModel( BakedModel familyModel, BakedModel colourModel )
     {
@@ -66,7 +66,7 @@ public class TurtleSmartItemModel implements BakedModel
         this.colourModel = colourModel;
 
         // this actually works I think, trust me
-        this.m_overrides = new ModelOverrideList( null, null, null, Collections.emptyList() )
+        this.overrides = new ModelOverrideList( null, null, null, Collections.emptyList() )
         {
             @Nonnull
             @Override
@@ -85,10 +85,10 @@ public class TurtleSmartItemModel implements BakedModel
                 boolean flip = false;
                 TurtleModelCombination combo = new TurtleModelCombination( colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip );
 
-                BakedModel model = TurtleSmartItemModel.this.m_cachedModels.get( combo );
+                BakedModel model = TurtleSmartItemModel.this.cachedModels.get( combo );
                 if( model == null )
                 {
-                    TurtleSmartItemModel.this.m_cachedModels.put( combo, model = TurtleSmartItemModel.this.buildModel( combo ) );
+                    TurtleSmartItemModel.this.cachedModels.put( combo, model = TurtleSmartItemModel.this.buildModel( combo ) );
                 }
                 return model;
             }
@@ -101,13 +101,13 @@ public class TurtleSmartItemModel implements BakedModel
         BakedModelManager modelManager = mc.getItemRenderer()
             .getModels()
             .getModelManager();
-        ModelIdentifier overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.m_overlay, combo.m_christmas );
+        ModelIdentifier overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.overlay, combo.christmas );
 
-        BakedModel baseModel = combo.m_colour ? this.colourModel : this.familyModel;
+        BakedModel baseModel = combo.colour ? this.colourModel : this.familyModel;
         BakedModel overlayModel = overlayModelLocation != null ? modelManager.getModel( overlayModelLocation ) : null;
-        AffineTransformation transform = combo.m_flip ? flip : identity;
-        TransformedModel leftModel = combo.m_leftUpgrade != null ? combo.m_leftUpgrade.getModel( null, TurtleSide.LEFT ) : null;
-        TransformedModel rightModel = combo.m_rightUpgrade != null ? combo.m_rightUpgrade.getModel( null, TurtleSide.RIGHT ) : null;
+        AffineTransformation transform = combo.flip ? flip : identity;
+        TransformedModel leftModel = combo.leftUpgrade != null ? combo.leftUpgrade.getModel( null, TurtleSide.LEFT ) : null;
+        TransformedModel rightModel = combo.rightUpgrade != null ? combo.rightUpgrade.getModel( null, TurtleSide.RIGHT ) : null;
         return new TurtleMultiModel( baseModel, overlayModel, transform, leftModel, rightModel );
     }
 
@@ -163,27 +163,27 @@ public class TurtleSmartItemModel implements BakedModel
     @Override
     public ModelOverrideList getOverrides()
     {
-        return this.m_overrides;
+        return this.overrides;
     }
 
     private static class TurtleModelCombination
     {
-        final boolean m_colour;
-        final ITurtleUpgrade m_leftUpgrade;
-        final ITurtleUpgrade m_rightUpgrade;
-        final Identifier m_overlay;
-        final boolean m_christmas;
-        final boolean m_flip;
+        final boolean colour;
+        final ITurtleUpgrade leftUpgrade;
+        final ITurtleUpgrade rightUpgrade;
+        final Identifier overlay;
+        final boolean christmas;
+        final boolean flip;
 
         TurtleModelCombination( boolean colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, Identifier overlay, boolean christmas,
                                 boolean flip )
         {
-            this.m_colour = colour;
-            this.m_leftUpgrade = leftUpgrade;
-            this.m_rightUpgrade = rightUpgrade;
-            this.m_overlay = overlay;
-            this.m_christmas = christmas;
-            this.m_flip = flip;
+            this.colour = colour;
+            this.leftUpgrade = leftUpgrade;
+            this.rightUpgrade = rightUpgrade;
+            this.overlay = overlay;
+            this.christmas = christmas;
+            this.flip = flip;
         }
 
         @Override
@@ -191,12 +191,12 @@ public class TurtleSmartItemModel implements BakedModel
         {
             final int prime = 31;
             int result = 0;
-            result = prime * result + (this.m_colour ? 1 : 0);
-            result = prime * result + (this.m_leftUpgrade != null ? this.m_leftUpgrade.hashCode() : 0);
-            result = prime * result + (this.m_rightUpgrade != null ? this.m_rightUpgrade.hashCode() : 0);
-            result = prime * result + (this.m_overlay != null ? this.m_overlay.hashCode() : 0);
-            result = prime * result + (this.m_christmas ? 1 : 0);
-            result = prime * result + (this.m_flip ? 1 : 0);
+            result = prime * result + (this.colour ? 1 : 0);
+            result = prime * result + (this.leftUpgrade != null ? this.leftUpgrade.hashCode() : 0);
+            result = prime * result + (this.rightUpgrade != null ? this.rightUpgrade.hashCode() : 0);
+            result = prime * result + (this.overlay != null ? this.overlay.hashCode() : 0);
+            result = prime * result + (this.christmas ? 1 : 0);
+            result = prime * result + (this.flip ? 1 : 0);
             return result;
         }
 
@@ -213,8 +213,8 @@ public class TurtleSmartItemModel implements BakedModel
             }
 
             TurtleModelCombination otherCombo = (TurtleModelCombination) other;
-            return otherCombo.m_colour == this.m_colour && otherCombo.m_leftUpgrade == this.m_leftUpgrade && otherCombo.m_rightUpgrade == this.m_rightUpgrade && Objects.equal(
-                otherCombo.m_overlay, this.m_overlay ) && otherCombo.m_christmas == this.m_christmas && otherCombo.m_flip == this.m_flip;
+            return otherCombo.colour == this.colour && otherCombo.leftUpgrade == this.leftUpgrade && otherCombo.rightUpgrade == this.rightUpgrade && Objects.equal(
+                otherCombo.overlay, this.overlay ) && otherCombo.christmas == this.christmas && otherCombo.flip == this.flip;
         }
     }
 

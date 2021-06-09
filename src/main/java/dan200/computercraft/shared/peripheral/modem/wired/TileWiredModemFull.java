@@ -41,30 +41,30 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 {
     private static final String NBT_PERIPHERAL_ENABLED = "PeripheralAccess";
     private final WiredModemPeripheral[] modems = new WiredModemPeripheral[6];
-    private final WiredModemLocalPeripheral[] m_peripherals = new WiredModemLocalPeripheral[6];
-    private final ModemState m_modemState = new ModemState( () -> TickScheduler.schedule( this ) );
-    private final WiredModemElement m_element = new FullElement( this );
-    private final IWiredNode m_node = this.m_element.getNode();
-    private boolean m_peripheralAccessAllowed = false;
-    private boolean m_destroyed = false;
-    private boolean m_connectionsFormed = false;
+    private final WiredModemLocalPeripheral[] peripherals = new WiredModemLocalPeripheral[6];
+    private final ModemState modemState = new ModemState( () -> TickScheduler.schedule( this ) );
+    private final WiredModemElement element = new FullElement( this );
+    private final IWiredNode node = this.element.getNode();
+    private boolean peripheralAccessAllowed = false;
+    private boolean destroyed = false;
+    private boolean connectionsFormed = false;
 
     public TileWiredModemFull( BlockEntityType<TileWiredModemFull> type )
     {
         super( type );
-        for( int i = 0; i < this.m_peripherals.length; i++ )
+        for( int i = 0; i < this.peripherals.length; i++ )
         {
             Direction facing = Direction.byId( i );
-            this.m_peripherals[i] = new WiredModemLocalPeripheral();
+            this.peripherals[i] = new WiredModemLocalPeripheral();
         }
     }
 
     @Override
     public void destroy()
     {
-        if( !this.m_destroyed )
+        if( !this.destroyed )
         {
-            this.m_destroyed = true;
+            this.destroyed = true;
             this.doRemove();
         }
         super.destroy();
@@ -81,8 +81,8 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     {
         if( this.world == null || !this.world.isClient )
         {
-            this.m_node.remove();
-            this.m_connectionsFormed = false;
+            this.node.remove();
+            this.connectionsFormed = false;
         }
     }
 
@@ -118,7 +118,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     @Override
     public void onNeighbourTileEntityChange( @Nonnull BlockPos neighbour )
     {
-        if( !this.world.isClient && this.m_peripheralAccessAllowed )
+        if( !this.world.isClient && this.peripheralAccessAllowed )
         {
             for( Direction facing : DirectionUtil.FACINGS )
             {
@@ -139,21 +139,21 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
             return;
         }
 
-        if( this.m_modemState.pollChanged() )
+        if( this.modemState.pollChanged() )
         {
             this.updateBlockState();
         }
 
-        if( !this.m_connectionsFormed )
+        if( !this.connectionsFormed )
         {
-            this.m_connectionsFormed = true;
+            this.connectionsFormed = true;
 
             this.connectionsChanged();
-            if( this.m_peripheralAccessAllowed )
+            if( this.peripheralAccessAllowed )
             {
                 for( Direction facing : DirectionUtil.FACINGS )
                 {
-                    this.m_peripherals[facing.ordinal()].attach( this.world, this.getPos(), facing );
+                    this.peripherals[facing.ordinal()].attach( this.world, this.getPos(), facing );
                 }
                 this.updateConnectedPeripherals();
             }
@@ -183,13 +183,13 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
                 continue;
             }
 
-            this.m_node.connectTo( element.getNode() );
+            this.node.connectTo( element.getNode() );
         }
     }
 
     private void refreshPeripheral( @Nonnull Direction facing )
     {
-        WiredModemLocalPeripheral peripheral = this.m_peripherals[facing.ordinal()];
+        WiredModemLocalPeripheral peripheral = this.peripherals[facing.ordinal()];
         if( this.world != null && !this.isRemoved() && peripheral.attach( this.world, this.getPos(), facing ) )
         {
             this.updateConnectedPeripherals();
@@ -202,22 +202,22 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         if( peripherals.isEmpty() )
         {
             // If there are no peripherals then disable access and update the display state.
-            this.m_peripheralAccessAllowed = false;
+            this.peripheralAccessAllowed = false;
             this.updateBlockState();
         }
 
-        this.m_node.updatePeripherals( peripherals );
+        this.node.updatePeripherals( peripherals );
     }
 
     private Map<String, IPeripheral> getConnectedPeripherals()
     {
-        if( !this.m_peripheralAccessAllowed )
+        if( !this.peripheralAccessAllowed )
         {
             return Collections.emptyMap();
         }
 
         Map<String, IPeripheral> peripherals = new HashMap<>( 6 );
-        for( WiredModemLocalPeripheral peripheral : this.m_peripherals )
+        for( WiredModemLocalPeripheral peripheral : this.peripherals )
         {
             peripheral.extendMap( peripherals );
         }
@@ -227,7 +227,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     private void updateBlockState()
     {
         BlockState state = this.getCachedState();
-        boolean modemOn = this.m_modemState.isOpen(), peripheralOn = this.m_peripheralAccessAllowed;
+        boolean modemOn = this.modemState.isOpen(), peripheralOn = this.peripheralAccessAllowed;
         if( state.get( MODEM_ON ) == modemOn && state.get( PERIPHERAL_ON ) == peripheralOn )
         {
             return;
@@ -240,13 +240,13 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 
     private Set<String> getConnectedPeripheralNames()
     {
-        if( !this.m_peripheralAccessAllowed )
+        if( !this.peripheralAccessAllowed )
         {
             return Collections.emptySet();
         }
 
         Set<String> peripherals = new HashSet<>( 6 );
-        for( WiredModemLocalPeripheral peripheral : this.m_peripherals )
+        for( WiredModemLocalPeripheral peripheral : this.peripherals )
         {
             String name = peripheral.getConnectedName();
             if( name != null )
@@ -259,12 +259,12 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 
     private void togglePeripheralAccess()
     {
-        if( !this.m_peripheralAccessAllowed )
+        if( !this.peripheralAccessAllowed )
         {
             boolean hasAny = false;
             for( Direction facing : DirectionUtil.FACINGS )
             {
-                WiredModemLocalPeripheral peripheral = this.m_peripherals[facing.ordinal()];
+                WiredModemLocalPeripheral peripheral = this.peripherals[facing.ordinal()];
                 peripheral.attach( this.world, this.getPos(), facing );
                 hasAny |= peripheral.hasPeripheral();
             }
@@ -274,18 +274,18 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
                 return;
             }
 
-            this.m_peripheralAccessAllowed = true;
-            this.m_node.updatePeripherals( this.getConnectedPeripherals() );
+            this.peripheralAccessAllowed = true;
+            this.node.updatePeripherals( this.getConnectedPeripherals() );
         }
         else
         {
-            this.m_peripheralAccessAllowed = false;
+            this.peripheralAccessAllowed = false;
 
-            for( WiredModemLocalPeripheral peripheral : this.m_peripherals )
+            for( WiredModemLocalPeripheral peripheral : this.peripherals )
             {
                 peripheral.detach();
             }
-            this.m_node.updatePeripherals( Collections.emptyMap() );
+            this.node.updatePeripherals( Collections.emptyMap() );
         }
 
         this.updateBlockState();
@@ -318,10 +318,10 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     public void fromTag( @Nonnull BlockState state, @Nonnull CompoundTag nbt )
     {
         super.fromTag( state, nbt );
-        this.m_peripheralAccessAllowed = nbt.getBoolean( NBT_PERIPHERAL_ENABLED );
-        for( int i = 0; i < this.m_peripherals.length; i++ )
+        this.peripheralAccessAllowed = nbt.getBoolean( NBT_PERIPHERAL_ENABLED );
+        for( int i = 0; i < this.peripherals.length; i++ )
         {
-            this.m_peripherals[i].read( nbt, Integer.toString( i ) );
+            this.peripherals[i].read( nbt, Integer.toString( i ) );
         }
     }
 
@@ -329,10 +329,10 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     @Override
     public CompoundTag toTag( CompoundTag nbt )
     {
-        nbt.putBoolean( NBT_PERIPHERAL_ENABLED, this.m_peripheralAccessAllowed );
-        for( int i = 0; i < this.m_peripherals.length; i++ )
+        nbt.putBoolean( NBT_PERIPHERAL_ENABLED, this.peripheralAccessAllowed );
+        for( int i = 0; i < this.peripherals.length; i++ )
         {
-            this.m_peripherals[i].write( nbt, Integer.toString( i ) );
+            this.peripherals[i].write( nbt, Integer.toString( i ) );
         }
         return super.toTag( nbt );
     }
@@ -353,7 +353,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 
     public IWiredElement getElement()
     {
-        return this.m_element;
+        return this.element;
     }
 
     @Nonnull
@@ -366,8 +366,8 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
             return peripheral;
         }
 
-        WiredModemLocalPeripheral localPeripheral = this.m_peripherals[side.ordinal()];
-        return this.modems[side.ordinal()] = new WiredModemPeripheral( this.m_modemState, this.m_element )
+        WiredModemLocalPeripheral localPeripheral = this.peripherals[side.ordinal()];
+        return this.modems[side.ordinal()] = new WiredModemPeripheral( this.modemState, this.element )
         {
             @Nonnull
             @Override
@@ -395,11 +395,11 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 
     private static final class FullElement extends WiredModemElement
     {
-        private final TileWiredModemFull m_entity;
+        private final TileWiredModemFull entity;
 
         private FullElement( TileWiredModemFull entity )
         {
-            this.m_entity = entity;
+            this.entity = entity;
         }
 
         @Override
@@ -407,7 +407,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         {
             for( int i = 0; i < 6; i++ )
             {
-                WiredModemPeripheral modem = this.m_entity.modems[i];
+                WiredModemPeripheral modem = this.entity.modems[i];
                 if( modem != null )
                 {
                     modem.detachPeripheral( name );
@@ -420,7 +420,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         {
             for( int i = 0; i < 6; i++ )
             {
-                WiredModemPeripheral modem = this.m_entity.modems[i];
+                WiredModemPeripheral modem = this.entity.modems[i];
                 if( modem != null )
                 {
                     modem.attachPeripheral( name, peripheral );
@@ -432,14 +432,14 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         @Override
         public World getWorld()
         {
-            return this.m_entity.getWorld();
+            return this.entity.getWorld();
         }
 
         @Nonnull
         @Override
         public Vec3d getPosition()
         {
-            BlockPos pos = this.m_entity.getPos();
+            BlockPos pos = this.entity.getPos();
             return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
     }

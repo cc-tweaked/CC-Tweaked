@@ -56,11 +56,11 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     private static final String NBT_ON = "On";
     private final ComputerFamily family;
     protected String label = null;
-    boolean m_startOn = false;
-    private int m_instanceID = -1;
-    private int m_computerID = -1;
-    private boolean m_on = false;
-    private boolean m_fresh = false;
+    boolean startOn = false;
+    private int instanceID = -1;
+    private int computerID = -1;
+    private boolean on = false;
+    private boolean fresh = false;
 
     public TileComputerBase( BlockEntityType<? extends TileGeneric> type, ComputerFamily family )
     {
@@ -86,13 +86,13 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     protected void unload()
     {
-        if( this.m_instanceID >= 0 )
+        if( this.instanceID >= 0 )
         {
             if( !this.getWorld().isClient )
             {
-                ComputerCraft.serverComputerRegistry.remove( this.m_instanceID );
+                ComputerCraft.serverComputerRegistry.remove( this.instanceID );
             }
-            this.m_instanceID = -1;
+            this.instanceID = -1;
         }
     }
 
@@ -139,16 +139,16 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         }
 
         boolean changed = false;
-        if( this.m_instanceID < 0 )
+        if( this.instanceID < 0 )
         {
-            this.m_instanceID = ComputerCraft.serverComputerRegistry.getUnusedInstanceID();
+            this.instanceID = ComputerCraft.serverComputerRegistry.getUnusedInstanceID();
             changed = true;
         }
-        if( !ComputerCraft.serverComputerRegistry.contains( this.m_instanceID ) )
+        if( !ComputerCraft.serverComputerRegistry.contains( this.instanceID ) )
         {
-            ServerComputer computer = this.createComputer( this.m_instanceID, this.m_computerID );
-            ComputerCraft.serverComputerRegistry.add( this.m_instanceID, computer );
-            this.m_fresh = true;
+            ServerComputer computer = this.createComputer( this.instanceID, this.computerID );
+            ComputerCraft.serverComputerRegistry.add( this.instanceID, computer );
+            this.fresh = true;
             changed = true;
         }
         if( changed )
@@ -156,12 +156,12 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             this.updateBlock();
             this.updateInput();
         }
-        return ComputerCraft.serverComputerRegistry.get( this.m_instanceID );
+        return ComputerCraft.serverComputerRegistry.get( this.instanceID );
     }
 
     public ServerComputer getServerComputer()
     {
-        return this.getWorld().isClient ? null : ComputerCraft.serverComputerRegistry.get( this.m_instanceID );
+        return this.getWorld().isClient ? null : ComputerCraft.serverComputerRegistry.get( this.instanceID );
     }
 
     protected abstract ServerComputer createComputer( int instanceID, int id );
@@ -255,7 +255,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     {
         super.readDescription( nbt );
         this.label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
-        this.m_computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
+        this.computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
     }
 
     @Override
@@ -266,9 +266,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         {
             nbt.putString( NBT_LABEL, this.label );
         }
-        if( this.m_computerID >= 0 )
+        if( this.computerID >= 0 )
         {
-            nbt.putInt( NBT_ID, this.m_computerID );
+            nbt.putInt( NBT_ID, this.computerID );
         }
     }
 
@@ -284,18 +284,18 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             }
 
             // If the computer isn't on and should be, then turn it on
-            if( this.m_startOn || (this.m_fresh && this.m_on) )
+            if( this.startOn || (this.fresh && this.on) )
             {
                 computer.turnOn();
-                this.m_startOn = false;
+                this.startOn = false;
             }
 
             computer.keepAlive();
 
-            this.m_fresh = false;
-            this.m_computerID = computer.getID();
+            this.fresh = false;
+            this.computerID = computer.getID();
             this.label = computer.getLabel();
-            this.m_on = computer.isOn();
+            this.on = computer.isOn();
 
             if( computer.hasOutputChanged() )
             {
@@ -331,9 +331,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         super.fromTag( state, nbt );
 
         // Load ID, label and power state
-        this.m_computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
+        this.computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
         this.label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
-        this.m_on = this.m_startOn = nbt.getBoolean( NBT_ON );
+        this.on = this.startOn = nbt.getBoolean( NBT_ON );
     }
 
     @Nonnull
@@ -341,15 +341,15 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     public CompoundTag toTag( @Nonnull CompoundTag nbt )
     {
         // Save ID, label and power state
-        if( this.m_computerID >= 0 )
+        if( this.computerID >= 0 )
         {
-            nbt.putInt( NBT_ID, this.m_computerID );
+            nbt.putInt( NBT_ID, this.computerID );
         }
         if( this.label != null )
         {
             nbt.putString( NBT_LABEL, this.label );
         }
-        nbt.putBoolean( NBT_ON, this.m_on );
+        nbt.putBoolean( NBT_ON, this.on );
 
         return super.toTag( nbt );
     }
@@ -407,22 +407,22 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public final int getComputerID()
     {
-        return this.m_computerID;
+        return this.computerID;
     }
 
     @Override
     public final void setComputerID( int id )
     {
-        if( this.getWorld().isClient || this.m_computerID == id )
+        if( this.getWorld().isClient || this.computerID == id )
         {
             return;
         }
 
-        this.m_computerID = id;
+        this.computerID = id;
         ServerComputer computer = this.getServerComputer();
         if( computer != null )
         {
-            computer.setID( this.m_computerID );
+            computer.setID( this.computerID );
         }
         this.markDirty();
     }
@@ -460,17 +460,17 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     protected void transferStateFrom( TileComputerBase copy )
     {
-        if( copy.m_computerID != this.m_computerID || copy.m_instanceID != this.m_instanceID )
+        if( copy.computerID != this.computerID || copy.instanceID != this.instanceID )
         {
             this.unload();
-            this.m_instanceID = copy.m_instanceID;
-            this.m_computerID = copy.m_computerID;
+            this.instanceID = copy.instanceID;
+            this.computerID = copy.computerID;
             this.label = copy.label;
-            this.m_on = copy.m_on;
-            this.m_startOn = copy.m_startOn;
+            this.on = copy.on;
+            this.startOn = copy.startOn;
             this.updateBlock();
         }
-        copy.m_instanceID = -1;
+        copy.instanceID = -1;
     }
 
     @Nonnull

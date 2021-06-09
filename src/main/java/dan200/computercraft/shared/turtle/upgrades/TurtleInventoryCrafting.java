@@ -26,9 +26,9 @@ import java.util.List;
 
 public class TurtleInventoryCrafting extends CraftingInventory
 {
-    private ITurtleAccess m_turtle;
-    private int m_xStart;
-    private int m_yStart;
+    private final ITurtleAccess turtle;
+    private int xStart;
+    private int yStart;
 
     @SuppressWarnings( "ConstantConditions" )
     public TurtleInventoryCrafting( ITurtleAccess turtle )
@@ -36,25 +36,25 @@ public class TurtleInventoryCrafting extends CraftingInventory
         // Passing null in here is evil, but we don't have a container present. We override most methods in order to
         // avoid throwing any NPEs.
         super( null, 0, 0 );
-        this.m_turtle = turtle;
-        this.m_xStart = 0;
-        this.m_yStart = 0;
+        this.turtle = turtle;
+        this.xStart = 0;
+        this.yStart = 0;
     }
 
     @Nullable
     private Recipe<CraftingInventory> tryCrafting( int xStart, int yStart )
     {
-        this.m_xStart = xStart;
-        this.m_yStart = yStart;
+        this.xStart = xStart;
+        this.yStart = yStart;
 
         // Check the non-relevant parts of the inventory are empty
         for( int x = 0; x < TileTurtle.INVENTORY_WIDTH; x++ )
         {
             for( int y = 0; y < TileTurtle.INVENTORY_HEIGHT; y++ )
             {
-                if( x < this.m_xStart || x >= this.m_xStart + 3 || y < this.m_yStart || y >= this.m_yStart + 3 )
+                if( x < this.xStart || x >= this.xStart + 3 || y < this.yStart || y >= this.yStart + 3 )
                 {
-                    if( !this.m_turtle.getInventory()
+                    if( !this.turtle.getInventory()
                         .getStack( x + y * TileTurtle.INVENTORY_WIDTH )
                         .isEmpty() )
                     {
@@ -65,9 +65,9 @@ public class TurtleInventoryCrafting extends CraftingInventory
         }
 
         // Check the actual crafting
-        return this.m_turtle.getWorld()
+        return this.turtle.getWorld()
             .getRecipeManager()
-            .getFirstMatch( RecipeType.CRAFTING, this, this.m_turtle.getWorld() )
+            .getFirstMatch( RecipeType.CRAFTING, this, this.turtle.getWorld() )
             .orElse( null );
     }
 
@@ -104,7 +104,7 @@ public class TurtleInventoryCrafting extends CraftingInventory
             return Collections.emptyList();
         }
 
-        TurtlePlayer player = TurtlePlayer.get( this.m_turtle );
+        TurtlePlayer player = TurtlePlayer.get( this.turtle );
 
         ArrayList<ItemStack> results = new ArrayList<>();
         for( int i = 0; i < maxCount && recipe.matches( this, world ); i++ )
@@ -159,7 +159,7 @@ public class TurtleInventoryCrafting extends CraftingInventory
     @Override
     public int getMaxCountPerStack()
     {
-        return this.m_turtle.getInventory()
+        return this.turtle.getInventory()
             .getMaxCountPerStack();
     }
 
@@ -173,7 +173,7 @@ public class TurtleInventoryCrafting extends CraftingInventory
     public boolean isValid( int i, @Nonnull ItemStack stack )
     {
         i = this.modifyIndex( i );
-        return this.m_turtle.getInventory()
+        return this.turtle.getInventory()
             .isValid( i, stack );
     }
 
@@ -185,8 +185,8 @@ public class TurtleInventoryCrafting extends CraftingInventory
 
     private int modifyIndex( int index )
     {
-        int x = this.m_xStart + index % this.getWidth();
-        int y = this.m_yStart + index / this.getHeight();
+        int x = this.xStart + index % this.getWidth();
+        int y = this.yStart + index / this.getHeight();
         return x >= 0 && x < TileTurtle.INVENTORY_WIDTH && y >= 0 && y < TileTurtle.INVENTORY_HEIGHT ? x + y * TileTurtle.INVENTORY_WIDTH : -1;
     }
 
@@ -203,7 +203,7 @@ public class TurtleInventoryCrafting extends CraftingInventory
     public ItemStack getStack( int i )
     {
         i = this.modifyIndex( i );
-        return this.m_turtle.getInventory()
+        return this.turtle.getInventory()
             .getStack( i );
     }
 
@@ -212,7 +212,7 @@ public class TurtleInventoryCrafting extends CraftingInventory
     public ItemStack removeStack( int i )
     {
         i = this.modifyIndex( i );
-        return this.m_turtle.getInventory()
+        return this.turtle.getInventory()
             .removeStack( i );
     }
 
@@ -221,7 +221,7 @@ public class TurtleInventoryCrafting extends CraftingInventory
     public ItemStack removeStack( int i, int size )
     {
         i = this.modifyIndex( i );
-        return this.m_turtle.getInventory()
+        return this.turtle.getInventory()
             .removeStack( i, size );
     }
 
@@ -229,7 +229,7 @@ public class TurtleInventoryCrafting extends CraftingInventory
     public void setStack( int i, @Nonnull ItemStack stack )
     {
         i = this.modifyIndex( i );
-        this.m_turtle.getInventory()
+        this.turtle.getInventory()
             .setStack( i, stack );
     }
 
@@ -237,7 +237,7 @@ public class TurtleInventoryCrafting extends CraftingInventory
     @Override
     public void markDirty()
     {
-        this.m_turtle.getInventory()
+        this.turtle.getInventory()
             .markDirty();
     }
 
@@ -254,7 +254,7 @@ public class TurtleInventoryCrafting extends CraftingInventory
         for( int i = 0; i < this.size(); i++ )
         {
             int j = this.modifyIndex( i );
-            this.m_turtle.getInventory()
+            this.turtle.getInventory()
                 .setStack( j, ItemStack.EMPTY );
         }
     }

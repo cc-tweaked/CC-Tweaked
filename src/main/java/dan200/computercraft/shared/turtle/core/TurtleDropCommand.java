@@ -25,13 +25,13 @@ import javax.annotation.Nonnull;
 
 public class TurtleDropCommand implements ITurtleCommand
 {
-    private final InteractDirection m_direction;
-    private final int m_quantity;
+    private final InteractDirection direction;
+    private final int quantity;
 
     public TurtleDropCommand( InteractDirection direction, int quantity )
     {
-        this.m_direction = direction;
-        this.m_quantity = quantity;
+        this.direction = direction;
+        this.quantity = quantity;
     }
 
     @Nonnull
@@ -39,17 +39,17 @@ public class TurtleDropCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         // Dropping nothing is easy
-        if( this.m_quantity == 0 )
+        if( this.quantity == 0 )
         {
             turtle.playAnimation( TurtleAnimation.WAIT );
             return TurtleCommandResult.success();
         }
 
         // Get world direction from direction
-        Direction direction = this.m_direction.toWorldDir( turtle );
+        Direction direction = this.direction.toWorldDir( turtle );
 
         // Get things to drop
-        ItemStack stack = InventoryUtil.takeItems( this.m_quantity, turtle.getItemHandler(), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
+        ItemStack stack = InventoryUtil.takeItems( this.quantity, turtle.getItemHandler(), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
         if( stack.isEmpty() )
         {
             return TurtleCommandResult.failure( "No items to drop" );

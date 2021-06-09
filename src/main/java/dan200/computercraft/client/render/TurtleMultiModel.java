@@ -23,23 +23,23 @@ import java.util.*;
 @Environment( EnvType.CLIENT )
 public class TurtleMultiModel implements BakedModel
 {
-    private final BakedModel m_baseModel;
-    private final BakedModel m_overlayModel;
-    private final AffineTransformation m_generalTransform;
-    private final TransformedModel m_leftUpgradeModel;
-    private final TransformedModel m_rightUpgradeModel;
-    private List<BakedQuad> m_generalQuads = null;
-    private Map<Direction, List<BakedQuad>> m_faceQuads = new EnumMap<>( Direction.class );
+    private final BakedModel baseModel;
+    private final BakedModel overlayModel;
+    private final AffineTransformation generalTransform;
+    private final TransformedModel leftUpgradeModel;
+    private final TransformedModel rightUpgradeModel;
+    private List<BakedQuad> generalQuads = null;
+    private Map<Direction, List<BakedQuad>> faceQuads = new EnumMap<>( Direction.class );
 
     public TurtleMultiModel( BakedModel baseModel, BakedModel overlayModel, AffineTransformation generalTransform, TransformedModel leftUpgradeModel,
                              TransformedModel rightUpgradeModel )
     {
         // Get the models
-        this.m_baseModel = baseModel;
-        this.m_overlayModel = overlayModel;
-        this.m_leftUpgradeModel = leftUpgradeModel;
-        this.m_rightUpgradeModel = rightUpgradeModel;
-        this.m_generalTransform = generalTransform;
+        this.baseModel = baseModel;
+        this.overlayModel = overlayModel;
+        this.leftUpgradeModel = leftUpgradeModel;
+        this.rightUpgradeModel = rightUpgradeModel;
+        this.generalTransform = generalTransform;
     }
 
     @Nonnull
@@ -48,19 +48,19 @@ public class TurtleMultiModel implements BakedModel
     {
         if( side != null )
         {
-            if( !this.m_faceQuads.containsKey( side ) )
+            if( !this.faceQuads.containsKey( side ) )
             {
-                this.m_faceQuads.put( side, this.buildQuads( state, side, rand ) );
+                this.faceQuads.put( side, this.buildQuads( state, side, rand ) );
             }
-            return this.m_faceQuads.get( side );
+            return this.faceQuads.get( side );
         }
         else
         {
-            if( this.m_generalQuads == null )
+            if( this.generalQuads == null )
             {
-                this.m_generalQuads = this.buildQuads( state, side, rand );
+                this.generalQuads = this.buildQuads( state, side, rand );
             }
-            return this.m_generalQuads;
+            return this.generalQuads;
         }
     }
 
@@ -69,22 +69,22 @@ public class TurtleMultiModel implements BakedModel
         ArrayList<BakedQuad> quads = new ArrayList<>();
 
 
-        ModelTransformer.transformQuadsTo( quads, this.m_baseModel.getQuads( state, side, rand ), this.m_generalTransform.getMatrix() );
-        if( this.m_overlayModel != null )
+        ModelTransformer.transformQuadsTo( quads, this.baseModel.getQuads( state, side, rand ), this.generalTransform.getMatrix() );
+        if( this.overlayModel != null )
         {
-            ModelTransformer.transformQuadsTo( quads, this.m_overlayModel.getQuads( state, side, rand ), this.m_generalTransform.getMatrix() );
+            ModelTransformer.transformQuadsTo( quads, this.overlayModel.getQuads( state, side, rand ), this.generalTransform.getMatrix() );
         }
-        if( this.m_leftUpgradeModel != null )
+        if( this.leftUpgradeModel != null )
         {
-            AffineTransformation upgradeTransform = this.m_generalTransform.multiply( this.m_leftUpgradeModel.getMatrix() );
-            ModelTransformer.transformQuadsTo( quads, this.m_leftUpgradeModel.getModel()
+            AffineTransformation upgradeTransform = this.generalTransform.multiply( this.leftUpgradeModel.getMatrix() );
+            ModelTransformer.transformQuadsTo( quads, this.leftUpgradeModel.getModel()
                     .getQuads( state, side, rand ),
                 upgradeTransform.getMatrix() );
         }
-        if( this.m_rightUpgradeModel != null )
+        if( this.rightUpgradeModel != null )
         {
-            AffineTransformation upgradeTransform = this.m_generalTransform.multiply( this.m_rightUpgradeModel.getMatrix() );
-            ModelTransformer.transformQuadsTo( quads, this.m_rightUpgradeModel.getModel()
+            AffineTransformation upgradeTransform = this.generalTransform.multiply( this.rightUpgradeModel.getMatrix() );
+            ModelTransformer.transformQuadsTo( quads, this.rightUpgradeModel.getModel()
                     .getQuads( state, side, rand ),
                 upgradeTransform.getMatrix() );
         }
@@ -95,25 +95,25 @@ public class TurtleMultiModel implements BakedModel
     @Override
     public boolean useAmbientOcclusion()
     {
-        return this.m_baseModel.useAmbientOcclusion();
+        return this.baseModel.useAmbientOcclusion();
     }
 
     @Override
     public boolean hasDepth()
     {
-        return this.m_baseModel.hasDepth();
+        return this.baseModel.hasDepth();
     }
 
     @Override
     public boolean isSideLit()
     {
-        return this.m_baseModel.isSideLit();
+        return this.baseModel.isSideLit();
     }
 
     @Override
     public boolean isBuiltin()
     {
-        return this.m_baseModel.isBuiltin();
+        return this.baseModel.isBuiltin();
     }
 
     @Nonnull
@@ -121,7 +121,7 @@ public class TurtleMultiModel implements BakedModel
     @Deprecated
     public Sprite getSprite()
     {
-        return this.m_baseModel.getSprite();
+        return this.baseModel.getSprite();
     }
 
     @Nonnull
@@ -129,7 +129,7 @@ public class TurtleMultiModel implements BakedModel
     @Deprecated
     public net.minecraft.client.render.model.json.ModelTransformation getTransformation()
     {
-        return this.m_baseModel.getTransformation();
+        return this.baseModel.getTransformation();
     }
 
     @Nonnull

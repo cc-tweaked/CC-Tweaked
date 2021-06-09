@@ -23,10 +23,10 @@ import javax.annotation.Nonnull;
 public class TurtleCraftingTable extends AbstractTurtleUpgrade
 {
     @Environment( EnvType.CLIENT )
-    private ModelIdentifier m_leftModel;
+    private ModelIdentifier leftModel;
 
     @Environment( EnvType.CLIENT )
-    private ModelIdentifier m_rightModel;
+    private ModelIdentifier rightModel;
 
     public TurtleCraftingTable( Identifier id )
     {
@@ -45,16 +45,16 @@ public class TurtleCraftingTable extends AbstractTurtleUpgrade
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         this.loadModelLocations();
-        return TransformedModel.of( side == TurtleSide.LEFT ? this.m_leftModel : this.m_rightModel );
+        return TransformedModel.of( side == TurtleSide.LEFT ? this.leftModel : this.rightModel );
     }
 
     @Environment( EnvType.CLIENT )
     private void loadModelLocations()
     {
-        if( this.m_leftModel == null )
+        if( this.leftModel == null )
         {
-            this.m_leftModel = new ModelIdentifier( "computercraft:turtle_crafting_table_left", "inventory" );
-            this.m_rightModel = new ModelIdentifier( "computercraft:turtle_crafting_table_right", "inventory" );
+            this.leftModel = new ModelIdentifier( "computercraft:turtle_crafting_table_left", "inventory" );
+            this.rightModel = new ModelIdentifier( "computercraft:turtle_crafting_table_right", "inventory" );
         }
     }
 }

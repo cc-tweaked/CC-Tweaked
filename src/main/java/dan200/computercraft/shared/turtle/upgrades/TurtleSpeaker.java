@@ -26,9 +26,9 @@ import javax.annotation.Nonnull;
 public class TurtleSpeaker extends AbstractTurtleUpgrade
 {
     @Environment( EnvType.CLIENT )
-    private ModelIdentifier m_leftModel;
+    private ModelIdentifier leftModel;
     @Environment( EnvType.CLIENT )
-    private ModelIdentifier m_rightModel;
+    private ModelIdentifier rightModel;
 
     public TurtleSpeaker( Identifier id )
     {
@@ -47,16 +47,16 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         this.loadModelLocations();
-        return TransformedModel.of( side == TurtleSide.LEFT ? this.m_leftModel : this.m_rightModel );
+        return TransformedModel.of( side == TurtleSide.LEFT ? this.leftModel : this.rightModel );
     }
 
     @Environment( EnvType.CLIENT )
     private void loadModelLocations()
     {
-        if( this.m_leftModel == null )
+        if( this.leftModel == null )
         {
-            this.m_leftModel = new ModelIdentifier( "computercraft:turtle_speaker_upgrade_left", "inventory" );
-            this.m_rightModel = new ModelIdentifier( "computercraft:turtle_speaker_upgrade_right", "inventory" );
+            this.leftModel = new ModelIdentifier( "computercraft:turtle_speaker_upgrade_left", "inventory" );
+            this.rightModel = new ModelIdentifier( "computercraft:turtle_speaker_upgrade_right", "inventory" );
         }
     }
 

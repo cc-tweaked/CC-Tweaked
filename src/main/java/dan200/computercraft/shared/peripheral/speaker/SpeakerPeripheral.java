@@ -34,19 +34,19 @@ import static dan200.computercraft.api.lua.LuaValues.checkFinite;
  */
 public abstract class SpeakerPeripheral implements IPeripheral
 {
-    private final AtomicInteger m_notesThisTick = new AtomicInteger();
-    private long m_clock = 0;
-    private long m_lastPlayTime = 0;
+    private final AtomicInteger notesThisTick = new AtomicInteger();
+    private long clock = 0;
+    private long lastPlayTime = 0;
 
     public void update()
     {
-        this.m_clock++;
-        this.m_notesThisTick.set( 0 );
+        this.clock++;
+        this.notesThisTick.set( 0 );
     }
 
     public boolean madeSound( long ticks )
     {
-        return this.m_clock - this.m_lastPlayTime <= ticks;
+        return this.clock - this.lastPlayTime <= ticks;
     }
 
     @Nonnull
@@ -90,7 +90,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
     private synchronized boolean playSound( ILuaContext context, Identifier name, float volume, float pitch, boolean isNote ) throws LuaException
     {
-        if( this.m_clock - this.m_lastPlayTime < TileSpeaker.MIN_TICKS_BETWEEN_SOUNDS && (!isNote || this.m_clock - this.m_lastPlayTime != 0 || this.m_notesThisTick.get() >= ComputerCraft.maxNotesPerTick) )
+        if( this.clock - this.lastPlayTime < TileSpeaker.MIN_TICKS_BETWEEN_SOUNDS && (!isNote || this.clock - this.lastPlayTime != 0 || this.notesThisTick.get() >= ComputerCraft.maxNotesPerTick) )
         {
             // Rate limiting occurs when we've already played a sound within the last tick, or we've
             // played more notes than allowable within the current tick.
@@ -119,7 +119,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
             return null;
         } );
 
-        this.m_lastPlayTime = this.m_clock;
+        this.lastPlayTime = this.clock;
         return true;
     }
 
@@ -173,7 +173,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
             true );
         if( success )
         {
-            this.m_notesThisTick.incrementAndGet();
+            this.notesThisTick.incrementAndGet();
         }
         return success;
     }

@@ -12,21 +12,21 @@ import net.minecraft.nbt.CompoundTag;
 
 public class ClientTerminal implements ITerminal
 {
-    private boolean m_colour;
-    private Terminal m_terminal;
-    private boolean m_terminalChanged;
+    private boolean colour;
+    private Terminal terminal;
+    private boolean terminalChanged;
 
     public ClientTerminal( boolean colour )
     {
-        this.m_colour = colour;
-        this.m_terminal = null;
-        this.m_terminalChanged = false;
+        this.colour = colour;
+        this.terminal = null;
+        this.terminalChanged = false;
     }
 
     public boolean pollTerminalChanged()
     {
-        boolean changed = this.m_terminalChanged;
-        this.m_terminalChanged = false;
+        boolean changed = this.terminalChanged;
+        this.terminalChanged = false;
         return changed;
     }
 
@@ -35,22 +35,22 @@ public class ClientTerminal implements ITerminal
     @Override
     public Terminal getTerminal()
     {
-        return this.m_terminal;
+        return this.terminal;
     }
 
     @Override
     public boolean isColour()
     {
-        return this.m_colour;
+        return this.colour;
     }
 
     public void read( TerminalState state )
     {
-        this.m_colour = state.colour;
+        this.colour = state.colour;
         if( state.hasTerminal() )
         {
             this.resizeTerminal( state.width, state.height );
-            state.apply( this.m_terminal );
+            state.apply( this.terminal );
         }
         else
         {
@@ -60,34 +60,34 @@ public class ClientTerminal implements ITerminal
 
     private void resizeTerminal( int width, int height )
     {
-        if( this.m_terminal == null )
+        if( this.terminal == null )
         {
-            this.m_terminal = new Terminal( width, height, () -> this.m_terminalChanged = true );
-            this.m_terminalChanged = true;
+            this.terminal = new Terminal( width, height, () -> this.terminalChanged = true );
+            this.terminalChanged = true;
         }
         else
         {
-            this.m_terminal.resize( width, height );
+            this.terminal.resize( width, height );
         }
     }
 
     private void deleteTerminal()
     {
-        if( this.m_terminal != null )
+        if( this.terminal != null )
         {
-            this.m_terminal = null;
-            this.m_terminalChanged = true;
+            this.terminal = null;
+            this.terminalChanged = true;
         }
     }
 
     public void readDescription( CompoundTag nbt )
     {
-        this.m_colour = nbt.getBoolean( "colour" );
+        this.colour = nbt.getBoolean( "colour" );
         if( nbt.contains( "terminal" ) )
         {
             CompoundTag terminal = nbt.getCompound( "terminal" );
             this.resizeTerminal( terminal.getInt( "term_width" ), terminal.getInt( "term_height" ) );
-            this.m_terminal.readFromNBT( terminal );
+            this.terminal.readFromNBT( terminal );
         }
         else
         {

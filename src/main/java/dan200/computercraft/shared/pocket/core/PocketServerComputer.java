@@ -36,9 +36,9 @@ import static dan200.computercraft.shared.pocket.items.ItemPocketComputer.NBT_LI
 
 public class PocketServerComputer extends ServerComputer implements IPocketAccess
 {
-    private IPocketUpgrade m_upgrade;
-    private Entity m_entity;
-    private ItemStack m_stack;
+    private IPocketUpgrade upgrade;
+    private Entity entity;
+    private ItemStack stack;
 
     public PocketServerComputer( World world, int computerID, String label, int instanceID, ComputerFamily family )
     {
@@ -49,8 +49,8 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public Entity getEntity()
     {
-        Entity entity = this.m_entity;
-        if( entity == null || this.m_stack == null || !entity.isAlive() )
+        Entity entity = this.entity;
+        if( entity == null || this.stack == null || !entity.isAlive() )
         {
             return null;
         }
@@ -58,12 +58,12 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         if( entity instanceof PlayerEntity )
         {
             PlayerInventory inventory = ((PlayerEntity) entity).inventory;
-            return inventory.main.contains( this.m_stack ) || inventory.offHand.contains( this.m_stack ) ? entity : null;
+            return inventory.main.contains( this.stack ) || inventory.offHand.contains( this.stack ) ? entity : null;
         }
         else if( entity instanceof LivingEntity )
         {
             LivingEntity living = (LivingEntity) entity;
-            return living.getMainHandStack() == this.m_stack || living.getOffHandStack() == this.m_stack ? entity : null;
+            return living.getMainHandStack() == this.stack || living.getOffHandStack() == this.stack ? entity : null;
         }
         else
         {
@@ -74,13 +74,13 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public int getColour()
     {
-        return IColouredItem.getColourBasic( this.m_stack );
+        return IColouredItem.getColourBasic( this.stack );
     }
 
     @Override
     public void setColour( int colour )
     {
-        IColouredItem.setColourBasic( this.m_stack, colour );
+        IColouredItem.setColourBasic( this.stack, colour );
         this.updateUpgradeNBTData();
     }
 
@@ -114,22 +114,22 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public CompoundTag getUpgradeNBTData()
     {
-        return ItemPocketComputer.getUpgradeInfo( this.m_stack );
+        return ItemPocketComputer.getUpgradeInfo( this.stack );
     }
 
     @Override
     public void updateUpgradeNBTData()
     {
-        if( this.m_entity instanceof PlayerEntity )
+        if( this.entity instanceof PlayerEntity )
         {
-            ((PlayerEntity) this.m_entity).inventory.markDirty();
+            ((PlayerEntity) this.entity).inventory.markDirty();
         }
     }
 
     @Override
     public void invalidatePeripheral()
     {
-        IPeripheral peripheral = this.m_upgrade == null ? null : this.m_upgrade.createPeripheral( this );
+        IPeripheral peripheral = this.upgrade == null ? null : this.upgrade.createPeripheral( this );
         this.setPeripheral( ComputerSide.BACK, peripheral );
     }
 
@@ -137,12 +137,12 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public Map<Identifier, IPeripheral> getUpgrades()
     {
-        return this.m_upgrade == null ? Collections.emptyMap() : Collections.singletonMap( this.m_upgrade.getUpgradeID(), this.getPeripheral( ComputerSide.BACK ) );
+        return this.upgrade == null ? Collections.emptyMap() : Collections.singletonMap( this.upgrade.getUpgradeID(), this.getPeripheral( ComputerSide.BACK ) );
     }
 
     public IPocketUpgrade getUpgrade()
     {
-        return this.m_upgrade;
+        return this.upgrade;
     }
 
     /**
@@ -154,16 +154,16 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
      */
     public void setUpgrade( IPocketUpgrade upgrade )
     {
-        if( this.m_upgrade == upgrade )
+        if( this.upgrade == upgrade )
         {
             return;
         }
 
         synchronized( this )
         {
-            ItemPocketComputer.setUpgrade( this.m_stack, upgrade );
+            ItemPocketComputer.setUpgrade( this.stack, upgrade );
             this.updateUpgradeNBTData();
-            this.m_upgrade = upgrade;
+            this.upgrade = upgrade;
             this.invalidatePeripheral();
         }
     }
@@ -177,17 +177,17 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         }
 
         // If a new entity has picked it up then rebroadcast the terminal to them
-        if( entity != this.m_entity && entity instanceof ServerPlayerEntity )
+        if( entity != this.entity && entity instanceof ServerPlayerEntity )
         {
             this.markTerminalChanged();
         }
 
-        this.m_entity = entity;
-        this.m_stack = stack;
+        this.entity = entity;
+        this.stack = stack;
 
-        if( this.m_upgrade != upgrade )
+        if( this.upgrade != upgrade )
         {
-            this.m_upgrade = upgrade;
+            this.upgrade = upgrade;
             this.invalidatePeripheral();
         }
     }
@@ -197,10 +197,10 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     {
         super.broadcastState( force );
 
-        if( (this.hasTerminalChanged() || force) && this.m_entity instanceof ServerPlayerEntity )
+        if( (this.hasTerminalChanged() || force) && this.entity instanceof ServerPlayerEntity )
         {
             // Broadcast the state to the current entity if they're not already interacting with it.
-            ServerPlayerEntity player = (ServerPlayerEntity) this.m_entity;
+            ServerPlayerEntity player = (ServerPlayerEntity) this.entity;
             if( player.networkHandler != null && !this.isInteracting( player ) )
             {
                 NetworkHandler.sendToPlayer( player, this.createTerminalPacket() );

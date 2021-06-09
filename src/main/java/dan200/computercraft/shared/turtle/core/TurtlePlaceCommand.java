@@ -40,13 +40,13 @@ import java.util.List;
 
 public class TurtlePlaceCommand implements ITurtleCommand
 {
-    private final InteractDirection m_direction;
-    private final Object[] m_extraArguments;
+    private final InteractDirection direction;
+    private final Object[] extraArguments;
 
     public TurtlePlaceCommand( InteractDirection direction, Object[] arguments )
     {
-        this.m_direction = direction;
-        this.m_extraArguments = arguments;
+        this.direction = direction;
+        this.extraArguments = arguments;
     }
 
     public static ItemStack deploy( @Nonnull ItemStack stack, ITurtleAccess turtle, Direction direction, Object[] extraArguments, String[] outErrorMessage )
@@ -72,7 +72,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
 
         // Remember old block
-        Direction direction = this.m_direction.toWorldDir( turtle );
+        Direction direction = this.direction.toWorldDir( turtle );
         BlockPos coordinates = turtle.getPosition()
             .offset( direction );
 
@@ -89,7 +89,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Do the deploying
         String[] errorMessage = new String[1];
-        ItemStack remainder = deploy( stack, turtle, turtlePlayer, direction, this.m_extraArguments, errorMessage );
+        ItemStack remainder = deploy( stack, turtle, turtlePlayer, direction, this.extraArguments, errorMessage );
         if( remainder != stack )
         {
             // Put the remaining items back

@@ -26,9 +26,9 @@ public class GuiTurtle extends HandledScreen<ContainerTurtle>
 {
     private static final Identifier BACKGROUND_NORMAL = new Identifier( "computercraft", "textures/gui/turtle_normal.png" );
     private static final Identifier BACKGROUND_ADVANCED = new Identifier( "computercraft", "textures/gui/turtle_advanced.png" );
-    private final ComputerFamily m_family;
-    private final ClientComputer m_computer;
-    private ContainerTurtle m_container;
+    private final ComputerFamily family;
+    private final ClientComputer computer;
+    private final ContainerTurtle container;
     private WidgetTerminal terminal;
     private WidgetWrapper terminalWrapper;
 
@@ -36,9 +36,9 @@ public class GuiTurtle extends HandledScreen<ContainerTurtle>
     {
         super( container, player, title );
 
-        this.m_container = container;
-        this.m_family = container.getFamily();
-        this.m_computer = (ClientComputer) container.getComputer();
+        this.container = container;
+        this.family = container.getFamily();
+        this.computer = (ClientComputer) container.getComputer();
 
         this.backgroundWidth = 254;
         this.backgroundHeight = 217;
@@ -53,7 +53,7 @@ public class GuiTurtle extends HandledScreen<ContainerTurtle>
         int termPxWidth = ComputerCraft.turtleTermWidth * FixedWidthFontRenderer.FONT_WIDTH;
         int termPxHeight = ComputerCraft.turtleTermHeight * FixedWidthFontRenderer.FONT_HEIGHT;
 
-        this.terminal = new WidgetTerminal( this.client, () -> this.m_computer, ComputerCraft.turtleTermWidth, ComputerCraft.turtleTermHeight, 2, 2, 2, 2 );
+        this.terminal = new WidgetTerminal( this.client, () -> this.computer, ComputerCraft.turtleTermWidth, ComputerCraft.turtleTermHeight, 2, 2, 2, 2 );
         this.terminalWrapper = new WidgetWrapper( this.terminal, 2 + 8 + this.x, 2 + 8 + this.y, termPxWidth, termPxHeight );
 
         this.children.add( this.terminalWrapper );
@@ -78,7 +78,7 @@ public class GuiTurtle extends HandledScreen<ContainerTurtle>
     protected void drawBackground( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
         // Draw term
-        Identifier texture = this.m_family == ComputerFamily.ADVANCED ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL;
+        Identifier texture = this.family == ComputerFamily.ADVANCED ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL;
         this.terminal.draw( this.terminalWrapper.getX(), this.terminalWrapper.getY() );
 
         // Draw border/inventory
@@ -88,7 +88,7 @@ public class GuiTurtle extends HandledScreen<ContainerTurtle>
         this.drawTexture( transform, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight );
 
         // Draw selection slot
-        int slot = this.m_container.getSelectedSlot();
+        int slot = this.container.getSelectedSlot();
         if( slot >= 0 )
         {
             int slotX = slot % 4;

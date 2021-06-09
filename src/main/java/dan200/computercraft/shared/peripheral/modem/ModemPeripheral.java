@@ -28,18 +28,18 @@ import java.util.Set;
  */
 public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPacketReceiver
 {
-    private final Set<IComputerAccess> m_computers = new HashSet<>( 1 );
-    private final ModemState m_state;
-    private IPacketNetwork m_network;
+    private final Set<IComputerAccess> computers = new HashSet<>( 1 );
+    private final ModemState state;
+    private IPacketNetwork network;
 
     protected ModemPeripheral( ModemState state )
     {
-        this.m_state = state;
+        this.state = state;
     }
 
     public ModemState getModemState()
     {
-        return this.m_state;
+        return this.state;
     }
 
     public void destroy()
@@ -50,14 +50,14 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @Override
     public void receiveSameDimension( @Nonnull Packet packet, double distance )
     {
-        if( packet.getSender() == this || !this.m_state.isOpen( packet.getChannel() ) )
+        if( packet.getSender() == this || !this.state.isOpen( packet.getChannel() ) )
         {
             return;
         }
 
-        synchronized( this.m_computers )
+        synchronized( this.computers )
         {
-            for( IComputerAccess computer : this.m_computers )
+            for( IComputerAccess computer : this.computers )
             {
                 computer.queueEvent( "modem_message",
                     computer.getAttachmentName(),
@@ -72,14 +72,14 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @Override
     public void receiveDifferentDimension( @Nonnull Packet packet )
     {
-        if( packet.getSender() == this || !this.m_state.isOpen( packet.getChannel() ) )
+        if( packet.getSender() == this || !this.state.isOpen( packet.getChannel() ) )
         {
             return;
         }
 
-        synchronized( this.m_computers )
+        synchronized( this.computers )
         {
-            for( IComputerAccess computer : this.m_computers )
+            for( IComputerAccess computer : this.computers )
             {
                 computer.queueEvent( "modem_message", computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload() );
             }
@@ -96,9 +96,9 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @Override
     public synchronized void attach( @Nonnull IComputerAccess computer )
     {
-        synchronized( this.m_computers )
+        synchronized( this.computers )
         {
-            this.m_computers.add( computer );
+            this.computers.add( computer );
         }
 
         this.setNetwork( this.getNetwork() );
@@ -108,24 +108,24 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
 
     private synchronized void setNetwork( IPacketNetwork network )
     {
-        if( this.m_network == network )
+        if( this.network == network )
         {
             return;
         }
 
         // Leave old network
-        if( this.m_network != null )
+        if( this.network != null )
         {
-            this.m_network.removeReceiver( this );
+            this.network.removeReceiver( this );
         }
 
         // Set new network
-        this.m_network = network;
+        this.network = network;
 
         // Join new network
-        if( this.m_network != null )
+        if( this.network != null )
         {
-            this.m_network.addReceiver( this );
+            this.network.addReceiver( this );
         }
     }
 
@@ -133,10 +133,10 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     public synchronized void detach( @Nonnull IComputerAccess computer )
     {
         boolean empty;
-        synchronized( this.m_computers )
+        synchronized( this.computers )
         {
-            this.m_computers.remove( computer );
-            empty = this.m_computers.isEmpty();
+            this.computers.remove( computer );
+            empty = this.computers.isEmpty();
         }
 
         if( empty )
@@ -155,7 +155,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @LuaFunction
     public final void open( int channel ) throws LuaException
     {
-        this.m_state.open( parseChannel( channel ) );
+        this.state.open( parseChannel( channel ) );
     }
 
     private static int parseChannel( int channel ) throws LuaException
@@ -177,7 +177,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @LuaFunction
     public final boolean isOpen( int channel ) throws LuaException
     {
-        return this.m_state.isOpen( parseChannel( channel ) );
+        return this.state.isOpen( parseChannel( channel ) );
     }
 
     /**
@@ -189,7 +189,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @LuaFunction
     public final void close( int channel ) throws LuaException
     {
-        this.m_state.close( parseChannel( channel ) );
+        this.state.close( parseChannel( channel ) );
     }
 
     /**
@@ -198,7 +198,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @LuaFunction
     public final void closeAll()
     {
-        this.m_state.closeAll();
+        this.state.closeAll();
     }
 
     /**
@@ -219,7 +219,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
 
         World world = this.getWorld();
         Vec3d position = this.getPosition();
-        IPacketNetwork network = this.m_network;
+        IPacketNetwork network = this.network;
 
         if( world == null || position == null || network == null )
         {
@@ -247,7 +247,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @LuaFunction
     public final boolean isWireless()
     {
-        IPacketNetwork network = this.m_network;
+        IPacketNetwork network = this.network;
         return network != null && network.isWireless();
     }
 
@@ -255,15 +255,15 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @Override
     public String getSenderID()
     {
-        synchronized( this.m_computers )
+        synchronized( this.computers )
         {
-            if( this.m_computers.size() != 1 )
+            if( this.computers.size() != 1 )
             {
                 return "unknown";
             }
             else
             {
-                IComputerAccess computer = this.m_computers.iterator()
+                IComputerAccess computer = this.computers.iterator()
                     .next();
                 return computer.getID() + "_" + computer.getAttachmentName();
             }

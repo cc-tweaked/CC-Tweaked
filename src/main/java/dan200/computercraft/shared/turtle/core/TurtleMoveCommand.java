@@ -30,11 +30,11 @@ import java.util.List;
 public class TurtleMoveCommand implements ITurtleCommand
 {
     private static final Box EMPTY_BOX = new Box( 0, 0, 0, 0, 0, 0 );
-    private final MoveDirection m_direction;
+    private final MoveDirection direction;
 
     public TurtleMoveCommand( MoveDirection direction )
     {
-        this.m_direction = direction;
+        this.direction = direction;
     }
 
     @Nonnull
@@ -42,7 +42,7 @@ public class TurtleMoveCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         // Get world direction from direction
-        Direction direction = this.m_direction.toWorldDir( turtle );
+        Direction direction = this.direction.toWorldDir( turtle );
 
         // Check if we can move
         World oldWorld = turtle.getWorld();
@@ -70,7 +70,7 @@ public class TurtleMoveCommand implements ITurtleCommand
 
         if( !oldWorld.intersectsEntities( null, collision ) )
         {
-            if( !ComputerCraft.turtlesCanPush || this.m_direction == MoveDirection.UP || this.m_direction == MoveDirection.DOWN )
+            if( !ComputerCraft.turtlesCanPush || this.direction == MoveDirection.UP || this.direction == MoveDirection.DOWN )
             {
                 return TurtleCommandResult.failure( "Movement obstructed" );
             }
@@ -110,7 +110,7 @@ public class TurtleMoveCommand implements ITurtleCommand
         turtle.consumeFuel( 1 );
 
         // Animate
-        switch( this.m_direction )
+        switch( this.direction )
         {
             case FORWARD:
             default:

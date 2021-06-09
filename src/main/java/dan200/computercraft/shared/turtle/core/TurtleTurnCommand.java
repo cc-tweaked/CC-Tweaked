@@ -18,11 +18,11 @@ import javax.annotation.Nonnull;
 
 public class TurtleTurnCommand implements ITurtleCommand
 {
-    private final TurnDirection m_direction;
+    private final TurnDirection direction;
 
     public TurtleTurnCommand( TurnDirection direction )
     {
-        this.m_direction = direction;
+        this.direction = direction;
     }
 
     @Nonnull
@@ -35,7 +35,7 @@ public class TurtleTurnCommand implements ITurtleCommand
             return TurtleCommandResult.failure( event.getFailureMessage() );
         }
 
-        switch( this.m_direction )
+        switch( this.direction )
         {
             case LEFT:
             {

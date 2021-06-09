@@ -17,13 +17,13 @@ import javax.annotation.Nonnull;
 
 public class TurtleTransferToCommand implements ITurtleCommand
 {
-    private final int m_slot;
-    private final int m_quantity;
+    private final int slot;
+    private final int quantity;
 
     public TurtleTransferToCommand( int slot, int limit )
     {
-        this.m_slot = slot;
-        this.m_quantity = limit;
+        this.slot = slot;
+        this.quantity = limit;
     }
 
     @Nonnull
@@ -31,7 +31,7 @@ public class TurtleTransferToCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         // Take stack
-        ItemStack stack = InventoryUtil.takeItems( this.m_quantity, turtle.getItemHandler(), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
+        ItemStack stack = InventoryUtil.takeItems( this.quantity, turtle.getItemHandler(), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
         if( stack.isEmpty() )
         {
             turtle.playAnimation( TurtleAnimation.WAIT );
@@ -39,7 +39,7 @@ public class TurtleTransferToCommand implements ITurtleCommand
         }
 
         // Store stack
-        ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), this.m_slot, 1, this.m_slot );
+        ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), this.slot, 1, this.slot );
         if( !remainder.isEmpty() )
         {
             // Put the remainder back

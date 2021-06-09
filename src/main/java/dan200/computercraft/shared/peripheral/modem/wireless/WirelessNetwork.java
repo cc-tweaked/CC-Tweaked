@@ -19,35 +19,35 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class WirelessNetwork implements IPacketNetwork
 {
-    private static WirelessNetwork s_universalNetwork = null;
-    private final Set<IPacketReceiver> m_receivers = Collections.newSetFromMap( new ConcurrentHashMap<>() );
+    private static WirelessNetwork universalNetwork = null;
+    private final Set<IPacketReceiver> receivers = Collections.newSetFromMap( new ConcurrentHashMap<>() );
 
     public static WirelessNetwork getUniversal()
     {
-        if( s_universalNetwork == null )
+        if( universalNetwork == null )
         {
-            s_universalNetwork = new WirelessNetwork();
+            universalNetwork = new WirelessNetwork();
         }
-        return s_universalNetwork;
+        return universalNetwork;
     }
 
     public static void resetNetworks()
     {
-        s_universalNetwork = null;
+        universalNetwork = null;
     }
 
     @Override
     public void addReceiver( @Nonnull IPacketReceiver receiver )
     {
         Objects.requireNonNull( receiver, "device cannot be null" );
-        this.m_receivers.add( receiver );
+        this.receivers.add( receiver );
     }
 
     @Override
     public void removeReceiver( @Nonnull IPacketReceiver receiver )
     {
         Objects.requireNonNull( receiver, "device cannot be null" );
-        this.m_receivers.remove( receiver );
+        this.receivers.remove( receiver );
     }
 
     @Override
@@ -60,7 +60,7 @@ public class WirelessNetwork implements IPacketNetwork
     public void transmitSameDimension( @Nonnull Packet packet, double range )
     {
         Objects.requireNonNull( packet, "packet cannot be null" );
-        for( IPacketReceiver device : this.m_receivers )
+        for( IPacketReceiver device : this.receivers )
         {
             tryTransmit( device, packet, range, false );
         }
@@ -70,7 +70,7 @@ public class WirelessNetwork implements IPacketNetwork
     public void transmitInterdimensional( @Nonnull Packet packet )
     {
         Objects.requireNonNull( packet, "packet cannot be null" );
-        for( IPacketReceiver device : this.m_receivers )
+        for( IPacketReceiver device : this.receivers )
         {
             tryTransmit( device, packet, 0, true );
         }
