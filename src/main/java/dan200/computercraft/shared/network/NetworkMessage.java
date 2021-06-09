@@ -14,9 +14,6 @@ import net.fabricmc.fabric.api.network.PacketContext;
 
 /**
  * The base interface for any message which will be sent to the client or server.
- *
- * @see dan200.computercraft.shared.network.client
- * @see dan200.computercraft.shared.network.server
  */
 public interface NetworkMessage {
     /**

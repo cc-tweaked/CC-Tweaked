@@ -49,7 +49,7 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
         } catch (LuaException e) {
             throw wrap(e, 0);
         } catch (Throwable t) {
-            if (ComputerCraft.logPeripheralErrors) {
+            if (ComputerCraft.logComputerErrors) {
                 ComputerCraft.log.error("Error calling " + this.name + " on " + this.instance, t);
             }
             throw new LuaError("Java Exception Thrown: " + t, 0);
@@ -75,7 +75,7 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
         } catch (LuaException e) {
             throw wrap(e, container.errorAdjust);
         } catch (Throwable t) {
-            if (ComputerCraft.logPeripheralErrors) {
+            if (ComputerCraft.logComputerErrors) {
                 ComputerCraft.log.error("Error calling " + this.name + " on " + container.callback, t);
             }
             throw new LuaError("Java Exception Thrown: " + t, 0);

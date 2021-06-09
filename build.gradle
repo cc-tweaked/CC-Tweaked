@@ -13,7 +13,8 @@ archivesBaseName = "cc-restiched"
 
 repositories {
     mavenCentral()
-    jcenter()
+    maven { url 'https://jitpack.io' }
+    maven { url "https://maven.shedaniel.me/" }
     maven {
         name "SquidDev"
         url "https://squiddev.cc/maven"
@@ -30,38 +31,24 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 
-    compile 'com.electronwill.night-config:json:3.6.0'
-
-    modImplementation "me.shedaniel.cloth:config-2:${cloth_config_version}"
+    modApi("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
     modImplementation "io.github.prospector:modmenu:${modmenu_version}"
+    modImplementation "me.shedaniel.cloth.api:cloth-utils-v1:${cloth_api_version}"
 
-    modApi "me.shedaniel.cloth.api:cloth-utils-v1:${project.cloth_api_version}"
-    include "me.shedaniel.cloth.api:cloth-utils-v1:${project.cloth_api_version}"
-
-    implementation "blue.endless:jankson:${jankson_version}"
+    compile 'com.electronwill.night-config:toml:3.6.3'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
-
-    compileOnly 'com.google.auto.service:auto-service:1.0-rc7'
-    annotationProcessor 'com.google.auto.service:auto-service:1.0-rc7'
-
-    include "me.shedaniel.cloth:config-2:${cloth_config_version}"
-    include "blue.endless:jankson:${jankson_version}"
-    include 'javax.vecmath:vecmath:1.5.2'
-
-    compile 'javax.vecmath:vecmath:1.5.2'
 
     shade 'org.squiddev:Cobalt:0.5.2-SNAPSHOT'
 
+    include "me.shedaniel.cloth.api:cloth-utils-v1:${cloth_api_version}"
+    include 'com.electronwill.night-config:core:3.6.3'
+    include 'com.electronwill.night-config:toml:3.6.3'
+    include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
+
     modRuntime "me.shedaniel:RoughlyEnoughItems-api:5.8.9"
     modRuntime "me.shedaniel:RoughlyEnoughItems:5.8.9"
-}
-
-sourceSets {
-    main {
-        java {
-            exclude 'dan200/computercraft/shared/integration'
-        }
-    }
 }
 
 processResources {

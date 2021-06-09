@@ -119,7 +119,7 @@ public class CobaltLuaMachine implements ILuaMachine {
         this.m_globals.load(state, new CoroutineLib());
         this.m_globals.load(state, new Bit32Lib());
         this.m_globals.load(state, new Utf8Lib());
-        if (ComputerCraft.debug_enable) {
+        if (ComputerCraft.debugEnable) {
             this.m_globals.load(state, new DebugLib());
         }
 
@@ -135,8 +135,8 @@ public class CobaltLuaMachine implements ILuaMachine {
                               valueOf(computer.getAPIEnvironment()
                                          .getComputerEnvironment()
                                          .getHostString()));
-        this.m_globals.rawset("_CC_DEFAULT_SETTINGS", valueOf(ComputerCraft.default_computer_settings));
-        if (ComputerCraft.disable_lua51_features) {
+        this.m_globals.rawset("_CC_DEFAULT_SETTINGS", valueOf(ComputerCraft.defaultComputerSettings));
+        if (ComputerCraft.disableLua51Features) {
             this.m_globals.rawset("_CC_DISABLE_LUA51_FEATURES", Constants.TRUE);
         }
     }
@@ -436,7 +436,7 @@ public class CobaltLuaMachine implements ILuaMachine {
             return wrapped;
         }
 
-        if (ComputerCraft.logPeripheralErrors) {
+        if (ComputerCraft.logComputerErrors) {
             ComputerCraft.log.warn("Received unknown type '{}', returning nil.",
                                    object.getClass()
                                          .getName());
@@ -581,7 +581,7 @@ public class CobaltLuaMachine implements ILuaMachine {
                                               e.getMessage()
                                           });
                 } catch (Throwable t) {
-                    if (ComputerCraft.logPeripheralErrors) {
+                    if (ComputerCraft.logComputerErrors) {
                         ComputerCraft.log.error("Error running task", t);
                     }
                     CobaltLuaMachine.this.m_computer.queueEvent("task_complete", new Object[] {

@@ -48,11 +48,11 @@ public final class GuiComputer<T extends ContainerComputerBase> extends HandledS
     }
 
     public static GuiComputer<ContainerComputer> create(ContainerComputer container, PlayerInventory inventory, Text component) {
-        return new GuiComputer<>(container, inventory, component, ComputerCraft.terminalWidth_computer, ComputerCraft.terminalHeight_computer);
+        return new GuiComputer<>(container, inventory, component, ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight);
     }
 
     public static GuiComputer<ContainerPocketComputer> createPocket(ContainerPocketComputer container, PlayerInventory inventory, Text component) {
-        return new GuiComputer<>(container, inventory, component, ComputerCraft.terminalWidth_pocketComputer, ComputerCraft.terminalHeight_pocketComputer);
+        return new GuiComputer<>(container, inventory, component, ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight);
     }
 
     public static GuiComputer<ContainerViewComputer> createView(ContainerViewComputer container, PlayerInventory inventory, Text component) {

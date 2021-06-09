@@ -1,223 +1,365 @@
+/*
+ * This file is part of ComputerCraft - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Send enquiries to dratcliffe@gmail.com
+ */
 package dan200.computercraft.shared.util;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import blue.endless.jankson.Comment;
-import blue.endless.jankson.Jankson;
-import blue.endless.jankson.JsonObject;
-import blue.endless.jankson.api.SyntaxError;
+import com.electronwill.nightconfig.core.*;
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import com.electronwill.nightconfig.core.file.FileNotFoundAction;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.http.options.Action;
-import dan200.computercraft.core.apis.http.options.AddressRule;
-import dan200.computercraft.core.apis.http.websocket.Websocket;
+import dan200.computercraft.core.apis.http.options.AddressRuleConfig;
+import dan200.computercraft.fabric.mixin.WorldSavePathAccess;
+import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
+import net.fabricmc.loader.FabricLoader;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.WorldSavePath;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class Config {
-    public static final transient int MODEM_MAX_RANGE = 100000;
-    public static final transient Config defaultConfig = new Config();
-    private static transient Path configPath;
-    private static transient Config config;
-    public General general = new General();
-    @Comment ("\nControls execution behaviour of computers. This is largely intended for fine-tuning " + "servers, and generally shouldn't need to be " + "touched") public Execution execution = new Execution();
-    @Comment ("\nControls the HTTP API") public Http http = new Http();
-    @Comment ("\nVarious options relating to peripherals.") public Peripheral peripheral = new Peripheral();
-    @Comment ("\nVarious options relating to turtles.") public Turtle turtle = new Turtle();
+    private static final int MODEM_MAX_RANGE = 100000;
 
-    public static Config get() {
-        return config;
+    public static final String TRANSLATION_PREFIX = "gui.computercraft.config.";
+
+    public static final CommentedConfigSpec serverSpec;
+    public static final CommentedConfigSpec clientSpec;
+
+    public static CommentedConfig serverConfig;
+    public static CommentedConfig clientConfig;
+
+    private static final WorldSavePath serverDir = WorldSavePathAccess.createWorldSavePath("serverconfig");
+    private static final String serverFileName = "computercraft-server.toml";
+    private static final Path clientPath = FabricLoader.INSTANCE.getConfigDir().resolve("computercraft-client.toml");
+
+    private Config() {
     }
 
-    public static void load(Path path) {
-        configPath = path;
+    static {
+        System.setProperty("nightconfig.preserveInsertionOrder", "true");
 
-        if (Files.exists(configPath)) {
-            Jankson jankson = Jankson.builder()
-                                     .build();
-            try {
-                JsonObject jsonObject = jankson.load(Files.newInputStream(configPath));
-                config = jankson.fromJson(jsonObject, Config.class);
-            } catch (IOException | SyntaxError e) {
-                config = new Config();
-                ComputerCraft.log.error("Failed to load config! Use default config.");
-                e.printStackTrace();
-                return;
-            }
-        } else {
-            config = new Config();
+        serverSpec = new CommentedConfigSpec();
+        { // General computers
+            serverSpec.comment("computer_space_limit",
+                    "The disk space limit for computers and turtles, in bytes");
+            serverSpec.define("computer_space_limit", ComputerCraft.computerSpaceLimit);
+
+            serverSpec.comment("floppy_space_limit",
+                    "The disk space limit for floppy disks, in bytes");
+            serverSpec.define("floppy_space_limit", ComputerCraft.floppySpaceLimit);
+
+            serverSpec.comment("maximum_open_files",
+                    "Set how many files a computer can have open at the same time. Set to 0 for unlimited.");
+            serverSpec.defineInRange("maximum_open_files", ComputerCraft.maximumFilesOpen, 0, Integer.MAX_VALUE);
+
+            serverSpec.comment("disable_lua51_features",
+                    "Set this to true to disable Lua 5.1 functions that will be removed in a future update. " +
+                    "Useful for ensuring forward compatibility of your programs now.");
+            serverSpec.define("disable_lua51_features", ComputerCraft.disableLua51Features);
+
+            serverSpec.comment("default_computer_settings",
+                    "A comma separated list of default system settings to set on new computers. Example: " +
+                    "\"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\" will disable all " +
+                    "autocompletion");
+            serverSpec.define("default_computer_settings", ComputerCraft.defaultComputerSettings);
+
+            serverSpec.comment("debug_enabled",
+                    "Enable Lua's debug library. This is sandboxed to each computer, so is generally safe to be used by players.");
+            serverSpec.define("debug_enabled", ComputerCraft.debugEnable);
+
+            serverSpec.comment("log_computer_errors",
+                    "Log exceptions thrown by peripherals and other Lua objects.\n" +
+                    "This makes it easier for mod authors to debug problems, but may result in log spam should people use buggy methods.");
+            serverSpec.define("log_computer_errors", ComputerCraft.logComputerErrors);
+
+            serverSpec.comment("command_require_creative",
+                    "Require players to be in creative mode and be opped in order to interact with command computers." +
+                    "This is the default behaviour for vanilla's Command blocks.");
+            serverSpec.define("command_require_creative", ComputerCraft.commandRequireCreative);
         }
-        save();
-        sync();
+
+        { // Execution
+            serverSpec.comment("execution",
+                    "Controls execution behaviour of computers. This is largely intended for fine-tuning " +
+                    "servers, and generally shouldn't need to be touched");
+
+            serverSpec.comment("execution.computer_threads",
+                    "Set the number of threads computers can run on. A higher number means more computers can run " +
+                    "at once, but may induce lag.\n" +
+                    "Please note that some mods may not work with a thread count higher than 1. Use with caution.");
+            serverSpec.defineInRange("execution.computer_threads", ComputerCraft.computerThreads, 1, Integer.MAX_VALUE);
+
+            serverSpec.comment("execution.max_main_global_time",
+                    "The maximum time that can be spent executing tasks in a single tick, in milliseconds.\n" +
+                    "Note, we will quite possibly go over this limit, as there's no way to tell how long a will take " +
+                    "- this aims to be the upper bound of the average time.");
+            serverSpec.defineInRange("execution.max_main_global_time", (int) TimeUnit.NANOSECONDS.toMillis( ComputerCraft.maxMainGlobalTime ), 1, Integer.MAX_VALUE);
+
+            serverSpec.comment("execution.max_main_computer_time",
+                    "The ideal maximum time a computer can execute for in a tick, in milliseconds.\n" +
+                    "Note, we will quite possibly go over this limit, as there's no way to tell how long a will take " +
+                    "- this aims to be the upper bound of the average time.");
+            serverSpec.defineInRange("execution.max_main_computer_time", (int) TimeUnit.NANOSECONDS.toMillis( ComputerCraft.maxMainComputerTime ), 1, Integer.MAX_VALUE);
+        }
+
+        { // HTTP
+            serverSpec.comment("http", "Controls the HTTP API");
+
+            serverSpec.comment("http.enabled",
+                    "Enable the \"http\" API on Computers (see \"rules\" for more fine grained control than this).");
+            serverSpec.define("http.enabled", ComputerCraft.httpEnabled);
+
+            serverSpec.comment("http.websocket_enabled",
+                    "Enable use of http websockets. This requires the \"http_enable\" option to also be true.");
+            serverSpec.define("http.websocket_enabled", ComputerCraft.httpWebsocketEnabled);
+
+            serverSpec.comment("http.rules",
+                    "A list of rules which control behaviour of the \"http\" API for specific domains or IPs.\n" +
+                    "Each rule is an item with a 'host' to match against, and a series of properties. " +
+                    "The host may be a domain name (\"pastebin.com\"),\n" +
+                    "wildcard (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\"). If no rules, the domain is blocked.");
+            serverSpec.defineList("http.rules", Arrays.asList(
+                            AddressRuleConfig.makeRule("$private", Action.DENY),
+                            AddressRuleConfig.makeRule("*", Action.ALLOW)
+                    ), x -> x instanceof UnmodifiableConfig && AddressRuleConfig.checkRule((UnmodifiableConfig) x));
+
+            serverSpec.comment("http.max_requests",
+                    "The number of http requests a computer can make at one time. Additional requests will be queued, and sent when the running requests have finished. Set to 0 for unlimited.");
+            serverSpec.defineInRange("http.max_requests", ComputerCraft.httpMaxRequests, 0, Integer.MAX_VALUE);
+
+            serverSpec.comment("http.max_websockets",
+                    "The number of websockets a computer can have open at one time. Set to 0 for unlimited.");
+            serverSpec.defineInRange("http.max_websockets", ComputerCraft.httpMaxWebsockets, 1, Integer.MAX_VALUE);
+        }
+
+        { // Peripherals
+            serverSpec.comment("peripheral", "Various options relating to peripherals.");
+
+            serverSpec.comment("peripheral.command_block_enabled",
+                    "Enable Command Block peripheral support");
+            serverSpec.define("peripheral.command_block_enabled", ComputerCraft.enableCommandBlock);
+
+            serverSpec.comment("peripheral.modem_range",
+                    "The range of Wireless Modems at low altitude in clear weather, in meters");
+            serverSpec.defineInRange("peripheral.modem_range", ComputerCraft.modemRange, 0, MODEM_MAX_RANGE);
+
+            serverSpec.comment("peripheral.modem_high_altitude_range",
+                    "The range of Wireless Modems at maximum altitude in clear weather, in meters");
+            serverSpec.defineInRange("peripheral.modem_high_altitude_range", ComputerCraft.modemHighAltitudeRange, 0, MODEM_MAX_RANGE);
+
+            serverSpec.comment("peripheral.modem_range_during_storm",
+                    "The range of Wireless Modems at low altitude in stormy weather, in meters");
+            serverSpec.defineInRange("peripheral.modem_range_during_storm", ComputerCraft.modemRangeDuringStorm, 0, MODEM_MAX_RANGE);
+
+            serverSpec.comment("peripheral.modem_high_altitude_range_during_storm",
+                    "The range of Wireless Modems at maximum altitude in stormy weather, in meters");
+            serverSpec.defineInRange("peripheral.modem_high_altitude_range_during_storm", ComputerCraft.modemHighAltitudeRangeDuringStorm, 0, MODEM_MAX_RANGE);
+
+            serverSpec.comment("peripheral.max_notes_per_tick",
+                    "Maximum amount of notes a speaker can play at once");
+            serverSpec.defineInRange("peripheral.max_notes_per_tick", ComputerCraft.maxNotesPerTick, 1, Integer.MAX_VALUE);
+
+            serverSpec.comment("peripheral.monitor_bandwidth",
+                    "The limit to how much monitor data can be sent *per tick*. Note:\n" +
+                    " - Bandwidth is measured before compression, so the data sent to the client is smaller.\n" +
+                    " - This ignores the number of players a packet is sent to. Updating a monitor for one player consumes " +
+                    "the same bandwidth limit as sending to 20.\n" +
+                    " - A full sized monitor sends ~25kb of data. So the default (1MB) allows for ~40 monitors to be updated " +
+                    "in a single tick. \n" +
+                    "Set to 0 to disable.");
+            serverSpec.defineInRange("peripheral.monitor_bandwidth", (int) ComputerCraft.monitorBandwidth, 0, Integer.MAX_VALUE);
+        }
+
+        { // Turtles
+            serverSpec.comment("turtle", "Various options relating to turtles.");
+
+            serverSpec.comment("turtle.need_fuel",
+                    "Set whether Turtles require fuel to move");
+            serverSpec.define("turtle.need_fuel", ComputerCraft.turtlesNeedFuel);
+
+            serverSpec.comment("turtle.normal_fuel_limit", "The fuel limit for Turtles");
+            serverSpec.defineInRange("turtle.normal_fuel_limit", ComputerCraft.turtleFuelLimit, 0, Integer.MAX_VALUE);
+
+            serverSpec.comment("turtle.advanced_fuel_limit",
+                    "The fuel limit for Advanced Turtles");
+            serverSpec.defineInRange("turtle.advanced_fuel_limit", ComputerCraft.advancedTurtleFuelLimit, 0, Integer.MAX_VALUE);
+
+            serverSpec.comment("turtle.obey_block_protection",
+                    "If set to true, Turtles will be unable to build, dig, or enter protected areas (such as near the server spawn point)");
+            serverSpec.define("turtle.obey_block_protection", ComputerCraft.turtlesObeyBlockProtection);
+
+            serverSpec.comment("turtle.can_push",
+                    "If set to true, Turtles will push entities out of the way instead of stopping if there is space to do so");
+            serverSpec.define("turtle.can_push", ComputerCraft.turtlesCanPush);
+
+            serverSpec.comment("turtle.disabled_actions",
+                    "A list of turtle actions which are disabled.");
+            serverSpec.defineList("turtle.disabled_actions", Collections.emptyList(), x -> x instanceof String && getAction((String) x) != null);
+        }
+
+        {
+            serverSpec.comment("term_sizes", "Configure the size of various computer's terminals.\n" +
+                    "Larger terminals require more bandwidth, so use with care.");
+
+            serverSpec.comment("term_sizes.computer", "Terminal size of computers");
+            serverSpec.defineInRange("term_sizes.computer.width", ComputerCraft.computerTermWidth, 1, 255);
+            serverSpec.defineInRange("term_sizes.computer.height", ComputerCraft.computerTermHeight, 1, 255);
+
+            serverSpec.comment("term_sizes.pocket_computer", "Terminal size of pocket computers");
+            serverSpec.defineInRange("term_sizes.pocket_computer.width", ComputerCraft.pocketTermWidth, 1, 255);
+            serverSpec.defineInRange("term_sizes.pocket_computer.height", ComputerCraft.pocketTermHeight, 1, 255);
+
+            serverSpec.comment("term_sizes.monitor", "Maximum size of monitors (in blocks)");
+            serverSpec.defineInRange("term_sizes.monitor.width", ComputerCraft.monitorWidth, 1, 32);
+            serverSpec.defineInRange("term_sizes.monitor.height", ComputerCraft.monitorHeight, 1, 32);
+        }
+
+        clientSpec = new CommentedConfigSpec();
+
+        clientSpec.comment("monitor_renderer",
+                "The renderer to use for monitors. Generally this should be kept at \"best\" - if " +
+                "monitors have performance issues, you may wish to experiment with alternative renderers.");
+        clientSpec.defineRestrictedEnum("monitor_renderer", MonitorRenderer.BEST, EnumSet.allOf(MonitorRenderer.class), EnumGetMethod.NAME_IGNORECASE);
+
+        clientSpec.comment("monitor_distance",
+                "The maximum distance monitors will render at. This defaults to the standard tile entity limit, " +
+                "but may be extended if you wish to build larger monitors." );
+        clientSpec.defineInRange("monitor_distance", 64, 16, 1024);
     }
 
-    public static void save() {
-        Jankson jankson = Jankson.builder()
-                                 .build();
-        try {
-            String configData = jankson.toJson(config)
-                                       .toJson(true, true);
-            Files.write(configPath, configData.getBytes());
-        } catch (IOException e) {
-            ComputerCraft.log.error("Failed to save config!");
-            e.printStackTrace();
+    private static final FileNotFoundAction MAKE_DIRECTORIES = (file, configFormat) -> {
+        Files.createDirectories(file.getParent());
+        Files.createFile(file);
+        configFormat.initEmptyFile(file);
+        return false;
+    };
+
+    private static CommentedFileConfig buildFileConfig(Path path) {
+        return CommentedFileConfig.builder(path)
+                .onFileNotFound(MAKE_DIRECTORIES)
+                .preserveInsertionOrder()
+                .build();
+    }
+
+    public static void serverStarting(MinecraftServer server) {
+        Path serverPath = server.getSavePath(serverDir).resolve(serverFileName);
+
+        try(CommentedFileConfig config = buildFileConfig(serverPath)) {
+            config.load();
+            serverSpec.correct(config, Config::correctionListener);
+            config.save();
+            serverConfig = config;
+            sync();
+        }
+    }
+
+    public static void serverStopping(MinecraftServer server) {
+        serverConfig = null;
+    }
+
+    public static void clientStarted(MinecraftClient client) {
+        try (CommentedFileConfig config = buildFileConfig(clientPath)) {
+            config.load();
+            clientSpec.correct(config, Config::correctionListener);
+            config.save();
+            clientConfig = config;
+            sync();
+        }
+    }
+
+    private static void correctionListener(ConfigSpec.CorrectionAction action, List<String> path, Object incorrectValue, Object correctedValue) {
+        String key = String.join(".", path);
+        switch(action) {
+            case ADD:
+                ComputerCraft.log.warn("Config key {} missing -> added default value.", key); break;
+            case REMOVE:
+                ComputerCraft.log.warn("Config key {} not defined -> removed from config.", key); break;
+            case REPLACE:
+                ComputerCraft.log.warn("Config key {} not valid -> replaced with default value.", key);
         }
     }
 
     public static void sync() {
-        // General
-        ComputerCraft.computerSpaceLimit = config.general.computer_space_limit;
-        ComputerCraft.floppySpaceLimit = config.general.floppy_space_limit;
-        ComputerCraft.maximumFilesOpen = Math.max(0, config.general.maximum_open_files);
-        ComputerCraft.disable_lua51_features = config.general.disable_lua51_features;
-        ComputerCraft.default_computer_settings = config.general.default_computer_settings;
-        ComputerCraft.debug_enable = config.general.debug_enabled;
-        ComputerCraft.logPeripheralErrors = config.general.log_computer_errors;
+        if(serverConfig != null) {
+            // General
+            ComputerCraft.computerSpaceLimit = serverConfig.<Integer>get("computer_space_limit");
+            ComputerCraft.floppySpaceLimit = serverConfig.<Integer>get("floppy_space_limit");
+            ComputerCraft.maximumFilesOpen = serverConfig.<Integer>get("maximum_open_files");
+            ComputerCraft.disableLua51Features = serverConfig.<Boolean>get("disable_lua51_features");
+            ComputerCraft.defaultComputerSettings = serverConfig.<String>get("default_computer_settings");
+            ComputerCraft.debugEnable = serverConfig.<Boolean>get("debug_enabled");
+            ComputerCraft.logComputerErrors = serverConfig.<Boolean>get("log_computer_errors");
+            ComputerCraft.commandRequireCreative = serverConfig.<Boolean>get("command_require_creative");
 
-        // Execution
-        ComputerCraft.computer_threads = Math.max(1, config.execution.computer_threads);
-        ComputerCraft.maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos(Math.max(1, config.execution.max_main_global_time));
-        ComputerCraft.maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos(Math.max(1, config.execution.max_main_computer_time));
+            // Execution
+            ComputerCraft.computerThreads = serverConfig.<Integer>get("execution.computer_threads");
+            ComputerCraft.maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos(serverConfig.<Integer>get("execution.max_main_global_time"));
+            ComputerCraft.maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos(serverConfig.<Integer>get("execution.max_main_computer_time"));
 
-        // HTTP
-        ComputerCraft.http_enable = config.http.enabled;
-        ComputerCraft.http_websocket_enable = config.http.websocket_enabled;
-        ComputerCraft.httpRules = Stream.concat(Stream.of(config.http.blacklist)
-                .map( x -> AddressRule.parse( x, null, Action.DENY.toPartial()))
-                .filter(Objects::nonNull),
-        Stream.of(config.http.whitelist)
-                .map( x -> AddressRule.parse( x, null, Action.ALLOW.toPartial()))
-                .filter(Objects::nonNull))
-        .collect(Collectors.toList());
+            // HTTP
+            ComputerCraft.httpEnabled = serverConfig.<Boolean>get("http.enabled");
+            ComputerCraft.httpWebsocketEnabled = serverConfig.<Boolean>get("http.websocket_enabled");
+            ComputerCraft.httpRules = serverConfig.<List<UnmodifiableConfig>>get("http.rules").stream().map(AddressRuleConfig::parseRule)
+                    .filter(Objects::nonNull).collect(Collectors.toList());
+            ComputerCraft.httpMaxRequests = serverConfig.<Integer>get("http.max_requests");
+            ComputerCraft.httpMaxWebsockets = serverConfig.<Integer>get("http.max_websockets");
 
-        ComputerCraft.httpTimeout = Math.max(0, config.http.timeout);
-        ComputerCraft.httpMaxRequests = Math.max(1, config.http.max_requests);
-        ComputerCraft.httpMaxDownload = Math.max(0, config.http.max_download);
-        ComputerCraft.httpMaxUpload = Math.max(0, config.http.max_upload);
-        ComputerCraft.httpMaxWebsockets = Math.max(1, config.http.max_websockets);
-        ComputerCraft.httpMaxWebsocketMessage = Math.min(Math.max(0, config.http.max_websocket_message), Websocket.MAX_MESSAGE_SIZE);
+            // Peripherals
+            ComputerCraft.enableCommandBlock = serverConfig.<Boolean>get("peripheral.command_block_enabled");
+            ComputerCraft.modemRange = serverConfig.<Integer>get("peripheral.modem_range");
+            ComputerCraft.modemHighAltitudeRange = serverConfig.<Integer>get("peripheral.modem_high_altitude_range");
+            ComputerCraft.modemRangeDuringStorm = serverConfig.<Integer>get("peripheral.modem_range_during_storm");
+            ComputerCraft.modemHighAltitudeRangeDuringStorm = serverConfig.<Integer>get("peripheral.modem_high_altitude_range_during_storm");
+            ComputerCraft.maxNotesPerTick = serverConfig.<Integer>get("peripheral.max_notes_per_tick");
+            ComputerCraft.monitorBandwidth = serverConfig.<Integer>get("peripheral.monitor_bandwidth");
 
-        // Peripheral
-        ComputerCraft.enableCommandBlock = config.peripheral.command_block_enabled;
-        ComputerCraft.maxNotesPerTick = Math.max(1, config.peripheral.max_notes_per_tick);
-        ComputerCraft.modem_range = Math.min(Math.max(0, config.peripheral.modem_range), MODEM_MAX_RANGE);
-        ComputerCraft.modem_highAltitudeRange = Math.min(Math.max(0, config.peripheral.modem_high_altitude_range), MODEM_MAX_RANGE);
-        ComputerCraft.modem_rangeDuringStorm = Math.min(Math.max(0, config.peripheral.modem_range_during_storm), MODEM_MAX_RANGE);
-        ComputerCraft.modem_highAltitudeRangeDuringStorm = Math.min(Math.max(0, config.peripheral.modem_high_altitude_range_during_storm), MODEM_MAX_RANGE);
+            // Turtles
+            ComputerCraft.turtlesNeedFuel = serverConfig.<Boolean>get("turtle.need_fuel");
+            ComputerCraft.turtleFuelLimit = serverConfig.<Integer>get("turtle.normal_fuel_limit");
+            ComputerCraft.advancedTurtleFuelLimit = serverConfig.<Integer>get("turtle.advanced_fuel_limit");
+            ComputerCraft.turtlesObeyBlockProtection = serverConfig.<Boolean>get("turtle.obey_block_protection");
+            ComputerCraft.turtlesCanPush = serverConfig.<Boolean>get("turtle.can_push");
 
-        // Turtles
-        ComputerCraft.turtlesNeedFuel = config.turtle.need_fuel;
-        ComputerCraft.turtleFuelLimit = Math.max(0, config.turtle.normal_fuel_limit);
-        ComputerCraft.advancedTurtleFuelLimit = Math.max(0, config.turtle.advanced_fuel_limit);
-        ComputerCraft.turtlesObeyBlockProtection = config.turtle.obey_block_protection;
-        ComputerCraft.turtlesCanPush = config.turtle.can_push;
-
-        ComputerCraft.turtleDisabledActions.clear();
-        Converter<String, String> converter = CaseFormat.LOWER_CAMEL.converterTo(CaseFormat.UPPER_UNDERSCORE);
-        for (String value : config.turtle.disabled_actions) {
-            try {
-                ComputerCraft.turtleDisabledActions.add(TurtleAction.valueOf(converter.convert(value)));
-            } catch (IllegalArgumentException e) {
-                ComputerCraft.log.error("Unknown turtle action " + value);
+            ComputerCraft.turtleDisabledActions.clear();
+            for(String value : serverConfig.<List<String>>get("turtle.disabled_actions")) {
+                ComputerCraft.turtleDisabledActions.add(getAction(value));
             }
+
+            // Terminal Size
+            ComputerCraft.computerTermWidth = serverConfig.<Integer>get("term_sizes.computer.width");
+            ComputerCraft.computerTermHeight = serverConfig.<Integer>get("term_sizes.computer.height");
+            ComputerCraft.pocketTermWidth = serverConfig.<Integer>get("term_sizes.pocket_computer.width");
+            ComputerCraft.pocketTermHeight = serverConfig.<Integer>get("term_sizes.pocket_computer.height");
+            ComputerCraft.monitorWidth = serverConfig.<Integer>get("term_sizes.monitor.width");
+            ComputerCraft.monitorHeight = serverConfig.<Integer>get("term_sizes.monitor.height");
+        }
+
+        // Client
+        if(clientConfig != null) {
+            ComputerCraft.monitorRenderer = clientConfig.getEnum("monitor_renderer", MonitorRenderer.class);
+            int distance = clientConfig.get("monitor_distance");
+            ComputerCraft.monitorDistanceSq = distance * distance;
         }
     }
 
-    public static class General {
-        @Comment ("\nThe disk space limit for computers and turtles, in bytes") public int computer_space_limit = ComputerCraft.computerSpaceLimit;
+    private static final Converter<String, String> converter = CaseFormat.LOWER_CAMEL.converterTo(CaseFormat.UPPER_UNDERSCORE);
 
-        @Comment ("\nThe disk space limit for floppy disks, in bytes") public int floppy_space_limit = ComputerCraft.floppySpaceLimit;
-
-        @Comment ("\nSet how many files a computer can have open at the same time. Set to 0 for unlimited.") public int maximum_open_files =
-            ComputerCraft.maximumFilesOpen;
-
-        @Comment ("\nSet this to true to disable Lua 5.1 functions that will be removed in a future " + "update. Useful for ensuring forward " +
-                  "compatibility of your programs now.") public boolean disable_lua51_features = ComputerCraft.disable_lua51_features;
-
-        @Comment ("\nA comma separated list of default system settings to set on new computers. Example: " + "\"shell.autocomplete=false,lua" +
-                  ".autocomplete=false,edit.autocomplete=false\" will disable all autocompletion") public String default_computer_settings =
-            ComputerCraft.default_computer_settings;
-
-        @Comment ("\nEnable Lua's debug library. This is sandboxed to each computer, so is generally safe to be used by players.") public boolean debug_enabled = ComputerCraft.debug_enable;
-
-        @Comment ("\nLog exceptions thrown by peripherals and other Lua objects.\n" + "This makes it easier for mod authors to debug problems, but may " + "result in log spam should people use buggy methods.") public boolean log_computer_errors = ComputerCraft.logPeripheralErrors;
-    }
-
-    public static class Execution {
-        @Comment ("\nSet the number of threads computers can run on. A higher number means more computers can " + "run at once, but may induce lag.\n" +
-                  "Please note that some mods may not work with a thread count higher than 1. Use with caution.") public int computer_threads =
-            ComputerCraft.computer_threads;
-
-        @Comment ("\nThe maximum time that can be spent executing tasks in a single tick, in milliseconds.\n" + "Note, we will quite possibly go over " + "this limit, as there's no way to tell how long a will take - this aims " + "to be the upper bound of the average time.") public long max_main_global_time = TimeUnit.NANOSECONDS.toMillis(
-            ComputerCraft.maxMainGlobalTime);
-
-        @Comment ("\nThe ideal maximum time a computer can execute for in a tick, in milliseconds.\n" + "Note, we will quite possibly go over this limit,"
-                  + " as there's no way to tell how long a will take - this aims " + "to be the upper bound of the average time.") public long max_main_computer_time = TimeUnit.NANOSECONDS.toMillis(
-            ComputerCraft.maxMainComputerTime);
-    }
-
-    public static class Http {
-        @Comment ("\nEnable the \"http\" API on Computers (see \"http_whitelist\" and \"http_blacklist\" for " + "more fine grained control than this)") public boolean enabled = ComputerCraft.http_enable;
-
-        @Comment ("\nEnable use of http websockets. This requires the \"http_enable\" option to also be true.") public boolean websocket_enabled =
-            ComputerCraft.http_websocket_enable;
-
-        @Comment ("\nA list of wildcards for domains or IP ranges that can be accessed through the " + "\"http\" API on Computers.\n" + "Set this to " +
-                  "\"*\" to access to the entire internet. Example: \"*.pastebin.com\" will restrict access to " + "just subdomains of pastebin.com.\n" + "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\").") public String[] whitelist = new String[] {"*"};
-
-        @Comment ("\nA list of wildcards for domains or IP ranges that cannot be accessed through the " + "\"http\" API on Computers.\n" + "If this is " + "empty then all whitelisted domains will be accessible. Example: \"*.github.com\" will block " + "access to all subdomains of github" + ".com.\n" + "You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\").") public String[] blacklist = new String[] {"$private"};
-
-        @Comment ("\nThe period of time (in milliseconds) to wait before a HTTP request times out. Set to 0 for unlimited.") public int timeout =
-            ComputerCraft.httpTimeout;
-
-        @Comment ("\nThe number of http requests a computer can make at one time. Additional requests " + "will be queued, and sent when the running " +
-                  "requests have finished. Set to 0 for unlimited.") public int max_requests = ComputerCraft.httpMaxRequests;
-
-        @Comment ("\nThe maximum size (in bytes) that a computer can download in a single request. " + "Note that responses may receive more data than " + "allowed, but this data will not be returned to the client.") public long max_download = ComputerCraft.httpMaxDownload;
-
-        @Comment ("\nThe maximum size (in bytes) that a computer can upload in a single request. This " + "includes headers and POST text.") public long max_upload = ComputerCraft.httpMaxUpload;
-
-        @Comment ("\nThe number of websockets a computer can have open at one time. Set to 0 for unlimited.") public int max_websockets =
-            ComputerCraft.httpMaxWebsockets;
-
-        @Comment ("\nThe maximum size (in bytes) that a computer can send or receive in one websocket packet.") public int max_websocket_message =
-            ComputerCraft.httpMaxWebsocketMessage;
-    }
-
-    public static class Peripheral {
-        @Comment ("\n\nEnable Command Block peripheral support") public boolean command_block_enabled = ComputerCraft.enableCommandBlock;
-
-        @Comment ("\nThe range of Wireless Modems at low altitude in clear weather, in meters") public int modem_range = ComputerCraft.modem_range;
-
-        @Comment ("\nThe range of Wireless Modems at maximum altitude in clear weather, in meters") public int modem_high_altitude_range =
-            ComputerCraft.modem_highAltitudeRange;
-
-        @Comment ("\nThe range of Wireless Modems at low altitude in stormy weather, in meters") public int modem_range_during_storm =
-            ComputerCraft.modem_rangeDuringStorm;
-
-        @Comment ("\nThe range of Wireless Modems at maximum altitude in stormy weather, in meters") public int modem_high_altitude_range_during_storm =
-            ComputerCraft.modem_highAltitudeRangeDuringStorm;
-
-        @Comment ("\nMaximum amount of notes a speaker can play at once") public int max_notes_per_tick = ComputerCraft.maxNotesPerTick;
-    }
-
-    public static class Turtle {
-        @Comment ("\nSet whether Turtles require fuel to move") public boolean need_fuel = ComputerCraft.turtlesNeedFuel;
-
-        @Comment ("\nThe fuel limit for Turtles") public int normal_fuel_limit = ComputerCraft.turtleFuelLimit;
-
-        @Comment ("\nThe fuel limit for Advanced Turtles") public int advanced_fuel_limit = ComputerCraft.advancedTurtleFuelLimit;
-
-        @Comment ("\nIf set to true, Turtles will be unable to build, dig, or enter protected " + "areas (such as near the server spawn point)") public boolean obey_block_protection = ComputerCraft.turtlesObeyBlockProtection;
-
-        @Comment ("\nIf set to true, Turtles will push entities out of the way instead of stopping if " + "there is space to do so") public boolean can_push = ComputerCraft.turtlesCanPush;
-
-        @Comment ("\nA list of turtle actions which are disabled.") public String[] disabled_actions = new String[0];
+    private static TurtleAction getAction(String value) {
+        try {
+            return TurtleAction.valueOf(converter.convert(value));
+        }
+        catch(IllegalArgumentException e) {
+            return null;
+        }
     }
 }

@@ -164,7 +164,7 @@ public class Websocket extends Resource<Websocket> {
             this.failure(e.getMessage());
         } catch (Exception e) {
             this.failure("Could not connect");
-            if (ComputerCraft.logPeripheralErrors) {
+            if (ComputerCraft.logComputerErrors) {
                 ComputerCraft.log.error("Error in websocket", e);
             }
         }

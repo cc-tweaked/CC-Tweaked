@@ -42,7 +42,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     private ItemStack m_stack;
 
     public PocketServerComputer(World world, int computerID, String label, int instanceID, ComputerFamily family) {
-        super(world, computerID, label, instanceID, family, ComputerCraft.terminalWidth_pocketComputer, ComputerCraft.terminalHeight_pocketComputer);
+        super(world, computerID, label, instanceID, family, ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight);
     }
 
     @Nullable

@@ -157,7 +157,7 @@ final class ComputerExecutor {
         this.apis.add(new FSAPI(environment));
         this.apis.add(new PeripheralAPI(environment));
         this.apis.add(new OSAPI(environment));
-        if (ComputerCraft.http_enable) {
+        if (ComputerCraft.httpEnabled) {
             this.apis.add(new HTTPAPI(environment));
         }
 

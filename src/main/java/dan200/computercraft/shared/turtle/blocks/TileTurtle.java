@@ -312,8 +312,8 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         ServerComputer computer = new ServerComputer(this.getWorld(),
                                                      id, this.label,
                                                      instanceID, this.getFamily(),
-                                                     ComputerCraft.terminalWidth_turtle,
-                                                     ComputerCraft.terminalHeight_turtle);
+                                                     ComputerCraft.turtleTermWidth,
+                                                     ComputerCraft.turtleTermHeight);
         computer.setPosition(this.getPos());
         computer.addAPI(new TurtleAPI(computer.getAPIEnvironment(), this.getAccess()));
         this.m_brain.setupComputer(computer);

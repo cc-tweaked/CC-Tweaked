@@ -33,6 +33,9 @@
         ],
         "client": [
             "dan200.computercraft.client.proxy.ComputerCraftProxyClient"
+        ],
+        "modmenu": [
+            "dan200.computercraft.shared.integration.ModMenuIntegration"
         ]
     },
     "mixins": [
