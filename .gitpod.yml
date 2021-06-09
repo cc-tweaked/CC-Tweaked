@@ -1,0 +1,18 @@
+image:
+  file: .gitpod.Dockerfile
+
+ports:
+  - port: 25565
+    onOpen: notify
+
+vscode:
+  extensions:
+    - ms-azuretools.vscode-docker
+    - redhat.java
+    - richardwillis.vscode-gradle
+    - vscjava.vscode-java-debug
+    - vscode.github
+
+
+tasks:
+  - init: ./gradlew

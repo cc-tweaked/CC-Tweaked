@@ -1,3 +1,15 @@
 {
+	"files.exclude": {
+		// Default Java Dev
+        "**/.classpath": true,
+        "**/.project": true,
+        "**/.settings": true,
+        "**/.factorypath": true,
+
+		// Custom Hidden Files
+		"**/.bin": true,
+		"**/.editorconfig": true,
+    },	
+	
 	"java.configuration.updateBuildConfiguration": "automatic"
 }
