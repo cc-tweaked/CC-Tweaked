@@ -97,10 +97,7 @@ public class PrinterPeripheral implements IPeripheral
         Terminal page = this.getCurrentPage();
         int x = page.getCursorX();
         int y = page.getCursorY();
-        return new Object[] {
-            x + 1,
-            y + 1
-        };
+        return new Object[] { x + 1, y + 1 };
     }
 
     /**
@@ -131,10 +128,7 @@ public class PrinterPeripheral implements IPeripheral
         Terminal page = this.getCurrentPage();
         int width = page.getWidth();
         int height = page.getHeight();
-        return new Object[] {
-            width,
-            height
-        };
+        return new Object[] { width, height };
     }
 
     /**

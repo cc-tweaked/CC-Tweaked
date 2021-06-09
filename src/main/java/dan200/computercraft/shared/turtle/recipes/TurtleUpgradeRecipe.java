@@ -144,10 +144,7 @@ public final class TurtleUpgradeRecipe extends SpecialCraftingRecipe
         };
 
         // Get the upgrades for the new items
-        ItemStack[] items = new ItemStack[] {
-            rightItem,
-            leftItem
-        };
+        ItemStack[] items = new ItemStack[] { rightItem, leftItem };
         for( int i = 0; i < 2; i++ )
         {
             if( !items[i].isEmpty() )

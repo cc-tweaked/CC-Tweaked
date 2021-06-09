@@ -24,8 +24,7 @@ public final class TurtleRecipe extends ComputerFamilyRecipe
         new dan200.computercraft.shared.computer.recipe.ComputerFamilyRecipe.Serializer<TurtleRecipe>()
         {
             @Override
-            protected TurtleRecipe create( Identifier identifier, String group, int width, int height, DefaultedList<Ingredient> ingredients, ItemStack result
-                , ComputerFamily family )
+            protected TurtleRecipe create( Identifier identifier, String group, int width, int height, DefaultedList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
             {
                 return new TurtleRecipe( identifier, group, width, height, ingredients, result, family );
             }

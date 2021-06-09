@@ -31,7 +31,8 @@ public class CommentedConfigSpec extends ConfigSpec
 
     public int correct( Config config )
     {
-        return correct( config, ( action, path, incorrectValue, correctedValue ) -> {} );
+        return correct( config, ( action, path, incorrectValue, correctedValue ) -> {
+        } );
     }
 
     public int correct( Config config, ConfigSpec.CorrectionListener listener )

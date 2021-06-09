@@ -52,7 +52,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         9,
         10,
         11,
-        12
+        12,
     };
     private static final int[] TOP_SLOTS = new int[] {
         1,
@@ -60,7 +60,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         3,
         4,
         5,
-        6
+        6,
     };
     private static final int[] SIDE_SLOTS = new int[] { 0 };
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize( SLOTS, ItemStack.EMPTY );

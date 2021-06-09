@@ -24,8 +24,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinItemFrameEntityRenderer
 {
     @Inject( method = "render", at = @At( "HEAD" ), cancellable = true )
-    private void renderItem_Injected( ItemFrameEntity itemFrameEntity, float f, float g, MatrixStack matrixStack,
-                                      VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo info )
+    private void renderItem(
+        ItemFrameEntity itemFrameEntity, float f, float g, MatrixStack matrixStack,
+        VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo info
+    )
     {
         ItemStack stack = itemFrameEntity.getHeldItemStack();
         if( stack.getItem() instanceof ItemPrintout )

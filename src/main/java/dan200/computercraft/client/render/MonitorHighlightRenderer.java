@@ -36,8 +36,9 @@ public final class MonitorHighlightRenderer
     {
     }
 
-    public static boolean drawHighlight( MatrixStack matrixStack, VertexConsumer vertexConsumer, Entity entity, double d, double e, double f, BlockPos pos
-        , BlockState blockState )
+    public static boolean drawHighlight(
+        MatrixStack matrixStack, VertexConsumer vertexConsumer, Entity entity, double d, double e, double f, BlockPos pos, BlockState blockState
+    )
     {
         // Preserve normal behaviour when crouching.
         if( entity.isInSneakingPose() )

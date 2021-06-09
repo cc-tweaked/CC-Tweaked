@@ -59,19 +59,29 @@ public class FakePlayer extends ServerPlayerEntity
 
     // region Direct networkHandler access
     @Override
-    public void enterCombat() { }
+    public void enterCombat()
+    {
+    }
 
     @Override
-    public void endCombat() { }
+    public void endCombat()
+    {
+    }
 
     @Override
-    public void tick() { }
+    public void tick()
+    {
+    }
 
     @Override
-    public void playerTick() { }
+    public void playerTick()
+    {
+    }
 
     @Override
-    public void onDeath( DamageSource damage ) { }
+    public void onDeath( DamageSource damage )
+    {
+    }
 
     @Override
     public Entity moveToWorld( ServerWorld destination )
@@ -92,10 +102,14 @@ public class FakePlayer extends ServerPlayerEntity
     }
 
     @Override
-    public void stopRiding() { }
+    public void stopRiding()
+    {
+    }
 
     @Override
-    public void openEditSignScreen( SignBlockEntity tile ) { }
+    public void openEditSignScreen( SignBlockEntity tile )
+    {
+    }
 
     @Override
     public OptionalInt openHandledScreen( @Nullable NamedScreenHandlerFactory container )
@@ -104,31 +118,49 @@ public class FakePlayer extends ServerPlayerEntity
     }
 
     @Override
-    public void sendTradeOffers( int id, TradeOfferList list, int level, int experience, boolean levelled, boolean refreshable ) { }
+    public void sendTradeOffers( int id, TradeOfferList list, int level, int experience, boolean levelled, boolean refreshable )
+    {
+    }
 
     @Override
-    public void openHorseInventory( HorseBaseEntity horse, Inventory inventory ) { }
+    public void openHorseInventory( HorseBaseEntity horse, Inventory inventory )
+    {
+    }
 
     @Override
-    public void openEditBookScreen( ItemStack stack, Hand hand ) { }
+    public void openEditBookScreen( ItemStack stack, Hand hand )
+    {
+    }
 
     @Override
-    public void openCommandBlockScreen( CommandBlockBlockEntity block ) { }
+    public void openCommandBlockScreen( CommandBlockBlockEntity block )
+    {
+    }
 
     @Override
-    public void onSlotUpdate( ScreenHandler container, int slot, ItemStack stack ) { }
+    public void onSlotUpdate( ScreenHandler container, int slot, ItemStack stack )
+    {
+    }
 
     @Override
-    public void onHandlerRegistered( ScreenHandler container, DefaultedList<ItemStack> defaultedList ) { }
+    public void onHandlerRegistered( ScreenHandler container, DefaultedList<ItemStack> defaultedList )
+    {
+    }
 
     @Override
-    public void onPropertyUpdate( ScreenHandler container, int key, int value ) { }
+    public void onPropertyUpdate( ScreenHandler container, int key, int value )
+    {
+    }
 
     @Override
-    public void closeHandledScreen() { }
+    public void closeHandledScreen()
+    {
+    }
 
     @Override
-    public void updateCursorStack() { }
+    public void updateCursorStack()
+    {
+    }
 
     @Override
     public int unlockRecipes( Collection<Recipe<?>> recipes )
@@ -144,31 +176,49 @@ public class FakePlayer extends ServerPlayerEntity
     }
 
     @Override
-    public void sendMessage( Text textComponent, boolean status ) { }
+    public void sendMessage( Text textComponent, boolean status )
+    {
+    }
 
     @Override
-    protected void consumeItem() { }
+    protected void consumeItem()
+    {
+    }
 
     @Override
-    public void lookAt( EntityAnchorArgumentType.EntityAnchor anchor, Vec3d vec3d ) {}
+    public void lookAt( EntityAnchorArgumentType.EntityAnchor anchor, Vec3d vec3d )
+    {
+    }
 
     @Override
-    public void method_14222( EntityAnchorArgumentType.EntityAnchor self, Entity entity, EntityAnchorArgumentType.EntityAnchor target ) { }
+    public void method_14222( EntityAnchorArgumentType.EntityAnchor self, Entity entity, EntityAnchorArgumentType.EntityAnchor target )
+    {
+    }
 
     @Override
-    protected void onStatusEffectApplied( StatusEffectInstance statusEffectInstance ) { }
+    protected void onStatusEffectApplied( StatusEffectInstance statusEffectInstance )
+    {
+    }
 
     @Override
-    protected void onStatusEffectUpgraded( StatusEffectInstance statusEffectInstance, boolean particles ) { }
+    protected void onStatusEffectUpgraded( StatusEffectInstance statusEffectInstance, boolean particles )
+    {
+    }
 
     @Override
-    protected void onStatusEffectRemoved( StatusEffectInstance statusEffectInstance ) { }
+    protected void onStatusEffectRemoved( StatusEffectInstance statusEffectInstance )
+    {
+    }
 
     @Override
-    public void requestTeleport( double x, double y, double z ) { }
+    public void requestTeleport( double x, double y, double z )
+    {
+    }
 
     @Override
-    public void setGameMode( GameMode gameMode ) { }
+    public void setGameMode( GameMode gameMode )
+    {
+    }
 
     @Override
     public void sendMessage( Text message, MessageType type, UUID senderUuid )
@@ -183,25 +233,39 @@ public class FakePlayer extends ServerPlayerEntity
     }
 
     @Override
-    public void sendResourcePackUrl( String url, String hash ) { }
+    public void sendResourcePackUrl( String url, String hash )
+    {
+    }
 
     @Override
-    public void onStoppedTracking( Entity entity ) { }
+    public void onStoppedTracking( Entity entity )
+    {
+    }
 
     @Override
-    public void setCameraEntity( Entity entity ) { }
+    public void setCameraEntity( Entity entity )
+    {
+    }
 
     @Override
-    public void teleport( ServerWorld serverWorld, double x, double y, double z, float pitch, float yaw ) { }
+    public void teleport( ServerWorld serverWorld, double x, double y, double z, float pitch, float yaw )
+    {
+    }
 
     @Override
-    public void sendInitialChunkPackets( ChunkPos chunkPos, Packet<?> packet, Packet<?> packet2 ) { }
+    public void sendInitialChunkPackets( ChunkPos chunkPos, Packet<?> packet, Packet<?> packet2 )
+    {
+    }
 
     @Override
-    public void sendUnloadChunkPacket( ChunkPos chunkPos ) { }
+    public void sendUnloadChunkPacket( ChunkPos chunkPos )
+    {
+    }
 
     @Override
-    public void playSound( SoundEvent soundEvent, SoundCategory soundCategory, float volume, float pitch ) { }
+    public void playSound( SoundEvent soundEvent, SoundCategory soundCategory, float volume, float pitch )
+    {
+    }
 
     private static class FakeNetHandler extends ServerPlayNetworkHandler
     {
@@ -211,16 +275,24 @@ public class FakePlayer extends ServerPlayerEntity
         }
 
         @Override
-        public void disconnect( Text message ) { }
+        public void disconnect( Text message )
+        {
+        }
 
         @Override
-        public void onVehicleMove( VehicleMoveC2SPacket move ) { }
+        public void onVehicleMove( VehicleMoveC2SPacket move )
+        {
+        }
 
         @Override
-        public void onRequestCommandCompletions( RequestCommandCompletionsC2SPacket packet ) { }
+        public void onRequestCommandCompletions( RequestCommandCompletionsC2SPacket packet )
+        {
+        }
 
         @Override
-        public void sendPacket( Packet<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> listener ) { }
+        public void sendPacket( Packet<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> listener )
+        {
+        }
     }
 
     private static class FakeConnection extends ClientConnection

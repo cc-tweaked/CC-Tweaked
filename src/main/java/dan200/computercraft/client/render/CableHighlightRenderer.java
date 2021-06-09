@@ -22,7 +22,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.World;
 
 @Environment( EnvType.CLIENT )
 public final class CableHighlightRenderer
@@ -31,13 +30,9 @@ public final class CableHighlightRenderer
     {
     }
 
-    /**
-     * Draw an outline for a specific part of a cable "Multipart".
-     */
     public static boolean drawHighlight( MatrixStack stack, VertexConsumer consumer, Entity entity, double d, double e, double f, BlockPos pos,
                                          BlockState state )
     {
-        World world = entity.getEntityWorld();
         Camera info = MinecraftClient.getInstance().gameRenderer.getCamera();
 
         // We only care about instances with both cable and modem.

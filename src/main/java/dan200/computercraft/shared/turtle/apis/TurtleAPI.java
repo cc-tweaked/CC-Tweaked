@@ -523,8 +523,8 @@ public class TurtleAPI implements ILuaAPI
      * Get the maximum amount of fuel this turtle currently holds.
      *
      * @return The fuel level, or "unlimited".
-     * @cc.treturn[1] number The current amount of fuel a turtle this turtle has.
-     * @cc.treturn[2] "unlimited" If turtles do not consume fuel when moving.
+     * @cc.treturn [1] number The current amount of fuel a turtle this turtle has.
+     * @cc.treturn [2] "unlimited" If turtles do not consume fuel when moving.
      * @see #getFuelLimit()
      * @see #refuel(Optional)
      */
@@ -547,9 +547,9 @@ public class TurtleAPI implements ILuaAPI
      * @param countA The maximum number of items to consume. One can pass `0` to check if an item is combustable or not.
      * @return If this turtle could be refuelled.
      * @throws LuaException If the refuel count is out of range.
-     * @cc.treturn[1] true If the turtle was refuelled.
-     * @cc.treturn[2] false If the turtle was not refuelled.
-     * @cc.treturn[2] string The reason the turtle was not refuelled (
+     * @cc.treturn [1] true If the turtle was refuelled.
+     * @cc.treturn [2] false If the turtle was not refuelled.
+     * @cc.treturn [2] string The reason the turtle was not refuelled (
      * @cc.usage Refuel a turtle from the currently selected slot.
      * <pre>{@code
      * local level = turtle.getFuelLevel()
@@ -631,8 +631,8 @@ public class TurtleAPI implements ILuaAPI
      * By default, normal turtles have a limit of 20,000 and advanced turtles of 100,000.
      *
      * @return The limit, or "unlimited".
-     * @cc.treturn[1] number The maximum amount of fuel a turtle can hold.
-     * @cc.treturn[2] "unlimited" If turtles do not consume fuel when moving.
+     * @cc.treturn [1] number The maximum amount of fuel a turtle can hold.
+     * @cc.treturn [2] "unlimited" If turtles do not consume fuel when moving.
      * @see #getFuelLevel()
      * @see #refuel(Optional)
      */
@@ -650,9 +650,9 @@ public class TurtleAPI implements ILuaAPI
      * upgrade is removed, but no new one is equipped.
      *
      * @return Whether an item was equiped or not.
-     * @cc.treturn[1] true If the item was equipped.
-     * @cc.treturn[2] false If we could not equip the item.
-     * @cc.treturn[2] string The reason equipping this item failed.
+     * @cc.treturn [1] true If the item was equipped.
+     * @cc.treturn [2] false If we could not equip the item.
+     * @cc.treturn [2] string The reason equipping this item failed.
      * @see #equipRight()
      */
     @LuaFunction
@@ -669,9 +669,9 @@ public class TurtleAPI implements ILuaAPI
      * upgrade is removed, but no new one is equipped.
      *
      * @return Whether an item was equiped or not.
-     * @cc.treturn[1] true If the item was equipped.
-     * @cc.treturn[2] false If we could not equip the item.
-     * @cc.treturn[2] string The reason equipping this item failed.
+     * @cc.treturn [1] true If the item was equipped.
+     * @cc.treturn [2] false If we could not equip the item.
+     * @cc.treturn [2] string The reason equipping this item failed.
      * @see #equipRight()
      */
     @LuaFunction
@@ -776,10 +776,7 @@ public class TurtleAPI implements ILuaAPI
         TurtleActionEvent event = new TurtleInspectItemEvent( this.turtle, stack, table, detailed );
         if( TurtleEvent.post( event ) )
         {
-            return new Object[] {
-                false,
-                event.getFailureMessage()
-            };
+            return new Object[] { false, event.getFailureMessage() };
         }
 
         return new Object[] { table };

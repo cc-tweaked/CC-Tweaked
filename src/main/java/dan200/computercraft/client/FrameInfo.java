@@ -13,11 +13,6 @@ public final class FrameInfo
     private static int tick;
     private static long renderFrame;
 
-    static
-    {
-
-    }
-
     private FrameInfo()
     {
     }

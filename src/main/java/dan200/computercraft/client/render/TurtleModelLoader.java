@@ -67,7 +67,10 @@ public final class TurtleModelLoader
     {
         private final Identifier family;
 
-        private TurtleModel( Identifier family ) {this.family = family;}
+        private TurtleModel( Identifier family )
+        {
+            this.family = family;
+        }
 
         @Override
         public Collection<SpriteIdentifier> getTextureDependencies( Function<Identifier, UnbakedModel> modelGetter,

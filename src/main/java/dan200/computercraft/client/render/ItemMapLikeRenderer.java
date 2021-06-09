@@ -23,14 +23,15 @@ import net.minecraft.util.math.MathHelper;
 @Environment( EnvType.CLIENT )
 public abstract class ItemMapLikeRenderer
 {
-    public void renderItemFirstPerson( MatrixStack transform, VertexConsumerProvider render, int lightTexture, Hand hand, float pitch, float equipProgress
-        , float swingProgress, ItemStack stack )
+    public void renderItemFirstPerson(
+        MatrixStack transform, VertexConsumerProvider render, int lightTexture, Hand hand, float pitch, float equipProgress,
+        float swingProgress, ItemStack stack
+    )
     {
         PlayerEntity player = MinecraftClient.getInstance().player;
 
         transform.push();
-        if( hand == Hand.MAIN_HAND && player.getOffHandStack()
-            .isEmpty() )
+        if( hand == Hand.MAIN_HAND && player.getOffHandStack().isEmpty() )
         {
             this.renderItemFirstPersonCenter( transform, render, lightTexture, pitch, equipProgress, swingProgress, stack );
         }
@@ -39,8 +40,7 @@ public abstract class ItemMapLikeRenderer
             this.renderItemFirstPersonSide( transform,
                 render,
                 lightTexture,
-                hand == Hand.MAIN_HAND ? player.getMainArm() : player.getMainArm()
-                    .getOpposite(),
+                hand == Hand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite(),
                 equipProgress,
                 swingProgress,
                 stack );

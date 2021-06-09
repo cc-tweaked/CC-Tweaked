@@ -30,7 +30,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class Config
+public final class Config
 {
     private static final int MODEM_MAX_RANGE = 100000;
 

@@ -99,21 +99,11 @@ public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle>
             float f2 = (float) (tint & 255) / 255.0F;
             buffer.quad( matrix,
                 bakedquad,
-                new float[] {
-                    1.0F,
-                    1.0F,
-                    1.0F,
-                    1.0F
-                },
+                new float[] { 1.0F, 1.0F, 1.0F, 1.0F },
                 f,
                 f1,
                 f2,
-                new int[] {
-                    lightmapCoord,
-                    lightmapCoord,
-                    lightmapCoord,
-                    lightmapCoord
-                },
+                new int[] { lightmapCoord, lightmapCoord, lightmapCoord, lightmapCoord },
                 overlayLight,
                 true );
         }

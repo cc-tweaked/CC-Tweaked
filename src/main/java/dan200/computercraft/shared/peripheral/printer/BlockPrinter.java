@@ -53,8 +53,7 @@ public class BlockPrinter extends BlockGeneric
     }
 
     @Override
-    public void afterBreak( @Nonnull World world, @Nonnull PlayerEntity player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te
-        , @Nonnull ItemStack stack )
+    public void afterBreak( @Nonnull World world, @Nonnull PlayerEntity player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack )
     {
         if( te instanceof Nameable && ((Nameable) te).hasCustomName() )
         {

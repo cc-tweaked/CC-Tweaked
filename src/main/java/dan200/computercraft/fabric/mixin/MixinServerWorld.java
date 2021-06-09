@@ -14,6 +14,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
+ * Captures item stacks spawned into the world.
+ *
  * @see ServerWorld#spawnEntity(Entity)
  */
 @Mixin( ServerWorld.class )

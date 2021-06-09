@@ -16,6 +16,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
+ * Captures block drops.
+ *
  * @see Block#dropStack(World, BlockPos, ItemStack)
  */
 @Mixin( Block.class )

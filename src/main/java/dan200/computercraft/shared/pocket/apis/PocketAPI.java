@@ -65,10 +65,7 @@ public class PocketAPI implements ILuaAPI
         Entity entity = this.computer.getEntity();
         if( !(entity instanceof PlayerEntity) )
         {
-            return new Object[] {
-                false,
-                "Cannot find player"
-            };
+            return new Object[] { false, "Cannot find player" };
         }
         PlayerEntity player = (PlayerEntity) entity;
         PlayerInventory inventory = player.inventory;
@@ -83,10 +80,7 @@ public class PocketAPI implements ILuaAPI
         }
         if( newUpgrade == null )
         {
-            return new Object[] {
-                false,
-                "Cannot find a valid upgrade"
-            };
+            return new Object[] { false, "Cannot find a valid upgrade" };
         }
 
         // Remove the current upgrade
@@ -146,10 +140,7 @@ public class PocketAPI implements ILuaAPI
         Entity entity = this.computer.getEntity();
         if( !(entity instanceof PlayerEntity) )
         {
-            return new Object[] {
-                false,
-                "Cannot find player"
-            };
+            return new Object[] { false, "Cannot find player" };
         }
         PlayerEntity player = (PlayerEntity) entity;
         PlayerInventory inventory = player.inventory;
@@ -157,10 +148,7 @@ public class PocketAPI implements ILuaAPI
 
         if( previousUpgrade == null )
         {
-            return new Object[] {
-                false,
-                "Nothing to unequip"
-            };
+            return new Object[] { false, "Nothing to unequip" };
         }
 
         this.computer.setUpgrade( null );

@@ -654,9 +654,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     @SuppressWarnings( "StatementWithEmptyBody" )
     void expand()
     {
-        while( this.mergeLeft() || this.mergeRight() || this.mergeUp() || this.mergeDown() )
-        {
-        }
+        while( this.mergeLeft() || this.mergeRight() || this.mergeUp() || this.mergeDown() ) ;
     }
 
     void contractNeighbours()

@@ -13,5 +13,8 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface WorldSavePathAccess
 {
     @Invoker( "<init>" )
-    static WorldSavePath createWorldSavePath( String relativePath ) { throw new UnsupportedOperationException(); }
+    static WorldSavePath createWorldSavePath( String relativePath )
+    {
+        throw new UnsupportedOperationException();
+    }
 }

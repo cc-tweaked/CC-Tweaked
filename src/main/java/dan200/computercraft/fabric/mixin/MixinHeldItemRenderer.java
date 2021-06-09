@@ -45,9 +45,11 @@ public class MixinHeldItemRenderer
         "Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
         at = @At( "HEAD" ),
         cancellable = true )
-    public void renderFirstPersonItem_Injected( AbstractClientPlayerEntity player, float var2, float pitch, Hand hand, float swingProgress,
-                                                ItemStack stack, float equipProgress, MatrixStack matrixStack, VertexConsumerProvider provider, int light,
-                                                CallbackInfo callback )
+    public void renderFirstPersonItem(
+        AbstractClientPlayerEntity player, float var2, float pitch, Hand hand, float swingProgress,
+        ItemStack stack, float equipProgress, MatrixStack matrixStack, VertexConsumerProvider provider, int light,
+        CallbackInfo callback
+    )
     {
         if( stack.getItem() instanceof ItemPrintout )
         {

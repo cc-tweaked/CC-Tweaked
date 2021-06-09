@@ -95,9 +95,6 @@ public class CommandBlockPeripheral implements IPeripheral
             .execute( this.commandBlock.getWorld() );
         int result = this.commandBlock.getCommandExecutor()
             .getSuccessCount();
-        return result > 0 ? new Object[] { true } : new Object[] {
-            false,
-            "Command failed"
-        };
+        return result > 0 ? new Object[] { true } : new Object[] { false, "Command failed" };
     }
 }

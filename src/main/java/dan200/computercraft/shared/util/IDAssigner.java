@@ -31,7 +31,9 @@ public final class IDAssigner
     private static final WorldSavePath FOLDER = WorldSavePathAccess.createWorldSavePath( ComputerCraft.MOD_ID );
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting()
         .create();
-    private static final Type ID_TOKEN = new TypeToken<Map<String, Integer>>() {}.getType();
+    private static final Type ID_TOKEN = new TypeToken<Map<String, Integer>>()
+    {
+    }.getType();
     private static Map<String, Integer> ids;
     private static WeakReference<MinecraftServer> server;
     private static Path idFile;

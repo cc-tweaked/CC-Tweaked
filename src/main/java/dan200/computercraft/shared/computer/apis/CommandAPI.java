@@ -70,10 +70,7 @@ public class CommandAPI implements ILuaAPI
             .getServer();
         if( server == null || !server.areCommandBlocksEnabled() )
         {
-            return new Object[] {
-                false,
-                createOutput( "Command blocks disabled by server" )
-            };
+            return new Object[] { false, createOutput( "Command blocks disabled by server" ) };
         }
 
         CommandManager commandManager = server.getCommandManager();
@@ -82,11 +79,7 @@ public class CommandAPI implements ILuaAPI
         {
             receiver.clearOutput();
             int result = commandManager.execute( this.computer.getSource(), command );
-            return new Object[] {
-                result > 0,
-                receiver.copyOutput(),
-                result
-            };
+            return new Object[] { result > 0, receiver.copyOutput(), result };
         }
         catch( Throwable t )
         {
@@ -94,10 +87,7 @@ public class CommandAPI implements ILuaAPI
             {
                 ComputerCraft.log.error( "Error running command.", t );
             }
-            return new Object[] {
-                false,
-                createOutput( "Java Exception Thrown: " + t )
-            };
+            return new Object[] { false, createOutput( "Java Exception Thrown: " + t ) };
         }
     }
 
@@ -187,11 +177,7 @@ public class CommandAPI implements ILuaAPI
     {
         // This is probably safe to do on the Lua thread. Probably.
         BlockPos pos = this.computer.getPos();
-        return new Object[] {
-            pos.getX(),
-            pos.getY(),
-            pos.getZ()
-        };
+        return new Object[] { pos.getX(), pos.getY(), pos.getZ() };
     }
 
     /**
@@ -252,14 +238,11 @@ public class CommandAPI implements ILuaAPI
         Block block = state.getBlock();
 
         Map<Object, Object> table = new HashMap<>();
-        table.put( "name",
-            Registry.BLOCK.getId( block )
-                .toString() );
+        table.put( "name", Registry.BLOCK.getId( block ).toString() );
         table.put( "world", world.getRegistryKey() );
 
         Map<Object, Object> stateTable = new HashMap<>();
-        for( ImmutableMap.Entry<Property<?>, Comparable<?>> entry : state.getEntries()
-            .entrySet() )
+        for( ImmutableMap.Entry<Property<?>, Comparable<?>> entry : state.getEntries().entrySet() )
         {
             Property<?> property = entry.getKey();
             stateTable.put( property.getName(), getPropertyValue( property, entry.getValue() ) );
