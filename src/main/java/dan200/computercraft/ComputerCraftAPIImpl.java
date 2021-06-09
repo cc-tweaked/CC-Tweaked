@@ -6,13 +6,6 @@
 
 package dan200.computercraft;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import dan200.computercraft.api.ComputerCraftAPI.IComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
@@ -31,18 +24,14 @@ import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.ResourceMount;
 import dan200.computercraft.fabric.mixin.MinecraftServerAccess;
-import dan200.computercraft.shared.BundledRedstone;
-import dan200.computercraft.shared.MediaProviders;
-import dan200.computercraft.shared.Peripherals;
-import dan200.computercraft.shared.PocketUpgrades;
-import dan200.computercraft.shared.TurtleUpgrades;
+import dan200.computercraft.shared.*;
 import dan200.computercraft.shared.peripheral.modem.wired.TileCable;
 import dan200.computercraft.shared.peripheral.modem.wired.TileWiredModemFull;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.wired.WiredNode;
 import me.shedaniel.cloth.api.utils.v1.GameInstanceUtils;
-
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.resource.ReloadableResourceManager;
 import net.minecraft.server.MinecraftServer;
@@ -52,24 +41,35 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
-import net.fabricmc.loader.api.FabricLoader;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
-public final class ComputerCraftAPIImpl implements IComputerCraftAPI {
+public final class ComputerCraftAPIImpl implements IComputerCraftAPI
+{
     public static final ComputerCraftAPIImpl INSTANCE = new ComputerCraftAPIImpl();
 
     private String version;
 
-    private ComputerCraftAPIImpl() {
+    private ComputerCraftAPIImpl()
+    {
     }
 
-    public static InputStream getResourceFile(String domain, String subPath) {
+    public static InputStream getResourceFile( String domain, String subPath )
+    {
         MinecraftServer server = GameInstanceUtils.getServer();
-        if (server != null) {
-            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess)server).getServerResourceManager().getResourceManager();
-            try {
-                return manager.getResource(new Identifier(domain, subPath))
-                              .getInputStream();
-            } catch (IOException ignored) {
+        if( server != null )
+        {
+            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess) server).getServerResourceManager().getResourceManager();
+            try
+            {
+                return manager.getResource( new Identifier( domain, subPath ) )
+                    .getInputStream();
+            }
+            catch( IOException ignored )
+            {
                 return null;
             }
         }
@@ -78,71 +78,86 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI {
 
     @Nonnull
     @Override
-    public String getInstalledVersion() {
-        if (this.version != null) {
+    public String getInstalledVersion()
+    {
+        if( this.version != null )
+        {
             return this.version;
         }
         return this.version = FabricLoader.getInstance()
-                                          .getModContainer(ComputerCraft.MOD_ID)
-                                          .map(x -> x.getMetadata()
-                                                .getVersion()
-                                                .toString())
-                                          .orElse("unknown");
+            .getModContainer( ComputerCraft.MOD_ID )
+            .map( x -> x.getMetadata()
+                .getVersion()
+                .toString() )
+            .orElse( "unknown" );
     }
 
     @Override
-    public int createUniqueNumberedSaveDir(@Nonnull World world, @Nonnull String parentSubPath) {
-        return IDAssigner.getNextId(parentSubPath);
+    public int createUniqueNumberedSaveDir( @Nonnull World world, @Nonnull String parentSubPath )
+    {
+        return IDAssigner.getNextId( parentSubPath );
     }
 
     @Override
-    public IWritableMount createSaveDirMount(@Nonnull World world, @Nonnull String subPath, long capacity) {
-        try {
-            return new FileMount(new File(IDAssigner.getDir(), subPath), capacity);
-        } catch (Exception e) {
+    public IWritableMount createSaveDirMount( @Nonnull World world, @Nonnull String subPath, long capacity )
+    {
+        try
+        {
+            return new FileMount( new File( IDAssigner.getDir(), subPath ), capacity );
+        }
+        catch( Exception e )
+        {
             return null;
         }
     }
 
     @Override
-    public IMount createResourceMount(@Nonnull String domain, @Nonnull String subPath) {
+    public IMount createResourceMount( @Nonnull String domain, @Nonnull String subPath )
+    {
         MinecraftServer server = GameInstanceUtils.getServer();
-        if (server != null) {
-            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess)server).getServerResourceManager().getResourceManager();
-            ResourceMount mount = ResourceMount.get(domain, subPath, manager);
-            return mount.exists("") ? mount : null;
+        if( server != null )
+        {
+            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess) server).getServerResourceManager().getResourceManager();
+            ResourceMount mount = ResourceMount.get( domain, subPath, manager );
+            return mount.exists( "" ) ? mount : null;
         }
         return null;
     }
 
     @Override
-    public void registerPeripheralProvider(@Nonnull IPeripheralProvider provider) {
-        Peripherals.register(provider);
+    public void registerPeripheralProvider( @Nonnull IPeripheralProvider provider )
+    {
+        Peripherals.register( provider );
     }
 
     @Override
-    public void registerTurtleUpgrade(@Nonnull ITurtleUpgrade upgrade) {
-        TurtleUpgrades.register(upgrade);
+    public void registerTurtleUpgrade( @Nonnull ITurtleUpgrade upgrade )
+    {
+        TurtleUpgrades.register( upgrade );
     }
 
     @Override
-    public void registerBundledRedstoneProvider(@Nonnull IBundledRedstoneProvider provider) {
-        BundledRedstone.register(provider);
+    public void registerBundledRedstoneProvider( @Nonnull IBundledRedstoneProvider provider )
+    {
+        BundledRedstone.register( provider );
     }
 
     @Override
-    public int getBundledRedstoneOutput(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side) {
-        return BundledRedstone.getDefaultOutput(world, pos, side);
+    public int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
+    {
+        return BundledRedstone.getDefaultOutput( world, pos, side );
     }
 
     @Override
-    public void registerMediaProvider(@Nonnull IMediaProvider provider) {
-        MediaProviders.register(provider);
+    public void registerMediaProvider( @Nonnull IMediaProvider provider )
+    {
+        MediaProviders.register( provider );
     }
 
     @Override
-    public void registerPocketUpgrade(@Nonnull IPocketUpgrade upgrade) {
-        PocketUpgrades.register(upgrade);
+    public void registerPocketUpgrade( @Nonnull IPocketUpgrade upgrade )
+    {
+        PocketUpgrades.register( upgrade );
     }
 
     @Override
@@ -153,28 +168,35 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI {
 
     @Nonnull
     @Override
-    public IPacketNetwork getWirelessNetwork() {
+    public IPacketNetwork getWirelessNetwork()
+    {
         return WirelessNetwork.getUniversal();
     }
 
     @Override
-    public void registerAPIFactory(@Nonnull ILuaAPIFactory factory) {
-        ApiFactories.register(factory);
+    public void registerAPIFactory( @Nonnull ILuaAPIFactory factory )
+    {
+        ApiFactories.register( factory );
     }
 
     @Nonnull
     @Override
-    public IWiredNode createWiredNodeForElement(@Nonnull IWiredElement element) {
-        return new WiredNode(element);
+    public IWiredNode createWiredNodeForElement( @Nonnull IWiredElement element )
+    {
+        return new WiredNode( element );
     }
 
     @Nullable
     @Override
-    public IWiredElement getWiredElementAt(@Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side) {
-        BlockEntity tile = world.getBlockEntity(pos);
-        if (tile instanceof TileCable) {
-            return ((TileCable) tile).getElement(side);
-        } else if (tile instanceof TileWiredModemFull) {
+    public IWiredElement getWiredElementAt( @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side )
+    {
+        BlockEntity tile = world.getBlockEntity( pos );
+        if( tile instanceof TileCable )
+        {
+            return ((TileCable) tile).getElement( side );
+        }
+        else if( tile instanceof TileWiredModemFull )
+        {
             return ((TileWiredModemFull) tile).getElement();
         }
         return null;

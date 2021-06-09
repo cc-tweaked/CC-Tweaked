@@ -6,10 +6,7 @@
 
 package dan200.computercraft.shared.media.items;
 
-import javax.annotation.Nonnull;
-
 import dan200.computercraft.api.media.IMedia;
-
 import dan200.computercraft.fabric.mixin.MusicDiscItemAccessor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -17,34 +14,43 @@ import net.minecraft.item.MusicDiscItem;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.TranslatableText;
 
+import javax.annotation.Nonnull;
+
 /**
  * An implementation of IMedia for ItemRecords.
  */
-public final class RecordMedia implements IMedia {
+public final class RecordMedia implements IMedia
+{
     public static final RecordMedia INSTANCE = new RecordMedia();
 
-    private RecordMedia() {
+    private RecordMedia()
+    {
     }
 
     @Override
-    public String getLabel(@Nonnull ItemStack stack) {
-        return this.getAudioTitle(stack);
+    public String getLabel( @Nonnull ItemStack stack )
+    {
+        return this.getAudioTitle( stack );
     }
 
     @Override
-    public String getAudioTitle(@Nonnull ItemStack stack) {
+    public String getAudioTitle( @Nonnull ItemStack stack )
+    {
         Item item = stack.getItem();
-        if (!(item instanceof MusicDiscItem)) {
+        if( !(item instanceof MusicDiscItem) )
+        {
             return null;
         }
 
-        return new TranslatableText(item.getTranslationKey() + ".desc").getString();
+        return new TranslatableText( item.getTranslationKey() + ".desc" ).getString();
     }
 
     @Override
-    public SoundEvent getAudio(@Nonnull ItemStack stack) {
+    public SoundEvent getAudio( @Nonnull ItemStack stack )
+    {
         Item item = stack.getItem();
-        if (!(item instanceof MusicDiscItem)) {
+        if( !(item instanceof MusicDiscItem) )
+        {
             return null;
         }
         return ((MusicDiscItemAccessor) item).getSound();

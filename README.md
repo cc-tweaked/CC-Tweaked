@@ -30,7 +30,7 @@ Any contribution is welcome, be that using the mod, reporting bugs or contributi
 	> Comments, optional but useful if you had to do something 	differently than in CC:T outside of [Fabric](https://fabricmc.net/)/[Forge](https://mcforge.readthedocs.io/en/1.16.x/) differences
 	>
 	> \`\`\`
-	> 
+	>
 	>commitID
 	>
 	> commit title
@@ -38,25 +38,25 @@ Any contribution is welcome, be that using the mod, reporting bugs or contributi
 	> commit desc
 	>
 	> \`\`\`
-2) Follow the [Fabric](https://fabricmc.net/) programming guidelines as close as possible. This means you have to use [`loom`](https://fabricmc.net/wiki/tutorial:mappings) mappings, 
+2) Follow the [Fabric](https://fabricmc.net/) programming guidelines as close as possible. This means you have to use [`loom`](https://fabricmc.net/wiki/tutorial:mappings) mappings,
 3) You cannot intentionally implement bugs and security vulnerabilities
 4) Unless the commit is a ["patchwork"](https://github.com/Merith-TK/cc-restitched/blob/fabric/patchwork.md) compliant commit, (IE: taken from CC:T), the lua code is off limits
 ## Bleeding Edge Builds
 Bleeding edge builds can be found [here](https://github.com/Merith-TK/cc-restitched/actions) at Github Actions.
 
 ## Community
-If you need help getting started with CC: Tweaked, want to show off your latest project, or just want to chat about ComputerCraft, here is the [Forum](https://forums.computercraft.cc/) and the [Discord](https://discord.gg/H2UyJXe) 
+If you need help getting started with CC: Tweaked, want to show off your latest project, or just want to chat about ComputerCraft, here is the [Forum](https://forums.computercraft.cc/) and the [Discord](https://discord.gg/H2UyJXe)
 
 ## Known Issues
 Main Known issue
 * Mods that add blocks that can be used as peripherals for CC:T On forge, don't work with CC:R.
 	* This is because of the differences between forge and fabric, and that mod devs, to my knowledge have not agreed upon a standard method in which to implement cross compatibility between mods,
-* [Fixed (d10f297c): please report if bug persists]</br> ~~Storage Peripherals throw a java "StackOverflowError" when using `pushItems()`,~~ 
-    * ~~Work around, you are probably using `pushItems(chest, 1)` or similar. please use `pushItems(chest, 1, nil, 1)`.~~ 
+* [Fixed (d10f297c): please report if bug persists]</br> ~~Storage Peripherals throw a java "StackOverflowError" when using `pushItems()`,~~
+    * ~~Work around, you are probably using `pushItems(chest, 1)` or similar. please use `pushItems(chest, 1, nil, 1)`.~~
 * Computers will not run built in commands, saying "File not found"
     * This is a know bug, dont know what causes it, but just restart the computer (`ctrl+r` for one second) and it will work again
     * Occurs when server runs `/reload` or a datapack is updated
-	
+
 ## Perpherals
 Unfortunately, unlike the original CC:Tweaked project, CC:Restitched, does not have any actual peripheral mods, currently the only one we have is an example for mod devs to get started with making/adding the peripheral API to their mods!
 

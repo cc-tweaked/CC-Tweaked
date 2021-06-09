@@ -9,7 +9,7 @@
 		// Custom Hidden Files
 		"**/.bin": true,
 		"**/.editorconfig": true,
-    },	
-	
+    },
+
 	"java.configuration.updateBuildConfiguration": "automatic"
 }

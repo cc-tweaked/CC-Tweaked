@@ -10,33 +10,41 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.network.IPacketNetwork;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
-
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-public abstract class WirelessModemPeripheral extends ModemPeripheral {
-    private final boolean m_advanced;
+public abstract class WirelessModemPeripheral extends ModemPeripheral
+{
+    private final boolean advanced;
 
-    public WirelessModemPeripheral(ModemState state, boolean advanced) {
-        super(state);
-        this.m_advanced = advanced;
+    public WirelessModemPeripheral( ModemState state, boolean advanced )
+    {
+        super( state );
+        this.advanced = advanced;
     }
 
     @Override
-    public double getRange() {
-        if (this.m_advanced) {
+    public double getRange()
+    {
+        if( this.advanced )
+        {
             return Integer.MAX_VALUE;
-        } else {
+        }
+        else
+        {
             World world = this.getWorld();
-            if (world != null) {
+            if( world != null )
+            {
                 Vec3d position = this.getPosition();
                 double minRange = ComputerCraft.modemRange;
                 double maxRange = ComputerCraft.modemHighAltitudeRange;
-                if (world.isRaining() && world.isThundering()) {
+                if( world.isRaining() && world.isThundering() )
+                {
                     minRange = ComputerCraft.modemRangeDuringStorm;
                     maxRange = ComputerCraft.modemHighAltitudeRangeDuringStorm;
                 }
-                if (position.y > 96.0 && maxRange > minRange) {
+                if( position.y > 96.0 && maxRange > minRange )
+                {
                     return minRange + (position.y - 96.0) * ((maxRange - minRange) / ((world.getHeight() - 1) - 96.0));
                 }
                 return minRange;
@@ -46,12 +54,14 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral {
     }
 
     @Override
-    public boolean isInterdimensional() {
-        return this.m_advanced;
+    public boolean isInterdimensional()
+    {
+        return this.advanced;
     }
 
     @Override
-    protected IPacketNetwork getNetwork() {
+    protected IPacketNetwork getNetwork()
+    {
         return WirelessNetwork.getUniversal();
     }
 }

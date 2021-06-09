@@ -6,14 +6,13 @@
 
 package dan200.computercraft.api.pocket;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.IUpgradeBase;
 import dan200.computercraft.api.peripheral.IPeripheral;
-
 import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Additional peripherals for pocket computers.
@@ -33,29 +32,31 @@ public interface IPocketUpgrade extends IUpgradeBase
      * @see #update(IPocketAccess, IPeripheral)
      */
     @Nullable
-    IPeripheral createPeripheral(@Nonnull IPocketAccess access);
+    IPeripheral createPeripheral( @Nonnull IPocketAccess access );
 
     /**
      * Called when the pocket computer item stack updates.
      *
-     * @param access The access object for the pocket item stack.
+     * @param access     The access object for the pocket item stack.
      * @param peripheral The peripheral for this upgrade.
      * @see #createPeripheral(IPocketAccess)
      */
-    default void update(@Nonnull IPocketAccess access, @Nullable IPeripheral peripheral) {
+    default void update( @Nonnull IPocketAccess access, @Nullable IPeripheral peripheral )
+    {
     }
 
     /**
      * Called when the pocket computer is right clicked.
      *
-     * @param world The world the computer is in.
-     * @param access The access object for the pocket item stack.
+     * @param world      The world the computer is in.
+     * @param access     The access object for the pocket item stack.
      * @param peripheral The peripheral for this upgrade.
      * @return {@code true} to stop the GUI from opening, otherwise false. You should always provide some code path which returns {@code false}, such as
-     *     requiring the player to be sneaking - otherwise they will be unable to access the GUI.
+     * requiring the player to be sneaking - otherwise they will be unable to access the GUI.
      * @see #createPeripheral(IPocketAccess)
      */
-    default boolean onRightClick(@Nonnull World world, @Nonnull IPocketAccess access, @Nullable IPeripheral peripheral) {
+    default boolean onRightClick( @Nonnull World world, @Nonnull IPocketAccess access, @Nullable IPeripheral peripheral )
+    {
         return false;
     }
 }

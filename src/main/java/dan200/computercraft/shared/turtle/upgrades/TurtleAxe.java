@@ -10,21 +10,26 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 
-public class TurtleAxe extends TurtleTool {
-    public TurtleAxe(Identifier id, String adjective, Item item) {
-        super(id, adjective, item);
+public class TurtleAxe extends TurtleTool
+{
+    public TurtleAxe( Identifier id, String adjective, Item item )
+    {
+        super( id, adjective, item );
     }
 
-    public TurtleAxe(Identifier id, Item item) {
-        super(id, item);
+    public TurtleAxe( Identifier id, Item item )
+    {
+        super( id, item );
     }
 
-    public TurtleAxe(Identifier id, ItemStack craftItem, ItemStack toolItem) {
-        super(id, craftItem, toolItem);
+    public TurtleAxe( Identifier id, ItemStack craftItem, ItemStack toolItem )
+    {
+        super( id, craftItem, toolItem );
     }
 
     @Override
-    protected float getDamageMultiplier() {
+    protected float getDamageMultiplier()
+    {
         return 6.0f;
     }
 }

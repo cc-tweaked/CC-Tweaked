@@ -6,10 +6,12 @@
 
 package dan200.computercraft.shared.computer.core;
 
-public class ClientComputerRegistry extends ComputerRegistry<ClientComputer> {
+public class ClientComputerRegistry extends ComputerRegistry<ClientComputer>
+{
     @Override
-    public void add(int instanceID, ClientComputer computer) {
-        super.add(instanceID, computer);
+    public void add( int instanceID, ClientComputer computer )
+    {
+        super.add( instanceID, computer );
         computer.requestState();
     }
 }

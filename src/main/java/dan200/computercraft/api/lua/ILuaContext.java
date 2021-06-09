@@ -12,7 +12,8 @@ import javax.annotation.Nonnull;
  * An interface passed to peripherals and {@link IDynamicLuaObject}s by computers or turtles, providing methods that allow the peripheral call to interface
  * with the computer.
  */
-public interface ILuaContext {
+public interface ILuaContext
+{
     /**
      * Queue a task to be executed on the main server thread at the beginning of next tick, but do not wait for it to complete. This should be used when you
      * need to interact with the world in a thread-safe manner but do not care about the result or you wish to run asynchronously.
@@ -25,5 +26,5 @@ public interface ILuaContext {
      * @throws LuaException If the task could not be queued.
      * @see LuaFunction#mainThread() To run functions on the main thread and return their results synchronously.
      */
-    long issueMainThreadTask(@Nonnull ILuaTask task) throws LuaException;
+    long issueMainThreadTask( @Nonnull ILuaTask task ) throws LuaException;
 }

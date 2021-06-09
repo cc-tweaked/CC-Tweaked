@@ -6,21 +6,19 @@
 
 package dan200.computercraft.api.turtle.event;
 
-import java.util.Map;
-import java.util.Objects;
-
-import javax.annotation.Nonnull;
-
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.turtle.FakePlayer;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * A general event for when a turtle interacts with a block or region.
@@ -31,16 +29,18 @@ import net.minecraft.world.World;
  *
  * Be aware that some events (such as {@link TurtleInventoryEvent}) do not necessarily interact with a block, simply objects within that block space.
  */
-public abstract class TurtleBlockEvent extends TurtlePlayerEvent {
+public abstract class TurtleBlockEvent extends TurtlePlayerEvent
+{
     private final World world;
     private final BlockPos pos;
 
-    protected TurtleBlockEvent(@Nonnull ITurtleAccess turtle, @Nonnull TurtleAction action, @Nonnull FakePlayer player, @Nonnull World world,
-                               @Nonnull BlockPos pos) {
-        super(turtle, action, player);
+    protected TurtleBlockEvent( @Nonnull ITurtleAccess turtle, @Nonnull TurtleAction action, @Nonnull FakePlayer player, @Nonnull World world,
+                                @Nonnull BlockPos pos )
+    {
+        super( turtle, action, player );
 
-        Objects.requireNonNull(world, "world cannot be null");
-        Objects.requireNonNull(pos, "pos cannot be null");
+        Objects.requireNonNull( world, "world cannot be null" );
+        Objects.requireNonNull( pos, "pos cannot be null" );
         this.world = world;
         this.pos = pos;
     }
@@ -50,7 +50,8 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent {
      *
      * @return The world the turtle is interacting in.
      */
-    public World getWorld() {
+    public World getWorld()
+    {
         return this.world;
     }
 
@@ -59,7 +60,8 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent {
      *
      * @return The position the turtle is interacting with.
      */
-    public BlockPos getPos() {
+    public BlockPos getPos()
+    {
         return this.pos;
     }
 
@@ -68,18 +70,20 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent {
      *
      * @see TurtleAction#DIG
      */
-    public static class Dig extends TurtleBlockEvent {
+    public static class Dig extends TurtleBlockEvent
+    {
         private final BlockState block;
         private final ITurtleUpgrade upgrade;
         private final TurtleSide side;
 
-        public Dig(@Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState block,
-                   @Nonnull ITurtleUpgrade upgrade, @Nonnull TurtleSide side) {
-            super(turtle, TurtleAction.DIG, player, world, pos);
+        public Dig( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState block,
+                    @Nonnull ITurtleUpgrade upgrade, @Nonnull TurtleSide side )
+        {
+            super( turtle, TurtleAction.DIG, player, world, pos );
 
-            Objects.requireNonNull(block, "block cannot be null");
-            Objects.requireNonNull(upgrade, "upgrade cannot be null");
-            Objects.requireNonNull(side, "side cannot be null");
+            Objects.requireNonNull( block, "block cannot be null" );
+            Objects.requireNonNull( upgrade, "upgrade cannot be null" );
+            Objects.requireNonNull( side, "side cannot be null" );
             this.block = block;
             this.upgrade = upgrade;
             this.side = side;
@@ -91,7 +95,8 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent {
          * @return The block which is going to be broken.
          */
         @Nonnull
-        public BlockState getBlock() {
+        public BlockState getBlock()
+        {
             return this.block;
         }
 
@@ -101,7 +106,8 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent {
          * @return The upgrade doing the digging.
          */
         @Nonnull
-        public ITurtleUpgrade getUpgrade() {
+        public ITurtleUpgrade getUpgrade()
+        {
             return this.upgrade;
         }
 
@@ -111,7 +117,8 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent {
          * @return The upgrade's side.
          */
         @Nonnull
-        public TurtleSide getSide() {
+        public TurtleSide getSide()
+        {
             return this.side;
         }
     }
@@ -121,9 +128,11 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent {
      *
      * @see TurtleAction#MOVE
      */
-    public static class Move extends TurtleBlockEvent {
-        public Move(@Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos) {
-            super(turtle, TurtleAction.MOVE, player, world, pos);
+    public static class Move extends TurtleBlockEvent
+    {
+        public Move( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos )
+        {
+            super( turtle, TurtleAction.MOVE, player, world, pos );
         }
     }
 
@@ -132,13 +141,15 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent {
      *
      * @see TurtleAction#PLACE
      */
-    public static class Place extends TurtleBlockEvent {
+    public static class Place extends TurtleBlockEvent
+    {
         private final ItemStack stack;
 
-        public Place(@Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull ItemStack stack) {
-            super(turtle, TurtleAction.PLACE, player, world, pos);
+        public Place( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull ItemStack stack )
+        {
+            super( turtle, TurtleAction.PLACE, player, world, pos );
 
-            Objects.requireNonNull(stack, "stack cannot be null");
+            Objects.requireNonNull( stack, "stack cannot be null" );
             this.stack = stack;
         }
 
@@ -148,7 +159,8 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent {
          * @return The item stack to be placed.
          */
         @Nonnull
-        public ItemStack getStack() {
+        public ItemStack getStack()
+        {
             return this.stack;
         }
     }
@@ -160,16 +172,18 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent {
      *
      * @see TurtleAction#INSPECT
      */
-    public static class Inspect extends TurtleBlockEvent {
+    public static class Inspect extends TurtleBlockEvent
+    {
         private final BlockState state;
         private final Map<String, Object> data;
 
-        public Inspect(@Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state,
-                       @Nonnull Map<String, Object> data) {
-            super(turtle, TurtleAction.INSPECT, player, world, pos);
+        public Inspect( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state,
+                        @Nonnull Map<String, Object> data )
+        {
+            super( turtle, TurtleAction.INSPECT, player, world, pos );
 
-            Objects.requireNonNull(state, "state cannot be null");
-            Objects.requireNonNull(data, "data cannot be null");
+            Objects.requireNonNull( state, "state cannot be null" );
+            Objects.requireNonNull( data, "data cannot be null" );
             this.data = data;
             this.state = state;
         }
@@ -180,7 +194,8 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent {
          * @return The inspected block state.
          */
         @Nonnull
-        public BlockState getState() {
+        public BlockState getState()
+        {
             return this.state;
         }
 
@@ -190,7 +205,8 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent {
          * @return This block's inspection data.
          */
         @Nonnull
-        public Map<String, Object> getData() {
+        public Map<String, Object> getData()
+        {
             return this.data;
         }
 
@@ -199,9 +215,10 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent {
          *
          * @param newData The data to add. Note all values should be convertible to Lua (see {@link MethodResult#of(Object)}).
          */
-        public void addData(@Nonnull Map<String, ?> newData) {
-            Objects.requireNonNull(newData, "newData cannot be null");
-            this.data.putAll(newData);
+        public void addData( @Nonnull Map<String, ?> newData )
+        {
+            Objects.requireNonNull( newData, "newData cannot be null" );
+            this.data.putAll( newData );
         }
     }
 }

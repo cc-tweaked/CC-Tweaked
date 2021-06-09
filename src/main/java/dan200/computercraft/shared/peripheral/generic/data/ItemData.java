@@ -7,24 +7,22 @@ package dan200.computercraft.shared.peripheral.generic.data;
 
 import com.google.gson.JsonParseException;
 import dan200.computercraft.shared.util.NBTUtil;
-import net.fabricmc.fabric.api.tag.TagRegistry;
-import net.fabricmc.fabric.impl.tag.extension.TagDelegate;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.EnchantedBookItem;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.tag.ServerTagManagerHolder;
 import net.minecraft.tag.Tag;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Data providers for items.
@@ -68,7 +66,7 @@ public class ItemData
 
         if( stack.isDamaged() )
         {
-            data.put( "durability", 1.0 - ( stack.getDamage() / stack.getMaxDamage() ) );
+            data.put( "durability", 1.0 - (stack.getDamage() / stack.getMaxDamage()) );
         }
 
         /*
@@ -87,7 +85,7 @@ public class ItemData
             data.put( "unbreakable", true );
         }
 
-        data.put("tags", DataHelpers.getTags( ServerTagManagerHolder.getTagManager().getItems().getTagsFor(stack.getItem()) )); // chaos
+        data.put( "tags", DataHelpers.getTags( ServerTagManagerHolder.getTagManager().getItems().getTagsFor( stack.getItem() ) ) ); // chaos
 
         return data;
     }

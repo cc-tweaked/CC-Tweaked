@@ -8,14 +8,16 @@ package dan200.computercraft.client.gui.widgets;
 
 import net.minecraft.client.gui.Element;
 
-public class WidgetWrapper implements Element {
+public class WidgetWrapper implements Element
+{
     private final Element listener;
     private final int x;
     private final int y;
     private final int width;
     private final int height;
 
-    public WidgetWrapper(Element listener, int x, int y, int width, int height) {
+    public WidgetWrapper( Element listener, int x, int y, int width, int height )
+    {
         this.listener = listener;
         this.x = x;
         this.y = y;
@@ -24,68 +26,81 @@ public class WidgetWrapper implements Element {
     }
 
     @Override
-    public boolean mouseClicked(double x, double y, int button) {
+    public boolean mouseClicked( double x, double y, int button )
+    {
         double dx = x - this.x, dy = y - this.y;
-        return dx >= 0 && dx < this.width && dy >= 0 && dy < this.height && this.listener.mouseClicked(dx, dy, button);
+        return dx >= 0 && dx < this.width && dy >= 0 && dy < this.height && this.listener.mouseClicked( dx, dy, button );
     }
 
     @Override
-    public boolean mouseReleased(double x, double y, int button) {
+    public boolean mouseReleased( double x, double y, int button )
+    {
         double dx = x - this.x, dy = y - this.y;
-        return dx >= 0 && dx < this.width && dy >= 0 && dy < this.height && this.listener.mouseReleased(dx, dy, button);
+        return dx >= 0 && dx < this.width && dy >= 0 && dy < this.height && this.listener.mouseReleased( dx, dy, button );
     }
 
     @Override
-    public boolean mouseDragged(double x, double y, int button, double deltaX, double deltaY) {
+    public boolean mouseDragged( double x, double y, int button, double deltaX, double deltaY )
+    {
         double dx = x - this.x, dy = y - this.y;
-        return dx >= 0 && dx < this.width && dy >= 0 && dy < this.height && this.listener.mouseDragged(dx, dy, button, deltaX, deltaY);
+        return dx >= 0 && dx < this.width && dy >= 0 && dy < this.height && this.listener.mouseDragged( dx, dy, button, deltaX, deltaY );
     }
 
     @Override
-    public boolean mouseScrolled(double x, double y, double delta) {
+    public boolean mouseScrolled( double x, double y, double delta )
+    {
         double dx = x - this.x, dy = y - this.y;
-        return dx >= 0 && dx < this.width && dy >= 0 && dy < this.height && this.listener.mouseScrolled(dx, dy, delta);
+        return dx >= 0 && dx < this.width && dy >= 0 && dy < this.height && this.listener.mouseScrolled( dx, dy, delta );
     }
 
     @Override
-    public boolean keyPressed(int key, int scancode, int modifiers) {
-        return this.listener.keyPressed(key, scancode, modifiers);
+    public boolean keyPressed( int key, int scancode, int modifiers )
+    {
+        return this.listener.keyPressed( key, scancode, modifiers );
     }
 
     @Override
-    public boolean keyReleased(int key, int scancode, int modifiers) {
-        return this.listener.keyReleased(key, scancode, modifiers);
+    public boolean keyReleased( int key, int scancode, int modifiers )
+    {
+        return this.listener.keyReleased( key, scancode, modifiers );
     }
 
     @Override
-    public boolean charTyped(char character, int modifiers) {
-        return this.listener.charTyped(character, modifiers);
+    public boolean charTyped( char character, int modifiers )
+    {
+        return this.listener.charTyped( character, modifiers );
     }
 
     @Override
-    public boolean changeFocus(boolean b) {
-        return this.listener.changeFocus(b);
+    public boolean changeFocus( boolean b )
+    {
+        return this.listener.changeFocus( b );
     }
 
     @Override
-    public boolean isMouseOver(double x, double y) {
+    public boolean isMouseOver( double x, double y )
+    {
         double dx = x - this.x, dy = y - this.y;
         return dx >= 0 && dx < this.width && dy >= 0 && dy < this.height;
     }
 
-    public int getX() {
+    public int getX()
+    {
         return this.x;
     }
 
-    public int getY() {
+    public int getY()
+    {
         return this.y;
     }
 
-    public int getWidth() {
+    public int getWidth()
+    {
         return this.width;
     }
 
-    public int getHeight() {
+    public int getHeight()
+    {
         return this.height;
     }
 }

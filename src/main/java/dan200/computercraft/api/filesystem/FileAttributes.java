@@ -13,59 +13,70 @@ import java.time.Instant;
 /**
  * A simple version of {@link BasicFileAttributes}, which provides what information a {@link IMount} already exposes.
  */
-final class FileAttributes implements BasicFileAttributes {
-    private static final FileTime EPOCH = FileTime.from(Instant.EPOCH);
+final class FileAttributes implements BasicFileAttributes
+{
+    private static final FileTime EPOCH = FileTime.from( Instant.EPOCH );
 
     private final boolean isDirectory;
     private final long size;
 
-    FileAttributes(boolean isDirectory, long size) {
+    FileAttributes( boolean isDirectory, long size )
+    {
         this.isDirectory = isDirectory;
         this.size = size;
     }
 
     @Override
-    public FileTime lastModifiedTime() {
+    public FileTime lastModifiedTime()
+    {
         return EPOCH;
     }
 
     @Override
-    public FileTime lastAccessTime() {
+    public FileTime lastAccessTime()
+    {
         return EPOCH;
     }
 
     @Override
-    public FileTime creationTime() {
+    public FileTime creationTime()
+    {
         return EPOCH;
     }
 
     @Override
-    public boolean isRegularFile() {
+    public boolean isRegularFile()
+    {
         return !this.isDirectory;
     }
 
     @Override
-    public boolean isDirectory() {
+    public boolean isDirectory()
+    {
         return this.isDirectory;
     }
 
     @Override
-    public boolean isSymbolicLink() {
+    public boolean isSymbolicLink()
+    {
         return false;
     }
 
     @Override
-    public boolean isOther() {
+    public boolean isOther()
+    {
         return false;
     }
 
     @Override
-    public long size() {
+    public long size()
+    {
         return this.size;
     }
 
     @Override
-    public Object fileKey() {
+    public Object fileKey()
+    {
         return null;
     }
 }

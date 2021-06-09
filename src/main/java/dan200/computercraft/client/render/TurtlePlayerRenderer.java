@@ -5,35 +5,38 @@
  */
 package dan200.computercraft.client.render;
 
-import javax.annotation.Nonnull;
-
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
-
+import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
-import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
+import javax.annotation.Nonnull;
 
-public class TurtlePlayerRenderer extends EntityRenderer<TurtlePlayer> {
-    public TurtlePlayerRenderer(EntityRenderDispatcher renderManager) {
-        super(renderManager);
+public class TurtlePlayerRenderer extends EntityRenderer<TurtlePlayer>
+{
+    public TurtlePlayerRenderer( EntityRenderDispatcher renderManager )
+    {
+        super( renderManager );
     }
 
-    public TurtlePlayerRenderer(EntityRenderDispatcher entityRenderDispatcher, EntityRendererRegistry.Context context) {
-        super(entityRenderDispatcher);
+    public TurtlePlayerRenderer( EntityRenderDispatcher entityRenderDispatcher, EntityRendererRegistry.Context context )
+    {
+        super( entityRenderDispatcher );
     }
 
     @Override
-    public void render(@Nonnull TurtlePlayer entityIn, float entityYaw, float partialTicks, @Nonnull MatrixStack transform,
-                       @Nonnull VertexConsumerProvider buffer, int packedLightIn) {
+    public void render( @Nonnull TurtlePlayer entityIn, float entityYaw, float partialTicks, @Nonnull MatrixStack transform,
+                        @Nonnull VertexConsumerProvider buffer, int packedLightIn )
+    {
     }
 
     @Nonnull
     @Override
-    public Identifier getTexture(@Nonnull TurtlePlayer entity) {
+    public Identifier getTexture( @Nonnull TurtlePlayer entity )
+    {
         return ComputerBorderRenderer.BACKGROUND_NORMAL;
     }
 }

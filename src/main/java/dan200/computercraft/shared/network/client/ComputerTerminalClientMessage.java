@@ -6,37 +6,42 @@
 
 package dan200.computercraft.shared.network.client;
 
-import javax.annotation.Nonnull;
-
+import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.network.PacketByteBuf;
 
-import net.fabricmc.fabric.api.network.PacketContext;
+import javax.annotation.Nonnull;
 
-public class ComputerTerminalClientMessage extends ComputerClientMessage {
+public class ComputerTerminalClientMessage extends ComputerClientMessage
+{
     private TerminalState state;
 
-    public ComputerTerminalClientMessage(int instanceId, TerminalState state) {
-        super(instanceId);
+    public ComputerTerminalClientMessage( int instanceId, TerminalState state )
+    {
+        super( instanceId );
         this.state = state;
     }
 
-    public ComputerTerminalClientMessage() {
+    public ComputerTerminalClientMessage()
+    {
     }
 
     @Override
-    public void toBytes(@Nonnull PacketByteBuf buf) {
-        super.toBytes(buf);
-        this.state.write(buf);
+    public void toBytes( @Nonnull PacketByteBuf buf )
+    {
+        super.toBytes( buf );
+        this.state.write( buf );
     }
 
     @Override
-    public void fromBytes(@Nonnull PacketByteBuf buf) {
-        super.fromBytes(buf);
-        this.state = new TerminalState(buf);
+    public void fromBytes( @Nonnull PacketByteBuf buf )
+    {
+        super.fromBytes( buf );
+        this.state = new TerminalState( buf );
     }
 
     @Override
-    public void handle(PacketContext context) {
-        this.getComputer().read(this.state);
+    public void handle( PacketContext context )
+    {
+        this.getComputer().read( this.state );
     }
 }

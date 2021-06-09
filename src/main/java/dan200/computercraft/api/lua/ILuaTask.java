@@ -15,13 +15,14 @@ import javax.annotation.Nullable;
  * @see ILuaContext#issueMainThreadTask(ILuaTask)
  */
 @FunctionalInterface
-public interface ILuaTask {
+public interface ILuaTask
+{
     /**
      * Execute this task.
      *
      * @return The arguments to add to the {@code task_completed} event.
      * @throws LuaException If you throw any exception from this function, a lua error will be raised with the same message as your exception. Use this
-     *     to throw appropriate errors if the wrong arguments are supplied to your method.
+     *                      to throw appropriate errors if the wrong arguments are supplied to your method.
      */
     @Nullable
     Object[] execute() throws LuaException;

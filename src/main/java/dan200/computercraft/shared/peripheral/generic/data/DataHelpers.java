@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.peripheral.generic.data;
 
-import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.Item;
@@ -34,21 +33,21 @@ public final class DataHelpers
     @Nullable
     public static String getId( @Nonnull Block block )
     {
-        Identifier id = Registry.BLOCK.getId(block);
+        Identifier id = Registry.BLOCK.getId( block );
         return id == null ? null : id.toString();
     }
 
     @Nullable
     public static String getId( @Nonnull Item item )
     {
-        Identifier id = Registry.ITEM.getId(item);
+        Identifier id = Registry.ITEM.getId( item );
         return id == null ? null : id.toString();
     }
 
     @Nullable
-    public static String getId( @Nonnull Enchantment enchantment)
+    public static String getId( @Nonnull Enchantment enchantment )
     {
-        Identifier id = Registry.ENCHANTMENT.getId(enchantment);
+        Identifier id = Registry.ENCHANTMENT.getId( enchantment );
         return id == null ? null : id.toString();
     }
 }

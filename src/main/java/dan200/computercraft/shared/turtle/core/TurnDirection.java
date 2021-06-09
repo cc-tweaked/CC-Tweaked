@@ -6,6 +6,7 @@
 
 package dan200.computercraft.shared.turtle.core;
 
-public enum TurnDirection {
+public enum TurnDirection
+{
     LEFT, RIGHT,
 }

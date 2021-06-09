@@ -6,15 +6,6 @@
 
 package dan200.computercraft;
 
-import static dan200.computercraft.shared.ComputerCraftRegistry.ModBlocks;
-import static dan200.computercraft.shared.ComputerCraftRegistry.init;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
@@ -32,22 +23,31 @@ import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
 import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
 import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
-import dan200.computercraft.shared.util.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-
+import dan200.computercraft.shared.util.ImpostorRecipe;
+import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-public final class ComputerCraft implements ModInitializer {
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static dan200.computercraft.shared.ComputerCraftRegistry.ModBlocks;
+import static dan200.computercraft.shared.ComputerCraftRegistry.init;
+
+public final class ComputerCraft implements ModInitializer
+{
     public static final String MOD_ID = "computercraft";
 
     // Configuration fields
@@ -61,16 +61,15 @@ public final class ComputerCraft implements ModInitializer {
     public static boolean commandRequireCreative = true;
 
     public static int computerThreads = 1;
-    public static long maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos(10);
-    public static long maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos(5);
+    public static long maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos( 10 );
+    public static long maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos( 5 );
 
     public static boolean httpEnabled = true;
     public static boolean httpWebsocketEnabled = true;
     public static List<AddressRule> httpRules = Collections.unmodifiableList( Arrays.asList(
-            AddressRule.parse( "$private", null, Action.DENY.toPartial() ),
-            AddressRule.parse( "*", null, Action.ALLOW.toPartial() )
-    ));
-
+        AddressRule.parse( "$private", null, Action.DENY.toPartial() ),
+        AddressRule.parse( "*", null, Action.ALLOW.toPartial() )
+    ) );
     public static int httpMaxRequests = 16;
     public static int httpMaxWebsockets = 4;
 
@@ -89,7 +88,7 @@ public final class ComputerCraft implements ModInitializer {
     public static int advancedTurtleFuelLimit = 100000;
     public static boolean turtlesObeyBlockProtection = true;
     public static boolean turtlesCanPush = true;
-    public static EnumSet<TurtleAction> turtleDisabledActions = EnumSet.noneOf(TurtleAction.class);
+    public static EnumSet<TurtleAction> turtleDisabledActions = EnumSet.noneOf( TurtleAction.class );
 
     public static int computerTermWidth = 51;
     public static int computerTermHeight = 19;
@@ -99,7 +98,6 @@ public final class ComputerCraft implements ModInitializer {
 
     public static int pocketTermWidth = 26;
     public static int pocketTermHeight = 20;
-
     public static int monitorWidth = 8;
     public static int monitorHeight = 6;
 
@@ -108,30 +106,32 @@ public final class ComputerCraft implements ModInitializer {
     public static final ServerComputerRegistry serverComputerRegistry = new ServerComputerRegistry();
 
     // Logging
-    public static final Logger log = LogManager.getLogger(MOD_ID);
+    public static final Logger log = LogManager.getLogger( MOD_ID );
 
-    public static ItemGroup MAIN_GROUP = FabricItemGroupBuilder.build(new Identifier(MOD_ID, "main"), () -> new ItemStack(ModBlocks.COMPUTER_NORMAL));
+    public static ItemGroup MAIN_GROUP = FabricItemGroupBuilder.build( new Identifier( MOD_ID, "main" ), () -> new ItemStack( ModBlocks.COMPUTER_NORMAL ) );
 
     @Override
-    public void onInitialize() {
+    public void onInitialize()
+    {
         ComputerCraftProxyCommon.init();
-
-        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "colour"), ColourableRecipe.SERIALIZER);
-        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "computer_upgrade"), ComputerUpgradeRecipe.SERIALIZER);
-        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "pocket_computer_upgrade"), PocketComputerUpgradeRecipe.SERIALIZER);
-        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "disk"), DiskRecipe.SERIALIZER);
-        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "printout"), PrintoutRecipe.SERIALIZER);
-        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "turtle"), TurtleRecipe.SERIALIZER);
-        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "turtle_upgrade"), TurtleUpgradeRecipe.SERIALIZER);
-        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "impostor_shaped"), ImpostorRecipe.SERIALIZER);
-        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(ComputerCraft.MOD_ID, "impostor_shapeless"), ImpostorShapelessRecipe.SERIALIZER);
-        Registry.register(Registry.LOOT_CONDITION_TYPE, new Identifier(ComputerCraft.MOD_ID, "block_named"), BlockNamedEntityLootCondition.TYPE);
-        Registry.register(Registry.LOOT_CONDITION_TYPE, new Identifier(ComputerCraft.MOD_ID, "player_creative"), PlayerCreativeLootCondition.TYPE);
-        Registry.register(Registry.LOOT_CONDITION_TYPE, new Identifier(ComputerCraft.MOD_ID, "has_id"), HasComputerIdLootCondition.TYPE);
+        Registry.register( Registry.RECIPE_SERIALIZER, new Identifier( ComputerCraft.MOD_ID, "colour" ), ColourableRecipe.SERIALIZER );
+        Registry.register( Registry.RECIPE_SERIALIZER, new Identifier( ComputerCraft.MOD_ID, "computer_upgrade" ), ComputerUpgradeRecipe.SERIALIZER );
+        Registry.register( Registry.RECIPE_SERIALIZER,
+            new Identifier( ComputerCraft.MOD_ID, "pocket_computer_upgrade" ),
+            PocketComputerUpgradeRecipe.SERIALIZER );
+        Registry.register( Registry.RECIPE_SERIALIZER, new Identifier( ComputerCraft.MOD_ID, "disk" ), DiskRecipe.SERIALIZER );
+        Registry.register( Registry.RECIPE_SERIALIZER, new Identifier( ComputerCraft.MOD_ID, "printout" ), PrintoutRecipe.SERIALIZER );
+        Registry.register( Registry.RECIPE_SERIALIZER, new Identifier( ComputerCraft.MOD_ID, "turtle" ), TurtleRecipe.SERIALIZER );
+        Registry.register( Registry.RECIPE_SERIALIZER, new Identifier( ComputerCraft.MOD_ID, "turtle_upgrade" ), TurtleUpgradeRecipe.SERIALIZER );
+        Registry.register( Registry.RECIPE_SERIALIZER, new Identifier( ComputerCraft.MOD_ID, "impostor_shaped" ), ImpostorRecipe.SERIALIZER );
+        Registry.register( Registry.RECIPE_SERIALIZER, new Identifier( ComputerCraft.MOD_ID, "impostor_shapeless" ), ImpostorShapelessRecipe.SERIALIZER );
+        Registry.register( Registry.LOOT_CONDITION_TYPE, new Identifier( ComputerCraft.MOD_ID, "block_named" ), BlockNamedEntityLootCondition.TYPE );
+        Registry.register( Registry.LOOT_CONDITION_TYPE, new Identifier( ComputerCraft.MOD_ID, "player_creative" ), PlayerCreativeLootCondition.TYPE );
+        Registry.register( Registry.LOOT_CONDITION_TYPE, new Identifier( ComputerCraft.MOD_ID, "has_id" ), HasComputerIdLootCondition.TYPE );
         init();
-        FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer -> {
-            ResourceManagerHelper.registerBuiltinResourcePack(new Identifier(MOD_ID, "classic"), modContainer, ResourcePackActivationType.NORMAL);
-            ResourceManagerHelper.registerBuiltinResourcePack(new Identifier(MOD_ID, "overhaul"), modContainer, ResourcePackActivationType.NORMAL);
-        });
+        FabricLoader.getInstance().getModContainer( MOD_ID ).ifPresent( modContainer -> {
+            ResourceManagerHelper.registerBuiltinResourcePack( new Identifier( MOD_ID, "classic" ), modContainer, ResourcePackActivationType.NORMAL );
+            ResourceManagerHelper.registerBuiltinResourcePack( new Identifier( MOD_ID, "overhaul" ), modContainer, ResourcePackActivationType.NORMAL );
+        } );
     }
 }

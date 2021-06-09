@@ -6,18 +6,18 @@
 
 package dan200.computercraft.api.network.wired;
 
-import java.util.Map;
+import dan200.computercraft.api.peripheral.IPeripheral;
 
 import javax.annotation.Nonnull;
-
-import dan200.computercraft.api.peripheral.IPeripheral;
+import java.util.Map;
 
 /**
  * Represents a change to the objects on a wired network.
  *
  * @see IWiredElement#networkChanged(IWiredNetworkChange)
  */
-public interface IWiredNetworkChange {
+public interface IWiredNetworkChange
+{
     /**
      * A set of peripherals which have been removed. Note that there may be entries with the same name in the added and removed set, but with a different
      * peripheral.

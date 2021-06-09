@@ -6,20 +6,25 @@
 
 package dan200.computercraft.shared.util;
 
+import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.io.IOException;
 
-import javax.annotation.Nullable;
-
-public final class IoUtil {
+public final class IoUtil
+{
     private IoUtil() {}
 
-    public static void closeQuietly(@Nullable Closeable closeable) {
-        try {
-            if (closeable != null) {
+    public static void closeQuietly( @Nullable Closeable closeable )
+    {
+        try
+        {
+            if( closeable != null )
+            {
                 closeable.close();
             }
-        } catch (IOException ignored) {
+        }
+        catch( IOException ignored )
+        {
         }
     }
 }

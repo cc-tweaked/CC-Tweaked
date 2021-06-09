@@ -37,7 +37,7 @@ public class HTTPAPI implements ILuaAPI
 {
     private final IAPIEnvironment apiEnvironment;
 
-    private final ResourceGroup<CheckUrl> checkUrls = new ResourceGroup<>();
+    private final ResourceGroup<CheckUrl> checkUrls = new ResourceGroup<>( ResourceGroup.DEFAULT );
     private final ResourceGroup<HttpRequest> requests = new ResourceQueue<>( () -> ComputerCraft.httpMaxRequests );
     private final ResourceGroup<Websocket> websockets = new ResourceGroup<>( () -> ComputerCraft.httpMaxWebsockets );
 
@@ -127,7 +127,10 @@ public class HTTPAPI implements ILuaAPI
             HttpRequest request = new HttpRequest( requests, apiEnvironment, address, postString, headers, binary, redirect );
 
             // Make the request
-            request.queue( r -> r.request( uri, httpMethod ) );
+            if( !request.queue( r -> r.request( uri, httpMethod ) ) )
+            {
+                throw new LuaException( "Too many ongoing HTTP requests" );
+            }
 
             return new Object[] { true };
         }
@@ -138,12 +141,15 @@ public class HTTPAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final Object[] checkURL( String address )
+    public final Object[] checkURL( String address ) throws LuaException
     {
         try
         {
             URI uri = HttpRequest.checkUri( address );
-            new CheckUrl( checkUrls, apiEnvironment, address, uri ).queue( CheckUrl::run );
+            if( !new CheckUrl( checkUrls, apiEnvironment, address, uri ).queue( CheckUrl::run ) )
+            {
+                throw new LuaException( "Too many ongoing checkUrl calls" );
+            }
 
             return new Object[] { true };
         }
@@ -156,7 +162,7 @@ public class HTTPAPI implements ILuaAPI
     @LuaFunction
     public final Object[] websocket( String address, Optional<Map<?, ?>> headerTbl ) throws LuaException
     {
-        if( !ComputerCraft.httpWebsocketEnabled)
+        if( !ComputerCraft.httpWebsocketEnabled )
         {
             throw new LuaException( "Websocket connections are disabled" );
         }

@@ -30,8 +30,10 @@ import dan200.computercraft.shared.turtle.FurnaceRefuelHandler;
 import dan200.computercraft.shared.turtle.SignInspectHandler;
 import dan200.computercraft.shared.util.Config;
 import dan200.computercraft.shared.util.TickScheduler;
-
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.CommandBlockBlockEntity;
 import net.minecraft.item.Item;
@@ -41,14 +43,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-
-public final class ComputerCraftProxyCommon {
+public final class ComputerCraftProxyCommon
+{
     private static MinecraftServer server;
 
-    public static void init() {
+    public static void init()
+    {
         NetworkHandler.setup();
 
         registerProviders();
@@ -56,84 +56,91 @@ public final class ComputerCraftProxyCommon {
 
         ArgumentSerializers.register();
 
-        ComputerCraftAPI.registerGenericSource(new InventoryMethods());
+        ComputerCraftAPI.registerGenericSource( new InventoryMethods() );
     }
 
-    private static void registerProviders() {
-        ComputerCraftAPI.registerPeripheralProvider((world, pos, side) -> {
-            BlockEntity tile = world.getBlockEntity(pos);
-            return tile instanceof IPeripheralTile ? ((IPeripheralTile) tile).getPeripheral(side) : null;
-        });
+    private static void registerProviders()
+    {
+        ComputerCraftAPI.registerPeripheralProvider( ( world, pos, side ) -> {
+            BlockEntity tile = world.getBlockEntity( pos );
+            return tile instanceof IPeripheralTile ? ((IPeripheralTile) tile).getPeripheral( side ) : null;
+        } );
 
-        ComputerCraftAPI.registerPeripheralProvider((world, pos, side) -> {
-            BlockEntity tile = world.getBlockEntity(pos);
+        ComputerCraftAPI.registerPeripheralProvider( ( world, pos, side ) -> {
+            BlockEntity tile = world.getBlockEntity( pos );
             return ComputerCraft.enableCommandBlock && tile instanceof CommandBlockBlockEntity ?
-                   new CommandBlockPeripheral((CommandBlockBlockEntity) tile) : null;
-        });
+                new CommandBlockPeripheral( (CommandBlockBlockEntity) tile ) : null;
+        } );
 
         // Register bundled power providers
-        ComputerCraftAPI.registerBundledRedstoneProvider(new DefaultBundledRedstoneProvider());
+        ComputerCraftAPI.registerBundledRedstoneProvider( new DefaultBundledRedstoneProvider() );
 
         // Register media providers
-        ComputerCraftAPI.registerMediaProvider(stack -> {
+        ComputerCraftAPI.registerMediaProvider( stack -> {
             Item item = stack.getItem();
-            if (item instanceof IMedia) {
+            if( item instanceof IMedia )
+            {
                 return (IMedia) item;
             }
-            if (item instanceof MusicDiscItem) {
+            if( item instanceof MusicDiscItem )
+            {
                 return RecordMedia.INSTANCE;
             }
             return null;
-        });
+        } );
     }
 
-    private static void registerHandlers() {
-        CommandRegistrationCallback.EVENT.register(CommandComputerCraft::register);
+    private static void registerHandlers()
+    {
+        CommandRegistrationCallback.EVENT.register( CommandComputerCraft::register );
 
-        ServerTickEvents.START_SERVER_TICK.register(server -> {
+        ServerTickEvents.START_SERVER_TICK.register( server -> {
             MainThread.executePendingTasks();
             ComputerCraft.serverComputerRegistry.update();
             TickScheduler.tick();
-        });
+        } );
 
-        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+        ServerLifecycleEvents.SERVER_STARTED.register( server -> {
             ComputerCraftProxyCommon.server = server;
             ComputerCraft.serverComputerRegistry.reset();
             WirelessNetwork.resetNetworks();
             MainThread.reset();
             Tracking.reset();
-        });
+        } );
 
-        ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+        ServerLifecycleEvents.SERVER_STOPPING.register( server -> {
             ComputerCraft.serverComputerRegistry.reset();
             WirelessNetwork.resetNetworks();
             MainThread.reset();
             Tracking.reset();
             ComputerCraftProxyCommon.server = null;
-        });
+        } );
 
         ServerBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register( ( blockEntity, world ) -> {
-            if(blockEntity instanceof TileGeneric ) {
-                ((TileGeneric)blockEntity).onChunkUnloaded();
+            if( blockEntity instanceof TileGeneric )
+            {
+                ((TileGeneric) blockEntity).onChunkUnloaded();
             }
-        });
+        } );
 
         // Config
-        ServerLifecycleEvents.SERVER_STARTING.register(Config::serverStarting);
-        ServerLifecycleEvents.SERVER_STOPPING.register(Config::serverStopping);
+        ServerLifecycleEvents.SERVER_STARTING.register( Config::serverStarting );
+        ServerLifecycleEvents.SERVER_STOPPING.register( Config::serverStopping );
 
-        TurtleEvent.EVENT_BUS.register(FurnaceRefuelHandler.INSTANCE);
-        TurtleEvent.EVENT_BUS.register(new TurtlePermissions());
-        TurtleEvent.EVENT_BUS.register(new SignInspectHandler());
+        TurtleEvent.EVENT_BUS.register( FurnaceRefuelHandler.INSTANCE );
+        TurtleEvent.EVENT_BUS.register( new TurtlePermissions() );
+        TurtleEvent.EVENT_BUS.register( new SignInspectHandler() );
     }
 
-    public static void registerLoot() {
-        registerCondition("block_named", BlockNamedEntityLootCondition.TYPE);
-        registerCondition("player_creative", PlayerCreativeLootCondition.TYPE);
-        registerCondition("has_id", HasComputerIdLootCondition.TYPE);
+    public static void registerLoot()
+    {
+        registerCondition( "block_named", BlockNamedEntityLootCondition.TYPE );
+        registerCondition( "player_creative", PlayerCreativeLootCondition.TYPE );
+        registerCondition( "has_id", HasComputerIdLootCondition.TYPE );
     }
 
-    private static void registerCondition(String name, LootConditionType serializer) {
-        Registry.register(Registry.LOOT_CONDITION_TYPE, new Identifier(ComputerCraft.MOD_ID, name), serializer);
+    private static void registerCondition( String name, LootConditionType serializer )
+    {
+        Registry.register( Registry.LOOT_CONDITION_TYPE, new Identifier( ComputerCraft.MOD_ID, name ), serializer );
     }
 }

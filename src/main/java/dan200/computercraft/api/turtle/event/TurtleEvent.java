@@ -6,12 +6,11 @@
 
 package dan200.computercraft.api.turtle.event;
 
-import java.util.Objects;
-
-import javax.annotation.Nonnull;
-
 import com.google.common.eventbus.EventBus;
 import dan200.computercraft.api.turtle.ITurtleAccess;
+
+import javax.annotation.Nonnull;
+import java.util.Objects;
 
 /**
  * A base class for all events concerning a turtle. This will only ever constructed and fired on the server side, so sever specific methods on {@link
@@ -21,18 +20,21 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
  *
  * @see TurtleActionEvent
  */
-public abstract class TurtleEvent {
+public abstract class TurtleEvent
+{
     public static final EventBus EVENT_BUS = new EventBus();
 
     private final ITurtleAccess turtle;
 
-    protected TurtleEvent(@Nonnull ITurtleAccess turtle) {
-        Objects.requireNonNull(turtle, "turtle cannot be null");
+    protected TurtleEvent( @Nonnull ITurtleAccess turtle )
+    {
+        Objects.requireNonNull( turtle, "turtle cannot be null" );
         this.turtle = turtle;
     }
 
-    public static boolean post(TurtleActionEvent event) {
-        EVENT_BUS.post(event);
+    public static boolean post( TurtleActionEvent event )
+    {
+        EVENT_BUS.post( event );
         return event.isCancelled();
     }
 
@@ -42,7 +44,8 @@ public abstract class TurtleEvent {
      * @return The access for this turtle.
      */
     @Nonnull
-    public ITurtleAccess getTurtle() {
+    public ITurtleAccess getTurtle()
+    {
         return this.turtle;
     }
 

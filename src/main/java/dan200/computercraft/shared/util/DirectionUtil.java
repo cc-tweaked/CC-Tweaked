@@ -7,45 +7,54 @@
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.core.computer.ComputerSide;
-
 import net.minecraft.util.math.Direction;
 
-public final class DirectionUtil {
+public final class DirectionUtil
+{
     public static final Direction[] FACINGS = Direction.values();
 
     private DirectionUtil() {}
 
-    public static ComputerSide toLocal(Direction front, Direction dir) {
-        if (front.getAxis() == Direction.Axis.Y) {
+    public static ComputerSide toLocal( Direction front, Direction dir )
+    {
+        if( front.getAxis() == Direction.Axis.Y )
+        {
             front = Direction.NORTH;
         }
 
-        if (dir == front) {
+        if( dir == front )
+        {
             return ComputerSide.FRONT;
         }
-        if (dir == front.getOpposite()) {
+        if( dir == front.getOpposite() )
+        {
             return ComputerSide.BACK;
         }
-        if (dir == front.rotateYCounterclockwise()) {
+        if( dir == front.rotateYCounterclockwise() )
+        {
             return ComputerSide.LEFT;
         }
-        if (dir == front.rotateYClockwise()) {
+        if( dir == front.rotateYClockwise() )
+        {
             return ComputerSide.RIGHT;
         }
-        if (dir == Direction.UP) {
+        if( dir == Direction.UP )
+        {
             return ComputerSide.TOP;
         }
         return ComputerSide.BOTTOM;
     }
 
-    public static float toPitchAngle(Direction dir) {
-        switch (dir) {
-        case DOWN:
-            return 90.0f;
-        case UP:
-            return 270.0f;
-        default:
-            return 0.0f;
+    public static float toPitchAngle( Direction dir )
+    {
+        switch( dir )
+        {
+            case DOWN:
+                return 90.0f;
+            case UP:
+                return 270.0f;
+            default:
+                return 0.0f;
         }
     }
 }

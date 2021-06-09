@@ -6,10 +6,7 @@
 
 package dan200.computercraft.shared.peripheral.diskdrive;
 
-import javax.annotation.Nonnull;
-
 import dan200.computercraft.shared.ComputerCraftRegistry;
-
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -18,70 +15,90 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 
-public class ContainerDiskDrive extends ScreenHandler {
+import javax.annotation.Nonnull;
+
+public class ContainerDiskDrive extends ScreenHandler
+{
     private final Inventory inventory;
 
-    public ContainerDiskDrive(int id, PlayerInventory player) {
-        this(id, player, new SimpleInventory(1));
+    public ContainerDiskDrive( int id, PlayerInventory player )
+    {
+        this( id, player, new SimpleInventory( 1 ) );
     }
 
-    public ContainerDiskDrive(int id, PlayerInventory player, Inventory inventory) {
-        super(ComputerCraftRegistry.ModContainers.DISK_DRIVE, id);
+    public ContainerDiskDrive( int id, PlayerInventory player, Inventory inventory )
+    {
+        super( ComputerCraftRegistry.ModContainers.DISK_DRIVE, id );
 
         this.inventory = inventory;
 
-        this.addSlot(new Slot(this.inventory, 0, 8 + 4 * 18, 35));
+        this.addSlot( new Slot( this.inventory, 0, 8 + 4 * 18, 35 ) );
 
-        for (int y = 0; y < 3; y++) {
-            for (int x = 0; x < 9; x++) {
-                this.addSlot(new Slot(player, x + y * 9 + 9, 8 + x * 18, 84 + y * 18));
+        for( int y = 0; y < 3; y++ )
+        {
+            for( int x = 0; x < 9; x++ )
+            {
+                this.addSlot( new Slot( player, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 ) );
             }
         }
 
-        for (int x = 0; x < 9; x++) {
-            this.addSlot(new Slot(player, x, 8 + x * 18, 142));
+        for( int x = 0; x < 9; x++ )
+        {
+            this.addSlot( new Slot( player, x, 8 + x * 18, 142 ) );
         }
     }
 
     @Nonnull
     @Override
-    public ItemStack transferSlot(@Nonnull PlayerEntity player, int slotIndex) {
-        Slot slot = this.slots.get(slotIndex);
-        if (slot == null || !slot.hasStack()) {
+    public ItemStack transferSlot( @Nonnull PlayerEntity player, int slotIndex )
+    {
+        Slot slot = this.slots.get( slotIndex );
+        if( slot == null || !slot.hasStack() )
+        {
             return ItemStack.EMPTY;
         }
 
         ItemStack existing = slot.getStack()
-                                 .copy();
+            .copy();
         ItemStack result = existing.copy();
-        if (slotIndex == 0) {
+        if( slotIndex == 0 )
+        {
             // Insert into player inventory
-            if (!this.insertItem(existing, 1, 37, true)) {
+            if( !this.insertItem( existing, 1, 37, true ) )
+            {
                 return ItemStack.EMPTY;
             }
-        } else {
+        }
+        else
+        {
             // Insert into drive inventory
-            if (!this.insertItem(existing, 0, 1, false)) {
+            if( !this.insertItem( existing, 0, 1, false ) )
+            {
                 return ItemStack.EMPTY;
             }
         }
 
-        if (existing.isEmpty()) {
-            slot.setStack(ItemStack.EMPTY);
-        } else {
+        if( existing.isEmpty() )
+        {
+            slot.setStack( ItemStack.EMPTY );
+        }
+        else
+        {
             slot.markDirty();
         }
 
-        if (existing.getCount() == result.getCount()) {
+        if( existing.getCount() == result.getCount() )
+        {
             return ItemStack.EMPTY;
         }
 
-        slot.onTakeItem(player, existing);
+        slot.onTakeItem( player, existing );
         return result;
     }
 
     @Override
-    public boolean canUse(@Nonnull PlayerEntity player) {
-        return this.inventory.canPlayerUse(player);
+    public boolean canUse( @Nonnull PlayerEntity player )
+    {
+        return this.inventory.canPlayerUse( player );
     }
 }

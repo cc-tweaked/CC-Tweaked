@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.apis.http;
 
 import java.util.ArrayDeque;
@@ -15,48 +14,49 @@ import java.util.function.Supplier;
  *
  * @param <T> The type of the resource this queue manages.
  */
-public class ResourceQueue<T extends Resource<T>> extends ResourceGroup<T> {
+public class ResourceQueue<T extends Resource<T>> extends ResourceGroup<T>
+{
     private final ArrayDeque<Supplier<T>> pending = new ArrayDeque<>();
 
-    public ResourceQueue(IntSupplier limit) {
-        super(limit);
+    public ResourceQueue( IntSupplier limit )
+    {
+        super( limit );
     }
 
-    public ResourceQueue() {
+    public ResourceQueue()
+    {
     }
 
     @Override
-    public synchronized void shutdown() {
+    public synchronized void shutdown()
+    {
         super.shutdown();
-        this.pending.clear();
+        pending.clear();
     }
 
     @Override
-    public synchronized boolean queue(Supplier<T> resource) {
-        if (!this.active) {
-            return false;
-        }
+    public synchronized boolean queue( Supplier<T> resource )
+    {
+        if( !active ) return false;
+        if( super.queue( resource ) ) return true;
+        if( pending.size() > DEFAULT_LIMIT ) return false;
 
-        if (!super.queue(resource)) {
-            this.pending.add(resource);
-        }
+        pending.add( resource );
         return true;
     }
 
     @Override
-    public synchronized void release(T resource) {
-        super.release(resource);
+    public synchronized void release( T resource )
+    {
+        super.release( resource );
 
-        if (!this.active) {
-            return;
-        }
+        if( !active ) return;
 
         int limit = this.limit.getAsInt();
-        if (limit <= 0 || this.resources.size() < limit) {
-            Supplier<T> next = this.pending.poll();
-            if (next != null) {
-                this.resources.add(next.get());
-            }
+        if( limit <= 0 || resources.size() < limit )
+        {
+            Supplier<T> next = pending.poll();
+            if( next != null ) resources.add( next.get() );
         }
     }
 }

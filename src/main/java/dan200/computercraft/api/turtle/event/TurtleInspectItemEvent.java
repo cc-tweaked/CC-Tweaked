@@ -6,15 +6,13 @@
 
 package dan200.computercraft.api.turtle.event;
 
-import java.util.Map;
-import java.util.Objects;
-
-import javax.annotation.Nonnull;
-
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.turtle.ITurtleAccess;
-
 import net.minecraft.item.ItemStack;
+
+import javax.annotation.Nonnull;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Fired when a turtle gathers data on an item in its inventory.
@@ -24,21 +22,24 @@ import net.minecraft.item.ItemStack;
  *
  * @see TurtleAction#INSPECT_ITEM
  */
-public class TurtleInspectItemEvent extends TurtleActionEvent {
+public class TurtleInspectItemEvent extends TurtleActionEvent
+{
     private final ItemStack stack;
     private final Map<String, Object> data;
     private final boolean mainThread;
 
     @Deprecated
-    public TurtleInspectItemEvent(@Nonnull ITurtleAccess turtle, @Nonnull ItemStack stack, @Nonnull Map<String, Object> data) {
-        this(turtle, stack, data, false);
+    public TurtleInspectItemEvent( @Nonnull ITurtleAccess turtle, @Nonnull ItemStack stack, @Nonnull Map<String, Object> data )
+    {
+        this( turtle, stack, data, false );
     }
 
-    public TurtleInspectItemEvent(@Nonnull ITurtleAccess turtle, @Nonnull ItemStack stack, @Nonnull Map<String, Object> data, boolean mainThread) {
-        super(turtle, TurtleAction.INSPECT_ITEM);
+    public TurtleInspectItemEvent( @Nonnull ITurtleAccess turtle, @Nonnull ItemStack stack, @Nonnull Map<String, Object> data, boolean mainThread )
+    {
+        super( turtle, TurtleAction.INSPECT_ITEM );
 
-        Objects.requireNonNull(stack, "stack cannot be null");
-        Objects.requireNonNull(data, "data cannot be null");
+        Objects.requireNonNull( stack, "stack cannot be null" );
+        Objects.requireNonNull( data, "data cannot be null" );
         this.stack = stack;
         this.data = data;
         this.mainThread = mainThread;
@@ -50,7 +51,8 @@ public class TurtleInspectItemEvent extends TurtleActionEvent {
      * @return The item stack which is being inspected. This should <b>not</b> be modified.
      */
     @Nonnull
-    public ItemStack getStack() {
+    public ItemStack getStack()
+    {
         return this.stack;
     }
 
@@ -60,7 +62,8 @@ public class TurtleInspectItemEvent extends TurtleActionEvent {
      * @return This items's inspection data.
      */
     @Nonnull
-    public Map<String, Object> getData() {
+    public Map<String, Object> getData()
+    {
         return this.data;
     }
 
@@ -69,7 +72,8 @@ public class TurtleInspectItemEvent extends TurtleActionEvent {
      *
      * @return If this is run on the main thread.
      */
-    public boolean onMainThread() {
+    public boolean onMainThread()
+    {
         return this.mainThread;
     }
 
@@ -78,8 +82,9 @@ public class TurtleInspectItemEvent extends TurtleActionEvent {
      *
      * @param newData The data to add. Note all values should be convertible to Lua (see {@link MethodResult#of(Object)}).
      */
-    public void addData(@Nonnull Map<String, ?> newData) {
-        Objects.requireNonNull(newData, "newData cannot be null");
-        this.data.putAll(newData);
+    public void addData( @Nonnull Map<String, ?> newData )
+    {
+        Objects.requireNonNull( newData, "newData cannot be null" );
+        this.data.putAll( newData );
     }
 }

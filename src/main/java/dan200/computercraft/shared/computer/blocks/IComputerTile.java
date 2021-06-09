@@ -8,14 +8,15 @@ package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 
-public interface IComputerTile {
+public interface IComputerTile
+{
     int getComputerID();
 
-    void setComputerID(int id);
+    void setComputerID( int id );
 
     String getLabel();
 
-    void setLabel(String label);
+    void setLabel( String label );
 
     ComputerFamily getFamily();
 }

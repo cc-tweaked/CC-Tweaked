@@ -6,14 +6,13 @@
 
 package dan200.computercraft.api.peripheral;
 
-import java.util.Optional;
-
-import javax.annotation.Nonnull;
-
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
+import java.util.Optional;
 
 /**
  * This interface is used to create peripheral implementations for blocks.
@@ -23,16 +22,17 @@ import net.minecraft.world.World;
  * @see dan200.computercraft.api.ComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)
  */
 @FunctionalInterface
-public interface IPeripheralProvider {
+public interface IPeripheralProvider
+{
     /**
      * Produce an peripheral implementation from a block location.
      *
      * @param world The world the block is in.
-     * @param pos The position the block is at.
-     * @param side The side to get the peripheral from.
+     * @param pos   The position the block is at.
+     * @param side  The side to get the peripheral from.
      * @return A peripheral, or {@link Optional#empty()} if there is not a peripheral here you'd like to handle.
      * @see dan200.computercraft.api.ComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)
      */
     @Nonnull
-    IPeripheral getPeripheral(@Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side);
+    IPeripheral getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side );
 }

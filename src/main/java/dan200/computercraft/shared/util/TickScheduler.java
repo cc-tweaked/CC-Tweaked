@@ -6,49 +6,55 @@
 
 package dan200.computercraft.shared.util;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Set;
-
 import com.google.common.collect.MapMaker;
 import dan200.computercraft.shared.common.TileGeneric;
-
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Set;
+
 /**
  * We use this when modems and other peripherals change a block in a different thread.
  */
-public final class TickScheduler {
-    private static final Set<BlockEntity> toTick = Collections.newSetFromMap(new MapMaker().weakKeys()
-                                                                                           .makeMap());
+public final class TickScheduler
+{
+    private static final Set<BlockEntity> toTick = Collections.newSetFromMap( new MapMaker().weakKeys()
+        .makeMap() );
 
-    private TickScheduler() {
+    private TickScheduler()
+    {
     }
 
-    public static void schedule(TileGeneric tile) {
+    public static void schedule( TileGeneric tile )
+    {
         World world = tile.getWorld();
-        if (world != null && !world.isClient) {
-            toTick.add(tile);
+        if( world != null && !world.isClient )
+        {
+            toTick.add( tile );
         }
     }
 
-    public static void tick() {
+    public static void tick()
+    {
         Iterator<BlockEntity> iterator = toTick.iterator();
-        while (iterator.hasNext()) {
+        while( iterator.hasNext() )
+        {
             BlockEntity tile = iterator.next();
             iterator.remove();
 
             World world = tile.getWorld();
             BlockPos pos = tile.getPos();
 
-            if (world != null && pos != null && world.isChunkLoaded(pos) && world.getBlockEntity(pos) == tile) {
+            if( world != null && pos != null && world.isChunkLoaded( pos ) && world.getBlockEntity( pos ) == tile )
+            {
                 world.getBlockTickScheduler()
-                     .schedule(pos,
-                               tile.getCachedState()
-                                   .getBlock(),
-                               0);
+                    .schedule( pos,
+                        tile.getCachedState()
+                            .getBlock(),
+                        0 );
             }
         }
     }

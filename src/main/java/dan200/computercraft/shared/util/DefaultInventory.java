@@ -6,28 +6,33 @@
 
 package dan200.computercraft.shared.util;
 
-import javax.annotation.Nonnull;
-
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 
-public interface DefaultInventory extends Inventory {
+import javax.annotation.Nonnull;
+
+public interface DefaultInventory extends Inventory
+{
     @Override
-    default int getMaxCountPerStack() {
+    default int getMaxCountPerStack()
+    {
         return 64;
     }
 
     @Override
-    default void onOpen(@Nonnull PlayerEntity player) {
+    default void onOpen( @Nonnull PlayerEntity player )
+    {
     }
 
     @Override
-    default void onClose(@Nonnull PlayerEntity player) {
+    default void onClose( @Nonnull PlayerEntity player )
+    {
     }
 
     @Override
-    default boolean isValid(int slot, @Nonnull ItemStack stack) {
+    default boolean isValid( int slot, @Nonnull ItemStack stack )
+    {
         return true;
     }
 }

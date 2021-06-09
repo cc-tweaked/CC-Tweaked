@@ -6,11 +6,10 @@
 
 package dan200.computercraft.api.network.wired;
 
-import java.util.Map;
+import dan200.computercraft.api.peripheral.IPeripheral;
 
 import javax.annotation.Nonnull;
-
-import dan200.computercraft.api.peripheral.IPeripheral;
+import java.util.Map;
 
 /**
  * A wired network is composed of one of more {@link IWiredNode}s, a set of connections between them, and a series of peripherals.
@@ -24,28 +23,29 @@ import dan200.computercraft.api.peripheral.IPeripheral;
  *
  * @see IWiredNode#getNetwork()
  */
-public interface IWiredNetwork {
+public interface IWiredNetwork
+{
     /**
      * Create a connection between two nodes.
      *
      * This should only be used on the server thread.
      *
-     * @param left The first node to connect
+     * @param left  The first node to connect
      * @param right The second node to connect
      * @return {@code true} if a connection was created or {@code false} if the connection already exists.
-     * @throws IllegalStateException If neither node is on the network.
+     * @throws IllegalStateException    If neither node is on the network.
      * @throws IllegalArgumentException If {@code left} and {@code right} are equal.
      * @see IWiredNode#connectTo(IWiredNode)
      * @see IWiredNetwork#connect(IWiredNode, IWiredNode)
      */
-    boolean connect(@Nonnull IWiredNode left, @Nonnull IWiredNode right);
+    boolean connect( @Nonnull IWiredNode left, @Nonnull IWiredNode right );
 
     /**
      * Destroy a connection between this node and another.
      *
      * This should only be used on the server thread.
      *
-     * @param left The first node in the connection.
+     * @param left  The first node in the connection.
      * @param right The second node in the connection.
      * @return {@code true} if a connection was destroyed or {@code false} if no connection exists.
      * @throws IllegalArgumentException If either node is not on the network.
@@ -53,7 +53,7 @@ public interface IWiredNetwork {
      * @see IWiredNode#disconnectFrom(IWiredNode)
      * @see IWiredNetwork#connect(IWiredNode, IWiredNode)
      */
-    boolean disconnect(@Nonnull IWiredNode left, @Nonnull IWiredNode right);
+    boolean disconnect( @Nonnull IWiredNode left, @Nonnull IWiredNode right );
 
     /**
      * Sever all connections this node has, removing it from this network.
@@ -65,17 +65,17 @@ public interface IWiredNetwork {
      * @throws IllegalArgumentException If the node is not in the network.
      * @see IWiredNode#remove()
      */
-    boolean remove(@Nonnull IWiredNode node);
+    boolean remove( @Nonnull IWiredNode node );
 
     /**
      * Update the peripherals a node provides.
      *
      * This should only be used on the server thread. You should only call this on nodes that your network element owns.
      *
-     * @param node The node to attach peripherals for.
+     * @param node        The node to attach peripherals for.
      * @param peripherals The new peripherals for this node.
      * @throws IllegalArgumentException If the node is not in the network.
      * @see IWiredNode#updatePeripherals(Map)
      */
-    void updatePeripherals(@Nonnull IWiredNode node, @Nonnull Map<String, IPeripheral> peripherals);
+    void updatePeripherals( @Nonnull IWiredNode node, @Nonnull Map<String, IPeripheral> peripherals );
 }

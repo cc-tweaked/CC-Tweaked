@@ -6,10 +6,6 @@
 
 package dan200.computercraft.shared.peripheral.printer;
 
-import java.util.Optional;
-
-import javax.annotation.Nonnull;
-
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -17,21 +13,27 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.util.StringUtil;
 
+import javax.annotation.Nonnull;
+import java.util.Optional;
+
 /**
  * The printer peripheral allows pages and books to be printed.
  *
  * @cc.module printer
  */
-public class PrinterPeripheral implements IPeripheral {
+public class PrinterPeripheral implements IPeripheral
+{
     private final TilePrinter printer;
 
-    public PrinterPeripheral(TilePrinter printer) {
+    public PrinterPeripheral( TilePrinter printer )
+    {
         this.printer = printer;
     }
 
     @Nonnull
     @Override
-    public String getType() {
+    public String getType()
+    {
         return "printer";
     }
 
@@ -43,12 +45,14 @@ public class PrinterPeripheral implements IPeripheral {
 
     @Nonnull
     @Override
-    public Object getTarget() {
+    public Object getTarget()
+    {
         return this.printer;
     }
 
     @Override
-    public boolean equals(IPeripheral other) {
+    public boolean equals( IPeripheral other )
+    {
         return other instanceof PrinterPeripheral && ((PrinterPeripheral) other).printer == this.printer;
     }
 
@@ -60,18 +64,21 @@ public class PrinterPeripheral implements IPeripheral {
      * @cc.tparam string|number ... The values to write to the page.
      */
     @LuaFunction
-    public final void write(IArguments arguments) throws LuaException {
-        String text = StringUtil.toString(arguments.get(0));
+    public final void write( IArguments arguments ) throws LuaException
+    {
+        String text = StringUtil.toString( arguments.get( 0 ) );
         Terminal page = this.getCurrentPage();
-        page.write(text);
-        page.setCursorPos(page.getCursorX() + text.length(), page.getCursorY());
+        page.write( text );
+        page.setCursorPos( page.getCursorX() + text.length(), page.getCursorY() );
     }
 
     @Nonnull
-    private Terminal getCurrentPage() throws LuaException {
+    private Terminal getCurrentPage() throws LuaException
+    {
         Terminal currentPage = this.printer.getCurrentPage();
-        if (currentPage == null) {
-            throw new LuaException("Page not started");
+        if( currentPage == null )
+        {
+            throw new LuaException( "Page not started" );
         }
         return currentPage;
     }
@@ -85,14 +92,12 @@ public class PrinterPeripheral implements IPeripheral {
      * @cc.treturn number The Y position of the cursor.
      */
     @LuaFunction
-    public final Object[] getCursorPos() throws LuaException {
+    public final Object[] getCursorPos() throws LuaException
+    {
         Terminal page = this.getCurrentPage();
         int x = page.getCursorX();
         int y = page.getCursorY();
-        return new Object[] {
-            x + 1,
-            y + 1
-        };
+        return new Object[] { x + 1, y + 1 };
     }
 
     /**
@@ -103,9 +108,10 @@ public class PrinterPeripheral implements IPeripheral {
      * @throws LuaException If a page isn't being printed.
      */
     @LuaFunction
-    public final void setCursorPos(int x, int y) throws LuaException {
+    public final void setCursorPos( int x, int y ) throws LuaException
+    {
         Terminal page = this.getCurrentPage();
-        page.setCursorPos(x - 1, y - 1);
+        page.setCursorPos( x - 1, y - 1 );
     }
 
     /**
@@ -117,14 +123,12 @@ public class PrinterPeripheral implements IPeripheral {
      * @cc.treturn number The height of the page.
      */
     @LuaFunction
-    public final Object[] getPageSize() throws LuaException {
+    public final Object[] getPageSize() throws LuaException
+    {
         Terminal page = this.getCurrentPage();
         int width = page.getWidth();
         int height = page.getHeight();
-        return new Object[] {
-            width,
-            height
-        };
+        return new Object[] { width, height };
     }
 
     /**
@@ -132,8 +136,9 @@ public class PrinterPeripheral implements IPeripheral {
      *
      * @return Whether a new page could be started.
      */
-    @LuaFunction (mainThread = true)
-    public final boolean newPage() {
+    @LuaFunction( mainThread = true )
+    public final boolean newPage()
+    {
         return this.printer.startNewPage();
     }
 
@@ -143,8 +148,9 @@ public class PrinterPeripheral implements IPeripheral {
      * @return Whether the page could be successfully finished.
      * @throws LuaException If a page isn't being printed.
      */
-    @LuaFunction (mainThread = true)
-    public final boolean endPage() throws LuaException {
+    @LuaFunction( mainThread = true )
+    public final boolean endPage() throws LuaException
+    {
         this.getCurrentPage();
         return this.printer.endCurrentPage();
     }
@@ -156,9 +162,10 @@ public class PrinterPeripheral implements IPeripheral {
      * @throws LuaException If a page isn't being printed.
      */
     @LuaFunction
-    public final void setPageTitle(Optional<String> title) throws LuaException {
+    public final void setPageTitle( Optional<String> title ) throws LuaException
+    {
         this.getCurrentPage();
-        this.printer.setPageTitle(StringUtil.normaliseLabel(title.orElse("")));
+        this.printer.setPageTitle( StringUtil.normaliseLabel( title.orElse( "" ) ) );
     }
 
     /**
@@ -167,7 +174,8 @@ public class PrinterPeripheral implements IPeripheral {
      * @return The amount of ink available to print with.
      */
     @LuaFunction
-    public final int getInkLevel() {
+    public final int getInkLevel()
+    {
         return this.printer.getInkLevel();
     }
 
@@ -177,7 +185,8 @@ public class PrinterPeripheral implements IPeripheral {
      * @return The amount of paper available to print with.
      */
     @LuaFunction
-    public final int getPaperLevel() {
+    public final int getPaperLevel()
+    {
         return this.printer.getPaperLevel();
     }
 }

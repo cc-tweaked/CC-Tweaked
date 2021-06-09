@@ -6,14 +6,12 @@
 
 package dan200.computercraft.api.turtle.event;
 
-import java.util.Objects;
+import dan200.computercraft.api.turtle.ITurtleAccess;
+import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import dan200.computercraft.api.turtle.ITurtleAccess;
-
-import net.minecraft.item.ItemStack;
+import java.util.Objects;
 
 /**
  * Fired when a turtle attempts to refuel from an item.
@@ -21,14 +19,16 @@ import net.minecraft.item.ItemStack;
  * One may use {@link #setCanceled(boolean, String)} to prevent refueling from this specific item. Additionally, you may use {@link #setHandler(Handler)} to
  * register a custom fuel provider.
  */
-public class TurtleRefuelEvent extends TurtleActionEvent {
+public class TurtleRefuelEvent extends TurtleActionEvent
+{
     private final ItemStack stack;
     private Handler handler;
 
-    public TurtleRefuelEvent(@Nonnull ITurtleAccess turtle, @Nonnull ItemStack stack) {
-        super(turtle, TurtleAction.REFUEL);
+    public TurtleRefuelEvent( @Nonnull ITurtleAccess turtle, @Nonnull ItemStack stack )
+    {
+        super( turtle, TurtleAction.REFUEL );
 
-        Objects.requireNonNull(turtle, "turtle cannot be null");
+        Objects.requireNonNull( turtle, "turtle cannot be null" );
         this.stack = stack;
     }
 
@@ -39,7 +39,8 @@ public class TurtleRefuelEvent extends TurtleActionEvent {
      *
      * @return The stack to refuel from.
      */
-    public ItemStack getStack() {
+    public ItemStack getStack()
+    {
         return this.stack;
     }
 
@@ -50,7 +51,8 @@ public class TurtleRefuelEvent extends TurtleActionEvent {
      * @see #setHandler(Handler)
      */
     @Nullable
-    public Handler getHandler() {
+    public Handler getHandler()
+    {
         return this.handler;
     }
 
@@ -62,7 +64,8 @@ public class TurtleRefuelEvent extends TurtleActionEvent {
      * @param handler The new refuel handler.
      * @see #getHandler()
      */
-    public void setHandler(@Nullable Handler handler) {
+    public void setHandler( @Nullable Handler handler )
+    {
         this.handler = handler;
     }
 
@@ -70,16 +73,17 @@ public class TurtleRefuelEvent extends TurtleActionEvent {
      * Handles refuelling a turtle from a specific item.
      */
     @FunctionalInterface
-    public interface Handler {
+    public interface Handler
+    {
         /**
          * Refuel a turtle using an item.
          *
          * @param turtle The turtle to refuel.
-         * @param stack The stack to refuel with.
-         * @param slot The slot the stack resides within. This may be used to modify the inventory afterwards.
-         * @param limit The maximum number of refuel operations to perform. This will often correspond to the number of items to consume.
+         * @param stack  The stack to refuel with.
+         * @param slot   The slot the stack resides within. This may be used to modify the inventory afterwards.
+         * @param limit  The maximum number of refuel operations to perform. This will often correspond to the number of items to consume.
          * @return The amount of fuel gained.
          */
-        int refuel(@Nonnull ITurtleAccess turtle, @Nonnull ItemStack stack, int slot, int limit);
+        int refuel( @Nonnull ITurtleAccess turtle, @Nonnull ItemStack stack, int slot, int limit );
     }
 }

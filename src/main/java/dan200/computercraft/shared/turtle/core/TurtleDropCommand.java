@@ -6,8 +6,6 @@
 
 package dan200.computercraft.shared.turtle.core;
 
-import javax.annotation.Nonnull;
-
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
@@ -17,76 +15,90 @@ import dan200.computercraft.api.turtle.event.TurtleInventoryEvent;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.ItemStorage;
 import dan200.computercraft.shared.util.WorldUtil;
-
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-public class TurtleDropCommand implements ITurtleCommand {
-    private final InteractDirection m_direction;
-    private final int m_quantity;
+import javax.annotation.Nonnull;
 
-    public TurtleDropCommand(InteractDirection direction, int quantity) {
-        this.m_direction = direction;
-        this.m_quantity = quantity;
+public class TurtleDropCommand implements ITurtleCommand
+{
+    private final InteractDirection direction;
+    private final int quantity;
+
+    public TurtleDropCommand( InteractDirection direction, int quantity )
+    {
+        this.direction = direction;
+        this.quantity = quantity;
     }
 
     @Nonnull
     @Override
-    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
+    public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
+    {
         // Dropping nothing is easy
-        if (this.m_quantity == 0) {
-            turtle.playAnimation(TurtleAnimation.WAIT);
+        if( this.quantity == 0 )
+        {
+            turtle.playAnimation( TurtleAnimation.WAIT );
             return TurtleCommandResult.success();
         }
 
         // Get world direction from direction
-        Direction direction = this.m_direction.toWorldDir(turtle);
+        Direction direction = this.direction.toWorldDir( turtle );
 
         // Get things to drop
-        ItemStack stack = InventoryUtil.takeItems(this.m_quantity, turtle.getItemHandler(), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot());
-        if (stack.isEmpty()) {
-            return TurtleCommandResult.failure("No items to drop");
+        ItemStack stack = InventoryUtil.takeItems( this.quantity, turtle.getItemHandler(), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
+        if( stack.isEmpty() )
+        {
+            return TurtleCommandResult.failure( "No items to drop" );
         }
 
         // Get inventory for thing in front
         World world = turtle.getWorld();
         BlockPos oldPosition = turtle.getPosition();
-        BlockPos newPosition = oldPosition.offset(direction);
+        BlockPos newPosition = oldPosition.offset( direction );
         Direction side = direction.getOpposite();
 
-        Inventory inventory = InventoryUtil.getInventory(world, newPosition, side);
+        Inventory inventory = InventoryUtil.getInventory( world, newPosition, side );
 
         // Fire the event, restoring the inventory and exiting if it is cancelled.
-        TurtlePlayer player = TurtlePlaceCommand.createPlayer(turtle, oldPosition, direction);
-        TurtleInventoryEvent.Drop event = new TurtleInventoryEvent.Drop(turtle, player, world, newPosition, inventory, stack);
-        if (TurtleEvent.post(event)) {
-            InventoryUtil.storeItems(stack, turtle.getItemHandler(), turtle.getSelectedSlot());
-            return TurtleCommandResult.failure(event.getFailureMessage());
+        TurtlePlayer player = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );
+        TurtleInventoryEvent.Drop event = new TurtleInventoryEvent.Drop( turtle, player, world, newPosition, inventory, stack );
+        if( TurtleEvent.post( event ) )
+        {
+            InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
+            return TurtleCommandResult.failure( event.getFailureMessage() );
         }
 
-        if (inventory != null) {
+        if( inventory != null )
+        {
             // Drop the item into the inventory
-            ItemStack remainder = InventoryUtil.storeItems(stack, ItemStorage.wrap(inventory, side));
-            if (!remainder.isEmpty()) {
+            ItemStack remainder = InventoryUtil.storeItems( stack, ItemStorage.wrap( inventory, side ) );
+            if( !remainder.isEmpty() )
+            {
                 // Put the remainder back in the turtle
-                InventoryUtil.storeItems(remainder, turtle.getItemHandler(), turtle.getSelectedSlot());
+                InventoryUtil.storeItems( remainder, turtle.getItemHandler(), turtle.getSelectedSlot() );
             }
 
             // Return true if we stored anything
-            if (remainder != stack) {
-                turtle.playAnimation(TurtleAnimation.WAIT);
+            if( remainder != stack )
+            {
+                turtle.playAnimation( TurtleAnimation.WAIT );
                 return TurtleCommandResult.success();
-            } else {
-                return TurtleCommandResult.failure("No space for items");
             }
-        } else {
+            else
+            {
+                return TurtleCommandResult.failure( "No space for items" );
+            }
+        }
+        else
+        {
             // Drop the item into the world
-            WorldUtil.dropItemStack(stack, world, oldPosition, direction);
-            world.syncGlobalEvent(1000, newPosition, 0);
-            turtle.playAnimation(TurtleAnimation.WAIT);
+            WorldUtil.dropItemStack( stack, world, oldPosition, direction );
+            world.syncGlobalEvent( 1000, newPosition, 0 );
+            turtle.playAnimation( TurtleAnimation.WAIT );
             return TurtleCommandResult.success();
         }
     }

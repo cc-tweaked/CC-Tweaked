@@ -15,7 +15,8 @@ import javax.annotation.Nonnull;
  * @see MethodResult#of(Object)
  */
 @FunctionalInterface
-public interface ILuaFunction {
+public interface ILuaFunction
+{
     /**
      * Call this function with a series of arguments. Note, this will <em>always</em> be called on the computer thread, and so its implementation must be
      * thread-safe.
@@ -25,5 +26,5 @@ public interface ILuaFunction {
      * @throws LuaException Upon Lua errors.
      */
     @Nonnull
-    MethodResult call(@Nonnull IArguments arguments) throws LuaException;
+    MethodResult call( @Nonnull IArguments arguments ) throws LuaException;
 }

@@ -13,7 +13,8 @@ import javax.annotation.Nullable;
  * An instance of {@link Container} which provides a computer. You should implement this if you provide custom computers/GUIs to interact with them.
  */
 @FunctionalInterface
-public interface IContainerComputer {
+public interface IContainerComputer
+{
     /**
      * Get the computer you are interacting with.
      *
@@ -30,7 +31,8 @@ public interface IContainerComputer {
      * @return This container's input.
      */
     @Nonnull
-    default InputState getInput() {
-        return new InputState(this);
+    default InputState getInput()
+    {
+        return new InputState( this );
     }
 }
