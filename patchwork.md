@@ -9,7 +9,7 @@ SubScript // Desc of commit
 ```
 
 If a edit that is present in CC:T is not needed, I will skip over it.
-Any and all references to an issue number, are to be found on CC:T's repo. 
+Any and all references to an issue number, are to be found on CC:T's repo.
 
 Any commit that starts with `[Patchwork]` are purely edits made by my hand, and not based on other commits from CC:T, this is to help differentiate my changes from the official changes
 
@@ -138,9 +138,9 @@ evidently need to lint examples too.
 Add color table to docs (#553)
 ```
 
-All API Documentation updates, 
+All API Documentation updates,
 `Not Needed` for this repo.
-``` 
+```
 93068402a2ffec00eedb8fe2d859ebdc005a1989
 Document remaining OS functions (#554)
 
@@ -148,7 +148,7 @@ Document remaining OS functions (#554)
 Update illuaminate CSS for deprecation (#556)
 ```
 
-``` 
+```
 Not Needed
 4766833cf2d041ed179529eecb9402ad09b2b79b
 Bump JEI/crafttweaker versions
@@ -156,12 +156,12 @@ Bump JEI/crafttweaker versions
 In my defence, they weren't out when I started the 1.15 update.
 ```
 
-``` 
+```
 bf6053906dc6a3c7b0d40d5b097e745dce1f33bc
 Fix TBO norm issues on old GPUs
 ```
 
-``` 
+```
 Not Needed
 113b560a201dbdea9de2a2ef536bcce1d6e51978
 Update configuration to match latest illuaminate
@@ -201,7 +201,7 @@ to expose this.
 Closes #452
 ```
 
-``` 
+```
 Not Needed
 6aae4e576621090840724e094aa25e51696530fc
 Remove superfluous imports
@@ -210,7 +210,7 @@ Hah, this is embarassing
 ```
 
 [TODO] [M3R1-01] Code has been applied, players still dont get achievments
-``` 
+```
 f6160bdc57b3d9850607c2c7c2ce9734b4963478
 Fix players not getting advancements when they own turtles
 
@@ -228,7 +228,7 @@ resolve this properly.
 Fixes #564
 ```
 
-``` 
+```
 17a932920711a5c0361a5048c9e0a5e7a58e6364
 Bump cct-javadoc version
 
@@ -245,7 +245,7 @@ Tesselator, but this'll do for now.
 Fixes Zundrel/cc-tweaked-fabric#20.
 ```
 
-``` 
+```
 c58441b29c3715f092e7f3747bb3ec65ae5a3d29
 Various SNBT parsing improvements
 
@@ -257,7 +257,7 @@ Correctly handle:
 Fixes #559
 ```
 
-``` 
+```
 e2a635b6e5f5942f999213434054e06833c5cb06
 Dont fail when codecov is being finicky
 ```
@@ -270,13 +270,13 @@ Maybe I should run the whole test suite, not just the things I think
 matter? Nah....
 ```
 
-``` 
+```
 741adfa7bb2b950d2851c3f0072d6a4769f22773
 
 Use blit to draw boxes, add colors.toBlit (#570)
 ```
 
-``` 
+```
 d13bd2cce8d102ad7f61f557e707d6fe3731bc37
 
 use arg[0] in all usage printouts (#571)
@@ -289,7 +289,7 @@ Bump to 1.94.0
 ```
 
 [TODO] [M3R1-02] Zero Clue how to reimplement this in fabric.
-``` 
+```
 c8aeddedd4ed430f9cb6428676ebb4fa39834182
 
 Auto-generate monitor models
@@ -399,7 +399,7 @@ Hopefully fixes #585. Hopefully.
 ```
 511eea39a11956c82e2c11a47b2e7cad27f9887e
 
-Remove <!-- -->s in usages 
+Remove <!-- -->s in usages
 ```
 
 ```
@@ -426,7 +426,7 @@ Didn't port the lua tests over.
 ```
 737b3cb57696fb5517252e7db38bc88ce960b4d8
 
-Don't use capabilities for generic peripherals 
+Don't use capabilities for generic peripherals
 ```
 Not ported, related to forges capability system which is not used in the port.
 

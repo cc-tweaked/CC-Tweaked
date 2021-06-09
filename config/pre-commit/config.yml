@@ -44,5 +44,6 @@ exclude: |
     src/generated|
     src/test/resources/test-rom/data/json-parsing/|
     src/test/server-files/|
-    config/idea/
+    config/idea/|
+    .vscode/
   )

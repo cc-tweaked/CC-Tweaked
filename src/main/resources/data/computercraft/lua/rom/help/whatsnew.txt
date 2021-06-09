@@ -11,6 +11,6 @@ New features in CC: Restitched 1.96.0
 And several bug fixes:
 * Fix paintutils.drawLine incorrectly sorting coordinates (lilyzeiset).
 * Fix crash with music disk
-* Fix Display peripheral chat messages in multiplayer and improve /computercraft command. 
+* Fix Display peripheral chat messages in multiplayer and improve /computercraft command.
 
 Type "help changelog" to see the full version history.
