@@ -23,17 +23,17 @@ public final class NamedMethod<T>
     @Nonnull
     public String getName()
     {
-        return this.name;
+        return name;
     }
 
     @Nonnull
     public T getMethod()
     {
-        return this.method;
+        return method;
     }
 
     public boolean nonYielding()
     {
-        return this.nonYielding;
+        return nonYielding;
     }
 }

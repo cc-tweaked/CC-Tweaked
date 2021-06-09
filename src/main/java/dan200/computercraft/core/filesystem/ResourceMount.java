@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.filesystem;
 
 import com.google.common.cache.Cache;
@@ -49,17 +48,18 @@ public final class ResourceMount implements IMount
     private static final byte[] TEMP_BUFFER = new byte[8192];
 
     /**
-     * We maintain a cache of the contents of all files in the mount. This allows us to allow seeking within ROM files, and reduces the amount we need to
-     * access disk for computer startup.
+     * We maintain a cache of the contents of all files in the mount. This allows us to allow
+     * seeking within ROM files, and reduces the amount we need to access disk for computer startup.
      */
     private static final Cache<FileEntry, byte[]> CONTENTS_CACHE = CacheBuilder.newBuilder()
         .concurrencyLevel( 4 )
         .expireAfterAccess( 60, TimeUnit.SECONDS )
         .maximumWeight( MAX_CACHE_SIZE )
-        .weakKeys().<FileEntry, byte[]>weigher( ( k, v ) -> v.length ).build();
+        .weakKeys()
+        .<FileEntry, byte[]>weigher( ( k, v ) -> v.length )
+        .build();
 
-    private static final MapMaker CACHE_TEMPLATE = new MapMaker().weakValues()
-        .concurrencyLevel( 1 );
+    private static final MapMaker CACHE_TEMPLATE = new MapMaker().weakValues().concurrencyLevel( 1 );
 
     /**
      * Maintain a cache of currently loaded resource mounts. This cache is invalidated when currentManager changes.
@@ -73,6 +73,25 @@ public final class ResourceMount implements IMount
     @Nullable
     private FileEntry root;
 
+    public static ResourceMount get( String namespace, String subPath, ReloadableResourceManager manager )
+    {
+        Map<Identifier, ResourceMount> cache;
+
+        synchronized( MOUNT_CACHE )
+        {
+            cache = MOUNT_CACHE.get( manager );
+            if( cache == null ) MOUNT_CACHE.put( manager, cache = CACHE_TEMPLATE.makeMap() );
+        }
+
+        Identifier path = new Identifier( namespace, subPath );
+        synchronized( cache )
+        {
+            ResourceMount mount = cache.get( path );
+            if( mount == null ) cache.put( path, mount = new ResourceMount( namespace, subPath, manager ) );
+            return mount;
+        }
+    }
+
     private ResourceMount( String namespace, String subPath, ReloadableResourceManager manager )
     {
         this.namespace = namespace;
@@ -80,10 +99,7 @@ public final class ResourceMount implements IMount
         this.manager = manager;
 
         Listener.INSTANCE.add( manager, this );
-        if( this.root == null )
-        {
-            this.load();
-        }
+        if( root == null ) load();
     }
 
     private void load()
@@ -98,8 +114,8 @@ public final class ResourceMount implements IMount
 
             if( !file.getNamespace().equals( namespace ) ) continue;
 
-            String localPath = FileSystem.toLocal( file.getPath(), this.subPath );
-            this.create( newRoot, localPath );
+            String localPath = FileSystem.toLocal( file.getPath(), subPath );
+            create( newRoot, localPath );
             hasAny = true;
         }
 
@@ -115,22 +131,33 @@ public final class ResourceMount implements IMount
         }
     }
 
+    private FileEntry get( String path )
+    {
+        FileEntry lastEntry = root;
+        int lastIndex = 0;
+
+        while( lastEntry != null && lastIndex < path.length() )
+        {
+            int nextIndex = path.indexOf( '/', lastIndex );
+            if( nextIndex < 0 ) nextIndex = path.length();
+
+            lastEntry = lastEntry.children == null ? null : lastEntry.children.get( path.substring( lastIndex, nextIndex ) );
+            lastIndex = nextIndex + 1;
+        }
+
+        return lastEntry;
+    }
+
     private void create( FileEntry lastEntry, String path )
     {
         int lastIndex = 0;
         while( lastIndex < path.length() )
         {
             int nextIndex = path.indexOf( '/', lastIndex );
-            if( nextIndex < 0 )
-            {
-                nextIndex = path.length();
-            }
+            if( nextIndex < 0 ) nextIndex = path.length();
 
             String part = path.substring( lastIndex, nextIndex );
-            if( lastEntry.children == null )
-            {
-                lastEntry.children = new HashMap<>();
-            }
+            if( lastEntry.children == null ) lastEntry.children = new HashMap<>();
 
             FileEntry nextEntry = lastEntry.children.get( part );
             if( nextEntry == null )
@@ -138,7 +165,7 @@ public final class ResourceMount implements IMount
                 Identifier childPath;
                 try
                 {
-                    childPath = new Identifier( this.namespace, this.subPath + "/" + path );
+                    childPath = new Identifier( namespace, subPath + "/" + path );
                 }
                 catch( InvalidIdentifierException e )
                 {
@@ -153,137 +180,43 @@ public final class ResourceMount implements IMount
         }
     }
 
-    public static ResourceMount get( String namespace, String subPath, ReloadableResourceManager manager )
-    {
-        Map<Identifier, ResourceMount> cache;
-
-        synchronized( MOUNT_CACHE )
-        {
-            cache = MOUNT_CACHE.get( manager );
-            if( cache == null )
-            {
-                MOUNT_CACHE.put( manager, cache = CACHE_TEMPLATE.makeMap() );
-            }
-        }
-
-        Identifier path = new Identifier( namespace, subPath );
-        synchronized( cache )
-        {
-            ResourceMount mount = cache.get( path );
-            if( mount == null )
-            {
-                cache.put( path, mount = new ResourceMount( namespace, subPath, manager ) );
-            }
-            return mount;
-        }
-    }
-
-    @Override
-    public void list( @Nonnull String path, @Nonnull List<String> contents ) throws IOException
-    {
-        FileEntry file = this.get( path );
-        if( file == null || !file.isDirectory() )
-        {
-            throw new IOException( "/" + path + ": Not a directory" );
-        }
-
-        file.list( contents );
-    }
-
-    @Nonnull
-    @Override
-    public ReadableByteChannel openForRead( @Nonnull String path ) throws IOException
-    {
-        FileEntry file = this.get( path );
-        if( file != null && !file.isDirectory() )
-        {
-            byte[] contents = CONTENTS_CACHE.getIfPresent( file );
-            if( contents != null )
-            {
-                return new ArrayByteChannel( contents );
-            }
-
-            try
-            {
-                InputStream stream = manager.getResource( file.identifier ).getInputStream();
-                if( stream.available() > MAX_CACHED_SIZE ) return Channels.newChannel( stream );
-
-                try
-                {
-                    contents = ByteStreams.toByteArray( stream );
-                }
-                finally
-                {
-                    IoUtil.closeQuietly( stream );
-                }
-                CONTENTS_CACHE.put( file, contents );
-                return new ArrayByteChannel( contents );
-            }
-            catch( FileNotFoundException ignored )
-            {
-            }
-        }
-
-        throw new IOException( "/" + path + ": No such file" );
-    }
-
     @Override
     public boolean exists( @Nonnull String path )
     {
-        return this.get( path ) != null;
-    }
-
-    private FileEntry get( String path )
-    {
-        FileEntry lastEntry = this.root;
-        int lastIndex = 0;
-
-        while( lastEntry != null && lastIndex < path.length() )
-        {
-            int nextIndex = path.indexOf( '/', lastIndex );
-            if( nextIndex < 0 )
-            {
-                nextIndex = path.length();
-            }
-
-            lastEntry = lastEntry.children == null ? null : lastEntry.children.get( path.substring( lastIndex, nextIndex ) );
-            lastIndex = nextIndex + 1;
-        }
-
-        return lastEntry;
+        return get( path ) != null;
     }
 
     @Override
     public boolean isDirectory( @Nonnull String path )
     {
-        FileEntry file = this.get( path );
+        FileEntry file = get( path );
         return file != null && file.isDirectory();
+    }
+
+    @Override
+    public void list( @Nonnull String path, @Nonnull List<String> contents ) throws IOException
+    {
+        FileEntry file = get( path );
+        if( file == null || !file.isDirectory() ) throw new IOException( "/" + path + ": Not a directory" );
+
+        file.list( contents );
     }
 
     @Override
     public long getSize( @Nonnull String path ) throws IOException
     {
-        FileEntry file = this.get( path );
+        FileEntry file = get( path );
         if( file != null )
         {
-            if( file.size != -1 )
-            {
-                return file.size;
-            }
-            if( file.isDirectory() )
-            {
-                return file.size = 0;
-            }
+            if( file.size != -1 ) return file.size;
+            if( file.isDirectory() ) return file.size = 0;
 
             byte[] contents = CONTENTS_CACHE.getIfPresent( file );
-            if( contents != null )
-            {
-                return file.size = contents.length;
-            }
+            if( contents != null ) return file.size = contents.length;
 
             try
             {
-                Resource resource = this.manager.getResource( file.identifier );
+                Resource resource = manager.getResource( file.identifier );
                 InputStream s = resource.getInputStream();
                 int total = 0, read = 0;
                 do
@@ -303,6 +236,41 @@ public final class ResourceMount implements IMount
         throw new IOException( "/" + path + ": No such file" );
     }
 
+    @Nonnull
+    @Override
+    public ReadableByteChannel openForRead( @Nonnull String path ) throws IOException
+    {
+        FileEntry file = get( path );
+        if( file != null && !file.isDirectory() )
+        {
+            byte[] contents = CONTENTS_CACHE.getIfPresent( file );
+            if( contents != null ) return new ArrayByteChannel( contents );
+
+            try
+            {
+                InputStream stream = manager.getResource( file.identifier ).getInputStream();
+                if( stream.available() > MAX_CACHED_SIZE ) return Channels.newChannel( stream );
+
+                try
+                {
+                    contents = ByteStreams.toByteArray( stream );
+                }
+                finally
+                {
+                    IoUtil.closeQuietly( stream );
+                }
+
+                CONTENTS_CACHE.put( file, contents );
+                return new ArrayByteChannel( contents );
+            }
+            catch( FileNotFoundException ignored )
+            {
+            }
+        }
+
+        throw new IOException( "/" + path + ": No such file" );
+    }
+
     private static class FileEntry
     {
         final Identifier identifier;
@@ -316,21 +284,20 @@ public final class ResourceMount implements IMount
 
         boolean isDirectory()
         {
-            return this.children != null;
+            return children != null;
         }
 
         void list( List<String> contents )
         {
-            if( this.children != null )
-            {
-                contents.addAll( this.children.keySet() );
-            }
+            if( children != null ) contents.addAll( children.keySet() );
         }
     }
 
     /**
-     * While people should really be keeping a permanent reference to this, some people construct it every method call, so let's make this as small as
-     * possible.
+     * A {@link ResourceReloadListener} which reloads any associated mounts.
+     *
+     * While people should really be keeping a permanent reference to this, some people construct it every
+     * method call, so let's make this as small as possible.
      */
     static class Listener implements ResourceReloadListener
     {
@@ -340,32 +307,25 @@ public final class ResourceMount implements IMount
         private final Set<ReloadableResourceManager> managers = Collections.newSetFromMap( new WeakHashMap<>() );
 
         @Override
-        public CompletableFuture<Void> reload( Synchronizer synchronizer, ResourceManager resourceManager, Profiler profiler, Profiler profiler1,
-                                               Executor executor, Executor executor1 )
+        public CompletableFuture<Void> reload( Synchronizer synchronizer, ResourceManager manager, Profiler prepareProfiler, Profiler applyProfiler, Executor prepareExecutor, Executor applyExecutor )
         {
             return CompletableFuture.runAsync( () -> {
-                profiler.push( "Mount reloading" );
+                prepareProfiler.push( "Mount reloading" );
                 try
                 {
-                    for( ResourceMount mount : this.mounts )
-                    {
-                        mount.load();
-                    }
+                    for( ResourceMount mount : this.mounts ) mount.load();
                 }
                 finally
                 {
-                    profiler.pop();
+                    prepareProfiler.pop();
                 }
-            }, executor );
+            }, prepareExecutor );
         }
 
         synchronized void add( ReloadableResourceManager manager, ResourceMount mount )
         {
-            if( this.managers.add( manager ) )
-            {
-                manager.registerListener( this );
-            }
-            this.mounts.add( mount );
+            if( managers.add( manager ) ) manager.registerListener( this );
+            mounts.add( mount );
         }
     }
 }

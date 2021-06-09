@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.apis.http;
 
 import java.util.ArrayDeque;
@@ -32,21 +31,17 @@ public class ResourceQueue<T extends Resource<T>> extends ResourceGroup<T>
     public synchronized void shutdown()
     {
         super.shutdown();
-        this.pending.clear();
+        pending.clear();
     }
 
     @Override
     public synchronized boolean queue( Supplier<T> resource )
     {
-        if( !this.active )
-        {
-            return false;
-        }
+        if( !active ) return false;
+        if( super.queue( resource ) ) return true;
+        if( pending.size() > DEFAULT_LIMIT ) return false;
 
-        if( !super.queue( resource ) )
-        {
-            this.pending.add( resource );
-        }
+        pending.add( resource );
         return true;
     }
 
@@ -55,19 +50,13 @@ public class ResourceQueue<T extends Resource<T>> extends ResourceGroup<T>
     {
         super.release( resource );
 
-        if( !this.active )
-        {
-            return;
-        }
+        if( !active ) return;
 
         int limit = this.limit.getAsInt();
-        if( limit <= 0 || this.resources.size() < limit )
+        if( limit <= 0 || resources.size() < limit )
         {
-            Supplier<T> next = this.pending.poll();
-            if( next != null )
-            {
-                this.resources.add( next.get() );
-            }
+            Supplier<T> next = pending.poll();
+            if( next != null ) resources.add( next.get() );
         }
     }
 }

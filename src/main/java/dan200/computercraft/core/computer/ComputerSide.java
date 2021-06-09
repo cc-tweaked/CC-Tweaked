@@ -3,27 +3,27 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.computer;
+
+import net.minecraft.util.math.Direction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * A side on a computer. Unlike {@link Direction}, this is relative to the direction the computer is facing..
+ * A side on a computer. Unlike {@link Direction}, this is relative to the direction the computer is
+ * facing..
  */
 public enum ComputerSide
 {
-    BOTTOM( "bottom" ), TOP( "top" ), BACK( "back" ), FRONT( "front" ), RIGHT( "right" ), LEFT( "left" );
+    BOTTOM( "bottom" ),
+    TOP( "top" ),
+    BACK( "back" ),
+    FRONT( "front" ),
+    RIGHT( "right" ),
+    LEFT( "left" );
 
-    public static final String[] NAMES = new String[] {
-        "bottom",
-        "top",
-        "back",
-        "front",
-        "right",
-        "left"
-    };
+    public static final String[] NAMES = new String[] { "bottom", "top", "back", "front", "right", "left" };
 
     public static final int COUNT = 6;
 
@@ -47,10 +47,7 @@ public enum ComputerSide
     {
         for( ComputerSide side : VALUES )
         {
-            if( side.name.equalsIgnoreCase( name ) )
-            {
-                return side;
-            }
+            if( side.name.equalsIgnoreCase( name ) ) return side;
         }
 
         return null;
@@ -58,6 +55,6 @@ public enum ComputerSide
 
     public String getName()
     {
-        return this.name;
+        return name;
     }
 }

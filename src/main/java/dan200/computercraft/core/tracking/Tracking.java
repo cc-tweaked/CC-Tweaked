@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.tracking;
 
 import dan200.computercraft.core.computer.Computer;
@@ -29,10 +28,7 @@ public final class Tracking
         synchronized( lock )
         {
             TrackingContext context = contexts.get( uuid );
-            if( context == null )
-            {
-                contexts.put( uuid, context = new TrackingContext() );
-            }
+            if( context == null ) contexts.put( uuid, context = new TrackingContext() );
             return context;
         }
     }
@@ -48,61 +44,34 @@ public final class Tracking
 
     public static void addTaskTiming( Computer computer, long time )
     {
-        if( tracking.get() == 0 )
-        {
-            return;
-        }
+        if( tracking.get() == 0 ) return;
 
         synchronized( contexts )
         {
-            for( TrackingContext context : contexts.values() )
-            {
-                context.addTaskTiming( computer, time );
-            }
-            for( Tracker tracker : trackers )
-            {
-                tracker.addTaskTiming( computer, time );
-            }
+            for( TrackingContext context : contexts.values() ) context.addTaskTiming( computer, time );
+            for( Tracker tracker : trackers ) tracker.addTaskTiming( computer, time );
         }
     }
 
     public static void addServerTiming( Computer computer, long time )
     {
-        if( tracking.get() == 0 )
-        {
-            return;
-        }
+        if( tracking.get() == 0 ) return;
 
         synchronized( contexts )
         {
-            for( TrackingContext context : contexts.values() )
-            {
-                context.addServerTiming( computer, time );
-            }
-            for( Tracker tracker : trackers )
-            {
-                tracker.addServerTiming( computer, time );
-            }
+            for( TrackingContext context : contexts.values() ) context.addServerTiming( computer, time );
+            for( Tracker tracker : trackers ) tracker.addServerTiming( computer, time );
         }
     }
 
     public static void addValue( Computer computer, TrackingField field, long change )
     {
-        if( tracking.get() == 0 )
-        {
-            return;
-        }
+        if( tracking.get() == 0 ) return;
 
         synchronized( lock )
         {
-            for( TrackingContext context : contexts.values() )
-            {
-                context.addValue( computer, field, change );
-            }
-            for( Tracker tracker : trackers )
-            {
-                tracker.addValue( computer, field, change );
-            }
+            for( TrackingContext context : contexts.values() ) context.addValue( computer, field, change );
+            for( Tracker tracker : trackers ) tracker.addValue( computer, field, change );
         }
     }
 

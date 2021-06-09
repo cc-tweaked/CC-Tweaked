@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.filesystem.IMount;
@@ -20,22 +19,22 @@ import java.util.Set;
 
 public abstract class ComputerAccess implements IComputerAccess
 {
-    private final IAPIEnvironment m_environment;
-    private final Set<String> m_mounts = new HashSet<>();
+    private final IAPIEnvironment environment;
+    private final Set<String> mounts = new HashSet<>();
 
     protected ComputerAccess( IAPIEnvironment environment )
     {
-        this.m_environment = environment;
+        this.environment = environment;
     }
 
     public void unmountAll()
     {
-        FileSystem fileSystem = this.m_environment.getFileSystem();
-        for( String mount : this.m_mounts )
+        FileSystem fileSystem = environment.getFileSystem();
+        for( String mount : mounts )
         {
             fileSystem.unmount( mount );
         }
-        this.m_mounts.clear();
+        mounts.clear();
     }
 
     @Override
@@ -47,15 +46,12 @@ public abstract class ComputerAccess implements IComputerAccess
 
         // Mount the location
         String location;
-        FileSystem fileSystem = this.m_environment.getFileSystem();
-        if( fileSystem == null )
-        {
-            throw new IllegalStateException( "File system has not been created" );
-        }
+        FileSystem fileSystem = environment.getFileSystem();
+        if( fileSystem == null ) throw new IllegalStateException( "File system has not been created" );
 
         synchronized( fileSystem )
         {
-            location = this.findFreeLocation( desiredLoc );
+            location = findFreeLocation( desiredLoc );
             if( location != null )
             {
                 try
@@ -68,10 +64,7 @@ public abstract class ComputerAccess implements IComputerAccess
             }
         }
 
-        if( location != null )
-        {
-            this.m_mounts.add( location );
-        }
+        if( location != null ) mounts.add( location );
         return location;
     }
 
@@ -84,15 +77,12 @@ public abstract class ComputerAccess implements IComputerAccess
 
         // Mount the location
         String location;
-        FileSystem fileSystem = this.m_environment.getFileSystem();
-        if( fileSystem == null )
-        {
-            throw new IllegalStateException( "File system has not been created" );
-        }
+        FileSystem fileSystem = environment.getFileSystem();
+        if( fileSystem == null ) throw new IllegalStateException( "File system has not been created" );
 
         synchronized( fileSystem )
         {
-            location = this.findFreeLocation( desiredLoc );
+            location = findFreeLocation( desiredLoc );
             if( location != null )
             {
                 try
@@ -105,59 +95,46 @@ public abstract class ComputerAccess implements IComputerAccess
             }
         }
 
-        if( location != null )
-        {
-            this.m_mounts.add( location );
-        }
+        if( location != null ) mounts.add( location );
         return location;
     }
 
     @Override
     public void unmount( String location )
     {
-        if( location == null )
-        {
-            return;
-        }
-        if( !this.m_mounts.contains( location ) )
-        {
-            throw new IllegalStateException( "You didn't mount this location" );
-        }
+        if( location == null ) return;
+        if( !mounts.contains( location ) ) throw new IllegalStateException( "You didn't mount this location" );
 
-        this.m_environment.getFileSystem()
-            .unmount( location );
-        this.m_mounts.remove( location );
+        environment.getFileSystem().unmount( location );
+        mounts.remove( location );
     }
 
     @Override
     public int getID()
     {
-        return this.m_environment.getComputerID();
+        return environment.getComputerID();
     }
 
     @Override
     public void queueEvent( @Nonnull String event, Object... arguments )
     {
         Objects.requireNonNull( event, "event cannot be null" );
-        this.m_environment.queueEvent( event, arguments );
+        environment.queueEvent( event, arguments );
     }
 
     @Nonnull
     @Override
     public IWorkMonitor getMainThreadMonitor()
     {
-        return this.m_environment.getMainThreadMonitor();
+        return environment.getMainThreadMonitor();
     }
 
     private String findFreeLocation( String desiredLoc )
     {
         try
         {
-            FileSystem fileSystem = this.m_environment.getFileSystem();
-            if( !fileSystem.exists( desiredLoc ) )
-            {
-                return desiredLoc;
-            }
+            FileSystem fileSystem = environment.getFileSystem();
+            if( !fileSystem.exists( desiredLoc ) ) return desiredLoc;
 
             // We used to check foo2, foo3, foo4, etc here but the disk drive does this itself now
             return null;

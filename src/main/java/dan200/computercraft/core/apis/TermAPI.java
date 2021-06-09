@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.lua.IArguments;
@@ -28,7 +27,7 @@ public class TermAPI extends TermMethods implements ILuaAPI
 
     public TermAPI( IAPIEnvironment environment )
     {
-        this.terminal = environment.getTerminal();
+        terminal = environment.getTerminal();
         this.environment = environment.getComputerEnvironment();
     }
 
@@ -49,10 +48,7 @@ public class TermAPI extends TermMethods implements ILuaAPI
      * @cc.treturn number The blue channel, will be between 0 and 1.
      * @see TermMethods#setPaletteColour(IArguments) To change the palette colour.
      */
-    @LuaFunction( {
-        "nativePaletteColour",
-        "nativePaletteColor"
-    } )
+    @LuaFunction( { "nativePaletteColour", "nativePaletteColor" } )
     public final Object[] nativePaletteColour( int colour ) throws LuaException
     {
         int actualColour = 15 - parseColour( colour );
@@ -61,10 +57,7 @@ public class TermAPI extends TermMethods implements ILuaAPI
         float[] rgb = c.getRGB();
 
         Object[] rgbObj = new Object[rgb.length];
-        for( int i = 0; i < rgbObj.length; ++i )
-        {
-            rgbObj[i] = rgb[i];
-        }
+        for( int i = 0; i < rgbObj.length; ++i ) rgbObj[i] = rgb[i];
         return rgbObj;
     }
 
@@ -72,12 +65,12 @@ public class TermAPI extends TermMethods implements ILuaAPI
     @Override
     public Terminal getTerminal()
     {
-        return this.terminal;
+        return terminal;
     }
 
     @Override
     public boolean isColour()
     {
-        return this.environment.isColour();
+        return environment.isColour();
     }
 }

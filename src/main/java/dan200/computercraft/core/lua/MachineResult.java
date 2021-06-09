@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.lua;
 
 import dan200.computercraft.core.computer.TimeoutState;
@@ -65,17 +64,17 @@ public final class MachineResult
 
     public boolean isError()
     {
-        return this.error;
+        return error;
     }
 
     public boolean isPause()
     {
-        return this.pause;
+        return pause;
     }
 
     @Nullable
     public String getMessage()
     {
-        return this.message;
+        return message;
     }
 }

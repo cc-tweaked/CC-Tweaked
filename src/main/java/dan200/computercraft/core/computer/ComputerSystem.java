@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.computer;
 
 import dan200.computercraft.api.filesystem.IFileSystem;
@@ -44,6 +43,21 @@ public class ComputerSystem extends ComputerAccess implements IComputerSystem
         return "computer";
     }
 
+    @Nullable
+    @Override
+    public IFileSystem getFileSystem()
+    {
+        FileSystem fs = environment.getFileSystem();
+        return fs == null ? null : fs.getMountWrapper();
+    }
+
+    @Nullable
+    @Override
+    public String getLabel()
+    {
+        return environment.getLabel();
+    }
+
     @Nonnull
     @Override
     public Map<String, IPeripheral> getAvailablePeripherals()
@@ -57,20 +71,5 @@ public class ComputerSystem extends ComputerAccess implements IComputerSystem
     public IPeripheral getAvailablePeripheral( @Nonnull String name )
     {
         return null;
-    }
-
-    @Nullable
-    @Override
-    public IFileSystem getFileSystem()
-    {
-        FileSystem fs = this.environment.getFileSystem();
-        return fs == null ? null : fs.getMountWrapper();
-    }
-
-    @Nullable
-    @Override
-    public String getLabel()
-    {
-        return this.environment.getLabel();
     }
 }

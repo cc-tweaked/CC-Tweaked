@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.core.apis.http.options;
 
-
 import com.electronwill.nightconfig.core.CommentedConfig;
+import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.InMemoryCommentedFormat;
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import dan200.computercraft.ComputerCraft;
@@ -16,10 +16,11 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-
+/**
+ * Parses, checks and generates {@link Config}s for {@link AddressRule}.
+ */
 public class AddressRuleConfig
 {
-
     public static UnmodifiableConfig makeRule( String host, Action action )
     {
         CommentedConfig config = InMemoryCommentedFormat.defaultInstance().createConfig( ConcurrentHashMap::new );
@@ -61,10 +62,10 @@ public class AddressRuleConfig
     public static AddressRule parseRule( UnmodifiableConfig builder )
     {
         String hostObj = get( builder, "host", String.class ).orElse( null );
-        Integer port = get( builder, "port", Number.class ).map( Number::intValue ).orElse( null );
         if( hostObj == null ) return null;
 
         Action action = getEnum( builder, "action", Action.class ).orElse( null );
+        Integer port = get( builder, "port", Number.class ).map( Number::intValue ).orElse( null );
         Integer timeout = get( builder, "timeout", Number.class ).map( Number::intValue ).orElse( null );
         Long maxUpload = get( builder, "max_upload", Number.class ).map( Number::longValue ).orElse( null );
         Long maxDownload = get( builder, "max_download", Number.class ).map( Number::longValue ).orElse( null );

@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.filesystem;
 
 import com.google.common.cache.Cache;
@@ -48,18 +47,20 @@ public class JarMount implements IMount
     private static final int MAX_CACHE_SIZE = 64 << 20;
 
     /**
-     * We maintain a cache of the contents of all files in the mount. This allows us to allow seeking within ROM files, and reduces the amount we need to
-     * access disk for computer startup.
+     * We maintain a cache of the contents of all files in the mount. This allows us to allow
+     * seeking within ROM files, and reduces the amount we need to access disk for computer startup.
      */
     private static final Cache<FileEntry, byte[]> CONTENTS_CACHE = CacheBuilder.newBuilder()
         .concurrencyLevel( 4 )
         .expireAfterAccess( 60, TimeUnit.SECONDS )
         .maximumWeight( MAX_CACHE_SIZE )
-        .weakKeys().<FileEntry, byte[]>weigher( ( k, v ) -> v.length ).build();
+        .weakKeys()
+        .<FileEntry, byte[]>weigher( ( k, v ) -> v.length )
+        .build();
 
     /**
-     * We have a {@link ReferenceQueue} of all mounts, a long with their corresponding {@link ZipFile}. If the mount has been destroyed, we clean up after
-     * it.
+     * We have a {@link ReferenceQueue} of all mounts, a long with their corresponding {@link ZipFile}. If
+     * the mount has been destroyed, we clean up after it.
      */
     private static final ReferenceQueue<JarMount> MOUNT_QUEUE = new ReferenceQueue<>();
 
@@ -71,15 +72,12 @@ public class JarMount implements IMount
         // Cleanup any old mounts. It's unlikely that there will be any, but it's best to be safe.
         cleanup();
 
-        if( !jarFile.exists() || jarFile.isDirectory() )
-        {
-            throw new FileNotFoundException( "Cannot find " + jarFile );
-        }
+        if( !jarFile.exists() || jarFile.isDirectory() ) throw new FileNotFoundException( "Cannot find " + jarFile );
 
         // Open the zip file
         try
         {
-            this.zip = new ZipFile( jarFile );
+            zip = new ZipFile( jarFile );
         }
         catch( IOException e )
         {
@@ -87,9 +85,9 @@ public class JarMount implements IMount
         }
 
         // Ensure the root entry exists.
-        if( this.zip.getEntry( subPath ) == null )
+        if( zip.getEntry( subPath ) == null )
         {
-            this.zip.close();
+            zip.close();
             throw new FileNotFoundException( "Zip does not contain path" );
         }
 
@@ -97,50 +95,49 @@ public class JarMount implements IMount
         new MountReference( this );
 
         // Read in all the entries
-        this.root = new FileEntry();
-        Enumeration<? extends ZipEntry> zipEntries = this.zip.entries();
+        root = new FileEntry();
+        Enumeration<? extends ZipEntry> zipEntries = zip.entries();
         while( zipEntries.hasMoreElements() )
         {
             ZipEntry entry = zipEntries.nextElement();
 
             String entryPath = entry.getName();
-            if( !entryPath.startsWith( subPath ) )
-            {
-                continue;
-            }
+            if( !entryPath.startsWith( subPath ) ) continue;
 
             String localPath = FileSystem.toLocal( entryPath, subPath );
-            this.create( entry, localPath );
+            create( entry, localPath );
         }
     }
 
-    private static void cleanup()
+    private FileEntry get( String path )
     {
-        Reference<? extends JarMount> next;
-        while( (next = MOUNT_QUEUE.poll()) != null )
+        FileEntry lastEntry = root;
+        int lastIndex = 0;
+
+        while( lastEntry != null && lastIndex < path.length() )
         {
-            IoUtil.closeQuietly( ((MountReference) next).file );
+            int nextIndex = path.indexOf( '/', lastIndex );
+            if( nextIndex < 0 ) nextIndex = path.length();
+
+            lastEntry = lastEntry.children == null ? null : lastEntry.children.get( path.substring( lastIndex, nextIndex ) );
+            lastIndex = nextIndex + 1;
         }
+
+        return lastEntry;
     }
 
     private void create( ZipEntry entry, String localPath )
     {
-        FileEntry lastEntry = this.root;
+        FileEntry lastEntry = root;
 
         int lastIndex = 0;
         while( lastIndex < localPath.length() )
         {
             int nextIndex = localPath.indexOf( '/', lastIndex );
-            if( nextIndex < 0 )
-            {
-                nextIndex = localPath.length();
-            }
+            if( nextIndex < 0 ) nextIndex = localPath.length();
 
             String part = localPath.substring( lastIndex, nextIndex );
-            if( lastEntry.children == null )
-            {
-                lastEntry.children = new HashMap<>( 0 );
-            }
+            if( lastEntry.children == null ) lastEntry.children = new HashMap<>( 0 );
 
             FileEntry nextEntry = lastEntry.children.get( part );
             if( nextEntry == null || !nextEntry.isDirectory() )
@@ -156,41 +153,53 @@ public class JarMount implements IMount
     }
 
     @Override
+    public boolean exists( @Nonnull String path )
+    {
+        return get( path ) != null;
+    }
+
+    @Override
+    public boolean isDirectory( @Nonnull String path )
+    {
+        FileEntry file = get( path );
+        return file != null && file.isDirectory();
+    }
+
+    @Override
     public void list( @Nonnull String path, @Nonnull List<String> contents ) throws IOException
     {
-        FileEntry file = this.get( path );
-        if( file == null || !file.isDirectory() )
-        {
-            throw new FileOperationException( path, "Not a directory" );
-        }
+        FileEntry file = get( path );
+        if( file == null || !file.isDirectory() ) throw new FileOperationException( path, "Not a directory" );
 
         file.list( contents );
+    }
+
+    @Override
+    public long getSize( @Nonnull String path ) throws IOException
+    {
+        FileEntry file = get( path );
+        if( file != null ) return file.size;
+        throw new FileOperationException( path, "No such file" );
     }
 
     @Nonnull
     @Override
     public ReadableByteChannel openForRead( @Nonnull String path ) throws IOException
     {
-        FileEntry file = this.get( path );
+        FileEntry file = get( path );
         if( file != null && !file.isDirectory() )
         {
             byte[] contents = CONTENTS_CACHE.getIfPresent( file );
-            if( contents != null )
-            {
-                return new ArrayByteChannel( contents );
-            }
+            if( contents != null ) return new ArrayByteChannel( contents );
 
             try
             {
-                ZipEntry entry = this.zip.getEntry( file.path );
+                ZipEntry entry = zip.getEntry( file.path );
                 if( entry != null )
                 {
-                    try( InputStream stream = this.zip.getInputStream( entry ) )
+                    try( InputStream stream = zip.getInputStream( entry ) )
                     {
-                        if( stream.available() > MAX_CACHED_SIZE )
-                        {
-                            return Channels.newChannel( stream );
-                        }
+                        if( stream.available() > MAX_CACHED_SIZE ) return Channels.newChannel( stream );
 
                         contents = ByteStreams.toByteArray( stream );
                         CONTENTS_CACHE.put( file, contents );
@@ -211,60 +220,13 @@ public class JarMount implements IMount
     @Override
     public BasicFileAttributes getAttributes( @Nonnull String path ) throws IOException
     {
-        FileEntry file = this.get( path );
+        FileEntry file = get( path );
         if( file != null )
         {
-            ZipEntry entry = this.zip.getEntry( file.path );
-            if( entry != null )
-            {
-                return new ZipEntryAttributes( entry );
-            }
+            ZipEntry entry = zip.getEntry( file.path );
+            if( entry != null ) return new ZipEntryAttributes( entry );
         }
 
-        throw new FileOperationException( path, "No such file" );
-    }
-
-    @Override
-    public boolean exists( @Nonnull String path )
-    {
-        return this.get( path ) != null;
-    }
-
-    private FileEntry get( String path )
-    {
-        FileEntry lastEntry = this.root;
-        int lastIndex = 0;
-
-        while( lastEntry != null && lastIndex < path.length() )
-        {
-            int nextIndex = path.indexOf( '/', lastIndex );
-            if( nextIndex < 0 )
-            {
-                nextIndex = path.length();
-            }
-
-            lastEntry = lastEntry.children == null ? null : lastEntry.children.get( path.substring( lastIndex, nextIndex ) );
-            lastIndex = nextIndex + 1;
-        }
-
-        return lastEntry;
-    }
-
-    @Override
-    public boolean isDirectory( @Nonnull String path )
-    {
-        FileEntry file = this.get( path );
-        return file != null && file.isDirectory();
-    }
-
-    @Override
-    public long getSize( @Nonnull String path ) throws IOException
-    {
-        FileEntry file = this.get( path );
-        if( file != null )
-        {
-            return file.size;
-        }
         throw new FileOperationException( path, "No such file" );
     }
 
@@ -276,25 +238,19 @@ public class JarMount implements IMount
 
         void setup( ZipEntry entry )
         {
-            this.path = entry.getName();
-            this.size = entry.getSize();
-            if( this.children == null && entry.isDirectory() )
-            {
-                this.children = new HashMap<>( 0 );
-            }
+            path = entry.getName();
+            size = entry.getSize();
+            if( children == null && entry.isDirectory() ) children = new HashMap<>( 0 );
         }
 
         boolean isDirectory()
         {
-            return this.children != null;
+            return children != null;
         }
 
         void list( List<String> contents )
         {
-            if( this.children != null )
-            {
-                contents.addAll( this.children.keySet() );
-            }
+            if( children != null ) contents.addAll( children.keySet() );
         }
     }
 
@@ -309,9 +265,14 @@ public class JarMount implements IMount
         }
     }
 
+    private static void cleanup()
+    {
+        Reference<? extends JarMount> next;
+        while( (next = MOUNT_QUEUE.poll()) != null ) IoUtil.closeQuietly( ((MountReference) next).file );
+    }
+
     private static class ZipEntryAttributes implements BasicFileAttributes
     {
-        private static final FileTime EPOCH = FileTime.from( Instant.EPOCH );
         private final ZipEntry entry;
 
         ZipEntryAttributes( ZipEntry entry )
@@ -322,32 +283,32 @@ public class JarMount implements IMount
         @Override
         public FileTime lastModifiedTime()
         {
-            return orEpoch( this.entry.getLastModifiedTime() );
+            return orEpoch( entry.getLastModifiedTime() );
         }
 
         @Override
         public FileTime lastAccessTime()
         {
-            return orEpoch( this.entry.getLastAccessTime() );
+            return orEpoch( entry.getLastAccessTime() );
         }
 
         @Override
         public FileTime creationTime()
         {
-            FileTime time = this.entry.getCreationTime();
-            return time == null ? this.lastModifiedTime() : time;
+            FileTime time = entry.getCreationTime();
+            return time == null ? lastModifiedTime() : time;
         }
 
         @Override
         public boolean isRegularFile()
         {
-            return !this.entry.isDirectory();
+            return !entry.isDirectory();
         }
 
         @Override
         public boolean isDirectory()
         {
-            return this.entry.isDirectory();
+            return entry.isDirectory();
         }
 
         @Override
@@ -365,7 +326,7 @@ public class JarMount implements IMount
         @Override
         public long size()
         {
-            return this.entry.getSize();
+            return entry.getSize();
         }
 
         @Override
@@ -374,6 +335,7 @@ public class JarMount implements IMount
             return null;
         }
 
+        private static final FileTime EPOCH = FileTime.from( Instant.EPOCH );
 
         private static FileTime orEpoch( FileTime time )
         {

@@ -21,31 +21,19 @@ public final class IntCache<T>
     @SuppressWarnings( "unchecked" )
     public T get( int index )
     {
-        if( index < 0 )
-        {
-            throw new IllegalArgumentException( "index < 0" );
-        }
+        if( index < 0 ) throw new IllegalArgumentException( "index < 0" );
 
-        if( index < this.cache.length )
+        if( index < cache.length )
         {
-            T current = (T) this.cache[index];
-            if( current != null )
-            {
-                return current;
-            }
+            T current = (T) cache[index];
+            if( current != null ) return current;
         }
 
         synchronized( this )
         {
-            if( index >= this.cache.length )
-            {
-                this.cache = Arrays.copyOf( this.cache, Math.max( this.cache.length * 2, index + 1 ) );
-            }
-            T current = (T) this.cache[index];
-            if( current == null )
-            {
-                this.cache[index] = current = this.factory.apply( index );
-            }
+            if( index >= cache.length ) cache = Arrays.copyOf( cache, Math.max( cache.length * 2, index + 1 ) );
+            T current = (T) cache[index];
+            if( current == null ) cache[index] = current = factory.apply( index );
             return current;
         }
     }

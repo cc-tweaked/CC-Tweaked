@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.computer;
 
 import dan200.computercraft.core.lua.ILuaMachine;
@@ -14,18 +13,20 @@ import java.util.concurrent.TimeUnit;
 /**
  * Used to measure how long a computer has executed for, and thus the relevant timeout states.
  *
- * Timeouts are mostly used for execution of Lua code: we should ideally never have a state where constructing the APIs or machines themselves takes more
- * than a fraction of a second.
+ * Timeouts are mostly used for execution of Lua code: we should ideally never have a state where constructing the APIs
+ * or machines themselves takes more than a fraction of a second.
  *
- * When a computer runs, it is allowed to run for 7 seconds ({@link #TIMEOUT}). After that point, the "soft abort" flag is set ({@link #isSoftAborted()}).
- * Here, the Lua machine will attempt to abort the program in some safe manner (namely, throwing a "Too long without yielding" error).
+ * When a computer runs, it is allowed to run for 7 seconds ({@link #TIMEOUT}). After that point, the "soft abort" flag
+ * is set ({@link #isSoftAborted()}). Here, the Lua machine will attempt to abort the program in some safe manner
+ * (namely, throwing a "Too long without yielding" error).
  *
- * Now, if a computer still does not stop after that period, they're behaving really badly. 1.5 seconds after a soft abort ({@link #ABORT_TIMEOUT}), we
- * trigger a hard abort (note, this is done from the computer thread manager). This will destroy the entire Lua runtime and shut the computer down.
+ * Now, if a computer still does not stop after that period, they're behaving really badly. 1.5 seconds after a soft
+ * abort ({@link #ABORT_TIMEOUT}), we trigger a hard abort (note, this is done from the computer thread manager). This
+ * will destroy the entire Lua runtime and shut the computer down.
  *
- * The Lua runtime is also allowed to pause execution if there are other computers contesting for work. All computers are allowed to run for {@link
- * ComputerThread#scaledPeriod()} nanoseconds (see {@link #currentDeadline}). After that period, if any computers are waiting to be executed then we'll set
- * the paused flag to true ({@link #isPaused()}.
+ * The Lua runtime is also allowed to pause execution if there are other computers contesting for work. All computers
+ * are allowed to run for {@link ComputerThread#scaledPeriod()} nanoseconds (see {@link #currentDeadline}). After that
+ * period, if any computers are waiting to be executed then we'll set the paused flag to true ({@link #isPaused()}.
  *
  * @see ComputerThread
  * @see ILuaMachine
@@ -34,17 +35,20 @@ import java.util.concurrent.TimeUnit;
 public final class TimeoutState
 {
     /**
-     * The error message to display when we trigger an abort.
-     */
-    public static final String ABORT_MESSAGE = "Too long without yielding";
-    /**
      * The total time a task is allowed to run before aborting in nanoseconds.
      */
     static final long TIMEOUT = TimeUnit.MILLISECONDS.toNanos( 7000 );
+
     /**
      * The time the task is allowed to run after each abort in nanoseconds.
      */
     static final long ABORT_TIMEOUT = TimeUnit.MILLISECONDS.toNanos( 1500 );
+
+    /**
+     * The error message to display when we trigger an abort.
+     */
+    public static final String ABORT_MESSAGE = "Too long without yielding";
+
     private boolean paused;
     private boolean softAbort;
     private volatile boolean hardAbort;
@@ -71,12 +75,12 @@ public final class TimeoutState
 
     long nanoCumulative()
     {
-        return System.nanoTime() - this.cumulativeStart;
+        return System.nanoTime() - cumulativeStart;
     }
 
     long nanoCurrent()
     {
-        return System.nanoTime() - this.currentStart;
+        return System.nanoTime() - currentStart;
     }
 
     /**
@@ -87,26 +91,21 @@ public final class TimeoutState
         // Important: The weird arithmetic here is important, as nanoTime may return negative values, and so we
         // need to handle overflow.
         long now = System.nanoTime();
-        if( !this.paused )
-        {
-            this.paused = this.currentDeadline - now <= 0 && ComputerThread.hasPendingWork(); // now >= currentDeadline
-        }
-        if( !this.softAbort )
-        {
-            this.softAbort = now - this.cumulativeStart - TIMEOUT >= 0; // now - cumulativeStart >= TIMEOUT
-        }
+        if( !paused ) paused = currentDeadline - now <= 0 && ComputerThread.hasPendingWork(); // now >= currentDeadline
+        if( !softAbort ) softAbort = now - cumulativeStart - TIMEOUT >= 0; // now - cumulativeStart >= TIMEOUT
     }
 
     /**
      * Whether we should pause execution of this machine.
      *
-     * This is determined by whether we've consumed our time slice, and if there are other computers waiting to perform work.
+     * This is determined by whether we've consumed our time slice, and if there are other computers waiting to perform
+     * work.
      *
      * @return Whether we should pause execution.
      */
     public boolean isPaused()
     {
-        return this.paused;
+        return paused;
     }
 
     /**
@@ -116,7 +115,7 @@ public final class TimeoutState
      */
     public boolean isSoftAborted()
     {
-        return this.softAbort;
+        return softAbort;
     }
 
     /**
@@ -126,7 +125,7 @@ public final class TimeoutState
      */
     public boolean isHardAborted()
     {
-        return this.hardAbort;
+        return hardAbort;
     }
 
     /**
@@ -134,7 +133,7 @@ public final class TimeoutState
      */
     void hardAbort()
     {
-        this.softAbort = this.hardAbort = true;
+        softAbort = hardAbort = true;
     }
 
     /**
@@ -143,10 +142,10 @@ public final class TimeoutState
     void startTimer()
     {
         long now = System.nanoTime();
-        this.currentStart = now;
-        this.currentDeadline = now + ComputerThread.scaledPeriod();
+        currentStart = now;
+        currentDeadline = now + ComputerThread.scaledPeriod();
         // Compute the "nominal start time".
-        this.cumulativeStart = now - this.cumulativeElapsed;
+        cumulativeStart = now - cumulativeElapsed;
     }
 
     /**
@@ -157,8 +156,8 @@ public final class TimeoutState
     void pauseTimer()
     {
         // We set the cumulative time to difference between current time and "nominal start time".
-        this.cumulativeElapsed = System.nanoTime() - this.cumulativeStart;
-        this.paused = false;
+        cumulativeElapsed = System.nanoTime() - cumulativeStart;
+        paused = false;
     }
 
     /**
@@ -166,7 +165,7 @@ public final class TimeoutState
      */
     void stopTimer()
     {
-        this.cumulativeElapsed = 0;
-        this.paused = this.softAbort = this.hardAbort = false;
+        cumulativeElapsed = 0;
+        paused = softAbort = hardAbort = false;
     }
 }

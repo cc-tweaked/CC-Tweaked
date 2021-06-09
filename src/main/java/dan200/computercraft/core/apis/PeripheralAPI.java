@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.filesystem.IMount;
@@ -31,213 +30,6 @@ import java.util.*;
  */
 public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChangeListener
 {
-    private final IAPIEnvironment environment;
-    private final PeripheralWrapper[] peripherals = new PeripheralWrapper[6];
-    private boolean running;
-
-    public PeripheralAPI( IAPIEnvironment environment )
-    {
-        this.environment = environment;
-        this.environment.setPeripheralChangeListener( this );
-        this.running = false;
-    }
-
-    public static Map<String, PeripheralMethod> getMethods( IPeripheral peripheral )
-    {
-        String[] dynamicMethods = peripheral instanceof IDynamicPeripheral ? Objects.requireNonNull( ((IDynamicPeripheral) peripheral).getMethodNames(),
-            "Peripheral methods cannot be null" ) :
-            LuaMethod.EMPTY_METHODS;
-
-        List<NamedMethod<PeripheralMethod>> methods = PeripheralMethod.GENERATOR.getMethods( peripheral.getClass() );
-
-        Map<String, PeripheralMethod> methodMap = new HashMap<>( methods.size() + dynamicMethods.length );
-        for( int i = 0; i < dynamicMethods.length; i++ )
-        {
-            methodMap.put( dynamicMethods[i], PeripheralMethod.DYNAMIC.get( i ) );
-        }
-        for( NamedMethod<PeripheralMethod> method : methods )
-        {
-            methodMap.put( method.getName(), method.getMethod() );
-        }
-        return methodMap;
-    }
-
-    // IPeripheralChangeListener
-
-    @Override
-    public void onPeripheralChanged( ComputerSide side, IPeripheral newPeripheral )
-    {
-        synchronized( this.peripherals )
-        {
-            int index = side.ordinal();
-            if( this.peripherals[index] != null )
-            {
-                // Queue a detachment
-                final PeripheralWrapper wrapper = this.peripherals[index];
-                if( wrapper.isAttached() )
-                {
-                    wrapper.detach();
-                }
-
-                // Queue a detachment event
-                this.environment.queueEvent( "peripheral_detach", side.getName() );
-            }
-
-            // Assign the new peripheral
-            this.peripherals[index] = newPeripheral == null ? null : new PeripheralWrapper( newPeripheral, side.getName() );
-
-            if( this.peripherals[index] != null )
-            {
-                // Queue an attachment
-                final PeripheralWrapper wrapper = this.peripherals[index];
-                if( this.running && !wrapper.isAttached() )
-                {
-                    wrapper.attach();
-                }
-
-                // Queue an attachment event
-                this.environment.queueEvent( "peripheral", side.getName() );
-            }
-        }
-    }
-
-    @Override
-    public String[] getNames()
-    {
-        return new String[] { "peripheral" };
-    }
-
-    @Override
-    public void startup()
-    {
-        synchronized( this.peripherals )
-        {
-            this.running = true;
-            for( int i = 0; i < 6; i++ )
-            {
-                PeripheralWrapper wrapper = this.peripherals[i];
-                if( wrapper != null && !wrapper.isAttached() )
-                {
-                    wrapper.attach();
-                }
-            }
-        }
-    }
-
-    @Override
-    public void shutdown()
-    {
-        synchronized( this.peripherals )
-        {
-            this.running = false;
-            for( int i = 0; i < 6; i++ )
-            {
-                PeripheralWrapper wrapper = this.peripherals[i];
-                if( wrapper != null && wrapper.isAttached() )
-                {
-                    wrapper.detach();
-                }
-            }
-        }
-    }
-
-    @LuaFunction
-    public final boolean isPresent( String sideName )
-    {
-        ComputerSide side = ComputerSide.valueOfInsensitive( sideName );
-        if( side != null )
-        {
-            synchronized( this.peripherals )
-            {
-                PeripheralWrapper p = this.peripherals[side.ordinal()];
-                if( p != null )
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    @LuaFunction
-    public final Object[] getType( String sideName )
-    {
-        ComputerSide side = ComputerSide.valueOfInsensitive( sideName );
-        if( side == null )
-        {
-            return null;
-        }
-
-        synchronized( this.peripherals )
-        {
-            PeripheralWrapper p = this.peripherals[side.ordinal()];
-            if( p != null )
-            {
-                return new Object[] { p.getType() };
-            }
-        }
-        return null;
-    }
-
-    @LuaFunction
-    public final Object[] getMethods( String sideName )
-    {
-        ComputerSide side = ComputerSide.valueOfInsensitive( sideName );
-        if( side == null )
-        {
-            return null;
-        }
-
-        synchronized( this.peripherals )
-        {
-            PeripheralWrapper p = this.peripherals[side.ordinal()];
-            if( p != null )
-            {
-                return new Object[] { p.getMethods() };
-            }
-        }
-        return null;
-    }
-
-    @LuaFunction
-    public final MethodResult call( ILuaContext context, IArguments args ) throws LuaException
-    {
-        ComputerSide side = ComputerSide.valueOfInsensitive( args.getString( 0 ) );
-        String methodName = args.getString( 1 );
-        IArguments methodArgs = args.drop( 2 );
-
-        if( side == null )
-        {
-            throw new LuaException( "No peripheral attached" );
-        }
-
-        PeripheralWrapper p;
-        synchronized( this.peripherals )
-        {
-            p = this.peripherals[side.ordinal()];
-        }
-        if( p == null )
-        {
-            throw new LuaException( "No peripheral attached" );
-        }
-
-        try
-        {
-            return p.call( context, methodName, methodArgs )
-                .adjustError( 1 );
-        }
-        catch( LuaException e )
-        {
-            // We increase the error level by one in order to shift the error level to where peripheral.call was
-            // invoked. It would be possible to do it in Lua code, but would add significantly more overhead.
-            if( e.getLevel() > 0 )
-            {
-                throw new FastLuaException( e.getMessage(), e.getLevel() + 1 );
-            }
-            throw e;
-        }
-    }
-
     private class PeripheralWrapper extends ComputerAccess
     {
         private final String side;
@@ -249,54 +41,54 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
 
         PeripheralWrapper( IPeripheral peripheral, String side )
         {
-            super( PeripheralAPI.this.environment );
+            super( environment );
             this.side = side;
             this.peripheral = peripheral;
-            this.attached = false;
+            attached = false;
 
-            this.type = Objects.requireNonNull( peripheral.getType(), "Peripheral type cannot be null" );
+            type = Objects.requireNonNull( peripheral.getType(), "Peripheral type cannot be null" );
 
-            this.methodMap = PeripheralAPI.getMethods( peripheral );
-        }
-
-        public String getType()
-        {
-            return this.type;
+            methodMap = PeripheralAPI.getMethods( peripheral );
         }
 
         public IPeripheral getPeripheral()
         {
-            return this.peripheral;
+            return peripheral;
+        }
+
+        public String getType()
+        {
+            return type;
         }
 
         public Collection<String> getMethods()
         {
-            return this.methodMap.keySet();
+            return methodMap.keySet();
+        }
+
+        public synchronized boolean isAttached()
+        {
+            return attached;
         }
 
         public synchronized void attach()
         {
-            this.attached = true;
-            this.peripheral.attach( this );
+            attached = true;
+            peripheral.attach( this );
         }
 
         public void detach()
         {
             // Call detach
-            this.peripheral.detach( this );
+            peripheral.detach( this );
 
             synchronized( this )
             {
                 // Unmount everything the detach function forgot to do
-                this.unmountAll();
+                unmountAll();
             }
 
-            this.attached = false;
-        }
-
-        public synchronized boolean isAttached()
-        {
-            return this.attached;
+            attached = false;
         }
 
         public MethodResult call( ILuaContext context, String methodName, IArguments arguments ) throws LuaException
@@ -304,100 +96,64 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             PeripheralMethod method;
             synchronized( this )
             {
-                method = this.methodMap.get( methodName );
+                method = methodMap.get( methodName );
             }
 
-            if( method == null )
-            {
-                throw new LuaException( "No such method " + methodName );
-            }
+            if( method == null ) throw new LuaException( "No such method " + methodName );
 
-            PeripheralAPI.this.environment.addTrackingChange( TrackingField.PERIPHERAL_OPS );
-            return method.apply( this.peripheral, context, this, arguments );
+            environment.addTrackingChange( TrackingField.PERIPHERAL_OPS );
+            return method.apply( peripheral, context, this, arguments );
         }
 
         // IComputerAccess implementation
         @Override
         public synchronized String mount( @Nonnull String desiredLoc, @Nonnull IMount mount, @Nonnull String driveName )
         {
-            if( !this.attached )
-            {
-                throw new NotAttachedException();
-            }
+            if( !attached ) throw new NotAttachedException();
             return super.mount( desiredLoc, mount, driveName );
         }
 
         @Override
         public synchronized String mountWritable( @Nonnull String desiredLoc, @Nonnull IWritableMount mount, @Nonnull String driveName )
         {
-            if( !this.attached )
-            {
-                throw new NotAttachedException();
-            }
+            if( !attached ) throw new NotAttachedException();
             return super.mountWritable( desiredLoc, mount, driveName );
         }
 
         @Override
         public synchronized void unmount( String location )
         {
-            if( !this.attached )
-            {
-                throw new NotAttachedException();
-            }
+            if( !attached ) throw new NotAttachedException();
             super.unmount( location );
         }
 
         @Override
         public int getID()
         {
-            if( !this.attached )
-            {
-                throw new NotAttachedException();
-            }
+            if( !attached ) throw new NotAttachedException();
             return super.getID();
         }
 
         @Override
         public void queueEvent( @Nonnull String event, Object... arguments )
         {
-            if( !this.attached )
-            {
-                throw new NotAttachedException();
-            }
+            if( !attached ) throw new NotAttachedException();
             super.queueEvent( event, arguments );
         }
 
         @Nonnull
         @Override
-        public IWorkMonitor getMainThreadMonitor()
-        {
-            if( !this.attached )
-            {
-                throw new NotAttachedException();
-            }
-            return super.getMainThreadMonitor();
-        }
-
-
-        @Nonnull
-        @Override
         public String getAttachmentName()
         {
-            if( !this.attached )
-            {
-                throw new NotAttachedException();
-            }
-            return this.side;
+            if( !attached ) throw new NotAttachedException();
+            return side;
         }
 
         @Nonnull
         @Override
         public Map<String, IPeripheral> getAvailablePeripherals()
         {
-            if( !this.attached )
-            {
-                throw new NotAttachedException();
-            }
+            if( !attached ) throw new NotAttachedException();
 
             Map<String, IPeripheral> peripherals = new HashMap<>();
             for( PeripheralWrapper wrapper : PeripheralAPI.this.peripherals )
@@ -415,15 +171,11 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         @Override
         public IPeripheral getAvailablePeripheral( @Nonnull String name )
         {
-            if( !this.attached )
-            {
-                throw new NotAttachedException();
-            }
+            if( !attached ) throw new NotAttachedException();
 
-            for( PeripheralWrapper wrapper : PeripheralAPI.this.peripherals )
+            for( PeripheralWrapper wrapper : peripherals )
             {
-                if( wrapper != null && wrapper.isAttached() && wrapper.getAttachmentName()
-                    .equals( name ) )
+                if( wrapper != null && wrapper.isAttached() && wrapper.getAttachmentName().equals( name ) )
                 {
                     return wrapper.getPeripheral();
                 }
@@ -431,6 +183,186 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             return null;
         }
 
+        @Nonnull
+        @Override
+        public IWorkMonitor getMainThreadMonitor()
+        {
+            if( !attached ) throw new NotAttachedException();
+            return super.getMainThreadMonitor();
+        }
+    }
 
+    private final IAPIEnvironment environment;
+    private final PeripheralWrapper[] peripherals = new PeripheralWrapper[6];
+    private boolean running;
+
+    public PeripheralAPI( IAPIEnvironment environment )
+    {
+        this.environment = environment;
+        this.environment.setPeripheralChangeListener( this );
+        running = false;
+    }
+
+    // IPeripheralChangeListener
+
+    @Override
+    public void onPeripheralChanged( ComputerSide side, IPeripheral newPeripheral )
+    {
+        synchronized( peripherals )
+        {
+            int index = side.ordinal();
+            if( peripherals[index] != null )
+            {
+                // Queue a detachment
+                final PeripheralWrapper wrapper = peripherals[index];
+                if( wrapper.isAttached() ) wrapper.detach();
+
+                // Queue a detachment event
+                environment.queueEvent( "peripheral_detach", side.getName() );
+            }
+
+            // Assign the new peripheral
+            peripherals[index] = newPeripheral == null ? null
+                : new PeripheralWrapper( newPeripheral, side.getName() );
+
+            if( peripherals[index] != null )
+            {
+                // Queue an attachment
+                final PeripheralWrapper wrapper = peripherals[index];
+                if( running && !wrapper.isAttached() ) wrapper.attach();
+
+                // Queue an attachment event
+                environment.queueEvent( "peripheral", side.getName() );
+            }
+        }
+    }
+
+    @Override
+    public String[] getNames()
+    {
+        return new String[] { "peripheral" };
+    }
+
+    @Override
+    public void startup()
+    {
+        synchronized( peripherals )
+        {
+            running = true;
+            for( int i = 0; i < 6; i++ )
+            {
+                PeripheralWrapper wrapper = peripherals[i];
+                if( wrapper != null && !wrapper.isAttached() ) wrapper.attach();
+            }
+        }
+    }
+
+    @Override
+    public void shutdown()
+    {
+        synchronized( peripherals )
+        {
+            running = false;
+            for( int i = 0; i < 6; i++ )
+            {
+                PeripheralWrapper wrapper = peripherals[i];
+                if( wrapper != null && wrapper.isAttached() )
+                {
+                    wrapper.detach();
+                }
+            }
+        }
+    }
+
+    @LuaFunction
+    public final boolean isPresent( String sideName )
+    {
+        ComputerSide side = ComputerSide.valueOfInsensitive( sideName );
+        if( side != null )
+        {
+            synchronized( peripherals )
+            {
+                PeripheralWrapper p = peripherals[side.ordinal()];
+                if( p != null ) return true;
+            }
+        }
+        return false;
+    }
+
+    @LuaFunction
+    public final Object[] getType( String sideName )
+    {
+        ComputerSide side = ComputerSide.valueOfInsensitive( sideName );
+        if( side == null ) return null;
+
+        synchronized( peripherals )
+        {
+            PeripheralWrapper p = peripherals[side.ordinal()];
+            if( p != null ) return new Object[] { p.getType() };
+        }
+        return null;
+    }
+
+    @LuaFunction
+    public final Object[] getMethods( String sideName )
+    {
+        ComputerSide side = ComputerSide.valueOfInsensitive( sideName );
+        if( side == null ) return null;
+
+        synchronized( peripherals )
+        {
+            PeripheralWrapper p = peripherals[side.ordinal()];
+            if( p != null ) return new Object[] { p.getMethods() };
+        }
+        return null;
+    }
+
+    @LuaFunction
+    public final MethodResult call( ILuaContext context, IArguments args ) throws LuaException
+    {
+        ComputerSide side = ComputerSide.valueOfInsensitive( args.getString( 0 ) );
+        String methodName = args.getString( 1 );
+        IArguments methodArgs = args.drop( 2 );
+
+        if( side == null ) throw new LuaException( "No peripheral attached" );
+
+        PeripheralWrapper p;
+        synchronized( peripherals )
+        {
+            p = peripherals[side.ordinal()];
+        }
+        if( p == null ) throw new LuaException( "No peripheral attached" );
+
+        try
+        {
+            return p.call( context, methodName, methodArgs ).adjustError( 1 );
+        }
+        catch( LuaException e )
+        {
+            // We increase the error level by one in order to shift the error level to where peripheral.call was
+            // invoked. It would be possible to do it in Lua code, but would add significantly more overhead.
+            if( e.getLevel() > 0 ) throw new FastLuaException( e.getMessage(), e.getLevel() + 1 );
+            throw e;
+        }
+    }
+
+    public static Map<String, PeripheralMethod> getMethods( IPeripheral peripheral )
+    {
+        String[] dynamicMethods = peripheral instanceof IDynamicPeripheral
+            ? Objects.requireNonNull( ((IDynamicPeripheral) peripheral).getMethodNames(), "Peripheral methods cannot be null" )
+            : LuaMethod.EMPTY_METHODS;
+
+        List<NamedMethod<PeripheralMethod>> methods = PeripheralMethod.GENERATOR.getMethods( peripheral.getClass() );
+
+        Map<String, PeripheralMethod> methodMap = new HashMap<>( methods.size() + dynamicMethods.length );
+        for( int i = 0; i < dynamicMethods.length; i++ )
+        {
+            methodMap.put( dynamicMethods[i], PeripheralMethod.DYNAMIC.get( i ) );
+        }
+        for( NamedMethod<PeripheralMethod> method : methods )
+        {
+            methodMap.put( method.getName(), method.getMethod() );
+        }
+        return methodMap;
     }
 }

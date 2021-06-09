@@ -20,6 +20,33 @@ public final class TaskCallback implements ILuaCallback
         this.task = task;
     }
 
+    @Nonnull
+    @Override
+    public MethodResult resume( Object[] response ) throws LuaException
+    {
+        if( response.length < 3 || !(response[1] instanceof Number) || !(response[2] instanceof Boolean) )
+        {
+            return pull;
+        }
+
+        if( ((Number) response[1]).longValue() != task ) return pull;
+
+        if( (Boolean) response[2] )
+        {
+            // Extract the return values from the event and return them
+            return MethodResult.of( Arrays.copyOfRange( response, 3, response.length ) );
+        }
+        else if( response.length >= 4 && response[3] instanceof String )
+        {
+            // Extract the error message from the event and raise it
+            throw new LuaException( (String) response[3] );
+        }
+        else
+        {
+            throw new LuaException( "error" );
+        }
+    }
+
     static Object[] checkUnwrap( MethodResult result )
     {
         if( result.getCallback() != null )
@@ -36,35 +63,5 @@ public final class TaskCallback implements ILuaCallback
     {
         long task = context.issueMainThreadTask( func );
         return new TaskCallback( task ).pull;
-    }
-
-    @Nonnull
-    @Override
-    public MethodResult resume( Object[] response ) throws LuaException
-    {
-        if( response.length < 3 || !(response[1] instanceof Number) || !(response[2] instanceof Boolean) )
-        {
-            return this.pull;
-        }
-
-        if( ((Number) response[1]).longValue() != this.task )
-        {
-            return this.pull;
-        }
-
-        if( (Boolean) response[2] )
-        {
-            // Extract the return values from the event and return them
-            return MethodResult.of( Arrays.copyOfRange( response, 3, response.length ) );
-        }
-        else if( response.length >= 4 && response[3] instanceof String )
-        {
-            // Extract the error message from the event and raise it
-            throw new LuaException( (String) response[3] );
-        }
-        else
-        {
-            throw new LuaException( "error" );
-        }
     }
 }

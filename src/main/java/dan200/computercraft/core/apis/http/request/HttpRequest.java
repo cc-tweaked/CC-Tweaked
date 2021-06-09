@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.apis.http.request;
 
 import dan200.computercraft.ComputerCraft;
@@ -20,13 +19,10 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.ConnectTimeoutException;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.TooLongFrameException;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 
 import java.net.InetSocketAddress;
@@ -48,26 +44,31 @@ public class HttpRequest extends Resource<HttpRequest>
     private static final String FAILURE_EVENT = "http_failure";
 
     private static final int MAX_REDIRECTS = 16;
-    final AtomicInteger redirects;
-    private final IAPIEnvironment environment;
-    private final String address;
-    private final ByteBuf postBuffer;
-    private final HttpHeaders headers;
-    private final boolean binary;
+
     private Future<?> executorFuture;
     private ChannelFuture connectFuture;
     private HttpRequestHandler currentRequest;
 
-    public HttpRequest( ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment, String address, String postText, HttpHeaders headers,
-                        boolean binary, boolean followRedirects )
+    private final IAPIEnvironment environment;
+
+    private final String address;
+    private final ByteBuf postBuffer;
+    private final HttpHeaders headers;
+    private final boolean binary;
+
+    final AtomicInteger redirects;
+
+    public HttpRequest( ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment, String address, String postText, HttpHeaders headers, boolean binary, boolean followRedirects )
     {
         super( limiter );
         this.environment = environment;
         this.address = address;
-        this.postBuffer = postText != null ? Unpooled.wrappedBuffer( postText.getBytes( StandardCharsets.UTF_8 ) ) : Unpooled.buffer( 0 );
+        postBuffer = postText != null
+            ? Unpooled.wrappedBuffer( postText.getBytes( StandardCharsets.UTF_8 ) )
+            : Unpooled.buffer( 0 );
         this.headers = headers;
         this.binary = binary;
-        this.redirects = new AtomicInteger( followRedirects ? MAX_REDIRECTS : 0 );
+        redirects = new AtomicInteger( followRedirects ? MAX_REDIRECTS : 0 );
 
         if( postText != null )
         {
@@ -78,9 +79,14 @@ public class HttpRequest extends Resource<HttpRequest>
 
             if( !headers.contains( HttpHeaderNames.CONTENT_LENGTH ) )
             {
-                headers.set( HttpHeaderNames.CONTENT_LENGTH, this.postBuffer.readableBytes() );
+                headers.set( HttpHeaderNames.CONTENT_LENGTH, postBuffer.readableBytes() );
             }
         }
+    }
+
+    public IAPIEnvironment environment()
+    {
+        return environment;
     }
 
     public static URI checkUri( String address ) throws HTTPRequestException
@@ -102,73 +108,52 @@ public class HttpRequest extends Resource<HttpRequest>
     public static void checkUri( URI url ) throws HTTPRequestException
     {
         // Validate the URL
-        if( url.getScheme() == null )
-        {
-            throw new HTTPRequestException( "Must specify http or https" );
-        }
-        if( url.getHost() == null )
-        {
-            throw new HTTPRequestException( "URL malformed" );
-        }
+        if( url.getScheme() == null ) throw new HTTPRequestException( "Must specify http or https" );
+        if( url.getHost() == null ) throw new HTTPRequestException( "URL malformed" );
 
-        String scheme = url.getScheme()
-            .toLowerCase( Locale.ROOT );
+        String scheme = url.getScheme().toLowerCase( Locale.ROOT );
         if( !scheme.equalsIgnoreCase( "http" ) && !scheme.equalsIgnoreCase( "https" ) )
         {
             throw new HTTPRequestException( "Invalid protocol '" + scheme + "'" );
         }
     }
 
-    public IAPIEnvironment environment()
-    {
-        return this.environment;
-    }
-
     public void request( URI uri, HttpMethod method )
     {
-        if( this.isClosed() )
-        {
-            return;
-        }
-        this.executorFuture = NetworkUtils.EXECUTOR.submit( () -> this.doRequest( uri, method ) );
-        this.checkClosed();
+        if( isClosed() ) return;
+        executorFuture = NetworkUtils.EXECUTOR.submit( () -> doRequest( uri, method ) );
+        checkClosed();
     }
 
     private void doRequest( URI uri, HttpMethod method )
     {
         // If we're cancelled, abort.
-        if( this.isClosed() )
-        {
-            return;
-        }
+        if( isClosed() ) return;
 
         try
         {
-            boolean ssl = uri.getScheme()
-                .equalsIgnoreCase( "https" );
+            boolean ssl = uri.getScheme().equalsIgnoreCase( "https" );
             InetSocketAddress socketAddress = NetworkUtils.getAddress( uri, ssl );
             Options options = NetworkUtils.getOptions( uri.getHost(), socketAddress );
             SslContext sslContext = ssl ? NetworkUtils.getSslContext() : null;
 
             // getAddress may have a slight delay, so let's perform another cancellation check.
-            if( this.isClosed() )
-            {
-                return;
-            }
+            if( isClosed() ) return;
 
-            long requestBody = getHeaderSize( this.headers ) + this.postBuffer.capacity();
+            long requestBody = getHeaderSize( headers ) + postBuffer.capacity();
             if( options.maxUpload != 0 && requestBody > options.maxUpload )
             {
-                this.failure( "Request body is too large" );
+                failure( "Request body is too large" );
                 return;
             }
 
             // Add request size to the tracker before opening the connection
-            this.environment.addTrackingChange( TrackingField.HTTP_REQUESTS, 1 );
-            this.environment.addTrackingChange( TrackingField.HTTP_UPLOAD, requestBody );
+            environment.addTrackingChange( TrackingField.HTTP_REQUESTS, 1 );
+            environment.addTrackingChange( TrackingField.HTTP_UPLOAD, requestBody );
 
-            HttpRequestHandler handler = this.currentRequest = new HttpRequestHandler( this, uri, method, options );
-            this.connectFuture = new Bootstrap().group( NetworkUtils.LOOP_GROUP )
+            HttpRequestHandler handler = currentRequest = new HttpRequestHandler( this, uri, method, options );
+            connectFuture = new Bootstrap()
+                .group( NetworkUtils.LOOP_GROUP )
                 .channelFactory( NioSocketChannel::new )
                 .handler( new ChannelInitializer<SocketChannel>()
                 {
@@ -178,8 +163,7 @@ public class HttpRequest extends Resource<HttpRequest>
 
                         if( options.timeout > 0 )
                         {
-                            ch.config()
-                                .setConnectTimeoutMillis( options.timeout );
+                            ch.config().setConnectTimeoutMillis( options.timeout );
                         }
 
                         ChannelPipeline p = ch.pipeline();
@@ -193,93 +177,46 @@ public class HttpRequest extends Resource<HttpRequest>
                             p.addLast( new ReadTimeoutHandler( options.timeout, TimeUnit.MILLISECONDS ) );
                         }
 
-                        p.addLast( new HttpClientCodec(), new HttpContentDecompressor(), handler );
+                        p.addLast(
+                            new HttpClientCodec(),
+                            new HttpContentDecompressor(),
+                            handler
+                        );
                     }
                 } )
                 .remoteAddress( socketAddress )
                 .connect()
                 .addListener( c -> {
-                    if( !c.isSuccess() )
-                    {
-                        this.failure( c.cause() );
-                    }
+                    if( !c.isSuccess() ) failure( NetworkUtils.toFriendlyError( c.cause() ) );
                 } );
 
             // Do an additional check for cancellation
-            this.checkClosed();
+            checkClosed();
         }
         catch( HTTPRequestException e )
         {
-            this.failure( e.getMessage() );
+            failure( e.getMessage() );
         }
         catch( Exception e )
         {
-            this.failure( "Could not connect" );
-            if( ComputerCraft.logComputerErrors )
-            {
-                ComputerCraft.log.error( "Error in HTTP request", e );
-            }
+            failure( NetworkUtils.toFriendlyError( e ) );
+            if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error in HTTP request", e );
         }
-    }
-
-    public static long getHeaderSize( HttpHeaders headers )
-    {
-        long size = 0;
-        for( Map.Entry<String, String> header : headers )
-        {
-            size += header.getKey() == null ? 0 : header.getKey()
-                .length();
-            size += header.getValue() == null ? 0 : header.getValue()
-                .length() + 1;
-        }
-        return size;
     }
 
     void failure( String message )
     {
-        if( this.tryClose() )
-        {
-            this.environment.queueEvent( FAILURE_EVENT, this.address, message );
-        }
-    }
-
-    void failure( Throwable cause )
-    {
-        String message;
-        if( cause instanceof HTTPRequestException )
-        {
-            message = cause.getMessage();
-        }
-        else if( cause instanceof TooLongFrameException )
-        {
-            message = "Response is too large";
-        }
-        else if( cause instanceof ReadTimeoutException || cause instanceof ConnectTimeoutException )
-        {
-            message = "Timed out";
-        }
-        else
-        {
-            message = "Could not connect";
-        }
-
-        this.failure( message );
+        if( tryClose() ) environment.queueEvent( FAILURE_EVENT, address, message );
     }
 
     void failure( String message, HttpResponseHandle object )
     {
-        if( this.tryClose() )
-        {
-            this.environment.queueEvent( FAILURE_EVENT, this.address, message, object );
-        }
+        if( tryClose() ) environment.queueEvent( FAILURE_EVENT, address, message, object );
     }
 
     void success( HttpResponseHandle object )
     {
-        if( this.tryClose() )
-        {
-            this.environment.queueEvent( SUCCESS_EVENT, this.address, object );
-        }
+        if( tryClose() ) environment.queueEvent( SUCCESS_EVENT, address, object );
     }
 
     @Override
@@ -287,23 +224,34 @@ public class HttpRequest extends Resource<HttpRequest>
     {
         super.dispose();
 
-        this.executorFuture = closeFuture( this.executorFuture );
-        this.connectFuture = closeChannel( this.connectFuture );
-        this.currentRequest = closeCloseable( this.currentRequest );
+        executorFuture = closeFuture( executorFuture );
+        connectFuture = closeChannel( connectFuture );
+        currentRequest = closeCloseable( currentRequest );
+    }
+
+    public static long getHeaderSize( HttpHeaders headers )
+    {
+        long size = 0;
+        for( Map.Entry<String, String> header : headers )
+        {
+            size += header.getKey() == null ? 0 : header.getKey().length();
+            size += header.getValue() == null ? 0 : header.getValue().length() + 1;
+        }
+        return size;
     }
 
     public ByteBuf body()
     {
-        return this.postBuffer;
+        return postBuffer;
     }
 
     public HttpHeaders headers()
     {
-        return this.headers;
+        return headers;
     }
 
     public boolean isBinary()
     {
-        return this.binary;
+        return binary;
     }
 }

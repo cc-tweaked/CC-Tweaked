@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.filesystem;
 
 import dan200.computercraft.api.filesystem.FileOperationException;
@@ -17,18 +16,6 @@ import java.util.List;
 public class EmptyMount implements IMount
 {
     @Override
-    public void list( @Nonnull String path, @Nonnull List<String> contents )
-    {
-    }
-
-    @Nonnull
-    @Override
-    public ReadableByteChannel openForRead( @Nonnull String path ) throws IOException
-    {
-        throw new FileOperationException( path, "No such file" );
-    }
-
-    @Override
     public boolean exists( @Nonnull String path )
     {
         return path.isEmpty();
@@ -41,8 +28,20 @@ public class EmptyMount implements IMount
     }
 
     @Override
+    public void list( @Nonnull String path, @Nonnull List<String> contents )
+    {
+    }
+
+    @Override
     public long getSize( @Nonnull String path )
     {
         return 0;
+    }
+
+    @Nonnull
+    @Override
+    public ReadableByteChannel openForRead( @Nonnull String path ) throws IOException
+    {
+        throw new FileOperationException( path, "No such file" );
     }
 }

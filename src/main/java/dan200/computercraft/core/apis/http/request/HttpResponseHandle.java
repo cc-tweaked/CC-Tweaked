@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.apis.http.request;
 
 import dan200.computercraft.api.lua.IArguments;
@@ -19,8 +18,9 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * A http response. This provides the same methods as a {@link EncodedReadableHandle file} (or {@link BinaryReadableHandle binary file} if the request used
- * binary mode), though provides several request specific methods.
+ * A http response. This provides the same methods as a {@link EncodedReadableHandle file} (or
+ * {@link BinaryReadableHandle binary file} if the request used binary mode), though provides several request specific
+ * methods.
  *
  * @cc.module http.Response
  * @see HTTPAPI#request(IArguments)  On how to make a http request.
@@ -50,38 +50,36 @@ public class HttpResponseHandle implements ObjectSource
     @LuaFunction
     public final Object[] getResponseCode()
     {
-        return new Object[] {
-            this.responseCode,
-            this.responseStatus
-        };
+        return new Object[] { responseCode, responseStatus };
     }
 
     /**
-     * Get a table containing the response's headers, in a format similar to that required by {@link HTTPAPI#request}. If multiple headers are sent with the
-     * same name, they will be combined with a comma.
+     * Get a table containing the response's headers, in a format similar to that required by {@link HTTPAPI#request}.
+     * If multiple headers are sent with the same name, they will be combined with a comma.
      *
      * @return The response's headers.
-     * @cc.usage Make a request to [example.computercraft.cc](https://example.computercraft.cc), and print the returned headers.
+     * @cc.usage Make a request to [example.tweaked.cc](https://example.tweaked.cc), and print the
+     * returned headers.
      * <pre>{@code
-     *     local request = http.get("https://example.computercraft.cc")
-     *     print(textutils.serialize(request.getResponseHeaders()))
-     *     -- => {
-     *     --  [ "Content-Type" ] = "text/plain; charset=utf8",
-     *     --  [ "content-length" ] = 17,
-     *     --  ...
-     *     -- }
-     *     request.close()
-     *     }</pre>
+     * local request = http.get("https://example.tweaked.cc")
+     * print(textutils.serialize(request.getResponseHeaders()))
+     * -- => {
+     * --  [ "Content-Type" ] = "text/plain; charset=utf8",
+     * --  [ "content-length" ] = 17,
+     * --  ...
+     * -- }
+     * request.close()
+     * }</pre>
      */
     @LuaFunction
     public final Map<String, String> getResponseHeaders()
     {
-        return this.responseHeaders;
+        return responseHeaders;
     }
 
     @Override
     public Iterable<Object> getExtra()
     {
-        return Collections.singletonList( this.reader );
+        return Collections.singletonList( reader );
     }
 }

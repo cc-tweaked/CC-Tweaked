@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.apis.http;
 
 import dan200.computercraft.ComputerCraft;
@@ -12,12 +11,19 @@ import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.shared.util.ThreadUtils;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ConnectTimeoutException;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.handler.codec.DecoderException;
+import io.netty.handler.codec.TooLongFrameException;
+import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.timeout.ReadTimeoutException;
 
+import javax.annotation.Nonnull;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.TrustManagerFactory;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -32,69 +38,35 @@ import java.util.concurrent.TimeUnit;
  */
 public final class NetworkUtils
 {
-    public static final ExecutorService EXECUTOR = new ThreadPoolExecutor( 4,
-        Integer.MAX_VALUE,
-        60L,
-        TimeUnit.SECONDS,
+    public static final ExecutorService EXECUTOR = new ThreadPoolExecutor(
+        4, Integer.MAX_VALUE,
+        60L, TimeUnit.SECONDS,
         new SynchronousQueue<>(),
         ThreadUtils.builder( "Network" )
             .setPriority( Thread.MIN_PRIORITY + (Thread.NORM_PRIORITY - Thread.MIN_PRIORITY) / 2 )
-            .build() );
+            .build()
+    );
 
-    public static final EventLoopGroup LOOP_GROUP = new NioEventLoopGroup( 4,
-        ThreadUtils.builder( "Netty" )
-            .setPriority( Thread.MIN_PRIORITY + (Thread.NORM_PRIORITY - Thread.MIN_PRIORITY) / 2 )
-            .build() );
-    private static final Object sslLock = new Object();
-    private static TrustManagerFactory trustManager;
-    private static SslContext sslContext;
-    private static boolean triedSslContext = false;
+    public static final EventLoopGroup LOOP_GROUP = new NioEventLoopGroup( 4, ThreadUtils.builder( "Netty" )
+        .setPriority( Thread.MIN_PRIORITY + (Thread.NORM_PRIORITY - Thread.MIN_PRIORITY) / 2 )
+        .build()
+    );
 
     private NetworkUtils()
     {
     }
 
-    public static SslContext getSslContext() throws HTTPRequestException
-    {
-        if( sslContext != null || triedSslContext )
-        {
-            return sslContext;
-        }
-        synchronized( sslLock )
-        {
-            if( sslContext != null || triedSslContext )
-            {
-                return sslContext;
-            }
-            try
-            {
-                return sslContext = SslContextBuilder.forClient()
-                    .trustManager( getTrustManager() )
-                    .build();
-            }
-            catch( SSLException e )
-            {
-                ComputerCraft.log.error( "Cannot construct SSL context", e );
-                triedSslContext = true;
-                sslContext = null;
-
-                throw new HTTPRequestException( "Cannot create a secure connection" );
-            }
-        }
-    }
+    private static final Object sslLock = new Object();
+    private static TrustManagerFactory trustManager;
+    private static SslContext sslContext;
+    private static boolean triedSslContext = false;
 
     private static TrustManagerFactory getTrustManager()
     {
-        if( trustManager != null )
-        {
-            return trustManager;
-        }
+        if( trustManager != null ) return trustManager;
         synchronized( sslLock )
         {
-            if( trustManager != null )
-            {
-                return trustManager;
-            }
+            if( trustManager != null ) return trustManager;
 
             TrustManagerFactory tmf = null;
             try
@@ -108,6 +80,30 @@ public final class NetworkUtils
             }
 
             return trustManager = tmf;
+        }
+    }
+
+    public static SslContext getSslContext() throws HTTPRequestException
+    {
+        if( sslContext != null || triedSslContext ) return sslContext;
+        synchronized( sslLock )
+        {
+            if( sslContext != null || triedSslContext ) return sslContext;
+            try
+            {
+                return sslContext = SslContextBuilder
+                    .forClient()
+                    .trustManager( getTrustManager() )
+                    .build();
+            }
+            catch( SSLException e )
+            {
+                ComputerCraft.log.error( "Cannot construct SSL context", e );
+                triedSslContext = true;
+                sslContext = null;
+
+                throw new HTTPRequestException( "Cannot create a secure connection" );
+            }
         }
     }
 
@@ -139,15 +135,9 @@ public final class NetworkUtils
      */
     public static InetSocketAddress getAddress( String host, int port, boolean ssl ) throws HTTPRequestException
     {
-        if( port < 0 )
-        {
-            port = ssl ? 443 : 80;
-        }
+        if( port < 0 ) port = ssl ? 443 : 80;
         InetSocketAddress socketAddress = new InetSocketAddress( host, port );
-        if( socketAddress.isUnresolved() )
-        {
-            throw new HTTPRequestException( "Unknown host" );
-        }
+        if( socketAddress.isUnresolved() ) throw new HTTPRequestException( "Unknown host" );
         return socketAddress;
     }
 
@@ -162,10 +152,7 @@ public final class NetworkUtils
     public static Options getOptions( String host, InetSocketAddress address ) throws HTTPRequestException
     {
         Options options = AddressRule.apply( ComputerCraft.httpRules, host, address );
-        if( options.action == Action.DENY )
-        {
-            throw new HTTPRequestException( "Domain not permitted" );
-        }
+        if( options.action == Action.DENY ) throw new HTTPRequestException( "Domain not permitted" );
         return options;
     }
 
@@ -180,5 +167,30 @@ public final class NetworkUtils
         byte[] bytes = new byte[buffer.readableBytes()];
         buffer.readBytes( bytes );
         return bytes;
+    }
+
+    @Nonnull
+    public static String toFriendlyError( @Nonnull Throwable cause )
+    {
+        if( cause instanceof WebSocketHandshakeException || cause instanceof HTTPRequestException )
+        {
+            return cause.getMessage();
+        }
+        else if( cause instanceof TooLongFrameException )
+        {
+            return "Message is too large";
+        }
+        else if( cause instanceof ReadTimeoutException || cause instanceof ConnectTimeoutException )
+        {
+            return "Timed out";
+        }
+        else if( cause instanceof SSLHandshakeException || (cause instanceof DecoderException && cause.getCause() instanceof SSLHandshakeException) )
+        {
+            return "Could not create a secure connection";
+        }
+        else
+        {
+            return "Could not connect";
+        }
     }
 }

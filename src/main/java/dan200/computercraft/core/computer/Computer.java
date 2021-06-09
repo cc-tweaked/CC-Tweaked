@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.computer;
 
 import com.google.common.base.Objects;
@@ -31,79 +30,88 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Computer
 {
     private static final int START_DELAY = 50;
+
+    // Various properties of the computer
+    private int id;
+    private String label = null;
+
     // Read-only fields about the computer
-    private final IComputerEnvironment m_environment;
-    private final Terminal m_terminal;
+    private final IComputerEnvironment environment;
+    private final Terminal terminal;
     private final ComputerExecutor executor;
     private final MainThreadExecutor serverExecutor;
+
+    // Additional state about the computer and its environment.
+    private boolean blinking = false;
     private final Environment internalEnvironment = new Environment( this );
     private final AtomicBoolean externalOutputChanged = new AtomicBoolean();
-    // Various properties of the computer
-    private int m_id;
-    private String m_label = null;
-    // Additional state about the computer and its environment.
-    private boolean m_blinking = false;
+
     private boolean startRequested;
-    private int m_ticksSinceStart = -1;
+    private int ticksSinceStart = -1;
 
     public Computer( IComputerEnvironment environment, Terminal terminal, int id )
     {
-        this.m_id = id;
-        this.m_environment = environment;
-        this.m_terminal = terminal;
+        this.id = id;
+        this.environment = environment;
+        this.terminal = terminal;
 
-        this.executor = new ComputerExecutor( this );
-        this.serverExecutor = new MainThreadExecutor( this );
+        executor = new ComputerExecutor( this );
+        serverExecutor = new MainThreadExecutor( this );
     }
 
     IComputerEnvironment getComputerEnvironment()
     {
-        return this.m_environment;
+        return environment;
     }
 
     FileSystem getFileSystem()
     {
-        return this.executor.getFileSystem();
+        return executor.getFileSystem();
     }
 
     Terminal getTerminal()
     {
-        return this.m_terminal;
+        return terminal;
     }
 
     public Environment getEnvironment()
     {
-        return this.internalEnvironment;
+        return internalEnvironment;
     }
 
     public IAPIEnvironment getAPIEnvironment()
     {
-        return this.internalEnvironment;
+        return internalEnvironment;
+    }
+
+    public boolean isOn()
+    {
+        return executor.isOn();
     }
 
     public void turnOn()
     {
-        this.startRequested = true;
+        startRequested = true;
     }
 
     public void shutdown()
     {
-        this.executor.queueStop( false, false );
+        executor.queueStop( false, false );
     }
 
     public void reboot()
     {
-        this.executor.queueStop( true, false );
+        executor.queueStop( true, false );
     }
 
     public void unload()
     {
-        this.executor.queueStop( false, true );
+        executor.queueStop( false, true );
     }
 
     public void queueEvent( String event, Object[] args )
     {
-        this.executor.queueEvent( event, args );
+        executor.queueEvent( event, args );
     }
 
     /**
@@ -114,107 +122,98 @@ public class Computer
      */
     public boolean queueMainThread( Runnable runnable )
     {
-        return this.serverExecutor.enqueue( runnable );
+        return serverExecutor.enqueue( runnable );
     }
 
     public IWorkMonitor getMainThreadMonitor()
     {
-        return this.serverExecutor;
+        return serverExecutor;
     }
 
     public int getID()
     {
-        return this.m_id;
-    }
-
-    public void setID( int id )
-    {
-        this.m_id = id;
+        return id;
     }
 
     public int assignID()
     {
-        if( this.m_id < 0 )
+        if( id < 0 )
         {
-            this.m_id = this.m_environment.assignNewID();
+            id = environment.assignNewID();
         }
-        return this.m_id;
+        return id;
+    }
+
+    public void setID( int id )
+    {
+        this.id = id;
     }
 
     public String getLabel()
     {
-        return this.m_label;
+        return label;
     }
 
     public void setLabel( String label )
     {
-        if( !Objects.equal( label, this.m_label ) )
+        if( !Objects.equal( label, this.label ) )
         {
-            this.m_label = label;
-            this.externalOutputChanged.set( true );
+            this.label = label;
+            externalOutputChanged.set( true );
         }
     }
 
     public void tick()
     {
         // We keep track of the number of ticks since the last start, only
-        if( this.m_ticksSinceStart >= 0 && this.m_ticksSinceStart <= START_DELAY )
-        {
-            this.m_ticksSinceStart++;
-        }
+        if( ticksSinceStart >= 0 && ticksSinceStart <= START_DELAY ) ticksSinceStart++;
 
-        if( this.startRequested && (this.m_ticksSinceStart < 0 || this.m_ticksSinceStart > START_DELAY) )
+        if( startRequested && (ticksSinceStart < 0 || ticksSinceStart > START_DELAY) )
         {
-            this.startRequested = false;
-            if( !this.executor.isOn() )
+            startRequested = false;
+            if( !executor.isOn() )
             {
-                this.m_ticksSinceStart = 0;
-                this.executor.queueStart();
+                ticksSinceStart = 0;
+                executor.queueStart();
             }
         }
 
-        this.executor.tick();
+        executor.tick();
 
         // Update the environment's internal state.
-        this.internalEnvironment.tick();
+        internalEnvironment.tick();
 
         // Propagate the environment's output to the world.
-        if( this.internalEnvironment.updateOutput() )
-        {
-            this.externalOutputChanged.set( true );
-        }
+        if( internalEnvironment.updateOutput() ) externalOutputChanged.set( true );
 
         // Set output changed if the terminal has changed from blinking to not
-        boolean blinking = this.m_terminal.getCursorBlink() && this.m_terminal.getCursorX() >= 0 && this.m_terminal.getCursorX() < this.m_terminal.getWidth() && this.m_terminal.getCursorY() >= 0 && this.m_terminal.getCursorY() < this.m_terminal.getHeight();
-        if( blinking != this.m_blinking )
+        boolean blinking = terminal.getCursorBlink() &&
+            terminal.getCursorX() >= 0 && terminal.getCursorX() < terminal.getWidth() &&
+            terminal.getCursorY() >= 0 && terminal.getCursorY() < terminal.getHeight();
+        if( blinking != this.blinking )
         {
-            this.m_blinking = blinking;
-            this.externalOutputChanged.set( true );
+            this.blinking = blinking;
+            externalOutputChanged.set( true );
         }
     }
 
     void markChanged()
     {
-        this.externalOutputChanged.set( true );
+        externalOutputChanged.set( true );
     }
 
     public boolean pollAndResetChanged()
     {
-        return this.externalOutputChanged.getAndSet( false );
+        return externalOutputChanged.getAndSet( false );
     }
 
     public boolean isBlinking()
     {
-        return this.isOn() && this.m_blinking;
-    }
-
-    public boolean isOn()
-    {
-        return this.executor.isOn();
+        return isOn() && blinking;
     }
 
     public void addApi( ILuaAPI api )
     {
-        this.executor.addApi( api );
+        executor.addApi( api );
     }
 }

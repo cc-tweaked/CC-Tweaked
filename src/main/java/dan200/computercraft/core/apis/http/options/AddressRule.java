@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.apis.http.options;
 
 import com.google.common.net.InetAddresses;
@@ -62,6 +61,23 @@ public final class AddressRule
         }
     }
 
+    /**
+     * Determine whether the given address matches a series of patterns.
+     *
+     * @param domain      The domain to match
+     * @param port        The port of the address.
+     * @param address     The address to check.
+     * @param ipv4Address An ipv4 version of the address, if the original was an ipv6 address.
+     * @return Whether it matches any of these patterns.
+     */
+    private boolean matches( String domain, int port, InetAddress address, Inet4Address ipv4Address )
+    {
+        if( this.port != null && this.port != port ) return false;
+        return predicate.matches( domain )
+            || predicate.matches( address )
+            || (ipv4Address != null && predicate.matches( ipv4Address ));
+    }
+
     public static Options apply( Iterable<? extends AddressRule> rules, String domain, InetSocketAddress socketAddress )
     {
         PartialOptions options = null;
@@ -94,22 +110,5 @@ public final class AddressRule
         }
 
         return (options == null ? PartialOptions.DEFAULT : options).toOptions();
-    }
-
-    /**
-     * Determine whether the given address matches a series of patterns.
-     *
-     * @param domain      The domain to match
-     * @param port        The port of the address.
-     * @param address     The address to check.
-     * @param ipv4Address An ipv4 version of the address, if the original was an ipv6 address.
-     * @return Whether it matches any of these patterns.
-     */
-    private boolean matches( String domain, int port, InetAddress address, Inet4Address ipv4Address )
-    {
-        if( this.port != null && this.port != port ) return false;
-        return predicate.matches( domain )
-            || predicate.matches( address )
-            || (ipv4Address != null && predicate.matches( ipv4Address ));
     }
 }

@@ -29,37 +29,16 @@ final class Reflect
     {
         if( klass.isPrimitive() )
         {
-            if( klass == int.class )
-            {
-                return "Int";
-            }
-            if( klass == boolean.class )
-            {
-                return "Boolean";
-            }
-            if( klass == double.class )
-            {
-                return "Double";
-            }
-            if( klass == long.class )
-            {
-                return "Long";
-            }
+            if( klass == int.class ) return "Int";
+            if( klass == boolean.class ) return "Boolean";
+            if( klass == double.class ) return "Double";
+            if( klass == long.class ) return "Long";
         }
         else
         {
-            if( klass == Map.class )
-            {
-                return "Table";
-            }
-            if( klass == String.class )
-            {
-                return "String";
-            }
-            if( klass == ByteBuffer.class )
-            {
-                return "Bytes";
-            }
+            if( klass == Map.class ) return "Table";
+            if( klass == String.class ) return "String";
+            if( klass == ByteBuffer.class ) return "Bytes";
         }
 
         return null;
@@ -71,10 +50,7 @@ final class Reflect
         Type underlying = root;
         while( true )
         {
-            if( underlying instanceof Class<?> )
-            {
-                return (Class<?>) underlying;
-            }
+            if( underlying instanceof Class<?> ) return (Class<?>) underlying;
 
             if( underlying instanceof ParameterizedType )
             {
@@ -83,21 +59,13 @@ final class Reflect
                 {
                     for( java.lang.reflect.Type arg : type.getActualTypeArguments() )
                     {
-                        if( arg instanceof WildcardType )
-                        {
-                            continue;
-                        }
-                        if( arg instanceof TypeVariable && ((TypeVariable<?>) arg).getName()
-                            .startsWith( "capture#" ) )
+                        if( arg instanceof WildcardType ) continue;
+                        if( arg instanceof TypeVariable && ((TypeVariable<?>) arg).getName().startsWith( "capture#" ) )
                         {
                             continue;
                         }
 
-                        ComputerCraft.log.error( "Method {}.{} has generic type {} with non-wildcard argument {}.",
-                            method.getDeclaringClass(),
-                            method.getName(),
-                            root,
-                            arg );
+                        ComputerCraft.log.error( "Method {}.{} has generic type {} with non-wildcard argument {}.", method.getDeclaringClass(), method.getName(), root, arg );
                         return null;
                     }
                 }

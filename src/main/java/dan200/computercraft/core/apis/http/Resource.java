@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.apis.http;
 
 import dan200.computercraft.shared.util.IoUtil;
@@ -25,73 +24,12 @@ import java.util.function.Consumer;
  */
 public abstract class Resource<T extends Resource<T>> implements Closeable
 {
-    private static final ReferenceQueue<Object> QUEUE = new ReferenceQueue<>();
     private final AtomicBoolean closed = new AtomicBoolean( false );
     private final ResourceGroup<T> limiter;
 
     protected Resource( ResourceGroup<T> limiter )
     {
         this.limiter = limiter;
-    }
-
-    protected static <T extends Closeable> T closeCloseable( T closeable )
-    {
-        IoUtil.closeQuietly( closeable );
-        return null;
-    }
-
-    protected static ChannelFuture closeChannel( ChannelFuture future )
-    {
-        if( future != null )
-        {
-            future.cancel( false );
-            Channel channel = future.channel();
-            if( channel != null && channel.isOpen() )
-            {
-                channel.close();
-            }
-        }
-
-        return null;
-    }
-
-    protected static <T extends Future<?>> T closeFuture( T future )
-    {
-        if( future != null )
-        {
-            future.cancel( true );
-        }
-        return null;
-    }
-
-    public static void cleanup()
-    {
-        Reference<?> reference;
-        while( (reference = QUEUE.poll()) != null )
-        {
-            ((CloseReference<?>) reference).resource.close();
-        }
-    }
-
-    @Override
-    public final void close()
-    {
-        this.tryClose();
-    }
-
-    /**
-     * Try to close the current resource.
-     *
-     * @return Whether this was successfully closed, or {@code false} if it has already been closed.
-     */
-    protected final boolean tryClose()
-    {
-        if( this.closed.getAndSet( true ) )
-        {
-            return false;
-        }
-        this.dispose();
-        return true;
     }
 
     /**
@@ -101,7 +39,7 @@ public abstract class Resource<T extends Resource<T>> implements Closeable
      */
     public final boolean isClosed()
     {
-        return this.closed.get();
+        return closed.get();
     }
 
     /**
@@ -111,24 +49,34 @@ public abstract class Resource<T extends Resource<T>> implements Closeable
      */
     public final boolean checkClosed()
     {
-        if( !this.closed.get() )
-        {
-            return false;
-        }
-        this.dispose();
+        if( !closed.get() ) return false;
+        dispose();
+        return true;
+    }
+
+    /**
+     * Try to close the current resource.
+     *
+     * @return Whether this was successfully closed, or {@code false} if it has already been closed.
+     */
+    protected final boolean tryClose()
+    {
+        if( closed.getAndSet( true ) ) return false;
+        dispose();
         return true;
     }
 
     /**
      * Clean up any pending resources
      *
-     * Note, this may be called multiple times, and so should be thread-safe and avoid any major side effects.
+     * Note, this may be called multiple times, and so should be thread-safe and
+     * avoid any major side effects.
      */
     protected void dispose()
     {
         @SuppressWarnings( "unchecked" )
         T thisT = (T) this;
-        this.limiter.release( thisT );
+        limiter.release( thisT );
     }
 
     /**
@@ -143,12 +91,45 @@ public abstract class Resource<T extends Resource<T>> implements Closeable
         return new CloseReference<>( this, object );
     }
 
-    public boolean queue( Consumer<T> task )
+    @Override
+    public final void close()
+    {
+        tryClose();
+    }
+
+    public final boolean queue( Consumer<T> task )
     {
         @SuppressWarnings( "unchecked" )
         T thisT = (T) this;
-        return this.limiter.queue( thisT, () -> task.accept( thisT ) );
+        return limiter.queue( thisT, () -> task.accept( thisT ) );
     }
+
+    protected static <T extends Closeable> T closeCloseable( T closeable )
+    {
+        IoUtil.closeQuietly( closeable );
+        return null;
+    }
+
+    protected static ChannelFuture closeChannel( ChannelFuture future )
+    {
+        if( future != null )
+        {
+            future.cancel( false );
+            Channel channel = future.channel();
+            if( channel != null && channel.isOpen() ) channel.close();
+        }
+
+        return null;
+    }
+
+    protected static <T extends Future<?>> T closeFuture( T future )
+    {
+        if( future != null ) future.cancel( true );
+        return null;
+    }
+
+
+    private static final ReferenceQueue<Object> QUEUE = new ReferenceQueue<>();
 
     private static class CloseReference<T> extends WeakReference<T>
     {
@@ -159,5 +140,11 @@ public abstract class Resource<T extends Resource<T>> implements Closeable
             super( referent, QUEUE );
             this.resource = resource;
         }
+    }
+
+    public static void cleanup()
+    {
+        Reference<?> reference;
+        while( (reference = QUEUE.poll()) != null ) ((CloseReference<?>) reference).resource.close();
     }
 }

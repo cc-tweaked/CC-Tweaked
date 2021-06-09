@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.apis.http.websocket;
 
 import com.google.common.base.Objects;
@@ -60,19 +59,12 @@ public class WebsocketHandle implements Closeable
     @LuaFunction
     public final MethodResult receive( Optional<Double> timeout ) throws LuaException
     {
-        this.checkOpen();
-        int timeoutId = timeout.isPresent() ? this.websocket.environment()
-            .startTimer( Math.round( checkFinite( 0, timeout.get() ) / 0.05 ) ) : -1;
+        checkOpen();
+        int timeoutId = timeout.isPresent()
+            ? websocket.environment().startTimer( Math.round( checkFinite( 0, timeout.get() ) / 0.05 ) )
+            : -1;
 
         return new ReceiveCallback( timeoutId ).pull;
-    }
-
-    private void checkOpen() throws LuaException
-    {
-        if( this.closed )
-        {
-            throw new LuaException( "attempt to use a closed file" );
-        }
     }
 
     /**
@@ -86,39 +78,45 @@ public class WebsocketHandle implements Closeable
     @LuaFunction
     public final void send( Object message, Optional<Boolean> binary ) throws LuaException
     {
-        this.checkOpen();
+        checkOpen();
 
         String text = StringUtil.toString( message );
-        if( this.options.websocketMessage != 0 && text.length() > this.options.websocketMessage )
+        if( options.websocketMessage != 0 && text.length() > options.websocketMessage )
         {
             throw new LuaException( "Message is too large" );
         }
 
-        this.websocket.environment()
-            .addTrackingChange( TrackingField.WEBSOCKET_OUTGOING, text.length() );
+        websocket.environment().addTrackingChange( TrackingField.WEBSOCKET_OUTGOING, text.length() );
 
         Channel channel = this.channel;
         if( channel != null )
         {
-            channel.writeAndFlush( binary.orElse( false ) ? new BinaryWebSocketFrame( Unpooled.wrappedBuffer( LuaValues.encode( text ) ) ) : new TextWebSocketFrame(
-                text ) );
+            channel.writeAndFlush( binary.orElse( false )
+                ? new BinaryWebSocketFrame( Unpooled.wrappedBuffer( LuaValues.encode( text ) ) )
+                : new TextWebSocketFrame( text ) );
         }
     }
 
     /**
-     * Close this websocket. This will terminate the connection, meaning messages can no longer be sent or received along it.
+     * Close this websocket. This will terminate the connection, meaning messages can no longer be sent or received
+     * along it.
      */
     @LuaFunction( "close" )
     public final void doClose()
     {
-        this.close();
-        this.websocket.close();
+        close();
+        websocket.close();
+    }
+
+    private void checkOpen() throws LuaException
+    {
+        if( closed ) throw new LuaException( "attempt to use a closed file" );
     }
 
     @Override
     public void close()
     {
-        this.closed = true;
+        closed = true;
 
         Channel channel = this.channel;
         if( channel != null )
@@ -142,23 +140,23 @@ public class WebsocketHandle implements Closeable
         @Override
         public MethodResult resume( Object[] event )
         {
-            if( event.length >= 3 && Objects.equal( event[0], MESSAGE_EVENT ) && Objects.equal( event[1], WebsocketHandle.this.websocket.address() ) )
+            if( event.length >= 3 && Objects.equal( event[0], MESSAGE_EVENT ) && Objects.equal( event[1], websocket.address() ) )
             {
                 return MethodResult.of( Arrays.copyOfRange( event, 2, event.length ) );
             }
-            else if( event.length >= 2 && Objects.equal( event[0], CLOSE_EVENT ) && Objects.equal( event[1], WebsocketHandle.this.websocket.address() ) && WebsocketHandle.this.closed )
+            else if( event.length >= 2 && Objects.equal( event[0], CLOSE_EVENT ) && Objects.equal( event[1], websocket.address() ) && closed )
             {
                 // If the socket is closed abort.
                 return MethodResult.of();
             }
-            else if( event.length >= 2 && this.timeoutId != -1 && Objects.equal( event[0],
-                TIMER_EVENT ) && event[1] instanceof Number && ((Number) event[1]).intValue() == this.timeoutId )
+            else if( event.length >= 2 && timeoutId != -1 && Objects.equal( event[0], TIMER_EVENT )
+                && event[1] instanceof Number && ((Number) event[1]).intValue() == timeoutId )
             {
                 // If we received a matching timer event then abort.
                 return MethodResult.of();
             }
 
-            return this.pull;
+            return pull;
         }
     }
 }

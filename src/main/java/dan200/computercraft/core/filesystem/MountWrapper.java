@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.filesystem;
 
 import dan200.computercraft.api.filesystem.FileOperationException;
@@ -33,7 +32,7 @@ class MountWrapper
         this.label = label;
         this.location = location;
         this.mount = mount;
-        this.writableMount = null;
+        writableMount = null;
     }
 
     MountWrapper( String label, String location, IWritableMount mount )
@@ -41,29 +40,26 @@ class MountWrapper
         this.label = label;
         this.location = location;
         this.mount = mount;
-        this.writableMount = mount;
+        writableMount = mount;
     }
 
     public String getLabel()
     {
-        return this.label;
+        return label;
     }
 
     public String getLocation()
     {
-        return this.location;
+        return location;
     }
 
     public long getFreeSpace()
     {
-        if( this.writableMount == null )
-        {
-            return 0;
-        }
+        if( writableMount == null ) return 0;
 
         try
         {
-            return this.writableMount.getRemainingSpace();
+            return writableMount.getRemainingSpace();
         }
         catch( IOException e )
         {
@@ -73,50 +69,242 @@ class MountWrapper
 
     public OptionalLong getCapacity()
     {
-        return this.writableMount == null ? OptionalLong.empty() : this.writableMount.getCapacity();
+        return writableMount == null ? OptionalLong.empty() : writableMount.getCapacity();
     }
 
     public boolean isReadOnly( String path )
     {
-        return this.writableMount == null;
+        return writableMount == null;
     }
 
     public boolean exists( String path ) throws FileSystemException
     {
-        path = this.toLocal( path );
+        path = toLocal( path );
         try
         {
-            return this.mount.exists( path );
+            return mount.exists( path );
         }
         catch( IOException e )
         {
-            throw this.localExceptionOf( path, e );
+            throw localExceptionOf( path, e );
+        }
+    }
+
+    public boolean isDirectory( String path ) throws FileSystemException
+    {
+        path = toLocal( path );
+        try
+        {
+            return mount.exists( path ) && mount.isDirectory( path );
+        }
+        catch( IOException e )
+        {
+            throw localExceptionOf( path, e );
+        }
+    }
+
+    public void list( String path, List<String> contents ) throws FileSystemException
+    {
+        path = toLocal( path );
+        try
+        {
+            if( !mount.exists( path ) || !mount.isDirectory( path ) )
+            {
+                throw localExceptionOf( path, "Not a directory" );
+            }
+
+            mount.list( path, contents );
+        }
+        catch( IOException e )
+        {
+            throw localExceptionOf( path, e );
+        }
+    }
+
+    public long getSize( String path ) throws FileSystemException
+    {
+        path = toLocal( path );
+        try
+        {
+            if( !mount.exists( path ) ) throw localExceptionOf( path, "No such file" );
+            return mount.isDirectory( path ) ? 0 : mount.getSize( path );
+        }
+        catch( IOException e )
+        {
+            throw localExceptionOf( path, e );
+        }
+    }
+
+    @Nonnull
+    public BasicFileAttributes getAttributes( String path ) throws FileSystemException
+    {
+        path = toLocal( path );
+        try
+        {
+            if( !mount.exists( path ) ) throw localExceptionOf( path, "No such file" );
+            return mount.getAttributes( path );
+        }
+        catch( IOException e )
+        {
+            throw localExceptionOf( path, e );
+        }
+    }
+
+    public ReadableByteChannel openForRead( String path ) throws FileSystemException
+    {
+        path = toLocal( path );
+        try
+        {
+            if( mount.exists( path ) && !mount.isDirectory( path ) )
+            {
+                return mount.openForRead( path );
+            }
+            else
+            {
+                throw localExceptionOf( path, "No such file" );
+            }
+        }
+        catch( IOException e )
+        {
+            throw localExceptionOf( path, e );
+        }
+    }
+
+    public void makeDirectory( String path ) throws FileSystemException
+    {
+        if( writableMount == null ) throw exceptionOf( path, "Access denied" );
+
+        path = toLocal( path );
+        try
+        {
+            if( mount.exists( path ) )
+            {
+                if( !mount.isDirectory( path ) ) throw localExceptionOf( path, "File exists" );
+            }
+            else
+            {
+                writableMount.makeDirectory( path );
+            }
+        }
+        catch( IOException e )
+        {
+            throw localExceptionOf( path, e );
+        }
+    }
+
+    public void delete( String path ) throws FileSystemException
+    {
+        if( writableMount == null ) throw exceptionOf( path, "Access denied" );
+
+        path = toLocal( path );
+        try
+        {
+            if( mount.exists( path ) )
+            {
+                writableMount.delete( path );
+            }
+        }
+        catch( AccessDeniedException e )
+        {
+            throw new FileSystemException( "Access denied" );
+        }
+        catch( IOException e )
+        {
+            throw localExceptionOf( path, e );
+        }
+    }
+
+    public WritableByteChannel openForWrite( String path ) throws FileSystemException
+    {
+        if( writableMount == null ) throw exceptionOf( path, "Access denied" );
+
+        path = toLocal( path );
+        try
+        {
+            if( mount.exists( path ) && mount.isDirectory( path ) )
+            {
+                throw localExceptionOf( path, "Cannot write to directory" );
+            }
+            else
+            {
+                if( !path.isEmpty() )
+                {
+                    String dir = FileSystem.getDirectory( path );
+                    if( !dir.isEmpty() && !mount.exists( path ) )
+                    {
+                        writableMount.makeDirectory( dir );
+                    }
+                }
+                return writableMount.openForWrite( path );
+            }
+        }
+        catch( AccessDeniedException e )
+        {
+            throw new FileSystemException( "Access denied" );
+        }
+        catch( IOException e )
+        {
+            throw localExceptionOf( path, e );
+        }
+    }
+
+    public WritableByteChannel openForAppend( String path ) throws FileSystemException
+    {
+        if( writableMount == null ) throw exceptionOf( path, "Access denied" );
+
+        path = toLocal( path );
+        try
+        {
+            if( !mount.exists( path ) )
+            {
+                if( !path.isEmpty() )
+                {
+                    String dir = FileSystem.getDirectory( path );
+                    if( !dir.isEmpty() && !mount.exists( path ) )
+                    {
+                        writableMount.makeDirectory( dir );
+                    }
+                }
+                return writableMount.openForWrite( path );
+            }
+            else if( mount.isDirectory( path ) )
+            {
+                throw localExceptionOf( path, "Cannot write to directory" );
+            }
+            else
+            {
+                return writableMount.openForAppend( path );
+            }
+        }
+        catch( AccessDeniedException e )
+        {
+            throw new FileSystemException( "Access denied" );
+        }
+        catch( IOException e )
+        {
+            throw localExceptionOf( path, e );
         }
     }
 
     private String toLocal( String path )
     {
-        return FileSystem.toLocal( path, this.location );
+        return FileSystem.toLocal( path, location );
     }
 
     private FileSystemException localExceptionOf( @Nullable String localPath, @Nonnull IOException e )
     {
-        if( !this.location.isEmpty() && e instanceof FileOperationException )
+        if( !location.isEmpty() && e instanceof FileOperationException )
         {
             FileOperationException ex = (FileOperationException) e;
-            if( ex.getFilename() != null )
-            {
-                return this.localExceptionOf( ex.getFilename(), ex.getMessage() );
-            }
+            if( ex.getFilename() != null ) return localExceptionOf( ex.getFilename(), ex.getMessage() );
         }
 
         if( e instanceof java.nio.file.FileSystemException )
         {
             // This error will contain the absolute path, leaking information about where MC is installed. We drop that,
             // just taking the reason. We assume that the error refers to the input path.
-            String message = ((java.nio.file.FileSystemException) e).getReason()
-                .trim();
-            return localPath == null ? new FileSystemException( message ) : this.localExceptionOf( localPath, message );
+            String message = ((java.nio.file.FileSystemException) e).getReason().trim();
+            return localPath == null ? new FileSystemException( message ) : localExceptionOf( localPath, message );
         }
 
         return new FileSystemException( e.getMessage() );
@@ -124,232 +312,12 @@ class MountWrapper
 
     private FileSystemException localExceptionOf( String path, String message )
     {
-        if( !this.location.isEmpty() )
-        {
-            path = path.isEmpty() ? this.location : this.location + "/" + path;
-        }
+        if( !location.isEmpty() ) path = path.isEmpty() ? location : location + "/" + path;
         return exceptionOf( path, message );
     }
 
     private static FileSystemException exceptionOf( String path, String message )
     {
         return new FileSystemException( "/" + path + ": " + message );
-    }
-
-    public boolean isDirectory( String path ) throws FileSystemException
-    {
-        path = this.toLocal( path );
-        try
-        {
-            return this.mount.exists( path ) && this.mount.isDirectory( path );
-        }
-        catch( IOException e )
-        {
-            throw this.localExceptionOf( path, e );
-        }
-    }
-
-    public void list( String path, List<String> contents ) throws FileSystemException
-    {
-        path = this.toLocal( path );
-        try
-        {
-            if( !this.mount.exists( path ) || !this.mount.isDirectory( path ) )
-            {
-                throw this.localExceptionOf( path, "Not a directory" );
-            }
-
-            this.mount.list( path, contents );
-        }
-        catch( IOException e )
-        {
-            throw this.localExceptionOf( path, e );
-        }
-    }
-
-    public long getSize( String path ) throws FileSystemException
-    {
-        path = this.toLocal( path );
-        try
-        {
-            if( !this.mount.exists( path ) )
-            {
-                throw this.localExceptionOf( path, "No such file" );
-            }
-            return this.mount.isDirectory( path ) ? 0 : this.mount.getSize( path );
-        }
-        catch( IOException e )
-        {
-            throw this.localExceptionOf( path, e );
-        }
-    }
-
-    @Nonnull
-    public BasicFileAttributes getAttributes( String path ) throws FileSystemException
-    {
-        path = this.toLocal( path );
-        try
-        {
-            if( !this.mount.exists( path ) )
-            {
-                throw this.localExceptionOf( path, "No such file" );
-            }
-            return this.mount.getAttributes( path );
-        }
-        catch( IOException e )
-        {
-            throw this.localExceptionOf( path, e );
-        }
-    }
-
-    public ReadableByteChannel openForRead( String path ) throws FileSystemException
-    {
-        path = this.toLocal( path );
-        try
-        {
-            if( this.mount.exists( path ) && !this.mount.isDirectory( path ) )
-            {
-                return this.mount.openForRead( path );
-            }
-            else
-            {
-                throw this.localExceptionOf( path, "No such file" );
-            }
-        }
-        catch( IOException e )
-        {
-            throw this.localExceptionOf( path, e );
-        }
-    }
-
-    public void makeDirectory( String path ) throws FileSystemException
-    {
-        if( this.writableMount == null )
-        {
-            throw exceptionOf( path, "Access denied" );
-        }
-
-        path = this.toLocal( path );
-        try
-        {
-            if( this.mount.exists( path ) )
-            {
-                if( !this.mount.isDirectory( path ) )
-                {
-                    throw this.localExceptionOf( path, "File exists" );
-                }
-            }
-            else
-            {
-                this.writableMount.makeDirectory( path );
-            }
-        }
-        catch( IOException e )
-        {
-            throw this.localExceptionOf( path, e );
-        }
-    }
-
-    public void delete( String path ) throws FileSystemException
-    {
-        if( this.writableMount == null )
-        {
-            throw exceptionOf( path, "Access denied" );
-        }
-
-        path = this.toLocal( path );
-        try
-        {
-            if( this.mount.exists( path ) )
-            {
-                this.writableMount.delete( path );
-            }
-        }
-        catch( AccessDeniedException e )
-        {
-            throw new FileSystemException( "Access denied" );
-        }
-        catch( IOException e )
-        {
-            throw this.localExceptionOf( path, e );
-        }
-    }
-
-    public WritableByteChannel openForWrite( String path ) throws FileSystemException
-    {
-        if( this.writableMount == null )
-        {
-            throw exceptionOf( path, "Access denied" );
-        }
-
-        path = this.toLocal( path );
-        try
-        {
-            if( this.mount.exists( path ) && this.mount.isDirectory( path ) )
-            {
-                throw this.localExceptionOf( path, "Cannot write to directory" );
-            }
-            else
-            {
-                if( !path.isEmpty() )
-                {
-                    String dir = FileSystem.getDirectory( path );
-                    if( !dir.isEmpty() && !this.mount.exists( path ) )
-                    {
-                        this.writableMount.makeDirectory( dir );
-                    }
-                }
-                return this.writableMount.openForWrite( path );
-            }
-        }
-        catch( AccessDeniedException e )
-        {
-            throw new FileSystemException( "Access denied" );
-        }
-        catch( IOException e )
-        {
-            throw this.localExceptionOf( path, e );
-        }
-    }
-
-    public WritableByteChannel openForAppend( String path ) throws FileSystemException
-    {
-        if( this.writableMount == null )
-        {
-            throw exceptionOf( path, "Access denied" );
-        }
-
-        path = this.toLocal( path );
-        try
-        {
-            if( !this.mount.exists( path ) )
-            {
-                if( !path.isEmpty() )
-                {
-                    String dir = FileSystem.getDirectory( path );
-                    if( !dir.isEmpty() && !this.mount.exists( path ) )
-                    {
-                        this.writableMount.makeDirectory( dir );
-                    }
-                }
-                return this.writableMount.openForWrite( path );
-            }
-            else if( this.mount.isDirectory( path ) )
-            {
-                throw this.localExceptionOf( path, "Cannot write to directory" );
-            }
-            else
-            {
-                return this.writableMount.openForAppend( path );
-            }
-        }
-        catch( AccessDeniedException e )
-        {
-            throw new FileSystemException( "Access denied" );
-        }
-        catch( IOException e )
-        {
-            throw this.localExceptionOf( path, e );
-        }
     }
 }

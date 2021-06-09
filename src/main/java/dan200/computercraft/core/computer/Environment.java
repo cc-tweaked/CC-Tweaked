@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.computer;
 
 import dan200.computercraft.api.lua.ILuaAPI;
@@ -43,17 +42,22 @@ import java.util.Iterator;
 public final class Environment implements IAPIEnvironment
 {
     private final Computer computer;
+
+    private boolean internalOutputChanged = false;
     private final int[] internalOutput = new int[ComputerSide.COUNT];
     private final int[] internalBundledOutput = new int[ComputerSide.COUNT];
+
     private final int[] externalOutput = new int[ComputerSide.COUNT];
     private final int[] externalBundledOutput = new int[ComputerSide.COUNT];
+
+    private boolean inputChanged = false;
     private final int[] input = new int[ComputerSide.COUNT];
     private final int[] bundledInput = new int[ComputerSide.COUNT];
+
     private final IPeripheral[] peripherals = new IPeripheral[ComputerSide.COUNT];
-    private final Int2ObjectMap<Timer> timers = new Int2ObjectOpenHashMap<>();
-    private boolean internalOutputChanged = false;
-    private boolean inputChanged = false;
     private IPeripheralChangeListener peripheralListener = null;
+
+    private final Int2ObjectMap<Timer> timers = new Int2ObjectOpenHashMap<>();
     private int nextTimerToken = 0;
 
     Environment( Computer computer )
@@ -64,64 +68,76 @@ public final class Environment implements IAPIEnvironment
     @Override
     public int getComputerID()
     {
-        return this.computer.assignID();
+        return computer.assignID();
     }
 
     @Nonnull
     @Override
     public IComputerEnvironment getComputerEnvironment()
     {
-        return this.computer.getComputerEnvironment();
+        return computer.getComputerEnvironment();
     }
 
     @Nonnull
     @Override
     public IWorkMonitor getMainThreadMonitor()
     {
-        return this.computer.getMainThreadMonitor();
+        return computer.getMainThreadMonitor();
     }
 
     @Nonnull
     @Override
     public Terminal getTerminal()
     {
-        return this.computer.getTerminal();
+        return computer.getTerminal();
     }
 
     @Override
     public FileSystem getFileSystem()
     {
-        return this.computer.getFileSystem();
+        return computer.getFileSystem();
     }
 
     @Override
     public void shutdown()
     {
-        this.computer.shutdown();
+        computer.shutdown();
     }
 
     @Override
     public void reboot()
     {
-        this.computer.reboot();
+        computer.reboot();
     }
 
     @Override
     public void queueEvent( String event, Object... args )
     {
-        this.computer.queueEvent( event, args );
+        computer.queueEvent( event, args );
+    }
+
+    @Override
+    public int getInput( ComputerSide side )
+    {
+        return input[side.ordinal()];
+    }
+
+    @Override
+    public int getBundledInput( ComputerSide side )
+    {
+        return bundledInput[side.ordinal()];
     }
 
     @Override
     public void setOutput( ComputerSide side, int output )
     {
         int index = side.ordinal();
-        synchronized( this.internalOutput )
+        synchronized( internalOutput )
         {
-            if( this.internalOutput[index] != output )
+            if( internalOutput[index] != output )
             {
-                this.internalOutput[index] = output;
-                this.internalOutputChanged = true;
+                internalOutput[index] = output;
+                internalOutputChanged = true;
             }
         }
     }
@@ -129,28 +145,22 @@ public final class Environment implements IAPIEnvironment
     @Override
     public int getOutput( ComputerSide side )
     {
-        synchronized( this.internalOutput )
+        synchronized( internalOutput )
         {
-            return this.computer.isOn() ? this.internalOutput[side.ordinal()] : 0;
+            return computer.isOn() ? internalOutput[side.ordinal()] : 0;
         }
-    }
-
-    @Override
-    public int getInput( ComputerSide side )
-    {
-        return this.input[side.ordinal()];
     }
 
     @Override
     public void setBundledOutput( ComputerSide side, int output )
     {
         int index = side.ordinal();
-        synchronized( this.internalOutput )
+        synchronized( internalOutput )
         {
-            if( this.internalBundledOutput[index] != output )
+            if( internalBundledOutput[index] != output )
             {
-                this.internalBundledOutput[index] = output;
-                this.internalOutputChanged = true;
+                internalBundledOutput[index] = output;
+                internalOutputChanged = true;
             }
         }
     }
@@ -158,100 +168,39 @@ public final class Environment implements IAPIEnvironment
     @Override
     public int getBundledOutput( ComputerSide side )
     {
-        synchronized( this.internalOutput )
+        synchronized( internalOutput )
         {
-            return this.computer.isOn() ? this.internalBundledOutput[side.ordinal()] : 0;
+            return computer.isOn() ? internalBundledOutput[side.ordinal()] : 0;
         }
-    }
-
-    @Override
-    public int getBundledInput( ComputerSide side )
-    {
-        return this.bundledInput[side.ordinal()];
-    }
-
-    @Override
-    public void setPeripheralChangeListener( IPeripheralChangeListener listener )
-    {
-        synchronized( this.peripherals )
-        {
-            this.peripheralListener = listener;
-        }
-    }
-
-    @Override
-    public IPeripheral getPeripheral( ComputerSide side )
-    {
-        synchronized( this.peripherals )
-        {
-            return this.peripherals[side.ordinal()];
-        }
-    }
-
-    @Override
-    public String getLabel()
-    {
-        return this.computer.getLabel();
-    }
-
-    @Override
-    public void setLabel( String label )
-    {
-        this.computer.setLabel( label );
-    }
-
-    @Override
-    public int startTimer( long ticks )
-    {
-        synchronized( this.timers )
-        {
-            this.timers.put( this.nextTimerToken, new Timer( ticks ) );
-            return this.nextTimerToken++;
-        }
-    }
-
-    @Override
-    public void cancelTimer( int id )
-    {
-        synchronized( this.timers )
-        {
-            this.timers.remove( id );
-        }
-    }
-
-    @Override
-    public void addTrackingChange( @Nonnull TrackingField field, long change )
-    {
-        Tracking.addValue( this.computer, field, change );
     }
 
     public int getExternalRedstoneOutput( ComputerSide side )
     {
-        return this.computer.isOn() ? this.externalOutput[side.ordinal()] : 0;
+        return computer.isOn() ? externalOutput[side.ordinal()] : 0;
     }
 
     public int getExternalBundledRedstoneOutput( ComputerSide side )
     {
-        return this.computer.isOn() ? this.externalBundledOutput[side.ordinal()] : 0;
+        return computer.isOn() ? externalBundledOutput[side.ordinal()] : 0;
     }
 
     public void setRedstoneInput( ComputerSide side, int level )
     {
         int index = side.ordinal();
-        if( this.input[index] != level )
+        if( input[index] != level )
         {
-            this.input[index] = level;
-            this.inputChanged = true;
+            input[index] = level;
+            inputChanged = true;
         }
     }
 
     public void setBundledRedstoneInput( ComputerSide side, int combination )
     {
         int index = side.ordinal();
-        if( this.bundledInput[index] != combination )
+        if( bundledInput[index] != combination )
         {
-            this.bundledInput[index] = combination;
-            this.inputChanged = true;
+            bundledInput[index] = combination;
+            inputChanged = true;
         }
     }
 
@@ -263,9 +212,9 @@ public final class Environment implements IAPIEnvironment
      */
     void reset()
     {
-        synchronized( this.timers )
+        synchronized( timers )
         {
-            this.timers.clear();
+            timers.clear();
         }
     }
 
@@ -274,17 +223,16 @@ public final class Environment implements IAPIEnvironment
      */
     void tick()
     {
-        if( this.inputChanged )
+        if( inputChanged )
         {
-            this.inputChanged = false;
-            this.queueEvent( "redstone" );
+            inputChanged = false;
+            queueEvent( "redstone" );
         }
 
-        synchronized( this.timers )
+        synchronized( timers )
         {
             // Countdown all of our active timers
-            Iterator<Int2ObjectMap.Entry<Timer>> it = this.timers.int2ObjectEntrySet()
-                .iterator();
+            Iterator<Int2ObjectMap.Entry<Timer>> it = timers.int2ObjectEntrySet().iterator();
             while( it.hasNext() )
             {
                 Int2ObjectMap.Entry<Timer> entry = it.next();
@@ -293,7 +241,7 @@ public final class Environment implements IAPIEnvironment
                 if( timer.ticksLeft <= 0 )
                 {
                     // Queue the "timer" event
-                    this.queueEvent( TIMER_EVENT, entry.getIntKey() );
+                    queueEvent( TIMER_EVENT, entry.getIntKey() );
                     it.remove();
                 }
             }
@@ -308,31 +256,28 @@ public final class Environment implements IAPIEnvironment
     boolean updateOutput()
     {
         // Mark output as changed if the internal redstone has changed
-        synchronized( this.internalOutput )
+        synchronized( internalOutput )
         {
-            if( !this.internalOutputChanged )
-            {
-                return false;
-            }
+            if( !internalOutputChanged ) return false;
 
             boolean changed = false;
 
             for( int i = 0; i < ComputerSide.COUNT; i++ )
             {
-                if( this.externalOutput[i] != this.internalOutput[i] )
+                if( externalOutput[i] != internalOutput[i] )
                 {
-                    this.externalOutput[i] = this.internalOutput[i];
+                    externalOutput[i] = internalOutput[i];
                     changed = true;
                 }
 
-                if( this.externalBundledOutput[i] != this.internalBundledOutput[i] )
+                if( externalBundledOutput[i] != internalBundledOutput[i] )
                 {
-                    this.externalBundledOutput[i] = this.internalBundledOutput[i];
+                    externalBundledOutput[i] = internalBundledOutput[i];
                     changed = true;
                 }
             }
 
-            this.internalOutputChanged = false;
+            internalOutputChanged = false;
 
             return changed;
         }
@@ -341,29 +286,83 @@ public final class Environment implements IAPIEnvironment
     void resetOutput()
     {
         // Reset redstone output
-        synchronized( this.internalOutput )
+        synchronized( internalOutput )
         {
-            Arrays.fill( this.internalOutput, 0 );
-            Arrays.fill( this.internalBundledOutput, 0 );
-            this.internalOutputChanged = true;
+            Arrays.fill( internalOutput, 0 );
+            Arrays.fill( internalBundledOutput, 0 );
+            internalOutputChanged = true;
+        }
+    }
+
+    @Override
+    public IPeripheral getPeripheral( ComputerSide side )
+    {
+        synchronized( peripherals )
+        {
+            return peripherals[side.ordinal()];
         }
     }
 
     public void setPeripheral( ComputerSide side, IPeripheral peripheral )
     {
-        synchronized( this.peripherals )
+        synchronized( peripherals )
         {
             int index = side.ordinal();
-            IPeripheral existing = this.peripherals[index];
-            if( (existing == null && peripheral != null) || (existing != null && peripheral == null) || (existing != null && !existing.equals( peripheral )) )
+            IPeripheral existing = peripherals[index];
+            if( (existing == null && peripheral != null) ||
+                (existing != null && peripheral == null) ||
+                (existing != null && !existing.equals( peripheral )) )
             {
-                this.peripherals[index] = peripheral;
-                if( this.peripheralListener != null )
-                {
-                    this.peripheralListener.onPeripheralChanged( side, peripheral );
-                }
+                peripherals[index] = peripheral;
+                if( peripheralListener != null ) peripheralListener.onPeripheralChanged( side, peripheral );
             }
         }
+    }
+
+    @Override
+    public void setPeripheralChangeListener( IPeripheralChangeListener listener )
+    {
+        synchronized( peripherals )
+        {
+            peripheralListener = listener;
+        }
+    }
+
+    @Override
+    public String getLabel()
+    {
+        return computer.getLabel();
+    }
+
+    @Override
+    public void setLabel( String label )
+    {
+        computer.setLabel( label );
+    }
+
+    @Override
+    public int startTimer( long ticks )
+    {
+        synchronized( timers )
+        {
+            timers.put( nextTimerToken, new Timer( ticks ) );
+            return nextTimerToken++;
+        }
+    }
+
+    @Override
+    public void cancelTimer( int id )
+    {
+        synchronized( timers )
+        {
+            timers.remove( id );
+        }
+    }
+
+    @Override
+    public void addTrackingChange( @Nonnull TrackingField field, long change )
+    {
+        Tracking.addValue( computer, field, change );
     }
 
     private static class Timer

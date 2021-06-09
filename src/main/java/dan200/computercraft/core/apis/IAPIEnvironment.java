@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -20,6 +19,12 @@ import javax.annotation.Nullable;
 public interface IAPIEnvironment
 {
     String TIMER_EVENT = "timer";
+
+    @FunctionalInterface
+    interface IPeripheralChangeListener
+    {
+        void onPeripheralChanged( ComputerSide side, @Nullable IPeripheral newPeripheral );
+    }
 
     int getComputerID();
 
@@ -65,16 +70,10 @@ public interface IAPIEnvironment
 
     void cancelTimer( int id );
 
-    default void addTrackingChange( @Nonnull TrackingField field )
-    {
-        this.addTrackingChange( field, 1 );
-    }
-
     void addTrackingChange( @Nonnull TrackingField field, long change );
 
-    @FunctionalInterface
-    interface IPeripheralChangeListener
+    default void addTrackingChange( @Nonnull TrackingField field )
     {
-        void onPeripheralChanged( ComputerSide side, @Nullable IPeripheral newPeripheral );
+        addTrackingChange( field, 1 );
     }
 }

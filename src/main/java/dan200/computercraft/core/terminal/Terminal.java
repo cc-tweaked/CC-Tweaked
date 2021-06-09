@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.terminal;
 
 import dan200.computercraft.shared.util.Colour;
@@ -16,18 +15,23 @@ import javax.annotation.Nonnull;
 public class Terminal
 {
     private static final String base16 = "0123456789abcdef";
-    private final Palette m_palette = new Palette();
+
+    private int cursorX = 0;
+    private int cursorY = 0;
+    private boolean cursorBlink = false;
+    private int cursorColour = 0;
+    private int cursorBackgroundColour = 15;
+
+    private int width;
+    private int height;
+
+    private TextBuffer[] text;
+    private TextBuffer[] textColour;
+    private TextBuffer[] backgroundColour;
+
+    private final Palette palette = new Palette();
+
     private final Runnable onChanged;
-    private int m_cursorX = 0;
-    private int m_cursorY = 0;
-    private boolean m_cursorBlink = false;
-    private int m_cursorColour = 0;
-    private int m_cursorBackgroundColour = 15;
-    private int m_width;
-    private int m_height;
-    private TextBuffer[] m_text;
-    private TextBuffer[] m_textColour;
-    private TextBuffer[] m_backgroundColour;
 
     public Terminal( int width, int height )
     {
@@ -36,199 +40,180 @@ public class Terminal
 
     public Terminal( int width, int height, Runnable changedCallback )
     {
-        this.m_width = width;
-        this.m_height = height;
-        this.onChanged = changedCallback;
+        this.width = width;
+        this.height = height;
+        onChanged = changedCallback;
 
-        this.m_text = new TextBuffer[this.m_height];
-        this.m_textColour = new TextBuffer[this.m_height];
-        this.m_backgroundColour = new TextBuffer[this.m_height];
-        for( int i = 0; i < this.m_height; i++ )
+        text = new TextBuffer[this.height];
+        textColour = new TextBuffer[this.height];
+        backgroundColour = new TextBuffer[this.height];
+        for( int i = 0; i < this.height; i++ )
         {
-            this.m_text[i] = new TextBuffer( ' ', this.m_width );
-            this.m_textColour[i] = new TextBuffer( base16.charAt( this.m_cursorColour ), this.m_width );
-            this.m_backgroundColour[i] = new TextBuffer( base16.charAt( this.m_cursorBackgroundColour ), this.m_width );
+            text[i] = new TextBuffer( ' ', this.width );
+            textColour[i] = new TextBuffer( base16.charAt( cursorColour ), this.width );
+            backgroundColour[i] = new TextBuffer( base16.charAt( cursorBackgroundColour ), this.width );
         }
     }
 
     public synchronized void reset()
     {
-        this.m_cursorColour = 0;
-        this.m_cursorBackgroundColour = 15;
-        this.m_cursorX = 0;
-        this.m_cursorY = 0;
-        this.m_cursorBlink = false;
-        this.clear();
-        this.setChanged();
-        this.m_palette.resetColours();
-    }
-
-    public synchronized void clear()
-    {
-        for( int y = 0; y < this.m_height; y++ )
-        {
-            this.m_text[y].fill( ' ' );
-            this.m_textColour[y].fill( base16.charAt( this.m_cursorColour ) );
-            this.m_backgroundColour[y].fill( base16.charAt( this.m_cursorBackgroundColour ) );
-        }
-        this.setChanged();
-    }
-
-    public final void setChanged()
-    {
-        if( this.onChanged != null )
-        {
-            this.onChanged.run();
-        }
+        cursorColour = 0;
+        cursorBackgroundColour = 15;
+        cursorX = 0;
+        cursorY = 0;
+        cursorBlink = false;
+        clear();
+        setChanged();
+        palette.resetColours();
     }
 
     public int getWidth()
     {
-        return this.m_width;
+        return width;
     }
 
     public int getHeight()
     {
-        return this.m_height;
+        return height;
     }
 
     public synchronized void resize( int width, int height )
     {
-        if( width == this.m_width && height == this.m_height )
+        if( width == this.width && height == this.height )
         {
             return;
         }
 
-        int oldHeight = this.m_height;
-        int oldWidth = this.m_width;
-        TextBuffer[] oldText = this.m_text;
-        TextBuffer[] oldTextColour = this.m_textColour;
-        TextBuffer[] oldBackgroundColour = this.m_backgroundColour;
+        int oldHeight = this.height;
+        int oldWidth = this.width;
+        TextBuffer[] oldText = text;
+        TextBuffer[] oldTextColour = textColour;
+        TextBuffer[] oldBackgroundColour = backgroundColour;
 
-        this.m_width = width;
-        this.m_height = height;
+        this.width = width;
+        this.height = height;
 
-        this.m_text = new TextBuffer[this.m_height];
-        this.m_textColour = new TextBuffer[this.m_height];
-        this.m_backgroundColour = new TextBuffer[this.m_height];
-        for( int i = 0; i < this.m_height; i++ )
+        text = new TextBuffer[this.height];
+        textColour = new TextBuffer[this.height];
+        backgroundColour = new TextBuffer[this.height];
+        for( int i = 0; i < this.height; i++ )
         {
             if( i >= oldHeight )
             {
-                this.m_text[i] = new TextBuffer( ' ', this.m_width );
-                this.m_textColour[i] = new TextBuffer( base16.charAt( this.m_cursorColour ), this.m_width );
-                this.m_backgroundColour[i] = new TextBuffer( base16.charAt( this.m_cursorBackgroundColour ), this.m_width );
+                text[i] = new TextBuffer( ' ', this.width );
+                textColour[i] = new TextBuffer( base16.charAt( cursorColour ), this.width );
+                backgroundColour[i] = new TextBuffer( base16.charAt( cursorBackgroundColour ), this.width );
             }
-            else if( this.m_width == oldWidth )
+            else if( this.width == oldWidth )
             {
-                this.m_text[i] = oldText[i];
-                this.m_textColour[i] = oldTextColour[i];
-                this.m_backgroundColour[i] = oldBackgroundColour[i];
+                text[i] = oldText[i];
+                textColour[i] = oldTextColour[i];
+                backgroundColour[i] = oldBackgroundColour[i];
             }
             else
             {
-                this.m_text[i] = new TextBuffer( ' ', this.m_width );
-                this.m_textColour[i] = new TextBuffer( base16.charAt( this.m_cursorColour ), this.m_width );
-                this.m_backgroundColour[i] = new TextBuffer( base16.charAt( this.m_cursorBackgroundColour ), this.m_width );
-                this.m_text[i].write( oldText[i] );
-                this.m_textColour[i].write( oldTextColour[i] );
-                this.m_backgroundColour[i].write( oldBackgroundColour[i] );
+                text[i] = new TextBuffer( ' ', this.width );
+                textColour[i] = new TextBuffer( base16.charAt( cursorColour ), this.width );
+                backgroundColour[i] = new TextBuffer( base16.charAt( cursorBackgroundColour ), this.width );
+                text[i].write( oldText[i] );
+                textColour[i].write( oldTextColour[i] );
+                backgroundColour[i].write( oldBackgroundColour[i] );
             }
         }
-        this.setChanged();
+        setChanged();
     }
 
     public void setCursorPos( int x, int y )
     {
-        if( this.m_cursorX != x || this.m_cursorY != y )
+        if( cursorX != x || cursorY != y )
         {
-            this.m_cursorX = x;
-            this.m_cursorY = y;
-            this.setChanged();
+            cursorX = x;
+            cursorY = y;
+            setChanged();
+        }
+    }
+
+    public void setCursorBlink( boolean blink )
+    {
+        if( cursorBlink != blink )
+        {
+            cursorBlink = blink;
+            setChanged();
+        }
+    }
+
+    public void setTextColour( int colour )
+    {
+        if( cursorColour != colour )
+        {
+            cursorColour = colour;
+            setChanged();
+        }
+    }
+
+    public void setBackgroundColour( int colour )
+    {
+        if( cursorBackgroundColour != colour )
+        {
+            cursorBackgroundColour = colour;
+            setChanged();
         }
     }
 
     public int getCursorX()
     {
-        return this.m_cursorX;
+        return cursorX;
     }
 
     public int getCursorY()
     {
-        return this.m_cursorY;
+        return cursorY;
     }
 
     public boolean getCursorBlink()
     {
-        return this.m_cursorBlink;
-    }
-
-    public void setCursorBlink( boolean blink )
-    {
-        if( this.m_cursorBlink != blink )
-        {
-            this.m_cursorBlink = blink;
-            this.setChanged();
-        }
+        return cursorBlink;
     }
 
     public int getTextColour()
     {
-        return this.m_cursorColour;
-    }
-
-    public void setTextColour( int colour )
-    {
-        if( this.m_cursorColour != colour )
-        {
-            this.m_cursorColour = colour;
-            this.setChanged();
-        }
+        return cursorColour;
     }
 
     public int getBackgroundColour()
     {
-        return this.m_cursorBackgroundColour;
-    }
-
-    public void setBackgroundColour( int colour )
-    {
-        if( this.m_cursorBackgroundColour != colour )
-        {
-            this.m_cursorBackgroundColour = colour;
-            this.setChanged();
-        }
+        return cursorBackgroundColour;
     }
 
     @Nonnull
     public Palette getPalette()
     {
-        return this.m_palette;
+        return palette;
     }
 
     public synchronized void blit( String text, String textColour, String backgroundColour )
     {
-        int x = this.m_cursorX;
-        int y = this.m_cursorY;
-        if( y >= 0 && y < this.m_height )
+        int x = cursorX;
+        int y = cursorY;
+        if( y >= 0 && y < height )
         {
-            this.m_text[y].write( text, x );
-            this.m_textColour[y].write( textColour, x );
-            this.m_backgroundColour[y].write( backgroundColour, x );
-            this.setChanged();
+            this.text[y].write( text, x );
+            this.textColour[y].write( textColour, x );
+            this.backgroundColour[y].write( backgroundColour, x );
+            setChanged();
         }
     }
 
     public synchronized void write( String text )
     {
-        int x = this.m_cursorX;
-        int y = this.m_cursorY;
-        if( y >= 0 && y < this.m_height )
+        int x = cursorX;
+        int y = cursorY;
+        if( y >= 0 && y < height )
         {
-            this.m_text[y].write( text, x );
-            this.m_textColour[y].fill( base16.charAt( this.m_cursorColour ), x, x + text.length() );
-            this.m_backgroundColour[y].fill( base16.charAt( this.m_cursorBackgroundColour ), x, x + text.length() );
-            this.setChanged();
+            this.text[y].write( text, x );
+            textColour[y].fill( base16.charAt( cursorColour ), x, x + text.length() );
+            backgroundColour[y].fill( base16.charAt( cursorBackgroundColour ), x, x + text.length() );
+            setChanged();
         }
     }
 
@@ -236,132 +221,138 @@ public class Terminal
     {
         if( yDiff != 0 )
         {
-            TextBuffer[] newText = new TextBuffer[this.m_height];
-            TextBuffer[] newTextColour = new TextBuffer[this.m_height];
-            TextBuffer[] newBackgroundColour = new TextBuffer[this.m_height];
-            for( int y = 0; y < this.m_height; y++ )
+            TextBuffer[] newText = new TextBuffer[height];
+            TextBuffer[] newTextColour = new TextBuffer[height];
+            TextBuffer[] newBackgroundColour = new TextBuffer[height];
+            for( int y = 0; y < height; y++ )
             {
                 int oldY = y + yDiff;
-                if( oldY >= 0 && oldY < this.m_height )
+                if( oldY >= 0 && oldY < height )
                 {
-                    newText[y] = this.m_text[oldY];
-                    newTextColour[y] = this.m_textColour[oldY];
-                    newBackgroundColour[y] = this.m_backgroundColour[oldY];
+                    newText[y] = text[oldY];
+                    newTextColour[y] = textColour[oldY];
+                    newBackgroundColour[y] = backgroundColour[oldY];
                 }
                 else
                 {
-                    newText[y] = new TextBuffer( ' ', this.m_width );
-                    newTextColour[y] = new TextBuffer( base16.charAt( this.m_cursorColour ), this.m_width );
-                    newBackgroundColour[y] = new TextBuffer( base16.charAt( this.m_cursorBackgroundColour ), this.m_width );
+                    newText[y] = new TextBuffer( ' ', width );
+                    newTextColour[y] = new TextBuffer( base16.charAt( cursorColour ), width );
+                    newBackgroundColour[y] = new TextBuffer( base16.charAt( cursorBackgroundColour ), width );
                 }
             }
-            this.m_text = newText;
-            this.m_textColour = newTextColour;
-            this.m_backgroundColour = newBackgroundColour;
-            this.setChanged();
+            text = newText;
+            textColour = newTextColour;
+            backgroundColour = newBackgroundColour;
+            setChanged();
         }
+    }
+
+    public synchronized void clear()
+    {
+        for( int y = 0; y < height; y++ )
+        {
+            text[y].fill( ' ' );
+            textColour[y].fill( base16.charAt( cursorColour ) );
+            backgroundColour[y].fill( base16.charAt( cursorBackgroundColour ) );
+        }
+        setChanged();
     }
 
     public synchronized void clearLine()
     {
-        int y = this.m_cursorY;
-        if( y >= 0 && y < this.m_height )
+        int y = cursorY;
+        if( y >= 0 && y < height )
         {
-            this.m_text[y].fill( ' ' );
-            this.m_textColour[y].fill( base16.charAt( this.m_cursorColour ) );
-            this.m_backgroundColour[y].fill( base16.charAt( this.m_cursorBackgroundColour ) );
-            this.setChanged();
+            text[y].fill( ' ' );
+            textColour[y].fill( base16.charAt( cursorColour ) );
+            backgroundColour[y].fill( base16.charAt( cursorBackgroundColour ) );
+            setChanged();
         }
     }
 
     public synchronized TextBuffer getLine( int y )
     {
-        if( y >= 0 && y < this.m_height )
+        if( y >= 0 && y < height )
         {
-            return this.m_text[y];
+            return text[y];
         }
         return null;
     }
 
     public synchronized void setLine( int y, String text, String textColour, String backgroundColour )
     {
-        this.m_text[y].write( text );
-        this.m_textColour[y].write( textColour );
-        this.m_backgroundColour[y].write( backgroundColour );
-        this.setChanged();
+        this.text[y].write( text );
+        this.textColour[y].write( textColour );
+        this.backgroundColour[y].write( backgroundColour );
+        setChanged();
     }
 
     public synchronized TextBuffer getTextColourLine( int y )
     {
-        if( y >= 0 && y < this.m_height )
+        if( y >= 0 && y < height )
         {
-            return this.m_textColour[y];
+            return textColour[y];
         }
         return null;
     }
 
     public synchronized TextBuffer getBackgroundColourLine( int y )
     {
-        if( y >= 0 && y < this.m_height )
+        if( y >= 0 && y < height )
         {
-            return this.m_backgroundColour[y];
+            return backgroundColour[y];
         }
         return null;
     }
 
+    public final void setChanged()
+    {
+        if( onChanged != null ) onChanged.run();
+    }
+
     public synchronized void write( PacketByteBuf buffer )
     {
-        buffer.writeInt( this.m_cursorX );
-        buffer.writeInt( this.m_cursorY );
-        buffer.writeBoolean( this.m_cursorBlink );
-        buffer.writeByte( this.m_cursorBackgroundColour << 4 | this.m_cursorColour );
+        buffer.writeInt( cursorX );
+        buffer.writeInt( cursorY );
+        buffer.writeBoolean( cursorBlink );
+        buffer.writeByte( cursorBackgroundColour << 4 | cursorColour );
 
-        for( int y = 0; y < this.m_height; y++ )
+        for( int y = 0; y < height; y++ )
         {
-            TextBuffer text = this.m_text[y];
-            TextBuffer textColour = this.m_textColour[y];
-            TextBuffer backColour = this.m_backgroundColour[y];
+            TextBuffer text = this.text[y];
+            TextBuffer textColour = this.textColour[y];
+            TextBuffer backColour = backgroundColour[y];
 
-            for( int x = 0; x < this.m_width; x++ )
+            for( int x = 0; x < width; x++ )
             {
                 buffer.writeByte( text.charAt( x ) & 0xFF );
-                buffer.writeByte( getColour( backColour.charAt( x ), Colour.BLACK ) << 4 | getColour( textColour.charAt( x ), Colour.WHITE ) );
+                buffer.writeByte( getColour(
+                    backColour.charAt( x ), Colour.BLACK ) << 4 |
+                    getColour( textColour.charAt( x ), Colour.WHITE )
+                );
             }
         }
 
-        this.m_palette.write( buffer );
-    }
-
-    public static int getColour( char c, Colour def )
-    {
-        if( c >= '0' && c <= '9' )
-        {
-            return c - '0';
-        }
-        if( c >= 'a' && c <= 'f' )
-        {
-            return c - 'a' + 10;
-        }
-        return 15 - def.ordinal();
+        palette.write( buffer );
     }
 
     public synchronized void read( PacketByteBuf buffer )
     {
-        this.m_cursorX = buffer.readInt();
-        this.m_cursorY = buffer.readInt();
-        this.m_cursorBlink = buffer.readBoolean();
+        cursorX = buffer.readInt();
+        cursorY = buffer.readInt();
+        cursorBlink = buffer.readBoolean();
 
         byte cursorColour = buffer.readByte();
-        this.m_cursorBackgroundColour = (cursorColour >> 4) & 0xF;
-        this.m_cursorColour = cursorColour & 0xF;
+        cursorBackgroundColour = (cursorColour >> 4) & 0xF;
+        this.cursorColour = cursorColour & 0xF;
 
-        for( int y = 0; y < this.m_height; y++ )
+        for( int y = 0; y < height; y++ )
         {
-            TextBuffer text = this.m_text[y];
-            TextBuffer textColour = this.m_textColour[y];
-            TextBuffer backColour = this.m_backgroundColour[y];
+            TextBuffer text = this.text[y];
+            TextBuffer textColour = this.textColour[y];
+            TextBuffer backColour = backgroundColour[y];
 
-            for( int x = 0; x < this.m_width; x++ )
+            for( int x = 0; x < width; x++ )
             {
                 text.setChar( x, (char) (buffer.readByte() & 0xFF) );
 
@@ -371,56 +362,63 @@ public class Terminal
             }
         }
 
-        this.m_palette.read( buffer );
-        this.setChanged();
+        palette.read( buffer );
+        setChanged();
     }
 
     public synchronized CompoundTag writeToNBT( CompoundTag nbt )
     {
-        nbt.putInt( "term_cursorX", this.m_cursorX );
-        nbt.putInt( "term_cursorY", this.m_cursorY );
-        nbt.putBoolean( "term_cursorBlink", this.m_cursorBlink );
-        nbt.putInt( "term_textColour", this.m_cursorColour );
-        nbt.putInt( "term_bgColour", this.m_cursorBackgroundColour );
-        for( int n = 0; n < this.m_height; n++ )
+        nbt.putInt( "term_cursorX", cursorX );
+        nbt.putInt( "term_cursorY", cursorY );
+        nbt.putBoolean( "term_cursorBlink", cursorBlink );
+        nbt.putInt( "term_textColour", cursorColour );
+        nbt.putInt( "term_bgColour", cursorBackgroundColour );
+        for( int n = 0; n < height; n++ )
         {
-            nbt.putString( "term_text_" + n, this.m_text[n].toString() );
-            nbt.putString( "term_textColour_" + n, this.m_textColour[n].toString() );
-            nbt.putString( "term_textBgColour_" + n, this.m_backgroundColour[n].toString() );
+            nbt.putString( "term_text_" + n, text[n].toString() );
+            nbt.putString( "term_textColour_" + n, textColour[n].toString() );
+            nbt.putString( "term_textBgColour_" + n, backgroundColour[n].toString() );
         }
 
-        this.m_palette.writeToNBT( nbt );
+        palette.writeToNBT( nbt );
         return nbt;
     }
 
     public synchronized void readFromNBT( CompoundTag nbt )
     {
-        this.m_cursorX = nbt.getInt( "term_cursorX" );
-        this.m_cursorY = nbt.getInt( "term_cursorY" );
-        this.m_cursorBlink = nbt.getBoolean( "term_cursorBlink" );
-        this.m_cursorColour = nbt.getInt( "term_textColour" );
-        this.m_cursorBackgroundColour = nbt.getInt( "term_bgColour" );
+        cursorX = nbt.getInt( "term_cursorX" );
+        cursorY = nbt.getInt( "term_cursorY" );
+        cursorBlink = nbt.getBoolean( "term_cursorBlink" );
+        cursorColour = nbt.getInt( "term_textColour" );
+        cursorBackgroundColour = nbt.getInt( "term_bgColour" );
 
-        for( int n = 0; n < this.m_height; n++ )
+        for( int n = 0; n < height; n++ )
         {
-            this.m_text[n].fill( ' ' );
+            text[n].fill( ' ' );
             if( nbt.contains( "term_text_" + n ) )
             {
-                this.m_text[n].write( nbt.getString( "term_text_" + n ) );
+                text[n].write( nbt.getString( "term_text_" + n ) );
             }
-            this.m_textColour[n].fill( base16.charAt( this.m_cursorColour ) );
+            textColour[n].fill( base16.charAt( cursorColour ) );
             if( nbt.contains( "term_textColour_" + n ) )
             {
-                this.m_textColour[n].write( nbt.getString( "term_textColour_" + n ) );
+                textColour[n].write( nbt.getString( "term_textColour_" + n ) );
             }
-            this.m_backgroundColour[n].fill( base16.charAt( this.m_cursorBackgroundColour ) );
+            backgroundColour[n].fill( base16.charAt( cursorBackgroundColour ) );
             if( nbt.contains( "term_textBgColour_" + n ) )
             {
-                this.m_backgroundColour[n].write( nbt.getString( "term_textBgColour_" + n ) );
+                backgroundColour[n].write( nbt.getString( "term_textBgColour_" + n ) );
             }
         }
 
-        this.m_palette.readFromNBT( nbt );
-        this.setChanged();
+        palette.readFromNBT( nbt );
+        setChanged();
+    }
+
+    public static int getColour( char c, Colour def )
+    {
+        if( c >= '0' && c <= '9' ) return c - '0';
+        if( c >= 'a' && c <= 'f' ) return c - 'a' + 10;
+        return 15 - def.ordinal();
     }
 }

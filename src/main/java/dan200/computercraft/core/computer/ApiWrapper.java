@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.computer;
 
 import dan200.computercraft.api.lua.ILuaAPI;
@@ -25,30 +24,30 @@ final class ApiWrapper implements ILuaAPI
     @Override
     public String[] getNames()
     {
-        return this.delegate.getNames();
+        return delegate.getNames();
     }
 
     @Override
     public void startup()
     {
-        this.delegate.startup();
+        delegate.startup();
     }
 
     @Override
     public void update()
     {
-        this.delegate.update();
+        delegate.update();
     }
 
     @Override
     public void shutdown()
     {
-        this.delegate.shutdown();
-        this.system.unmountAll();
+        delegate.shutdown();
+        system.unmountAll();
     }
 
     public ILuaAPI getDelegate()
     {
-        return this.delegate;
+        return delegate;
     }
 }

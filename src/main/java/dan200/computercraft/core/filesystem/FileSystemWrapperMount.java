@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.filesystem;
 
 import dan200.computercraft.api.filesystem.IFileSystem;
@@ -18,11 +17,11 @@ import java.util.function.Function;
 
 public class FileSystemWrapperMount implements IFileSystem
 {
-    private final FileSystem m_filesystem;
+    private final FileSystem filesystem;
 
     public FileSystemWrapperMount( FileSystem filesystem )
     {
-        this.m_filesystem = filesystem;
+        this.filesystem = filesystem;
     }
 
     @Override
@@ -30,7 +29,7 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            this.m_filesystem.makeDir( path );
+            filesystem.makeDir( path );
         }
         catch( FileSystemException e )
         {
@@ -43,63 +42,7 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            this.m_filesystem.delete( path );
-        }
-        catch( FileSystemException e )
-        {
-            throw new IOException( e.getMessage() );
-        }
-    }
-
-    @Nonnull
-    @Override
-    public WritableByteChannel openForWrite( @Nonnull String path ) throws IOException
-    {
-        try
-        {
-            return this.m_filesystem.openForWrite( path, false, Function.identity() )
-                .get();
-        }
-        catch( FileSystemException e )
-        {
-            throw new IOException( e.getMessage() );
-        }
-    }
-
-    @Nonnull
-    @Override
-    public WritableByteChannel openForAppend( @Nonnull String path ) throws IOException
-    {
-        try
-        {
-            return this.m_filesystem.openForWrite( path, true, Function.identity() )
-                .get();
-        }
-        catch( FileSystemException e )
-        {
-            throw new IOException( e.getMessage() );
-        }
-    }
-
-    @Override
-    public long getRemainingSpace() throws IOException
-    {
-        try
-        {
-            return this.m_filesystem.getFreeSpace( "/" );
-        }
-        catch( FileSystemException e )
-        {
-            throw new IOException( e.getMessage() );
-        }
-    }
-
-    @Override
-    public void list( @Nonnull String path, @Nonnull List<String> contents ) throws IOException
-    {
-        try
-        {
-            Collections.addAll( contents, this.m_filesystem.list( path ) );
+            filesystem.delete( path );
         }
         catch( FileSystemException e )
         {
@@ -114,8 +57,48 @@ public class FileSystemWrapperMount implements IFileSystem
         try
         {
             // FIXME: Think of a better way of implementing this, so closing this will close on the computer.
-            return this.m_filesystem.openForRead( path, Function.identity() )
-                .get();
+            return filesystem.openForRead( path, Function.identity() ).get();
+        }
+        catch( FileSystemException e )
+        {
+            throw new IOException( e.getMessage() );
+        }
+    }
+
+    @Nonnull
+    @Override
+    public WritableByteChannel openForWrite( @Nonnull String path ) throws IOException
+    {
+        try
+        {
+            return filesystem.openForWrite( path, false, Function.identity() ).get();
+        }
+        catch( FileSystemException e )
+        {
+            throw new IOException( e.getMessage() );
+        }
+    }
+
+    @Nonnull
+    @Override
+    public WritableByteChannel openForAppend( @Nonnull String path ) throws IOException
+    {
+        try
+        {
+            return filesystem.openForWrite( path, true, Function.identity() ).get();
+        }
+        catch( FileSystemException e )
+        {
+            throw new IOException( e.getMessage() );
+        }
+    }
+
+    @Override
+    public long getRemainingSpace() throws IOException
+    {
+        try
+        {
+            return filesystem.getFreeSpace( "/" );
         }
         catch( FileSystemException e )
         {
@@ -128,7 +111,7 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            return this.m_filesystem.exists( path );
+            return filesystem.exists( path );
         }
         catch( FileSystemException e )
         {
@@ -141,7 +124,20 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            return this.m_filesystem.isDir( path );
+            return filesystem.isDir( path );
+        }
+        catch( FileSystemException e )
+        {
+            throw new IOException( e.getMessage() );
+        }
+    }
+
+    @Override
+    public void list( @Nonnull String path, @Nonnull List<String> contents ) throws IOException
+    {
+        try
+        {
+            Collections.addAll( contents, filesystem.list( path ) );
         }
         catch( FileSystemException e )
         {
@@ -154,7 +150,7 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            return this.m_filesystem.getSize( path );
+            return filesystem.getSize( path );
         }
         catch( FileSystemException e )
         {
@@ -165,7 +161,7 @@ public class FileSystemWrapperMount implements IFileSystem
     @Override
     public String combine( String path, String child )
     {
-        return this.m_filesystem.combine( path, child );
+        return filesystem.combine( path, child );
     }
 
     @Override
@@ -173,7 +169,7 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            this.m_filesystem.copy( from, to );
+            filesystem.copy( from, to );
         }
         catch( FileSystemException e )
         {
@@ -186,7 +182,7 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            this.m_filesystem.move( from, to );
+            filesystem.move( from, to );
         }
         catch( FileSystemException e )
         {

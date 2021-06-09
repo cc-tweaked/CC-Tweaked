@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.lua.LuaException;
@@ -21,9 +20,6 @@ import java.util.function.LongUnaryOperator;
 
 final class LuaDateTime
 {
-    private static final TemporalField CENTURY = map( ChronoField.YEAR, ValueRange.of( 0, 6 ), x -> (x / 100) % 100 );
-    private static final TemporalField ZERO_WEEK = map( WeekFields.SUNDAY_START.dayOfWeek(), ValueRange.of( 0, 6 ), x -> x - 1 );
-
     private LuaDateTime()
     {
     }
@@ -42,10 +38,7 @@ final class LuaDateTime
                     formatter.appendLiteral( c );
                     break;
                 case '%':
-                    if( i >= format.length() )
-                    {
-                        break;
-                    }
+                    if( i >= format.length() ) break;
                     switch( c = format.charAt( i++ ) )
                     {
                         default:
@@ -81,8 +74,7 @@ final class LuaDateTime
                             format( formatter, "%m/%d/%y", offset );
                             break;
                         case 'e':
-                            formatter.padNext( 2 )
-                                .appendValue( ChronoField.DAY_OF_MONTH );
+                            formatter.padNext( 2 ).appendValue( ChronoField.DAY_OF_MONTH );
                             break;
                         case 'F':
                             format( formatter, "%Y-%m-%d", offset );
@@ -97,7 +89,7 @@ final class LuaDateTime
                             formatter.appendValue( ChronoField.HOUR_OF_DAY, 2 );
                             break;
                         case 'I':
-                            formatter.appendValue( ChronoField.HOUR_OF_AMPM );
+                            formatter.appendValue( ChronoField.HOUR_OF_AMPM, 2 );
                             break;
                         case 'j':
                             formatter.appendValue( ChronoField.DAY_OF_YEAR, 3 );
@@ -176,49 +168,18 @@ final class LuaDateTime
         if( isDst != null )
         {
             boolean requireDst = isDst;
-            for( ZoneOffset possibleOffset : ZoneOffset.systemDefault()
-                .getRules()
-                .getValidOffsets( time ) )
+            for( ZoneOffset possibleOffset : ZoneOffset.systemDefault().getRules().getValidOffsets( time ) )
             {
                 Instant instant = time.toInstant( possibleOffset );
-                if( possibleOffset.getRules()
-                    .getDaylightSavings( instant )
-                    .isZero() == requireDst )
+                if( possibleOffset.getRules().getDaylightSavings( instant ).isZero() == requireDst )
                 {
                     return instant.getEpochSecond();
                 }
             }
         }
 
-        ZoneOffset offset = ZoneOffset.systemDefault()
-            .getRules()
-            .getOffset( time );
-        return time.toInstant( offset )
-            .getEpochSecond();
-    }
-
-    private static int getField( Map<?, ?> table, String field, int def ) throws LuaException
-    {
-        Object value = table.get( field );
-        if( value instanceof Number )
-        {
-            return ((Number) value).intValue();
-        }
-        if( def < 0 )
-        {
-            throw new LuaException( "field \"" + field + "\" missing in date table" );
-        }
-        return def;
-    }
-
-    private static Boolean getBoolField( Map<?, ?> table, String field ) throws LuaException
-    {
-        Object value = table.get( field );
-        if( value instanceof Boolean || value == null )
-        {
-            return (Boolean) value;
-        }
-        throw new LuaException( "field \"" + field + "\" missing in date table" );
+        ZoneOffset offset = ZoneOffset.systemDefault().getRules().getOffset( time );
+        return time.toInstant( offset ).getEpochSecond();
     }
 
     static Map<String, ?> toTable( TemporalAccessor date, ZoneId offset, Instant instant )
@@ -232,11 +193,27 @@ final class LuaDateTime
         table.put( "sec", date.getLong( ChronoField.SECOND_OF_MINUTE ) );
         table.put( "wday", date.getLong( WeekFields.SUNDAY_START.dayOfWeek() ) );
         table.put( "yday", date.getLong( ChronoField.DAY_OF_YEAR ) );
-        table.put( "isdst",
-            offset.getRules()
-                .isDaylightSavings( instant ) );
+        table.put( "isdst", offset.getRules().isDaylightSavings( instant ) );
         return table;
     }
+
+    private static int getField( Map<?, ?> table, String field, int def ) throws LuaException
+    {
+        Object value = table.get( field );
+        if( value instanceof Number ) return ((Number) value).intValue();
+        if( def < 0 ) throw new LuaException( "field \"" + field + "\" missing in date table" );
+        return def;
+    }
+
+    private static Boolean getBoolField( Map<?, ?> table, String field ) throws LuaException
+    {
+        Object value = table.get( field );
+        if( value instanceof Boolean || value == null ) return (Boolean) value;
+        throw new LuaException( "field \"" + field + "\" missing in date table" );
+    }
+
+    private static final TemporalField CENTURY = map( ChronoField.YEAR, ValueRange.of( 0, 6 ), x -> (x / 100) % 100 );
+    private static final TemporalField ZERO_WEEK = map( WeekFields.SUNDAY_START.dayOfWeek(), ValueRange.of( 0, 6 ), x -> x - 1 );
 
     private static TemporalField map( TemporalField field, ValueRange range, LongUnaryOperator convert )
     {
@@ -259,7 +236,7 @@ final class LuaDateTime
             @Override
             public ValueRange range()
             {
-                return this.range;
+                return range;
             }
 
             @Override
@@ -283,7 +260,7 @@ final class LuaDateTime
             @Override
             public ValueRange rangeRefinedBy( TemporalAccessor temporal )
             {
-                return this.range;
+                return range;
             }
 
             @Override

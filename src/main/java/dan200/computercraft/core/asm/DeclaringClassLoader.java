@@ -18,6 +18,6 @@ final class DeclaringClassLoader extends ClassLoader
 
     Class<?> define( String name, byte[] bytes, ProtectionDomain protectionDomain ) throws ClassFormatError
     {
-        return this.defineClass( name, bytes, 0, bytes.length, protectionDomain );
+        return defineClass( name, bytes, 0, bytes.length, protectionDomain );
     }
 }

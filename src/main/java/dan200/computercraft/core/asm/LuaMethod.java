@@ -12,14 +12,13 @@ import java.util.Collections;
 
 public interface LuaMethod
 {
-    Generator<LuaMethod> GENERATOR = new Generator<>( LuaMethod.class,
-        Collections.singletonList( ILuaContext.class ),
-        m -> ( target, context, args ) -> TaskCallback.make( context,
-            () -> TaskCallback.checkUnwrap( m.apply( target,
-                context,
-                args ) ) ) );
+    Generator<LuaMethod> GENERATOR = new Generator<>( LuaMethod.class, Collections.singletonList( ILuaContext.class ),
+        m -> ( target, context, args ) -> TaskCallback.make( context, () -> TaskCallback.checkUnwrap( m.apply( target, context, args ) ) )
+    );
 
-    IntCache<LuaMethod> DYNAMIC = new IntCache<>( method -> ( instance, context, args ) -> ((IDynamicLuaObject) instance).callMethod( context, method, args ) );
+    IntCache<LuaMethod> DYNAMIC = new IntCache<>(
+        method -> ( instance, context, args ) -> ((IDynamicLuaObject) instance).callMethod( context, method, args )
+    );
 
     String[] EMPTY_METHODS = new String[0];
 

@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.computer;
 
 import dan200.computercraft.ComputerCraft;
@@ -15,16 +14,17 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Runs tasks on the main (server) thread, ticks {@link MainThreadExecutor}s, and limits how much time is used this tick.
+ * Runs tasks on the main (server) thread, ticks {@link MainThreadExecutor}s, and limits how much time is used this
+ * tick.
  *
- * Similar to {@link MainThreadExecutor}, the {@link MainThread} can be in one of three states: cool, hot and cooling. However, the implementation here is a
- * little different:
+ * Similar to {@link MainThreadExecutor}, the {@link MainThread} can be in one of three states: cool, hot and cooling.
+ * However, the implementation here is a little different:
  *
- * {@link MainThread} starts cool, and runs as many tasks as it can in the current {@link #budget}ns. Any external tasks (those run by tile entities,
- * etc...) will also consume the budget
+ * {@link MainThread} starts cool, and runs as many tasks as it can in the current {@link #budget}ns. Any external tasks
+ * (those run by tile entities, etc...) will also consume the budget
  *
- * Next tick, we put {@link ComputerCraft#maxMainGlobalTime} into our budget (and clamp it to that value to). If we're still over budget, then we should not
- * execute <em>any</em> work (either as part of {@link MainThread} or externally).
+ * Next tick, we put {@link ComputerCraft#maxMainGlobalTime} into our budget (and clamp it to that value to). If we're
+ * still over budget, then we should not execute <em>any</em> work (either as part of {@link MainThread} or externally).
  */
 public final class MainThread
 {
@@ -40,16 +40,10 @@ public final class MainThread
      * The queue of {@link MainThreadExecutor}s with tasks to perform.
      */
     private static final TreeSet<MainThreadExecutor> executors = new TreeSet<>( ( a, b ) -> {
-        if( a == b )
-        {
-            return 0; // Should never happen, but let's be consistent here
-        }
+        if( a == b ) return 0; // Should never happen, but let's be consistent here
 
         long at = a.virtualTime, bt = b.virtualTime;
-        if( at == bt )
-        {
-            return Integer.compare( a.hashCode(), b.hashCode() );
-        }
+        if( at == bt ) return Integer.compare( a.hashCode(), b.hashCode() );
         return at < bt ? -1 : 1;
     } );
 
@@ -62,7 +56,8 @@ public final class MainThread
     private static final HashSet<MainThreadExecutor> cooling = new HashSet<>();
 
     /**
-     * The current tick number. This is used by {@link MainThreadExecutor} to determine when to reset its own time counter.
+     * The current tick number. This is used by {@link MainThreadExecutor} to determine when to reset its own time
+     * counter.
      *
      * @see #currentTick()
      */
@@ -93,10 +88,7 @@ public final class MainThread
     {
         synchronized( executors )
         {
-            if( executor.onQueue )
-            {
-                throw new IllegalStateException( "Cannot queue already queued executor" );
-            }
+            if( executor.onQueue ) throw new IllegalStateException( "Cannot queue already queued executor" );
             executor.onQueue = true;
             executor.updateTime();
 
@@ -105,10 +97,7 @@ public final class MainThread
             long newRuntime = minimumTime;
 
             // Slow down new computers a little bit.
-            if( executor.virtualTime == 0 )
-            {
-                newRuntime += ComputerCraft.maxMainComputerTime;
-            }
+            if( executor.virtualTime == 0 ) newRuntime += ComputerCraft.maxMainComputerTime;
 
             executor.virtualTime = Math.max( newRuntime, executor.virtualTime );
 
@@ -119,6 +108,11 @@ public final class MainThread
     static void cooling( @Nonnull MainThreadExecutor executor )
     {
         cooling.add( executor );
+    }
+
+    static void consumeTime( long time )
+    {
+        budget -= time;
     }
 
     static boolean canExecute()
@@ -145,10 +139,7 @@ public final class MainThread
         // Cool down any warm computers.
         cooling.removeIf( MainThreadExecutor::tickCooling );
 
-        if( !canExecute )
-        {
-            return;
-        }
+        if( !canExecute ) return;
 
         // Run until we meet the deadline.
         long start = System.nanoTime();
@@ -160,10 +151,7 @@ public final class MainThread
             {
                 executor = executors.pollFirst();
             }
-            if( executor == null )
-            {
-                break;
-            }
+            if( executor == null ) break;
 
             long taskStart = System.nanoTime();
             executor.execute();
@@ -171,10 +159,7 @@ public final class MainThread
             long taskStop = System.nanoTime();
             synchronized( executors )
             {
-                if( executor.afterExecute( taskStop - taskStart ) )
-                {
-                    executors.add( executor );
-                }
+                if( executor.afterExecute( taskStop - taskStart ) ) executors.add( executor );
 
                 // Compute the new minimum time (including the next task on the queue too). Note that this may also include
                 // time spent in external tasks.
@@ -182,26 +167,15 @@ public final class MainThread
                 if( !executors.isEmpty() )
                 {
                     MainThreadExecutor next = executors.first();
-                    if( next.virtualTime < newMinimum )
-                    {
-                        newMinimum = next.virtualTime;
-                    }
+                    if( next.virtualTime < newMinimum ) newMinimum = next.virtualTime;
                 }
                 minimumTime = Math.max( minimumTime, newMinimum );
             }
 
-            if( taskStop >= deadline )
-            {
-                break;
-            }
+            if( taskStop >= deadline ) break;
         }
 
         consumeTime( System.nanoTime() - start );
-    }
-
-    static void consumeTime( long time )
-    {
-        budget -= time;
     }
 
     public static void reset()

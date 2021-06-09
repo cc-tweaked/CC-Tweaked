@@ -15,11 +15,24 @@ import org.squiddev.cobalt.function.ResumableVarArgFunction;
 import javax.annotation.Nonnull;
 
 /**
- * Calls a {@link LuaMethod}, and interprets the resulting {@link MethodResult}, either returning the result or yielding and resuming the supplied
- * continuation.
+ * Calls a {@link LuaMethod}, and interprets the resulting {@link MethodResult}, either returning the result or yielding
+ * and resuming the supplied continuation.
  */
 class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterpreterFunction.Container>
 {
+    @Nonnull
+    static class Container
+    {
+        ILuaCallback callback;
+        int errorAdjust;
+
+        Container( ILuaCallback callback, int errorAdjust )
+        {
+            this.callback = callback;
+            this.errorAdjust = errorAdjust;
+        }
+    }
+
     private final CobaltLuaMachine machine;
     private final LuaMethod method;
     private final Object instance;
@@ -42,7 +55,7 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
         MethodResult results;
         try
         {
-            results = this.method.apply( this.instance, this.context, arguments );
+            results = method.apply( instance, context, arguments );
         }
         catch( LuaException e )
         {
@@ -52,18 +65,15 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
         {
             if( ComputerCraft.logComputerErrors )
             {
-                ComputerCraft.log.error( "Error calling " + this.name + " on " + this.instance, t );
+                ComputerCraft.log.error( "Error calling " + name + " on " + instance, t );
             }
             throw new LuaError( "Java Exception Thrown: " + t, 0 );
         }
 
         ILuaCallback callback = results.getCallback();
-        Varargs ret = this.machine.toValues( results.getResult() );
+        Varargs ret = machine.toValues( results.getResult() );
 
-        if( callback == null )
-        {
-            return ret;
-        }
+        if( callback == null ) return ret;
 
         debugFrame.state = new Container( callback, results.getErrorAdjust() );
         return LuaThread.yield( state, ret );
@@ -86,18 +96,15 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
         {
             if( ComputerCraft.logComputerErrors )
             {
-                ComputerCraft.log.error( "Error calling " + this.name + " on " + container.callback, t );
+                ComputerCraft.log.error( "Error calling " + name + " on " + container.callback, t );
             }
             throw new LuaError( "Java Exception Thrown: " + t, 0 );
         }
 
-        Varargs ret = this.machine.toValues( results.getResult() );
+        Varargs ret = machine.toValues( results.getResult() );
 
         ILuaCallback callback = results.getCallback();
-        if( callback == null )
-        {
-            return ret;
-        }
+        if( callback == null ) return ret;
 
         container.callback = callback;
         return LuaThread.yield( state, ret );
@@ -105,25 +112,9 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
 
     public static LuaError wrap( LuaException exception, int adjust )
     {
-        if( !exception.hasLevel() && adjust == 0 )
-        {
-            return new LuaError( exception.getMessage() );
-        }
+        if( !exception.hasLevel() && adjust == 0 ) return new LuaError( exception.getMessage() );
 
         int level = exception.getLevel();
         return new LuaError( exception.getMessage(), level <= 0 ? level : level + adjust + 1 );
-    }
-
-    @Nonnull
-    static class Container
-    {
-        ILuaCallback callback;
-        int errorAdjust;
-
-        Container( ILuaCallback callback, int errorAdjust )
-        {
-            this.callback = callback;
-            this.errorAdjust = errorAdjust;
-        }
     }
 }

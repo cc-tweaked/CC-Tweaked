@@ -45,7 +45,7 @@ class BasicFunction extends VarArgFunction
         MethodResult results;
         try
         {
-            results = this.method.apply( this.instance, this.context, arguments );
+            results = method.apply( instance, context, arguments );
         }
         catch( LuaException e )
         {
@@ -55,7 +55,7 @@ class BasicFunction extends VarArgFunction
         {
             if( ComputerCraft.logComputerErrors )
             {
-                ComputerCraft.log.error( "Error calling " + this.name + " on " + this.instance, t );
+                ComputerCraft.log.error( "Error calling " + name + " on " + instance, t );
             }
             throw new LuaError( "Java Exception Thrown: " + t, 0 );
         }
@@ -64,7 +64,7 @@ class BasicFunction extends VarArgFunction
         {
             throw new IllegalStateException( "Cannot have a yielding non-yielding function" );
         }
-        return this.machine.toValues( results.getResult() );
+        return machine.toValues( results.getResult() );
     }
 
     public static LuaError wrap( LuaException exception )

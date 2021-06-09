@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.tracking;
 
 import dan200.computercraft.core.computer.Computer;
@@ -35,8 +34,8 @@ public interface Tracker
     }
 
     /**
-     * Increment an arbitrary field by some value. Implementations may track how often this is called as well as the change, to compute some level of
-     * "average".
+     * Increment an arbitrary field by some value. Implementations may track how often this is called
+     * as well as the change, to compute some level of "average".
      *
      * @param computer The computer to increment
      * @param field    The field to increment.

@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.apis.http;
 
 import java.util.Collections;
@@ -19,11 +18,16 @@ import java.util.function.Supplier;
  */
 public class ResourceGroup<T extends Resource<T>>
 {
+    public static final int DEFAULT_LIMIT = 512;
+    public static final IntSupplier DEFAULT = () -> DEFAULT_LIMIT;
+
     private static final IntSupplier ZERO = () -> 0;
 
     final IntSupplier limit;
-    final Set<T> resources = Collections.newSetFromMap( new ConcurrentHashMap<>() );
+
     boolean active = false;
+
+    final Set<T> resources = Collections.newSetFromMap( new ConcurrentHashMap<>() );
 
     public ResourceGroup( IntSupplier limit )
     {
@@ -32,23 +36,20 @@ public class ResourceGroup<T extends Resource<T>>
 
     public ResourceGroup()
     {
-        this.limit = ZERO;
+        limit = ZERO;
     }
 
     public void startup()
     {
-        this.active = true;
+        active = true;
     }
 
     public synchronized void shutdown()
     {
-        this.active = false;
+        active = false;
 
-        for( T resource : this.resources )
-        {
-            resource.close();
-        }
-        this.resources.clear();
+        for( T resource : resources ) resource.close();
+        resources.clear();
 
         Resource.cleanup();
     }
@@ -56,7 +57,7 @@ public class ResourceGroup<T extends Resource<T>>
 
     public final boolean queue( T resource, Runnable setup )
     {
-        return this.queue( () -> {
+        return queue( () -> {
             setup.run();
             return resource;
         } );
@@ -65,15 +66,12 @@ public class ResourceGroup<T extends Resource<T>>
     public synchronized boolean queue( Supplier<T> resource )
     {
         Resource.cleanup();
-        if( !this.active )
-        {
-            return false;
-        }
+        if( !active ) return false;
 
         int limit = this.limit.getAsInt();
-        if( limit <= 0 || this.resources.size() < limit )
+        if( limit <= 0 || resources.size() < limit )
         {
-            this.resources.add( resource.get() );
+            resources.add( resource.get() );
             return true;
         }
 
@@ -82,6 +80,6 @@ public class ResourceGroup<T extends Resource<T>>
 
     public synchronized void release( T resource )
     {
-        this.resources.remove( resource );
+        resources.remove( resource );
     }
 }

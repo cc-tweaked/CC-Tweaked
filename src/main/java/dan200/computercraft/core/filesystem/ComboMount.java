@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.filesystem;
 
 import dan200.computercraft.api.filesystem.FileOperationException;
@@ -20,14 +19,42 @@ import java.util.Set;
 
 public class ComboMount implements IMount
 {
-    private IMount[] m_parts;
+    private final IMount[] parts;
 
     public ComboMount( IMount[] parts )
     {
-        this.m_parts = parts;
+        this.parts = parts;
     }
 
     // IMount implementation
+
+    @Override
+    public boolean exists( @Nonnull String path ) throws IOException
+    {
+        for( int i = parts.length - 1; i >= 0; --i )
+        {
+            IMount part = parts[i];
+            if( part.exists( path ) )
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isDirectory( @Nonnull String path ) throws IOException
+    {
+        for( int i = parts.length - 1; i >= 0; --i )
+        {
+            IMount part = parts[i];
+            if( part.isDirectory( path ) )
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
     public void list( @Nonnull String path, @Nonnull List<String> contents ) throws IOException
@@ -35,9 +62,9 @@ public class ComboMount implements IMount
         // Combine the lists from all the mounts
         List<String> foundFiles = null;
         int foundDirs = 0;
-        for( int i = this.m_parts.length - 1; i >= 0; --i )
+        for( int i = parts.length - 1; i >= 0; --i )
         {
-            IMount part = this.m_parts[i];
+            IMount part = parts[i];
             if( part.exists( path ) && part.isDirectory( path ) )
             {
                 if( foundFiles == null )
@@ -72,13 +99,27 @@ public class ComboMount implements IMount
         }
     }
 
+    @Override
+    public long getSize( @Nonnull String path ) throws IOException
+    {
+        for( int i = parts.length - 1; i >= 0; --i )
+        {
+            IMount part = parts[i];
+            if( part.exists( path ) )
+            {
+                return part.getSize( path );
+            }
+        }
+        throw new FileOperationException( path, "No such file" );
+    }
+
     @Nonnull
     @Override
     public ReadableByteChannel openForRead( @Nonnull String path ) throws IOException
     {
-        for( int i = this.m_parts.length - 1; i >= 0; --i )
+        for( int i = parts.length - 1; i >= 0; --i )
         {
-            IMount part = this.m_parts[i];
+            IMount part = parts[i];
             if( part.exists( path ) && !part.isDirectory( path ) )
             {
                 return part.openForRead( path );
@@ -91,54 +132,12 @@ public class ComboMount implements IMount
     @Override
     public BasicFileAttributes getAttributes( @Nonnull String path ) throws IOException
     {
-        for( int i = this.m_parts.length - 1; i >= 0; --i )
+        for( int i = parts.length - 1; i >= 0; --i )
         {
-            IMount part = this.m_parts[i];
+            IMount part = parts[i];
             if( part.exists( path ) && !part.isDirectory( path ) )
             {
                 return part.getAttributes( path );
-            }
-        }
-        throw new FileOperationException( path, "No such file" );
-    }
-
-    @Override
-    public boolean exists( @Nonnull String path ) throws IOException
-    {
-        for( int i = this.m_parts.length - 1; i >= 0; --i )
-        {
-            IMount part = this.m_parts[i];
-            if( part.exists( path ) )
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean isDirectory( @Nonnull String path ) throws IOException
-    {
-        for( int i = this.m_parts.length - 1; i >= 0; --i )
-        {
-            IMount part = this.m_parts[i];
-            if( part.isDirectory( path ) )
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public long getSize( @Nonnull String path ) throws IOException
-    {
-        for( int i = this.m_parts.length - 1; i >= 0; --i )
-        {
-            IMount part = this.m_parts[i];
-            if( part.exists( path ) )
-            {
-                return part.getSize( path );
             }
         }
         throw new FileOperationException( path, "No such file" );
