@@ -8,16 +8,18 @@ package dan200.computercraft.shared.computer.inventory;
 
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
-
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.PacketByteBuf;
 
-public class ContainerComputer extends ContainerComputerBase {
-    public ContainerComputer(int id, TileComputer tile) {
-        super(ComputerCraftRegistry.ModContainers.COMPUTER, id, tile::isUsableByPlayer, tile.createServerComputer(), tile.getFamily());
+public class ContainerComputer extends ContainerComputerBase
+{
+    public ContainerComputer( int id, TileComputer tile )
+    {
+        super( ComputerCraftRegistry.ModContainers.COMPUTER, id, tile::isUsableByPlayer, tile.createServerComputer(), tile.getFamily() );
     }
 
-    public ContainerComputer(int i, PlayerInventory playerInventory, PacketByteBuf packetByteBuf) {
-        super(ComputerCraftRegistry.ModContainers.COMPUTER, i, playerInventory, packetByteBuf);
+    public ContainerComputer( int i, PlayerInventory playerInventory, PacketByteBuf packetByteBuf )
+    {
+        super( ComputerCraftRegistry.ModContainers.COMPUTER, i, playerInventory, packetByteBuf );
     }
 }

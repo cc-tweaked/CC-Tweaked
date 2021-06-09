@@ -12,11 +12,7 @@ import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 public final class TurtleUpgrades
@@ -32,7 +28,7 @@ public final class TurtleUpgrades
         {
             this.upgrade = upgrade;
             this.id = upgrade.getUpgradeID()
-                             .toString();
+                .toString();
             // TODO This should be the mod id of the mod the peripheral comes from
             this.modId = ComputerCraft.MOD_ID;
             this.enabled = true;

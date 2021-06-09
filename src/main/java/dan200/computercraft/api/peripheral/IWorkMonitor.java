@@ -6,10 +6,9 @@
 
 package dan200.computercraft.api.peripheral;
 
+import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nonnull;
 
 /**
  * Monitors "work" associated with a computer, keeping track of how much a computer has done, and ensuring every computer receives a fair share of any
@@ -25,7 +24,8 @@ import javax.annotation.Nonnull;
  *
  * @see IComputerAccess#getMainThreadMonitor()
  */
-public interface IWorkMonitor {
+public interface IWorkMonitor
+{
     /**
      * If the owning computer is currently allowed to execute work, and has ample time to do so.
      *
@@ -42,17 +42,22 @@ public interface IWorkMonitor {
      * @param runnable The task to run.
      * @return If the task was actually run (namely, {@link #canWork()} returned {@code true}).
      */
-    default boolean runWork(@Nonnull Runnable runnable) {
-        Objects.requireNonNull(runnable, "runnable should not be null");
-        if (!this.canWork()) {
+    default boolean runWork( @Nonnull Runnable runnable )
+    {
+        Objects.requireNonNull( runnable, "runnable should not be null" );
+        if( !this.canWork() )
+        {
             return false;
         }
 
         long start = System.nanoTime();
-        try {
+        try
+        {
             runnable.run();
-        } finally {
-            this.trackWork(System.nanoTime() - start, TimeUnit.NANOSECONDS);
+        }
+        finally
+        {
+            this.trackWork( System.nanoTime() - start, TimeUnit.NANOSECONDS );
         }
 
         return true;
@@ -71,5 +76,5 @@ public interface IWorkMonitor {
      * @param time The time some task took to run
      * @param unit The unit that {@code time} was measured in.
      */
-    void trackWork(long time, @Nonnull TimeUnit unit);
+    void trackWork( long time, @Nonnull TimeUnit unit );
 }

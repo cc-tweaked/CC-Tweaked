@@ -6,11 +6,6 @@
 
 package dan200.computercraft.client.gui;
 
-import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
-import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
-
-import javax.annotation.Nonnull;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
@@ -22,14 +17,19 @@ import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
-import org.lwjgl.glfw.GLFW;
-
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
+import org.lwjgl.glfw.GLFW;
 
-public final class GuiComputer<T extends ContainerComputerBase> extends HandledScreen<T> {
+import javax.annotation.Nonnull;
+
+import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
+import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
+
+public final class GuiComputer<T extends ContainerComputerBase> extends HandledScreen<T>
+{
     private final ComputerFamily family;
     private final ClientComputer computer;
     private final int termWidth;
@@ -38,8 +38,9 @@ public final class GuiComputer<T extends ContainerComputerBase> extends HandledS
     private WidgetTerminal terminal;
     private WidgetWrapper terminalWrapper;
 
-    private GuiComputer(T container, PlayerInventory player, Text title, int termWidth, int termHeight) {
-        super(container, player, title);
+    private GuiComputer( T container, PlayerInventory player, Text title, int termWidth, int termHeight )
+    {
+        super( container, player, title );
         this.family = container.getFamily();
         this.computer = (ClientComputer) container.getComputer();
         this.termWidth = termWidth;
@@ -47,22 +48,26 @@ public final class GuiComputer<T extends ContainerComputerBase> extends HandledS
         this.terminal = null;
     }
 
-    public static GuiComputer<ContainerComputer> create(ContainerComputer container, PlayerInventory inventory, Text component) {
-        return new GuiComputer<>(container, inventory, component, ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight);
+    public static GuiComputer<ContainerComputer> create( ContainerComputer container, PlayerInventory inventory, Text component )
+    {
+        return new GuiComputer<>( container, inventory, component, ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight );
     }
 
-    public static GuiComputer<ContainerPocketComputer> createPocket(ContainerPocketComputer container, PlayerInventory inventory, Text component) {
-        return new GuiComputer<>(container, inventory, component, ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight);
+    public static GuiComputer<ContainerPocketComputer> createPocket( ContainerPocketComputer container, PlayerInventory inventory, Text component )
+    {
+        return new GuiComputer<>( container, inventory, component, ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight );
     }
 
-    public static GuiComputer<ContainerViewComputer> createView(ContainerViewComputer container, PlayerInventory inventory, Text component) {
-        return new GuiComputer<>(container, inventory, component, container.getWidth(), container.getHeight());
+    public static GuiComputer<ContainerViewComputer> createView( ContainerViewComputer container, PlayerInventory inventory, Text component )
+    {
+        return new GuiComputer<>( container, inventory, component, container.getWidth(), container.getHeight() );
     }
 
 
     @Override
-    protected void init() {
-        this.client.keyboard.setRepeatEvents(true);
+    protected void init()
+    {
+        this.client.keyboard.setRepeatEvents( true );
 
         int termPxWidth = this.termWidth * FixedWidthFontRenderer.FONT_WIDTH;
         int termPxHeight = this.termHeight * FixedWidthFontRenderer.FONT_HEIGHT;
@@ -72,67 +77,76 @@ public final class GuiComputer<T extends ContainerComputerBase> extends HandledS
 
         super.init();
 
-        this.terminal = new WidgetTerminal(this.client, () -> this.computer, this.termWidth, this.termHeight, MARGIN, MARGIN, MARGIN, MARGIN);
-        this.terminalWrapper = new WidgetWrapper(this.terminal, MARGIN + BORDER + this.x, MARGIN + BORDER + this.y, termPxWidth, termPxHeight);
+        this.terminal = new WidgetTerminal( this.client, () -> this.computer, this.termWidth, this.termHeight, MARGIN, MARGIN, MARGIN, MARGIN );
+        this.terminalWrapper = new WidgetWrapper( this.terminal, MARGIN + BORDER + this.x, MARGIN + BORDER + this.y, termPxWidth, termPxHeight );
 
-        this.children.add(this.terminalWrapper);
-        this.setFocused(this.terminalWrapper);
+        this.children.add( this.terminalWrapper );
+        this.setFocused( this.terminalWrapper );
     }
 
     @Override
-    public void render(@Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
-        super.render(stack, mouseX, mouseY, partialTicks);
-        this.drawMouseoverTooltip(stack, mouseX, mouseY);
+    public void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
+    {
+        super.render( stack, mouseX, mouseY, partialTicks );
+        this.drawMouseoverTooltip( stack, mouseX, mouseY );
     }
 
     @Override
-    protected void drawForeground(@Nonnull MatrixStack transform, int mouseX, int mouseY) {
+    protected void drawForeground( @Nonnull MatrixStack transform, int mouseX, int mouseY )
+    {
         // Skip rendering labels.
     }
 
     @Override
-    public void drawBackground(@Nonnull MatrixStack stack, float partialTicks, int mouseX, int mouseY) {
+    public void drawBackground( @Nonnull MatrixStack stack, float partialTicks, int mouseX, int mouseY )
+    {
         // Draw terminal
-        this.terminal.draw(this.terminalWrapper.getX(), this.terminalWrapper.getY());
+        this.terminal.draw( this.terminalWrapper.getX(), this.terminalWrapper.getY() );
 
         // Draw a border around the terminal
-        RenderSystem.color4f(1, 1, 1, 1);
+        RenderSystem.color4f( 1, 1, 1, 1 );
         this.client.getTextureManager()
-                   .bindTexture(ComputerBorderRenderer.getTexture(this.family));
-        ComputerBorderRenderer.render(this.terminalWrapper.getX() - MARGIN, this.terminalWrapper.getY() - MARGIN,
-                                      this.getZOffset(), this.terminalWrapper.getWidth() + MARGIN * 2, this.terminalWrapper.getHeight() + MARGIN * 2);
+            .bindTexture( ComputerBorderRenderer.getTexture( this.family ) );
+        ComputerBorderRenderer.render( this.terminalWrapper.getX() - MARGIN, this.terminalWrapper.getY() - MARGIN,
+            this.getZOffset(), this.terminalWrapper.getWidth() + MARGIN * 2, this.terminalWrapper.getHeight() + MARGIN * 2 );
     }
 
     @Override
-    public boolean mouseDragged(double x, double y, int button, double deltaX, double deltaY) {
-        return (this.getFocused() != null && this.getFocused().mouseDragged(x, y, button, deltaX, deltaY)) || super.mouseDragged(x, y, button, deltaX, deltaY);
+    public boolean mouseDragged( double x, double y, int button, double deltaX, double deltaY )
+    {
+        return (this.getFocused() != null && this.getFocused().mouseDragged( x, y, button, deltaX, deltaY )) || super.mouseDragged( x, y, button, deltaX, deltaY );
     }
 
-	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		return (this.getFocused() != null && this.getFocused().mouseReleased(mouseX, mouseY, button)) || super.mouseReleased(x, y, button);
-	}
+    @Override
+    public boolean mouseReleased( double mouseX, double mouseY, int button )
+    {
+        return (this.getFocused() != null && this.getFocused().mouseReleased( mouseX, mouseY, button )) || super.mouseReleased( x, y, button );
+    }
 
     @Override
-    public boolean keyPressed(int key, int scancode, int modifiers) {
+    public boolean keyPressed( int key, int scancode, int modifiers )
+    {
         // Forward the tab key to the terminal, rather than moving between controls.
-        if (key == GLFW.GLFW_KEY_TAB && this.getFocused() != null && this.getFocused() == this.terminalWrapper) {
-            return this.getFocused().keyPressed(key, scancode, modifiers);
+        if( key == GLFW.GLFW_KEY_TAB && this.getFocused() != null && this.getFocused() == this.terminalWrapper )
+        {
+            return this.getFocused().keyPressed( key, scancode, modifiers );
         }
 
-        return super.keyPressed(key, scancode, modifiers);
+        return super.keyPressed( key, scancode, modifiers );
     }
 
     @Override
-    public void removed() {
+    public void removed()
+    {
         super.removed();
-        this.children.remove(this.terminal);
+        this.children.remove( this.terminal );
         this.terminal = null;
-        this.client.keyboard.setRepeatEvents(false);
+        this.client.keyboard.setRepeatEvents( false );
     }
 
     @Override
-    public void tick() {
+    public void tick()
+    {
         super.tick();
         this.terminal.update();
     }

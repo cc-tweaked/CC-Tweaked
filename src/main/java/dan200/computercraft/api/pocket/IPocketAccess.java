@@ -6,21 +6,20 @@
 
 package dan200.computercraft.api.pocket;
 
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import dan200.computercraft.api.peripheral.IPeripheral;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Map;
+
 /**
  * Wrapper class for pocket computers.
  */
-public interface IPocketAccess {
+public interface IPocketAccess
+{
     /**
      * Gets the entity holding this item.
      *
@@ -43,10 +42,10 @@ public interface IPocketAccess {
      * Set the colour of the pocket computer to a RGB number.
      *
      * @param colour The colour this pocket computer should be changed to. This should be a RGB colour between {@code 0x000000} and {@code 0xFFFFFF} or
-     *     -1 to reset to the default colour.
+     *               -1 to reset to the default colour.
      * @see #getColour()
      */
-    void setColour(int colour);
+    void setColour( int colour );
 
     /**
      * Get the colour of this pocket computer's light as a RGB number.
@@ -60,10 +59,10 @@ public interface IPocketAccess {
      * Set the colour of the pocket computer's light to a RGB number.
      *
      * @param colour The colour this modem's light will be changed to. This should be a RGB colour between {@code 0x000000} and {@code 0xFFFFFF} or -1
-     *     to reset to the default colour.
+     *               to reset to the default colour.
      * @see #getLight()
      */
-    void setLight(int colour);
+    void setLight( int colour );
 
     /**
      * Get the upgrade-specific NBT.

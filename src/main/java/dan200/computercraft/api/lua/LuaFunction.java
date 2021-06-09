@@ -6,16 +6,12 @@
 
 package dan200.computercraft.api.lua;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.util.Map;
-import java.util.Optional;
-
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+
+import java.lang.annotation.*;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Used to mark a Java function which is callable from Lua.
@@ -41,9 +37,10 @@ import dan200.computercraft.api.peripheral.IPeripheral;
  * {@link MethodResult#of(Object...)}.
  */
 @Documented
-@Retention (RetentionPolicy.RUNTIME)
-@Target (ElementType.METHOD)
-public @interface LuaFunction {
+@Retention( RetentionPolicy.RUNTIME )
+@Target( ElementType.METHOD )
+public @interface LuaFunction
+{
     /**
      * Explicitly specify the method names of this function. If not given, it uses the name of the annotated method.
      *

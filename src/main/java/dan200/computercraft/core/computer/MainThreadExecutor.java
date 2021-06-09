@@ -6,16 +6,15 @@
 
 package dan200.computercraft.core.computer;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nonnull;
-
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayDeque;
+import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Keeps track of tasks that a {@link Computer} should run on the main thread and how long that has been spent executing them.
@@ -46,7 +45,8 @@ import dan200.computercraft.shared.turtle.core.TurtleBrain;
  * @see Computer#getMainThreadMonitor()
  * @see Computer#queueMainThread(Runnable)
  */
-final class MainThreadExecutor implements IWorkMonitor {
+final class MainThreadExecutor implements IWorkMonitor
+{
     /**
      * The maximum number of {@link MainThread} tasks allowed on the queue.
      */
@@ -65,7 +65,7 @@ final class MainThreadExecutor implements IWorkMonitor {
      *
      * @see #queueLock
      */
-    private final Queue<Runnable> tasks = new ArrayDeque<>(4);
+    private final Queue<Runnable> tasks = new ArrayDeque<>( 4 );
 
     /**
      * Determines if this executor is currently present on the queue.
@@ -100,7 +100,8 @@ final class MainThreadExecutor implements IWorkMonitor {
     private State state = State.COOL;
     private long pendingTime;
 
-    MainThreadExecutor(Computer computer) {
+    MainThreadExecutor( Computer computer )
+    {
         this.computer = computer;
     }
 
@@ -110,29 +111,37 @@ final class MainThreadExecutor implements IWorkMonitor {
      * @param runnable The task to run on the main thread.
      * @return Whether this task was enqueued (namely, was there space).
      */
-    boolean enqueue(Runnable runnable) {
-        synchronized (this.queueLock) {
-            if (this.tasks.size() >= MAX_TASKS || !this.tasks.offer(runnable)) {
+    boolean enqueue( Runnable runnable )
+    {
+        synchronized( this.queueLock )
+        {
+            if( this.tasks.size() >= MAX_TASKS || !this.tasks.offer( runnable ) )
+            {
                 return false;
             }
-            if (!this.onQueue && this.state == State.COOL) {
-                MainThread.queue(this, true);
+            if( !this.onQueue && this.state == State.COOL )
+            {
+                MainThread.queue( this, true );
             }
             return true;
         }
     }
 
-    void execute() {
-        if (this.state != State.COOL) {
+    void execute()
+    {
+        if( this.state != State.COOL )
+        {
             return;
         }
 
         Runnable task;
-        synchronized (this.queueLock) {
+        synchronized( this.queueLock )
+        {
             task = this.tasks.poll();
         }
 
-        if (task != null) {
+        if( task != null )
+        {
             task.run();
         }
     }
@@ -143,25 +152,30 @@ final class MainThreadExecutor implements IWorkMonitor {
      * @param time The time some task took to run.
      * @return Whether this should be added back to the queue.
      */
-    boolean afterExecute(long time) {
-        this.consumeTime(time);
+    boolean afterExecute( long time )
+    {
+        this.consumeTime( time );
 
-        synchronized (this.queueLock) {
+        synchronized( this.queueLock )
+        {
             this.virtualTime += time;
             this.updateTime();
-            if (this.state != State.COOL || this.tasks.isEmpty()) {
+            if( this.state != State.COOL || this.tasks.isEmpty() )
+            {
                 return this.onQueue = false;
             }
             return true;
         }
     }
 
-    private void consumeTime(long time) {
-        Tracking.addServerTiming(this.computer, time);
+    private void consumeTime( long time )
+    {
+        Tracking.addServerTiming( this.computer, time );
 
         // Reset the budget if moving onto a new tick. We know this is safe, as this will only have happened if
         // #tickCooling() isn't called, and so we didn't overrun the previous tick.
-        if (this.currentTick != MainThread.currentTick()) {
+        if( this.currentTick != MainThread.currentTick() )
+        {
             this.currentTick = MainThread.currentTick();
             this.budget = ComputerCraft.maxMainComputerTime;
         }
@@ -169,19 +183,22 @@ final class MainThreadExecutor implements IWorkMonitor {
         this.budget -= time;
 
         // If we've gone over our limit, mark us as having to cool down.
-        if (this.budget < 0 && this.state == State.COOL) {
+        if( this.budget < 0 && this.state == State.COOL )
+        {
             this.state = State.HOT;
-            MainThread.cooling(this);
+            MainThread.cooling( this );
         }
     }
 
-    void updateTime() {
+    void updateTime()
+    {
         this.virtualTime += this.pendingTime;
         this.pendingTime = 0;
     }
 
     @Override
-    public boolean shouldWork() {
+    public boolean shouldWork()
+    {
         return this.state == State.COOL && MainThread.canExecute();
     }
 
@@ -191,19 +208,22 @@ final class MainThreadExecutor implements IWorkMonitor {
      * @return Whether we can execute external tasks.
      */
     @Override
-    public boolean canWork() {
+    public boolean canWork()
+    {
         return this.state != State.COOLING && MainThread.canExecute();
     }
 
     @Override
-    public void trackWork(long time, @Nonnull TimeUnit unit) {
-        long nanoTime = unit.toNanos(time);
-        synchronized (this.queueLock) {
+    public void trackWork( long time, @Nonnull TimeUnit unit )
+    {
+        long nanoTime = unit.toNanos( time );
+        synchronized( this.queueLock )
+        {
             this.pendingTime += nanoTime;
         }
 
-        this.consumeTime(nanoTime);
-        MainThread.consumeTime(nanoTime);
+        this.consumeTime( nanoTime );
+        MainThread.consumeTime( nanoTime );
     }
 
     /**
@@ -211,24 +231,29 @@ final class MainThreadExecutor implements IWorkMonitor {
      *
      * @return Whether this executor has cooled down, and so is safe to run again.
      */
-    boolean tickCooling() {
+    boolean tickCooling()
+    {
         this.state = State.COOLING;
         this.currentTick = MainThread.currentTick();
-        this.budget = Math.min(this.budget + ComputerCraft.maxMainComputerTime, ComputerCraft.maxMainComputerTime);
-        if (this.budget < ComputerCraft.maxMainComputerTime) {
+        this.budget = Math.min( this.budget + ComputerCraft.maxMainComputerTime, ComputerCraft.maxMainComputerTime );
+        if( this.budget < ComputerCraft.maxMainComputerTime )
+        {
             return false;
         }
 
         this.state = State.COOL;
-        synchronized (this.queueLock) {
-            if (!this.tasks.isEmpty() && !this.onQueue) {
-                MainThread.queue(this, false);
+        synchronized( this.queueLock )
+        {
+            if( !this.tasks.isEmpty() && !this.onQueue )
+            {
+                MainThread.queue( this, false );
             }
         }
         return true;
     }
 
-    private enum State {
+    private enum State
+    {
         COOL, HOT, COOLING,
     }
 }

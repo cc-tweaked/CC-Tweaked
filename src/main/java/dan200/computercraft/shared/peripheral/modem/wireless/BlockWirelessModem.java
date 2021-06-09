@@ -6,17 +6,8 @@
 
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
-import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
-import static dan200.computercraft.shared.util.WaterloggableHelpers.getWaterloggedFluidState;
-import static dan200.computercraft.shared.util.WaterloggableHelpers.getWaterloggedStateForPlacement;
-import static dan200.computercraft.shared.util.WaterloggableHelpers.updateWaterloggedPostPlacement;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
@@ -35,60 +26,73 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 
-public class BlockWirelessModem extends BlockGeneric implements Waterloggable {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import static dan200.computercraft.shared.util.WaterloggableHelpers.*;
+
+public class BlockWirelessModem extends BlockGeneric implements Waterloggable
+{
     public static final DirectionProperty FACING = Properties.FACING;
-    public static final BooleanProperty ON = BooleanProperty.of("on");
+    public static final BooleanProperty ON = BooleanProperty.of( "on" );
 
-    public BlockWirelessModem(Settings settings, BlockEntityType<? extends TileWirelessModem> type) {
-        super(settings, type);
-        this.setDefaultState(this.getStateManager().getDefaultState()
-                                 .with(FACING, Direction.NORTH)
-                                 .with(ON, false)
-                                 .with(WATERLOGGED, false));
+    public BlockWirelessModem( Settings settings, BlockEntityType<? extends TileWirelessModem> type )
+    {
+        super( settings, type );
+        this.setDefaultState( this.getStateManager().getDefaultState()
+            .with( FACING, Direction.NORTH )
+            .with( ON, false )
+            .with( WATERLOGGED, false ) );
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public BlockState getStateForNeighborUpdate(@Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState,
-                                                @Nonnull WorldAccess world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos) {
-        updateWaterloggedPostPlacement(state, world, pos);
-        return side == state.get(FACING) && !state.canPlaceAt(world, pos) ? state.getFluidState()
-                                                                                 .getBlockState() : state;
+    public BlockState getStateForNeighborUpdate( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState,
+                                                 @Nonnull WorldAccess world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
+    {
+        updateWaterloggedPostPlacement( state, world, pos );
+        return side == state.get( FACING ) && !state.canPlaceAt( world, pos ) ? state.getFluidState()
+            .getBlockState() : state;
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public FluidState getFluidState(@Nonnull BlockState state) {
-        return getWaterloggedFluidState(state);
+    public FluidState getFluidState( @Nonnull BlockState state )
+    {
+        return getWaterloggedFluidState( state );
     }
 
     @Override
     @Deprecated
-    public boolean canPlaceAt(BlockState state, @Nonnull WorldView world, BlockPos pos) {
-        Direction facing = state.get(FACING);
-        return sideCoversSmallSquare(world, pos.offset(facing), facing.getOpposite());
+    public boolean canPlaceAt( BlockState state, @Nonnull WorldView world, BlockPos pos )
+    {
+        Direction facing = state.get( FACING );
+        return sideCoversSmallSquare( world, pos.offset( facing ), facing.getOpposite() );
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public VoxelShape getOutlineShape(BlockState blockState, @Nonnull BlockView blockView, @Nonnull BlockPos blockPos, @Nonnull ShapeContext context) {
-        return ModemShapes.getBounds(blockState.get(FACING));
+    public VoxelShape getOutlineShape( BlockState blockState, @Nonnull BlockView blockView, @Nonnull BlockPos blockPos, @Nonnull ShapeContext context )
+    {
+        return ModemShapes.getBounds( blockState.get( FACING ) );
     }
 
     @Nullable
     @Override
-    public BlockState getPlacementState(ItemPlacementContext placement) {
-        return this.getDefaultState().with(FACING,
-                                           placement.getSide()
-                                               .getOpposite())
-                   .with(WATERLOGGED, getWaterloggedStateForPlacement(placement));
+    public BlockState getPlacementState( ItemPlacementContext placement )
+    {
+        return this.getDefaultState().with( FACING,
+            placement.getSide()
+                .getOpposite() )
+            .with( WATERLOGGED, getWaterloggedStateForPlacement( placement ) );
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(FACING, ON, WATERLOGGED);
+    protected void appendProperties( StateManager.Builder<Block, BlockState> builder )
+    {
+        builder.add( FACING, ON, WATERLOGGED );
     }
 }

@@ -6,15 +6,14 @@
 
 package dan200.computercraft.shared.peripheral.commandblock;
 
-import javax.annotation.Nonnull;
-
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.computer.apis.CommandAPI;
-
 import net.minecraft.block.entity.CommandBlockBlockEntity;
 import net.minecraft.util.Identifier;
+
+import javax.annotation.Nonnull;
 
 /**
  * This peripheral allows you to interact with command blocks.
@@ -25,29 +24,34 @@ import net.minecraft.util.Identifier;
  *
  * @cc.module command
  */
-public class CommandBlockPeripheral implements IPeripheral {
-    private static final Identifier CAP_ID = new Identifier(ComputerCraft.MOD_ID, "command_block");
+public class CommandBlockPeripheral implements IPeripheral
+{
+    private static final Identifier CAP_ID = new Identifier( ComputerCraft.MOD_ID, "command_block" );
 
     private final CommandBlockBlockEntity commandBlock;
 
-    public CommandBlockPeripheral(CommandBlockBlockEntity commandBlock) {
+    public CommandBlockPeripheral( CommandBlockBlockEntity commandBlock )
+    {
         this.commandBlock = commandBlock;
     }
 
     @Nonnull
     @Override
-    public String getType() {
+    public String getType()
+    {
         return "command";
     }
 
     @Nonnull
     @Override
-    public Object getTarget() {
+    public Object getTarget()
+    {
         return this.commandBlock;
     }
 
     @Override
-    public boolean equals(IPeripheral other) {
+    public boolean equals( IPeripheral other )
+    {
         return other != null && other.getClass() == this.getClass();
     }
 
@@ -56,10 +60,11 @@ public class CommandBlockPeripheral implements IPeripheral {
      *
      * @return The current command.
      */
-    @LuaFunction (mainThread = true)
-    public final String getCommand() {
+    @LuaFunction( mainThread = true )
+    public final String getCommand()
+    {
         return this.commandBlock.getCommandExecutor()
-                                .getCommand();
+            .getCommand();
     }
 
     /**
@@ -67,12 +72,13 @@ public class CommandBlockPeripheral implements IPeripheral {
      *
      * @param command The new command.
      */
-    @LuaFunction (mainThread = true)
-    public final void setCommand(String command) {
+    @LuaFunction( mainThread = true )
+    public final void setCommand( String command )
+    {
         this.commandBlock.getCommandExecutor()
-                         .setCommand(command);
+            .setCommand( command );
         this.commandBlock.getCommandExecutor()
-                         .markDirty();
+            .markDirty();
     }
 
     /**
@@ -82,13 +88,14 @@ public class CommandBlockPeripheral implements IPeripheral {
      * @cc.treturn boolean If the command completed successfully.
      * @cc.treturn string|nil A failure message.
      */
-    @LuaFunction (mainThread = true)
-    public final Object[] runCommand() {
+    @LuaFunction( mainThread = true )
+    public final Object[] runCommand()
+    {
         this.commandBlock.getCommandExecutor()
-                         .execute(this.commandBlock.getWorld());
+            .execute( this.commandBlock.getWorld() );
         int result = this.commandBlock.getCommandExecutor()
-                                      .getSuccessCount();
-        return result > 0 ? new Object[] {true} : new Object[] {
+            .getSuccessCount();
+        return result > 0 ? new Object[] { true } : new Object[] {
             false,
             "Command failed"
         };

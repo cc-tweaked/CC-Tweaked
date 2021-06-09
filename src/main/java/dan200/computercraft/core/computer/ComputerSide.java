@@ -12,8 +12,9 @@ import javax.annotation.Nullable;
 /**
  * A side on a computer. Unlike {@link Direction}, this is relative to the direction the computer is facing..
  */
-public enum ComputerSide {
-    BOTTOM("bottom"), TOP("top"), BACK("back"), FRONT("front"), RIGHT("right"), LEFT("left");
+public enum ComputerSide
+{
+    BOTTOM( "bottom" ), TOP( "top" ), BACK( "back" ), FRONT( "front" ), RIGHT( "right" ), LEFT( "left" );
 
     public static final String[] NAMES = new String[] {
         "bottom",
@@ -30,19 +31,24 @@ public enum ComputerSide {
 
     private final String name;
 
-    ComputerSide(String name) {
+    ComputerSide( String name )
+    {
         this.name = name;
     }
 
     @Nonnull
-    public static ComputerSide valueOf(int side) {
+    public static ComputerSide valueOf( int side )
+    {
         return VALUES[side];
     }
 
     @Nullable
-    public static ComputerSide valueOfInsensitive(@Nonnull String name) {
-        for (ComputerSide side : VALUES) {
-            if (side.name.equalsIgnoreCase(name)) {
+    public static ComputerSide valueOfInsensitive( @Nonnull String name )
+    {
+        for( ComputerSide side : VALUES )
+        {
+            if( side.name.equalsIgnoreCase( name ) )
+            {
                 return side;
             }
         }
@@ -50,7 +56,8 @@ public enum ComputerSide {
         return null;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return this.name;
     }
 }

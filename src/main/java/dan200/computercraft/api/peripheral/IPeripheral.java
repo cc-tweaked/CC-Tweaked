@@ -6,10 +6,10 @@
 
 package dan200.computercraft.api.peripheral;
 
+import dan200.computercraft.api.lua.LuaFunction;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import dan200.computercraft.api.lua.LuaFunction;
 
 /**
  * The interface that defines a peripheral.
@@ -19,7 +19,8 @@ import dan200.computercraft.api.lua.LuaFunction;
  *
  * Peripherals should provide a series of methods to the user, either using {@link LuaFunction} or by implementing {@link IDynamicPeripheral}.
  */
-public interface IPeripheral {
+public interface IPeripheral
+{
     /**
      * Should return a string that uniquely identifies this type of peripheral. This can be queried from lua by calling {@code peripheral.getType()}
      *
@@ -42,7 +43,8 @@ public interface IPeripheral {
      * @param computer The interface to the computer that is being attached. Remember that multiple computers can be attached to a peripheral at once.
      * @see #detach
      */
-    default void attach(@Nonnull IComputerAccess computer) {
+    default void attach( @Nonnull IComputerAccess computer )
+    {
     }
 
     /**
@@ -58,7 +60,8 @@ public interface IPeripheral {
      * @param computer The interface to the computer that is being detached. Remember that multiple computers can be attached to a peripheral at once.
      * @see #attach
      */
-    default void detach(@Nonnull IComputerAccess computer) {
+    default void detach( @Nonnull IComputerAccess computer )
+    {
     }
 
     /**
@@ -67,7 +70,8 @@ public interface IPeripheral {
      * @return The object this peripheral targets
      */
     @Nullable
-    default Object getTarget() {
+    default Object getTarget()
+    {
         return null;
     }
 
@@ -80,5 +84,5 @@ public interface IPeripheral {
      * @param other The peripheral to compare against. This may be {@code null}.
      * @return Whether these peripherals are equivalent.
      */
-    boolean equals(@Nullable IPeripheral other);
+    boolean equals( @Nullable IPeripheral other );
 }

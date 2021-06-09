@@ -6,12 +6,9 @@
 
 package dan200.computercraft.shared.util;
 
-import javax.annotation.Nonnull;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
@@ -24,30 +21,40 @@ import net.minecraft.util.JsonHelper;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
-public final class ImpostorShapelessRecipe extends ShapelessRecipe {
-    public static final RecipeSerializer<ImpostorShapelessRecipe> SERIALIZER = new RecipeSerializer<ImpostorShapelessRecipe>() {
+import javax.annotation.Nonnull;
+
+public final class ImpostorShapelessRecipe extends ShapelessRecipe
+{
+    public static final RecipeSerializer<ImpostorShapelessRecipe> SERIALIZER = new RecipeSerializer<ImpostorShapelessRecipe>()
+    {
         @Override
-        public ImpostorShapelessRecipe read(@Nonnull Identifier id, @Nonnull JsonObject json) {
-            String s = JsonHelper.getString(json, "group", "");
-            DefaultedList<Ingredient> ingredients = this.readIngredients(JsonHelper.getArray(json, "ingredients"));
+        public ImpostorShapelessRecipe read( @Nonnull Identifier id, @Nonnull JsonObject json )
+        {
+            String s = JsonHelper.getString( json, "group", "" );
+            DefaultedList<Ingredient> ingredients = this.readIngredients( JsonHelper.getArray( json, "ingredients" ) );
 
-            if (ingredients.isEmpty()) {
-                throw new JsonParseException("No ingredients for shapeless recipe");
+            if( ingredients.isEmpty() )
+            {
+                throw new JsonParseException( "No ingredients for shapeless recipe" );
             }
-            if (ingredients.size() > 9) {
-                throw new JsonParseException("Too many ingredients for shapeless recipe the max is 9");
+            if( ingredients.size() > 9 )
+            {
+                throw new JsonParseException( "Too many ingredients for shapeless recipe the max is 9" );
             }
 
-            ItemStack itemstack = ShapedRecipe.getItemStack(JsonHelper.getObject(json, "result"));
-            return new ImpostorShapelessRecipe(id, s, itemstack, ingredients);
+            ItemStack itemstack = ShapedRecipe.getItemStack( JsonHelper.getObject( json, "result" ) );
+            return new ImpostorShapelessRecipe( id, s, itemstack, ingredients );
         }
 
-        private DefaultedList<Ingredient> readIngredients(JsonArray arrays) {
+        private DefaultedList<Ingredient> readIngredients( JsonArray arrays )
+        {
             DefaultedList<Ingredient> items = DefaultedList.of();
-            for (int i = 0; i < arrays.size(); ++i) {
-                Ingredient ingredient = Ingredient.fromJson(arrays.get(i));
-                if (!ingredient.isEmpty()) {
-                    items.add(ingredient);
+            for( int i = 0; i < arrays.size(); ++i )
+            {
+                Ingredient ingredient = Ingredient.fromJson( arrays.get( i ) );
+                if( !ingredient.isEmpty() )
+                {
+                    items.add( ingredient );
                 }
             }
 
@@ -55,58 +62,67 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe {
         }
 
         @Override
-        public ImpostorShapelessRecipe read(@Nonnull Identifier id, PacketByteBuf buffer) {
-            String s = buffer.readString(32767);
+        public ImpostorShapelessRecipe read( @Nonnull Identifier id, PacketByteBuf buffer )
+        {
+            String s = buffer.readString( 32767 );
             int i = buffer.readVarInt();
-            DefaultedList<Ingredient> items = DefaultedList.ofSize(i, Ingredient.EMPTY);
+            DefaultedList<Ingredient> items = DefaultedList.ofSize( i, Ingredient.EMPTY );
 
-            for (int j = 0; j < items.size(); j++) {
-                items.set(j, Ingredient.fromPacket(buffer));
+            for( int j = 0; j < items.size(); j++ )
+            {
+                items.set( j, Ingredient.fromPacket( buffer ) );
             }
             ItemStack result = buffer.readItemStack();
 
-            return new ImpostorShapelessRecipe(id, s, result, items);
+            return new ImpostorShapelessRecipe( id, s, result, items );
         }
 
         @Override
-        public void write(@Nonnull PacketByteBuf buffer, @Nonnull ImpostorShapelessRecipe recipe) {
-            buffer.writeString(recipe.getGroup());
-            buffer.writeVarInt(recipe.getPreviewInputs()
-                                     .size());
+        public void write( @Nonnull PacketByteBuf buffer, @Nonnull ImpostorShapelessRecipe recipe )
+        {
+            buffer.writeString( recipe.getGroup() );
+            buffer.writeVarInt( recipe.getPreviewInputs()
+                .size() );
 
-            for (Ingredient ingredient : recipe.getPreviewInputs()) {
-                ingredient.write(buffer);
+            for( Ingredient ingredient : recipe.getPreviewInputs() )
+            {
+                ingredient.write( buffer );
             }
-            buffer.writeItemStack(recipe.getOutput());
+            buffer.writeItemStack( recipe.getOutput() );
         }
     };
     private final String group;
 
-    private ImpostorShapelessRecipe(@Nonnull Identifier id, @Nonnull String group, @Nonnull ItemStack result, DefaultedList<Ingredient> ingredients) {
-        super(id, group, result, ingredients);
+    private ImpostorShapelessRecipe( @Nonnull Identifier id, @Nonnull String group, @Nonnull ItemStack result, DefaultedList<Ingredient> ingredients )
+    {
+        super( id, group, result, ingredients );
         this.group = group;
     }
 
     @Nonnull
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<?> getSerializer()
+    {
         return SERIALIZER;
     }
 
     @Nonnull
     @Override
-    public String getGroup() {
+    public String getGroup()
+    {
         return this.group;
     }
 
     @Override
-    public boolean matches(@Nonnull CraftingInventory inv, @Nonnull World world) {
+    public boolean matches( @Nonnull CraftingInventory inv, @Nonnull World world )
+    {
         return false;
     }
 
     @Nonnull
     @Override
-    public ItemStack craft(@Nonnull CraftingInventory inventory) {
+    public ItemStack craft( @Nonnull CraftingInventory inventory )
+    {
         return ItemStack.EMPTY;
     }
 }

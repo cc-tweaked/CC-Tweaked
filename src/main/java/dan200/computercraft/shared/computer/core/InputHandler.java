@@ -12,54 +12,61 @@ package dan200.computercraft.shared.computer.core;
  * @see InputState
  * @see IComputer
  */
-public interface InputHandler {
-    default void keyDown(int key, boolean repeat) {
-        this.queueEvent("key",
-                        new Object[] {
-                       key,
-                       repeat
-                   });
+public interface InputHandler
+{
+    default void keyDown( int key, boolean repeat )
+    {
+        this.queueEvent( "key",
+            new Object[] {
+                key,
+                repeat
+            } );
     }
 
-    void queueEvent(String event, Object[] arguments);
+    void queueEvent( String event, Object[] arguments );
 
-    default void keyUp(int key) {
-        this.queueEvent("key_up", new Object[] {key});
+    default void keyUp( int key )
+    {
+        this.queueEvent( "key_up", new Object[] { key } );
     }
 
-    default void mouseClick(int button, int x, int y) {
-        this.queueEvent("mouse_click",
-                        new Object[] {
-                       button,
-                       x,
-                       y
-                   });
+    default void mouseClick( int button, int x, int y )
+    {
+        this.queueEvent( "mouse_click",
+            new Object[] {
+                button,
+                x,
+                y
+            } );
     }
 
-    default void mouseUp(int button, int x, int y) {
-        this.queueEvent("mouse_up",
-                        new Object[] {
-                       button,
-                       x,
-                       y
-                   });
+    default void mouseUp( int button, int x, int y )
+    {
+        this.queueEvent( "mouse_up",
+            new Object[] {
+                button,
+                x,
+                y
+            } );
     }
 
-    default void mouseDrag(int button, int x, int y) {
-        this.queueEvent("mouse_drag",
-                        new Object[] {
-                       button,
-                       x,
-                       y
-                   });
+    default void mouseDrag( int button, int x, int y )
+    {
+        this.queueEvent( "mouse_drag",
+            new Object[] {
+                button,
+                x,
+                y
+            } );
     }
 
-    default void mouseScroll(int direction, int x, int y) {
-        this.queueEvent("mouse_scroll",
-                        new Object[] {
-                       direction,
-                       x,
-                       y
-                   });
+    default void mouseScroll( int direction, int x, int y )
+    {
+        this.queueEvent( "mouse_scroll",
+            new Object[] {
+                direction,
+                x,
+                y
+            } );
     }
 }

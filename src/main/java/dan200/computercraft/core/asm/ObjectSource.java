@@ -13,16 +13,22 @@ import java.util.function.BiConsumer;
  * This can be used to merge multiple objects together into one. Ideally this'd be part of the API, but I'm not entirely happy with the interface -
  * something I'd like to think about first.
  */
-public interface ObjectSource {
-    static <T> void allMethods(Generator<T> generator, Object object, BiConsumer<Object, NamedMethod<T>> accept) {
-        for (NamedMethod<T> method : generator.getMethods(object.getClass())) {
-            accept.accept(object, method);
+public interface ObjectSource
+{
+    static <T> void allMethods( Generator<T> generator, Object object, BiConsumer<Object, NamedMethod<T>> accept )
+    {
+        for( NamedMethod<T> method : generator.getMethods( object.getClass() ) )
+        {
+            accept.accept( object, method );
         }
 
-        if (object instanceof ObjectSource) {
-            for (Object extra : ((ObjectSource) object).getExtra()) {
-                for (NamedMethod<T> method : generator.getMethods(extra.getClass())) {
-                    accept.accept(extra, method);
+        if( object instanceof ObjectSource )
+        {
+            for( Object extra : ((ObjectSource) object).getExtra() )
+            {
+                for( NamedMethod<T> method : generator.getMethods( extra.getClass() ) )
+                {
+                    accept.accept( extra, method );
                 }
             }
         }

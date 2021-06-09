@@ -12,7 +12,8 @@ package dan200.computercraft.api.turtle;
  * @see ITurtleUpgrade#getType()
  * @see ITurtleUpgrade#useTool(ITurtleAccess, TurtleSide, TurtleVerb, Direction)
  */
-public enum TurtleVerb {
+public enum TurtleVerb
+{
     /**
      * The turtle called {@code turtle.dig()}, {@code turtle.digUp()} or {@code turtle.digDown()}.
      */

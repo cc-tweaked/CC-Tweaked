@@ -6,10 +6,9 @@
 
 package dan200.computercraft.api.network;
 
-import java.util.Objects;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * Represents a packet which may be sent across a {@link IPacketNetwork}.
@@ -20,7 +19,8 @@ import javax.annotation.Nullable;
  * @see IPacketReceiver#receiveDifferentDimension(Packet)
  * @see IPacketReceiver#receiveSameDimension(Packet, double)
  */
-public class Packet {
+public class Packet
+{
     private final int channel;
     private final int replyChannel;
     private final Object payload;
@@ -30,14 +30,15 @@ public class Packet {
     /**
      * Create a new packet, ready for transmitting across the network.
      *
-     * @param channel The channel to send the packet along. Receiving devices should only process packets from on channels they are listening to.
+     * @param channel      The channel to send the packet along. Receiving devices should only process packets from on channels they are listening to.
      * @param replyChannel The channel to reply on.
-     * @param payload The contents of this packet. This should be a "valid" Lua object, safe for queuing as an event or returning from a peripheral
-     *     call.
-     * @param sender The object which sent this packet.
+     * @param payload      The contents of this packet. This should be a "valid" Lua object, safe for queuing as an event or returning from a peripheral
+     *                     call.
+     * @param sender       The object which sent this packet.
      */
-    public Packet(int channel, int replyChannel, @Nullable Object payload, @Nonnull IPacketSender sender) {
-        Objects.requireNonNull(sender, "sender cannot be null");
+    public Packet( int channel, int replyChannel, @Nullable Object payload, @Nonnull IPacketSender sender )
+    {
+        Objects.requireNonNull( sender, "sender cannot be null" );
 
         this.channel = channel;
         this.replyChannel = replyChannel;
@@ -50,7 +51,8 @@ public class Packet {
      *
      * @return This packet's channel.
      */
-    public int getChannel() {
+    public int getChannel()
+    {
         return this.channel;
     }
 
@@ -59,7 +61,8 @@ public class Packet {
      *
      * @return This channel to reply on.
      */
-    public int getReplyChannel() {
+    public int getReplyChannel()
+    {
         return this.replyChannel;
     }
 
@@ -69,7 +72,8 @@ public class Packet {
      * @return The packet's payload
      */
     @Nullable
-    public Object getPayload() {
+    public Object getPayload()
+    {
         return this.payload;
     }
 
@@ -79,12 +83,14 @@ public class Packet {
      * @return The sending object.
      */
     @Nonnull
-    public IPacketSender getSender() {
+    public IPacketSender getSender()
+    {
         return this.sender;
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         int result;
         result = this.channel;
         result = 31 * result + this.replyChannel;
@@ -94,25 +100,31 @@ public class Packet {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals( Object o )
+    {
+        if( this == o )
+        {
             return true;
         }
-        if (o == null || this.getClass() != o.getClass()) {
+        if( o == null || this.getClass() != o.getClass() )
+        {
             return false;
         }
 
         Packet packet = (Packet) o;
 
-        if (this.channel != packet.channel) {
+        if( this.channel != packet.channel )
+        {
             return false;
         }
-        if (this.replyChannel != packet.replyChannel) {
+        if( this.replyChannel != packet.replyChannel )
+        {
             return false;
         }
-        if (!Objects.equals(this.payload, packet.payload)) {
+        if( !Objects.equals( this.payload, packet.payload ) )
+        {
             return false;
         }
-        return this.sender.equals(packet.sender);
+        return this.sender.equals( packet.sender );
     }
 }

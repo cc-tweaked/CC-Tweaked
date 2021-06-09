@@ -6,13 +6,12 @@
 
 package dan200.computercraft.core.lua;
 
-import java.io.InputStream;
+import dan200.computercraft.api.lua.IDynamicLuaObject;
+import dan200.computercraft.api.lua.ILuaAPI;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import dan200.computercraft.api.lua.IDynamicLuaObject;
-import dan200.computercraft.api.lua.ILuaAPI;
+import java.io.InputStream;
 
 /**
  * Represents a machine which will execute Lua code. Technically this API is flexible enough to support many languages, but you'd need a way to provide
@@ -24,7 +23,8 @@ import dan200.computercraft.api.lua.ILuaAPI;
  * This should provide implementations of {@link dan200.computercraft.api.lua.ILuaContext}, and the ability to convert {@link IDynamicLuaObject}s into
  * something the VM understands, as well as handling method calls.
  */
-public interface ILuaMachine {
+public interface ILuaMachine
+{
     /**
      * Inject an API into the global environment of this machine. This should construct an object, as it would for any {@link IDynamicLuaObject} and set it
      * to all names in {@link ILuaAPI#getNames()}.
@@ -33,7 +33,7 @@ public interface ILuaMachine {
      *
      * @param api The API to register.
      */
-    void addAPI(@Nonnull ILuaAPI api);
+    void addAPI( @Nonnull ILuaAPI api );
 
     /**
      * Create a function from the provided program, and set it up to run when {@link #handleEvent(String, Object[])} is called.
@@ -43,7 +43,7 @@ public interface ILuaMachine {
      * @param bios The stream containing the boot program.
      * @return The result of loading this machine. Will either be OK, or the error message when loading the bios.
      */
-    MachineResult loadBios(@Nonnull InputStream bios);
+    MachineResult loadBios( @Nonnull InputStream bios );
 
     /**
      * Resume the machine, either starting or resuming the coroutine.
@@ -51,11 +51,11 @@ public interface ILuaMachine {
      * This should destroy the machine if it failed to execute successfully.
      *
      * @param eventName The name of the event. This is {@code null} when first starting the machine. Note, this may do nothing if it does not match the
-     *     event filter.
+     *                  event filter.
      * @param arguments The arguments for this event.
      * @return The result of loading this machine. Will either be OK, or the error message that occurred when executing.
      */
-    MachineResult handleEvent(@Nullable String eventName, @Nullable Object[] arguments);
+    MachineResult handleEvent( @Nullable String eventName, @Nullable Object[] arguments );
 
     /**
      * Close the Lua machine, aborting any running functions and deleting the internal state.

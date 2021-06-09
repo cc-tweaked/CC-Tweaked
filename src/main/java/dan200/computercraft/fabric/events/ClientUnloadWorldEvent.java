@@ -13,10 +13,11 @@ public interface ClientUnloadWorldEvent
 {
     Event<ClientUnloadWorldEvent> EVENT = EventFactory.createArrayBacked( ClientUnloadWorldEvent.class,
         callbacks -> () -> {
-            for( ClientUnloadWorldEvent callback : callbacks) {
+            for( ClientUnloadWorldEvent callback : callbacks )
+            {
                 callback.onClientUnloadWorld();
             }
-    });
+        } );
 
     void onClientUnloadWorld();
 }

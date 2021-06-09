@@ -8,16 +8,18 @@ package dan200.computercraft.core.tracking;
 
 import dan200.computercraft.core.computer.Computer;
 
-public interface Tracker {
+public interface Tracker
+{
     /**
      * Report how long a task executed on the computer thread took.
      *
      * Computer thread tasks include events or a computer being turned on/off.
      *
      * @param computer The computer processing this task
-     * @param time The time taken for this task.
+     * @param time     The time taken for this task.
      */
-    default void addTaskTiming(Computer computer, long time) {
+    default void addTaskTiming( Computer computer, long time )
+    {
     }
 
     /**
@@ -26,9 +28,10 @@ public interface Tracker {
      * Server tasks include actions performed by peripherals.
      *
      * @param computer The computer processing this task
-     * @param time The time taken for this task.
+     * @param time     The time taken for this task.
      */
-    default void addServerTiming(Computer computer, long time) {
+    default void addServerTiming( Computer computer, long time )
+    {
     }
 
     /**
@@ -36,9 +39,10 @@ public interface Tracker {
      * "average".
      *
      * @param computer The computer to increment
-     * @param field The field to increment.
-     * @param change The amount to increment said field by.
+     * @param field    The field to increment.
+     * @param change   The amount to increment said field by.
      */
-    default void addValue(Computer computer, TrackingField field, long change) {
+    default void addValue( Computer computer, TrackingField field, long change )
+    {
     }
 }

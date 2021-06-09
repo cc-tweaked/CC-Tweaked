@@ -5,11 +5,11 @@
  */
 package dan200.computercraft.shared.peripheral.monitor;
 
-import javax.annotation.Nonnull;
-
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import org.lwjgl.opengl.GL;
+
+import javax.annotation.Nonnull;
 
 /**
  * The render type to use for monitors.
@@ -17,7 +17,8 @@ import org.lwjgl.opengl.GL;
  * @see TileEntityMonitorRenderer
  * @see ClientMonitor
  */
-public enum MonitorRenderer {
+public enum MonitorRenderer
+{
     /**
      * Determine the best monitor backend.
      */
@@ -44,32 +45,38 @@ public enum MonitorRenderer {
      * @return The current renderer. Will not return {@link MonitorRenderer#BEST}.
      */
     @Nonnull
-    public static MonitorRenderer current() {
+    public static MonitorRenderer current()
+    {
         MonitorRenderer current = ComputerCraft.monitorRenderer;
-        switch (current) {
-        case BEST:
-            return best();
-        case TBO:
-            checkCapabilities();
-            if (!textureBuffer) {
-                ComputerCraft.log.warn("Texture buffers are not supported on your graphics card. Falling back to default.");
-                ComputerCraft.monitorRenderer = BEST;
+        switch( current )
+        {
+            case BEST:
                 return best();
-            }
+            case TBO:
+                checkCapabilities();
+                if( !textureBuffer )
+                {
+                    ComputerCraft.log.warn( "Texture buffers are not supported on your graphics card. Falling back to default." );
+                    ComputerCraft.monitorRenderer = BEST;
+                    return best();
+                }
 
-            return TBO;
-        default:
-            return current;
+                return TBO;
+            default:
+                return current;
         }
     }
 
-    private static MonitorRenderer best() {
+    private static MonitorRenderer best()
+    {
         checkCapabilities();
         return textureBuffer ? TBO : VBO;
     }
 
-    private static void checkCapabilities() {
-        if (initialised) {
+    private static void checkCapabilities()
+    {
+        if( initialised )
+        {
             return;
         }
 

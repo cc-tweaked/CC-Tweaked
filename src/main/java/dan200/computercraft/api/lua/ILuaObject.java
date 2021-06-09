@@ -8,10 +8,11 @@ package dan200.computercraft.api.lua;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public interface ILuaObject {
+public interface ILuaObject
+{
     @Nonnull
     String[] getMethodNames();
 
     @Nullable
-    Object[] callMethod(@Nonnull ILuaContext context, int method, @Nonnull Object[] arguments) throws LuaException, InterruptedException;
+    Object[] callMethod( @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments ) throws LuaException, InterruptedException;
 }

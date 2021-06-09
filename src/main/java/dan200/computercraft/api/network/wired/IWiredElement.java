@@ -6,9 +6,9 @@
 
 package dan200.computercraft.api.network.wired;
 
-import javax.annotation.Nonnull;
-
 import dan200.computercraft.api.ComputerCraftAPI;
+
+import javax.annotation.Nonnull;
 
 /**
  * An object which may be part of a wired network.
@@ -19,13 +19,15 @@ import dan200.computercraft.api.ComputerCraftAPI;
  * Elements are generally tied to a block or tile entity in world. In such as case, one should provide the {@link IWiredElement} capability for the
  * appropriate sides.
  */
-public interface IWiredElement extends IWiredSender {
+public interface IWiredElement extends IWiredSender
+{
     /**
      * Called when objects on the network change. This may occur when network nodes are added or removed, or when peripherals change.
      *
      * @param change The change which occurred.
      * @see IWiredNetworkChange
      */
-    default void networkChanged(@Nonnull IWiredNetworkChange change) {
+    default void networkChanged( @Nonnull IWiredNetworkChange change )
+    {
     }
 }

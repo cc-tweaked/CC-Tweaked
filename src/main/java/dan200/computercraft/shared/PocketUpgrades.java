@@ -38,7 +38,7 @@ public final class PocketUpgrades
 
         // Infer the mod id by the identifier of the upgrade. This is not how the forge api works, so it may break peripheral mods using the api.
         // TODO: get the mod id of the mod that is currently being loaded.
-        ModContainer mc = FabricLoader.getInstance().getModContainer(upgrade.getUpgradeID().getNamespace()).orElseGet(null);
+        ModContainer mc = FabricLoader.getInstance().getModContainer( upgrade.getUpgradeID().getNamespace() ).orElseGet( null );
         if( mc != null && mc.getMetadata().getId() != null ) upgradeOwners.put( upgrade, mc.getMetadata().getId() );
     }
 

@@ -6,65 +6,75 @@
 
 package dan200.computercraft.shared.network.container;
 
-import javax.annotation.Nonnull;
-
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
+
+import javax.annotation.Nonnull;
 
 /**
  * View an arbitrary computer on the client.
  *
  * @see dan200.computercraft.shared.command.CommandComputerCraft
  */
-public class ViewComputerContainerData extends ComputerContainerData {
-    private static final Identifier IDENTIFIER = new Identifier(ComputerCraft.MOD_ID, "view_computer_container_data");
+public class ViewComputerContainerData extends ComputerContainerData
+{
+    private static final Identifier IDENTIFIER = new Identifier( ComputerCraft.MOD_ID, "view_computer_container_data" );
     private int width;
     private int height;
 
-    public ViewComputerContainerData(ServerComputer computer) {
-        super(computer);
+    public ViewComputerContainerData( ServerComputer computer )
+    {
+        super( computer );
         Terminal terminal = computer.getTerminal();
-        if (terminal != null) {
+        if( terminal != null )
+        {
             this.width = terminal.getWidth();
             this.height = terminal.getHeight();
-        } else {
+        }
+        else
+        {
             this.width = this.height = 0;
         }
     }
 
-    public ViewComputerContainerData(PacketByteBuf packetByteBuf) {
-        super(new PacketByteBuf(packetByteBuf.copy()));
-        this.fromBytes(packetByteBuf);
+    public ViewComputerContainerData( PacketByteBuf packetByteBuf )
+    {
+        super( new PacketByteBuf( packetByteBuf.copy() ) );
+        this.fromBytes( packetByteBuf );
     }
 
     @Override
-    public void fromBytes(PacketByteBuf buf) {
-        super.fromBytes(buf);
+    public void fromBytes( PacketByteBuf buf )
+    {
+        super.fromBytes( buf );
         this.width = buf.readVarInt();
         this.height = buf.readVarInt();
     }
 
     @Override
-    public Identifier getId() {
+    public Identifier getId()
+    {
         return IDENTIFIER;
     }
 
     @Override
-    public void toBytes(@Nonnull PacketByteBuf buf) {
-        super.toBytes(buf);
-        buf.writeVarInt(this.width);
-        buf.writeVarInt(this.height);
+    public void toBytes( @Nonnull PacketByteBuf buf )
+    {
+        super.toBytes( buf );
+        buf.writeVarInt( this.width );
+        buf.writeVarInt( this.height );
     }
 
-    public int getWidth() {
+    public int getWidth()
+    {
         return this.width;
     }
 
-    public int getHeight() {
+    public int getHeight()
+    {
         return this.height;
     }
 }

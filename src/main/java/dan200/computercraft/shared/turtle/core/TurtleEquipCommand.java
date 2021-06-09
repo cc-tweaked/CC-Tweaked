@@ -6,14 +6,7 @@
 
 package dan200.computercraft.shared.turtle.core;
 
-import javax.annotation.Nonnull;
-
-import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.ITurtleCommand;
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import dan200.computercraft.api.turtle.TurtleAnimation;
-import dan200.computercraft.api.turtle.TurtleCommandResult;
-import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
 import dan200.computercraft.api.turtle.event.TurtleEvent;
@@ -21,71 +14,87 @@ import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.ItemStorage;
 import dan200.computercraft.shared.util.WorldUtil;
-
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 
-public class TurtleEquipCommand implements ITurtleCommand {
+import javax.annotation.Nonnull;
+
+public class TurtleEquipCommand implements ITurtleCommand
+{
     private final TurtleSide m_side;
 
-    public TurtleEquipCommand(TurtleSide side) {
+    public TurtleEquipCommand( TurtleSide side )
+    {
         this.m_side = side;
     }
 
     @Nonnull
     @Override
-    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
+    public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
+    {
         // Determine the upgrade to equipLeft
         ITurtleUpgrade newUpgrade;
         ItemStack newUpgradeStack;
         Inventory inventory = turtle.getInventory();
-        ItemStack selectedStack = inventory.getStack(turtle.getSelectedSlot());
-        if (!selectedStack.isEmpty()) {
+        ItemStack selectedStack = inventory.getStack( turtle.getSelectedSlot() );
+        if( !selectedStack.isEmpty() )
+        {
             newUpgradeStack = selectedStack.copy();
-            newUpgrade = TurtleUpgrades.get(newUpgradeStack);
-            if (newUpgrade == null || !TurtleUpgrades.suitableForFamily(((TurtleBrain) turtle).getFamily(), newUpgrade)) {
-                return TurtleCommandResult.failure("Not a valid upgrade");
+            newUpgrade = TurtleUpgrades.get( newUpgradeStack );
+            if( newUpgrade == null || !TurtleUpgrades.suitableForFamily( ((TurtleBrain) turtle).getFamily(), newUpgrade ) )
+            {
+                return TurtleCommandResult.failure( "Not a valid upgrade" );
             }
-        } else {
+        }
+        else
+        {
             newUpgradeStack = null;
             newUpgrade = null;
         }
 
         // Determine the upgrade to replace
         ItemStack oldUpgradeStack;
-        ITurtleUpgrade oldUpgrade = turtle.getUpgrade(this.m_side);
-        if (oldUpgrade != null) {
+        ITurtleUpgrade oldUpgrade = turtle.getUpgrade( this.m_side );
+        if( oldUpgrade != null )
+        {
             ItemStack craftingItem = oldUpgrade.getCraftingItem();
             oldUpgradeStack = !craftingItem.isEmpty() ? craftingItem.copy() : null;
-        } else {
+        }
+        else
+        {
             oldUpgradeStack = null;
         }
 
-        TurtleActionEvent event = new TurtleActionEvent(turtle, TurtleAction.EQUIP);
-        if (TurtleEvent.post(event)) {
-            return TurtleCommandResult.failure(event.getFailureMessage());
+        TurtleActionEvent event = new TurtleActionEvent( turtle, TurtleAction.EQUIP );
+        if( TurtleEvent.post( event ) )
+        {
+            return TurtleCommandResult.failure( event.getFailureMessage() );
         }
 
         // Do the swapping:
-        if (newUpgradeStack != null) {
+        if( newUpgradeStack != null )
+        {
             // Consume new upgrades item
-            InventoryUtil.takeItems(1, ItemStorage.wrap(inventory), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot());
+            InventoryUtil.takeItems( 1, ItemStorage.wrap( inventory ), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
         }
-        if (oldUpgradeStack != null) {
+        if( oldUpgradeStack != null )
+        {
             // Store old upgrades item
-            ItemStack remainder = InventoryUtil.storeItems(oldUpgradeStack, ItemStorage.wrap(inventory), turtle.getSelectedSlot());
-            if (!remainder.isEmpty()) {
+            ItemStack remainder = InventoryUtil.storeItems( oldUpgradeStack, ItemStorage.wrap( inventory ), turtle.getSelectedSlot() );
+            if( !remainder.isEmpty() )
+            {
                 // If there's no room for the items, drop them
                 BlockPos position = turtle.getPosition();
-                WorldUtil.dropItemStack(remainder, turtle.getWorld(), position, turtle.getDirection());
+                WorldUtil.dropItemStack( remainder, turtle.getWorld(), position, turtle.getDirection() );
             }
         }
-        turtle.setUpgrade(this.m_side, newUpgrade);
+        turtle.setUpgrade( this.m_side, newUpgrade );
 
         // Animate
-        if (newUpgrade != null || oldUpgrade != null) {
-            turtle.playAnimation(TurtleAnimation.WAIT);
+        if( newUpgrade != null || oldUpgrade != null )
+        {
+            turtle.playAnimation( TurtleAnimation.WAIT );
         }
 
         return TurtleCommandResult.success();

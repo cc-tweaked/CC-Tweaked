@@ -12,10 +12,12 @@ import net.fabricmc.api.Environment;
 
 // A stub modmenu entrypoint for when we get there
 
-@Environment(EnvType.CLIENT)
-public class ModMenuIntegration implements ModMenuApi {
+@Environment( EnvType.CLIENT )
+public class ModMenuIntegration implements ModMenuApi
+{
     @Override
-    public ConfigScreenFactory<?> getModConfigScreenFactory() {
+    public ConfigScreenFactory<?> getModConfigScreenFactory()
+    {
         return parent -> null;
     }
 }

@@ -6,27 +6,31 @@
 
 package dan200.computercraft.core.apis;
 
+import dan200.computercraft.api.lua.ILuaAPIFactory;
+
+import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 
-import javax.annotation.Nonnull;
-
-import dan200.computercraft.api.lua.ILuaAPIFactory;
-
-public final class ApiFactories {
+public final class ApiFactories
+{
     private static final Collection<ILuaAPIFactory> factories = new LinkedHashSet<>();
-    private static final Collection<ILuaAPIFactory> factoriesView = Collections.unmodifiableCollection(factories);
-    private ApiFactories() {
+    private static final Collection<ILuaAPIFactory> factoriesView = Collections.unmodifiableCollection( factories );
+
+    private ApiFactories()
+    {
     }
 
-    public static synchronized void register(@Nonnull ILuaAPIFactory factory) {
-        Objects.requireNonNull(factory, "provider cannot be null");
-        factories.add(factory);
+    public static synchronized void register( @Nonnull ILuaAPIFactory factory )
+    {
+        Objects.requireNonNull( factory, "provider cannot be null" );
+        factories.add( factory );
     }
 
-    public static Iterable<ILuaAPIFactory> getAll() {
+    public static Iterable<ILuaAPIFactory> getAll()
+    {
         return factoriesView;
     }
 }

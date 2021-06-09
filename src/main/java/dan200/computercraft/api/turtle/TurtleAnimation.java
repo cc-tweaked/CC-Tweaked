@@ -13,7 +13,8 @@ package dan200.computercraft.api.turtle;
  *
  * @see ITurtleAccess#playAnimation(TurtleAnimation)
  */
-public enum TurtleAnimation {
+public enum TurtleAnimation
+{
     /**
      * An animation which does nothing. This takes no time to complete.
      *

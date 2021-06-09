@@ -6,15 +6,15 @@
 
 package dan200.computercraft.core.computer;
 
-import java.io.InputStream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 
-public interface IComputerEnvironment {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.InputStream;
+
+public interface IComputerEnvironment
+{
     int getDay();
 
     double getTimeOfDay();
@@ -32,11 +32,11 @@ public interface IComputerEnvironment {
     int assignNewID();
 
     @Nullable
-    IWritableMount createSaveDirMount(String subPath, long capacity);
+    IWritableMount createSaveDirMount( String subPath, long capacity );
 
     @Nullable
-    IMount createResourceMount(String domain, String subPath);
+    IMount createResourceMount( String domain, String subPath );
 
     @Nullable
-    InputStream createResourceFile(String domain, String subPath);
+    InputStream createResourceFile( String domain, String subPath );
 }

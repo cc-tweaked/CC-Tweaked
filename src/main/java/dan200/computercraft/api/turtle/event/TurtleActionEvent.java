@@ -6,30 +6,32 @@
 
 package dan200.computercraft.api.turtle.event;
 
-import java.util.Objects;
+import dan200.computercraft.api.turtle.ITurtleAccess;
+import dan200.computercraft.api.turtle.TurtleCommandResult;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.TurtleCommandResult;
+import java.util.Objects;
 
 /**
  * An event fired when a turtle is performing a known action.
  */
-public class TurtleActionEvent extends TurtleEvent {
+public class TurtleActionEvent extends TurtleEvent
+{
     private final TurtleAction action;
     private String failureMessage;
     private boolean cancelled = false;
 
-    public TurtleActionEvent(@Nonnull ITurtleAccess turtle, @Nonnull TurtleAction action) {
-        super(turtle);
+    public TurtleActionEvent( @Nonnull ITurtleAccess turtle, @Nonnull TurtleAction action )
+    {
+        super( turtle );
 
-        Objects.requireNonNull(action, "action cannot be null");
+        Objects.requireNonNull( action, "action cannot be null" );
         this.action = action;
     }
 
-    public TurtleAction getAction() {
+    public TurtleAction getAction()
+    {
         return this.action;
     }
 
@@ -43,8 +45,9 @@ public class TurtleActionEvent extends TurtleEvent {
      * @deprecated Use {@link #setCanceled(boolean, String)} instead.
      */
     @Deprecated
-    public void setCanceled(boolean cancel) {
-        this.setCanceled(cancel, null);
+    public void setCanceled( boolean cancel )
+    {
+        this.setCanceled( cancel, null );
     }
 
     /**
@@ -52,11 +55,12 @@ public class TurtleActionEvent extends TurtleEvent {
      *
      * If {@code cancel} is {@code true}, this action will not be carried out.
      *
-     * @param cancel The new canceled value.
+     * @param cancel         The new canceled value.
      * @param failureMessage The message to return to the user explaining the failure.
      * @see TurtleCommandResult#failure(String)
      */
-    public void setCanceled(boolean cancel, @Nullable String failureMessage) {
+    public void setCanceled( boolean cancel, @Nullable String failureMessage )
+    {
         this.cancelled = true;
         this.failureMessage = cancel ? failureMessage : null;
     }
@@ -69,11 +73,13 @@ public class TurtleActionEvent extends TurtleEvent {
      * @see #setCanceled(boolean, String)
      */
     @Nullable
-    public String getFailureMessage() {
+    public String getFailureMessage()
+    {
         return this.failureMessage;
     }
 
-    public boolean isCancelled() {
+    public boolean isCancelled()
+    {
         return this.cancelled;
     }
 }

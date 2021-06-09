@@ -6,14 +6,14 @@
 
 package dan200.computercraft.core.tracking;
 
-import java.lang.ref.WeakReference;
-
-import javax.annotation.Nullable;
-
 import dan200.computercraft.core.computer.Computer;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 
-public class ComputerTracker {
+import javax.annotation.Nullable;
+import java.lang.ref.WeakReference;
+
+public class ComputerTracker
+{
     private final WeakReference<Computer> computer;
     private final int computerId;
     private final Object2LongOpenHashMap<TrackingField> fields;
@@ -23,13 +23,15 @@ public class ComputerTracker {
     private long serverCount;
     private long serverTime;
 
-    public ComputerTracker(Computer computer) {
-        this.computer = new WeakReference<>(computer);
+    public ComputerTracker( Computer computer )
+    {
+        this.computer = new WeakReference<>( computer );
         this.computerId = computer.getID();
         this.fields = new Object2LongOpenHashMap<>();
     }
 
-    ComputerTracker(ComputerTracker timings) {
+    ComputerTracker( ComputerTracker timings )
+    {
         this.computer = timings.computer;
         this.computerId = timings.computerId;
 
@@ -40,80 +42,100 @@ public class ComputerTracker {
         this.serverCount = timings.serverCount;
         this.serverTime = timings.serverTime;
 
-        this.fields = new Object2LongOpenHashMap<>(timings.fields);
+        this.fields = new Object2LongOpenHashMap<>( timings.fields );
     }
 
     @Nullable
-    public Computer getComputer() {
+    public Computer getComputer()
+    {
         return this.computer.get();
     }
 
-    public int getComputerId() {
+    public int getComputerId()
+    {
         return this.computerId;
     }
 
-    public long getTasks() {
+    public long getTasks()
+    {
         return this.tasks;
     }
 
-    public long getTotalTime() {
+    public long getTotalTime()
+    {
         return this.totalTime;
     }
 
-    public long getMaxTime() {
+    public long getMaxTime()
+    {
         return this.maxTime;
     }
 
-    public long getAverage() {
+    public long getAverage()
+    {
         return this.totalTime / this.tasks;
     }
 
-    void addTaskTiming(long time) {
+    void addTaskTiming( long time )
+    {
         this.tasks++;
         this.totalTime += time;
-        if (time > this.maxTime) {
+        if( time > this.maxTime )
+        {
             this.maxTime = time;
         }
     }
 
-    void addMainTiming(long time) {
+    void addMainTiming( long time )
+    {
         this.serverCount++;
         this.serverTime += time;
     }
 
-    void addValue(TrackingField field, long change) {
-        synchronized (this.fields) {
-            this.fields.addTo(field, change);
+    void addValue( TrackingField field, long change )
+    {
+        synchronized( this.fields )
+        {
+            this.fields.addTo( field, change );
         }
     }
 
-    public String getFormatted(TrackingField field) {
-        return field.format(this.get(field));
+    public String getFormatted( TrackingField field )
+    {
+        return field.format( this.get( field ) );
     }
 
-    public long get(TrackingField field) {
-        if (field == TrackingField.TASKS) {
+    public long get( TrackingField field )
+    {
+        if( field == TrackingField.TASKS )
+        {
             return this.tasks;
         }
-        if (field == TrackingField.MAX_TIME) {
+        if( field == TrackingField.MAX_TIME )
+        {
             return this.maxTime;
         }
-        if (field == TrackingField.TOTAL_TIME) {
+        if( field == TrackingField.TOTAL_TIME )
+        {
             return this.totalTime;
         }
-        if (field == TrackingField.AVERAGE_TIME) {
+        if( field == TrackingField.AVERAGE_TIME )
+        {
             return this.tasks == 0 ? 0 : this.totalTime / this.tasks;
         }
 
-        if (field == TrackingField.SERVER_COUNT) {
+        if( field == TrackingField.SERVER_COUNT )
+        {
             return this.serverCount;
         }
-        if (field == TrackingField.SERVER_TIME) {
+        if( field == TrackingField.SERVER_TIME )
+        {
             return this.serverTime;
         }
 
-        synchronized (this.fields) {
-            return this.fields.getLong(field);
+        synchronized( this.fields )
+        {
+            return this.fields.getLong( field );
         }
     }
 }

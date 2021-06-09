@@ -82,7 +82,7 @@ public final class ChatHelpers
         style = style.withClickEvent( click );
         style = style.withHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, toolTip ) );
 
-        component.setStyle(style);
+        component.setStyle( style );
 
         return component;
     }

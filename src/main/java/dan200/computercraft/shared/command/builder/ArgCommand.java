@@ -17,6 +17,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
  * @param <T> The argument given to this command when executed.
  */
 @FunctionalInterface
-public interface ArgCommand<S, T> {
-    int run(CommandContext<S> ctx, T arg) throws CommandSyntaxException;
+public interface ArgCommand<S, T>
+{
+    int run( CommandContext<S> ctx, T arg ) throws CommandSyntaxException;
 }

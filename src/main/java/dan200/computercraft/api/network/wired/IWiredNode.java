@@ -6,12 +6,11 @@
 
 package dan200.computercraft.api.network.wired;
 
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-
 import dan200.computercraft.api.network.IPacketNetwork;
 import dan200.computercraft.api.peripheral.IPeripheral;
+
+import javax.annotation.Nonnull;
+import java.util.Map;
 
 /**
  * Wired nodes act as a layer between {@link IWiredElement}s and {@link IWiredNetwork}s.
@@ -25,7 +24,8 @@ import dan200.computercraft.api.peripheral.IPeripheral;
  *
  * Wired nodes also provide several convenience methods for interacting with a wired network. These should only ever be used on the main server thread.
  */
-public interface IWiredNode extends IPacketNetwork {
+public interface IWiredNode extends IPacketNetwork
+{
     /**
      * The associated element for this network node.
      *
@@ -44,8 +44,9 @@ public interface IWiredNode extends IPacketNetwork {
      * @see IWiredNetwork#connect(IWiredNode, IWiredNode)
      * @see IWiredNode#disconnectFrom(IWiredNode)
      */
-    default boolean connectTo(@Nonnull IWiredNode node) {
-        return this.getNetwork().connect(this, node);
+    default boolean connectTo( @Nonnull IWiredNode node )
+    {
+        return this.getNetwork().connect( this, node );
     }
 
     /**
@@ -69,8 +70,9 @@ public interface IWiredNode extends IPacketNetwork {
      * @see IWiredNetwork#disconnect(IWiredNode, IWiredNode)
      * @see IWiredNode#connectTo(IWiredNode)
      */
-    default boolean disconnectFrom(@Nonnull IWiredNode node) {
-        return this.getNetwork().disconnect(this, node);
+    default boolean disconnectFrom( @Nonnull IWiredNode node )
+    {
+        return this.getNetwork().disconnect( this, node );
     }
 
     /**
@@ -82,8 +84,9 @@ public interface IWiredNode extends IPacketNetwork {
      * @throws IllegalArgumentException If the node is not in the network.
      * @see IWiredNetwork#remove(IWiredNode)
      */
-    default boolean remove() {
-        return this.getNetwork().remove(this);
+    default boolean remove()
+    {
+        return this.getNetwork().remove( this );
     }
 
     /**
@@ -94,7 +97,8 @@ public interface IWiredNode extends IPacketNetwork {
      * @param peripherals The new peripherals for this node.
      * @see IWiredNetwork#updatePeripherals(IWiredNode, Map)
      */
-    default void updatePeripherals(@Nonnull Map<String, IPeripheral> peripherals) {
-        this.getNetwork().updatePeripherals(this, peripherals);
+    default void updatePeripherals( @Nonnull Map<String, IPeripheral> peripherals )
+    {
+        this.getNetwork().updatePeripherals( this, peripherals );
     }
 }

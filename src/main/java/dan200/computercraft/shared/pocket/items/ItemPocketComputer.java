@@ -6,11 +6,6 @@
 
 package dan200.computercraft.shared.pocket.items;
 
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.google.common.base.Objects;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
@@ -29,7 +24,8 @@ import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.pocket.apis.PocketAPI;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
-
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -48,10 +44,12 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.world.World;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
 
-public class ItemPocketComputer extends Item implements IComputerItem, IMedia, IColouredItem {
+public class ItemPocketComputer extends Item implements IComputerItem, IMedia, IColouredItem
+{
     public static final String NBT_LIGHT = "Light";
     private static final String NBT_UPGRADE = "Upgrade";
     private static final String NBT_UPGRADE_INFO = "UpgradeInfo";
@@ -60,58 +58,70 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     private final ComputerFamily family;
 
-    public ItemPocketComputer(Settings settings, ComputerFamily family) {
-        super(settings);
+    public ItemPocketComputer( Settings settings, ComputerFamily family )
+    {
+        super( settings );
         this.family = family;
     }
 
-    public static ServerComputer getServerComputer(@Nonnull ItemStack stack) {
+    public static ServerComputer getServerComputer( @Nonnull ItemStack stack )
+    {
         int session = getSessionID( stack );
         if( session != ComputerCraft.serverComputerRegistry.getSessionID() ) return null;
 
-        int instanceID = getInstanceID(stack);
-        return instanceID >= 0 ? ComputerCraft.serverComputerRegistry.get(instanceID) : null;
+        int instanceID = getInstanceID( stack );
+        return instanceID >= 0 ? ComputerCraft.serverComputerRegistry.get( instanceID ) : null;
     }
 
-    @Environment (EnvType.CLIENT)
-    public static ComputerState getState(@Nonnull ItemStack stack) {
-        ClientComputer computer = getClientComputer(stack);
+    @Environment( EnvType.CLIENT )
+    public static ComputerState getState( @Nonnull ItemStack stack )
+    {
+        ClientComputer computer = getClientComputer( stack );
         return computer == null ? ComputerState.OFF : computer.getState();
     }
 
-    private static ClientComputer getClientComputer(@Nonnull ItemStack stack) {
-        int instanceID = getInstanceID(stack);
-        return instanceID >= 0 ? ComputerCraft.clientComputerRegistry.get(instanceID) : null;
+    private static ClientComputer getClientComputer( @Nonnull ItemStack stack )
+    {
+        int instanceID = getInstanceID( stack );
+        return instanceID >= 0 ? ComputerCraft.clientComputerRegistry.get( instanceID ) : null;
     }
 
-    @Environment (EnvType.CLIENT)
-    public static int getLightState(@Nonnull ItemStack stack) {
-        ClientComputer computer = getClientComputer(stack);
-        if (computer != null && computer.isOn()) {
+    @Environment( EnvType.CLIENT )
+    public static int getLightState( @Nonnull ItemStack stack )
+    {
+        ClientComputer computer = getClientComputer( stack );
+        if( computer != null && computer.isOn() )
+        {
             CompoundTag computerNBT = computer.getUserData();
-            if (computerNBT != null && computerNBT.contains(NBT_LIGHT)) {
-                return computerNBT.getInt(NBT_LIGHT);
+            if( computerNBT != null && computerNBT.contains( NBT_LIGHT ) )
+            {
+                return computerNBT.getInt( NBT_LIGHT );
             }
         }
         return -1;
     }
 
-    public static void setUpgrade(@Nonnull ItemStack stack, IPocketUpgrade upgrade) {
+    public static void setUpgrade( @Nonnull ItemStack stack, IPocketUpgrade upgrade )
+    {
         CompoundTag compound = stack.getOrCreateTag();
 
-        if (upgrade == null) {
-            compound.remove(NBT_UPGRADE);
-        } else {
-            compound.putString(NBT_UPGRADE,
-                               upgrade.getUpgradeID()
-                                      .toString());
+        if( upgrade == null )
+        {
+            compound.remove( NBT_UPGRADE );
+        }
+        else
+        {
+            compound.putString( NBT_UPGRADE,
+                upgrade.getUpgradeID()
+                    .toString() );
         }
 
-        compound.remove(NBT_UPGRADE_INFO);
+        compound.remove( NBT_UPGRADE_INFO );
     }
 
-    public static CompoundTag getUpgradeInfo(@Nonnull ItemStack stack) {
-        return stack.getOrCreateSubTag(NBT_UPGRADE_INFO);
+    public static CompoundTag getUpgradeInfo( @Nonnull ItemStack stack )
+    {
+        return stack.getOrCreateSubTag( NBT_UPGRADE_INFO );
     }
 
     //    @Nullable
@@ -132,239 +142,295 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     @Nonnull
     @Override
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity player, @Nonnull Hand hand) {
-        ItemStack stack = player.getStackInHand(hand);
-        if (!world.isClient) {
-            PocketServerComputer computer = this.createServerComputer(world, player.inventory, player, stack);
+    public TypedActionResult<ItemStack> use( World world, PlayerEntity player, @Nonnull Hand hand )
+    {
+        ItemStack stack = player.getStackInHand( hand );
+        if( !world.isClient )
+        {
+            PocketServerComputer computer = this.createServerComputer( world, player.inventory, player, stack );
 
             boolean stop = false;
-            if (computer != null) {
+            if( computer != null )
+            {
                 computer.turnOn();
 
-                IPocketUpgrade upgrade = getUpgrade(stack);
-                if (upgrade != null) {
-                    computer.updateValues(player, stack, upgrade);
-                    stop = upgrade.onRightClick(world, computer, computer.getPeripheral(ComputerSide.BACK));
+                IPocketUpgrade upgrade = getUpgrade( stack );
+                if( upgrade != null )
+                {
+                    computer.updateValues( player, stack, upgrade );
+                    stop = upgrade.onRightClick( world, computer, computer.getPeripheral( ComputerSide.BACK ) );
                 }
             }
 
-            if (!stop && computer != null) {
-                computer.sendTerminalState(player);
-                new ComputerContainerData(computer).open(player, new ContainerPocketComputer.Factory(computer, stack, this, hand));
+            if( !stop && computer != null )
+            {
+                computer.sendTerminalState( player );
+                new ComputerContainerData( computer ).open( player, new ContainerPocketComputer.Factory( computer, stack, this, hand ) );
             }
         }
-        return new TypedActionResult<>(ActionResult.SUCCESS, stack);
+        return new TypedActionResult<>( ActionResult.SUCCESS, stack );
     }
 
     @Override
-    public void inventoryTick(@Nonnull ItemStack stack, World world, @Nonnull Entity entity, int slotNum, boolean selected) {
-        if (!world.isClient) {
+    public void inventoryTick( @Nonnull ItemStack stack, World world, @Nonnull Entity entity, int slotNum, boolean selected )
+    {
+        if( !world.isClient )
+        {
             // Server side
             Inventory inventory = entity instanceof PlayerEntity ? ((PlayerEntity) entity).inventory : null;
-            PocketServerComputer computer = this.createServerComputer(world, inventory, entity, stack);
-            if (computer != null) {
-                IPocketUpgrade upgrade = getUpgrade(stack);
+            PocketServerComputer computer = this.createServerComputer( world, inventory, entity, stack );
+            if( computer != null )
+            {
+                IPocketUpgrade upgrade = getUpgrade( stack );
 
                 // Ping computer
                 computer.keepAlive();
-                computer.setWorld(world);
-                computer.updateValues(entity, stack, upgrade);
+                computer.setWorld( world );
+                computer.updateValues( entity, stack, upgrade );
 
                 // Sync ID
                 int id = computer.getID();
-                if (id != this.getComputerID(stack)) {
-                    setComputerID(stack, id);
-                    if (inventory != null) {
+                if( id != this.getComputerID( stack ) )
+                {
+                    setComputerID( stack, id );
+                    if( inventory != null )
+                    {
                         inventory.markDirty();
                     }
                 }
 
                 // Sync label
                 String label = computer.getLabel();
-                if (!Objects.equal(label, this.getLabel(stack))) {
-                    this.setLabel(stack, label);
-                    if (inventory != null) {
+                if( !Objects.equal( label, this.getLabel( stack ) ) )
+                {
+                    this.setLabel( stack, label );
+                    if( inventory != null )
+                    {
                         inventory.markDirty();
                     }
                 }
 
                 // Update pocket upgrade
-                if (upgrade != null) {
-                    upgrade.update(computer, computer.getPeripheral(ComputerSide.BACK));
+                if( upgrade != null )
+                {
+                    upgrade.update( computer, computer.getPeripheral( ComputerSide.BACK ) );
                 }
             }
-        } else {
+        }
+        else
+        {
             // Client side
-            createClientComputer(stack);
+            createClientComputer( stack );
         }
     }
 
     @Override
-    public void appendTooltip(@Nonnull ItemStack stack, @Nullable World world, @Nonnull List<Text> list, TooltipContext flag) {
-        if (flag.isAdvanced() || this.getLabel(stack) == null) {
-            int id = this.getComputerID(stack);
-            if (id >= 0) {
-                list.add(new TranslatableText("gui.computercraft.tooltip.computer_id", id).formatted(Formatting.GRAY));
+    public void appendTooltip( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<Text> list, TooltipContext flag )
+    {
+        if( flag.isAdvanced() || this.getLabel( stack ) == null )
+        {
+            int id = this.getComputerID( stack );
+            if( id >= 0 )
+            {
+                list.add( new TranslatableText( "gui.computercraft.tooltip.computer_id", id ).formatted( Formatting.GRAY ) );
             }
         }
     }
 
     @Nonnull
     @Override
-    public Text getName(@Nonnull ItemStack stack) {
-        String baseString = this.getTranslationKey(stack);
-        IPocketUpgrade upgrade = getUpgrade(stack);
-        if (upgrade != null) {
-            return new TranslatableText(baseString + ".upgraded", new TranslatableText(upgrade.getUnlocalisedAdjective()));
-        } else {
-            return super.getName(stack);
+    public Text getName( @Nonnull ItemStack stack )
+    {
+        String baseString = this.getTranslationKey( stack );
+        IPocketUpgrade upgrade = getUpgrade( stack );
+        if( upgrade != null )
+        {
+            return new TranslatableText( baseString + ".upgraded", new TranslatableText( upgrade.getUnlocalisedAdjective() ) );
+        }
+        else
+        {
+            return super.getName( stack );
         }
     }
 
     // IComputerItem implementation
 
     @Override
-    public void appendStacks(@Nonnull ItemGroup group, @Nonnull DefaultedList<ItemStack> stacks) {
-        if (!this.isIn(group)) {
+    public void appendStacks( @Nonnull ItemGroup group, @Nonnull DefaultedList<ItemStack> stacks )
+    {
+        if( !this.isIn( group ) )
+        {
             return;
         }
-        stacks.add(this.create(-1, null, -1, null));
-        for (IPocketUpgrade upgrade : PocketUpgrades.getVanillaUpgrades()) {
-            stacks.add(this.create(-1, null, -1, upgrade));
+        stacks.add( this.create( -1, null, -1, null ) );
+        for( IPocketUpgrade upgrade : PocketUpgrades.getVanillaUpgrades() )
+        {
+            stacks.add( this.create( -1, null, -1, upgrade ) );
         }
     }
 
-    public ItemStack create(int id, String label, int colour, IPocketUpgrade upgrade) {
-        ItemStack result = new ItemStack(this);
-        if (id >= 0) {
+    public ItemStack create( int id, String label, int colour, IPocketUpgrade upgrade )
+    {
+        ItemStack result = new ItemStack( this );
+        if( id >= 0 )
+        {
             result.getOrCreateTag()
-                  .putInt(NBT_ID, id);
+                .putInt( NBT_ID, id );
         }
-        if (label != null) {
-            result.setCustomName(new LiteralText(label));
+        if( label != null )
+        {
+            result.setCustomName( new LiteralText( label ) );
         }
-        if (upgrade != null) {
+        if( upgrade != null )
+        {
             result.getOrCreateTag()
-                  .putString(NBT_UPGRADE,
-                             upgrade.getUpgradeID()
-                                    .toString());
+                .putString( NBT_UPGRADE,
+                    upgrade.getUpgradeID()
+                        .toString() );
         }
-        if (colour != -1) {
+        if( colour != -1 )
+        {
             result.getOrCreateTag()
-                  .putInt(NBT_COLOUR, colour);
+                .putInt( NBT_COLOUR, colour );
         }
         return result;
     }
 
-    public PocketServerComputer createServerComputer(final World world, Inventory inventory, Entity entity, @Nonnull ItemStack stack) {
-        if (world.isClient) {
+    public PocketServerComputer createServerComputer( final World world, Inventory inventory, Entity entity, @Nonnull ItemStack stack )
+    {
+        if( world.isClient )
+        {
             return null;
         }
 
         PocketServerComputer computer;
-        int instanceID = getInstanceID(stack);
-        int sessionID = getSessionID(stack);
+        int instanceID = getInstanceID( stack );
+        int sessionID = getSessionID( stack );
         int correctSessionID = ComputerCraft.serverComputerRegistry.getSessionID();
 
-        if (instanceID >= 0 && sessionID == correctSessionID && ComputerCraft.serverComputerRegistry.contains(instanceID)) {
-            computer = (PocketServerComputer) ComputerCraft.serverComputerRegistry.get(instanceID);
-        } else {
-            if (instanceID < 0 || sessionID != correctSessionID) {
+        if( instanceID >= 0 && sessionID == correctSessionID && ComputerCraft.serverComputerRegistry.contains( instanceID ) )
+        {
+            computer = (PocketServerComputer) ComputerCraft.serverComputerRegistry.get( instanceID );
+        }
+        else
+        {
+            if( instanceID < 0 || sessionID != correctSessionID )
+            {
                 instanceID = ComputerCraft.serverComputerRegistry.getUnusedInstanceID();
-                setInstanceID(stack, instanceID);
-                setSessionID(stack, correctSessionID);
+                setInstanceID( stack, instanceID );
+                setSessionID( stack, correctSessionID );
             }
-            int computerID = this.getComputerID(stack);
-            if (computerID < 0) {
-                computerID = ComputerCraftAPI.createUniqueNumberedSaveDir(world, "computer");
-                setComputerID(stack, computerID);
+            int computerID = this.getComputerID( stack );
+            if( computerID < 0 )
+            {
+                computerID = ComputerCraftAPI.createUniqueNumberedSaveDir( world, "computer" );
+                setComputerID( stack, computerID );
             }
-            computer = new PocketServerComputer(world, computerID, this.getLabel(stack), instanceID, this.getFamily());
-            computer.updateValues(entity, stack, getUpgrade(stack));
-            computer.addAPI(new PocketAPI(computer));
-            ComputerCraft.serverComputerRegistry.add(instanceID, computer);
-            if (inventory != null) {
+            computer = new PocketServerComputer( world, computerID, this.getLabel( stack ), instanceID, this.getFamily() );
+            computer.updateValues( entity, stack, getUpgrade( stack ) );
+            computer.addAPI( new PocketAPI( computer ) );
+            ComputerCraft.serverComputerRegistry.add( instanceID, computer );
+            if( inventory != null )
+            {
                 inventory.markDirty();
             }
         }
-        computer.setWorld(world);
+        computer.setWorld( world );
         return computer;
     }
 
-    public static IPocketUpgrade getUpgrade(@Nonnull ItemStack stack) {
+    public static IPocketUpgrade getUpgrade( @Nonnull ItemStack stack )
+    {
         CompoundTag compound = stack.getTag();
-        return compound != null && compound.contains(NBT_UPGRADE) ? PocketUpgrades.get(compound.getString(NBT_UPGRADE)) : null;
+        return compound != null && compound.contains( NBT_UPGRADE ) ? PocketUpgrades.get( compound.getString( NBT_UPGRADE ) ) : null;
 
     }
 
     // IMedia
 
-    private static void setComputerID(@Nonnull ItemStack stack, int computerID) {
+    private static void setComputerID( @Nonnull ItemStack stack, int computerID )
+    {
         stack.getOrCreateTag()
-             .putInt(NBT_ID, computerID);
+            .putInt( NBT_ID, computerID );
     }
 
     @Override
-    public String getLabel(@Nonnull ItemStack stack) {
-        return IComputerItem.super.getLabel(stack);
+    public String getLabel( @Nonnull ItemStack stack )
+    {
+        return IComputerItem.super.getLabel( stack );
     }
 
     @Override
-    public ComputerFamily getFamily() {
+    public ComputerFamily getFamily()
+    {
         return this.family;
     }
 
     @Override
-    public ItemStack withFamily(@Nonnull ItemStack stack, @Nonnull ComputerFamily family) {
-        return PocketComputerItemFactory.create(this.getComputerID(stack), this.getLabel(stack), this.getColour(stack), family, getUpgrade(stack));
+    public ItemStack withFamily( @Nonnull ItemStack stack, @Nonnull ComputerFamily family )
+    {
+        return PocketComputerItemFactory.create( this.getComputerID( stack ), this.getLabel( stack ), this.getColour( stack ), family, getUpgrade( stack ) );
     }
 
     @Override
-    public boolean setLabel(@Nonnull ItemStack stack, String label) {
-        if (label != null) {
-            stack.setCustomName(new LiteralText(label));
-        } else {
+    public boolean setLabel( @Nonnull ItemStack stack, String label )
+    {
+        if( label != null )
+        {
+            stack.setCustomName( new LiteralText( label ) );
+        }
+        else
+        {
             stack.removeCustomName();
         }
         return true;
     }
 
-    public static ClientComputer createClientComputer(@Nonnull ItemStack stack) {
-        int instanceID = getInstanceID(stack);
-        if (instanceID >= 0) {
-            if (!ComputerCraft.clientComputerRegistry.contains(instanceID)) {
-                ComputerCraft.clientComputerRegistry.add(instanceID, new ClientComputer(instanceID));
+    public static ClientComputer createClientComputer( @Nonnull ItemStack stack )
+    {
+        int instanceID = getInstanceID( stack );
+        if( instanceID >= 0 )
+        {
+            if( !ComputerCraft.clientComputerRegistry.contains( instanceID ) )
+            {
+                ComputerCraft.clientComputerRegistry.add( instanceID, new ClientComputer( instanceID ) );
             }
-            return ComputerCraft.clientComputerRegistry.get(instanceID);
+            return ComputerCraft.clientComputerRegistry.get( instanceID );
         }
         return null;
     }
 
-    private static int getInstanceID(@Nonnull ItemStack stack) {
+    private static int getInstanceID( @Nonnull ItemStack stack )
+    {
         CompoundTag nbt = stack.getTag();
-        return nbt != null && nbt.contains(NBT_INSTANCE) ? nbt.getInt(NBT_INSTANCE) : -1;
+        return nbt != null && nbt.contains( NBT_INSTANCE ) ? nbt.getInt( NBT_INSTANCE ) : -1;
     }
 
-    private static int getSessionID(@Nonnull ItemStack stack) {
+    private static int getSessionID( @Nonnull ItemStack stack )
+    {
         CompoundTag nbt = stack.getTag();
-        return nbt != null && nbt.contains(NBT_SESSION) ? nbt.getInt(NBT_SESSION) : -1;
+        return nbt != null && nbt.contains( NBT_SESSION ) ? nbt.getInt( NBT_SESSION ) : -1;
     }
 
-    private static void setInstanceID(@Nonnull ItemStack stack, int instanceID) {
+    private static void setInstanceID( @Nonnull ItemStack stack, int instanceID )
+    {
         stack.getOrCreateTag()
-             .putInt(NBT_INSTANCE, instanceID);
+            .putInt( NBT_INSTANCE, instanceID );
     }
 
-    private static void setSessionID(@Nonnull ItemStack stack, int sessionID) {
+    private static void setSessionID( @Nonnull ItemStack stack, int sessionID )
+    {
         stack.getOrCreateTag()
-             .putInt(NBT_SESSION, sessionID);
+            .putInt( NBT_SESSION, sessionID );
     }
 
     @Override
-    public IMount createDataMount(@Nonnull ItemStack stack, @Nonnull World world) {
-        int id = this.getComputerID(stack);
-        if (id >= 0) {
-            return ComputerCraftAPI.createSaveDirMount(world, "computer/" + id, ComputerCraft.computerSpaceLimit);
+    public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )
+    {
+        int id = this.getComputerID( stack );
+        if( id >= 0 )
+        {
+            return ComputerCraftAPI.createSaveDirMount( world, "computer/" + id, ComputerCraft.computerSpaceLimit );
         }
         return null;
     }

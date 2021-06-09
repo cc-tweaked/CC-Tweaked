@@ -6,22 +6,23 @@
 
 package dan200.computercraft.client.gui;
 
-import javax.annotation.Nonnull;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
-
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-public class GuiPrinter extends HandledScreen<ContainerPrinter> {
-    private static final Identifier BACKGROUND = new Identifier("computercraft", "textures/gui/printer.png");
+import javax.annotation.Nonnull;
 
-    public GuiPrinter(ContainerPrinter container, PlayerInventory player, Text title) {
-        super(container, player, title);
+public class GuiPrinter extends HandledScreen<ContainerPrinter>
+{
+    private static final Identifier BACKGROUND = new Identifier( "computercraft", "textures/gui/printer.png" );
+
+    public GuiPrinter( ContainerPrinter container, PlayerInventory player, Text title )
+    {
+        super( container, player, title );
     }
 
     /*@Override
@@ -33,21 +34,24 @@ public class GuiPrinter extends HandledScreen<ContainerPrinter> {
     }*/
 
     @Override
-    public void render(@Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(stack);
-        super.render(stack, mouseX, mouseY, partialTicks);
-        this.drawMouseoverTooltip(stack, mouseX, mouseY);
+    public void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
+    {
+        this.renderBackground( stack );
+        super.render( stack, mouseX, mouseY, partialTicks );
+        this.drawMouseoverTooltip( stack, mouseX, mouseY );
     }
 
     @Override
-    protected void drawBackground(@Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY) {
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+    protected void drawBackground( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
+    {
+        RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
         this.client.getTextureManager()
-                   .bindTexture(BACKGROUND);
-        this.drawTexture(transform, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
+            .bindTexture( BACKGROUND );
+        this.drawTexture( transform, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight );
 
-        if (this.getScreenHandler().isPrinting()) {
-            this.drawTexture(transform, this.x + 34, this.y + 21, 176, 0, 25, 45);
+        if( this.getScreenHandler().isPrinting() )
+        {
+            this.drawTexture( transform, this.x + 34, this.y + 21, 176, 0, 25, 45 );
         }
     }
 }

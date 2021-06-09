@@ -51,7 +51,7 @@ public class InventoryMethods implements GenericSource
     @LuaFunction( mainThread = true )
     public static int size( Inventory inventory )
     {
-        return extractHandler(inventory).size();
+        return extractHandler( inventory ).size();
     }
 
     /**
@@ -63,8 +63,9 @@ public class InventoryMethods implements GenericSource
     @LuaFunction( mainThread = true )
     public static String name( Inventory inventory )
     {
-        if ( inventory instanceof Nameable ) {
-            Nameable i = (Nameable)inventory;
+        if( inventory instanceof Nameable )
+        {
+            Nameable i = (Nameable) inventory;
             return i.hasCustomName() ? i.getName().asString() : null;
         }
         return null;
@@ -96,7 +97,7 @@ public class InventoryMethods implements GenericSource
     @LuaFunction( mainThread = true )
     public static Map<Integer, Map<String, ?>> list( Inventory inventory )
     {
-        ItemStorage itemStorage = extractHandler(inventory);
+        ItemStorage itemStorage = extractHandler( inventory );
 
         Map<Integer, Map<String, ?>> result = new HashMap<>();
         int size = itemStorage.size();
@@ -143,7 +144,7 @@ public class InventoryMethods implements GenericSource
     @LuaFunction( mainThread = true )
     public static Map<String, ?> getItemDetail( Inventory inventory, int slot ) throws LuaException
     {
-        ItemStorage itemStorage = extractHandler(inventory);
+        ItemStorage itemStorage = extractHandler( inventory );
 
         assertBetween( slot, 1, itemStorage.size(), "Slot out of range (%s)" );
 
@@ -281,10 +282,12 @@ public class InventoryMethods implements GenericSource
     @Nullable
     private static ItemStorage extractHandler( @Nullable Object object )
     {
-        if ( object instanceof BlockEntity ) {
-            Inventory inventory = InventoryUtil.getInventory((BlockEntity) object);
-            if ( inventory != null ) {
-                return ItemStorage.wrap(inventory);
+        if( object instanceof BlockEntity )
+        {
+            Inventory inventory = InventoryUtil.getInventory( (BlockEntity) object );
+            if( inventory != null )
+            {
+                return ItemStorage.wrap( inventory );
             }
         }
 
@@ -304,31 +307,37 @@ public class InventoryMethods implements GenericSource
     private static int moveItem( ItemStorage from, int fromSlot, ItemStorage to, int toSlot, final int limit )
     {
         // Moving nothing is easy
-        if (limit == 0) {
+        if( limit == 0 )
+        {
             return 0;
         }
 
         // Get stack to move
-        ItemStack stack = InventoryUtil.takeItems(limit, from, fromSlot, 1, fromSlot);
-        if (stack.isEmpty()) {
+        ItemStack stack = InventoryUtil.takeItems( limit, from, fromSlot, 1, fromSlot );
+        if( stack.isEmpty() )
+        {
             return 0;
         }
         int stackCount = stack.getCount();
 
         // Move items in
         ItemStack remainder;
-        if (toSlot < 0) {
-            remainder = InventoryUtil.storeItems(stack, to);
-        } else {
-            remainder = InventoryUtil.storeItems(stack, to, toSlot, 1, toSlot);
+        if( toSlot < 0 )
+        {
+            remainder = InventoryUtil.storeItems( stack, to );
+        }
+        else
+        {
+            remainder = InventoryUtil.storeItems( stack, to, toSlot, 1, toSlot );
         }
 
         // Calculate items moved
         int count = stackCount - remainder.getCount();
 
-        if (!remainder.isEmpty()) {
+        if( !remainder.isEmpty() )
+        {
             // Put the remainder back
-            InventoryUtil.storeItems(remainder, from, fromSlot, 1, fromSlot);
+            InventoryUtil.storeItems( remainder, from, fromSlot, 1, fromSlot );
         }
 
         return count;

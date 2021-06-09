@@ -18,14 +18,15 @@ public class BlockData
     @Nonnull
     public static <T extends Map<? super String, Object>> T fill( @Nonnull T data, @Nonnull BlockState state )
     {
-        data.put("name", DataHelpers.getId( state.getBlock() ) );
+        data.put( "name", DataHelpers.getId( state.getBlock() ) );
 
         Map<Object, Object> stateTable = new HashMap<>();
-        for (ImmutableMap.Entry<Property<?>, ? extends Comparable<?>> entry : state.getEntries().entrySet()) {
+        for( ImmutableMap.Entry<Property<?>, ? extends Comparable<?>> entry : state.getEntries().entrySet() )
+        {
             Property<?> property = entry.getKey();
-            stateTable.put(property.getName(), getPropertyValue(property, entry.getValue()));
+            stateTable.put( property.getName(), getPropertyValue( property, entry.getValue() ) );
         }
-        data.put("state", stateTable);
+        data.put( "state", stateTable );
 
         return data;
     }

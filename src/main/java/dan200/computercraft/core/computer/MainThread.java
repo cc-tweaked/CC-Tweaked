@@ -6,14 +6,13 @@
 
 package dan200.computercraft.core.computer;
 
+import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.lua.ILuaTask;
+
+import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
-
-import javax.annotation.Nonnull;
-
-import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.ILuaTask;
 
 /**
  * Runs tasks on the main (server) thread, ticks {@link MainThreadExecutor}s, and limits how much time is used this tick.
@@ -27,7 +26,8 @@ import dan200.computercraft.api.lua.ILuaTask;
  * Next tick, we put {@link ComputerCraft#maxMainGlobalTime} into our budget (and clamp it to that value to). If we're still over budget, then we should not
  * execute <em>any</em> work (either as part of {@link MainThread} or externally).
  */
-public final class MainThread {
+public final class MainThread
+{
     /**
      * An internal counter for {@link ILuaTask} ids.
      *
@@ -39,17 +39,19 @@ public final class MainThread {
     /**
      * The queue of {@link MainThreadExecutor}s with tasks to perform.
      */
-    private static final TreeSet<MainThreadExecutor> executors = new TreeSet<>((a, b) -> {
-        if (a == b) {
+    private static final TreeSet<MainThreadExecutor> executors = new TreeSet<>( ( a, b ) -> {
+        if( a == b )
+        {
             return 0; // Should never happen, but let's be consistent here
         }
 
         long at = a.virtualTime, bt = b.virtualTime;
-        if (at == bt) {
-            return Integer.compare(a.hashCode(), b.hashCode());
+        if( at == bt )
+        {
+            return Integer.compare( a.hashCode(), b.hashCode() );
         }
         return at < bt ? -1 : 1;
-    });
+    } );
 
     /**
      * The set of executors which went over budget in a previous tick, and are waiting for their time to run down.
@@ -82,14 +84,18 @@ public final class MainThread {
 
     private MainThread() {}
 
-    public static long getUniqueTaskID() {
+    public static long getUniqueTaskID()
+    {
         return lastTaskId.incrementAndGet();
     }
 
-    static void queue(@Nonnull MainThreadExecutor executor, boolean sleeper) {
-        synchronized (executors) {
-            if (executor.onQueue) {
-                throw new IllegalStateException("Cannot queue already queued executor");
+    static void queue( @Nonnull MainThreadExecutor executor, boolean sleeper )
+    {
+        synchronized( executors )
+        {
+            if( executor.onQueue )
+            {
+                throw new IllegalStateException( "Cannot queue already queued executor" );
             }
             executor.onQueue = true;
             executor.updateTime();
@@ -99,54 +105,63 @@ public final class MainThread {
             long newRuntime = minimumTime;
 
             // Slow down new computers a little bit.
-            if (executor.virtualTime == 0) {
+            if( executor.virtualTime == 0 )
+            {
                 newRuntime += ComputerCraft.maxMainComputerTime;
             }
 
-            executor.virtualTime = Math.max(newRuntime, executor.virtualTime);
+            executor.virtualTime = Math.max( newRuntime, executor.virtualTime );
 
-            executors.add(executor);
+            executors.add( executor );
         }
     }
 
-    static void cooling(@Nonnull MainThreadExecutor executor) {
-        cooling.add(executor);
+    static void cooling( @Nonnull MainThreadExecutor executor )
+    {
+        cooling.add( executor );
     }
 
-    static boolean canExecute() {
+    static boolean canExecute()
+    {
         return canExecute;
     }
 
-    static int currentTick() {
+    static int currentTick()
+    {
         return currentTick;
     }
 
-    public static void executePendingTasks() {
+    public static void executePendingTasks()
+    {
         // Move onto the next tick and cool down the global executor. We're allowed to execute if we have _any_ time
         // allocated for this tick. This means we'll stick much closer to doing MAX_TICK_TIME work every tick.
         //
         // Of course, we'll go over the MAX_TICK_TIME most of the time, but eventually that overrun will accumulate
         // and we'll skip a whole tick - bringing the average back down again.
         currentTick++;
-        budget = Math.min(budget + ComputerCraft.maxMainGlobalTime, ComputerCraft.maxMainGlobalTime);
+        budget = Math.min( budget + ComputerCraft.maxMainGlobalTime, ComputerCraft.maxMainGlobalTime );
         canExecute = budget > 0;
 
         // Cool down any warm computers.
-        cooling.removeIf(MainThreadExecutor::tickCooling);
+        cooling.removeIf( MainThreadExecutor::tickCooling );
 
-        if (!canExecute) {
+        if( !canExecute )
+        {
             return;
         }
 
         // Run until we meet the deadline.
         long start = System.nanoTime();
         long deadline = start + budget;
-        while (true) {
+        while( true )
+        {
             MainThreadExecutor executor;
-            synchronized (executors) {
+            synchronized( executors )
+            {
                 executor = executors.pollFirst();
             }
-            if (executor == null) {
+            if( executor == null )
+            {
                 break;
             }
 
@@ -154,43 +169,51 @@ public final class MainThread {
             executor.execute();
 
             long taskStop = System.nanoTime();
-            synchronized (executors) {
-                if (executor.afterExecute(taskStop - taskStart)) {
-                    executors.add(executor);
+            synchronized( executors )
+            {
+                if( executor.afterExecute( taskStop - taskStart ) )
+                {
+                    executors.add( executor );
                 }
 
                 // Compute the new minimum time (including the next task on the queue too). Note that this may also include
                 // time spent in external tasks.
                 long newMinimum = executor.virtualTime;
-                if (!executors.isEmpty()) {
+                if( !executors.isEmpty() )
+                {
                     MainThreadExecutor next = executors.first();
-                    if (next.virtualTime < newMinimum) {
+                    if( next.virtualTime < newMinimum )
+                    {
                         newMinimum = next.virtualTime;
                     }
                 }
-                minimumTime = Math.max(minimumTime, newMinimum);
+                minimumTime = Math.max( minimumTime, newMinimum );
             }
 
-            if (taskStop >= deadline) {
+            if( taskStop >= deadline )
+            {
                 break;
             }
         }
 
-        consumeTime(System.nanoTime() - start);
+        consumeTime( System.nanoTime() - start );
     }
 
-    static void consumeTime(long time) {
+    static void consumeTime( long time )
+    {
         budget -= time;
     }
 
-    public static void reset() {
+    public static void reset()
+    {
         currentTick = 0;
         budget = 0;
         canExecute = true;
         minimumTime = 0;
-        lastTaskId.set(0);
+        lastTaskId.set( 0 );
         cooling.clear();
-        synchronized (executors) {
+        synchronized( executors )
+        {
             executors.clear();
         }
     }

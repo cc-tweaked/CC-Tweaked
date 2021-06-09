@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
-
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Material;
 import net.minecraft.item.Item;
@@ -16,27 +15,34 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class TurtleSword extends TurtleTool {
-    public TurtleSword(Identifier id, String adjective, Item item) {
-        super(id, adjective, item);
+public class TurtleSword extends TurtleTool
+{
+    public TurtleSword( Identifier id, String adjective, Item item )
+    {
+        super( id, adjective, item );
     }
 
-    public TurtleSword(Identifier id, Item item) {
-        super(id, item);
+    public TurtleSword( Identifier id, Item item )
+    {
+        super( id, item );
     }
 
-    public TurtleSword(Identifier id, ItemStack craftItem, ItemStack toolItem) {
-        super(id, craftItem, toolItem);
+    public TurtleSword( Identifier id, ItemStack craftItem, ItemStack toolItem )
+    {
+        super( id, craftItem, toolItem );
     }
 
     @Override
-    protected float getDamageMultiplier() {
+    protected float getDamageMultiplier()
+    {
         return 9.0f;
     }
 
     @Override
-    protected boolean canBreakBlock(BlockState state, World world, BlockPos pos, TurtlePlayer player) {
-        if (!super.canBreakBlock(state, world, pos, player)) {
+    protected boolean canBreakBlock( BlockState state, World world, BlockPos pos, TurtlePlayer player )
+    {
+        if( !super.canBreakBlock( state, world, pos, player ) )
+        {
             return false;
         }
 

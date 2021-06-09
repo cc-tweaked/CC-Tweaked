@@ -11,19 +11,22 @@ import javax.annotation.Nullable;
 /**
  * An exception representing an error in Lua, like that raised by the {@code error()} function.
  */
-public class LuaException extends Exception {
+public class LuaException extends Exception
+{
     private static final long serialVersionUID = -6136063076818512651L;
     private final boolean hasLevel;
     private final int level;
 
-    public LuaException(@Nullable String message) {
-        super(message);
+    public LuaException( @Nullable String message )
+    {
+        super( message );
         this.hasLevel = false;
         this.level = 1;
     }
 
-    public LuaException(@Nullable String message, int level) {
-        super(message);
+    public LuaException( @Nullable String message, int level )
+    {
+        super( message );
         this.hasLevel = true;
         this.level = level;
     }
@@ -33,7 +36,8 @@ public class LuaException extends Exception {
      *
      * @return Whether this has an explicit level.
      */
-    public boolean hasLevel() {
+    public boolean hasLevel()
+    {
         return this.hasLevel;
     }
 
@@ -42,7 +46,8 @@ public class LuaException extends Exception {
      *
      * @return The level to raise the error at.
      */
-    public int getLevel() {
+    public int getLevel()
+    {
         return this.level;
     }
 }
