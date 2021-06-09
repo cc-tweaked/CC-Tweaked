@@ -1,4 +1,6 @@
-# CC:Restitched Updated
+# CC:Restitched
+# CC:R Version VS CC:T Version
+CC:R Strives to maintain perfect pairity with CC:T, however in some cases this is not possible, so CC:R might have a "newer" version than what CC:T has, these newer versions will be primarily bugfixes and the like because fabric is "weird" when porting a forge mod
 
 <img src="logo.png" alt="CC: Restitched" width="100%"/>
 
