@@ -43,7 +43,7 @@ public enum MonitorRenderer
     private static boolean textureBuffer = false;
     private static boolean shaderMod = false;
     //TODO find out which shader mods do better with VBOs and add them here.
-    private static List<String> shaderModIds = Arrays.asList( "aShaderModThatWouldPreferVBOs" );
+    private static List<String> shaderModIds = Arrays.asList( "optifabric" );
 
     /**
      * Get the current renderer to use.
