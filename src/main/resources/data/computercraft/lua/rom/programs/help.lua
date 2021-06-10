@@ -42,8 +42,8 @@ local function parse_markdown(text)
     local new_text, fg, bg = "", "", ""
     local function append(txt, fore, back)
         new_text = new_text .. txt
-        fg = fg .. fore:rep(#txt)
-        bg = bg .. back:rep(#txt)
+        fg = fg .. (fore or "0"):rep(#txt)
+        bg = bg .. (back or "f"):rep(#txt)
     end
 
     local next_header = text:find(heading)
@@ -66,7 +66,7 @@ local function parse_markdown(text)
                 next_header = text:find(heading, start)
             else
                 local _, fin, space, content = text:find(bullet, start)
-                append(space .. "\7" .. content, "0", "f")
+                append(space .. "\7" .. content)
                 start = fin + 1
 
                 next_bullet = text:find(bullet, start)
@@ -75,7 +75,7 @@ local function parse_markdown(text)
             next_block = min_of(next_header, next_bullet, oob)
         elseif next_code and next_code_end < next_block then
             -- Basic inline code blocks
-            if start < next_code then append(text:sub(start, next_code - 1), "0", "f") end
+            if start < next_code then append(text:sub(start, next_code - 1)) end
             local content = text:match(code, next_code)
             append(content, "0", "7")
 
@@ -83,8 +83,11 @@ local function parse_markdown(text)
             next_code, next_code_end = text:find(code, start)
         else
             -- Normal text
-            append(text:sub(start, next_block - 1), "0", "f")
+            append(text:sub(start, next_block - 1))
             start = next_block
+
+            -- Rescan for a new code block
+            if next_code then next_code, next_code_end = text:find(code, start) end
         end
     end
 
