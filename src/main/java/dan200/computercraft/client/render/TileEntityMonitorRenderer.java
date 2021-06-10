@@ -93,9 +93,20 @@ public class TileEntityMonitorRenderer extends BlockEntityRenderer<TileMonitor>
         transform.multiply( Vector3f.POSITIVE_X.getDegreesQuaternion( pitch ) );
         transform.translate( -0.5 + TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN,
             origin.getHeight() - 0.5 - (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN) + 0,
-            0.501 );
+            0.50 );
         double xSize = origin.getWidth() - 2.0 * (TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER);
         double ySize = origin.getHeight() - 2.0 * (TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER);
+
+        // Draw the background blocker
+        FixedWidthFontRenderer.drawBlocker( transform.peek().getModel(),
+            renderer,
+            (float) -TileMonitor.RENDER_MARGIN,
+            (float) TileMonitor.RENDER_MARGIN,
+            (float) (xSize + 2 * TileMonitor.RENDER_MARGIN),
+            (float) -(ySize + TileMonitor.RENDER_MARGIN * 2) );
+
+        // Set the contents slightly off the surface to prevent z-fighting
+        transform.translate( 0.0, 0.0, 0.001 );
 
         // Draw the contents
         Terminal terminal = originTerminal.getTerminal();
@@ -123,6 +134,8 @@ public class TileEntityMonitorRenderer extends BlockEntityRenderer<TileMonitor>
             // reasonable.
             FixedWidthFontRenderer.drawCursor( matrix, buffer, 0, 0, terminal, !originTerminal.isColour() );
 
+            // To go along with sneaky hack above: make sure state changes are undone. I would have thought this would
+            // happen automatically after these buffers are drawn, but chests will render weird around monitors without this.
             FixedWidthFontRenderer.TYPE.endDrawing();
 
             transform.pop();
@@ -137,13 +150,6 @@ public class TileEntityMonitorRenderer extends BlockEntityRenderer<TileMonitor>
                 (float) (xSize + 2 * MARGIN),
                 (float) -(ySize + MARGIN * 2) );
         }
-
-        // FixedWidthFontRenderer.drawBlocker( transform.peek().getModel(),
-        //     renderer,
-        //     (float) -TileMonitor.RENDER_MARGIN,
-        //     (float) TileMonitor.RENDER_MARGIN,
-        //     (float) (xSize + 2 * TileMonitor.RENDER_MARGIN),
-        //     (float) -(ySize + TileMonitor.RENDER_MARGIN * 2) );
 
         transform.pop();
     }
