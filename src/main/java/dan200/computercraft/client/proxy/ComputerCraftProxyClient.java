@@ -77,10 +77,6 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
         BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.TURTLE_NORMAL, RenderLayer.getTranslucent() );
         BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.TURTLE_ADVANCED, RenderLayer.getTranslucent() );
 
-        // Monitors' textures have transparent fronts and so count as cutouts.
-        BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.MONITOR_NORMAL, RenderLayer.getCutout() );
-        BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.MONITOR_ADVANCED, RenderLayer.getCutout() );
-
         // Setup TESRs
         BlockEntityRendererRegistry.INSTANCE.register( ComputerCraftRegistry.ModTiles.MONITOR_NORMAL, TileEntityMonitorRenderer::new );
         BlockEntityRendererRegistry.INSTANCE.register( ComputerCraftRegistry.ModTiles.MONITOR_ADVANCED, TileEntityMonitorRenderer::new );

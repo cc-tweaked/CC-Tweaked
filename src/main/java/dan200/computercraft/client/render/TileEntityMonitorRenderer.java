@@ -59,10 +59,7 @@ public class TileEntityMonitorRenderer extends BlockEntityRenderer<TileMonitor>
         // Render from the origin monitor
         ClientMonitor originTerminal = monitor.getClientMonitor();
 
-        if( originTerminal == null )
-        {
-            return;
-        }
+        if( originTerminal == null ) return;
         TileMonitor origin = originTerminal.getOrigin();
         BlockPos monitorPos = monitor.getPos();
 
@@ -96,7 +93,7 @@ public class TileEntityMonitorRenderer extends BlockEntityRenderer<TileMonitor>
         transform.multiply( Vector3f.POSITIVE_X.getDegreesQuaternion( pitch ) );
         transform.translate( -0.5 + TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN,
             origin.getHeight() - 0.5 - (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN) + 0,
-            0.5 );
+            0.501 );
         double xSize = origin.getWidth() - 2.0 * (TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER);
         double ySize = origin.getHeight() - 2.0 * (TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER);
 
@@ -112,8 +109,7 @@ public class TileEntityMonitorRenderer extends BlockEntityRenderer<TileMonitor>
             transform.push();
             transform.scale( (float) xScale, (float) -yScale, 1.0f );
 
-            Matrix4f matrix = transform.peek()
-                .getModel();
+            Matrix4f matrix = transform.peek().getModel();
 
             // Sneaky hack here: we get a buffer now in order to flush existing ones and set up the appropriate
             // render state. I've no clue how well this'll work in future versions of Minecraft, but it does the trick
@@ -126,6 +122,8 @@ public class TileEntityMonitorRenderer extends BlockEntityRenderer<TileMonitor>
             // We don't draw the cursor with the VBO, as it's dynamic and so we'll end up refreshing far more than is
             // reasonable.
             FixedWidthFontRenderer.drawCursor( matrix, buffer, 0, 0, terminal, !originTerminal.isColour() );
+
+            FixedWidthFontRenderer.TYPE.endDrawing();
 
             transform.pop();
         }
@@ -140,13 +138,12 @@ public class TileEntityMonitorRenderer extends BlockEntityRenderer<TileMonitor>
                 (float) -(ySize + MARGIN * 2) );
         }
 
-        FixedWidthFontRenderer.drawBlocker( transform.peek()
-                .getModel(),
-            renderer,
-            (float) -TileMonitor.RENDER_MARGIN,
-            (float) TileMonitor.RENDER_MARGIN,
-            (float) (xSize + 2 * TileMonitor.RENDER_MARGIN),
-            (float) -(ySize + TileMonitor.RENDER_MARGIN * 2) );
+//        FixedWidthFontRenderer.drawBlocker( transform.peek().getModel(),
+//            renderer,
+//            (float) -TileMonitor.RENDER_MARGIN,
+//            (float) TileMonitor.RENDER_MARGIN,
+//            (float) (xSize + 2 * TileMonitor.RENDER_MARGIN),
+//            (float) -(ySize + TileMonitor.RENDER_MARGIN * 2) );
 
         transform.pop();
     }
