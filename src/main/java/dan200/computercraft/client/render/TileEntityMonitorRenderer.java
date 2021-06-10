@@ -138,12 +138,12 @@ public class TileEntityMonitorRenderer extends BlockEntityRenderer<TileMonitor>
                 (float) -(ySize + MARGIN * 2) );
         }
 
-//        FixedWidthFontRenderer.drawBlocker( transform.peek().getModel(),
-//            renderer,
-//            (float) -TileMonitor.RENDER_MARGIN,
-//            (float) TileMonitor.RENDER_MARGIN,
-//            (float) (xSize + 2 * TileMonitor.RENDER_MARGIN),
-//            (float) -(ySize + TileMonitor.RENDER_MARGIN * 2) );
+        // FixedWidthFontRenderer.drawBlocker( transform.peek().getModel(),
+        //     renderer,
+        //     (float) -TileMonitor.RENDER_MARGIN,
+        //     (float) TileMonitor.RENDER_MARGIN,
+        //     (float) (xSize + 2 * TileMonitor.RENDER_MARGIN),
+        //     (float) -(ySize + TileMonitor.RENDER_MARGIN * 2) );
 
         transform.pop();
     }
