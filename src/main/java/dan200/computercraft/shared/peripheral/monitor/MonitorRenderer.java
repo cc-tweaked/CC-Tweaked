@@ -7,9 +7,12 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
+import net.fabricmc.loader.api.FabricLoader;
 import org.lwjgl.opengl.GL;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * The render type to use for monitors.
@@ -38,6 +41,9 @@ public enum MonitorRenderer
 
     private static boolean initialised = false;
     private static boolean textureBuffer = false;
+    private static boolean shaderMod = false;
+    //TODO find out which shader mods do better with VBOs and add them here.
+    private static List<String> shaderModIds = Arrays.asList( "optifabric" );
 
     /**
      * Get the current renderer to use.
@@ -69,18 +75,30 @@ public enum MonitorRenderer
 
     private static MonitorRenderer best()
     {
-        checkCapabilities();
-        return textureBuffer ? TBO : VBO;
+        if ( !initialised )
+        {
+            checkCapabilities();
+            checkForShaderMods();
+            if ( textureBuffer && shaderMod )
+            {
+                ComputerCraft.log.warn( "Shader mod detected. Enabling VBO renderer for compatibility." );
+            }
+
+            initialised = true;
+        }
+
+        return textureBuffer && !shaderMod ? TBO : VBO;
     }
 
     private static void checkCapabilities()
     {
-        if( initialised )
-        {
-            return;
-        }
-
         textureBuffer = GL.getCapabilities().OpenGL31;
-        initialised = true;
+    }
+
+    private static void checkForShaderMods()
+    {
+        shaderMod = FabricLoader.getInstance().getAllMods().stream()
+            .map( modContainer -> modContainer.getMetadata().getId() )
+            .anyMatch( id -> shaderModIds.contains( id ) );
     }
 }

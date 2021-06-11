@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.util;
 
-import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.ConfigSpec;
 import com.electronwill.nightconfig.core.EnumGetMethod;
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
@@ -39,11 +38,13 @@ public final class Config
     public static final CommentedConfigSpec serverSpec;
     public static final CommentedConfigSpec clientSpec;
 
-    public static CommentedConfig serverConfig;
-    public static CommentedConfig clientConfig;
+    public static CommentedFileConfig serverConfig;
+    public static CommentedFileConfig clientConfig;
 
     private static final WorldSavePath serverDir = WorldSavePathAccess.createWorldSavePath( "serverconfig" );
     private static final String serverFileName = "computercraft-server.toml";
+
+    private static Path serverPath = null;
     private static final Path clientPath = FabricLoader.INSTANCE.getConfigDir().resolve( "computercraft-client.toml" );
 
     private Config()
@@ -243,7 +244,7 @@ public final class Config
         clientSpec.defineInRange( "monitor_distance", 64, 16, 1024 );
     }
 
-    private static final FileNotFoundAction MAKE_DIRECTORIES = ( file, configFormat ) -> {
+    private static final FileNotFoundAction MAKE_DIRECTORIES_AND_FILE = ( file, configFormat ) -> {
         Files.createDirectories( file.getParent() );
         Files.createFile( file );
         configFormat.initEmptyFile( file );
@@ -253,14 +254,36 @@ public final class Config
     private static CommentedFileConfig buildFileConfig( Path path )
     {
         return CommentedFileConfig.builder( path )
-            .onFileNotFound( MAKE_DIRECTORIES )
+            .onFileNotFound( MAKE_DIRECTORIES_AND_FILE )
             .preserveInsertionOrder()
             .build();
     }
 
+    private static void saveConfig( UnmodifiableConfig config, CommentedConfigSpec spec, Path path )
+    {
+        try( CommentedFileConfig fileConfig = buildFileConfig( path ) )
+        {
+            fileConfig.putAll( config );
+            spec.correct( fileConfig );
+            fileConfig.save();
+        }
+    }
+
+    public static void save()
+    {
+        if( clientConfig != null )
+        {
+            saveConfig( clientConfig, clientSpec, clientPath );
+        }
+        if( serverConfig != null && serverPath != null )
+        {
+            saveConfig( serverConfig, serverSpec, serverPath );
+        }
+    }
+
     public static void serverStarting( MinecraftServer server )
     {
-        Path serverPath = server.getSavePath( serverDir ).resolve( serverFileName );
+        serverPath = server.getSavePath( serverDir ).resolve( serverFileName );
 
         try( CommentedFileConfig config = buildFileConfig( serverPath ) )
         {
@@ -275,6 +298,7 @@ public final class Config
     public static void serverStopping( MinecraftServer server )
     {
         serverConfig = null;
+        serverPath = null;
     }
 
     public static void clientStarted( MinecraftClient client )

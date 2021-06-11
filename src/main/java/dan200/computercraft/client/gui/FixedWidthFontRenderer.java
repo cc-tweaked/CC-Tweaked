@@ -409,7 +409,7 @@ public final class FixedWidthFontRenderer
                     false,
                     false ) ) // blur, minimap
                 .alpha( ONE_TENTH_ALPHA )
-                .writeMaskState( DEPTH_MASK )
+                .writeMaskState( ALL_MASK )
                 .lightmap( DISABLE_LIGHTMAP )
                 .build( false ) );
 
