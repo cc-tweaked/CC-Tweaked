@@ -1,3 +1,9 @@
+# New features in CC: Restitched 1.96.1-rc1
+
+A Few bug fixes:
+* Fix crash with `getItemDetails(slot, true)` on servers
+* Fix Optifine Shaders
+
 # New features in CC: Restitched 1.96.0
 
 * Use lightGrey for folders within the "list" program.
