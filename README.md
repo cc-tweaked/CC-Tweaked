@@ -22,12 +22,12 @@ Currently Iris and Canvas Shaders are Incompatible with this mod,
  - Iris has transparent monitors, and when a computer displays something on the monitor, the face becomes black
  - Canvas... uhm
 	- Computer Terminals are 100% unusable and scuffed
-		- https://user-images.githubusercontent.com/16393543/120464345-ab619b00-c351-11eb-9dfb-e68ddc93de5e.png 
+		- <img src="https://user-images.githubusercontent.com/16393543/120464345-ab619b00-c351-11eb-9dfb-e68ddc93de5e.png"> 
 	- Monitors break with either rendering option
 		- TBO
 			- Just crashes on world load
 		- VBO
-			- https://user-images.githubusercontent.com/16393543/120475933-d999a780-c35e-11eb-9d94-ef4e5988ad5f.png
+			- <img src="https://user-images.githubusercontent.com/16393543/120475933-d999a780-c35e-11eb-9d94-ef4e5988ad5f.png">
 ## Contributing
 Any contribution is welcome, be that using the mod, reporting bugs or contributing code. In order to start helping develop CC:R there are a few rules
 1) Any updates that port commits from CC:T, ***MUST*** follow the format defined in [patchwork.md](patchwork.md) otherwise they will not be accepted,
