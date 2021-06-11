@@ -10,19 +10,19 @@ import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.EnchantedBookItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.tag.ServerTagManagerHolder;
-import net.minecraft.tag.Tag;
+import net.minecraft.tag.TagGroup;
 import net.minecraft.text.Text;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Data providers for items.
@@ -66,7 +66,30 @@ public class ItemData
 
         if( stack.isDamaged() )
         {
-            data.put( "durability", 1.0 - (stack.getDamage() / stack.getMaxDamage()) );
+            data.put( "durability", (double) stack.getDamage() / stack.getMaxDamage() );
+        }
+
+        // requireNonNull is safe because we got the Identifiers out of the TagGroup to start with. Would be nicer
+        // to stream the tags directly but TagGroup isn't a collection :(
+        TagGroup<Item> itemTags = ServerTagManagerHolder.getTagManager().getItems();
+        data.put( "tags", DataHelpers.getTags( itemTags.getTagIds().stream()
+            .filter( id -> Objects.requireNonNull( itemTags.getTag( id ) ).contains( stack.getItem() ) )
+            .collect( Collectors.toList() )
+        ) ); // chaos x2
+
+        CompoundTag tag = stack.getTag();
+        if( tag != null && tag.contains( "display", NBTUtil.TAG_COMPOUND ) )
+        {
+            CompoundTag displayTag = tag.getCompound( "display" );
+            if( displayTag.contains( "Lore", NBTUtil.TAG_LIST ) )
+            {
+                ListTag loreTag = displayTag.getList( "Lore", NBTUtil.TAG_STRING );
+                data.put( "lore", loreTag.stream()
+                    .map( ItemData::parseTextComponent )
+                    .filter( Objects::nonNull )
+                    .map( Text::getString )
+                    .collect( Collectors.toList() ) );
+            }
         }
 
         /*
@@ -74,7 +97,6 @@ public class ItemData
          * @see https://minecraft.gamepedia.com/Tutorials/Command_NBT_tags
          * @see ItemStack#getTooltip
          */
-        CompoundTag tag = stack.getTag();
         int hideFlags = tag != null ? tag.getInt( "HideFlags" ) : 0;
 
         List<Map<String, Object>> enchants = getAllEnchants( stack, hideFlags );
@@ -85,10 +107,9 @@ public class ItemData
             data.put( "unbreakable", true );
         }
 
-        data.put( "tags", DataHelpers.getTags( ServerTagManagerHolder.getTagManager().getItems().getTagsFor( stack.getItem() ) ) ); // chaos
-
         return data;
     }
+
 
     @Nullable
     private static Text parseTextComponent( @Nonnull Tag x )
