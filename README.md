@@ -18,11 +18,11 @@ This mod includes textures that are more in-line with the style of Mojang's new 
 We also have a second resourcepack made by [3prm3](https://github.com/3prm3), it features a complete overhaul and can be enabled by enabling the `overhaul` resource pack, go check out his resource pack over here!
 
 # Conflicts
-Currently Iris and Canvas Shaders are Incompatible with this mod, 
+Currently Iris and Canvas Shaders are Incompatible with this mod,
  - Iris has transparent monitors, and when a computer displays something on the monitor, the face becomes black
  - Canvas... uhm
 	- Computer Terminals are 100% unusable and scuffed
-		- <img src="https://user-images.githubusercontent.com/16393543/120464345-ab619b00-c351-11eb-9dfb-e68ddc93de5e.png"> 
+		- <img src="https://user-images.githubusercontent.com/16393543/120464345-ab619b00-c351-11eb-9dfb-e68ddc93de5e.png">
 	- Monitors break with either rendering option
 		- TBO
 			- Just crashes on world load
