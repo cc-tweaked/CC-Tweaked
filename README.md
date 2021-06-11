@@ -17,11 +17,17 @@ This mod includes textures that are more in-line with the style of Mojang's new 
 <img src="https://raw.githubusercontent.com/3prm3/cc-pack/main/pack.png" alt="CC: Restitched" width="16"  height="16"/> [3prm3/cc-pack](https://github.com/3prm3/cc-pack/)
 We also have a second resourcepack made by [3prm3](https://github.com/3prm3), it features a complete overhaul and can be enabled by enabling the `overhaul` resource pack, go check out his resource pack over here!
 
-## Major Tasks Planned
-* Rewrite the config system
-    * **Planned for 1.96.3 release**
-	* it currently sets the values that would normally be read from `config/computercraft.json` to the default values, because it does not read the file at all
-
+# Conflicts
+Currently Iris and Canvas Shaders are Incompatible with this mod, 
+ - Iris has transparent monitors, and when a computer displays something on the monitor, the face becomes black
+ - Canvas... uhm
+	- Computer Terminals are 100% unusable and scuffed
+		- https://user-images.githubusercontent.com/16393543/120464345-ab619b00-c351-11eb-9dfb-e68ddc93de5e.png 
+	- Monitors break with either rendering option
+		- TBO
+			- Just crashes on world load
+		- VBO
+			- https://user-images.githubusercontent.com/16393543/120475933-d999a780-c35e-11eb-9d94-ef4e5988ad5f.png
 ## Contributing
 Any contribution is welcome, be that using the mod, reporting bugs or contributing code. In order to start helping develop CC:R there are a few rules
 1) Any updates that port commits from CC:T, ***MUST*** follow the format defined in [patchwork.md](patchwork.md) otherwise they will not be accepted,

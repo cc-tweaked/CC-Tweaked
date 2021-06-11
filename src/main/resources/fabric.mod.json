@@ -26,6 +26,10 @@
     "suggests": {
         "modmenu": "*"
     },
+	"conflicts": {
+		"canvas": "*",
+		"iris": "*"
+	},
     "environment": "*",
     "entrypoints": {
         "main": [
