@@ -31,14 +31,14 @@ public final class MethodResult
 
     private MethodResult( Object[] arguments, ILuaCallback callback )
     {
-        this.result = arguments;
+        result = arguments;
         this.callback = callback;
-        this.adjust = 0;
+        adjust = 0;
     }
 
     private MethodResult( Object[] arguments, ILuaCallback callback, int adjust )
     {
-        this.result = arguments;
+        result = arguments;
         this.callback = callback;
         this.adjust = adjust;
     }
@@ -141,18 +141,18 @@ public final class MethodResult
     @Nullable
     public Object[] getResult()
     {
-        return this.result;
+        return result;
     }
 
     @Nullable
     public ILuaCallback getCallback()
     {
-        return this.callback;
+        return callback;
     }
 
     public int getErrorAdjust()
     {
-        return this.adjust;
+        return adjust;
     }
 
     /**
@@ -168,10 +168,10 @@ public final class MethodResult
         {
             throw new IllegalArgumentException( "cannot adjust by a negative amount" );
         }
-        if( adjust == 0 || this.callback == null )
+        if( adjust == 0 || callback == null )
         {
             return this;
         }
-        return new MethodResult( this.result, this.callback, this.adjust + adjust );
+        return new MethodResult( result, callback, this.adjust + adjust );
     }
 }

@@ -39,7 +39,7 @@ public class BlockWirelessModem extends BlockGeneric implements Waterloggable
     public BlockWirelessModem( Settings settings, BlockEntityType<? extends TileWirelessModem> type )
     {
         super( settings, type );
-        this.setDefaultState( this.getStateManager().getDefaultState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( FACING, Direction.NORTH )
             .with( ON, false )
             .with( WATERLOGGED, false ) );
@@ -84,7 +84,7 @@ public class BlockWirelessModem extends BlockGeneric implements Waterloggable
     @Override
     public BlockState getPlacementState( ItemPlacementContext placement )
     {
-        return this.getDefaultState().with( FACING,
+        return getDefaultState().with( FACING,
             placement.getSide()
                 .getOpposite() )
             .with( WATERLOGGED, getWaterloggedStateForPlacement( placement ) );

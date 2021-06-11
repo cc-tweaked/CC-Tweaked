@@ -39,7 +39,7 @@ public abstract class ItemBlockCable extends BlockItem
 
     boolean placeAtCorrected( World world, BlockPos pos, BlockState state )
     {
-        return this.placeAt( world, pos, correctConnections( world, pos, state ), null );
+        return placeAt( world, pos, correctConnections( world, pos, state ), null );
     }
 
     boolean placeAt( World world, BlockPos pos, BlockState state, PlayerEntity player )
@@ -70,17 +70,17 @@ public abstract class ItemBlockCable extends BlockItem
     @Override
     public String getTranslationKey()
     {
-        if( this.translationKey == null )
+        if( translationKey == null )
         {
-            this.translationKey = Util.createTranslationKey( "block", Registry.ITEM.getId( this ) );
+            translationKey = Util.createTranslationKey( "block", Registry.ITEM.getId( this ) );
         }
-        return this.translationKey;
+        return translationKey;
     }
 
     @Override
     public void appendStacks( @Nonnull ItemGroup group, @Nonnull DefaultedList<ItemStack> list )
     {
-        if( this.isIn( group ) )
+        if( isIn( group ) )
         {
             list.add( new ItemStack( this ) );
         }
@@ -114,7 +114,7 @@ public abstract class ItemBlockCable extends BlockItem
                     .getOpposite();
                 BlockState newState = existingState.with( MODEM, CableModemVariant.from( side ) )
                     .with( CONNECTIONS.get( side ), existingState.get( CABLE ) );
-                if( this.placeAt( world, pos, newState, context.getPlayer() ) )
+                if( placeAt( world, pos, newState, context.getPlayer() ) )
                 {
                     stack.decrement( 1 );
                     return ActionResult.SUCCESS;
@@ -149,7 +149,7 @@ public abstract class ItemBlockCable extends BlockItem
             BlockPos insidePos = pos.offset( context.getSide()
                 .getOpposite() );
             BlockState insideState = world.getBlockState( insidePos );
-            if( insideState.getBlock() == ComputerCraftRegistry.ModBlocks.CABLE && !insideState.get( BlockCable.CABLE ) && this.placeAtCorrected( world,
+            if( insideState.getBlock() == ComputerCraftRegistry.ModBlocks.CABLE && !insideState.get( BlockCable.CABLE ) && placeAtCorrected( world,
                 insidePos,
                 insideState.with(
                     BlockCable.CABLE,
@@ -161,7 +161,7 @@ public abstract class ItemBlockCable extends BlockItem
 
             // Try to add a cable to a modem adjacent to this block
             BlockState existingState = world.getBlockState( pos );
-            if( existingState.getBlock() == ComputerCraftRegistry.ModBlocks.CABLE && !existingState.get( BlockCable.CABLE ) && this.placeAtCorrected( world,
+            if( existingState.getBlock() == ComputerCraftRegistry.ModBlocks.CABLE && !existingState.get( BlockCable.CABLE ) && placeAtCorrected( world,
                 pos,
                 existingState.with(
                     BlockCable.CABLE,

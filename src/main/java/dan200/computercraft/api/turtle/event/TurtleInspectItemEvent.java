@@ -53,7 +53,7 @@ public class TurtleInspectItemEvent extends TurtleActionEvent
     @Nonnull
     public ItemStack getStack()
     {
-        return this.stack;
+        return stack;
     }
 
     /**
@@ -64,7 +64,7 @@ public class TurtleInspectItemEvent extends TurtleActionEvent
     @Nonnull
     public Map<String, Object> getData()
     {
-        return this.data;
+        return data;
     }
 
     /**
@@ -74,7 +74,7 @@ public class TurtleInspectItemEvent extends TurtleActionEvent
      */
     public boolean onMainThread()
     {
-        return this.mainThread;
+        return mainThread;
     }
 
     /**
@@ -85,6 +85,6 @@ public class TurtleInspectItemEvent extends TurtleActionEvent
     public void addData( @Nonnull Map<String, ?> newData )
     {
         Objects.requireNonNull( newData, "newData cannot be null" );
-        this.data.putAll( newData );
+        data.putAll( newData );
     }
 }

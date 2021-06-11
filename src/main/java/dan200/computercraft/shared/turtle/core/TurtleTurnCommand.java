@@ -35,26 +35,20 @@ public class TurtleTurnCommand implements ITurtleCommand
             return TurtleCommandResult.failure( event.getFailureMessage() );
         }
 
-        switch( this.direction )
+        switch( direction )
         {
             case LEFT:
-            {
                 turtle.setDirection( turtle.getDirection()
                     .rotateYCounterclockwise() );
                 turtle.playAnimation( TurtleAnimation.TURN_LEFT );
                 return TurtleCommandResult.success();
-            }
             case RIGHT:
-            {
                 turtle.setDirection( turtle.getDirection()
                     .rotateYClockwise() );
                 turtle.playAnimation( TurtleAnimation.TURN_RIGHT );
                 return TurtleCommandResult.success();
-            }
             default:
-            {
                 return TurtleCommandResult.failure( "Unknown direction" );
-            }
         }
     }
 }

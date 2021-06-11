@@ -31,27 +31,27 @@ public abstract class ComputerClientMessage implements NetworkMessage
 
     public int getInstanceId()
     {
-        return this.instanceId;
+        return instanceId;
     }
 
     @Override
     public void toBytes( @Nonnull PacketByteBuf buf )
     {
-        buf.writeVarInt( this.instanceId );
+        buf.writeVarInt( instanceId );
     }
 
     @Override
     public void fromBytes( @Nonnull PacketByteBuf buf )
     {
-        this.instanceId = buf.readVarInt();
+        instanceId = buf.readVarInt();
     }
 
     public ClientComputer getComputer()
     {
-        ClientComputer computer = ComputerCraft.clientComputerRegistry.get( this.instanceId );
+        ClientComputer computer = ComputerCraft.clientComputerRegistry.get( instanceId );
         if( computer == null )
         {
-            ComputerCraft.clientComputerRegistry.add( this.instanceId, computer = new ClientComputer( this.instanceId ) );
+            ComputerCraft.clientComputerRegistry.add( instanceId, computer = new ClientComputer( instanceId ) );
         }
         return computer;
     }

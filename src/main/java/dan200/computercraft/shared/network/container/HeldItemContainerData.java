@@ -29,18 +29,18 @@ public class HeldItemContainerData implements ContainerData
 
     public HeldItemContainerData( PacketByteBuf buffer )
     {
-        this.hand = buffer.readEnumConstant( Hand.class );
+        hand = buffer.readEnumConstant( Hand.class );
     }
 
     @Override
     public void toBytes( PacketByteBuf buf )
     {
-        buf.writeEnumConstant( this.hand );
+        buf.writeEnumConstant( hand );
     }
 
     @Nonnull
     public Hand getHand()
     {
-        return this.hand;
+        return hand;
     }
 }

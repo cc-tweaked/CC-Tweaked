@@ -38,7 +38,7 @@ public final class TransformedModel
     public TransformedModel( @Nonnull BakedModel model )
     {
         this.model = Objects.requireNonNull( model );
-        this.matrix = AffineTransformation.identity();
+        matrix = AffineTransformation.identity();
     }
 
     public static TransformedModel of( @Nonnull ModelIdentifier location )
@@ -60,26 +60,26 @@ public final class TransformedModel
     @Nonnull
     public BakedModel getModel()
     {
-        return this.model;
+        return model;
     }
 
     @Nonnull
     public AffineTransformation getMatrix()
     {
-        return this.matrix;
+        return matrix;
     }
 
     public void push( MatrixStack matrixStack )
     {
         matrixStack.push();
 
-        AffineTransformationAccess access = (AffineTransformationAccess) (Object) this.matrix;
+        AffineTransformationAccess access = (AffineTransformationAccess) (Object) matrix;
         if( access.getTranslation() != null )
         {
             matrixStack.translate( access.getTranslation().getX(), access.getTranslation().getY(), access.getTranslation().getZ() );
         }
 
-        matrixStack.multiply( this.matrix.getRotation2() );
+        matrixStack.multiply( matrix.getRotation2() );
 
         if( access.getScale() != null )
         {

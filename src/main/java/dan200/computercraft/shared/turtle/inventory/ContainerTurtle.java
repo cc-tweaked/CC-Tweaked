@@ -53,14 +53,14 @@ public class ContainerTurtle extends ContainerComputerBase
         super( ComputerCraftRegistry.ModContainers.TURTLE, id, canUse, computer, family );
         this.properties = properties;
 
-        this.addProperties( properties );
+        addProperties( properties );
 
         // Turtle inventory
         for( int y = 0; y < 4; y++ )
         {
             for( int x = 0; x < 4; x++ )
             {
-                this.addSlot( new Slot( inventory, x + y * 4, TURTLE_START_X + 1 + x * 18, PLAYER_START_Y + 1 + y * 18 ) );
+                addSlot( new Slot( inventory, x + y * 4, TURTLE_START_X + 1 + x * 18, PLAYER_START_Y + 1 + y * 18 ) );
             }
         }
 
@@ -69,14 +69,14 @@ public class ContainerTurtle extends ContainerComputerBase
         {
             for( int x = 0; x < 9; x++ )
             {
-                this.addSlot( new Slot( playerInventory, x + y * 9 + 9, 8 + x * 18, PLAYER_START_Y + 1 + y * 18 ) );
+                addSlot( new Slot( playerInventory, x + y * 9 + 9, 8 + x * 18, PLAYER_START_Y + 1 + y * 18 ) );
             }
         }
 
         // Player hotbar
         for( int x = 0; x < 9; x++ )
         {
-            this.addSlot( new Slot( playerInventory, x, 8 + x * 18, PLAYER_START_Y + 3 * 18 + 5 ) );
+            addSlot( new Slot( playerInventory, x, 8 + x * 18, PLAYER_START_Y + 3 * 18 + 5 ) );
         }
     }
 
@@ -98,7 +98,7 @@ public class ContainerTurtle extends ContainerComputerBase
 
     public int getSelectedSlot()
     {
-        return this.properties.get( 0 );
+        return properties.get( 0 );
     }
 
     @Nonnull
@@ -107,11 +107,11 @@ public class ContainerTurtle extends ContainerComputerBase
     {
         if( slotNum >= 0 && slotNum < 16 )
         {
-            return this.tryItemMerge( player, slotNum, 16, 52, true );
+            return tryItemMerge( player, slotNum, 16, 52, true );
         }
         else if( slotNum >= 16 )
         {
-            return this.tryItemMerge( player, slotNum, 0, 16, false );
+            return tryItemMerge( player, slotNum, 0, 16, false );
         }
         return ItemStack.EMPTY;
     }
@@ -119,13 +119,13 @@ public class ContainerTurtle extends ContainerComputerBase
     @Nonnull
     private ItemStack tryItemMerge( PlayerEntity player, int slotNum, int firstSlot, int lastSlot, boolean reverse )
     {
-        Slot slot = this.slots.get( slotNum );
+        Slot slot = slots.get( slotNum );
         ItemStack originalStack = ItemStack.EMPTY;
         if( slot != null && slot.hasStack() )
         {
             ItemStack clickedStack = slot.getStack();
             originalStack = clickedStack.copy();
-            if( !this.insertItem( clickedStack, firstSlot, lastSlot, reverse ) )
+            if( !insertItem( clickedStack, firstSlot, lastSlot, reverse ) )
             {
                 return ItemStack.EMPTY;
             }

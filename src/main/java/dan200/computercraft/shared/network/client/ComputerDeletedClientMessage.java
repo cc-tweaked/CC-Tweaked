@@ -23,6 +23,6 @@ public class ComputerDeletedClientMessage extends ComputerClientMessage
     @Override
     public void handle( PacketContext context )
     {
-        ComputerCraft.clientComputerRegistry.remove( this.getInstanceId() );
+        ComputerCraft.clientComputerRegistry.remove( getInstanceId() );
     }
 }

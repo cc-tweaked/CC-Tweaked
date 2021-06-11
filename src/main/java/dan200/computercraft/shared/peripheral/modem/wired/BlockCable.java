@@ -66,7 +66,7 @@ public class BlockCable extends BlockGeneric implements Waterloggable
     {
         super( settings, ComputerCraftRegistry.ModTiles.CABLE );
 
-        this.setDefaultState( this.getStateManager().getDefaultState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( MODEM, CableModemVariant.None )
             .with( CABLE, false )
             .with( NORTH, false )
@@ -94,7 +94,7 @@ public class BlockCable extends BlockGeneric implements Waterloggable
         // Should never happen, but handle the case where we've no modem or cable.
         if( !state.get( CABLE ) && state.get( MODEM ) == CableModemVariant.None )
         {
-            return this.getFluidState( state ).getBlockState();
+            return getFluidState( state ).getBlockState();
         }
 
         return state.with( CONNECTIONS.get( side ), doesConnectVisually( state, world, pos, side ) );
@@ -211,7 +211,7 @@ public class BlockCable extends BlockGeneric implements Waterloggable
     @Override
     public BlockState getPlacementState( @Nonnull ItemPlacementContext context )
     {
-        BlockState state = this.getDefaultState().with( WATERLOGGED, getWaterloggedStateForPlacement( context ) );
+        BlockState state = getDefaultState().with( WATERLOGGED, getWaterloggedStateForPlacement( context ) );
 
         if( context.getStack()
             .getItem() instanceof ItemBlockCable.Cable )

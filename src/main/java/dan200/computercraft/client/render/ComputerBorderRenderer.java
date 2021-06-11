@@ -113,13 +113,13 @@ public class ComputerBorderRenderer
         int endY = y + height;
 
         // Vertical bars
-        this.renderLine( x - BORDER, y, 0, CORNER_TOP_Y, BORDER, endY - y );
-        this.renderLine( endX, y, BORDER_RIGHT_X, CORNER_TOP_Y, BORDER, endY - y );
+        renderLine( x - BORDER, y, 0, CORNER_TOP_Y, BORDER, endY - y );
+        renderLine( endX, y, BORDER_RIGHT_X, CORNER_TOP_Y, BORDER, endY - y );
 
         // Top bar
-        this.renderLine( x, y - BORDER, 0, 0, endX - x, BORDER );
-        this.renderCorner( x - BORDER, y - BORDER, CORNER_LEFT_X, CORNER_TOP_Y );
-        this.renderCorner( endX, y - BORDER, CORNER_RIGHT_X, CORNER_TOP_Y );
+        renderLine( x, y - BORDER, 0, 0, endX - x, BORDER );
+        renderCorner( x - BORDER, y - BORDER, CORNER_LEFT_X, CORNER_TOP_Y );
+        renderCorner( endX, y - BORDER, CORNER_RIGHT_X, CORNER_TOP_Y );
 
         // Bottom bar. We allow for drawing a stretched version, which allows for additional elements (such as the
         // pocket computer's lights).
@@ -131,43 +131,43 @@ public class ComputerBorderRenderer
         }
         else
         {
-            this.renderLine( x, endY, 0, BORDER, endX - x, BORDER );
-            this.renderCorner( x - BORDER, endY, CORNER_LEFT_X, CORNER_BOTTOM_Y );
-            this.renderCorner( endX, endY, CORNER_RIGHT_X, CORNER_BOTTOM_Y );
+            renderLine( x, endY, 0, BORDER, endX - x, BORDER );
+            renderCorner( x - BORDER, endY, CORNER_LEFT_X, CORNER_BOTTOM_Y );
+            renderCorner( endX, endY, CORNER_RIGHT_X, CORNER_BOTTOM_Y );
         }
     }
 
     private void renderLine( int x, int y, int u, int v, int width, int height )
     {
-        this.renderTexture( x, y, u, v, width, height, BORDER, BORDER );
+        renderTexture( x, y, u, v, width, height, BORDER, BORDER );
     }
 
     private void renderCorner( int x, int y, int u, int v )
     {
-        this.renderTexture( x, y, u, v, BORDER, BORDER, BORDER, BORDER );
+        renderTexture( x, y, u, v, BORDER, BORDER, BORDER, BORDER );
     }
 
     private void renderTexture( int x, int y, int u, int v, int width, int height )
     {
-        this.renderTexture( x, y, u, v, width, height, width, height );
+        renderTexture( x, y, u, v, width, height, width, height );
     }
 
     private void renderTexture( int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight )
     {
-        this.builder.vertex( this.transform, x, y + height, this.z )
-            .color( this.r, this.g, this.b, 1.0f )
+        builder.vertex( transform, x, y + height, z )
+            .color( r, g, b, 1.0f )
             .texture( u * TEX_SCALE, (v + textureHeight) * TEX_SCALE )
             .next();
-        this.builder.vertex( this.transform, x + width, y + height, this.z )
-            .color( this.r, this.g, this.b, 1.0f )
+        builder.vertex( transform, x + width, y + height, z )
+            .color( r, g, b, 1.0f )
             .texture( (u + textureWidth) * TEX_SCALE, (v + textureHeight) * TEX_SCALE )
             .next();
-        this.builder.vertex( this.transform, x + width, y, this.z )
-            .color( this.r, this.g, this.b, 1.0f )
+        builder.vertex( transform, x + width, y, z )
+            .color( r, g, b, 1.0f )
             .texture( (u + textureWidth) * TEX_SCALE, v * TEX_SCALE )
             .next();
-        this.builder.vertex( this.transform, x, y, this.z )
-            .color( this.r, this.g, this.b, 1.0f )
+        builder.vertex( transform, x, y, z )
+            .color( r, g, b, 1.0f )
             .texture( u * TEX_SCALE, v * TEX_SCALE )
             .next();
     }

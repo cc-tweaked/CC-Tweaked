@@ -47,7 +47,7 @@ public class DiskRecipe extends SpecialCraftingRecipe
 
             if( !stack.isEmpty() )
             {
-                if( this.paper.test( stack ) )
+                if( paper.test( stack ) )
                 {
                     if( paperFound )
                     {
@@ -55,7 +55,7 @@ public class DiskRecipe extends SpecialCraftingRecipe
                     }
                     paperFound = true;
                 }
-                else if( this.redstone.test( stack ) )
+                else if( redstone.test( stack ) )
                 {
                     if( redstoneFound )
                     {

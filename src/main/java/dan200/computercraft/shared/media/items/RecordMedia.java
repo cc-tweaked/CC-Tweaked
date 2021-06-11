@@ -30,7 +30,7 @@ public final class RecordMedia implements IMedia
     @Override
     public String getLabel( @Nonnull ItemStack stack )
     {
-        return this.getAudioTitle( stack );
+        return getAudioTitle( stack );
     }
 
     @Override

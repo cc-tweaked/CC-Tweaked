@@ -39,7 +39,7 @@ public abstract class TurtleInventoryEvent extends TurtleBlockEvent
     @Nullable
     public Inventory getItemHandler()
     {
-        return this.handler;
+        return handler;
     }
 
     /**
@@ -81,7 +81,7 @@ public abstract class TurtleInventoryEvent extends TurtleBlockEvent
         @Nonnull
         public ItemStack getStack()
         {
-            return this.stack;
+            return stack;
         }
     }
 }

@@ -70,7 +70,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
     public TurtleTool( Identifier id, ItemStack craftItem, ItemStack toolItem )
     {
         super( id, TurtleUpgradeType.TOOL, craftItem );
-        this.item = toolItem;
+        item = toolItem;
     }
 
     @Override
@@ -82,13 +82,8 @@ public class TurtleTool extends AbstractTurtleUpgrade
         // Check we've not got anything vaguely interesting on the item. We allow other mods to add their
         // own NBT, with the understanding such details will be lost to the mist of time.
         if( stack.isDamaged() || stack.hasEnchantments() || stack.hasCustomName() ) return false;
-        if( tag.contains( "AttributeModifiers", TAG_LIST ) &&
-            !tag.getList( "AttributeModifiers", TAG_COMPOUND ).isEmpty() )
-        {
-            return false;
-        }
-
-        return true;
+        return !tag.contains( "AttributeModifiers", TAG_LIST ) ||
+            tag.getList( "AttributeModifiers", TAG_COMPOUND ).isEmpty();
     }
 
     @Nonnull
@@ -98,9 +93,9 @@ public class TurtleTool extends AbstractTurtleUpgrade
         switch( verb )
         {
             case ATTACK:
-                return this.attack( turtle, direction, side );
+                return attack( turtle, direction, side );
             case DIG:
-                return this.dig( turtle, direction, side );
+                return dig( turtle, direction, side );
             default:
                 return TurtleCommandResult.failure( "Unsupported action" );
         }
@@ -112,7 +107,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         float xOffset = side == TurtleSide.LEFT ? -0.40625f : 0.40625f;
-        return TransformedModel.of( this.getCraftingItem(), new AffineTransformation( new Vector3f( xOffset + 1, 0, 1 ), Vector3f.POSITIVE_Y.getDegreesQuaternion( 270 ), new Vector3f( 1, 1, 1 ), Vector3f.POSITIVE_Z.getDegreesQuaternion( 90 ) ) );
+        return TransformedModel.of( getCraftingItem(), new AffineTransformation( new Vector3f( xOffset + 1, 0, 1 ), Vector3f.POSITIVE_Y.getDegreesQuaternion( 270 ), new Vector3f( 1, 1, 1 ), Vector3f.POSITIVE_Z.getDegreesQuaternion( 90 ) ) );
     }
 
     private TurtleCommandResult attack( ITurtleAccess turtle, Direction direction, TurtleSide side )
@@ -132,7 +127,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         if( hit != null )
         {
             // Load up the turtle's inventoryf
-            ItemStack stackCopy = this.item.copy();
+            ItemStack stackCopy = item.copy();
             turtlePlayer.loadInventory( stackCopy );
 
             Entity hitEntity = hit.getKey();
@@ -162,7 +157,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
             if( !hitEntity.handleAttack( turtlePlayer ) )
             {
                 float damage = (float) turtlePlayer.getAttributeValue( EntityAttributes.GENERIC_ATTACK_DAMAGE );
-                damage *= this.getDamageMultiplier();
+                damage *= getDamageMultiplier();
                 if( damage > 0.0f )
                 {
                     DamageSource source = DamageSource.player( turtlePlayer );
@@ -219,7 +214,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         BlockState state = world.getBlockState( blockPosition );
 
         TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, turtlePosition, direction );
-        turtlePlayer.loadInventory( this.item.copy() );
+        turtlePlayer.loadInventory( item.copy() );
 
         if( ComputerCraft.turtlesObeyBlockProtection )
         {
@@ -230,7 +225,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         }
 
         // Check if we can break the block
-        if( !this.canBreakBlock( state, world, blockPosition, turtlePlayer ) )
+        if( !canBreakBlock( state, world, blockPosition, turtlePlayer ) )
         {
             return TurtleCommandResult.failure( "Unbreakable block detected" );
         }

@@ -37,29 +37,29 @@ public class KeyEventServerMessage extends ComputerServerMessage
     public void toBytes( @Nonnull PacketByteBuf buf )
     {
         super.toBytes( buf );
-        buf.writeByte( this.type );
-        buf.writeVarInt( this.key );
+        buf.writeByte( type );
+        buf.writeVarInt( key );
     }
 
     @Override
     public void fromBytes( @Nonnull PacketByteBuf buf )
     {
         super.fromBytes( buf );
-        this.type = buf.readByte();
-        this.key = buf.readVarInt();
+        type = buf.readByte();
+        key = buf.readVarInt();
     }
 
     @Override
     protected void handle( @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
         InputState input = container.getInput();
-        if( this.type == TYPE_UP )
+        if( type == TYPE_UP )
         {
-            input.keyUp( this.key );
+            input.keyUp( key );
         }
         else
         {
-            input.keyDown( this.key, this.type == TYPE_REPEAT );
+            input.keyDown( key, type == TYPE_REPEAT );
         }
     }
 }

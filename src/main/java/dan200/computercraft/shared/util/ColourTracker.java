@@ -21,16 +21,16 @@ public class ColourTracker
 
     public void addColour( float r, float g, float b )
     {
-        this.addColour( (int) (r * 255), (int) (g * 255), (int) (b * 255) );
+        addColour( (int) (r * 255), (int) (g * 255), (int) (b * 255) );
     }
 
     public void addColour( int r, int g, int b )
     {
-        this.total += Math.max( r, Math.max( g, b ) );
-        this.totalR += r;
-        this.totalG += g;
-        this.totalB += b;
-        this.count++;
+        total += Math.max( r, Math.max( g, b ) );
+        totalR += r;
+        totalG += g;
+        totalB += b;
+        count++;
     }
 
     public void addColour( DyeColor dye )
@@ -46,11 +46,11 @@ public class ColourTracker
 
     public int getColour()
     {
-        int avgR = this.totalR / this.count;
-        int avgG = this.totalG / this.count;
-        int avgB = this.totalB / this.count;
+        int avgR = totalR / count;
+        int avgG = totalG / count;
+        int avgB = totalB / count;
 
-        float avgTotal = (float) this.total / this.count;
+        float avgTotal = (float) total / count;
         float avgMax = Math.max( avgR, Math.max( avgG, avgB ) );
         avgR = (int) (avgR * avgTotal / avgMax);
         avgG = (int) (avgG * avgTotal / avgMax);

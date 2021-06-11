@@ -29,78 +29,78 @@ public class WidgetWrapper implements Element
     public boolean mouseClicked( double x, double y, int button )
     {
         double dx = x - this.x, dy = y - this.y;
-        return dx >= 0 && dx < this.width && dy >= 0 && dy < this.height && this.listener.mouseClicked( dx, dy, button );
+        return dx >= 0 && dx < width && dy >= 0 && dy < height && listener.mouseClicked( dx, dy, button );
     }
 
     @Override
     public boolean mouseReleased( double x, double y, int button )
     {
         double dx = x - this.x, dy = y - this.y;
-        return dx >= 0 && dx < this.width && dy >= 0 && dy < this.height && this.listener.mouseReleased( dx, dy, button );
+        return dx >= 0 && dx < width && dy >= 0 && dy < height && listener.mouseReleased( dx, dy, button );
     }
 
     @Override
     public boolean mouseDragged( double x, double y, int button, double deltaX, double deltaY )
     {
         double dx = x - this.x, dy = y - this.y;
-        return dx >= 0 && dx < this.width && dy >= 0 && dy < this.height && this.listener.mouseDragged( dx, dy, button, deltaX, deltaY );
+        return dx >= 0 && dx < width && dy >= 0 && dy < height && listener.mouseDragged( dx, dy, button, deltaX, deltaY );
     }
 
     @Override
     public boolean mouseScrolled( double x, double y, double delta )
     {
         double dx = x - this.x, dy = y - this.y;
-        return dx >= 0 && dx < this.width && dy >= 0 && dy < this.height && this.listener.mouseScrolled( dx, dy, delta );
+        return dx >= 0 && dx < width && dy >= 0 && dy < height && listener.mouseScrolled( dx, dy, delta );
     }
 
     @Override
     public boolean keyPressed( int key, int scancode, int modifiers )
     {
-        return this.listener.keyPressed( key, scancode, modifiers );
+        return listener.keyPressed( key, scancode, modifiers );
     }
 
     @Override
     public boolean keyReleased( int key, int scancode, int modifiers )
     {
-        return this.listener.keyReleased( key, scancode, modifiers );
+        return listener.keyReleased( key, scancode, modifiers );
     }
 
     @Override
     public boolean charTyped( char character, int modifiers )
     {
-        return this.listener.charTyped( character, modifiers );
+        return listener.charTyped( character, modifiers );
     }
 
     @Override
     public boolean changeFocus( boolean b )
     {
-        return this.listener.changeFocus( b );
+        return listener.changeFocus( b );
     }
 
     @Override
     public boolean isMouseOver( double x, double y )
     {
         double dx = x - this.x, dy = y - this.y;
-        return dx >= 0 && dx < this.width && dy >= 0 && dy < this.height;
+        return dx >= 0 && dx < width && dy >= 0 && dy < height;
     }
 
     public int getX()
     {
-        return this.x;
+        return x;
     }
 
     public int getY()
     {
-        return this.y;
+        return y;
     }
 
     public int getWidth()
     {
-        return this.width;
+        return width;
     }
 
     public int getHeight()
     {
-        return this.height;
+        return height;
     }
 }

@@ -30,19 +30,19 @@ public class RequestComputerMessage implements NetworkMessage
     @Override
     public void toBytes( @Nonnull PacketByteBuf buf )
     {
-        buf.writeVarInt( this.instance );
+        buf.writeVarInt( instance );
     }
 
     @Override
     public void fromBytes( @Nonnull PacketByteBuf buf )
     {
-        this.instance = buf.readVarInt();
+        instance = buf.readVarInt();
     }
 
     @Override
     public void handle( PacketContext context )
     {
-        ServerComputer computer = ComputerCraft.serverComputerRegistry.get( this.instance );
+        ServerComputer computer = ComputerCraft.serverComputerRegistry.get( instance );
         if( computer != null )
         {
             computer.sendComputerState( context.getPlayer() );

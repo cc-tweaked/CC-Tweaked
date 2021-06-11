@@ -36,20 +36,20 @@ public class ComputerPeripheral implements IPeripheral
     @Override
     public String getType()
     {
-        return this.type;
+        return type;
     }
 
     @Nonnull
     @Override
     public Object getTarget()
     {
-        return this.computer.getTile();
+        return computer.getTile();
     }
 
     @Override
     public boolean equals( IPeripheral other )
     {
-        return other instanceof ComputerPeripheral && this.computer == ((ComputerPeripheral) other).computer;
+        return other instanceof ComputerPeripheral && computer == ((ComputerPeripheral) other).computer;
     }
 
     /**
@@ -58,7 +58,7 @@ public class ComputerPeripheral implements IPeripheral
     @LuaFunction
     public final void turnOn()
     {
-        this.computer.turnOn();
+        computer.turnOn();
     }
 
     /**
@@ -67,7 +67,7 @@ public class ComputerPeripheral implements IPeripheral
     @LuaFunction
     public final void shutdown()
     {
-        this.computer.shutdown();
+        computer.shutdown();
     }
 
     /**
@@ -76,7 +76,7 @@ public class ComputerPeripheral implements IPeripheral
     @LuaFunction
     public final void reboot()
     {
-        this.computer.reboot();
+        computer.reboot();
     }
 
     /**
@@ -88,7 +88,7 @@ public class ComputerPeripheral implements IPeripheral
     @LuaFunction
     public final int getID()
     {
-        return this.computer.assignID();
+        return computer.assignID();
     }
 
     /**
@@ -99,7 +99,7 @@ public class ComputerPeripheral implements IPeripheral
     @LuaFunction
     public final boolean isOn()
     {
-        return this.computer.isOn();
+        return computer.isOn();
     }
 
     /**
@@ -112,6 +112,6 @@ public class ComputerPeripheral implements IPeripheral
     @LuaFunction
     public final String getLabel()
     {
-        return this.computer.getLabel();
+        return computer.getLabel();
     }
 }

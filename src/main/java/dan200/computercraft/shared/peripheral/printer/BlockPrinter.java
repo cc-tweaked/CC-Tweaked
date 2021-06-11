@@ -37,7 +37,7 @@ public class BlockPrinter extends BlockGeneric
     public BlockPrinter( Settings settings )
     {
         super( settings, ComputerCraftRegistry.ModTiles.PRINTER );
-        this.setDefaultState( this.getStateManager().getDefaultState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( FACING, Direction.NORTH )
             .with( TOP, false )
             .with( BOTTOM, false ) );
@@ -47,7 +47,7 @@ public class BlockPrinter extends BlockGeneric
     @Override
     public BlockState getPlacementState( ItemPlacementContext placement )
     {
-        return this.getDefaultState().with( FACING,
+        return getDefaultState().with( FACING,
             placement.getPlayerFacing()
                 .getOpposite() );
     }

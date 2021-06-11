@@ -32,15 +32,15 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     public ItemComputerBase( BlockComputerBase<?> block, Settings settings )
     {
         super( block, settings );
-        this.family = block.getFamily();
+        family = block.getFamily();
     }
 
     @Override
     public void appendTooltip( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<Text> list, @Nonnull TooltipContext options )
     {
-        if( options.isAdvanced() || this.getLabel( stack ) == null )
+        if( options.isAdvanced() || getLabel( stack ) == null )
         {
-            int id = this.getComputerID( stack );
+            int id = getComputerID( stack );
             if( id >= 0 )
             {
                 list.add( new TranslatableText( "gui.computercraft.tooltip.computer_id", id ).formatted( Formatting.GRAY ) );
@@ -57,7 +57,7 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     @Override
     public final ComputerFamily getFamily()
     {
-        return this.family;
+        return family;
     }
 
     // IMedia implementation
@@ -79,10 +79,10 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     @Override
     public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )
     {
-        ComputerFamily family = this.getFamily();
+        ComputerFamily family = getFamily();
         if( family != ComputerFamily.COMMAND )
         {
-            int id = this.getComputerID( stack );
+            int id = getComputerID( stack );
             if( id >= 0 )
             {
                 return ComputerCraftAPI.createSaveDirMount( world, "computer/" + id, ComputerCraft.computerSpaceLimit );

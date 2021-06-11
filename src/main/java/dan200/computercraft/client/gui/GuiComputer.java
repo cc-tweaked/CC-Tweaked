@@ -65,27 +65,27 @@ public class GuiComputer<T extends ContainerComputerBase> extends HandledScreen<
 
     protected void initTerminal( int border, int widthExtra, int heightExtra )
     {
-        this.client.keyboard.setRepeatEvents( true );
+        client.keyboard.setRepeatEvents( true );
 
-        int termPxWidth = this.termWidth * FixedWidthFontRenderer.FONT_WIDTH;
-        int termPxHeight = this.termHeight * FixedWidthFontRenderer.FONT_HEIGHT;
+        int termPxWidth = termWidth * FixedWidthFontRenderer.FONT_WIDTH;
+        int termPxHeight = termHeight * FixedWidthFontRenderer.FONT_HEIGHT;
 
-        this.backgroundWidth = termPxWidth + MARGIN * 2 + border * 2 + widthExtra;
-        this.backgroundHeight = termPxHeight + MARGIN * 2 + border * 2 + heightExtra;
+        backgroundWidth = termPxWidth + MARGIN * 2 + border * 2 + widthExtra;
+        backgroundHeight = termPxHeight + MARGIN * 2 + border * 2 + heightExtra;
 
         super.init();
 
-        this.terminal = new WidgetTerminal( this.client, () -> this.computer, this.termWidth, this.termHeight, MARGIN, MARGIN, MARGIN, MARGIN );
-        this.terminalWrapper = new WidgetWrapper( this.terminal, MARGIN + border + this.x, MARGIN + border + this.y, termPxWidth, termPxHeight );
+        terminal = new WidgetTerminal( client, () -> computer, termWidth, termHeight, MARGIN, MARGIN, MARGIN, MARGIN );
+        terminalWrapper = new WidgetWrapper( terminal, MARGIN + border + x, MARGIN + border + y, termPxWidth, termPxHeight );
 
-        this.children.add( this.terminalWrapper );
-        this.setFocused( this.terminalWrapper );
+        children.add( terminalWrapper );
+        setFocused( terminalWrapper );
     }
 
     @Override
     protected void init()
     {
-        this.initTerminal( BORDER, 0, 0 );
+        initTerminal( BORDER, 0, 0 );
     }
 
     @Override
@@ -93,7 +93,7 @@ public class GuiComputer<T extends ContainerComputerBase> extends HandledScreen<
     {
         this.renderBackground( stack );
         super.render( stack, mouseX, mouseY, partialTicks );
-        this.drawMouseoverTooltip( stack, mouseX, mouseY );
+        drawMouseoverTooltip( stack, mouseX, mouseY );
     }
 
     @Override
@@ -106,35 +106,35 @@ public class GuiComputer<T extends ContainerComputerBase> extends HandledScreen<
     public void drawBackground( @Nonnull MatrixStack stack, float partialTicks, int mouseX, int mouseY )
     {
         // Draw terminal
-        this.terminal.draw( this.terminalWrapper.getX(), this.terminalWrapper.getY() );
+        terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
 
         // Draw a border around the terminal
         RenderSystem.color4f( 1, 1, 1, 1 );
-        this.client.getTextureManager()
-            .bindTexture( ComputerBorderRenderer.getTexture( this.family ) );
-        ComputerBorderRenderer.render( this.terminalWrapper.getX() - MARGIN, this.terminalWrapper.getY() - MARGIN,
-            this.getZOffset(), this.terminalWrapper.getWidth() + MARGIN * 2, this.terminalWrapper.getHeight() + MARGIN * 2 );
+        client.getTextureManager()
+            .bindTexture( ComputerBorderRenderer.getTexture( family ) );
+        ComputerBorderRenderer.render( terminalWrapper.getX() - MARGIN, terminalWrapper.getY() - MARGIN,
+            getZOffset(), terminalWrapper.getWidth() + MARGIN * 2, terminalWrapper.getHeight() + MARGIN * 2 );
     }
 
     @Override
     public boolean mouseDragged( double x, double y, int button, double deltaX, double deltaY )
     {
-        return (this.getFocused() != null && this.getFocused().mouseDragged( x, y, button, deltaX, deltaY )) || super.mouseDragged( x, y, button, deltaX, deltaY );
+        return (getFocused() != null && getFocused().mouseDragged( x, y, button, deltaX, deltaY )) || super.mouseDragged( x, y, button, deltaX, deltaY );
     }
 
     @Override
     public boolean mouseReleased( double mouseX, double mouseY, int button )
     {
-        return (this.getFocused() != null && this.getFocused().mouseReleased( mouseX, mouseY, button )) || super.mouseReleased( x, y, button );
+        return (getFocused() != null && getFocused().mouseReleased( mouseX, mouseY, button )) || super.mouseReleased( x, y, button );
     }
 
     @Override
     public boolean keyPressed( int key, int scancode, int modifiers )
     {
         // Forward the tab key to the terminal, rather than moving between controls.
-        if( key == GLFW.GLFW_KEY_TAB && this.getFocused() != null && this.getFocused() == this.terminalWrapper )
+        if( key == GLFW.GLFW_KEY_TAB && getFocused() != null && getFocused() == terminalWrapper )
         {
-            return this.getFocused().keyPressed( key, scancode, modifiers );
+            return getFocused().keyPressed( key, scancode, modifiers );
         }
 
         return super.keyPressed( key, scancode, modifiers );
@@ -144,15 +144,15 @@ public class GuiComputer<T extends ContainerComputerBase> extends HandledScreen<
     public void removed()
     {
         super.removed();
-        this.children.remove( this.terminal );
-        this.terminal = null;
-        this.client.keyboard.setRepeatEvents( false );
+        children.remove( terminal );
+        terminal = null;
+        client.keyboard.setRepeatEvents( false );
     }
 
     @Override
     public void tick()
     {
         super.tick();
-        this.terminal.update();
+        terminal.update();
     }
 }

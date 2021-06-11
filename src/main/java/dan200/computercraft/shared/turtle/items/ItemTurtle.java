@@ -36,17 +36,17 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     @Override
     public void appendStacks( @Nonnull ItemGroup group, @Nonnull DefaultedList<ItemStack> list )
     {
-        if( !this.isIn( group ) )
+        if( !isIn( group ) )
         {
             return;
         }
 
-        ComputerFamily family = this.getFamily();
+        ComputerFamily family = getFamily();
 
-        list.add( this.create( -1, null, -1, null, null, 0, null ) );
+        list.add( create( -1, null, -1, null, null, 0, null ) );
         TurtleUpgrades.getVanillaUpgrades()
             .filter( x -> TurtleUpgrades.suitableForFamily( family, x ) )
-            .map( x -> this.create( -1, null, -1, null, x, 0, null ) )
+            .map( x -> create( -1, null, -1, null, x, 0, null ) )
             .forEach( list::add );
     }
 
@@ -98,9 +98,9 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     @Override
     public Text getName( @Nonnull ItemStack stack )
     {
-        String baseString = this.getTranslationKey( stack );
-        ITurtleUpgrade left = this.getUpgrade( stack, TurtleSide.LEFT );
-        ITurtleUpgrade right = this.getUpgrade( stack, TurtleSide.RIGHT );
+        String baseString = getTranslationKey( stack );
+        ITurtleUpgrade left = getUpgrade( stack, TurtleSide.LEFT );
+        ITurtleUpgrade right = getUpgrade( stack, TurtleSide.RIGHT );
         if( left != null && right != null )
         {
             return new TranslatableText( baseString + ".upgraded_twice",
@@ -175,8 +175,8 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     @Override
     public ItemStack withFamily( @Nonnull ItemStack stack, @Nonnull ComputerFamily family )
     {
-        return TurtleItemFactory.create( this.getComputerID( stack ), this.getLabel( stack ), this.getColour( stack ),
-            family, this.getUpgrade( stack, TurtleSide.LEFT ),
-            this.getUpgrade( stack, TurtleSide.RIGHT ), this.getFuelLevel( stack ), this.getOverlay( stack ) );
+        return TurtleItemFactory.create( getComputerID( stack ), getLabel( stack ), getColour( stack ),
+            family, getUpgrade( stack, TurtleSide.LEFT ),
+            getUpgrade( stack, TurtleSide.RIGHT ), getFuelLevel( stack ), getOverlay( stack ) );
     }
 }

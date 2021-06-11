@@ -36,21 +36,21 @@ public class ContainerPrinter extends ScreenHandler
         this.properties = properties;
         this.inventory = inventory;
 
-        this.addProperties( properties );
+        addProperties( properties );
 
         // Ink slot
-        this.addSlot( new Slot( inventory, 0, 13, 35 ) );
+        addSlot( new Slot( inventory, 0, 13, 35 ) );
 
         // In-tray
         for( int x = 0; x < 6; x++ )
         {
-            this.addSlot( new Slot( inventory, x + 1, 61 + x * 18, 22 ) );
+            addSlot( new Slot( inventory, x + 1, 61 + x * 18, 22 ) );
         }
 
         // Out-tray
         for( int x = 0; x < 6; x++ )
         {
-            this.addSlot( new Slot( inventory, x + 7, 61 + x * 18, 49 ) );
+            addSlot( new Slot( inventory, x + 7, 61 + x * 18, 49 ) );
         }
 
         // Player inv
@@ -58,32 +58,32 @@ public class ContainerPrinter extends ScreenHandler
         {
             for( int x = 0; x < 9; x++ )
             {
-                this.addSlot( new Slot( player, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 ) );
+                addSlot( new Slot( player, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 ) );
             }
         }
 
         // Player hotbar
         for( int x = 0; x < 9; x++ )
         {
-            this.addSlot( new Slot( player, x, 8 + x * 18, 142 ) );
+            addSlot( new Slot( player, x, 8 + x * 18, 142 ) );
         }
     }
 
     public ContainerPrinter( int id, PlayerInventory player, TilePrinter printer )
     {
-        this( id, player, printer, (SingleIntArray) (() -> printer.isPrinting() ? 1 : 0) );
+        this( id, player, printer, (SingleIntArray) () -> printer.isPrinting() ? 1 : 0 );
     }
 
     public boolean isPrinting()
     {
-        return this.properties.get( 0 ) != 0;
+        return properties.get( 0 ) != 0;
     }
 
     @Nonnull
     @Override
     public ItemStack transferSlot( @Nonnull PlayerEntity player, int index )
     {
-        Slot slot = this.slots.get( index );
+        Slot slot = slots.get( index );
         if( slot == null || !slot.hasStack() )
         {
             return ItemStack.EMPTY;
@@ -93,7 +93,7 @@ public class ContainerPrinter extends ScreenHandler
         if( index < 13 )
         {
             // Transfer from printer to inventory
-            if( !this.insertItem( stack, 13, 49, true ) )
+            if( !insertItem( stack, 13, 49, true ) )
             {
                 return ItemStack.EMPTY;
             }
@@ -103,14 +103,14 @@ public class ContainerPrinter extends ScreenHandler
             // Transfer from inventory to printer
             if( TilePrinter.isInk( stack ) )
             {
-                if( !this.insertItem( stack, 0, 1, false ) )
+                if( !insertItem( stack, 0, 1, false ) )
                 {
                     return ItemStack.EMPTY;
                 }
             }
             else //if is paper
             {
-                if( !this.insertItem( stack, 1, 13, false ) )
+                if( !insertItem( stack, 1, 13, false ) )
                 {
                     return ItemStack.EMPTY;
                 }
@@ -138,6 +138,6 @@ public class ContainerPrinter extends ScreenHandler
     @Override
     public boolean canUse( @Nonnull PlayerEntity player )
     {
-        return this.inventory.canPlayerUse( player );
+        return inventory.canPlayerUse( player );
     }
 }

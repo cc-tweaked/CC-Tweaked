@@ -25,7 +25,7 @@ public abstract class WiredModemElement implements IWiredElement
     @Override
     public IWiredNode getNode()
     {
-        return this.node;
+        return node;
     }
 
     @Nonnull
@@ -38,23 +38,23 @@ public abstract class WiredModemElement implements IWiredElement
     @Override
     public void networkChanged( @Nonnull IWiredNetworkChange change )
     {
-        synchronized( this.remotePeripherals )
+        synchronized( remotePeripherals )
         {
-            this.remotePeripherals.keySet()
+            remotePeripherals.keySet()
                 .removeAll( change.peripheralsRemoved()
                     .keySet() );
             for( String name : change.peripheralsRemoved()
                 .keySet() )
             {
-                this.detachPeripheral( name );
+                detachPeripheral( name );
             }
 
             for( Map.Entry<String, IPeripheral> peripheral : change.peripheralsAdded()
                 .entrySet() )
             {
-                this.attachPeripheral( peripheral.getKey(), peripheral.getValue() );
+                attachPeripheral( peripheral.getKey(), peripheral.getValue() );
             }
-            this.remotePeripherals.putAll( change.peripheralsAdded() );
+            remotePeripherals.putAll( change.peripheralsAdded() );
         }
     }
 
@@ -64,6 +64,6 @@ public abstract class WiredModemElement implements IWiredElement
 
     public Map<String, IPeripheral> getRemotePeripherals()
     {
-        return this.remotePeripherals;
+        return remotePeripherals;
     }
 }

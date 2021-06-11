@@ -29,15 +29,15 @@ public class MonitorClientMessage implements NetworkMessage
 
     public MonitorClientMessage( @Nonnull PacketByteBuf buf )
     {
-        this.pos = buf.readBlockPos();
-        this.state = new TerminalState( buf );
+        pos = buf.readBlockPos();
+        state = new TerminalState( buf );
     }
 
     @Override
     public void toBytes( @Nonnull PacketByteBuf buf )
     {
-        buf.writeBlockPos( this.pos );
-        this.state.write( buf );
+        buf.writeBlockPos( pos );
+        state.write( buf );
     }
 
     @Override
@@ -49,12 +49,12 @@ public class MonitorClientMessage implements NetworkMessage
             return;
         }
 
-        BlockEntity te = player.world.getBlockEntity( this.pos );
+        BlockEntity te = player.world.getBlockEntity( pos );
         if( !(te instanceof TileMonitor) )
         {
             return;
         }
 
-        ((TileMonitor) te).read( this.state );
+        ((TileMonitor) te).read( state );
     }
 }

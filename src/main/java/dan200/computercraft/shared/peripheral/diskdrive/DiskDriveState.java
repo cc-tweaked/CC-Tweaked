@@ -25,6 +25,6 @@ public enum DiskDriveState implements StringIdentifiable
     @Nonnull
     public String asString()
     {
-        return this.name;
+        return name;
     }
 }

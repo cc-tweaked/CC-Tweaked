@@ -28,17 +28,17 @@ public class GuiDiskDrive extends HandledScreen<ContainerDiskDrive>
     @Override
     public void render( @Nonnull MatrixStack transform, int mouseX, int mouseY, float partialTicks )
     {
-        this.renderBackground( transform );
+        renderBackground( transform );
         super.render( transform, mouseX, mouseY, partialTicks );
-        this.drawMouseoverTooltip( transform, mouseX, mouseY );
+        drawMouseoverTooltip( transform, mouseX, mouseY );
     }
 
     @Override
     protected void drawBackground( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
         RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        this.client.getTextureManager()
+        client.getTextureManager()
             .bindTexture( BACKGROUND );
-        this.drawTexture( transform, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight );
+        drawTexture( transform, x, y, 0, 0, backgroundWidth, backgroundHeight );
     }
 }

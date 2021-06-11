@@ -32,7 +32,7 @@ public class PocketModem extends AbstractPocketUpgrade
     @Override
     public IPeripheral createPeripheral( @Nonnull IPocketAccess access )
     {
-        return new PocketModemPeripheral( this.advanced );
+        return new PocketModemPeripheral( advanced );
     }
 
     @Override

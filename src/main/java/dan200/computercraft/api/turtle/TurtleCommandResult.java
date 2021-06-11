@@ -91,7 +91,7 @@ public final class TurtleCommandResult
      */
     public boolean isSuccess()
     {
-        return this.success;
+        return success;
     }
 
     /**
@@ -102,7 +102,7 @@ public final class TurtleCommandResult
     @Nullable
     public String getErrorMessage()
     {
-        return this.errorMessage;
+        return errorMessage;
     }
 
     /**
@@ -113,6 +113,6 @@ public final class TurtleCommandResult
     @Nullable
     public Object[] getResults()
     {
-        return this.results;
+        return results;
     }
 }

@@ -22,73 +22,73 @@ public class ServerTerminal implements ITerminal
     public ServerTerminal( boolean colour )
     {
         this.colour = colour;
-        this.terminal = null;
+        terminal = null;
     }
 
     public ServerTerminal( boolean colour, int terminalWidth, int terminalHeight )
     {
         this.colour = colour;
-        this.terminal = new Terminal( terminalWidth, terminalHeight, this::markTerminalChanged );
+        terminal = new Terminal( terminalWidth, terminalHeight, this::markTerminalChanged );
     }
 
     protected void markTerminalChanged()
     {
-        this.terminalChanged.set( true );
+        terminalChanged.set( true );
     }
 
     protected void resize( int width, int height )
     {
-        if( this.terminal == null )
+        if( terminal == null )
         {
-            this.terminal = new Terminal( width, height, this::markTerminalChanged );
-            this.markTerminalChanged();
+            terminal = new Terminal( width, height, this::markTerminalChanged );
+            markTerminalChanged();
         }
         else
         {
-            this.terminal.resize( width, height );
+            terminal.resize( width, height );
         }
     }
 
     public void delete()
     {
-        if( this.terminal != null )
+        if( terminal != null )
         {
-            this.terminal = null;
-            this.markTerminalChanged();
+            terminal = null;
+            markTerminalChanged();
         }
     }
 
     public void update()
     {
-        this.terminalChangedLastFrame = this.terminalChanged.getAndSet( false );
+        terminalChangedLastFrame = terminalChanged.getAndSet( false );
     }
 
     public boolean hasTerminalChanged()
     {
-        return this.terminalChangedLastFrame;
+        return terminalChangedLastFrame;
     }
 
     @Override
     public Terminal getTerminal()
     {
-        return this.terminal;
+        return terminal;
     }
 
     @Override
     public boolean isColour()
     {
-        return this.colour;
+        return colour;
     }
 
     public TerminalState write()
     {
-        return new TerminalState( this.colour, this.terminal );
+        return new TerminalState( colour, terminal );
     }
 
     public void writeDescription( CompoundTag nbt )
     {
-        nbt.putBoolean( "colour", this.colour );
-        if( this.terminal != null )
+        nbt.putBoolean( "colour", colour );
+        if( terminal != null )
         {
             CompoundTag terminal = new CompoundTag();
             terminal.putInt( "term_width", this.terminal.getWidth() );

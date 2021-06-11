@@ -35,7 +35,7 @@ public class GuiPrintout extends HandledScreen<ContainerHeldItem>
     {
         super( container, player, title );
 
-        this.backgroundHeight = Y_SIZE;
+        backgroundHeight = Y_SIZE;
 
         String[] text = ItemPrintout.getText( container.getStack() );
         this.text = new TextBuffer[text.length];
@@ -51,9 +51,9 @@ public class GuiPrintout extends HandledScreen<ContainerHeldItem>
             this.colours[i] = new TextBuffer( colours[i] );
         }
 
-        this.page = 0;
-        this.pages = Math.max( this.text.length / ItemPrintout.LINES_PER_PAGE, 1 );
-        this.book = ((ItemPrintout) container.getStack()
+        page = 0;
+        pages = Math.max( this.text.length / ItemPrintout.LINES_PER_PAGE, 1 );
+        book = ((ItemPrintout) container.getStack()
             .getItem()).getType() == ItemPrintout.Type.BOOK;
     }
 
@@ -67,9 +67,9 @@ public class GuiPrintout extends HandledScreen<ContainerHeldItem>
         if( delta < 0 )
         {
             // Scroll up goes to the next page
-            if( this.page < this.pages - 1 )
+            if( page < pages - 1 )
             {
-                this.page++;
+                page++;
             }
             return true;
         }
@@ -77,9 +77,9 @@ public class GuiPrintout extends HandledScreen<ContainerHeldItem>
         if( delta > 0 )
         {
             // Scroll down goes to the previous page
-            if( this.page > 0 )
+            if( page > 0 )
             {
-                this.page--;
+                page--;
             }
             return true;
         }
@@ -91,9 +91,9 @@ public class GuiPrintout extends HandledScreen<ContainerHeldItem>
     public void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
     {
         // We must take the background further back in order to not overlap with our printed pages.
-        this.setZOffset( this.getZOffset() - 1 );
-        this.renderBackground( stack );
-        this.setZOffset( this.getZOffset() + 1 );
+        setZOffset( getZOffset() - 1 );
+        renderBackground( stack );
+        setZOffset( getZOffset() + 1 );
 
         super.render( stack, mouseX, mouseY, partialTicks );
     }
@@ -116,8 +116,8 @@ public class GuiPrintout extends HandledScreen<ContainerHeldItem>
             .getEntityVertexConsumers();
         Matrix4f matrix = transform.peek()
             .getModel();
-        drawBorder( matrix, renderer, this.x, this.y, this.getZOffset(), this.page, this.pages, this.book );
-        drawText( matrix, renderer, this.x + X_TEXT_MARGIN, this.y + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * this.page, this.text, this.colours );
+        drawBorder( matrix, renderer, x, y, getZOffset(), page, pages, book );
+        drawText( matrix, renderer, x + X_TEXT_MARGIN, y + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * page, text, colours );
         renderer.draw();
     }
 
@@ -131,18 +131,18 @@ public class GuiPrintout extends HandledScreen<ContainerHeldItem>
 
         if( key == GLFW.GLFW_KEY_RIGHT )
         {
-            if( this.page < this.pages - 1 )
+            if( page < pages - 1 )
             {
-                this.page++;
+                page++;
             }
             return true;
         }
 
         if( key == GLFW.GLFW_KEY_LEFT )
         {
-            if( this.page > 0 )
+            if( page > 0 )
             {
-                this.page--;
+                page--;
             }
             return true;
         }

@@ -53,36 +53,36 @@ public class TerminalState
 
         if( terminal == null )
         {
-            this.width = this.height = 0;
-            this.buffer = null;
+            width = height = 0;
+            buffer = null;
         }
         else
         {
-            this.width = terminal.getWidth();
-            this.height = terminal.getHeight();
+            width = terminal.getWidth();
+            height = terminal.getHeight();
 
-            ByteBuf buf = this.buffer = Unpooled.buffer();
+            ByteBuf buf = buffer = Unpooled.buffer();
             terminal.write( new PacketByteBuf( buf ) );
         }
     }
 
     public TerminalState( PacketByteBuf buf )
     {
-        this.colour = buf.readBoolean();
-        this.compress = buf.readBoolean();
+        colour = buf.readBoolean();
+        compress = buf.readBoolean();
 
         if( buf.readBoolean() )
         {
-            this.width = buf.readVarInt();
-            this.height = buf.readVarInt();
+            width = buf.readVarInt();
+            height = buf.readVarInt();
 
             int length = buf.readVarInt();
-            this.buffer = readCompressed( buf, length, this.compress );
+            buffer = readCompressed( buf, length, compress );
         }
         else
         {
-            this.width = this.height = 0;
-            this.buffer = null;
+            width = height = 0;
+            buffer = null;
         }
     }
 
@@ -126,16 +126,16 @@ public class TerminalState
 
     public void write( PacketByteBuf buf )
     {
-        buf.writeBoolean( this.colour );
-        buf.writeBoolean( this.compress );
+        buf.writeBoolean( colour );
+        buf.writeBoolean( compress );
 
-        buf.writeBoolean( this.buffer != null );
-        if( this.buffer != null )
+        buf.writeBoolean( buffer != null );
+        if( buffer != null )
         {
-            buf.writeVarInt( this.width );
-            buf.writeVarInt( this.height );
+            buf.writeVarInt( width );
+            buf.writeVarInt( height );
 
-            ByteBuf sendBuffer = this.getCompressed();
+            ByteBuf sendBuffer = getCompressed();
             buf.writeVarInt( sendBuffer.readableBytes() );
             buf.writeBytes( sendBuffer, sendBuffer.readerIndex(), sendBuffer.readableBytes() );
         }
@@ -143,17 +143,17 @@ public class TerminalState
 
     private ByteBuf getCompressed()
     {
-        if( this.buffer == null )
+        if( buffer == null )
         {
             throw new NullPointerException( "buffer" );
         }
-        if( !this.compress )
+        if( !compress )
         {
-            return this.buffer;
+            return buffer;
         }
-        if( this.compressed != null )
+        if( compressed != null )
         {
-            return this.compressed;
+            return compressed;
         }
 
         ByteBuf compressed = Unpooled.directBuffer();
@@ -161,7 +161,7 @@ public class TerminalState
         try
         {
             stream = new GZIPOutputStream( new ByteBufOutputStream( compressed ) );
-            stream.write( this.buffer.array(), this.buffer.arrayOffset(), this.buffer.readableBytes() );
+            stream.write( buffer.array(), buffer.arrayOffset(), buffer.readableBytes() );
         }
         catch( IOException e )
         {
@@ -177,20 +177,20 @@ public class TerminalState
 
     public boolean hasTerminal()
     {
-        return this.buffer != null;
+        return buffer != null;
     }
 
     public int size()
     {
-        return this.buffer == null ? 0 : this.buffer.readableBytes();
+        return buffer == null ? 0 : buffer.readableBytes();
     }
 
     public void apply( Terminal terminal )
     {
-        if( this.buffer == null )
+        if( buffer == null )
         {
             throw new NullPointerException( "buffer" );
         }
-        terminal.read( new PacketByteBuf( this.buffer ) );
+        terminal.read( new PacketByteBuf( buffer ) );
     }
 }

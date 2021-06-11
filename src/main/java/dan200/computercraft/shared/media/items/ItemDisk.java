@@ -54,7 +54,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     @Override
     public void appendStacks( @Nonnull ItemGroup tabs, @Nonnull DefaultedList<ItemStack> list )
     {
-        if( !this.isIn( tabs ) )
+        if( !isIn( tabs ) )
         {
             return;
         }

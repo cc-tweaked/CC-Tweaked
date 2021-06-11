@@ -13,6 +13,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.render.model.json.ModelOverrideList;
+import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.math.AffineTransformation;
 import net.minecraft.util.math.Direction;
@@ -48,19 +49,19 @@ public class TurtleMultiModel implements BakedModel
     {
         if( side != null )
         {
-            if( !this.faceQuads.containsKey( side ) )
+            if( !faceQuads.containsKey( side ) )
             {
-                this.faceQuads.put( side, this.buildQuads( state, side, rand ) );
+                faceQuads.put( side, buildQuads( state, side, rand ) );
             }
-            return this.faceQuads.get( side );
+            return faceQuads.get( side );
         }
         else
         {
-            if( this.generalQuads == null )
+            if( generalQuads == null )
             {
-                this.generalQuads = this.buildQuads( state, side, rand );
+                generalQuads = buildQuads( state, side, rand );
             }
-            return this.generalQuads;
+            return generalQuads;
         }
     }
 
@@ -69,22 +70,22 @@ public class TurtleMultiModel implements BakedModel
         ArrayList<BakedQuad> quads = new ArrayList<>();
 
 
-        ModelTransformer.transformQuadsTo( quads, this.baseModel.getQuads( state, side, rand ), this.generalTransform.getMatrix() );
-        if( this.overlayModel != null )
+        ModelTransformer.transformQuadsTo( quads, baseModel.getQuads( state, side, rand ), generalTransform.getMatrix() );
+        if( overlayModel != null )
         {
-            ModelTransformer.transformQuadsTo( quads, this.overlayModel.getQuads( state, side, rand ), this.generalTransform.getMatrix() );
+            ModelTransformer.transformQuadsTo( quads, overlayModel.getQuads( state, side, rand ), generalTransform.getMatrix() );
         }
-        if( this.leftUpgradeModel != null )
+        if( leftUpgradeModel != null )
         {
-            AffineTransformation upgradeTransform = this.generalTransform.multiply( this.leftUpgradeModel.getMatrix() );
-            ModelTransformer.transformQuadsTo( quads, this.leftUpgradeModel.getModel()
+            AffineTransformation upgradeTransform = generalTransform.multiply( leftUpgradeModel.getMatrix() );
+            ModelTransformer.transformQuadsTo( quads, leftUpgradeModel.getModel()
                     .getQuads( state, side, rand ),
                 upgradeTransform.getMatrix() );
         }
-        if( this.rightUpgradeModel != null )
+        if( rightUpgradeModel != null )
         {
-            AffineTransformation upgradeTransform = this.generalTransform.multiply( this.rightUpgradeModel.getMatrix() );
-            ModelTransformer.transformQuadsTo( quads, this.rightUpgradeModel.getModel()
+            AffineTransformation upgradeTransform = generalTransform.multiply( rightUpgradeModel.getMatrix() );
+            ModelTransformer.transformQuadsTo( quads, rightUpgradeModel.getModel()
                     .getQuads( state, side, rand ),
                 upgradeTransform.getMatrix() );
         }
@@ -95,25 +96,25 @@ public class TurtleMultiModel implements BakedModel
     @Override
     public boolean useAmbientOcclusion()
     {
-        return this.baseModel.useAmbientOcclusion();
+        return baseModel.useAmbientOcclusion();
     }
 
     @Override
     public boolean hasDepth()
     {
-        return this.baseModel.hasDepth();
+        return baseModel.hasDepth();
     }
 
     @Override
     public boolean isSideLit()
     {
-        return this.baseModel.isSideLit();
+        return baseModel.isSideLit();
     }
 
     @Override
     public boolean isBuiltin()
     {
-        return this.baseModel.isBuiltin();
+        return baseModel.isBuiltin();
     }
 
     @Nonnull
@@ -121,15 +122,15 @@ public class TurtleMultiModel implements BakedModel
     @Deprecated
     public Sprite getSprite()
     {
-        return this.baseModel.getSprite();
+        return baseModel.getSprite();
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public net.minecraft.client.render.model.json.ModelTransformation getTransformation()
+    public ModelTransformation getTransformation()
     {
-        return this.baseModel.getTransformation();
+        return baseModel.getTransformation();
     }
 
     @Nonnull

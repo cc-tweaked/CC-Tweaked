@@ -31,12 +31,12 @@ public class FileOperationException extends IOException
     public FileOperationException( @Nonnull String message )
     {
         super( Objects.requireNonNull( message, "message cannot be null" ) );
-        this.filename = null;
+        filename = null;
     }
 
     @Nullable
     public String getFilename()
     {
-        return this.filename;
+        return filename;
     }
 }

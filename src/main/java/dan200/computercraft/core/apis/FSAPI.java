@@ -344,11 +344,9 @@ public class FSAPI implements ILuaAPI
                     return new Object[] { new EncodedWritableHandle( writer.get(), writer ) };
                 }
                 case "rb":
-                {
                     // Open the file for binary reading, then create a wrapper around the reader
                     FileSystemWrapper<ReadableByteChannel> reader = fileSystem.openForRead( path, Function.identity() );
                     return new Object[] { BinaryReadableHandle.of( reader.get(), reader ) };
-                }
                 case "wb":
                 {
                     // Open the file for binary writing, then create a wrapper around the writer
@@ -356,11 +354,9 @@ public class FSAPI implements ILuaAPI
                     return new Object[] { BinaryWritableHandle.of( writer.get(), writer ) };
                 }
                 case "ab":
-                {
                     // Open the file for binary appending, then create a wrapper around the reader
                     FileSystemWrapper<WritableByteChannel> writer = fileSystem.openForWrite( path, true, Function.identity() );
                     return new Object[] { BinaryWritableHandle.of( writer.get(), writer ) };
-                }
                 default:
                     throw new LuaException( "Unsupported mode" );
             }

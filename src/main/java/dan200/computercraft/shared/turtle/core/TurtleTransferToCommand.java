@@ -23,7 +23,7 @@ public class TurtleTransferToCommand implements ITurtleCommand
     public TurtleTransferToCommand( int slot, int limit )
     {
         this.slot = slot;
-        this.quantity = limit;
+        quantity = limit;
     }
 
     @Nonnull
@@ -31,7 +31,7 @@ public class TurtleTransferToCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         // Take stack
-        ItemStack stack = InventoryUtil.takeItems( this.quantity, turtle.getItemHandler(), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
+        ItemStack stack = InventoryUtil.takeItems( quantity, turtle.getItemHandler(), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
         if( stack.isEmpty() )
         {
             turtle.playAnimation( TurtleAnimation.WAIT );
@@ -39,7 +39,7 @@ public class TurtleTransferToCommand implements ITurtleCommand
         }
 
         // Store stack
-        ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), this.slot, 1, this.slot );
+        ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), slot, 1, slot );
         if( !remainder.isEmpty() )
         {
             // Put the remainder back

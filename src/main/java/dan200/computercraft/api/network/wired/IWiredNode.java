@@ -46,7 +46,7 @@ public interface IWiredNode extends IPacketNetwork
      */
     default boolean connectTo( @Nonnull IWiredNode node )
     {
-        return this.getNetwork().connect( this, node );
+        return getNetwork().connect( this, node );
     }
 
     /**
@@ -72,7 +72,7 @@ public interface IWiredNode extends IPacketNetwork
      */
     default boolean disconnectFrom( @Nonnull IWiredNode node )
     {
-        return this.getNetwork().disconnect( this, node );
+        return getNetwork().disconnect( this, node );
     }
 
     /**
@@ -86,7 +86,7 @@ public interface IWiredNode extends IPacketNetwork
      */
     default boolean remove()
     {
-        return this.getNetwork().remove( this );
+        return getNetwork().remove( this );
     }
 
     /**
@@ -99,6 +99,6 @@ public interface IWiredNode extends IPacketNetwork
      */
     default void updatePeripherals( @Nonnull Map<String, IPeripheral> peripherals )
     {
-        this.getNetwork().updatePeripherals( this, peripherals );
+        getNetwork().updatePeripherals( this, peripherals );
     }
 }

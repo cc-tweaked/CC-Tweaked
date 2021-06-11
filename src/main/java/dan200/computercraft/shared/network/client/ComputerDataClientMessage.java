@@ -25,8 +25,8 @@ public class ComputerDataClientMessage extends ComputerClientMessage
     public ComputerDataClientMessage( ServerComputer computer )
     {
         super( computer.getInstanceID() );
-        this.state = computer.getState();
-        this.userData = computer.getUserData();
+        state = computer.getState();
+        userData = computer.getUserData();
     }
 
     public ComputerDataClientMessage()
@@ -37,21 +37,21 @@ public class ComputerDataClientMessage extends ComputerClientMessage
     public void toBytes( @Nonnull PacketByteBuf buf )
     {
         super.toBytes( buf );
-        buf.writeEnumConstant( this.state );
-        buf.writeCompoundTag( this.userData );
+        buf.writeEnumConstant( state );
+        buf.writeCompoundTag( userData );
     }
 
     @Override
     public void fromBytes( @Nonnull PacketByteBuf buf )
     {
         super.fromBytes( buf );
-        this.state = buf.readEnumConstant( ComputerState.class );
-        this.userData = buf.readCompoundTag();
+        state = buf.readEnumConstant( ComputerState.class );
+        userData = buf.readCompoundTag();
     }
 
     @Override
     public void handle( PacketContext context )
     {
-        this.getComputer().setState( this.state, this.userData );
+        getComputer().setState( state, userData );
     }
 }

@@ -28,20 +28,20 @@ public class TileSpeaker extends TileGeneric implements Tickable, IPeripheralTil
     public TileSpeaker( BlockEntityType<TileSpeaker> type )
     {
         super( type );
-        this.peripheral = new Peripheral( this );
+        peripheral = new Peripheral( this );
     }
 
     @Override
     public void tick()
     {
-        this.peripheral.update();
+        peripheral.update();
     }
 
     @Nonnull
     @Override
     public IPeripheral getPeripheral( Direction side )
     {
-        return this.peripheral;
+        return peripheral;
     }
 
     private static final class Peripheral extends SpeakerPeripheral
@@ -56,20 +56,20 @@ public class TileSpeaker extends TileGeneric implements Tickable, IPeripheralTil
         @Override
         public World getWorld()
         {
-            return this.speaker.getWorld();
+            return speaker.getWorld();
         }
 
         @Override
         public Vec3d getPosition()
         {
-            BlockPos pos = this.speaker.getPos();
+            BlockPos pos = speaker.getPos();
             return new Vec3d( pos.getX(), pos.getY(), pos.getZ() );
         }
 
         @Override
         public boolean equals( @Nullable IPeripheral other )
         {
-            return this == other || (other instanceof Peripheral && this.speaker == ((Peripheral) other).speaker);
+            return this == other || (other instanceof Peripheral && speaker == ((Peripheral) other).speaker);
         }
     }
 }

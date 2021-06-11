@@ -108,7 +108,7 @@ public final class NetworkUtils
     }
 
     /**
-     * Create a {@link InetSocketAddress} from a {@link java.net.URI}.
+     * Create a {@link InetSocketAddress} from a {@link URI}.
      *
      * Note, this may require a DNS lookup, and so should not be executed on the main CC thread.
      *

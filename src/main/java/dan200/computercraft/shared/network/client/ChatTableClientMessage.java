@@ -37,20 +37,20 @@ public class ChatTableClientMessage implements NetworkMessage
     @Override
     public void toBytes( @Nonnull PacketByteBuf buf )
     {
-        buf.writeVarInt( this.table.getId() );
-        buf.writeVarInt( this.table.getColumns() );
-        buf.writeBoolean( this.table.getHeaders() != null );
-        if( this.table.getHeaders() != null )
+        buf.writeVarInt( table.getId() );
+        buf.writeVarInt( table.getColumns() );
+        buf.writeBoolean( table.getHeaders() != null );
+        if( table.getHeaders() != null )
         {
-            for( Text header : this.table.getHeaders() )
+            for( Text header : table.getHeaders() )
             {
                 buf.writeText( header );
             }
         }
 
-        buf.writeVarInt( this.table.getRows()
+        buf.writeVarInt( table.getRows()
             .size() );
-        for( Text[] row : this.table.getRows() )
+        for( Text[] row : table.getRows() )
         {
             for( Text column : row )
             {
@@ -58,7 +58,7 @@ public class ChatTableClientMessage implements NetworkMessage
             }
         }
 
-        buf.writeVarInt( this.table.getAdditional() );
+        buf.writeVarInt( table.getAdditional() );
     }
 
     @Override
@@ -100,6 +100,6 @@ public class ChatTableClientMessage implements NetworkMessage
     @Environment( EnvType.CLIENT )
     public void handle( PacketContext context )
     {
-        ClientTableFormatter.INSTANCE.display( this.table );
+        ClientTableFormatter.INSTANCE.display( table );
     }
 }

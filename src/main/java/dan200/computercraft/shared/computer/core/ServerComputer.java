@@ -54,26 +54,26 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         this.instanceID = instanceID;
 
         this.world = world;
-        this.position = null;
+        position = null;
 
         this.family = family;
-        this.computer = new Computer( this, this.getTerminal(), computerID );
-        this.computer.setLabel( label );
-        this.userData = null;
-        this.changed = false;
+        computer = new Computer( this, getTerminal(), computerID );
+        computer.setLabel( label );
+        userData = null;
+        changed = false;
 
-        this.changedLastFrame = false;
-        this.ticksSincePing = 0;
+        changedLastFrame = false;
+        ticksSincePing = 0;
     }
 
     public ComputerFamily getFamily()
     {
-        return this.family;
+        return family;
     }
 
     public World getWorld()
     {
-        return this.world;
+        return world;
     }
 
     public void setWorld( World world )
@@ -83,78 +83,78 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     public BlockPos getPosition()
     {
-        return this.position;
+        return position;
     }
 
     public void setPosition( BlockPos pos )
     {
-        this.position = new BlockPos( pos );
+        position = new BlockPos( pos );
     }
 
     public IAPIEnvironment getAPIEnvironment()
     {
-        return this.computer.getAPIEnvironment();
+        return computer.getAPIEnvironment();
     }
 
     public Computer getComputer()
     {
-        return this.computer;
+        return computer;
     }
 
     @Override
     public void update()
     {
         super.update();
-        this.computer.tick();
+        computer.tick();
 
-        this.changedLastFrame = this.computer.pollAndResetChanged() || this.changed;
-        this.changed = false;
+        changedLastFrame = computer.pollAndResetChanged() || changed;
+        changed = false;
 
-        this.ticksSincePing++;
+        ticksSincePing++;
     }
 
     public void keepAlive()
     {
-        this.ticksSincePing = 0;
+        ticksSincePing = 0;
     }
 
     public boolean hasTimedOut()
     {
-        return this.ticksSincePing > 100;
+        return ticksSincePing > 100;
     }
 
     public void unload()
     {
-        this.computer.unload();
+        computer.unload();
     }
 
     public CompoundTag getUserData()
     {
-        if( this.userData == null )
+        if( userData == null )
         {
-            this.userData = new CompoundTag();
+            userData = new CompoundTag();
         }
-        return this.userData;
+        return userData;
     }
 
     public void updateUserData()
     {
-        this.changed = true;
+        changed = true;
     }
 
     public void broadcastState( boolean force )
     {
-        if( this.hasOutputChanged() || force )
+        if( hasOutputChanged() || force )
         {
             // Send computer state to all clients
             MinecraftServer server = GameInstanceUtils.getServer();
             if( server != null )
             {
-                NetworkHandler.sendToAllPlayers( server, this.createComputerPacket() );
+                NetworkHandler.sendToAllPlayers( server, createComputerPacket() );
             }
         }
 
-        if( this.hasTerminalChanged() || force )
+        if( hasTerminalChanged() || force )
         {
             MinecraftServer server = GameInstanceUtils.getServer();
             if( server != null )
@@ -165,11 +165,11 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
                 for( PlayerEntity player : server.getPlayerManager()
                     .getPlayerList() )
                 {
-                    if( this.isInteracting( player ) )
+                    if( isInteracting( player ) )
                     {
                         if( packet == null )
                         {
-                            packet = this.createTerminalPacket();
+                            packet = createTerminalPacket();
                         }
                         NetworkHandler.sendToPlayer( player, packet );
                     }
@@ -180,7 +180,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     public boolean hasOutputChanged()
     {
-        return this.changedLastFrame;
+        return changedLastFrame;
     }
 
     private NetworkMessage createComputerPacket()
@@ -190,12 +190,12 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 
     protected boolean isInteracting( PlayerEntity player )
     {
-        return this.getContainer( player ) != null;
+        return getContainer( player ) != null;
     }
 
     protected NetworkMessage createTerminalPacket()
     {
-        return new ComputerTerminalClientMessage( this.getInstanceID(), this.write() );
+        return new ComputerTerminalClientMessage( getInstanceID(), write() );
     }
 
     @Nullable
@@ -219,14 +219,14 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public int getInstanceID()
     {
-        return this.instanceID;
+        return instanceID;
     }
 
     @Override
     public void turnOn()
     {
         // Turn on
-        this.computer.turnOn();
+        computer.turnOn();
     }
 
     // IComputer
@@ -235,45 +235,45 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     public void shutdown()
     {
         // Shutdown
-        this.computer.shutdown();
+        computer.shutdown();
     }
 
     @Override
     public void reboot()
     {
         // Reboot
-        this.computer.reboot();
+        computer.reboot();
     }
 
     @Override
     public void queueEvent( String event, Object[] arguments )
     {
         // Queue event
-        this.computer.queueEvent( event, arguments );
+        computer.queueEvent( event, arguments );
     }
 
     @Override
     public boolean isOn()
     {
-        return this.computer.isOn();
+        return computer.isOn();
     }
 
     @Override
     public boolean isCursorDisplayed()
     {
-        return this.computer.isOn() && this.computer.isBlinking();
+        return computer.isOn() && computer.isBlinking();
     }
 
     public void sendComputerState( PlayerEntity player )
     {
         // Send state to client
-        NetworkHandler.sendToPlayer( player, this.createComputerPacket() );
+        NetworkHandler.sendToPlayer( player, createComputerPacket() );
     }
 
     public void sendTerminalState( PlayerEntity player )
     {
         // Send terminal state to client
-        NetworkHandler.sendToPlayer( player, this.createTerminalPacket() );
+        NetworkHandler.sendToPlayer( player, createTerminalPacket() );
     }
 
     public void broadcastDelete()
@@ -282,83 +282,83 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         MinecraftServer server = GameInstanceUtils.getServer();
         if( server != null )
         {
-            NetworkHandler.sendToAllPlayers( server, new ComputerDeletedClientMessage( this.getInstanceID() ) );
+            NetworkHandler.sendToAllPlayers( server, new ComputerDeletedClientMessage( getInstanceID() ) );
         }
     }
 
     public int getID()
     {
-        return this.computer.getID();
+        return computer.getID();
     }
 
     public void setID( int id )
     {
-        this.computer.setID( id );
+        computer.setID( id );
     }
 
     public String getLabel()
     {
-        return this.computer.getLabel();
+        return computer.getLabel();
     }
 
     public void setLabel( String label )
     {
-        this.computer.setLabel( label );
+        computer.setLabel( label );
     }
 
     public int getRedstoneOutput( ComputerSide side )
     {
-        return this.computer.getEnvironment()
+        return computer.getEnvironment()
             .getExternalRedstoneOutput( side );
     }
 
     public void setRedstoneInput( ComputerSide side, int level )
     {
-        this.computer.getEnvironment()
+        computer.getEnvironment()
             .setRedstoneInput( side, level );
     }
 
     public int getBundledRedstoneOutput( ComputerSide side )
     {
-        return this.computer.getEnvironment()
+        return computer.getEnvironment()
             .getExternalBundledRedstoneOutput( side );
     }
 
     public void setBundledRedstoneInput( ComputerSide side, int combination )
     {
-        this.computer.getEnvironment()
+        computer.getEnvironment()
             .setBundledRedstoneInput( side, combination );
     }
 
     public void addAPI( ILuaAPI api )
     {
-        this.computer.addApi( api );
+        computer.addApi( api );
     }
 
     // IComputerEnvironment implementation
 
     public void setPeripheral( ComputerSide side, IPeripheral peripheral )
     {
-        this.computer.getEnvironment()
+        computer.getEnvironment()
             .setPeripheral( side, peripheral );
     }
 
     public IPeripheral getPeripheral( ComputerSide side )
     {
-        return this.computer.getEnvironment()
+        return computer.getEnvironment()
             .getPeripheral( side );
     }
 
     @Override
     public int getDay()
     {
-        return (int) ((this.world.getTimeOfDay() + 6000) / 24000) + 1;
+        return (int) ((world.getTimeOfDay() + 6000) / 24000) + 1;
     }
 
     @Override
     public double getTimeOfDay()
     {
-        return (this.world.getTimeOfDay() + 6000) % 24000 / 1000.0;
+        return (world.getTimeOfDay() + 6000) % 24000 / 1000.0;
     }
 
     @Override
@@ -384,13 +384,13 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public int assignNewID()
     {
-        return ComputerCraftAPI.createUniqueNumberedSaveDir( this.world, "computer" );
+        return ComputerCraftAPI.createUniqueNumberedSaveDir( world, "computer" );
     }
 
     @Override
     public IWritableMount createSaveDirMount( String subPath, long capacity )
     {
-        return ComputerCraftAPI.createSaveDirMount( this.world, subPath, capacity );
+        return ComputerCraftAPI.createSaveDirMount( world, subPath, capacity );
     }
 
     @Override

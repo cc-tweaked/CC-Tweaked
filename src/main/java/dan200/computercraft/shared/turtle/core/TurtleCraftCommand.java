@@ -33,7 +33,7 @@ public class TurtleCraftCommand implements ITurtleCommand
     {
         // Craft the item
         TurtleInventoryCrafting crafting = new TurtleInventoryCrafting( turtle );
-        List<ItemStack> results = crafting.doCrafting( turtle.getWorld(), this.limit );
+        List<ItemStack> results = crafting.doCrafting( turtle.getWorld(), limit );
         if( results == null )
         {
             return TurtleCommandResult.failure( "No matching recipes" );

@@ -12,7 +12,7 @@ public class TextBuffer
     public TextBuffer( char c, int length )
     {
         text = new char[length];
-        this.fill( c );
+        fill( c );
     }
 
     public TextBuffer( String text )

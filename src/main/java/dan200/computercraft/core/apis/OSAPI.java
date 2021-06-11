@@ -403,11 +403,9 @@ public class OSAPI implements ILuaAPI
                 return getEpochForCalendar( c );
             }
             case "local":
-            {
                 // Get local epoch
                 Calendar c = Calendar.getInstance();
                 return getEpochForCalendar( c );
-            }
             case "ingame":
                 // Get in-game epoch
                 synchronized( alarms )

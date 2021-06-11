@@ -117,7 +117,6 @@ public final class NBTUtil
             case TAG_STRING:
                 return tag.asString();
             case TAG_COMPOUND:
-            {
                 CompoundTag c = (CompoundTag) tag;
                 int len = c.getInt( "len" );
                 Map<Object, Object> map = new HashMap<>( len );
@@ -131,7 +130,6 @@ public final class NBTUtil
                     }
                 }
                 return map;
-            }
         }
     }
 
@@ -190,7 +188,6 @@ public final class NBTUtil
                 return map;
             }
             case TAG_INT_ARRAY:
-            {
                 int[] array = ((IntArrayTag) tag).getIntArray();
                 Map<Integer, Integer> map = new HashMap<>( array.length );
                 for( int i = 0; i < array.length; i++ )
@@ -198,7 +195,6 @@ public final class NBTUtil
                     map.put( i + 1, array[i] );
                 }
                 return map;
-            }
 
             default:
                 return null;
@@ -260,13 +256,13 @@ public final class NBTUtil
         @Override
         public void write( int b )
         {
-            this.digest.update( (byte) b );
+            digest.update( (byte) b );
         }
 
         @Override
         public void write( @Nonnull byte[] b, int off, int len )
         {
-            this.digest.update( b, off, len );
+            digest.update( b, off, len );
         }
     }
 }

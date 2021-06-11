@@ -26,16 +26,16 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral
     @Override
     public double getRange()
     {
-        if( this.advanced )
+        if( advanced )
         {
             return Integer.MAX_VALUE;
         }
         else
         {
-            World world = this.getWorld();
+            World world = getWorld();
             if( world != null )
             {
-                Vec3d position = this.getPosition();
+                Vec3d position = getPosition();
                 double minRange = ComputerCraft.modemRange;
                 double maxRange = ComputerCraft.modemHighAltitudeRange;
                 if( world.isRaining() && world.isThundering() )
@@ -56,7 +56,7 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral
     @Override
     public boolean isInterdimensional()
     {
-        return this.advanced;
+        return advanced;
     }
 
     @Override

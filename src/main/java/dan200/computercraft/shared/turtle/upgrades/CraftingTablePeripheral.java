@@ -43,7 +43,7 @@ public class CraftingTablePeripheral implements IPeripheral
     @Override
     public Object getTarget()
     {
-        return this.turtle;
+        return turtle;
     }
 
     @Override
@@ -60,6 +60,6 @@ public class CraftingTablePeripheral implements IPeripheral
         {
             throw new LuaException( "Crafting count " + limit + " out of range" );
         }
-        return this.turtle.executeCommand( new TurtleCraftCommand( limit ) );
+        return turtle.executeCommand( new TurtleCraftCommand( limit ) );
     }
 }

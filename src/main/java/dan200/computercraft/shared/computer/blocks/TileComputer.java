@@ -33,23 +33,23 @@ public class TileComputer extends TileComputerBase
 
     public boolean isUsableByPlayer( PlayerEntity player )
     {
-        return this.isUsable( player, false );
+        return isUsable( player, false );
     }
 
     @Override
     protected void updateBlockState( ComputerState newState )
     {
-        BlockState existing = this.getCachedState();
+        BlockState existing = getCachedState();
         if( existing.get( BlockComputer.STATE ) != newState )
         {
-            this.getWorld().setBlockState( this.getPos(), existing.with( BlockComputer.STATE, newState ), 3 );
+            getWorld().setBlockState( getPos(), existing.with( BlockComputer.STATE, newState ), 3 );
         }
     }
 
     @Override
     public Direction getDirection()
     {
-        return this.getCachedState().get( BlockComputer.FACING );
+        return getCachedState().get( BlockComputer.FACING );
     }
 
     @Override
@@ -71,23 +71,23 @@ public class TileComputer extends TileComputerBase
     @Override
     protected ServerComputer createComputer( int instanceID, int id )
     {
-        ComputerFamily family = this.getFamily();
-        ServerComputer computer = new ServerComputer( this.getWorld(),
-            id, this.label,
+        ComputerFamily family = getFamily();
+        ServerComputer computer = new ServerComputer( getWorld(),
+            id, label,
             instanceID,
             family,
             ComputerCraft.computerTermWidth,
             ComputerCraft.computerTermHeight );
-        computer.setPosition( this.getPos() );
+        computer.setPosition( getPos() );
         return computer;
     }
 
     @Override
     public ComputerProxy createProxy()
     {
-        if( this.proxy == null )
+        if( proxy == null )
         {
-            this.proxy = new ComputerProxy( () -> this )
+            proxy = new ComputerProxy( () -> this )
             {
                 @Override
                 protected TileComputerBase getTile()
@@ -96,7 +96,7 @@ public class TileComputer extends TileComputerBase
                 }
             };
         }
-        return this.proxy;
+        return proxy;
     }
 
     @Nullable

@@ -19,39 +19,39 @@ public class ComputerRegistry<T extends IComputer>
 
     protected ComputerRegistry()
     {
-        this.computers = new HashMap<>();
-        this.reset();
+        computers = new HashMap<>();
+        reset();
     }
 
     public void reset()
     {
-        this.computers.clear();
-        this.nextUnusedInstanceID = 0;
-        this.sessionID = new Random().nextInt();
+        computers.clear();
+        nextUnusedInstanceID = 0;
+        sessionID = new Random().nextInt();
     }
 
     public int getSessionID()
     {
-        return this.sessionID;
+        return sessionID;
     }
 
     public int getUnusedInstanceID()
     {
-        return this.nextUnusedInstanceID++;
+        return nextUnusedInstanceID++;
     }
 
     public Collection<T> getComputers()
     {
-        return this.computers.values();
+        return computers.values();
     }
 
     public T get( int instanceID )
     {
         if( instanceID >= 0 )
         {
-            if( this.computers.containsKey( instanceID ) )
+            if( computers.containsKey( instanceID ) )
             {
-                return this.computers.get( instanceID );
+                return computers.get( instanceID );
             }
         }
         return null;
@@ -59,21 +59,21 @@ public class ComputerRegistry<T extends IComputer>
 
     public boolean contains( int instanceID )
     {
-        return this.computers.containsKey( instanceID );
+        return computers.containsKey( instanceID );
     }
 
     public void add( int instanceID, T computer )
     {
-        if( this.computers.containsKey( instanceID ) )
+        if( computers.containsKey( instanceID ) )
         {
-            this.remove( instanceID );
+            remove( instanceID );
         }
-        this.computers.put( instanceID, computer );
-        this.nextUnusedInstanceID = Math.max( this.nextUnusedInstanceID, instanceID + 1 );
+        computers.put( instanceID, computer );
+        nextUnusedInstanceID = Math.max( nextUnusedInstanceID, instanceID + 1 );
     }
 
     public void remove( int instanceID )
     {
-        this.computers.remove( instanceID );
+        computers.remove( instanceID );
     }
 }

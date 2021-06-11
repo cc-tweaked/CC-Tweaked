@@ -64,33 +64,33 @@ public class ContainerComputerBase extends ScreenHandler implements IContainerCo
     @Nonnull
     public ComputerFamily getFamily()
     {
-        return this.family;
+        return family;
     }
 
     @Nullable
     @Override
     public IComputer getComputer()
     {
-        return this.computer;
+        return computer;
     }
 
     @Nonnull
     @Override
     public InputState getInput()
     {
-        return this.input;
+        return input;
     }
 
     @Override
     public void close( @Nonnull PlayerEntity player )
     {
         super.close( player );
-        this.input.close();
+        input.close();
     }
 
     @Override
     public boolean canUse( @Nonnull PlayerEntity player )
     {
-        return this.canUse.test( player );
+        return canUse.test( player );
     }
 }

@@ -229,7 +229,6 @@ public class TileEntityMonitorRenderer extends BlockEntityRenderer<TileMonitor>
             }
 
             case VBO:
-            {
                 VertexBuffer vbo = monitor.buffer;
                 if( redraw )
                 {
@@ -259,7 +258,6 @@ public class TileEntityMonitorRenderer extends BlockEntityRenderer<TileMonitor>
                 FixedWidthFontRenderer.TYPE.getVertexFormat()
                     .endDrawing();
                 break;
-            }
         }
     }
 }

@@ -38,7 +38,7 @@ public class ItemComputer extends ItemComputerBase
     @Override
     public ItemStack withFamily( @Nonnull ItemStack stack, @Nonnull ComputerFamily family )
     {
-        ItemStack result = ComputerItemFactory.create( this.getComputerID( stack ), null, family );
+        ItemStack result = ComputerItemFactory.create( getComputerID( stack ), null, family );
         if( stack.hasCustomName() )
         {
             result.setCustomName( stack.getName() );

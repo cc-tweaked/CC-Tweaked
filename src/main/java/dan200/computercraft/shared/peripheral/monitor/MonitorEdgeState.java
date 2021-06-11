@@ -62,7 +62,7 @@ public enum MonitorEdgeState implements StringIdentifiable
     @Override
     public String asString()
     {
-        return this.name;
+        return name;
     }
 
     static final class Flags

@@ -39,6 +39,6 @@ public abstract class TurtlePlayerEvent extends TurtleActionEvent
     @Nonnull
     public FakePlayer getPlayer()
     {
-        return this.player;
+        return player;
     }
 }

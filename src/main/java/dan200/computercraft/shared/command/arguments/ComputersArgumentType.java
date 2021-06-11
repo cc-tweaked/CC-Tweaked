@@ -105,7 +105,7 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
             };
         }
 
-        if( this.requireSome )
+        if( requireSome )
         {
             String selector = reader.getString()
                 .substring( start, reader.getCursor() );

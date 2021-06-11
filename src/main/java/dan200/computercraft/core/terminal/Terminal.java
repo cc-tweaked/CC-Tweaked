@@ -44,9 +44,9 @@ public class Terminal
         this.height = height;
         onChanged = changedCallback;
 
-        text = new TextBuffer[this.height];
-        textColour = new TextBuffer[this.height];
-        backgroundColour = new TextBuffer[this.height];
+        text = new TextBuffer[height];
+        textColour = new TextBuffer[height];
+        backgroundColour = new TextBuffer[height];
         for( int i = 0; i < this.height; i++ )
         {
             text[i] = new TextBuffer( ' ', this.width );
@@ -93,9 +93,9 @@ public class Terminal
         this.width = width;
         this.height = height;
 
-        text = new TextBuffer[this.height];
-        textColour = new TextBuffer[this.height];
-        backgroundColour = new TextBuffer[this.height];
+        text = new TextBuffer[height];
+        textColour = new TextBuffer[height];
+        backgroundColour = new TextBuffer[height];
         for( int i = 0; i < this.height; i++ )
         {
             if( i >= oldHeight )

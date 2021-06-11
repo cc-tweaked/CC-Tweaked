@@ -42,39 +42,39 @@ public class MouseEventServerMessage extends ComputerServerMessage
     public void toBytes( @Nonnull PacketByteBuf buf )
     {
         super.toBytes( buf );
-        buf.writeByte( this.type );
-        buf.writeVarInt( this.arg );
-        buf.writeVarInt( this.x );
-        buf.writeVarInt( this.y );
+        buf.writeByte( type );
+        buf.writeVarInt( arg );
+        buf.writeVarInt( x );
+        buf.writeVarInt( y );
     }
 
     @Override
     public void fromBytes( @Nonnull PacketByteBuf buf )
     {
         super.fromBytes( buf );
-        this.type = buf.readByte();
-        this.arg = buf.readVarInt();
-        this.x = buf.readVarInt();
-        this.y = buf.readVarInt();
+        type = buf.readByte();
+        arg = buf.readVarInt();
+        x = buf.readVarInt();
+        y = buf.readVarInt();
     }
 
     @Override
     protected void handle( @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
         InputState input = container.getInput();
-        switch( this.type )
+        switch( type )
         {
             case TYPE_CLICK:
-                input.mouseClick( this.arg, this.x, this.y );
+                input.mouseClick( arg, x, y );
                 break;
             case TYPE_DRAG:
-                input.mouseDrag( this.arg, this.x, this.y );
+                input.mouseDrag( arg, x, y );
                 break;
             case TYPE_UP:
-                input.mouseUp( this.arg, this.x, this.y );
+                input.mouseUp( arg, x, y );
                 break;
             case TYPE_SCROLL:
-                input.mouseScroll( this.arg, this.x, this.y );
+                input.mouseScroll( arg, x, y );
                 break;
         }
     }

@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 public final class TurtleRecipe extends ComputerFamilyRecipe
 {
     public static final RecipeSerializer<TurtleRecipe> SERIALIZER =
-        new dan200.computercraft.shared.computer.recipe.ComputerFamilyRecipe.Serializer<TurtleRecipe>()
+        new ComputerFamilyRecipe.Serializer<TurtleRecipe>()
         {
             @Override
             protected TurtleRecipe create( Identifier identifier, String group, int width, int height, DefaultedList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
@@ -50,6 +50,6 @@ public final class TurtleRecipe extends ComputerFamilyRecipe
         int computerID = item.getComputerID( stack );
         String label = item.getLabel( stack );
 
-        return TurtleItemFactory.create( computerID, label, -1, this.getFamily(), null, null, 0, null );
+        return TurtleItemFactory.create( computerID, label, -1, getFamily(), null, null, 0, null );
     }
 }

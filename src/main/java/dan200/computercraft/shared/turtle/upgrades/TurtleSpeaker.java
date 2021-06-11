@@ -46,17 +46,17 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
     @Environment( EnvType.CLIENT )
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
-        this.loadModelLocations();
-        return TransformedModel.of( side == TurtleSide.LEFT ? this.leftModel : this.rightModel );
+        loadModelLocations();
+        return TransformedModel.of( side == TurtleSide.LEFT ? leftModel : rightModel );
     }
 
     @Environment( EnvType.CLIENT )
     private void loadModelLocations()
     {
-        if( this.leftModel == null )
+        if( leftModel == null )
         {
-            this.leftModel = new ModelIdentifier( "computercraft:turtle_speaker_upgrade_left", "inventory" );
-            this.rightModel = new ModelIdentifier( "computercraft:turtle_speaker_upgrade_right", "inventory" );
+            leftModel = new ModelIdentifier( "computercraft:turtle_speaker_upgrade_left", "inventory" );
+            rightModel = new ModelIdentifier( "computercraft:turtle_speaker_upgrade_right", "inventory" );
         }
     }
 
@@ -83,20 +83,20 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
         @Override
         public World getWorld()
         {
-            return this.turtle.getWorld();
+            return turtle.getWorld();
         }
 
         @Override
         public Vec3d getPosition()
         {
-            BlockPos pos = this.turtle.getPosition();
+            BlockPos pos = turtle.getPosition();
             return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
 
         @Override
         public boolean equals( IPeripheral other )
         {
-            return this == other || (other instanceof Peripheral && this.turtle == ((Peripheral) other).turtle);
+            return this == other || (other instanceof Peripheral && turtle == ((Peripheral) other).turtle);
         }
     }
 }

@@ -47,7 +47,7 @@ public class TurtleModem extends AbstractTurtleUpgrade
     @Override
     public IPeripheral createPeripheral( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
-        return new Peripheral( turtle, this.advanced );
+        return new Peripheral( turtle, advanced );
     }
 
     @Nonnull
@@ -62,7 +62,7 @@ public class TurtleModem extends AbstractTurtleUpgrade
     @Environment( EnvType.CLIENT )
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
-        this.loadModelLocations();
+        loadModelLocations();
 
         boolean active = false;
         if( turtle != null )
@@ -71,27 +71,27 @@ public class TurtleModem extends AbstractTurtleUpgrade
             active = turtleNBT.contains( "active" ) && turtleNBT.getBoolean( "active" );
         }
 
-        return side == TurtleSide.LEFT ? TransformedModel.of( active ? this.leftOnModel : this.leftOffModel ) : TransformedModel.of( active ? this.rightOnModel : this.rightOffModel );
+        return side == TurtleSide.LEFT ? TransformedModel.of( active ? leftOnModel : leftOffModel ) : TransformedModel.of( active ? rightOnModel : rightOffModel );
     }
 
     @Environment( EnvType.CLIENT )
     private void loadModelLocations()
     {
-        if( this.leftOffModel == null )
+        if( leftOffModel == null )
         {
-            if( this.advanced )
+            if( advanced )
             {
-                this.leftOffModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_off_left", "inventory" );
-                this.rightOffModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_off_right", "inventory" );
-                this.leftOnModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_on_left", "inventory" );
-                this.rightOnModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_on_right", "inventory" );
+                leftOffModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_off_left", "inventory" );
+                rightOffModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_off_right", "inventory" );
+                leftOnModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_on_left", "inventory" );
+                rightOnModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_on_right", "inventory" );
             }
             else
             {
-                this.leftOffModel = new ModelIdentifier( "computercraft:turtle_modem_normal_off_left", "inventory" );
-                this.rightOffModel = new ModelIdentifier( "computercraft:turtle_modem_normal_off_right", "inventory" );
-                this.leftOnModel = new ModelIdentifier( "computercraft:turtle_modem_normal_on_left", "inventory" );
-                this.rightOnModel = new ModelIdentifier( "computercraft:turtle_modem_normal_on_right", "inventory" );
+                leftOffModel = new ModelIdentifier( "computercraft:turtle_modem_normal_off_left", "inventory" );
+                rightOffModel = new ModelIdentifier( "computercraft:turtle_modem_normal_off_right", "inventory" );
+                leftOnModel = new ModelIdentifier( "computercraft:turtle_modem_normal_on_left", "inventory" );
+                rightOnModel = new ModelIdentifier( "computercraft:turtle_modem_normal_on_right", "inventory" );
             }
         }
     }
@@ -130,21 +130,21 @@ public class TurtleModem extends AbstractTurtleUpgrade
         @Override
         public World getWorld()
         {
-            return this.turtle.getWorld();
+            return turtle.getWorld();
         }
 
         @Nonnull
         @Override
         public Vec3d getPosition()
         {
-            BlockPos turtlePos = this.turtle.getPosition();
+            BlockPos turtlePos = turtle.getPosition();
             return new Vec3d( turtlePos.getX(), turtlePos.getY(), turtlePos.getZ() );
         }
 
         @Override
         public boolean equals( IPeripheral other )
         {
-            return this == other || (other instanceof Peripheral && ((Peripheral) other).turtle == this.turtle);
+            return this == other || (other instanceof Peripheral && ((Peripheral) other).turtle == turtle);
         }
     }
 }

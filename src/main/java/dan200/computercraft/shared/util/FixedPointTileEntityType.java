@@ -48,14 +48,14 @@ public final class FixedPointTileEntityType<T extends BlockEntity> extends Block
 
         private FixedPointSupplier( Supplier<Block> block, Function<BlockEntityType<T>, T> builder )
         {
-            this.factory = new FixedPointTileEntityType<>( block, this );
+            factory = new FixedPointTileEntityType<>( block, this );
             this.builder = builder;
         }
 
         @Override
         public T get()
         {
-            return this.builder.apply( this.factory );
+            return builder.apply( factory );
         }
     }
 }

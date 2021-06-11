@@ -37,7 +37,7 @@ public interface TableFormatter
         {
             for( int i = 0; i < columns; i++ )
             {
-                maxWidths[i] = this.getWidth( headers[i] );
+                maxWidths[i] = getWidth( headers[i] );
             }
         }
 
@@ -45,7 +45,7 @@ public interface TableFormatter
         {
             for( int i = 0; i < row.length; i++ )
             {
-                int width = this.getWidth( row[i] );
+                int width = getWidth( row[i] );
                 if( width > maxWidths[i] )
                 {
                     maxWidths[i] = width;
@@ -55,7 +55,7 @@ public interface TableFormatter
 
         // Add a small amount of padding after each column
         {
-            int padding = this.getColumnPadding();
+            int padding = getColumnPadding();
             for( int i = 0; i < maxWidths.length - 1; i++ )
             {
                 maxWidths[i] += padding;
@@ -63,7 +63,7 @@ public interface TableFormatter
         }
 
         // And compute the total width
-        int totalWidth = (columns - 1) * this.getWidth( SEPARATOR );
+        int totalWidth = (columns - 1) * getWidth( SEPARATOR );
         for( int x : maxWidths )
         {
             totalWidth += x;
@@ -75,7 +75,7 @@ public interface TableFormatter
             for( int i = 0; i < columns - 1; i++ )
             {
                 line.append( headers[i] );
-                Text padding = this.getPadding( headers[i], maxWidths[i] );
+                Text padding = getPadding( headers[i], maxWidths[i] );
                 if( padding != null )
                 {
                     line.append( padding );
@@ -84,13 +84,13 @@ public interface TableFormatter
             }
             line.append( headers[columns - 1] );
 
-            this.writeLine( rowId++, line );
+            writeLine( rowId++, line );
 
             // Write a separator line. We round the width up rather than down to make
             // it a tad prettier.
-            int rowCharWidth = this.getWidth( HEADER );
+            int rowCharWidth = getWidth( HEADER );
             int rowWidth = totalWidth / rowCharWidth + (totalWidth % rowCharWidth == 0 ? 0 : 1);
-            this.writeLine( rowId++, coloured( StringUtils.repeat( HEADER.getString(), rowWidth ), Formatting.GRAY ) );
+            writeLine( rowId++, coloured( StringUtils.repeat( HEADER.getString(), rowWidth ), Formatting.GRAY ) );
         }
 
         for( Text[] row : table.getRows() )
@@ -99,7 +99,7 @@ public interface TableFormatter
             for( int i = 0; i < columns - 1; i++ )
             {
                 line.append( row[i] );
-                Text padding = this.getPadding( row[i], maxWidths[i] );
+                Text padding = getPadding( row[i], maxWidths[i] );
                 if( padding != null )
                 {
                     line.append( padding );
@@ -107,12 +107,12 @@ public interface TableFormatter
                 line.append( SEPARATOR );
             }
             line.append( row[columns - 1] );
-            this.writeLine( rowId++, line );
+            writeLine( rowId++, line );
         }
 
         if( table.getAdditional() > 0 )
         {
-            this.writeLine( rowId++, coloured( translate( "commands.computercraft.generic.additional_rows", table.getAdditional() ), Formatting.AQUA ) );
+            writeLine( rowId++, coloured( translate( "commands.computercraft.generic.additional_rows", table.getAdditional() ), Formatting.AQUA ) );
         }
 
         return rowId - table.getId();

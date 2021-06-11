@@ -32,7 +32,7 @@ public class TurtleActionEvent extends TurtleEvent
 
     public TurtleAction getAction()
     {
-        return this.action;
+        return action;
     }
 
     /**
@@ -47,7 +47,7 @@ public class TurtleActionEvent extends TurtleEvent
     @Deprecated
     public void setCanceled( boolean cancel )
     {
-        this.setCanceled( cancel, null );
+        setCanceled( cancel, null );
     }
 
     /**
@@ -61,7 +61,7 @@ public class TurtleActionEvent extends TurtleEvent
      */
     public void setCanceled( boolean cancel, @Nullable String failureMessage )
     {
-        this.cancelled = true;
+        cancelled = true;
         this.failureMessage = cancel ? failureMessage : null;
     }
 
@@ -75,11 +75,11 @@ public class TurtleActionEvent extends TurtleEvent
     @Nullable
     public String getFailureMessage()
     {
-        return this.failureMessage;
+        return failureMessage;
     }
 
     public boolean isCancelled()
     {
-        return this.cancelled;
+        return cancelled;
     }
 }

@@ -96,6 +96,6 @@ public abstract class BlockGeneric extends BlockWithEntity
     @Override
     public BlockEntity createBlockEntity( @Nonnull BlockView world )
     {
-        return this.type.instantiate();
+        return type.instantiate();
     }
 }

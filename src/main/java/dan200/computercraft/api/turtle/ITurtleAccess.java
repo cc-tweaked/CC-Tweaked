@@ -267,7 +267,7 @@ public interface ITurtleAccess
 
     default ItemStorage getItemHandler()
     {
-        return ItemStorage.wrap( this.getInventory() );
+        return ItemStorage.wrap( getInventory() );
     }
 
     /**

@@ -47,8 +47,8 @@ public final class WiredModemLocalPeripheral
      */
     public boolean attach( @Nonnull World world, @Nonnull BlockPos origin, @Nonnull Direction direction )
     {
-        IPeripheral oldPeripheral = this.peripheral;
-        IPeripheral peripheral = this.peripheral = this.getPeripheralFrom( world, origin, direction );
+        IPeripheral oldPeripheral = peripheral;
+        IPeripheral peripheral = this.peripheral = getPeripheralFrom( world, origin, direction );
 
         if( peripheral == null )
         {
@@ -97,60 +97,60 @@ public final class WiredModemLocalPeripheral
      */
     public boolean detach()
     {
-        if( this.peripheral == null )
+        if( peripheral == null )
         {
             return false;
         }
-        this.peripheral = null;
+        peripheral = null;
         return true;
     }
 
     @Nullable
     public String getConnectedName()
     {
-        return this.peripheral != null ? this.type + "_" + this.id : null;
+        return peripheral != null ? type + "_" + id : null;
     }
 
     @Nullable
     public IPeripheral getPeripheral()
     {
-        return this.peripheral;
+        return peripheral;
     }
 
     public boolean hasPeripheral()
     {
-        return this.peripheral != null;
+        return peripheral != null;
     }
 
     public void extendMap( @Nonnull Map<String, IPeripheral> peripherals )
     {
-        if( this.peripheral != null )
+        if( peripheral != null )
         {
-            peripherals.put( this.type + "_" + this.id, this.peripheral );
+            peripherals.put( type + "_" + id, peripheral );
         }
     }
 
     public Map<String, IPeripheral> toMap()
     {
-        return this.peripheral == null ? Collections.emptyMap() : Collections.singletonMap( this.type + "_" + this.id, this.peripheral );
+        return peripheral == null ? Collections.emptyMap() : Collections.singletonMap( type + "_" + id, peripheral );
     }
 
     public void write( @Nonnull CompoundTag tag, @Nonnull String suffix )
     {
-        if( this.id >= 0 )
+        if( id >= 0 )
         {
-            tag.putInt( NBT_PERIPHERAL_ID + suffix, this.id );
+            tag.putInt( NBT_PERIPHERAL_ID + suffix, id );
         }
-        if( this.type != null )
+        if( type != null )
         {
-            tag.putString( NBT_PERIPHERAL_TYPE + suffix, this.type );
+            tag.putString( NBT_PERIPHERAL_TYPE + suffix, type );
         }
     }
 
     public void read( @Nonnull CompoundTag tag, @Nonnull String suffix )
     {
-        this.id = tag.contains( NBT_PERIPHERAL_ID + suffix, NBTUtil.TAG_ANY_NUMERIC ) ? tag.getInt( NBT_PERIPHERAL_ID + suffix ) : -1;
+        id = tag.contains( NBT_PERIPHERAL_ID + suffix, NBTUtil.TAG_ANY_NUMERIC ) ? tag.getInt( NBT_PERIPHERAL_ID + suffix ) : -1;
 
-        this.type = tag.contains( NBT_PERIPHERAL_TYPE + suffix, NBTUtil.TAG_STRING ) ? tag.getString( NBT_PERIPHERAL_TYPE + suffix ) : null;
+        type = tag.contains( NBT_PERIPHERAL_TYPE + suffix, NBTUtil.TAG_STRING ) ? tag.getString( NBT_PERIPHERAL_TYPE + suffix ) : null;
     }
 }

@@ -43,7 +43,7 @@ public interface IComputerAccess
     @Nullable
     default String mount( @Nonnull String desiredLocation, @Nonnull IMount mount )
     {
-        return this.mount( desiredLocation, mount, this.getAttachmentName() );
+        return mount( desiredLocation, mount, getAttachmentName() );
     }
 
     /**
@@ -93,7 +93,7 @@ public interface IComputerAccess
     @Nullable
     default String mountWritable( @Nonnull String desiredLocation, @Nonnull IWritableMount mount )
     {
-        return this.mountWritable( desiredLocation, mount, this.getAttachmentName() );
+        return mountWritable( desiredLocation, mount, getAttachmentName() );
     }
 
     /**

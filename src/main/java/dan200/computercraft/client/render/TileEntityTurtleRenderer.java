@@ -116,7 +116,7 @@ public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle>
         // Render the label
         String label = turtle.createProxy()
             .getLabel();
-        HitResult hit = this.dispatcher.crosshairTarget;
+        HitResult hit = dispatcher.crosshairTarget;
         if( label != null && hit.getType() == HitResult.Type.BLOCK && turtle.getPos()
             .equals( ((BlockHitResult) hit).getBlockPos() ) )
         {

@@ -18,7 +18,7 @@ public interface DefaultSidedInventory extends DefaultInventory, SidedInventory
     @Override
     default boolean canInsert( int slot, @Nonnull ItemStack stack, @Nullable Direction side )
     {
-        return this.isValid( slot, stack );
+        return isValid( slot, stack );
     }
 
     @Override

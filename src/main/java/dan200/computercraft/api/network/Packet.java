@@ -53,7 +53,7 @@ public class Packet
      */
     public int getChannel()
     {
-        return this.channel;
+        return channel;
     }
 
     /**
@@ -63,7 +63,7 @@ public class Packet
      */
     public int getReplyChannel()
     {
-        return this.replyChannel;
+        return replyChannel;
     }
 
     /**
@@ -74,7 +74,7 @@ public class Packet
     @Nullable
     public Object getPayload()
     {
-        return this.payload;
+        return payload;
     }
 
     /**
@@ -85,17 +85,17 @@ public class Packet
     @Nonnull
     public IPacketSender getSender()
     {
-        return this.sender;
+        return sender;
     }
 
     @Override
     public int hashCode()
     {
         int result;
-        result = this.channel;
-        result = 31 * result + this.replyChannel;
-        result = 31 * result + (this.payload != null ? this.payload.hashCode() : 0);
-        result = 31 * result + this.sender.hashCode();
+        result = channel;
+        result = 31 * result + replyChannel;
+        result = 31 * result + (payload != null ? payload.hashCode() : 0);
+        result = 31 * result + sender.hashCode();
         return result;
     }
 
@@ -106,25 +106,25 @@ public class Packet
         {
             return true;
         }
-        if( o == null || this.getClass() != o.getClass() )
+        if( o == null || getClass() != o.getClass() )
         {
             return false;
         }
 
         Packet packet = (Packet) o;
 
-        if( this.channel != packet.channel )
+        if( channel != packet.channel )
         {
             return false;
         }
-        if( this.replyChannel != packet.replyChannel )
+        if( replyChannel != packet.replyChannel )
         {
             return false;
         }
-        if( !Objects.equals( this.payload, packet.payload ) )
+        if( !Objects.equals( payload, packet.payload ) )
         {
             return false;
         }
-        return this.sender.equals( packet.sender );
+        return sender.equals( packet.sender );
     }
 }

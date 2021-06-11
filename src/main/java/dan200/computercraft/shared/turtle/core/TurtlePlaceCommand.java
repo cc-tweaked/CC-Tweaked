@@ -46,7 +46,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
     public TurtlePlaceCommand( InteractDirection direction, Object[] arguments )
     {
         this.direction = direction;
-        this.extraArguments = arguments;
+        extraArguments = arguments;
     }
 
     public static ItemStack deploy( @Nonnull ItemStack stack, ITurtleAccess turtle, Direction direction, Object[] extraArguments, String[] outErrorMessage )
@@ -89,7 +89,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Do the deploying
         String[] errorMessage = new String[1];
-        ItemStack remainder = deploy( stack, turtle, turtlePlayer, direction, this.extraArguments, errorMessage );
+        ItemStack remainder = deploy( stack, turtle, turtlePlayer, direction, extraArguments, errorMessage );
         if( remainder != stack )
         {
             // Put the remaining items back

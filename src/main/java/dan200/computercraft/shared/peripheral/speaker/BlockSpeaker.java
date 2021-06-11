@@ -25,7 +25,7 @@ public class BlockSpeaker extends BlockGeneric
     public BlockSpeaker( Settings settings )
     {
         super( settings, ComputerCraftRegistry.ModTiles.SPEAKER );
-        this.setDefaultState( this.getStateManager().getDefaultState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( FACING, Direction.NORTH ) );
     }
 
@@ -33,7 +33,7 @@ public class BlockSpeaker extends BlockGeneric
     @Override
     public BlockState getPlacementState( ItemPlacementContext placement )
     {
-        return this.getDefaultState().with( FACING,
+        return getDefaultState().with( FACING,
             placement.getPlayerFacing()
                 .getOpposite() );
     }

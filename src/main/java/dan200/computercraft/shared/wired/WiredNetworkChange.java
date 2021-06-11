@@ -90,19 +90,19 @@ public final class WiredNetworkChange implements IWiredNetworkChange
     @Override
     public Map<String, IPeripheral> peripheralsRemoved()
     {
-        return this.removed;
+        return removed;
     }
 
     @Nonnull
     @Override
     public Map<String, IPeripheral> peripheralsAdded()
     {
-        return this.added;
+        return added;
     }
 
     void broadcast( Iterable<WiredNode> nodes )
     {
-        if( !this.isEmpty() )
+        if( !isEmpty() )
         {
             for( WiredNode node : nodes )
             {
@@ -113,12 +113,12 @@ public final class WiredNetworkChange implements IWiredNetworkChange
 
     public boolean isEmpty()
     {
-        return this.added.isEmpty() && this.removed.isEmpty();
+        return added.isEmpty() && removed.isEmpty();
     }
 
     void broadcast( WiredNode node )
     {
-        if( !this.isEmpty() )
+        if( !isEmpty() )
         {
             node.element.networkChanged( this );
         }

@@ -30,10 +30,10 @@ public interface IArguments
 
     default Object[] getAll()
     {
-        Object[] result = new Object[this.count()];
+        Object[] result = new Object[count()];
         for( int i = 0; i < result.length; i++ )
         {
-            result[i] = this.get( i );
+            result[i] = get( i );
         }
         return result;
     }
@@ -71,7 +71,7 @@ public interface IArguments
      */
     default int getInt( int index ) throws LuaException
     {
-        return (int) this.getLong( index );
+        return (int) getLong( index );
     }
 
     /**
@@ -83,7 +83,7 @@ public interface IArguments
      */
     default long getLong( int index ) throws LuaException
     {
-        Object value = this.get( index );
+        Object value = get( index );
         if( !(value instanceof Number) )
         {
             throw LuaValues.badArgumentOf( index, "number", value );
@@ -101,7 +101,7 @@ public interface IArguments
      */
     default double getFiniteDouble( int index ) throws LuaException
     {
-        return checkFinite( index, this.getDouble( index ) );
+        return checkFinite( index, getDouble( index ) );
     }
 
     /**
@@ -114,7 +114,7 @@ public interface IArguments
      */
     default double getDouble( int index ) throws LuaException
     {
-        Object value = this.get( index );
+        Object value = get( index );
         if( !(value instanceof Number) )
         {
             throw LuaValues.badArgumentOf( index, "number", value );
@@ -131,7 +131,7 @@ public interface IArguments
      */
     default boolean getBoolean( int index ) throws LuaException
     {
-        Object value = this.get( index );
+        Object value = get( index );
         if( !(value instanceof Boolean) )
         {
             throw LuaValues.badArgumentOf( index, "boolean", value );
@@ -149,7 +149,7 @@ public interface IArguments
     @Nonnull
     default ByteBuffer getBytes( int index ) throws LuaException
     {
-        return LuaValues.encode( this.getString( index ) );
+        return LuaValues.encode( getString( index ) );
     }
 
     /**
@@ -162,7 +162,7 @@ public interface IArguments
     @Nonnull
     default String getString( int index ) throws LuaException
     {
-        Object value = this.get( index );
+        Object value = get( index );
         if( !(value instanceof String) )
         {
             throw LuaValues.badArgumentOf( index, "string", value );
@@ -182,7 +182,7 @@ public interface IArguments
     @Nonnull
     default <T extends Enum<T>> T getEnum( int index, Class<T> klass ) throws LuaException
     {
-        return LuaValues.checkEnum( index, klass, this.getString( index ) );
+        return LuaValues.checkEnum( index, klass, getString( index ) );
     }
 
     /**
@@ -195,7 +195,7 @@ public interface IArguments
     @Nonnull
     default Map<?, ?> getTable( int index ) throws LuaException
     {
-        Object value = this.get( index );
+        Object value = get( index );
         if( !(value instanceof Map) )
         {
             throw LuaValues.badArgumentOf( index, "table", value );
@@ -212,7 +212,7 @@ public interface IArguments
      */
     default Optional<ByteBuffer> optBytes( int index ) throws LuaException
     {
-        return this.optString( index ).map( LuaValues::encode );
+        return optString( index ).map( LuaValues::encode );
     }
 
     /**
@@ -224,7 +224,7 @@ public interface IArguments
      */
     default Optional<String> optString( int index ) throws LuaException
     {
-        Object value = this.get( index );
+        Object value = get( index );
         if( value == null )
         {
             return Optional.empty();
@@ -248,7 +248,7 @@ public interface IArguments
     @Nonnull
     default <T extends Enum<T>> Optional<T> optEnum( int index, Class<T> klass ) throws LuaException
     {
-        Optional<String> str = this.optString( index );
+        Optional<String> str = optString( index );
         return str.isPresent() ? Optional.of( LuaValues.checkEnum( index, klass, str.get() ) ) : Optional.empty();
     }
 
@@ -262,7 +262,7 @@ public interface IArguments
      */
     default double optDouble( int index, double def ) throws LuaException
     {
-        return this.optDouble( index ).orElse( def );
+        return optDouble( index ).orElse( def );
     }
 
     /**
@@ -275,7 +275,7 @@ public interface IArguments
     @Nonnull
     default Optional<Double> optDouble( int index ) throws LuaException
     {
-        Object value = this.get( index );
+        Object value = get( index );
         if( value == null )
         {
             return Optional.empty();
@@ -297,7 +297,7 @@ public interface IArguments
      */
     default int optInt( int index, int def ) throws LuaException
     {
-        return this.optInt( index ).orElse( def );
+        return optInt( index ).orElse( def );
     }
 
     /**
@@ -310,7 +310,7 @@ public interface IArguments
     @Nonnull
     default Optional<Integer> optInt( int index ) throws LuaException
     {
-        return this.optLong( index ).map( Long::intValue );
+        return optLong( index ).map( Long::intValue );
     }
 
     /**
@@ -322,7 +322,7 @@ public interface IArguments
      */
     default Optional<Long> optLong( int index ) throws LuaException
     {
-        Object value = this.get( index );
+        Object value = get( index );
         if( value == null )
         {
             return Optional.empty();
@@ -345,7 +345,7 @@ public interface IArguments
      */
     default long optLong( int index, long def ) throws LuaException
     {
-        return this.optLong( index ).orElse( def );
+        return optLong( index ).orElse( def );
     }
 
     /**
@@ -358,7 +358,7 @@ public interface IArguments
      */
     default double optFiniteDouble( int index, double def ) throws LuaException
     {
-        return this.optFiniteDouble( index ).orElse( def );
+        return optFiniteDouble( index ).orElse( def );
     }
 
     /**
@@ -370,7 +370,7 @@ public interface IArguments
      */
     default Optional<Double> optFiniteDouble( int index ) throws LuaException
     {
-        Optional<Double> value = this.optDouble( index );
+        Optional<Double> value = optDouble( index );
         if( value.isPresent() )
         {
             LuaValues.checkFiniteNum( index, value.get() );
@@ -388,7 +388,7 @@ public interface IArguments
      */
     default boolean optBoolean( int index, boolean def ) throws LuaException
     {
-        return this.optBoolean( index ).orElse( def );
+        return optBoolean( index ).orElse( def );
     }
 
     /**
@@ -400,7 +400,7 @@ public interface IArguments
      */
     default Optional<Boolean> optBoolean( int index ) throws LuaException
     {
-        Object value = this.get( index );
+        Object value = get( index );
         if( value == null )
         {
             return Optional.empty();
@@ -422,7 +422,7 @@ public interface IArguments
      */
     default String optString( int index, String def ) throws LuaException
     {
-        return this.optString( index ).orElse( def );
+        return optString( index ).orElse( def );
     }
 
     /**
@@ -435,7 +435,7 @@ public interface IArguments
      */
     default Map<?, ?> optTable( int index, Map<Object, Object> def ) throws LuaException
     {
-        return this.optTable( index ).orElse( def );
+        return optTable( index ).orElse( def );
     }
 
     /**
@@ -447,7 +447,7 @@ public interface IArguments
      */
     default Optional<Map<?, ?>> optTable( int index ) throws LuaException
     {
-        Object value = this.get( index );
+        Object value = get( index );
         if( value == null )
         {
             return Optional.empty();

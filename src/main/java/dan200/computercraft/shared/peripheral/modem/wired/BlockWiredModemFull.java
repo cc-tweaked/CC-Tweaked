@@ -21,7 +21,7 @@ public class BlockWiredModemFull extends BlockGeneric
     public BlockWiredModemFull( Settings settings, BlockEntityType<? extends TileWiredModemFull> type )
     {
         super( settings, type );
-        this.setDefaultState( this.getStateManager().getDefaultState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( MODEM_ON, false )
             .with( PERIPHERAL_ON, false ) );
     }

@@ -37,44 +37,44 @@ public class PlayRecordClientMessage implements NetworkMessage
     {
         this.pos = pos;
         this.name = name;
-        this.soundEvent = event;
+        soundEvent = event;
     }
 
     public PlayRecordClientMessage( BlockPos pos )
     {
         this.pos = pos;
-        this.name = null;
-        this.soundEvent = null;
+        name = null;
+        soundEvent = null;
     }
 
     public PlayRecordClientMessage( PacketByteBuf buf )
     {
-        this.pos = buf.readBlockPos();
+        pos = buf.readBlockPos();
         if( buf.readBoolean() )
         {
-            this.name = buf.readString( Short.MAX_VALUE );
-            this.soundEvent = Registry.SOUND_EVENT.get( buf.readIdentifier() );
+            name = buf.readString( Short.MAX_VALUE );
+            soundEvent = Registry.SOUND_EVENT.get( buf.readIdentifier() );
         }
         else
         {
-            this.name = null;
-            this.soundEvent = null;
+            name = null;
+            soundEvent = null;
         }
     }
 
     @Override
     public void toBytes( @Nonnull PacketByteBuf buf )
     {
-        buf.writeBlockPos( this.pos );
-        if( this.soundEvent == null )
+        buf.writeBlockPos( pos );
+        if( soundEvent == null )
         {
             buf.writeBoolean( false );
         }
         else
         {
             buf.writeBoolean( true );
-            buf.writeString( this.name );
-            buf.writeIdentifier( ((SoundEventAccess) this.soundEvent).getId() );
+            buf.writeString( name );
+            buf.writeIdentifier( ((SoundEventAccess) soundEvent).getId() );
         }
     }
 
@@ -83,10 +83,10 @@ public class PlayRecordClientMessage implements NetworkMessage
     public void handle( PacketContext context )
     {
         MinecraftClient mc = MinecraftClient.getInstance();
-        mc.worldRenderer.playSong( this.soundEvent, this.pos );
-        if( this.name != null )
+        mc.worldRenderer.playSong( soundEvent, pos );
+        if( name != null )
         {
-            mc.inGameHud.setRecordPlayingOverlay( new LiteralText( this.name ) );
+            mc.inGameHud.setRecordPlayingOverlay( new LiteralText( name ) );
         }
     }
 }

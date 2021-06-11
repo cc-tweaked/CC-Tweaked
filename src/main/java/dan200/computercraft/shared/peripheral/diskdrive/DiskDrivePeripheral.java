@@ -51,26 +51,26 @@ public class DiskDrivePeripheral implements IPeripheral
     @Override
     public void attach( @Nonnull IComputerAccess computer )
     {
-        this.diskDrive.mount( computer );
+        diskDrive.mount( computer );
     }
 
     @Override
     public void detach( @Nonnull IComputerAccess computer )
     {
-        this.diskDrive.unmount( computer );
+        diskDrive.unmount( computer );
     }
 
     @Nonnull
     @Override
     public Object getTarget()
     {
-        return this.diskDrive;
+        return diskDrive;
     }
 
     @Override
     public boolean equals( IPeripheral other )
     {
-        return this == other || other instanceof DiskDrivePeripheral && ((DiskDrivePeripheral) other).diskDrive == this.diskDrive;
+        return this == other || other instanceof DiskDrivePeripheral && ((DiskDrivePeripheral) other).diskDrive == diskDrive;
     }
 
     /**
@@ -81,7 +81,7 @@ public class DiskDrivePeripheral implements IPeripheral
     @LuaFunction
     public final boolean isDiskPresent()
     {
-        return !this.diskDrive.getDiskStack()
+        return !diskDrive.getDiskStack()
             .isEmpty();
     }
 
@@ -94,7 +94,7 @@ public class DiskDrivePeripheral implements IPeripheral
     @LuaFunction
     public final Object[] getDiskLabel()
     {
-        ItemStack stack = this.diskDrive.getDiskStack();
+        ItemStack stack = diskDrive.getDiskStack();
         IMedia media = MediaProviders.get( stack );
         return media == null ? null : new Object[] { media.getLabel( stack ) };
     }
@@ -113,7 +113,7 @@ public class DiskDrivePeripheral implements IPeripheral
     public final void setDiskLabel( Optional<String> labelA ) throws LuaException
     {
         String label = labelA.orElse( null );
-        ItemStack stack = this.diskDrive.getDiskStack();
+        ItemStack stack = diskDrive.getDiskStack();
         IMedia media = MediaProviders.get( stack );
         if( media == null )
         {
@@ -124,7 +124,7 @@ public class DiskDrivePeripheral implements IPeripheral
         {
             throw new LuaException( "Disk label cannot be changed" );
         }
-        this.diskDrive.setDiskStack( stack );
+        diskDrive.setDiskStack( stack );
     }
 
     /**
@@ -136,7 +136,7 @@ public class DiskDrivePeripheral implements IPeripheral
     @LuaFunction
     public final boolean hasData( IComputerAccess computer )
     {
-        return this.diskDrive.getDiskMountPath( computer ) != null;
+        return diskDrive.getDiskMountPath( computer ) != null;
     }
 
     /**
@@ -149,7 +149,7 @@ public class DiskDrivePeripheral implements IPeripheral
     @Nullable
     public final String getMountPath( IComputerAccess computer )
     {
-        return this.diskDrive.getDiskMountPath( computer );
+        return diskDrive.getDiskMountPath( computer );
     }
 
     /**
@@ -160,7 +160,7 @@ public class DiskDrivePeripheral implements IPeripheral
     @LuaFunction
     public final boolean hasAudio()
     {
-        ItemStack stack = this.diskDrive.getDiskStack();
+        ItemStack stack = diskDrive.getDiskStack();
         IMedia media = MediaProviders.get( stack );
         return media != null && media.getAudio( stack ) != null;
     }
@@ -175,7 +175,7 @@ public class DiskDrivePeripheral implements IPeripheral
     @Nullable
     public final Object getAudioTitle()
     {
-        ItemStack stack = this.diskDrive.getDiskStack();
+        ItemStack stack = diskDrive.getDiskStack();
         IMedia media = MediaProviders.get( stack );
         return media != null ? media.getAudioTitle( stack ) : false;
     }
@@ -186,7 +186,7 @@ public class DiskDrivePeripheral implements IPeripheral
     @LuaFunction
     public final void playAudio()
     {
-        this.diskDrive.playDiskAudio();
+        diskDrive.playDiskAudio();
     }
 
     /**
@@ -197,7 +197,7 @@ public class DiskDrivePeripheral implements IPeripheral
     @LuaFunction
     public final void stopAudio()
     {
-        this.diskDrive.stopDiskAudio();
+        diskDrive.stopDiskAudio();
     }
 
     /**
@@ -206,7 +206,7 @@ public class DiskDrivePeripheral implements IPeripheral
     @LuaFunction
     public final void ejectDisk()
     {
-        this.diskDrive.ejectDisk();
+        diskDrive.ejectDisk();
     }
 
     /**
@@ -218,7 +218,7 @@ public class DiskDrivePeripheral implements IPeripheral
     @LuaFunction
     public final Object[] getDiskID()
     {
-        ItemStack disk = this.diskDrive.getDiskStack();
+        ItemStack disk = diskDrive.getDiskStack();
         return disk.getItem() instanceof ItemDisk ? new Object[] { ItemDisk.getDiskID( disk ) } : null;
     }
 }

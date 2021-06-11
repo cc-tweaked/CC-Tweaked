@@ -46,7 +46,7 @@ public class TurtleAttackEvent extends TurtlePlayerEvent
     @Nonnull
     public Entity getTarget()
     {
-        return this.target;
+        return target;
     }
 
     /**
@@ -57,7 +57,7 @@ public class TurtleAttackEvent extends TurtlePlayerEvent
     @Nonnull
     public ITurtleUpgrade getUpgrade()
     {
-        return this.upgrade;
+        return upgrade;
     }
 
     /**
@@ -68,6 +68,6 @@ public class TurtleAttackEvent extends TurtlePlayerEvent
     @Nonnull
     public TurtleSide getSide()
     {
-        return this.side;
+        return side;
     }
 }

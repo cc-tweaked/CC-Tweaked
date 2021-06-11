@@ -29,25 +29,25 @@ public final class WiredNode implements IWiredNode
     public WiredNode( IWiredElement element )
     {
         this.element = element;
-        this.network = new WiredNetwork( this );
+        network = new WiredNetwork( this );
     }
 
     @Override
     public synchronized void addReceiver( @Nonnull IPacketReceiver receiver )
     {
-        if( this.receivers == null )
+        if( receivers == null )
         {
-            this.receivers = new HashSet<>();
+            receivers = new HashSet<>();
         }
-        this.receivers.add( receiver );
+        receivers.add( receiver );
     }
 
     @Override
     public synchronized void removeReceiver( @Nonnull IPacketReceiver receiver )
     {
-        if( this.receivers != null )
+        if( receivers != null )
         {
-            this.receivers.remove( receiver );
+            receivers.remove( receiver );
         }
     }
 
@@ -66,14 +66,14 @@ public final class WiredNode implements IWiredNode
             throw new IllegalArgumentException( "Sender is not in the network" );
         }
 
-        this.acquireReadLock();
+        acquireReadLock();
         try
         {
             WiredNetwork.transmitPacket( this, packet, range, false );
         }
         finally
         {
-            this.network.lock.readLock()
+            network.lock.readLock()
                 .unlock();
         }
     }
@@ -87,26 +87,26 @@ public final class WiredNode implements IWiredNode
             throw new IllegalArgumentException( "Sender is not in the network" );
         }
 
-        this.acquireReadLock();
+        acquireReadLock();
         try
         {
             WiredNetwork.transmitPacket( this, packet, 0, true );
         }
         finally
         {
-            this.network.lock.readLock()
+            network.lock.readLock()
                 .unlock();
         }
     }
 
     private void acquireReadLock()
     {
-        WiredNetwork currentNetwork = this.network;
+        WiredNetwork currentNetwork = network;
         while( true )
         {
             Lock lock = currentNetwork.lock.readLock();
             lock.lock();
-            if( currentNetwork == this.network )
+            if( currentNetwork == network )
             {
                 return;
             }
@@ -118,12 +118,12 @@ public final class WiredNode implements IWiredNode
 
     synchronized void tryTransmit( Packet packet, double packetDistance, boolean packetInterdimensional, double range, boolean interdimensional )
     {
-        if( this.receivers == null )
+        if( receivers == null )
         {
             return;
         }
 
-        for( IPacketReceiver receiver : this.receivers )
+        for( IPacketReceiver receiver : receivers )
         {
             if( !packetInterdimensional )
             {
@@ -131,7 +131,7 @@ public final class WiredNode implements IWiredNode
                 if( interdimensional || receiver.isInterdimensional() || packetDistance < receiveRange )
                 {
                     receiver.receiveSameDimension( packet,
-                        packetDistance + this.element.getPosition()
+                        packetDistance + element.getPosition()
                             .distanceTo( receiver.getPosition() ) );
                 }
             }
@@ -149,20 +149,20 @@ public final class WiredNode implements IWiredNode
     @Override
     public IWiredElement getElement()
     {
-        return this.element;
+        return element;
     }
 
     @Nonnull
     @Override
     public IWiredNetwork getNetwork()
     {
-        return this.network;
+        return network;
     }
 
     @Override
     public String toString()
     {
-        return "WiredNode{@" + this.element.getPosition() + " (" + this.element.getClass()
+        return "WiredNode{@" + element.getPosition() + " (" + element.getClass()
             .getSimpleName() + ")}";
     }
 }

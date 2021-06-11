@@ -21,7 +21,7 @@ public class ModemState
 
     public ModemState()
     {
-        this.onChanged = null;
+        onChanged = null;
     }
 
     public ModemState( Runnable onChanged )
@@ -31,12 +31,12 @@ public class ModemState
 
     public boolean pollChanged()
     {
-        return this.changed.getAndSet( false );
+        return changed.getAndSet( false );
     }
 
     public boolean isOpen()
     {
-        return this.open;
+        return open;
     }
 
     private void setOpen( boolean open )
@@ -46,54 +46,54 @@ public class ModemState
             return;
         }
         this.open = open;
-        if( !this.changed.getAndSet( true ) && this.onChanged != null )
+        if( !changed.getAndSet( true ) && onChanged != null )
         {
-            this.onChanged.run();
+            onChanged.run();
         }
     }
 
     public boolean isOpen( int channel )
     {
-        synchronized( this.channels )
+        synchronized( channels )
         {
-            return this.channels.contains( channel );
+            return channels.contains( channel );
         }
     }
 
     public void open( int channel ) throws LuaException
     {
-        synchronized( this.channels )
+        synchronized( channels )
         {
-            if( !this.channels.contains( channel ) )
+            if( !channels.contains( channel ) )
             {
-                if( this.channels.size() >= 128 )
+                if( channels.size() >= 128 )
                 {
                     throw new LuaException( "Too many open channels" );
                 }
-                this.channels.add( channel );
-                this.setOpen( true );
+                channels.add( channel );
+                setOpen( true );
             }
         }
     }
 
     public void close( int channel )
     {
-        synchronized( this.channels )
+        synchronized( channels )
         {
-            this.channels.remove( channel );
-            if( this.channels.isEmpty() )
+            channels.remove( channel );
+            if( channels.isEmpty() )
             {
-                this.setOpen( false );
+                setOpen( false );
             }
         }
     }
 
     public void closeAll()
     {
-        synchronized( this.channels )
+        synchronized( channels )
         {
-            this.channels.clear();
-            this.setOpen( false );
+            channels.clear();
+            setOpen( false );
         }
     }
 }

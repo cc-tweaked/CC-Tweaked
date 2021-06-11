@@ -66,7 +66,7 @@ public class TurtleSmartItemModel implements BakedModel
         this.colourModel = colourModel;
 
         // this actually works I think, trust me
-        this.overrides = new ModelOverrideList( null, null, null, Collections.emptyList() )
+        overrides = new ModelOverrideList( null, null, null, Collections.emptyList() )
         {
             @Nonnull
             @Override
@@ -85,10 +85,10 @@ public class TurtleSmartItemModel implements BakedModel
                 boolean flip = false;
                 TurtleModelCombination combo = new TurtleModelCombination( colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip );
 
-                BakedModel model = TurtleSmartItemModel.this.cachedModels.get( combo );
+                BakedModel model = cachedModels.get( combo );
                 if( model == null )
                 {
-                    TurtleSmartItemModel.this.cachedModels.put( combo, model = TurtleSmartItemModel.this.buildModel( combo ) );
+                    cachedModels.put( combo, model = buildModel( combo ) );
                 }
                 return model;
             }
@@ -103,7 +103,7 @@ public class TurtleSmartItemModel implements BakedModel
             .getModelManager();
         ModelIdentifier overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.overlay, combo.christmas );
 
-        BakedModel baseModel = combo.colour ? this.colourModel : this.familyModel;
+        BakedModel baseModel = combo.colour ? colourModel : familyModel;
         BakedModel overlayModel = overlayModelLocation != null ? modelManager.getModel( overlayModelLocation ) : null;
         AffineTransformation transform = combo.flip ? flip : identity;
         TransformedModel leftModel = combo.leftUpgrade != null ? combo.leftUpgrade.getModel( null, TurtleSide.LEFT ) : null;
@@ -116,31 +116,31 @@ public class TurtleSmartItemModel implements BakedModel
     @Deprecated
     public List<BakedQuad> getQuads( BlockState state, Direction facing, @Nonnull Random rand )
     {
-        return this.familyModel.getQuads( state, facing, rand );
+        return familyModel.getQuads( state, facing, rand );
     }
 
     @Override
     public boolean useAmbientOcclusion()
     {
-        return this.familyModel.useAmbientOcclusion();
+        return familyModel.useAmbientOcclusion();
     }
 
     @Override
     public boolean hasDepth()
     {
-        return this.familyModel.hasDepth();
+        return familyModel.hasDepth();
     }
 
     @Override
     public boolean isSideLit()
     {
-        return this.familyModel.isSideLit();
+        return familyModel.isSideLit();
     }
 
     @Override
     public boolean isBuiltin()
     {
-        return this.familyModel.isBuiltin();
+        return familyModel.isBuiltin();
     }
 
     @Nonnull
@@ -148,7 +148,7 @@ public class TurtleSmartItemModel implements BakedModel
     @Deprecated
     public Sprite getSprite()
     {
-        return this.familyModel.getSprite();
+        return familyModel.getSprite();
     }
 
     @Nonnull
@@ -156,14 +156,14 @@ public class TurtleSmartItemModel implements BakedModel
     @Deprecated
     public ModelTransformation getTransformation()
     {
-        return this.familyModel.getTransformation();
+        return familyModel.getTransformation();
     }
 
     @Nonnull
     @Override
     public ModelOverrideList getOverrides()
     {
-        return this.overrides;
+        return overrides;
     }
 
     private static class TurtleModelCombination
@@ -191,12 +191,12 @@ public class TurtleSmartItemModel implements BakedModel
         {
             final int prime = 31;
             int result = 0;
-            result = prime * result + (this.colour ? 1 : 0);
-            result = prime * result + (this.leftUpgrade != null ? this.leftUpgrade.hashCode() : 0);
-            result = prime * result + (this.rightUpgrade != null ? this.rightUpgrade.hashCode() : 0);
-            result = prime * result + (this.overlay != null ? this.overlay.hashCode() : 0);
-            result = prime * result + (this.christmas ? 1 : 0);
-            result = prime * result + (this.flip ? 1 : 0);
+            result = prime * result + (colour ? 1 : 0);
+            result = prime * result + (leftUpgrade != null ? leftUpgrade.hashCode() : 0);
+            result = prime * result + (rightUpgrade != null ? rightUpgrade.hashCode() : 0);
+            result = prime * result + (overlay != null ? overlay.hashCode() : 0);
+            result = prime * result + (christmas ? 1 : 0);
+            result = prime * result + (flip ? 1 : 0);
             return result;
         }
 
@@ -213,8 +213,8 @@ public class TurtleSmartItemModel implements BakedModel
             }
 
             TurtleModelCombination otherCombo = (TurtleModelCombination) other;
-            return otherCombo.colour == this.colour && otherCombo.leftUpgrade == this.leftUpgrade && otherCombo.rightUpgrade == this.rightUpgrade && Objects.equal(
-                otherCombo.overlay, this.overlay ) && otherCombo.christmas == this.christmas && otherCombo.flip == this.flip;
+            return otherCombo.colour == colour && otherCombo.leftUpgrade == leftUpgrade && otherCombo.rightUpgrade == rightUpgrade && Objects.equal(
+                otherCombo.overlay, overlay ) && otherCombo.christmas == christmas && otherCombo.flip == flip;
         }
     }
 

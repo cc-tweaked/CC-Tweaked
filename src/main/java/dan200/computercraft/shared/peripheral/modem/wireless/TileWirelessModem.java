@@ -33,7 +33,7 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
     {
         super( type );
         this.advanced = advanced;
-        this.modem = new Peripheral( this );
+        modem = new Peripheral( this );
     }
 
     @Override
@@ -47,56 +47,56 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
     public void resetBlock()
     {
         super.resetBlock();
-        this.hasModemDirection = false;
-        this.world.getBlockTickScheduler()
-            .schedule( this.getPos(),
-                this.getCachedState().getBlock(), 0 );
+        hasModemDirection = false;
+        world.getBlockTickScheduler()
+            .schedule( getPos(),
+                getCachedState().getBlock(), 0 );
     }
 
     @Override
     public void destroy()
     {
-        if( !this.destroyed )
+        if( !destroyed )
         {
-            this.modem.destroy();
-            this.destroyed = true;
+            modem.destroy();
+            destroyed = true;
         }
     }
 
     @Override
     public void blockTick()
     {
-        Direction currentDirection = this.modemDirection;
-        this.refreshDirection();
+        Direction currentDirection = modemDirection;
+        refreshDirection();
         // Invalidate the capability if the direction has changed. I'm not 100% happy with this implementation
         //  - ideally we'd do it within refreshDirection or updateContainingBlockInfo, but this seems the _safest_
         //  place.
-        if( this.modem.getModemState()
+        if( modem.getModemState()
             .pollChanged() )
         {
-            this.updateBlockState();
+            updateBlockState();
         }
     }
 
     private void refreshDirection()
     {
-        if( this.hasModemDirection )
+        if( hasModemDirection )
         {
             return;
         }
 
-        this.hasModemDirection = true;
-        this.modemDirection = this.getCachedState().get( BlockWirelessModem.FACING );
+        hasModemDirection = true;
+        modemDirection = getCachedState().get( BlockWirelessModem.FACING );
     }
 
     private void updateBlockState()
     {
-        boolean on = this.modem.getModemState()
+        boolean on = modem.getModemState()
             .isOpen();
-        BlockState state = this.getCachedState();
+        BlockState state = getCachedState();
         if( state.get( BlockWirelessModem.ON ) != on )
         {
-            this.getWorld().setBlockState( this.getPos(), state.with( BlockWirelessModem.ON, on ) );
+            getWorld().setBlockState( getPos(), state.with( BlockWirelessModem.ON, on ) );
         }
     }
 
@@ -104,8 +104,8 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
     @Override
     public IPeripheral getPeripheral( Direction side )
     {
-        this.refreshDirection();
-        return side == this.modemDirection ? this.modem : null;
+        refreshDirection();
+        return side == modemDirection ? modem : null;
     }
 
     private static class Peripheral extends WirelessModemPeripheral
@@ -122,15 +122,15 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
         @Override
         public World getWorld()
         {
-            return this.entity.getWorld();
+            return entity.getWorld();
         }
 
         @Nonnull
         @Override
         public Vec3d getPosition()
         {
-            BlockPos pos = this.entity.getPos()
-                .offset( this.entity.modemDirection );
+            BlockPos pos = entity.getPos()
+                .offset( entity.modemDirection );
             return new Vec3d( pos.getX(), pos.getY(), pos.getZ() );
         }
 
@@ -138,13 +138,13 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
         @Override
         public Object getTarget()
         {
-            return this.entity;
+            return entity;
         }
 
         @Override
         public boolean equals( IPeripheral other )
         {
-            return this == other || (other instanceof Peripheral && this.entity == ((Peripheral) other).entity);
+            return this == other || (other instanceof Peripheral && entity == ((Peripheral) other).entity);
         }
     }
 }

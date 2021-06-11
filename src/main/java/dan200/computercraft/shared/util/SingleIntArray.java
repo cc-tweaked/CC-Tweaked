@@ -14,7 +14,7 @@ public interface SingleIntArray extends PropertyDelegate
     @Override
     default int get( int property )
     {
-        return property == 0 ? this.get() : 0;
+        return property == 0 ? get() : 0;
     }
 
     int get();

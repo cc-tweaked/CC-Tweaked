@@ -60,7 +60,7 @@ public final class ClientMonitor extends ClientTerminal
 
     public TileMonitor getOrigin()
     {
-        return this.origin;
+        return origin;
     }
 
     /**
@@ -75,37 +75,35 @@ public final class ClientMonitor extends ClientTerminal
         switch( renderer )
         {
             case TBO:
-            {
-                if( this.tboBuffer != 0 )
+                if( tboBuffer != 0 )
                 {
                     return false;
                 }
 
-                this.deleteBuffers();
+                deleteBuffers();
 
-                this.tboBuffer = GlStateManager.genBuffers();
-                GlStateManager.bindBuffers( GL31.GL_TEXTURE_BUFFER, this.tboBuffer );
+                tboBuffer = GlStateManager.genBuffers();
+                GlStateManager.bindBuffers( GL31.GL_TEXTURE_BUFFER, tboBuffer );
                 GL15.glBufferData( GL31.GL_TEXTURE_BUFFER, 0, GL15.GL_STATIC_DRAW );
-                this.tboTexture = GlStateManager.genTextures();
-                GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, this.tboTexture );
-                GL31.glTexBuffer( GL31.GL_TEXTURE_BUFFER, GL30.GL_R8UI, this.tboBuffer );
+                tboTexture = GlStateManager.genTextures();
+                GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, tboTexture );
+                GL31.glTexBuffer( GL31.GL_TEXTURE_BUFFER, GL30.GL_R8UI, tboBuffer );
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, 0 );
 
                 GlStateManager.bindBuffers( GL31.GL_TEXTURE_BUFFER, 0 );
 
-                this.addMonitor();
+                addMonitor();
                 return true;
-            }
 
             case VBO:
-                if( this.buffer != null )
+                if( buffer != null )
                 {
                     return false;
                 }
 
-                this.deleteBuffers();
-                this.buffer = new VertexBuffer( FixedWidthFontRenderer.TYPE.getVertexFormat() );
-                this.addMonitor();
+                deleteBuffers();
+                buffer = new VertexBuffer( FixedWidthFontRenderer.TYPE.getVertexFormat() );
+                addMonitor();
                 return true;
 
             default:
@@ -116,22 +114,22 @@ public final class ClientMonitor extends ClientTerminal
     private void deleteBuffers()
     {
 
-        if( this.tboBuffer != 0 )
+        if( tboBuffer != 0 )
         {
-            RenderSystem.glDeleteBuffers( this.tboBuffer );
-            this.tboBuffer = 0;
+            RenderSystem.glDeleteBuffers( tboBuffer );
+            tboBuffer = 0;
         }
 
-        if( this.tboTexture != 0 )
+        if( tboTexture != 0 )
         {
-            GlStateManager.deleteTexture( this.tboTexture );
-            this.tboTexture = 0;
+            GlStateManager.deleteTexture( tboTexture );
+            tboTexture = 0;
         }
 
-        if( this.buffer != null )
+        if( buffer != null )
         {
-            this.buffer.close();
-            this.buffer = null;
+            buffer.close();
+            buffer = null;
         }
     }
 
@@ -146,14 +144,14 @@ public final class ClientMonitor extends ClientTerminal
     @Environment( EnvType.CLIENT )
     public void destroy()
     {
-        if( this.tboBuffer != 0 || this.buffer != null )
+        if( tboBuffer != 0 || buffer != null )
         {
             synchronized( allMonitors )
             {
                 allMonitors.remove( this );
             }
 
-            this.deleteBuffers();
+            deleteBuffers();
         }
     }
 }

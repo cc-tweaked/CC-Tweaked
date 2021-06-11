@@ -22,8 +22,8 @@ import javax.annotation.Nonnull;
 public final class PrintoutRecipe extends SpecialCraftingRecipe
 {
     public static final RecipeSerializer<?> SERIALIZER = new SpecialRecipeSerializer<>( PrintoutRecipe::new );
-    private final Ingredient paper = Ingredient.ofItems( net.minecraft.item.Items.PAPER );
-    private final Ingredient leather = Ingredient.ofItems( net.minecraft.item.Items.LEATHER );
+    private final Ingredient paper = Ingredient.ofItems( Items.PAPER );
+    private final Ingredient leather = Ingredient.ofItems( Items.LEATHER );
     private final Ingredient string = Ingredient.ofItems( Items.STRING );
 
     private PrintoutRecipe( Identifier id )
@@ -41,7 +41,7 @@ public final class PrintoutRecipe extends SpecialCraftingRecipe
     @Override
     public boolean matches( @Nonnull CraftingInventory inventory, @Nonnull World world )
     {
-        return !this.craft( inventory ).isEmpty();
+        return !craft( inventory ).isEmpty();
     }
 
     @Nonnull
@@ -73,7 +73,7 @@ public final class PrintoutRecipe extends SpecialCraftingRecipe
                         numPrintouts++;
                         printoutFound = true;
                     }
-                    else if( this.paper.test( stack ) )
+                    else if( paper.test( stack ) )
                     {
                         if( printouts == null )
                         {
@@ -83,11 +83,11 @@ public final class PrintoutRecipe extends SpecialCraftingRecipe
                         numPages++;
                         numPrintouts++;
                     }
-                    else if( this.string.test( stack ) && !stringFound )
+                    else if( string.test( stack ) && !stringFound )
                     {
                         stringFound = true;
                     }
-                    else if( this.leather.test( stack ) && !leatherFound )
+                    else if( leather.test( stack ) && !leatherFound )
                     {
                         leatherFound = true;
                     }

@@ -33,11 +33,11 @@ public abstract class ItemMapLikeRenderer
         transform.push();
         if( hand == Hand.MAIN_HAND && player.getOffHandStack().isEmpty() )
         {
-            this.renderItemFirstPersonCenter( transform, render, lightTexture, pitch, equipProgress, swingProgress, stack );
+            renderItemFirstPersonCenter( transform, render, lightTexture, pitch, equipProgress, swingProgress, stack );
         }
         else
         {
-            this.renderItemFirstPersonSide( transform,
+            renderItemFirstPersonSide( transform,
                 render,
                 lightTexture,
                 hand == Hand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite(),
@@ -89,7 +89,7 @@ public abstract class ItemMapLikeRenderer
         transform.multiply( Vector3f.POSITIVE_X.getDegreesQuaternion( rX * 20.0F ) );
         transform.scale( 2.0F, 2.0F, 2.0F );
 
-        this.renderItem( transform, render, stack );
+        renderItem( transform, render, stack );
     }
 
     /**
@@ -133,7 +133,7 @@ public abstract class ItemMapLikeRenderer
         transform.multiply( Vector3f.POSITIVE_X.getDegreesQuaternion( f2 * -45f ) );
         transform.multiply( Vector3f.POSITIVE_Y.getDegreesQuaternion( offset * f2 * -30f ) );
 
-        this.renderItem( transform, render, stack );
+        renderItem( transform, render, stack );
 
         transform.pop();
     }

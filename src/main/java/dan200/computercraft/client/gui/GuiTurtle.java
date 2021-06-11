@@ -33,29 +33,29 @@ public class GuiTurtle extends GuiComputer<ContainerTurtle>
     @Override
     protected void init()
     {
-        this.initTerminal( 8, 0, 80 );
+        initTerminal( 8, 0, 80 );
     }
 
     @Override
     public void drawBackground( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
         // Draw term
-        Identifier texture = this.family == ComputerFamily.ADVANCED ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL;
-        this.terminal.draw( this.terminalWrapper.getX(), this.terminalWrapper.getY() );
+        Identifier texture = family == ComputerFamily.ADVANCED ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL;
+        terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
 
         // Draw border/inventory
         RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        this.client.getTextureManager()
+        client.getTextureManager()
             .bindTexture( texture );
-        this.drawTexture( transform, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight );
+        drawTexture( transform, x, y, 0, 0, backgroundWidth, backgroundHeight );
 
         // Draw selection slot
-        int slot = this.container.getSelectedSlot();
+        int slot = container.getSelectedSlot();
         if( slot >= 0 )
         {
             int slotX = slot % 4;
             int slotY = slot / 4;
-            this.drawTexture( transform, this.x + ContainerTurtle.TURTLE_START_X - 2 + slotX * 18, this.y + ContainerTurtle.PLAYER_START_Y - 2 + slotY * 18,
+            drawTexture( transform, x + ContainerTurtle.TURTLE_START_X - 2 + slotX * 18, y + ContainerTurtle.PLAYER_START_Y - 2 + slotY * 18,
                 0,
                 217,
                 24,

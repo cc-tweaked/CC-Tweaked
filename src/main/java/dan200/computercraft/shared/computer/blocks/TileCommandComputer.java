@@ -35,17 +35,17 @@ public class TileCommandComputer extends TileComputer
     public TileCommandComputer( ComputerFamily family, BlockEntityType<? extends TileCommandComputer> type )
     {
         super( family, type );
-        this.receiver = new CommandReceiver();
+        receiver = new CommandReceiver();
     }
 
     public CommandReceiver getReceiver()
     {
-        return this.receiver;
+        return receiver;
     }
 
     public ServerCommandSource getSource()
     {
-        ServerComputer computer = this.getServerComputer();
+        ServerComputer computer = getServerComputer();
         String name = "@";
         if( computer != null )
         {
@@ -56,14 +56,14 @@ public class TileCommandComputer extends TileComputer
             }
         }
 
-        return new ServerCommandSource( this.receiver,
-            new Vec3d( this.pos.getX() + 0.5, this.pos.getY() + 0.5, this.pos.getZ() + 0.5 ),
+        return new ServerCommandSource( receiver,
+            new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ),
             Vec2f.ZERO,
-            (ServerWorld) this.getWorld(),
+            (ServerWorld) getWorld(),
             2,
             name,
             new LiteralText( name ),
-            this.getWorld().getServer(),
+            getWorld().getServer(),
             null );
     }
 
@@ -105,29 +105,29 @@ public class TileCommandComputer extends TileComputer
 
         public void clearOutput()
         {
-            this.output.clear();
+            output.clear();
         }
 
         public Map<Integer, String> getOutput()
         {
-            return this.output;
+            return output;
         }
 
         public Map<Integer, String> copyOutput()
         {
-            return new HashMap<>( this.output );
+            return new HashMap<>( output );
         }
 
         @Override
         public void sendSystemMessage( @Nonnull Text textComponent, @Nonnull UUID id )
         {
-            this.output.put( this.output.size() + 1, textComponent.getString() );
+            output.put( output.size() + 1, textComponent.getString() );
         }
 
         @Override
         public boolean shouldReceiveFeedback()
         {
-            return TileCommandComputer.this.getWorld().getGameRules()
+            return getWorld().getGameRules()
                 .getBoolean( GameRules.SEND_COMMAND_FEEDBACK );
         }
 
@@ -140,7 +140,7 @@ public class TileCommandComputer extends TileComputer
         @Override
         public boolean shouldBroadcastConsoleToOps()
         {
-            return TileCommandComputer.this.getWorld().getGameRules()
+            return getWorld().getGameRules()
                 .getBoolean( GameRules.COMMAND_BLOCK_OUTPUT );
         }
     }

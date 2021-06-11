@@ -76,7 +76,7 @@ public final class TurtleModelLoader
         public Collection<SpriteIdentifier> getTextureDependencies( Function<Identifier, UnbakedModel> modelGetter,
                                                                     Set<Pair<String, String>> missingTextureErrors )
         {
-            return this.getModelDependencies()
+            return getModelDependencies()
                 .stream()
                 .flatMap( x -> modelGetter.apply( x )
                     .getTextureDependencies( modelGetter, missingTextureErrors )
@@ -88,14 +88,14 @@ public final class TurtleModelLoader
         @Override
         public Collection<Identifier> getModelDependencies()
         {
-            return Arrays.asList( this.family, COLOUR_TURTLE_MODEL );
+            return Arrays.asList( family, COLOUR_TURTLE_MODEL );
         }
 
         @Override
         public BakedModel bake( @Nonnull ModelLoader loader, @Nonnull Function<SpriteIdentifier, Sprite> spriteGetter, @Nonnull ModelBakeSettings state,
                                 Identifier modelId )
         {
-            return new TurtleSmartItemModel( loader.getOrLoadModel( this.family )
+            return new TurtleSmartItemModel( loader.getOrLoadModel( family )
                 .bake( loader, spriteGetter, state, modelId ),
                 loader.getOrLoadModel( COLOUR_TURTLE_MODEL )
                     .bake( loader, spriteGetter, state, modelId ) );

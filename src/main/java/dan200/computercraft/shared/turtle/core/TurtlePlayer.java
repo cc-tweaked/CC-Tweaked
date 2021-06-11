@@ -75,20 +75,20 @@ public final class TurtlePlayer extends FakePlayer
 
     private void setState( ITurtleAccess turtle )
     {
-        if( this.currentScreenHandler != playerScreenHandler )
+        if( currentScreenHandler != playerScreenHandler )
         {
-            ComputerCraft.log.warn( "Turtle has open container ({})", this.currentScreenHandler );
+            ComputerCraft.log.warn( "Turtle has open container ({})", currentScreenHandler );
             closeHandledScreen();
         }
 
         BlockPos position = turtle.getPosition();
-        this.setPos( position.getX() + 0.5, position.getY() + 0.5, position.getZ() + 0.5 );
+        setPos( position.getX() + 0.5, position.getY() + 0.5, position.getZ() + 0.5 );
 
-        this.yaw = turtle.getDirection()
+        yaw = turtle.getDirection()
             .asRotation();
-        this.pitch = 0.0f;
+        pitch = 0.0f;
 
-        this.inventory.clear();
+        inventory.clear();
     }
 
     public static TurtlePlayer get( ITurtleAccess access )
@@ -112,23 +112,23 @@ public final class TurtlePlayer extends FakePlayer
     public void loadInventory( @Nonnull ItemStack currentStack )
     {
         // Load up the fake inventory
-        this.inventory.selectedSlot = 0;
-        this.inventory.setStack( 0, currentStack );
+        inventory.selectedSlot = 0;
+        inventory.setStack( 0, currentStack );
     }
 
     public ItemStack unloadInventory( ITurtleAccess turtle )
     {
         // Get the item we placed with
-        ItemStack results = this.inventory.getStack( 0 );
-        this.inventory.setStack( 0, ItemStack.EMPTY );
+        ItemStack results = inventory.getStack( 0 );
+        inventory.setStack( 0, ItemStack.EMPTY );
 
         // Store (or drop) anything else we found
         BlockPos dropPosition = turtle.getPosition();
         Direction dropDirection = turtle.getDirection()
             .getOpposite();
-        for( int i = 0; i < this.inventory.size(); i++ )
+        for( int i = 0; i < inventory.size(); i++ )
         {
-            ItemStack stack = this.inventory.getStack( i );
+            ItemStack stack = inventory.getStack( i );
             if( !stack.isEmpty() )
             {
                 ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
@@ -136,10 +136,10 @@ public final class TurtlePlayer extends FakePlayer
                 {
                     WorldUtil.dropItemStack( remainder, turtle.getWorld(), dropPosition, dropDirection );
                 }
-                this.inventory.setStack( i, ItemStack.EMPTY );
+                inventory.setStack( i, ItemStack.EMPTY );
             }
         }
-        this.inventory.markDirty();
+        inventory.markDirty();
         return results;
     }
 
@@ -159,7 +159,7 @@ public final class TurtlePlayer extends FakePlayer
     @Override
     public Vec3d getPos()
     {
-        return new Vec3d( this.getX(), this.getY(), this.getZ() );
+        return new Vec3d( getX(), getY(), getZ() );
     }
 
     @Override

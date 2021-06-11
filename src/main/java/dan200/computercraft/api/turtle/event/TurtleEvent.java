@@ -46,7 +46,7 @@ public abstract class TurtleEvent
     @Nonnull
     public ITurtleAccess getTurtle()
     {
-        return this.turtle;
+        return turtle;
     }
 
 }

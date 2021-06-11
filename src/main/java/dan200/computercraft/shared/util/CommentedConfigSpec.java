@@ -29,12 +29,14 @@ public class CommentedConfigSpec extends ConfigSpec
         comment( split( path, '.' ), comment );
     }
 
+    @Override
     public int correct( Config config )
     {
         return correct( config, ( action, path, incorrectValue, correctedValue ) -> {
         } );
     }
 
+    @Override
     public int correct( Config config, ConfigSpec.CorrectionListener listener )
     {
         int corrections = super.correct( config, listener );

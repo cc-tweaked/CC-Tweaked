@@ -20,19 +20,19 @@ public class ComputerContainerData implements ContainerData
 
     public ComputerContainerData( ServerComputer computer )
     {
-        this.id = computer.getInstanceID();
-        this.family = computer.getFamily();
+        id = computer.getInstanceID();
+        family = computer.getFamily();
     }
 
     public ComputerContainerData( PacketByteBuf byteBuf )
     {
-        this.fromBytes( byteBuf );
+        fromBytes( byteBuf );
     }
 
     public void fromBytes( PacketByteBuf buf )
     {
-        this.id = buf.readInt();
-        this.family = buf.readEnumConstant( ComputerFamily.class );
+        id = buf.readInt();
+        family = buf.readEnumConstant( ComputerFamily.class );
     }
 
     public Identifier getId()
@@ -43,17 +43,17 @@ public class ComputerContainerData implements ContainerData
     @Override
     public void toBytes( PacketByteBuf buf )
     {
-        buf.writeInt( this.id );
-        buf.writeEnumConstant( this.family );
+        buf.writeInt( id );
+        buf.writeEnumConstant( family );
     }
 
     public int getInstanceId()
     {
-        return this.id;
+        return id;
     }
 
     public ComputerFamily getFamily()
     {
-        return this.family;
+        return family;
     }
 }

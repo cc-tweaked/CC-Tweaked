@@ -29,19 +29,19 @@ public class ComputerTerminalClientMessage extends ComputerClientMessage
     public void toBytes( @Nonnull PacketByteBuf buf )
     {
         super.toBytes( buf );
-        this.state.write( buf );
+        state.write( buf );
     }
 
     @Override
     public void fromBytes( @Nonnull PacketByteBuf buf )
     {
         super.fromBytes( buf );
-        this.state = new TerminalState( buf );
+        state = new TerminalState( buf );
     }
 
     @Override
     public void handle( PacketContext context )
     {
-        this.getComputer().read( this.state );
+        getComputer().read( state );
     }
 }

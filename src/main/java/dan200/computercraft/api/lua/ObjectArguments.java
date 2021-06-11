@@ -47,30 +47,30 @@ public final class ObjectArguments implements IArguments
         {
             return this;
         }
-        if( count >= this.args.size() )
+        if( count >= args.size() )
         {
             return EMPTY;
         }
 
-        return new ObjectArguments( this.args.subList( count, this.args.size() ) );
+        return new ObjectArguments( args.subList( count, args.size() ) );
     }
 
     @Override
     public Object[] getAll()
     {
-        return this.args.toArray();
+        return args.toArray();
     }
 
     @Override
     public int count()
     {
-        return this.args.size();
+        return args.size();
     }
 
     @Nullable
     @Override
     public Object get( int index )
     {
-        return index >= this.args.size() ? null : this.args.get( index );
+        return index >= args.size() ? null : args.get( index );
     }
 }

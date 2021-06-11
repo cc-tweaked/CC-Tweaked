@@ -66,7 +66,7 @@ public final class Generator<T>
     {
         this.base = base;
         this.context = context;
-        this.interfaces = new String[] { Type.getInternalName( base ) };
+        interfaces = new String[] { Type.getInternalName( base ) };
         this.wrap = wrap;
 
         StringBuilder methodDesc = new StringBuilder().append( "(Ljava/lang/Object;" );
@@ -223,61 +223,59 @@ public final class Generator<T>
             mw.visitEnd();
         }
 
+        MethodVisitor mw = cw.visitMethod( ACC_PUBLIC, METHOD_NAME, methodDesc, null, EXCEPTIONS );
+        mw.visitCode();
+
+        // If we're an instance method, load the this parameter.
+        if( !Modifier.isStatic( method.getModifiers() ) )
         {
-            MethodVisitor mw = cw.visitMethod( ACC_PUBLIC, METHOD_NAME, methodDesc, null, EXCEPTIONS );
-            mw.visitCode();
-
-            // If we're an instance method, load the this parameter.
-            if( !Modifier.isStatic( method.getModifiers() ) )
-            {
-                mw.visitVarInsn( ALOAD, 1 );
-                mw.visitTypeInsn( CHECKCAST, Type.getInternalName( target ) );
-            }
-
-            int argIndex = 0;
-            for( java.lang.reflect.Type genericArg : method.getGenericParameterTypes() )
-            {
-                Boolean loadedArg = loadArg( mw, target, method, genericArg, argIndex );
-                if( loadedArg == null ) return null;
-                if( loadedArg ) argIndex++;
-            }
-
-            mw.visitMethodInsn(
-                Modifier.isStatic( method.getModifiers() ) ? INVOKESTATIC : INVOKEVIRTUAL,
-                Type.getInternalName( method.getDeclaringClass() ), method.getName(),
-                Type.getMethodDescriptor( method ), false
-            );
-
-            // We allow a reasonable amount of flexibility on the return value's type. Alongside the obvious MethodResult,
-            // we convert basic types into an immediate result.
-            Class<?> ret = method.getReturnType();
-            if( ret != MethodResult.class )
-            {
-                if( ret == void.class )
-                {
-                    mw.visitMethodInsn( INVOKESTATIC, INTERNAL_METHOD_RESULT, "of", "()" + DESC_METHOD_RESULT, false );
-                }
-                else if( ret.isPrimitive() )
-                {
-                    Class<?> boxed = Primitives.wrap( ret );
-                    mw.visitMethodInsn( INVOKESTATIC, Type.getInternalName( boxed ), "valueOf", "(" + Type.getDescriptor( ret ) + ")" + Type.getDescriptor( boxed ), false );
-                    mw.visitMethodInsn( INVOKESTATIC, INTERNAL_METHOD_RESULT, "of", "(Ljava/lang/Object;)" + DESC_METHOD_RESULT, false );
-                }
-                else if( ret == Object[].class )
-                {
-                    mw.visitMethodInsn( INVOKESTATIC, INTERNAL_METHOD_RESULT, "of", "([Ljava/lang/Object;)" + DESC_METHOD_RESULT, false );
-                }
-                else
-                {
-                    mw.visitMethodInsn( INVOKESTATIC, INTERNAL_METHOD_RESULT, "of", "(Ljava/lang/Object;)" + DESC_METHOD_RESULT, false );
-                }
-            }
-
-            mw.visitInsn( ARETURN );
-
-            mw.visitMaxs( 0, 0 );
-            mw.visitEnd();
+            mw.visitVarInsn( ALOAD, 1 );
+            mw.visitTypeInsn( CHECKCAST, Type.getInternalName( target ) );
         }
+
+        int argIndex = 0;
+        for( java.lang.reflect.Type genericArg : method.getGenericParameterTypes() )
+        {
+            Boolean loadedArg = loadArg( mw, target, method, genericArg, argIndex );
+            if( loadedArg == null ) return null;
+            if( loadedArg ) argIndex++;
+        }
+
+        mw.visitMethodInsn(
+            Modifier.isStatic( method.getModifiers() ) ? INVOKESTATIC : INVOKEVIRTUAL,
+            Type.getInternalName( method.getDeclaringClass() ), method.getName(),
+            Type.getMethodDescriptor( method ), false
+        );
+
+        // We allow a reasonable amount of flexibility on the return value's type. Alongside the obvious MethodResult,
+        // we convert basic types into an immediate result.
+        Class<?> ret = method.getReturnType();
+        if( ret != MethodResult.class )
+        {
+            if( ret == void.class )
+            {
+                mw.visitMethodInsn( INVOKESTATIC, INTERNAL_METHOD_RESULT, "of", "()" + DESC_METHOD_RESULT, false );
+            }
+            else if( ret.isPrimitive() )
+            {
+                Class<?> boxed = Primitives.wrap( ret );
+                mw.visitMethodInsn( INVOKESTATIC, Type.getInternalName( boxed ), "valueOf", "(" + Type.getDescriptor( ret ) + ")" + Type.getDescriptor( boxed ), false );
+                mw.visitMethodInsn( INVOKESTATIC, INTERNAL_METHOD_RESULT, "of", "(Ljava/lang/Object;)" + DESC_METHOD_RESULT, false );
+            }
+            else if( ret == Object[].class )
+            {
+                mw.visitMethodInsn( INVOKESTATIC, INTERNAL_METHOD_RESULT, "of", "([Ljava/lang/Object;)" + DESC_METHOD_RESULT, false );
+            }
+            else
+            {
+                mw.visitMethodInsn( INVOKESTATIC, INTERNAL_METHOD_RESULT, "of", "(Ljava/lang/Object;)" + DESC_METHOD_RESULT, false );
+            }
+        }
+
+        mw.visitInsn( ARETURN );
+
+        mw.visitMaxs( 0, 0 );
+        mw.visitEnd();
 
         cw.visitEnd();
 

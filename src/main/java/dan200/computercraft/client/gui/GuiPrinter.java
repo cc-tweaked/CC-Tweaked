@@ -36,22 +36,22 @@ public class GuiPrinter extends HandledScreen<ContainerPrinter>
     @Override
     public void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
     {
-        this.renderBackground( stack );
+        renderBackground( stack );
         super.render( stack, mouseX, mouseY, partialTicks );
-        this.drawMouseoverTooltip( stack, mouseX, mouseY );
+        drawMouseoverTooltip( stack, mouseX, mouseY );
     }
 
     @Override
     protected void drawBackground( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
         RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        this.client.getTextureManager()
+        client.getTextureManager()
             .bindTexture( BACKGROUND );
-        this.drawTexture( transform, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight );
+        drawTexture( transform, x, y, 0, 0, backgroundWidth, backgroundHeight );
 
-        if( this.getScreenHandler().isPrinting() )
+        if( getScreenHandler().isPrinting() )
         {
-            this.drawTexture( transform, this.x + 34, this.y + 21, 176, 0, 25, 45 );
+            drawTexture( transform, x + 34, y + 21, 176, 0, 25, 45 );
         }
     }
 }
