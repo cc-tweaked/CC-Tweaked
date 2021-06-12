@@ -319,12 +319,6 @@ public class WidgetTerminal extends Widget
         }
     }
 
-    @Override
-    public boolean isMouseOver( double x, double y )
-    {
-        return true;
-    }
-
     public static int getWidth( int termWidth )
     {
         return termWidth * FONT_WIDTH + MARGIN * 2;
