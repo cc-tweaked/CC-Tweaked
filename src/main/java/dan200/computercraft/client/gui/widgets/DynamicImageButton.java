@@ -62,6 +62,7 @@ public class DynamicImageButton extends Button
         this.tooltip = tooltip;
     }
 
+    @Override
     public void renderButton( int mouseX, int mouseY, float partialTicks )
     {
         Minecraft minecraft = Minecraft.getInstance();

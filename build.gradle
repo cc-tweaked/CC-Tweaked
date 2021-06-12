@@ -1,6 +1,5 @@
 buildscript {
     repositories {
-        jcenter()
         mavenCentral()
         maven {
             name = "forge"
@@ -9,7 +8,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.code.gson:gson:2.8.1'
-        classpath 'net.minecraftforge.gradle:ForgeGradle:4.1.9'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:5.0.6'
     }
 }
 
@@ -17,10 +16,11 @@ plugins {
     id "checkstyle"
     id "jacoco"
     id "maven-publish"
-    id "com.github.hierynomus.license" version "0.15.0"
+    id "com.github.hierynomus.license" version "0.16.1"
     id "com.matthewprenger.cursegradle" version "1.4.0"
     id "com.github.breadmoirai.github-release" version "2.2.12"
     id "org.jetbrains.kotlin.jvm" version "1.3.72"
+    id "com.modrinth.minotaur" version "1.2.1"
 }
 
 apply plugin: 'net.minecraftforge.gradle'
@@ -30,13 +30,28 @@ version = mod_version
 group = "org.squiddev"
 archivesBaseName = "cc-tweaked-${mc_version}"
 
+def javaVersion = JavaLanguageVersion.of(8)
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(8)
+        languageVersion = javaVersion
     }
 
     withSourcesJar()
     withJavadocJar()
+}
+
+// Tragically java.toolchain.languageVersion doesn't apply to ForgeGradle's
+// tasks, so we force all launchers to use the right Java version.
+tasks.withType(JavaCompile).configureEach {
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion = javaVersion
+    }
+}
+
+tasks.withType(JavaExec).configureEach {
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = javaVersion
+    }
 }
 
 minecraft {
@@ -199,6 +214,7 @@ processResources {
         e.printStackTrace()
     }
     inputs.property "commithash", hash
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
     from(sourceSets.main.resources.srcDirs) {
         include 'META-INF/mods.toml'
@@ -213,6 +229,10 @@ processResources {
         exclude 'META-INF/mods.toml'
         exclude 'data/computercraft/lua/rom/help/credits.txt'
     }
+}
+
+sourcesJar {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 // Web tasks
@@ -397,31 +417,31 @@ task checkRelease {
     description "Verifies that everything is ready for a release"
 
     inputs.property "version", mod_version
-    inputs.file("src/main/resources/data/computercraft/lua/rom/help/changelog.txt")
-    inputs.file("src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt")
+    inputs.file("src/main/resources/data/computercraft/lua/rom/help/changelog.md")
+    inputs.file("src/main/resources/data/computercraft/lua/rom/help/whatsnew.md")
 
     doLast {
         def ok = true
 
         // Check we're targetting the current version
-        def whatsnew = new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt").readLines()
+        def whatsnew = new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/whatsnew.md").readLines()
         if (whatsnew[0] != "New features in CC: Tweaked $mod_version") {
             ok = false
-            project.logger.error("Expected `whatsnew.txt' to target $mod_version.")
+            project.logger.error("Expected `whatsnew.md' to target $mod_version.")
         }
 
         // Check "read more" exists and trim it
         def idx = whatsnew.findIndexOf { it == 'Type "help changelog" to see the full version history.' }
         if (idx == -1) {
             ok = false
-            project.logger.error("Must mention the changelog in whatsnew.txt")
+            project.logger.error("Must mention the changelog in whatsnew.md")
         } else {
             whatsnew = whatsnew.getAt(0 ..< idx)
         }
 
         // Check whatsnew and changelog match.
         def versionChangelog = "# " + whatsnew.join("\n")
-        def changelog = new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/changelog.txt").getText()
+        def changelog = new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/changelog.md").getText()
         if (!changelog.startsWith(versionChangelog)) {
             ok = false
             project.logger.error("whatsnew and changelog are not in sync")
@@ -443,6 +463,21 @@ curseforge {
             incompatible "computercraft"
         }
     }
+}
+
+import com.modrinth.minotaur.TaskModrinthUpload
+tasks.register('publishModrinth', TaskModrinthUpload.class).configure {
+    dependsOn('assemble', 'reobfJar')
+    onlyIf {
+        project.hasProperty('modrinthApiKey')
+    }
+
+    token = project.hasProperty('curseForgeApiKey')
+    projectId = 'gu7yAYhd'
+    versionNumber = project.mod_version
+    uploadFile = jar
+    addGameVersion(project.mc_version)
+    addLoader('forge')
 }
 
 tasks.withType(GenerateModuleMetadata) {
@@ -519,10 +554,10 @@ githubRelease {
     prerelease false
 }
 
-def uploadTasks = ["publish", "curseforge", "githubRelease"]
+def uploadTasks = ["publish", "curseforge", "publishModrinth", "githubRelease"]
 uploadTasks.forEach { tasks.getByName(it).dependsOn checkRelease }
 
 task uploadAll(dependsOn: uploadTasks) {
     group "upload"
-    description "Uploads to all repositories (Maven, Curse, GitHub release)"
+    description "Uploads to all repositories (Maven, Curse, Modrinth, GitHub release)"
 }

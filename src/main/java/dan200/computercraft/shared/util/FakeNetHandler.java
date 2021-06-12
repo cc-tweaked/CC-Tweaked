@@ -324,7 +324,7 @@ public class FakeNetHandler extends ServerPlayNetHandler
         @Override
         public void disconnect( @Nonnull ITextComponent message )
         {
-            this.closeReason = message;
+            closeReason = message;
         }
 
         @Override

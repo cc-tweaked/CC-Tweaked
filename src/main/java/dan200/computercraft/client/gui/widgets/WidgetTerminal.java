@@ -305,6 +305,7 @@ public class WidgetTerminal extends Widget
         }
     }
 
+    @Override
     public void render( int mouseX, int mouseY, float partialTicks )
     {
         // Draw the screen contents
@@ -317,12 +318,6 @@ public class WidgetTerminal extends Widget
         {
             FixedWidthFontRenderer.drawEmptyTerminal( x, y, width, height );
         }
-    }
-
-    @Override
-    public boolean isMouseOver( double x, double y )
-    {
-        return true;
     }
 
     public static int getWidth( int termWidth )

@@ -53,7 +53,7 @@ public class TileCable extends TileGeneric
         @Override
         public World getWorld()
         {
-            return TileCable.this.getLevel();
+            return getLevel();
         }
 
         @Nonnull
