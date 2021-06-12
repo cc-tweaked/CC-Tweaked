@@ -28,17 +28,17 @@ import javax.annotation.Nonnull;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
 
-public final class GuiComputer<T extends ContainerComputerBase> extends HandledScreen<T>
+public class GuiComputer<T extends ContainerComputerBase> extends HandledScreen<T>
 {
-    private final ComputerFamily family;
-    private final ClientComputer computer;
+    protected final ComputerFamily family;
+    protected final ClientComputer computer;
     private final int termWidth;
     private final int termHeight;
 
-    private WidgetTerminal terminal;
-    private WidgetWrapper terminalWrapper;
+    protected WidgetTerminal terminal;
+    protected WidgetWrapper terminalWrapper;
 
-    private GuiComputer( T container, PlayerInventory player, Text title, int termWidth, int termHeight )
+    protected GuiComputer( T container, PlayerInventory player, Text title, int termWidth, int termHeight )
     {
         super( container, player, title );
         this.family = container.getFamily();
@@ -63,30 +63,34 @@ public final class GuiComputer<T extends ContainerComputerBase> extends HandledS
         return new GuiComputer<>( container, inventory, component, container.getWidth(), container.getHeight() );
     }
 
-
-    @Override
-    protected void init()
-    {
+    protected void initTerminal(int border, int widthExtra, int heightExtra) {
         this.client.keyboard.setRepeatEvents( true );
 
         int termPxWidth = this.termWidth * FixedWidthFontRenderer.FONT_WIDTH;
         int termPxHeight = this.termHeight * FixedWidthFontRenderer.FONT_HEIGHT;
 
-        this.backgroundWidth = termPxWidth + MARGIN * 2 + BORDER * 2;
-        this.backgroundHeight = termPxHeight + MARGIN * 2 + BORDER * 2;
+        this.backgroundWidth = termPxWidth + MARGIN * 2 + border * 2 + widthExtra;
+        this.backgroundHeight = termPxHeight + MARGIN * 2 + border * 2 + heightExtra;
 
         super.init();
 
         this.terminal = new WidgetTerminal( this.client, () -> this.computer, this.termWidth, this.termHeight, MARGIN, MARGIN, MARGIN, MARGIN );
-        this.terminalWrapper = new WidgetWrapper( this.terminal, MARGIN + BORDER + this.x, MARGIN + BORDER + this.y, termPxWidth, termPxHeight );
+        this.terminalWrapper = new WidgetWrapper( this.terminal, MARGIN + border + this.x, MARGIN + border + this.y, termPxWidth, termPxHeight );
 
         this.children.add( this.terminalWrapper );
         this.setFocused( this.terminalWrapper );
     }
 
     @Override
+    protected void init()
+    {
+        this.initTerminal(BORDER, 0, 0);
+    }
+
+    @Override
     public void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
     {
+        this.renderBackground( stack );
         super.render( stack, mouseX, mouseY, partialTicks );
         this.drawMouseoverTooltip( stack, mouseX, mouseY );
     }
