@@ -31,7 +31,7 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
         public ImpostorShapelessRecipe read( @Nonnull Identifier id, @Nonnull JsonObject json )
         {
             String s = JsonHelper.getString( json, "group", "" );
-            DefaultedList<Ingredient> ingredients = this.readIngredients( JsonHelper.getArray( json, "ingredients" ) );
+            DefaultedList<Ingredient> ingredients = readIngredients( JsonHelper.getArray( json, "ingredients" ) );
 
             if( ingredients.isEmpty() )
             {
@@ -110,7 +110,7 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
     @Override
     public String getGroup()
     {
-        return this.group;
+        return group;
     }
 
     @Override

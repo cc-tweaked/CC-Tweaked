@@ -57,13 +57,13 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult forward()
     {
-        return this.trackCommand( new TurtleMoveCommand( MoveDirection.FORWARD ) );
+        return trackCommand( new TurtleMoveCommand( MoveDirection.FORWARD ) );
     }
 
     private MethodResult trackCommand( ITurtleCommand command )
     {
-        this.environment.addTrackingChange( TrackingField.TURTLE_OPS );
-        return this.turtle.executeCommand( command );
+        environment.addTrackingChange( TrackingField.TURTLE_OPS );
+        return turtle.executeCommand( command );
     }
 
     /**
@@ -76,7 +76,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult back()
     {
-        return this.trackCommand( new TurtleMoveCommand( MoveDirection.BACK ) );
+        return trackCommand( new TurtleMoveCommand( MoveDirection.BACK ) );
     }
 
     /**
@@ -89,7 +89,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult up()
     {
-        return this.trackCommand( new TurtleMoveCommand( MoveDirection.UP ) );
+        return trackCommand( new TurtleMoveCommand( MoveDirection.UP ) );
     }
 
     /**
@@ -102,7 +102,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult down()
     {
-        return this.trackCommand( new TurtleMoveCommand( MoveDirection.DOWN ) );
+        return trackCommand( new TurtleMoveCommand( MoveDirection.DOWN ) );
     }
 
     /**
@@ -115,7 +115,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult turnLeft()
     {
-        return this.trackCommand( new TurtleTurnCommand( TurnDirection.LEFT ) );
+        return trackCommand( new TurtleTurnCommand( TurnDirection.LEFT ) );
     }
 
     /**
@@ -128,7 +128,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult turnRight()
     {
-        return this.trackCommand( new TurtleTurnCommand( TurnDirection.RIGHT ) );
+        return trackCommand( new TurtleTurnCommand( TurnDirection.RIGHT ) );
     }
 
     /**
@@ -145,8 +145,8 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult dig( Optional<TurtleSide> side )
     {
-        this.environment.addTrackingChange( TrackingField.TURTLE_OPS );
-        return this.trackCommand( TurtleToolCommand.dig( InteractDirection.FORWARD, side.orElse( null ) ) );
+        environment.addTrackingChange( TrackingField.TURTLE_OPS );
+        return trackCommand( TurtleToolCommand.dig( InteractDirection.FORWARD, side.orElse( null ) ) );
     }
 
     /**
@@ -160,8 +160,8 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult digUp( Optional<TurtleSide> side )
     {
-        this.environment.addTrackingChange( TrackingField.TURTLE_OPS );
-        return this.trackCommand( TurtleToolCommand.dig( InteractDirection.UP, side.orElse( null ) ) );
+        environment.addTrackingChange( TrackingField.TURTLE_OPS );
+        return trackCommand( TurtleToolCommand.dig( InteractDirection.UP, side.orElse( null ) ) );
     }
 
     /**
@@ -175,8 +175,8 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult digDown( Optional<TurtleSide> side )
     {
-        this.environment.addTrackingChange( TrackingField.TURTLE_OPS );
-        return this.trackCommand( TurtleToolCommand.dig( InteractDirection.DOWN, side.orElse( null ) ) );
+        environment.addTrackingChange( TrackingField.TURTLE_OPS );
+        return trackCommand( TurtleToolCommand.dig( InteractDirection.DOWN, side.orElse( null ) ) );
     }
 
     /**
@@ -195,7 +195,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult place( IArguments args )
     {
-        return this.trackCommand( new TurtlePlaceCommand( InteractDirection.FORWARD, args.getAll() ) );
+        return trackCommand( new TurtlePlaceCommand( InteractDirection.FORWARD, args.getAll() ) );
     }
 
     /**
@@ -211,7 +211,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult placeUp( IArguments args )
     {
-        return this.trackCommand( new TurtlePlaceCommand( InteractDirection.UP, args.getAll() ) );
+        return trackCommand( new TurtlePlaceCommand( InteractDirection.UP, args.getAll() ) );
     }
 
     /**
@@ -227,7 +227,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult placeDown( IArguments args )
     {
-        return this.trackCommand( new TurtlePlaceCommand( InteractDirection.DOWN, args.getAll() ) );
+        return trackCommand( new TurtlePlaceCommand( InteractDirection.DOWN, args.getAll() ) );
     }
 
     /**
@@ -243,7 +243,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult drop( Optional<Integer> count ) throws LuaException
     {
-        return this.trackCommand( new TurtleDropCommand( InteractDirection.FORWARD, checkCount( count ) ) );
+        return trackCommand( new TurtleDropCommand( InteractDirection.FORWARD, checkCount( count ) ) );
     }
 
     private static int checkCount( Optional<Integer> countArg ) throws LuaException
@@ -269,7 +269,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult dropUp( Optional<Integer> count ) throws LuaException
     {
-        return this.trackCommand( new TurtleDropCommand( InteractDirection.UP, checkCount( count ) ) );
+        return trackCommand( new TurtleDropCommand( InteractDirection.UP, checkCount( count ) ) );
     }
 
     /**
@@ -285,7 +285,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult dropDown( Optional<Integer> count ) throws LuaException
     {
-        return this.trackCommand( new TurtleDropCommand( InteractDirection.DOWN, checkCount( count ) ) );
+        return trackCommand( new TurtleDropCommand( InteractDirection.DOWN, checkCount( count ) ) );
     }
 
     /**
@@ -304,7 +304,7 @@ public class TurtleAPI implements ILuaAPI
     public final MethodResult select( int slot ) throws LuaException
     {
         int actualSlot = checkSlot( slot );
-        return this.turtle.executeCommand( turtle -> {
+        return turtle.executeCommand( turtle -> {
             turtle.setSelectedSlot( actualSlot );
             return TurtleCommandResult.success();
         } );
@@ -329,8 +329,8 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final int getItemCount( Optional<Integer> slot ) throws LuaException
     {
-        int actualSlot = checkSlot( slot ).orElse( this.turtle.getSelectedSlot() );
-        return this.turtle.getInventory()
+        int actualSlot = checkSlot( slot ).orElse( turtle.getSelectedSlot() );
+        return turtle.getInventory()
             .getStack( actualSlot )
             .getCount();
     }
@@ -352,8 +352,8 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final int getItemSpace( Optional<Integer> slot ) throws LuaException
     {
-        int actualSlot = checkSlot( slot ).orElse( this.turtle.getSelectedSlot() );
-        ItemStack stack = this.turtle.getInventory()
+        int actualSlot = checkSlot( slot ).orElse( turtle.getSelectedSlot() );
+        ItemStack stack = turtle.getInventory()
             .getStack( actualSlot );
         return stack.isEmpty() ? 64 : Math.min( stack.getMaxCount(), 64 ) - stack.getCount();
     }
@@ -367,7 +367,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult detect()
     {
-        return this.trackCommand( new TurtleDetectCommand( InteractDirection.FORWARD ) );
+        return trackCommand( new TurtleDetectCommand( InteractDirection.FORWARD ) );
     }
 
     /**
@@ -379,7 +379,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult detectUp()
     {
-        return this.trackCommand( new TurtleDetectCommand( InteractDirection.UP ) );
+        return trackCommand( new TurtleDetectCommand( InteractDirection.UP ) );
     }
 
     /**
@@ -391,7 +391,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult detectDown()
     {
-        return this.trackCommand( new TurtleDetectCommand( InteractDirection.DOWN ) );
+        return trackCommand( new TurtleDetectCommand( InteractDirection.DOWN ) );
     }
 
     /**
@@ -403,7 +403,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult compare()
     {
-        return this.trackCommand( new TurtleCompareCommand( InteractDirection.FORWARD ) );
+        return trackCommand( new TurtleCompareCommand( InteractDirection.FORWARD ) );
     }
 
     /**
@@ -415,7 +415,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult compareUp()
     {
-        return this.trackCommand( new TurtleCompareCommand( InteractDirection.UP ) );
+        return trackCommand( new TurtleCompareCommand( InteractDirection.UP ) );
     }
 
     /**
@@ -427,7 +427,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult compareDown()
     {
-        return this.trackCommand( new TurtleCompareCommand( InteractDirection.DOWN ) );
+        return trackCommand( new TurtleCompareCommand( InteractDirection.DOWN ) );
     }
 
     /**
@@ -441,7 +441,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult attack( Optional<TurtleSide> side )
     {
-        return this.trackCommand( TurtleToolCommand.attack( InteractDirection.FORWARD, side.orElse( null ) ) );
+        return trackCommand( TurtleToolCommand.attack( InteractDirection.FORWARD, side.orElse( null ) ) );
     }
 
     /**
@@ -455,7 +455,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult attackUp( Optional<TurtleSide> side )
     {
-        return this.trackCommand( TurtleToolCommand.attack( InteractDirection.UP, side.orElse( null ) ) );
+        return trackCommand( TurtleToolCommand.attack( InteractDirection.UP, side.orElse( null ) ) );
     }
 
     /**
@@ -469,7 +469,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult attackDown( Optional<TurtleSide> side )
     {
-        return this.trackCommand( TurtleToolCommand.attack( InteractDirection.DOWN, side.orElse( null ) ) );
+        return trackCommand( TurtleToolCommand.attack( InteractDirection.DOWN, side.orElse( null ) ) );
     }
 
     /**
@@ -486,7 +486,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult suck( Optional<Integer> count ) throws LuaException
     {
-        return this.trackCommand( new TurtleSuckCommand( InteractDirection.FORWARD, checkCount( count ) ) );
+        return trackCommand( new TurtleSuckCommand( InteractDirection.FORWARD, checkCount( count ) ) );
     }
 
     /**
@@ -501,7 +501,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult suckUp( Optional<Integer> count ) throws LuaException
     {
-        return this.trackCommand( new TurtleSuckCommand( InteractDirection.UP, checkCount( count ) ) );
+        return trackCommand( new TurtleSuckCommand( InteractDirection.UP, checkCount( count ) ) );
     }
 
     /**
@@ -516,7 +516,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult suckDown( Optional<Integer> count ) throws LuaException
     {
-        return this.trackCommand( new TurtleSuckCommand( InteractDirection.DOWN, checkCount( count ) ) );
+        return trackCommand( new TurtleSuckCommand( InteractDirection.DOWN, checkCount( count ) ) );
     }
 
     /**
@@ -531,7 +531,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final Object getFuelLevel()
     {
-        return this.turtle.isFuelNeeded() ? this.turtle.getFuelLevel() : "unlimited";
+        return turtle.isFuelNeeded() ? turtle.getFuelLevel() : "unlimited";
     }
 
     /**
@@ -578,7 +578,7 @@ public class TurtleAPI implements ILuaAPI
         {
             throw new LuaException( "Refuel count " + count + " out of range" );
         }
-        return this.trackCommand( new TurtleRefuelCommand( count ) );
+        return trackCommand( new TurtleRefuelCommand( count ) );
     }
 
     /**
@@ -592,7 +592,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult compareTo( int slot ) throws LuaException
     {
-        return this.trackCommand( new TurtleCompareToCommand( checkSlot( slot ) ) );
+        return trackCommand( new TurtleCompareToCommand( checkSlot( slot ) ) );
     }
 
     /**
@@ -610,7 +610,7 @@ public class TurtleAPI implements ILuaAPI
     {
         int slot = checkSlot( slotArg );
         int count = checkCount( countArg );
-        return this.trackCommand( new TurtleTransferToCommand( slot, count ) );
+        return trackCommand( new TurtleTransferToCommand( slot, count ) );
     }
 
     /**
@@ -622,7 +622,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final int getSelectedSlot()
     {
-        return this.turtle.getSelectedSlot() + 1;
+        return turtle.getSelectedSlot() + 1;
     }
 
     /**
@@ -639,7 +639,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final Object getFuelLimit()
     {
-        return this.turtle.isFuelNeeded() ? this.turtle.getFuelLimit() : "unlimited";
+        return turtle.isFuelNeeded() ? turtle.getFuelLimit() : "unlimited";
     }
 
     /**
@@ -658,7 +658,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult equipLeft()
     {
-        return this.trackCommand( new TurtleEquipCommand( TurtleSide.LEFT ) );
+        return trackCommand( new TurtleEquipCommand( TurtleSide.LEFT ) );
     }
 
     /**
@@ -677,7 +677,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult equipRight()
     {
-        return this.trackCommand( new TurtleEquipCommand( TurtleSide.RIGHT ) );
+        return trackCommand( new TurtleEquipCommand( TurtleSide.RIGHT ) );
     }
 
     /**
@@ -702,7 +702,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult inspect()
     {
-        return this.trackCommand( new TurtleInspectCommand( InteractDirection.FORWARD ) );
+        return trackCommand( new TurtleInspectCommand( InteractDirection.FORWARD ) );
     }
 
     /**
@@ -715,7 +715,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult inspectUp()
     {
-        return this.trackCommand( new TurtleInspectCommand( InteractDirection.UP ) );
+        return trackCommand( new TurtleInspectCommand( InteractDirection.UP ) );
     }
 
     /**
@@ -728,7 +728,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult inspectDown()
     {
-        return this.trackCommand( new TurtleInspectCommand( InteractDirection.DOWN ) );
+        return trackCommand( new TurtleInspectCommand( InteractDirection.DOWN ) );
     }
 
     /**
@@ -755,14 +755,14 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult getItemDetail( ILuaContext context, Optional<Integer> slot, Optional<Boolean> detailed ) throws LuaException
     {
-        int actualSlot = checkSlot( slot ).orElse( this.turtle.getSelectedSlot() );
-        return detailed.orElse( false ) ? TaskCallback.make( context, () -> this.getItemDetail( actualSlot, true ) ) : MethodResult.of( this.getItemDetail( actualSlot,
+        int actualSlot = checkSlot( slot ).orElse( turtle.getSelectedSlot() );
+        return detailed.orElse( false ) ? TaskCallback.make( context, () -> getItemDetail( actualSlot, true ) ) : MethodResult.of( getItemDetail( actualSlot,
             false ) );
     }
 
     private Object[] getItemDetail( int slot, boolean detailed )
     {
-        ItemStack stack = this.turtle.getInventory()
+        ItemStack stack = turtle.getInventory()
             .getStack( slot );
         if( stack.isEmpty() )
         {
@@ -773,7 +773,7 @@ public class TurtleAPI implements ILuaAPI
             ? ItemData.fill( new HashMap<>(), stack )
             : ItemData.fillBasicSafe( new HashMap<>(), stack );
 
-        TurtleActionEvent event = new TurtleInspectItemEvent( this.turtle, stack, table, detailed );
+        TurtleActionEvent event = new TurtleInspectItemEvent( turtle, stack, table, detailed );
         if( TurtleEvent.post( event ) )
         {
             return new Object[] { false, event.getFailureMessage() };

@@ -40,13 +40,13 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
     public void update()
     {
-        this.clock++;
-        this.notesThisTick.set( 0 );
+        clock++;
+        notesThisTick.set( 0 );
     }
 
     public boolean madeSound( long ticks )
     {
-        return this.clock - this.lastPlayTime <= ticks;
+        return clock - lastPlayTime <= ticks;
     }
 
     @Nonnull
@@ -85,20 +85,20 @@ public abstract class SpeakerPeripheral implements IPeripheral
             throw new LuaException( "Malformed sound name '" + name + "' " );
         }
 
-        return this.playSound( context, identifier, volume, pitch, false );
+        return playSound( context, identifier, volume, pitch, false );
     }
 
     private synchronized boolean playSound( ILuaContext context, Identifier name, float volume, float pitch, boolean isNote ) throws LuaException
     {
-        if( this.clock - this.lastPlayTime < TileSpeaker.MIN_TICKS_BETWEEN_SOUNDS && (!isNote || this.clock - this.lastPlayTime != 0 || this.notesThisTick.get() >= ComputerCraft.maxNotesPerTick) )
+        if( clock - lastPlayTime < TileSpeaker.MIN_TICKS_BETWEEN_SOUNDS && (!isNote || clock - lastPlayTime != 0 || notesThisTick.get() >= ComputerCraft.maxNotesPerTick) )
         {
             // Rate limiting occurs when we've already played a sound within the last tick, or we've
             // played more notes than allowable within the current tick.
             return false;
         }
 
-        World world = this.getWorld();
-        Vec3d pos = this.getPosition();
+        World world = getWorld();
+        Vec3d pos = getPosition();
 
         context.issueMainThreadTask( () -> {
             MinecraftServer server = world.getServer();
@@ -119,7 +119,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
             return null;
         } );
 
-        this.lastPlayTime = this.clock;
+        lastPlayTime = clock;
         return true;
     }
 
@@ -166,14 +166,14 @@ public abstract class SpeakerPeripheral implements IPeripheral
         }
 
         // If the resource location for note block notes changes, this method call will need to be updated
-        boolean success = this.playSound( context,
+        boolean success = playSound( context,
             ((SoundEventAccess) instrument.getSound()).getId(),
             volume,
             (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ),
             true );
         if( success )
         {
-            this.notesThisTick.incrementAndGet();
+            notesThisTick.incrementAndGet();
         }
         return success;
     }

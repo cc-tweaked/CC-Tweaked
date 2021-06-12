@@ -61,12 +61,12 @@ public class CommandAPI implements ILuaAPI
     @LuaFunction( mainThread = true )
     public final Object[] exec( String command )
     {
-        return this.doCommand( command );
+        return doCommand( command );
     }
 
     private Object[] doCommand( String command )
     {
-        MinecraftServer server = this.computer.getWorld()
+        MinecraftServer server = computer.getWorld()
             .getServer();
         if( server == null || !server.areCommandBlocksEnabled() )
         {
@@ -74,11 +74,11 @@ public class CommandAPI implements ILuaAPI
         }
 
         CommandManager commandManager = server.getCommandManager();
-        TileCommandComputer.CommandReceiver receiver = this.computer.getReceiver();
+        TileCommandComputer.CommandReceiver receiver = computer.getReceiver();
         try
         {
             receiver.clearOutput();
-            int result = commandManager.execute( this.computer.getSource(), command );
+            int result = commandManager.execute( computer.getSource(), command );
             return new Object[] { result > 0, receiver.copyOutput(), result };
         }
         catch( Throwable t )
@@ -118,7 +118,7 @@ public class CommandAPI implements ILuaAPI
     @LuaFunction
     public final long execAsync( ILuaContext context, String command ) throws LuaException
     {
-        return context.issueMainThreadTask( () -> this.doCommand( command ) );
+        return context.issueMainThreadTask( () -> doCommand( command ) );
     }
 
     /**
@@ -132,7 +132,7 @@ public class CommandAPI implements ILuaAPI
     @LuaFunction( mainThread = true )
     public final List<String> list( IArguments args ) throws LuaException
     {
-        MinecraftServer server = this.computer.getWorld()
+        MinecraftServer server = computer.getWorld()
             .getServer();
 
         if( server == null )
@@ -176,7 +176,7 @@ public class CommandAPI implements ILuaAPI
     public final Object[] getBlockPosition()
     {
         // This is probably safe to do on the Lua thread. Probably.
-        BlockPos pos = this.computer.getPos();
+        BlockPos pos = computer.getPos();
         return new Object[] { pos.getX(), pos.getY(), pos.getZ() };
     }
 
@@ -201,7 +201,7 @@ public class CommandAPI implements ILuaAPI
     public final List<Map<?, ?>> getBlockInfos( int minX, int minY, int minZ, int maxX, int maxY, int maxZ ) throws LuaException
     {
         // Get the details of the block
-        World world = this.computer.getWorld();
+        World world = computer.getWorld();
         BlockPos min = new BlockPos( Math.min( minX, maxX ), Math.min( minY, maxY ), Math.min( minZ, maxZ ) );
         BlockPos max = new BlockPos( Math.max( minX, maxX ), Math.max( minY, maxY ), Math.max( minZ, maxZ ) );
         if( !World.isInBuildLimit( min ) || !World.isInBuildLimit( max ) )
@@ -287,7 +287,7 @@ public class CommandAPI implements ILuaAPI
     public final Map<?, ?> getBlockInfo( int x, int y, int z ) throws LuaException
     {
         // Get the details of the block
-        World world = this.computer.getWorld();
+        World world = computer.getWorld();
         BlockPos position = new BlockPos( x, y, z );
         if( World.isInBuildLimit( position ) )
         {

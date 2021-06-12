@@ -64,7 +64,7 @@ public class CobaltLuaMachine implements ILuaMachine
     {
         this.computer = computer;
         this.timeout = timeout;
-        this.context = new LuaContext( computer );
+        context = new LuaContext( computer );
         debug = new TimeoutDebugHandler();
 
         // Create an environment to run in
@@ -367,7 +367,6 @@ public class CobaltLuaMachine implements ILuaMachine
             case Constants.TSTRING:
                 return value.toString();
             case Constants.TTABLE:
-            {
                 // Table:
                 // Start remembering stuff
                 if( objects == null )
@@ -409,7 +408,6 @@ public class CobaltLuaMachine implements ILuaMachine
                     }
                 }
                 return table;
-            }
             default:
                 return null;
         }

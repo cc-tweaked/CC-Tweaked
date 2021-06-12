@@ -65,10 +65,10 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     @Override
     public void destroy()
     {
-        this.ejectContents( true );
-        if( this.recordPlaying )
+        ejectContents( true );
+        if( recordPlaying )
         {
-            this.stopRecord();
+            stopRecord();
         }
     }
 
@@ -84,9 +84,9 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
             {
                 return ActionResult.PASS;
             }
-            if( !this.getWorld().isClient && this.getStack( 0 ).isEmpty() && MediaProviders.get( disk ) != null )
+            if( !getWorld().isClient && getStack( 0 ).isEmpty() && MediaProviders.get( disk ) != null )
             {
-                this.setDiskStack( disk );
+                setDiskStack( disk );
                 player.setStackInHand( hand, ItemStack.EMPTY );
             }
             return ActionResult.SUCCESS;
@@ -94,7 +94,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         else
         {
             // Open the GUI
-            if( !this.getWorld().isClient )
+            if( !getWorld().isClient )
             {
                 player.openHandledScreen( this );
             }
@@ -104,19 +104,19 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
     public Direction getDirection()
     {
-        return this.getCachedState().get( BlockDiskDrive.FACING );
+        return getCachedState().get( BlockDiskDrive.FACING );
     }
 
     @Override
     public void fromTag( @Nonnull BlockState state, @Nonnull CompoundTag nbt )
     {
         super.fromTag( state, nbt );
-        this.customName = nbt.contains( NBT_NAME ) ? Text.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
+        customName = nbt.contains( NBT_NAME ) ? Text.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
         if( nbt.contains( NBT_ITEM ) )
         {
             CompoundTag item = nbt.getCompound( NBT_ITEM );
-            this.diskStack = ItemStack.fromTag( item );
-            this.diskMount = null;
+            diskStack = ItemStack.fromTag( item );
+            diskMount = null;
         }
     }
 
@@ -124,15 +124,15 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     @Override
     public CompoundTag toTag( @Nonnull CompoundTag nbt )
     {
-        if( this.customName != null )
+        if( customName != null )
         {
-            nbt.putString( NBT_NAME, Text.Serializer.toJson( this.customName ) );
+            nbt.putString( NBT_NAME, Text.Serializer.toJson( customName ) );
         }
 
-        if( !this.diskStack.isEmpty() )
+        if( !diskStack.isEmpty() )
         {
             CompoundTag item = new CompoundTag();
-            this.diskStack.toTag( item );
+            diskStack.toTag( item );
             nbt.put( NBT_ITEM, item );
         }
         return super.toTag( nbt );
@@ -141,9 +141,9 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     @Override
     public void markDirty()
     {
-        if( !this.world.isClient )
+        if( !world.isClient )
         {
-            this.updateBlockState();
+            updateBlockState();
         }
         super.markDirty();
     }
@@ -152,36 +152,36 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     public void tick()
     {
         // Ejection
-        if( this.ejectQueued )
+        if( ejectQueued )
         {
-            this.ejectContents( false );
-            this.ejectQueued = false;
+            ejectContents( false );
+            ejectQueued = false;
         }
 
         // Music
         synchronized( this )
         {
-            if( !this.world.isClient && this.recordPlaying != this.recordQueued || this.restartRecord )
+            if( !world.isClient && recordPlaying != recordQueued || restartRecord )
             {
-                this.restartRecord = false;
-                if( this.recordQueued )
+                restartRecord = false;
+                if( recordQueued )
                 {
-                    IMedia contents = this.getDiskMedia();
-                    SoundEvent record = contents != null ? contents.getAudio( this.diskStack ) : null;
+                    IMedia contents = getDiskMedia();
+                    SoundEvent record = contents != null ? contents.getAudio( diskStack ) : null;
                     if( record != null )
                     {
-                        this.recordPlaying = true;
-                        this.playRecord();
+                        recordPlaying = true;
+                        playRecord();
                     }
                     else
                     {
-                        this.recordQueued = false;
+                        recordQueued = false;
                     }
                 }
                 else
                 {
-                    this.stopRecord();
-                    this.recordPlaying = false;
+                    stopRecord();
+                    recordPlaying = false;
                 }
             }
         }
@@ -198,34 +198,34 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     @Override
     public boolean isEmpty()
     {
-        return this.diskStack.isEmpty();
+        return diskStack.isEmpty();
     }
 
     @Nonnull
     @Override
     public ItemStack getStack( int slot )
     {
-        return this.diskStack;
+        return diskStack;
     }
 
     @Nonnull
     @Override
     public ItemStack removeStack( int slot, int count )
     {
-        if( this.diskStack.isEmpty() )
+        if( diskStack.isEmpty() )
         {
             return ItemStack.EMPTY;
         }
 
-        if( this.diskStack.getCount() <= count )
+        if( diskStack.getCount() <= count )
         {
-            ItemStack disk = this.diskStack;
-            this.setStack( slot, ItemStack.EMPTY );
+            ItemStack disk = diskStack;
+            setStack( slot, ItemStack.EMPTY );
             return disk;
         }
 
-        ItemStack part = this.diskStack.split( count );
-        this.setStack( slot, this.diskStack.isEmpty() ? ItemStack.EMPTY : this.diskStack );
+        ItemStack part = diskStack.split( count );
+        setStack( slot, diskStack.isEmpty() ? ItemStack.EMPTY : diskStack );
         return part;
     }
 
@@ -233,9 +233,9 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     @Override
     public ItemStack removeStack( int slot )
     {
-        ItemStack result = this.diskStack;
-        this.diskStack = ItemStack.EMPTY;
-        this.diskMount = null;
+        ItemStack result = diskStack;
+        diskStack = ItemStack.EMPTY;
+        diskMount = null;
 
         return result;
     }
@@ -243,53 +243,53 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     @Override
     public void setStack( int slot, @Nonnull ItemStack stack )
     {
-        if( this.getWorld().isClient )
+        if( getWorld().isClient )
         {
-            this.diskStack = stack;
-            this.diskMount = null;
-            this.markDirty();
+            diskStack = stack;
+            diskMount = null;
+            markDirty();
             return;
         }
 
         synchronized( this )
         {
-            if( InventoryUtil.areItemsStackable( stack, this.diskStack ) )
+            if( InventoryUtil.areItemsStackable( stack, diskStack ) )
             {
-                this.diskStack = stack;
+                diskStack = stack;
                 return;
             }
 
             // Unmount old disk
-            if( !this.diskStack.isEmpty() )
+            if( !diskStack.isEmpty() )
             {
                 // TODO: Is this iteration thread safe?
                 Set<IComputerAccess> computers = this.computers.keySet();
                 for( IComputerAccess computer : computers )
                 {
-                    this.unmountDisk( computer );
+                    unmountDisk( computer );
                 }
             }
 
             // Stop music
-            if( this.recordPlaying )
+            if( recordPlaying )
             {
-                this.stopRecord();
-                this.recordPlaying = false;
-                this.recordQueued = false;
+                stopRecord();
+                recordPlaying = false;
+                recordQueued = false;
             }
 
             // Swap disk over
-            this.diskStack = stack;
-            this.diskMount = null;
-            this.markDirty();
+            diskStack = stack;
+            diskMount = null;
+            markDirty();
 
             // Mount new disk
-            if( !this.diskStack.isEmpty() )
+            if( !diskStack.isEmpty() )
             {
                 Set<IComputerAccess> computers = this.computers.keySet();
                 for( IComputerAccess computer : computers )
                 {
-                    this.mountDisk( computer );
+                    mountDisk( computer );
                 }
             }
         }
@@ -298,13 +298,13 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     @Override
     public boolean canPlayerUse( @Nonnull PlayerEntity player )
     {
-        return this.isUsable( player, false );
+        return isUsable( player, false );
     }
 
     @Override
     public void clear()
     {
-        this.setStack( 0, ItemStack.EMPTY );
+        setStack( 0, ItemStack.EMPTY );
     }
 
     @Nonnull
@@ -318,7 +318,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     {
         synchronized( this )
         {
-            MountInfo info = this.computers.get( computer );
+            MountInfo info = computers.get( computer );
             return info != null ? info.mountPath : null;
         }
     }
@@ -327,32 +327,32 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     {
         synchronized( this )
         {
-            this.computers.put( computer, new MountInfo() );
-            this.mountDisk( computer );
+            computers.put( computer, new MountInfo() );
+            mountDisk( computer );
         }
     }
 
     private synchronized void mountDisk( IComputerAccess computer )
     {
-        if( !this.diskStack.isEmpty() )
+        if( !diskStack.isEmpty() )
         {
-            MountInfo info = this.computers.get( computer );
-            IMedia contents = this.getDiskMedia();
+            MountInfo info = computers.get( computer );
+            IMedia contents = getDiskMedia();
             if( contents != null )
             {
-                if( this.diskMount == null )
+                if( diskMount == null )
                 {
-                    this.diskMount = contents.createDataMount( this.diskStack, this.getWorld() );
+                    diskMount = contents.createDataMount( diskStack, getWorld() );
                 }
-                if( this.diskMount != null )
+                if( diskMount != null )
                 {
-                    if( this.diskMount instanceof IWritableMount )
+                    if( diskMount instanceof IWritableMount )
                     {
                         // Try mounting at the lowest numbered "disk" name we can
                         int n = 1;
                         while( info.mountPath == null )
                         {
-                            info.mountPath = computer.mountWritable( n == 1 ? "disk" : "disk" + n, (IWritableMount) this.diskMount );
+                            info.mountPath = computer.mountWritable( n == 1 ? "disk" : "disk" + n, (IWritableMount) diskMount );
                             n++;
                         }
                     }
@@ -362,7 +362,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
                         int n = 1;
                         while( info.mountPath == null )
                         {
-                            info.mountPath = computer.mount( n == 1 ? "disk" : "disk" + n, this.diskMount );
+                            info.mountPath = computer.mount( n == 1 ? "disk" : "disk" + n, diskMount );
                             n++;
                         }
                     }
@@ -378,34 +378,34 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
     private IMedia getDiskMedia()
     {
-        return MediaProviders.get( this.getDiskStack() );
+        return MediaProviders.get( getDiskStack() );
     }
 
     @Nonnull
     ItemStack getDiskStack()
     {
-        return this.getStack( 0 );
+        return getStack( 0 );
     }
 
     void setDiskStack( @Nonnull ItemStack stack )
     {
-        this.setStack( 0, stack );
+        setStack( 0, stack );
     }
 
     void unmount( IComputerAccess computer )
     {
         synchronized( this )
         {
-            this.unmountDisk( computer );
-            this.computers.remove( computer );
+            unmountDisk( computer );
+            computers.remove( computer );
         }
     }
 
     private synchronized void unmountDisk( IComputerAccess computer )
     {
-        if( !this.diskStack.isEmpty() )
+        if( !diskStack.isEmpty() )
         {
-            MountInfo info = this.computers.get( computer );
+            MountInfo info = computers.get( computer );
             assert info != null;
             if( info.mountPath != null )
             {
@@ -420,11 +420,11 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     {
         synchronized( this )
         {
-            IMedia media = this.getDiskMedia();
-            if( media != null && media.getAudioTitle( this.diskStack ) != null )
+            IMedia media = getDiskMedia();
+            if( media != null && media.getAudioTitle( diskStack ) != null )
             {
-                this.recordQueued = true;
-                this.restartRecord = this.recordPlaying;
+                recordQueued = true;
+                restartRecord = recordPlaying;
             }
         }
     }
@@ -433,8 +433,8 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     {
         synchronized( this )
         {
-            this.recordQueued = false;
-            this.restartRecord = false;
+            recordQueued = false;
+            restartRecord = false;
         }
     }
 
@@ -444,85 +444,85 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     {
         synchronized( this )
         {
-            this.ejectQueued = true;
+            ejectQueued = true;
         }
     }
 
     private void updateBlockState()
     {
-        if( this.removed )
+        if( removed )
         {
             return;
         }
 
-        if( !this.diskStack.isEmpty() )
+        if( !diskStack.isEmpty() )
         {
-            IMedia contents = this.getDiskMedia();
-            this.updateBlockState( contents != null ? DiskDriveState.FULL : DiskDriveState.INVALID );
+            IMedia contents = getDiskMedia();
+            updateBlockState( contents != null ? DiskDriveState.FULL : DiskDriveState.INVALID );
         }
         else
         {
-            this.updateBlockState( DiskDriveState.EMPTY );
+            updateBlockState( DiskDriveState.EMPTY );
         }
     }
 
     private void updateBlockState( DiskDriveState state )
     {
-        BlockState blockState = this.getCachedState();
+        BlockState blockState = getCachedState();
         if( blockState.get( BlockDiskDrive.STATE ) == state )
         {
             return;
         }
 
-        this.getWorld().setBlockState( this.getPos(), blockState.with( BlockDiskDrive.STATE, state ) );
+        getWorld().setBlockState( getPos(), blockState.with( BlockDiskDrive.STATE, state ) );
     }
 
     private synchronized void ejectContents( boolean destroyed )
     {
-        if( this.getWorld().isClient || this.diskStack.isEmpty() )
+        if( getWorld().isClient || diskStack.isEmpty() )
         {
             return;
         }
 
         // Remove the disks from the inventory
-        ItemStack disks = this.diskStack;
-        this.setDiskStack( ItemStack.EMPTY );
+        ItemStack disks = diskStack;
+        setDiskStack( ItemStack.EMPTY );
 
         // Spawn the item in the world
         int xOff = 0;
         int zOff = 0;
         if( !destroyed )
         {
-            Direction dir = this.getDirection();
+            Direction dir = getDirection();
             xOff = dir.getOffsetX();
             zOff = dir.getOffsetZ();
         }
 
-        BlockPos pos = this.getPos();
+        BlockPos pos = getPos();
         double x = pos.getX() + 0.5 + xOff * 0.5;
         double y = pos.getY() + 0.75;
         double z = pos.getZ() + 0.5 + zOff * 0.5;
-        ItemEntity entityitem = new ItemEntity( this.getWorld(), x, y, z, disks );
+        ItemEntity entityitem = new ItemEntity( getWorld(), x, y, z, disks );
         entityitem.setVelocity( xOff * 0.15, 0, zOff * 0.15 );
 
-        this.getWorld().spawnEntity( entityitem );
+        getWorld().spawnEntity( entityitem );
         if( !destroyed )
         {
-            this.getWorld().syncGlobalEvent( 1000, this.getPos(), 0 );
+            getWorld().syncGlobalEvent( 1000, getPos(), 0 );
         }
     }
 
     private void playRecord()
     {
-        IMedia contents = this.getDiskMedia();
-        SoundEvent record = contents != null ? contents.getAudio( this.diskStack ) : null;
+        IMedia contents = getDiskMedia();
+        SoundEvent record = contents != null ? contents.getAudio( diskStack ) : null;
         if( record != null )
         {
-            RecordUtil.playRecord( record, contents.getAudioTitle( this.diskStack ), this.getWorld(), this.getPos() );
+            RecordUtil.playRecord( record, contents.getAudioTitle( diskStack ), getWorld(), getPos() );
         }
         else
         {
-            RecordUtil.playRecord( null, null, this.getWorld(), this.getPos() );
+            RecordUtil.playRecord( null, null, getWorld(), getPos() );
         }
     }
 
@@ -530,21 +530,21 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
     private void stopRecord()
     {
-        RecordUtil.playRecord( null, null, this.getWorld(), this.getPos() );
+        RecordUtil.playRecord( null, null, getWorld(), getPos() );
     }
 
     @Nonnull
     @Override
     public Text getName()
     {
-        return this.customName != null ? this.customName : new TranslatableText( this.getCachedState().getBlock()
+        return customName != null ? customName : new TranslatableText( getCachedState().getBlock()
             .getTranslationKey() );
     }
 
     @Override
     public boolean hasCustomName()
     {
-        return this.customName != null;
+        return customName != null;
     }
 
     @Nonnull
@@ -558,7 +558,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     @Override
     public Text getCustomName()
     {
-        return this.customName;
+        return customName;
     }
 
     @Nonnull

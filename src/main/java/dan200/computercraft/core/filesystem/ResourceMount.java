@@ -313,7 +313,7 @@ public final class ResourceMount implements IMount
                 prepareProfiler.push( "Mount reloading" );
                 try
                 {
-                    for( ResourceMount mount : this.mounts ) mount.load();
+                    for( ResourceMount mount : mounts ) mount.load();
                 }
                 finally
                 {

@@ -79,12 +79,12 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
             }
 
             int startParse = reader.getCursor();
-            this.appender.accept( out, this.child.parse( reader ) );
+            appender.accept( out, child.parse( reader ) );
             hadSome = true;
 
             if( reader.getCursor() == startParse )
             {
-                throw new IllegalStateException( this.child + " did not consume any input on " + reader.getRemaining() );
+                throw new IllegalStateException( child + " did not consume any input on " + reader.getRemaining() );
             }
         }
 
@@ -93,7 +93,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
         // We should probably review that this is sensible in the future.
         if( !hadSome )
         {
-            throw this.some.createWithContext( reader );
+            throw some.createWithContext( reader );
         }
 
         return Collections.unmodifiableList( out );
@@ -109,7 +109,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
         {
             try
             {
-                this.child.parse( reader );
+                child.parse( reader );
             }
             catch( CommandSyntaxException e )
             {
@@ -126,13 +126,13 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
         }
 
         reader.setCursor( previous );
-        return this.child.listSuggestions( context, builder.createOffset( previous ) );
+        return child.listSuggestions( context, builder.createOffset( previous ) );
     }
 
     @Override
     public Collection<String> getExamples()
     {
-        return this.child.getExamples();
+        return child.getExamples();
     }
 
     public static class Serializer implements ArgumentSerializer<RepeatArgumentType<?, ?>>

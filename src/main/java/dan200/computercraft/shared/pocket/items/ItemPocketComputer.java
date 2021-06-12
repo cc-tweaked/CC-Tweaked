@@ -147,7 +147,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         ItemStack stack = player.getStackInHand( hand );
         if( !world.isClient )
         {
-            PocketServerComputer computer = this.createServerComputer( world, player.inventory, player, stack );
+            PocketServerComputer computer = createServerComputer( world, player.inventory, player, stack );
 
             boolean stop = false;
             if( computer != null )
@@ -178,7 +178,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         {
             // Server side
             Inventory inventory = entity instanceof PlayerEntity ? ((PlayerEntity) entity).inventory : null;
-            PocketServerComputer computer = this.createServerComputer( world, inventory, entity, stack );
+            PocketServerComputer computer = createServerComputer( world, inventory, entity, stack );
             if( computer != null )
             {
                 IPocketUpgrade upgrade = getUpgrade( stack );
@@ -190,7 +190,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
                 // Sync ID
                 int id = computer.getID();
-                if( id != this.getComputerID( stack ) )
+                if( id != getComputerID( stack ) )
                 {
                     setComputerID( stack, id );
                     if( inventory != null )
@@ -201,9 +201,9 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
                 // Sync label
                 String label = computer.getLabel();
-                if( !Objects.equal( label, this.getLabel( stack ) ) )
+                if( !Objects.equal( label, getLabel( stack ) ) )
                 {
-                    this.setLabel( stack, label );
+                    setLabel( stack, label );
                     if( inventory != null )
                     {
                         inventory.markDirty();
@@ -227,9 +227,9 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     @Override
     public void appendTooltip( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<Text> list, TooltipContext flag )
     {
-        if( flag.isAdvanced() || this.getLabel( stack ) == null )
+        if( flag.isAdvanced() || getLabel( stack ) == null )
         {
-            int id = this.getComputerID( stack );
+            int id = getComputerID( stack );
             if( id >= 0 )
             {
                 list.add( new TranslatableText( "gui.computercraft.tooltip.computer_id", id ).formatted( Formatting.GRAY ) );
@@ -241,7 +241,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     @Override
     public Text getName( @Nonnull ItemStack stack )
     {
-        String baseString = this.getTranslationKey( stack );
+        String baseString = getTranslationKey( stack );
         IPocketUpgrade upgrade = getUpgrade( stack );
         if( upgrade != null )
         {
@@ -258,14 +258,14 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     @Override
     public void appendStacks( @Nonnull ItemGroup group, @Nonnull DefaultedList<ItemStack> stacks )
     {
-        if( !this.isIn( group ) )
+        if( !isIn( group ) )
         {
             return;
         }
-        stacks.add( this.create( -1, null, -1, null ) );
+        stacks.add( create( -1, null, -1, null ) );
         for( IPocketUpgrade upgrade : PocketUpgrades.getVanillaUpgrades() )
         {
-            stacks.add( this.create( -1, null, -1, upgrade ) );
+            stacks.add( create( -1, null, -1, upgrade ) );
         }
     }
 
@@ -320,13 +320,13 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
                 setInstanceID( stack, instanceID );
                 setSessionID( stack, correctSessionID );
             }
-            int computerID = this.getComputerID( stack );
+            int computerID = getComputerID( stack );
             if( computerID < 0 )
             {
                 computerID = ComputerCraftAPI.createUniqueNumberedSaveDir( world, "computer" );
                 setComputerID( stack, computerID );
             }
-            computer = new PocketServerComputer( world, computerID, this.getLabel( stack ), instanceID, this.getFamily() );
+            computer = new PocketServerComputer( world, computerID, getLabel( stack ), instanceID, getFamily() );
             computer.updateValues( entity, stack, getUpgrade( stack ) );
             computer.addAPI( new PocketAPI( computer ) );
             ComputerCraft.serverComputerRegistry.add( instanceID, computer );
@@ -363,13 +363,13 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     @Override
     public ComputerFamily getFamily()
     {
-        return this.family;
+        return family;
     }
 
     @Override
     public ItemStack withFamily( @Nonnull ItemStack stack, @Nonnull ComputerFamily family )
     {
-        return PocketComputerItemFactory.create( this.getComputerID( stack ), this.getLabel( stack ), this.getColour( stack ), family, getUpgrade( stack ) );
+        return PocketComputerItemFactory.create( getComputerID( stack ), getLabel( stack ), getColour( stack ), family, getUpgrade( stack ) );
     }
 
     @Override
@@ -427,7 +427,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     @Override
     public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )
     {
-        int id = this.getComputerID( stack );
+        int id = getComputerID( stack );
         if( id >= 0 )
         {
             return ComputerCraftAPI.createSaveDirMount( world, "computer/" + id, ComputerCraft.computerSpaceLimit );

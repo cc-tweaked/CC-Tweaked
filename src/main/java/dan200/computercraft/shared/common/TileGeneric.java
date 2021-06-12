@@ -36,10 +36,10 @@ public abstract class TileGeneric extends BlockEntity implements BlockEntityClie
 
     public final void updateBlock()
     {
-        this.markDirty();
-        BlockPos pos = this.getPos();
-        BlockState state = this.getCachedState();
-        this.getWorld().updateListeners( pos, state, state, 3 );
+        markDirty();
+        BlockPos pos = getPos();
+        BlockState state = getCachedState();
+        getWorld().updateListeners( pos, state, state, 3 );
     }
 
     @Nonnull
@@ -62,7 +62,7 @@ public abstract class TileGeneric extends BlockEntity implements BlockEntityClie
 
     public boolean isUsable( PlayerEntity player, boolean ignoreRange )
     {
-        if( player == null || !player.isAlive() || this.getWorld().getBlockEntity( this.getPos() ) != this )
+        if( player == null || !player.isAlive() || getWorld().getBlockEntity( getPos() ) != this )
         {
             return false;
         }
@@ -71,9 +71,9 @@ public abstract class TileGeneric extends BlockEntity implements BlockEntityClie
             return true;
         }
 
-        double range = this.getInteractRange( player );
-        BlockPos pos = this.getPos();
-        return player.getEntityWorld() == this.getWorld() && player.squaredDistanceTo( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
+        double range = getInteractRange( player );
+        BlockPos pos = getPos();
+        return player.getEntityWorld() == getWorld() && player.squaredDistanceTo( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
     }
 
     protected double getInteractRange( PlayerEntity player )
@@ -84,7 +84,7 @@ public abstract class TileGeneric extends BlockEntity implements BlockEntityClie
     @Override
     public void fromClientTag( CompoundTag compoundTag )
     {
-        this.readDescription( compoundTag );
+        readDescription( compoundTag );
     }
 
     protected void readDescription( @Nonnull CompoundTag nbt )
@@ -94,7 +94,7 @@ public abstract class TileGeneric extends BlockEntity implements BlockEntityClie
     @Override
     public CompoundTag toClientTag( CompoundTag compoundTag )
     {
-        this.writeDescription( compoundTag );
+        writeDescription( compoundTag );
         return compoundTag;
     }
 

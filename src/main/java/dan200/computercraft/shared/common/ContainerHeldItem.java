@@ -13,7 +13,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -33,7 +32,7 @@ public class ContainerHeldItem extends ScreenHandler
         super( type, id );
 
         this.hand = hand;
-        this.stack = player.getStackInHand( hand )
+        stack = player.getStackInHand( hand )
             .copy();
     }
 
@@ -50,7 +49,7 @@ public class ContainerHeldItem extends ScreenHandler
     @Nonnull
     public ItemStack getStack()
     {
-        return this.stack;
+        return stack;
     }
 
     @Override
@@ -61,11 +60,11 @@ public class ContainerHeldItem extends ScreenHandler
             return false;
         }
 
-        ItemStack stack = player.getStackInHand( this.hand );
+        ItemStack stack = player.getStackInHand( hand );
         return stack == this.stack || !stack.isEmpty() && !this.stack.isEmpty() && stack.getItem() == this.stack.getItem();
     }
 
-    public static class Factory implements NamedScreenHandlerFactory, ExtendedScreenHandlerFactory
+    public static class Factory implements ExtendedScreenHandlerFactory
     {
         private final ScreenHandlerType<ContainerHeldItem> type;
         private final Text name;
@@ -74,7 +73,7 @@ public class ContainerHeldItem extends ScreenHandler
         public Factory( ScreenHandlerType<ContainerHeldItem> type, ItemStack stack, Hand hand )
         {
             this.type = type;
-            this.name = stack.getName();
+            name = stack.getName();
             this.hand = hand;
         }
 
@@ -82,20 +81,20 @@ public class ContainerHeldItem extends ScreenHandler
         @Override
         public Text getDisplayName()
         {
-            return this.name;
+            return name;
         }
 
         @Nullable
         @Override
         public ScreenHandler createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
         {
-            return new ContainerHeldItem( this.type, id, player, this.hand );
+            return new ContainerHeldItem( type, id, player, hand );
         }
 
         @Override
         public void writeScreenOpeningData( ServerPlayerEntity serverPlayerEntity, PacketByteBuf packetByteBuf )
         {
-            packetByteBuf.writeEnumConstant( this.hand );
+            packetByteBuf.writeEnumConstant( hand );
         }
     }
 }

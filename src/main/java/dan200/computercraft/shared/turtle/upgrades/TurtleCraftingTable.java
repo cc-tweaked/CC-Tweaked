@@ -44,17 +44,17 @@ public class TurtleCraftingTable extends AbstractTurtleUpgrade
     @Environment( EnvType.CLIENT )
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
-        this.loadModelLocations();
-        return TransformedModel.of( side == TurtleSide.LEFT ? this.leftModel : this.rightModel );
+        loadModelLocations();
+        return TransformedModel.of( side == TurtleSide.LEFT ? leftModel : rightModel );
     }
 
     @Environment( EnvType.CLIENT )
     private void loadModelLocations()
     {
-        if( this.leftModel == null )
+        if( leftModel == null )
         {
-            this.leftModel = new ModelIdentifier( "computercraft:turtle_crafting_table_left", "inventory" );
-            this.rightModel = new ModelIdentifier( "computercraft:turtle_crafting_table_right", "inventory" );
+            leftModel = new ModelIdentifier( "computercraft:turtle_crafting_table_left", "inventory" );
+            rightModel = new ModelIdentifier( "computercraft:turtle_crafting_table_right", "inventory" );
         }
     }
 }

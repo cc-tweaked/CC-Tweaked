@@ -28,13 +28,13 @@ public class ClientComputer extends ClientTerminal implements IComputer
 
     public CompoundTag getUserData()
     {
-        return this.userData;
+        return userData;
     }
 
     public void requestState()
     {
         // Request state from server
-        NetworkHandler.sendToServer( new RequestComputerMessage( this.getInstanceID() ) );
+        NetworkHandler.sendToServer( new RequestComputerMessage( getInstanceID() ) );
     }
 
     // IComputer
@@ -42,53 +42,53 @@ public class ClientComputer extends ClientTerminal implements IComputer
     @Override
     public int getInstanceID()
     {
-        return this.instanceID;
+        return instanceID;
     }
 
     @Override
     public void turnOn()
     {
         // Send turnOn to server
-        NetworkHandler.sendToServer( new ComputerActionServerMessage( this.instanceID, ComputerActionServerMessage.Action.TURN_ON ) );
+        NetworkHandler.sendToServer( new ComputerActionServerMessage( instanceID, ComputerActionServerMessage.Action.TURN_ON ) );
     }
 
     @Override
     public void shutdown()
     {
         // Send shutdown to server
-        NetworkHandler.sendToServer( new ComputerActionServerMessage( this.instanceID, ComputerActionServerMessage.Action.SHUTDOWN ) );
+        NetworkHandler.sendToServer( new ComputerActionServerMessage( instanceID, ComputerActionServerMessage.Action.SHUTDOWN ) );
     }
 
     @Override
     public void reboot()
     {
         // Send reboot to server
-        NetworkHandler.sendToServer( new ComputerActionServerMessage( this.instanceID, ComputerActionServerMessage.Action.REBOOT ) );
+        NetworkHandler.sendToServer( new ComputerActionServerMessage( instanceID, ComputerActionServerMessage.Action.REBOOT ) );
     }
 
     @Override
     public void queueEvent( String event, Object[] arguments )
     {
         // Send event to server
-        NetworkHandler.sendToServer( new QueueEventServerMessage( this.instanceID, event, arguments ) );
+        NetworkHandler.sendToServer( new QueueEventServerMessage( instanceID, event, arguments ) );
     }
 
     @Override
     public boolean isOn()
     {
-        return this.on;
+        return on;
     }
 
     @Override
     public boolean isCursorDisplayed()
     {
-        return this.on && this.blinking;
+        return on && blinking;
     }
 
     @Override
     public void keyDown( int key, boolean repeat )
     {
-        NetworkHandler.sendToServer( new KeyEventServerMessage( this.instanceID,
+        NetworkHandler.sendToServer( new KeyEventServerMessage( instanceID,
             repeat ? KeyEventServerMessage.TYPE_REPEAT : KeyEventServerMessage.TYPE_DOWN,
             key ) );
     }
@@ -96,37 +96,37 @@ public class ClientComputer extends ClientTerminal implements IComputer
     @Override
     public void keyUp( int key )
     {
-        NetworkHandler.sendToServer( new KeyEventServerMessage( this.instanceID, KeyEventServerMessage.TYPE_UP, key ) );
+        NetworkHandler.sendToServer( new KeyEventServerMessage( instanceID, KeyEventServerMessage.TYPE_UP, key ) );
     }
 
     @Override
     public void mouseClick( int button, int x, int y )
     {
-        NetworkHandler.sendToServer( new MouseEventServerMessage( this.instanceID, MouseEventServerMessage.TYPE_CLICK, button, x, y ) );
+        NetworkHandler.sendToServer( new MouseEventServerMessage( instanceID, MouseEventServerMessage.TYPE_CLICK, button, x, y ) );
     }
 
     @Override
     public void mouseUp( int button, int x, int y )
     {
-        NetworkHandler.sendToServer( new MouseEventServerMessage( this.instanceID, MouseEventServerMessage.TYPE_UP, button, x, y ) );
+        NetworkHandler.sendToServer( new MouseEventServerMessage( instanceID, MouseEventServerMessage.TYPE_UP, button, x, y ) );
     }
 
     @Override
     public void mouseDrag( int button, int x, int y )
     {
-        NetworkHandler.sendToServer( new MouseEventServerMessage( this.instanceID, MouseEventServerMessage.TYPE_DRAG, button, x, y ) );
+        NetworkHandler.sendToServer( new MouseEventServerMessage( instanceID, MouseEventServerMessage.TYPE_DRAG, button, x, y ) );
     }
 
     @Override
     public void mouseScroll( int direction, int x, int y )
     {
-        NetworkHandler.sendToServer( new MouseEventServerMessage( this.instanceID, MouseEventServerMessage.TYPE_SCROLL, direction, x, y ) );
+        NetworkHandler.sendToServer( new MouseEventServerMessage( instanceID, MouseEventServerMessage.TYPE_SCROLL, direction, x, y ) );
     }
 
     public void setState( ComputerState state, CompoundTag userData )
     {
-        this.on = state != ComputerState.OFF;
-        this.blinking = state == ComputerState.BLINKING;
+        on = state != ComputerState.OFF;
+        blinking = state == ComputerState.BLINKING;
         this.userData = userData;
     }
 }

@@ -25,12 +25,12 @@ public enum ComputerState implements StringIdentifiable
     @Override
     public String asString()
     {
-        return this.name;
+        return name;
     }
 
     @Override
     public String toString()
     {
-        return this.name;
+        return name;
     }
 }

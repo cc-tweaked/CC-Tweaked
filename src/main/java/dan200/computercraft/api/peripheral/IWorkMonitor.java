@@ -45,7 +45,7 @@ public interface IWorkMonitor
     default boolean runWork( @Nonnull Runnable runnable )
     {
         Objects.requireNonNull( runnable, "runnable should not be null" );
-        if( !this.canWork() )
+        if( !canWork() )
         {
             return false;
         }
@@ -57,7 +57,7 @@ public interface IWorkMonitor
         }
         finally
         {
-            this.trackWork( System.nanoTime() - start, TimeUnit.NANOSECONDS );
+            trackWork( System.nanoTime() - start, TimeUnit.NANOSECONDS );
         }
 
         return true;

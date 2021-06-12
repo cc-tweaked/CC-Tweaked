@@ -81,7 +81,7 @@ public final class ImpostorRecipe extends ShapedRecipe
     @Override
     public String getGroup()
     {
-        return this.group;
+        return group;
     }
 
     @Override

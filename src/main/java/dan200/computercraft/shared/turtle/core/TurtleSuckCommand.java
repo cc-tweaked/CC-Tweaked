@@ -42,7 +42,7 @@ public class TurtleSuckCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         // Sucking nothing is easy
-        if( this.quantity == 0 )
+        if( quantity == 0 )
         {
             turtle.playAnimation( TurtleAnimation.WAIT );
             return TurtleCommandResult.success();
@@ -70,7 +70,7 @@ public class TurtleSuckCommand implements ITurtleCommand
         if( inventory != null )
         {
             // Take from inventory of thing in front
-            ItemStack stack = InventoryUtil.takeItems( this.quantity, ItemStorage.wrap( inventory ) );
+            ItemStack stack = InventoryUtil.takeItems( quantity, ItemStorage.wrap( inventory ) );
             if( stack.isEmpty() )
             {
                 return TurtleCommandResult.failure( "No items to take" );
@@ -118,9 +118,9 @@ public class TurtleSuckCommand implements ITurtleCommand
 
                 ItemStack storeStack;
                 ItemStack leaveStack;
-                if( stack.getCount() > this.quantity )
+                if( stack.getCount() > quantity )
                 {
-                    storeStack = stack.split( this.quantity );
+                    storeStack = stack.split( quantity );
                     leaveStack = stack;
                 }
                 else

@@ -34,7 +34,7 @@ public abstract class ComputerConvertRecipe extends ShapedRecipe
     @Override
     public String getGroup()
     {
-        return this.group;
+        return group;
     }
 
     @Override
@@ -67,7 +67,7 @@ public abstract class ComputerConvertRecipe extends ShapedRecipe
             ItemStack stack = inventory.getStack( i );
             if( stack.getItem() instanceof IComputerItem )
             {
-                return this.convert( (IComputerItem) stack.getItem(), stack );
+                return convert( (IComputerItem) stack.getItem(), stack );
             }
         }
 

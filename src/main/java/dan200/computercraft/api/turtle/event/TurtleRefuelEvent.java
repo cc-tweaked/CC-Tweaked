@@ -41,7 +41,7 @@ public class TurtleRefuelEvent extends TurtleActionEvent
      */
     public ItemStack getStack()
     {
-        return this.stack;
+        return stack;
     }
 
     /**
@@ -53,7 +53,7 @@ public class TurtleRefuelEvent extends TurtleActionEvent
     @Nullable
     public Handler getHandler()
     {
-        return this.handler;
+        return handler;
     }
 
     /**

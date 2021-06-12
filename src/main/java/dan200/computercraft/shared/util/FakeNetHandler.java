@@ -341,7 +341,7 @@ public class FakeNetHandler extends ServerPlayNetworkHandler
         @Override
         public void disconnect( @Nonnull Text message )
         {
-            this.closeReason = message;
+            closeReason = message;
         }
 
         @Override
@@ -353,14 +353,14 @@ public class FakeNetHandler extends ServerPlayNetworkHandler
         @Override
         public PacketListener getPacketListener()
         {
-            return this.handler;
+            return handler;
         }
 
         @Nullable
         @Override
         public Text getDisconnectReason()
         {
-            return this.closeReason;
+            return closeReason;
         }
 
         @Override

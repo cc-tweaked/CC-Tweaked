@@ -75,11 +75,11 @@ public enum MonitorRenderer
 
     private static MonitorRenderer best()
     {
-        if ( !initialised )
+        if( !initialised )
         {
             checkCapabilities();
             checkForShaderMods();
-            if ( textureBuffer && shaderMod )
+            if( textureBuffer && shaderMod )
             {
                 ComputerCraft.log.warn( "Shader mod detected. Enabling VBO renderer for compatibility." );
             }

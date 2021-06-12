@@ -214,7 +214,7 @@ public final class Config
             serverSpec.defineList( "turtle.disabled_actions", Collections.emptyList(), x -> x instanceof String && getAction( (String) x ) != null );
         }
 
-        {
+        { // Terminal sizes
             serverSpec.comment( "term_sizes", "Configure the size of various computer's terminals.\n" +
                 "Larger terminals require more bandwidth, so use with care." );
 

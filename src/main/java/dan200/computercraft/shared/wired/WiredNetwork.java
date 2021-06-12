@@ -27,8 +27,8 @@ public final class WiredNetwork implements IWiredNetwork
 
     WiredNetwork( WiredNode node )
     {
-        this.nodes = new HashSet<>( 1 );
-        this.nodes.add( node );
+        nodes = new HashSet<>( 1 );
+        nodes.add( node );
     }
 
     private WiredNetwork( HashSet<WiredNode> nodes )
@@ -111,11 +111,11 @@ public final class WiredNetwork implements IWiredNetwork
             throw new IllegalArgumentException( "Cannot add a connection to oneself." );
         }
 
-        this.lock.writeLock()
+        lock.writeLock()
             .lock();
         try
         {
-            if( this.nodes == null )
+            if( nodes == null )
             {
                 throw new IllegalStateException( "Cannot add a connection to an empty network." );
             }
@@ -137,13 +137,13 @@ public final class WiredNetwork implements IWiredNetwork
                 {
                     // Cache several properties for iterating over later
                     Map<String, IPeripheral> otherPeripherals = other.peripherals;
-                    Map<String, IPeripheral> thisPeripherals = otherPeripherals.isEmpty() ? this.peripherals : new HashMap<>( this.peripherals );
+                    Map<String, IPeripheral> thisPeripherals = otherPeripherals.isEmpty() ? peripherals : new HashMap<>( peripherals );
 
-                    Collection<WiredNode> thisNodes = otherPeripherals.isEmpty() ? this.nodes : new ArrayList<>( this.nodes );
+                    Collection<WiredNode> thisNodes = otherPeripherals.isEmpty() ? nodes : new ArrayList<>( nodes );
                     Collection<WiredNode> otherNodes = other.nodes;
 
                     // Move all nodes across into this network, destroying the original nodes.
-                    this.nodes.addAll( otherNodes );
+                    nodes.addAll( otherNodes );
                     for( WiredNode node : otherNodes )
                     {
                         node.network = this;
@@ -152,7 +152,7 @@ public final class WiredNetwork implements IWiredNetwork
 
                     // Move all peripherals across,
                     other.peripherals = null;
-                    this.peripherals.putAll( otherPeripherals );
+                    peripherals.putAll( otherPeripherals );
 
                     if( !thisPeripherals.isEmpty() )
                     {
@@ -187,7 +187,7 @@ public final class WiredNetwork implements IWiredNetwork
         }
         finally
         {
-            this.lock.writeLock()
+            lock.writeLock()
                 .unlock();
         }
     }
@@ -202,7 +202,7 @@ public final class WiredNetwork implements IWiredNetwork
             throw new IllegalArgumentException( "Cannot remove a connection to oneself." );
         }
 
-        this.lock.writeLock()
+        lock.writeLock()
             .lock();
         try
         {
@@ -256,27 +256,27 @@ public final class WiredNetwork implements IWiredNetwork
             try
             {
                 // Remove nodes from this network
-                this.nodes.removeAll( reachableU );
+                nodes.removeAll( reachableU );
 
                 // Set network and transfer peripherals
                 for( WiredNode node : reachableU )
                 {
                     node.network = networkU;
                     networkU.peripherals.putAll( node.peripherals );
-                    this.peripherals.keySet()
+                    peripherals.keySet()
                         .removeAll( node.peripherals.keySet() );
                 }
 
                 // Broadcast changes
-                if( !this.peripherals.isEmpty() )
+                if( !peripherals.isEmpty() )
                 {
-                    WiredNetworkChange.removed( this.peripherals )
+                    WiredNetworkChange.removed( peripherals )
                         .broadcast( networkU.nodes );
                 }
                 if( !networkU.peripherals.isEmpty() )
                 {
                     WiredNetworkChange.removed( networkU.peripherals )
-                        .broadcast( this.nodes );
+                        .broadcast( nodes );
                 }
 
                 InvariantChecker.checkNetwork( this );
@@ -294,7 +294,7 @@ public final class WiredNetwork implements IWiredNetwork
         }
         finally
         {
-            this.lock.writeLock()
+            lock.writeLock()
                 .unlock();
         }
     }
@@ -304,16 +304,16 @@ public final class WiredNetwork implements IWiredNetwork
     {
         WiredNode wired = checkNode( node );
 
-        this.lock.writeLock()
+        lock.writeLock()
             .lock();
         try
         {
             // If we're the empty graph then just abort: nodes must have _some_ network.
-            if( this.nodes == null )
+            if( nodes == null )
             {
                 return false;
             }
-            if( this.nodes.size() <= 1 )
+            if( nodes.size() <= 1 )
             {
                 return false;
             }
@@ -325,7 +325,7 @@ public final class WiredNetwork implements IWiredNetwork
             HashSet<WiredNode> neighbours = wired.neighbours;
 
             // Remove this node and move into a separate network.
-            this.nodes.remove( wired );
+            nodes.remove( wired );
             for( WiredNode neighbour : neighbours )
             {
                 neighbour.neighbours.remove( wired );
@@ -338,7 +338,7 @@ public final class WiredNetwork implements IWiredNetwork
             if( neighbours.size() == 1 )
             {
                 // Broadcast our simple peripheral changes
-                this.removeSingleNode( wired, wiredNetwork );
+                removeSingleNode( wired, wiredNetwork );
                 InvariantChecker.checkNode( wired );
                 InvariantChecker.checkNetwork( wiredNetwork );
                 return true;
@@ -348,10 +348,10 @@ public final class WiredNetwork implements IWiredNetwork
                 .next() );
 
             // If all nodes are reachable then exit.
-            if( reachable.size() == this.nodes.size() )
+            if( reachable.size() == nodes.size() )
             {
                 // Broadcast our simple peripheral changes
-                this.removeSingleNode( wired, wiredNetwork );
+                removeSingleNode( wired, wiredNetwork );
                 InvariantChecker.checkNode( wired );
                 InvariantChecker.checkNetwork( wiredNetwork );
                 return true;
@@ -403,7 +403,7 @@ public final class WiredNetwork implements IWiredNetwork
                 // Then broadcast network changes once all nodes are finalised
                 for( WiredNetwork network : maximals )
                 {
-                    WiredNetworkChange.changeOf( this.peripherals, network.peripherals )
+                    WiredNetworkChange.changeOf( peripherals, network.peripherals )
                         .broadcast( network.nodes );
                 }
             }
@@ -416,14 +416,14 @@ public final class WiredNetwork implements IWiredNetwork
                 }
             }
 
-            this.nodes.clear();
-            this.peripherals.clear();
+            nodes.clear();
+            peripherals.clear();
 
             return true;
         }
         finally
         {
-            this.lock.writeLock()
+            lock.writeLock()
                 .unlock();
         }
     }
@@ -432,9 +432,9 @@ public final class WiredNetwork implements IWiredNetwork
     public void updatePeripherals( @Nonnull IWiredNode node, @Nonnull Map<String, IPeripheral> newPeripherals )
     {
         WiredNode wired = checkNode( node );
-        Objects.requireNonNull( this.peripherals, "peripherals cannot be null" );
+        Objects.requireNonNull( peripherals, "peripherals cannot be null" );
 
-        this.lock.writeLock()
+        lock.writeLock()
             .lock();
         try
         {
@@ -453,18 +453,18 @@ public final class WiredNetwork implements IWiredNetwork
             wired.peripherals = ImmutableMap.copyOf( newPeripherals );
 
             // Detach the old peripherals then remove them.
-            this.peripherals.keySet()
+            peripherals.keySet()
                 .removeAll( change.peripheralsRemoved()
                     .keySet() );
 
             // Add the new peripherals and attach them
-            this.peripherals.putAll( change.peripheralsAdded() );
+            peripherals.putAll( change.peripheralsAdded() );
 
-            change.broadcast( this.nodes );
+            change.broadcast( nodes );
         }
         finally
         {
-            this.lock.writeLock()
+            lock.writeLock()
                 .unlock();
         }
     }
@@ -485,19 +485,19 @@ public final class WiredNetwork implements IWiredNetwork
             wired.peripherals = Collections.emptyMap();
 
             // Broadcast the change
-            if( !this.peripherals.isEmpty() )
+            if( !peripherals.isEmpty() )
             {
-                WiredNetworkChange.removed( this.peripherals )
+                WiredNetworkChange.removed( peripherals )
                     .broadcast( wired );
             }
 
             // Now remove all peripherals from this network and broadcast the change.
-            this.peripherals.keySet()
+            peripherals.keySet()
                 .removeAll( wiredPeripherals.keySet() );
             if( !wiredPeripherals.isEmpty() )
             {
                 WiredNetworkChange.removed( wiredPeripherals )
-                    .broadcast( this.nodes );
+                    .broadcast( nodes );
             }
 
         }
@@ -561,7 +561,7 @@ public final class WiredNetwork implements IWiredNetwork
         public int compareTo( @Nonnull TransmitPoint o )
         {
             // Objects with the same distance are not the same object, so we must add an additional layer of ordering.
-            return this.distance == o.distance ? Integer.compare( this.node.hashCode(), o.node.hashCode() ) : Double.compare( this.distance, o.distance );
+            return distance == o.distance ? Integer.compare( node.hashCode(), o.node.hashCode() ) : Double.compare( distance, o.distance );
         }
     }
 }

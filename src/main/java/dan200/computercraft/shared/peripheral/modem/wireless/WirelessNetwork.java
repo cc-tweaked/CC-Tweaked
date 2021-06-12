@@ -40,14 +40,14 @@ public class WirelessNetwork implements IPacketNetwork
     public void addReceiver( @Nonnull IPacketReceiver receiver )
     {
         Objects.requireNonNull( receiver, "device cannot be null" );
-        this.receivers.add( receiver );
+        receivers.add( receiver );
     }
 
     @Override
     public void removeReceiver( @Nonnull IPacketReceiver receiver )
     {
         Objects.requireNonNull( receiver, "device cannot be null" );
-        this.receivers.remove( receiver );
+        receivers.remove( receiver );
     }
 
     @Override
@@ -60,7 +60,7 @@ public class WirelessNetwork implements IPacketNetwork
     public void transmitSameDimension( @Nonnull Packet packet, double range )
     {
         Objects.requireNonNull( packet, "packet cannot be null" );
-        for( IPacketReceiver device : this.receivers )
+        for( IPacketReceiver device : receivers )
         {
             tryTransmit( device, packet, range, false );
         }
@@ -70,7 +70,7 @@ public class WirelessNetwork implements IPacketNetwork
     public void transmitInterdimensional( @Nonnull Packet packet )
     {
         Objects.requireNonNull( packet, "packet cannot be null" );
-        for( IPacketReceiver device : this.receivers )
+        for( IPacketReceiver device : receivers )
         {
             tryTransmit( device, packet, 0, true );
         }

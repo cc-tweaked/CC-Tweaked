@@ -32,7 +32,7 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
 
     public ComputerFamily getFamily()
     {
-        return this.family;
+        return family;
     }
 
     public abstract static class Serializer<T extends ComputerFamilyRecipe> implements RecipeSerializer<T>
@@ -47,7 +47,7 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
             RecipeUtil.ShapedTemplate template = RecipeUtil.getTemplate( json );
             ItemStack result = getItemStack( JsonHelper.getObject( json, "result" ) );
 
-            return this.create( identifier, group, template.width, template.height, template.ingredients, result, family );
+            return create( identifier, group, template.width, template.height, template.ingredients, result, family );
         }
 
         protected abstract T create( Identifier identifier, String group, int width, int height, DefaultedList<Ingredient> ingredients, ItemStack result,
@@ -69,7 +69,7 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
 
             ItemStack result = buf.readItemStack();
             ComputerFamily family = buf.readEnumConstant( ComputerFamily.class );
-            return this.create( identifier, group, width, height, ingredients, result, family );
+            return create( identifier, group, width, height, ingredients, result, family );
         }
 
         @Override

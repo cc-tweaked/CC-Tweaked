@@ -27,11 +27,11 @@ public final class TurtleUpgrades
         Wrapper( ITurtleUpgrade upgrade )
         {
             this.upgrade = upgrade;
-            this.id = upgrade.getUpgradeID()
+            id = upgrade.getUpgradeID()
                 .toString();
             // TODO This should be the mod id of the mod the peripheral comes from
-            this.modId = ComputerCraft.MOD_ID;
-            this.enabled = true;
+            modId = ComputerCraft.MOD_ID;
+            enabled = true;
         }
     }
 

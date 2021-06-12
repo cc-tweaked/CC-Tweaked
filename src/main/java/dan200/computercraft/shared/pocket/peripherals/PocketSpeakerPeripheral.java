@@ -25,13 +25,13 @@ public class PocketSpeakerPeripheral extends SpeakerPeripheral
     @Override
     public World getWorld()
     {
-        return this.world;
+        return world;
     }
 
     @Override
     public Vec3d getPosition()
     {
-        return this.world != null ? this.position : null;
+        return world != null ? position : null;
     }
 
     @Override

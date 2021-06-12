@@ -48,58 +48,58 @@ public class CommandBuilder<S> implements CommandNodeBuilder<S, Command<S>>
 
     public CommandBuilder<S> requires( Predicate<S> predicate )
     {
-        this.requires = this.requires == null ? predicate : this.requires.and( predicate );
+        requires = requires == null ? predicate : requires.and( predicate );
         return this;
     }
 
     public CommandBuilder<S> arg( String name, ArgumentType<?> type )
     {
-        this.args.add( RequiredArgumentBuilder.argument( name, type ) );
+        args.add( RequiredArgumentBuilder.argument( name, type ) );
         return this;
     }
 
     public <T> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argManyValue( String name, ArgumentType<T> type, T defaultValue )
     {
-        return this.argManyValue( name, type, Collections.singletonList( defaultValue ) );
+        return argManyValue( name, type, Collections.singletonList( defaultValue ) );
     }
 
     public <T> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argManyValue( String name, ArgumentType<T> type, List<T> empty )
     {
-        return this.argMany( name, type, () -> empty );
+        return argMany( name, type, () -> empty );
     }
 
     public <T> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argMany( String name, ArgumentType<T> type, Supplier<List<T>> empty )
     {
-        return this.argMany( name, RepeatArgumentType.some( type, ARGUMENT_EXPECTED ), empty );
+        return argMany( name, RepeatArgumentType.some( type, ARGUMENT_EXPECTED ), empty );
     }
 
     private <T, U> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argMany( String name, RepeatArgumentType<T, ?> type, Supplier<List<T>> empty )
     {
-        if( this.args.isEmpty() )
+        if( args.isEmpty() )
         {
             throw new IllegalStateException( "Cannot have empty arg chain builder" );
         }
 
         return command -> {
             // The node for no arguments
-            ArgumentBuilder<S, ?> tail = this.tail( ctx -> command.run( ctx, empty.get() ) );
+            ArgumentBuilder<S, ?> tail = tail( ctx -> command.run( ctx, empty.get() ) );
 
             // The node for one or more arguments
             ArgumentBuilder<S, ?> moreArg = RequiredArgumentBuilder.<S, List<T>>argument( name, type ).executes( ctx -> command.run( ctx, getList( ctx, name ) ) );
 
             // Chain all of them together!
             tail.then( moreArg );
-            return this.link( tail );
+            return link( tail );
         };
     }
 
     private ArgumentBuilder<S, ?> tail( Command<S> command )
     {
-        ArgumentBuilder<S, ?> defaultTail = this.args.get( this.args.size() - 1 );
+        ArgumentBuilder<S, ?> defaultTail = args.get( args.size() - 1 );
         defaultTail.executes( command );
-        if( this.requires != null )
+        if( requires != null )
         {
-            defaultTail.requires( this.requires );
+            defaultTail.requires( requires );
         }
         return defaultTail;
     }
@@ -112,9 +112,9 @@ public class CommandBuilder<S> implements CommandNodeBuilder<S, Command<S>>
 
     private CommandNode<S> link( ArgumentBuilder<S, ?> tail )
     {
-        for( int i = this.args.size() - 2; i >= 0; i-- )
+        for( int i = args.size() - 2; i >= 0; i-- )
         {
-            tail = this.args.get( i )
+            tail = args.get( i )
                 .then( tail );
         }
         return tail.build();
@@ -122,17 +122,17 @@ public class CommandBuilder<S> implements CommandNodeBuilder<S, Command<S>>
 
     public <T> CommandNodeBuilder<S, ArgCommand<S, List<T>>> argManyFlatten( String name, ArgumentType<List<T>> type, Supplier<List<T>> empty )
     {
-        return this.argMany( name, RepeatArgumentType.someFlat( type, ARGUMENT_EXPECTED ), empty );
+        return argMany( name, RepeatArgumentType.someFlat( type, ARGUMENT_EXPECTED ), empty );
     }
 
     @Override
     public CommandNode<S> executes( Command<S> command )
     {
-        if( this.args.isEmpty() )
+        if( args.isEmpty() )
         {
             throw new IllegalStateException( "Cannot have empty arg chain builder" );
         }
 
-        return this.link( this.tail( command ) );
+        return link( tail( command ) );
     }
 }

@@ -19,7 +19,7 @@ import javax.annotation.Nonnull;
 public class ComputerUpgradeRecipe extends ComputerFamilyRecipe
 {
     public static final RecipeSerializer<ComputerUpgradeRecipe> SERIALIZER =
-        new dan200.computercraft.shared.computer.recipe.ComputerFamilyRecipe.Serializer<ComputerUpgradeRecipe>()
+        new ComputerFamilyRecipe.Serializer<ComputerUpgradeRecipe>()
         {
             @Override
             protected ComputerUpgradeRecipe create( Identifier identifier, String group, int width, int height, DefaultedList<Ingredient> ingredients,
@@ -39,7 +39,7 @@ public class ComputerUpgradeRecipe extends ComputerFamilyRecipe
     @Override
     protected ItemStack convert( @Nonnull IComputerItem item, @Nonnull ItemStack stack )
     {
-        return item.withFamily( stack, this.getFamily() );
+        return item.withFamily( stack, getFamily() );
     }
 
     @Nonnull

@@ -36,19 +36,19 @@ public abstract class ComputerServerMessage implements NetworkMessage
     @Override
     public void toBytes( @Nonnull PacketByteBuf buf )
     {
-        buf.writeVarInt( this.instanceId );
+        buf.writeVarInt( instanceId );
     }
 
     @Override
     public void fromBytes( @Nonnull PacketByteBuf buf )
     {
-        this.instanceId = buf.readVarInt();
+        instanceId = buf.readVarInt();
     }
 
     @Override
     public void handle( PacketContext context )
     {
-        ServerComputer computer = ComputerCraft.serverComputerRegistry.get( this.instanceId );
+        ServerComputer computer = ComputerCraft.serverComputerRegistry.get( instanceId );
         if( computer == null )
         {
             return;
@@ -60,7 +60,7 @@ public abstract class ComputerServerMessage implements NetworkMessage
             return;
         }
 
-        this.handle( computer, container );
+        handle( computer, container );
     }
 
     protected abstract void handle( @Nonnull ServerComputer computer, @Nonnull IContainerComputer container );

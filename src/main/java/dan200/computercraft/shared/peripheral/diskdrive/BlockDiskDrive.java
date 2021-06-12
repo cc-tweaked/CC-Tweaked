@@ -36,7 +36,7 @@ public class BlockDiskDrive extends BlockGeneric
     public BlockDiskDrive( Settings settings )
     {
         super( settings, ComputerCraftRegistry.ModTiles.DISK_DRIVE );
-        this.setDefaultState( this.getStateManager().getDefaultState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( FACING, Direction.NORTH )
             .with( STATE, DiskDriveState.EMPTY ) );
     }
@@ -45,7 +45,7 @@ public class BlockDiskDrive extends BlockGeneric
     @Override
     public BlockState getPlacementState( ItemPlacementContext placement )
     {
-        return this.getDefaultState().with( FACING,
+        return getDefaultState().with( FACING,
             placement.getPlayerFacing()
                 .getOpposite() );
     }

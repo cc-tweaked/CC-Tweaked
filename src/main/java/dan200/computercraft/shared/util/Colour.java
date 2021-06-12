@@ -32,7 +32,7 @@ public enum Colour
     Colour( int hex )
     {
         this.hex = hex;
-        this.rgb = new float[] {
+        rgb = new float[] {
             ((hex >> 16) & 0xFF) / 255.0f,
             ((hex >> 8) & 0xFF) / 255.0f,
             (hex & 0xFF) / 255.0f,
@@ -59,36 +59,36 @@ public enum Colour
 
     public int getHex()
     {
-        return this.hex;
+        return hex;
     }
 
     public Colour getNext()
     {
-        return VALUES[(this.ordinal() + 1) % 16];
+        return VALUES[(ordinal() + 1) % 16];
     }
 
     public Colour getPrevious()
     {
-        return VALUES[(this.ordinal() + 15) % 16];
+        return VALUES[(ordinal() + 15) % 16];
     }
 
     public float[] getRGB()
     {
-        return this.rgb;
+        return rgb;
     }
 
     public float getR()
     {
-        return this.rgb[0];
+        return rgb[0];
     }
 
     public float getG()
     {
-        return this.rgb[1];
+        return rgb[1];
     }
 
     public float getB()
     {
-        return this.rgb[2];
+        return rgb[2];
     }
 }

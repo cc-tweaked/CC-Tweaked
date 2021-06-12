@@ -54,7 +54,7 @@ public class FakePlayer extends ServerPlayerEntity
     public FakePlayer( ServerWorld world, GameProfile gameProfile )
     {
         super( world.getServer(), world, gameProfile, new ServerPlayerInteractionManager( world ) );
-        this.networkHandler = new FakeNetHandler( this );
+        networkHandler = new FakeNetHandler( this );
     }
 
     // region Direct networkHandler access

@@ -38,6 +38,6 @@ public final class ConstantLootConditionSerializer<T extends LootCondition> impl
     @Override
     public T fromJson( @Nonnull JsonObject json, @Nonnull JsonDeserializationContext context )
     {
-        return this.instance;
+        return instance;
     }
 }

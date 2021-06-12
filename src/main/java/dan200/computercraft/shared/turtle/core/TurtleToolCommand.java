@@ -54,7 +54,7 @@ public class TurtleToolCommand implements ITurtleCommand
                 continue;
             }
 
-            TurtleCommandResult result = upgrade.useTool( turtle, side, this.verb, this.direction.toWorldDir( turtle ) );
+            TurtleCommandResult result = upgrade.useTool( turtle, side, verb, direction.toWorldDir( turtle ) );
             if( result.isSuccess() )
             {
                 switch( side )
@@ -76,7 +76,7 @@ public class TurtleToolCommand implements ITurtleCommand
                 firstFailure = result;
             }
         }
-        return firstFailure != null ? firstFailure : TurtleCommandResult.failure( "No tool to " + this.verb.name()
+        return firstFailure != null ? firstFailure : TurtleCommandResult.failure( "No tool to " + verb.name()
             .toLowerCase( Locale.ROOT ) + " with" );
     }
 }

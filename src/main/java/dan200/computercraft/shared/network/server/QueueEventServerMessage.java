@@ -41,15 +41,15 @@ public class QueueEventServerMessage extends ComputerServerMessage
     public void toBytes( @Nonnull PacketByteBuf buf )
     {
         super.toBytes( buf );
-        buf.writeString( this.event );
-        buf.writeCompoundTag( this.args == null ? null : NBTUtil.encodeObjects( this.args ) );
+        buf.writeString( event );
+        buf.writeCompoundTag( args == null ? null : NBTUtil.encodeObjects( args ) );
     }
 
     @Override
     public void fromBytes( @Nonnull PacketByteBuf buf )
     {
         super.fromBytes( buf );
-        this.event = buf.readString( Short.MAX_VALUE );
+        event = buf.readString( Short.MAX_VALUE );
 
         CompoundTag args = buf.readCompoundTag();
         this.args = args == null ? null : NBTUtil.decodeObjects( args );
@@ -58,6 +58,6 @@ public class QueueEventServerMessage extends ComputerServerMessage
     @Override
     protected void handle( @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
-        computer.queueEvent( this.event, this.args );
+        computer.queueEvent( event, args );
     }
 }

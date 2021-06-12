@@ -35,7 +35,7 @@ public class ClientTableFormatter implements TableFormatter
     @Nullable
     public Text getPadding( Text component, int width )
     {
-        int extraWidth = width - this.getWidth( component );
+        int extraWidth = width - getWidth( component );
         if( extraWidth <= 0 )
         {
             return null;

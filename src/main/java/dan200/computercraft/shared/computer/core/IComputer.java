@@ -20,7 +20,7 @@ public interface IComputer extends ITerminal, InputHandler
 
     default void queueEvent( String event )
     {
-        this.queueEvent( event, null );
+        queueEvent( event, null );
     }
 
     @Override
@@ -28,11 +28,11 @@ public interface IComputer extends ITerminal, InputHandler
 
     default ComputerState getState()
     {
-        if( !this.isOn() )
+        if( !isOn() )
         {
             return ComputerState.OFF;
         }
-        return this.isCursorDisplayed() ? ComputerState.BLINKING : ComputerState.ON;
+        return isCursorDisplayed() ? ComputerState.BLINKING : ComputerState.ON;
     }
 
     boolean isOn();

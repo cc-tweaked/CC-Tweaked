@@ -40,7 +40,7 @@ public abstract class ChoiceArgumentType<T> implements ArgumentType<T>
         int start = reader.getCursor();
         String name = reader.readUnquotedString();
 
-        for( T choice : this.choices )
+        for( T choice : choices )
         {
             String choiceName = this.name.apply( choice );
             if( name.equals( choiceName ) )
@@ -50,7 +50,7 @@ public abstract class ChoiceArgumentType<T> implements ArgumentType<T>
         }
 
         reader.setCursor( start );
-        throw this.exception.createWithContext( reader, name );
+        throw exception.createWithContext( reader, name );
     }
 
     @Override
@@ -58,7 +58,7 @@ public abstract class ChoiceArgumentType<T> implements ArgumentType<T>
     {
         String remaining = builder.getRemaining()
             .toLowerCase( Locale.ROOT );
-        for( T choice : this.choices )
+        for( T choice : choices )
         {
             String name = this.name.apply( choice );
             if( !name.toLowerCase( Locale.ROOT )
@@ -66,7 +66,7 @@ public abstract class ChoiceArgumentType<T> implements ArgumentType<T>
             {
                 continue;
             }
-            builder.suggest( name, this.tooltip.apply( choice ) );
+            builder.suggest( name, tooltip.apply( choice ) );
         }
 
         return builder.buildFuture();
@@ -75,10 +75,10 @@ public abstract class ChoiceArgumentType<T> implements ArgumentType<T>
     @Override
     public Collection<String> getExamples()
     {
-        List<String> items = this.choices instanceof Collection<?> ? new ArrayList<>( ((Collection<T>) this.choices).size() ) : new ArrayList<>();
-        for( T choice : this.choices )
+        List<String> items = choices instanceof Collection<?> ? new ArrayList<>( ((Collection<T>) choices).size() ) : new ArrayList<>();
+        for( T choice : choices )
         {
-            items.add( this.name.apply( choice ) );
+            items.add( name.apply( choice ) );
         }
         items.sort( Comparator.naturalOrder() );
         return items;

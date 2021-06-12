@@ -66,7 +66,7 @@ public final class Generator<T>
     {
         this.base = base;
         this.context = context;
-        this.interfaces = new String[] { Type.getInternalName( base ) };
+        interfaces = new String[] { Type.getInternalName( base ) };
         this.wrap = wrap;
 
         StringBuilder methodDesc = new StringBuilder().append( "(Ljava/lang/Object;" );

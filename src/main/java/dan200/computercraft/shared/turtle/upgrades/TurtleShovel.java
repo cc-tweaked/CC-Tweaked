@@ -46,7 +46,7 @@ public class TurtleShovel extends TurtleTool
     {
         if( verb == TurtleVerb.DIG )
         {
-            ItemStack shovel = this.item.copy();
+            ItemStack shovel = item.copy();
             ItemStack remainder = TurtlePlaceCommand.deploy( shovel, turtle, direction, null, null );
             if( remainder != shovel )
             {

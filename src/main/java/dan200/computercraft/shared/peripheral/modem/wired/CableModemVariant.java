@@ -68,18 +68,18 @@ public enum CableModemVariant implements StringIdentifiable
     @Override
     public String asString()
     {
-        return this.name;
+        return name;
     }
 
     @Nullable
     public Direction getFacing()
     {
-        return this.facing;
+        return facing;
     }
 
     @Override
     public String toString()
     {
-        return this.name;
+        return name;
     }
 }

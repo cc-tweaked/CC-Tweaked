@@ -103,10 +103,8 @@ public final class ClientRegistry
                 case 1: // Frame colour
                     return IColouredItem.getColourBasic( stack );
                 case 2: // Light colour
-                {
                     int light = ItemPocketComputer.getLightState( stack );
                     return light == -1 ? Colour.BLACK.getHex() : light;
-                }
             }
         }, ComputerCraftRegistry.ModItems.POCKET_COMPUTER_NORMAL, ComputerCraftRegistry.ModItems.POCKET_COMPUTER_ADVANCED );
 

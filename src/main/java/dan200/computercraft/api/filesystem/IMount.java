@@ -59,11 +59,11 @@ public interface IMount
     @Nonnull
     default BasicFileAttributes getAttributes( @Nonnull String path ) throws IOException
     {
-        if( !this.exists( path ) )
+        if( !exists( path ) )
         {
             throw new FileOperationException( path, "No such file" );
         }
-        return new FileAttributes( this.isDirectory( path ), this.getSize( path ) );
+        return new FileAttributes( isDirectory( path ), getSize( path ) );
     }
 
     /**

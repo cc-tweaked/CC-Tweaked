@@ -18,52 +18,52 @@ public class Palette
     public Palette()
     {
         // Get the default palette
-        this.resetColours();
+        resetColours();
     }
 
     public void resetColours()
     {
         for( int i = 0; i < Colour.VALUES.length; i++ )
         {
-            this.resetColour( i );
+            resetColour( i );
         }
     }
 
     public void resetColour( int i )
     {
-        if( i >= 0 && i < this.colours.length )
+        if( i >= 0 && i < colours.length )
         {
-            this.setColour( i, Colour.VALUES[i] );
+            setColour( i, Colour.VALUES[i] );
         }
     }
 
     public void setColour( int i, Colour colour )
     {
-        this.setColour( i, colour.getR(), colour.getG(), colour.getB() );
+        setColour( i, colour.getR(), colour.getG(), colour.getB() );
     }
 
     public void setColour( int i, double r, double g, double b )
     {
-        if( i >= 0 && i < this.colours.length )
+        if( i >= 0 && i < colours.length )
         {
-            this.colours[i][0] = r;
-            this.colours[i][1] = g;
-            this.colours[i][2] = b;
+            colours[i][0] = r;
+            colours[i][1] = g;
+            colours[i][2] = b;
         }
     }
 
     public double[] getColour( int i )
     {
-        if( i >= 0 && i < this.colours.length )
+        if( i >= 0 && i < colours.length )
         {
-            return this.colours[i];
+            return colours[i];
         }
         return null;
     }
 
     public void write( PacketByteBuf buffer )
     {
-        for( double[] colour : this.colours )
+        for( double[] colour : colours )
         {
             for( double channel : colour )
             {
@@ -74,7 +74,7 @@ public class Palette
 
     public void read( PacketByteBuf buffer )
     {
-        for( double[] colour : this.colours )
+        for( double[] colour : colours )
         {
             for( int i = 0; i < colour.length; i++ )
             {
@@ -85,11 +85,11 @@ public class Palette
 
     public CompoundTag writeToNBT( CompoundTag nbt )
     {
-        int[] rgb8 = new int[this.colours.length];
+        int[] rgb8 = new int[colours.length];
 
-        for( int i = 0; i < this.colours.length; i++ )
+        for( int i = 0; i < colours.length; i++ )
         {
-            rgb8[i] = encodeRGB8( this.colours[i] );
+            rgb8[i] = encodeRGB8( colours[i] );
         }
 
         nbt.putIntArray( "term_palette", rgb8 );
@@ -113,14 +113,14 @@ public class Palette
         }
         int[] rgb8 = nbt.getIntArray( "term_palette" );
 
-        if( rgb8.length != this.colours.length )
+        if( rgb8.length != colours.length )
         {
             return;
         }
 
-        for( int i = 0; i < this.colours.length; i++ )
+        for( int i = 0; i < colours.length; i++ )
         {
-            this.colours[i] = decodeRGB8( rgb8[i] );
+            colours[i] = decodeRGB8( rgb8[i] );
         }
     }
 

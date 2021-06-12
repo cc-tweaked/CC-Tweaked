@@ -40,7 +40,7 @@ public final class PocketComputerUpgradeRecipe extends SpecialCraftingRecipe
     @Override
     public boolean matches( @Nonnull CraftingInventory inventory, @Nonnull World world )
     {
-        return !this.craft( inventory ).isEmpty();
+        return !craft( inventory ).isEmpty();
     }
 
     @Nonnull

@@ -32,19 +32,19 @@ public class ContainerDiskDrive extends ScreenHandler
 
         this.inventory = inventory;
 
-        this.addSlot( new Slot( this.inventory, 0, 8 + 4 * 18, 35 ) );
+        addSlot( new Slot( this.inventory, 0, 8 + 4 * 18, 35 ) );
 
         for( int y = 0; y < 3; y++ )
         {
             for( int x = 0; x < 9; x++ )
             {
-                this.addSlot( new Slot( player, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 ) );
+                addSlot( new Slot( player, x + y * 9 + 9, 8 + x * 18, 84 + y * 18 ) );
             }
         }
 
         for( int x = 0; x < 9; x++ )
         {
-            this.addSlot( new Slot( player, x, 8 + x * 18, 142 ) );
+            addSlot( new Slot( player, x, 8 + x * 18, 142 ) );
         }
     }
 
@@ -52,7 +52,7 @@ public class ContainerDiskDrive extends ScreenHandler
     @Override
     public ItemStack transferSlot( @Nonnull PlayerEntity player, int slotIndex )
     {
-        Slot slot = this.slots.get( slotIndex );
+        Slot slot = slots.get( slotIndex );
         if( slot == null || !slot.hasStack() )
         {
             return ItemStack.EMPTY;
@@ -64,7 +64,7 @@ public class ContainerDiskDrive extends ScreenHandler
         if( slotIndex == 0 )
         {
             // Insert into player inventory
-            if( !this.insertItem( existing, 1, 37, true ) )
+            if( !insertItem( existing, 1, 37, true ) )
             {
                 return ItemStack.EMPTY;
             }
@@ -72,7 +72,7 @@ public class ContainerDiskDrive extends ScreenHandler
         else
         {
             // Insert into drive inventory
-            if( !this.insertItem( existing, 0, 1, false ) )
+            if( !insertItem( existing, 0, 1, false ) )
             {
                 return ItemStack.EMPTY;
             }
@@ -99,6 +99,6 @@ public class ContainerDiskDrive extends ScreenHandler
     @Override
     public boolean canUse( @Nonnull PlayerEntity player )
     {
-        return this.inventory.canPlayerUse( player );
+        return inventory.canPlayerUse( player );
     }
 }

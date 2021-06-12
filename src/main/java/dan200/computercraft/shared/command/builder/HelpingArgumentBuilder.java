@@ -107,14 +107,14 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<ServerC
     @Override
     public LiteralArgumentBuilder<ServerCommandSource> then( final ArgumentBuilder<ServerCommandSource, ?> argument )
     {
-        if( this.getRedirect() != null )
+        if( getRedirect() != null )
         {
             throw new IllegalStateException( "Cannot add children to a redirected node" );
         }
 
         if( argument instanceof HelpingArgumentBuilder )
         {
-            this.children.add( (HelpingArgumentBuilder) argument );
+            children.add( (HelpingArgumentBuilder) argument );
         }
         else if( argument instanceof LiteralArgumentBuilder )
         {
@@ -147,25 +147,25 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<ServerC
     @Override
     public LiteralCommandNode<ServerCommandSource> build()
     {
-        return this.buildImpl( this.getLiteral().replace( '-', '_' ), this.getLiteral() );
+        return buildImpl( getLiteral().replace( '-', '_' ), getLiteral() );
     }
 
     private LiteralCommandNode<ServerCommandSource> build( @Nonnull String id, @Nonnull String command )
     {
-        return this.buildImpl( id + "." + this.getLiteral().replace( '-', '_' ), command + " " + this.getLiteral() );
+        return buildImpl( id + "." + getLiteral().replace( '-', '_' ), command + " " + getLiteral() );
     }
 
     private LiteralCommandNode<ServerCommandSource> buildImpl( String id, String command )
     {
         HelpCommand helpCommand = new HelpCommand( id, command );
-        LiteralCommandNode<ServerCommandSource> node = new LiteralCommandNode<>( this.getLiteral(),
-            helpCommand, this.getRequirement(),
-            this.getRedirect(), this.getRedirectModifier(), this.isFork() );
+        LiteralCommandNode<ServerCommandSource> node = new LiteralCommandNode<>( getLiteral(),
+            helpCommand, getRequirement(),
+            getRedirect(), getRedirectModifier(), isFork() );
         helpCommand.node = node;
 
         // Set up a /... help command
         LiteralArgumentBuilder<ServerCommandSource> helpNode =
-            LiteralArgumentBuilder.<ServerCommandSource>literal( "help" ).requires( x -> this.getArguments().stream()
+            LiteralArgumentBuilder.<ServerCommandSource>literal( "help" ).requires( x -> getArguments().stream()
                 .anyMatch(
                     y -> y.getRequirement()
                         .test(
@@ -173,7 +173,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<ServerC
                 .executes( helpCommand );
 
         // Add all normal command children to this and the help node
-        for( CommandNode<ServerCommandSource> child : this.getArguments() )
+        for( CommandNode<ServerCommandSource> child : getArguments() )
         {
             node.addChild( child );
 
@@ -183,7 +183,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<ServerC
         }
 
         // And add alternative versions of which forward instead
-        for( HelpingArgumentBuilder childBuilder : this.children )
+        for( HelpingArgumentBuilder childBuilder : children )
         {
             LiteralCommandNode<ServerCommandSource> child = childBuilder.build( id, command );
             node.addChild( child );
@@ -214,7 +214,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<ServerC
         public int run( CommandContext<ServerCommandSource> context )
         {
             context.getSource()
-                .sendFeedback( getHelp( context, this.node, this.id, this.command ), false );
+                .sendFeedback( getHelp( context, node, id, command ), false );
             return 0;
         }
     }

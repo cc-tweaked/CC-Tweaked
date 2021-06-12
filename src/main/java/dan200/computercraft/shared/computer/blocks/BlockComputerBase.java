@@ -69,7 +69,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     @Deprecated
     public int getWeakRedstonePower( @Nonnull BlockState state, @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction incomingSide )
     {
-        return this.getStrongRedstonePower( state, world, pos, incomingSide );
+        return getStrongRedstonePower( state, world, pos, incomingSide );
     }
 
     @Override
@@ -95,7 +95,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     public ComputerFamily getFamily()
     {
-        return this.family;
+        return family;
     }
 
     @Override
@@ -165,7 +165,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
         BlockEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileComputerBase )
         {
-            ItemStack result = this.getItem( (TileComputerBase) tile );
+            ItemStack result = getItem( (TileComputerBase) tile );
             if( !result.isEmpty() )
             {
                 return result;
@@ -202,7 +202,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
                 .parameter( LootContextParameters.TOOL, player.getMainHandStack() )
                 .parameter( LootContextParameters.THIS_ENTITY, player )
                 .parameter( LootContextParameters.BLOCK_ENTITY, tile )
-                .putDrop( DROP, ( ctx, out ) -> out.accept( this.getItem( computer ) ) );
+                .putDrop( DROP, ( ctx, out ) -> out.accept( getItem( computer ) ) );
             for( ItemStack item : state.getDroppedStacks( context ) )
             {
                 dropStack( world, pos, item );

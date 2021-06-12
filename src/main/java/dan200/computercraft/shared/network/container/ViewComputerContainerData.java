@@ -31,27 +31,27 @@ public class ViewComputerContainerData extends ComputerContainerData
         Terminal terminal = computer.getTerminal();
         if( terminal != null )
         {
-            this.width = terminal.getWidth();
-            this.height = terminal.getHeight();
+            width = terminal.getWidth();
+            height = terminal.getHeight();
         }
         else
         {
-            this.width = this.height = 0;
+            width = height = 0;
         }
     }
 
     public ViewComputerContainerData( PacketByteBuf packetByteBuf )
     {
         super( new PacketByteBuf( packetByteBuf.copy() ) );
-        this.fromBytes( packetByteBuf );
+        fromBytes( packetByteBuf );
     }
 
     @Override
     public void fromBytes( PacketByteBuf buf )
     {
         super.fromBytes( buf );
-        this.width = buf.readVarInt();
-        this.height = buf.readVarInt();
+        width = buf.readVarInt();
+        height = buf.readVarInt();
     }
 
     @Override
@@ -64,17 +64,17 @@ public class ViewComputerContainerData extends ComputerContainerData
     public void toBytes( @Nonnull PacketByteBuf buf )
     {
         super.toBytes( buf );
-        buf.writeVarInt( this.width );
-        buf.writeVarInt( this.height );
+        buf.writeVarInt( width );
+        buf.writeVarInt( height );
     }
 
     public int getWidth()
     {
-        return this.width;
+        return width;
     }
 
     public int getHeight()
     {
-        return this.height;
+        return height;
     }
 }

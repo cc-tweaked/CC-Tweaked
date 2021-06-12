@@ -12,7 +12,7 @@ public class ServerComputerRegistry extends ComputerRegistry<ServerComputer>
 {
     public void update()
     {
-        Iterator<ServerComputer> it = this.getComputers().iterator();
+        Iterator<ServerComputer> it = getComputers().iterator();
         while( it.hasNext() )
         {
             ServerComputer computer = it.next();
@@ -39,7 +39,7 @@ public class ServerComputerRegistry extends ComputerRegistry<ServerComputer>
     public void reset()
     {
         //System.out.println( "RESET SERVER COMPUTERS" );
-        for( ServerComputer computer : this.getComputers() )
+        for( ServerComputer computer : getComputers() )
         {
             computer.unload();
         }
@@ -60,7 +60,7 @@ public class ServerComputerRegistry extends ComputerRegistry<ServerComputer>
     public void remove( int instanceID )
     {
         //System.out.println( "REMOVE SERVER COMPUTER " + instanceID );
-        ServerComputer computer = this.get( instanceID );
+        ServerComputer computer = get( instanceID );
         if( computer != null )
         {
             computer.unload();
@@ -77,7 +77,7 @@ public class ServerComputerRegistry extends ComputerRegistry<ServerComputer>
             return null;
         }
 
-        for( ServerComputer computer : this.getComputers() )
+        for( ServerComputer computer : getComputers() )
         {
             if( computer.getID() == computerID )
             {

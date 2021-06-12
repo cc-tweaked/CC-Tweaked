@@ -19,14 +19,14 @@ public class ClientTerminal implements ITerminal
     public ClientTerminal( boolean colour )
     {
         this.colour = colour;
-        this.terminal = null;
-        this.terminalChanged = false;
+        terminal = null;
+        terminalChanged = false;
     }
 
     public boolean pollTerminalChanged()
     {
-        boolean changed = this.terminalChanged;
-        this.terminalChanged = false;
+        boolean changed = terminalChanged;
+        terminalChanged = false;
         return changed;
     }
 
@@ -35,63 +35,63 @@ public class ClientTerminal implements ITerminal
     @Override
     public Terminal getTerminal()
     {
-        return this.terminal;
+        return terminal;
     }
 
     @Override
     public boolean isColour()
     {
-        return this.colour;
+        return colour;
     }
 
     public void read( TerminalState state )
     {
-        this.colour = state.colour;
+        colour = state.colour;
         if( state.hasTerminal() )
         {
-            this.resizeTerminal( state.width, state.height );
-            state.apply( this.terminal );
+            resizeTerminal( state.width, state.height );
+            state.apply( terminal );
         }
         else
         {
-            this.deleteTerminal();
+            deleteTerminal();
         }
     }
 
     private void resizeTerminal( int width, int height )
     {
-        if( this.terminal == null )
+        if( terminal == null )
         {
-            this.terminal = new Terminal( width, height, () -> this.terminalChanged = true );
-            this.terminalChanged = true;
+            terminal = new Terminal( width, height, () -> terminalChanged = true );
+            terminalChanged = true;
         }
         else
         {
-            this.terminal.resize( width, height );
+            terminal.resize( width, height );
         }
     }
 
     private void deleteTerminal()
     {
-        if( this.terminal != null )
+        if( terminal != null )
         {
-            this.terminal = null;
-            this.terminalChanged = true;
+            terminal = null;
+            terminalChanged = true;
         }
     }
 
     public void readDescription( CompoundTag nbt )
     {
-        this.colour = nbt.getBoolean( "colour" );
+        colour = nbt.getBoolean( "colour" );
         if( nbt.contains( "terminal" ) )
         {
             CompoundTag terminal = nbt.getCompound( "terminal" );
-            this.resizeTerminal( terminal.getInt( "term_width" ), terminal.getInt( "term_height" ) );
+            resizeTerminal( terminal.getInt( "term_width" ), terminal.getInt( "term_height" ) );
             this.terminal.readFromNBT( terminal );
         }
         else
         {
-            this.deleteTerminal();
+            deleteTerminal();
         }
     }
 }

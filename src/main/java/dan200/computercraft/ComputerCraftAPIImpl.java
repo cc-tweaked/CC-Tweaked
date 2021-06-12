@@ -80,11 +80,11 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     @Override
     public String getInstalledVersion()
     {
-        if( this.version != null )
+        if( version != null )
         {
-            return this.version;
+            return version;
         }
-        return this.version = FabricLoader.getInstance()
+        return version = FabricLoader.getInstance()
             .getModContainer( ComputerCraft.MOD_ID )
             .map( x -> x.getMetadata()
                 .getVersion()

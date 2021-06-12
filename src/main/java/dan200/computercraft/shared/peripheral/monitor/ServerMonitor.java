@@ -29,25 +29,25 @@ public class ServerMonitor extends ServerTerminal
     protected void markTerminalChanged()
     {
         super.markTerminalChanged();
-        this.markChanged();
+        markChanged();
     }
 
     private void markChanged()
     {
-        if( !this.changed.getAndSet( true ) )
+        if( !changed.getAndSet( true ) )
         {
-            TickScheduler.schedule( this.origin );
+            TickScheduler.schedule( origin );
         }
     }
 
     protected void clearChanged()
     {
-        this.changed.set( false );
+        changed.set( false );
     }
 
     public int getTextScale()
     {
-        return this.textScale;
+        return textScale;
     }
 
     public synchronized void setTextScale( int textScale )
@@ -57,40 +57,40 @@ public class ServerMonitor extends ServerTerminal
             return;
         }
         this.textScale = textScale;
-        this.rebuild();
+        rebuild();
     }
 
     public synchronized void rebuild()
     {
-        Terminal oldTerm = this.getTerminal();
+        Terminal oldTerm = getTerminal();
         int oldWidth = oldTerm == null ? -1 : oldTerm.getWidth();
         int oldHeight = oldTerm == null ? -1 : oldTerm.getHeight();
 
         double textScale = this.textScale * 0.5;
         int termWidth =
-            (int) Math.max( Math.round( (this.origin.getWidth() - 2.0 * (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN)) / (textScale * 6.0 * TileMonitor.RENDER_PIXEL_SCALE) ),
+            (int) Math.max( Math.round( (origin.getWidth() - 2.0 * (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN)) / (textScale * 6.0 * TileMonitor.RENDER_PIXEL_SCALE) ),
                 1.0 );
         int termHeight =
-            (int) Math.max( Math.round( (this.origin.getHeight() - 2.0 * (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN)) / (textScale * 9.0 * TileMonitor.RENDER_PIXEL_SCALE) ),
+            (int) Math.max( Math.round( (origin.getHeight() - 2.0 * (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN)) / (textScale * 9.0 * TileMonitor.RENDER_PIXEL_SCALE) ),
                 1.0 );
 
-        this.resize( termWidth, termHeight );
+        resize( termWidth, termHeight );
         if( oldWidth != termWidth || oldHeight != termHeight )
         {
-            this.getTerminal().clear();
-            this.resized.set( true );
-            this.markChanged();
+            getTerminal().clear();
+            resized.set( true );
+            markChanged();
         }
     }
 
     public boolean pollResized()
     {
-        return this.resized.getAndSet( false );
+        return resized.getAndSet( false );
     }
 
     public boolean pollTerminalChanged()
     {
-        this.update();
-        return this.hasTerminalChanged();
+        update();
+        return hasTerminalChanged();
     }
 }

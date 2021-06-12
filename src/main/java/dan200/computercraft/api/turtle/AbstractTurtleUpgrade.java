@@ -53,27 +53,27 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
     @Override
     public final Identifier getUpgradeID()
     {
-        return this.id;
+        return id;
     }
 
     @Nonnull
     @Override
     public final String getUnlocalisedAdjective()
     {
-        return this.adjective;
+        return adjective;
     }
 
     @Nonnull
     @Override
     public final TurtleUpgradeType getType()
     {
-        return this.type;
+        return type;
     }
 
     @Nonnull
     @Override
     public final ItemStack getCraftingItem()
     {
-        return this.stack;
+        return stack;
     }
 }

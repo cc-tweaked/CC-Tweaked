@@ -47,13 +47,13 @@ public class PrinterPeripheral implements IPeripheral
     @Override
     public Object getTarget()
     {
-        return this.printer;
+        return printer;
     }
 
     @Override
     public boolean equals( IPeripheral other )
     {
-        return other instanceof PrinterPeripheral && ((PrinterPeripheral) other).printer == this.printer;
+        return other instanceof PrinterPeripheral && ((PrinterPeripheral) other).printer == printer;
     }
 
     /**
@@ -67,7 +67,7 @@ public class PrinterPeripheral implements IPeripheral
     public final void write( IArguments arguments ) throws LuaException
     {
         String text = StringUtil.toString( arguments.get( 0 ) );
-        Terminal page = this.getCurrentPage();
+        Terminal page = getCurrentPage();
         page.write( text );
         page.setCursorPos( page.getCursorX() + text.length(), page.getCursorY() );
     }
@@ -75,7 +75,7 @@ public class PrinterPeripheral implements IPeripheral
     @Nonnull
     private Terminal getCurrentPage() throws LuaException
     {
-        Terminal currentPage = this.printer.getCurrentPage();
+        Terminal currentPage = printer.getCurrentPage();
         if( currentPage == null )
         {
             throw new LuaException( "Page not started" );
@@ -94,7 +94,7 @@ public class PrinterPeripheral implements IPeripheral
     @LuaFunction
     public final Object[] getCursorPos() throws LuaException
     {
-        Terminal page = this.getCurrentPage();
+        Terminal page = getCurrentPage();
         int x = page.getCursorX();
         int y = page.getCursorY();
         return new Object[] { x + 1, y + 1 };
@@ -110,7 +110,7 @@ public class PrinterPeripheral implements IPeripheral
     @LuaFunction
     public final void setCursorPos( int x, int y ) throws LuaException
     {
-        Terminal page = this.getCurrentPage();
+        Terminal page = getCurrentPage();
         page.setCursorPos( x - 1, y - 1 );
     }
 
@@ -125,7 +125,7 @@ public class PrinterPeripheral implements IPeripheral
     @LuaFunction
     public final Object[] getPageSize() throws LuaException
     {
-        Terminal page = this.getCurrentPage();
+        Terminal page = getCurrentPage();
         int width = page.getWidth();
         int height = page.getHeight();
         return new Object[] { width, height };
@@ -139,7 +139,7 @@ public class PrinterPeripheral implements IPeripheral
     @LuaFunction( mainThread = true )
     public final boolean newPage()
     {
-        return this.printer.startNewPage();
+        return printer.startNewPage();
     }
 
     /**
@@ -151,8 +151,8 @@ public class PrinterPeripheral implements IPeripheral
     @LuaFunction( mainThread = true )
     public final boolean endPage() throws LuaException
     {
-        this.getCurrentPage();
-        return this.printer.endCurrentPage();
+        getCurrentPage();
+        return printer.endCurrentPage();
     }
 
     /**
@@ -164,8 +164,8 @@ public class PrinterPeripheral implements IPeripheral
     @LuaFunction
     public final void setPageTitle( Optional<String> title ) throws LuaException
     {
-        this.getCurrentPage();
-        this.printer.setPageTitle( StringUtil.normaliseLabel( title.orElse( "" ) ) );
+        getCurrentPage();
+        printer.setPageTitle( StringUtil.normaliseLabel( title.orElse( "" ) ) );
     }
 
     /**
@@ -176,7 +176,7 @@ public class PrinterPeripheral implements IPeripheral
     @LuaFunction
     public final int getInkLevel()
     {
-        return this.printer.getInkLevel();
+        return printer.getInkLevel();
     }
 
     /**
@@ -187,6 +187,6 @@ public class PrinterPeripheral implements IPeripheral
     @LuaFunction
     public final int getPaperLevel()
     {
-        return this.printer.getPaperLevel();
+        return printer.getPaperLevel();
     }
 }

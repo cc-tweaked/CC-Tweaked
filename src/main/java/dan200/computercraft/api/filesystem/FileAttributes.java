@@ -47,13 +47,13 @@ final class FileAttributes implements BasicFileAttributes
     @Override
     public boolean isRegularFile()
     {
-        return !this.isDirectory;
+        return !isDirectory;
     }
 
     @Override
     public boolean isDirectory()
     {
-        return this.isDirectory;
+        return isDirectory;
     }
 
     @Override
@@ -71,7 +71,7 @@ final class FileAttributes implements BasicFileAttributes
     @Override
     public long size()
     {
-        return this.size;
+        return size;
     }
 
     @Override

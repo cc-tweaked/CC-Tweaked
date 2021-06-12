@@ -74,9 +74,9 @@ public class WidgetTerminal implements Element
 
             computer.mouseClick( button + 1, charX + 1, charY + 1 );
 
-            this.lastMouseButton = button;
-            this.lastMouseX = charX;
-            this.lastMouseY = charY;
+            lastMouseButton = button;
+            lastMouseX = charX;
+            lastMouseY = charY;
         }
 
         return true;
@@ -99,14 +99,14 @@ public class WidgetTerminal implements Element
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
             charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
-            if( this.lastMouseButton == button )
+            if( lastMouseButton == button )
             {
-                computer.mouseUp( this.lastMouseButton + 1, charX + 1, charY + 1 );
-                this.lastMouseButton = -1;
+                computer.mouseUp( lastMouseButton + 1, charX + 1, charY + 1 );
+                lastMouseButton = -1;
             }
 
-            this.lastMouseX = charX;
-            this.lastMouseY = charY;
+            lastMouseX = charX;
+            lastMouseY = charY;
         }
 
         return false;
@@ -129,11 +129,11 @@ public class WidgetTerminal implements Element
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
             charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
-            if( button == this.lastMouseButton && (charX != this.lastMouseX || charY != this.lastMouseY) )
+            if( button == lastMouseButton && (charX != lastMouseX || charY != lastMouseY) )
             {
                 computer.mouseDrag( button + 1, charX + 1, charY + 1 );
-                this.lastMouseX = charX;
-                this.lastMouseY = charY;
+                lastMouseX = charX;
+                lastMouseY = charY;
             }
         }
 
@@ -159,8 +159,8 @@ public class WidgetTerminal implements Element
 
             computer.mouseScroll( delta < 0 ? 1 : -1, charX + 1, charY + 1 );
 
-            this.lastMouseX = charX;
-            this.lastMouseY = charY;
+            lastMouseX = charX;
+            lastMouseY = charY;
         }
 
         return true;
@@ -178,27 +178,27 @@ public class WidgetTerminal implements Element
             switch( key )
             {
                 case GLFW.GLFW_KEY_T:
-                    if( this.terminateTimer < 0 )
+                    if( terminateTimer < 0 )
                     {
-                        this.terminateTimer = 0;
+                        terminateTimer = 0;
                     }
                     return true;
                 case GLFW.GLFW_KEY_S:
-                    if( this.shutdownTimer < 0 )
+                    if( shutdownTimer < 0 )
                     {
-                        this.shutdownTimer = 0;
+                        shutdownTimer = 0;
                     }
                     return true;
                 case GLFW.GLFW_KEY_R:
-                    if( this.rebootTimer < 0 )
+                    if( rebootTimer < 0 )
                     {
-                        this.rebootTimer = 0;
+                        rebootTimer = 0;
                     }
                     return true;
 
                 case GLFW.GLFW_KEY_V:
                     // Ctrl+V for paste
-                    String clipboard = this.client.keyboard.getClipboard();
+                    String clipboard = client.keyboard.getClipboard();
                     if( clipboard != null )
                     {
                         // Clip to the first occurrence of \r or \n
@@ -226,7 +226,7 @@ public class WidgetTerminal implements Element
                             {
                                 clipboard = clipboard.substring( 0, 512 );
                             }
-                            this.queueEvent( "paste", clipboard );
+                            queueEvent( "paste", clipboard );
                         }
 
                         return true;
@@ -234,11 +234,11 @@ public class WidgetTerminal implements Element
             }
         }
 
-        if( key >= 0 && this.terminateTimer < 0 && this.rebootTimer < 0 && this.shutdownTimer < 0 )
+        if( key >= 0 && terminateTimer < 0 && rebootTimer < 0 && shutdownTimer < 0 )
         {
             // Queue the "key" event and add to the down set
-            boolean repeat = this.keysDown.get( key );
-            this.keysDown.set( key );
+            boolean repeat = keysDown.get( key );
+            keysDown.set( key );
             IComputer computer = this.computer.get();
             if( computer != null )
             {
@@ -253,9 +253,9 @@ public class WidgetTerminal implements Element
     public boolean keyReleased( int key, int scancode, int modifiers )
     {
         // Queue the "key_up" event and remove from the down set
-        if( key >= 0 && this.keysDown.get( key ) )
+        if( key >= 0 && keysDown.get( key ) )
         {
-            this.keysDown.set( key, false );
+            keysDown.set( key, false );
             IComputer computer = this.computer.get();
             if( computer != null )
             {
@@ -266,17 +266,17 @@ public class WidgetTerminal implements Element
         switch( key )
         {
             case GLFW.GLFW_KEY_T:
-                this.terminateTimer = -1;
+                terminateTimer = -1;
                 break;
             case GLFW.GLFW_KEY_R:
-                this.rebootTimer = -1;
+                rebootTimer = -1;
                 break;
             case GLFW.GLFW_KEY_S:
-                this.shutdownTimer = -1;
+                shutdownTimer = -1;
                 break;
             case GLFW.GLFW_KEY_LEFT_CONTROL:
             case GLFW.GLFW_KEY_RIGHT_CONTROL:
-                this.terminateTimer = this.rebootTimer = this.shutdownTimer = -1;
+                terminateTimer = rebootTimer = shutdownTimer = -1;
                 break;
         }
 
@@ -289,7 +289,7 @@ public class WidgetTerminal implements Element
         if( ch >= 32 && ch <= 126 || ch >= 160 && ch <= 255 ) // printable chars in byte range
         {
             // Queue the "char" event
-            this.queueEvent( "char", Character.toString( ch ) );
+            queueEvent( "char", Character.toString( ch ) );
         }
 
         return true;
@@ -298,32 +298,32 @@ public class WidgetTerminal implements Element
     @Override
     public boolean changeFocus( boolean reversed )
     {
-        if( this.focused )
+        if( focused )
         {
             // When blurring, we should make all keys go up
-            for( int key = 0; key < this.keysDown.size(); key++ )
+            for( int key = 0; key < keysDown.size(); key++ )
             {
-                if( this.keysDown.get( key ) )
+                if( keysDown.get( key ) )
                 {
-                    this.queueEvent( "key_up", key );
+                    queueEvent( "key_up", key );
                 }
             }
-            this.keysDown.clear();
+            keysDown.clear();
 
             // When blurring, we should make the last mouse button go up
-            if( this.lastMouseButton > 0 )
+            if( lastMouseButton > 0 )
             {
                 IComputer computer = this.computer.get();
                 if( computer != null )
                 {
-                    computer.mouseUp( this.lastMouseButton + 1, this.lastMouseX + 1, this.lastMouseY + 1 );
+                    computer.mouseUp( lastMouseButton + 1, lastMouseX + 1, lastMouseY + 1 );
                 }
-                this.lastMouseButton = -1;
+                lastMouseButton = -1;
             }
 
-            this.shutdownTimer = this.terminateTimer = this.rebootTimer = -1;
+            shutdownTimer = terminateTimer = rebootTimer = -1;
         }
-        this.focused = !this.focused;
+        focused = !focused;
         return true;
     }
 
@@ -344,12 +344,12 @@ public class WidgetTerminal implements Element
 
     public void update()
     {
-        if( this.terminateTimer >= 0 && this.terminateTimer < TERMINATE_TIME && (this.terminateTimer += 0.05f) > TERMINATE_TIME )
+        if( terminateTimer >= 0 && terminateTimer < TERMINATE_TIME && (terminateTimer += 0.05f) > TERMINATE_TIME )
         {
-            this.queueEvent( "terminate" );
+            queueEvent( "terminate" );
         }
 
-        if( this.shutdownTimer >= 0 && this.shutdownTimer < TERMINATE_TIME && (this.shutdownTimer += 0.05f) > TERMINATE_TIME )
+        if( shutdownTimer >= 0 && shutdownTimer < TERMINATE_TIME && (shutdownTimer += 0.05f) > TERMINATE_TIME )
         {
             ClientComputer computer = this.computer.get();
             if( computer != null )
@@ -358,7 +358,7 @@ public class WidgetTerminal implements Element
             }
         }
 
-        if( this.rebootTimer >= 0 && this.rebootTimer < TERMINATE_TIME && (this.rebootTimer += 0.05f) > TERMINATE_TIME )
+        if( rebootTimer >= 0 && rebootTimer < TERMINATE_TIME && (rebootTimer += 0.05f) > TERMINATE_TIME )
         {
             ClientComputer computer = this.computer.get();
             if( computer != null )
@@ -379,21 +379,21 @@ public class WidgetTerminal implements Element
 
     public void draw( int originX, int originY )
     {
-        synchronized( this.computer )
+        synchronized( computer )
         {
             // Draw the screen contents
             ClientComputer computer = this.computer.get();
             Terminal terminal = computer != null ? computer.getTerminal() : null;
             if( terminal != null )
             {
-                FixedWidthFontRenderer.drawTerminal( originX, originY, terminal, !computer.isColour(), this.topMargin, this.bottomMargin, this.leftMargin,
-                    this.rightMargin );
+                FixedWidthFontRenderer.drawTerminal( originX, originY, terminal, !computer.isColour(), topMargin, bottomMargin, leftMargin,
+                    rightMargin );
             }
             else
             {
-                FixedWidthFontRenderer.drawEmptyTerminal( originX - this.leftMargin,
-                    originY - this.rightMargin, this.termWidth * FONT_WIDTH + this.leftMargin + this.rightMargin,
-                    this.termHeight * FONT_HEIGHT + this.topMargin + this.bottomMargin );
+                FixedWidthFontRenderer.drawEmptyTerminal( originX - leftMargin,
+                    originY - rightMargin, termWidth * FONT_WIDTH + leftMargin + rightMargin,
+                    termHeight * FONT_HEIGHT + topMargin + bottomMargin );
             }
         }
     }

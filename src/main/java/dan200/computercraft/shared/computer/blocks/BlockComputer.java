@@ -31,7 +31,7 @@ public class BlockComputer extends BlockComputerBase<TileComputer>
     public BlockComputer( Settings settings, ComputerFamily family, BlockEntityType<? extends TileComputer> type )
     {
         super( settings, family, type );
-        this.setDefaultState( this.getDefaultState().with( FACING, Direction.NORTH )
+        setDefaultState( getDefaultState().with( FACING, Direction.NORTH )
             .with( STATE, ComputerState.OFF ) );
     }
 
@@ -39,7 +39,7 @@ public class BlockComputer extends BlockComputerBase<TileComputer>
     @Override
     public BlockState getPlacementState( ItemPlacementContext placement )
     {
-        return this.getDefaultState().with( FACING,
+        return getDefaultState().with( FACING,
             placement.getPlayerFacing()
                 .getOpposite() );
     }

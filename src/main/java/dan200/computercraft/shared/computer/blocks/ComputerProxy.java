@@ -25,7 +25,7 @@ public class ComputerProxy
 
     public void turnOn()
     {
-        TileComputerBase tile = this.getTile();
+        TileComputerBase tile = getTile();
         ServerComputer computer = tile.getServerComputer();
         if( computer == null )
         {
@@ -39,12 +39,12 @@ public class ComputerProxy
 
     protected TileComputerBase getTile()
     {
-        return this.get.get();
+        return get.get();
     }
 
     public void shutdown()
     {
-        TileComputerBase tile = this.getTile();
+        TileComputerBase tile = getTile();
         ServerComputer computer = tile.getServerComputer();
         if( computer == null )
         {
@@ -58,7 +58,7 @@ public class ComputerProxy
 
     public void reboot()
     {
-        TileComputerBase tile = this.getTile();
+        TileComputerBase tile = getTile();
         ServerComputer computer = tile.getServerComputer();
         if( computer == null )
         {
@@ -72,20 +72,20 @@ public class ComputerProxy
 
     public int assignID()
     {
-        TileComputerBase tile = this.getTile();
+        TileComputerBase tile = getTile();
         ServerComputer computer = tile.getServerComputer();
         return computer == null ? tile.getComputerID() : computer.getID();
     }
 
     public boolean isOn()
     {
-        ServerComputer computer = this.getTile().getServerComputer();
+        ServerComputer computer = getTile().getServerComputer();
         return computer != null && computer.isOn();
     }
 
     public String getLabel()
     {
-        TileComputerBase tile = this.getTile();
+        TileComputerBase tile = getTile();
         ServerComputer computer = tile.getServerComputer();
         return computer == null ? tile.getLabel() : computer.getLabel();
     }

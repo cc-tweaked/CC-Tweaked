@@ -47,10 +47,10 @@ public class TurtleRefuelCommand implements ITurtleCommand
             return TurtleCommandResult.failure( "Items not combustible" );
         }
 
-        if( this.limit != 0 )
+        if( limit != 0 )
         {
             turtle.addFuel( event.getHandler()
-                .refuel( turtle, stack, slot, this.limit ) );
+                .refuel( turtle, stack, slot, limit ) );
             turtle.playAnimation( TurtleAnimation.WAIT );
         }
 

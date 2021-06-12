@@ -62,14 +62,14 @@ public class PocketAPI implements ILuaAPI
     @LuaFunction( mainThread = true )
     public final Object[] equipBack()
     {
-        Entity entity = this.computer.getEntity();
+        Entity entity = computer.getEntity();
         if( !(entity instanceof PlayerEntity) )
         {
             return new Object[] { false, "Cannot find player" };
         }
         PlayerEntity player = (PlayerEntity) entity;
         PlayerInventory inventory = player.inventory;
-        IPocketUpgrade previousUpgrade = this.computer.getUpgrade();
+        IPocketUpgrade previousUpgrade = computer.getUpgrade();
 
         // Attempt to find the upgrade, starting in the main segment, and then looking in the opposite
         // one. We start from the position the item is currently in and loop round to the start.
@@ -98,7 +98,7 @@ public class PocketAPI implements ILuaAPI
         }
 
         // Set the new upgrade
-        this.computer.setUpgrade( newUpgrade );
+        computer.setUpgrade( newUpgrade );
 
         return new Object[] { true };
     }
@@ -137,21 +137,21 @@ public class PocketAPI implements ILuaAPI
     @LuaFunction( mainThread = true )
     public final Object[] unequipBack()
     {
-        Entity entity = this.computer.getEntity();
+        Entity entity = computer.getEntity();
         if( !(entity instanceof PlayerEntity) )
         {
             return new Object[] { false, "Cannot find player" };
         }
         PlayerEntity player = (PlayerEntity) entity;
         PlayerInventory inventory = player.inventory;
-        IPocketUpgrade previousUpgrade = this.computer.getUpgrade();
+        IPocketUpgrade previousUpgrade = computer.getUpgrade();
 
         if( previousUpgrade == null )
         {
             return new Object[] { false, "Nothing to unequip" };
         }
 
-        this.computer.setUpgrade( null );
+        computer.setUpgrade( null );
 
         ItemStack stack = previousUpgrade.getCraftingItem();
         if( !stack.isEmpty() )

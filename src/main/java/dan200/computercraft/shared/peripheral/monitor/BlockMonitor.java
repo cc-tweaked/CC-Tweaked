@@ -38,7 +38,7 @@ public class BlockMonitor extends BlockGeneric
     {
         super( settings, type );
         // TODO: Test underwater - do we need isSolid at all?
-        this.setDefaultState( this.getStateManager().getDefaultState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( ORIENTATION, Direction.NORTH )
             .with( FACING, Direction.NORTH )
             .with( STATE, MonitorEdgeState.NONE ) );
@@ -65,7 +65,7 @@ public class BlockMonitor extends BlockGeneric
             orientation = Direction.NORTH;
         }
 
-        return this.getDefaultState().with( FACING,
+        return getDefaultState().with( FACING,
             context.getPlayerFacing()
                 .getOpposite() )
             .with( ORIENTATION, orientation );

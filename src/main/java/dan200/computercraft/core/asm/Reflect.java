@@ -18,7 +18,7 @@ import static org.objectweb.asm.Opcodes.ICONST_0;
 
 final class Reflect
 {
-    static final java.lang.reflect.Type OPTIONAL_IN = Optional.class.getTypeParameters()[0];
+    static final Type OPTIONAL_IN = Optional.class.getTypeParameters()[0];
 
     private Reflect()
     {
@@ -57,7 +57,7 @@ final class Reflect
                 ParameterizedType type = (ParameterizedType) underlying;
                 if( !allowParameter )
                 {
-                    for( java.lang.reflect.Type arg : type.getActualTypeArguments() )
+                    for( Type arg : type.getActualTypeArguments() )
                     {
                         if( arg instanceof WildcardType ) continue;
                         if( arg instanceof TypeVariable && ((TypeVariable<?>) arg).getName().startsWith( "capture#" ) )

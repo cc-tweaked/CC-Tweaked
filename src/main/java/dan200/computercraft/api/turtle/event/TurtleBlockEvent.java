@@ -52,7 +52,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
      */
     public World getWorld()
     {
-        return this.world;
+        return world;
     }
 
     /**
@@ -62,7 +62,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
      */
     public BlockPos getPos()
     {
-        return this.pos;
+        return pos;
     }
 
     /**
@@ -97,7 +97,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
         @Nonnull
         public BlockState getBlock()
         {
-            return this.block;
+            return block;
         }
 
         /**
@@ -108,7 +108,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
         @Nonnull
         public ITurtleUpgrade getUpgrade()
         {
-            return this.upgrade;
+            return upgrade;
         }
 
         /**
@@ -119,7 +119,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
         @Nonnull
         public TurtleSide getSide()
         {
-            return this.side;
+            return side;
         }
     }
 
@@ -161,7 +161,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
         @Nonnull
         public ItemStack getStack()
         {
-            return this.stack;
+            return stack;
         }
     }
 
@@ -196,7 +196,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
         @Nonnull
         public BlockState getState()
         {
-            return this.state;
+            return state;
         }
 
         /**
@@ -207,7 +207,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
         @Nonnull
         public Map<String, Object> getData()
         {
-            return this.data;
+            return data;
         }
 
         /**
@@ -218,7 +218,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
         public void addData( @Nonnull Map<String, ?> newData )
         {
             Objects.requireNonNull( newData, "newData cannot be null" );
-            this.data.putAll( newData );
+            data.putAll( newData );
         }
     }
 }

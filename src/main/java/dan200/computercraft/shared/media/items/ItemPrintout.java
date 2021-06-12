@@ -158,7 +158,7 @@ public class ItemPrintout extends Item
 
     public Type getType()
     {
-        return this.type;
+        return type;
     }
 
     public enum Type

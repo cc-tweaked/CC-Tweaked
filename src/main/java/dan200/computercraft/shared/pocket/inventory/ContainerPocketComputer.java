@@ -15,7 +15,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -39,7 +38,7 @@ public final class ContainerPocketComputer extends ContainerComputerBase
         super( ComputerCraftRegistry.ModContainers.POCKET_COMPUTER, id, player, packetByteBuf );
     }
 
-    public static class Factory implements NamedScreenHandlerFactory, ExtendedScreenHandlerFactory
+    public static class Factory implements ExtendedScreenHandlerFactory
     {
         private final ServerComputer computer;
         private final Text name;
@@ -49,7 +48,7 @@ public final class ContainerPocketComputer extends ContainerComputerBase
         public Factory( ServerComputer computer, ItemStack stack, ItemPocketComputer item, Hand hand )
         {
             this.computer = computer;
-            this.name = stack.getName();
+            name = stack.getName();
             this.item = item;
             this.hand = hand;
         }
@@ -59,21 +58,21 @@ public final class ContainerPocketComputer extends ContainerComputerBase
         @Override
         public Text getDisplayName()
         {
-            return this.name;
+            return name;
         }
 
         @Nullable
         @Override
         public ScreenHandler createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity entity )
         {
-            return new ContainerPocketComputer( id, this.computer, this.item, this.hand );
+            return new ContainerPocketComputer( id, computer, item, hand );
         }
 
         @Override
         public void writeScreenOpeningData( ServerPlayerEntity serverPlayerEntity, PacketByteBuf packetByteBuf )
         {
-            packetByteBuf.writeInt( this.computer.getInstanceID() );
-            packetByteBuf.writeEnumConstant( this.computer.getFamily() );
+            packetByteBuf.writeInt( computer.getInstanceID() );
+            packetByteBuf.writeEnumConstant( computer.getFamily() );
         }
     }
 }

@@ -50,7 +50,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     public Entity getEntity()
     {
         Entity entity = this.entity;
-        if( entity == null || this.stack == null || !entity.isAlive() )
+        if( entity == null || stack == null || !entity.isAlive() )
         {
             return null;
         }
@@ -58,12 +58,12 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         if( entity instanceof PlayerEntity )
         {
             PlayerInventory inventory = ((PlayerEntity) entity).inventory;
-            return inventory.main.contains( this.stack ) || inventory.offHand.contains( this.stack ) ? entity : null;
+            return inventory.main.contains( stack ) || inventory.offHand.contains( stack ) ? entity : null;
         }
         else if( entity instanceof LivingEntity )
         {
             LivingEntity living = (LivingEntity) entity;
-            return living.getMainHandStack() == this.stack || living.getOffHandStack() == this.stack ? entity : null;
+            return living.getMainHandStack() == stack || living.getOffHandStack() == stack ? entity : null;
         }
         else
         {
@@ -74,39 +74,39 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public int getColour()
     {
-        return IColouredItem.getColourBasic( this.stack );
+        return IColouredItem.getColourBasic( stack );
     }
 
     @Override
     public void setColour( int colour )
     {
-        IColouredItem.setColourBasic( this.stack, colour );
-        this.updateUpgradeNBTData();
+        IColouredItem.setColourBasic( stack, colour );
+        updateUpgradeNBTData();
     }
 
     @Override
     public int getLight()
     {
-        CompoundTag tag = this.getUserData();
+        CompoundTag tag = getUserData();
         return tag.contains( NBT_LIGHT, NBTUtil.TAG_ANY_NUMERIC ) ? tag.getInt( NBT_LIGHT ) : -1;
     }
 
     @Override
     public void setLight( int colour )
     {
-        CompoundTag tag = this.getUserData();
+        CompoundTag tag = getUserData();
         if( colour >= 0 && colour <= 0xFFFFFF )
         {
             if( !tag.contains( NBT_LIGHT, NBTUtil.TAG_ANY_NUMERIC ) || tag.getInt( NBT_LIGHT ) != colour )
             {
                 tag.putInt( NBT_LIGHT, colour );
-                this.updateUserData();
+                updateUserData();
             }
         }
         else if( tag.contains( NBT_LIGHT, NBTUtil.TAG_ANY_NUMERIC ) )
         {
             tag.remove( NBT_LIGHT );
-            this.updateUserData();
+            updateUserData();
         }
     }
 
@@ -114,35 +114,35 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public CompoundTag getUpgradeNBTData()
     {
-        return ItemPocketComputer.getUpgradeInfo( this.stack );
+        return ItemPocketComputer.getUpgradeInfo( stack );
     }
 
     @Override
     public void updateUpgradeNBTData()
     {
-        if( this.entity instanceof PlayerEntity )
+        if( entity instanceof PlayerEntity )
         {
-            ((PlayerEntity) this.entity).inventory.markDirty();
+            ((PlayerEntity) entity).inventory.markDirty();
         }
     }
 
     @Override
     public void invalidatePeripheral()
     {
-        IPeripheral peripheral = this.upgrade == null ? null : this.upgrade.createPeripheral( this );
-        this.setPeripheral( ComputerSide.BACK, peripheral );
+        IPeripheral peripheral = upgrade == null ? null : upgrade.createPeripheral( this );
+        setPeripheral( ComputerSide.BACK, peripheral );
     }
 
     @Nonnull
     @Override
     public Map<Identifier, IPeripheral> getUpgrades()
     {
-        return this.upgrade == null ? Collections.emptyMap() : Collections.singletonMap( this.upgrade.getUpgradeID(), this.getPeripheral( ComputerSide.BACK ) );
+        return upgrade == null ? Collections.emptyMap() : Collections.singletonMap( upgrade.getUpgradeID(), getPeripheral( ComputerSide.BACK ) );
     }
 
     public IPocketUpgrade getUpgrade()
     {
-        return this.upgrade;
+        return upgrade;
     }
 
     /**
@@ -161,10 +161,10 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
         synchronized( this )
         {
-            ItemPocketComputer.setUpgrade( this.stack, upgrade );
-            this.updateUpgradeNBTData();
+            ItemPocketComputer.setUpgrade( stack, upgrade );
+            updateUpgradeNBTData();
             this.upgrade = upgrade;
-            this.invalidatePeripheral();
+            invalidatePeripheral();
         }
     }
 
@@ -172,14 +172,14 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     {
         if( entity != null )
         {
-            this.setWorld( entity.getEntityWorld() );
-            this.setPosition( entity.getBlockPos() );
+            setWorld( entity.getEntityWorld() );
+            setPosition( entity.getBlockPos() );
         }
 
         // If a new entity has picked it up then rebroadcast the terminal to them
         if( entity != this.entity && entity instanceof ServerPlayerEntity )
         {
-            this.markTerminalChanged();
+            markTerminalChanged();
         }
 
         this.entity = entity;
@@ -188,7 +188,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         if( this.upgrade != upgrade )
         {
             this.upgrade = upgrade;
-            this.invalidatePeripheral();
+            invalidatePeripheral();
         }
     }
 
@@ -197,13 +197,13 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     {
         super.broadcastState( force );
 
-        if( (this.hasTerminalChanged() || force) && this.entity instanceof ServerPlayerEntity )
+        if( (hasTerminalChanged() || force) && entity instanceof ServerPlayerEntity )
         {
             // Broadcast the state to the current entity if they're not already interacting with it.
-            ServerPlayerEntity player = (ServerPlayerEntity) this.entity;
-            if( player.networkHandler != null && !this.isInteracting( player ) )
+            ServerPlayerEntity player = (ServerPlayerEntity) entity;
+            if( player.networkHandler != null && !isInteracting( player ) )
             {
-                NetworkHandler.sendToPlayer( player, this.createTerminalPacket() );
+                NetworkHandler.sendToPlayer( player, createTerminalPacket() );
             }
         }
     }

@@ -34,7 +34,7 @@ public class TableBuilder
         }
         this.id = id;
         this.headers = headers;
-        this.columns = headers.length;
+        columns = headers.length;
     }
 
     public TableBuilder( int id )
@@ -44,7 +44,7 @@ public class TableBuilder
             throw new IllegalArgumentException( "ID must be positive" );
         }
         this.id = id;
-        this.headers = null;
+        headers = null;
     }
 
     public TableBuilder( int id, @Nonnull String... headers )
@@ -55,7 +55,7 @@ public class TableBuilder
         }
         this.id = id;
         this.headers = new Text[headers.length];
-        this.columns = headers.length;
+        columns = headers.length;
 
         for( int i = 0; i < headers.length; i++ )
         {
@@ -65,15 +65,15 @@ public class TableBuilder
 
     public void row( @Nonnull Text... row )
     {
-        if( this.columns == -1 )
+        if( columns == -1 )
         {
-            this.columns = row.length;
+            columns = row.length;
         }
-        if( row.length != this.columns )
+        if( row.length != columns )
         {
             throw new IllegalArgumentException( "Row is the incorrect length" );
         }
-        this.rows.add( row );
+        rows.add( row );
     }
 
     /**
@@ -85,7 +85,7 @@ public class TableBuilder
      */
     public int getId()
     {
-        return this.id;
+        return id;
     }
 
     /**
@@ -97,24 +97,24 @@ public class TableBuilder
      */
     public int getColumns()
     {
-        return this.columns;
+        return columns;
     }
 
     @Nullable
     public Text[] getHeaders()
     {
-        return this.headers;
+        return headers;
     }
 
     @Nonnull
     public List<Text[]> getRows()
     {
-        return this.rows;
+        return rows;
     }
 
     public int getAdditional()
     {
-        return this.additional;
+        return additional;
     }
 
     public void setAdditional( int additional )
@@ -126,12 +126,12 @@ public class TableBuilder
     {
         if( CommandUtils.isPlayer( source ) )
         {
-            this.trim( 18 );
+            trim( 18 );
             NetworkHandler.sendToPlayer( (ServerPlayerEntity) source.getEntity(), new ChatTableClientMessage( this ) );
         }
         else
         {
-            this.trim( 100 );
+            trim( 100 );
             new ServerTableFormatter( source ).display( this );
         }
     }
@@ -143,10 +143,10 @@ public class TableBuilder
      */
     public void trim( int height )
     {
-        if( this.rows.size() > height )
+        if( rows.size() > height )
         {
-            this.additional += this.rows.size() - height - 1;
-            this.rows.subList( height - 1, this.rows.size() )
+            additional += rows.size() - height - 1;
+            rows.subList( height - 1, rows.size() )
                 .clear();
         }
     }

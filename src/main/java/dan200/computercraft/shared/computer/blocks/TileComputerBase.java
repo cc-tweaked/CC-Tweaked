@@ -30,7 +30,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -48,7 +47,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public abstract class TileComputerBase extends TileGeneric implements IComputerTile, Tickable, IPeripheralTile, Nameable, NamedScreenHandlerFactory,
+public abstract class TileComputerBase extends TileGeneric implements IComputerTile, Tickable, IPeripheralTile, Nameable,
     ExtendedScreenHandlerFactory
 {
     private static final String NBT_ID = "ComputerId";
@@ -71,10 +70,10 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public void destroy()
     {
-        this.unload();
+        unload();
         for( Direction dir : DirectionUtil.FACINGS )
         {
-            RedstoneUtil.propagateRedstoneOutput( this.getWorld(), this.getPos(), dir );
+            RedstoneUtil.propagateRedstoneOutput( getWorld(), getPos(), dir );
         }
     }
 
@@ -86,13 +85,13 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     protected void unload()
     {
-        if( this.instanceID >= 0 )
+        if( instanceID >= 0 )
         {
-            if( !this.getWorld().isClient )
+            if( !getWorld().isClient )
             {
-                ComputerCraft.serverComputerRegistry.remove( this.instanceID );
+                ComputerCraft.serverComputerRegistry.remove( instanceID );
             }
-            this.instanceID = -1;
+            instanceID = -1;
         }
     }
 
@@ -101,12 +100,12 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     public ActionResult onActivate( PlayerEntity player, Hand hand, BlockHitResult hit )
     {
         ItemStack currentItem = player.getStackInHand( hand );
-        if( !currentItem.isEmpty() && currentItem.getItem() == Items.NAME_TAG && this.canNameWithTag( player ) && currentItem.hasCustomName() )
+        if( !currentItem.isEmpty() && currentItem.getItem() == Items.NAME_TAG && canNameWithTag( player ) && currentItem.hasCustomName() )
         {
             // Label to rename computer
-            if( !this.getWorld().isClient )
+            if( !getWorld().isClient )
             {
-                this.setLabel( currentItem.getName()
+                setLabel( currentItem.getName()
                     .getString() );
                 currentItem.decrement( 1 );
             }
@@ -115,11 +114,11 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         else if( !player.isInSneakingPose() )
         {
             // Regular right click to activate computer
-            if( !this.getWorld().isClient && this.isUsable( player, false ) )
+            if( !getWorld().isClient && isUsable( player, false ) )
             {
-                this.createServerComputer().turnOn();
-                this.createServerComputer().sendTerminalState( player );
-                new ComputerContainerData( this.createServerComputer() ).open( player, this );
+                createServerComputer().turnOn();
+                createServerComputer().sendTerminalState( player );
+                new ComputerContainerData( createServerComputer() ).open( player, this );
             }
             return ActionResult.SUCCESS;
         }
@@ -133,48 +132,48 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     public ServerComputer createServerComputer()
     {
-        if( this.getWorld().isClient )
+        if( getWorld().isClient )
         {
             return null;
         }
 
         boolean changed = false;
-        if( this.instanceID < 0 )
+        if( instanceID < 0 )
         {
-            this.instanceID = ComputerCraft.serverComputerRegistry.getUnusedInstanceID();
+            instanceID = ComputerCraft.serverComputerRegistry.getUnusedInstanceID();
             changed = true;
         }
-        if( !ComputerCraft.serverComputerRegistry.contains( this.instanceID ) )
+        if( !ComputerCraft.serverComputerRegistry.contains( instanceID ) )
         {
-            ServerComputer computer = this.createComputer( this.instanceID, this.computerID );
-            ComputerCraft.serverComputerRegistry.add( this.instanceID, computer );
-            this.fresh = true;
+            ServerComputer computer = createComputer( instanceID, computerID );
+            ComputerCraft.serverComputerRegistry.add( instanceID, computer );
+            fresh = true;
             changed = true;
         }
         if( changed )
         {
-            this.updateBlock();
-            this.updateInput();
+            updateBlock();
+            updateInput();
         }
-        return ComputerCraft.serverComputerRegistry.get( this.instanceID );
+        return ComputerCraft.serverComputerRegistry.get( instanceID );
     }
 
     public ServerComputer getServerComputer()
     {
-        return this.getWorld().isClient ? null : ComputerCraft.serverComputerRegistry.get( this.instanceID );
+        return getWorld().isClient ? null : ComputerCraft.serverComputerRegistry.get( instanceID );
     }
 
     protected abstract ServerComputer createComputer( int instanceID, int id );
 
     public void updateInput()
     {
-        if( this.getWorld() == null || this.getWorld().isClient )
+        if( getWorld() == null || getWorld().isClient )
         {
             return;
         }
 
         // Update all sides
-        ServerComputer computer = this.getServerComputer();
+        ServerComputer computer = getServerComputer();
         if( computer == null )
         {
             return;
@@ -183,27 +182,27 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         BlockPos pos = computer.getPosition();
         for( Direction dir : DirectionUtil.FACINGS )
         {
-            this.updateSideInput( computer, dir, pos.offset( dir ) );
+            updateSideInput( computer, dir, pos.offset( dir ) );
         }
     }
 
     private void updateSideInput( ServerComputer computer, Direction dir, BlockPos offset )
     {
         Direction offsetSide = dir.getOpposite();
-        ComputerSide localDir = this.remapToLocalSide( dir );
+        ComputerSide localDir = remapToLocalSide( dir );
 
-        computer.setRedstoneInput( localDir, getRedstoneInput( this.world, offset, dir ) );
-        computer.setBundledRedstoneInput( localDir, BundledRedstone.getOutput( this.getWorld(), offset, offsetSide ) );
-        if( !this.isPeripheralBlockedOnSide( localDir ) )
+        computer.setRedstoneInput( localDir, getRedstoneInput( world, offset, dir ) );
+        computer.setBundledRedstoneInput( localDir, BundledRedstone.getOutput( getWorld(), offset, offsetSide ) );
+        if( !isPeripheralBlockedOnSide( localDir ) )
         {
-            IPeripheral peripheral = Peripherals.getPeripheral( this.getWorld(), offset, offsetSide );
+            IPeripheral peripheral = Peripherals.getPeripheral( getWorld(), offset, offsetSide );
             computer.setPeripheral( localDir, peripheral );
         }
     }
 
     protected ComputerSide remapToLocalSide( Direction globalSide )
     {
-        return this.remapLocalSide( DirectionUtil.toLocal( this.getDirection(), globalSide ) );
+        return remapLocalSide( DirectionUtil.toLocal( getDirection(), globalSide ) );
     }
 
     /**
@@ -241,74 +240,74 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public void onNeighbourChange( @Nonnull BlockPos neighbour )
     {
-        this.updateInput( neighbour );
+        updateInput( neighbour );
     }
 
     @Override
     public void onNeighbourTileEntityChange( @Nonnull BlockPos neighbour )
     {
-        this.updateInput( neighbour );
+        updateInput( neighbour );
     }
 
     @Override
     protected void readDescription( @Nonnull CompoundTag nbt )
     {
         super.readDescription( nbt );
-        this.label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
-        this.computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
+        label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
+        computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
     }
 
     @Override
     protected void writeDescription( @Nonnull CompoundTag nbt )
     {
         super.writeDescription( nbt );
-        if( this.label != null )
+        if( label != null )
         {
-            nbt.putString( NBT_LABEL, this.label );
+            nbt.putString( NBT_LABEL, label );
         }
-        if( this.computerID >= 0 )
+        if( computerID >= 0 )
         {
-            nbt.putInt( NBT_ID, this.computerID );
+            nbt.putInt( NBT_ID, computerID );
         }
     }
 
     @Override
     public void tick()
     {
-        if( !this.getWorld().isClient )
+        if( !getWorld().isClient )
         {
-            ServerComputer computer = this.createServerComputer();
+            ServerComputer computer = createServerComputer();
             if( computer == null )
             {
                 return;
             }
 
             // If the computer isn't on and should be, then turn it on
-            if( this.startOn || (this.fresh && this.on) )
+            if( startOn || (fresh && on) )
             {
                 computer.turnOn();
-                this.startOn = false;
+                startOn = false;
             }
 
             computer.keepAlive();
 
-            this.fresh = false;
-            this.computerID = computer.getID();
-            this.label = computer.getLabel();
-            this.on = computer.isOn();
+            fresh = false;
+            computerID = computer.getID();
+            label = computer.getLabel();
+            on = computer.isOn();
 
             if( computer.hasOutputChanged() )
             {
-                this.updateOutput();
+                updateOutput();
             }
 
             // Update the block state if needed. We don't fire a block update intentionally,
             // as this only really is needed on the client side.
-            this.updateBlockState( computer.getState() );
+            updateBlockState( computer.getState() );
 
             if( computer.hasOutputChanged() )
             {
-                this.updateOutput();
+                updateOutput();
             }
         }
     }
@@ -316,10 +315,10 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     public void updateOutput()
     {
         // Update redstone
-        this.updateBlock();
+        updateBlock();
         for( Direction dir : DirectionUtil.FACINGS )
         {
-            RedstoneUtil.propagateRedstoneOutput( this.getWorld(), this.getPos(), dir );
+            RedstoneUtil.propagateRedstoneOutput( getWorld(), getPos(), dir );
         }
     }
 
@@ -331,9 +330,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         super.fromTag( state, nbt );
 
         // Load ID, label and power state
-        this.computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
-        this.label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
-        this.on = this.startOn = nbt.getBoolean( NBT_ON );
+        computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
+        label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
+        on = startOn = nbt.getBoolean( NBT_ON );
     }
 
     @Nonnull
@@ -341,15 +340,15 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     public CompoundTag toTag( @Nonnull CompoundTag nbt )
     {
         // Save ID, label and power state
-        if( this.computerID >= 0 )
+        if( computerID >= 0 )
         {
-            nbt.putInt( NBT_ID, this.computerID );
+            nbt.putInt( NBT_ID, computerID );
         }
-        if( this.label != null )
+        if( label != null )
         {
-            nbt.putString( NBT_LABEL, this.label );
+            nbt.putString( NBT_LABEL, label );
         }
-        nbt.putBoolean( NBT_ON, this.on );
+        nbt.putBoolean( NBT_ON, on );
 
         return super.toTag( nbt );
     }
@@ -357,18 +356,18 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public void markRemoved()
     {
-        this.unload();
+        unload();
         super.markRemoved();
     }
 
     private void updateInput( BlockPos neighbour )
     {
-        if( this.getWorld() == null || this.getWorld().isClient )
+        if( getWorld() == null || getWorld().isClient )
         {
             return;
         }
 
-        ServerComputer computer = this.getServerComputer();
+        ServerComputer computer = getServerComputer();
         if( computer == null )
         {
             return;
@@ -376,61 +375,61 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
         for( Direction dir : DirectionUtil.FACINGS )
         {
-            BlockPos offset = this.pos.offset( dir );
+            BlockPos offset = pos.offset( dir );
             if( offset.equals( neighbour ) )
             {
-                this.updateSideInput( computer, dir, offset );
+                updateSideInput( computer, dir, offset );
                 return;
             }
         }
 
         // If the position is not any adjacent one, update all inputs.
-        this.updateInput();
+        updateInput();
     }
 
     private void updateInput( Direction dir )
     {
-        if( this.getWorld() == null || this.getWorld().isClient )
+        if( getWorld() == null || getWorld().isClient )
         {
             return;
         }
 
-        ServerComputer computer = this.getServerComputer();
+        ServerComputer computer = getServerComputer();
         if( computer == null )
         {
             return;
         }
 
-        this.updateSideInput( computer, dir, this.pos.offset( dir ) );
+        updateSideInput( computer, dir, pos.offset( dir ) );
     }
 
     @Override
     public final int getComputerID()
     {
-        return this.computerID;
+        return computerID;
     }
 
     @Override
     public final void setComputerID( int id )
     {
-        if( this.getWorld().isClient || this.computerID == id )
+        if( getWorld().isClient || computerID == id )
         {
             return;
         }
 
-        this.computerID = id;
-        ServerComputer computer = this.getServerComputer();
+        computerID = id;
+        ServerComputer computer = getServerComputer();
         if( computer != null )
         {
-            computer.setID( this.computerID );
+            computer.setID( computerID );
         }
-        this.markDirty();
+        markDirty();
     }
 
     @Override
     public final String getLabel()
     {
-        return this.label;
+        return label;
     }
 
     // Networking stuff
@@ -438,37 +437,37 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public final void setLabel( String label )
     {
-        if( this.getWorld().isClient || Objects.equals( this.label, label ) )
+        if( getWorld().isClient || Objects.equals( this.label, label ) )
         {
             return;
         }
 
         this.label = label;
-        ServerComputer computer = this.getServerComputer();
+        ServerComputer computer = getServerComputer();
         if( computer != null )
         {
             computer.setLabel( label );
         }
-        this.markDirty();
+        markDirty();
     }
 
     @Override
     public ComputerFamily getFamily()
     {
-        return this.family;
+        return family;
     }
 
     protected void transferStateFrom( TileComputerBase copy )
     {
-        if( copy.computerID != this.computerID || copy.instanceID != this.instanceID )
+        if( copy.computerID != computerID || copy.instanceID != instanceID )
         {
-            this.unload();
-            this.instanceID = copy.instanceID;
-            this.computerID = copy.computerID;
-            this.label = copy.label;
-            this.on = copy.on;
-            this.startOn = copy.startOn;
-            this.updateBlock();
+            unload();
+            instanceID = copy.instanceID;
+            computerID = copy.computerID;
+            label = copy.label;
+            on = copy.on;
+            startOn = copy.startOn;
+            updateBlock();
         }
         copy.instanceID = -1;
     }
@@ -477,7 +476,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public IPeripheral getPeripheral( Direction side )
     {
-        return new ComputerPeripheral( "computer", this.createProxy() );
+        return new ComputerPeripheral( "computer", createProxy() );
     }
 
     public abstract ComputerProxy createProxy();
@@ -486,14 +485,14 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public Text getName()
     {
-        return this.hasCustomName() ? new LiteralText( this.label ) : new TranslatableText( this.getCachedState().getBlock()
+        return hasCustomName() ? new LiteralText( label ) : new TranslatableText( getCachedState().getBlock()
             .getTranslationKey() );
     }
 
     @Override
     public boolean hasCustomName()
     {
-        return !Strings.isNullOrEmpty( this.label );
+        return !Strings.isNullOrEmpty( label );
     }
 
     @Nonnull
@@ -507,13 +506,13 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public Text getCustomName()
     {
-        return this.hasCustomName() ? new LiteralText( this.label ) : null;
+        return hasCustomName() ? new LiteralText( label ) : null;
     }
 
     @Override
     public void writeScreenOpeningData( ServerPlayerEntity serverPlayerEntity, PacketByteBuf packetByteBuf )
     {
-        packetByteBuf.writeInt( this.getServerComputer().getInstanceID() );
-        packetByteBuf.writeEnumConstant( this.getServerComputer().getFamily() );
+        packetByteBuf.writeInt( getServerComputer().getInstanceID() );
+        packetByteBuf.writeEnumConstant( getServerComputer().getFamily() );
     }
 }

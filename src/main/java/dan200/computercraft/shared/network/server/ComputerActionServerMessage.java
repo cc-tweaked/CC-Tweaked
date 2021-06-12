@@ -30,20 +30,20 @@ public class ComputerActionServerMessage extends ComputerServerMessage
     public void toBytes( @Nonnull PacketByteBuf buf )
     {
         super.toBytes( buf );
-        buf.writeEnumConstant( this.action );
+        buf.writeEnumConstant( action );
     }
 
     @Override
     public void fromBytes( @Nonnull PacketByteBuf buf )
     {
         super.fromBytes( buf );
-        this.action = buf.readEnumConstant( Action.class );
+        action = buf.readEnumConstant( Action.class );
     }
 
     @Override
     protected void handle( @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
-        switch( this.action )
+        switch( action )
         {
             case TURN_ON:
                 computer.turnOn();

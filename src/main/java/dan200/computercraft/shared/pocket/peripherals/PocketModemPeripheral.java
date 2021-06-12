@@ -34,14 +34,14 @@ public class PocketModemPeripheral extends WirelessModemPeripheral
     @Override
     public World getWorld()
     {
-        return this.world;
+        return world;
     }
 
     @Nonnull
     @Override
     public Vec3d getPosition()
     {
-        return this.position;
+        return position;
     }
 
     @Override

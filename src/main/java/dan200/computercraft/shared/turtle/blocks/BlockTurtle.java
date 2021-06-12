@@ -49,7 +49,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Waterl
     public BlockTurtle( Settings settings, ComputerFamily family, BlockEntityType<? extends TileTurtle> type )
     {
         super( settings, family, type );
-        this.setDefaultState( this.getStateManager().getDefaultState()
+        setDefaultState( getStateManager().getDefaultState()
             .with( FACING, Direction.NORTH )
             .with( WATERLOGGED, false ) );
     }
@@ -101,7 +101,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Waterl
     @Override
     public BlockState getPlacementState( ItemPlacementContext placement )
     {
-        return this.getDefaultState().with( FACING, placement.getPlayerFacing() )
+        return getDefaultState().with( FACING, placement.getPlayerFacing() )
             .with( WATERLOGGED, getWaterloggedStateForPlacement( placement ) );
     }
 

@@ -46,13 +46,13 @@ public class CommandBlockPeripheral implements IPeripheral
     @Override
     public Object getTarget()
     {
-        return this.commandBlock;
+        return commandBlock;
     }
 
     @Override
     public boolean equals( IPeripheral other )
     {
-        return other != null && other.getClass() == this.getClass();
+        return other != null && other.getClass() == getClass();
     }
 
     /**
@@ -63,7 +63,7 @@ public class CommandBlockPeripheral implements IPeripheral
     @LuaFunction( mainThread = true )
     public final String getCommand()
     {
-        return this.commandBlock.getCommandExecutor()
+        return commandBlock.getCommandExecutor()
             .getCommand();
     }
 
@@ -75,9 +75,9 @@ public class CommandBlockPeripheral implements IPeripheral
     @LuaFunction( mainThread = true )
     public final void setCommand( String command )
     {
-        this.commandBlock.getCommandExecutor()
+        commandBlock.getCommandExecutor()
             .setCommand( command );
-        this.commandBlock.getCommandExecutor()
+        commandBlock.getCommandExecutor()
             .markDirty();
     }
 
@@ -91,9 +91,9 @@ public class CommandBlockPeripheral implements IPeripheral
     @LuaFunction( mainThread = true )
     public final Object[] runCommand()
     {
-        this.commandBlock.getCommandExecutor()
-            .execute( this.commandBlock.getWorld() );
-        int result = this.commandBlock.getCommandExecutor()
+        commandBlock.getCommandExecutor()
+            .execute( commandBlock.getWorld() );
+        int result = commandBlock.getCommandExecutor()
             .getSuccessCount();
         return result > 0 ? new Object[] { true } : new Object[] { false, "Command failed" };
     }

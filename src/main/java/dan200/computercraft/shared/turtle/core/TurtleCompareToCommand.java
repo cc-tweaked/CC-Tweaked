@@ -30,7 +30,7 @@ public class TurtleCompareToCommand implements ITurtleCommand
         ItemStack selectedStack = turtle.getInventory()
             .getStack( turtle.getSelectedSlot() );
         ItemStack stack = turtle.getInventory()
-            .getStack( this.slot );
+            .getStack( slot );
         if( InventoryUtil.areItemsStackable( selectedStack, stack ) )
         {
             return TurtleCommandResult.success();

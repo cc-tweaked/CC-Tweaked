@@ -39,7 +39,7 @@ public class TurtleDropCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         // Dropping nothing is easy
-        if( this.quantity == 0 )
+        if( quantity == 0 )
         {
             turtle.playAnimation( TurtleAnimation.WAIT );
             return TurtleCommandResult.success();
@@ -49,7 +49,7 @@ public class TurtleDropCommand implements ITurtleCommand
         Direction direction = this.direction.toWorldDir( turtle );
 
         // Get things to drop
-        ItemStack stack = InventoryUtil.takeItems( this.quantity, turtle.getItemHandler(), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
+        ItemStack stack = InventoryUtil.takeItems( quantity, turtle.getItemHandler(), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
         if( stack.isEmpty() )
         {
             return TurtleCommandResult.failure( "No items to drop" );

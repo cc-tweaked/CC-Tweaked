@@ -53,26 +53,26 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral
     @Override
     public void attach( @Nonnull IComputerAccess computer )
     {
-        this.monitor.addComputer( computer );
+        monitor.addComputer( computer );
     }
 
     @Override
     public void detach( @Nonnull IComputerAccess computer )
     {
-        this.monitor.removeComputer( computer );
+        monitor.removeComputer( computer );
     }
 
     @Nullable
     @Override
     public Object getTarget()
     {
-        return this.monitor;
+        return monitor;
     }
 
     @Override
     public boolean equals( IPeripheral other )
     {
-        return other instanceof MonitorPeripheral && this.monitor == ((MonitorPeripheral) other).monitor;
+        return other instanceof MonitorPeripheral && monitor == ((MonitorPeripheral) other).monitor;
     }
 
     /**
@@ -84,7 +84,7 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral
     @LuaFunction
     public final double getTextScale() throws LuaException
     {
-        return this.getMonitor().getTextScale() / 2.0;
+        return getMonitor().getTextScale() / 2.0;
     }
 
     /**
@@ -102,7 +102,7 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral
         {
             throw new LuaException( "Expected number in range 0.5-5" );
         }
-        this.getMonitor().setTextScale( scale );
+        getMonitor().setTextScale( scale );
     }
 
     @Nonnull
@@ -120,7 +120,7 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral
     @Override
     public Terminal getTerminal() throws LuaException
     {
-        Terminal terminal = this.getMonitor().getTerminal();
+        Terminal terminal = getMonitor().getTerminal();
         if( terminal == null )
         {
             throw new LuaException( "Monitor has been detached" );
@@ -131,6 +131,6 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral
     @Override
     public boolean isColour() throws LuaException
     {
-        return this.getMonitor().isColour();
+        return getMonitor().isColour();
     }
 }

@@ -55,7 +55,7 @@ public class TurtleEquipCommand implements ITurtleCommand
 
         // Determine the upgrade to replace
         ItemStack oldUpgradeStack;
-        ITurtleUpgrade oldUpgrade = turtle.getUpgrade( this.side );
+        ITurtleUpgrade oldUpgrade = turtle.getUpgrade( side );
         if( oldUpgrade != null )
         {
             ItemStack craftingItem = oldUpgrade.getCraftingItem();
@@ -89,7 +89,7 @@ public class TurtleEquipCommand implements ITurtleCommand
                 WorldUtil.dropItemStack( remainder, turtle.getWorld(), position, turtle.getDirection() );
             }
         }
-        turtle.setUpgrade( this.side, newUpgrade );
+        turtle.setUpgrade( side, newUpgrade );
 
         // Animate
         if( newUpgrade != null || oldUpgrade != null )

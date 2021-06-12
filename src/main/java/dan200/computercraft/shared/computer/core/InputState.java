@@ -30,7 +30,7 @@ public class InputState implements InputHandler
     @Override
     public void queueEvent( String event, Object[] arguments )
     {
-        IComputer computer = this.owner.getComputer();
+        IComputer computer = owner.getComputer();
         if( computer != null )
         {
             computer.queueEvent( event, arguments );
@@ -40,8 +40,8 @@ public class InputState implements InputHandler
     @Override
     public void keyDown( int key, boolean repeat )
     {
-        this.keysDown.add( key );
-        IComputer computer = this.owner.getComputer();
+        keysDown.add( key );
+        IComputer computer = owner.getComputer();
         if( computer != null )
         {
             computer.keyDown( key, repeat );
@@ -51,8 +51,8 @@ public class InputState implements InputHandler
     @Override
     public void keyUp( int key )
     {
-        this.keysDown.remove( key );
-        IComputer computer = this.owner.getComputer();
+        keysDown.remove( key );
+        IComputer computer = owner.getComputer();
         if( computer != null )
         {
             computer.keyUp( key );
@@ -62,11 +62,11 @@ public class InputState implements InputHandler
     @Override
     public void mouseClick( int button, int x, int y )
     {
-        this.lastMouseX = x;
-        this.lastMouseY = y;
-        this.lastMouseDown = button;
+        lastMouseX = x;
+        lastMouseY = y;
+        lastMouseDown = button;
 
-        IComputer computer = this.owner.getComputer();
+        IComputer computer = owner.getComputer();
         if( computer != null )
         {
             computer.mouseClick( button, x, y );
@@ -76,11 +76,11 @@ public class InputState implements InputHandler
     @Override
     public void mouseUp( int button, int x, int y )
     {
-        this.lastMouseX = x;
-        this.lastMouseY = y;
-        this.lastMouseDown = -1;
+        lastMouseX = x;
+        lastMouseY = y;
+        lastMouseDown = -1;
 
-        IComputer computer = this.owner.getComputer();
+        IComputer computer = owner.getComputer();
         if( computer != null )
         {
             computer.mouseUp( button, x, y );
@@ -90,11 +90,11 @@ public class InputState implements InputHandler
     @Override
     public void mouseDrag( int button, int x, int y )
     {
-        this.lastMouseX = x;
-        this.lastMouseY = y;
-        this.lastMouseDown = button;
+        lastMouseX = x;
+        lastMouseY = y;
+        lastMouseDown = button;
 
-        IComputer computer = this.owner.getComputer();
+        IComputer computer = owner.getComputer();
         if( computer != null )
         {
             computer.mouseDrag( button, x, y );
@@ -104,10 +104,10 @@ public class InputState implements InputHandler
     @Override
     public void mouseScroll( int direction, int x, int y )
     {
-        this.lastMouseX = x;
-        this.lastMouseY = y;
+        lastMouseX = x;
+        lastMouseY = y;
 
-        IComputer computer = this.owner.getComputer();
+        IComputer computer = owner.getComputer();
         if( computer != null )
         {
             computer.mouseScroll( direction, x, y );
@@ -116,22 +116,22 @@ public class InputState implements InputHandler
 
     public void close()
     {
-        IComputer computer = this.owner.getComputer();
+        IComputer computer = owner.getComputer();
         if( computer != null )
         {
-            IntIterator keys = this.keysDown.iterator();
+            IntIterator keys = keysDown.iterator();
             while( keys.hasNext() )
             {
                 computer.keyUp( keys.nextInt() );
             }
 
-            if( this.lastMouseDown != -1 )
+            if( lastMouseDown != -1 )
             {
-                computer.mouseUp( this.lastMouseDown, this.lastMouseX, this.lastMouseY );
+                computer.mouseUp( lastMouseDown, lastMouseX, lastMouseY );
             }
         }
 
-        this.keysDown.clear();
-        this.lastMouseDown = -1;
+        keysDown.clear();
+        lastMouseDown = -1;
     }
 }
