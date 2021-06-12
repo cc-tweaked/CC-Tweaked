@@ -25,7 +25,7 @@ public class GuiTurtle extends GuiComputer<ContainerTurtle>
 
     public GuiTurtle( ContainerTurtle container, PlayerInventory player, Text title )
     {
-        super( container, player, title, ComputerCraft.turtleTermWidth, ComputerCraft.turtleTermHeight);
+        super( container, player, title, ComputerCraft.turtleTermWidth, ComputerCraft.turtleTermHeight );
 
         this.container = container;
     }
@@ -33,7 +33,7 @@ public class GuiTurtle extends GuiComputer<ContainerTurtle>
     @Override
     protected void init()
     {
-        this.initTerminal(8, 0, 80);
+        this.initTerminal( 8, 0, 80 );
     }
 
     @Override

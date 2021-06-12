@@ -63,7 +63,8 @@ public class GuiComputer<T extends ContainerComputerBase> extends HandledScreen<
         return new GuiComputer<>( container, inventory, component, container.getWidth(), container.getHeight() );
     }
 
-    protected void initTerminal(int border, int widthExtra, int heightExtra) {
+    protected void initTerminal( int border, int widthExtra, int heightExtra )
+    {
         this.client.keyboard.setRepeatEvents( true );
 
         int termPxWidth = this.termWidth * FixedWidthFontRenderer.FONT_WIDTH;
@@ -84,7 +85,7 @@ public class GuiComputer<T extends ContainerComputerBase> extends HandledScreen<
     @Override
     protected void init()
     {
-        this.initTerminal(BORDER, 0, 0);
+        this.initTerminal( BORDER, 0, 0 );
     }
 
     @Override
