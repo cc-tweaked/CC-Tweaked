@@ -16,8 +16,7 @@ vscode:
     - vscode.github
 
 tasks:
-  - name: Setup VSCode run configurations
-    init: ./gradlew genVSCodeRuns
-
   - name: Setup pre-commit hool
     init: pre-commit install --config config/pre-commit/config.yml --allow-missing-config
+  - name: Install npm packages
+    init: npm ci
