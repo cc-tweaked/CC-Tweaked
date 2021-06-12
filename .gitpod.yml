@@ -1,5 +1,5 @@
 image:
-  file: .gitpod.Dockerfile
+  file: config/gitpod/Dockerfile
 
 ports:
   - port: 25565
@@ -16,4 +16,8 @@ vscode:
     - vscode.github
 
 tasks:
-  - init: ./gradlew
+  - name: Setup VSCode run configurations
+    init: ./gradlew genVSCodeRuns
+
+  - name: Setup pre-commit hool
+    init: pre-commit install --config config/pre-commit/config.yml --allow-missing-config
