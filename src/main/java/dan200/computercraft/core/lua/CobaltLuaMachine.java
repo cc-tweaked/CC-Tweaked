@@ -64,7 +64,7 @@ public class CobaltLuaMachine implements ILuaMachine
     {
         this.computer = computer;
         this.timeout = timeout;
-        this.context = new LuaContext( computer );
+        context = new LuaContext( computer );
         debug = new TimeoutDebugHandler();
 
         // Create an environment to run in
