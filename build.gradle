@@ -417,31 +417,31 @@ task checkRelease {
     description "Verifies that everything is ready for a release"
 
     inputs.property "version", mod_version
-    inputs.file("src/main/resources/data/computercraft/lua/rom/help/changelog.txt")
-    inputs.file("src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt")
+    inputs.file("src/main/resources/data/computercraft/lua/rom/help/changelog.md")
+    inputs.file("src/main/resources/data/computercraft/lua/rom/help/whatsnew.md")
 
     doLast {
         def ok = true
 
         // Check we're targetting the current version
-        def whatsnew = new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt").readLines()
+        def whatsnew = new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/whatsnew.md").readLines()
         if (whatsnew[0] != "New features in CC: Tweaked $mod_version") {
             ok = false
-            project.logger.error("Expected `whatsnew.txt' to target $mod_version.")
+            project.logger.error("Expected `whatsnew.md' to target $mod_version.")
         }
 
         // Check "read more" exists and trim it
         def idx = whatsnew.findIndexOf { it == 'Type "help changelog" to see the full version history.' }
         if (idx == -1) {
             ok = false
-            project.logger.error("Must mention the changelog in whatsnew.txt")
+            project.logger.error("Must mention the changelog in whatsnew.md")
         } else {
             whatsnew = whatsnew.getAt(0 ..< idx)
         }
 
         // Check whatsnew and changelog match.
         def versionChangelog = "# " + whatsnew.join("\n")
-        def changelog = new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/changelog.txt").getText()
+        def changelog = new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/changelog.md").getText()
         if (!changelog.startsWith(versionChangelog)) {
             ok = false
             project.logger.error("whatsnew and changelog are not in sync")
