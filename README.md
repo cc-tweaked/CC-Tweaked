@@ -1,12 +1,11 @@
-# CC:Restitched
-# CC:R Version VS CC:T Version
-CC:R Strives to maintain perfect pairity with CC:T, however in some cases this is not possible, so CC:R might have a "newer" version than what CC:T has, these newer versions will be primarily bugfixes and the like because fabric is "weird" when porting a forge mod
-
 <img src="logo.png" alt="CC: Restitched" width="100%"/>
 
-[![Current build status](https://github.com/Merith-TK/cc-restitched/workflows/Build/badge.svg)](https://github.com/Merith-TK/cc-restitched/actions "Current build status") [![Download CC: Restitched  on CurseForge](http://cf.way2muchnoise.eu/title/cc-restitched.svg)](https://www.curseforge.com/minecraft/mc-mods/cc-restitched-updated "Download CC: Restitched on CurseForge")
+[![Current build status](https://github.com/Merith-TK/cc-restitched/workflows/Build/badge.svg)](https://github.com/Merith-TK/cc-restitched/actions "Current build status")
+[![Download CC: Restitched  on CurseForge](http://cf.way2muchnoise.eu/title/cc-restitched.svg)](https://www.curseforge.com/minecraft/mc-mods/cc-restitched-updated "Download CC: Restitched on CurseForge")
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-908a85?logo=gitpod)](https://gitpod.io/#https://github.com/Merith-TK/cc-restitched)
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/Merith-TK/cc-restitched/)
+# CC:R Version VS CC:T Version
+CC:R Strives to maintain perfect pairity with CC:T, however in some cases this is not possible, so CC:R might have a "newer" version than what CC:T has, these newer versions will be primarily bugfixes and the like because fabric is "weird" when porting a forge mod
 
 ## What is CC: Restiched
 This is an fork of [Zundrel/cc-tweaked-fabric](https://github.com/Zundrel/cc-tweaked-fabric) who's goal was to port [SquidDev-CC/CC-Tweaked](https://github.com/SquidDev-CC/CC-Tweaked) to the [Fabric](https://fabricmc.net/) modloader. I picked up maintaining the mod because the team working on Zundrel's fork, admitted they had gotten lethargic so I picked it up to make it equal with CC:T
