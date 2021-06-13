@@ -1,5 +1,7 @@
 # ![CC: Tweaked](doc/logo.png)
-[![Current build status](https://github.com/SquidDev-CC/CC-Tweaked/workflows/Build/badge.svg)](https://github.com/SquidDev-CC/CC-Tweaked/actions "Current build status") [![Download CC: Tweaked on CurseForge](http://cf.way2muchnoise.eu/title/cc-tweaked.svg)](https://minecraft.curseforge.com/projects/cc-tweaked "Download CC: Tweaked on CurseForge")
+[![Current build status](https://github.com/SquidDev-CC/CC-Tweaked/workflows/Build/badge.svg)](https://github.com/SquidDev-CC/CC-Tweaked/actions "Current build status")
+[![Download CC: Tweaked on CurseForge](http://cf.way2muchnoise.eu/title/cc-tweaked.svg)](https://minecraft.curseforge.com/projects/cc-tweaked "Download CC: Tweaked on CurseForge")
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-908a85?logo=gitpod)](https://gitpod.io/#https://github.com/SquidDev-CC/CC-Tweaked)
 
 CC: Tweaked is a fork of [ComputerCraft](https://github.com/dan200/ComputerCraft), adding programmable computers,
 turtles and more to Minecraft.
