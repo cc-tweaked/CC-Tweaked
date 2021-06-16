@@ -60,14 +60,16 @@ public class Websocket extends Resource<Websocket>
     private final URI uri;
     private final String address;
     private final HttpHeaders headers;
+    private final String subprotocol;
 
-    public Websocket( ResourceGroup<Websocket> limiter, IAPIEnvironment environment, URI uri, String address, HttpHeaders headers )
+    public Websocket( ResourceGroup<Websocket> limiter, IAPIEnvironment environment, URI uri, String address, HttpHeaders headers, String subprotocol )
     {
         super( limiter );
         this.environment = environment;
         this.uri = uri;
         this.address = address;
         this.headers = headers;
+        this.subprotocol = subprotocol;
     }
 
     public static URI checkUri( String address ) throws HTTPRequestException
@@ -151,7 +153,7 @@ public class Websocket extends Resource<Websocket>
                         }
 
                         WebSocketClientHandshaker handshaker = WebSocketClientHandshakerFactory.newHandshaker(
-                            uri, WebSocketVersion.V13, null, true, headers,
+                            uri, WebSocketVersion.V13, subprotocol, true, headers,
                             options.websocketMessage <= 0 ? MAX_MESSAGE_SIZE : options.websocketMessage
                         );
 

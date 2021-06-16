@@ -154,7 +154,7 @@ public class HTTPAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final Object[] websocket( String address, Optional<Map<?, ?>> headerTbl ) throws LuaException
+    public final Object[] websocket( String address, Optional<Map<?, ?>> headerTbl, Optional<String> subprotocolStr ) throws LuaException
     {
         if( !ComputerCraft.httpWebsocketEnabled )
         {
@@ -162,11 +162,12 @@ public class HTTPAPI implements ILuaAPI
         }
 
         HttpHeaders headers = getHeaders( headerTbl.orElse( Collections.emptyMap() ) );
+        String subprotocol = subprotocolStr.orElse( null );
 
         try
         {
             URI uri = Websocket.checkUri( address );
-            if( !new Websocket( websockets, apiEnvironment, uri, address, headers ).queue( Websocket::connect ) )
+            if( !new Websocket( websockets, apiEnvironment, uri, address, headers, subprotocol ).queue( Websocket::connect ) )
             {
                 throw new LuaException( "Too many websockets already open" );
             }
