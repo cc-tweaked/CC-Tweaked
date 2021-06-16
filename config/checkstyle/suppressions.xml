@@ -7,6 +7,9 @@
     <suppress checks="StaticVariableName" files=".*[\\/]ComputerCraft.java" />
     <suppress checks="StaticVariableName" files=".*[\\/]ComputerCraftAPI.java" />
 
+    <!-- Some shadowed fields in mixins can't be renamed -->
+    <suppress checks="StaticVariableName" files=".*[\\/]mixin[\\/].*" />
+
     <!-- The commands API is documented in Lua. -->
     <suppress checks="SummaryJavadocCheck" files=".*[\\/]CommandAPI.java" />
 </suppressions>
