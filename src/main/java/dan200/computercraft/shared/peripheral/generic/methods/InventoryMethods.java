@@ -290,6 +290,10 @@ public class InventoryMethods implements GenericSource
                 return ItemStorage.wrap( inventory );
             }
         }
+        else if ( object instanceof Inventory )
+        {
+            return ItemStorage.wrap( (Inventory) object );
+        }
 
         return null;
     }
