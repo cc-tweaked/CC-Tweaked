@@ -25,6 +25,9 @@
         "MixinScreen",
         "MixinWorldRenderer"
     ],
+    "server": [
+        "MixinLanguage"
+    ],
     "injectors": {
         "defaultRequire": 1
     }
