@@ -84,7 +84,7 @@ else
 
     local file, err = fs.open(sPath, "wb")
     if not file then
-        printError(err, 0)
+        printError(err)
         return
     end
     file.write(res)
