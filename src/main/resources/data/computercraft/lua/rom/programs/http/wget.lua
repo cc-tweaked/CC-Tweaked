@@ -51,6 +51,10 @@ local function get(sUrl)
 
     local sResponse = response.readAll()
     response.close()
+    
+    if not sResponse then
+        print("Got empty response.")
+    end    
     return sResponse
 end
 
@@ -77,9 +81,12 @@ else
     end
 
     local res = get(url)
-    if not res then return end
 
-    local file = fs.open(sPath, "wb")
+    local file, err = fs.open(sPath, "wb")
+    if not file then
+        printError(err, 0)
+        return
+    end
     file.write(res)
     file.close()
 
