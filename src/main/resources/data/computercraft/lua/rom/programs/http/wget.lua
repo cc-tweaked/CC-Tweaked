@@ -51,10 +51,6 @@ local function get(sUrl)
 
     local sResponse = response.readAll()
     response.close()
-    
-    if not sResponse then
-        print("Got empty response.")
-    end    
     return sResponse
 end
 
