@@ -6,11 +6,11 @@
 package dan200.computercraft.data;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
 import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
-import dan200.computercraft.shared.CommonHooks;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.util.ResourceLocation;

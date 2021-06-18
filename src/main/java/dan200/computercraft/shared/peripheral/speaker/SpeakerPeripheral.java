@@ -10,17 +10,23 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.network.client.SpeakerMoveClientMessage;
+import dan200.computercraft.shared.network.client.SpeakerPlayClientMessage;
 import net.minecraft.network.play.server.SPlaySoundPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.state.properties.NoteBlockInstrument;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static dan200.computercraft.api.lua.LuaValues.checkFinite;
@@ -32,19 +38,43 @@ import static dan200.computercraft.api.lua.LuaValues.checkFinite;
  */
 public abstract class SpeakerPeripheral implements IPeripheral
 {
+    private static final int MIN_TICKS_BETWEEN_SOUNDS = 1;
+
     private long clock = 0;
     private long lastPlayTime = 0;
     private final AtomicInteger notesThisTick = new AtomicInteger();
+
+    private long lastPositionTime;
+    private Vec3d lastPosition;
 
     public void update()
     {
         clock++;
         notesThisTick.set( 0 );
+
+        // Push position updates to any speakers which have ever played a note,
+        // have moved by a non-trivial amount and haven't had a position update
+        // in the last second.
+        if( lastPlayTime > 0 && (clock - lastPositionTime) >= 20 )
+        {
+            Vec3d position = getPosition();
+            if( lastPosition == null || lastPosition.distanceToSqr( position ) >= 0.1 )
+            {
+                lastPosition = position;
+                lastPositionTime = clock;
+                NetworkHandler.sendToAllTracking(
+                    new SpeakerMoveClientMessage( getSource(), position ),
+                    getWorld().getChunkAt( new BlockPos( position ) )
+                );
+            }
+        }
     }
 
     public abstract World getWorld();
 
     public abstract Vec3d getPosition();
+
+    protected abstract UUID getSource();
 
     public boolean madeSound( long ticks )
     {
@@ -135,26 +165,37 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
     private synchronized boolean playSound( ILuaContext context, ResourceLocation name, float volume, float pitch, boolean isNote ) throws LuaException
     {
-        if( clock - lastPlayTime < TileSpeaker.MIN_TICKS_BETWEEN_SOUNDS &&
-            (!isNote || clock - lastPlayTime != 0 || notesThisTick.get() >= ComputerCraft.maxNotesPerTick) )
+        if( clock - lastPlayTime < MIN_TICKS_BETWEEN_SOUNDS )
         {
-            // Rate limiting occurs when we've already played a sound within the last tick, or we've
-            // played more notes than allowable within the current tick.
-            return false;
+            // Rate limiting occurs when we've already played a sound within the last tick.
+            if( !isNote ) return false;
+            // Or we've played more notes than allowable within the current tick.
+            if( clock - lastPlayTime != 0 || notesThisTick.get() >= ComputerCraft.maxNotesPerTick ) return false;
         }
 
         World world = getWorld();
         Vec3d pos = getPosition();
 
+        float range = MathHelper.clamp( volume, 1.0f, 3.0f ) * 16;
+
         context.issueMainThreadTask( () -> {
             MinecraftServer server = world.getServer();
             if( server == null ) return null;
 
-            float adjVolume = Math.min( volume, 3.0f );
-            server.getPlayerList().broadcast(
-                null, pos.x, pos.y, pos.z, adjVolume > 1.0f ? 16 * adjVolume : 16.0, world.dimension.getType(),
-                new SPlaySoundPacket( name, SoundCategory.RECORDS, pos, adjVolume, pitch )
-            );
+            if( isNote )
+            {
+                server.getPlayerList().broadcast(
+                    null, pos.x, pos.y, pos.z, range, world.dimension.getType(),
+                    new SPlaySoundPacket( name, SoundCategory.RECORDS, pos, range, pitch )
+                );
+            }
+            else
+            {
+                NetworkHandler.sendToAllAround(
+                    new SpeakerPlayClientMessage( getSource(), pos, name, range, pitch ),
+                    world, pos, range
+                );
+            }
             return null;
         } );
 

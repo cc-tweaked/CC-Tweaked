@@ -87,7 +87,7 @@ public class BlockMonitor extends BlockGeneric
         {
             TileMonitor monitor = (TileMonitor) entity;
             // Defer the block update if we're being placed by another TE. See #691
-            if ( livingEntity == null || livingEntity instanceof FakePlayer )
+            if( livingEntity == null || livingEntity instanceof FakePlayer )
             {
                 monitor.updateNeighborsDeferred();
                 return;
