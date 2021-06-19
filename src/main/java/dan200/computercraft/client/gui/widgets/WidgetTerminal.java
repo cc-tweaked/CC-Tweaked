@@ -172,8 +172,8 @@ public class WidgetTerminal extends Widget
         Terminal term = computer.getTerminal();
         if( term != null )
         {
-            int charX = (int) ((mouseX - x) / FONT_WIDTH);
-            int charY = (int) ((mouseY - x) / FONT_HEIGHT);
+            int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
+            int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
             charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
@@ -196,8 +196,8 @@ public class WidgetTerminal extends Widget
         Terminal term = computer.getTerminal();
         if( term != null )
         {
-            int charX = (int) ((mouseX - x) / FONT_WIDTH);
-            int charY = (int) ((mouseY - x) / FONT_HEIGHT);
+            int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
+            int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
             charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
@@ -223,8 +223,8 @@ public class WidgetTerminal extends Widget
         Terminal term = computer.getTerminal();
         if( term != null )
         {
-            int charX = (int) ((mouseX - x) / FONT_WIDTH);
-            int charY = (int) ((mouseY - x) / FONT_HEIGHT);
+            int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
+            int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
             charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 

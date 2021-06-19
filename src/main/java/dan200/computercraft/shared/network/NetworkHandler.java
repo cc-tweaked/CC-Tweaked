@@ -43,17 +43,17 @@ public final class NetworkHandler
             .simpleChannel();
 
         // Server messages
-        registerMainThread( 0, NetworkDirection.PLAY_TO_SERVER, ComputerActionServerMessage::new );
-        registerMainThread( 1, NetworkDirection.PLAY_TO_SERVER, QueueEventServerMessage::new );
-        registerMainThread( 2, NetworkDirection.PLAY_TO_SERVER, RequestComputerMessage::new );
-        registerMainThread( 3, NetworkDirection.PLAY_TO_SERVER, KeyEventServerMessage::new );
-        registerMainThread( 4, NetworkDirection.PLAY_TO_SERVER, MouseEventServerMessage::new );
+        registerMainThread( 0, NetworkDirection.PLAY_TO_SERVER, ComputerActionServerMessage.class, ComputerActionServerMessage::new );
+        registerMainThread( 1, NetworkDirection.PLAY_TO_SERVER, QueueEventServerMessage.class, QueueEventServerMessage::new );
+        registerMainThread( 2, NetworkDirection.PLAY_TO_SERVER, RequestComputerMessage.class, RequestComputerMessage::new );
+        registerMainThread( 3, NetworkDirection.PLAY_TO_SERVER, KeyEventServerMessage.class, KeyEventServerMessage::new );
+        registerMainThread( 4, NetworkDirection.PLAY_TO_SERVER, MouseEventServerMessage.class, MouseEventServerMessage::new );
 
         // Client messages
-        registerMainThread( 10, NetworkDirection.PLAY_TO_CLIENT, ChatTableClientMessage::new );
-        registerMainThread( 11, NetworkDirection.PLAY_TO_CLIENT, ComputerDataClientMessage::new );
-        registerMainThread( 12, NetworkDirection.PLAY_TO_CLIENT, ComputerDeletedClientMessage::new );
-        registerMainThread( 13, NetworkDirection.PLAY_TO_CLIENT, ComputerTerminalClientMessage::new );
+        registerMainThread( 10, NetworkDirection.PLAY_TO_CLIENT, ChatTableClientMessage.class, ChatTableClientMessage::new );
+        registerMainThread( 11, NetworkDirection.PLAY_TO_CLIENT, ComputerDataClientMessage.class, ComputerDataClientMessage::new );
+        registerMainThread( 12, NetworkDirection.PLAY_TO_CLIENT, ComputerDeletedClientMessage.class, ComputerDeletedClientMessage::new );
+        registerMainThread( 13, NetworkDirection.PLAY_TO_CLIENT, ComputerTerminalClientMessage.class, ComputerTerminalClientMessage::new );
         registerMainThread( 14, NetworkDirection.PLAY_TO_CLIENT, PlayRecordClientMessage.class, PlayRecordClientMessage::new );
         registerMainThread( 15, NetworkDirection.PLAY_TO_CLIENT, MonitorClientMessage.class, MonitorClientMessage::new );
         registerMainThread( 16, NetworkDirection.PLAY_TO_CLIENT, SpeakerPlayClientMessage.class, SpeakerPlayClientMessage::new );
@@ -88,24 +88,6 @@ public final class NetworkHandler
     public static void sendToAllTracking( NetworkMessage packet, Chunk chunk )
     {
         network.send( PacketDistributor.TRACKING_CHUNK.with( () -> chunk ), packet );
-    }
-
-    /**
-     * /**
-     * Register packet, and a thread-unsafe handler for it.
-     *
-     * @param <T>       The type of the packet to send.
-     * @param id        The identifier for this packet type.
-     * @param direction A network direction which will be asserted before any processing of this message occurs.
-     * @param factory   The factory for this type of packet.
-     */
-    private static <T extends NetworkMessage> void registerMainThread( int id, NetworkDirection direction, Supplier<T> factory )
-    {
-        registerMainThread( id, direction, getType( factory ), buf -> {
-            T instance = factory.get();
-            instance.fromBytes( buf );
-            return instance;
-        } );
     }
 
     /**

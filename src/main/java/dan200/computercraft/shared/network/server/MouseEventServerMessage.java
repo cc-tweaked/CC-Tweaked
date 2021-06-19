@@ -19,10 +19,10 @@ public class MouseEventServerMessage extends ComputerServerMessage
     public static final int TYPE_UP = 2;
     public static final int TYPE_SCROLL = 3;
 
-    private int type;
-    private int x;
-    private int y;
-    private int arg;
+    private final int type;
+    private final int x;
+    private final int y;
+    private final int arg;
 
     public MouseEventServerMessage( int instanceId, int type, int arg, int x, int y )
     {
@@ -33,8 +33,13 @@ public class MouseEventServerMessage extends ComputerServerMessage
         this.y = y;
     }
 
-    public MouseEventServerMessage()
+    public MouseEventServerMessage( @Nonnull PacketBuffer buf )
     {
+        super( buf );
+        type = buf.readByte();
+        arg = buf.readVarInt();
+        x = buf.readVarInt();
+        y = buf.readVarInt();
     }
 
     @Override
@@ -45,16 +50,6 @@ public class MouseEventServerMessage extends ComputerServerMessage
         buf.writeVarInt( arg );
         buf.writeVarInt( x );
         buf.writeVarInt( y );
-    }
-
-    @Override
-    public void fromBytes( @Nonnull PacketBuffer buf )
-    {
-        super.fromBytes( buf );
-        type = buf.readByte();
-        arg = buf.readVarInt();
-        x = buf.readVarInt();
-        y = buf.readVarInt();
     }
 
     @Override

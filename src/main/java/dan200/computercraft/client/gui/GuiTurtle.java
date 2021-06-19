@@ -11,81 +11,42 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
-import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
 
 import static dan200.computercraft.shared.turtle.inventory.ContainerTurtle.*;
 
-public class GuiTurtle extends ContainerScreen<ContainerTurtle>
+public class GuiTurtle extends ComputerScreenBase<ContainerTurtle>
 {
     private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/turtle_normal.png" );
     private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/turtle_advanced.png" );
 
-    private final ContainerTurtle container;
+    private static final int TEX_WIDTH = 254;
+    private static final int TEX_HEIGHT = 217;
 
     private final ComputerFamily family;
-    private final ClientComputer computer;
-
-    private WidgetTerminal terminal;
 
     public GuiTurtle( ContainerTurtle container, PlayerInventory player, ITextComponent title )
     {
-        super( container, player, title );
-
-        this.container = container;
+        super( container, player, title, BORDER );
         family = container.getFamily();
-        computer = (ClientComputer) container.getComputer();
 
-        imageWidth = 254;
-        imageHeight = 217;
+        imageWidth = TEX_WIDTH + ComputerSidebar.WIDTH;
+        imageHeight = TEX_HEIGHT;
     }
 
     @Override
-    protected void init()
+    protected WidgetTerminal createTerminal()
     {
-        super.init();
-        minecraft.keyboardHandler.setSendRepeatsToGui( true );
-
-        terminal = addButton( new WidgetTerminal(
+        return new WidgetTerminal(
             computer, leftPos + BORDER + ComputerSidebar.WIDTH, topPos + BORDER,
             ComputerCraft.turtleTermWidth, ComputerCraft.turtleTermHeight
-        ) );
-        ComputerSidebar.addButtons( this, computer, this::addButton, leftPos, topPos + BORDER );
-        setFocused( terminal );
-    }
-
-    @Override
-    public void removed()
-    {
-        super.removed();
-        minecraft.keyboardHandler.setSendRepeatsToGui( false );
-    }
-
-    @Override
-    public void tick()
-    {
-        super.tick();
-        terminal.update();
-    }
-
-    @Override
-    public boolean keyPressed( int key, int scancode, int modifiers )
-    {
-        // Forward the tab key to the terminal, rather than moving between controls.
-        if( key == GLFW.GLFW_KEY_TAB && getFocused() != null && getFocused() == terminal )
-        {
-            return getFocused().keyPressed( key, scancode, modifiers );
-        }
-
-        return super.keyPressed( key, scancode, modifiers );
+        );
     }
 
     @Override
@@ -93,12 +54,12 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     {
         boolean advanced = family == ComputerFamily.ADVANCED;
         minecraft.getTextureManager().bind( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
-        blit( transform, leftPos + ComputerSidebar.WIDTH, topPos, 0, 0, imageWidth, imageHeight );
+        blit( transform, leftPos + ComputerSidebar.WIDTH, topPos, 0, 0, TEX_WIDTH, TEX_HEIGHT );
 
         minecraft.getTextureManager().bind( advanced ? ComputerBorderRenderer.BACKGROUND_ADVANCED : ComputerBorderRenderer.BACKGROUND_NORMAL );
-        ComputerSidebar.renderBackground( transform, leftPos, topPos + BORDER );
+        ComputerSidebar.renderBackground( transform, leftPos, topPos + sidebarYOffset );
 
-        int slot = container.getSelectedSlot();
+        int slot = getMenu().getSelectedSlot();
         if( slot >= 0 )
         {
             RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
@@ -109,26 +70,5 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
                 0, 217, 24, 24
             );
         }
-    }
-
-    @Override
-    public void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
-    {
-        renderBackground( stack );
-        super.render( stack, mouseX, mouseY, partialTicks );
-        renderTooltip( stack, mouseX, mouseY );
-    }
-
-    @Override
-    public boolean mouseDragged( double x, double y, int button, double deltaX, double deltaY )
-    {
-        return (getFocused() != null && getFocused().mouseDragged( x, y, button, deltaX, deltaY ))
-            || super.mouseDragged( x, y, button, deltaX, deltaY );
-    }
-
-    @Override
-    protected void renderLabels( @Nonnull MatrixStack transform, int mouseX, int mouseY )
-    {
-        // Skip rendering labels.
     }
 }
