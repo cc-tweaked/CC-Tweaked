@@ -18,8 +18,8 @@ public class KeyEventServerMessage extends ComputerServerMessage
     public static final int TYPE_REPEAT = 1;
     public static final int TYPE_UP = 2;
 
-    private int type;
-    private int key;
+    private final int type;
+    private final int key;
 
     public KeyEventServerMessage( int instanceId, int type, int key )
     {
@@ -28,8 +28,11 @@ public class KeyEventServerMessage extends ComputerServerMessage
         this.key = key;
     }
 
-    public KeyEventServerMessage()
+    public KeyEventServerMessage( @Nonnull PacketBuffer buf )
     {
+        super( buf );
+        type = buf.readByte();
+        key = buf.readVarInt();
     }
 
     @Override
@@ -38,14 +41,6 @@ public class KeyEventServerMessage extends ComputerServerMessage
         super.toBytes( buf );
         buf.writeByte( type );
         buf.writeVarInt( key );
-    }
-
-    @Override
-    public void fromBytes( @Nonnull PacketBuffer buf )
-    {
-        super.fromBytes( buf );
-        type = buf.readByte();
-        key = buf.readVarInt();
     }
 
     @Override

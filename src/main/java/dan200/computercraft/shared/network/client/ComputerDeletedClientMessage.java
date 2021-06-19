@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.ComputerCraft;
+import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 public class ComputerDeletedClientMessage extends ComputerClientMessage
@@ -15,8 +16,9 @@ public class ComputerDeletedClientMessage extends ComputerClientMessage
         super( instanceId );
     }
 
-    public ComputerDeletedClientMessage()
+    public ComputerDeletedClientMessage( PacketBuffer buffer )
     {
+        super( buffer );
     }
 
     @Override
