@@ -17,7 +17,6 @@ import net.minecraftforge.fml.unsafe.UnsafeHacks;
 import net.minecraftforge.forgespi.language.ModFileScanData;
 import org.objectweb.asm.Type;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -87,29 +86,15 @@ class TestLoader
         long setupTicks
     )
     {
-        try
-        {
-            TestFunctionInfo func = UnsafeHacks.newInstance( TestFunctionInfo.class );
-            setFinalField( func, "batchName", batchName );
-            setFinalField( func, "testName", testName );
-            setFinalField( func, "structureName", structureName );
-            setFinalField( func, "required", required );
-            setFinalField( func, "function", function );
-            setFinalField( func, "maxTicks", maxTicks );
-            setFinalField( func, "setupTicks", setupTicks );
-            setFinalField( func, "rotation", Rotation.NONE );
-            return func;
-        }
-        catch( ReflectiveOperationException e )
-        {
-            throw new RuntimeException( e );
-        }
-    }
-
-    private static void setFinalField( TestFunctionInfo func, String name, Object value ) throws ReflectiveOperationException
-    {
-        Field field = TestFunctionInfo.class.getDeclaredField( name );
-        field.setAccessible( true );
-        field.set( func, value );
+        TestFunctionInfo func = UnsafeHacks.newInstance( TestFunctionInfo.class );
+        func.batchName = batchName;
+        func.testName = testName;
+        func.structureName = structureName;
+        func.required = required;
+        func.function = function;
+        func.maxTicks = maxTicks;
+        func.setupTicks = setupTicks;
+        func.rotation = Rotation.NONE;
+        return func;
     }
 }
