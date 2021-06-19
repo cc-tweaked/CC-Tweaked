@@ -49,8 +49,8 @@ public abstract class ComputerServerMessage implements NetworkMessage
         IContainerComputer container = computer.getContainer( context.getSender() );
         if( container == null ) return;
 
-        handle( computer, container );
+        handle( context, computer, container );
     }
 
-    protected abstract void handle( @Nonnull ServerComputer computer, @Nonnull IContainerComputer container );
+    protected abstract void handle( NetworkEvent.Context context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container );
 }

@@ -116,5 +116,14 @@
     "gui.computercraft.tooltip.turn_off": "Turn this computer off",
     "gui.computercraft.tooltip.turn_off.key": "Hold Ctrl+S",
     "gui.computercraft.tooltip.terminate": "Stop the currently running code",
-    "gui.computercraft.tooltip.terminate.key": "Hold Ctrl+T"
+    "gui.computercraft.tooltip.terminate.key": "Hold Ctrl+T",
+    "gui.computercraft.button.ok": "OK",
+    "gui.computercraft.upload.success": "Upload Succeeded",
+    "gui.computercraft.upload.success.msg": "%d files uploaded.",
+    "gui.computercraft.upload.failed": "Upload Failed",
+    "gui.computercraft.upload.failed.out_of_space": "This computer is out of space.",
+    "gui.computercraft.upload.failed.computer_off": "You must turn the computer on before uploading files.",
+    "gui.computercraft.upload.failed.too_much": "Your files are too large to be uploaded.",
+    "computercraft.gui.upload.failed.generic": "Uploading files failed (%s)",
+    "gui.computercraft.upload.overwrite": "Files would be overwritten"
 }

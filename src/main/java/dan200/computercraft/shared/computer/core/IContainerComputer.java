@@ -5,16 +5,18 @@
  */
 package dan200.computercraft.shared.computer.core;
 
+import dan200.computercraft.shared.computer.upload.FileUpload;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.Container;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * An instance of {@link Container} which provides a computer. You should implement this
  * if you provide custom computers/GUIs to interact with them.
  */
-@FunctionalInterface
 public interface IContainerComputer
 {
     /**
@@ -33,8 +35,13 @@ public interface IContainerComputer
      * @return This container's input.
      */
     @Nonnull
-    default InputState getInput()
-    {
-        return new InputState( this );
-    }
+    InputState getInput();
+
+    /**
+     * Attempt to upload a series of files to this computer.
+     *
+     * @param uploader The player uploading files.
+     * @param files    The files to upload.
+     */
+    void upload( @Nonnull ServerPlayerEntity uploader, @Nonnull List<FileUpload> files );
 }
