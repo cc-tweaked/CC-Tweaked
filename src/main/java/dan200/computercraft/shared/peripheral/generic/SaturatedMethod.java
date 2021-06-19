@@ -24,7 +24,7 @@ final class SaturatedMethod
     SaturatedMethod( Object target, NamedMethod<PeripheralMethod> method )
     {
         this.target = target;
-        this.name = method.getName();
+        name = method.getName();
         this.method = method.getMethod();
     }
 

@@ -17,6 +17,30 @@ describe("cc.shell.completion", function()
         end)
     end)
 
+    describe("program", function()
+        it("completes programs", function()
+            expect(c.program(shell, "rom/")):same {
+                "apis/", "autorun/", "help/", "modules/", "motd.txt", "programs/", "startup.lua",
+            }
+        end)
+    end)
+
+    describe("programWithArgs", function()
+        it("completes program name", function()
+            shell.setCompletionFunction("rom/motd.txt", function() end)
+            expect(c.programWithArgs(shell, "rom/", { "rom/programs/shell.lua" }, 2)):same {
+                "apis/", "autorun/", "help/", "modules/", "motd.txt ", "programs/", "startup.lua",
+            }
+        end)
+
+        it("completes program arguments", function()
+            expect(c.programWithArgs(shell, "", { "rom/programs/shell.lua", "pastebin" }, 2)):same {
+                "put ", "get ", "run ",
+            }
+        end)
+
+    end)
+
     describe("build", function()
         it("completes multiple arguments", function()
             local spec = c.build(

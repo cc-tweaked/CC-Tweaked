@@ -56,6 +56,9 @@ public final class NetworkHandler
         registerMainThread( 13, NetworkDirection.PLAY_TO_CLIENT, ComputerTerminalClientMessage::new );
         registerMainThread( 14, NetworkDirection.PLAY_TO_CLIENT, PlayRecordClientMessage.class, PlayRecordClientMessage::new );
         registerMainThread( 15, NetworkDirection.PLAY_TO_CLIENT, MonitorClientMessage.class, MonitorClientMessage::new );
+        registerMainThread( 16, NetworkDirection.PLAY_TO_CLIENT, SpeakerPlayClientMessage.class, SpeakerPlayClientMessage::new );
+        registerMainThread( 17, NetworkDirection.PLAY_TO_CLIENT, SpeakerStopClientMessage.class, SpeakerStopClientMessage::new );
+        registerMainThread( 18, NetworkDirection.PLAY_TO_CLIENT, SpeakerMoveClientMessage.class, SpeakerMoveClientMessage::new );
     }
 
     public static void sendToPlayer( PlayerEntity player, NetworkMessage packet )

@@ -32,7 +32,7 @@ public class AddressRuleTest
     @ParameterizedTest
     @ValueSource( strings = {
         "0.0.0.0", "[::]",
-        "localhost", "lvh.me", "127.0.0.1", "[::1]",
+        "localhost", "127.0.0.1.nip.io", "127.0.0.1", "[::1]",
         "172.17.0.1", "192.168.1.114", "[0:0:0:0:0:ffff:c0a8:172]", "10.0.0.1"
     } )
     public void blocksLocalDomains( String domain )

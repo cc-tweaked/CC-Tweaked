@@ -339,17 +339,17 @@ class RecipeResolver implements IRecipeManagerPlugin
         UpgradeInfo( ItemStack stack, ITurtleUpgrade turtle )
         {
             this.stack = stack;
-            this.ingredient = of( stack );
-            this.upgrade = this.turtle = turtle;
-            this.pocket = null;
+            ingredient = of( stack );
+            upgrade = this.turtle = turtle;
+            pocket = null;
         }
 
         UpgradeInfo( ItemStack stack, IPocketUpgrade pocket )
         {
             this.stack = stack;
-            this.ingredient = of( stack );
-            this.turtle = null;
-            this.upgrade = this.pocket = pocket;
+            ingredient = of( stack );
+            turtle = null;
+            upgrade = this.pocket = pocket;
         }
 
         List<Shaped> getRecipes()

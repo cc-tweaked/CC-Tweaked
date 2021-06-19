@@ -97,7 +97,7 @@ public abstract class Resource<T extends Resource<T>> implements Closeable
         tryClose();
     }
 
-    public boolean queue( Consumer<T> task )
+    public final boolean queue( Consumer<T> task )
     {
         @SuppressWarnings( "unchecked" )
         T thisT = (T) this;

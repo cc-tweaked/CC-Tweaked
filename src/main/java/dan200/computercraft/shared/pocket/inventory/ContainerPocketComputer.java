@@ -46,7 +46,7 @@ public final class ContainerPocketComputer extends ContainerComputerBase
         public Factory( ServerComputer computer, ItemStack stack, ItemPocketComputer item, Hand hand )
         {
             this.computer = computer;
-            this.name = stack.getHoverName();
+            name = stack.getHoverName();
             this.item = item;
             this.hand = hand;
         }

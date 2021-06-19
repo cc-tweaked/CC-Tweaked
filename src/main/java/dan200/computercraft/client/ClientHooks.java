@@ -22,6 +22,7 @@ public class ClientHooks
         if( event.getWorld().isClientSide() )
         {
             ClientMonitor.destroyAll();
+            SoundManager.reset();
         }
     }
 

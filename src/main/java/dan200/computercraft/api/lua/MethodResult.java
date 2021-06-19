@@ -30,14 +30,14 @@ public final class MethodResult
 
     private MethodResult( Object[] arguments, ILuaCallback callback )
     {
-        this.result = arguments;
+        result = arguments;
         this.callback = callback;
-        this.adjust = 0;
+        adjust = 0;
     }
 
     private MethodResult( Object[] arguments, ILuaCallback callback, int adjust )
     {
-        this.result = arguments;
+        result = arguments;
         this.callback = callback;
         this.adjust = adjust;
     }

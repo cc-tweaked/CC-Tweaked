@@ -40,7 +40,7 @@ public class RemoveTurtleUpgradeByName implements IUndoableAction
     @Override
     public void undo()
     {
-        if( this.upgrade != null ) TurtleUpgrades.enable( upgrade );
+        if( upgrade != null ) TurtleUpgrades.enable( upgrade );
     }
 
     @Override

@@ -16,14 +16,14 @@ public class ComputerContainerData implements ContainerData
 
     public ComputerContainerData( ServerComputer computer )
     {
-        this.id = computer.getInstanceID();
-        this.family = computer.getFamily();
+        id = computer.getInstanceID();
+        family = computer.getFamily();
     }
 
     public ComputerContainerData( PacketBuffer buf )
     {
-        this.id = buf.readInt();
-        this.family = buf.readEnum( ComputerFamily.class );
+        id = buf.readInt();
+        family = buf.readEnum( ComputerFamily.class );
     }
 
     @Override

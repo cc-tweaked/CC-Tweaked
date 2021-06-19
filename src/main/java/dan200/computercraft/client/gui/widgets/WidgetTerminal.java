@@ -5,32 +5,35 @@
  */
 package dan200.computercraft.client.gui.widgets;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ClientComputer;
-import dan200.computercraft.shared.computer.core.IComputer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.IGuiEventListener;
+import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.util.SharedConstants;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.text.StringTextComponent;
 import org.lwjgl.glfw.GLFW;
 
+import javax.annotation.Nonnull;
 import java.util.BitSet;
-import java.util.function.Supplier;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
+import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
 
-public class WidgetTerminal implements IGuiEventListener
+public class WidgetTerminal extends Widget
 {
     private static final float TERMINATE_TIME = 0.5f;
 
-    private final Minecraft client;
+    private final ClientComputer computer;
 
-    private boolean focused;
-
-    private final Supplier<ClientComputer> computer;
-    private final int termWidth;
-    private final int termHeight;
+    // The positions of the actual terminal
+    private final int innerX;
+    private final int innerY;
+    private final int innerWidth;
+    private final int innerHeight;
 
     private float terminateTimer = -1;
     private float rebootTimer = -1;
@@ -40,23 +43,18 @@ public class WidgetTerminal implements IGuiEventListener
     private int lastMouseX = -1;
     private int lastMouseY = -1;
 
-    private final int leftMargin;
-    private final int rightMargin;
-    private final int topMargin;
-    private final int bottomMargin;
-
     private final BitSet keysDown = new BitSet( 256 );
 
-    public WidgetTerminal( Minecraft client, Supplier<ClientComputer> computer, int termWidth, int termHeight, int leftMargin, int rightMargin, int topMargin, int bottomMargin )
+    public WidgetTerminal( @Nonnull ClientComputer computer, int x, int y, int termWidth, int termHeight )
     {
-        this.client = client;
+        super( x, y, termWidth * FONT_WIDTH + MARGIN * 2, termHeight * FONT_HEIGHT + MARGIN * 2, StringTextComponent.EMPTY );
+
         this.computer = computer;
-        this.termWidth = termWidth;
-        this.termHeight = termHeight;
-        this.leftMargin = leftMargin;
-        this.rightMargin = rightMargin;
-        this.topMargin = topMargin;
-        this.bottomMargin = bottomMargin;
+
+        innerX = x + MARGIN;
+        innerY = y + MARGIN;
+        innerWidth = termWidth * FONT_WIDTH;
+        innerHeight = termHeight * FONT_HEIGHT;
     }
 
     @Override
@@ -65,7 +63,7 @@ public class WidgetTerminal implements IGuiEventListener
         if( ch >= 32 && ch <= 126 || ch >= 160 && ch <= 255 ) // printable chars in byte range
         {
             // Queue the "char" event
-            queueEvent( "char", Character.toString( ch ) );
+            computer.queueEvent( "char", new Object[] { Character.toString( ch ) } );
         }
 
         return true;
@@ -91,7 +89,7 @@ public class WidgetTerminal implements IGuiEventListener
 
                 case GLFW.GLFW_KEY_V:
                     // Ctrl+V for paste
-                    String clipboard = client.keyboardHandler.getClipboard();
+                    String clipboard = Minecraft.getInstance().keyboardHandler.getClipboard();
                     if( clipboard != null )
                     {
                         // Clip to the first occurrence of \r or \n
@@ -116,7 +114,7 @@ public class WidgetTerminal implements IGuiEventListener
                         {
                             // Clip to 512 characters and queue the event
                             if( clipboard.length() > 512 ) clipboard = clipboard.substring( 0, 512 );
-                            queueEvent( "paste", clipboard );
+                            computer.queueEvent( "paste", new Object[] { clipboard } );
                         }
 
                         return true;
@@ -129,8 +127,7 @@ public class WidgetTerminal implements IGuiEventListener
             // Queue the "key" event and add to the down set
             boolean repeat = keysDown.get( key );
             keysDown.set( key );
-            IComputer computer = this.computer.get();
-            if( computer != null ) computer.keyDown( key, repeat );
+            computer.keyDown( key, repeat );
         }
 
         return true;
@@ -143,8 +140,7 @@ public class WidgetTerminal implements IGuiEventListener
         if( key >= 0 && keysDown.get( key ) )
         {
             keysDown.set( key, false );
-            IComputer computer = this.computer.get();
-            if( computer != null ) computer.keyUp( key );
+            computer.keyUp( key );
         }
 
         switch( key )
@@ -170,14 +166,14 @@ public class WidgetTerminal implements IGuiEventListener
     @Override
     public boolean mouseClicked( double mouseX, double mouseY, int button )
     {
-        ClientComputer computer = this.computer.get();
-        if( computer == null || !computer.isColour() || button < 0 || button > 2 ) return false;
+        if( !inTermRegion( mouseX, mouseY ) ) return false;
+        if( !computer.isColour() || button < 0 || button > 2 ) return false;
 
         Terminal term = computer.getTerminal();
         if( term != null )
         {
-            int charX = (int) (mouseX / FONT_WIDTH);
-            int charY = (int) (mouseY / FONT_HEIGHT);
+            int charX = (int) ((mouseX - x) / FONT_WIDTH);
+            int charY = (int) ((mouseY - x) / FONT_HEIGHT);
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
             charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
@@ -194,14 +190,14 @@ public class WidgetTerminal implements IGuiEventListener
     @Override
     public boolean mouseReleased( double mouseX, double mouseY, int button )
     {
-        ClientComputer computer = this.computer.get();
-        if( computer == null || !computer.isColour() || button < 0 || button > 2 ) return false;
+        if( !inTermRegion( mouseX, mouseY ) ) return false;
+        if( !computer.isColour() || button < 0 || button > 2 ) return false;
 
         Terminal term = computer.getTerminal();
         if( term != null )
         {
-            int charX = (int) (mouseX / FONT_WIDTH);
-            int charY = (int) (mouseY / FONT_HEIGHT);
+            int charX = (int) ((mouseX - x) / FONT_WIDTH);
+            int charY = (int) ((mouseY - x) / FONT_HEIGHT);
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
             charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
@@ -221,14 +217,14 @@ public class WidgetTerminal implements IGuiEventListener
     @Override
     public boolean mouseDragged( double mouseX, double mouseY, int button, double v2, double v3 )
     {
-        ClientComputer computer = this.computer.get();
-        if( computer == null || !computer.isColour() || button < 0 || button > 2 ) return false;
+        if( !inTermRegion( mouseX, mouseY ) ) return false;
+        if( !computer.isColour() || button < 0 || button > 2 ) return false;
 
         Terminal term = computer.getTerminal();
         if( term != null )
         {
-            int charX = (int) (mouseX / FONT_WIDTH);
-            int charY = (int) (mouseY / FONT_HEIGHT);
+            int charX = (int) ((mouseX - x) / FONT_WIDTH);
+            int charY = (int) ((mouseY - x) / FONT_HEIGHT);
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
             charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
@@ -246,14 +242,14 @@ public class WidgetTerminal implements IGuiEventListener
     @Override
     public boolean mouseScrolled( double mouseX, double mouseY, double delta )
     {
-        ClientComputer computer = this.computer.get();
-        if( computer == null || !computer.isColour() || delta == 0 ) return false;
+        if( !inTermRegion( mouseX, mouseY ) ) return false;
+        if( !computer.isColour() || delta == 0 ) return false;
 
         Terminal term = computer.getTerminal();
         if( term != null )
         {
-            int charX = (int) (mouseX / FONT_WIDTH);
-            int charY = (int) (mouseY / FONT_HEIGHT);
+            int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
+            int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
             charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
@@ -266,89 +262,74 @@ public class WidgetTerminal implements IGuiEventListener
         return true;
     }
 
+    private boolean inTermRegion( double mouseX, double mouseY )
+    {
+        return active && visible && mouseX >= innerX && mouseY >= innerY && mouseX < innerX + innerWidth && mouseY < innerY + innerHeight;
+    }
+
     public void update()
     {
         if( terminateTimer >= 0 && terminateTimer < TERMINATE_TIME && (terminateTimer += 0.05f) > TERMINATE_TIME )
         {
-            queueEvent( "terminate" );
+            computer.queueEvent( "terminate" );
         }
 
         if( shutdownTimer >= 0 && shutdownTimer < TERMINATE_TIME && (shutdownTimer += 0.05f) > TERMINATE_TIME )
         {
-            ClientComputer computer = this.computer.get();
-            if( computer != null ) computer.shutdown();
+            computer.shutdown();
         }
 
         if( rebootTimer >= 0 && rebootTimer < TERMINATE_TIME && (rebootTimer += 0.05f) > TERMINATE_TIME )
         {
-            ClientComputer computer = this.computer.get();
-            if( computer != null ) computer.reboot();
+            computer.reboot();
         }
     }
 
     @Override
-    public boolean changeFocus( boolean reversed )
+    public void onFocusedChanged( boolean focused )
     {
-        if( focused )
+        if( !focused )
         {
             // When blurring, we should make all keys go up
             for( int key = 0; key < keysDown.size(); key++ )
             {
-                if( keysDown.get( key ) ) queueEvent( "key_up", key );
+                if( keysDown.get( key ) ) computer.keyUp( key );
             }
             keysDown.clear();
 
             // When blurring, we should make the last mouse button go up
             if( lastMouseButton > 0 )
             {
-                IComputer computer = this.computer.get();
-                if( computer != null ) computer.mouseUp( lastMouseButton + 1, lastMouseX + 1, lastMouseY + 1 );
+                computer.mouseUp( lastMouseButton + 1, lastMouseX + 1, lastMouseY + 1 );
                 lastMouseButton = -1;
             }
 
             shutdownTimer = terminateTimer = rebootTimer = -1;
         }
-        focused = !focused;
-        return true;
-    }
-
-    public void draw( int originX, int originY )
-    {
-        synchronized( computer )
-        {
-            // Draw the screen contents
-            ClientComputer computer = this.computer.get();
-            Terminal terminal = computer != null ? computer.getTerminal() : null;
-            if( terminal != null )
-            {
-                FixedWidthFontRenderer.drawTerminal( originX, originY, terminal, !computer.isColour(), topMargin, bottomMargin, leftMargin, rightMargin );
-            }
-            else
-            {
-                FixedWidthFontRenderer.drawEmptyTerminal(
-                    originX - leftMargin, originY - rightMargin,
-                    termWidth * FONT_WIDTH + leftMargin + rightMargin,
-                    termHeight * FONT_HEIGHT + topMargin + bottomMargin
-                );
-            }
-        }
-    }
-
-    private void queueEvent( String event )
-    {
-        ClientComputer computer = this.computer.get();
-        if( computer != null ) computer.queueEvent( event );
-    }
-
-    private void queueEvent( String event, Object... args )
-    {
-        ClientComputer computer = this.computer.get();
-        if( computer != null ) computer.queueEvent( event, args );
     }
 
     @Override
-    public boolean isMouseOver( double x, double y )
+    public void render( @Nonnull MatrixStack transform, int mouseX, int mouseY, float partialTicks )
     {
-        return true;
+        Matrix4f matrix = transform.last().pose();
+        Terminal terminal = computer.getTerminal();
+        if( terminal != null )
+        {
+            FixedWidthFontRenderer.drawTerminal( matrix, innerX, innerY, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN );
+        }
+        else
+        {
+            FixedWidthFontRenderer.drawEmptyTerminal( matrix, x, y, width, height );
+        }
+    }
+
+    public static int getWidth( int termWidth )
+    {
+        return termWidth * FONT_WIDTH + MARGIN * 2;
+    }
+
+    public static int getHeight( int termHeight )
+    {
+        return termHeight * FONT_HEIGHT + MARGIN * 2;
     }
 }

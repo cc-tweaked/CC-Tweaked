@@ -10,7 +10,6 @@ import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.asm.LuaMethod;
 import dan200.computercraft.core.asm.ObjectSource;
 import dan200.computercraft.core.computer.Computer;
-import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.computer.TimeoutState;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.core.tracking.TrackingField;
@@ -53,7 +52,7 @@ public class CobaltLuaMachine implements ILuaMachine
     private final Computer computer;
     private final TimeoutState timeout;
     private final TimeoutDebugHandler debug;
-    private final ILuaContext context = new CobaltLuaContext();
+    private final ILuaContext context;
 
     private LuaState state;
     private LuaTable globals;
@@ -65,6 +64,7 @@ public class CobaltLuaMachine implements ILuaMachine
     {
         this.computer = computer;
         this.timeout = timeout;
+        context = new LuaContext( computer );
         debug = new TimeoutDebugHandler();
 
         // Create an environment to run in
@@ -506,53 +506,6 @@ public class CobaltLuaMachine implements ILuaMachine
 
             thrownSoftAbort = true;
             throw new LuaError( TimeoutState.ABORT_MESSAGE );
-        }
-    }
-
-    private class CobaltLuaContext implements ILuaContext
-    {
-        @Override
-        public long issueMainThreadTask( @Nonnull final ILuaTask task ) throws LuaException
-        {
-            // Issue command
-            final long taskID = MainThread.getUniqueTaskID();
-            final Runnable iTask = () -> {
-                try
-                {
-                    Object[] results = task.execute();
-                    if( results != null )
-                    {
-                        Object[] eventArguments = new Object[results.length + 2];
-                        eventArguments[0] = taskID;
-                        eventArguments[1] = true;
-                        System.arraycopy( results, 0, eventArguments, 2, results.length );
-                        computer.queueEvent( "task_complete", eventArguments );
-                    }
-                    else
-                    {
-                        computer.queueEvent( "task_complete", new Object[] { taskID, true } );
-                    }
-                }
-                catch( LuaException e )
-                {
-                    computer.queueEvent( "task_complete", new Object[] { taskID, false, e.getMessage() } );
-                }
-                catch( Throwable t )
-                {
-                    if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error running task", t );
-                    computer.queueEvent( "task_complete", new Object[] {
-                        taskID, false, "Java Exception Thrown: " + t,
-                    } );
-                }
-            };
-            if( computer.queueMainThread( iTask ) )
-            {
-                return taskID;
-            }
-            else
-            {
-                throw new LuaException( "Task limit exceeded" );
-            }
         }
     }
 

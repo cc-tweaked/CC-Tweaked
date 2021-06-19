@@ -99,6 +99,7 @@ public class AddTurtleTool implements IUndoableAction
         return String.format( "Removing turtle upgrade %s.", id );
     }
 
+    @Override
     public boolean validate( ILogger logger )
     {
         TrackingLogger trackLog = new TrackingLogger( logger );

@@ -7,7 +7,7 @@ local function printUsage()
 end
 
 local tArgs = { ... }
-if #tArgs < 2 then
+if #tArgs < 2 or tArgs[1] == "scale" and #tArgs < 3 then
     printUsage()
     return
 end
@@ -21,7 +21,7 @@ if tArgs[1] == "scale" then
 
     local nRes = tonumber(tArgs[3])
     if nRes == nil or nRes < 0.5 or nRes > 5 then
-        print("Invalid scale: " .. nRes)
+        print("Invalid scale: " .. tArgs[3])
         return
     end
 

@@ -61,7 +61,7 @@ public class ContainerHeldItem extends Container
         public Factory( ContainerType<ContainerHeldItem> type, ItemStack stack, Hand hand )
         {
             this.type = type;
-            this.name = stack.getHoverName();
+            name = stack.getHoverName();
             this.hand = hand;
         }
 

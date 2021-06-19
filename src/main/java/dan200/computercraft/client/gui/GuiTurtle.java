@@ -8,8 +8,9 @@ package dan200.computercraft.client.gui;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
-import dan200.computercraft.client.gui.widgets.WidgetWrapper;
+import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
@@ -20,6 +21,8 @@ import net.minecraft.util.text.ITextComponent;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
+
+import static dan200.computercraft.shared.turtle.inventory.ContainerTurtle.*;
 
 public class GuiTurtle extends ContainerScreen<ContainerTurtle>
 {
@@ -32,7 +35,6 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     private final ClientComputer computer;
 
     private WidgetTerminal terminal;
-    private WidgetWrapper terminalWrapper;
 
     public GuiTurtle( ContainerTurtle container, PlayerInventory player, ITextComponent title )
     {
@@ -52,27 +54,18 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
         super.init();
         minecraft.keyboardHandler.setSendRepeatsToGui( true );
 
-        int termPxWidth = ComputerCraft.turtleTermWidth * FixedWidthFontRenderer.FONT_WIDTH;
-        int termPxHeight = ComputerCraft.turtleTermHeight * FixedWidthFontRenderer.FONT_HEIGHT;
-
-        terminal = new WidgetTerminal(
-            minecraft, () -> computer,
-            ComputerCraft.turtleTermWidth,
-            ComputerCraft.turtleTermHeight,
-            2, 2, 2, 2
-        );
-        terminalWrapper = new WidgetWrapper( terminal, 2 + 8 + leftPos, 2 + 8 + topPos, termPxWidth, termPxHeight );
-
-        children.add( terminalWrapper );
-        setFocused( terminalWrapper );
+        terminal = addButton( new WidgetTerminal(
+            computer, leftPos + BORDER + ComputerSidebar.WIDTH, topPos + BORDER,
+            ComputerCraft.turtleTermWidth, ComputerCraft.turtleTermHeight
+        ) );
+        ComputerSidebar.addButtons( this, computer, this::addButton, leftPos, topPos + BORDER );
+        setFocused( terminal );
     }
 
     @Override
     public void removed()
     {
         super.removed();
-        children.remove( terminal );
-        terminal = null;
         minecraft.keyboardHandler.setSendRepeatsToGui( false );
     }
 
@@ -87,7 +80,7 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     public boolean keyPressed( int key, int scancode, int modifiers )
     {
         // Forward the tab key to the terminal, rather than moving between controls.
-        if( key == GLFW.GLFW_KEY_TAB && getFocused() != null && getFocused() == terminalWrapper )
+        if( key == GLFW.GLFW_KEY_TAB && getFocused() != null && getFocused() == terminal )
         {
             return getFocused().keyPressed( key, scancode, modifiers );
         }
@@ -98,24 +91,21 @@ public class GuiTurtle extends ContainerScreen<ContainerTurtle>
     @Override
     protected void renderBg( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
-        // Draw term
-        ResourceLocation texture = family == ComputerFamily.ADVANCED ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL;
-        terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
+        boolean advanced = family == ComputerFamily.ADVANCED;
+        minecraft.getTextureManager().bind( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
+        blit( transform, leftPos + ComputerSidebar.WIDTH, topPos, 0, 0, imageWidth, imageHeight );
 
-        // Draw border/inventory
-        RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        minecraft.getTextureManager().bind( texture );
-        blit( transform, leftPos, topPos, 0, 0, imageWidth, imageHeight );
+        minecraft.getTextureManager().bind( advanced ? ComputerBorderRenderer.BACKGROUND_ADVANCED : ComputerBorderRenderer.BACKGROUND_NORMAL );
+        ComputerSidebar.renderBackground( transform, leftPos, topPos + BORDER );
 
-        // Draw selection slot
         int slot = container.getSelectedSlot();
         if( slot >= 0 )
         {
+            RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
             int slotX = slot % 4;
             int slotY = slot / 4;
             blit( transform,
-                leftPos + ContainerTurtle.TURTLE_START_X - 2 + slotX * 18,
-                topPos + ContainerTurtle.PLAYER_START_Y - 2 + slotY * 18,
+                leftPos + TURTLE_START_X - 2 + slotX * 18, topPos + PLAYER_START_Y - 2 + slotY * 18,
                 0, 217, 24, 24
             );
         }
