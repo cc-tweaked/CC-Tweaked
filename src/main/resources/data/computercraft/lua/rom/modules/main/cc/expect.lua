@@ -51,10 +51,8 @@ local function expect(index, value, ...)
 
     -- If we can determine the function name with a high level of confidence, try to include it.
     local name
-    if native_type(debug) == "table" and native_type(debug.getinfo) == "function" then
-        local ok, info = pcall(debug.getinfo, 3, "nS")
-        if ok and info.name and info.name ~= "" and info.what ~= "C" then name = info.name end
-    end
+    local ok, info = pcall(debug.getinfo, 3, "nS")
+    if ok and info.name and info.name ~= "" and info.what ~= "C" then name = info.name end
 
     local type_names = get_type_names(...)
     if name then

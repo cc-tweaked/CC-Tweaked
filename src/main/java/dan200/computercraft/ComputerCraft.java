@@ -36,7 +36,6 @@ public final class ComputerCraft
     public static int maximumFilesOpen = 128;
     public static boolean disableLua51Features = false;
     public static String defaultComputerSettings = "";
-    public static boolean debugEnable = true;
     public static boolean logComputerErrors = true;
     public static boolean commandRequireCreative = true;
 

@@ -42,7 +42,6 @@ public final class Config
     private static final ConfigValue<Integer> maximumFilesOpen;
     private static final ConfigValue<Boolean> disableLua51Features;
     private static final ConfigValue<String> defaultComputerSettings;
-    private static final ConfigValue<Boolean> debugEnabled;
     private static final ConfigValue<Boolean> logComputerErrors;
     private static final ConfigValue<Boolean> commandRequireCreative;
 
@@ -119,10 +118,6 @@ public final class Config
                     "\"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\" will disable all " +
                     "autocompletion" )
                 .define( "default_computer_settings", ComputerCraft.defaultComputerSettings );
-
-            debugEnabled = builder
-                .comment( "Enable Lua's debug library. This is sandboxed to each computer, so is generally safe to be used by players." )
-                .define( "debug_enabled", ComputerCraft.debugEnable );
 
             logComputerErrors = builder
                 .comment( "Log exceptions thrown by peripherals and other Lua objects.\n" +
@@ -317,7 +312,6 @@ public final class Config
         ComputerCraft.maximumFilesOpen = maximumFilesOpen.get();
         ComputerCraft.disableLua51Features = disableLua51Features.get();
         ComputerCraft.defaultComputerSettings = defaultComputerSettings.get();
-        ComputerCraft.debugEnable = debugEnabled.get();
         ComputerCraft.computerThreads = computerThreads.get();
         ComputerCraft.logComputerErrors = logComputerErrors.get();
         ComputerCraft.commandRequireCreative = commandRequireCreative.get();

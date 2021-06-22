@@ -28,8 +28,7 @@ local expect = require "cc.expect"
 local expect, field = expect.expect, expect.field
 
 local type, getmetatable, setmetatable, colours, str_write, tostring = type, getmetatable, setmetatable, colours, write, tostring
-local debug_info = type(debug) == "table" and type(debug.getinfo) == "function" and debug.getinfo
-local debug_local = type(debug) == "table" and type(debug.getlocal) == "function" and debug.getlocal
+local debug_info, debug_local = debug.getinfo, debug.getlocal
 
 --- @{table.insert} alternative, but with the length stored inline.
 local function append(out, value)
