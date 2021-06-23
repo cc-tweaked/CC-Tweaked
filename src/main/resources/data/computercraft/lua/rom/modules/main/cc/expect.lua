@@ -92,7 +92,7 @@ end
 
 --- Expect a number to be within a specific range.
 --
--- @tparam number num, The value to check.
+-- @tparam number num The value to check.
 -- @tparam number min The minimum value, if nil then `-math.huge` is used.
 -- @tparam number max The maximum value, if nil then `math.huge` is used.
 -- @return The given `value`.
