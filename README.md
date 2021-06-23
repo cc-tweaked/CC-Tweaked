@@ -1,7 +1,7 @@
 <img src="logo.png" alt="CC: Restitched" width="100%"/>
 
 [![Current build status](https://github.com/Merith-TK/cc-restitched/workflows/Build/badge.svg)](https://github.com/Merith-TK/cc-restitched/actions "Current build status")
-[![Download CC: Restitched  on CurseForge](http://cf.way2muchnoise.eu/title/cc-restitched.svg)](https://www.curseforge.com/minecraft/mc-mods/cc-restitched-updated "Download CC:  Restitched on CurseForge")
+[![Download CC: Restitched  on CurseForge](https://cf.way2muchnoise.eu/title/462672.svg)](https://www.curseforge.com/minecraft/mc-mods/cc-restitched "Download CC:  Restitched on CurseForge")
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-908a85?logo=gitpod)](https://gitpod.io/#https://github.com/Merith-TK/cc-restitched)
 
 # CC: R Version VS CC: T Version
