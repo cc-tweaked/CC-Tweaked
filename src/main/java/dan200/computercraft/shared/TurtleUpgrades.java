@@ -33,9 +33,9 @@ public final class TurtleUpgrades
         Wrapper( ITurtleUpgrade upgrade )
         {
             this.upgrade = upgrade;
-            this.id = upgrade.getUpgradeID().toString();
-            this.modId = ModLoadingContext.get().getActiveNamespace();
-            this.enabled = true;
+            id = upgrade.getUpgradeID().toString();
+            modId = ModLoadingContext.get().getActiveNamespace();
+            enabled = true;
         }
     }
 

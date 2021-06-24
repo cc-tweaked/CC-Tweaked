@@ -15,27 +15,22 @@ import javax.annotation.Nonnull;
 
 public class RequestComputerMessage implements NetworkMessage
 {
-    private int instance;
+    private final int instance;
 
     public RequestComputerMessage( int instance )
     {
         this.instance = instance;
     }
 
-    public RequestComputerMessage()
+    public RequestComputerMessage( @Nonnull PacketBuffer buf )
     {
+        instance = buf.readVarInt();
     }
 
     @Override
     public void toBytes( @Nonnull PacketBuffer buf )
     {
         buf.writeVarInt( instance );
-    }
-
-    @Override
-    public void fromBytes( @Nonnull PacketBuffer buf )
-    {
-        instance = buf.readVarInt();
     }
 
     @Override

@@ -12,7 +12,7 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
 import dan200.computercraft.shared.Registry;
-import dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral;
+import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -28,7 +28,7 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
     private static final ModelResourceLocation leftModel = new ModelResourceLocation( "computercraft:turtle_speaker_upgrade_left", "inventory" );
     private static final ModelResourceLocation rightModel = new ModelResourceLocation( "computercraft:turtle_speaker_upgrade_right", "inventory" );
 
-    private static class Peripheral extends SpeakerPeripheral
+    private static class Peripheral extends UpgradeSpeakerPeripheral
     {
         ITurtleAccess turtle;
 

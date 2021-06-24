@@ -16,7 +16,7 @@ import javax.annotation.Nonnull;
 
 public class ChatTableClientMessage implements NetworkMessage
 {
-    private TableBuilder table;
+    private final TableBuilder table;
 
     public ChatTableClientMessage( TableBuilder table )
     {
@@ -24,32 +24,7 @@ public class ChatTableClientMessage implements NetworkMessage
         this.table = table;
     }
 
-    public ChatTableClientMessage()
-    {
-    }
-
-    @Override
-    public void toBytes( @Nonnull PacketBuffer buf )
-    {
-        buf.writeVarInt( table.getId() );
-        buf.writeVarInt( table.getColumns() );
-        buf.writeBoolean( table.getHeaders() != null );
-        if( table.getHeaders() != null )
-        {
-            for( ITextComponent header : table.getHeaders() ) buf.writeComponent( header );
-        }
-
-        buf.writeVarInt( table.getRows().size() );
-        for( ITextComponent[] row : table.getRows() )
-        {
-            for( ITextComponent column : row ) buf.writeComponent( column );
-        }
-
-        buf.writeVarInt( table.getAdditional() );
-    }
-
-    @Override
-    public void fromBytes( @Nonnull PacketBuffer buf )
+    public ChatTableClientMessage( @Nonnull PacketBuffer buf )
     {
         int id = buf.readVarInt();
         int columns = buf.readVarInt();
@@ -75,6 +50,26 @@ public class ChatTableClientMessage implements NetworkMessage
 
         table.setAdditional( buf.readVarInt() );
         this.table = table;
+    }
+
+    @Override
+    public void toBytes( @Nonnull PacketBuffer buf )
+    {
+        buf.writeVarInt( table.getId() );
+        buf.writeVarInt( table.getColumns() );
+        buf.writeBoolean( table.getHeaders() != null );
+        if( table.getHeaders() != null )
+        {
+            for( ITextComponent header : table.getHeaders() ) buf.writeComponent( header );
+        }
+
+        buf.writeVarInt( table.getRows().size() );
+        for( ITextComponent[] row : table.getRows() )
+        {
+            for( ITextComponent column : row ) buf.writeComponent( column );
+        }
+
+        buf.writeVarInt( table.getAdditional() );
     }
 
     @Override

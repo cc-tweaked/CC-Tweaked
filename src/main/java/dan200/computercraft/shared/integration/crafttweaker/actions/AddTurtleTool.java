@@ -99,13 +99,17 @@ public class AddTurtleTool implements IUndoableAction
         return String.format( "Removing turtle upgrade %s.", id );
     }
 
+    @Override
     public boolean validate( ILogger logger )
     {
         TrackingLogger trackLog = new TrackingLogger( logger );
 
         if( craftItem.isEmpty() ) trackLog.error( "Crafting item stack is empty." );
 
-        if( craftItem.hasTag() && !craftItem.getTag().isEmpty() ) trackLog.warning( "Crafting item has NBT." );
+        if( craftItem.isDamaged() || craftItem.isEnchanted() || craftItem.hasCustomHoverName() )
+        {
+            trackLog.warning( "Crafting item has NBT." );
+        }
         if( toolItem.isEmpty() ) trackLog.error( "Tool item stack is empty." );
 
         if( !kinds.containsKey( kind ) ) trackLog.error( String.format( "Unknown kind '%s'.", kind ) );
@@ -121,6 +125,6 @@ public class AddTurtleTool implements IUndoableAction
     @Override
     public boolean shouldApplyOn( LogicalSide side )
     {
-        return true;
+        return shouldApplySingletons();
     }
 }
