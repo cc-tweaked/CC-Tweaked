@@ -4,7 +4,7 @@ labels: [ bug ]
 body:
 - type: dropdown
   id: mc-version
-  attributes: 
+  attributes:
     label: Minecraft Version
     description: What version of Minecraft are you using?
     options:
@@ -24,7 +24,7 @@ body:
   id: details
   attributes:
     label: Details
-    description: | 
+    description: |
       Description of the bug. Please include the following:
       - Logs: These will be located in the `logs/` directory of your Minecraft
         instance. Please upload them as a gist or directly into this editor.
