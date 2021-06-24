@@ -692,11 +692,11 @@ if http then
 
     local nativeWebsocket = http.websocket
     http.websocketAsync = nativeWebsocket
-    http.websocket = function(_url, _headers, _subprotocol)
+    http.websocket = function(_url, _headers)
         expect(1, _url, "string")
         expect(2, _headers, "table", "nil")
 
-        local ok, err = nativeWebsocket(_url, _headers, _subprotocol)
+        local ok, err = nativeWebsocket(_url, _headers)
         if not ok then return ok, err end
 
         while true do

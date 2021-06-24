@@ -138,12 +138,11 @@ function checkURL(url) end
 -- `ws://` or `wss://` protocol.
 -- @tparam[opt] { [string] = string } headers Additional headers to send as part
 -- of the initial websocket connection.
--- @tparam[opt] string subprotocol Subprotocol to use when connecting to the websocket server.
 --
 -- @treturn Websocket The websocket connection.
 -- @treturn[2] false If the websocket connection failed.
 -- @treturn string An error message describing why the connection failed.
-function websocket(url, headers, subprotocol) end
+function websocket(url, headers) end
 
 --- Asynchronously open a websocket.
 --
@@ -155,5 +154,4 @@ function websocket(url, headers, subprotocol) end
 -- `ws://` or `wss://` protocol.
 -- @tparam[opt] { [string] = string } headers Additional headers to send as part
 -- of the initial websocket connection.
--- @tparam[opt] string subprotocol Subprotocol to use when connecting to the websocket server.
-function websocketAsync(url, headers, subprotocol) end
+function websocketAsync(url, headers) end

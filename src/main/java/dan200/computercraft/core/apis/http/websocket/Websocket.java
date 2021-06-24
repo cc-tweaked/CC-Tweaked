@@ -55,21 +55,20 @@ public class Websocket extends Resource<Websocket>
     private Future<?> executorFuture;
     private ChannelFuture connectFuture;
     private WeakReference<WebsocketHandle> websocketHandle;
+    private String subprotocol = null;
 
     private final IAPIEnvironment environment;
     private final URI uri;
     private final String address;
     private final HttpHeaders headers;
-    private final String subprotocol;
 
-    public Websocket( ResourceGroup<Websocket> limiter, IAPIEnvironment environment, URI uri, String address, HttpHeaders headers, String subprotocol )
+    public Websocket( ResourceGroup<Websocket> limiter, IAPIEnvironment environment, URI uri, String address, HttpHeaders headers )
     {
         super( limiter );
         this.environment = environment;
         this.uri = uri;
         this.address = address;
         this.headers = headers;
-        this.subprotocol = subprotocol;
     }
 
     public static URI checkUri( String address ) throws HTTPRequestException
@@ -150,6 +149,11 @@ public class Websocket extends Resource<Websocket>
                         if( sslContext != null )
                         {
                             p.addLast( sslContext.newHandler( ch.alloc(), uri.getHost(), socketAddress.getPort() ) );
+                        }
+
+                        if ( headers.contains( "Sec-WebSocket-Protocol" ) )
+                        {
+                            subprotocol = headers.get( "Sec-WebSocket-Protocol" );
                         }
 
                         WebSocketClientHandshaker handshaker = WebSocketClientHandshakerFactory.newHandshaker(
