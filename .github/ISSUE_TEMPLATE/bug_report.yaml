@@ -10,8 +10,8 @@ body:
     options:
       - 1.15.x
       - 1.16.x
-    validations:
-      required: true
+  validations:
+    required: true
 - type: input
   id: version
   attributes:
