@@ -32,7 +32,7 @@ public final class TransformedModel
     public TransformedModel( @Nonnull IBakedModel model )
     {
         this.model = Objects.requireNonNull( model );
-        this.matrix = TransformationMatrix.identity();
+        matrix = TransformationMatrix.identity();
     }
 
     public static TransformedModel of( @Nonnull ModelResourceLocation location )

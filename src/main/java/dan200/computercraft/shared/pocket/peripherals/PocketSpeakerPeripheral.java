@@ -6,11 +6,11 @@
 package dan200.computercraft.shared.pocket.peripherals;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral;
+import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
-public class PocketSpeakerPeripheral extends SpeakerPeripheral
+public class PocketSpeakerPeripheral extends UpgradeSpeakerPeripheral
 {
     private World world = null;
     private Vector3d position = Vector3d.ZERO;

@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 
 public class ComputerActionServerMessage extends ComputerServerMessage
 {
-    private Action action;
+    private final Action action;
 
     public ComputerActionServerMessage( int instanceId, Action action )
     {
@@ -21,8 +21,10 @@ public class ComputerActionServerMessage extends ComputerServerMessage
         this.action = action;
     }
 
-    public ComputerActionServerMessage()
+    public ComputerActionServerMessage( @Nonnull PacketBuffer buf )
     {
+        super( buf );
+        action = buf.readEnum( Action.class );
     }
 
     @Override
@@ -30,13 +32,6 @@ public class ComputerActionServerMessage extends ComputerServerMessage
     {
         super.toBytes( buf );
         buf.writeEnum( action );
-    }
-
-    @Override
-    public void fromBytes( @Nonnull PacketBuffer buf )
-    {
-        super.fromBytes( buf );
-        action = buf.readEnum( Action.class );
     }
 
     @Override

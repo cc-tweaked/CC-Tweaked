@@ -25,14 +25,14 @@ public class ContainerViewComputer extends ContainerComputerBase implements ICon
     public ContainerViewComputer( int id, ServerComputer computer )
     {
         super( Registry.ModContainers.VIEW_COMPUTER.get(), id, player -> canInteractWith( computer, player ), computer, computer.getFamily() );
-        this.width = this.height = 0;
+        width = height = 0;
     }
 
     public ContainerViewComputer( int id, PlayerInventory player, ViewComputerContainerData data )
     {
         super( Registry.ModContainers.VIEW_COMPUTER.get(), id, player, data );
-        this.width = data.getWidth();
-        this.height = data.getHeight();
+        width = data.getWidth();
+        height = data.getHeight();
     }
 
     private static boolean canInteractWith( @Nonnull ServerComputer computer, @Nonnull PlayerEntity player )

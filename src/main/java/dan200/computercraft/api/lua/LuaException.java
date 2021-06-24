@@ -19,14 +19,14 @@ public class LuaException extends Exception
     public LuaException( @Nullable String message )
     {
         super( message );
-        this.hasLevel = false;
-        this.level = 1;
+        hasLevel = false;
+        level = 1;
     }
 
     public LuaException( @Nullable String message, int level )
     {
         super( message );
-        this.hasLevel = true;
+        hasLevel = true;
         this.level = level;
     }
 

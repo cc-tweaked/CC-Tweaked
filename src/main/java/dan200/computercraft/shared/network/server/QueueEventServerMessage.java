@@ -22,8 +22,8 @@ import javax.annotation.Nullable;
  */
 public class QueueEventServerMessage extends ComputerServerMessage
 {
-    private String event;
-    private Object[] args;
+    private final String event;
+    private final Object[] args;
 
     public QueueEventServerMessage( int instanceId, @Nonnull String event, @Nullable Object[] args )
     {
@@ -32,8 +32,13 @@ public class QueueEventServerMessage extends ComputerServerMessage
         this.args = args;
     }
 
-    public QueueEventServerMessage()
+    public QueueEventServerMessage( @Nonnull PacketBuffer buf )
     {
+        super( buf );
+        event = buf.readUtf( Short.MAX_VALUE );
+
+        CompoundNBT args = buf.readNbt();
+        this.args = args == null ? null : NBTUtil.decodeObjects( args );
     }
 
     @Override
@@ -42,16 +47,6 @@ public class QueueEventServerMessage extends ComputerServerMessage
         super.toBytes( buf );
         buf.writeUtf( event );
         buf.writeNbt( args == null ? null : NBTUtil.encodeObjects( args ) );
-    }
-
-    @Override
-    public void fromBytes( @Nonnull PacketBuffer buf )
-    {
-        super.fromBytes( buf );
-        event = buf.readUtf( Short.MAX_VALUE );
-
-        CompoundNBT args = buf.readNbt();
-        this.args = args == null ? null : NBTUtil.decodeObjects( args );
     }
 
     @Override

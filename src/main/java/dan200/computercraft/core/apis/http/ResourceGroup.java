@@ -18,6 +18,9 @@ import java.util.function.Supplier;
  */
 public class ResourceGroup<T extends Resource<T>>
 {
+    public static final int DEFAULT_LIMIT = 512;
+    public static final IntSupplier DEFAULT = () -> DEFAULT_LIMIT;
+
     private static final IntSupplier ZERO = () -> 0;
 
     final IntSupplier limit;

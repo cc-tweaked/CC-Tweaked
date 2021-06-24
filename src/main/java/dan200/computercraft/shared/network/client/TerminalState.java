@@ -54,36 +54,36 @@ public class TerminalState
 
         if( terminal == null )
         {
-            this.width = this.height = 0;
-            this.buffer = null;
+            width = height = 0;
+            buffer = null;
         }
         else
         {
-            this.width = terminal.getWidth();
-            this.height = terminal.getHeight();
+            width = terminal.getWidth();
+            height = terminal.getHeight();
 
-            ByteBuf buf = this.buffer = Unpooled.buffer();
+            ByteBuf buf = buffer = Unpooled.buffer();
             terminal.write( new PacketBuffer( buf ) );
         }
     }
 
     public TerminalState( PacketBuffer buf )
     {
-        this.colour = buf.readBoolean();
-        this.compress = buf.readBoolean();
+        colour = buf.readBoolean();
+        compress = buf.readBoolean();
 
         if( buf.readBoolean() )
         {
-            this.width = buf.readVarInt();
-            this.height = buf.readVarInt();
+            width = buf.readVarInt();
+            height = buf.readVarInt();
 
             int length = buf.readVarInt();
-            this.buffer = readCompressed( buf, length, compress );
+            buffer = readCompressed( buf, length, compress );
         }
         else
         {
-            this.width = this.height = 0;
-            this.buffer = null;
+            width = height = 0;
+            buffer = null;
         }
     }
 

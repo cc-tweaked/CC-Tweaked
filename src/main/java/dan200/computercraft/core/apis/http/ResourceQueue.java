@@ -38,8 +38,10 @@ public class ResourceQueue<T extends Resource<T>> extends ResourceGroup<T>
     public synchronized boolean queue( Supplier<T> resource )
     {
         if( !active ) return false;
+        if( super.queue( resource ) ) return true;
+        if( pending.size() > DEFAULT_LIMIT ) return false;
 
-        if( !super.queue( resource ) ) pending.add( resource );
+        pending.add( resource );
         return true;
     }
 

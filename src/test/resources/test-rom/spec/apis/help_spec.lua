@@ -18,5 +18,10 @@ describe("The help library", function()
             help.completeTopic("")
             expect.error(help.completeTopic, nil):eq("bad argument #1 (expected string, got nil)")
         end)
+
+        it("completes topics without extensions", function()
+            expect(help.completeTopic("changel")):same { "og" }
+            expect(help.completeTopic("turt")):same { "le" }
+        end)
     end)
 end)

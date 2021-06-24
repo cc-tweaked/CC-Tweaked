@@ -52,7 +52,8 @@ public class ComputerBorderRenderer
 
     public static final int LIGHT_HEIGHT = 8;
 
-    private static final float TEX_SCALE = 1 / 256.0f;
+    public static final int TEX_SIZE = 256;
+    private static final float TEX_SCALE = 1 / (float) TEX_SIZE;
 
     private final Matrix4f transform;
     private final IVertexBuilder builder;

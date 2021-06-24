@@ -65,7 +65,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
     public TurtleTool( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )
     {
         super( id, TurtleUpgradeType.TOOL, craftItem );
-        this.item = toolItem;
+        item = toolItem;
     }
 
     @Override
