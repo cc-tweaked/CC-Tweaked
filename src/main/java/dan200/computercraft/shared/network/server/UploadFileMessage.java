@@ -41,6 +41,7 @@ public class UploadFileMessage extends ComputerServerMessage
 
             ByteBuffer buffer = ByteBuffer.allocateDirect( size );
             buf.readBytes( buffer );
+            buffer.flip();
 
             files.add( new FileUpload( name, buffer ) );
         }

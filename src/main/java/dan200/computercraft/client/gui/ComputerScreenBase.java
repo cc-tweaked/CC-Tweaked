@@ -15,9 +15,8 @@ import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.upload.FileUpload;
 import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.network.server.ContinueUploadMessage;
 import dan200.computercraft.shared.network.server.UploadFileMessage;
-import net.minecraft.client.gui.screen.AlertScreen;
-import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.text.ITextComponent;
@@ -31,11 +30,15 @@ import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public abstract class ComputerScreenBase<T extends ContainerComputerBase> extends ContainerScreen<T>
 {
-    private static final ITextComponent OK = new TranslationTextComponent( "gui.computercraft.button.ok" );
+    private static final ITextComponent OK = new TranslationTextComponent( "gui.ok" );
+    private static final ITextComponent CANCEL = new TranslationTextComponent( "gui.cancel" );
+    private static final ITextComponent OVERWRITE = new TranslationTextComponent( "gui.computercraft.upload.overwrite_button" );
 
     protected WidgetTerminal terminal;
     protected final ClientComputer computer;
@@ -142,9 +145,8 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
                 }
 
                 ByteBuffer buffer = ByteBuffer.allocateDirect( (int) fileSize );
-                int read = sbc.read( buffer );
-                buffer.limit( read );
-                buffer.position( 0 );
+                sbc.read( buffer );
+                buffer.flip();
 
                 toUpload.add( new FileUpload( file.getFileName().toString(), buffer ) );
             }
@@ -172,16 +174,29 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
                 alert( UploadResult.FAILED_TITLE, message );
                 break;
             case CONFIRM_OVERWRITE:
-                minecraft.setScreen( new ConfirmScreen(
-                    confirm -> minecraft.setScreen( this ),
-                    UploadResult.UPLOAD_OVERWRITE, message
+                minecraft.setScreen( new OptionScreen(
+                    UploadResult.UPLOAD_OVERWRITE, message,
+                    Arrays.asList(
+                        OptionScreen.newButton( CANCEL, b -> continueUplooad( false ) ),
+                        OptionScreen.newButton( OVERWRITE, b -> continueUplooad( true ) )
+                    ),
+                    () -> minecraft.setScreen( this )
                 ) );
                 break;
         }
     }
 
+    private void continueUplooad( boolean overwrite )
+    {
+        minecraft.setScreen( this );
+        NetworkHandler.sendToServer( new ContinueUploadMessage( computer.getInstanceID(), overwrite ) );
+    }
+
     private void alert( ITextComponent title, ITextComponent message )
     {
-        minecraft.setScreen( new AlertScreen( () -> minecraft.setScreen( this ), title, message, OK ) );
+        minecraft.setScreen( new OptionScreen( title, message,
+            Collections.singletonList( OptionScreen.newButton( OK, b -> minecraft.setScreen( this ) ) ),
+            () -> minecraft.setScreen( this )
+        ) );
     }
 }

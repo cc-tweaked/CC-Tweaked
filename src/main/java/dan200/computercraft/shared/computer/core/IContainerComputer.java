@@ -44,4 +44,12 @@ public interface IContainerComputer
      * @param files    The files to upload.
      */
     void upload( @Nonnull ServerPlayerEntity uploader, @Nonnull List<FileUpload> files );
+
+    /**
+     * Continue an upload.
+     *
+     * @param uploader  The player uploading files.
+     * @param overwrite Whether the files should be overwritten or not.
+     */
+    void continueUpload( @Nonnull ServerPlayerEntity uploader, boolean overwrite );
 }

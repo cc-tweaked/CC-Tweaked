@@ -49,6 +49,7 @@ public final class NetworkHandler
         registerMainThread( 3, NetworkDirection.PLAY_TO_SERVER, KeyEventServerMessage.class, KeyEventServerMessage::new );
         registerMainThread( 4, NetworkDirection.PLAY_TO_SERVER, MouseEventServerMessage.class, MouseEventServerMessage::new );
         registerMainThread( 5, NetworkDirection.PLAY_TO_SERVER, UploadFileMessage.class, UploadFileMessage::new );
+        registerMainThread( 6, NetworkDirection.PLAY_TO_SERVER, ContinueUploadMessage.class, ContinueUploadMessage::new );
 
         // Client messages
         registerMainThread( 10, NetworkDirection.PLAY_TO_CLIENT, ChatTableClientMessage.class, ChatTableClientMessage::new );

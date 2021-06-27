@@ -26,16 +26,21 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class ContainerComputerBase extends Container implements IContainerComputer
 {
+    private static final String LIST_PREFIX = "\n \u2022 ";
+
     private final Predicate<PlayerEntity> canUse;
     private final IComputer computer;
     private final ComputerFamily family;
     private final InputState input = new InputState( this );
+    private List<FileUpload> toUpload;
 
     protected ContainerComputerBase( ContainerType<? extends ContainerComputerBase> type, int id, Predicate<PlayerEntity> canUse, IComputer computer, ComputerFamily family )
     {
@@ -89,12 +94,23 @@ public class ContainerComputerBase extends Container implements IContainerComput
     @Override
     public void upload( @Nonnull ServerPlayerEntity uploader, @Nonnull List<FileUpload> files )
     {
-        UploadResultMessage message = upload( files );
+        UploadResultMessage message = upload( files, false );
+        NetworkHandler.sendToPlayer( uploader, message );
+    }
+
+    @Override
+    public void continueUpload( @Nonnull ServerPlayerEntity uploader, boolean overwrite )
+    {
+        List<FileUpload> files = this.toUpload;
+        toUpload = null;
+        if( files == null || files.isEmpty() || !overwrite ) return;
+
+        UploadResultMessage message = upload( files, true );
         NetworkHandler.sendToPlayer( uploader, message );
     }
 
     @Nonnull
-    private UploadResultMessage upload( @Nonnull List<FileUpload> files )
+    private UploadResultMessage upload( @Nonnull List<FileUpload> files, boolean forceOverwrite )
     {
         ServerComputer computer = (ServerComputer) getComputer();
         if( computer == null ) return UploadResultMessage.COMPUTER_OFF;
@@ -104,10 +120,31 @@ public class ContainerComputerBase extends Container implements IContainerComput
 
         try
         {
+            List<String> overwrite = new ArrayList<>();
             for( FileUpload upload : files )
             {
                 if( !fs.exists( upload.getName() ) ) continue;
-                // TODO: return fs.isDir( upload.getName() ) ? UploadResult.FAILED : UploadResult.CONFIRM_OVERWRITE;
+                if( fs.isDir( upload.getName() ) )
+                {
+                    return new UploadResultMessage(
+                        UploadResult.ERROR,
+                        new TranslationTextComponent( "gui.computercraft.upload.failed.overwrite_dir", upload.getName() )
+                    );
+                }
+
+                overwrite.add( upload.getName() );
+            }
+
+            if( !overwrite.isEmpty() && !forceOverwrite )
+            {
+                StringJoiner joiner = new StringJoiner( LIST_PREFIX, LIST_PREFIX, "" );
+                for( String value : overwrite ) joiner.add( value );
+
+                toUpload = files;
+                return new UploadResultMessage(
+                    UploadResult.CONFIRM_OVERWRITE,
+                    new TranslationTextComponent( "gui.computercraft.upload.overwrite.detail", joiner.toString() )
+                );
             }
 
             long availableSpace = fs.getFreeSpace( "/" );
