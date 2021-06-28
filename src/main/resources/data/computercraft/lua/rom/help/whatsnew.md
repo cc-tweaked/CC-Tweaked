@@ -14,6 +14,9 @@ New features in CC: Tweaked 1.97.0
 * Update the `help` program to accept and (partially) highlight markdown files.
 * Remove config option for the debug API.
 * Allow setting the subprotocol header for websockets.
+* Add basic JMX monitoring on dedicated servers.
+* Add support for MoreRed bundled.
+* Allow uploading files by dropping them onto a computer.
 
 And several bug fixes:
 * Fix NPE when using a treasure disk when no treasure disks are available.
@@ -23,5 +26,8 @@ And several bug fixes:
 * Speakers now correctly stop playing when broken, and sound follows noisy turtles and pocket computers.
 * Update the `wget` to be more resiliant in the face of user-errors.
 * Fix exiting `paint` typing "e" in the shell.
+* Fix coloured pocket computers using the wrong texture.
+* Correctly render the transparent background on pocket/normal computers.
+* Don't apply CraftTweaker actions twice on single-player worlds.
 
 Type "help changelog" to see the full version history.
