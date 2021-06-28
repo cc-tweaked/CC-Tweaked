@@ -9,7 +9,6 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.container.ViewComputerContainerData;
 import net.minecraft.entity.player.PlayerEntity;
@@ -17,7 +16,7 @@ import net.minecraft.entity.player.PlayerInventory;
 
 import javax.annotation.Nonnull;
 
-public class ContainerViewComputer extends ContainerComputerBase implements IContainerComputer
+public class ContainerViewComputer extends ContainerComputerBase
 {
     private final int width;
     private final int height;

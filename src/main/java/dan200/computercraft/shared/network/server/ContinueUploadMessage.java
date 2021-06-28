@@ -7,55 +7,39 @@ package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
-public class ComputerActionServerMessage extends ComputerServerMessage
+public class ContinueUploadMessage extends ComputerServerMessage
 {
-    private final Action action;
+    private final boolean overwrite;
 
-    public ComputerActionServerMessage( int instanceId, Action action )
+    public ContinueUploadMessage( int instanceId, boolean overwrite )
     {
         super( instanceId );
-        this.action = action;
+        this.overwrite = overwrite;
     }
 
-    public ComputerActionServerMessage( @Nonnull PacketBuffer buf )
+    public ContinueUploadMessage( @Nonnull PacketBuffer buf )
     {
         super( buf );
-        action = buf.readEnum( Action.class );
+        overwrite = buf.readBoolean();
     }
 
     @Override
     public void toBytes( @Nonnull PacketBuffer buf )
     {
         super.toBytes( buf );
-        buf.writeEnum( action );
+        buf.writeBoolean( overwrite );
     }
 
     @Override
     protected void handle( NetworkEvent.Context context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
-        switch( action )
-        {
-            case TURN_ON:
-                computer.turnOn();
-                break;
-            case REBOOT:
-                computer.reboot();
-                break;
-            case SHUTDOWN:
-                computer.shutdown();
-                break;
-        }
-    }
-
-    public enum Action
-    {
-        TURN_ON,
-        SHUTDOWN,
-        REBOOT
+        ServerPlayerEntity player = context.getSender();
+        if( player != null ) container.continueUpload( player, overwrite );
     }
 }
