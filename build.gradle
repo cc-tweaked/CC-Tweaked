@@ -472,11 +472,12 @@ tasks.register('publishModrinth', TaskModrinthUpload.class).configure {
         project.hasProperty('modrinthApiKey')
     }
 
-    token = project.getProperty('modrinthApiKey')
+    token = project.getProperty('modrinthApiKey', "")
     projectId = 'gu7yAYhd'
-    versionNumber = project.mod_version
+    versionNumber = "${project.mc_version}-${project.mod_version}"
     uploadFile = jar
     addGameVersion(project.mc_version)
+    changelog = "Release notes can be found on the [GitHub repository](https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
     addLoader('forge')
 }
 
