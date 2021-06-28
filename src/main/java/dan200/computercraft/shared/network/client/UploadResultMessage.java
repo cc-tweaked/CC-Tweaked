@@ -6,9 +6,11 @@
 package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.client.gui.ComputerScreenBase;
+import dan200.computercraft.client.gui.OptionScreen;
 import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -47,9 +49,10 @@ public class UploadResultMessage implements NetworkMessage
     {
         Minecraft minecraft = Minecraft.getInstance();
 
-        if( minecraft.screen instanceof ComputerScreenBase<?> )
+        Screen screen = OptionScreen.unwrap( minecraft.screen );
+        if( screen instanceof ComputerScreenBase<?> )
         {
-            ((ComputerScreenBase<?>) minecraft.screen).uploadResult( result, message );
+            ((ComputerScreenBase<?>) screen).uploadResult( result, message );
         }
     }
 }

@@ -19,7 +19,7 @@ import java.util.List;
 
 public class UploadFileMessage extends ComputerServerMessage
 {
-    public static final int MAX_SIZE = 256 * 1024;
+    public static final int MAX_SIZE = 30 * 1024; // Max packet size is 32767. TODO: Bump this in the future
     private final List<FileUpload> files;
 
     public UploadFileMessage( int instanceId, List<FileUpload> files )
@@ -35,7 +35,7 @@ public class UploadFileMessage extends ComputerServerMessage
         List<FileUpload> files = this.files = new ArrayList<>( nFiles );
         for( int i = 0; i < nFiles; i++ )
         {
-            String name = buf.readUtf();
+            String name = buf.readUtf( 32767 );
             int size = buf.readVarInt();
             if( size > MAX_SIZE ) break;
 

@@ -174,29 +174,35 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
                 alert( UploadResult.FAILED_TITLE, message );
                 break;
             case CONFIRM_OVERWRITE:
-                minecraft.setScreen( new OptionScreen(
-                    UploadResult.UPLOAD_OVERWRITE, message,
+                OptionScreen.show(
+                    minecraft, UploadResult.UPLOAD_OVERWRITE, message,
                     Arrays.asList(
-                        OptionScreen.newButton( CANCEL, b -> continueUplooad( false ) ),
-                        OptionScreen.newButton( OVERWRITE, b -> continueUplooad( true ) )
+                        OptionScreen.newButton( CANCEL, b -> cancelUpload() ),
+                        OptionScreen.newButton( OVERWRITE, b -> continueUpload() )
                     ),
-                    () -> minecraft.setScreen( this )
-                ) );
+                    this::cancelUpload
+                );
                 break;
         }
     }
 
-    private void continueUplooad( boolean overwrite )
+    private void continueUpload()
+    {
+        if( minecraft.screen instanceof OptionScreen ) ((OptionScreen) minecraft.screen).disable();
+        NetworkHandler.sendToServer( new ContinueUploadMessage( computer.getInstanceID(), true ) );
+    }
+
+    private void cancelUpload()
     {
         minecraft.setScreen( this );
-        NetworkHandler.sendToServer( new ContinueUploadMessage( computer.getInstanceID(), overwrite ) );
+        NetworkHandler.sendToServer( new ContinueUploadMessage( computer.getInstanceID(), false ) );
     }
 
     private void alert( ITextComponent title, ITextComponent message )
     {
-        minecraft.setScreen( new OptionScreen( title, message,
+        OptionScreen.show( minecraft, title, message,
             Collections.singletonList( OptionScreen.newButton( OK, b -> minecraft.setScreen( this ) ) ),
             () -> minecraft.setScreen( this )
-        ) );
+        );
     }
 }
