@@ -173,27 +173,25 @@ handleMetatable = {
     },
 }
 
-local defaultInput = setmetatable({
-    _handle = { readLine = _G.read },
-}, handleMetatable)
+local function make_file(handle)
+    return setmetatable({ _handle = handle }, handleMetatable)
+end
 
-local defaultOutput = setmetatable({
-    _handle = { write = _G.write },
-}, handleMetatable)
+local defaultInput = make_file({ readLine = _G.read })
 
-local defaultError = setmetatable({
-    _handle = {
-        write = function(...)
-            local oldColour
-            if term.isColour() then
-                oldColour = term.getTextColour()
-                term.setTextColour(colors.red)
-            end
-            _G.write(...)
-            if term.isColour() then term.setTextColour(oldColour) end
-        end,
-    },
-}, handleMetatable)
+local defaultOutput = make_file({ write = _G.write })
+
+local defaultError = make_file({
+    write = function(...)
+        local oldColour
+        if term.isColour() then
+            oldColour = term.getTextColour()
+            term.setTextColour(colors.red)
+        end
+        _G.write(...)
+        if term.isColour() then term.setTextColour(oldColour) end
+    end,
+})
 
 local currentInput = defaultInput
 local currentOutput = defaultOutput
@@ -316,7 +314,7 @@ function open(filename, mode)
     local file, err = fs.open(filename, sMode)
     if not file then return nil, err end
 
-    return setmetatable({ _handle = file }, handleMetatable)
+    return make_file(file)
 end
 
 --- Get or set the current output file.
