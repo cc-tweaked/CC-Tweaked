@@ -51,10 +51,8 @@ local function expect(index, value, ...)
 
     -- If we can determine the function name with a high level of confidence, try to include it.
     local name
-    if native_type(debug) == "table" and native_type(debug.getinfo) == "function" then
-        local ok, info = pcall(debug.getinfo, 3, "nS")
-        if ok and info.name and info.name ~= "" and info.what ~= "C" then name = info.name end
-    end
+    local ok, info = pcall(debug.getinfo, 3, "nS")
+    if ok and info.name and info.name ~= "" and info.what ~= "C" then name = info.name end
 
     local type_names = get_type_names(...)
     if name then
@@ -94,7 +92,7 @@ end
 
 --- Expect a number to be within a specific range.
 --
--- @tparam number num, The value to check.
+-- @tparam number num The value to check.
 -- @tparam number min The minimum value, if nil then `-math.huge` is used.
 -- @tparam number max The maximum value, if nil then `math.huge` is used.
 -- @return The given `value`.
