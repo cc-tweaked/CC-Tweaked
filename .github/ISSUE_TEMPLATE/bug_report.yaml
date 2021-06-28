@@ -1,17 +1,17 @@
 name: Bug report
-about: Report some misbehaviour in the mod
+description: Report some misbehaviour in the mod
 labels: [ bug ]
 body:
 - type: dropdown
   id: mc-version
-  attributes: 
+  attributes:
     label: Minecraft Version
     description: What version of Minecraft are you using?
     options:
       - 1.15.x
       - 1.16.x
-    validations:
-      required: true
+  validations:
+    required: true
 - type: input
   id: version
   attributes:
@@ -24,7 +24,7 @@ body:
   id: details
   attributes:
     label: Details
-    description: | 
+    description: |
       Description of the bug. Please include the following:
       - Logs: These will be located in the `logs/` directory of your Minecraft
         instance. Please upload them as a gist or directly into this editor.
