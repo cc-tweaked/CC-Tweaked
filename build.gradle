@@ -472,7 +472,7 @@ tasks.register('publishModrinth', TaskModrinthUpload.class).configure {
         project.hasProperty('modrinthApiKey')
     }
 
-    token = project.getProperty('modrinthApiKey', "")
+    token = project.hasProperty('modrinthApiKey') ? project.getProperty('modrinthApiKey') : ''
     projectId = 'gu7yAYhd'
     versionNumber = "${project.mc_version}-${project.mod_version}"
     uploadFile = jar
