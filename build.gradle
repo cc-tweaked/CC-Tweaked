@@ -8,7 +8,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.code.gson:gson:2.8.1'
-        classpath 'net.minecraftforge.gradle:ForgeGradle:5.0.12'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:5.0.24'
     }
 }
 
@@ -38,14 +38,6 @@ java {
 
     withSourcesJar()
     withJavadocJar()
-}
-
-// Tragically java.toolchain.languageVersion doesn't apply to ForgeGradle's
-// tasks, so we force all launchers to use the right Java version.
-tasks.withType(JavaCompile).configureEach {
-    javaCompiler = javaToolchains.compilerFor {
-        languageVersion = javaVersion
-    }
 }
 
 tasks.withType(JavaExec).configureEach {
@@ -305,8 +297,8 @@ test {
 jacocoTestReport {
     dependsOn('test')
     reports {
-        xml.enabled true
-        html.enabled true
+        xml.required = true
+        html.required = true
     }
 }
 
@@ -370,14 +362,10 @@ tasks.register('testInGame', JavaExec.class).configure {
     // Copy from runTestServer. We do it in this slightly odd way as runTestServer
     // isn't created until the task is configured (which is no good for us).
     JavaExec exec = tasks.getByName('runTestServer')
-    it.setWorkingDir(exec.getWorkingDir())
-    it.setSystemProperties(exec.getSystemProperties())
-    it.setBootstrapClasspath(exec.getBootstrapClasspath())
+    exec.copyTo(it)
     it.setClasspath(exec.getClasspath())
-    it.setMain(exec.getMain())
-    it.setEnvironment(exec.getEnvironment())
+    it.mainClass = exec.mainClass
     it.setArgs(exec.getArgs())
-    it.setJvmArgs(exec.getJvmArgs())
 
     it.systemProperty('forge.logging.console.level', 'info')
     it.systemProperty('cctest.run', 'true')
@@ -464,6 +452,8 @@ curseforge {
         relations {
             incompatible "computercraft"
         }
+
+        addGameVersion "${mc_version}"
     }
 }
 
