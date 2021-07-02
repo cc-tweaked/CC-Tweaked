@@ -474,11 +474,12 @@ tasks.register('publishModrinth', TaskModrinthUpload.class).configure {
         project.hasProperty('modrinthApiKey')
     }
 
-    token = project.hasProperty('curseForgeApiKey')
+    token = project.hasProperty('modrinthApiKey') ? project.getProperty('modrinthApiKey') : ''
     projectId = 'gu7yAYhd'
-    versionNumber = project.mod_version
+    versionNumber = "${project.mc_version}-${project.mod_version}"
     uploadFile = jar
     addGameVersion(project.mc_version)
+    changelog = "Release notes can be found on the [GitHub repository](https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
     addLoader('forge')
 }
 
@@ -548,10 +549,10 @@ githubRelease {
     tagName "v${mc_version}-${mod_version}"
     releaseName "[${mc_version}] ${mod_version}"
     body.set(project.provider({
-        "## " + new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/whatsnew.txt")
-                .readLines()
-                .takeWhile { it != 'Type "help changelog" to see the full version history.' }
-                .join("\n").trim()
+        "## " + new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/whatsnew.md")
+            .readLines()
+            .takeWhile { it != 'Type "help changelog" to see the full version history.' }
+            .join("\n").trim()
     }))
     prerelease false
 }
