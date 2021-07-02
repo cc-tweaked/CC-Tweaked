@@ -3,7 +3,7 @@ name: Build documentation
 on:
   push:
     branches:
-    - mc-1.15.x
+    - mc-1.16.x
 
 jobs:
   make_doc:
