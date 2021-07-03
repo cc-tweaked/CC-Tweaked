@@ -68,6 +68,13 @@ public class FSAPI implements ILuaAPI
      * @param path The path to list.
      * @return A table with a list of files in the directory.
      * @throws LuaException If the path doesn't exist.
+     * @cc.usage List all files under {@code /rom/}
+     * <pre>{@code
+     * local files = fs.list("/rom/")
+     * for i = 1, #files do
+     *   print(files[i])
+     * end
+     * }</pre>
      */
     @LuaFunction
     public final String[] list( String path ) throws LuaException
@@ -92,6 +99,11 @@ public class FSAPI implements ILuaAPI
      * @throws LuaException On argument errors.
      * @cc.tparam string path The first part of the path. For example, a parent directory path.
      * @cc.tparam string ... Additional parts of the path to combine.
+     * @cc.usage Combine several file paths together
+     * <pre>{@code
+     * fs.combine("/rom/programs", "../apis", "parallel.lua")
+     * -- => rom/apis/parallel.lua
+     * }</pre>
      */
     @LuaFunction
     public final String combine( IArguments arguments ) throws LuaException
@@ -114,6 +126,11 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The path to get the name from.
      * @return The final part of the path (the file name).
+     * @cc.usage Get the file name of {@code rom/startup.lua}
+     * <pre>{@code
+     * fs.getName("rom/startup.lua")
+     * -- => startup.lua
+     * }</pre>
      */
     @LuaFunction
     public final String getName( String path )
@@ -126,6 +143,11 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The path to get the directory from.
      * @return The path with the final part removed (the parent directory).
+     * @cc.usage Get the directory name of {@code rom/startup.lua}
+     * <pre>{@code
+     * fs.getDir("rom/startup.lua")
+     * -- => rom
+     * }</pre>
      */
     @LuaFunction
     public final String getDir( String path )
@@ -304,10 +326,15 @@ public class FSAPI implements ILuaAPI
     /**
      * Opens a file for reading or writing at a path.
      *
-     * The mode parameter can be {@code r} to read, {@code w} to write (deleting
-     * all contents), or {@code a} to append (keeping contents). If {@code b} is
-     * added to the end, the file will be opened in binary mode; otherwise, it's
-     * opened in text mode.
+     * The {@code mode} string can be any of the following:
+     * <ul>
+     * <li><strong>"r"</strong>: Read mode</li>
+     * <li><strong>"w"</strong>: Write mode</li>
+     * <li><strong>"a"</strong>: Append mode</li>
+     * </ul>
+     *
+     * The mode may also have a "b" at the end, which opens the file in "binary
+     * mode". This allows you to read binary files, as well as seek within a file.
      *
      * @param path The path to the file to open.
      * @param mode The mode to open the file with.
@@ -316,6 +343,35 @@ public class FSAPI implements ILuaAPI
      * @cc.treturn [1] table A file handle object for the file.
      * @cc.treturn [2] nil If the file does not exist, or cannot be opened.
      * @cc.treturn string|nil A message explaining why the file cannot be opened.
+     * @cc.usage Read the contents of a file.
+     * <pre>{@code
+     * local file = fs.open("/rom/help/intro.txt", "r")
+     * local contents = file.readAll()
+     * file.close()
+     *
+     * print(contents)
+     * }</pre>
+     * @cc.usage Open a file and read all lines into a table. @{io.lines} offers an alternative way to do this.
+     * <pre>{@code
+     * local file = fs.open("/rom/motd.txt", "r")
+     * local lines = {}
+     * while true do
+     *   local line = file.readLine()
+     *
+     *   -- If line is nil then we've reached the end of the file and should stop
+     *   if not line then break end
+     *
+     *   lines[#lines + 1] = line
+     * end
+     *
+     * print(lines[math.random(#lines)]) -- Pick a random line and print it.
+     * }</pre>
+     * @cc.usage Open a file and write some text to it. You can run {@code edit out.txt} to see the written text.
+     * <pre>{@code
+     * local file = fs.open("out.txt", "w")
+     * file.write("Just testing some code")
+     * file.close() -- Remember to call close, otherwise changes may not be written!
+     * }</pre>
      */
     @LuaFunction
     public final Object[] open( String path, String mode ) throws LuaException

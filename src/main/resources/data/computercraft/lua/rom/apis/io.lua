@@ -253,28 +253,32 @@ function input(file)
     return currentInput
 end
 
---- Opens the given file name in read mode and returns an iterator that,
--- each time it is called, returns a new line from the file.
---
--- This can be used in a for loop to iterate over all lines of a file:
---
--- ```lua
--- for line in io.lines(filename) do print(line) end
--- ```
---
--- Once the end of the file has been reached, @{nil} will be
--- returned. The file is automatically closed.
---
--- If no file name is given, the @{io.input|current input} will be used
--- instead. In this case, the handle is not used.
---
--- @tparam[opt] string filename The name of the file to extract lines from
--- @param ... The argument to pass to @{Handle:read} for each line.
--- @treturn function():string|nil The line iterator.
--- @throws If the file cannot be opened for reading
---
--- @see Handle:lines
--- @see io.input
+--[[- Opens the given file name in read mode and returns an iterator that,
+each time it is called, returns a new line from the file.
+
+This can be used in a for loop to iterate over all lines of a file
+
+Once the end of the file has been reached, @{nil} will be returned. The file is
+automatically closed.
+
+If no file name is given, the @{io.input|current input} will be used instead.
+In this case, the handle is not used.
+
+@tparam[opt] string filename The name of the file to extract lines from
+@param ... The argument to pass to @{Handle:read} for each line.
+@treturn function():string|nil The line iterator.
+@throws If the file cannot be opened for reading
+
+@see Handle:lines
+@see io.input
+@usage Iterate over every line in a file and print it out.
+
+```lua
+for line in io.lines("/rom/help/intro.txt") do
+  print(line)
+end
+```
+]]
 function lines(filename, ...)
     expect(1, filename, "string", "nil")
     if filename then
