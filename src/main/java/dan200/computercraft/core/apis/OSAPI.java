@@ -420,6 +420,36 @@ public class OSAPI implements ILuaAPI
     }
 
     /**
+     * Returns the number of nanoseconds since an epoch.
+     *
+     * Unlike @{os.epoch|epoch}, this epoch is defined arbitrarily, does not map
+     * to any real event, and can change between computer reboots.
+     * Thus, timestamps only make sense in relation to other timestamps made in
+     * the same session.
+     *
+     * Returned values wrap back to 0 once 2^53 is reached.
+     * Measurement of a duration greater than 2^53 nanoseconds (~104 days) will
+     * overflow into wrong results.
+     *
+     * @return The number of nanoseconds since an epoch.
+     *
+     * @cc.usage <pre>{@code
+     * local t1 = os.nanoTime()
+     * sleep(2)
+     * local t2 = os.nanoTime()
+     *
+     * -- Using the % operator here accounts for timestamp overflow.
+     * local duration = (t2 - t1) % 2 ^ 53
+     * print(("%d nanoseconds have elapsed"):format(duration))
+     * }</pre>
+     */
+    @LuaFunction
+    public final double nanoTime()
+    {
+        return (double) (System.nanoTime() & 0x1fffffffffffffl);
+    }
+
+    /**
      * Returns a date string (or table) using a specified format string and
      * optional time to format.
      *
