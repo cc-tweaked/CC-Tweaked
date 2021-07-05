@@ -42,7 +42,7 @@ for _, v in ipairs(valid_types) do valid_types[v] = true end
 --    will error.
 function define(name, options)
     expect(1, name, "string")
-    expect(2, options, "table", nil)
+    expect(2, options, "table", "nil")
 
     if options then
         options = {
