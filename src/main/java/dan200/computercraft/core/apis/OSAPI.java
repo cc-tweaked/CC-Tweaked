@@ -444,9 +444,9 @@ public class OSAPI implements ILuaAPI
      * }</pre>
      */
     @LuaFunction
-    public final double nanoTime()
+    public final long nanoTime()
     {
-        return (double) (System.nanoTime() & 0x1FFFFFFFFFFFFFL);
+        return System.nanoTime() & 0x1FFFFFFFFFFFFFL;
     }
 
     /**
