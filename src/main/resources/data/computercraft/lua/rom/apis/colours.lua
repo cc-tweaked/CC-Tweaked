@@ -1,11 +1,11 @@
---[[- The Colors API allows you to manipulate sets of colors.
+--[[- The Colours API allows you to manipulate sets of colours.
 This is useful in conjunction with Bundled Cables from the RedPower mod, RedNet
 Cables from the MineFactory Reloaded mod, and colours on Advanced Computers and
 Advanced Monitors.
 
 For the American English version just replace @{colours} with @{colors} and
 it will use the other API, colours which is exactly the same, except in American
-English (e.g. @{colours.gry} is spelt @{colors.gray}).
+English (e.g. @{colours.grey} is spelt @{colors.gray}).
 
 On basic terminals (such as the Computer and Monitor), all the colours are
 converted to grayscale. This means you can still use all 16 colours on the
@@ -125,8 +125,8 @@ i.e. `(red + green + blue) / 3`.
     </tr>
 </tbody>
 </table>
-@see colours
-@module colors
+@see colors
+@module colours
 ]]
 
 local colours = _ENV
