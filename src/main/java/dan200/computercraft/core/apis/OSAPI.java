@@ -322,9 +322,10 @@ public class OSAPI implements ILuaAPI
      * seconds since 1 January 1970).
      *
      * @usage Print the current (in world) time.
-     *    local time = os.time()
-     *    print(textutils.formatTime(time,true))
-     *
+     * <pre>{@code
+     * local time = os.time()
+     * print(textutils.formatTime(time,true))
+     * }</pre>
      * @param args The locale of the time, or a table filled by {@code os.date("*t")} to decode. Defaults to {@code ingame} locale if not specified.
      * @return The hour of the selected locale, or a UNIX timestamp from the table, depending on the argument passed in.
      * @throws LuaException If an invalid locale is passed.
@@ -362,13 +363,13 @@ public class OSAPI implements ILuaAPI
      * January 1970 in the server's local timezone.
      *
      * @usage Print the number of days, weeks, months, and years since 1 January 1970 (UTC).
-     *
-     *    local days = os.day("utc")
-     *    print("Days:",days)
-     *    print("Weeks:",math.floor(days/7))
-     *    print("Months:",math.floor(days/30)) -- Yes, some months have 31 days, but 30 is "good enough".
-     *    print("Years:",math.floor(days/365))
-     *
+     * <pre>{@code
+     * local days = os.day("utc")
+     * print("Days:",days)
+     * print("Weeks:",math.floor(days/7))
+     * print("Months:",math.floor(days/30)) -- Yes, some months have 31 days, but 30 is "good enough".
+     * print("Years:",math.floor(days/365))
+     * }</pre>
      * @param args The locale to get the day for. Defaults to {@code ingame} if not set.
      * @return The day depending on the selected locale.
      * @throws LuaException If an invalid locale is passed.
@@ -400,13 +401,13 @@ public class OSAPI implements ILuaAPI
      * January 1970 in the server's local timezone.
      *
      * @usage Print milliseconds, seconds, minutes, and hours since 1 January 1970 (UTC).
-     *
-     *    local millis = os.epoch("utc")
-     *    print("Milliseconds:",millis)
-     *    print("Seconds:",math.floor(millis/1000))
-     *    print("Minutes:",math.floor(millis/60000))
-     *    print("Hours:",math.floor(millis/3600000))
-     *
+     * <pre>{@code
+     * local millis = os.epoch("utc")
+     * print("Milliseconds:",millis)
+     * print("Seconds:",math.floor(millis/1000))
+     * print("Minutes:",math.floor(millis/60000))
+     * print("Hours:",math.floor(millis/3600000))
+     * }</pre>
      * @param args The locale to get the milliseconds for. Defaults to {@code ingame} if not set.
      * @return The milliseconds since the epoch depending on the selected locale.
      * @throws LuaException If an invalid locale is passed.
@@ -454,10 +455,10 @@ public class OSAPI implements ILuaAPI
      * Daylight Savings Time is in effect. This table can be converted to a UNIX
      * timestamp (days since 1 January 1970) with {@link #date}.
      *
-     * @usage Print the current time and date in UTC.
-     *
-     *    print(os.date("!%Y/%m/%d %H:%M:%S"))
-     *
+     * @cc.usage Print the current time and date in UTC.
+     * <pre>{@code
+     * print(os.date("!%Y/%m/%d %H:%M:%S"))
+     * }</pre>
      * @param formatA The format of the string to return. This defaults to {@code %c}, which expands to a string similar to "Sat Dec 24 16:58:00 2011".
      * @param timeA   The time to convert to a string. This defaults to the current time.
      * @return The resulting format string.
