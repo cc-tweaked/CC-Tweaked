@@ -77,7 +77,7 @@ the prompt.
 @treturn string The text typed in.
 
 @see cc.completion For functions to help with completion.
-@usage Read an string and echo it back to the user
+@usage Read a string and echo it back to the user
 
     write("> ")
     local msg = read()
