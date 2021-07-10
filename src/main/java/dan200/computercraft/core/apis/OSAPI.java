@@ -321,7 +321,7 @@ public class OSAPI implements ILuaAPI
      * which will convert the date fields into a UNIX timestamp (number of
      * seconds since 1 January 1970).
      *
-     * @usage Print the current (in world) time.
+     * @cc.usage Print the current (in world) time.
      * <pre>{@code
      * local time = os.time()
      * print(textutils.formatTime(time,true))
@@ -362,7 +362,7 @@ public class OSAPI implements ILuaAPI
      * * If called with {@code local}, returns the number of days since 1
      * January 1970 in the server's local timezone.
      *
-     * @usage Print the number of days, weeks, months, and years since 1 January 1970 (UTC).
+     * @cc.usage Print the number of days, weeks, months, and years since 1 January 1970 (UTC).
      * <pre>{@code
      * local days = os.day("utc")
      * print("Days:",days)
@@ -400,7 +400,7 @@ public class OSAPI implements ILuaAPI
      * * If called with {@code local}, returns the number of milliseconds since 1
      * January 1970 in the server's local timezone.
      *
-     * @usage Print milliseconds, seconds, minutes, and hours since 1 January 1970 (UTC).
+     * @cc.usage Print milliseconds, seconds, minutes, and hours since 1 January 1970 (UTC).
      * <pre>{@code
      * local millis = os.epoch("utc")
      * print("Milliseconds:",millis)
