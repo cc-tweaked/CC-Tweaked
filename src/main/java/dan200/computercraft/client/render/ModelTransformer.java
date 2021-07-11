@@ -12,9 +12,8 @@ import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormatElement;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.render.model.BakedQuad;
-import net.minecraft.client.util.math.Vector4f;
 import net.minecraft.util.math.Matrix4f;
-
+import net.minecraft.util.math.Vector4f;
 import java.util.List;
 
 /**
@@ -66,7 +65,7 @@ public final class ModelTransformer
             for( VertexFormatElement element : format.getElements() ) // For each vertex element
             {
                 int start = offsetBytes / Integer.BYTES;
-                if( element.getType() == VertexFormatElement.Type.POSITION && element.getFormat() == VertexFormatElement.Format.FLOAT ) // When we find a position element
+                if( element.getType() == VertexFormatElement.Type.POSITION && element.getDataType() == VertexFormatElement.DataType.FLOAT ) // When we find a position element
                 {
                     Vector4f pos = new Vector4f( Float.intBitsToFloat( vertexData[start] ),
                         Float.intBitsToFloat( vertexData[start + 1] ),
@@ -81,7 +80,7 @@ public final class ModelTransformer
                     vertexData[start + 1] = Float.floatToRawIntBits( pos.getY() );
                     vertexData[start + 2] = Float.floatToRawIntBits( pos.getZ() );
                 }
-                offsetBytes += element.getSize();
+                offsetBytes += element.getByteLength();
             }
         }
         return copy;

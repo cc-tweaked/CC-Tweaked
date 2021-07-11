@@ -25,7 +25,7 @@ import dan200.computercraft.shared.network.client.ComputerDeletedClientMessage;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
 import me.shedaniel.cloth.api.utils.v1.GameInstanceUtils;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
@@ -42,7 +42,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     private final Computer computer;
     private World world;
     private BlockPos position;
-    private CompoundTag userData;
+    private NbtCompound userData;
     private boolean changed;
 
     private boolean changedLastFrame;
@@ -128,11 +128,11 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         computer.unload();
     }
 
-    public CompoundTag getUserData()
+    public NbtCompound getUserData()
     {
         if( userData == null )
         {
-            userData = new CompoundTag();
+            userData = new NbtCompound();
         }
         return userData;
     }

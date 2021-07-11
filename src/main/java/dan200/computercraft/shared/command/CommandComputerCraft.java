@@ -182,7 +182,7 @@ public final class CommandComputerCraft
                     ServerPlayerEntity player = (ServerPlayerEntity) entity;
                     if( player.getEntityWorld() == world )
                     {
-                        player.networkHandler.teleportRequest(
+                        player.networkHandler.requestTeleport(
                             pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0,
                             EnumSet.noneOf( PlayerPositionLookS2CPacket.Flag.class )
                         );

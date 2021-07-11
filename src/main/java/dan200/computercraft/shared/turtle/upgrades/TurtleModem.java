@@ -15,7 +15,7 @@ import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeriph
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.ModelIdentifier;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -67,7 +67,7 @@ public class TurtleModem extends AbstractTurtleUpgrade
         boolean active = false;
         if( turtle != null )
         {
-            CompoundTag turtleNBT = turtle.getUpgradeNBTData( side );
+            NbtCompound turtleNBT = turtle.getUpgradeNBTData( side );
             active = turtleNBT.contains( "active" ) && turtleNBT.getBoolean( "active" );
         }
 

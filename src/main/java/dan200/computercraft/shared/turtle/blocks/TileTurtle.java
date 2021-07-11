@@ -19,6 +19,7 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.turtle.apis.TurtleAPI;
+import dan200.computercraft.shared.turtle.blocks.TileTurtle.MoveState;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.util.*;
@@ -29,8 +30,8 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
@@ -292,19 +293,19 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
     @Nonnull
     @Override
-    public CompoundTag toTag( @Nonnull CompoundTag nbt )
+    public NbtCompound writeNbt( @Nonnull NbtCompound nbt )
     {
         // Write inventory
-        ListTag nbttaglist = new ListTag();
+        NbtList nbttaglist = new NbtList();
         for( int i = 0; i < INVENTORY_SIZE; i++ )
         {
             if( !inventory.get( i )
                 .isEmpty() )
             {
-                CompoundTag tag = new CompoundTag();
+                NbtCompound tag = new NbtCompound();
                 tag.putByte( "Slot", (byte) i );
                 inventory.get( i )
-                    .toTag( tag );
+                    .writeNbt( tag );
                 nbttaglist.add( tag );
             }
         }
@@ -313,27 +314,27 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         // Write brain
         nbt = brain.writeToNBT( nbt );
 
-        return super.toTag( nbt );
+        return super.writeNbt( nbt );
     }
 
     // IDirectionalTile
 
     @Override
-    public void fromTag( @Nonnull BlockState state, @Nonnull CompoundTag nbt )
+    public void readNbt( @Nonnull BlockState state, @Nonnull NbtCompound nbt )
     {
-        super.fromTag( state, nbt );
+        super.readNbt( state, nbt );
 
         // Read inventory
-        ListTag nbttaglist = nbt.getList( "Items", NBTUtil.TAG_COMPOUND );
+        NbtList nbttaglist = nbt.getList( "Items", NBTUtil.TAG_COMPOUND );
         inventory.clear();
         previousInventory.clear();
         for( int i = 0; i < nbttaglist.size(); i++ )
         {
-            CompoundTag tag = nbttaglist.getCompound( i );
+            NbtCompound tag = nbttaglist.getCompound( i );
             int slot = tag.getByte( "Slot" ) & 0xff;
             if( slot < size() )
             {
-                inventory.set( slot, ItemStack.fromTag( tag ) );
+                inventory.set( slot, ItemStack.fromNbt( tag ) );
                 previousInventory.set( slot, inventory.get( slot )
                     .copy() );
             }
@@ -372,14 +373,14 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    protected void writeDescription( @Nonnull CompoundTag nbt )
+    protected void writeDescription( @Nonnull NbtCompound nbt )
     {
         super.writeDescription( nbt );
         brain.writeDescription( nbt );
     }
 
     @Override
-    protected void readDescription( @Nonnull CompoundTag nbt )
+    protected void readDescription( @Nonnull NbtCompound nbt )
     {
         super.readDescription( nbt );
         brain.readDescription( nbt );

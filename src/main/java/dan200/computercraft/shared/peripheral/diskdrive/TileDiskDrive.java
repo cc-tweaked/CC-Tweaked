@@ -23,7 +23,7 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.sound.SoundEvent;
@@ -108,21 +108,21 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     }
 
     @Override
-    public void fromTag( @Nonnull BlockState state, @Nonnull CompoundTag nbt )
+    public void readNbt( @Nonnull BlockState state, @Nonnull NbtCompound nbt )
     {
-        super.fromTag( state, nbt );
+        super.readNbt( state, nbt );
         customName = nbt.contains( NBT_NAME ) ? Text.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
         if( nbt.contains( NBT_ITEM ) )
         {
-            CompoundTag item = nbt.getCompound( NBT_ITEM );
-            diskStack = ItemStack.fromTag( item );
+            NbtCompound item = nbt.getCompound( NBT_ITEM );
+            diskStack = ItemStack.fromNbt( item );
             diskMount = null;
         }
     }
 
     @Nonnull
     @Override
-    public CompoundTag toTag( @Nonnull CompoundTag nbt )
+    public NbtCompound writeNbt( @Nonnull NbtCompound nbt )
     {
         if( customName != null )
         {
@@ -131,11 +131,11 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
         if( !diskStack.isEmpty() )
         {
-            CompoundTag item = new CompoundTag();
-            diskStack.toTag( item );
+            NbtCompound item = new NbtCompound();
+            diskStack.writeNbt( item );
             nbt.put( NBT_ITEM, item );
         }
-        return super.toTag( nbt );
+        return super.writeNbt( nbt );
     }
 
     @Override

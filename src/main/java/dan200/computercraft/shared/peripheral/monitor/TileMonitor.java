@@ -19,7 +19,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -164,7 +164,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    protected final void readDescription( @Nonnull CompoundTag nbt )
+    protected final void readDescription( @Nonnull NbtCompound nbt )
     {
         super.readDescription( nbt );
 
@@ -207,7 +207,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    protected void writeDescription( @Nonnull CompoundTag nbt )
+    protected void writeDescription( @Nonnull NbtCompound nbt )
     {
         super.writeDescription( nbt );
         nbt.putInt( NBT_X, xIndex );
@@ -286,9 +286,9 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void fromTag( @Nonnull BlockState state, @Nonnull CompoundTag nbt )
+    public void readNbt( @Nonnull BlockState state, @Nonnull NbtCompound nbt )
     {
-        super.fromTag( state, nbt );
+        super.readNbt( state, nbt );
 
         xIndex = nbt.getInt( NBT_X );
         yIndex = nbt.getInt( NBT_Y );
@@ -300,13 +300,13 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
     @Nonnull
     @Override
-    public CompoundTag toTag( CompoundTag tag )
+    public NbtCompound writeNbt( NbtCompound tag )
     {
         tag.putInt( NBT_X, xIndex );
         tag.putInt( NBT_Y, yIndex );
         tag.putInt( NBT_WIDTH, width );
         tag.putInt( NBT_HEIGHT, height );
-        return super.toTag( tag );
+        return super.writeNbt( tag );
     }
 
     @Override

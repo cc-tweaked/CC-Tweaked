@@ -26,14 +26,13 @@ import net.minecraft.client.render.model.BakedModelManager;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
-
+import net.minecraft.util.math.Vec3f;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Random;
@@ -147,7 +146,7 @@ public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle>
         transform.translate( offset.x, offset.y, offset.z );
 
         transform.translate( 0.5f, 0.5f, 0.5f );
-        transform.multiply( Vector3f.POSITIVE_Y.getDegreesQuaternion( 180.0f - yaw ) );
+        transform.multiply( Vec3f.POSITIVE_Y.getDegreesQuaternion( 180.0f - yaw ) );
         if( label != null && (label.equals( "Dinnerbone" ) || label.equals( "Grumm" )) )
         {
             // Flip the model
@@ -189,7 +188,7 @@ public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle>
 
         float toolAngle = turtle.getToolRenderAngle( side, f );
         transform.translate( 0.0f, 0.5f, 0.5f );
-        transform.multiply( Vector3f.NEGATIVE_X.getDegreesQuaternion( toolAngle ) );
+        transform.multiply( Vec3f.NEGATIVE_X.getDegreesQuaternion( toolAngle ) );
         transform.translate( 0.0f, -0.5f, -0.5f );
 
         TransformedModel model = upgrade.getModel( turtle.getAccess(), side );

@@ -13,12 +13,12 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3f;
 
 @Environment( EnvType.CLIENT )
 public abstract class ItemMapLikeRenderer
@@ -75,18 +75,18 @@ public abstract class ItemMapLikeRenderer
         HeldItemRendererAccess access = (HeldItemRendererAccess) renderer;
         float pitchAngle = access.callGetMapAngle( pitch );
         transform.translate( 0, 0.04F + equipProgress * -1.2f + pitchAngle * -0.5f, -0.72f );
-        transform.multiply( Vector3f.POSITIVE_X.getDegreesQuaternion( pitchAngle * -85.0f ) );
+        transform.multiply( Vec3f.POSITIVE_X.getDegreesQuaternion( pitchAngle * -85.0f ) );
         if( !minecraft.player.isInvisible() )
         {
             transform.push();
-            transform.multiply( Vector3f.POSITIVE_Y.getDegreesQuaternion( 90.0F ) );
+            transform.multiply( Vec3f.POSITIVE_Y.getDegreesQuaternion( 90.0F ) );
             access.callRenderArm( transform, render, combinedLight, Arm.RIGHT );
             access.callRenderArm( transform, render, combinedLight, Arm.LEFT );
             transform.pop();
         }
 
         float rX = MathHelper.sin( swingRt * (float) Math.PI );
-        transform.multiply( Vector3f.POSITIVE_X.getDegreesQuaternion( rX * 20.0F ) );
+        transform.multiply( Vec3f.POSITIVE_X.getDegreesQuaternion( rX * 20.0F ) );
         transform.scale( 2.0F, 2.0F, 2.0F );
 
         renderItem( transform, render, stack );
@@ -114,7 +114,7 @@ public abstract class ItemMapLikeRenderer
         if( !minecraft.player.isInvisible() )
         {
             transform.push();
-            transform.multiply( Vector3f.POSITIVE_Z.getDegreesQuaternion( offset * 10f ) );
+            transform.multiply( Vec3f.POSITIVE_Z.getDegreesQuaternion( offset * 10f ) );
             ((HeldItemRendererAccess) minecraft.getHeldItemRenderer())
                 .callRenderArmHoldingItem( transform, render, combinedLight, equipProgress, swingProgress, side );
             transform.pop();
@@ -130,8 +130,8 @@ public abstract class ItemMapLikeRenderer
         float f4 = 0.4f * MathHelper.sin( f1 * ((float) Math.PI * 2f) );
         float f5 = -0.3f * MathHelper.sin( swingProgress * (float) Math.PI );
         transform.translate( offset * f3, f4 - 0.3f * f2, f5 );
-        transform.multiply( Vector3f.POSITIVE_X.getDegreesQuaternion( f2 * -45f ) );
-        transform.multiply( Vector3f.POSITIVE_Y.getDegreesQuaternion( offset * f2 * -30f ) );
+        transform.multiply( Vec3f.POSITIVE_X.getDegreesQuaternion( f2 * -45f ) );
+        transform.multiply( Vec3f.POSITIVE_Y.getDegreesQuaternion( offset * f2 * -30f ) );
 
         renderItem( transform, render, stack );
 

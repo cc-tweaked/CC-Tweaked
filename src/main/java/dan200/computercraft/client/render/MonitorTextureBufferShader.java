@@ -42,7 +42,7 @@ class MonitorTextureBufferShader
     static void setupUniform( Matrix4f transform, int width, int height, Palette palette, boolean greyscale )
     {
         MATRIX_BUFFER.rewind();
-        transform.writeToBuffer( MATRIX_BUFFER );
+        transform.writeColumnMajor( MATRIX_BUFFER );
         MATRIX_BUFFER.rewind();
         RenderSystem.glUniformMatrix4( uniformMv, false, MATRIX_BUFFER );
 

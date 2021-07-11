@@ -12,7 +12,7 @@ import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.block.Block;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -135,7 +135,7 @@ public final class WiredModemLocalPeripheral
         return peripheral == null ? Collections.emptyMap() : Collections.singletonMap( type + "_" + id, peripheral );
     }
 
-    public void write( @Nonnull CompoundTag tag, @Nonnull String suffix )
+    public void write( @Nonnull NbtCompound tag, @Nonnull String suffix )
     {
         if( id >= 0 )
         {
@@ -147,7 +147,7 @@ public final class WiredModemLocalPeripheral
         }
     }
 
-    public void read( @Nonnull CompoundTag tag, @Nonnull String suffix )
+    public void read( @Nonnull NbtCompound tag, @Nonnull String suffix )
     {
         id = tag.contains( NBT_PERIPHERAL_ID + suffix, NBTUtil.TAG_ANY_NUMERIC ) ? tag.getInt( NBT_PERIPHERAL_ID + suffix ) : -1;
 

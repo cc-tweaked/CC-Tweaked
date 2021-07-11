@@ -23,7 +23,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -377,20 +377,20 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void fromTag( @Nonnull BlockState state, @Nonnull CompoundTag nbt )
+    public void readNbt( @Nonnull BlockState state, @Nonnull NbtCompound nbt )
     {
-        super.fromTag( state, nbt );
+        super.readNbt( state, nbt );
         peripheralAccessAllowed = nbt.getBoolean( NBT_PERIPHERAL_ENABLED );
         peripheral.read( nbt, "" );
     }
 
     @Nonnull
     @Override
-    public CompoundTag toTag( CompoundTag nbt )
+    public NbtCompound writeNbt( NbtCompound nbt )
     {
         nbt.putBoolean( NBT_PERIPHERAL_ENABLED, peripheralAccessAllowed );
         peripheral.write( nbt, "" );
-        return super.toTag( nbt );
+        return super.writeNbt( nbt );
     }
 
     @Override

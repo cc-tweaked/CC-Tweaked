@@ -27,7 +27,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.tag.FluidTags;
@@ -62,7 +62,7 @@ public class TurtleBrain implements ITurtleAccess
     private final Queue<TurtleCommandQueueEntry> commandQueue = new ArrayDeque<>();
     private final Map<TurtleSide, ITurtleUpgrade> upgrades = new EnumMap<>( TurtleSide.class );
     private final Map<TurtleSide, IPeripheral> peripherals = new EnumMap<>( TurtleSide.class );
-    private final Map<TurtleSide, CompoundTag> upgradeNBTData = new EnumMap<>( TurtleSide.class );
+    private final Map<TurtleSide, NbtCompound> upgradeNBTData = new EnumMap<>( TurtleSide.class );
     TurtlePlayer cachedPlayer;
     private TileTurtle owner;
     private final Inventory inventory = (InventoryDelegate) () -> owner;
@@ -543,12 +543,12 @@ public class TurtleBrain implements ITurtleAccess
 
     @Nonnull
     @Override
-    public CompoundTag getUpgradeNBTData( TurtleSide side )
+    public NbtCompound getUpgradeNBTData( TurtleSide side )
     {
-        CompoundTag nbt = upgradeNBTData.get( side );
+        NbtCompound nbt = upgradeNBTData.get( side );
         if( nbt == null )
         {
-            upgradeNBTData.put( side, nbt = new CompoundTag() );
+            upgradeNBTData.put( side, nbt = new NbtCompound() );
         }
         return nbt;
     }
@@ -800,7 +800,7 @@ public class TurtleBrain implements ITurtleAccess
         return previous + (next - previous) * f;
     }
 
-    public void readFromNBT( CompoundTag nbt )
+    public void readFromNBT( NbtCompound nbt )
     {
         readCommon( nbt );
 
@@ -810,7 +810,7 @@ public class TurtleBrain implements ITurtleAccess
         // Read owner
         if( nbt.contains( "Owner", NBTUtil.TAG_COMPOUND ) )
         {
-            CompoundTag owner = nbt.getCompound( "Owner" );
+            NbtCompound owner = nbt.getCompound( "Owner" );
             owningPlayer = new GameProfile( new UUID( owner.getLong( "UpperId" ), owner.getLong( "LowerId" ) ), owner.getString( "Name" ) );
         }
         else
@@ -824,7 +824,7 @@ public class TurtleBrain implements ITurtleAccess
      *
      * @param nbt The tag to read from
      */
-    private void readCommon( CompoundTag nbt )
+    private void readCommon( NbtCompound nbt )
     {
         // Read fields
         colourHex = nbt.contains( NBT_COLOUR ) ? nbt.getInt( NBT_COLOUR ) : -1;
@@ -851,7 +851,7 @@ public class TurtleBrain implements ITurtleAccess
         }
     }
 
-    public CompoundTag writeToNBT( CompoundTag nbt )
+    public NbtCompound writeToNBT( NbtCompound nbt )
     {
         writeCommon( nbt );
 
@@ -861,7 +861,7 @@ public class TurtleBrain implements ITurtleAccess
         // Write owner
         if( owningPlayer != null )
         {
-            CompoundTag owner = new CompoundTag();
+            NbtCompound owner = new NbtCompound();
             nbt.put( "Owner", owner );
 
             owner.putLong( "UpperId", owningPlayer.getId()
@@ -874,7 +874,7 @@ public class TurtleBrain implements ITurtleAccess
         return nbt;
     }
 
-    private void writeCommon( CompoundTag nbt )
+    private void writeCommon( NbtCompound nbt )
     {
         nbt.putInt( NBT_FUEL, fuelLevel );
         if( colourHex != -1 )
@@ -917,7 +917,7 @@ public class TurtleBrain implements ITurtleAccess
             .toString() : null;
     }
 
-    public void readDescription( CompoundTag nbt )
+    public void readDescription( NbtCompound nbt )
     {
         readCommon( nbt );
 
@@ -931,7 +931,7 @@ public class TurtleBrain implements ITurtleAccess
         }
     }
 
-    public void writeDescription( CompoundTag nbt )
+    public void writeDescription( NbtCompound nbt )
     {
         writeCommon( nbt );
         nbt.putInt( "Animation", animation.ordinal() );

@@ -12,11 +12,12 @@ import com.google.common.io.ByteStreams;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
+import dan200.computercraft.core.filesystem.ResourceMount.Listener;
 import dan200.computercraft.shared.util.IoUtil;
 import net.minecraft.resource.ReloadableResourceManager;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourceReloadListener;
+import net.minecraft.resource.ResourceReloader;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.profiler.Profiler;
@@ -294,12 +295,12 @@ public final class ResourceMount implements IMount
     }
 
     /**
-     * A {@link ResourceReloadListener} which reloads any associated mounts.
+     * A {@link ResourceReloader} which reloads any associated mounts.
      *
      * While people should really be keeping a permanent reference to this, some people construct it every
      * method call, so let's make this as small as possible.
      */
-    static class Listener implements ResourceReloadListener
+    static class Listener implements ResourceReloader
     {
         private static final Listener INSTANCE = new Listener();
 
@@ -324,7 +325,7 @@ public final class ResourceMount implements IMount
 
         synchronized void add( ReloadableResourceManager manager, ResourceMount mount )
         {
-            if( managers.add( manager ) ) manager.registerListener( this );
+            if( managers.add( manager ) ) manager.registerReloader( this );
             mounts.add( mount );
         }
     }

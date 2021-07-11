@@ -12,9 +12,9 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.tag.ServerTagManagerHolder;
 import net.minecraft.tag.TagGroup;
 import net.minecraft.text.Text;
@@ -42,7 +42,7 @@ public class ItemData
     public static <T extends Map<? super String, Object>> T fillBasic( @Nonnull T data, @Nonnull ItemStack stack )
     {
         fillBasicSafe( data, stack );
-        String hash = NBTUtil.getNBTHash( stack.getTag() );
+        String hash = NBTUtil.getNBTHash( stack.getNbt() );
         if( hash != null ) data.put( "nbt", hash );
 
         return data;
@@ -77,13 +77,13 @@ public class ItemData
             .collect( Collectors.toList() )
         ) ); // chaos x2
 
-        CompoundTag tag = stack.getTag();
+        NbtCompound tag = stack.getNbt();
         if( tag != null && tag.contains( "display", NBTUtil.TAG_COMPOUND ) )
         {
-            CompoundTag displayTag = tag.getCompound( "display" );
+            NbtCompound displayTag = tag.getCompound( "display" );
             if( displayTag.contains( "Lore", NBTUtil.TAG_LIST ) )
             {
-                ListTag loreTag = displayTag.getList( "Lore", NBTUtil.TAG_STRING );
+                NbtList loreTag = displayTag.getList( "Lore", NBTUtil.TAG_STRING );
                 data.put( "lore", loreTag.stream()
                     .map( ItemData::parseTextComponent )
                     .filter( Objects::nonNull )
@@ -112,7 +112,7 @@ public class ItemData
 
 
     @Nullable
-    private static Text parseTextComponent( @Nonnull Tag x )
+    private static Text parseTextComponent( @Nonnull NbtElement x )
     {
         try
         {
@@ -138,7 +138,7 @@ public class ItemData
 
         if( stack.getItem() instanceof EnchantedBookItem && (hideFlags & 32) == 0 )
         {
-            addEnchantments( EnchantedBookItem.getEnchantmentTag( stack ), enchants );
+            addEnchantments( EnchantedBookItem.getEnchantmentNbt( stack ), enchants );
         }
 
         if( stack.hasEnchantments() && (hideFlags & 1) == 0 )
@@ -161,14 +161,14 @@ public class ItemData
      * @param enchants    The enchantment map to add it to.
      * @see EnchantmentHelper
      */
-    private static void addEnchantments( @Nonnull ListTag rawEnchants, @Nonnull ArrayList<Map<String, Object>> enchants )
+    private static void addEnchantments( @Nonnull NbtList rawEnchants, @Nonnull ArrayList<Map<String, Object>> enchants )
     {
         if( rawEnchants.isEmpty() ) return;
 
         enchants.ensureCapacity( enchants.size() + rawEnchants.size() );
 
 
-        for( Map.Entry<Enchantment, Integer> entry : EnchantmentHelper.fromTag( rawEnchants ).entrySet() )
+        for( Map.Entry<Enchantment, Integer> entry : EnchantmentHelper.fromNbt( rawEnchants ).entrySet() )
         {
             Enchantment enchantment = entry.getKey();
             Integer level = entry.getValue();

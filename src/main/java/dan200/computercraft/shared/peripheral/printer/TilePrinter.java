@@ -23,7 +23,7 @@ import net.minecraft.inventory.Inventories;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
@@ -165,9 +165,9 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     }
 
     @Override
-    public void fromTag( @Nonnull BlockState state, @Nonnull CompoundTag nbt )
+    public void readNbt( @Nonnull BlockState state, @Nonnull NbtCompound nbt )
     {
-        super.fromTag( state, nbt );
+        super.readNbt( state, nbt );
 
         customName = nbt.contains( NBT_NAME ) ? Text.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
 
@@ -180,12 +180,12 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         }
 
         // Read inventory
-        Inventories.fromTag( nbt, inventory );
+        Inventories.readNbt( nbt, inventory );
     }
 
     @Nonnull
     @Override
-    public CompoundTag toTag( @Nonnull CompoundTag nbt )
+    public NbtCompound writeNbt( @Nonnull NbtCompound nbt )
     {
         if( customName != null )
         {
@@ -201,9 +201,9 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         }
 
         // Write inventory
-        Inventories.toTag( nbt, inventory );
+        Inventories.writeNbt( nbt, inventory );
 
-        return super.toTag( nbt );
+        return super.writeNbt( nbt );
     }
 
     boolean isPrinting()

@@ -8,7 +8,7 @@ package dan200.computercraft.api.pocket;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 
 import javax.annotation.Nonnull;
@@ -73,7 +73,7 @@ public interface IPocketAccess
      * @see #updateUpgradeNBTData()
      */
     @Nonnull
-    CompoundTag getUpgradeNBTData();
+    NbtCompound getUpgradeNBTData();
 
     /**
      * Mark the upgrade-specific NBT as dirty.

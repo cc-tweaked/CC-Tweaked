@@ -208,7 +208,7 @@ public final class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    public void openEditBookScreen( @Nonnull ItemStack stack, @Nonnull Hand hand )
+    public void useBook( @Nonnull ItemStack stack, @Nonnull Hand hand )
     {
     }
 

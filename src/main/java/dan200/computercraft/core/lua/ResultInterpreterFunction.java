@@ -8,6 +8,7 @@ package dan200.computercraft.core.lua;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.asm.LuaMethod;
+import dan200.computercraft.core.lua.ResultInterpreterFunction.Container;
 import org.squiddev.cobalt.*;
 import org.squiddev.cobalt.debug.DebugFrame;
 import org.squiddev.cobalt.function.ResumableVarArgFunction;

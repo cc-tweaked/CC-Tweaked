@@ -20,9 +20,9 @@ import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Matrix4f;
+import net.minecraft.util.math.Vec3f;
 import org.lwjgl.opengl.GL11;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
@@ -64,8 +64,8 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         // Setup various transformations. Note that these are partially adapted from the corresponding method
         // in ItemRenderer
         transform.push();
-        transform.multiply( Vector3f.POSITIVE_Y.getDegreesQuaternion( 180f ) );
-        transform.multiply( Vector3f.POSITIVE_Z.getDegreesQuaternion( 180f ) );
+        transform.multiply( Vec3f.POSITIVE_Y.getDegreesQuaternion( 180f ) );
+        transform.multiply( Vec3f.POSITIVE_Z.getDegreesQuaternion( 180f ) );
         transform.scale( 0.5f, 0.5f, 0.5f );
 
         float scale = 0.75f / Math.max( width + BORDER * 2, height + BORDER * 2 + LIGHT_HEIGHT );

@@ -62,7 +62,7 @@ public final class WorldUtil
 
         // Raycast for blocks
         Entity collisionEntity = getEntity( world );
-        collisionEntity.updatePosition( vecStart.x, vecStart.y, vecStart.z );
+        collisionEntity.setPosition( vecStart.x, vecStart.y, vecStart.z );
         RaycastContext context = new RaycastContext( vecStart,
             vecEnd,
             RaycastContext.ShapeType.COLLIDER,

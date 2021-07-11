@@ -9,6 +9,7 @@ package dan200.computercraft;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
+import dan200.computercraft.shared.ComputerCraftRegistry.ModBlocks;
 import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.computer.core.ClientComputerRegistry;
 import dan200.computercraft.shared.computer.core.ServerComputerRegistry;

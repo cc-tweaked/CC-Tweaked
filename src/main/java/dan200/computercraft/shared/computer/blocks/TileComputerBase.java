@@ -28,7 +28,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
@@ -250,7 +250,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     }
 
     @Override
-    protected void readDescription( @Nonnull CompoundTag nbt )
+    protected void readDescription( @Nonnull NbtCompound nbt )
     {
         super.readDescription( nbt );
         label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
@@ -258,7 +258,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     }
 
     @Override
-    protected void writeDescription( @Nonnull CompoundTag nbt )
+    protected void writeDescription( @Nonnull NbtCompound nbt )
     {
         super.writeDescription( nbt );
         if( label != null )
@@ -325,9 +325,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     protected abstract void updateBlockState( ComputerState newState );
 
     @Override
-    public void fromTag( @Nonnull BlockState state, @Nonnull CompoundTag nbt )
+    public void readNbt( @Nonnull BlockState state, @Nonnull NbtCompound nbt )
     {
-        super.fromTag( state, nbt );
+        super.readNbt( state, nbt );
 
         // Load ID, label and power state
         computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
@@ -337,7 +337,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     @Nonnull
     @Override
-    public CompoundTag toTag( @Nonnull CompoundTag nbt )
+    public NbtCompound writeNbt( @Nonnull NbtCompound nbt )
     {
         // Save ID, label and power state
         if( computerID >= 0 )
@@ -350,7 +350,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         }
         nbt.putBoolean( NBT_ON, on );
 
-        return super.toTag( nbt );
+        return super.writeNbt( nbt );
     }
 
     @Override

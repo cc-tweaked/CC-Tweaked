@@ -42,7 +42,7 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
                 throw new JsonParseException( "Too many ingredients for shapeless recipe the max is 9" );
             }
 
-            ItemStack itemstack = ShapedRecipe.getItemStack( JsonHelper.getObject( json, "result" ) );
+            ItemStack itemstack = ShapedRecipe.getItem( JsonHelper.getObject( json, "result" ) );
             return new ImpostorShapelessRecipe( id, s, itemstack, ingredients );
         }
 
@@ -81,10 +81,10 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
         public void write( @Nonnull PacketByteBuf buffer, @Nonnull ImpostorShapelessRecipe recipe )
         {
             buffer.writeString( recipe.getGroup() );
-            buffer.writeVarInt( recipe.getPreviewInputs()
+            buffer.writeVarInt( recipe.getIngredients()
                 .size() );
 
-            for( Ingredient ingredient : recipe.getPreviewInputs() )
+            for( Ingredient ingredient : recipe.getIngredients() )
             {
                 ingredient.write( buffer );
             }

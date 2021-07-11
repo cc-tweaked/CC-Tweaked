@@ -14,8 +14,8 @@ import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
-import net.minecraft.client.util.math.AffineTransformation;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.AffineTransformation;
 import net.minecraft.util.math.Matrix4f;
 import org.lwjgl.opengl.GL11;
 

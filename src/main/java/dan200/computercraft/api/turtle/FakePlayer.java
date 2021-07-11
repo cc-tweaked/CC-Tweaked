@@ -128,7 +128,7 @@ public class FakePlayer extends ServerPlayerEntity
     }
 
     @Override
-    public void openEditBookScreen( ItemStack stack, Hand hand )
+    public void useBook( ItemStack stack, Hand hand )
     {
     }
 
@@ -191,7 +191,7 @@ public class FakePlayer extends ServerPlayerEntity
     }
 
     @Override
-    public void method_14222( EntityAnchorArgumentType.EntityAnchor self, Entity entity, EntityAnchorArgumentType.EntityAnchor target )
+    public void lookAtEntity( EntityAnchorArgumentType.EntityAnchor self, Entity entity, EntityAnchorArgumentType.EntityAnchor target )
     {
     }
 
@@ -216,7 +216,7 @@ public class FakePlayer extends ServerPlayerEntity
     }
 
     @Override
-    public void setGameMode( GameMode gameMode )
+    public void changeGameMode( GameMode gameMode )
     {
     }
 

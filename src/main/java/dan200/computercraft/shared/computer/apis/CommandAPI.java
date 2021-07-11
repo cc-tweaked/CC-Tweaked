@@ -16,7 +16,7 @@ import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -252,7 +252,7 @@ public class CommandAPI implements ILuaAPI
         BlockEntity tile = world.getBlockEntity( pos );
         if( tile != null )
         {
-            table.put( "nbt", NBTUtil.toLua( tile.toTag( new CompoundTag() ) ) );
+            table.put( "nbt", NBTUtil.toLua( tile.writeNbt( new NbtCompound() ) ) );
         }
 
         return table;

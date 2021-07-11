@@ -17,7 +17,7 @@ import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -78,14 +78,14 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     {
         if( id >= 0 )
         {
-            stack.getOrCreateTag()
+            stack.getOrCreateNbt()
                 .putInt( NBT_ID, id );
         }
     }
 
     public static int getDiskID( @Nonnull ItemStack stack )
     {
-        CompoundTag nbt = stack.getTag();
+        NbtCompound nbt = stack.getNbt();
         return nbt != null && nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
     }
 

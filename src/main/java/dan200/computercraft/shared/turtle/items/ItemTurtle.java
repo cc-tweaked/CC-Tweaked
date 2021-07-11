@@ -15,7 +15,7 @@ import dan200.computercraft.shared.computer.items.ItemComputerBase;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -60,24 +60,24 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
         }
         if( id >= 0 )
         {
-            stack.getOrCreateTag()
+            stack.getOrCreateNbt()
                 .putInt( NBT_ID, id );
         }
         IColouredItem.setColourBasic( stack, colour );
         if( fuelLevel > 0 )
         {
-            stack.getOrCreateTag()
+            stack.getOrCreateNbt()
                 .putInt( NBT_FUEL, fuelLevel );
         }
         if( overlay != null )
         {
-            stack.getOrCreateTag()
+            stack.getOrCreateNbt()
                 .putString( NBT_OVERLAY, overlay.toString() );
         }
 
         if( leftUpgrade != null )
         {
-            stack.getOrCreateTag()
+            stack.getOrCreateNbt()
                 .putString( NBT_LEFT_UPGRADE,
                     leftUpgrade.getUpgradeID()
                         .toString() );
@@ -85,7 +85,7 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
 
         if( rightUpgrade != null )
         {
-            stack.getOrCreateTag()
+            stack.getOrCreateNbt()
                 .putString( NBT_RIGHT_UPGRADE,
                     rightUpgrade.getUpgradeID()
                         .toString() );
@@ -148,7 +148,7 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     @Override
     public ITurtleUpgrade getUpgrade( @Nonnull ItemStack stack, @Nonnull TurtleSide side )
     {
-        CompoundTag tag = stack.getTag();
+        NbtCompound tag = stack.getNbt();
         if( tag == null )
         {
             return null;
@@ -161,14 +161,14 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     @Override
     public int getFuelLevel( @Nonnull ItemStack stack )
     {
-        CompoundTag tag = stack.getTag();
+        NbtCompound tag = stack.getNbt();
         return tag != null && tag.contains( NBT_FUEL ) ? tag.getInt( NBT_FUEL ) : 0;
     }
 
     @Override
     public Identifier getOverlay( @Nonnull ItemStack stack )
     {
-        CompoundTag tag = stack.getTag();
+        NbtCompound tag = stack.getNbt();
         return tag != null && tag.contains( NBT_OVERLAY ) ? new Identifier( tag.getString( NBT_OVERLAY ) ) : null;
     }
 
