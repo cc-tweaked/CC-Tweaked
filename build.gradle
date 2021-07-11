@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '0.7-SNAPSHOT'
+    id 'fabric-loom' version '0.8-SNAPSHOT'
     id 'maven-publish'
     id "checkstyle"
     id "com.github.hierynomus.license" version "0.15.0"
@@ -20,6 +20,7 @@ archivesBaseName = "cc-restiched"
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
+    maven { url 'https://api.modrinth.com/maven'}
     maven { url "https://maven.shedaniel.me/" }
     maven {
         name "SquidDev"
