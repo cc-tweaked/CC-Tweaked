@@ -442,7 +442,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
     private void updateBlockState()
     {
-        if( remove ) return;
+        if( remove || level == null ) return;
 
         if( !diskStack.isEmpty() )
         {

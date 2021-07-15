@@ -438,7 +438,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     private void updateBlockState( boolean top, boolean bottom )
     {
-        if( remove ) return;
+        if( remove || level == null ) return;
 
         BlockState state = getBlockState();
         if( state.getValue( BlockPrinter.TOP ) == top & state.getValue( BlockPrinter.BOTTOM ) == bottom ) return;
