@@ -126,7 +126,7 @@ public class TerminalState
         if( !compress ) return buffer;
         if( compressed != null ) return compressed;
 
-        ByteBuf compressed = Unpooled.directBuffer();
+        ByteBuf compressed = Unpooled.buffer();
         OutputStream stream = null;
         try
         {
