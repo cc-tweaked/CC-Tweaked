@@ -56,9 +56,6 @@ public class GuiTurtle extends ComputerScreenBase<ContainerTurtle>
         minecraft.getTextureManager().bind( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
         blit( transform, leftPos + ComputerSidebar.WIDTH, topPos, 0, 0, TEX_WIDTH, TEX_HEIGHT );
 
-        minecraft.getTextureManager().bind( advanced ? ComputerBorderRenderer.BACKGROUND_ADVANCED : ComputerBorderRenderer.BACKGROUND_NORMAL );
-        ComputerSidebar.renderBackground( transform, leftPos, topPos + sidebarYOffset );
-
         int slot = getMenu().getSelectedSlot();
         if( slot >= 0 )
         {
@@ -70,5 +67,8 @@ public class GuiTurtle extends ComputerScreenBase<ContainerTurtle>
                 0, 217, 24, 24
             );
         }
+
+        minecraft.getTextureManager().bind( advanced ? ComputerBorderRenderer.BACKGROUND_ADVANCED : ComputerBorderRenderer.BACKGROUND_NORMAL );
+        ComputerSidebar.renderBackground( transform, leftPos, topPos + sidebarYOffset );
     }
 }

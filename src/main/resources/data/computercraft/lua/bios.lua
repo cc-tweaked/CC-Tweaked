@@ -681,6 +681,7 @@ if http then
     local nativeCheckURL = http.checkURL
     http.checkURLAsync = nativeCheckURL
     http.checkURL = function(_url)
+        expect(1, _url, "string")
         local ok, err = nativeCheckURL(_url)
         if not ok then return ok, err end
 
