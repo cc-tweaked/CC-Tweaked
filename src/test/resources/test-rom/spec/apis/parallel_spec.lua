@@ -11,17 +11,17 @@ describe("The parallel library", function()
             local entries = {}
             local function a()
                 entries[#entries+1] = "first"
-                entries[#entries+1] = coroutine.yield()
-                coroutine.yield()
+                local s = coroutine.yield()
+                entries[#entries+1] = s
             end
             local function b()
                 entries[#entries+1] = "second"
-                entries[#entries+1] = coroutine.yield()
+                local s = coroutine.yield()
+                entries[#entries+1] = s
             end
-            os.queueEvent("yield first")
-            os.queueEvent("yield second")
+            os.queueEvent("yield")
             parallel.waitForAny(a, b)
-            expect(entries):same({ "first", "second", "yield first", "yield second" })
+            expect(entries):same({ "first", "second", "yield" })
         end)
 
         it("accepts an arbitrary number of functions", function()
@@ -31,12 +31,13 @@ describe("The parallel library", function()
                 count = count + 1
                 coroutine.yield()
             end end
+            os.queueEvent("dummy")
             parallel.waitForAny(table.unpack(fns))
             expect(count):eq(50)
         end)
 
         it("passes errors to the caller", function()
-            expect.error(parallel.waitForAny, function() error("Test error") end):eq("Test error")
+            expect.error(parallel.waitForAny, function() error("Test error") end):str_match("Test error$")
         end)
 
         it("returns the number of the function that exited first", function()
@@ -67,11 +68,13 @@ describe("The parallel library", function()
             local entries = {}
             local function a()
                 entries[#entries+1] = "first"
-                entries[#entries+1] = coroutine.yield()
+                local s = coroutine.yield()
+                entries[#entries+1] = s
             end
             local function b()
                 entries[#entries+1] = "second"
-                entries[#entries+1] = coroutine.yield()
+                local s = coroutine.yield()
+                entries[#entries+1] = s
             end
             os.queueEvent("yield")
             parallel.waitForAll(a, b)
@@ -91,14 +94,14 @@ describe("The parallel library", function()
         end)
 
         it("passes errors to the caller", function()
-            expect.error(parallel.waitForAny, function() error("Test error") end):eq("Test error")
+            expect.error(parallel.waitForAll, function() error("Test error") end):str_match("Test error$")
         end)
 
         it("completes all functions before exiting", function()
             local exitCount = 0
             os.queueEvent("dummy")
             os.queueEvent("dummy")
-            parallel.waitForAny(function()
+            parallel.waitForAll(function()
                 coroutine.yield()
                 coroutine.yield()
                 exitCount = exitCount + 1
