@@ -10,14 +10,14 @@ describe("The parallel library", function()
         it("runs functions in parallel", function()
             local entries = {}
             local function a()
-                entries[#entries+1] = "first"
+                entries[#entries + 1] = "first"
                 local s = coroutine.yield()
-                entries[#entries+1] = s
+                entries[#entries + 1] = s
             end
             local function b()
-                entries[#entries+1] = "second"
+                entries[#entries + 1] = "second"
                 local s = coroutine.yield()
-                entries[#entries+1] = s
+                entries[#entries + 1] = s
             end
             os.queueEvent("yield")
             parallel.waitForAny(a, b)
@@ -67,14 +67,14 @@ describe("The parallel library", function()
         it("runs functions in parallel", function()
             local entries = {}
             local function a()
-                entries[#entries+1] = "first"
+                entries[#entries + 1] = "first"
                 local s = coroutine.yield()
-                entries[#entries+1] = s
+                entries[#entries + 1] = s
             end
             local function b()
-                entries[#entries+1] = "second"
+                entries[#entries + 1] = "second"
                 local s = coroutine.yield()
-                entries[#entries+1] = s
+                entries[#entries + 1] = s
             end
             os.queueEvent("yield")
             parallel.waitForAll(a, b)
