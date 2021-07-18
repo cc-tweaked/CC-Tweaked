@@ -276,7 +276,7 @@ end
 --
 -- @tparam table image The parsed image data.
 -- @tparam number xPos The x position to start drawing at.
--- @tparam number xPos The y position to start drawing at.
+-- @tparam number yPos The y position to start drawing at.
 function drawImage(image, xPos, yPos)
     expect(1, image, "table")
     expect(2, xPos, "number")
