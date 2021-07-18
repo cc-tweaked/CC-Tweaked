@@ -1,10 +1,12 @@
 describe("The parallel library", function()
     describe("parallel.waitForAny", function()
         it("validates arguments", function()
-            expect.error(parallel.waitForAny):eq("bad argument #1 (expected function, got nil)")
-            expect.error(parallel.waitForAny, nil):eq("bad argument #1 (expected function, got nil)")
             expect.error(parallel.waitForAny, ""):eq("bad argument #1 (expected function, got string)")
             expect.error(parallel.waitForAny, function() end, 2):eq("bad argument #2 (expected function, got number)")
+        end)
+
+        it("returns immediately with no arguments", function()
+            expect(parallel.waitForAny()):eq(0)
         end)
 
         it("runs functions in parallel", function()
@@ -58,10 +60,12 @@ describe("The parallel library", function()
 
     describe("parallel.waitForAll", function()
         it("validates arguments", function()
-            expect.error(parallel.waitForAll):eq("bad argument #1 (expected function, got nil)")
-            expect.error(parallel.waitForAll, nil):eq("bad argument #1 (expected function, got nil)")
             expect.error(parallel.waitForAll, ""):eq("bad argument #1 (expected function, got string)")
             expect.error(parallel.waitForAll, function() end, 2):eq("bad argument #2 (expected function, got number)")
+        end)
+
+        it("returns immediately with no arguments", function()
+            parallel.waitForAll()
         end)
 
         it("runs functions in parallel", function()
