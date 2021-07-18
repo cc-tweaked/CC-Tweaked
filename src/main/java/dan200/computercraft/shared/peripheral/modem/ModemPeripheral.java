@@ -161,7 +161,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
      *
      * @param channel      The channel to send messages on.
      * @param replyChannel The channel that responses to this message should be sent on.
-     * @param payload      The object to send. This can be a string, number, or table.
+     * @param payload      The object to send. This can be a boolean, string, number, or table.
      * @throws LuaException If the channel is out of range.
      */
     @LuaFunction

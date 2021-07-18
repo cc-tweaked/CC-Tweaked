@@ -364,6 +364,8 @@ public class FSAPI implements ILuaAPI
      *   lines[#lines + 1] = line
      * end
      *
+     * file.close()
+     *
      * print(lines[math.random(#lines)]) -- Pick a random line and print it.
      * }</pre>
      * @cc.usage Open a file and write some text to it. You can run {@code edit out.txt} to see the written text.
