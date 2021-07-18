@@ -18,6 +18,7 @@ the other.
 local function create(...)
     local tFns = table.pack(...)
     local tCos = {}
+    if tFns.n < 1 then error("bad argument #1 (expected function, got nil)", 3) end
     for i = 1, tFns.n, 1 do
         local fn = tFns[i]
         if type(fn) ~= "function" then
