@@ -30,7 +30,7 @@ describe("The parallel library", function()
             for i = 1, 50 do fns[i] = function()
                 count = count + 1
                 coroutine.yield()
-            end
+            end end
             parallel.waitForAny(table.unpack(fns))
             expect(count):eq(50)
         end)
