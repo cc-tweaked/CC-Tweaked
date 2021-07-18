@@ -14,6 +14,7 @@ import os.path
 
 
 LUA_ERROR_LOCATION = re.compile(r"^\s+(/[\w./-]+):(\d+):", re.MULTILINE)
+JAVA_LUA_ERROR_LOCATION = re.compile(r"^java.lang.IllegalStateException: (/[\w./-]+):(\d+):")
 JAVA_ERROR_LOCATION = re.compile(r"^\tat ([\w.]+)\.[\w]+\([\w.]+:(\d+)\)$", re.MULTILINE)
 ERROR_MESSAGE = re.compile(r"(.*)\nstack traceback:", re.DOTALL)
 
@@ -41,6 +42,12 @@ def find_file(path: str) -> Optional[str]:
 
 def find_location(message: str) -> Optional[Tuple[str, str]]:
     location = LUA_ERROR_LOCATION.search(message)
+    if location:
+        file = find_file(location[1])
+        if file:
+            return file, location[2]
+
+    location = JAVA_LUA_ERROR_LOCATION.search(message)
     if location:
         file = find_file(location[1])
         if file:
