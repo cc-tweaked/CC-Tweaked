@@ -1,4 +1,3 @@
-  
 --- Colours for lovers of British spelling.
 --
 -- @see colors
