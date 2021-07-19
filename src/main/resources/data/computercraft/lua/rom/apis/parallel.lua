@@ -32,6 +32,7 @@ end
 
 local function runUntilLimit(_routines, _limit)
     local count = #_routines
+    if count < 1 then return 0 end
     local living = count
 
     local tFilters = {}
