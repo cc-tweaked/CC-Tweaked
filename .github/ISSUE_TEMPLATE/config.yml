@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+- name: ComputerCraft Discord
+  url: https://discord.computercraft.cc
+  about: Get help on the ComputerCraft discord
+- name: GitHub Discussions
+  url: https://github.com/SquidDev-CC/CC-Tweaked/discussions
+  about: Please ask and answer programming questions here.
