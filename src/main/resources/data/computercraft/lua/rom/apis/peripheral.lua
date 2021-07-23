@@ -200,6 +200,12 @@ and returns if it should be included in the result.
       monitor.write("Hello")
     end
 
+@usage Find all wireless modems connected to this computer.
+
+    local modems = { peripheral.find("modem", function(name, modem)
+        return modem.isWireless() -- Check this modem is wireless.
+    end) }
+
 @usage This abuses the `filter` argument to call @{rednet.open} on every modem.
 
     peripheral.find("modem", rednet.open)

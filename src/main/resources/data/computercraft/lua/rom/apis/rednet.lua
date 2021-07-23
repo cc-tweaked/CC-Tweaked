@@ -28,15 +28,19 @@ local tReceivedMessages = {}
 local tReceivedMessageTimeouts = {}
 local tHostnames = {}
 
---- Opens a modem with the given @{peripheral} name, allowing it to send and
--- receive messages over rednet.
---
--- This will open the modem on two channels: one which has the same
--- @{os.getComputerID|ID} as the computer, and another on
--- @{CHANNEL_BROADCAST|the broadcast channel}.
---
--- @tparam string modem The name of the modem to open.
--- @throws If there is no such modem with the given name
+--[[- Opens a modem with the given @{peripheral} name, allowing it to send and
+receive messages over rednet.
+
+This will open the modem on two channels: one which has the same
+@{os.getComputerID|ID} as the computer, and another on
+@{CHANNEL_BROADCAST|the broadcast channel}.
+
+@tparam string modem The name of the modem to open.
+@throws If there is no such modem with the given name
+@usage Open a wireless modem on the back of the computer.
+
+    rednet.open("back")
+]]
 function open(modem)
     expect(1, modem, "string")
     if peripheral.getType(modem) ~= "modem" then
@@ -94,23 +98,27 @@ function isOpen(modem)
     return false
 end
 
---- Allows a computer or turtle with an attached modem to send a message
--- intended for a system with a specific ID. At least one such modem must first
--- be @{rednet.open|opened} before sending is possible.
---
--- Assuming the target was in range and also had a correctly opened modem, it
--- may then use @{rednet.receive} to collect the message.
---
--- @tparam number nRecipient The ID of the receiving computer.
--- @param message The message to send. This should not contain coroutines or
--- functions, as they will be converted to @{nil}.
--- @tparam[opt] string sProtocol The "protocol" to send this message under. When
--- using @{rednet.receive} one can filter to only receive messages sent under a
--- particular protocol.
--- @treturn boolean If this message was successfully sent (i.e. if rednet is
--- currently @{rednet.open|open}). Note, this does not guarantee the message was
--- actually _received_.
--- @see rednet.receive
+--[[- Allows a computer or turtle with an attached modem to send a message
+intended for a system with a specific ID. At least one such modem must first
+be @{rednet.open|opened} before sending is possible.
+
+Assuming the target was in range and also had a correctly opened modem, it
+may then use @{rednet.receive} to collect the message.
+
+@tparam number nRecipient The ID of the receiving computer.
+@param message The message to send. This should not contain coroutines or
+functions, as they will be converted to @{nil}.
+@tparam[opt] string sProtocol The "protocol" to send this message under. When
+using @{rednet.receive} one can filter to only receive messages sent under a
+particular protocol.
+@treturn boolean If this message was successfully sent (i.e. if rednet is
+currently @{rednet.open|open}). Note, this does not guarantee the message was
+actually _received_.
+@see rednet.receive
+@usage Send a message to computer #2.
+
+    rednet.send(2, "Hello from rednet!")
+]]
 function send(nRecipient, message, sProtocol)
     expect(1, nRecipient, "number")
     expect(3, sProtocol, "string", "nil")
@@ -163,20 +171,43 @@ function broadcast(message, sProtocol)
     send(CHANNEL_BROADCAST, message, sProtocol)
 end
 
---- Wait for a rednet message to be received, or until `nTimeout` seconds have
--- elapsed.
---
--- @tparam[opt] string sProtocolFilter The protocol the received message must be
--- sent with. If specified, any messages not sent under this protocol will be
--- discarded.
--- @tparam[opt] number nTimeout The number of seconds to wait if no message is
--- received.
--- @treturn[1] number The computer which sent this message
--- @return[1] The received message
--- @treturn[1] string|nil The protocol this message was sent under.
--- @treturn[2] nil If the timeout elapsed and no message was received.
--- @see rednet.broadcast
--- @see rednet.send
+--[[- Wait for a rednet message to be received, or until `nTimeout` seconds have
+elapsed.
+
+@tparam[opt] string sProtocolFilter The protocol the received message must be
+sent with. If specified, any messages not sent under this protocol will be
+discarded.
+@tparam[opt] number nTimeout The number of seconds to wait if no message is
+received.
+@treturn[1] number The computer which sent this message
+@return[1] The received message
+@treturn[1] string|nil The protocol this message was sent under.
+@treturn[2] nil If the timeout elapsed and no message was received.
+@see rednet.broadcast
+@see rednet.send
+@usage Receive a rednet message.
+
+    local id, message = rednet.receive()
+    print(("Computer %d sent message %s"):format(id, message))
+
+@usage Receive a message, stopping after 5 seconds if no message was received.
+
+    local id, message = rednet.receive(nil, 5)
+    if not id then
+        printError("No message received")
+    else
+        print(("Computer %d sent message %s"):format(id, message))
+    end
+
+@usage Receive a message from computer #2.
+
+    local id, message
+    repeat
+        id, message = rednet.receive()
+    until id == 2
+
+    print(message)
+]]
 function receive(sProtocolFilter, nTimeout)
     -- The parameters used to be ( nTimeout ), detect this case for backwards compatibility
     if type(sProtocolFilter) == "number" and nTimeout == nil then
