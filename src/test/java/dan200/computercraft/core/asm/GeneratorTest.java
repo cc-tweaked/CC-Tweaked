@@ -11,6 +11,7 @@ import dan200.computercraft.core.computer.ComputerSide;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -248,5 +249,19 @@ public class GeneratorTest
         return contramap( is( method ), "name", NamedMethod::getName );
     }
 
-    private static final ILuaContext CONTEXT = task -> 0;
+    private static final ILuaContext CONTEXT = new ILuaContext()
+    {
+        @Override
+        public long issueMainThreadTask( @Nonnull ILuaTask task )
+        {
+            return 0;
+        }
+
+        @Nonnull
+        @Override
+        public MethodResult executeMainThreadTask( @Nonnull ILuaTask task ) throws LuaException
+        {
+            return TaskCallback.make( this, task );
+        }
+    };
 }

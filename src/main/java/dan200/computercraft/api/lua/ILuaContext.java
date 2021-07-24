@@ -27,4 +27,18 @@ public interface ILuaContext
      * @see LuaFunction#mainThread() To run functions on the main thread and return their results synchronously.
      */
     long issueMainThreadTask( @Nonnull ILuaTask task ) throws LuaException;
+
+    /**
+     * Queue a task to be executed on the main server thread at the beginning of next tick, waiting for it to complete.
+     * This should be used when you need to interact with the world in a thread-safe manner.
+     *
+     * Note that the return values of your task are handled as events, meaning more complex objects such as maps or
+     * {@link IDynamicLuaObject} will not preserve their identities.
+     *
+     * @param task The task to execute on the main thread.
+     * @return The objects returned by {@code task}.
+     * @throws LuaException If the task could not be queued, or if the task threw an exception.
+     */
+    @Nonnull
+    MethodResult executeMainThreadTask( @Nonnull ILuaTask task ) throws LuaException;
 }

@@ -8,6 +8,7 @@ package dan200.computercraft.core.apis;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.asm.LuaMethod;
 import dan200.computercraft.core.asm.NamedMethod;
+import dan200.computercraft.core.asm.TaskCallback;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -63,5 +64,12 @@ public class ObjectWrapper implements ILuaContext
     public long issueMainThreadTask( @Nonnull ILuaTask task )
     {
         throw new IllegalStateException( "Method should never queue events" );
+    }
+
+    @Nonnull
+    @Override
+    public MethodResult executeMainThreadTask( @Nonnull ILuaTask task ) throws LuaException
+    {
+        return TaskCallback.make( this, task );
     }
 }
