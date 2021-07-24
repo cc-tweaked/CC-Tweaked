@@ -265,7 +265,7 @@ while true do
         local new_width, new_height = term.getSize()
 
         if new_width ~= width then
-            lines = word_wrap(contents, new_width)
+            lines, fg, bg = word_wrap(contents, new_width)
             print_height = #lines
         end
 
