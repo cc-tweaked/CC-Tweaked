@@ -28,7 +28,6 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
-import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
 import io.netty.handler.ssl.SslContext;
 
 import java.lang.ref.WeakReference;
@@ -160,7 +159,7 @@ public class Websocket extends Resource<Websocket>
                         p.addLast(
                             new HttpClientCodec(),
                             new HttpObjectAggregator( 8192 ),
-                            WebSocketClientCompressionHandler.INSTANCE,
+                            WebsocketCompressionHandler.INSTANCE,
                             new WebsocketHandler( Websocket.this, handshaker, options )
                         );
                     }

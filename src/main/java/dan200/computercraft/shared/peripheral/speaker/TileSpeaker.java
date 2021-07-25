@@ -47,7 +47,10 @@ public class TileSpeaker extends TileGeneric implements ITickableTileEntity
     public void setRemoved()
     {
         super.setRemoved();
-        NetworkHandler.sendToAllPlayers( new SpeakerStopClientMessage( source ) );
+        if( level != null && !level.isClientSide )
+        {
+            NetworkHandler.sendToAllPlayers( new SpeakerStopClientMessage( source ) );
+        }
     }
 
     @Nonnull

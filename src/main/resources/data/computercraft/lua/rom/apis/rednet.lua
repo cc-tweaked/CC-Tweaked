@@ -382,12 +382,12 @@ function run()
             -- Got a modem message, process it and add it to the rednet event queue
             local sModem, nChannel, nReplyChannel, tMessage = p1, p2, p3, p4
             if isOpen(sModem) and (nChannel == os.getComputerID() or nChannel == CHANNEL_BROADCAST) then
-                if type(tMessage) == "table" and tMessage.nMessageID then
-                    if not tReceivedMessages[tMessage.nMessageID] then
-                        tReceivedMessages[tMessage.nMessageID] = true
-                        tReceivedMessageTimeouts[os.startTimer(30)] = tMessage.nMessageID
-                        os.queueEvent("rednet_message", nReplyChannel, tMessage.message, tMessage.sProtocol)
-                    end
+                if type(tMessage) == "table" and type(tMessage.nMessageID) == "number"
+                    and tMessage.nMessageID == tMessage.nMessageID and not tReceivedMessages[tMessage.nMessageID]
+                then
+                    tReceivedMessages[tMessage.nMessageID] = true
+                    tReceivedMessageTimeouts[os.startTimer(30)] = tMessage.nMessageID
+                    os.queueEvent("rednet_message", nReplyChannel, tMessage.message, tMessage.sProtocol)
                 end
             end
 

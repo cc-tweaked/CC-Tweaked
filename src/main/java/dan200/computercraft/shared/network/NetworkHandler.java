@@ -21,7 +21,6 @@ import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -71,10 +70,7 @@ public final class NetworkHandler
 
     public static void sendToAllPlayers( NetworkMessage packet )
     {
-        for( ServerPlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers() )
-        {
-            sendToPlayer( player, packet );
-        }
+        network.send( PacketDistributor.ALL.noArg(), packet );
     }
 
     public static void sendToServer( NetworkMessage packet )

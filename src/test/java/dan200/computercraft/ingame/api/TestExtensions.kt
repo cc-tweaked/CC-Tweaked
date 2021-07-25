@@ -3,6 +3,7 @@ package dan200.computercraft.ingame.api
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import net.minecraft.block.BlockState
+import net.minecraft.command.arguments.BlockStateInput
 import net.minecraft.entity.Entity
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.math.AxisAlignedBB
@@ -53,6 +54,11 @@ fun TestContext.getBlock(pos: BlockPos): BlockState = tracker.level.getBlockStat
 fun TestContext.setBlock(pos: BlockPos, state: BlockState) {
     tracker.level.setBlockAndUpdate(offset(pos), state)
 }
+
+/**
+ * Set a block within the test structure.
+ */
+fun TestContext.setBlock(pos: BlockPos, state: BlockStateInput) = state.place(tracker.level, offset(pos), 3)
 
 /**
  * Modify a block state within the test.

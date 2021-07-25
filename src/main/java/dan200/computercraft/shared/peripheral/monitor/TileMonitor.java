@@ -56,6 +56,7 @@ public class TileMonitor extends TileGeneric
     private final Set<IComputerAccess> computers = new HashSet<>();
 
     private boolean needsUpdate = false;
+    private boolean needsValidating = false;
     private boolean destroyed = false;
     private boolean visiting = false;
 
@@ -78,6 +79,7 @@ public class TileMonitor extends TileGeneric
     public void onLoad()
     {
         super.onLoad();
+        needsValidating = true;
         TickScheduler.schedule( this );
     }
 
@@ -149,6 +151,12 @@ public class TileMonitor extends TileGeneric
     @Override
     public void blockTick()
     {
+        if( needsValidating )
+        {
+            needsValidating = false;
+            validate();
+        }
+
         if( needsUpdate )
         {
             needsUpdate = false;
@@ -165,7 +173,7 @@ public class TileMonitor extends TileGeneric
             {
                 for( int y = 0; y < height; y++ )
                 {
-                    TileMonitor monitor = getNeighbour( x, y );
+                    TileMonitor monitor = getNeighbour( x, y ).getMonitor();
                     if( monitor == null ) continue;
 
                     for( IComputerAccess computer : monitor.computers )
@@ -209,7 +217,7 @@ public class TileMonitor extends TileGeneric
     {
         if( serverMonitor != null ) return serverMonitor;
 
-        TileMonitor origin = getOrigin();
+        TileMonitor origin = getOrigin().getMonitor();
         if( origin == null ) return null;
 
         return serverMonitor = origin.serverMonitor;
@@ -230,7 +238,7 @@ public class TileMonitor extends TileGeneric
             {
                 for( int y = 0; y < height; y++ )
                 {
-                    TileMonitor monitor = getNeighbour( x, y );
+                    TileMonitor monitor = getNeighbour( x, y ).getMonitor();
                     if( monitor != null ) monitor.serverMonitor = serverMonitor;
                 }
             }
@@ -375,24 +383,24 @@ public class TileMonitor extends TileGeneric
         return yIndex;
     }
 
-    private TileMonitor getSimilarMonitorAt( BlockPos pos )
+    @Nonnull
+    private MonitorState getSimilarMonitorAt( BlockPos pos )
     {
-        if( pos.equals( getBlockPos() ) ) return this;
+        if( pos.equals( getBlockPos() ) ) return MonitorState.present( this );
 
-        int y = pos.getY();
         World world = getLevel();
-        if( world == null || !world.isAreaLoaded( pos, 0 ) ) return null;
+        if( world == null || !world.isAreaLoaded( pos, 0 ) ) return MonitorState.UNLOADED;
 
         TileEntity tile = world.getBlockEntity( pos );
-        if( !(tile instanceof TileMonitor) ) return null;
+        if( !(tile instanceof TileMonitor) ) return MonitorState.MISSING;
 
         TileMonitor monitor = (TileMonitor) tile;
         return !monitor.visiting && !monitor.destroyed && advanced == monitor.advanced
             && getDirection() == monitor.getDirection() && getOrientation() == monitor.getOrientation()
-            ? monitor : null;
+            ? MonitorState.present( monitor ) : MonitorState.MISSING;
     }
 
-    private TileMonitor getNeighbour( int x, int y )
+    private MonitorState getNeighbour( int x, int y )
     {
         BlockPos pos = getBlockPos();
         Direction right = getRight();
@@ -402,7 +410,7 @@ public class TileMonitor extends TileGeneric
         return getSimilarMonitorAt( pos.relative( right, xOffset ).relative( down, yOffset ) );
     }
 
-    private TileMonitor getOrigin()
+    private MonitorState getOrigin()
     {
         return getNeighbour( 0, 0 );
     }
@@ -426,7 +434,7 @@ public class TileMonitor extends TileGeneric
         {
             for( int y = 0; y < height; y++ )
             {
-                TileMonitor monitor = getNeighbour( x, y );
+                TileMonitor monitor = getNeighbour( x, y ).getMonitor();
                 if( monitor != null && monitor.peripheral != null )
                 {
                     needsTerminal = true;
@@ -454,7 +462,7 @@ public class TileMonitor extends TileGeneric
         {
             for( int y = 0; y < height; y++ )
             {
-                TileMonitor monitor = getNeighbour( x, y );
+                TileMonitor monitor = getNeighbour( x, y ).getMonitor();
                 if( monitor == null ) continue;
 
                 monitor.xIndex = x;
@@ -470,13 +478,13 @@ public class TileMonitor extends TileGeneric
 
     private boolean mergeLeft()
     {
-        TileMonitor left = getNeighbour( -1, 0 );
+        TileMonitor left = getNeighbour( -1, 0 ).getMonitor();
         if( left == null || left.yIndex != 0 || left.height != height ) return false;
 
         int width = left.width + this.width;
         if( width > ComputerCraft.monitorWidth ) return false;
 
-        TileMonitor origin = left.getOrigin();
+        TileMonitor origin = left.getOrigin().getMonitor();
         if( origin != null ) origin.resize( width, height );
         left.expand();
         return true;
@@ -484,13 +492,13 @@ public class TileMonitor extends TileGeneric
 
     private boolean mergeRight()
     {
-        TileMonitor right = getNeighbour( width, 0 );
+        TileMonitor right = getNeighbour( width, 0 ).getMonitor();
         if( right == null || right.yIndex != 0 || right.height != height ) return false;
 
         int width = this.width + right.width;
         if( width > ComputerCraft.monitorWidth ) return false;
 
-        TileMonitor origin = getOrigin();
+        TileMonitor origin = getOrigin().getMonitor();
         if( origin != null ) origin.resize( width, height );
         expand();
         return true;
@@ -498,13 +506,13 @@ public class TileMonitor extends TileGeneric
 
     private boolean mergeUp()
     {
-        TileMonitor above = getNeighbour( 0, height );
+        TileMonitor above = getNeighbour( 0, height ).getMonitor();
         if( above == null || above.xIndex != 0 || above.width != width ) return false;
 
         int height = above.height + this.height;
         if( height > ComputerCraft.monitorHeight ) return false;
 
-        TileMonitor origin = getOrigin();
+        TileMonitor origin = getOrigin().getMonitor();
         if( origin != null ) origin.resize( width, height );
         expand();
         return true;
@@ -512,13 +520,13 @@ public class TileMonitor extends TileGeneric
 
     private boolean mergeDown()
     {
-        TileMonitor below = getNeighbour( 0, -1 );
+        TileMonitor below = getNeighbour( 0, -1 ).getMonitor();
         if( below == null || below.xIndex != 0 || below.width != width ) return false;
 
         int height = this.height + below.height;
         if( height > ComputerCraft.monitorHeight ) return false;
 
-        TileMonitor origin = below.getOrigin();
+        TileMonitor origin = below.getOrigin().getMonitor();
         if( origin != null ) origin.resize( width, height );
         below.expand();
         return true;
@@ -547,22 +555,22 @@ public class TileMonitor extends TileGeneric
         visiting = true;
         if( xIndex > 0 )
         {
-            TileMonitor left = getNeighbour( xIndex - 1, yIndex );
+            TileMonitor left = getNeighbour( xIndex - 1, yIndex ).getMonitor();
             if( left != null ) left.contract();
         }
         if( xIndex + 1 < width )
         {
-            TileMonitor right = getNeighbour( xIndex + 1, yIndex );
+            TileMonitor right = getNeighbour( xIndex + 1, yIndex ).getMonitor();
             if( right != null ) right.contract();
         }
         if( yIndex > 0 )
         {
-            TileMonitor below = getNeighbour( xIndex, yIndex - 1 );
+            TileMonitor below = getNeighbour( xIndex, yIndex - 1 ).getMonitor();
             if( below != null ) below.contract();
         }
         if( yIndex + 1 < height )
         {
-            TileMonitor above = getNeighbour( xIndex, yIndex + 1 );
+            TileMonitor above = getNeighbour( xIndex, yIndex + 1 ).getMonitor();
             if( above != null ) above.contract();
         }
         visiting = false;
@@ -573,11 +581,11 @@ public class TileMonitor extends TileGeneric
         int height = this.height;
         int width = this.width;
 
-        TileMonitor origin = getOrigin();
+        TileMonitor origin = getOrigin().getMonitor();
         if( origin == null )
         {
-            TileMonitor right = width > 1 ? getNeighbour( 1, 0 ) : null;
-            TileMonitor below = height > 1 ? getNeighbour( 0, 1 ) : null;
+            TileMonitor right = width > 1 ? getNeighbour( 1, 0 ).getMonitor() : null;
+            TileMonitor below = height > 1 ? getNeighbour( 0, 1 ).getMonitor() : null;
 
             if( right != null ) right.resize( width - 1, 1 );
             if( below != null ) below.resize( width, height - 1 );
@@ -591,7 +599,7 @@ public class TileMonitor extends TileGeneric
         {
             for( int x = 0; x < width; x++ )
             {
-                TileMonitor monitor = origin.getNeighbour( x, y );
+                TileMonitor monitor = origin.getNeighbour( x, y ).getMonitor();
                 if( monitor != null ) continue;
 
                 // Decompose
@@ -607,17 +615,17 @@ public class TileMonitor extends TileGeneric
                 }
                 if( x > 0 )
                 {
-                    left = origin.getNeighbour( 0, y );
+                    left = origin.getNeighbour( 0, y ).getMonitor();
                     left.resize( x, 1 );
                 }
                 if( x + 1 < width )
                 {
-                    right = origin.getNeighbour( x + 1, y );
+                    right = origin.getNeighbour( x + 1, y ).getMonitor();
                     right.resize( width - (x + 1), 1 );
                 }
                 if( y + 1 < height )
                 {
-                    below = origin.getNeighbour( 0, y + 1 );
+                    below = origin.getNeighbour( 0, y + 1 ).getMonitor();
                     below.resize( width, height - (y + 1) );
                 }
 
@@ -629,6 +637,38 @@ public class TileMonitor extends TileGeneric
                 return;
             }
         }
+    }
+
+    private boolean checkMonitorAt( int xIndex, int yIndex )
+    {
+        BlockPos pos = getBlockPos();
+        Direction right = getRight();
+        Direction down = getDown();
+
+        MonitorState state = getSimilarMonitorAt( pos.relative( right, xIndex ).relative( down, yIndex ) );
+
+        if( state.isMissing() ) return false;
+
+        TileMonitor monitor = state.getMonitor();
+        if( monitor == null ) return true;
+
+        return monitor.xIndex == xIndex && monitor.yIndex == yIndex && monitor.width == width && monitor.height == height;
+    }
+
+    private void validate()
+    {
+        if( xIndex == 0 && yIndex == 0 && width == 1 || height == 1 ) return;
+
+        if( checkMonitorAt( 0, 0 ) && checkMonitorAt( 0, height - 1 ) &&
+            checkMonitorAt( width - 1, 0 ) && checkMonitorAt( width - 1, height - 1 ) )
+        {
+            return;
+        }
+
+        // Something in our monitor is invalid. For now, let's just reset ourselves and then try to integrate ourselves
+        // later.
+        resize( 1, 1 );
+        needsUpdate = true;
     }
 
     private void monitorTouched( float xPos, float yPos, float zPos )
@@ -658,7 +698,7 @@ public class TileMonitor extends TileGeneric
         {
             for( int x = 0; x < width; x++ )
             {
-                TileMonitor monitor = getNeighbour( x, y );
+                TileMonitor monitor = getNeighbour( x, y ).getMonitor();
                 if( monitor == null ) continue;
 
                 for( IComputerAccess computer : monitor.computers )
@@ -684,8 +724,8 @@ public class TileMonitor extends TileGeneric
     @Override
     public AxisAlignedBB getRenderBoundingBox()
     {
-        TileMonitor start = getNeighbour( 0, 0 );
-        TileMonitor end = getNeighbour( width - 1, height - 1 );
+        TileMonitor start = getNeighbour( 0, 0 ).getMonitor();
+        TileMonitor end = getNeighbour( width - 1, height - 1 ).getMonitor();
         if( start != null && end != null )
         {
             BlockPos startPos = start.getBlockPos();

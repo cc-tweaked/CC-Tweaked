@@ -1,3 +1,5 @@
+-- TurtleTest.`Cleaned with cauldrons`
+
 local old_details = turtle.getItemDetail(1, true)
 
 test.assert(turtle.place(), "Dyed turtle")
