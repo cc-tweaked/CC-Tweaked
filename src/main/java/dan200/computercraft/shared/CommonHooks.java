@@ -6,6 +6,7 @@
 package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.command.CommandComputerCraft;
@@ -83,6 +84,7 @@ public final class CommonHooks
         ComputerCraft.serverComputerRegistry.reset();
         WirelessNetwork.resetNetworks();
         Tracking.reset();
+        NetworkUtils.reset();
     }
 
     @SubscribeEvent
@@ -91,6 +93,7 @@ public final class CommonHooks
         ComputerCraft.serverComputerRegistry.reset();
         WirelessNetwork.resetNetworks();
         Tracking.reset();
+        NetworkUtils.reset();
     }
 
     public static final ResourceLocation LOOT_TREASURE_DISK = new ResourceLocation( ComputerCraft.MOD_ID, "treasure_disk" );
