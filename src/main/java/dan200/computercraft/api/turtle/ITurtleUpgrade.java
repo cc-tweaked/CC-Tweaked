@@ -16,6 +16,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.world.BlockEvent;
 
@@ -80,6 +82,30 @@ public interface ITurtleUpgrade extends IUpgradeBase
     {
         return TurtleCommandResult.failure();
     }
+
+    /**
+     * Called when something inside turtle (mostly, this or another turtle upgrade) tries to get turtle capabilities
+     *
+     * @param turtle     Access to the turtle that the tool resides on.
+     * @param side       Which side of the turtle (left or right) the tool resides on.
+     * @param capability Required capability for turtle
+     * @return Whether the turtle upgrade can provide this capability, instance of this capability should be returned.
+     * Take a note, that storing information about capability internal data should be performed on upgrade side,
+     * turtle logic will not handle it.
+     */
+    @Nonnull
+    default <T> LazyOptional<T> getCapability(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull Capability<T> capability )
+    {
+        return LazyOptional.empty();
+    }
+
+    /**
+     * Called when something inside turtle (mostly, this or another turtle upgrade) tries to invalidate turtle capabilities
+     *
+     * @param turtle     Access to the turtle that the tool resides on.
+     * @param side       Which side of the turtle (left or right) the tool resides on.
+     */
+    default void invalidateCaps(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side) {}
 
     /**
      * Called to obtain the model to be used when rendering a turtle peripheral.

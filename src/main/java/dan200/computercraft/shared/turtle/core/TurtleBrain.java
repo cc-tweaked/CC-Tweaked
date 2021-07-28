@@ -40,9 +40,12 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
+import org.lwjgl.system.CallbackI;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -672,6 +675,37 @@ public class TurtleBrain implements ITurtleAccess
     public void updateUpgradeNBTData( @Nonnull TurtleSide side )
     {
         owner.updateBlock();
+    }
+
+    @Nonnull
+    @Override
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability)
+    {
+        LazyOptional<T> borrowedCapability = owner.getCapability(capability);
+        if (borrowedCapability.isPresent())
+            return borrowedCapability;
+
+        // Test left upgrade
+        ITurtleUpgrade leftUpgrade = upgrades.get(TurtleSide.LEFT);
+        if (leftUpgrade != null) {
+            LazyOptional<T> candidate = leftUpgrade.getCapability(this, TurtleSide.LEFT, capability);
+            if (candidate.isPresent())
+                return candidate;
+        }
+
+        // Test right upgrade
+        ITurtleUpgrade rightUpgrade = upgrades.get(TurtleSide.RIGHT);
+        if (rightUpgrade != null) {
+            LazyOptional<T> candidate = rightUpgrade.getCapability(this, TurtleSide.RIGHT, capability);
+            if (candidate.isPresent())
+                return candidate;
+        }
+        return LazyOptional.empty();
+    }
+
+    public void invalidateUpgradeCaps()
+    {
+        upgrades.forEach((key, value) -> value.invalidateCaps(this, key));
     }
 
     public Vector3d getRenderOffset( float f )

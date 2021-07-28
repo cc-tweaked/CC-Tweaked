@@ -15,6 +15,8 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nonnull;
@@ -297,4 +299,13 @@ public interface ITurtleAccess
      * @see #updateUpgradeNBTData(TurtleSide)
      */
     void updateUpgradeNBTData( @Nonnull TurtleSide side );
+
+    /**
+     * Tiers to get capability from turtle
+     *
+     * @param capability required capability
+     * @return LazyOptional capability, according to forge logic
+     */
+    @Nonnull
+    <T> LazyOptional<T> getCapability( @Nonnull Capability<T> capability);
 }

@@ -148,6 +148,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         super.invalidateCaps();
         itemHandlerCap = CapabilityUtil.invalidate( itemHandlerCap );
         peripheral = CapabilityUtil.invalidate( peripheral );
+        brain.invalidateUpgradeCaps();
     }
 
     @Nonnull
