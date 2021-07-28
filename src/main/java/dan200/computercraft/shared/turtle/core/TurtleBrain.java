@@ -45,7 +45,6 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
-import org.lwjgl.system.CallbackI;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -81,6 +80,7 @@ public class TurtleBrain implements ITurtleAccess
     private final Map<TurtleSide, ITurtleUpgrade> upgrades = new EnumMap<>( TurtleSide.class );
     private final Map<TurtleSide, IPeripheral> peripherals = new EnumMap<>( TurtleSide.class );
     private final Map<TurtleSide, CompoundNBT> upgradeNBTData = new EnumMap<>( TurtleSide.class );
+    private final Map<Capability<?>, LazyOptional<?>> upgradeCapabilityMap = new HashMap<>();
 
     private int selectedSlot = 0;
     private int fuelLevel = 0;
@@ -685,19 +685,28 @@ public class TurtleBrain implements ITurtleAccess
         if (borrowedCapability.isPresent())
             return borrowedCapability;
 
+        // Check cache
+
+        LazyOptional<?> lazyCandidate = upgradeCapabilityMap.get(capability);
+        if (lazyCandidate.isPresent())
+            return lazyCandidate.cast();
+
         // Test left upgrade
         ITurtleUpgrade leftUpgrade = upgrades.get(TurtleSide.LEFT);
         if (leftUpgrade != null) {
-            LazyOptional<T> candidate = leftUpgrade.getCapability(this, TurtleSide.LEFT, capability);
-            if (candidate.isPresent())
+            LazyOptional<T> candidate = leftUpgrade.createCapability(this, TurtleSide.LEFT, capability);
+            if (candidate.isPresent()) {
+                upgradeCapabilityMap.put(capability, candidate);
                 return candidate;
+            }
         }
 
         // Test right upgrade
         ITurtleUpgrade rightUpgrade = upgrades.get(TurtleSide.RIGHT);
         if (rightUpgrade != null) {
-            LazyOptional<T> candidate = rightUpgrade.getCapability(this, TurtleSide.RIGHT, capability);
+            LazyOptional<T> candidate = rightUpgrade.createCapability(this, TurtleSide.RIGHT, capability);
             if (candidate.isPresent())
+                upgradeCapabilityMap.put(capability, candidate);
                 return candidate;
         }
         return LazyOptional.empty();
@@ -705,7 +714,7 @@ public class TurtleBrain implements ITurtleAccess
 
     public void invalidateUpgradeCaps()
     {
-        upgrades.forEach((key, value) -> value.invalidateCaps(this, key));
+        upgradeCapabilityMap.values().forEach(LazyOptional::invalidate);
     }
 
     public Vector3d getRenderOffset( float f )
