@@ -69,7 +69,7 @@ if run then
         printError(err)
     end
 else
-    local sFile = tArgs[1] or getFilename(url)
+    local sFile = tArgs[1] or getFilename(url) or url
     local sPath = shell.resolve(sFile)
     if fs.exists(sPath) then
         print("File already exists")

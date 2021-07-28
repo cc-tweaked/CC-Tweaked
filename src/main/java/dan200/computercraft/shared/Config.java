@@ -12,6 +12,7 @@ import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.event.TurtleAction;
+import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRuleConfig;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
@@ -55,6 +56,9 @@ public final class Config
 
     private static final ConfigValue<Integer> httpMaxRequests;
     private static final ConfigValue<Integer> httpMaxWebsockets;
+
+    private static final ConfigValue<Integer> httpDownloadBandwidth;
+    private static final ConfigValue<Integer> httpUploadBandwidth;
 
     private static final ConfigValue<Boolean> commandBlockEnabled;
     private static final ConfigValue<Integer> modemRange;
@@ -186,6 +190,20 @@ public final class Config
             httpMaxWebsockets = builder
                 .comment( "The number of websockets a computer can have open at one time. Set to 0 for unlimited." )
                 .defineInRange( "max_websockets", ComputerCraft.httpMaxWebsockets, 1, Integer.MAX_VALUE );
+
+            builder
+                .comment( "Limits bandwidth used by computers" )
+                .push( "bandwidth" );
+
+            httpDownloadBandwidth = builder
+                .comment( "The number of bytes which can be downloaded in a second. This is shared across all computers. (bytes/s)" )
+                .defineInRange( "global_download", ComputerCraft.httpDownloadBandwidth, 1, Integer.MAX_VALUE );
+
+            httpUploadBandwidth = builder
+                .comment( "The number of bytes which can be uploaded in a second. This is shared across all computers. (bytes/s)" )
+                .defineInRange( "global_upload", ComputerCraft.httpUploadBandwidth, 1, Integer.MAX_VALUE );
+
+            builder.pop();
 
             builder.pop();
         }
@@ -329,6 +347,8 @@ public final class Config
 
         ComputerCraft.httpMaxRequests = httpMaxRequests.get();
         ComputerCraft.httpMaxWebsockets = httpMaxWebsockets.get();
+        ComputerCraft.httpDownloadBandwidth = httpDownloadBandwidth.get();
+        NetworkUtils.reloadConfig();
 
         // Peripheral
         ComputerCraft.enableCommandBlock = commandBlockEnabled.get();

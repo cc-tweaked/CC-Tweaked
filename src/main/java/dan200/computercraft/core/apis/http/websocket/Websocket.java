@@ -145,6 +145,7 @@ public class Websocket extends Resource<Websocket>
                     protected void initChannel( SocketChannel ch )
                     {
                         ChannelPipeline p = ch.pipeline();
+                        p.addLast( NetworkUtils.SHAPING_HANDLER );
                         if( sslContext != null )
                         {
                             p.addLast( sslContext.newHandler( ch.alloc(), uri.getHost(), socketAddress.getPort() ) );
