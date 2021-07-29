@@ -12,6 +12,7 @@ import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.items.IItemHandler;
@@ -58,6 +59,9 @@ public class TurtleEquipCommand implements ITurtleCommand
         {
             ItemStack craftingItem = oldUpgrade.getCraftingItem();
             oldUpgradeStack = !craftingItem.isEmpty() ? craftingItem.copy() : null;
+            CompoundNBT upgradeData = turtle.getUpgradeNBTData( side );
+            if (!upgradeData.isEmpty()) oldUpgradeStack = oldUpgrade.mixUpgradeDataToStack(oldUpgradeStack, upgradeData);
+
         }
         else
         {
@@ -88,6 +92,11 @@ public class TurtleEquipCommand implements ITurtleCommand
             }
         }
         turtle.setUpgrade( side, newUpgrade );
+
+        if ( newUpgrade != null )
+        {
+            newUpgrade.mixUpgradeDataToNBT(newUpgradeStack, turtle.getUpgradeNBTData( side ));
+        }
 
         // Animate
         if( newUpgrade != null || oldUpgrade != null )

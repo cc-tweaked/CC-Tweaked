@@ -13,6 +13,7 @@ import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -97,6 +98,29 @@ public interface ITurtleUpgrade extends IUpgradeBase
     default <T> LazyOptional<T> createCapability(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull Capability<T> capability )
     {
         return LazyOptional.empty();
+    }
+
+    /**
+     * Helper function, that allow upgrade to inject nbt data into upgrade item on unequipped. For correct logic
+     * upgrade should also tweak {@link #isItemSuitable(ItemStack)} to make sure, that upgrade can be equipped again
+     *
+     * @param stack original output of {@link #getCraftingItem()}
+     * @param upgradeData current upgrade data stored in turtle
+     * @return modified item stack, that will be put in invetory
+     */
+    @Nonnull
+    default ItemStack mixUpgradeDataToStack(ItemStack stack, CompoundNBT upgradeData)
+    {
+        return stack;
+    }
+
+    /**
+     * Helper function, that allow upgrade to mix data from item stack, that used for this upgrade to turtle upgrade data
+     *
+     * @param stack equipped item stack
+     */
+    default void mixUpgradeDataToNBT(ItemStack stack, CompoundNBT upgradeData)
+    {
     }
 
     /**

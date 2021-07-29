@@ -566,6 +566,9 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
             return peripheral.cast();
         }
 
+        LazyOptional<T> borrowedCapability = brain.getUpgradeCapability(cap);
+        if (borrowedCapability.isPresent()) return borrowedCapability;
+
         return super.getCapability( cap, side );
     }
 

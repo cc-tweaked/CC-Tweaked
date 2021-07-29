@@ -643,6 +643,7 @@ public class TurtleBrain implements ITurtleAccess
         }
 
         upgradeNBTData.remove( side );
+        invalidateUpgradeCaps();
 
         // Set new upgrade
         if( upgrade != null ) upgrades.put( side, upgrade );
@@ -681,14 +682,15 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability)
     {
-        LazyOptional<T> borrowedCapability = owner.getCapability(capability);
-        if (borrowedCapability.isPresent())
-            return borrowedCapability;
+        return owner.getCapability(capability);
+    }
 
+    @Nonnull
+    public <T> LazyOptional<T> getUpgradeCapability(@Nonnull Capability<T> capability) {
         // Check cache
 
         LazyOptional<?> lazyCandidate = upgradeCapabilityMap.get(capability);
-        if (lazyCandidate.isPresent())
+        if (lazyCandidate != null && lazyCandidate.isPresent())
             return lazyCandidate.cast();
 
         // Test left upgrade
@@ -707,7 +709,7 @@ public class TurtleBrain implements ITurtleAccess
             LazyOptional<T> candidate = rightUpgrade.createCapability(this, TurtleSide.RIGHT, capability);
             if (candidate.isPresent())
                 upgradeCapabilityMap.put(capability, candidate);
-                return candidate;
+            return candidate;
         }
         return LazyOptional.empty();
     }
