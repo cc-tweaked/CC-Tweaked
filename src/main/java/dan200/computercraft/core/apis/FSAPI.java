@@ -457,6 +457,7 @@ public class FSAPI implements ILuaAPI
      * @param path The path to check the free space for.
      * @return The amount of free space available, in bytes.
      * @throws LuaException If the path doesn't exist.
+     * @see #getCapacity To get the capacity of this drive.
      * @cc.treturn number|"unlimited" The amount of free space available, in bytes, or "unlimited".
      */
     @LuaFunction
@@ -500,15 +501,12 @@ public class FSAPI implements ILuaAPI
     }
 
     /**
-     * Returns true if a path is mounted to the parent filesystem.
-     *
-     * The root filesystem "/" is considered a mount, along with disk folders and the rom folder. Other programs
-     * (such as network shares) can extend this to make other mount types by correctly assigning their return value for
-     * getDrive.
+     * Returns the capacity of the drive the path is located on.
      *
      * @param path The path of the drive to get.
      * @return The drive's capacity.
      * @throws LuaException If the capacity cannot be determined.
+     * @see #getFreeSpace To get the free space available on this drive.
      * @cc.treturn number|nil This drive's capacity. This will be nil for "read-only" drives, such as the ROM or
      * treasure disks.
      */
