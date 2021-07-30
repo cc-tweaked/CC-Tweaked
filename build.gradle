@@ -7,7 +7,6 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.google.code.gson:gson:2.8.1'
         classpath 'net.minecraftforge.gradle:ForgeGradle:5.0.24'
     }
 }

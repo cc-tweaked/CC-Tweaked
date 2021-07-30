@@ -2,9 +2,6 @@
 
 --[[- Loads the given API into the global environment.
 
-**Warning** This function is deprecated. Use of this function will pollute the
-global table, use @{require} instead.
-
 This function loads and executes the file at the given path, and all global
 variables and functions exported by it will by available through the use of
 `myAPI.<function name>`, where `myAPI` is the base name of the API file.
@@ -12,7 +9,10 @@ variables and functions exported by it will by available through the use of
 @tparam string path The path of the API to load.
 @treturn boolean Whether or not the API was successfully loaded.
 
-@deprecated Use @{require}.
+@deprecated When possible it's best to avoid using this function. It pollutes
+the global table and can mask errors.
+
+@{require} should be used to load libraries instead.
 ]]
 function loadAPI(path) end
 
@@ -21,7 +21,7 @@ function loadAPI(path) end
 -- This effectively removes the specified table from `_G`.
 --
 -- @tparam string name The name of the API to unload.
--- @deprecated Use @{require}.
+-- @deprecated See @{os.loadAPI} for why.
 function unloadAPI(name) end
 
 --[[- Pause execution of the current thread and waits for any events matching

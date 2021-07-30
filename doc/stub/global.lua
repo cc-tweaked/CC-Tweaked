@@ -101,6 +101,9 @@ the prompt.
     write("> ")
     local msg = read(nil, history, function(text) return completion.choice(text, choices) end, "app")
     print(msg)
+
+@changed 1.74 Added `completeFn` parameter.
+@changed 1.80pr1 Added `default` parameter.
 ]]
 function read(replaceChar, history, completeFn, default) end
 
@@ -108,6 +111,7 @@ function read(replaceChar, history, completeFn, default) end
 --
 -- For example, `ComputerCraft 1.93.0 (Minecraft 1.15.2)`.
 -- @usage _HOST
+-- @since 1.76
 _HOST = _HOST
 
 --[[- The default computer settings as defined in the ComputerCraft
@@ -121,5 +125,6 @@ An example value to disable autocompletion:
     shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false
 
 @usage _CC_DEFAULT_SETTINGS
+@since 1.77
 ]]
 _CC_DEFAULT_SETTINGS = _CC_DEFAULT_SETTINGS
