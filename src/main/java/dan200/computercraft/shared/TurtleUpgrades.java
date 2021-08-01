@@ -11,6 +11,7 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenCustomHashMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Util;
+import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModLoadingContext;
 
 import javax.annotation.Nonnull;
@@ -34,7 +35,8 @@ public final class TurtleUpgrades
         {
             this.upgrade = upgrade;
             id = upgrade.getUpgradeID().toString();
-            modId = ModLoadingContext.get().getActiveNamespace();
+            ModContainer mc = ModLoadingContext.get().getActiveContainer();
+            modId = mc != null && mc.getModId() != null ? mc.getModId() : ComputerCraft.MOD_ID;
             enabled = true;
         }
     }
