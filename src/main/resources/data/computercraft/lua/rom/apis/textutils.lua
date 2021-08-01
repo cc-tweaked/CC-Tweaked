@@ -5,35 +5,32 @@
 
 local expect = dofile("rom/modules/main/cc/expect.lua")
 local expect, field = expect.expect, expect.field
+local wrap = dofile("rom/modules/main/cc/strings.lua").wrap
 
 --- Slowly writes string text at current cursor position,
 -- character-by-character.
 --
 -- Like @{_G.write}, this does not insert a newline at the end.
 --
--- @tparam string sText The the text to write to the screen
--- @tparam[opt] number nRate The number of characters to write each second,
+-- @tparam string text The the text to write to the screen
+-- @tparam[opt] number rate The number of characters to write each second,
 -- Defaults to 20.
 -- @usage textutils.slowWrite("Hello, world!")
 -- @usage textutils.slowWrite("Hello, world!", 5)
-function slowWrite(sText, nRate)
-    expect(2, nRate, "number", "nil")
-    nRate = nRate or 20
-    if nRate < 0 then
+function slowWrite(text, rate)
+    expect(2, rate, "number", "nil")
+    rate = rate or 20
+    if rate < 0 then
         error("Rate must be positive", 2)
     end
-    local nSleep = 1 / nRate
+    local to_sleep = 1 / rate
 
-    sText = tostring(sText)
-    local x, y = term.getCursorPos()
-    local len = #sText
+    local wrapped_lines = wrap(tostring(text), (term.getSize()))
+    local wrapped_str = table.concat(wrapped_lines, "\n")
 
-    for n = 1, len do
-        term.setCursorPos(x, y)
-        sleep(nSleep)
-        local nLines = write(string.sub(sText, 1, n))
-        local _, newY = term.getCursorPos()
-        y = newY - nLines
+    for n = 1, #wrapped_str do
+        sleep(to_sleep)
+        write(wrapped_str:sub(n, n))
     end
 end
 

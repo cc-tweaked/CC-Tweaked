@@ -1,7 +1,22 @@
+local helpers = require "test_helpers"
+
 describe("The textutils library", function()
     describe("textutils.slowWrite", function()
         it("validates arguments", function()
             expect.error(textutils.slowWrite, nil, false):eq("bad argument #2 (expected number, got boolean)")
+        end)
+
+        it("wraps text correctly", function()
+            local count = 0
+            stub(_G, "sleep", function() count = count + 1 end)
+            local w = helpers.with_window(20, 3, function()
+                textutils.slowWrite("This is a long string which one would hope wraps.")
+            end)
+
+            expect(w.getLine(1)):eq "This is a long      "
+            expect(w.getLine(2)):eq "string which one    "
+            expect(w.getLine(3)):eq "would hope wraps.   "
+            expect(count):eq(51)
         end)
     end)
 
