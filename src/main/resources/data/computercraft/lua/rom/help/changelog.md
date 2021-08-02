@@ -2,6 +2,7 @@
 
 Several bug fixes:
 * Fix monitors not correctly resizing when placed.
+* Update Russian translation (DrHesperus).
 
 # New features in CC: Tweaked 1.98.0
 * Add motd for file uploading.
