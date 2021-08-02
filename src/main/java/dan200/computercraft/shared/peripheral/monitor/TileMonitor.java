@@ -641,12 +641,7 @@ public class TileMonitor extends TileGeneric
 
     private boolean checkMonitorAt( int xIndex, int yIndex )
     {
-        BlockPos pos = getBlockPos();
-        Direction right = getRight();
-        Direction down = getDown();
-
-        MonitorState state = getSimilarMonitorAt( pos.relative( right, xIndex ).relative( down, yIndex ) );
-
+        MonitorState state = getNeighbour( xIndex, yIndex );
         if( state.isMissing() ) return false;
 
         TileMonitor monitor = state.getMonitor();
@@ -667,6 +662,7 @@ public class TileMonitor extends TileGeneric
 
         // Something in our monitor is invalid. For now, let's just reset ourselves and then try to integrate ourselves
         // later.
+        ComputerCraft.log.warn( "Monitor is malformed, resetting to 1x1." );
         resize( 1, 1 );
         needsUpdate = true;
     }

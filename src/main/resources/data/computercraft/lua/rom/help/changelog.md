@@ -1,3 +1,8 @@
+# New features in CC: Tweaked 1.98.1
+
+Several bug fixes:
+* Fix monitors not correctly resizing when placed.
+
 # New features in CC: Tweaked 1.98.0
 * Add motd for file uploading.
 * Add config options to limit total bandwidth used by the HTTP API.
