@@ -7,37 +7,52 @@ package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.BlockGeneric;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlockSpeaker extends BlockGeneric
 {
     private static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
+    private static final BlockEntityTicker<TileSpeaker> serverTicker = ( level, pos, state, drive ) -> drive.serverTick();
+
     public BlockSpeaker( Properties settings )
     {
-        super( settings, Registry.ModTiles.SPEAKER );
+        super( settings, Registry.ModBlockEntities.SPEAKER );
         registerDefaultState( getStateDefinition().any()
             .setValue( FACING, Direction.NORTH ) );
     }
 
     @Override
-    protected void createBlockStateDefinition( StateContainer.Builder<Block, BlockState> properties )
+    protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> properties )
     {
         properties.add( FACING );
     }
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement( BlockItemUseContext placement )
+    public BlockState getStateForPlacement( BlockPlaceContext placement )
     {
         return defaultBlockState().setValue( FACING, placement.getHorizontalDirection().getOpposite() );
+    }
+
+    @Override
+    @Nullable
+    public <U extends BlockEntity> BlockEntityTicker<U> getTicker( @Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<U> type )
+    {
+        return level.isClientSide ? null : BaseEntityBlock.createTickerHelper( type, Registry.ModBlockEntities.SPEAKER.get(), serverTicker );
     }
 }

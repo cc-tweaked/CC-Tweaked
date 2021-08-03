@@ -5,11 +5,11 @@
  */
 package dan200.computercraft.api.turtle;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
+import net.minecraft.Util;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
@@ -50,22 +50,22 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
         this( id, type, () -> stack );
     }
 
-    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, IItemProvider item )
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, ItemLike item )
     {
         this( id, type, adjective, new CachedStack( () -> item ) );
     }
 
-    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, IItemProvider item )
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, ItemLike item )
     {
         this( id, type, new CachedStack( () -> item ) );
     }
 
-    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, Supplier<? extends IItemProvider> item )
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, Supplier<? extends ItemLike> item )
     {
         this( id, type, adjective, new CachedStack( item ) );
     }
 
-    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, Supplier<? extends IItemProvider> item )
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, Supplier<? extends ItemLike> item )
     {
         this( id, type, new CachedStack( item ) );
     }
@@ -105,11 +105,11 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
      */
     private static final class CachedStack implements NonNullSupplier<ItemStack>
     {
-        private final Supplier<? extends IItemProvider> provider;
+        private final Supplier<? extends ItemLike> provider;
         private Item item;
         private ItemStack stack;
 
-        CachedStack( Supplier<? extends IItemProvider> provider )
+        CachedStack( Supplier<? extends ItemLike> provider )
         {
             this.provider = provider;
         }

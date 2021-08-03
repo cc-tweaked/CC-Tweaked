@@ -6,23 +6,28 @@
 package dan200.computercraft.client.render;
 
 import com.google.common.base.Objects;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Transformation;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.*;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.TransformationMatrix;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.IModelData;
 
 import javax.annotation.Nonnull;
@@ -31,18 +36,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-public class TurtleSmartItemModel implements IBakedModel
+public class TurtleSmartItemModel implements BakedModel
 {
-    private static final TransformationMatrix identity, flip;
+    private static final Transformation identity, flip;
 
     static
     {
-        MatrixStack stack = new MatrixStack();
+        PoseStack stack = new PoseStack();
         stack.scale( 0, -1, 0 );
         stack.translate( 0, 0, 1 );
 
-        identity = TransformationMatrix.identity();
-        flip = new TransformationMatrix( stack.last().pose() );
+        identity = Transformation.identity();
+        flip = new Transformation( stack.last().pose() );
     }
 
     private static class TurtleModelCombination
@@ -94,22 +99,22 @@ public class TurtleSmartItemModel implements IBakedModel
         }
     }
 
-    private final IBakedModel familyModel;
-    private final IBakedModel colourModel;
+    private final BakedModel familyModel;
+    private final BakedModel colourModel;
 
-    private final HashMap<TurtleModelCombination, IBakedModel> cachedModels = new HashMap<>();
-    private final ItemOverrideList overrides;
+    private final HashMap<TurtleModelCombination, BakedModel> cachedModels = new HashMap<>();
+    private final ItemOverrides overrides;
 
-    public TurtleSmartItemModel( IBakedModel familyModel, IBakedModel colourModel )
+    public TurtleSmartItemModel( BakedModel familyModel, BakedModel colourModel )
     {
         this.familyModel = familyModel;
         this.colourModel = colourModel;
 
-        overrides = new ItemOverrideList()
+        overrides = new ItemOverrides()
         {
             @Nonnull
             @Override
-            public IBakedModel resolve( @Nonnull IBakedModel originalModel, @Nonnull ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity )
+            public BakedModel resolve( @Nonnull BakedModel originalModel, @Nonnull ItemStack stack, @Nullable ClientLevel world, @Nullable LivingEntity entity, int random )
             {
                 ItemTurtle turtle = (ItemTurtle) stack.getItem();
                 int colour = turtle.getColour( stack );
@@ -121,7 +126,7 @@ public class TurtleSmartItemModel implements IBakedModel
                 boolean flip = label != null && (label.equals( "Dinnerbone" ) || label.equals( "Grumm" ));
                 TurtleModelCombination combo = new TurtleModelCombination( colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip );
 
-                IBakedModel model = cachedModels.get( combo );
+                BakedModel model = cachedModels.get( combo );
                 if( model == null ) cachedModels.put( combo, model = buildModel( combo ) );
                 return model;
             }
@@ -130,20 +135,20 @@ public class TurtleSmartItemModel implements IBakedModel
 
     @Nonnull
     @Override
-    public ItemOverrideList getOverrides()
+    public ItemOverrides getOverrides()
     {
         return overrides;
     }
 
-    private IBakedModel buildModel( TurtleModelCombination combo )
+    private BakedModel buildModel( TurtleModelCombination combo )
     {
         Minecraft mc = Minecraft.getInstance();
         ModelManager modelManager = mc.getItemRenderer().getItemModelShaper().getModelManager();
         ModelResourceLocation overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.overlay, combo.christmas );
 
-        IBakedModel baseModel = combo.colour ? colourModel : familyModel;
-        IBakedModel overlayModel = overlayModelLocation != null ? modelManager.getModel( overlayModelLocation ) : null;
-        TransformationMatrix transform = combo.flip ? flip : identity;
+        BakedModel baseModel = combo.colour ? colourModel : familyModel;
+        BakedModel overlayModel = overlayModelLocation != null ? modelManager.getModel( overlayModelLocation ) : null;
+        Transformation transform = combo.flip ? flip : identity;
         TransformedModel leftModel = combo.leftUpgrade != null ? combo.leftUpgrade.getModel( null, TurtleSide.LEFT ) : null;
         TransformedModel rightModel = combo.rightUpgrade != null ? combo.rightUpgrade.getModel( null, TurtleSide.RIGHT ) : null;
         return new TurtleMultiModel( baseModel, overlayModel, transform, leftModel, rightModel );
@@ -200,7 +205,7 @@ public class TurtleSmartItemModel implements IBakedModel
     @Nonnull
     @Override
     @Deprecated
-    public ItemCameraTransforms getTransforms()
+    public ItemTransforms getTransforms()
     {
         return familyModel.getTransforms();
     }

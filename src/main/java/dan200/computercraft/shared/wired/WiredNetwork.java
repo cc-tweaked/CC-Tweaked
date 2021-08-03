@@ -10,8 +10,8 @@ import dan200.computercraft.api.network.Packet;
 import dan200.computercraft.api.network.wired.IWiredNetwork;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -325,7 +325,7 @@ public final class WiredNetwork implements IWiredNetwork
         TreeSet<TransmitPoint> transmitTo = new TreeSet<>();
 
         {
-            TransmitPoint startEntry = start.element.getWorld() != packet.getSender().getWorld()
+            TransmitPoint startEntry = start.element.getLevel() != packet.getSender().getLevel()
                 ? new TransmitPoint( start, Double.POSITIVE_INFINITY, true )
                 : new TransmitPoint( start, start.element.getPosition().distanceTo( packet.getSender().getPosition() ), false );
             points.put( start, startEntry );
@@ -336,15 +336,15 @@ public final class WiredNetwork implements IWiredNetwork
             TransmitPoint point;
             while( (point = transmitTo.pollFirst()) != null )
             {
-                World world = point.node.element.getWorld();
-                Vector3d position = point.node.element.getPosition();
+                Level world = point.node.element.getLevel();
+                Vec3 position = point.node.element.getPosition();
                 for( WiredNode neighbour : point.node.neighbours )
                 {
                     TransmitPoint neighbourPoint = points.get( neighbour );
 
                     boolean newInterdimensional;
                     double newDistance;
-                    if( world != neighbour.element.getWorld() )
+                    if( world != neighbour.element.getLevel() )
                     {
                         newInterdimensional = true;
                         newDistance = Double.POSITIVE_INFINITY;

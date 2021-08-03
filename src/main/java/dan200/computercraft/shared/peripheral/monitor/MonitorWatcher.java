@@ -9,14 +9,14 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.MonitorClientMessage;
 import dan200.computercraft.shared.network.client.TerminalState;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -48,10 +48,10 @@ public final class MonitorWatcher
     public static void onWatch( ChunkWatchEvent.Watch event )
     {
         ChunkPos chunkPos = event.getPos();
-        Chunk chunk = (Chunk) event.getWorld().getChunk( chunkPos.x, chunkPos.z, ChunkStatus.FULL, false );
+        LevelChunk chunk = (LevelChunk) event.getWorld().getChunk( chunkPos.x, chunkPos.z, ChunkStatus.FULL, false );
         if( chunk == null ) return;
 
-        for( TileEntity te : chunk.getBlockEntities().values() )
+        for( BlockEntity te : chunk.getBlockEntities().values() )
         {
             // Find all origin monitors who are not already on the queue.
             if( !(te instanceof TileMonitor) ) continue;
@@ -81,7 +81,7 @@ public final class MonitorWatcher
 
             // Some basic sanity checks to the player. It's possible they're no longer within range, but that's harder
             // to track efficiently.
-            ServerPlayerEntity player = playerUpdate.player;
+            ServerPlayer player = playerUpdate.player;
             if( !player.isAlive() || player.getLevel() != tile.getLevel() ) continue;
 
             NetworkHandler.sendToPlayer( playerUpdate.player, new MonitorClientMessage( tile.getBlockPos(), getState( tile, monitor ) ) );
@@ -98,11 +98,11 @@ public final class MonitorWatcher
             if( monitor == null ) continue;
 
             BlockPos pos = tile.getBlockPos();
-            World world = tile.getLevel();
-            if( !(world instanceof ServerWorld) ) continue;
+            Level world = tile.getLevel();
+            if( !(world instanceof ServerLevel) ) continue;
 
-            Chunk chunk = world.getChunkAt( pos );
-            if( !((ServerWorld) world).getChunkSource().chunkMap.getPlayers( chunk.getPos(), false ).findAny().isPresent() )
+            LevelChunk chunk = world.getChunkAt( pos );
+            if( !((ServerLevel) world).getChunkSource().chunkMap.getPlayers( chunk.getPos(), false ).findAny().isPresent() )
             {
                 continue;
             }
@@ -128,10 +128,10 @@ public final class MonitorWatcher
 
     private static final class PlayerUpdate
     {
-        final ServerPlayerEntity player;
+        final ServerPlayer player;
         final TileMonitor monitor;
 
-        private PlayerUpdate( ServerPlayerEntity player, TileMonitor monitor )
+        private PlayerUpdate( ServerPlayer player, TileMonitor monitor )
         {
             this.player = player;
             this.monitor = monitor;

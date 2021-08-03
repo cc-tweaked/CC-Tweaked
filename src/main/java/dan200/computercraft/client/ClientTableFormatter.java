@@ -9,12 +9,12 @@ import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.command.text.TableFormatter;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.NewChatGui;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
@@ -25,25 +25,25 @@ public class ClientTableFormatter implements TableFormatter
 
     private static final Int2IntOpenHashMap lastHeights = new Int2IntOpenHashMap();
 
-    private static FontRenderer renderer()
+    private static Font renderer()
     {
         return Minecraft.getInstance().font;
     }
 
     @Override
     @Nullable
-    public ITextComponent getPadding( ITextComponent component, int width )
+    public Component getPadding( Component component, int width )
     {
         int extraWidth = width - getWidth( component );
         if( extraWidth <= 0 ) return null;
 
-        FontRenderer renderer = renderer();
+        Font renderer = renderer();
 
         float spaceWidth = renderer.width( " " );
-        int spaces = MathHelper.floor( extraWidth / spaceWidth );
+        int spaces = Mth.floor( extraWidth / spaceWidth );
         int extra = extraWidth - (int) (spaces * spaceWidth);
 
-        return ChatHelpers.coloured( StringUtils.repeat( ' ', spaces ) + StringUtils.repeat( (char) 712, extra ), TextFormatting.GRAY );
+        return ChatHelpers.coloured( StringUtils.repeat( ' ', spaces ) + StringUtils.repeat( (char) 712, extra ), ChatFormatting.GRAY );
     }
 
     @Override
@@ -53,16 +53,16 @@ public class ClientTableFormatter implements TableFormatter
     }
 
     @Override
-    public int getWidth( ITextComponent component )
+    public int getWidth( Component component )
     {
         return renderer().width( component );
     }
 
     @Override
-    public void writeLine( int id, ITextComponent component )
+    public void writeLine( int id, Component component )
     {
         Minecraft mc = Minecraft.getInstance();
-        NewChatGui chat = mc.gui.getChat();
+        ChatComponent chat = mc.gui.getChat();
 
         // TODO: Trim the text if it goes over the allowed length
         // int maxWidth = MathHelper.floor( chat.getChatWidth() / chat.getScale() );
@@ -74,7 +74,7 @@ public class ClientTableFormatter implements TableFormatter
     @Override
     public int display( TableBuilder table )
     {
-        NewChatGui chat = Minecraft.getInstance().gui.getChat();
+        ChatComponent chat = Minecraft.getInstance().gui.getChat();
 
         int lastHeight = lastHeights.get( table.getId() );
 

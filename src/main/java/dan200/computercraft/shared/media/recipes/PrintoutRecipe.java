@@ -6,22 +6,22 @@
 package dan200.computercraft.shared.media.recipes;
 
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.SpecialRecipe;
-import net.minecraft.item.crafting.SpecialRecipeSerializer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 
-public final class PrintoutRecipe extends SpecialRecipe
+public final class PrintoutRecipe extends CustomRecipe
 {
-    private final Ingredient paper = Ingredient.of( net.minecraft.item.Items.PAPER );
-    private final Ingredient leather = Ingredient.of( net.minecraft.item.Items.LEATHER );
+    private final Ingredient paper = Ingredient.of( net.minecraft.world.item.Items.PAPER );
+    private final Ingredient leather = Ingredient.of( net.minecraft.world.item.Items.LEATHER );
     private final Ingredient string = Ingredient.of( Items.STRING );
 
     private PrintoutRecipe( ResourceLocation id )
@@ -43,14 +43,14 @@ public final class PrintoutRecipe extends SpecialRecipe
     }
 
     @Override
-    public boolean matches( @Nonnull CraftingInventory inventory, @Nonnull World world )
+    public boolean matches( @Nonnull CraftingContainer inventory, @Nonnull Level world )
     {
         return !assemble( inventory ).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack assemble( @Nonnull CraftingInventory inventory )
+    public ItemStack assemble( @Nonnull CraftingContainer inventory )
     {
         // See if we match the recipe, and extract the input disk ID and dye colour
         int numPages = 0;
@@ -158,10 +158,10 @@ public final class PrintoutRecipe extends SpecialRecipe
 
     @Nonnull
     @Override
-    public IRecipeSerializer<?> getSerializer()
+    public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
 
-    public static final IRecipeSerializer<?> SERIALIZER = new SpecialRecipeSerializer<>( PrintoutRecipe::new );
+    public static final RecipeSerializer<?> SERIALIZER = new SimpleRecipeSerializer<>( PrintoutRecipe::new );
 }

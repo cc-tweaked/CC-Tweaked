@@ -9,24 +9,23 @@ import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.SpecialRecipe;
-import net.minecraft.item.crafting.SpecialRecipeSerializer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 
-public class DiskRecipe extends SpecialRecipe
+public class DiskRecipe extends CustomRecipe
 {
     private final Ingredient paper = Ingredient.of( Items.PAPER );
     private final Ingredient redstone = Ingredient.of( Items.REDSTONE );
-    // TODO: Ingredient.fromTag( Tags.Items.DUSTS_REDSTONE );
 
     public DiskRecipe( ResourceLocation id )
     {
@@ -34,7 +33,7 @@ public class DiskRecipe extends SpecialRecipe
     }
 
     @Override
-    public boolean matches( @Nonnull CraftingInventory inv, @Nonnull World world )
+    public boolean matches( @Nonnull CraftingContainer inv, @Nonnull Level world )
     {
         boolean paperFound = false;
         boolean redstoneFound = false;
@@ -67,7 +66,7 @@ public class DiskRecipe extends SpecialRecipe
 
     @Nonnull
     @Override
-    public ItemStack assemble( @Nonnull CraftingInventory inv )
+    public ItemStack assemble( @Nonnull CraftingContainer inv )
     {
         ColourTracker tracker = new ColourTracker();
 
@@ -102,10 +101,10 @@ public class DiskRecipe extends SpecialRecipe
 
     @Nonnull
     @Override
-    public IRecipeSerializer<?> getSerializer()
+    public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
 
-    public static final IRecipeSerializer<DiskRecipe> SERIALIZER = new SpecialRecipeSerializer<>( DiskRecipe::new );
+    public static final RecipeSerializer<DiskRecipe> SERIALIZER = new SimpleRecipeSerializer<>( DiskRecipe::new );
 }

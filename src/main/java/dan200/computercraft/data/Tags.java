@@ -7,27 +7,27 @@ package dan200.computercraft.data;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.Registry;
-import net.minecraft.data.BlockTagsProvider;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.ItemTagsProvider;
-import net.minecraft.item.Item;
-import net.minecraft.tags.ITag;
+import net.minecraft.data.tags.BlockTagsProvider;
+import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
 import static dan200.computercraft.data.Tags.CCTags.*;
 
 public class Tags extends ItemTagsProvider
 {
-    private static final ITag.INamedTag<Item> PIGLIN_LOVED = ItemTags.PIGLIN_LOVED;
+    private static final Tag.Named<Item> PIGLIN_LOVED = ItemTags.PIGLIN_LOVED;
 
     public static class CCTags
     {
-        public static final ITag.INamedTag<Item> COMPUTER = item( "computer" );
-        public static final ITag.INamedTag<Item> TURTLE = item( "turtle" );
-        public static final ITag.INamedTag<Item> WIRED_MODEM = item( "wired_modem" );
-        public static final ITag.INamedTag<Item> MONITOR = item( "monitor" );
+        public static final Tag.Named<Item> COMPUTER = item( "computer" );
+        public static final Tag.Named<Item> TURTLE = item( "turtle" );
+        public static final Tag.Named<Item> WIRED_MODEM = item( "wired_modem" );
+        public static final Tag.Named<Item> MONITOR = item( "monitor" );
     }
 
     public Tags( DataGenerator generator, ExistingFileHelper helper )
@@ -54,7 +54,7 @@ public class Tags extends ItemTagsProvider
         );
     }
 
-    private static ITag.INamedTag<Item> item( String name )
+    private static Tag.Named<Item> item( String name )
     {
         return ItemTags.bind( new ResourceLocation( ComputerCraft.MOD_ID, name ).toString() );
     }

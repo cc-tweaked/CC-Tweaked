@@ -5,11 +5,11 @@
  */
 package dan200.computercraft.shared.computer.core;
 
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.StringRepresentable;
 
 import javax.annotation.Nonnull;
 
-public enum ComputerState implements IStringSerializable
+public enum ComputerState implements StringRepresentable
 {
     OFF( "off" ),
     ON( "on" ),

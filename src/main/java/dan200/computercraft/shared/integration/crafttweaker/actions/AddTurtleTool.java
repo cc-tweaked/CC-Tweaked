@@ -12,8 +12,8 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.integration.crafttweaker.TrackingLogger;
 import dan200.computercraft.shared.turtle.upgrades.*;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.LogicalSide;
 
 import java.util.HashMap;

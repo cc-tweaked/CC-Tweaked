@@ -6,16 +6,16 @@
 package dan200.computercraft.shared.util;
 
 import com.google.gson.JsonObject;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.ShapedRecipe;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.crafting.CraftingHelper;
 
 import javax.annotation.Nonnull;
@@ -38,38 +38,38 @@ public final class ImpostorRecipe extends ShapedRecipe
     }
 
     @Override
-    public boolean matches( @Nonnull CraftingInventory inv, @Nonnull World world )
+    public boolean matches( @Nonnull CraftingContainer inv, @Nonnull Level world )
     {
         return false;
     }
 
     @Nonnull
     @Override
-    public ItemStack assemble( @Nonnull CraftingInventory inventory )
+    public ItemStack assemble( @Nonnull CraftingContainer inventory )
     {
         return ItemStack.EMPTY;
     }
 
     @Nonnull
     @Override
-    public IRecipeSerializer<?> getSerializer()
+    public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
 
-    public static final IRecipeSerializer<ImpostorRecipe> SERIALIZER = new BasicRecipeSerializer<ImpostorRecipe>()
+    public static final RecipeSerializer<ImpostorRecipe> SERIALIZER = new BasicRecipeSerializer<ImpostorRecipe>()
     {
         @Override
         public ImpostorRecipe fromJson( @Nonnull ResourceLocation identifier, @Nonnull JsonObject json )
         {
-            String group = JSONUtils.getAsString( json, "group", "" );
-            ShapedRecipe recipe = IRecipeSerializer.SHAPED_RECIPE.fromJson( identifier, json );
-            ItemStack result = CraftingHelper.getItemStack( JSONUtils.getAsJsonObject( json, "result" ), true );
+            String group = GsonHelper.getAsString( json, "group", "" );
+            ShapedRecipe recipe = RecipeSerializer.SHAPED_RECIPE.fromJson( identifier, json );
+            ItemStack result = CraftingHelper.getItemStack( GsonHelper.getAsJsonObject( json, "result" ), true );
             return new ImpostorRecipe( identifier, group, recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), result );
         }
 
         @Override
-        public ImpostorRecipe fromNetwork( @Nonnull ResourceLocation identifier, @Nonnull PacketBuffer buf )
+        public ImpostorRecipe fromNetwork( @Nonnull ResourceLocation identifier, @Nonnull FriendlyByteBuf buf )
         {
             int width = buf.readVarInt();
             int height = buf.readVarInt();
@@ -81,7 +81,7 @@ public final class ImpostorRecipe extends ShapedRecipe
         }
 
         @Override
-        public void toNetwork( @Nonnull PacketBuffer buf, @Nonnull ImpostorRecipe recipe )
+        public void toNetwork( @Nonnull FriendlyByteBuf buf, @Nonnull ImpostorRecipe recipe )
         {
             buf.writeVarInt( recipe.getRecipeWidth() );
             buf.writeVarInt( recipe.getRecipeHeight() );

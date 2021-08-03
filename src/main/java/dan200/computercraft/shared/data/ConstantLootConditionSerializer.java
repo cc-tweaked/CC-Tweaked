@@ -8,13 +8,13 @@ package dan200.computercraft.shared.data;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
-import net.minecraft.loot.ILootSerializer;
-import net.minecraft.loot.LootConditionType;
-import net.minecraft.loot.conditions.ILootCondition;
+import net.minecraft.world.level.storage.loot.Serializer;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
 import javax.annotation.Nonnull;
 
-public final class ConstantLootConditionSerializer<T extends ILootCondition> implements ILootSerializer<T>
+public final class ConstantLootConditionSerializer<T extends LootItemCondition> implements Serializer<T>
 {
     private final T instance;
 
@@ -23,9 +23,9 @@ public final class ConstantLootConditionSerializer<T extends ILootCondition> imp
         this.instance = instance;
     }
 
-    public static <T extends ILootCondition> LootConditionType type( T condition )
+    public static <T extends LootItemCondition> LootItemConditionType type( T condition )
     {
-        return new LootConditionType( new ConstantLootConditionSerializer<>( condition ) );
+        return new LootItemConditionType( new ConstantLootConditionSerializer<>( condition ) );
     }
 
     @Override

@@ -11,12 +11,12 @@ import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.TickScheduler;
-import net.minecraft.block.BlockState;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -39,17 +39,17 @@ public class TileWirelessModem extends TileGeneric
 
         @Nonnull
         @Override
-        public World getWorld()
+        public Level getLevel()
         {
             return entity.getLevel();
         }
 
         @Nonnull
         @Override
-        public Vector3d getPosition()
+        public Vec3 getPosition()
         {
-            BlockPos pos = entity.getBlockPos().relative( entity.modemDirection );
-            return new Vector3d( pos.getX(), pos.getY(), pos.getZ() );
+            BlockPos pos = entity.getBlockPos().relative( entity.getDirection() );
+            return new Vec3( pos.getX(), pos.getY(), pos.getZ() );
         }
 
         @Override
@@ -68,15 +68,13 @@ public class TileWirelessModem extends TileGeneric
 
     private final boolean advanced;
 
-    private boolean hasModemDirection = false;
-    private Direction modemDirection = Direction.DOWN;
     private final ModemPeripheral modem;
     private boolean destroyed = false;
     private LazyOptional<IPeripheral> modemCap;
 
-    public TileWirelessModem( TileEntityType<? extends TileWirelessModem> type, boolean advanced )
+    public TileWirelessModem( BlockEntityType<? extends TileWirelessModem> type, BlockPos pos, BlockState state, boolean advanced )
     {
-        super( type );
+        super( type, pos, state );
         this.advanced = advanced;
         modem = new Peripheral( this );
     }
@@ -99,32 +97,24 @@ public class TileWirelessModem extends TileGeneric
     }
 
     @Override
-    public void clearCache()
+    @Deprecated
+    public void setBlockState( @Nonnull BlockState state )
     {
-        super.clearCache();
-        hasModemDirection = false;
-        level.getBlockTicks().scheduleTick( getBlockPos(), getBlockState().getBlock(), 0 );
+        Direction direction = getDirection();
+        super.setBlockState( state );
+        if( getDirection() != direction ) modemCap = CapabilityUtil.invalidate( modemCap );
     }
 
     @Override
     public void blockTick()
     {
-        Direction currentDirection = modemDirection;
-        refreshDirection();
-        // Invalidate the capability if the direction has changed. I'm not 100% happy with this implementation
-        //  - ideally we'd do it within refreshDirection or updateContainingBlockInfo, but this seems the _safest_
-        //  place.
-        if( currentDirection != modemDirection ) modemCap = CapabilityUtil.invalidate( modemCap );
-
         if( modem.getModemState().pollChanged() ) updateBlockState();
     }
 
-    private void refreshDirection()
+    @Nonnull
+    private Direction getDirection()
     {
-        if( hasModemDirection ) return;
-
-        hasModemDirection = true;
-        modemDirection = getBlockState().getValue( BlockWirelessModem.FACING );
+        return getBlockState().getValue( BlockWirelessModem.FACING );
     }
 
     private void updateBlockState()
@@ -143,8 +133,7 @@ public class TileWirelessModem extends TileGeneric
     {
         if( cap == CAPABILITY_PERIPHERAL )
         {
-            refreshDirection();
-            if( side != null && modemDirection != side ) return LazyOptional.empty();
+            if( side != null && getDirection() != side ) return LazyOptional.empty();
             if( modemCap == null ) modemCap = LazyOptional.of( () -> modem );
             return modemCap.cast();
         }

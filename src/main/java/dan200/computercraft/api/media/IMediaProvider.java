@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.api.media;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

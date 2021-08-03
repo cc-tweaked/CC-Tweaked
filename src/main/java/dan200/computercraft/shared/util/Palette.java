@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class Palette
 {
@@ -79,7 +79,7 @@ public class Palette
         };
     }
 
-    public void write( PacketBuffer buffer )
+    public void write( FriendlyByteBuf buffer )
     {
         for( double[] colour : colours )
         {
@@ -87,7 +87,7 @@ public class Palette
         }
     }
 
-    public void read( PacketBuffer buffer )
+    public void read( FriendlyByteBuf buffer )
     {
         for( double[] colour : colours )
         {
@@ -95,7 +95,7 @@ public class Palette
         }
     }
 
-    public CompoundNBT writeToNBT( CompoundNBT nbt )
+    public CompoundTag writeToNBT( CompoundTag nbt )
     {
         int[] rgb8 = new int[colours.length];
 
@@ -108,7 +108,7 @@ public class Palette
         return nbt;
     }
 
-    public void readFromNBT( CompoundNBT nbt )
+    public void readFromNBT( CompoundTag nbt )
     {
         if( !nbt.contains( "term_palette" ) ) return;
         int[] rgb8 = nbt.getIntArray( "term_palette" );

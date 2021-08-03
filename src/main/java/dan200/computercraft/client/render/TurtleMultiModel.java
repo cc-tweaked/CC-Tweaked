@@ -5,14 +5,14 @@
  */
 package dan200.computercraft.client.render;
 
+import com.mojang.math.Transformation;
 import dan200.computercraft.api.client.TransformedModel;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.TransformationMatrix;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
@@ -21,17 +21,17 @@ import net.minecraftforge.client.model.pipeline.TRSRTransformer;
 import javax.annotation.Nonnull;
 import java.util.*;
 
-public class TurtleMultiModel implements IBakedModel
+public class TurtleMultiModel implements BakedModel
 {
-    private final IBakedModel baseModel;
-    private final IBakedModel overlayModel;
-    private final TransformationMatrix generalTransform;
+    private final BakedModel baseModel;
+    private final BakedModel overlayModel;
+    private final Transformation generalTransform;
     private final TransformedModel leftUpgradeModel;
     private final TransformedModel rightUpgradeModel;
     private List<BakedQuad> generalQuads = null;
     private final Map<Direction, List<BakedQuad>> faceQuads = new EnumMap<>( Direction.class );
 
-    public TurtleMultiModel( IBakedModel baseModel, IBakedModel overlayModel, TransformationMatrix generalTransform, TransformedModel leftUpgradeModel, TransformedModel rightUpgradeModel )
+    public TurtleMultiModel( BakedModel baseModel, BakedModel overlayModel, Transformation generalTransform, TransformedModel leftUpgradeModel, TransformedModel rightUpgradeModel )
     {
         // Get the models
         this.baseModel = baseModel;
@@ -77,12 +77,12 @@ public class TurtleMultiModel implements IBakedModel
         }
         if( leftUpgradeModel != null )
         {
-            TransformationMatrix upgradeTransform = generalTransform.compose( leftUpgradeModel.getMatrix() );
+            Transformation upgradeTransform = generalTransform.compose( leftUpgradeModel.getMatrix() );
             transformQuadsTo( quads, leftUpgradeModel.getModel().getQuads( state, side, rand, EmptyModelData.INSTANCE ), upgradeTransform );
         }
         if( rightUpgradeModel != null )
         {
-            TransformationMatrix upgradeTransform = generalTransform.compose( rightUpgradeModel.getMatrix() );
+            Transformation upgradeTransform = generalTransform.compose( rightUpgradeModel.getMatrix() );
             transformQuadsTo( quads, rightUpgradeModel.getModel().getQuads( state, side, rand, EmptyModelData.INSTANCE ), upgradeTransform );
         }
         quads.trimToSize();
@@ -124,19 +124,19 @@ public class TurtleMultiModel implements IBakedModel
     @Nonnull
     @Override
     @Deprecated
-    public net.minecraft.client.renderer.model.ItemCameraTransforms getTransforms()
+    public net.minecraft.client.renderer.block.model.ItemTransforms getTransforms()
     {
         return baseModel.getTransforms();
     }
 
     @Nonnull
     @Override
-    public ItemOverrideList getOverrides()
+    public ItemOverrides getOverrides()
     {
-        return ItemOverrideList.EMPTY;
+        return ItemOverrides.EMPTY;
     }
 
-    private void transformQuadsTo( List<BakedQuad> output, List<BakedQuad> quads, TransformationMatrix transform )
+    private void transformQuadsTo( List<BakedQuad> output, List<BakedQuad> quads, Transformation transform )
     {
         for( BakedQuad quad : quads )
         {

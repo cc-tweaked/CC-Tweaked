@@ -10,27 +10,28 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.util.*;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.ItemStackHelper;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.*;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.*;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
@@ -41,7 +42,7 @@ import javax.annotation.Nullable;
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
-public final class TilePrinter extends TileGeneric implements DefaultSidedInventory, INameable, INamedContainerProvider
+public final class TilePrinter extends TileGeneric implements DefaultSidedInventory, Nameable, MenuProvider
 {
     private static final String NBT_NAME = "CustomName";
     private static final String NBT_PRINTING = "Printing";
@@ -53,7 +54,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     private static final int[] TOP_SLOTS = new int[] { 1, 2, 3, 4, 5, 6 };
     private static final int[] SIDE_SLOTS = new int[] { 0 };
 
-    ITextComponent customName;
+    Component customName;
 
     private final NonNullList<ItemStack> inventory = NonNullList.withSize( SLOTS, ItemStack.EMPTY );
     private final SidedCaps<IItemHandler> itemHandlerCaps =
@@ -64,9 +65,9 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     private String pageTitle = "";
     private boolean printing = false;
 
-    public TilePrinter( TileEntityType<TilePrinter> type )
+    public TilePrinter( BlockEntityType<TilePrinter> type, BlockPos pos, BlockState state )
     {
-        super( type );
+        super( type, pos, state );
     }
 
     @Override
@@ -85,20 +86,20 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     @Nonnull
     @Override
-    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
     {
-        if( player.isCrouching() ) return ActionResultType.PASS;
+        if( player.isCrouching() ) return InteractionResult.PASS;
 
-        if( !getLevel().isClientSide ) NetworkHooks.openGui( (ServerPlayerEntity) player, this );
-        return ActionResultType.SUCCESS;
+        if( !getLevel().isClientSide ) NetworkHooks.openGui( (ServerPlayer) player, this );
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void load( @Nonnull BlockState state, @Nonnull CompoundNBT nbt )
+    public void load( @Nonnull CompoundTag nbt )
     {
-        super.load( state, nbt );
+        super.load( nbt );
 
-        customName = nbt.contains( NBT_NAME ) ? ITextComponent.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
+        customName = nbt.contains( NBT_NAME ) ? Component.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
 
         // Read page
         synchronized( page )
@@ -109,14 +110,14 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         }
 
         // Read inventory
-        ItemStackHelper.loadAllItems( nbt, inventory );
+        ContainerHelper.loadAllItems( nbt, inventory );
     }
 
     @Nonnull
     @Override
-    public CompoundNBT save( @Nonnull CompoundNBT nbt )
+    public CompoundTag save( @Nonnull CompoundTag nbt )
     {
-        if( customName != null ) nbt.putString( NBT_NAME, ITextComponent.Serializer.toJson( customName ) );
+        if( customName != null ) nbt.putString( NBT_NAME, Component.Serializer.toJson( customName ) );
 
         // Write page
         synchronized( page )
@@ -127,7 +128,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         }
 
         // Write inventory
-        ItemStackHelper.saveAllItems( nbt, inventory );
+        ContainerHelper.saveAllItems( nbt, inventory );
 
         return super.save( nbt );
     }
@@ -229,7 +230,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     }
 
     @Override
-    public boolean stillValid( @Nonnull PlayerEntity playerEntity )
+    public boolean stillValid( @Nonnull Player playerEntity )
     {
         return isUsable( playerEntity, false );
     }
@@ -406,7 +407,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
                 setItem( i, ItemStack.EMPTY );
 
                 // Spawn the item in the world
-                WorldUtil.dropItemStack( stack, getLevel(), Vector3d.atLowerCornerOf( getBlockPos() ).add( 0.5, 0.75, 0.5 ) );
+                WorldUtil.dropItemStack( stack, getLevel(), Vec3.atLowerCornerOf( getBlockPos() ).add( 0.5, 0.75, 0.5 ) );
             }
         }
     }
@@ -468,27 +469,28 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     @Nullable
     @Override
-    public ITextComponent getCustomName()
+    public Component getCustomName()
     {
         return customName;
     }
 
     @Nonnull
     @Override
-    public ITextComponent getName()
+    public Component getName()
     {
-        return customName != null ? customName : new TranslationTextComponent( getBlockState().getBlock().getDescriptionId() );
-    }
-
-    @Override
-    public ITextComponent getDisplayName()
-    {
-        return INameable.super.getDisplayName();
+        return customName != null ? customName : new TranslatableComponent( getBlockState().getBlock().getDescriptionId() );
     }
 
     @Nonnull
     @Override
-    public Container createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
+    public Component getDisplayName()
+    {
+        return Nameable.super.getDisplayName();
+    }
+
+    @Nonnull
+    @Override
+    public AbstractContainerMenu createMenu( int id, @Nonnull Inventory inventory, @Nonnull Player player )
     {
         return new ContainerPrinter( id, inventory, this );
     }

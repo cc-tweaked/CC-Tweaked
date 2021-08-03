@@ -18,27 +18,26 @@ import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.RedstoneUtil;
 import joptsimple.internal.Strings;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.RedstoneDiodeBlock;
-import net.minecraft.block.RedstoneWireBlock;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.INameable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.Nameable;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DiodeBlock;
+import net.minecraft.world.level.block.RedStoneWireBlock;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullConsumer;
 
@@ -46,7 +45,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public abstract class TileComputerBase extends TileGeneric implements IComputerTile, ITickableTileEntity, INameable, INamedContainerProvider
+public abstract class TileComputerBase extends TileGeneric implements IComputerTile, Nameable, MenuProvider
 {
     private static final String NBT_ID = "ComputerId";
     private static final String NBT_LABEL = "Label";
@@ -62,9 +61,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     private final ComputerFamily family;
 
-    public TileComputerBase( TileEntityType<? extends TileGeneric> type, ComputerFamily family )
+    public TileComputerBase( BlockEntityType<? extends TileGeneric> type, BlockPos pos, BlockState state, ComputerFamily family )
     {
-        super( type );
+        super( type, pos, state );
         this.family = family;
 
         // We cache these so we can guarantee we only ever register one listener for adjacent capabilities.
@@ -108,14 +107,14 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         super.setRemoved();
     }
 
-    protected boolean canNameWithTag( PlayerEntity player )
+    protected boolean canNameWithTag( Player player )
     {
         return false;
     }
 
     @Nonnull
     @Override
-    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
     {
         ItemStack currentItem = player.getItemInHand( hand );
         if( !currentItem.isEmpty() && currentItem.getItem() == Items.NAME_TAG && canNameWithTag( player ) && currentItem.hasCustomHoverName() )
@@ -126,7 +125,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
                 setLabel( currentItem.getHoverName().getString() );
                 currentItem.shrink( 1 );
             }
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
         else if( !player.isCrouching() )
         {
@@ -136,9 +135,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
                 createServerComputer().turnOn();
                 new ComputerContainerData( createServerComputer() ).open( player, this );
             }
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
-        return ActionResultType.PASS;
+        return InteractionResult.PASS;
     }
 
     @Override
@@ -153,43 +152,39 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         updateInput( neighbour );
     }
 
-    @Override
-    public void tick()
+    protected void serverTick()
     {
-        if( !getLevel().isClientSide )
+        ServerComputer computer = createServerComputer();
+        if( computer == null ) return;
+
+        // If the computer isn't on and should be, then turn it on
+        if( startOn || (fresh && on) )
         {
-            ServerComputer computer = createServerComputer();
-            if( computer == null ) return;
-
-            // If the computer isn't on and should be, then turn it on
-            if( startOn || (fresh && on) )
-            {
-                computer.turnOn();
-                startOn = false;
-            }
-
-            computer.keepAlive();
-
-            fresh = false;
-            computerID = computer.getID();
-            label = computer.getLabel();
-            on = computer.isOn();
-
-            // Update the block state if needed. We don't fire a block update intentionally,
-            // as this only really is needed on the client side.
-            updateBlockState( computer.getState() );
-
-            // TODO: This should ideally be split up into label/id/on (which should save NBT and sync to client) and
-            //  redstone (which should update outputs)
-            if( computer.hasOutputChanged() ) updateOutput();
+            computer.turnOn();
+            startOn = false;
         }
+
+        computer.keepAlive();
+
+        fresh = false;
+        computerID = computer.getID();
+        label = computer.getLabel();
+        on = computer.isOn();
+
+        // Update the block state if needed. We don't fire a block update intentionally,
+        // as this only really is needed on the client side.
+        updateBlockState( computer.getState() );
+
+        // TODO: This should ideally be split up into label/id/on (which should save NBT and sync to client) and
+        //  redstone (which should update outputs)
+        if( computer.hasOutputChanged() ) updateOutput();
     }
 
     protected abstract void updateBlockState( ComputerState newState );
 
     @Nonnull
     @Override
-    public CompoundNBT save( @Nonnull CompoundNBT nbt )
+    public CompoundTag save( @Nonnull CompoundTag nbt )
     {
         // Save ID, label and power state
         if( computerID >= 0 ) nbt.putInt( NBT_ID, computerID );
@@ -200,9 +195,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     }
 
     @Override
-    public void load( @Nonnull BlockState state, @Nonnull CompoundNBT nbt )
+    public void load( @Nonnull CompoundTag nbt )
     {
-        super.load( state, nbt );
+        super.load( nbt );
 
         // Load ID, label and power state
         computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
@@ -248,16 +243,16 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
      * @param pos   The position of the neighbour
      * @param side  The side we are reading from
      * @return The effective redstone power
-     * @see RedstoneDiodeBlock#calculateInputStrength(World, BlockPos, BlockState)
+     * @see DiodeBlock#getInputSignal(Level, BlockPos, BlockState)
      */
-    protected static int getRedstoneInput( World world, BlockPos pos, Direction side )
+    protected static int getRedstoneInput( Level world, BlockPos pos, Direction side )
     {
         int power = world.getSignal( pos, side );
         if( power >= 15 ) return power;
 
         BlockState neighbour = world.getBlockState( pos );
         return neighbour.getBlock() == Blocks.REDSTONE_WIRE
-            ? Math.max( power, neighbour.getValue( RedstoneWireBlock.POWER ) )
+            ? Math.max( power, neighbour.getValue( RedStoneWireBlock.POWER ) )
             : power;
     }
 
@@ -389,7 +384,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     // Networking stuff
 
     @Override
-    protected void writeDescription( @Nonnull CompoundNBT nbt )
+    protected void writeDescription( @Nonnull CompoundTag nbt )
     {
         super.writeDescription( nbt );
         if( label != null ) nbt.putString( NBT_LABEL, label );
@@ -397,7 +392,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     }
 
     @Override
-    protected void readDescription( @Nonnull CompoundNBT nbt )
+    protected void readDescription( @Nonnull CompoundTag nbt )
     {
         super.readDescription( nbt );
         label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
@@ -421,11 +416,11 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     @Nonnull
     @Override
-    public ITextComponent getName()
+    public Component getName()
     {
         return hasCustomName()
-            ? new StringTextComponent( label )
-            : new TranslationTextComponent( getBlockState().getBlock().getDescriptionId() );
+            ? new TextComponent( label )
+            : new TranslatableComponent( getBlockState().getBlock().getDescriptionId() );
     }
 
     @Override
@@ -436,15 +431,15 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     @Nullable
     @Override
-    public ITextComponent getCustomName()
+    public Component getCustomName()
     {
-        return hasCustomName() ? new StringTextComponent( label ) : null;
+        return hasCustomName() ? new TextComponent( label ) : null;
     }
 
     @Nonnull
     @Override
-    public ITextComponent getDisplayName()
+    public Component getDisplayName()
     {
-        return INameable.super.getDisplayName();
+        return Nameable.super.getDisplayName();
     }
 }

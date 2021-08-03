@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 public enum MoveDirection
 {

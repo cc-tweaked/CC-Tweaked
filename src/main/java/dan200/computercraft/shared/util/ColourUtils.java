@@ -5,10 +5,10 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tags.ITag;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nullable;
@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 public final class ColourUtils
 {
     @SuppressWarnings( { "unchecked", "rawtypes" } )
-    private static final ITag<Item>[] DYES = new ITag[] {
+    private static final Tag<Item>[] DYES = new Tag[] {
         Tags.Items.DYES_WHITE,
         Tags.Items.DYES_ORANGE,
         Tags.Items.DYES_MAGENTA,
@@ -44,7 +44,7 @@ public final class ColourUtils
 
         for( int i = 0; i < DYES.length; i++ )
         {
-            ITag<Item> dye = DYES[i];
+            Tag<Item> dye = DYES[i];
             if( dye.contains( stack.getItem() ) ) return DyeColor.byId( i );
         }
 

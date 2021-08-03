@@ -5,10 +5,10 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.Set;
@@ -20,9 +20,9 @@ import java.util.Set;
  * and by other interfaces to have inventories which change their backing store.
  */
 @FunctionalInterface
-public interface InventoryDelegate extends IInventory
+public interface InventoryDelegate extends Container
 {
-    IInventory getInventory();
+    Container getInventory();
 
     @Override
     default int getContainerSize()
@@ -76,19 +76,19 @@ public interface InventoryDelegate extends IInventory
     }
 
     @Override
-    default boolean stillValid( @Nonnull PlayerEntity player )
+    default boolean stillValid( @Nonnull Player player )
     {
         return getInventory().stillValid( player );
     }
 
     @Override
-    default void startOpen( @Nonnull PlayerEntity player )
+    default void startOpen( @Nonnull Player player )
     {
         getInventory().startOpen( player );
     }
 
     @Override
-    default void stopOpen( @Nonnull PlayerEntity player )
+    default void stopOpen( @Nonnull Player player )
     {
         getInventory().stopOpen( player );
     }

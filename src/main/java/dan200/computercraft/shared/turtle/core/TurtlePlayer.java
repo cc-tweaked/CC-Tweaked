@@ -10,25 +10,24 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.util.DirectionUtil;
-import dan200.computercraft.shared.util.FakeNetHandler;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.passive.horse.AbstractHorseEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.tileentity.SignTileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.util.FakePlayer;
 
 import javax.annotation.Nonnull;
@@ -43,18 +42,17 @@ public final class TurtlePlayer extends FakePlayer
         "[ComputerCraft]"
     );
 
-    private TurtlePlayer( ServerWorld world, GameProfile name )
+    private TurtlePlayer( ServerLevel world, GameProfile name )
     {
         super( world, name );
     }
 
     private static TurtlePlayer create( ITurtleAccess turtle )
     {
-        ServerWorld world = (ServerWorld) turtle.getWorld();
+        ServerLevel world = (ServerLevel) turtle.getLevel();
         GameProfile profile = turtle.getOwningPlayer();
 
         TurtlePlayer player = new TurtlePlayer( world, getProfile( profile ) );
-        player.connection = new FakeNetHandler( player );
         player.setState( turtle );
 
         if( profile != null && profile.getId() != null )
@@ -62,7 +60,7 @@ public final class TurtlePlayer extends FakePlayer
             // Constructing a player overrides the "active player" variable in advancements. As fake players cannot
             // get advancements, this prevents a normal player who has placed a turtle from getting advancements.
             // We try to locate the "actual" player and restore them.
-            ServerPlayerEntity actualPlayer = world.getServer().getPlayerList().getPlayer( profile.getId() );
+            ServerPlayer actualPlayer = world.getServer().getPlayerList().getPlayer( profile.getId() );
             if( actualPlayer != null ) player.getAdvancements().setPlayer( actualPlayer );
         }
 
@@ -81,7 +79,7 @@ public final class TurtlePlayer extends FakePlayer
         TurtleBrain brain = (TurtleBrain) access;
         TurtlePlayer player = brain.cachedPlayer;
         if( player == null || player.getGameProfile() != getProfile( access.getOwningPlayer() )
-            || player.getCommandSenderWorld() != access.getWorld() )
+            || player.getCommandSenderWorld() != access.getLevel() )
         {
             player = brain.cachedPlayer = create( brain );
         }
@@ -111,10 +109,9 @@ public final class TurtlePlayer extends FakePlayer
         BlockPos position = turtle.getPosition();
         setPosRaw( position.getX() + 0.5, position.getY() + 0.5, position.getZ() + 0.5 );
 
-        yRot = turtle.getDirection().toYRot();
-        xRot = 0.0f;
+        setRot( turtle.getDirection().toYRot(), 0 );
 
-        inventory.clearContent();
+        getInventory().clearContent();
     }
 
     public void setPosition( ITurtleAccess turtle, BlockPos position, Direction direction )
@@ -133,45 +130,43 @@ public final class TurtlePlayer extends FakePlayer
 
         if( direction.getAxis() != Direction.Axis.Y )
         {
-            yRot = direction.toYRot();
-            xRot = 0.0f;
+            setRot( direction.toYRot(), 0 );
         }
         else
         {
-            yRot = turtle.getDirection().toYRot();
-            xRot = DirectionUtil.toPitchAngle( direction );
+            setRot( turtle.getDirection().toYRot(), DirectionUtil.toPitchAngle( direction ) );
         }
 
         setPosRaw( posX, posY, posZ );
         xo = posX;
         yo = posY;
         zo = posZ;
-        xRotO = xRot;
-        yRotO = yRot;
+        xRotO = getXRot();
+        yRotO = getYRot();
 
-        yHeadRot = yRot;
+        yHeadRot = getYRot();
         yHeadRotO = yHeadRot;
     }
 
     public void loadInventory( @Nonnull ItemStack stack )
     {
-        inventory.clearContent();
-        inventory.selected = 0;
-        inventory.setItem( 0, stack );
+        getInventory().clearContent();
+        getInventory().selected = 0;
+        getInventory().setItem( 0, stack );
     }
 
     public void loadInventory( @Nonnull ITurtleAccess turtle )
     {
-        inventory.clearContent();
+        getInventory().clearContent();
 
         int currentSlot = turtle.getSelectedSlot();
         int slots = turtle.getItemHandler().getSlots();
 
         // Load up the fake inventory
-        inventory.selected = 0;
+        getInventory().selected = 0;
         for( int i = 0; i < slots; i++ )
         {
-            inventory.setItem( i, turtle.getItemHandler().getStackInSlot( (currentSlot + i) % slots ) );
+            getInventory().setItem( i, turtle.getItemHandler().getStackInSlot( (currentSlot + i) % slots ) );
         }
     }
 
@@ -181,26 +176,26 @@ public final class TurtlePlayer extends FakePlayer
         int slots = turtle.getItemHandler().getSlots();
 
         // Load up the fake inventory
-        inventory.selected = 0;
+        getInventory().selected = 0;
         for( int i = 0; i < slots; i++ )
         {
-            turtle.getItemHandler().setStackInSlot( (currentSlot + i) % slots, inventory.getItem( i ) );
+            turtle.getItemHandler().setStackInSlot( (currentSlot + i) % slots, getInventory().getItem( i ) );
         }
 
         // Store (or drop) anything else we found
         BlockPos dropPosition = turtle.getPosition();
         Direction dropDirection = turtle.getDirection().getOpposite();
-        int totalSize = inventory.getContainerSize();
+        int totalSize = getInventory().getContainerSize();
         for( int i = slots; i < totalSize; i++ )
         {
-            ItemStack remainder = InventoryUtil.storeItems( inventory.getItem( i ), turtle.getItemHandler(), turtle.getSelectedSlot() );
+            ItemStack remainder = InventoryUtil.storeItems( getInventory().getItem( i ), turtle.getItemHandler(), turtle.getSelectedSlot() );
             if( !remainder.isEmpty() )
             {
-                WorldUtil.dropItemStack( remainder, turtle.getWorld(), dropPosition, dropDirection );
+                WorldUtil.dropItemStack( remainder, turtle.getLevel(), dropPosition, dropDirection );
             }
         }
 
-        inventory.setChanged();
+        getInventory().setChanged();
     }
 
     @Nonnull
@@ -211,9 +206,9 @@ public final class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    public Vector3d position()
+    public Vec3 position()
     {
-        return new Vector3d( getX(), getY(), getZ() );
+        return new Vec3( getX(), getY(), getZ() );
     }
 
     @Override
@@ -223,7 +218,7 @@ public final class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    public float getStandingEyeHeight( @Nonnull Pose pose, @Nonnull EntitySize size )
+    public float getStandingEyeHeight( @Nonnull Pose pose, @Nonnull EntityDimensions size )
     {
         return 0;
     }
@@ -231,7 +226,7 @@ public final class TurtlePlayer extends FakePlayer
     //region Code which depends on the connection
     @Nonnull
     @Override
-    public OptionalInt openMenu( @Nullable INamedContainerProvider prover )
+    public OptionalInt openMenu( @Nullable MenuProvider prover )
     {
         return OptionalInt.empty();
     }
@@ -258,17 +253,17 @@ public final class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    public void openTextEdit( @Nonnull SignTileEntity signTile )
+    public void openTextEdit( @Nonnull SignBlockEntity signTile )
     {
     }
 
     @Override
-    public void openHorseInventory( @Nonnull AbstractHorseEntity horse, @Nonnull IInventory inventory )
+    public void openHorseInventory( @Nonnull AbstractHorse horse, @Nonnull Container inventory )
     {
     }
 
     @Override
-    public void openItemGui( @Nonnull ItemStack stack, @Nonnull Hand hand )
+    public void openItemGui( @Nonnull ItemStack stack, @Nonnull InteractionHand hand )
     {
     }
 
@@ -278,22 +273,7 @@ public final class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    public void broadcastCarriedItem()
-    {
-    }
-
-    @Override
-    protected void onEffectAdded( @Nonnull EffectInstance id )
-    {
-    }
-
-    @Override
-    protected void onEffectUpdated( @Nonnull EffectInstance id, boolean apply )
-    {
-    }
-
-    @Override
-    protected void onEffectRemoved( @Nonnull EffectInstance effect )
+    protected void onEffectRemoved( @Nonnull MobEffectInstance effect )
     {
     }
     //endregion

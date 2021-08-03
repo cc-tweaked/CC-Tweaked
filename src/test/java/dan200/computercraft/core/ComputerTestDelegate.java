@@ -20,8 +20,8 @@ import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
@@ -289,16 +289,16 @@ public class ComputerTestDelegate
         @Nonnull
         @Override
         @SuppressWarnings( "ConstantConditions" )
-        public World getWorld()
+        public Level getLevel()
         {
             return null;
         }
 
         @Nonnull
         @Override
-        public Vector3d getPosition()
+        public Vec3 getPosition()
         {
-            return Vector3d.ZERO;
+            return Vec3.ZERO;
         }
 
         @Override

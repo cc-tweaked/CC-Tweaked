@@ -10,12 +10,12 @@ import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
 import dan200.computercraft.shared.util.CapabilityUtil;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -25,20 +25,19 @@ import java.util.UUID;
 
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
-public class TileSpeaker extends TileGeneric implements ITickableTileEntity
+public class TileSpeaker extends TileGeneric
 {
     private final SpeakerPeripheral peripheral;
     private LazyOptional<IPeripheral> peripheralCap;
     private final UUID source = UUID.randomUUID();
 
-    public TileSpeaker( TileEntityType<TileSpeaker> type )
+    public TileSpeaker( BlockEntityType<TileSpeaker> type, BlockPos pos, BlockState state )
     {
-        super( type );
+        super( type, pos, state );
         peripheral = new Peripheral( this );
     }
 
-    @Override
-    public void tick()
+    protected void serverTick()
     {
         peripheral.update();
     }
@@ -83,16 +82,16 @@ public class TileSpeaker extends TileGeneric implements ITickableTileEntity
         }
 
         @Override
-        public World getWorld()
+        public Level getLevel()
         {
             return speaker.getLevel();
         }
 
         @Override
-        public Vector3d getPosition()
+        public Vec3 getPosition()
         {
             BlockPos pos = speaker.getBlockPos();
-            return new Vector3d( pos.getX(), pos.getY(), pos.getZ() );
+            return new Vec3( pos.getX(), pos.getY(), pos.getZ() );
         }
 
         @Override

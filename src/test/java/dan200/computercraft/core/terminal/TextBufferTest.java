@@ -7,7 +7,7 @@ package dan200.computercraft.core.terminal;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TextBufferTest
 {

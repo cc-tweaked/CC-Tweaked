@@ -90,7 +90,7 @@ Before we get into writing tests, it's worth mentioning the various test suites 
 
    These tests are run by the '"Core" Java' test suite, and so are also run with `./gradlew test`.
 
- - In-game (`./src/test/java/dan200/computercraft/ingame/`): These tests are run on an actual Minecraft server, using
+ - In-game (`./src/cctest/java/dan200/computercraft/ingame/`): These tests are run on an actual Minecraft server, using
    [the same system Mojang do][mc-test]. The aim of these is to test in-game behaviour of blocks and peripherals.
 
    These are run by `./gradlew testInGame`.

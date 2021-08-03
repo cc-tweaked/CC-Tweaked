@@ -12,7 +12,7 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.turtle.upgrades.TurtleInventoryCrafting;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -32,7 +32,7 @@ public class TurtleCraftCommand implements ITurtleCommand
     {
         // Craft the item
         TurtleInventoryCrafting crafting = new TurtleInventoryCrafting( turtle );
-        List<ItemStack> results = crafting.doCrafting( turtle.getWorld(), limit );
+        List<ItemStack> results = crafting.doCrafting( turtle.getLevel(), limit );
         if( results == null ) return TurtleCommandResult.failure( "No matching recipes" );
 
         // Store or drop any remainders
@@ -41,7 +41,7 @@ public class TurtleCraftCommand implements ITurtleCommand
             ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
             if( !remainder.isEmpty() )
             {
-                WorldUtil.dropItemStack( remainder, turtle.getWorld(), turtle.getPosition(), turtle.getDirection() );
+                WorldUtil.dropItemStack( remainder, turtle.getLevel(), turtle.getPosition(), turtle.getDirection() );
             }
         }
 

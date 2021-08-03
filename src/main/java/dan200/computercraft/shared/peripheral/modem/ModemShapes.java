@@ -5,27 +5,27 @@
  */
 package dan200.computercraft.shared.peripheral.modem;
 
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nonnull;
 
 public final class ModemShapes
 {
     private static final VoxelShape[] BOXES = new VoxelShape[] {
-        VoxelShapes.box( 0.125, 0.0, 0.125, 0.875, 0.1875, 0.875 ), // Down
-        VoxelShapes.box( 0.125, 0.8125, 0.125, 0.875, 1.0, 0.875 ), // Up
-        VoxelShapes.box( 0.125, 0.125, 0.0, 0.875, 0.875, 0.1875 ), // North
-        VoxelShapes.box( 0.125, 0.125, 0.8125, 0.875, 0.875, 1.0 ), // South
-        VoxelShapes.box( 0.0, 0.125, 0.125, 0.1875, 0.875, 0.875 ), // West
-        VoxelShapes.box( 0.8125, 0.125, 0.125, 1.0, 0.875, 0.875 ), // East
+        Shapes.box( 0.125, 0.0, 0.125, 0.875, 0.1875, 0.875 ), // Down
+        Shapes.box( 0.125, 0.8125, 0.125, 0.875, 1.0, 0.875 ), // Up
+        Shapes.box( 0.125, 0.125, 0.0, 0.875, 0.875, 0.1875 ), // North
+        Shapes.box( 0.125, 0.125, 0.8125, 0.875, 0.875, 1.0 ), // South
+        Shapes.box( 0.0, 0.125, 0.125, 0.1875, 0.875, 0.875 ), // West
+        Shapes.box( 0.8125, 0.125, 0.125, 1.0, 0.875, 0.875 ), // East
     };
 
     @Nonnull
     public static VoxelShape getBounds( Direction facing )
     {
         int direction = facing.ordinal();
-        return direction < BOXES.length ? BOXES[direction] : VoxelShapes.block();
+        return direction < BOXES.length ? BOXES[direction] : Shapes.block();
     }
 }

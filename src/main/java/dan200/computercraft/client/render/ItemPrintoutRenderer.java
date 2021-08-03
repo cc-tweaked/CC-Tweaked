@@ -5,13 +5,13 @@
  */
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderItemInFrameEvent;
@@ -50,7 +50,7 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
     }
 
     @Override
-    protected void renderItem( MatrixStack transform, IRenderTypeBuffer render, ItemStack stack )
+    protected void renderItem( PoseStack transform, MultiBufferSource render, ItemStack stack )
     {
         transform.mulPose( Vector3f.XP.rotationDegrees( 180f ) );
         transform.scale( 0.42f, 0.42f, -0.42f );
@@ -66,7 +66,7 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
         if( !(stack.getItem() instanceof ItemPrintout) ) return;
         event.setCanceled( true );
 
-        MatrixStack transform = event.getMatrix();
+        PoseStack transform = event.getMatrix();
 
         // Move a little bit forward to ensure we're not clipping with the frame
         transform.translate( 0.0f, 0.0f, -0.001f );
@@ -77,7 +77,7 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
         drawPrintout( transform, event.getBuffers(), stack );
     }
 
-    private static void drawPrintout( MatrixStack transform, IRenderTypeBuffer render, ItemStack stack )
+    private static void drawPrintout( PoseStack transform, MultiBufferSource render, ItemStack stack )
     {
         int pages = ItemPrintout.getPageCount( stack );
         boolean book = ((ItemPrintout) stack.getItem()).getType() == ItemPrintout.Type.BOOK;

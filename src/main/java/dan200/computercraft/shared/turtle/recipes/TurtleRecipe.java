@@ -9,11 +9,11 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.computer.recipe.ComputerFamilyRecipe;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 
 import javax.annotation.Nonnull;
 
@@ -26,7 +26,7 @@ public final class TurtleRecipe extends ComputerFamilyRecipe
 
     @Nonnull
     @Override
-    public IRecipeSerializer<?> getSerializer()
+    public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
@@ -41,7 +41,7 @@ public final class TurtleRecipe extends ComputerFamilyRecipe
         return TurtleItemFactory.create( computerID, label, -1, getFamily(), null, null, 0, null );
     }
 
-    public static final IRecipeSerializer<TurtleRecipe> SERIALIZER = new Serializer<TurtleRecipe>()
+    public static final RecipeSerializer<TurtleRecipe> SERIALIZER = new Serializer<TurtleRecipe>()
     {
         @Override
         protected TurtleRecipe create( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )

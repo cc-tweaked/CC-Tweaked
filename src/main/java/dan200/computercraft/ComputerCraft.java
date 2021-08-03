@@ -62,7 +62,7 @@ public final class ComputerCraft
     public static int modemHighAltitudeRangeDuringStorm = 384;
     public static int maxNotesPerTick = 8;
     public static MonitorRenderer monitorRenderer = MonitorRenderer.BEST;
-    public static double monitorDistanceSq = 4096;
+    public static int monitorDistance = 65;
     public static long monitorBandwidth = 1_000_000;
 
     public static boolean turtlesNeedFuel = true;

@@ -5,39 +5,40 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.block.Block;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * A {@link TileEntityType} whose supplier uses itself as an argument.
+ * A {@link BlockEntityType} whose supplier uses itself as an argument.
  *
  * @param <T> The type of the produced tile entity.
  */
-public final class FixedPointTileEntityType<T extends TileEntity> extends TileEntityType<T>
+public final class FixedPointTileEntityType<T extends BlockEntity> extends BlockEntityType<T>
 {
     private final Supplier<? extends Block> block;
 
-    private FixedPointTileEntityType( Supplier<? extends Block> block, Supplier<T> builder )
+    private FixedPointTileEntityType( Supplier<? extends Block> block, BlockEntitySupplier<T> builder )
     {
         super( builder, Collections.emptySet(), null );
         this.block = block;
     }
 
-    public static <T extends TileEntity> FixedPointTileEntityType<T> create( Supplier<? extends Block> block, Function<TileEntityType<T>, T> builder )
+    public static <T extends BlockEntity> FixedPointTileEntityType<T> create( Supplier<? extends Block> block, FixedPointBlockEntitySupplier<T> builder )
     {
         return new FixedPointSupplier<>( block, builder ).factory;
     }
 
     @Override
-    public boolean isValid( @Nonnull Block block )
+    public boolean isValid( @Nonnull BlockState block )
     {
-        return block == this.block.get();
+        return block.getBlock() == this.block.get();
     }
 
     public Block getBlock()
@@ -45,21 +46,28 @@ public final class FixedPointTileEntityType<T extends TileEntity> extends TileEn
         return block.get();
     }
 
-    private static final class FixedPointSupplier<T extends TileEntity> implements Supplier<T>
+    private static final class FixedPointSupplier<T extends BlockEntity> implements BlockEntitySupplier<T>
     {
         final FixedPointTileEntityType<T> factory;
-        private final Function<TileEntityType<T>, T> builder;
+        private final FixedPointBlockEntitySupplier<T> builder;
 
-        private FixedPointSupplier( Supplier<? extends Block> block, Function<TileEntityType<T>, T> builder )
+        private FixedPointSupplier( Supplier<? extends Block> block, FixedPointBlockEntitySupplier<T> builder )
         {
             factory = new FixedPointTileEntityType<>( block, this );
             this.builder = builder;
         }
 
+        @Nonnull
         @Override
-        public T get()
+        public T create( @Nonnull BlockPos pos, @Nonnull BlockState state )
         {
-            return builder.apply( factory );
+            return builder.create( factory, pos, state );
         }
+    }
+
+    @FunctionalInterface
+    public interface FixedPointBlockEntitySupplier<T extends BlockEntity>
+    {
+        T create( BlockEntityType<T> type, BlockPos pos, BlockState state );
     }
 }

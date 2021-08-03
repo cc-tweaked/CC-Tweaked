@@ -5,15 +5,15 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 
 /**
  * Represents a block which can be filled with water
@@ -46,7 +46,7 @@ public final class WaterloggableHelpers
      * @param world The position of this block
      * @param pos   The world this block exists in
      */
-    public static void updateWaterloggedPostPlacement( BlockState state, IWorld world, BlockPos pos )
+    public static void updateWaterloggedPostPlacement( BlockState state, LevelAccessor world, BlockPos pos )
     {
         if( state.getValue( WATERLOGGED ) )
         {
@@ -54,7 +54,7 @@ public final class WaterloggableHelpers
         }
     }
 
-    public static boolean getWaterloggedStateForPlacement( BlockItemUseContext context )
+    public static boolean getWaterloggedStateForPlacement( BlockPlaceContext context )
     {
         return context.getLevel().getFluidState( context.getClickedPos() ).getType() == Fluids.WATER;
     }

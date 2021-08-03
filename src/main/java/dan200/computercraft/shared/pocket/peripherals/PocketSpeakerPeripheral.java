@@ -7,28 +7,28 @@ package dan200.computercraft.shared.pocket.peripherals;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class PocketSpeakerPeripheral extends UpgradeSpeakerPeripheral
 {
-    private World world = null;
-    private Vector3d position = Vector3d.ZERO;
+    private Level world = null;
+    private Vec3 position = Vec3.ZERO;
 
-    void setLocation( World world, Vector3d position )
+    void setLocation( Level world, Vec3 position )
     {
         this.position = position;
         this.world = world;
     }
 
     @Override
-    public World getWorld()
+    public Level getLevel()
     {
         return world;
     }
 
     @Override
-    public Vector3d getPosition()
+    public Vec3 getPosition()
     {
         return world != null ? position : null;
     }

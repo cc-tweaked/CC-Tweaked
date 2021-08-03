@@ -12,13 +12,13 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.FixedPointTileEntityType;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -38,10 +38,10 @@ public class MoreRedIntegration
     private static final class BundledPowerSupplier implements ICapabilityProvider, ChanneledPowerSupplier
     {
         private final IBundledRedstoneBlock block;
-        private final TileEntity tile;
+        private final BlockEntity tile;
         private LazyOptional<ChanneledPowerSupplier> instance;
 
-        private BundledPowerSupplier( IBundledRedstoneBlock block, TileEntity tile )
+        private BundledPowerSupplier( IBundledRedstoneBlock block, BlockEntity tile )
         {
             this.block = block;
             this.tile = tile;
@@ -62,7 +62,7 @@ public class MoreRedIntegration
         }
 
         @Override
-        public int getPowerOnChannel( @Nonnull World world, @Nonnull BlockPos wirePos, @Nonnull BlockState wireState, @Nullable Direction wireFace, int channel )
+        public int getPowerOnChannel( @Nonnull Level world, @Nonnull BlockPos wirePos, @Nonnull BlockState wireState, @Nullable Direction wireFace, int channel )
         {
             if( wireFace == null ) return 0;
 
@@ -81,9 +81,9 @@ public class MoreRedIntegration
     }
 
     @SubscribeEvent
-    public static void attachBlockCapabilities( AttachCapabilitiesEvent<TileEntity> event )
+    public static void attachBlockCapabilities( AttachCapabilitiesEvent<BlockEntity> event )
     {
-        TileEntity tile = event.getObject();
+        BlockEntity tile = event.getObject();
         if( !(tile.getType() instanceof FixedPointTileEntityType) ) return;
 
         Block block = ((FixedPointTileEntityType<?>) tile.getType()).getBlock();
@@ -100,9 +100,9 @@ public class MoreRedIntegration
         ComputerCraftAPI.registerBundledRedstoneProvider( MoreRedIntegration::getBundledPower );
     }
 
-    private static int getBundledPower( World world, BlockPos pos, Direction side )
+    private static int getBundledPower( Level world, BlockPos pos, Direction side )
     {
-        TileEntity tile = world.getBlockEntity( pos );
+        BlockEntity tile = world.getBlockEntity( pos );
         if( tile == null ) return -1;
 
         ChanneledPowerSupplier power = CapabilityUtil.unwrapUnsafe( tile.getCapability( MoreRedAPI.CHANNELED_POWER_CAPABILITY, side ) );

@@ -15,12 +15,12 @@ import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.UploadResultMessage;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,17 +32,17 @@ import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class ContainerComputerBase extends Container implements IContainerComputer
+public class ContainerComputerBase extends AbstractContainerMenu implements IContainerComputer
 {
     private static final String LIST_PREFIX = "\n \u2022 ";
 
-    private final Predicate<PlayerEntity> canUse;
+    private final Predicate<Player> canUse;
     private final IComputer computer;
     private final ComputerFamily family;
     private final InputState input = new InputState( this );
     private List<FileUpload> toUpload;
 
-    protected ContainerComputerBase( ContainerType<? extends ContainerComputerBase> type, int id, Predicate<PlayerEntity> canUse, IComputer computer, ComputerFamily family )
+    protected ContainerComputerBase( MenuType<? extends ContainerComputerBase> type, int id, Predicate<Player> canUse, IComputer computer, ComputerFamily family )
     {
         super( type, id );
         this.canUse = canUse;
@@ -50,12 +50,12 @@ public class ContainerComputerBase extends Container implements IContainerComput
         this.family = family;
     }
 
-    protected ContainerComputerBase( ContainerType<? extends ContainerComputerBase> type, int id, PlayerInventory player, ComputerContainerData data )
+    protected ContainerComputerBase( MenuType<? extends ContainerComputerBase> type, int id, Inventory player, ComputerContainerData data )
     {
         this( type, id, x -> true, getComputer( player, data ), data.getFamily() );
     }
 
-    protected static IComputer getComputer( PlayerInventory player, ComputerContainerData data )
+    protected static IComputer getComputer( Inventory player, ComputerContainerData data )
     {
         int id = data.getInstanceId();
         if( !player.player.level.isClientSide ) return ComputerCraft.serverComputerRegistry.get( id );
@@ -66,7 +66,7 @@ public class ContainerComputerBase extends Container implements IContainerComput
     }
 
     @Override
-    public boolean stillValid( @Nonnull PlayerEntity player )
+    public boolean stillValid( @Nonnull Player player )
     {
         return canUse.test( player );
     }
@@ -92,14 +92,14 @@ public class ContainerComputerBase extends Container implements IContainerComput
     }
 
     @Override
-    public void upload( @Nonnull ServerPlayerEntity uploader, @Nonnull List<FileUpload> files )
+    public void upload( @Nonnull ServerPlayer uploader, @Nonnull List<FileUpload> files )
     {
         UploadResultMessage message = upload( files, false );
         NetworkHandler.sendToPlayer( uploader, message );
     }
 
     @Override
-    public void continueUpload( @Nonnull ServerPlayerEntity uploader, boolean overwrite )
+    public void continueUpload( @Nonnull ServerPlayer uploader, boolean overwrite )
     {
         List<FileUpload> files = this.toUpload;
         toUpload = null;
@@ -128,7 +128,7 @@ public class ContainerComputerBase extends Container implements IContainerComput
                 {
                     return new UploadResultMessage(
                         UploadResult.ERROR,
-                        new TranslationTextComponent( "gui.computercraft.upload.failed.overwrite_dir", upload.getName() )
+                        new TranslatableComponent( "gui.computercraft.upload.failed.overwrite_dir", upload.getName() )
                     );
                 }
 
@@ -143,7 +143,7 @@ public class ContainerComputerBase extends Container implements IContainerComput
                 toUpload = files;
                 return new UploadResultMessage(
                     UploadResult.CONFIRM_OVERWRITE,
-                    new TranslationTextComponent( "gui.computercraft.upload.overwrite.detail", joiner.toString() )
+                    new TranslatableComponent( "gui.computercraft.upload.overwrite.detail", joiner.toString() )
                 );
             }
 
@@ -161,18 +161,18 @@ public class ContainerComputerBase extends Container implements IContainerComput
             }
 
             return new UploadResultMessage(
-                UploadResult.SUCCESS, new TranslationTextComponent( "gui.computercraft.upload.success.msg", files.size() )
+                UploadResult.SUCCESS, new TranslatableComponent( "gui.computercraft.upload.success.msg", files.size() )
             );
         }
         catch( FileSystemException | IOException e )
         {
             ComputerCraft.log.error( "Error uploading files", e );
-            return new UploadResultMessage( UploadResult.ERROR, new TranslationTextComponent( "computercraft.gui.upload.failed.generic", e.getMessage() ) );
+            return new UploadResultMessage( UploadResult.ERROR, new TranslatableComponent( "computercraft.gui.upload.failed.generic", e.getMessage() ) );
         }
     }
 
     @Override
-    public void removed( @Nonnull PlayerEntity player )
+    public void removed( @Nonnull Player player )
     {
         super.removed( player );
         input.close();

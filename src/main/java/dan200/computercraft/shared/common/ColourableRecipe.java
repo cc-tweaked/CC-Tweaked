@@ -7,18 +7,18 @@ package dan200.computercraft.shared.common;
 
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.SpecialRecipe;
-import net.minecraft.item.crafting.SpecialRecipeSerializer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 
-public final class ColourableRecipe extends SpecialRecipe
+public final class ColourableRecipe extends CustomRecipe
 {
     private ColourableRecipe( ResourceLocation id )
     {
@@ -26,7 +26,7 @@ public final class ColourableRecipe extends SpecialRecipe
     }
 
     @Override
-    public boolean matches( @Nonnull CraftingInventory inv, @Nonnull World world )
+    public boolean matches( @Nonnull CraftingContainer inv, @Nonnull Level world )
     {
         boolean hasColourable = false;
         boolean hasDye = false;
@@ -55,7 +55,7 @@ public final class ColourableRecipe extends SpecialRecipe
 
     @Nonnull
     @Override
-    public ItemStack assemble( @Nonnull CraftingInventory inv )
+    public ItemStack assemble( @Nonnull CraftingContainer inv )
     {
         ItemStack colourable = ItemStack.EMPTY;
 
@@ -93,10 +93,10 @@ public final class ColourableRecipe extends SpecialRecipe
 
     @Override
     @Nonnull
-    public IRecipeSerializer<?> getSerializer()
+    public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
 
-    public static final IRecipeSerializer<?> SERIALIZER = new SpecialRecipeSerializer<>( ColourableRecipe::new );
+    public static final RecipeSerializer<?> SERIALIZER = new SimpleRecipeSerializer<>( ColourableRecipe::new );
 }

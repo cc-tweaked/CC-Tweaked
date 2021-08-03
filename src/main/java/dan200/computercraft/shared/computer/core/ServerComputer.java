@@ -22,13 +22,13 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ComputerDataClientMessage;
 import dan200.computercraft.shared.network.client.ComputerDeletedClientMessage;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
 import net.minecraftforge.versions.mcp.MCPVersion;
 
 import javax.annotation.Nonnull;
@@ -39,23 +39,23 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
 {
     private final int instanceID;
 
-    private World world;
+    private Level level;
     private BlockPos position;
 
     private final ComputerFamily family;
     private final Computer computer;
-    private CompoundNBT userData;
+    private CompoundTag userData;
     private boolean changed;
 
     private boolean changedLastFrame;
     private int ticksSincePing;
 
-    public ServerComputer( World world, int computerID, String label, int instanceID, ComputerFamily family, int terminalWidth, int terminalHeight )
+    public ServerComputer( Level level, int computerID, String label, int instanceID, ComputerFamily family, int terminalWidth, int terminalHeight )
     {
         super( family != ComputerFamily.NORMAL, terminalWidth, terminalHeight );
         this.instanceID = instanceID;
 
-        this.world = world;
+        this.level = level;
         this.family = family;
         computer = new Computer( this, getTerminal(), computerID );
         computer.setLabel( label );
@@ -66,14 +66,14 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return family;
     }
 
-    public World getWorld()
+    public Level getLevel()
     {
-        return world;
+        return level;
     }
 
-    public void setWorld( World world )
+    public void setLevel( Level level )
     {
-        this.world = world;
+        this.level = level;
     }
 
     public BlockPos getPosition()
@@ -128,11 +128,11 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         computer.unload();
     }
 
-    public CompoundNBT getUserData()
+    public CompoundTag getUserData()
     {
         if( userData == null )
         {
-            userData = new CompoundNBT();
+            userData = new CompoundTag();
         }
         return userData;
     }
@@ -166,7 +166,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
             MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
 
             NetworkMessage packet = null;
-            for( PlayerEntity player : server.getPlayerList().getPlayers() )
+            for( Player player : server.getPlayerList().getPlayers() )
             {
                 if( isInteracting( player ) )
                 {
@@ -177,13 +177,13 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         }
     }
 
-    public void sendComputerState( PlayerEntity player )
+    public void sendComputerState( Player player )
     {
         // Send state to client
         NetworkHandler.sendToPlayer( player, createComputerPacket() );
     }
 
-    public void sendTerminalState( PlayerEntity player )
+    public void sendTerminalState( Player player )
     {
         // Send terminal state to client
         NetworkHandler.sendToPlayer( player, createTerminalPacket() );
@@ -303,19 +303,19 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public double getTimeOfDay()
     {
-        return (world.getDayTime() + 6000) % 24000 / 1000.0;
+        return (level.getDayTime() + 6000) % 24000 / 1000.0;
     }
 
     @Override
     public int getDay()
     {
-        return (int) ((world.getDayTime() + 6000) / 24000) + 1;
+        return (int) ((level.getDayTime() + 6000) / 24000) + 1;
     }
 
     @Override
     public IWritableMount createSaveDirMount( String subPath, long capacity )
     {
-        return ComputerCraftAPI.createSaveDirMount( world, subPath, capacity );
+        return ComputerCraftAPI.createSaveDirMount( level, subPath, capacity );
     }
 
     @Override
@@ -353,22 +353,22 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public int assignNewID()
     {
-        return ComputerCraftAPI.createUniqueNumberedSaveDir( world, "computer" );
+        return ComputerCraftAPI.createUniqueNumberedSaveDir( level, "computer" );
     }
 
     @Nullable
-    public IContainerComputer getContainer( PlayerEntity player )
+    public IContainerComputer getContainer( Player player )
     {
         if( player == null ) return null;
 
-        Container container = player.containerMenu;
+        AbstractContainerMenu container = player.containerMenu;
         if( !(container instanceof IContainerComputer) ) return null;
 
         IContainerComputer computerContainer = (IContainerComputer) container;
         return computerContainer.getComputer() != this ? null : computerContainer;
     }
 
-    protected boolean isInteracting( PlayerEntity player )
+    protected boolean isInteracting( Player player )
     {
         return getContainer( player ) != null;
     }

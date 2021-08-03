@@ -7,11 +7,11 @@ package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.client.SoundManager;
 import dan200.computercraft.shared.network.NetworkMessage;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
@@ -26,22 +26,22 @@ import java.util.UUID;
 public class SpeakerMoveClientMessage implements NetworkMessage
 {
     private final UUID source;
-    private final Vector3d pos;
+    private final Vec3 pos;
 
-    public SpeakerMoveClientMessage( UUID source, Vector3d pos )
+    public SpeakerMoveClientMessage( UUID source, Vec3 pos )
     {
         this.source = source;
         this.pos = pos;
     }
 
-    public SpeakerMoveClientMessage( PacketBuffer buf )
+    public SpeakerMoveClientMessage( FriendlyByteBuf buf )
     {
         source = buf.readUUID();
-        pos = new Vector3d( buf.readDouble(), buf.readDouble(), buf.readDouble() );
+        pos = new Vec3( buf.readDouble(), buf.readDouble(), buf.readDouble() );
     }
 
     @Override
-    public void toBytes( @Nonnull PacketBuffer buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         buf.writeUUID( source );
         buf.writeDouble( pos.x() );

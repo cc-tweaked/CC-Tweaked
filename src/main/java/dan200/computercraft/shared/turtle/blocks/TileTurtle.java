@@ -23,21 +23,25 @@ import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.util.*;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.DyeItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
@@ -73,9 +77,9 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     private MoveState moveState = MoveState.NOT_MOVED;
     private LazyOptional<IPeripheral> peripheral;
 
-    public TileTurtle( TileEntityType<? extends TileGeneric> type, ComputerFamily family )
+    public TileTurtle( BlockEntityType<? extends TileGeneric> type, BlockPos pos, BlockState state, ComputerFamily family )
     {
-        super( type, family );
+        super( type, pos, state, family );
     }
 
     private boolean hasMoved()
@@ -152,7 +156,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
     @Nonnull
     @Override
-    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
     {
         // Apply dye
         ItemStack currentItem = player.getItemInHand( hand );
@@ -173,7 +177,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
                         }
                     }
                 }
-                return ActionResultType.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
             else if( currentItem.getItem() == Items.WATER_BUCKET && brain.getColour() != -1 )
             {
@@ -186,11 +190,11 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
                         if( !player.isCreative() )
                         {
                             player.setItemInHand( hand, new ItemStack( Items.BUCKET ) );
-                            player.inventory.setChanged();
+                            player.getInventory().setChanged();
                         }
                     }
                 }
-                return ActionResultType.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
         }
 
@@ -199,23 +203,23 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    protected boolean canNameWithTag( PlayerEntity player )
+    protected boolean canNameWithTag( Player player )
     {
         return true;
     }
 
     @Override
-    protected double getInteractRange( PlayerEntity player )
+    protected double getInteractRange( Player player )
     {
         return 12.0;
     }
 
     @Override
-    public void tick()
+    protected void serverTick()
     {
-        super.tick();
+        super.serverTick();
         brain.update();
-        if( !getLevel().isClientSide && inventoryChanged )
+        if( inventoryChanged )
         {
             ServerComputer computer = getServerComputer();
             if( computer != null ) computer.queueEvent( "turtle_inventory" );
@@ -226,6 +230,11 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
                 previousInventory.set( n, getItem( n ).copy() );
             }
         }
+    }
+
+    protected void clientTick()
+    {
+        brain.update();
     }
 
     @Override
@@ -257,17 +266,17 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public void load( @Nonnull BlockState state, @Nonnull CompoundNBT nbt )
+    public void load( @Nonnull CompoundTag nbt )
     {
-        super.load( state, nbt );
+        super.load( nbt );
 
         // Read inventory
-        ListNBT nbttaglist = nbt.getList( "Items", Constants.NBT.TAG_COMPOUND );
+        ListTag nbttaglist = nbt.getList( "Items", Constants.NBT.TAG_COMPOUND );
         inventory.clear();
         previousInventory.clear();
         for( int i = 0; i < nbttaglist.size(); i++ )
         {
-            CompoundNBT tag = nbttaglist.getCompound( i );
+            CompoundTag tag = nbttaglist.getCompound( i );
             int slot = tag.getByte( "Slot" ) & 0xff;
             if( slot < getContainerSize() )
             {
@@ -282,15 +291,15 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
     @Nonnull
     @Override
-    public CompoundNBT save( @Nonnull CompoundNBT nbt )
+    public CompoundTag save( @Nonnull CompoundTag nbt )
     {
         // Write inventory
-        ListNBT nbttaglist = new ListNBT();
+        ListTag nbttaglist = new ListTag();
         for( int i = 0; i < INVENTORY_SIZE; i++ )
         {
             if( !inventory.get( i ).isEmpty() )
             {
-                CompoundNBT tag = new CompoundNBT();
+                CompoundTag tag = new CompoundTag();
                 tag.putByte( "Slot", (byte) i );
                 inventory.get( i ).save( tag );
                 nbttaglist.add( tag );
@@ -354,7 +363,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public Vector3d getRenderOffset( float f )
+    public Vec3 getRenderOffset( float f )
     {
         return brain.getRenderOffset( f );
     }
@@ -475,7 +484,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public boolean stillValid( @Nonnull PlayerEntity player )
+    public boolean stillValid( @Nonnull Player player )
     {
         return isUsable( player, false );
     }
@@ -494,14 +503,14 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     // Networking stuff
 
     @Override
-    protected void writeDescription( @Nonnull CompoundNBT nbt )
+    protected void writeDescription( @Nonnull CompoundTag nbt )
     {
         super.writeDescription( nbt );
         brain.writeDescription( nbt );
     }
 
     @Override
-    protected void readDescription( @Nonnull CompoundNBT nbt )
+    protected void readDescription( @Nonnull CompoundTag nbt )
     {
         super.readDescription( nbt );
         brain.readDescription( nbt );
@@ -570,7 +579,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
     @Nullable
     @Override
-    public Container createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
+    public AbstractContainerMenu createMenu( int id, @Nonnull Inventory inventory, @Nonnull Player player )
     {
         return new ContainerTurtle( id, inventory, brain );
     }

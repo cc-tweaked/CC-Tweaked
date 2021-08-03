@@ -8,7 +8,7 @@ package dan200.computercraft.shared.network.client;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.network.NetworkMessage;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 
 import javax.annotation.Nonnull;
 
@@ -24,7 +24,7 @@ public abstract class ComputerClientMessage implements NetworkMessage
         this.instanceId = instanceId;
     }
 
-    public ComputerClientMessage( @Nonnull PacketBuffer buf )
+    public ComputerClientMessage( @Nonnull FriendlyByteBuf buf )
     {
         instanceId = buf.readVarInt();
     }
@@ -35,7 +35,7 @@ public abstract class ComputerClientMessage implements NetworkMessage
     }
 
     @Override
-    public void toBytes( @Nonnull PacketBuffer buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         buf.writeVarInt( instanceId );
     }

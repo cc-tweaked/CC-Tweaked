@@ -10,13 +10,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.IDataProvider;
-import net.minecraft.loot.LootParameterSets;
-import net.minecraft.loot.LootTable;
-import net.minecraft.loot.LootTableManager;
-import net.minecraft.loot.ValidationTracker;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.DataProvider;
+import net.minecraft.data.HashCache;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.LootTables;
+import net.minecraft.world.level.storage.loot.ValidationContext;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -28,7 +28,7 @@ import java.util.function.BiConsumer;
 /**
  * An alternative to {@link net.minecraft.data.LootTableProvider}, with a more flexible interface.
  */
-public abstract class LootTableProvider implements IDataProvider
+public abstract class LootTableProvider implements DataProvider
 {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
@@ -40,17 +40,17 @@ public abstract class LootTableProvider implements IDataProvider
     }
 
     @Override
-    public void run( @Nonnull DirectoryCache cache )
+    public void run( @Nonnull HashCache cache )
     {
         Map<ResourceLocation, LootTable> tables = new HashMap<>();
-        ValidationTracker validation = new ValidationTracker( LootParameterSets.ALL_PARAMS, x -> null, tables::get );
+        ValidationContext validation = new ValidationContext( LootContextParamSets.ALL_PARAMS, x -> null, tables::get );
 
         registerLoot( ( id, table ) -> {
             if( tables.containsKey( id ) ) validation.reportProblem( "Duplicate loot tables for " + id );
             tables.put( id, table );
         } );
 
-        tables.forEach( ( key, value ) -> LootTableManager.validate( validation, key, value ) );
+        tables.forEach( ( key, value ) -> LootTables.validate( validation, key, value ) );
 
         Multimap<String, String> problems = validation.getProblems();
         if( !problems.isEmpty() )
@@ -64,7 +64,7 @@ public abstract class LootTableProvider implements IDataProvider
             Path path = getPath( key );
             try
             {
-                IDataProvider.save( GSON, cache, LootTableManager.serialize( value ), path );
+                DataProvider.save( GSON, cache, LootTables.serialize( value ), path );
             }
             catch( IOException e )
             {

@@ -5,10 +5,10 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.util.IIntArray;
+import net.minecraft.world.inventory.ContainerData;
 
 @FunctionalInterface
-public interface SingleIntArray extends IIntArray
+public interface SingleIntArray extends ContainerData
 {
     int get();
 

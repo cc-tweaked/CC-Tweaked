@@ -5,14 +5,13 @@
  */
 package dan200.computercraft.client.gui.widgets;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
@@ -20,7 +19,7 @@ import java.util.List;
 import java.util.function.IntSupplier;
 
 /**
- * Version of {@link net.minecraft.client.gui.widget.button.ImageButton} which allows changing some properties
+ * Version of {@link net.minecraft.client.gui.components.ImageButton} which allows changing some properties
  * dynamically.
  */
 public class DynamicImageButton extends Button
@@ -32,12 +31,12 @@ public class DynamicImageButton extends Button
     private final int yDiffTex;
     private final int textureWidth;
     private final int textureHeight;
-    private final NonNullSupplier<List<ITextComponent>> tooltip;
+    private final NonNullSupplier<List<Component>> tooltip;
 
     public DynamicImageButton(
         Screen screen, int x, int y, int width, int height, int xTexStart, int yTexStart, int yDiffTex,
         ResourceLocation texture, int textureWidth, int textureHeight,
-        IPressable onPress, List<ITextComponent> tooltip
+        OnPress onPress, List<Component> tooltip
     )
     {
         this(
@@ -51,10 +50,10 @@ public class DynamicImageButton extends Button
     public DynamicImageButton(
         Screen screen, int x, int y, int width, int height, IntSupplier xTexStart, int yTexStart, int yDiffTex,
         ResourceLocation texture, int textureWidth, int textureHeight,
-        IPressable onPress, NonNullSupplier<List<ITextComponent>> tooltip
+        OnPress onPress, NonNullSupplier<List<Component>> tooltip
     )
     {
-        super( x, y, width, height, StringTextComponent.EMPTY, onPress );
+        super( x, y, width, height, TextComponent.EMPTY, onPress );
         this.screen = screen;
         this.textureWidth = textureWidth;
         this.textureHeight = textureHeight;
@@ -66,10 +65,9 @@ public class DynamicImageButton extends Button
     }
 
     @Override
-    public void renderButton( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
+    public void renderButton( @Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks )
     {
-        Minecraft minecraft = Minecraft.getInstance();
-        minecraft.getTextureManager().bind( texture );
+        RenderSystem.setShaderTexture( 0, texture );
         RenderSystem.disableDepthTest();
 
         int yTex = yTexStart;
@@ -83,19 +81,19 @@ public class DynamicImageButton extends Button
 
     @Nonnull
     @Override
-    public ITextComponent getMessage()
+    public Component getMessage()
     {
-        List<ITextComponent> tooltip = this.tooltip.get();
-        return tooltip.isEmpty() ? StringTextComponent.EMPTY : tooltip.get( 0 );
+        List<Component> tooltip = this.tooltip.get();
+        return tooltip.isEmpty() ? TextComponent.EMPTY : tooltip.get( 0 );
     }
 
     @Override
-    public void renderToolTip( @Nonnull MatrixStack stack, int mouseX, int mouseY )
+    public void renderToolTip( @Nonnull PoseStack stack, int mouseX, int mouseY )
     {
-        List<ITextComponent> tooltip = this.tooltip.get();
+        List<Component> tooltip = this.tooltip.get();
         if( !tooltip.isEmpty() )
         {
-            screen.renderWrappedToolTip( stack, tooltip, mouseX, mouseY, screen.getMinecraft().font );
+            screen.renderComponentToolTip( stack, tooltip, mouseX, mouseY, screen.getMinecraft().font );
         }
     }
 }

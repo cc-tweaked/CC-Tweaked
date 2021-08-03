@@ -7,9 +7,9 @@ package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
@@ -23,14 +23,14 @@ public class ContinueUploadMessage extends ComputerServerMessage
         this.overwrite = overwrite;
     }
 
-    public ContinueUploadMessage( @Nonnull PacketBuffer buf )
+    public ContinueUploadMessage( @Nonnull FriendlyByteBuf buf )
     {
         super( buf );
         overwrite = buf.readBoolean();
     }
 
     @Override
-    public void toBytes( @Nonnull PacketBuffer buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         super.toBytes( buf );
         buf.writeBoolean( overwrite );
@@ -39,7 +39,7 @@ public class ContinueUploadMessage extends ComputerServerMessage
     @Override
     protected void handle( NetworkEvent.Context context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
-        ServerPlayerEntity player = context.getSender();
+        ServerPlayer player = context.getSender();
         if( player != null ) container.continueUpload( player, overwrite );
     }
 }

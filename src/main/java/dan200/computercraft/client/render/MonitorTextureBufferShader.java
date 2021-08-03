@@ -5,158 +5,108 @@
  */
 package dan200.computercraft.client.render;
 
-import com.google.common.base.Strings;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import dan200.computercraft.ComputerCraft;
+import com.mojang.blaze3d.shaders.Uniform;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.shared.util.Palette;
-import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.util.math.vector.Matrix4f;
-import org.lwjgl.BufferUtils;
+import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceProvider;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL20;
 
-import java.io.InputStream;
+import javax.annotation.Nullable;
+import java.io.IOException;
 import java.nio.FloatBuffer;
 
-class MonitorTextureBufferShader
+public class MonitorTextureBufferShader extends ShaderInstance
 {
     static final int TEXTURE_INDEX = GL13.GL_TEXTURE3;
 
-    private static final FloatBuffer MATRIX_BUFFER = BufferUtils.createFloatBuffer( 16 );
-    private static final FloatBuffer PALETTE_BUFFER = BufferUtils.createFloatBuffer( 16 * 3 );
+    private static final Logger LOGGER = LogManager.getLogger();
 
-    private static int uniformMv;
+    private final Uniform palette;
+    private final Uniform width;
+    private final Uniform height;
 
-    private static int uniformFont;
-    private static int uniformWidth;
-    private static int uniformHeight;
-    private static int uniformTbo;
-    private static int uniformPalette;
-
-    private static boolean initialised;
-    private static boolean ok;
-    private static int program;
-
-    static void setupUniform( Matrix4f transform, int width, int height, Palette palette, boolean greyscale )
+    public MonitorTextureBufferShader( ResourceProvider provider, ResourceLocation location, VertexFormat format ) throws IOException
     {
-        MATRIX_BUFFER.rewind();
-        transform.store( MATRIX_BUFFER );
-        MATRIX_BUFFER.rewind();
-        RenderSystem.glUniformMatrix4( uniformMv, false, MATRIX_BUFFER );
+        super( provider, location, format );
 
-        RenderSystem.glUniform1i( uniformWidth, width );
-        RenderSystem.glUniform1i( uniformHeight, height );
+        width = getUniformChecked( "Width" );
+        height = getUniformChecked( "Height" );
+        palette = new Uniform( "Palette", Uniform.UT_FLOAT3, 16 * 3, this );
+        updateUniformLocation( palette );
 
-        PALETTE_BUFFER.rewind();
+        Uniform tbo = getUniformChecked( "Tbo" );
+        if( tbo != null ) tbo.set( TEXTURE_INDEX - GL13.GL_TEXTURE0 );
+    }
+
+    void setupUniform( int width, int height, Palette palette, boolean greyscale )
+    {
+        if( this.width != null ) this.width.set( width );
+        if( this.height != null ) this.height.set( height );
+        setupPalette( palette, greyscale );
+    }
+
+    private void setupPalette( Palette palette, boolean greyscale )
+    {
+        if( this.palette == null ) return;
+
+        FloatBuffer paletteBuffer = this.palette.getFloatBuffer();
+        paletteBuffer.rewind();
         for( int i = 0; i < 16; i++ )
         {
             double[] colour = palette.getColour( i );
             if( greyscale )
             {
                 float f = FixedWidthFontRenderer.toGreyscale( colour );
-                PALETTE_BUFFER.put( f ).put( f ).put( f );
+                paletteBuffer.put( f ).put( f ).put( f );
             }
             else
             {
-                PALETTE_BUFFER.put( (float) colour[0] ).put( (float) colour[1] ).put( (float) colour[2] );
+                paletteBuffer.put( (float) colour[0] ).put( (float) colour[1] ).put( (float) colour[2] );
             }
         }
-        PALETTE_BUFFER.flip();
-        RenderSystem.glUniform3( uniformPalette, PALETTE_BUFFER );
     }
 
-    static boolean use()
+    @Override
+    public void apply()
     {
-        if( initialised )
-        {
-            if( ok ) GlStateManager._glUseProgram( program );
-            return ok;
-        }
-
-        if( ok = load() )
-        {
-            GL20.glUseProgram( program );
-            RenderSystem.glUniform1i( uniformFont, 0 );
-            RenderSystem.glUniform1i( uniformTbo, TEXTURE_INDEX - GL13.GL_TEXTURE0 );
-        }
-
-        return ok;
+        super.apply();
+        palette.upload();
     }
 
-    private static boolean load()
+    @Override
+    public void close()
     {
-        initialised = true;
+        palette.close();
+        super.close();
+    }
 
-        try
+    private void updateUniformLocation( Uniform uniform )
+    {
+        int id = Uniform.glGetUniformLocation( getId(), uniform.getName() );
+        if( id == -1 )
         {
-            int vertexShader = loadShader( GL20.GL_VERTEX_SHADER, "assets/computercraft/shaders/monitor.vert" );
-            int fragmentShader = loadShader( GL20.GL_FRAGMENT_SHADER, "assets/computercraft/shaders/monitor.frag" );
-
-            program = GlStateManager.glCreateProgram();
-            GlStateManager.glAttachShader( program, vertexShader );
-            GlStateManager.glAttachShader( program, fragmentShader );
-            GL20.glBindAttribLocation( program, 0, "v_pos" );
-
-            GlStateManager.glLinkProgram( program );
-            boolean ok = GlStateManager.glGetProgrami( program, GL20.GL_LINK_STATUS ) != 0;
-            String log = GlStateManager.glGetProgramInfoLog( program, Short.MAX_VALUE ).trim();
-            if( !Strings.isNullOrEmpty( log ) )
-            {
-                ComputerCraft.log.warn( "Problems when linking monitor shader: {}", log );
-            }
-
-            GL20.glDetachShader( program, vertexShader );
-            GL20.glDetachShader( program, fragmentShader );
-            GlStateManager.glDeleteShader( vertexShader );
-            GlStateManager.glDeleteShader( fragmentShader );
-
-            if( !ok ) return false;
-
-            uniformMv = getUniformLocation( program, "u_mv" );
-            uniformFont = getUniformLocation( program, "u_font" );
-            uniformWidth = getUniformLocation( program, "u_width" );
-            uniformHeight = getUniformLocation( program, "u_height" );
-            uniformTbo = getUniformLocation( program, "u_tbo" );
-            uniformPalette = getUniformLocation( program, "u_palette" );
-
-            ComputerCraft.log.info( "Loaded monitor shader." );
-            return true;
+            LOGGER.warn( "Shader {} could not find uniform named {} in the specified shader program.", getName(), uniform.getName() );
         }
-        catch( Exception e )
+        else
         {
-            ComputerCraft.log.error( "Cannot load monitor shaders", e );
-            return false;
+            uniform.setLocation( id );
         }
     }
 
-    private static int loadShader( int kind, String path )
+    @Nullable
+    private Uniform getUniformChecked( String name )
     {
-        InputStream stream = TileEntityMonitorRenderer.class.getClassLoader().getResourceAsStream( path );
-        if( stream == null ) throw new IllegalArgumentException( "Cannot find " + path );
-        String contents = TextureUtil.readResourceAsString( stream );
-
-        int shader = GlStateManager.glCreateShader( kind );
-
-        GlStateManager.glShaderSource( shader, contents );
-        GlStateManager.glCompileShader( shader );
-
-        boolean ok = GlStateManager.glGetShaderi( shader, GL20.GL_COMPILE_STATUS ) != 0;
-        String log = GlStateManager.glGetShaderInfoLog( shader, Short.MAX_VALUE ).trim();
-        if( !Strings.isNullOrEmpty( log ) )
+        Uniform uniform = getUniform( name );
+        if( uniform == null )
         {
-            ComputerCraft.log.warn( "Problems when loading monitor shader {}: {}", path, log );
+            LOGGER.warn( "Monitor shader {} should have uniform {}, but it was not present.", getName(), name );
         }
 
-        if( !ok ) throw new IllegalStateException( "Cannot compile shader " + path );
-        return shader;
-    }
-
-    private static int getUniformLocation( int program, String name )
-    {
-        int uniform = GlStateManager._glGetUniformLocation( program, name );
-        if( uniform == -1 ) throw new IllegalStateException( "Cannot find uniform " + name );
         return uniform;
     }
 }

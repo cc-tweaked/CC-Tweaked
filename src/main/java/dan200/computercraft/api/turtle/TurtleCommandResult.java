@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.api.turtle;
 
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

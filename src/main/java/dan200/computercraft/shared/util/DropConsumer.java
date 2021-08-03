@@ -6,13 +6,13 @@
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.ComputerCraft;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -32,8 +32,8 @@ public final class DropConsumer
 
     private static Function<ItemStack, ItemStack> dropConsumer;
     private static List<ItemStack> remainingDrops;
-    private static World dropWorld;
-    private static AxisAlignedBB dropBounds;
+    private static Level dropWorld;
+    private static AABB dropBounds;
     private static Entity dropEntity;
 
     public static void set( Entity entity, Function<ItemStack, ItemStack> consumer )
@@ -42,16 +42,16 @@ public final class DropConsumer
         remainingDrops = new ArrayList<>();
         dropEntity = entity;
         dropWorld = entity.level;
-        dropBounds = new AxisAlignedBB( entity.blockPosition() ).inflate( 2, 2, 2 );
+        dropBounds = new AABB( entity.blockPosition() ).inflate( 2, 2, 2 );
     }
 
-    public static void set( World world, BlockPos pos, Function<ItemStack, ItemStack> consumer )
+    public static void set( Level world, BlockPos pos, Function<ItemStack, ItemStack> consumer )
     {
         dropConsumer = consumer;
         remainingDrops = new ArrayList<>( 2 );
         dropEntity = null;
         dropWorld = world;
-        dropBounds = new AxisAlignedBB( pos ).inflate( 2, 2, 2 );
+        dropBounds = new AABB( pos ).inflate( 2, 2, 2 );
     }
 
     public static List<ItemStack> clear()
@@ -67,7 +67,7 @@ public final class DropConsumer
         return remainingStacks;
     }
 
-    public static void clearAndDrop( World world, BlockPos pos, Direction direction )
+    public static void clearAndDrop( Level world, BlockPos pos, Direction direction )
     {
         List<ItemStack> remainingDrops = clear();
         for( ItemStack remaining : remainingDrops ) WorldUtil.dropItemStack( remaining, world, pos, direction );

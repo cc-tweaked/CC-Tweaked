@@ -10,20 +10,20 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class ContainerPocketComputer extends ContainerComputerBase
 {
-    private ContainerPocketComputer( int id, ServerComputer computer, ItemPocketComputer item, Hand hand )
+    private ContainerPocketComputer( int id, ServerComputer computer, ItemPocketComputer item, InteractionHand hand )
     {
         super( Registry.ModContainers.POCKET_COMPUTER.get(), id, p -> {
             ItemStack stack = p.getItemInHand( hand );
@@ -31,19 +31,19 @@ public final class ContainerPocketComputer extends ContainerComputerBase
         }, computer, item.getFamily() );
     }
 
-    public ContainerPocketComputer( int id, PlayerInventory player, ComputerContainerData data )
+    public ContainerPocketComputer( int id, Inventory player, ComputerContainerData data )
     {
         super( Registry.ModContainers.POCKET_COMPUTER.get(), id, player, data );
     }
 
-    public static class Factory implements INamedContainerProvider
+    public static class Factory implements MenuProvider
     {
         private final ServerComputer computer;
-        private final ITextComponent name;
+        private final Component name;
         private final ItemPocketComputer item;
-        private final Hand hand;
+        private final InteractionHand hand;
 
-        public Factory( ServerComputer computer, ItemStack stack, ItemPocketComputer item, Hand hand )
+        public Factory( ServerComputer computer, ItemStack stack, ItemPocketComputer item, InteractionHand hand )
         {
             this.computer = computer;
             name = stack.getHoverName();
@@ -54,14 +54,14 @@ public final class ContainerPocketComputer extends ContainerComputerBase
 
         @Nonnull
         @Override
-        public ITextComponent getDisplayName()
+        public Component getDisplayName()
         {
             return name;
         }
 
         @Nullable
         @Override
-        public Container createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity entity )
+        public AbstractContainerMenu createMenu( int id, @Nonnull Inventory inventory, @Nonnull Player entity )
         {
             return new ContainerPocketComputer( id, computer, item, hand );
         }

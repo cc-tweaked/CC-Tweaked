@@ -17,20 +17,20 @@ import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.TickScheduler;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullConsumer;
@@ -51,17 +51,17 @@ public class TileCable extends TileGeneric
     {
         @Nonnull
         @Override
-        public World getWorld()
+        public Level getLevel()
         {
-            return getLevel();
+            return this.getLevel();
         }
 
         @Nonnull
         @Override
-        public Vector3d getPosition()
+        public Vec3 getPosition()
         {
             BlockPos pos = getBlockPos();
-            return new Vector3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+            return new Vec3( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
 
         @Override
@@ -82,8 +82,6 @@ public class TileCable extends TileGeneric
 
     private boolean destroyed = false;
 
-    private Direction modemDirection = Direction.NORTH;
-    private boolean hasModemDirection = false;
     private boolean connectionsFormed = false;
 
     private final WiredModemElement cable = new CableElement();
@@ -103,10 +101,10 @@ public class TileCable extends TileGeneric
 
         @Nonnull
         @Override
-        public Vector3d getPosition()
+        public Vec3 getPosition()
         {
-            BlockPos pos = getBlockPos().relative( modemDirection );
-            return new Vector3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+            BlockPos pos = getBlockPos().relative( getDirection() );
+            return new Vec3( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
 
         @Nonnull
@@ -120,9 +118,9 @@ public class TileCable extends TileGeneric
 
     private final NonNullConsumer<LazyOptional<IWiredElement>> connectedNodeChanged = x -> connectionsChanged();
 
-    public TileCable( TileEntityType<? extends TileCable> type )
+    public TileCable( BlockEntityType<? extends TileCable> type, BlockPos pos, BlockState state )
     {
-        super( type );
+        super( type, pos, state );
     }
 
     private void onRemove()
@@ -175,33 +173,30 @@ public class TileCable extends TileGeneric
     }
 
     @Override
-    public void clearCache()
+    @Deprecated
+    public void setBlockState( @Nonnull BlockState state )
     {
-        super.clearCache();
-        hasModemDirection = false;
-        if( !level.isClientSide ) level.getBlockTicks().scheduleTick( worldPosition, getBlockState().getBlock(), 0 );
-    }
-
-    private void refreshDirection()
-    {
-        if( hasModemDirection ) return;
-
-        hasModemDirection = true;
-        modemDirection = getBlockState().getValue( BlockCable.MODEM ).getFacing();
+        Direction direction = getMaybeDirection();
+        super.setBlockState( state );
+        if( getMaybeDirection() != direction )
+        {
+            // We invalidate both the modem and element if the modem's direction is different.
+            modemCap = CapabilityUtil.invalidate( modemCap );
+            elementCap = CapabilityUtil.invalidate( elementCap );
+        }
     }
 
     @Nullable
     private Direction getMaybeDirection()
     {
-        refreshDirection();
-        return modemDirection;
+        return getBlockState().getValue( BlockCable.MODEM ).getFacing();
     }
 
     @Nonnull
     private Direction getDirection()
     {
-        refreshDirection();
-        return modemDirection == null ? Direction.NORTH : modemDirection;
+        Direction direction = getMaybeDirection();
+        return direction == null ? Direction.NORTH : direction;
     }
 
     @Override
@@ -253,12 +248,12 @@ public class TileCable extends TileGeneric
 
     @Nonnull
     @Override
-    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
     {
-        if( player.isCrouching() ) return ActionResultType.PASS;
-        if( !canAttachPeripheral() ) return ActionResultType.FAIL;
+        if( player.isCrouching() ) return InteractionResult.PASS;
+        if( !canAttachPeripheral() ) return InteractionResult.FAIL;
 
-        if( getLevel().isClientSide ) return ActionResultType.SUCCESS;
+        if( getLevel().isClientSide ) return InteractionResult.SUCCESS;
 
         String oldName = peripheral.getConnectedName();
         togglePeripheralAccess();
@@ -267,30 +262,30 @@ public class TileCable extends TileGeneric
         {
             if( oldName != null )
             {
-                player.displayClientMessage( new TranslationTextComponent( "chat.computercraft.wired_modem.peripheral_disconnected",
+                player.displayClientMessage( new TranslatableComponent( "chat.computercraft.wired_modem.peripheral_disconnected",
                     ChatHelpers.copy( oldName ) ), false );
             }
             if( newName != null )
             {
-                player.displayClientMessage( new TranslationTextComponent( "chat.computercraft.wired_modem.peripheral_connected",
+                player.displayClientMessage( new TranslatableComponent( "chat.computercraft.wired_modem.peripheral_connected",
                     ChatHelpers.copy( newName ) ), false );
             }
         }
 
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void load( @Nonnull BlockState state, @Nonnull CompoundNBT nbt )
+    public void load( @Nonnull CompoundTag nbt )
     {
-        super.load( state, nbt );
+        super.load( nbt );
         peripheralAccessAllowed = nbt.getBoolean( NBT_PERIPHERAL_ENABLED );
         peripheral.read( nbt, "" );
     }
 
     @Nonnull
     @Override
-    public CompoundNBT save( CompoundNBT nbt )
+    public CompoundTag save( CompoundTag nbt )
     {
         nbt.putBoolean( NBT_PERIPHERAL_ENABLED, peripheralAccessAllowed );
         peripheral.write( nbt, "" );
@@ -315,15 +310,6 @@ public class TileCable extends TileGeneric
     {
         if( getLevel().isClientSide ) return;
 
-        Direction oldDirection = modemDirection;
-        refreshDirection();
-        if( modemDirection != oldDirection )
-        {
-            // We invalidate both the modem and element if the modem's direction is different.
-            modemCap = CapabilityUtil.invalidate( modemCap );
-            elementCap = CapabilityUtil.invalidate( elementCap );
-        }
-
         if( modem.getModemState().pollChanged() ) updateBlockState();
 
         if( !connectionsFormed )
@@ -333,7 +319,7 @@ public class TileCable extends TileGeneric
             connectionsChanged();
             if( peripheralAccessAllowed )
             {
-                peripheral.attach( level, worldPosition, modemDirection );
+                peripheral.attach( level, worldPosition, getDirection() );
                 updateConnectedPeripherals();
             }
         }
@@ -344,7 +330,7 @@ public class TileCable extends TileGeneric
         if( getLevel().isClientSide ) return;
 
         BlockState state = getBlockState();
-        World world = getLevel();
+        Level world = getLevel();
         BlockPos current = getBlockPos();
         for( Direction facing : DirectionUtil.FACINGS )
         {
@@ -435,7 +421,6 @@ public class TileCable extends TileGeneric
 
         if( capability == CAPABILITY_PERIPHERAL )
         {
-            refreshDirection();
             if( side != null && getMaybeDirection() != side ) return LazyOptional.empty();
             if( modemCap == null ) modemCap = LazyOptional.of( () -> modem );
             return modemCap.cast();

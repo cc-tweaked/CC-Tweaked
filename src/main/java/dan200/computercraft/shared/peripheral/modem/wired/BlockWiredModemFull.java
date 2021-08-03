@@ -7,10 +7,10 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.BlockGeneric;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
 public class BlockWiredModemFull extends BlockGeneric
 {
@@ -19,7 +19,7 @@ public class BlockWiredModemFull extends BlockGeneric
 
     public BlockWiredModemFull( Properties settings )
     {
-        super( settings, Registry.ModTiles.WIRED_MODEM_FULL );
+        super( settings, Registry.ModBlockEntities.WIRED_MODEM_FULL );
         registerDefaultState( getStateDefinition().any()
             .setValue( MODEM_ON, false )
             .setValue( PERIPHERAL_ON, false )
@@ -27,7 +27,7 @@ public class BlockWiredModemFull extends BlockGeneric
     }
 
     @Override
-    protected void createBlockStateDefinition( StateContainer.Builder<Block, BlockState> builder )
+    protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> builder )
     {
         builder.add( MODEM_ON, PERIPHERAL_ON );
     }

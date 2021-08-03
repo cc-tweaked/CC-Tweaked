@@ -9,12 +9,12 @@ import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.Container;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nonnull;
@@ -34,7 +34,7 @@ public interface ITurtleAccess
      * @return the world in which the turtle resides.
      */
     @Nonnull
-    World getWorld();
+    Level getLevel();
 
     /**
      * Returns a vector containing the integer co-ordinates at which the turtle resides.
@@ -56,7 +56,7 @@ public interface ITurtleAccess
      * was cancelled.
      * @throws UnsupportedOperationException When attempting to teleport on the client side.
      */
-    boolean teleportTo( @Nonnull World world, @Nonnull BlockPos pos );
+    boolean teleportTo( @Nonnull Level world, @Nonnull BlockPos pos );
 
     /**
      * Returns a vector containing the floating point co-ordinates at which the turtle is rendered.
@@ -67,7 +67,7 @@ public interface ITurtleAccess
      * @see #getVisualYaw(float)
      */
     @Nonnull
-    Vector3d getVisualPosition( float f );
+    Vec3 getVisualPosition( float f );
 
     /**
      * Returns the yaw the turtle is facing when it is rendered.
@@ -151,7 +151,7 @@ public interface ITurtleAccess
      * @see #getItemHandler()
      */
     @Nonnull
-    IInventory getInventory();
+    Container getInventory();
 
     /**
      * Get the inventory of this turtle as an {@link IItemHandlerModifiable}.
@@ -287,7 +287,7 @@ public interface ITurtleAccess
      * @see #updateUpgradeNBTData(TurtleSide)
      */
     @Nonnull
-    CompoundNBT getUpgradeNBTData( @Nullable TurtleSide side );
+    CompoundTag getUpgradeNBTData( @Nullable TurtleSide side );
 
     /**
      * Mark the upgrade-specific data as dirty on a specific side. This is required for the data to be synced to the

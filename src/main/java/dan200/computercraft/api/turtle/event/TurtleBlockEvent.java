@@ -10,11 +10,11 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleVerb;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.world.BlockEvent;
 
@@ -36,16 +36,16 @@ import java.util.Objects;
  */
 public abstract class TurtleBlockEvent extends TurtlePlayerEvent
 {
-    private final World world;
+    private final Level level;
     private final BlockPos pos;
 
-    protected TurtleBlockEvent( @Nonnull ITurtleAccess turtle, @Nonnull TurtleAction action, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos )
+    protected TurtleBlockEvent( @Nonnull ITurtleAccess turtle, @Nonnull TurtleAction action, @Nonnull FakePlayer player, @Nonnull Level level, @Nonnull BlockPos pos )
     {
         super( turtle, action, player );
 
-        Objects.requireNonNull( world, "world cannot be null" );
+        Objects.requireNonNull( level, "world cannot be null" );
         Objects.requireNonNull( pos, "pos cannot be null" );
-        this.world = world;
+        this.level = level;
         this.pos = pos;
     }
 
@@ -54,9 +54,9 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
      *
      * @return The world the turtle is interacting in.
      */
-    public World getWorld()
+    public Level getLevel()
     {
-        return world;
+        return level;
     }
 
     /**
@@ -86,7 +86,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
         private final ITurtleUpgrade upgrade;
         private final TurtleSide side;
 
-        public Dig( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState block, @Nonnull ITurtleUpgrade upgrade, @Nonnull TurtleSide side )
+        public Dig( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState block, @Nonnull ITurtleUpgrade upgrade, @Nonnull TurtleSide side )
         {
             super( turtle, TurtleAction.DIG, player, world, pos );
 
@@ -139,7 +139,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
      */
     public static class Move extends TurtleBlockEvent
     {
-        public Move( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos )
+        public Move( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull Level world, @Nonnull BlockPos pos )
         {
             super( turtle, TurtleAction.MOVE, player, world, pos );
         }
@@ -154,7 +154,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
     {
         private final ItemStack stack;
 
-        public Place( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull ItemStack stack )
+        public Place( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull ItemStack stack )
         {
             super( turtle, TurtleAction.PLACE, player, world, pos );
 
@@ -186,7 +186,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
         private final BlockState state;
         private final Map<String, Object> data;
 
-        public Inspect( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Map<String, Object> data )
+        public Inspect( @Nonnull ITurtleAccess turtle, @Nonnull FakePlayer player, @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Map<String, Object> data )
         {
             super( turtle, TurtleAction.INSPECT, player, world, pos );
 

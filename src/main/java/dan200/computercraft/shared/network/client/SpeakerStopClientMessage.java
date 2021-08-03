@@ -7,10 +7,10 @@ package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.client.SoundManager;
 import dan200.computercraft.shared.network.NetworkMessage;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
@@ -31,13 +31,13 @@ public class SpeakerStopClientMessage implements NetworkMessage
         this.source = source;
     }
 
-    public SpeakerStopClientMessage( PacketBuffer buf )
+    public SpeakerStopClientMessage( FriendlyByteBuf buf )
     {
         source = buf.readUUID();
     }
 
     @Override
-    public void toBytes( @Nonnull PacketBuffer buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         buf.writeUUID( source );
     }

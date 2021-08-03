@@ -13,14 +13,14 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nonnull;
@@ -43,7 +43,7 @@ public class TurtleMoveCommand implements ITurtleCommand
         Direction direction = this.direction.toWorldDir( turtle );
 
         // Check if we can move
-        World oldWorld = turtle.getWorld();
+        Level oldWorld = turtle.getLevel();
         BlockPos oldPosition = turtle.getPosition();
         BlockPos newPosition = oldPosition.relative( direction );
 
@@ -81,12 +81,12 @@ public class TurtleMoveCommand implements ITurtleCommand
             List<Entity> list = oldWorld.getEntitiesOfClass( Entity.class, getBox( collision ), x -> x != null && x.isAlive() && x.blocksBuilding );
             for( Entity entity : list )
             {
-                AxisAlignedBB pushedBB = entity.getBoundingBox().move(
+                AABB pushedBB = entity.getBoundingBox().move(
                     direction.getStepX(),
                     direction.getStepY(),
                     direction.getStepZ()
                 );
-                if( !oldWorld.isUnobstructed( null, VoxelShapes.create( pushedBB ) ) )
+                if( !oldWorld.isUnobstructed( null, Shapes.create( pushedBB ) ) )
                 {
                     return TurtleCommandResult.failure( "Movement obstructed" );
                 }
@@ -131,13 +131,13 @@ public class TurtleMoveCommand implements ITurtleCommand
         return TurtleCommandResult.success();
     }
 
-    private static TurtleCommandResult canEnter( TurtlePlayer turtlePlayer, World world, BlockPos position )
+    private static TurtleCommandResult canEnter( TurtlePlayer turtlePlayer, Level world, BlockPos position )
     {
-        if( World.isOutsideBuildHeight( position ) )
+        if( world.isOutsideBuildHeight( position ) )
         {
             return TurtleCommandResult.failure( position.getY() < 0 ? "Too low to move" : "Too high to move" );
         }
-        if( !World.isInWorldBounds( position ) ) return TurtleCommandResult.failure( "Cannot leave the world" );
+        if( !world.isInWorldBounds( position ) ) return TurtleCommandResult.failure( "Cannot leave the world" );
 
         // Check spawn protection
         if( ComputerCraft.turtlesObeyBlockProtection && !TurtlePermissions.isBlockEnterable( world, position, turtlePlayer ) )
@@ -154,10 +154,10 @@ public class TurtleMoveCommand implements ITurtleCommand
         return TurtleCommandResult.success();
     }
 
-    private static AxisAlignedBB getBox( VoxelShape shape )
+    private static AABB getBox( VoxelShape shape )
     {
         return shape.isEmpty() ? EMPTY_BOX : shape.bounds();
     }
 
-    private static final AxisAlignedBB EMPTY_BOX = new AxisAlignedBB( 0, 0, 0, 0, 0, 0 );
+    private static final AABB EMPTY_BOX = new AABB( 0, 0, 0, 0, 0, 0 );
 }

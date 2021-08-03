@@ -15,9 +15,9 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.arguments.IArgumentSerializer;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.synchronization.ArgumentSerializer;
+import net.minecraft.network.FriendlyByteBuf;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -49,7 +49,7 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
         return SOME;
     }
 
-    public static Collection<ServerComputer> getComputersArgument( CommandContext<CommandSource> context, String name ) throws CommandSyntaxException
+    public static Collection<ServerComputer> getComputersArgument( CommandContext<CommandSourceStack> context, String name ) throws CommandSyntaxException
     {
         return context.getArgument( name, ComputersSupplier.class ).unwrap( context.getSource() );
     }
@@ -171,18 +171,18 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
         );
     }
 
-    public static class Serializer implements IArgumentSerializer<ComputersArgumentType>
+    public static class Serializer implements ArgumentSerializer<ComputersArgumentType>
     {
 
         @Override
-        public void serializeToNetwork( @Nonnull ComputersArgumentType arg, @Nonnull PacketBuffer buf )
+        public void serializeToNetwork( @Nonnull ComputersArgumentType arg, @Nonnull FriendlyByteBuf buf )
         {
             buf.writeBoolean( arg.requireSome );
         }
 
         @Nonnull
         @Override
-        public ComputersArgumentType deserializeFromNetwork( @Nonnull PacketBuffer buf )
+        public ComputersArgumentType deserializeFromNetwork( @Nonnull FriendlyByteBuf buf )
         {
             return buf.readBoolean() ? SOME : MANY;
         }
@@ -197,10 +197,10 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
     @FunctionalInterface
     public interface ComputersSupplier
     {
-        Collection<ServerComputer> unwrap( CommandSource source ) throws CommandSyntaxException;
+        Collection<ServerComputer> unwrap( CommandSourceStack source ) throws CommandSyntaxException;
     }
 
-    public static Set<ServerComputer> unwrap( CommandSource source, Collection<ComputersSupplier> suppliers ) throws CommandSyntaxException
+    public static Set<ServerComputer> unwrap( CommandSourceStack source, Collection<ComputersSupplier> suppliers ) throws CommandSyntaxException
     {
         Set<ServerComputer> computers = new HashSet<>();
         for( ComputersSupplier supplier : suppliers ) computers.addAll( supplier.unwrap( source ) );

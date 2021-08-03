@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.generic.data;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import javax.annotation.Nonnull;

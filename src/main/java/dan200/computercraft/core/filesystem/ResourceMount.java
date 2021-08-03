@@ -13,13 +13,12 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.shared.util.IoUtil;
-import net.minecraft.resources.IReloadableResourceManager;
-import net.minecraft.resources.IResource;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.ResourceLocationException;
-import net.minecraftforge.resource.IResourceType;
-import net.minecraftforge.resource.ISelectiveResourceReloadListener;
+import net.minecraft.ResourceLocationException;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,7 +29,6 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 
 public final class ResourceMount implements IMount
 {
@@ -63,16 +61,16 @@ public final class ResourceMount implements IMount
     /**
      * Maintain a cache of currently loaded resource mounts. This cache is invalidated when currentManager changes.
      */
-    private static final Map<IReloadableResourceManager, Map<ResourceLocation, ResourceMount>> MOUNT_CACHE = new WeakHashMap<>( 2 );
+    private static final Map<ReloadableResourceManager, Map<ResourceLocation, ResourceMount>> MOUNT_CACHE = new WeakHashMap<>( 2 );
 
     private final String namespace;
     private final String subPath;
-    private final IReloadableResourceManager manager;
+    private final ReloadableResourceManager manager;
 
     @Nullable
     private FileEntry root;
 
-    public static ResourceMount get( String namespace, String subPath, IReloadableResourceManager manager )
+    public static ResourceMount get( String namespace, String subPath, ReloadableResourceManager manager )
     {
         Map<ResourceLocation, ResourceMount> cache;
 
@@ -91,7 +89,7 @@ public final class ResourceMount implements IMount
         }
     }
 
-    private ResourceMount( String namespace, String subPath, IReloadableResourceManager manager )
+    private ResourceMount( String namespace, String subPath, ReloadableResourceManager manager )
     {
         this.namespace = namespace;
         this.subPath = subPath;
@@ -112,6 +110,7 @@ public final class ResourceMount implements IMount
             existingNamespace = file.getNamespace();
 
             if( !file.getNamespace().equals( namespace ) ) continue;
+            if( !FileSystem.contains( subPath, file.getPath() ) ) continue; // Some packs seem to include the parent?
 
             String localPath = FileSystem.toLocal( file.getPath(), subPath );
             create( newRoot, localPath );
@@ -215,7 +214,7 @@ public final class ResourceMount implements IMount
 
             try
             {
-                IResource resource = manager.getResource( file.identifier );
+                Resource resource = manager.getResource( file.identifier );
                 InputStream s = resource.getInputStream();
                 int total = 0, read = 0;
                 do
@@ -298,27 +297,20 @@ public final class ResourceMount implements IMount
      * While people should really be keeping a permanent reference to this, some people construct it every
      * method call, so let's make this as small as possible.
      */
-    static class Listener implements ISelectiveResourceReloadListener
+    static class Listener implements ResourceManagerReloadListener
     {
         private static final Listener INSTANCE = new Listener();
 
         private final Set<ResourceMount> mounts = Collections.newSetFromMap( new WeakHashMap<>() );
-        private final Set<IReloadableResourceManager> managers = Collections.newSetFromMap( new WeakHashMap<>() );
+        private final Set<ReloadableResourceManager> managers = Collections.newSetFromMap( new WeakHashMap<>() );
 
         @Override
-        public void onResourceManagerReload( @Nonnull IResourceManager manager )
-        {
-            // FIXME: Remove this. We need this patch in order to prevent trying to load ReloadRequirements.
-            onResourceManagerReload( manager, x -> true );
-        }
-
-        @Override
-        public synchronized void onResourceManagerReload( @Nonnull IResourceManager manager, @Nonnull Predicate<IResourceType> predicate )
+        public void onResourceManagerReload( @Nonnull ResourceManager manager )
         {
             for( ResourceMount mount : mounts ) mount.load();
         }
 
-        synchronized void add( IReloadableResourceManager manager, ResourceMount mount )
+        synchronized void add( ReloadableResourceManager manager, ResourceMount mount )
         {
             if( managers.add( manager ) ) manager.registerReloadListener( this );
             mounts.add( mount );

@@ -457,8 +457,8 @@ public class FSAPI implements ILuaAPI
      * @param path The path to check the free space for.
      * @return The amount of free space available, in bytes.
      * @throws LuaException If the path doesn't exist.
-     * @see #getCapacity To get the capacity of this drive.
      * @cc.treturn number|"unlimited" The amount of free space available, in bytes, or "unlimited".
+     * @see #getCapacity To get the capacity of this drive.
      */
     @LuaFunction
     public final Object getFreeSpace( String path ) throws LuaException
@@ -506,9 +506,9 @@ public class FSAPI implements ILuaAPI
      * @param path The path of the drive to get.
      * @return The drive's capacity.
      * @throws LuaException If the capacity cannot be determined.
-     * @see #getFreeSpace To get the free space available on this drive.
      * @cc.treturn number|nil This drive's capacity. This will be nil for "read-only" drives, such as the ROM or
      * treasure disks.
+     * @see #getFreeSpace To get the free space available on this drive.
      */
     @LuaFunction
     public final Object getCapacity( String path ) throws LuaException

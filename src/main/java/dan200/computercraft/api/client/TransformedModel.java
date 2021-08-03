@@ -5,12 +5,12 @@
  */
 package dan200.computercraft.api.client;
 
+import com.mojang.math.Transformation;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelManager;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.vector.TransformationMatrix;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -20,19 +20,19 @@ import java.util.Objects;
  */
 public final class TransformedModel
 {
-    private final IBakedModel model;
-    private final TransformationMatrix matrix;
+    private final BakedModel model;
+    private final Transformation matrix;
 
-    public TransformedModel( @Nonnull IBakedModel model, @Nonnull TransformationMatrix matrix )
+    public TransformedModel( @Nonnull BakedModel model, @Nonnull Transformation matrix )
     {
         this.model = Objects.requireNonNull( model );
         this.matrix = Objects.requireNonNull( matrix );
     }
 
-    public TransformedModel( @Nonnull IBakedModel model )
+    public TransformedModel( @Nonnull BakedModel model )
     {
         this.model = Objects.requireNonNull( model );
-        matrix = TransformationMatrix.identity();
+        matrix = Transformation.identity();
     }
 
     public static TransformedModel of( @Nonnull ModelResourceLocation location )
@@ -41,20 +41,20 @@ public final class TransformedModel
         return new TransformedModel( modelManager.getModel( location ) );
     }
 
-    public static TransformedModel of( @Nonnull ItemStack item, @Nonnull TransformationMatrix transform )
+    public static TransformedModel of( @Nonnull ItemStack item, @Nonnull Transformation transform )
     {
-        IBakedModel model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel( item );
+        BakedModel model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel( item );
         return new TransformedModel( model, transform );
     }
 
     @Nonnull
-    public IBakedModel getModel()
+    public BakedModel getModel()
     {
         return model;
     }
 
     @Nonnull
-    public TransformationMatrix getMatrix()
+    public Transformation getMatrix()
     {
         return matrix;
     }

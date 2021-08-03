@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.core.computer.ComputerSide;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 public final class DirectionUtil
 {

@@ -17,14 +17,18 @@ import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ImpostorRecipe;
 import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
-import net.minecraft.advancements.criterion.InventoryChangeTrigger;
-import net.minecraft.advancements.criterion.ItemPredicate;
-import net.minecraft.block.Blocks;
-import net.minecraft.data.*;
-import net.minecraft.item.*;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.data.DataGenerator;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nonnull;
@@ -39,7 +43,7 @@ public class Recipes extends RecipeProvider
     }
 
     @Override
-    protected void buildShapelessRecipes( @Nonnull Consumer<IFinishedRecipe> add )
+    protected void buildCraftingRecipes( @Nonnull Consumer<FinishedRecipe> add )
     {
         basicRecipes( add );
         diskColours( add );
@@ -52,7 +56,7 @@ public class Recipes extends RecipeProvider
      *
      * @param add The callback to add recipes.
      */
-    private void diskColours( @Nonnull Consumer<IFinishedRecipe> add )
+    private void diskColours( @Nonnull Consumer<FinishedRecipe> add )
     {
         for( Colour colour : Colour.VALUES )
         {
@@ -75,7 +79,7 @@ public class Recipes extends RecipeProvider
      *
      * @param add The callback to add recipes.
      */
-    private void turtleUpgrades( @Nonnull Consumer<IFinishedRecipe> add )
+    private void turtleUpgrades( @Nonnull Consumer<FinishedRecipe> add )
     {
         for( ComputerFamily family : ComputerFamily.values() )
         {
@@ -109,7 +113,7 @@ public class Recipes extends RecipeProvider
      *
      * @param add The callback to add recipes.
      */
-    private void pocketUpgrades( @Nonnull Consumer<IFinishedRecipe> add )
+    private void pocketUpgrades( @Nonnull Consumer<FinishedRecipe> add )
     {
         for( ComputerFamily family : ComputerFamily.values() )
         {
@@ -139,7 +143,7 @@ public class Recipes extends RecipeProvider
         }
     }
 
-    private void basicRecipes( @Nonnull Consumer<IFinishedRecipe> add )
+    private void basicRecipes( @Nonnull Consumer<FinishedRecipe> add )
     {
         ShapedRecipeBuilder
             .shaped( Registry.ModItems.CABLE.get(), 6 )
@@ -310,13 +314,13 @@ public class Recipes extends RecipeProvider
         return DyeColor.byId( 15 - colour.ordinal() );
     }
 
-    private static InventoryChangeTrigger.Instance inventoryChange( ITag<Item> stack )
+    private static InventoryChangeTrigger.TriggerInstance inventoryChange( Tag<Item> stack )
     {
-        return InventoryChangeTrigger.Instance.hasItems( ItemPredicate.Builder.item().of( stack ).build() );
+        return InventoryChangeTrigger.TriggerInstance.hasItems( ItemPredicate.Builder.item().of( stack ).build() );
     }
 
-    private static InventoryChangeTrigger.Instance inventoryChange( IItemProvider... stack )
+    private static InventoryChangeTrigger.TriggerInstance inventoryChange( ItemLike... stack )
     {
-        return InventoryChangeTrigger.Instance.hasItems( stack );
+        return InventoryChangeTrigger.TriggerInstance.hasItems( stack );
     }
 }

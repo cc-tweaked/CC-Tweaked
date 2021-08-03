@@ -7,10 +7,9 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import com.mojang.blaze3d.vertex.VertexBuffer;
 import dan200.computercraft.shared.common.ClientTerminal;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL11;
@@ -82,7 +81,7 @@ public final class ClientMonitor extends ClientTerminal
                 if( buffer != null ) return false;
 
                 deleteBuffers();
-                buffer = new VertexBuffer( FixedWidthFontRenderer.TYPE.format() );
+                buffer = new VertexBuffer();
                 addMonitor();
                 return true;
 

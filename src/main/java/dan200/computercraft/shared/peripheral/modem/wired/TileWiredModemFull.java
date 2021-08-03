@@ -17,19 +17,19 @@ import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.SidedCaps;
 import dan200.computercraft.shared.util.TickScheduler;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullConsumer;
@@ -78,17 +78,17 @@ public class TileWiredModemFull extends TileGeneric
 
         @Nonnull
         @Override
-        public World getWorld()
+        public Level getLevel()
         {
             return entity.getLevel();
         }
 
         @Nonnull
         @Override
-        public Vector3d getPosition()
+        public Vec3 getPosition()
         {
             BlockPos pos = entity.getBlockPos();
-            return new Vector3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+            return new Vec3( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
     }
 
@@ -108,9 +108,9 @@ public class TileWiredModemFull extends TileGeneric
 
     private final NonNullConsumer<LazyOptional<IWiredElement>> connectedNodeChanged = x -> connectionsChanged();
 
-    public TileWiredModemFull( TileEntityType<TileWiredModemFull> type )
+    public TileWiredModemFull( BlockEntityType<TileWiredModemFull> type, BlockPos pos, BlockState state )
     {
-        super( type );
+        super( type, pos, state );
         for( int i = 0; i < peripherals.length; i++ )
         {
             Direction facing = Direction.from3DDataValue( i );
@@ -189,9 +189,9 @@ public class TileWiredModemFull extends TileGeneric
 
     @Nonnull
     @Override
-    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
     {
-        if( getLevel().isClientSide ) return ActionResultType.SUCCESS;
+        if( getLevel().isClientSide ) return InteractionResult.SUCCESS;
 
         // On server, we interacted if a peripheral was found
         Set<String> oldPeriphNames = getConnectedPeripheralNames();
@@ -204,37 +204,37 @@ public class TileWiredModemFull extends TileGeneric
             sendPeripheralChanges( player, "chat.computercraft.wired_modem.peripheral_connected", periphNames );
         }
 
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
-    private static void sendPeripheralChanges( PlayerEntity player, String kind, Collection<String> peripherals )
+    private static void sendPeripheralChanges( Player player, String kind, Collection<String> peripherals )
     {
         if( peripherals.isEmpty() ) return;
 
         List<String> names = new ArrayList<>( peripherals );
         names.sort( Comparator.naturalOrder() );
 
-        StringTextComponent base = new StringTextComponent( "" );
+        TextComponent base = new TextComponent( "" );
         for( int i = 0; i < names.size(); i++ )
         {
             if( i > 0 ) base.append( ", " );
             base.append( ChatHelpers.copy( names.get( i ) ) );
         }
 
-        player.displayClientMessage( new TranslationTextComponent( kind, base ), false );
+        player.displayClientMessage( new TranslatableComponent( kind, base ), false );
     }
 
     @Override
-    public void load( @Nonnull BlockState state, @Nonnull CompoundNBT nbt )
+    public void load( @Nonnull CompoundTag nbt )
     {
-        super.load( state, nbt );
+        super.load( nbt );
         peripheralAccessAllowed = nbt.getBoolean( NBT_PERIPHERAL_ENABLED );
         for( int i = 0; i < peripherals.length; i++ ) peripherals[i].read( nbt, Integer.toString( i ) );
     }
 
     @Nonnull
     @Override
-    public CompoundNBT save( CompoundNBT nbt )
+    public CompoundTag save( CompoundTag nbt )
     {
         nbt.putBoolean( NBT_PERIPHERAL_ENABLED, peripheralAccessAllowed );
         for( int i = 0; i < peripherals.length; i++ ) peripherals[i].write( nbt, Integer.toString( i ) );
@@ -284,7 +284,7 @@ public class TileWiredModemFull extends TileGeneric
     {
         if( getLevel().isClientSide ) return;
 
-        World world = getLevel();
+        Level world = getLevel();
         BlockPos current = getBlockPos();
         for( Direction facing : DirectionUtil.FACINGS )
         {
@@ -399,10 +399,10 @@ public class TileWiredModemFull extends TileGeneric
 
             @Nonnull
             @Override
-            public Vector3d getPosition()
+            public Vec3 getPosition()
             {
                 BlockPos pos = getBlockPos().relative( side );
-                return new Vector3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+                return new Vec3( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
             }
 
             @Nonnull

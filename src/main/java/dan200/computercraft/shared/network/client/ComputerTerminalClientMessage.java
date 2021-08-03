@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.shared.network.client;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
@@ -20,14 +20,14 @@ public class ComputerTerminalClientMessage extends ComputerClientMessage
         this.state = state;
     }
 
-    public ComputerTerminalClientMessage( @Nonnull PacketBuffer buf )
+    public ComputerTerminalClientMessage( @Nonnull FriendlyByteBuf buf )
     {
         super( buf );
         state = new TerminalState( buf );
     }
 
     @Override
-    public void toBytes( @Nonnull PacketBuffer buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         super.toBytes( buf );
         state.write( buf );

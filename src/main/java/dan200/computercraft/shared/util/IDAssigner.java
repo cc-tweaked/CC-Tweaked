@@ -10,8 +10,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.storage.FolderName;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraft.world.level.storage.LevelResource;
+import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
 
 import java.io.File;
 import java.io.Reader;
@@ -26,7 +26,7 @@ import java.util.Map;
 
 public final class IDAssigner
 {
-    private static final FolderName FOLDER = new FolderName( ComputerCraft.MOD_ID );
+    private static final LevelResource FOLDER = new LevelResource( ComputerCraft.MOD_ID );
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Type ID_TOKEN = new TypeToken<Map<String, Integer>>()
     {

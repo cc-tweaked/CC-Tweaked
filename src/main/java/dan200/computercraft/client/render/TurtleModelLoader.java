@@ -9,11 +9,12 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import dan200.computercraft.ComputerCraft;
-import net.minecraft.client.renderer.model.*;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.resources.model.*;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.GsonHelper;
 import net.minecraftforge.client.model.IModelConfiguration;
 import net.minecraftforge.client.model.IModelLoader;
 import net.minecraftforge.client.model.geometry.IModelGeometry;
@@ -35,7 +36,7 @@ public final class TurtleModelLoader implements IModelLoader<TurtleModelLoader.T
     }
 
     @Override
-    public void onResourceManagerReload( @Nonnull IResourceManager manager )
+    public void onResourceManagerReload( @Nonnull ResourceManager manager )
     {
     }
 
@@ -43,7 +44,7 @@ public final class TurtleModelLoader implements IModelLoader<TurtleModelLoader.T
     @Override
     public TurtleModel read( @Nonnull JsonDeserializationContext deserializationContext, @Nonnull JsonObject modelContents )
     {
-        ResourceLocation model = new ResourceLocation( JSONUtils.getAsString( modelContents, "model" ) );
+        ResourceLocation model = new ResourceLocation( GsonHelper.getAsString( modelContents, "model" ) );
         return new TurtleModel( model );
     }
 
@@ -57,20 +58,20 @@ public final class TurtleModelLoader implements IModelLoader<TurtleModelLoader.T
         }
 
         @Override
-        public Collection<RenderMaterial> getTextures( IModelConfiguration owner, Function<ResourceLocation, IUnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors )
+        public Collection<Material> getTextures( IModelConfiguration owner, Function<ResourceLocation, UnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors )
         {
-            Set<RenderMaterial> materials = new HashSet<>();
+            Set<Material> materials = new HashSet<>();
             materials.addAll( modelGetter.apply( family ).getMaterials( modelGetter, missingTextureErrors ) );
             materials.addAll( modelGetter.apply( COLOUR_TURTLE_MODEL ).getMaterials( modelGetter, missingTextureErrors ) );
             return materials;
         }
 
         @Override
-        public IBakedModel bake( IModelConfiguration owner, ModelBakery bakery, Function<RenderMaterial, TextureAtlasSprite> spriteGetter, IModelTransform transform, ItemOverrideList overrides, ResourceLocation modelLocation )
+        public BakedModel bake( IModelConfiguration owner, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState transform, ItemOverrides overrides, ResourceLocation modelLocation )
         {
             return new TurtleSmartItemModel(
-                bakery.getBakedModel( family, transform, spriteGetter ),
-                bakery.getBakedModel( COLOUR_TURTLE_MODEL, transform, spriteGetter )
+                bakery.bake( family, transform, spriteGetter ),
+                bakery.bake( COLOUR_TURTLE_MODEL, transform, spriteGetter )
             );
         }
     }

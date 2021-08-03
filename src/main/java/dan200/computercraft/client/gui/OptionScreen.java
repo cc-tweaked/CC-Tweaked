@@ -5,14 +5,15 @@
  */
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.IBidiRenderer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.MultiLineLabel;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -32,14 +33,14 @@ public final class OptionScreen extends Screen
     private int innerWidth;
     private int innerHeight;
 
-    private IBidiRenderer messageRenderer;
-    private final ITextComponent message;
-    private final List<Widget> buttons;
+    private MultiLineLabel messageRenderer;
+    private final Component message;
+    private final List<AbstractWidget> buttons;
     private final Runnable exit;
 
     private final Screen originalScreen;
 
-    private OptionScreen( ITextComponent title, ITextComponent message, List<Widget> buttons, Runnable exit, Screen originalScreen )
+    private OptionScreen( Component title, Component message, List<AbstractWidget> buttons, Runnable exit, Screen originalScreen )
     {
         super( title );
         this.message = message;
@@ -48,7 +49,7 @@ public final class OptionScreen extends Screen
         this.originalScreen = originalScreen;
     }
 
-    public static void show( Minecraft minecraft, ITextComponent title, ITextComponent message, List<Widget> buttons, Runnable exit )
+    public static void show( Minecraft minecraft, Component title, Component message, List<AbstractWidget> buttons, Runnable exit )
     {
         minecraft.setScreen( new OptionScreen( title, message, buttons, exit, unwrap( minecraft.screen ) ) );
     }
@@ -66,7 +67,7 @@ public final class OptionScreen extends Screen
         int buttonWidth = BUTTON_WIDTH * buttons.size() + PADDING * (buttons.size() - 1);
         int innerWidth = this.innerWidth = Math.max( 256, buttonWidth + PADDING * 2 );
 
-        messageRenderer = IBidiRenderer.create( font, message, innerWidth - PADDING * 2 );
+        messageRenderer = MultiLineLabel.create( font, message, innerWidth - PADDING * 2 );
 
         int textHeight = messageRenderer.getLineCount() * FONT_HEIGHT + PADDING * 2;
         innerHeight = textHeight + (buttons.isEmpty() ? 0 : buttons.get( 0 ).getHeight()) + PADDING;
@@ -75,23 +76,23 @@ public final class OptionScreen extends Screen
         y = (height - innerHeight) / 2;
 
         int x = (width - buttonWidth) / 2;
-        for( Widget button : buttons )
+        for( AbstractWidget button : buttons )
         {
             button.x = x;
             button.y = y + textHeight;
-            addButton( button );
+            addRenderableWidget( button );
 
             x += BUTTON_WIDTH + PADDING;
         }
     }
 
     @Override
-    public void render( @Nonnull MatrixStack transform, int mouseX, int mouseY, float partialTicks )
+    public void render( @Nonnull PoseStack transform, int mouseX, int mouseY, float partialTicks )
     {
         renderBackground( transform );
 
         // Render the actual texture.
-        minecraft.textureManager.bind( BACKGROUND );
+        RenderSystem.setShaderTexture( 0, BACKGROUND );
         blit( transform, x, y, 0, 0, innerWidth, PADDING );
         blit( transform,
             x, y + PADDING, 0, PADDING, innerWidth, innerHeight - PADDING * 2,
@@ -109,14 +110,14 @@ public final class OptionScreen extends Screen
         exit.run();
     }
 
-    public static Widget newButton( ITextComponent component, Button.IPressable clicked )
+    public static AbstractWidget newButton( Component component, Button.OnPress clicked )
     {
         return new Button( 0, 0, BUTTON_WIDTH, BUTTON_HEIGHT, component, clicked );
     }
 
     public void disable()
     {
-        for( Widget widget : buttons ) widget.active = false;
+        for( AbstractWidget widget : buttons ) widget.active = false;
     }
 
     @Nonnull

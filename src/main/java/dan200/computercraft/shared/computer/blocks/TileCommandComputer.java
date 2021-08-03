@@ -9,18 +9,20 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.apis.CommandAPI;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.ICommandSource;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.math.vector.Vector2f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -29,7 +31,7 @@ import java.util.UUID;
 
 public class TileCommandComputer extends TileComputer
 {
-    public class CommandReceiver implements ICommandSource
+    public class CommandReceiver implements CommandSource
     {
         private final Map<Integer, String> output = new HashMap<>();
 
@@ -49,7 +51,7 @@ public class TileCommandComputer extends TileComputer
         }
 
         @Override
-        public void sendMessage( @Nonnull ITextComponent textComponent, @Nonnull UUID id )
+        public void sendMessage( @Nonnull Component textComponent, @Nonnull UUID id )
         {
             output.put( output.size() + 1, textComponent.getString() );
         }
@@ -75,9 +77,9 @@ public class TileCommandComputer extends TileComputer
 
     private final CommandReceiver receiver;
 
-    public TileCommandComputer( ComputerFamily family, TileEntityType<? extends TileCommandComputer> type )
+    public TileCommandComputer( BlockEntityType<? extends TileComputer> type, BlockPos pos, BlockState state )
     {
-        super( family, type );
+        super( type, pos, state, ComputerFamily.COMMAND );
         receiver = new CommandReceiver();
     }
 
@@ -86,7 +88,7 @@ public class TileCommandComputer extends TileComputer
         return receiver;
     }
 
-    public CommandSource getSource()
+    public CommandSourceStack getSource()
     {
         ServerComputer computer = getServerComputer();
         String name = "@";
@@ -96,10 +98,10 @@ public class TileCommandComputer extends TileComputer
             if( label != null ) name = label;
         }
 
-        return new CommandSource( receiver,
-            new Vector3d( worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5 ), Vector2f.ZERO,
-            (ServerWorld) getLevel(), 2,
-            name, new StringTextComponent( name ),
+        return new CommandSourceStack( receiver,
+            new Vec3( worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5 ), Vec2.ZERO,
+            (ServerLevel) getLevel(), 2,
+            name, new TextComponent( name ),
             getLevel().getServer(), null
         );
     }
@@ -113,22 +115,22 @@ public class TileCommandComputer extends TileComputer
     }
 
     @Override
-    public boolean isUsable( PlayerEntity player, boolean ignoreRange )
+    public boolean isUsable( Player player, boolean ignoreRange )
     {
         return isUsable( player ) && super.isUsable( player, ignoreRange );
     }
 
-    public static boolean isUsable( PlayerEntity player )
+    public static boolean isUsable( Player player )
     {
         MinecraftServer server = player.getServer();
         if( server == null || !server.isCommandBlockEnabled() )
         {
-            player.displayClientMessage( new TranslationTextComponent( "advMode.notEnabled" ), true );
+            player.displayClientMessage( new TranslatableComponent( "advMode.notEnabled" ), true );
             return false;
         }
         else if( ComputerCraft.commandRequireCreative ? !player.canUseGameMasterBlocks() : !server.getPlayerList().isOp( player.getGameProfile() ) )
         {
-            player.displayClientMessage( new TranslationTextComponent( "advMode.notAllowed" ), true );
+            player.displayClientMessage( new TranslatableComponent( "advMode.notAllowed" ), true );
             return false;
         }
 

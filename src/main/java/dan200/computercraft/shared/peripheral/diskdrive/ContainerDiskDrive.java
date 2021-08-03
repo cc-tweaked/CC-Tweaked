@@ -6,21 +6,21 @@
 package dan200.computercraft.shared.peripheral.diskdrive;
 
 import dan200.computercraft.shared.Registry;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public class ContainerDiskDrive extends Container
+public class ContainerDiskDrive extends AbstractContainerMenu
 {
-    private final IInventory inventory;
+    private final Container inventory;
 
-    public ContainerDiskDrive( int id, PlayerInventory player, IInventory inventory )
+    public ContainerDiskDrive( int id, Inventory player, Container inventory )
     {
         super( Registry.ModContainers.DISK_DRIVE.get(), id );
 
@@ -42,20 +42,20 @@ public class ContainerDiskDrive extends Container
         }
     }
 
-    public ContainerDiskDrive( int id, PlayerInventory player )
+    public ContainerDiskDrive( int id, Inventory player )
     {
-        this( id, player, new Inventory( 1 ) );
+        this( id, player, new SimpleContainer( 1 ) );
     }
 
     @Override
-    public boolean stillValid( @Nonnull PlayerEntity player )
+    public boolean stillValid( @Nonnull Player player )
     {
         return inventory.stillValid( player );
     }
 
     @Nonnull
     @Override
-    public ItemStack quickMoveStack( @Nonnull PlayerEntity player, int slotIndex )
+    public ItemStack quickMoveStack( @Nonnull Player player, int slotIndex )
     {
         Slot slot = slots.get( slotIndex );
         if( slot == null || !slot.hasItem() ) return ItemStack.EMPTY;

@@ -16,25 +16,28 @@ import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.DefaultInventory;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.RecordUtil;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.Nameable;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
@@ -47,7 +50,7 @@ import java.util.Set;
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
-public final class TileDiskDrive extends TileGeneric implements DefaultInventory, ITickableTileEntity, INameable, INamedContainerProvider
+public final class TileDiskDrive extends TileGeneric implements DefaultInventory, Nameable, MenuProvider
 {
     private static final String NBT_NAME = "CustomName";
     private static final String NBT_ITEM = "Item";
@@ -57,7 +60,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         String mountPath;
     }
 
-    ITextComponent customName;
+    Component customName;
 
     private final Map<IComputerAccess, MountInfo> computers = new HashMap<>();
 
@@ -72,9 +75,9 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     private boolean restartRecord = false;
     private boolean ejectQueued;
 
-    public TileDiskDrive( TileEntityType<TileDiskDrive> type )
+    public TileDiskDrive( BlockEntityType<TileDiskDrive> type, BlockPos pos, BlockState state )
     {
-        super( type );
+        super( type, pos, state );
     }
 
     @Override
@@ -94,25 +97,25 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
     @Nonnull
     @Override
-    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
     {
         if( player.isCrouching() )
         {
             // Try to put a disk into the drive
             ItemStack disk = player.getItemInHand( hand );
-            if( disk.isEmpty() ) return ActionResultType.PASS;
+            if( disk.isEmpty() ) return InteractionResult.PASS;
             if( !getLevel().isClientSide && getItem( 0 ).isEmpty() && MediaProviders.get( disk ) != null )
             {
                 setDiskStack( disk );
                 player.setItemInHand( hand, ItemStack.EMPTY );
             }
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
         else
         {
             // Open the GUI
-            if( !getLevel().isClientSide ) NetworkHooks.openGui( (ServerPlayerEntity) player, this );
-            return ActionResultType.SUCCESS;
+            if( !getLevel().isClientSide ) NetworkHooks.openGui( (ServerPlayer) player, this );
+            return InteractionResult.SUCCESS;
         }
     }
 
@@ -122,13 +125,13 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     }
 
     @Override
-    public void load( @Nonnull BlockState state, @Nonnull CompoundNBT nbt )
+    public void load( @Nonnull CompoundTag nbt )
     {
-        super.load( state, nbt );
-        customName = nbt.contains( NBT_NAME ) ? ITextComponent.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
+        super.load( nbt );
+        customName = nbt.contains( NBT_NAME ) ? Component.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
         if( nbt.contains( NBT_ITEM ) )
         {
-            CompoundNBT item = nbt.getCompound( NBT_ITEM );
+            CompoundTag item = nbt.getCompound( NBT_ITEM );
             diskStack = ItemStack.of( item );
             diskMount = null;
         }
@@ -136,21 +139,20 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
     @Nonnull
     @Override
-    public CompoundNBT save( @Nonnull CompoundNBT nbt )
+    public CompoundTag save( @Nonnull CompoundTag nbt )
     {
-        if( customName != null ) nbt.putString( NBT_NAME, ITextComponent.Serializer.toJson( customName ) );
+        if( customName != null ) nbt.putString( NBT_NAME, Component.Serializer.toJson( customName ) );
 
         if( !diskStack.isEmpty() )
         {
-            CompoundNBT item = new CompoundNBT();
+            CompoundTag item = new CompoundTag();
             diskStack.save( item );
             nbt.put( NBT_ITEM, item );
         }
         return super.save( nbt );
     }
 
-    @Override
-    public void tick()
+    protected void serverTick()
     {
         // Ejection
         if( ejectQueued )
@@ -162,7 +164,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         // Music
         synchronized( this )
         {
-            if( !level.isClientSide && recordPlaying != recordQueued || restartRecord )
+            if( recordPlaying != recordQueued || restartRecord )
             {
                 restartRecord = false;
                 if( recordQueued )
@@ -295,7 +297,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     }
 
     @Override
-    public boolean stillValid( @Nonnull PlayerEntity player )
+    public boolean stillValid( @Nonnull Player player )
     {
         return isUsable( player, false );
     }
@@ -540,28 +542,28 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
     @Nullable
     @Override
-    public ITextComponent getCustomName()
+    public Component getCustomName()
     {
         return customName;
     }
 
     @Nonnull
     @Override
-    public ITextComponent getName()
+    public Component getName()
     {
-        return customName != null ? customName : new TranslationTextComponent( getBlockState().getBlock().getDescriptionId() );
+        return customName != null ? customName : new TranslatableComponent( getBlockState().getBlock().getDescriptionId() );
     }
 
     @Nonnull
     @Override
-    public ITextComponent getDisplayName()
+    public Component getDisplayName()
     {
-        return INameable.super.getDisplayName();
+        return Nameable.super.getDisplayName();
     }
 
     @Nonnull
     @Override
-    public Container createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
+    public AbstractContainerMenu createMenu( int id, @Nonnull Inventory inventory, @Nonnull Player player )
     {
         return new ContainerDiskDrive( id, inventory, this );
     }

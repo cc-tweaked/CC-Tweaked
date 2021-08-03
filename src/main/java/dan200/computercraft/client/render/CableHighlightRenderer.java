@@ -5,26 +5,25 @@
  */
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Matrix4f;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.DrawHighlightEvent;
+import net.minecraftforge.client.event.DrawSelectionEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -39,15 +38,15 @@ public final class CableHighlightRenderer
      * Draw an outline for a specific part of a cable "Multipart".
      *
      * @param event The event to observe
-     * @see WorldRenderer#drawSelectionBox(MatrixStack, IVertexBuilder, Entity, double, double, double, BlockPos, BlockState)
+     * @see net.minecraft.client.renderer.LevelRenderer#renderHitOutline
      */
     @SubscribeEvent
-    public static void drawHighlight( DrawHighlightEvent.HighlightBlock event )
+    public static void drawHighlight( DrawSelectionEvent.HighlightBlock event )
     {
-        BlockRayTraceResult hit = event.getTarget();
+        BlockHitResult hit = event.getTarget();
         BlockPos pos = hit.getBlockPos();
-        World world = event.getInfo().getEntity().getCommandSenderWorld();
-        ActiveRenderInfo info = event.getInfo();
+        Level world = event.getInfo().getEntity().getCommandSenderWorld();
+        Camera info = event.getInfo();
 
         BlockState state = world.getBlockState( pos );
 
@@ -63,18 +62,34 @@ public final class CableHighlightRenderer
             ? CableShapes.getModemShape( state )
             : CableShapes.getCableShape( state );
 
-        Vector3d cameraPos = info.getPosition();
+        Vec3 cameraPos = info.getPosition();
         double xOffset = pos.getX() - cameraPos.x();
         double yOffset = pos.getY() - cameraPos.y();
         double zOffset = pos.getZ() - cameraPos.z();
 
-        IVertexBuilder buffer = event.getBuffers().getBuffer( RenderType.lines() );
+        VertexConsumer buffer = event.getBuffers().getBuffer( RenderType.lines() );
         Matrix4f matrix4f = event.getMatrix().last().pose();
+        Matrix3f normal = event.getMatrix().last().normal();
+        // TODO: Can we just accesstransformer out LevelRenderer.renderShape?
         shape.forAllEdges( ( x1, y1, z1, x2, y2, z2 ) -> {
-            buffer.vertex( matrix4f, (float) (x1 + xOffset), (float) (y1 + yOffset), (float) (z1 + zOffset) )
-                .color( 0, 0, 0, 0.4f ).endVertex();
-            buffer.vertex( matrix4f, (float) (x2 + xOffset), (float) (y2 + yOffset), (float) (z2 + zOffset) )
-                .color( 0, 0, 0, 0.4f ).endVertex();
+            float xDelta = (float) (x2 - x1);
+            float yDelta = (float) (y2 - y1);
+            float zDelta = (float) (z2 - z1);
+            float len = Mth.sqrt( xDelta * xDelta + yDelta * yDelta + zDelta * zDelta );
+            xDelta = xDelta / len;
+            yDelta = yDelta / len;
+            zDelta = zDelta / len;
+
+            buffer
+                .vertex( matrix4f, (float) (x1 + xOffset), (float) (y1 + yOffset), (float) (z1 + zOffset) )
+                .color( 0, 0, 0, 0.4f )
+                .normal( normal, xDelta, yDelta, zDelta )
+                .endVertex();
+            buffer
+                .vertex( matrix4f, (float) (x2 + xOffset), (float) (y2 + yOffset), (float) (z2 + zOffset) )
+                .color( 0, 0, 0, 0.4f )
+                .normal( normal, xDelta, yDelta, zDelta )
+                .endVertex();
         } );
     }
 }

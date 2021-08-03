@@ -12,9 +12,9 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -264,7 +264,7 @@ public class InventoryMethods implements GenericSource
         }
 
         if( object instanceof IItemHandler ) return (IItemHandler) object;
-        if( object instanceof IInventory ) return new InvWrapper( (IInventory) object );
+        if( object instanceof Container ) return new InvWrapper( (Container) object );
         return null;
     }
 

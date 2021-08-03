@@ -7,7 +7,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:5.0.24'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.17'
     }
 }
 
@@ -18,7 +18,7 @@ plugins {
     id "com.github.hierynomus.license" version "0.16.1"
     id "com.matthewprenger.cursegradle" version "1.4.0"
     id "com.github.breadmoirai.github-release" version "2.2.12"
-    id "org.jetbrains.kotlin.jvm" version "1.3.72"
+    id "org.jetbrains.kotlin.jvm" version "1.5.21"
     id "com.modrinth.minotaur" version "1.2.1"
 }
 
@@ -29,7 +29,7 @@ version = mod_version
 group = "org.squiddev"
 archivesBaseName = "cc-tweaked-${mc_version}"
 
-def javaVersion = JavaLanguageVersion.of(8)
+def javaVersion = JavaLanguageVersion.of(16)
 java {
     toolchain {
         languageVersion = javaVersion
@@ -45,8 +45,32 @@ tasks.withType(JavaExec).configureEach {
     }
 }
 
+sourceSets {
+    main.java {
+        exclude 'dan200/computercraft/shared/integration/**'
+    }
+    main.resources {
+        srcDir 'src/generated/resources'
+    }
+
+    // Rename to testMod
+    cctest {
+        java {
+            compileClasspath += main.output
+            compileClasspath += configurations.compileClasspath
+            runtimeClasspath += main.output
+        }
+    }
+}
+
 minecraft {
     runs {
+        all {
+            lazyToken('minecraft_classpath') {
+                configurations.shade.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
+            }
+        }
+
         client {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
@@ -92,8 +116,14 @@ minecraft {
 
             mods {
                 cctest {
-                    source sourceSets.test
+                    source sourceSets.cctest
                 }
+            }
+
+            lazyToken('minecraft_classpath') {
+                (configurations.shade.copyRecursive().resolve() + configurations.cctest.copyRecursive().resolve())
+                    .collect { it.absolutePath }
+                    .join(File.pathSeparator)
             }
         }
     }
@@ -102,12 +132,6 @@ minecraft {
 
     accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
     accessTransformer file('src/test/resources/META-INF/accesstransformer.cfg')
-}
-
-sourceSets {
-    main.resources {
-        srcDir 'src/generated/resources'
-    }
 }
 
 repositories {
@@ -120,7 +144,11 @@ repositories {
 
 configurations {
     shade
-    compile.extendsFrom shade
+    implementation.extendsFrom shade
+
+    cctest
+    cctestImplementation.extendsFrom cctest
+
     cctJavadoc
 }
 
@@ -130,10 +158,10 @@ dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
     compileOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.0.104:api")
-    compileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.5:7.1.0.313")
-    compileOnly fg.deobf("commoble.morered:morered-1.16.5:2.1.1.0")
+    // compileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.5:7.1.0.313")
+    // compileOnly fg.deobf("commoble.morered:morered-1.16.5:2.1.1.0")
 
-    runtimeOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.0.104")
+    // runtimeOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.0.104")
 
     shade 'org.squiddev:Cobalt:0.5.2-SNAPSHOT'
 
@@ -141,14 +169,23 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
     testImplementation 'org.hamcrest:hamcrest:2.2'
-    testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.72'
-    testImplementation 'org.jetbrains.kotlin:kotlin-reflect:1.3.72'
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8'
+    testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1'
+
+    cctest 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21'
 
     cctJavadoc 'cc.tweaked:cct-javadoc:1.4.1'
 }
 
 // Compile tasks
+
+java {
+    modularity.inferModulePath = true
+}
+
+compileCctestJava {
+    dependsOn(compileJava)
+}
 
 javadoc {
     include "dan200/computercraft/api/**/*.java"
@@ -167,23 +204,27 @@ task luaJavadoc(type: Javadoc) {
     options.noTimestamp = false
 
     javadocTool = javaToolchains.javadocToolFor {
-        languageVersion = JavaLanguageVersion.of(11)
+        languageVersion = javaVersion
     }
 }
 
 jar {
     manifest {
-        attributes(["Specification-Title"     : "computercraft",
-                    "Specification-Vendor"    : "SquidDev",
-                    "Specification-Version"   : "1",
-                    "Implementation-Title"    : "CC: Tweaked",
-                    "Implementation-Version"  : "${mod_version}",
-                    "Implementation-Vendor"   : "SquidDev",
-                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
+        attributes([
+            "Specification-Title"     : "computercraft",
+            "Specification-Vendor"    : "SquidDev",
+            "Specification-Version"   : "1",
+            "Implementation-Title"    : "CC: Tweaked",
+            "Implementation-Version"  : "${mod_version}",
+            "Implementation-Vendor"   : "SquidDev",
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
     }
 
     from configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
 }
+
+jar.finalizedBy('reobfJar')
 
 [compileJava, compileTestJava].forEach {
     it.configure {
@@ -214,9 +255,11 @@ processResources {
         include 'META-INF/mods.toml'
         include 'data/computercraft/lua/rom/help/credits.txt'
 
-        expand 'version': mod_version,
-                'mcversion': mc_version,
-                'gitcontributors': contributors.sort(false, String.CASE_INSENSITIVE_ORDER).join('\n')
+        expand(
+            'version': mod_version,
+            'mcversion': mc_version,
+            'gitcontributors': contributors.sort(false, String.CASE_INSENSITIVE_ORDER).join('\n')
+        )
     }
 
     from(sourceSets.main.resources.srcDirs) {
@@ -234,6 +277,7 @@ sourcesJar {
 
 import com.hierynomus.gradle.license.tasks.LicenseCheck
 import com.hierynomus.gradle.license.tasks.LicenseFormat
+import com.modrinth.minotaur.TaskModrinthUpload
 import org.apache.tools.ant.taskdefs.condition.Os
 
 List<String> mkCommand(String command) {
@@ -318,7 +362,7 @@ license {
     }
 }
 
-[licenseTest, licenseFormatTest].forEach {
+[licenseTest, licenseFormatTest, licenseCctest, licenseFormatCctest].forEach {
     it.configure {
         include("**/*.java")
         header file('config/license/main.txt')
@@ -346,7 +390,7 @@ task setupServer(type: Copy) {
     group "test server"
     description "Sets up the environment for the test server."
 
-    from("src/test/server-files") {
+    from("src/cctest/server-files") {
         include "eula.txt"
         include "server.properties"
     }
@@ -356,7 +400,7 @@ task setupServer(type: Copy) {
 tasks.register('testInGame', JavaExec.class).configure {
     it.group('test server')
     it.description("Runs tests on a temporary Minecraft server.")
-    it.dependsOn(setupServer, 'prepareRunTestServer', 'cleanTestInGame')
+    it.dependsOn(setupServer, 'prepareRunTestServer', 'cleanTestInGame', 'compileCctestJava')
 
     // Copy from runTestServer. We do it in this slightly odd way as runTestServer
     // isn't created until the task is configured (which is no good for us).
@@ -456,7 +500,6 @@ curseforge {
     }
 }
 
-import com.modrinth.minotaur.TaskModrinthUpload
 tasks.register('publishModrinth', TaskModrinthUpload.class).configure {
     dependsOn('assemble', 'reobfJar')
     onlyIf {

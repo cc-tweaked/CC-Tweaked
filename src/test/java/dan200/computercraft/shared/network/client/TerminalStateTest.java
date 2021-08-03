@@ -8,7 +8,7 @@ package dan200.computercraft.shared.network.client;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import io.netty.buffer.Unpooled;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import org.junit.jupiter.api.RepeatedTest;
 
 import java.util.Random;
@@ -25,7 +25,7 @@ public class TerminalStateTest
     {
         Terminal terminal = randomTerminal();
 
-        PacketBuffer buffer = new PacketBuffer( Unpooled.directBuffer() );
+        FriendlyByteBuf buffer = new FriendlyByteBuf( Unpooled.directBuffer() );
         new TerminalState( true, terminal, true ).write( buffer );
 
         checkEqual( terminal, read( buffer ) );
@@ -37,7 +37,7 @@ public class TerminalStateTest
     {
         Terminal terminal = randomTerminal();
 
-        PacketBuffer buffer = new PacketBuffer( Unpooled.directBuffer() );
+        FriendlyByteBuf buffer = new FriendlyByteBuf( Unpooled.directBuffer() );
         new TerminalState( true, terminal, false ).write( buffer );
 
         checkEqual( terminal, read( buffer ) );
@@ -70,7 +70,7 @@ public class TerminalStateTest
         }
     }
 
-    private static Terminal read( PacketBuffer buffer )
+    private static Terminal read( FriendlyByteBuf buffer )
     {
         TerminalState state = new TerminalState( buffer );
         assertTrue( state.colour );

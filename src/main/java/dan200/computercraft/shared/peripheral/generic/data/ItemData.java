@@ -7,14 +7,14 @@ package dan200.computercraft.shared.peripheral.generic.data;
 
 import com.google.gson.JsonParseException;
 import dan200.computercraft.shared.util.NBTUtil;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.item.EnchantedBookItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.EnchantedBookItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
@@ -68,17 +68,17 @@ public class ItemData
 
         data.put( "tags", DataHelpers.getTags( stack.getItem().getTags() ) );
 
-        CompoundNBT tag = stack.getTag();
+        CompoundTag tag = stack.getTag();
         if( tag != null && tag.contains( "display", Constants.NBT.TAG_COMPOUND ) )
         {
-            CompoundNBT displayTag = tag.getCompound( "display" );
+            CompoundTag displayTag = tag.getCompound( "display" );
             if( displayTag.contains( "Lore", Constants.NBT.TAG_LIST ) )
             {
-                ListNBT loreTag = displayTag.getList( "Lore", Constants.NBT.TAG_STRING );
+                ListTag loreTag = displayTag.getList( "Lore", Constants.NBT.TAG_STRING );
                 data.put( "lore", loreTag.stream()
                     .map( ItemData::parseTextComponent )
                     .filter( Objects::nonNull )
-                    .map( ITextComponent::getString )
+                    .map( Component::getString )
                     .collect( Collectors.toList() ) );
             }
         }
@@ -102,11 +102,11 @@ public class ItemData
     }
 
     @Nullable
-    private static ITextComponent parseTextComponent( @Nonnull INBT x )
+    private static Component parseTextComponent( @Nonnull Tag x )
     {
         try
         {
-            return ITextComponent.Serializer.fromJson( x.getAsString() );
+            return Component.Serializer.fromJson( x.getAsString() );
         }
         catch( JsonParseException e )
         {
@@ -151,7 +151,7 @@ public class ItemData
      * @param enchants    The enchantment map to add it to.
      * @see net.minecraft.enchantment.EnchantmentHelper
      */
-    private static void addEnchantments( @Nonnull ListNBT rawEnchants, @Nonnull ArrayList<Map<String, Object>> enchants )
+    private static void addEnchantments( @Nonnull ListTag rawEnchants, @Nonnull ArrayList<Map<String, Object>> enchants )
     {
         if( rawEnchants.isEmpty() ) return;
 

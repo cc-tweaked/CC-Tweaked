@@ -14,18 +14,18 @@ import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.network.client.TerminalState;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.TickScheduler;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -69,16 +69,16 @@ public class TileMonitor extends TileGeneric
     private int xIndex = 0;
     private int yIndex = 0;
 
-    public TileMonitor( TileEntityType<? extends TileMonitor> type, boolean advanced )
+    public TileMonitor( BlockEntityType<? extends TileMonitor> type, BlockPos pos, BlockState state, boolean advanced )
     {
-        super( type );
+        super( type, pos, state );
         this.advanced = advanced;
     }
 
     @Override
-    public void onLoad()
+    public void clearRemoved() // TODO: Switch back to onLood
     {
-        super.onLoad();
+        super.clearRemoved();
         needsValidating = true;
         TickScheduler.schedule( this );
     }
@@ -108,7 +108,7 @@ public class TileMonitor extends TileGeneric
 
     @Nonnull
     @Override
-    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
     {
         if( !player.isCrouching() && getFront() == hit.getDirection() )
         {
@@ -120,15 +120,15 @@ public class TileMonitor extends TileGeneric
                     (float) (hit.getLocation().z - hit.getBlockPos().getZ())
                 );
             }
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        return ActionResultType.PASS;
+        return InteractionResult.PASS;
     }
 
     @Nonnull
     @Override
-    public CompoundNBT save( CompoundNBT tag )
+    public CompoundTag save( CompoundTag tag )
     {
         tag.putInt( NBT_X, xIndex );
         tag.putInt( NBT_Y, yIndex );
@@ -138,9 +138,9 @@ public class TileMonitor extends TileGeneric
     }
 
     @Override
-    public void load( @Nonnull BlockState state, @Nonnull CompoundNBT nbt )
+    public void load( @Nonnull CompoundTag nbt )
     {
-        super.load( state, nbt );
+        super.load( nbt );
 
         xIndex = nbt.getInt( NBT_X );
         yIndex = nbt.getInt( NBT_Y );
@@ -250,7 +250,7 @@ public class TileMonitor extends TileGeneric
             // Otherwise fetch the origin and attempt to get its monitor
             // Note this may load chunks, but we don't really have a choice here.
             BlockPos pos = getBlockPos();
-            TileEntity te = level.getBlockEntity( pos.relative( getRight(), -xIndex ).relative( getDown(), -yIndex ) );
+            BlockEntity te = level.getBlockEntity( pos.relative( getRight(), -xIndex ).relative( getDown(), -yIndex ) );
             if( !(te instanceof TileMonitor) ) return null;
 
             return serverMonitor = ((TileMonitor) te).createServerMonitor();
@@ -262,7 +262,7 @@ public class TileMonitor extends TileGeneric
         if( clientMonitor != null ) return clientMonitor;
 
         BlockPos pos = getBlockPos();
-        TileEntity te = level.getBlockEntity( pos.relative( getRight(), -xIndex ).relative( getDown(), -yIndex ) );
+        BlockEntity te = level.getBlockEntity( pos.relative( getRight(), -xIndex ).relative( getDown(), -yIndex ) );
         if( !(te instanceof TileMonitor) ) return null;
 
         return clientMonitor = ((TileMonitor) te).clientMonitor;
@@ -271,7 +271,7 @@ public class TileMonitor extends TileGeneric
     // Networking stuff
 
     @Override
-    protected void writeDescription( @Nonnull CompoundNBT nbt )
+    protected void writeDescription( @Nonnull CompoundTag nbt )
     {
         super.writeDescription( nbt );
         nbt.putInt( NBT_X, xIndex );
@@ -281,7 +281,7 @@ public class TileMonitor extends TileGeneric
     }
 
     @Override
-    protected final void readDescription( @Nonnull CompoundNBT nbt )
+    protected final void readDescription( @Nonnull CompoundTag nbt )
     {
         super.readDescription( nbt );
 
@@ -388,10 +388,10 @@ public class TileMonitor extends TileGeneric
     {
         if( pos.equals( getBlockPos() ) ) return MonitorState.present( this );
 
-        World world = getLevel();
+        Level world = getLevel();
         if( world == null || !world.isAreaLoaded( pos, 0 ) ) return MonitorState.UNLOADED;
 
-        TileEntity tile = world.getBlockEntity( pos );
+        BlockEntity tile = world.getBlockEntity( pos );
         if( !(tile instanceof TileMonitor) ) return MonitorState.MISSING;
 
         TileMonitor monitor = (TileMonitor) tile;
@@ -718,7 +718,7 @@ public class TileMonitor extends TileGeneric
 
     @Nonnull
     @Override
-    public AxisAlignedBB getRenderBoundingBox()
+    public AABB getRenderBoundingBox()
     {
         TileMonitor start = getNeighbour( 0, 0 ).getMonitor();
         TileMonitor end = getNeighbour( width - 1, height - 1 ).getMonitor();
@@ -732,18 +732,12 @@ public class TileMonitor extends TileGeneric
             int maxX = Math.max( startPos.getX(), endPos.getX() ) + 1;
             int maxY = Math.max( startPos.getY(), endPos.getY() ) + 1;
             int maxZ = Math.max( startPos.getZ(), endPos.getZ() ) + 1;
-            return new AxisAlignedBB( minX, minY, minZ, maxX, maxY, maxZ );
+            return new AABB( minX, minY, minZ, maxX, maxY, maxZ );
         }
         else
         {
             BlockPos pos = getBlockPos();
-            return new AxisAlignedBB( pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1 );
+            return new AABB( pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1 );
         }
-    }
-
-    @Override
-    public double getViewDistance()
-    {
-        return ComputerCraft.monitorDistanceSq;
     }
 }

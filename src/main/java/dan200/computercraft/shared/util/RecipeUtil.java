@@ -12,9 +12,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.NonNullList;
+import net.minecraft.core.NonNullList;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +42,7 @@ public final class RecipeUtil
     public static ShapedTemplate getTemplate( JsonObject json )
     {
         Map<Character, Ingredient> ingMap = Maps.newHashMap();
-        for( Map.Entry<String, JsonElement> entry : JSONUtils.getAsJsonObject( json, "key" ).entrySet() )
+        for( Map.Entry<String, JsonElement> entry : GsonHelper.getAsJsonObject( json, "key" ).entrySet() )
         {
             if( entry.getKey().length() != 1 )
             {
@@ -58,7 +58,7 @@ public final class RecipeUtil
 
         ingMap.put( ' ', Ingredient.EMPTY );
 
-        JsonArray patternJ = JSONUtils.getAsJsonArray( json, "pattern" );
+        JsonArray patternJ = GsonHelper.getAsJsonArray( json, "pattern" );
 
         if( patternJ.size() == 0 )
         {
@@ -68,7 +68,7 @@ public final class RecipeUtil
         String[] pattern = new String[patternJ.size()];
         for( int x = 0; x < pattern.length; x++ )
         {
-            String line = JSONUtils.convertToString( patternJ.get( x ), "pattern[" + x + "]" );
+            String line = GsonHelper.convertToString( patternJ.get( x ), "pattern[" + x + "]" );
             if( x > 0 && pattern[0].length() != line.length() )
             {
                 throw new JsonSyntaxException( "Invalid pattern: each row must  be the same width" );
@@ -108,7 +108,7 @@ public final class RecipeUtil
 
     public static ComputerFamily getFamily( JsonObject json, String name )
     {
-        String familyName = JSONUtils.getAsString( json, name );
+        String familyName = GsonHelper.getAsString( json, name );
         for( ComputerFamily family : ComputerFamily.values() )
         {
             if( family.name().equalsIgnoreCase( familyName ) ) return family;

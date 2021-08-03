@@ -11,13 +11,13 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleInventoryEvent;
 import dan200.computercraft.shared.util.InventoryUtil;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.EntityPredicates;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.items.IItemHandler;
 
@@ -50,7 +50,7 @@ public class TurtleSuckCommand implements ITurtleCommand
         Direction direction = this.direction.toWorldDir( turtle );
 
         // Get inventory for thing in front
-        World world = turtle.getWorld();
+        Level world = turtle.getLevel();
         BlockPos turtlePosition = turtle.getPosition();
         BlockPos blockPosition = turtlePosition.relative( direction );
         Direction side = direction.getOpposite();
@@ -93,11 +93,11 @@ public class TurtleSuckCommand implements ITurtleCommand
         else
         {
             // Suck up loose items off the ground
-            AxisAlignedBB aabb = new AxisAlignedBB(
+            AABB aabb = new AABB(
                 blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(),
                 blockPosition.getX() + 1.0, blockPosition.getY() + 1.0, blockPosition.getZ() + 1.0
             );
-            List<ItemEntity> list = world.getEntitiesOfClass( ItemEntity.class, aabb, EntityPredicates.ENTITY_STILL_ALIVE );
+            List<ItemEntity> list = world.getEntitiesOfClass( ItemEntity.class, aabb, EntitySelector.ENTITY_STILL_ALIVE );
             if( list.isEmpty() ) return TurtleCommandResult.failure( "No items to take" );
 
             for( ItemEntity entity : list )
@@ -124,7 +124,7 @@ public class TurtleSuckCommand implements ITurtleCommand
                 {
                     if( remainder.isEmpty() && leaveStack.isEmpty() )
                     {
-                        entity.remove();
+                        entity.discard();
                     }
                     else if( remainder.isEmpty() )
                     {

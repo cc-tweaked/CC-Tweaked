@@ -7,9 +7,9 @@ package dan200.computercraft.api;
 
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
@@ -76,8 +76,8 @@ public interface IUpgradeBase
 
         // A more expanded form of ItemStack.areShareTagsEqual, but allowing an empty tag to be equal to a
         // null one.
-        CompoundNBT shareTag = stack.getItem().getShareTag( stack );
-        CompoundNBT craftingShareTag = crafting.getItem().getShareTag( crafting );
+        CompoundTag shareTag = stack.getItem().getShareTag( stack );
+        CompoundTag craftingShareTag = crafting.getItem().getShareTag( crafting );
         if( shareTag == craftingShareTag ) return true;
         if( shareTag == null ) return craftingShareTag.isEmpty();
         if( craftingShareTag == null ) return shareTag.isEmpty();

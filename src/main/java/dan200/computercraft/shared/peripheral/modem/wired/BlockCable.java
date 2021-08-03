@@ -10,29 +10,25 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.IWaterLoggable;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.*;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,7 +36,7 @@ import java.util.EnumMap;
 
 import static dan200.computercraft.shared.util.WaterloggableHelpers.*;
 
-public class BlockCable extends BlockGeneric implements IWaterLoggable
+public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock
 {
     public static final EnumProperty<CableModemVariant> MODEM = EnumProperty.create( "modem", CableModemVariant.class );
     public static final BooleanProperty CABLE = BooleanProperty.create( "cable" );
@@ -61,7 +57,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
 
     public BlockCable( Properties settings )
     {
-        super( settings, Registry.ModTiles.CABLE );
+        super( settings, Registry.ModBlockEntities.CABLE );
 
         registerDefaultState( getStateDefinition().any()
             .setValue( MODEM, CableModemVariant.None )
@@ -74,7 +70,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
     }
 
     @Override
-    protected void createBlockStateDefinition( StateContainer.Builder<Block, BlockState> builder )
+    protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> builder )
     {
         builder.add( MODEM, CABLE, NORTH, SOUTH, EAST, WEST, UP, DOWN, WATERLOGGED );
     }
@@ -84,7 +80,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
         return state.getValue( BlockCable.CABLE ) && state.getValue( BlockCable.MODEM ).getFacing() != direction;
     }
 
-    public static boolean doesConnectVisually( BlockState state, IBlockReader world, BlockPos pos, Direction direction )
+    public static boolean doesConnectVisually( BlockState state, BlockGetter world, BlockPos pos, Direction direction )
     {
         if( !state.getValue( CABLE ) ) return false;
         if( state.getValue( MODEM ).getFacing() == direction ) return true;
@@ -94,23 +90,23 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
     @Nonnull
     @Override
     @Deprecated
-    public VoxelShape getShape( @Nonnull BlockState state, @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull ISelectionContext context )
+    public VoxelShape getShape( @Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull CollisionContext context )
     {
         return CableShapes.getShape( state );
     }
 
     @Override
-    public boolean removedByPlayer( BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, FluidState fluid )
+    public boolean removedByPlayer( BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid )
     {
         if( state.getValue( CABLE ) && state.getValue( MODEM ).getFacing() != null )
         {
-            BlockRayTraceResult hit = world.clip( new RayTraceContext(
+            BlockHitResult hit = world.clip( new ClipContext(
                 WorldUtil.getRayStart( player ), WorldUtil.getRayEnd( player ),
-                RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, player
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player
             ) );
-            if( hit.getType() == RayTraceResult.Type.BLOCK )
+            if( hit.getType() == HitResult.Type.BLOCK )
             {
-                TileEntity tile = world.getBlockEntity( pos );
+                BlockEntity tile = world.getBlockEntity( pos );
                 if( tile instanceof TileCable && tile.hasLevel() )
                 {
                     TileCable cable = (TileCable) tile;
@@ -133,7 +129,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
 
                     cable.modemChanged();
                     cable.connectionsChanged();
-                    if( !world.isClientSide && !player.abilities.instabuild )
+                    if( !world.isClientSide && !player.getAbilities().instabuild )
                     {
                         Block.popResource( world, pos, item );
                     }
@@ -148,7 +144,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
 
     @Nonnull
     @Override
-    public ItemStack getPickBlock( BlockState state, RayTraceResult hit, IBlockReader world, BlockPos pos, PlayerEntity player )
+    public ItemStack getPickBlock( BlockState state, HitResult hit, BlockGetter world, BlockPos pos, Player player )
     {
         Direction modem = state.getValue( MODEM ).getFacing();
         boolean cable = state.getValue( CABLE );
@@ -165,9 +161,9 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
     }
 
     @Override
-    public void setPlacedBy( World world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, @Nonnull ItemStack stack )
+    public void setPlacedBy( Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, @Nonnull ItemStack stack )
     {
-        TileEntity tile = world.getBlockEntity( pos );
+        BlockEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileCable )
         {
             TileCable cable = (TileCable) tile;
@@ -188,7 +184,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
     @Nonnull
     @Override
     @Deprecated
-    public BlockState updateShape( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull IWorld world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
+    public BlockState updateShape( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull LevelAccessor world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
     {
         updateWaterloggedPostPlacement( state, world, pos );
         // Should never happen, but handle the case where we've no modem or cable.
@@ -202,7 +198,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
 
     @Override
     @Deprecated
-    public boolean canSurvive( BlockState state, @Nonnull IWorldReader world, @Nonnull BlockPos pos )
+    public boolean canSurvive( BlockState state, @Nonnull LevelReader world, @Nonnull BlockPos pos )
     {
         Direction facing = state.getValue( MODEM ).getFacing();
         if( facing == null ) return true;
@@ -212,14 +208,14 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement( @Nonnull BlockItemUseContext context )
+    public BlockState getStateForPlacement( @Nonnull BlockPlaceContext context )
     {
         BlockState state = defaultBlockState()
             .setValue( WATERLOGGED, getWaterloggedStateForPlacement( context ) );
 
         if( context.getItemInHand().getItem() instanceof ItemBlockCable.Cable )
         {
-            World world = context.getLevel();
+            Level world = context.getLevel();
             BlockPos pos = context.getClickedPos();
             return correctConnections( world, pos, state.setValue( CABLE, true ) );
         }
@@ -229,7 +225,7 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
         }
     }
 
-    public static BlockState correctConnections( World world, BlockPos pos, BlockState state )
+    public static BlockState correctConnections( Level world, BlockPos pos, BlockState state )
     {
         if( state.getValue( CABLE ) )
         {

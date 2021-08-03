@@ -5,25 +5,25 @@
  */
 package dan200.computercraft.shared.common;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nonnull;
 
-public abstract class TileGeneric extends TileEntity
+public abstract class TileGeneric extends BlockEntity
 {
-    public TileGeneric( TileEntityType<? extends TileGeneric> type )
+    public TileGeneric( BlockEntityType<? extends TileGeneric> type, BlockPos pos, BlockState state )
     {
-        super( type );
+        super( type, pos, state );
     }
 
     public void destroy()
@@ -39,9 +39,9 @@ public abstract class TileGeneric extends TileEntity
     }
 
     @Nonnull
-    public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
+    public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
     {
-        return ActionResultType.PASS;
+        return InteractionResult.PASS;
     }
 
     public void onNeighbourChange( @Nonnull BlockPos neighbour )
@@ -56,12 +56,12 @@ public abstract class TileGeneric extends TileEntity
     {
     }
 
-    protected double getInteractRange( PlayerEntity player )
+    protected double getInteractRange( Player player )
     {
         return 8.0;
     }
 
-    public boolean isUsable( PlayerEntity player, boolean ignoreRange )
+    public boolean isUsable( Player player, boolean ignoreRange )
     {
         if( player == null || !player.isAlive() || getLevel().getBlockEntity( getBlockPos() ) != this ) return false;
         if( ignoreRange ) return true;
@@ -72,42 +72,42 @@ public abstract class TileGeneric extends TileEntity
             player.distanceToSqr( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
     }
 
-    protected void writeDescription( @Nonnull CompoundNBT nbt )
+    protected void writeDescription( @Nonnull CompoundTag nbt )
     {
     }
 
-    protected void readDescription( @Nonnull CompoundNBT nbt )
+    protected void readDescription( @Nonnull CompoundTag nbt )
     {
     }
 
     @Nonnull
     @Override
-    public final SUpdateTileEntityPacket getUpdatePacket()
+    public final ClientboundBlockEntityDataPacket getUpdatePacket()
     {
-        CompoundNBT nbt = new CompoundNBT();
+        CompoundTag nbt = new CompoundTag();
         writeDescription( nbt );
-        return new SUpdateTileEntityPacket( worldPosition, 0, nbt );
+        return new ClientboundBlockEntityDataPacket( worldPosition, 0, nbt );
     }
 
     @Override
-    public final void onDataPacket( NetworkManager net, SUpdateTileEntityPacket packet )
+    public final void onDataPacket( Connection net, ClientboundBlockEntityDataPacket packet )
     {
         if( packet.getType() == 0 ) readDescription( packet.getTag() );
     }
 
     @Nonnull
     @Override
-    public CompoundNBT getUpdateTag()
+    public CompoundTag getUpdateTag()
     {
-        CompoundNBT tag = super.getUpdateTag();
+        CompoundTag tag = super.getUpdateTag();
         writeDescription( tag );
         return tag;
     }
 
     @Override
-    public void handleUpdateTag( @Nonnull BlockState state, @Nonnull CompoundNBT tag )
+    public void handleUpdateTag( @Nonnull CompoundTag tag )
     {
-        super.handleUpdateTag( state, tag );
+        super.handleUpdateTag( tag );
         readDescription( tag );
     }
 }

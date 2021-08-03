@@ -5,17 +5,17 @@
  */
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
 
@@ -31,7 +31,7 @@ public class GuiTurtle extends ComputerScreenBase<ContainerTurtle>
 
     private final ComputerFamily family;
 
-    public GuiTurtle( ContainerTurtle container, PlayerInventory player, ITextComponent title )
+    public GuiTurtle( ContainerTurtle container, Inventory player, Component title )
     {
         super( container, player, title, BORDER );
         family = container.getFamily();
@@ -50,16 +50,16 @@ public class GuiTurtle extends ComputerScreenBase<ContainerTurtle>
     }
 
     @Override
-    protected void renderBg( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
+    protected void renderBg( @Nonnull PoseStack transform, float partialTicks, int mouseX, int mouseY )
     {
         boolean advanced = family == ComputerFamily.ADVANCED;
-        minecraft.getTextureManager().bind( advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
+        RenderSystem.setShaderTexture( 0, advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
         blit( transform, leftPos + ComputerSidebar.WIDTH, topPos, 0, 0, TEX_WIDTH, TEX_HEIGHT );
 
         int slot = getMenu().getSelectedSlot();
         if( slot >= 0 )
         {
-            RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
+            RenderSystem.setShaderColor( 1.0F, 1.0F, 1.0F, 1.0F );
             int slotX = slot % 4;
             int slotY = slot / 4;
             blit( transform,
@@ -68,7 +68,7 @@ public class GuiTurtle extends ComputerScreenBase<ContainerTurtle>
             );
         }
 
-        minecraft.getTextureManager().bind( advanced ? ComputerBorderRenderer.BACKGROUND_ADVANCED : ComputerBorderRenderer.BACKGROUND_NORMAL );
+        RenderSystem.setShaderTexture( 0, advanced ? ComputerBorderRenderer.BACKGROUND_ADVANCED : ComputerBorderRenderer.BACKGROUND_NORMAL );
         ComputerSidebar.renderBackground( transform, leftPos, topPos + sidebarYOffset );
     }
 }

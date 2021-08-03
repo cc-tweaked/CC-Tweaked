@@ -25,7 +25,6 @@ import dan200.computercraft.shared.computer.recipe.ComputerUpgradeRecipe;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
 import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
-import dan200.computercraft.shared.integration.morered.MoreRedIntegration;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
@@ -66,42 +65,43 @@ import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.turtle.upgrades.*;
-import dan200.computercraft.shared.util.*;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntityType;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.*;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.loot.LootConditionType;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.ResourceLocation;
+import dan200.computercraft.shared.util.CreativeTabMain;
+import dan200.computercraft.shared.util.FixedPointTileEntityType;
+import dan200.computercraft.shared.util.ImpostorRecipe;
+import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
+import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.fml.DeferredWorkQueue;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD )
 public final class Registry
 {
-    private static final ItemGroup mainItemGroup = new CreativeTabMain();
+    private static final CreativeModeTab mainItemGroup = new CreativeTabMain();
 
     private Registry()
     {
@@ -111,91 +111,91 @@ public final class Registry
     {
         static final DeferredRegister<Block> BLOCKS = DeferredRegister.create( ForgeRegistries.BLOCKS, ComputerCraft.MOD_ID );
 
-        private static AbstractBlock.Properties properties()
+        private static BlockBehaviour.Properties properties()
         {
-            return AbstractBlock.Properties.of( Material.STONE ).strength( 2 );
+            return BlockBehaviour.Properties.of( Material.STONE ).strength( 2 );
         }
 
-        private static AbstractBlock.Properties turtleProperties()
+        private static BlockBehaviour.Properties turtleProperties()
         {
-            return AbstractBlock.Properties.of( Material.STONE ).strength( 2.5f );
+            return BlockBehaviour.Properties.of( Material.STONE ).strength( 2.5f );
         }
 
-        private static AbstractBlock.Properties modemProperties()
+        private static BlockBehaviour.Properties modemProperties()
         {
-            return AbstractBlock.Properties.of( Material.STONE ).strength( 1.5f );
+            return BlockBehaviour.Properties.of( Material.STONE ).strength( 1.5f );
         }
 
-        public static final RegistryObject<BlockComputer> COMPUTER_NORMAL = BLOCKS.register( "computer_normal",
-            () -> new BlockComputer( properties(), ComputerFamily.NORMAL, ModTiles.COMPUTER_NORMAL ) );
-        public static final RegistryObject<BlockComputer> COMPUTER_ADVANCED = BLOCKS.register( "computer_advanced",
-            () -> new BlockComputer( properties(), ComputerFamily.ADVANCED, ModTiles.COMPUTER_ADVANCED ) );
+        public static final RegistryObject<BlockComputer<TileComputer>> COMPUTER_NORMAL = BLOCKS.register( "computer_normal",
+            () -> new BlockComputer<>( properties(), ComputerFamily.NORMAL, ModBlockEntities.COMPUTER_NORMAL ) );
+        public static final RegistryObject<BlockComputer<TileComputer>> COMPUTER_ADVANCED = BLOCKS.register( "computer_advanced",
+            () -> new BlockComputer<>( properties(), ComputerFamily.ADVANCED, ModBlockEntities.COMPUTER_ADVANCED ) );
 
-        public static final RegistryObject<BlockComputer> COMPUTER_COMMAND = BLOCKS.register( "computer_command", () -> new BlockComputer(
-            AbstractBlock.Properties.of( Material.STONE ).strength( -1, 6000000.0F ),
-            ComputerFamily.COMMAND, ModTiles.COMPUTER_COMMAND
+        public static final RegistryObject<BlockComputer<TileCommandComputer>> COMPUTER_COMMAND = BLOCKS.register( "computer_command", () -> new BlockComputer<>(
+            BlockBehaviour.Properties.of( Material.STONE ).strength( -1, 6000000.0F ),
+            ComputerFamily.COMMAND, ModBlockEntities.COMPUTER_COMMAND
         ) );
 
         public static final RegistryObject<BlockTurtle> TURTLE_NORMAL = BLOCKS.register( "turtle_normal",
-            () -> new BlockTurtle( turtleProperties(), ComputerFamily.NORMAL, ModTiles.TURTLE_NORMAL ) );
+            () -> new BlockTurtle( turtleProperties(), ComputerFamily.NORMAL, ModBlockEntities.TURTLE_NORMAL ) );
         public static final RegistryObject<BlockTurtle> TURTLE_ADVANCED = BLOCKS.register( "turtle_advanced",
-            () -> new BlockTurtle( turtleProperties(), ComputerFamily.ADVANCED, ModTiles.TURTLE_ADVANCED ) );
+            () -> new BlockTurtle( turtleProperties(), ComputerFamily.ADVANCED, ModBlockEntities.TURTLE_ADVANCED ) );
 
         public static final RegistryObject<BlockSpeaker> SPEAKER = BLOCKS.register( "speaker", () -> new BlockSpeaker( properties() ) );
         public static final RegistryObject<BlockDiskDrive> DISK_DRIVE = BLOCKS.register( "disk_drive", () -> new BlockDiskDrive( properties() ) );
         public static final RegistryObject<BlockPrinter> PRINTER = BLOCKS.register( "printer", () -> new BlockPrinter( properties() ) );
 
         public static final RegistryObject<BlockMonitor> MONITOR_NORMAL = BLOCKS.register( "monitor_normal",
-            () -> new BlockMonitor( properties(), ModTiles.MONITOR_NORMAL ) );
+            () -> new BlockMonitor( properties(), ModBlockEntities.MONITOR_NORMAL ) );
         public static final RegistryObject<BlockMonitor> MONITOR_ADVANCED = BLOCKS.register( "monitor_advanced",
-            () -> new BlockMonitor( properties(), ModTiles.MONITOR_ADVANCED ) );
+            () -> new BlockMonitor( properties(), ModBlockEntities.MONITOR_ADVANCED ) );
 
         public static final RegistryObject<BlockWirelessModem> WIRELESS_MODEM_NORMAL = BLOCKS.register( "wireless_modem_normal",
-            () -> new BlockWirelessModem( properties(), ModTiles.WIRELESS_MODEM_NORMAL ) );
+            () -> new BlockWirelessModem( properties(), ModBlockEntities.WIRELESS_MODEM_NORMAL ) );
         public static final RegistryObject<BlockWirelessModem> WIRELESS_MODEM_ADVANCED = BLOCKS.register( "wireless_modem_advanced",
-            () -> new BlockWirelessModem( properties(), ModTiles.WIRELESS_MODEM_ADVANCED ) );
+            () -> new BlockWirelessModem( properties(), ModBlockEntities.WIRELESS_MODEM_ADVANCED ) );
 
         public static final RegistryObject<BlockWiredModemFull> WIRED_MODEM_FULL = BLOCKS.register( "wired_modem_full",
             () -> new BlockWiredModemFull( modemProperties() ) );
         public static final RegistryObject<BlockCable> CABLE = BLOCKS.register( "cable", () -> new BlockCable( modemProperties() ) );
     }
 
-    public static class ModTiles
+    public static class ModBlockEntities
     {
-        static final DeferredRegister<TileEntityType<?>> TILES = DeferredRegister.create( ForgeRegistries.TILE_ENTITIES, ComputerCraft.MOD_ID );
+        static final DeferredRegister<BlockEntityType<?>> TILES = DeferredRegister.create( ForgeRegistries.BLOCK_ENTITIES, ComputerCraft.MOD_ID );
 
-        private static <T extends TileEntity> RegistryObject<TileEntityType<T>> ofBlock( RegistryObject<? extends Block> block, Function<TileEntityType<T>, T> factory )
+        private static <T extends BlockEntity> RegistryObject<BlockEntityType<T>> ofBlock( RegistryObject<? extends Block> block, FixedPointTileEntityType.FixedPointBlockEntitySupplier<T> factory )
         {
             return TILES.register( block.getId().getPath(), () -> FixedPointTileEntityType.create( block, factory ) );
         }
 
-        public static final RegistryObject<TileEntityType<TileMonitor>> MONITOR_NORMAL =
-            ofBlock( ModBlocks.MONITOR_NORMAL, f -> new TileMonitor( f, false ) );
-        public static final RegistryObject<TileEntityType<TileMonitor>> MONITOR_ADVANCED =
-            ofBlock( ModBlocks.MONITOR_ADVANCED, f -> new TileMonitor( f, true ) );
+        public static final RegistryObject<BlockEntityType<TileMonitor>> MONITOR_NORMAL =
+            ofBlock( ModBlocks.MONITOR_NORMAL, ( f, p, s ) -> new TileMonitor( f, p, s, false ) );
+        public static final RegistryObject<BlockEntityType<TileMonitor>> MONITOR_ADVANCED =
+            ofBlock( ModBlocks.MONITOR_ADVANCED, ( f, p, s ) -> new TileMonitor( f, p, s, true ) );
 
-        public static final RegistryObject<TileEntityType<TileComputer>> COMPUTER_NORMAL =
-            ofBlock( ModBlocks.COMPUTER_NORMAL, f -> new TileComputer( ComputerFamily.NORMAL, f ) );
-        public static final RegistryObject<TileEntityType<TileComputer>> COMPUTER_ADVANCED =
-            ofBlock( ModBlocks.COMPUTER_ADVANCED, f -> new TileComputer( ComputerFamily.ADVANCED, f ) );
-        public static final RegistryObject<TileEntityType<TileCommandComputer>> COMPUTER_COMMAND =
-            ofBlock( ModBlocks.COMPUTER_COMMAND, f -> new TileCommandComputer( ComputerFamily.COMMAND, f ) );
+        public static final RegistryObject<BlockEntityType<TileComputer>> COMPUTER_NORMAL =
+            ofBlock( ModBlocks.COMPUTER_NORMAL, ( f, p, s ) -> new TileComputer( f, p, s, ComputerFamily.NORMAL ) );
+        public static final RegistryObject<BlockEntityType<TileComputer>> COMPUTER_ADVANCED =
+            ofBlock( ModBlocks.COMPUTER_ADVANCED, ( f, p, s ) -> new TileComputer( f, p, s, ComputerFamily.ADVANCED ) );
+        public static final RegistryObject<BlockEntityType<TileCommandComputer>> COMPUTER_COMMAND =
+            ofBlock( ModBlocks.COMPUTER_COMMAND, TileCommandComputer::new );
 
-        public static final RegistryObject<TileEntityType<TileTurtle>> TURTLE_NORMAL =
-            ofBlock( ModBlocks.TURTLE_NORMAL, f -> new TileTurtle( f, ComputerFamily.NORMAL ) );
-        public static final RegistryObject<TileEntityType<TileTurtle>> TURTLE_ADVANCED =
-            ofBlock( ModBlocks.TURTLE_ADVANCED, f -> new TileTurtle( f, ComputerFamily.ADVANCED ) );
+        public static final RegistryObject<BlockEntityType<TileTurtle>> TURTLE_NORMAL =
+            ofBlock( ModBlocks.TURTLE_NORMAL, ( f, p, s ) -> new TileTurtle( f, p, s, ComputerFamily.NORMAL ) );
+        public static final RegistryObject<BlockEntityType<TileTurtle>> TURTLE_ADVANCED =
+            ofBlock( ModBlocks.TURTLE_ADVANCED, ( f, p, s ) -> new TileTurtle( f, p, s, ComputerFamily.ADVANCED ) );
 
-        public static final RegistryObject<TileEntityType<TileSpeaker>> SPEAKER = ofBlock( ModBlocks.SPEAKER, TileSpeaker::new );
-        public static final RegistryObject<TileEntityType<TileDiskDrive>> DISK_DRIVE = ofBlock( ModBlocks.DISK_DRIVE, TileDiskDrive::new );
-        public static final RegistryObject<TileEntityType<TilePrinter>> PRINTER = ofBlock( ModBlocks.PRINTER, TilePrinter::new );
-        public static final RegistryObject<TileEntityType<TileWiredModemFull>> WIRED_MODEM_FULL = ofBlock( ModBlocks.WIRED_MODEM_FULL, TileWiredModemFull::new );
-        public static final RegistryObject<TileEntityType<TileCable>> CABLE = ofBlock( ModBlocks.CABLE, TileCable::new );
+        public static final RegistryObject<BlockEntityType<TileSpeaker>> SPEAKER = ofBlock( ModBlocks.SPEAKER, TileSpeaker::new );
+        public static final RegistryObject<BlockEntityType<TileDiskDrive>> DISK_DRIVE = ofBlock( ModBlocks.DISK_DRIVE, TileDiskDrive::new );
+        public static final RegistryObject<BlockEntityType<TilePrinter>> PRINTER = ofBlock( ModBlocks.PRINTER, TilePrinter::new );
+        public static final RegistryObject<BlockEntityType<TileWiredModemFull>> WIRED_MODEM_FULL = ofBlock( ModBlocks.WIRED_MODEM_FULL, TileWiredModemFull::new );
+        public static final RegistryObject<BlockEntityType<TileCable>> CABLE = ofBlock( ModBlocks.CABLE, TileCable::new );
 
-        public static final RegistryObject<TileEntityType<TileWirelessModem>> WIRELESS_MODEM_NORMAL =
-            ofBlock( ModBlocks.WIRELESS_MODEM_NORMAL, f -> new TileWirelessModem( f, false ) );
-        public static final RegistryObject<TileEntityType<TileWirelessModem>> WIRELESS_MODEM_ADVANCED =
-            ofBlock( ModBlocks.WIRELESS_MODEM_ADVANCED, f -> new TileWirelessModem( f, true ) );
+        public static final RegistryObject<BlockEntityType<TileWirelessModem>> WIRELESS_MODEM_NORMAL =
+            ofBlock( ModBlocks.WIRELESS_MODEM_NORMAL, ( f, p, s ) -> new TileWirelessModem( f, p, s, false ) );
+        public static final RegistryObject<BlockEntityType<TileWirelessModem>> WIRELESS_MODEM_ADVANCED =
+            ofBlock( ModBlocks.WIRELESS_MODEM_ADVANCED, ( f, p, s ) -> new TileWirelessModem( f, p, s, true ) );
     }
 
     public static final class ModItems
@@ -301,7 +301,7 @@ public final class Registry
         static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create( ForgeRegistries.ENTITIES, ComputerCraft.MOD_ID );
 
         public static final RegistryObject<EntityType<TurtlePlayer>> TURTLE_PLAYER = ENTITIES.register( "turtle_player", () ->
-            EntityType.Builder.<TurtlePlayer>createNothing( EntityClassification.MISC )
+            EntityType.Builder.<TurtlePlayer>createNothing( MobCategory.MISC )
                 .noSave()
                 .noSummon()
                 .sized( 0, 0 )
@@ -310,32 +310,32 @@ public final class Registry
 
     public static class ModContainers
     {
-        static final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create( ForgeRegistries.CONTAINERS, ComputerCraft.MOD_ID );
+        static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create( ForgeRegistries.CONTAINERS, ComputerCraft.MOD_ID );
 
-        public static final RegistryObject<ContainerType<ContainerComputer>> COMPUTER = CONTAINERS.register( "computer",
+        public static final RegistryObject<MenuType<ContainerComputer>> COMPUTER = CONTAINERS.register( "computer",
             () -> ContainerData.toType( ComputerContainerData::new, ContainerComputer::new ) );
 
-        public static final RegistryObject<ContainerType<ContainerPocketComputer>> POCKET_COMPUTER = CONTAINERS.register( "pocket_computer",
+        public static final RegistryObject<MenuType<ContainerPocketComputer>> POCKET_COMPUTER = CONTAINERS.register( "pocket_computer",
             () -> ContainerData.toType( ComputerContainerData::new, ContainerPocketComputer::new ) );
 
-        public static final RegistryObject<ContainerType<ContainerTurtle>> TURTLE = CONTAINERS.register( "turtle",
+        public static final RegistryObject<MenuType<ContainerTurtle>> TURTLE = CONTAINERS.register( "turtle",
             () -> ContainerData.toType( ComputerContainerData::new, ContainerTurtle::new ) );
 
-        public static final RegistryObject<ContainerType<ContainerDiskDrive>> DISK_DRIVE = CONTAINERS.register( "disk_drive",
-            () -> new ContainerType<>( ContainerDiskDrive::new ) );
+        public static final RegistryObject<MenuType<ContainerDiskDrive>> DISK_DRIVE = CONTAINERS.register( "disk_drive",
+            () -> new MenuType<>( ContainerDiskDrive::new ) );
 
-        public static final RegistryObject<ContainerType<ContainerPrinter>> PRINTER = CONTAINERS.register( "printer",
-            () -> new ContainerType<>( ContainerPrinter::new ) );
+        public static final RegistryObject<MenuType<ContainerPrinter>> PRINTER = CONTAINERS.register( "printer",
+            () -> new MenuType<>( ContainerPrinter::new ) );
 
-        public static final RegistryObject<ContainerType<ContainerHeldItem>> PRINTOUT = CONTAINERS.register( "printout",
+        public static final RegistryObject<MenuType<ContainerHeldItem>> PRINTOUT = CONTAINERS.register( "printout",
             () -> ContainerData.toType( HeldItemContainerData::new, ContainerHeldItem::createPrintout ) );
 
-        public static final RegistryObject<ContainerType<ContainerViewComputer>> VIEW_COMPUTER = CONTAINERS.register( "view_computer",
+        public static final RegistryObject<MenuType<ContainerViewComputer>> VIEW_COMPUTER = CONTAINERS.register( "view_computer",
             () -> ContainerData.toType( ViewComputerContainerData::new, ContainerViewComputer::new ) );
     }
 
     @SubscribeEvent
-    public static void registerRecipeSerializers( RegistryEvent.Register<IRecipeSerializer<?>> event )
+    public static void registerRecipeSerializers( RegistryEvent.Register<RecipeSerializer<?>> event )
     {
         event.getRegistry().registerAll(
             ColourableRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "colour" ) ),
@@ -351,12 +351,11 @@ public final class Registry
     }
 
     @SubscribeEvent
-    @SuppressWarnings( "deprecation" )
     public static void init( FMLCommonSetupEvent event )
     {
         NetworkHandler.setup();
 
-        DeferredWorkQueue.runLater( () -> {
+        event.enqueueWork( () -> {
             registerProviders();
             ArgumentSerializers.register();
             registerLoot();
@@ -376,13 +375,13 @@ public final class Registry
         ComputerCraftAPI.registerMediaProvider( stack -> {
             Item item = stack.getItem();
             if( item instanceof IMedia ) return (IMedia) item;
-            if( item instanceof MusicDiscItem ) return RecordMedia.INSTANCE;
+            if( item instanceof RecordItem ) return RecordMedia.INSTANCE;
             return null;
         } );
 
         // Register capabilities
-        CapabilityManager.INSTANCE.register( IWiredElement.class, new NullStorage<>(), () -> null );
-        CapabilityManager.INSTANCE.register( IPeripheral.class, new NullStorage<>(), () -> null );
+        CapabilityManager.INSTANCE.register( IWiredElement.class );
+        CapabilityManager.INSTANCE.register( IPeripheral.class );
 
         // Register generic capabilities. This can technically be done off-thread, but we need it to happen
         // after Forge's common setup, so this is easiest.
@@ -390,8 +389,11 @@ public final class Registry
         ComputerCraftAPI.registerGenericCapability( CapabilityEnergy.ENERGY );
         ComputerCraftAPI.registerGenericCapability( CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY );
 
+        CauldronInteraction.WATER.put( ModItems.TURTLE_NORMAL.get(), ItemTurtle.CAULDRON_INTERACTION );
+        CauldronInteraction.WATER.put( ModItems.TURTLE_ADVANCED.get(), ItemTurtle.CAULDRON_INTERACTION );
+
         // Mod integration code.
-        if( ModList.get().isLoaded( MoreRedIntegration.MOD_ID ) ) MoreRedIntegration.initialise();
+        // TODO: if( ModList.get().isLoaded( MoreRedIntegration.MOD_ID ) ) MoreRedIntegration.initialise();
     }
 
     public static void registerLoot()
@@ -401,10 +403,10 @@ public final class Registry
         registerCondition( "has_id", HasComputerIdLootCondition.TYPE );
     }
 
-    private static void registerCondition( String name, LootConditionType serializer )
+    private static void registerCondition( String name, LootItemConditionType serializer )
     {
-        net.minecraft.util.registry.Registry.register(
-            net.minecraft.util.registry.Registry.LOOT_CONDITION_TYPE,
+        net.minecraft.core.Registry.register(
+            net.minecraft.core.Registry.LOOT_CONDITION_TYPE,
             new ResourceLocation( ComputerCraft.MOD_ID, name ), serializer
         );
     }
@@ -413,7 +415,7 @@ public final class Registry
     {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         ModBlocks.BLOCKS.register( bus );
-        ModTiles.TILES.register( bus );
+        ModBlockEntities.TILES.register( bus );
         ModItems.ITEMS.register( bus );
         ModEntities.ENTITIES.register( bus );
         ModContainers.CONTAINERS.register( bus );

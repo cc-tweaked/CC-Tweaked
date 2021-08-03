@@ -9,12 +9,12 @@ import com.google.gson.JsonObject;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.util.BasicRecipeSerializer;
 import dan200.computercraft.shared.util.RecipeUtil;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import javax.annotation.Nonnull;
 
@@ -41,18 +41,18 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
         @Override
         public T fromJson( @Nonnull ResourceLocation identifier, @Nonnull JsonObject json )
         {
-            String group = JSONUtils.getAsString( json, "group", "" );
+            String group = GsonHelper.getAsString( json, "group", "" );
             ComputerFamily family = RecipeUtil.getFamily( json, "family" );
 
             RecipeUtil.ShapedTemplate template = RecipeUtil.getTemplate( json );
-            ItemStack result = itemFromJson( JSONUtils.getAsJsonObject( json, "result" ) );
+            ItemStack result = itemStackFromJson( GsonHelper.getAsJsonObject( json, "result" ) );
 
             return create( identifier, group, template.width, template.height, template.ingredients, result, family );
         }
 
         @Nonnull
         @Override
-        public T fromNetwork( @Nonnull ResourceLocation identifier, @Nonnull PacketBuffer buf )
+        public T fromNetwork( @Nonnull ResourceLocation identifier, @Nonnull FriendlyByteBuf buf )
         {
             int width = buf.readVarInt();
             int height = buf.readVarInt();
@@ -67,7 +67,7 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
         }
 
         @Override
-        public void toNetwork( @Nonnull PacketBuffer buf, @Nonnull T recipe )
+        public void toNetwork( @Nonnull FriendlyByteBuf buf, @Nonnull T recipe )
         {
             buf.writeVarInt( recipe.getWidth() );
             buf.writeVarInt( recipe.getHeight() );

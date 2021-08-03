@@ -28,10 +28,10 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IAdvancedRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -95,8 +95,8 @@ public class JEIComputerCraft implements IModPlugin
         {
             for( Object wrapper : registry.getRecipes( category ) )
             {
-                if( !(wrapper instanceof IRecipe) ) continue;
-                ResourceLocation id = ((IRecipe<?>) wrapper).getId();
+                if( !(wrapper instanceof Recipe) ) continue;
+                ResourceLocation id = ((Recipe<?>) wrapper).getId();
                 if( !id.getNamespace().equals( ComputerCraft.MOD_ID ) ) continue;
 
                 String path = id.getPath();

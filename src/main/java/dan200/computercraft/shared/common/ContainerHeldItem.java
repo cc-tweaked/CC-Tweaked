@@ -7,24 +7,24 @@ package dan200.computercraft.shared.common;
 
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.network.container.HeldItemContainerData;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ContainerHeldItem extends Container
+public class ContainerHeldItem extends AbstractContainerMenu
 {
     private final ItemStack stack;
-    private final Hand hand;
+    private final InteractionHand hand;
 
-    public ContainerHeldItem( ContainerType<? extends ContainerHeldItem> type, int id, PlayerEntity player, Hand hand )
+    public ContainerHeldItem( MenuType<? extends ContainerHeldItem> type, int id, Player player, InteractionHand hand )
     {
         super( type, id );
 
@@ -32,7 +32,7 @@ public class ContainerHeldItem extends Container
         stack = player.getItemInHand( hand ).copy();
     }
 
-    public static ContainerHeldItem createPrintout( int id, PlayerInventory inventory, HeldItemContainerData data )
+    public static ContainerHeldItem createPrintout( int id, Inventory inventory, HeldItemContainerData data )
     {
         return new ContainerHeldItem( Registry.ModContainers.PRINTOUT.get(), id, inventory.player, data.getHand() );
     }
@@ -44,7 +44,7 @@ public class ContainerHeldItem extends Container
     }
 
     @Override
-    public boolean stillValid( @Nonnull PlayerEntity player )
+    public boolean stillValid( @Nonnull Player player )
     {
         if( !player.isAlive() ) return false;
 
@@ -52,13 +52,13 @@ public class ContainerHeldItem extends Container
         return stack == this.stack || !stack.isEmpty() && !this.stack.isEmpty() && stack.getItem() == this.stack.getItem();
     }
 
-    public static class Factory implements INamedContainerProvider
+    public static class Factory implements MenuProvider
     {
-        private final ContainerType<ContainerHeldItem> type;
-        private final ITextComponent name;
-        private final Hand hand;
+        private final MenuType<ContainerHeldItem> type;
+        private final Component name;
+        private final InteractionHand hand;
 
-        public Factory( ContainerType<ContainerHeldItem> type, ItemStack stack, Hand hand )
+        public Factory( MenuType<ContainerHeldItem> type, ItemStack stack, InteractionHand hand )
         {
             this.type = type;
             name = stack.getHoverName();
@@ -67,14 +67,14 @@ public class ContainerHeldItem extends Container
 
         @Nonnull
         @Override
-        public ITextComponent getDisplayName()
+        public Component getDisplayName()
         {
             return name;
         }
 
         @Nullable
         @Override
-        public Container createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
+        public AbstractContainerMenu createMenu( int id, @Nonnull Inventory inventory, @Nonnull Player player )
         {
             return new ContainerHeldItem( type, id, player, hand );
         }

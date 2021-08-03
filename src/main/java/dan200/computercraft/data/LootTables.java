@@ -11,13 +11,18 @@ import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
 import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
-import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.loot.*;
-import net.minecraft.loot.conditions.Alternative;
-import net.minecraft.loot.conditions.SurvivesExplosion;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.DynamicLoot;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.predicates.AlternativeLootItemCondition;
+import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraftforge.fmllegacy.RegistryObject;
 
 import java.util.function.BiConsumer;
 
@@ -48,7 +53,7 @@ public class LootTables extends LootTableProvider
 
         add.accept( CommonHooks.LOOT_TREASURE_DISK, LootTable
             .lootTable()
-            .setParamSet( LootParameterSets.ALL_PARAMS )
+            .setParamSet( LootContextParamSets.ALL_PARAMS )
             .build() );
     }
 
@@ -57,12 +62,12 @@ public class LootTables extends LootTableProvider
         Block block = wrapper.get();
         add.accept( block.getLootTable(), LootTable
             .lootTable()
-            .setParamSet( LootParameterSets.BLOCK )
+            .setParamSet( LootContextParamSets.BLOCK )
             .withPool( LootPool.lootPool()
                 .name( "main" )
-                .setRolls( ConstantRange.exactly( 1 ) )
-                .add( ItemLootEntry.lootTableItem( block ) )
-                .when( SurvivesExplosion.survivesExplosion() )
+                .setRolls( ConstantValue.exactly( 1 ) )
+                .add( LootItem.lootTableItem( block ) )
+                .when( ExplosionCondition.survivesExplosion() )
             ).build() );
     }
 
@@ -71,12 +76,12 @@ public class LootTables extends LootTableProvider
         Block block = wrapper.get();
         add.accept( block.getLootTable(), LootTable
             .lootTable()
-            .setParamSet( LootParameterSets.BLOCK )
+            .setParamSet( LootContextParamSets.BLOCK )
             .withPool( LootPool.lootPool()
                 .name( "main" )
-                .setRolls( ConstantRange.exactly( 1 ) )
-                .add( DynamicLootEntry.dynamicEntry( new ResourceLocation( ComputerCraft.MOD_ID, "computer" ) ) )
-                .when( Alternative.alternative(
+                .setRolls( ConstantValue.exactly( 1 ) )
+                .add( DynamicLoot.dynamicEntry( new ResourceLocation( ComputerCraft.MOD_ID, "computer" ) ) )
+                .when( AlternativeLootItemCondition.alternative(
                     BlockNamedEntityLootCondition.BUILDER,
                     HasComputerIdLootCondition.BUILDER,
                     PlayerCreativeLootCondition.BUILDER.invert()

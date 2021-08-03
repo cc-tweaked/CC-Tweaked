@@ -8,8 +8,8 @@ package dan200.computercraft.shared.network.server;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.NetworkMessage;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
@@ -22,13 +22,13 @@ public class RequestComputerMessage implements NetworkMessage
         this.instance = instance;
     }
 
-    public RequestComputerMessage( @Nonnull PacketBuffer buf )
+    public RequestComputerMessage( @Nonnull FriendlyByteBuf buf )
     {
         instance = buf.readVarInt();
     }
 
     @Override
-    public void toBytes( @Nonnull PacketBuffer buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         buf.writeVarInt( instance );
     }

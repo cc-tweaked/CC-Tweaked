@@ -11,10 +11,10 @@ import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.peripheral.monitor.BlockMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState;
-import net.minecraft.block.Block;
+import net.minecraft.core.Direction;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.generators.*;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
@@ -51,7 +51,7 @@ public class BlockModelProvider extends BlockStateProvider
         registerComputer( Registry.ModBlocks.COMPUTER_COMMAND.get() );
     }
 
-    private void registerComputer( BlockComputer block )
+    private void registerComputer( BlockComputer<?> block )
     {
         VariantBlockStateBuilder builder = getVariantBuilder( block );
         for( ComputerState state : BlockComputer.STATE.getPossibleValues() )

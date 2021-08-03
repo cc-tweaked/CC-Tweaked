@@ -10,10 +10,10 @@ import dan200.computercraft.client.gui.OptionScreen;
 import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
@@ -23,22 +23,22 @@ public class UploadResultMessage implements NetworkMessage
     public static final UploadResultMessage OUT_OF_SPACE = new UploadResultMessage( UploadResult.ERROR, UploadResult.OUT_OF_SPACE_MSG );
 
     private final UploadResult result;
-    private final ITextComponent message;
+    private final Component message;
 
-    public UploadResultMessage( UploadResult result, ITextComponent message )
+    public UploadResultMessage( UploadResult result, Component message )
     {
         this.result = result;
         this.message = message;
     }
 
-    public UploadResultMessage( @Nonnull PacketBuffer buf )
+    public UploadResultMessage( @Nonnull FriendlyByteBuf buf )
     {
         result = buf.readEnum( UploadResult.class );
         message = buf.readComponent();
     }
 
     @Override
-    public void toBytes( @Nonnull PacketBuffer buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         buf.writeEnum( result );
         buf.writeComponent( message );

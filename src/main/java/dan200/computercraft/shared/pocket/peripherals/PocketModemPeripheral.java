@@ -8,22 +8,22 @@ package dan200.computercraft.shared.pocket.peripherals;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 
 public class PocketModemPeripheral extends WirelessModemPeripheral
 {
-    private World world = null;
-    private Vector3d position = Vector3d.ZERO;
+    private Level world = null;
+    private Vec3 position = Vec3.ZERO;
 
     public PocketModemPeripheral( boolean advanced )
     {
         super( new ModemState(), advanced );
     }
 
-    void setLocation( World world, Vector3d position )
+    void setLocation( Level world, Vec3 position )
     {
         this.position = position;
         this.world = world;
@@ -31,14 +31,14 @@ public class PocketModemPeripheral extends WirelessModemPeripheral
 
     @Nonnull
     @Override
-    public World getWorld()
+    public Level getLevel()
     {
         return world;
     }
 
     @Nonnull
     @Override
-    public Vector3d getPosition()
+    public Vec3 getPosition()
     {
         return position;
     }

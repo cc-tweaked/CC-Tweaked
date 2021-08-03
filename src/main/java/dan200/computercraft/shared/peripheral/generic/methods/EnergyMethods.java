@@ -8,7 +8,7 @@ package dan200.computercraft.shared.peripheral.generic.methods;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.LuaFunction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.energy.IEnergyStorage;
 
 import javax.annotation.Nonnull;

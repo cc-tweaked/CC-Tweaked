@@ -8,17 +8,17 @@ package dan200.computercraft.shared.media.items;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.network.container.HeldItemContainerData;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -50,22 +50,22 @@ public class ItemPrintout extends Item
     }
 
     @Override
-    public void appendHoverText( @Nonnull ItemStack stack, World world, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag options )
+    public void appendHoverText( @Nonnull ItemStack stack, Level world, @Nonnull List<Component> list, @Nonnull TooltipFlag options )
     {
         String title = getTitle( stack );
-        if( title != null && !title.isEmpty() ) list.add( new StringTextComponent( title ) );
+        if( title != null && !title.isEmpty() ) list.add( new TextComponent( title ) );
     }
 
     @Nonnull
     @Override
-    public ActionResult<ItemStack> use( World world, @Nonnull PlayerEntity player, @Nonnull Hand hand )
+    public InteractionResultHolder<ItemStack> use( Level world, @Nonnull Player player, @Nonnull InteractionHand hand )
     {
         if( !world.isClientSide )
         {
             new HeldItemContainerData( hand )
                 .open( player, new ContainerHeldItem.Factory( Registry.ModContainers.PRINTOUT.get(), player.getItemInHand( hand ), hand ) );
         }
-        return new ActionResult<>( ActionResultType.SUCCESS, player.getItemInHand( hand ) );
+        return new InteractionResultHolder<>( InteractionResult.SUCCESS, player.getItemInHand( hand ) );
     }
 
     @Nonnull
@@ -77,7 +77,7 @@ public class ItemPrintout extends Item
         if( title != null ) stack.getOrCreateTag().putString( NBT_TITLE, title );
         if( text != null )
         {
-            CompoundNBT tag = stack.getOrCreateTag();
+            CompoundTag tag = stack.getOrCreateTag();
             tag.putInt( NBT_PAGES, text.length / LINES_PER_PAGE );
             for( int i = 0; i < text.length; i++ )
             {
@@ -86,7 +86,7 @@ public class ItemPrintout extends Item
         }
         if( colours != null )
         {
-            CompoundNBT tag = stack.getOrCreateTag();
+            CompoundTag tag = stack.getOrCreateTag();
             for( int i = 0; i < colours.length; i++ )
             {
                 if( colours[i] != null ) tag.putString( NBT_LINE_COLOUR + i, colours[i] );
@@ -122,13 +122,13 @@ public class ItemPrintout extends Item
 
     public static String getTitle( @Nonnull ItemStack stack )
     {
-        CompoundNBT nbt = stack.getTag();
+        CompoundTag nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_TITLE ) ? nbt.getString( NBT_TITLE ) : null;
     }
 
     public static int getPageCount( @Nonnull ItemStack stack )
     {
-        CompoundNBT nbt = stack.getTag();
+        CompoundTag nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_PAGES ) ? nbt.getInt( NBT_PAGES ) : 1;
     }
 
@@ -144,7 +144,7 @@ public class ItemPrintout extends Item
 
     private static String[] getLines( @Nonnull ItemStack stack, String prefix )
     {
-        CompoundNBT nbt = stack.getTag();
+        CompoundTag nbt = stack.getTag();
         int numLines = getPageCount( stack ) * LINES_PER_PAGE;
         String[] lines = new String[numLines];
         for( int i = 0; i < lines.length; i++ )

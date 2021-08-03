@@ -14,10 +14,10 @@ import dan200.computercraft.api.network.wired.IWiredNetworkChange;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.util.DirectionUtil;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -314,14 +314,14 @@ public class NetworkTest
 
     private static final class NetworkElement implements IWiredElement
     {
-        private final World world;
-        private final Vector3d position;
+        private final Level world;
+        private final Vec3 position;
         private final String id;
         private final IWiredNode node;
         private final Map<String, IPeripheral> localPeripherals = Maps.newHashMap();
         private final Map<String, IPeripheral> remotePeripherals = Maps.newHashMap();
 
-        private NetworkElement( World world, Vector3d position, String id )
+        private NetworkElement( Level world, Vec3 position, String id )
         {
             this.world = world;
             this.position = position;
@@ -332,14 +332,14 @@ public class NetworkTest
 
         @Nonnull
         @Override
-        public World getWorld()
+        public Level getLevel()
         {
             return world;
         }
 
         @Nonnull
         @Override
-        public Vector3d getPosition()
+        public Vec3 getPosition()
         {
             return position;
         }

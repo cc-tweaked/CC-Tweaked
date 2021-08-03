@@ -8,9 +8,9 @@ package dan200.computercraft.shared.network.server;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.upload.FileUpload;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
@@ -28,7 +28,7 @@ public class UploadFileMessage extends ComputerServerMessage
         this.files = files;
     }
 
-    public UploadFileMessage( @Nonnull PacketBuffer buf )
+    public UploadFileMessage( @Nonnull FriendlyByteBuf buf )
     {
         super( buf );
         int nFiles = buf.readVarInt();
@@ -48,7 +48,7 @@ public class UploadFileMessage extends ComputerServerMessage
     }
 
     @Override
-    public void toBytes( @Nonnull PacketBuffer buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         super.toBytes( buf );
         buf.writeVarInt( files.size() );
@@ -63,7 +63,7 @@ public class UploadFileMessage extends ComputerServerMessage
     @Override
     protected void handle( NetworkEvent.Context context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
-        ServerPlayerEntity player = context.getSender();
+        ServerPlayer player = context.getSender();
         if( player != null ) container.upload( player, files );
     }
 }

@@ -5,24 +5,24 @@
  */
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
 
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
 
-public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
+public class GuiPrintout extends AbstractContainerScreen<ContainerHeldItem>
 {
     private final boolean book;
     private final int pages;
@@ -30,7 +30,7 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
     private final TextBuffer[] colours;
     private int page;
 
-    public GuiPrintout( ContainerHeldItem container, PlayerInventory player, ITextComponent title )
+    public GuiPrintout( ContainerHeldItem container, Inventory player, Component title )
     {
         super( container, player, title );
 
@@ -91,13 +91,13 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
     }
 
     @Override
-    protected void renderBg( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
+    protected void renderBg( @Nonnull PoseStack transform, float partialTicks, int mouseX, int mouseY )
     {
         // Draw the printout
-        RenderSystem.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
+        RenderSystem.setShaderColor( 1.0f, 1.0f, 1.0f, 1.0f );
         RenderSystem.enableDepthTest();
 
-        IRenderTypeBuffer.Impl renderer = Minecraft.getInstance().renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource renderer = Minecraft.getInstance().renderBuffers().bufferSource();
         Matrix4f matrix = transform.last().pose();
         drawBorder( matrix, renderer, leftPos, topPos, getBlitOffset(), page, pages, book );
         drawText( matrix, renderer, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * page, text, colours );
@@ -105,7 +105,7 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
     }
 
     @Override
-    public void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
+    public void render( @Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks )
     {
         // We must take the background further back in order to not overlap with our printed pages.
         setBlitOffset( getBlitOffset() - 1 );
@@ -116,7 +116,7 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
     }
 
     @Override
-    protected void renderLabels( @Nonnull MatrixStack transform, int mouseX, int mouseY )
+    protected void renderLabels( @Nonnull PoseStack transform, int mouseX, int mouseY )
     {
         // Skip rendering labels.
     }

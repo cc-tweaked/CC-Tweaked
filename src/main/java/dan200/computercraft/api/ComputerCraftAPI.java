@@ -20,10 +20,10 @@ import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -64,7 +64,7 @@ public final class ComputerCraftAPI
      * available for writing.
      * @see #createSaveDirMount(World, String, long)
      */
-    public static int createUniqueNumberedSaveDir( @Nonnull World world, @Nonnull String parentSubPath )
+    public static int createUniqueNumberedSaveDir( @Nonnull Level world, @Nonnull String parentSubPath )
     {
         return getInstance().createUniqueNumberedSaveDir( world, parentSubPath );
     }
@@ -88,7 +88,7 @@ public final class ComputerCraftAPI
      * @see IWritableMount
      */
     @Nullable
-    public static IWritableMount createSaveDirMount( @Nonnull World world, @Nonnull String subPath, long capacity )
+    public static IWritableMount createSaveDirMount( @Nonnull Level world, @Nonnull String subPath, long capacity )
     {
         return getInstance().createSaveDirMount( world, subPath, capacity );
     }
@@ -185,7 +185,7 @@ public final class ComputerCraftAPI
      * If there is no block capable of emitting bundled redstone at the location, -1 will be returned.
      * @see IBundledRedstoneProvider
      */
-    public static int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
+    public static int getBundledRedstoneOutput( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         return getInstance().getBundledRedstoneOutput( world, pos, side );
     }
@@ -244,7 +244,7 @@ public final class ComputerCraftAPI
      * @see IWiredElement#getNode()
      */
     @Nonnull
-    public static LazyOptional<IWiredElement> getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction side )
+    public static LazyOptional<IWiredElement> getWiredElementAt( @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         return getInstance().getWiredElementAt( world, pos, side );
     }
@@ -272,10 +272,10 @@ public final class ComputerCraftAPI
         @Nonnull
         String getInstalledVersion();
 
-        int createUniqueNumberedSaveDir( @Nonnull World world, @Nonnull String parentSubPath );
+        int createUniqueNumberedSaveDir( @Nonnull Level world, @Nonnull String parentSubPath );
 
         @Nullable
-        IWritableMount createSaveDirMount( @Nonnull World world, @Nonnull String subPath, long capacity );
+        IWritableMount createSaveDirMount( @Nonnull Level world, @Nonnull String subPath, long capacity );
 
         @Nullable
         IMount createResourceMount( @Nonnull String domain, @Nonnull String subPath );
@@ -290,7 +290,7 @@ public final class ComputerCraftAPI
 
         void registerBundledRedstoneProvider( @Nonnull IBundledRedstoneProvider provider );
 
-        int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side );
+        int getBundledRedstoneOutput( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side );
 
         void registerMediaProvider( @Nonnull IMediaProvider provider );
 
@@ -305,6 +305,6 @@ public final class ComputerCraftAPI
         IWiredNode createWiredNodeForElement( @Nonnull IWiredElement element );
 
         @Nonnull
-        LazyOptional<IWiredElement> getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction side );
+        LazyOptional<IWiredElement> getWiredElementAt( @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side );
     }
 }

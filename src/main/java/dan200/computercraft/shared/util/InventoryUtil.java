@@ -5,17 +5,17 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ISidedInventory;
-import net.minecraft.inventory.ISidedInventoryProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.Container;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.WorldlyContainerHolder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -45,10 +45,10 @@ public final class InventoryUtil
     // Methods for finding inventories:
 
     @Nullable
-    public static IItemHandler getInventory( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
+    public static IItemHandler getInventory( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         // Look for tile with inventory
-        TileEntity tileEntity = world.getBlockEntity( pos );
+        BlockEntity tileEntity = world.getBlockEntity( pos );
         if( tileEntity != null )
         {
             LazyOptional<IItemHandler> itemHandler = tileEntity.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side );
@@ -56,40 +56,40 @@ public final class InventoryUtil
             {
                 return itemHandler.orElseThrow( NullPointerException::new );
             }
-            else if( tileEntity instanceof ISidedInventory )
+            else if( tileEntity instanceof WorldlyContainer )
             {
-                return new SidedInvWrapper( (ISidedInventory) tileEntity, side );
+                return new SidedInvWrapper( (WorldlyContainer) tileEntity, side );
             }
-            else if( tileEntity instanceof IInventory )
+            else if( tileEntity instanceof Container )
             {
-                return new InvWrapper( (IInventory) tileEntity );
+                return new InvWrapper( (Container) tileEntity );
             }
         }
 
         BlockState block = world.getBlockState( pos );
-        if( block.getBlock() instanceof ISidedInventoryProvider )
+        if( block.getBlock() instanceof WorldlyContainerHolder )
         {
-            ISidedInventory inventory = ((ISidedInventoryProvider) block.getBlock()).getContainer( block, world, pos );
+            WorldlyContainer inventory = ((WorldlyContainerHolder) block.getBlock()).getContainer( block, world, pos );
             return new SidedInvWrapper( inventory, side );
         }
 
         // Look for entity with inventory
-        Vector3d vecStart = new Vector3d(
+        Vec3 vecStart = new Vec3(
             pos.getX() + 0.5 + 0.6 * side.getStepX(),
             pos.getY() + 0.5 + 0.6 * side.getStepY(),
             pos.getZ() + 0.5 + 0.6 * side.getStepZ()
         );
         Direction dir = side.getOpposite();
-        Vector3d vecDir = new Vector3d(
+        Vec3 vecDir = new Vec3(
             dir.getStepX(), dir.getStepY(), dir.getStepZ()
         );
-        Pair<Entity, Vector3d> hit = WorldUtil.rayTraceEntities( world, vecStart, vecDir, 1.1 );
+        Pair<Entity, Vec3> hit = WorldUtil.rayTraceEntities( world, vecStart, vecDir, 1.1 );
         if( hit != null )
         {
             Entity entity = hit.getKey();
-            if( entity instanceof IInventory )
+            if( entity instanceof Container )
             {
-                return new InvWrapper( (IInventory) entity );
+                return new InvWrapper( (Container) entity );
             }
         }
         return null;

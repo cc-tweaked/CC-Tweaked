@@ -13,16 +13,16 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.SpeakerMoveClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerPlayClientMessage;
-import net.minecraft.network.play.server.SPlaySoundPacket;
+import net.minecraft.ResourceLocationException;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.state.properties.NoteBlockInstrument;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.ResourceLocationException;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
@@ -45,7 +45,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
     private final AtomicInteger notesThisTick = new AtomicInteger();
 
     private long lastPositionTime;
-    private Vector3d lastPosition;
+    private Vec3 lastPosition;
 
     public void update()
     {
@@ -57,22 +57,22 @@ public abstract class SpeakerPeripheral implements IPeripheral
         // in the last second.
         if( lastPlayTime > 0 && (clock - lastPositionTime) >= 20 )
         {
-            Vector3d position = getPosition();
+            Vec3 position = getPosition();
             if( lastPosition == null || lastPosition.distanceToSqr( position ) >= 0.1 )
             {
                 lastPosition = position;
                 lastPositionTime = clock;
                 NetworkHandler.sendToAllTracking(
                     new SpeakerMoveClientMessage( getSource(), position ),
-                    getWorld().getChunkAt( new BlockPos( position ) )
+                    getLevel().getChunkAt( new BlockPos( position ) )
                 );
             }
         }
     }
 
-    public abstract World getWorld();
+    public abstract Level getLevel();
 
-    public abstract Vector3d getPosition();
+    public abstract Vec3 getPosition();
 
     protected abstract UUID getSource();
 
@@ -173,10 +173,10 @@ public abstract class SpeakerPeripheral implements IPeripheral
             if( clock - lastPlayTime != 0 || notesThisTick.get() >= ComputerCraft.maxNotesPerTick ) return false;
         }
 
-        World world = getWorld();
-        Vector3d pos = getPosition();
+        Level world = getLevel();
+        Vec3 pos = getPosition();
 
-        float range = MathHelper.clamp( volume, 1.0f, 3.0f ) * 16;
+        float range = Mth.clamp( volume, 1.0f, 3.0f ) * 16;
 
         context.issueMainThreadTask( () -> {
             MinecraftServer server = world.getServer();
@@ -186,7 +186,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
             {
                 server.getPlayerList().broadcast(
                     null, pos.x, pos.y, pos.z, range, world.dimension(),
-                    new SPlaySoundPacket( name, SoundCategory.RECORDS, pos, range, pitch )
+                    new ClientboundCustomSoundPacket( name, SoundSource.RECORDS, pos, range, pitch )
                 );
             }
             else

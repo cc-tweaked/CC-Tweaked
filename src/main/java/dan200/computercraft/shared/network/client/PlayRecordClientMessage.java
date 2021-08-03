@@ -7,13 +7,13 @@ package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
@@ -44,7 +44,7 @@ public class PlayRecordClientMessage implements NetworkMessage
         soundEvent = null;
     }
 
-    public PlayRecordClientMessage( PacketBuffer buf )
+    public PlayRecordClientMessage( FriendlyByteBuf buf )
     {
         pos = buf.readBlockPos();
         if( buf.readBoolean() )
@@ -60,7 +60,7 @@ public class PlayRecordClientMessage implements NetworkMessage
     }
 
     @Override
-    public void toBytes( @Nonnull PacketBuffer buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         buf.writeBlockPos( pos );
         if( soundEvent == null )
@@ -80,7 +80,7 @@ public class PlayRecordClientMessage implements NetworkMessage
     public void handle( NetworkEvent.Context context )
     {
         Minecraft mc = Minecraft.getInstance();
-        mc.levelRenderer.playRecord( soundEvent, pos, null );
-        if( name != null ) mc.gui.setNowPlaying( new StringTextComponent( name ) );
+        mc.levelRenderer.playStreamingMusic( soundEvent, pos, null );
+        if( name != null ) mc.gui.setNowPlaying( new TextComponent( name ) );
     }
 }

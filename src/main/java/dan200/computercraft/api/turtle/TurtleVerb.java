@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.api.turtle;
 
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 /**
  * An enum representing the different actions that an {@link ITurtleUpgrade} of type Tool may be called on to perform by

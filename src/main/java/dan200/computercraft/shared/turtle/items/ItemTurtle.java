@@ -13,21 +13,17 @@ import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.ItemComputerBase;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.CauldronBlock;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -45,7 +41,7 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     {
         // Build the stack
         ItemStack stack = new ItemStack( this );
-        if( label != null ) stack.setHoverName( new StringTextComponent( label ) );
+        if( label != null ) stack.setHoverName( new TextComponent( label ) );
         if( id >= 0 ) stack.getOrCreateTag().putInt( NBT_ID, id );
         IColouredItem.setColourBasic( stack, colour );
         if( fuelLevel > 0 ) stack.getOrCreateTag().putInt( NBT_FUEL, fuelLevel );
@@ -65,7 +61,7 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     }
 
     @Override
-    public void fillItemCategory( @Nonnull ItemGroup group, @Nonnull NonNullList<ItemStack> list )
+    public void fillItemCategory( @Nonnull CreativeModeTab group, @Nonnull NonNullList<ItemStack> list )
     {
         if( !allowdedIn( group ) ) return;
 
@@ -80,33 +76,33 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
 
     @Nonnull
     @Override
-    public ITextComponent getName( @Nonnull ItemStack stack )
+    public Component getName( @Nonnull ItemStack stack )
     {
         String baseString = getDescriptionId( stack );
         ITurtleUpgrade left = getUpgrade( stack, TurtleSide.LEFT );
         ITurtleUpgrade right = getUpgrade( stack, TurtleSide.RIGHT );
         if( left != null && right != null )
         {
-            return new TranslationTextComponent( baseString + ".upgraded_twice",
-                new TranslationTextComponent( right.getUnlocalisedAdjective() ),
-                new TranslationTextComponent( left.getUnlocalisedAdjective() )
+            return new TranslatableComponent( baseString + ".upgraded_twice",
+                new TranslatableComponent( right.getUnlocalisedAdjective() ),
+                new TranslatableComponent( left.getUnlocalisedAdjective() )
             );
         }
         else if( left != null )
         {
-            return new TranslationTextComponent( baseString + ".upgraded",
-                new TranslationTextComponent( left.getUnlocalisedAdjective() )
+            return new TranslatableComponent( baseString + ".upgraded",
+                new TranslatableComponent( left.getUnlocalisedAdjective() )
             );
         }
         else if( right != null )
         {
-            return new TranslationTextComponent( baseString + ".upgraded",
-                new TranslationTextComponent( right.getUnlocalisedAdjective() )
+            return new TranslatableComponent( baseString + ".upgraded",
+                new TranslatableComponent( right.getUnlocalisedAdjective() )
             );
         }
         else
         {
-            return new TranslationTextComponent( baseString );
+            return new TranslatableComponent( baseString );
         }
     }
 
@@ -148,7 +144,7 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     @Override
     public ITurtleUpgrade getUpgrade( @Nonnull ItemStack stack, @Nonnull TurtleSide side )
     {
-        CompoundNBT tag = stack.getTag();
+        CompoundTag tag = stack.getTag();
         if( tag == null ) return null;
 
         String key = side == TurtleSide.LEFT ? NBT_LEFT_UPGRADE : NBT_RIGHT_UPGRADE;
@@ -158,37 +154,26 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     @Override
     public ResourceLocation getOverlay( @Nonnull ItemStack stack )
     {
-        CompoundNBT tag = stack.getTag();
+        CompoundTag tag = stack.getTag();
         return tag != null && tag.contains( NBT_OVERLAY ) ? new ResourceLocation( tag.getString( NBT_OVERLAY ) ) : null;
     }
 
     @Override
     public int getFuelLevel( @Nonnull ItemStack stack )
     {
-        CompoundNBT tag = stack.getTag();
+        CompoundTag tag = stack.getTag();
         return tag != null && tag.contains( NBT_FUEL ) ? tag.getInt( NBT_FUEL ) : 0;
     }
 
-    @Override
-    public ActionResultType onItemUseFirst( ItemStack stack, ItemUseContext context )
+    public static final CauldronInteraction CAULDRON_INTERACTION = ( blockState, level, pos, player, hand, stack ) ->
     {
-        if( context.isSecondaryUseActive() || getColour( stack ) == -1 ) return ActionResultType.PASS;
-
-        World level = context.getLevel();
-        BlockPos pos = context.getClickedPos();
-
-        BlockState blockState = level.getBlockState( pos );
-        if( blockState.getBlock() != Blocks.CAULDRON ) return ActionResultType.PASS;
-
-        int waterLevel = blockState.getValue( CauldronBlock.LEVEL );
-        if( waterLevel <= 0 ) return ActionResultType.PASS;
-
+        if( IColouredItem.getColourBasic( stack ) == -1 ) return InteractionResult.PASS;
         if( !level.isClientSide )
         {
-            ((CauldronBlock) blockState.getBlock()).setWaterLevel( level, pos, blockState, waterLevel - 1 );
             IColouredItem.setColourBasic( stack, -1 );
+            LayeredCauldronBlock.lowerFillLevel( blockState, level, pos );
         }
 
-        return ActionResultType.SUCCESS;
-    }
+        return InteractionResult.sidedSuccess( level.isClientSide );
+    };
 }

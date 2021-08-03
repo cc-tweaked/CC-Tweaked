@@ -7,7 +7,7 @@ package dan200.computercraft.api.filesystem;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -20,10 +20,10 @@ import java.util.List;
  * {@link IComputerAccess#mount(String, IMount)}.
  *
  * Ready made implementations of this interface can be created using
- * {@link ComputerCraftAPI#createSaveDirMount(World, String, long)} or
+ * {@link ComputerCraftAPI#createSaveDirMount(Level, String, long)} or
  * {@link ComputerCraftAPI#createResourceMount(String, String)}, or you're free to implement it yourselves!
  *
- * @see ComputerCraftAPI#createSaveDirMount(World, String, long)
+ * @see ComputerCraftAPI#createSaveDirMount(Level, String, long)
  * @see ComputerCraftAPI#createResourceMount(String, String)
  * @see IComputerAccess#mount(String, IMount)
  * @see IWritableMount

@@ -11,9 +11,9 @@ import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
@@ -84,8 +84,8 @@ public interface ITurtleUpgrade extends IUpgradeBase
     /**
      * Called to obtain the model to be used when rendering a turtle peripheral.
      *
-     * This can be obtained from {@link net.minecraft.client.renderer.ItemModelMesher#getItemModel(ItemStack)},
-     * {@link net.minecraft.client.renderer.model.ModelManager#getModel(ModelResourceLocation)} or any other
+     * This can be obtained from {@link net.minecraft.client.renderer.ItemModelShaper#getItemModel(ItemStack)},
+     * {@link net.minecraft.client.resources.model.ModelManager#getModel(ModelResourceLocation)} or any other
      * source.
      *
      * @param turtle Access to the turtle that the upgrade resides on. This will be null when getting item models!

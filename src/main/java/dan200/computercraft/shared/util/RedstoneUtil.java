@@ -5,17 +5,17 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.event.ForgeEventFactory;
 
 import java.util.EnumSet;
 
 public final class RedstoneUtil
 {
-    public static void propagateRedstoneOutput( World world, BlockPos pos, Direction side )
+    public static void propagateRedstoneOutput( Level world, BlockPos pos, Direction side )
     {
         // Propagate ordinary output. See BlockRedstoneDiode.notifyNeighbors
         BlockState block = world.getBlockState( pos );

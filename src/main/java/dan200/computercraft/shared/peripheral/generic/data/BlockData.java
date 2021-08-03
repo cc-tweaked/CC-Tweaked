@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.shared.peripheral.generic.data;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.state.Property;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;

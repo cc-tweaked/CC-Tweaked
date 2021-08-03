@@ -12,11 +12,11 @@ import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 /**
@@ -63,9 +63,9 @@ public class PocketAPI implements ILuaAPI
     public final Object[] equipBack()
     {
         Entity entity = computer.getEntity();
-        if( !(entity instanceof PlayerEntity) ) return new Object[] { false, "Cannot find player" };
-        PlayerEntity player = (PlayerEntity) entity;
-        PlayerInventory inventory = player.inventory;
+        if( !(entity instanceof Player) ) return new Object[] { false, "Cannot find player" };
+        Player player = (Player) entity;
+        Inventory inventory = player.getInventory();
         IPocketUpgrade previousUpgrade = computer.getUpgrade();
 
         // Attempt to find the upgrade, starting in the main segment, and then looking in the opposite
@@ -108,9 +108,9 @@ public class PocketAPI implements ILuaAPI
     public final Object[] unequipBack()
     {
         Entity entity = computer.getEntity();
-        if( !(entity instanceof PlayerEntity) ) return new Object[] { false, "Cannot find player" };
-        PlayerEntity player = (PlayerEntity) entity;
-        PlayerInventory inventory = player.inventory;
+        if( !(entity instanceof Player) ) return new Object[] { false, "Cannot find player" };
+        Player player = (Player) entity;
+        Inventory inventory = player.getInventory();
         IPocketUpgrade previousUpgrade = computer.getUpgrade();
 
         if( previousUpgrade == null ) return new Object[] { false, "Nothing to unequip" };

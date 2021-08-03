@@ -8,16 +8,16 @@ package dan200.computercraft.shared.turtle.upgrades;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.util.NonNullList;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.NonNullList;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.fml.hooks.BasicEventHooks;
+import net.minecraftforge.fmllegacy.hooks.BasicEventHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class TurtleInventoryCrafting extends CraftingInventory
+public class TurtleInventoryCrafting extends CraftingContainer
 {
     private final ITurtleAccess turtle;
     private int xStart = 0;
@@ -41,7 +41,7 @@ public class TurtleInventoryCrafting extends CraftingInventory
     }
 
     @Nullable
-    private IRecipe<CraftingInventory> tryCrafting( int xStart, int yStart )
+    private Recipe<CraftingContainer> tryCrafting( int xStart, int yStart )
     {
         this.xStart = xStart;
         this.yStart = yStart;
@@ -63,16 +63,16 @@ public class TurtleInventoryCrafting extends CraftingInventory
         }
 
         // Check the actual crafting
-        return turtle.getWorld().getRecipeManager().getRecipeFor( IRecipeType.CRAFTING, this, turtle.getWorld() ).orElse( null );
+        return turtle.getLevel().getRecipeManager().getRecipeFor( RecipeType.CRAFTING, this, turtle.getLevel() ).orElse( null );
     }
 
     @Nullable
-    public List<ItemStack> doCrafting( World world, int maxCount )
+    public List<ItemStack> doCrafting( Level world, int maxCount )
     {
-        if( world.isClientSide || !(world instanceof ServerWorld) ) return null;
+        if( world.isClientSide || !(world instanceof ServerLevel) ) return null;
 
         // Find out what we can craft
-        IRecipe<CraftingInventory> recipe = tryCrafting( 0, 0 );
+        Recipe<CraftingContainer> recipe = tryCrafting( 0, 0 );
         if( recipe == null ) recipe = tryCrafting( 0, 1 );
         if( recipe == null ) recipe = tryCrafting( 1, 0 );
         if( recipe == null ) recipe = tryCrafting( 1, 1 );
@@ -204,7 +204,7 @@ public class TurtleInventoryCrafting extends CraftingInventory
     }
 
     @Override
-    public boolean stillValid( @Nonnull PlayerEntity player )
+    public boolean stillValid( @Nonnull Player player )
     {
         return true;
     }

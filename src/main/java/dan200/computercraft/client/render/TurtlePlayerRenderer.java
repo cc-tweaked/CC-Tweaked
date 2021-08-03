@@ -5,18 +5,18 @@
  */
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
 public class TurtlePlayerRenderer extends EntityRenderer<TurtlePlayer>
 {
-    public TurtlePlayerRenderer( EntityRendererManager renderManager )
+    public TurtlePlayerRenderer( EntityRendererProvider.Context renderManager )
     {
         super( renderManager );
     }
@@ -29,7 +29,7 @@ public class TurtlePlayerRenderer extends EntityRenderer<TurtlePlayer>
     }
 
     @Override
-    public void render( @Nonnull TurtlePlayer entityIn, float entityYaw, float partialTicks, @Nonnull MatrixStack transform, @Nonnull IRenderTypeBuffer buffer, int packedLightIn )
+    public void render( @Nonnull TurtlePlayer entityIn, float entityYaw, float partialTicks, @Nonnull PoseStack transform, @Nonnull MultiBufferSource buffer, int packedLightIn )
     {
     }
 }

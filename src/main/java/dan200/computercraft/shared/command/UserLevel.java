@@ -5,17 +5,17 @@
  */
 package dan200.computercraft.shared.command;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.function.Predicate;
 
 /**
  * The level a user must be at in order to execute a command.
  */
-public enum UserLevel implements Predicate<CommandSource>
+public enum UserLevel implements Predicate<CommandSourceStack>
 {
     /**
      * Only can be used by the owner of the server: namely the server console or the player in SSP.
@@ -53,7 +53,7 @@ public enum UserLevel implements Predicate<CommandSource>
     }
 
     @Override
-    public boolean test( CommandSource source )
+    public boolean test( CommandSourceStack source )
     {
         if( this == ANYONE ) return true;
 
@@ -61,8 +61,8 @@ public enum UserLevel implements Predicate<CommandSource>
         {
             MinecraftServer server = source.getServer();
             Entity sender = source.getEntity();
-            if( server.isSingleplayer() && sender instanceof PlayerEntity &&
-                ((PlayerEntity) sender).getGameProfile().getName().equalsIgnoreCase( server.getServerModName() ) )
+            if( server.isSingleplayer() && sender instanceof Player &&
+                ((Player) sender).getGameProfile().getName().equalsIgnoreCase( server.getServerModName() ) )
             {
                 return true;
             }

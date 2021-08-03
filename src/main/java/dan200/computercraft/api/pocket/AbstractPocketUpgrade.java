@@ -5,11 +5,11 @@
  */
 package dan200.computercraft.api.pocket;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
+import net.minecraft.Util;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
@@ -48,22 +48,22 @@ public abstract class AbstractPocketUpgrade implements IPocketUpgrade
         this( id, () -> stack );
     }
 
-    protected AbstractPocketUpgrade( ResourceLocation id, String adjective, IItemProvider item )
+    protected AbstractPocketUpgrade( ResourceLocation id, String adjective, ItemLike item )
     {
         this( id, adjective, new CachedStack( () -> item ) );
     }
 
-    protected AbstractPocketUpgrade( ResourceLocation id, IItemProvider item )
+    protected AbstractPocketUpgrade( ResourceLocation id, ItemLike item )
     {
         this( id, new CachedStack( () -> item ) );
     }
 
-    protected AbstractPocketUpgrade( ResourceLocation id, String adjective, Supplier<? extends IItemProvider> item )
+    protected AbstractPocketUpgrade( ResourceLocation id, String adjective, Supplier<? extends ItemLike> item )
     {
         this( id, adjective, new CachedStack( item ) );
     }
 
-    protected AbstractPocketUpgrade( ResourceLocation id, Supplier<? extends IItemProvider> item )
+    protected AbstractPocketUpgrade( ResourceLocation id, Supplier<? extends ItemLike> item )
     {
         this( id, new CachedStack( item ) );
     }
@@ -96,11 +96,11 @@ public abstract class AbstractPocketUpgrade implements IPocketUpgrade
      */
     private static final class CachedStack implements NonNullSupplier<ItemStack>
     {
-        private final Supplier<? extends IItemProvider> provider;
+        private final Supplier<? extends ItemLike> provider;
         private Item item;
         private ItemStack stack;
 
-        CachedStack( Supplier<? extends IItemProvider> provider )
+        CachedStack( Supplier<? extends ItemLike> provider )
         {
             this.provider = provider;
         }

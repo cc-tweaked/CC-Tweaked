@@ -8,7 +8,7 @@ package dan200.computercraft.shared.computer.items;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 

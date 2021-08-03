@@ -21,19 +21,18 @@ import mezz.jei.api.constants.VanillaRecipeCategoryUid;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.advanced.IRecipeManagerPlugin;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.ShapedRecipe;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.ShapedRecipe;
 
 import javax.annotation.Nonnull;
 import java.util.*;
 
-import static net.minecraft.item.crafting.Ingredient.of;
-import static net.minecraft.util.NonNullList.of;
+import static net.minecraft.core.NonNullList.of;
 
 class RecipeResolver implements IRecipeManagerPlugin
 {
@@ -321,7 +320,7 @@ class RecipeResolver implements IRecipeManagerPlugin
 
         @Nonnull
         @Override
-        public IRecipeSerializer<?> getSerializer()
+        public RecipeSerializer<?> getSerializer()
         {
             throw new IllegalStateException( "Should not serialise the JEI recipe" );
         }

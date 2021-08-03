@@ -5,16 +5,12 @@
  */
 package dan200.computercraft.shared.media.items;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.media.IMedia;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.MusicDiscItem;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper.UnableToAccessFieldException;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper.UnableToFindFieldException;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.RecordItem;
 
 import javax.annotation.Nonnull;
 
@@ -39,25 +35,17 @@ public final class RecordMedia implements IMedia
     public String getAudioTitle( @Nonnull ItemStack stack )
     {
         Item item = stack.getItem();
-        if( !(item instanceof MusicDiscItem) ) return null;
+        if( !(item instanceof RecordItem) ) return null;
 
-        return new TranslationTextComponent( item.getDescriptionId() + ".desc" ).getString();
+        return new TranslatableComponent( item.getDescriptionId() + ".desc" ).getString();
     }
 
     @Override
     public SoundEvent getAudio( @Nonnull ItemStack stack )
     {
         Item item = stack.getItem();
-        if( !(item instanceof MusicDiscItem) ) return null;
+        if( !(item instanceof RecordItem) ) return null;
 
-        try
-        {
-            return ObfuscationReflectionHelper.getPrivateValue( MusicDiscItem.class, (MusicDiscItem) item, "field_185076_b" );
-        }
-        catch( UnableToAccessFieldException | UnableToFindFieldException e )
-        {
-            ComputerCraft.log.error( "Cannot get disk sound", e );
-            return null;
-        }
+        return ((RecordItem) item).getSound();
     }
 }

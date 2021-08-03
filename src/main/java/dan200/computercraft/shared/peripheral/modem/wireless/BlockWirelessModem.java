@@ -7,36 +7,36 @@ package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.IWaterLoggable;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.IWorldReader;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.fmllegacy.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static dan200.computercraft.shared.util.WaterloggableHelpers.*;
 
-public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
+public class BlockWirelessModem extends BlockGeneric implements SimpleWaterloggedBlock
 {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty ON = BooleanProperty.create( "on" );
 
-    public BlockWirelessModem( Properties settings, RegistryObject<? extends TileEntityType<? extends TileWirelessModem>> type )
+    public BlockWirelessModem( Properties settings, RegistryObject<? extends BlockEntityType<? extends TileWirelessModem>> type )
     {
         super( settings, type );
         registerDefaultState( getStateDefinition().any()
@@ -46,7 +46,7 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
     }
 
     @Override
-    protected void createBlockStateDefinition( StateContainer.Builder<Block, BlockState> builder )
+    protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> builder )
     {
         builder.add( FACING, ON, WATERLOGGED );
     }
@@ -54,7 +54,7 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
     @Nonnull
     @Override
     @Deprecated
-    public VoxelShape getShape( BlockState blockState, @Nonnull IBlockReader blockView, @Nonnull BlockPos blockPos, @Nonnull ISelectionContext context )
+    public VoxelShape getShape( BlockState blockState, @Nonnull BlockGetter blockView, @Nonnull BlockPos blockPos, @Nonnull CollisionContext context )
     {
         return ModemShapes.getBounds( blockState.getValue( FACING ) );
     }
@@ -70,7 +70,7 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
     @Nonnull
     @Override
     @Deprecated
-    public BlockState updateShape( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull IWorld world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
+    public BlockState updateShape( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull LevelAccessor world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
     {
         updateWaterloggedPostPlacement( state, world, pos );
         return side == state.getValue( FACING ) && !state.canSurvive( world, pos )
@@ -80,7 +80,7 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
 
     @Override
     @Deprecated
-    public boolean canSurvive( BlockState state, @Nonnull IWorldReader world, BlockPos pos )
+    public boolean canSurvive( BlockState state, @Nonnull LevelReader world, BlockPos pos )
     {
         Direction facing = state.getValue( FACING );
         return canSupportCenter( world, pos.relative( facing ), facing.getOpposite() );
@@ -88,7 +88,7 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement( BlockItemUseContext placement )
+    public BlockState getStateForPlacement( BlockPlaceContext placement )
     {
         return defaultBlockState()
             .setValue( FACING, placement.getClickedFace().getOpposite() )

@@ -6,15 +6,12 @@
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Matrix4f;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Matrix4f;
-import org.lwjgl.opengl.GL11;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
@@ -56,11 +53,11 @@ public class ComputerBorderRenderer
     private static final float TEX_SCALE = 1 / (float) TEX_SIZE;
 
     private final Matrix4f transform;
-    private final IVertexBuilder builder;
+    private final VertexConsumer builder;
     private final int z;
     private final float r, g, b;
 
-    public ComputerBorderRenderer( Matrix4f transform, IVertexBuilder builder, int z, float r, float g, float b )
+    public ComputerBorderRenderer( Matrix4f transform, VertexConsumer builder, int z, float r, float g, float b )
     {
         this.transform = transform;
         this.builder = builder;
@@ -88,27 +85,28 @@ public class ComputerBorderRenderer
 
     public static void render( int x, int y, int z, int width, int height )
     {
-        Tessellator tessellator = Tessellator.getInstance();
+        RenderSystem.setShader( GameRenderer::getPositionColorTexShader );
+        Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder buffer = tessellator.getBuilder();
-        buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR_TEX );
+        buffer.begin( VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX );
 
         render( IDENTITY, buffer, x, y, z, width, height );
 
-        RenderSystem.enableAlphaTest();
+        // TODO: RenderSystem.enableAlphaTest();
         tessellator.end();
     }
 
-    public static void render( Matrix4f transform, IVertexBuilder buffer, int x, int y, int z, int width, int height )
+    public static void render( Matrix4f transform, VertexConsumer buffer, int x, int y, int z, int width, int height )
     {
         render( transform, buffer, x, y, z, width, height, 1, 1, 1 );
     }
 
-    public static void render( Matrix4f transform, IVertexBuilder buffer, int x, int y, int z, int width, int height, float r, float g, float b )
+    public static void render( Matrix4f transform, VertexConsumer buffer, int x, int y, int z, int width, int height, float r, float g, float b )
     {
         render( transform, buffer, x, y, z, width, height, false, r, g, b );
     }
 
-    public static void render( Matrix4f transform, IVertexBuilder buffer, int x, int y, int z, int width, int height, boolean withLight, float r, float g, float b )
+    public static void render( Matrix4f transform, VertexConsumer buffer, int x, int y, int z, int width, int height, boolean withLight, float r, float g, float b )
     {
         new ComputerBorderRenderer( transform, buffer, z, r, g, b ).doRender( x, y, width, height, withLight );
     }

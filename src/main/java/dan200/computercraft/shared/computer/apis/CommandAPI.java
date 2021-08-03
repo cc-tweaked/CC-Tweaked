@@ -12,14 +12,14 @@ import dan200.computercraft.api.lua.*;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.peripheral.generic.data.BlockData;
 import dan200.computercraft.shared.util.NBTUtil;
-import net.minecraft.block.BlockState;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.*;
 
@@ -69,14 +69,14 @@ public class CommandAPI implements ILuaAPI
         }
     }
 
-    private static Map<?, ?> getBlockInfo( World world, BlockPos pos )
+    private static Map<?, ?> getBlockInfo( Level world, BlockPos pos )
     {
         // Get the details of the block
         BlockState state = world.getBlockState( pos );
         Map<String, Object> table = BlockData.fill( new HashMap<>(), state );
 
-        TileEntity tile = world.getBlockEntity( pos );
-        if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.save( new CompoundNBT() ) ) );
+        BlockEntity tile = world.getBlockEntity( pos );
+        if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.save( new CompoundTag() ) ) );
 
         return table;
     }
@@ -142,7 +142,7 @@ public class CommandAPI implements ILuaAPI
         MinecraftServer server = computer.getLevel().getServer();
 
         if( server == null ) return Collections.emptyList();
-        CommandNode<CommandSource> node = server.getCommands().getDispatcher().getRoot();
+        CommandNode<CommandSourceStack> node = server.getCommands().getDispatcher().getRoot();
         for( int j = 0; j < args.count(); j++ )
         {
             String name = args.getString( j );
@@ -198,7 +198,7 @@ public class CommandAPI implements ILuaAPI
     public final List<Map<?, ?>> getBlockInfos( int minX, int minY, int minZ, int maxX, int maxY, int maxZ ) throws LuaException
     {
         // Get the details of the block
-        World world = computer.getLevel();
+        Level world = computer.getLevel();
         BlockPos min = new BlockPos(
             Math.min( minX, maxX ),
             Math.min( minY, maxY ),
@@ -209,7 +209,7 @@ public class CommandAPI implements ILuaAPI
             Math.max( minY, maxY ),
             Math.max( minZ, maxZ )
         );
-        if( !World.isInWorldBounds( min ) || !World.isInWorldBounds( max ) )
+        if( world == null || !world.isInWorldBounds( min ) || !world.isInWorldBounds( max ) )
         {
             throw new LuaException( "Co-ordinates out of range" );
         }
@@ -250,9 +250,9 @@ public class CommandAPI implements ILuaAPI
     public final Map<?, ?> getBlockInfo( int x, int y, int z ) throws LuaException
     {
         // Get the details of the block
-        World world = computer.getLevel();
+        Level world = computer.getLevel();
         BlockPos position = new BlockPos( x, y, z );
-        if( World.isInWorldBounds( position ) )
+        if( world != null && world.isInWorldBounds( position ) )
         {
             return getBlockInfo( world, position );
         }

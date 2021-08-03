@@ -20,21 +20,22 @@ import dan200.computercraft.shared.media.items.ItemTreasureDisk;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
-import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.item.IItemPropertyGetter;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemModelsProperties;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.client.renderer.item.ItemPropertyFunction;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
@@ -123,43 +124,47 @@ public final class ClientRegistry
     }
 
     @SubscribeEvent
+    public static void registerEntityRenderers( EntityRenderersEvent.RegisterRenderers event )
+    {
+        event.registerEntityRenderer( Registry.ModEntities.TURTLE_PLAYER.get(), TurtlePlayerRenderer::new );
+    }
+
+    @SubscribeEvent
     public static void setupClient( FMLClientSetupEvent event )
     {
         registerContainers();
 
         // While turtles themselves are not transparent, their upgrades may be.
-        RenderTypeLookup.setRenderLayer( Registry.ModBlocks.TURTLE_NORMAL.get(), RenderType.translucent() );
-        RenderTypeLookup.setRenderLayer( Registry.ModBlocks.TURTLE_ADVANCED.get(), RenderType.translucent() );
+        ItemBlockRenderTypes.setRenderLayer( Registry.ModBlocks.TURTLE_NORMAL.get(), RenderType.translucent() );
+        ItemBlockRenderTypes.setRenderLayer( Registry.ModBlocks.TURTLE_ADVANCED.get(), RenderType.translucent() );
 
         // Monitors' textures have transparent fronts and so count as cutouts.
-        RenderTypeLookup.setRenderLayer( Registry.ModBlocks.MONITOR_NORMAL.get(), RenderType.cutout() );
-        RenderTypeLookup.setRenderLayer( Registry.ModBlocks.MONITOR_ADVANCED.get(), RenderType.cutout() );
+        ItemBlockRenderTypes.setRenderLayer( Registry.ModBlocks.MONITOR_NORMAL.get(), RenderType.cutout() );
+        ItemBlockRenderTypes.setRenderLayer( Registry.ModBlocks.MONITOR_ADVANCED.get(), RenderType.cutout() );
 
         // Setup TESRs
-        net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntityRenderer( Registry.ModTiles.MONITOR_NORMAL.get(), TileEntityMonitorRenderer::new );
-        net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntityRenderer( Registry.ModTiles.MONITOR_ADVANCED.get(), TileEntityMonitorRenderer::new );
-        net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntityRenderer( Registry.ModTiles.TURTLE_NORMAL.get(), TileEntityTurtleRenderer::new );
-        net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntityRenderer( Registry.ModTiles.TURTLE_ADVANCED.get(), TileEntityTurtleRenderer::new );
-
-        RenderingRegistry.registerEntityRenderingHandler( Registry.ModEntities.TURTLE_PLAYER.get(), TurtlePlayerRenderer::new );
+        BlockEntityRenderers.register( Registry.ModBlockEntities.MONITOR_NORMAL.get(), TileEntityMonitorRenderer::new );
+        BlockEntityRenderers.register( Registry.ModBlockEntities.MONITOR_ADVANCED.get(), TileEntityMonitorRenderer::new );
+        BlockEntityRenderers.register( Registry.ModBlockEntities.TURTLE_NORMAL.get(), TileEntityTurtleRenderer::new );
+        BlockEntityRenderers.register( Registry.ModBlockEntities.TURTLE_ADVANCED.get(), TileEntityTurtleRenderer::new );
 
         registerItemProperty( "state",
-            ( stack, world, player ) -> ItemPocketComputer.getState( stack ).ordinal(),
+            ( stack, world, player, random ) -> ItemPocketComputer.getState( stack ).ordinal(),
             Registry.ModItems.POCKET_COMPUTER_NORMAL, Registry.ModItems.POCKET_COMPUTER_ADVANCED
         );
         registerItemProperty( "coloured",
-            ( stack, world, player ) -> IColouredItem.getColourBasic( stack ) != -1 ? 1 : 0,
+            ( stack, world, player, random ) -> IColouredItem.getColourBasic( stack ) != -1 ? 1 : 0,
             Registry.ModItems.POCKET_COMPUTER_NORMAL, Registry.ModItems.POCKET_COMPUTER_ADVANCED
         );
     }
 
     @SafeVarargs
-    private static void registerItemProperty( String name, IItemPropertyGetter getter, Supplier<? extends Item>... items )
+    private static void registerItemProperty( String name, ItemPropertyFunction getter, Supplier<? extends Item>... items )
     {
         ResourceLocation id = new ResourceLocation( ComputerCraft.MOD_ID, name );
         for( Supplier<? extends Item> item : items )
         {
-            ItemModelsProperties.register( item.get(), id, getter );
+            ItemProperties.register( item.get(), id, getter );
         }
     }
 
@@ -168,14 +173,14 @@ public final class ClientRegistry
     {
         // My IDE doesn't think so, but we do actually need these generics.
 
-        ScreenManager.<ContainerComputer, GuiComputer<ContainerComputer>>register( Registry.ModContainers.COMPUTER.get(), GuiComputer::create );
-        ScreenManager.<ContainerPocketComputer, GuiComputer<ContainerPocketComputer>>register( Registry.ModContainers.POCKET_COMPUTER.get(), GuiComputer::createPocket );
-        ScreenManager.register( Registry.ModContainers.TURTLE.get(), GuiTurtle::new );
+        MenuScreens.<ContainerComputer, GuiComputer<ContainerComputer>>register( Registry.ModContainers.COMPUTER.get(), GuiComputer::create );
+        MenuScreens.<ContainerPocketComputer, GuiComputer<ContainerPocketComputer>>register( Registry.ModContainers.POCKET_COMPUTER.get(), GuiComputer::createPocket );
+        MenuScreens.register( Registry.ModContainers.TURTLE.get(), GuiTurtle::new );
 
-        ScreenManager.register( Registry.ModContainers.PRINTER.get(), GuiPrinter::new );
-        ScreenManager.register( Registry.ModContainers.DISK_DRIVE.get(), GuiDiskDrive::new );
-        ScreenManager.register( Registry.ModContainers.PRINTOUT.get(), GuiPrintout::new );
+        MenuScreens.register( Registry.ModContainers.PRINTER.get(), GuiPrinter::new );
+        MenuScreens.register( Registry.ModContainers.DISK_DRIVE.get(), GuiDiskDrive::new );
+        MenuScreens.register( Registry.ModContainers.PRINTOUT.get(), GuiPrintout::new );
 
-        ScreenManager.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>register( Registry.ModContainers.VIEW_COMPUTER.get(), GuiComputer::createView );
+        MenuScreens.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>register( Registry.ModContainers.VIEW_COMPUTER.get(), GuiComputer::createView );
     }
 }

@@ -9,18 +9,18 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.network.client.*;
 import dan200.computercraft.shared.network.server.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fmllegacy.network.NetworkDirection;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.fmllegacy.network.NetworkRegistry;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
+import net.minecraftforge.fmllegacy.network.simple.SimpleChannel;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -63,9 +63,9 @@ public final class NetworkHandler
         registerMainThread( 19, NetworkDirection.PLAY_TO_CLIENT, UploadResultMessage.class, UploadResultMessage::new );
     }
 
-    public static void sendToPlayer( PlayerEntity player, NetworkMessage packet )
+    public static void sendToPlayer( Player player, NetworkMessage packet )
     {
-        network.sendTo( packet, ((ServerPlayerEntity) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT );
+        network.sendTo( packet, ((ServerPlayer) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT );
     }
 
     public static void sendToAllPlayers( NetworkMessage packet )
@@ -78,13 +78,13 @@ public final class NetworkHandler
         network.sendToServer( packet );
     }
 
-    public static void sendToAllAround( NetworkMessage packet, World world, Vector3d pos, double range )
+    public static void sendToAllAround( NetworkMessage packet, Level world, Vec3 pos, double range )
     {
         PacketDistributor.TargetPoint target = new PacketDistributor.TargetPoint( pos.x, pos.y, pos.z, range, world.dimension() );
         network.send( PacketDistributor.NEAR.with( () -> target ), packet );
     }
 
-    public static void sendToAllTracking( NetworkMessage packet, Chunk chunk )
+    public static void sendToAllTracking( NetworkMessage packet, LevelChunk chunk )
     {
         network.send( PacketDistributor.TRACKING_CHUNK.with( () -> chunk ), packet );
     }
@@ -99,7 +99,7 @@ public final class NetworkHandler
      * @param direction A network direction which will be asserted before any processing of this message occurs
      * @param decoder   The factory for this type of packet.
      */
-    private static <T extends NetworkMessage> void registerMainThread( int id, NetworkDirection direction, Class<T> type, Function<PacketBuffer, T> decoder )
+    private static <T extends NetworkMessage> void registerMainThread( int id, NetworkDirection direction, Class<T> type, Function<FriendlyByteBuf, T> decoder )
     {
         network.messageBuilder( type, id, direction )
             .encoder( NetworkMessage::toBytes )

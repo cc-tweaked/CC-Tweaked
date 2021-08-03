@@ -6,22 +6,22 @@
 package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.shared.common.BlockGeneric;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.EnumProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fmllegacy.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,7 +35,7 @@ public class BlockMonitor extends BlockGeneric
 
     public static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.create( "state", MonitorEdgeState.class );
 
-    public BlockMonitor( Properties settings, RegistryObject<? extends TileEntityType<? extends TileMonitor>> type )
+    public BlockMonitor( Properties settings, RegistryObject<? extends BlockEntityType<? extends TileMonitor>> type )
     {
         super( settings, type );
         // TODO: Test underwater - do we need isSolid at all?
@@ -46,16 +46,16 @@ public class BlockMonitor extends BlockGeneric
     }
 
     @Override
-    protected void createBlockStateDefinition( StateContainer.Builder<Block, BlockState> builder )
+    protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> builder )
     {
         builder.add( ORIENTATION, FACING, STATE );
     }
 
     @Override
     @Nullable
-    public BlockState getStateForPlacement( BlockItemUseContext context )
+    public BlockState getStateForPlacement( BlockPlaceContext context )
     {
-        float pitch = context.getPlayer() == null ? 0 : context.getPlayer().xRot;
+        float pitch = context.getPlayer() == null ? 0 : context.getPlayer().getXRot();
         Direction orientation;
         if( pitch > 66.5f )
         {
@@ -78,11 +78,11 @@ public class BlockMonitor extends BlockGeneric
     }
 
     @Override
-    public void setPlacedBy( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState blockState, @Nullable LivingEntity livingEntity, @Nonnull ItemStack itemStack )
+    public void setPlacedBy( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState blockState, @Nullable LivingEntity livingEntity, @Nonnull ItemStack itemStack )
     {
         super.setPlacedBy( world, pos, blockState, livingEntity, itemStack );
 
-        TileEntity entity = world.getBlockEntity( pos );
+        BlockEntity entity = world.getBlockEntity( pos );
         if( entity instanceof TileMonitor && !world.isClientSide )
         {
             TileMonitor monitor = (TileMonitor) entity;

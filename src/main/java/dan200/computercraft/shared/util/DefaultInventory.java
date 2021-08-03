@@ -5,13 +5,13 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public interface DefaultInventory extends IInventory
+public interface DefaultInventory extends Container
 {
     @Override
     default int getMaxStackSize()
@@ -20,12 +20,12 @@ public interface DefaultInventory extends IInventory
     }
 
     @Override
-    default void startOpen( @Nonnull PlayerEntity player )
+    default void startOpen( @Nonnull Player player )
     {
     }
 
     @Override
-    default void stopOpen( @Nonnull PlayerEntity player )
+    default void stopOpen( @Nonnull Player player )
     {
     }
 

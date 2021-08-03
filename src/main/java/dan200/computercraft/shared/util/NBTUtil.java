@@ -27,21 +27,21 @@ public final class NBTUtil
 {
     private NBTUtil() {}
 
-    private static INBT toNBTTag( Object object )
+    private static Tag toNBTTag( Object object )
     {
         if( object == null ) return null;
-        if( object instanceof Boolean ) return ByteNBT.valueOf( (byte) ((boolean) (Boolean) object ? 1 : 0) );
-        if( object instanceof Number ) return DoubleNBT.valueOf( ((Number) object).doubleValue() );
-        if( object instanceof String ) return StringNBT.valueOf( object.toString() );
+        if( object instanceof Boolean ) return ByteTag.valueOf( (byte) ((boolean) (Boolean) object ? 1 : 0) );
+        if( object instanceof Number ) return DoubleTag.valueOf( ((Number) object).doubleValue() );
+        if( object instanceof String ) return StringTag.valueOf( object.toString() );
         if( object instanceof Map )
         {
             Map<?, ?> m = (Map<?, ?>) object;
-            CompoundNBT nbt = new CompoundNBT();
+            CompoundTag nbt = new CompoundTag();
             int i = 0;
             for( Map.Entry<?, ?> entry : m.entrySet() )
             {
-                INBT key = toNBTTag( entry.getKey() );
-                INBT value = toNBTTag( entry.getKey() );
+                Tag key = toNBTTag( entry.getKey() );
+                Tag value = toNBTTag( entry.getKey() );
                 if( key != null && value != null )
                 {
                     nbt.put( "k" + i, key );
@@ -56,35 +56,35 @@ public final class NBTUtil
         return null;
     }
 
-    public static CompoundNBT encodeObjects( Object[] objects )
+    public static CompoundTag encodeObjects( Object[] objects )
     {
         if( objects == null || objects.length <= 0 ) return null;
 
-        CompoundNBT nbt = new CompoundNBT();
+        CompoundTag nbt = new CompoundTag();
         nbt.putInt( "len", objects.length );
         for( int i = 0; i < objects.length; i++ )
         {
-            INBT child = toNBTTag( objects[i] );
+            Tag child = toNBTTag( objects[i] );
             if( child != null ) nbt.put( Integer.toString( i ), child );
         }
         return nbt;
     }
 
-    private static Object fromNBTTag( INBT tag )
+    private static Object fromNBTTag( Tag tag )
     {
         if( tag == null ) return null;
         switch( tag.getId() )
         {
             case TAG_BYTE:
-                return ((ByteNBT) tag).getAsByte() > 0;
+                return ((ByteTag) tag).getAsByte() > 0;
             case TAG_DOUBLE:
-                return ((DoubleNBT) tag).getAsDouble();
+                return ((DoubleTag) tag).getAsDouble();
             default:
             case TAG_STRING:
                 return tag.getAsString();
             case TAG_COMPOUND:
             {
-                CompoundNBT c = (CompoundNBT) tag;
+                CompoundTag c = (CompoundTag) tag;
                 int len = c.getInt( "len" );
                 Map<Object, Object> map = new HashMap<>( len );
                 for( int i = 0; i < len; i++ )
@@ -98,7 +98,7 @@ public final class NBTUtil
         }
     }
 
-    public static Object toLua( INBT tag )
+    public static Object toLua( Tag tag )
     {
         if( tag == null ) return null;
 
@@ -109,15 +109,15 @@ public final class NBTUtil
             case Constants.NBT.TAG_SHORT:
             case Constants.NBT.TAG_INT:
             case Constants.NBT.TAG_LONG:
-                return ((NumberNBT) tag).getAsLong();
+                return ((NumericTag) tag).getAsLong();
             case Constants.NBT.TAG_FLOAT:
             case Constants.NBT.TAG_DOUBLE:
-                return ((NumberNBT) tag).getAsDouble();
+                return ((NumericTag) tag).getAsDouble();
             case Constants.NBT.TAG_STRING: // String
                 return tag.getAsString();
             case Constants.NBT.TAG_COMPOUND: // Compound
             {
-                CompoundNBT compound = (CompoundNBT) tag;
+                CompoundTag compound = (CompoundTag) tag;
                 Map<String, Object> map = new HashMap<>( compound.size() );
                 for( String key : compound.getAllKeys() )
                 {
@@ -128,21 +128,21 @@ public final class NBTUtil
             }
             case Constants.NBT.TAG_LIST:
             {
-                ListNBT list = (ListNBT) tag;
+                ListTag list = (ListTag) tag;
                 Map<Integer, Object> map = new HashMap<>( list.size() );
                 for( int i = 0; i < list.size(); i++ ) map.put( i, toLua( list.get( i ) ) );
                 return map;
             }
             case Constants.NBT.TAG_BYTE_ARRAY:
             {
-                byte[] array = ((ByteArrayNBT) tag).getAsByteArray();
+                byte[] array = ((ByteArrayTag) tag).getAsByteArray();
                 Map<Integer, Byte> map = new HashMap<>( array.length );
                 for( int i = 0; i < array.length; i++ ) map.put( i + 1, array[i] );
                 return map;
             }
             case Constants.NBT.TAG_INT_ARRAY:
             {
-                int[] array = ((IntArrayNBT) tag).getAsIntArray();
+                int[] array = ((IntArrayTag) tag).getAsIntArray();
                 Map<Integer, Integer> map = new HashMap<>( array.length );
                 for( int i = 0; i < array.length; i++ ) map.put( i + 1, array[i] );
                 return map;
@@ -153,7 +153,7 @@ public final class NBTUtil
         }
     }
 
-    public static Object[] decodeObjects( CompoundNBT tag )
+    public static Object[] decodeObjects( CompoundTag tag )
     {
         int len = tag.getInt( "len" );
         if( len <= 0 ) return null;
@@ -171,7 +171,7 @@ public final class NBTUtil
     }
 
     @Nullable
-    public static String getNBTHash( @Nullable CompoundNBT tag )
+    public static String getNBTHash( @Nullable CompoundTag tag )
     {
         if( tag == null ) return null;
 
@@ -179,7 +179,7 @@ public final class NBTUtil
         {
             MessageDigest digest = MessageDigest.getInstance( "MD5" );
             DataOutput output = new DataOutputStream( new DigestOutputStream( digest ) );
-            CompressedStreamTools.write( tag, output );
+            NbtIo.write( tag, output );
             byte[] hash = digest.digest();
             return new String( Hex.encodeHex( hash ) );
         }

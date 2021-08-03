@@ -6,17 +6,21 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.shared.Registry;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SoundType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
@@ -32,16 +36,16 @@ public abstract class ItemBlockCable extends BlockItem
         super( block, settings );
     }
 
-    boolean placeAt( World world, BlockPos pos, BlockState state, PlayerEntity player )
+    boolean placeAt( Level world, BlockPos pos, BlockState state, Player player )
     {
         // TODO: Check entity collision.
         if( !state.canSurvive( world, pos ) ) return false;
 
         world.setBlock( pos, state, 3 );
         SoundType soundType = state.getBlock().getSoundType( state, world, pos, player );
-        world.playSound( null, pos, soundType.getPlaceSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
+        world.playSound( null, pos, soundType.getPlaceSound(), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
 
-        TileEntity tile = world.getBlockEntity( pos );
+        BlockEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileCable )
         {
             TileCable cable = (TileCable) tile;
@@ -52,13 +56,13 @@ public abstract class ItemBlockCable extends BlockItem
         return true;
     }
 
-    boolean placeAtCorrected( World world, BlockPos pos, BlockState state )
+    boolean placeAtCorrected( Level world, BlockPos pos, BlockState state )
     {
         return placeAt( world, pos, correctConnections( world, pos, state ), null );
     }
 
     @Override
-    public void fillItemCategory( @Nonnull ItemGroup group, @Nonnull NonNullList<ItemStack> list )
+    public void fillItemCategory( @Nonnull CreativeModeTab group, @Nonnull NonNullList<ItemStack> list )
     {
         if( allowdedIn( group ) ) list.add( new ItemStack( this ) );
     }
@@ -83,12 +87,12 @@ public abstract class ItemBlockCable extends BlockItem
 
         @Nonnull
         @Override
-        public ActionResultType place( BlockItemUseContext context )
+        public InteractionResult place( BlockPlaceContext context )
         {
             ItemStack stack = context.getItemInHand();
-            if( stack.isEmpty() ) return ActionResultType.FAIL;
+            if( stack.isEmpty() ) return InteractionResult.FAIL;
 
-            World world = context.getLevel();
+            Level world = context.getLevel();
             BlockPos pos = context.getClickedPos();
             BlockState existingState = world.getBlockState( pos );
 
@@ -102,7 +106,7 @@ public abstract class ItemBlockCable extends BlockItem
                 if( placeAt( world, pos, newState, context.getPlayer() ) )
                 {
                     stack.shrink( 1 );
-                    return ActionResultType.SUCCESS;
+                    return InteractionResult.SUCCESS;
                 }
             }
 
@@ -119,12 +123,12 @@ public abstract class ItemBlockCable extends BlockItem
 
         @Nonnull
         @Override
-        public ActionResultType place( BlockItemUseContext context )
+        public InteractionResult place( BlockPlaceContext context )
         {
             ItemStack stack = context.getItemInHand();
-            if( stack.isEmpty() ) return ActionResultType.FAIL;
+            if( stack.isEmpty() ) return InteractionResult.FAIL;
 
-            World world = context.getLevel();
+            Level world = context.getLevel();
             BlockPos pos = context.getClickedPos();
 
             // Try to add a cable to a modem inside the block we're clicking on.
@@ -134,7 +138,7 @@ public abstract class ItemBlockCable extends BlockItem
                 && placeAtCorrected( world, insidePos, insideState.setValue( BlockCable.CABLE, true ) ) )
             {
                 stack.shrink( 1 );
-                return ActionResultType.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
 
             // Try to add a cable to a modem adjacent to this block
@@ -143,7 +147,7 @@ public abstract class ItemBlockCable extends BlockItem
                 && placeAtCorrected( world, pos, existingState.setValue( BlockCable.CABLE, true ) ) )
             {
                 stack.shrink( 1 );
-                return ActionResultType.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
 
             return super.place( context );

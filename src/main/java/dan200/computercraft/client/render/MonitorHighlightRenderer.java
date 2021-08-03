@@ -5,25 +5,26 @@
  */
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Matrix4f;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.DrawHighlightEvent;
+import net.minecraftforge.client.event.DrawSelectionEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.EnumSet;
 
-import static net.minecraft.util.Direction.*;
+import static net.minecraft.core.Direction.*;
 
 /**
  * Overrides monitor highlighting to only render the outline of the <em>whole</em> monitor, rather than the current
@@ -37,15 +38,15 @@ public final class MonitorHighlightRenderer
     }
 
     @SubscribeEvent
-    public static void drawHighlight( DrawHighlightEvent.HighlightBlock event )
+    public static void drawHighlight( DrawSelectionEvent.HighlightBlock event )
     {
         // Preserve normal behaviour when crouching.
         if( event.getInfo().getEntity().isCrouching() ) return;
 
-        World world = event.getInfo().getEntity().getCommandSenderWorld();
+        Level world = event.getInfo().getEntity().getCommandSenderWorld();
         BlockPos pos = event.getTarget().getBlockPos();
 
-        TileEntity tile = world.getBlockEntity( pos );
+        BlockEntity tile = world.getBlockEntity( pos );
         if( !(tile instanceof TileMonitor) ) return;
 
         TileMonitor monitor = (TileMonitor) tile;
@@ -60,37 +61,46 @@ public final class MonitorHighlightRenderer
         if( monitor.getYIndex() != 0 ) faces.remove( monitor.getDown().getOpposite() );
         if( monitor.getYIndex() != monitor.getHeight() - 1 ) faces.remove( monitor.getDown() );
 
-        MatrixStack transformStack = event.getMatrix();
-        Vector3d cameraPos = event.getInfo().getPosition();
+        PoseStack transformStack = event.getMatrix();
+        Vec3 cameraPos = event.getInfo().getPosition();
         transformStack.pushPose();
         transformStack.translate( pos.getX() - cameraPos.x(), pos.getY() - cameraPos.y(), pos.getZ() - cameraPos.z() );
 
         // I wish I could think of a better way to do this
-        IVertexBuilder buffer = event.getBuffers().getBuffer( RenderType.lines() );
+        VertexConsumer buffer = event.getBuffers().getBuffer( RenderType.lines() );
         Matrix4f transform = transformStack.last().pose();
-        if( faces.contains( NORTH ) || faces.contains( WEST ) ) line( buffer, transform, 0, 0, 0, UP );
-        if( faces.contains( SOUTH ) || faces.contains( WEST ) ) line( buffer, transform, 0, 0, 1, UP );
-        if( faces.contains( NORTH ) || faces.contains( EAST ) ) line( buffer, transform, 1, 0, 0, UP );
-        if( faces.contains( SOUTH ) || faces.contains( EAST ) ) line( buffer, transform, 1, 0, 1, UP );
-        if( faces.contains( NORTH ) || faces.contains( DOWN ) ) line( buffer, transform, 0, 0, 0, EAST );
-        if( faces.contains( SOUTH ) || faces.contains( DOWN ) ) line( buffer, transform, 0, 0, 1, EAST );
-        if( faces.contains( NORTH ) || faces.contains( UP ) ) line( buffer, transform, 0, 1, 0, EAST );
-        if( faces.contains( SOUTH ) || faces.contains( UP ) ) line( buffer, transform, 0, 1, 1, EAST );
-        if( faces.contains( WEST ) || faces.contains( DOWN ) ) line( buffer, transform, 0, 0, 0, SOUTH );
-        if( faces.contains( EAST ) || faces.contains( DOWN ) ) line( buffer, transform, 1, 0, 0, SOUTH );
-        if( faces.contains( WEST ) || faces.contains( UP ) ) line( buffer, transform, 0, 1, 0, SOUTH );
-        if( faces.contains( EAST ) || faces.contains( UP ) ) line( buffer, transform, 1, 1, 0, SOUTH );
+        Matrix3f normal = transformStack.last().normal();
+        if( faces.contains( NORTH ) || faces.contains( WEST ) ) line( buffer, transform, normal, 0, 0, 0, UP );
+        if( faces.contains( SOUTH ) || faces.contains( WEST ) ) line( buffer, transform, normal, 0, 0, 1, UP );
+        if( faces.contains( NORTH ) || faces.contains( EAST ) ) line( buffer, transform, normal, 1, 0, 0, UP );
+        if( faces.contains( SOUTH ) || faces.contains( EAST ) ) line( buffer, transform, normal, 1, 0, 1, UP );
+        if( faces.contains( NORTH ) || faces.contains( DOWN ) ) line( buffer, transform, normal, 0, 0, 0, EAST );
+        if( faces.contains( SOUTH ) || faces.contains( DOWN ) ) line( buffer, transform, normal, 0, 0, 1, EAST );
+        if( faces.contains( NORTH ) || faces.contains( UP ) ) line( buffer, transform, normal, 0, 1, 0, EAST );
+        if( faces.contains( SOUTH ) || faces.contains( UP ) ) line( buffer, transform, normal, 0, 1, 1, EAST );
+        if( faces.contains( WEST ) || faces.contains( DOWN ) ) line( buffer, transform, normal, 0, 0, 0, SOUTH );
+        if( faces.contains( EAST ) || faces.contains( DOWN ) ) line( buffer, transform, normal, 1, 0, 0, SOUTH );
+        if( faces.contains( WEST ) || faces.contains( UP ) ) line( buffer, transform, normal, 0, 1, 0, SOUTH );
+        if( faces.contains( EAST ) || faces.contains( UP ) ) line( buffer, transform, normal, 1, 1, 0, SOUTH );
 
         transformStack.popPose();
     }
 
-    private static void line( IVertexBuilder buffer, Matrix4f transform, float x, float y, float z, Direction direction )
+    private static void line( VertexConsumer buffer, Matrix4f transform, Matrix3f normal, float x, float y, float z, Direction direction )
     {
-        buffer.vertex( transform, x, y, z ).color( 0, 0, 0, 0.4f ).endVertex();
-        buffer.vertex( transform,
-            x + direction.getStepX(),
-            y + direction.getStepY(),
-            z + direction.getStepZ()
-        ).color( 0, 0, 0, 0.4f ).endVertex();
+        buffer
+            .vertex( transform, x, y, z )
+            .color( 0, 0, 0, 0.4f )
+            .normal( normal, direction.getStepX(), direction.getStepY(), direction.getStepZ() )
+            .endVertex();
+        buffer
+            .vertex( transform,
+                x + direction.getStepX(),
+                y + direction.getStepY(),
+                z + direction.getStepZ()
+            )
+            .color( 0, 0, 0, 0.4f )
+            .normal( normal, direction.getStepX(), direction.getStepY(), direction.getStepZ() )
+            .endVertex();
     }
 }

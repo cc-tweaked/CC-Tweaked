@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nullable;

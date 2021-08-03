@@ -11,8 +11,8 @@ import dan200.computercraft.api.turtle.event.TurtleActionEvent;
 import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.items.IItemHandler;
 
@@ -84,7 +84,7 @@ public class TurtleEquipCommand implements ITurtleCommand
             {
                 // If there's no room for the items, drop them
                 BlockPos position = turtle.getPosition();
-                WorldUtil.dropItemStack( remainder, turtle.getWorld(), position, turtle.getDirection() );
+                WorldUtil.dropItemStack( remainder, turtle.getLevel(), position, turtle.getDirection() );
             }
         }
         turtle.setUpgrade( side, newUpgrade );

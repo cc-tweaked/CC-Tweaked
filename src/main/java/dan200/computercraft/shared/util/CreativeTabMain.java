@@ -7,12 +7,12 @@ package dan200.computercraft.shared.util;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.Registry;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public class CreativeTabMain extends ItemGroup
+public class CreativeTabMain extends CreativeModeTab
 {
     public CreativeTabMain()
     {

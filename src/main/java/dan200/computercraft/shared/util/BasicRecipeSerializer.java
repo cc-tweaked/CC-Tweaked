@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 /**
@@ -14,6 +14,6 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
  *
  * @param <T> The reciep serializer
  */
-public abstract class BasicRecipeSerializer<T extends IRecipe<?>> extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<T>
+public abstract class BasicRecipeSerializer<T extends Recipe<?>> extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<T>
 {
 }

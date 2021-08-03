@@ -10,10 +10,10 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.computer.apis.CommandAPI;
 import dan200.computercraft.shared.util.CapabilityUtil;
-import net.minecraft.tileentity.CommandBlockTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
@@ -41,10 +41,10 @@ public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
 {
     private static final ResourceLocation CAP_ID = new ResourceLocation( ComputerCraft.MOD_ID, "command_block" );
 
-    private final CommandBlockTileEntity commandBlock;
+    private final CommandBlockEntity commandBlock;
     private LazyOptional<IPeripheral> self;
 
-    public CommandBlockPeripheral( CommandBlockTileEntity commandBlock )
+    public CommandBlockPeripheral( CommandBlockEntity commandBlock )
     {
         this.commandBlock = commandBlock;
     }
@@ -125,12 +125,12 @@ public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
     }
 
     @SubscribeEvent
-    public static void onCapability( AttachCapabilitiesEvent<TileEntity> event )
+    public static void onCapability( AttachCapabilitiesEvent<BlockEntity> event )
     {
-        TileEntity tile = event.getObject();
-        if( tile instanceof CommandBlockTileEntity )
+        BlockEntity tile = event.getObject();
+        if( tile instanceof CommandBlockEntity )
         {
-            CommandBlockPeripheral peripheral = new CommandBlockPeripheral( (CommandBlockTileEntity) tile );
+            CommandBlockPeripheral peripheral = new CommandBlockPeripheral( (CommandBlockEntity) tile );
             event.addCapability( CAP_ID, peripheral );
             event.addListener( peripheral::invalidate );
         }

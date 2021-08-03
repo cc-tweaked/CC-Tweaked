@@ -11,13 +11,13 @@ import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -37,17 +37,17 @@ public class TurtleModem extends AbstractTurtleUpgrade
 
         @Nonnull
         @Override
-        public World getWorld()
+        public Level getLevel()
         {
-            return turtle.getWorld();
+            return turtle.getLevel();
         }
 
         @Nonnull
         @Override
-        public Vector3d getPosition()
+        public Vec3 getPosition()
         {
             BlockPos turtlePos = turtle.getPosition();
-            return new Vector3d(
+            return new Vec3(
                 turtlePos.getX(),
                 turtlePos.getY(),
                 turtlePos.getZ()
@@ -115,7 +115,7 @@ public class TurtleModem extends AbstractTurtleUpgrade
         boolean active = false;
         if( turtle != null )
         {
-            CompoundNBT turtleNBT = turtle.getUpgradeNBTData( side );
+            CompoundTag turtleNBT = turtle.getUpgradeNBTData( side );
             active = turtleNBT.contains( "active" ) && turtleNBT.getBoolean( "active" );
         }
 
@@ -128,7 +128,7 @@ public class TurtleModem extends AbstractTurtleUpgrade
     public void update( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         // Advance the modem
-        if( !turtle.getWorld().isClientSide )
+        if( !turtle.getLevel().isClientSide )
         {
             IPeripheral peripheral = turtle.getPeripheral( side );
             if( peripheral instanceof Peripheral )

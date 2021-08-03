@@ -6,9 +6,9 @@
 package dan200.computercraft.core.filesystem;
 
 import dan200.computercraft.api.filesystem.IMount;
-import net.minecraft.resources.FolderPack;
-import net.minecraft.resources.ResourcePackType;
-import net.minecraft.resources.SimpleReloadableResourceManager;
+import net.minecraft.server.packs.FolderPackResources;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.SimpleReloadableResourceManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,8 +28,8 @@ public class ResourceMountTest
     @BeforeEach
     public void before()
     {
-        SimpleReloadableResourceManager manager = new SimpleReloadableResourceManager( ResourcePackType.SERVER_DATA );
-        manager.add( new FolderPack( new File( "src/main/resources" ) ) );
+        SimpleReloadableResourceManager manager = new SimpleReloadableResourceManager( PackType.SERVER_DATA );
+        manager.add( new FolderPackResources( new File( "src/main/resources" ) ) );
 
         mount = ResourceMount.get( "computercraft", "lua/rom", manager );
     }

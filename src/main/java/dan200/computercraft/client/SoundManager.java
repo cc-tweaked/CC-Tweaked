@@ -6,13 +6,12 @@
 package dan200.computercraft.client;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.ISound;
-import net.minecraft.client.audio.ITickableSound;
-import net.minecraft.client.audio.LocatableSound;
-import net.minecraft.client.audio.SoundHandler;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.client.resources.sounds.AbstractSoundInstance;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.client.resources.sounds.TickableSoundInstance;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,9 +21,9 @@ public class SoundManager
 {
     private static final Map<UUID, MoveableSound> sounds = new HashMap<>();
 
-    public static void playSound( UUID source, Vector3d position, SoundEvent event, float volume, float pitch )
+    public static void playSound( UUID source, Vec3 position, SoundEvent event, float volume, float pitch )
     {
-        SoundHandler soundManager = Minecraft.getInstance().getSoundManager();
+        var soundManager = Minecraft.getInstance().getSoundManager();
 
         MoveableSound oldSound = sounds.get( source );
         if( oldSound != null ) soundManager.stop( oldSound );
@@ -36,13 +35,13 @@ public class SoundManager
 
     public static void stopSound( UUID source )
     {
-        ISound sound = sounds.remove( source );
+        SoundInstance sound = sounds.remove( source );
         if( sound == null ) return;
 
         Minecraft.getInstance().getSoundManager().stop( sound );
     }
 
-    public static void moveSound( UUID source, Vector3d position )
+    public static void moveSound( UUID source, Vec3 position )
     {
         MoveableSound sound = sounds.get( source );
         if( sound != null ) sound.setPosition( position );
@@ -53,17 +52,17 @@ public class SoundManager
         sounds.clear();
     }
 
-    private static class MoveableSound extends LocatableSound implements ITickableSound
+    private static class MoveableSound extends AbstractSoundInstance implements TickableSoundInstance
     {
-        protected MoveableSound( SoundEvent sound, Vector3d position, float volume, float pitch )
+        protected MoveableSound( SoundEvent sound, Vec3 position, float volume, float pitch )
         {
-            super( sound, SoundCategory.RECORDS );
+            super( sound, SoundSource.RECORDS );
             setPosition( position );
             this.volume = volume;
             this.pitch = pitch;
         }
 
-        void setPosition( Vector3d position )
+        void setPosition( Vec3 position )
         {
             x = (float) position.x();
             y = (float) position.y();

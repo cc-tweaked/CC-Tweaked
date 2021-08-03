@@ -5,15 +5,16 @@
  */
 package dan200.computercraft.client.gui.widgets;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ClientComputer;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.util.SharedConstants;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.network.chat.TextComponent;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
@@ -23,7 +24,7 @@ import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
 
-public class WidgetTerminal extends Widget
+public class WidgetTerminal extends AbstractWidget
 {
     private static final float TERMINATE_TIME = 0.5f;
 
@@ -47,7 +48,7 @@ public class WidgetTerminal extends Widget
 
     public WidgetTerminal( @Nonnull ClientComputer computer, int x, int y, int termWidth, int termHeight )
     {
-        super( x, y, termWidth * FONT_WIDTH + MARGIN * 2, termHeight * FONT_HEIGHT + MARGIN * 2, StringTextComponent.EMPTY );
+        super( x, y, termWidth * FONT_WIDTH + MARGIN * 2, termHeight * FONT_HEIGHT + MARGIN * 2, TextComponent.EMPTY );
 
         this.computer = computer;
 
@@ -309,7 +310,7 @@ public class WidgetTerminal extends Widget
     }
 
     @Override
-    public void render( @Nonnull MatrixStack transform, int mouseX, int mouseY, float partialTicks )
+    public void render( @Nonnull PoseStack transform, int mouseX, int mouseY, float partialTicks )
     {
         Matrix4f matrix = transform.last().pose();
         Terminal terminal = computer.getTerminal();
@@ -321,6 +322,12 @@ public class WidgetTerminal extends Widget
         {
             FixedWidthFontRenderer.drawEmptyTerminal( matrix, x, y, width, height );
         }
+    }
+
+    @Override
+    public void updateNarration( @Nonnull NarrationElementOutput output )
+    {
+        // I'm not sure what the right option is here.
     }
 
     public static int getWidth( int termWidth )

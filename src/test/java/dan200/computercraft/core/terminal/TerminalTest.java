@@ -8,8 +8,8 @@ package dan200.computercraft.core.terminal;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.utils.CallCounter;
 import io.netty.buffer.Unpooled;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 
@@ -589,7 +589,7 @@ class TerminalTest
         writeTerminal.setTextColour( 3 );
         writeTerminal.setBackgroundColour( 5 );
 
-        PacketBuffer packetBuffer = new PacketBuffer( Unpooled.buffer() );
+        FriendlyByteBuf packetBuffer = new FriendlyByteBuf( Unpooled.buffer() );
         writeTerminal.write( packetBuffer );
 
         CallCounter callCounter = new CallCounter();
@@ -619,7 +619,7 @@ class TerminalTest
         writeTerminal.setTextColour( 3 );
         writeTerminal.setBackgroundColour( 5 );
 
-        CompoundNBT nbt = new CompoundNBT();
+        CompoundTag nbt = new CompoundTag();
         writeTerminal.writeToNBT( nbt );
 
         CallCounter callCounter = new CallCounter();
@@ -645,7 +645,7 @@ class TerminalTest
     {
         Terminal terminal = new Terminal( 0, 0 );
 
-        CompoundNBT nbt = new CompoundNBT();
+        CompoundTag nbt = new CompoundTag();
         terminal.writeToNBT( nbt );
 
         CallCounter callCounter = new CallCounter();
