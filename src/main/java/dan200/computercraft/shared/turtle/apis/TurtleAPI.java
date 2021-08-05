@@ -515,8 +515,8 @@ public class TurtleAPI implements ILuaAPI
     /**
      * Refuel this turtle.
      *
-     * While most actions a turtle can perform (such as digging or placing blocks), moving consumes fuel from the
-     * turtle's internal buffer. If a turtle has no fuel, it will not move.
+     * While most actions a turtle can perform (such as digging or placing blocks) are free, moving consumes fuel from
+     * the turtle's internal buffer. If a turtle has no fuel, it will not move.
      *
      * {@link #refuel} refuels the turtle, consuming fuel items (such as coal or lava buckets) from the currently
      * selected slot and converting them into energy. This finishes once the turtle is fully refuelled or all items have

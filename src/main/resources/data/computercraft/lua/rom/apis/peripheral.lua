@@ -11,6 +11,8 @@
 -- Peripheral functions are called *methods*, a term borrowed from Java.
 --
 -- @module peripheral
+-- @since 1.3
+-- @changed 1.51 Add support for wired modems.
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
@@ -24,6 +26,7 @@ local sides = rs.getSides()
 -- Modem, then it'll be reported according to its name on the wired network.
 --
 -- @treturn { string... } A list of the names of all attached peripherals.
+-- @since 1.51
 function getNames()
     local results = {}
     for n = 1, #sides do
@@ -69,6 +72,7 @@ end
 -- @tparam string|table peripheral The name of the peripheral to find, or a
 -- wrapped peripheral instance.
 -- @treturn string|nil The peripheral's type, or `nil` if it is not present.
+-- @changed 1.88.0 Accepts a wrapped peripheral as an argument.
 function getType(peripheral)
     expect(1, peripheral, "string", "table")
     if type(peripheral) == "string" then -- Peripheral name passed
@@ -118,6 +122,7 @@ end
 --
 -- @tparam table peripheral The peripheral to get the name of.
 -- @treturn string The name of the given peripheral.
+-- @since 1.88.0
 function getName(peripheral)
     expect(1, peripheral, "table")
     local mt = getmetatable(peripheral)
@@ -209,6 +214,7 @@ and returns if it should be included in the result.
 @usage This abuses the `filter` argument to call @{rednet.open} on every modem.
 
     peripheral.find("modem", rednet.open)
+@since 1.6
 ]]
 function find(ty, filter)
     expect(1, ty, "string")
