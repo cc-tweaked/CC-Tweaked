@@ -573,12 +573,17 @@ githubRelease {
     owner 'SquidDev-CC'
     repo 'CC-Tweaked'
     targetCommitish.set(project.provider({
-        try {
-            return ["git", "-C", projectDir, "rev-parse", "--abbrev-ref", "HEAD"].execute().text.trim()
-        } catch (Exception e) {
-            e.printStackTrace()
+        def cmd = ["git", "rev-parse", "--abbrev-ref", "HEAD"]
+        println(cmd)
+        def proc = cmd.execute([], projectDir)
+        if (proc.waitFor() != 0) {
+            println(proc.err.text.trim())
+            throw new IllegalStateException("Executed with a non-0 exit code (${proc.exitValue()}).")
         }
-        return "master"
+
+        def branch = proc.text.trim()
+        if (branch == "") throw new IllegalStateException("Cannot determine branch")
+        return branch
     }))
 
     tagName "v${mc_version}-${mod_version}"
