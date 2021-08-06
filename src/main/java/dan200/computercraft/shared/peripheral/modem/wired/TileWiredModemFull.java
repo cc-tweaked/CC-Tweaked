@@ -146,7 +146,7 @@ public class TileWiredModemFull extends TileGeneric
     }
 
     @Override
-    protected void invalidateCaps()
+    public void invalidateCaps()
     {
         super.invalidateCaps();
         elementCap = CapabilityUtil.invalidate( elementCap );

@@ -66,7 +66,7 @@ public class TileSpeaker extends TileGeneric
     }
 
     @Override
-    protected void invalidateCaps()
+    public void invalidateCaps()
     {
         super.invalidateCaps();
         peripheralCap = CapabilityUtil.invalidate( peripheralCap );

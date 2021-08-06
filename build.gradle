@@ -7,7 +7,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.17'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.18'
     }
 }
 
@@ -485,11 +485,13 @@ task checkRelease {
 }
 check.dependsOn checkRelease
 
+def isStable = false
+
 curseforge {
     apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''
     project {
         id = '282001'
-        releaseType = 'release'
+        releaseType = isStable ? 'release' : 'alpha'
         changelog = "Release notes can be found on the GitHub repository (https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
 
         relations {
@@ -510,6 +512,7 @@ tasks.register('publishModrinth', TaskModrinthUpload.class).configure {
     projectId = 'gu7yAYhd'
     versionNumber = "${project.mc_version}-${project.mod_version}"
     uploadFile = jar
+    versionType = isStable ? 'RELEASE' : 'ALPHA'
     addGameVersion(project.mc_version)
     changelog = "Release notes can be found on the [GitHub repository](https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
     addLoader('forge')
@@ -586,7 +589,7 @@ githubRelease {
             .takeWhile { it != 'Type "help changelog" to see the full version history.' }
             .join("\n").trim()
     }))
-    prerelease false
+    prerelease isStable
 }
 
 def uploadTasks = ["publish", "curseforge", "publishModrinth", "githubRelease"]

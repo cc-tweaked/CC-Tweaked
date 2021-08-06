@@ -88,7 +88,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     }
 
     @Override
-    protected void invalidateCaps()
+    public void invalidateCaps()
     {
         super.invalidateCaps();
         itemHandlerCap = CapabilityUtil.invalidate( itemHandlerCap );

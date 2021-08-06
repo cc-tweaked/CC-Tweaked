@@ -77,7 +77,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     }
 
     @Override
-    protected void invalidateCaps()
+    public void invalidateCaps()
     {
         super.invalidateCaps();
         itemHandlerCaps.invalidate();

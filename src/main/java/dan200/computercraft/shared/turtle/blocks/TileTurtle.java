@@ -147,7 +147,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    protected void invalidateCaps()
+    public void invalidateCaps()
     {
         super.invalidateCaps();
         itemHandlerCap = CapabilityUtil.invalidate( itemHandlerCap );

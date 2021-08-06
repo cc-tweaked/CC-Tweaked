@@ -109,7 +109,7 @@ public class TileComputer extends TileComputerBase
     }
 
     @Override
-    protected void invalidateCaps()
+    public void invalidateCaps()
     {
         super.invalidateCaps();
         peripheral = CapabilityUtil.invalidate( peripheral );
