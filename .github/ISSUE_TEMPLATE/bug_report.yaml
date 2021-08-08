@@ -10,6 +10,7 @@ body:
     options:
       - 1.15.x
       - 1.16.x
+      - 1.17.x
   validations:
     required: true
 - type: input
