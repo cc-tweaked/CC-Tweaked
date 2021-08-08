@@ -9,9 +9,6 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
-import dan200.computercraft.api.turtle.event.TurtleAction;
-import dan200.computercraft.api.turtle.event.TurtleActionEvent;
-import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nonnull;
 
@@ -28,12 +25,6 @@ public class TurtleTurnCommand implements ITurtleCommand
     @Override
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
-        TurtleActionEvent event = new TurtleActionEvent( turtle, TurtleAction.TURN );
-        if( MinecraftForge.EVENT_BUS.post( event ) )
-        {
-            return TurtleCommandResult.failure( event.getFailureMessage() );
-        }
-
         switch( direction )
         {
             case LEFT:

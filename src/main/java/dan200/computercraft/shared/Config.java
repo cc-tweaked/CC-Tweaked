@@ -11,7 +11,6 @@ import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRuleConfig;
@@ -74,7 +73,6 @@ public final class Config
     private static final ConfigValue<Integer> advancedTurtleFuelLimit;
     private static final ConfigValue<Boolean> turtlesObeyBlockProtection;
     private static final ConfigValue<Boolean> turtlesCanPush;
-    private static final ConfigValue<List<? extends String>> turtleDisabledActions;
 
     private static final ConfigValue<Integer> computerTermWidth;
     private static final ConfigValue<Integer> computerTermHeight;
@@ -274,10 +272,6 @@ public final class Config
                 .comment( "If set to true, Turtles will push entities out of the way instead of stopping if there is space to do so" )
                 .define( "can_push", ComputerCraft.turtlesCanPush );
 
-            turtleDisabledActions = builder
-                .comment( "A list of turtle actions which are disabled." )
-                .defineList( "disabled_actions", Collections.emptyList(), x -> x instanceof String && getAction( (String) x ) != null );
-
             builder.pop();
         }
 
@@ -367,9 +361,6 @@ public final class Config
         ComputerCraft.turtlesObeyBlockProtection = turtlesObeyBlockProtection.get();
         ComputerCraft.turtlesCanPush = turtlesCanPush.get();
 
-        ComputerCraft.turtleDisabledActions.clear();
-        for( String value : turtleDisabledActions.get() ) ComputerCraft.turtleDisabledActions.add( getAction( value ) );
-
         // Terminal size
         ComputerCraft.computerTermWidth = computerTermWidth.get();
         ComputerCraft.computerTermHeight = computerTermHeight.get();
@@ -400,16 +391,4 @@ public final class Config
     }
 
     private static final Converter<String, String> converter = CaseFormat.LOWER_CAMEL.converterTo( CaseFormat.UPPER_UNDERSCORE );
-
-    private static TurtleAction getAction( String value )
-    {
-        try
-        {
-            return TurtleAction.valueOf( converter.convert( value ) );
-        }
-        catch( IllegalArgumentException e )
-        {
-            return null;
-        }
-    }
 }

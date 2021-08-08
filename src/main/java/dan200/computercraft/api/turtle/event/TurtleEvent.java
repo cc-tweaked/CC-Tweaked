@@ -16,8 +16,6 @@ import java.util.Objects;
  * so sever specific methods on {@link ITurtleAccess} are safe to use.
  *
  * You should generally not need to subscribe to this event, preferring one of the more specific classes.
- *
- * @see TurtleActionEvent
  */
 public abstract class TurtleEvent extends Event
 {

@@ -10,7 +10,6 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
-import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.InventoryUtil;
@@ -33,7 +32,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.items.IItemHandler;
@@ -68,9 +66,6 @@ public class TurtlePlaceCommand implements ITurtleCommand
         // Create a fake player, and orient it appropriately
         BlockPos playerPosition = turtle.getPosition().relative( direction );
         TurtlePlayer turtlePlayer = TurtlePlayer.getWithPosition( turtle, playerPosition, direction );
-
-        TurtleBlockEvent.Place place = new TurtleBlockEvent.Place( turtle, turtlePlayer, turtle.getLevel(), coordinates, stack );
-        if( MinecraftForge.EVENT_BUS.post( place ) ) return TurtleCommandResult.failure( place.getFailureMessage() );
 
         // Do the deploying
         turtlePlayer.loadInventory( turtle );

@@ -9,7 +9,6 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
-import dan200.computercraft.api.turtle.event.TurtleInventoryEvent;
 import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,7 +17,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
@@ -56,14 +54,6 @@ public class TurtleSuckCommand implements ITurtleCommand
         Direction side = direction.getOpposite();
 
         IItemHandler inventory = InventoryUtil.getInventory( world, blockPosition, side );
-
-        // Fire the event, exiting if it is cancelled.
-        TurtlePlayer player = TurtlePlayer.getWithPosition( turtle, turtlePosition, direction );
-        TurtleInventoryEvent.Suck event = new TurtleInventoryEvent.Suck( turtle, player, world, blockPosition, inventory );
-        if( MinecraftForge.EVENT_BUS.post( event ) )
-        {
-            return TurtleCommandResult.failure( event.getFailureMessage() );
-        }
 
         if( inventory != null )
         {

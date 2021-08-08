@@ -6,14 +6,11 @@
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.*;
-import dan200.computercraft.api.turtle.event.TurtleAction;
-import dan200.computercraft.api.turtle.event.TurtleActionEvent;
 import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
@@ -62,12 +59,6 @@ public class TurtleEquipCommand implements ITurtleCommand
         else
         {
             oldUpgradeStack = null;
-        }
-
-        TurtleActionEvent event = new TurtleActionEvent( turtle, TurtleAction.EQUIP );
-        if( MinecraftForge.EVENT_BUS.post( event ) )
-        {
-            return TurtleCommandResult.failure( event.getFailureMessage() );
         }
 
         // Do the swapping:

@@ -33,7 +33,7 @@ public class TurtleRefuelCommand implements ITurtleCommand
         if( stack.isEmpty() ) return TurtleCommandResult.failure( "No items to combust" );
 
         TurtleRefuelEvent event = new TurtleRefuelEvent( turtle, stack );
-        if( MinecraftForge.EVENT_BUS.post( event ) ) return TurtleCommandResult.failure( event.getFailureMessage() );
+        MinecraftForge.EVENT_BUS.post( event );
         if( event.getHandler() == null ) return TurtleCommandResult.failure( "Items not combustible" );
 
         if( limit != 0 )

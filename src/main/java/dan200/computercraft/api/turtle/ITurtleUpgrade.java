@@ -9,8 +9,6 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.IUpgradeBase;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
-import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -61,8 +59,8 @@ public interface ITurtleUpgrade extends IUpgradeBase
      * Will only be called for Tool turtle. Called when turtle.dig() or turtle.attack() is called
      * by the turtle, and the tool is required to do some work.
      *
-     * Conforming implementations should fire {@link BlockEvent.BreakEvent} and {@link TurtleBlockEvent.Dig} for
-     * digging, {@link AttackEntityEvent} and {@link TurtleAttackEvent} for attacking.
+     * Conforming implementations should fire {@link BlockEvent.BreakEvent} for digging {@link AttackEntityEvent}
+     * for attacking.
      *
      * @param turtle    Access to the turtle that the tool resides on.
      * @param side      Which side of the turtle (left or right) the tool resides on.

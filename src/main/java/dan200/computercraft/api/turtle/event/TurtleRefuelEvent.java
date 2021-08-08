@@ -15,17 +15,16 @@ import java.util.Objects;
 /**
  * Fired when a turtle attempts to refuel from an item.
  *
- * One may use {@link #setCanceled(boolean, String)} to prevent refueling from this specific item. Additionally, you
- * may use {@link #setHandler(Handler)} to register a custom fuel provider.
+ * One may use {@link #setHandler(Handler)} to register a custom fuel provider for a given item.
  */
-public class TurtleRefuelEvent extends TurtleActionEvent
+public class TurtleRefuelEvent extends TurtleEvent
 {
     private final ItemStack stack;
     private Handler handler;
 
     public TurtleRefuelEvent( @Nonnull ITurtleAccess turtle, @Nonnull ItemStack stack )
     {
-        super( turtle, TurtleAction.REFUEL );
+        super( turtle );
 
         Objects.requireNonNull( turtle, "turtle cannot be null" );
         this.stack = stack;

@@ -10,8 +10,6 @@ import com.mojang.math.Transformation;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.*;
-import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
-import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
@@ -151,12 +149,6 @@ public class TurtleTool extends AbstractTurtleUpgrade
                 return TurtleCommandResult.failure( "Nothing to attack here" );
             }
 
-            TurtleAttackEvent attackEvent = new TurtleAttackEvent( turtle, turtlePlayer, hitEntity, this, side );
-            if( MinecraftForge.EVENT_BUS.post( attackEvent ) )
-            {
-                return TurtleCommandResult.failure( attackEvent.getFailureMessage() );
-            }
-
             // Start claiming entity drops
             DropConsumer.set( hitEntity, turtleDropConsumer( turtleTile, turtle ) );
 
@@ -241,13 +233,6 @@ public class TurtleTool extends AbstractTurtleUpgrade
         if( !canBreakBlock( state, world, blockPosition, turtlePlayer ) )
         {
             return TurtleCommandResult.failure( "Unbreakable block detected" );
-        }
-
-        // Fire the dig event, checking whether it was cancelled.
-        TurtleBlockEvent.Dig digEvent = new TurtleBlockEvent.Dig( turtle, turtlePlayer, world, blockPosition, state, this, side );
-        if( MinecraftForge.EVENT_BUS.post( digEvent ) )
-        {
-            return TurtleCommandResult.failure( digEvent.getFailureMessage() );
         }
 
         // Consume the items the block drops
