@@ -177,9 +177,8 @@ public final class CommandComputerCraft
                     if( world == null || pos == null ) throw TP_NOT_THERE.create();
 
                     Entity entity = context.getSource().getEntityOrException();
-                    if( !(entity instanceof ServerPlayer) ) throw TP_NOT_PLAYER.create();
+                    if( !(entity instanceof ServerPlayer player) ) throw TP_NOT_PLAYER.create();
 
-                    ServerPlayer player = (ServerPlayer) entity;
                     if( player.getCommandSenderWorld() == world )
                     {
                         player.connection.teleport(

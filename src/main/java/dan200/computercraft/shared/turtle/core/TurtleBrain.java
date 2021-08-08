@@ -327,10 +327,9 @@ public class TurtleBrain implements ITurtleAccess
                 if( block == oldBlock.getBlock() )
                 {
                     BlockEntity newTile = world.getBlockEntity( pos );
-                    if( newTile instanceof TileTurtle )
+                    if( newTile instanceof TileTurtle newTurtle )
                     {
                         // Copy the old turtle state into the new turtle
-                        TileTurtle newTurtle = (TileTurtle) newTile;
                         newTurtle.setLevel( world );
                         newTurtle.transferStateFrom( oldOwner );
                         newTurtle.createServerComputer().setLevel( world );
@@ -956,12 +955,12 @@ public class TurtleBrain implements ITurtleAccess
         @Override
         public MethodResult resume( Object[] response )
         {
-            if( response.length < 3 || !(response[1] instanceof Number) || !(response[2] instanceof Boolean) )
+            if( response.length < 3 || !(response[1] instanceof Number id) || !(response[2] instanceof Boolean) )
             {
                 return pull;
             }
 
-            if( ((Number) response[1]).intValue() != command ) return pull;
+            if( id.intValue() != command ) return pull;
 
             return MethodResult.of( Arrays.copyOfRange( response, 2, response.length ) );
         }

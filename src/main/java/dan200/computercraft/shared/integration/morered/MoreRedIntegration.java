@@ -68,9 +68,8 @@ public class MoreRedIntegration
 
             BlockPos pos = wirePos.relative( wireFace );
             BlockState state = world.getBlockState( pos );
-            if( !(state.getBlock() instanceof IBundledRedstoneBlock) ) return 0;
+            if( !(state.getBlock() instanceof IBundledRedstoneBlock block) ) return 0;
 
-            IBundledRedstoneBlock block = (IBundledRedstoneBlock) state.getBlock();
             return (block.getBundledRedstoneOutput( world, pos, wireFace.getOpposite() ) & (1 << channel)) != 0 ? 31 : 0;
         }
 

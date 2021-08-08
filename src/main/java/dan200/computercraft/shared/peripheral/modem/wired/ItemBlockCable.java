@@ -46,9 +46,8 @@ public abstract class ItemBlockCable extends BlockItem
         world.playSound( null, pos, soundType.getPlaceSound(), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
 
         BlockEntity tile = world.getBlockEntity( pos );
-        if( tile instanceof TileCable )
+        if( tile instanceof TileCable cable )
         {
-            TileCable cable = (TileCable) tile;
             cable.modemChanged();
             cable.connectionsChanged();
         }

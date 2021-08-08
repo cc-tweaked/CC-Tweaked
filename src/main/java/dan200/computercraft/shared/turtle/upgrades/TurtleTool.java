@@ -165,18 +165,12 @@ public class TurtleTool extends AbstractTurtleUpgrade
                     {
                         // Special case for armor stands: attack twice to guarantee destroy
                         hitEntity.hurt( source, damage );
-                        if( hitEntity.isAlive() )
-                        {
-                            hitEntity.hurt( source, damage );
-                        }
+                        if( hitEntity.isAlive() ) hitEntity.hurt( source, damage );
                         attacked = true;
                     }
                     else
                     {
-                        if( hitEntity.hurt( source, damage ) )
-                        {
-                            attacked = true;
-                        }
+                        if( hitEntity.hurt( source, damage ) ) attacked = true;
                     }
                 }
             }

@@ -24,9 +24,8 @@ public class DefaultBundledRedstoneProvider implements IBundledRedstoneProvider
     public static int getDefaultBundledRedstoneOutput( Level world, BlockPos pos, Direction side )
     {
         Block block = world.getBlockState( pos ).getBlock();
-        if( block instanceof IBundledRedstoneBlock )
+        if( block instanceof IBundledRedstoneBlock generic )
         {
-            IBundledRedstoneBlock generic = (IBundledRedstoneBlock) block;
             if( generic.getBundledRedstoneConnectivity( world, pos, side ) )
             {
                 return generic.getBundledRedstoneOutput( world, pos, side );

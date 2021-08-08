@@ -107,9 +107,8 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock
             if( hit.getType() == HitResult.Type.BLOCK )
             {
                 BlockEntity tile = world.getBlockEntity( pos );
-                if( tile instanceof TileCable && tile.hasLevel() )
+                if( tile instanceof TileCable cable && tile.hasLevel() )
                 {
-                    TileCable cable = (TileCable) tile;
 
                     ItemStack item;
                     BlockState newState;
@@ -164,9 +163,8 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock
     public void setPlacedBy( Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, @Nonnull ItemStack stack )
     {
         BlockEntity tile = world.getBlockEntity( pos );
-        if( tile instanceof TileCable )
+        if( tile instanceof TileCable cable )
         {
-            TileCable cable = (TileCable) tile;
             if( cable.hasCable() ) cable.connectionsChanged();
         }
 

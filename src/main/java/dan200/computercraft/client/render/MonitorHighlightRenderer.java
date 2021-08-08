@@ -47,9 +47,8 @@ public final class MonitorHighlightRenderer
         BlockPos pos = event.getTarget().getBlockPos();
 
         BlockEntity tile = world.getBlockEntity( pos );
-        if( !(tile instanceof TileMonitor) ) return;
+        if( !(tile instanceof TileMonitor monitor) ) return;
 
-        TileMonitor monitor = (TileMonitor) tile;
         event.setCanceled( true );
 
         // Determine which sides are part of the external faces of the monitor, and so which need to be rendered.

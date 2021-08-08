@@ -53,7 +53,7 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
         @Override
         public boolean equals( IPeripheral other )
         {
-            return this == other || (other instanceof Peripheral && turtle == ((Peripheral) other).turtle);
+            return this == other || (other instanceof Peripheral speaker && turtle == speaker.turtle);
         }
     }
 
@@ -79,7 +79,7 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
     @Override
     public void update( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide turtleSide )
     {
-        IPeripheral turtlePeripheral = turtle.getPeripheral( turtleSide );
-        if( turtlePeripheral instanceof Peripheral ) ((Peripheral) turtlePeripheral).update();
+        IPeripheral peripheral = turtle.getPeripheral( turtleSide );
+        if( peripheral instanceof Peripheral speaker ) speaker.update();
     }
 }

@@ -96,9 +96,8 @@ public abstract class HandleGeneric
 
     protected static SeekableByteChannel asSeekable( Channel channel )
     {
-        if( !(channel instanceof SeekableByteChannel) ) return null;
+        if( !(channel instanceof SeekableByteChannel seekable) ) return null;
 
-        SeekableByteChannel seekable = (SeekableByteChannel) channel;
         try
         {
             seekable.position( seekable.position() );

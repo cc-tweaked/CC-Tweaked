@@ -44,9 +44,8 @@ final class SaturatedMethod
     public boolean equals( Object obj )
     {
         if( obj == this ) return true;
-        if( !(obj instanceof SaturatedMethod) ) return false;
+        if( !(obj instanceof SaturatedMethod other) ) return false;
 
-        SaturatedMethod other = (SaturatedMethod) obj;
         return method == other.method && target.equals( other.target );
     }
 

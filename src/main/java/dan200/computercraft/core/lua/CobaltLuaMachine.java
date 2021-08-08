@@ -260,14 +260,12 @@ public class CobaltLuaMachine implements ILuaMachine
         if( object instanceof Number ) return valueOf( ((Number) object).doubleValue() );
         if( object instanceof Boolean ) return valueOf( (Boolean) object );
         if( object instanceof String ) return valueOf( object.toString() );
-        if( object instanceof byte[] )
+        if( object instanceof byte[] b )
         {
-            byte[] b = (byte[]) object;
             return valueOf( Arrays.copyOf( b, b.length ) );
         }
-        if( object instanceof ByteBuffer )
+        if( object instanceof ByteBuffer b )
         {
-            ByteBuffer b = (ByteBuffer) object;
             byte[] bytes = new byte[b.remaining()];
             b.get( bytes );
             return valueOf( bytes );
@@ -304,9 +302,8 @@ public class CobaltLuaMachine implements ILuaMachine
             return table;
         }
 
-        if( object instanceof Collection )
+        if( object instanceof Collection<?> objects )
         {
-            Collection<?> objects = (Collection<?>) object;
             LuaTable table = new LuaTable( objects.size(), 0 );
             values.put( object, table );
             int i = 0;
@@ -314,9 +311,8 @@ public class CobaltLuaMachine implements ILuaMachine
             return table;
         }
 
-        if( object instanceof Object[] )
+        if( object instanceof Object[] objects )
         {
-            Object[] objects = (Object[]) object;
             LuaTable table = new LuaTable( objects.length, 0 );
             values.put( object, table );
             for( int i = 0; i < objects.length; i++ ) table.rawset( i + 1, toValue( objects[i], values ) );

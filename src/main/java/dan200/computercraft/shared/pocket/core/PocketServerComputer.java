@@ -56,9 +56,8 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
             Inventory inventory = ((Player) entity).getInventory();
             return inventory.items.contains( stack ) || inventory.offhand.contains( stack ) ? entity : null;
         }
-        else if( entity instanceof LivingEntity )
+        else if( entity instanceof LivingEntity living )
         {
-            LivingEntity living = (LivingEntity) entity;
             return living.getMainHandItem() == stack || living.getOffhandItem() == stack ? entity : null;
         }
         else
@@ -184,10 +183,9 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     {
         super.broadcastState( force );
 
-        if( (hasTerminalChanged() || force) && entity instanceof ServerPlayer )
+        if( (hasTerminalChanged() || force) && entity instanceof ServerPlayer player )
         {
             // Broadcast the state to the current entity if they're not already interacting with it.
-            ServerPlayer player = (ServerPlayer) entity;
             if( player.connection != null && !isInteracting( player ) )
             {
                 NetworkHandler.sendToPlayer( player, createTerminalPacket() );

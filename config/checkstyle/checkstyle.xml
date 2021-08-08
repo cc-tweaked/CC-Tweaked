@@ -58,13 +58,20 @@
         <module name="SimplifyBooleanExpression" />
         <module name="SimplifyBooleanReturn" />
         <module name="StringLiteralEquality" />
-        <module name="UnnecessaryParentheses" />
+        <module name="UnnecessaryParentheses">
+            <!-- Default minus LAND. -->
+            <property name="tokens" value="EXPR,IDENT,NUM_DOUBLE,NUM_FLOAT,NUM_INT,NUM_LONG,STRING_LITERAL,LITERAL_NULL,LITERAL_FALSE,LITERAL_TRUE,ASSIGN,BAND_ASSIGN,BOR_ASSIGN,BSR_ASSIGN,BXOR_ASSIGN,DIV_ASSIGN,MINUS_ASSIGN,MOD_ASSIGN,PLUS_ASSIGN,SL_ASSIGN,SR_ASSIGN,STAR_ASSIGN,LAMBDA,TEXT_BLOCK_LITERAL_BEGIN,LITERAL_INSTANCEOF,GT,LT,GE,LE,EQUAL,NOT_EQUAL,UNARY_MINUS,UNARY_PLUS,INC,DEC,LNOT,BNOT,POST_INC,POST_DEC" />
+        </module>
         <module name="UnnecessarySemicolonAfterTypeMemberDeclaration" />
         <module name="UnnecessarySemicolonInTryWithResources" />
         <module name="UnnecessarySemicolonInEnumeration" />
 
         <!-- Imports -->
-        <module name="CustomImportOrder" />
+        <module name="CustomImportOrder">
+            <property name="customImportOrderRules"
+                value="THIRD_PARTY_PACKAGE###STANDARD_JAVA_PACKAGE###STATIC"
+            />
+        </module>
         <module name="IllegalImport" />
         <module name="RedundantImport" />
         <module name="UnusedImports" />

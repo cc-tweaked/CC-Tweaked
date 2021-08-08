@@ -24,8 +24,8 @@ public class ObjectWrapper implements ILuaContext
     public ObjectWrapper( Object object )
     {
         this.object = object;
-        String[] dynamicMethods = object instanceof IDynamicLuaObject
-            ? Objects.requireNonNull( ((IDynamicLuaObject) object).getMethodNames(), "Methods cannot be null" )
+        String[] dynamicMethods = object instanceof IDynamicLuaObject dynamic
+            ? Objects.requireNonNull( dynamic.getMethodNames(), "Methods cannot be null" )
             : LuaMethod.EMPTY_METHODS;
 
         List<NamedMethod<LuaMethod>> methods = LuaMethod.GENERATOR.getMethods( object.getClass() );

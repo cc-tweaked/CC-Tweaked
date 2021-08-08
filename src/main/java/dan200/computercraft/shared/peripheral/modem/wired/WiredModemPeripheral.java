@@ -236,9 +236,8 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     @Override
     public boolean equals( IPeripheral other )
     {
-        if( other instanceof WiredModemPeripheral )
+        if( other instanceof WiredModemPeripheral otherModem )
         {
-            WiredModemPeripheral otherModem = (WiredModemPeripheral) other;
             return otherModem.modem == modem;
         }
         return false;

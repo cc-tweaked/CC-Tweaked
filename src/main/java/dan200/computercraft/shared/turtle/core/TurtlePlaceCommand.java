@@ -165,9 +165,9 @@ public class TurtlePlaceCommand implements ITurtleCommand
         if( interact != null ) return interact.consumesAction();
 
         if( hitEntity.interact( turtlePlayer, InteractionHand.MAIN_HAND ).consumesAction() ) return true;
-        if( hitEntity instanceof LivingEntity )
+        if( hitEntity instanceof LivingEntity hitLiving )
         {
-            return stack.interactLivingEntity( turtlePlayer, (LivingEntity) hitEntity, InteractionHand.MAIN_HAND ).consumesAction();
+            return stack.interactLivingEntity( turtlePlayer, hitLiving, InteractionHand.MAIN_HAND ).consumesAction();
         }
 
         return false;
@@ -236,7 +236,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         boolean placed = doDeployOnBlock( stack, turtlePlayer, position, context, hit ).consumesAction();
 
         // Set text on signs
-        if( placed && item instanceof SignItem && extraArguments != null && extraArguments.length >= 1 && extraArguments[0] instanceof String )
+        if( placed && item instanceof SignItem && extraArguments != null && extraArguments.length >= 1 && extraArguments[0] instanceof String message )
         {
             Level world = turtle.getLevel();
             BlockEntity tile = world.getBlockEntity( position );
@@ -245,7 +245,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
                 tile = world.getBlockEntity( position.relative( side ) );
             }
 
-            if( tile instanceof SignBlockEntity ) setSignText( world, tile, (String) extraArguments[0] );
+            if( tile instanceof SignBlockEntity ) setSignText( world, tile, message );
         }
 
         return placed;

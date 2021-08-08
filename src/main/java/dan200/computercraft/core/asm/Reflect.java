@@ -52,9 +52,8 @@ final class Reflect
         {
             if( underlying instanceof Class<?> ) return (Class<?>) underlying;
 
-            if( underlying instanceof ParameterizedType )
+            if( underlying instanceof ParameterizedType type )
             {
-                ParameterizedType type = (ParameterizedType) underlying;
                 if( !allowParameter )
                 {
                     for( java.lang.reflect.Type arg : type.getActualTypeArguments() )

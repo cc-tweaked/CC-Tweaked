@@ -96,9 +96,8 @@ class RecipeResolver implements IRecipeManagerPlugin
     public <V> List<ResourceLocation> getRecipeCategoryUids( @Nonnull IFocus<V> focus )
     {
         V value = focus.getValue();
-        if( !(value instanceof ItemStack) ) return Collections.emptyList();
+        if( !(value instanceof ItemStack stack) ) return Collections.emptyList();
 
-        ItemStack stack = (ItemStack) value;
         switch( focus.getMode() )
         {
             case INPUT:
@@ -119,12 +118,11 @@ class RecipeResolver implements IRecipeManagerPlugin
     @Override
     public <T, V> List<T> getRecipes( @Nonnull IRecipeCategory<T> recipeCategory, @Nonnull IFocus<V> focus )
     {
-        if( !(focus.getValue() instanceof ItemStack) || !recipeCategory.getUid().equals( VanillaRecipeCategoryUid.CRAFTING ) )
+        if( !(focus.getValue() instanceof ItemStack stack) || !recipeCategory.getUid().equals( VanillaRecipeCategoryUid.CRAFTING ) )
         {
             return Collections.emptyList();
         }
 
-        ItemStack stack = (ItemStack) focus.getValue();
         switch( focus.getMode() )
         {
             case INPUT:
@@ -148,10 +146,9 @@ class RecipeResolver implements IRecipeManagerPlugin
     {
         setupCache();
 
-        if( stack.getItem() instanceof ITurtleItem )
+        if( stack.getItem() instanceof ITurtleItem item )
         {
             // Suggest possible upgrades which can be applied to this turtle
-            ITurtleItem item = (ITurtleItem) stack.getItem();
             ITurtleUpgrade left = item.getUpgrade( stack, TurtleSide.LEFT );
             ITurtleUpgrade right = item.getUpgrade( stack, TurtleSide.RIGHT );
             if( left != null && right != null ) return Collections.emptyList();
@@ -227,9 +224,8 @@ class RecipeResolver implements IRecipeManagerPlugin
     private static List<Shaped> findRecipesWithOutput( @Nonnull ItemStack stack )
     {
         // Find which upgrade this item currently has, an so how we could build it.
-        if( stack.getItem() instanceof ITurtleItem )
+        if( stack.getItem() instanceof ITurtleItem item )
         {
-            ITurtleItem item = (ITurtleItem) stack.getItem();
             List<Shaped> recipes = new ArrayList<>( 0 );
 
             ITurtleUpgrade left = item.getUpgrade( stack, TurtleSide.LEFT );

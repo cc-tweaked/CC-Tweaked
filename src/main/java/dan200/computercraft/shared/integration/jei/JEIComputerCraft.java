@@ -114,9 +114,8 @@ public class JEIComputerCraft implements IModPlugin
      */
     private static final IIngredientSubtypeInterpreter<ItemStack> turtleSubtype = ( stack, ctx ) -> {
         Item item = stack.getItem();
-        if( !(item instanceof ITurtleItem) ) return IIngredientSubtypeInterpreter.NONE;
+        if( !(item instanceof ITurtleItem turtle) ) return IIngredientSubtypeInterpreter.NONE;
 
-        ITurtleItem turtle = (ITurtleItem) item;
         StringBuilder name = new StringBuilder( "turtle:" );
 
         // Add left and right upgrades to the identifier
@@ -150,9 +149,7 @@ public class JEIComputerCraft implements IModPlugin
      */
     private static final IIngredientSubtypeInterpreter<ItemStack> diskSubtype = ( stack, ctx ) -> {
         Item item = stack.getItem();
-        if( !(item instanceof ItemDisk) ) return IIngredientSubtypeInterpreter.NONE;
-
-        ItemDisk disk = (ItemDisk) item;
+        if( !(item instanceof ItemDisk disk) ) return IIngredientSubtypeInterpreter.NONE;
 
         int colour = disk.getColour( stack );
         return colour == -1 ? IIngredientSubtypeInterpreter.NONE : String.format( "%06x", colour );

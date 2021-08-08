@@ -41,11 +41,9 @@ public class PocketModem extends AbstractPocketUpgrade
     @Override
     public void update( @Nonnull IPocketAccess access, @Nullable IPeripheral peripheral )
     {
-        if( !(peripheral instanceof PocketModemPeripheral) ) return;
+        if( !(peripheral instanceof PocketModemPeripheral modem) ) return;
 
         Entity entity = access.getEntity();
-
-        PocketModemPeripheral modem = (PocketModemPeripheral) peripheral;
 
         if( entity != null ) modem.setLocation( entity.getCommandSenderWorld(), entity.getEyePosition( 1 ) );
 

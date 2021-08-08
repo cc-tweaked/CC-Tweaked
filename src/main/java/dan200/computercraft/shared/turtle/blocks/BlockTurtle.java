@@ -88,7 +88,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Simple
     public VoxelShape getShape( @Nonnull BlockState state, BlockGetter world, @Nonnull BlockPos pos, @Nonnull CollisionContext context )
     {
         BlockEntity tile = world.getBlockEntity( pos );
-        Vec3 offset = tile instanceof TileTurtle ? ((TileTurtle) tile).getRenderOffset( 1.0f ) : Vec3.ZERO;
+        Vec3 offset = tile instanceof TileTurtle turtle ? turtle.getRenderOffset( 1.0f ) : Vec3.ZERO;
         return offset.equals( Vec3.ZERO ) ? DEFAULT_SHAPE : DEFAULT_SHAPE.move( offset.x, offset.y, offset.z );
     }
 
@@ -119,24 +119,17 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Simple
     }
 
     @Override
-    public void setPlacedBy( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity player, @Nonnull ItemStack stack )
+    public void setPlacedBy( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity entity, @Nonnull ItemStack stack )
     {
-        super.setPlacedBy( world, pos, state, player, stack );
+        super.setPlacedBy( world, pos, state, entity, stack );
 
         BlockEntity tile = world.getBlockEntity( pos );
-        if( !world.isClientSide && tile instanceof TileTurtle )
+        if( !world.isClientSide && tile instanceof TileTurtle turtle )
         {
-            TileTurtle turtle = (TileTurtle) tile;
+            if( entity instanceof Player player ) turtle.setOwningPlayer( player.getGameProfile() );
 
-            if( player instanceof Player )
+            if( stack.getItem() instanceof ITurtleItem item )
             {
-                ((TileTurtle) tile).setOwningPlayer( ((Player) player).getGameProfile() );
-            }
-
-            if( stack.getItem() instanceof ITurtleItem )
-            {
-                ITurtleItem item = (ITurtleItem) stack.getItem();
-
                 // Set Upgrades
                 for( TurtleSide side : TurtleSide.values() )
                 {
@@ -172,7 +165,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Simple
     @Override
     protected ItemStack getItem( TileComputerBase tile )
     {
-        return tile instanceof TileTurtle ? TurtleItemFactory.create( (TileTurtle) tile ) : ItemStack.EMPTY;
+        return tile instanceof TileTurtle turtle ? TurtleItemFactory.create( turtle ) : ItemStack.EMPTY;
     }
 
     @Override

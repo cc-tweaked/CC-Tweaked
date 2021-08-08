@@ -392,9 +392,8 @@ public class TileMonitor extends TileGeneric
         if( world == null || !world.isAreaLoaded( pos, 0 ) ) return MonitorState.UNLOADED;
 
         BlockEntity tile = world.getBlockEntity( pos );
-        if( !(tile instanceof TileMonitor) ) return MonitorState.MISSING;
+        if( !(tile instanceof TileMonitor monitor) ) return MonitorState.MISSING;
 
-        TileMonitor monitor = (TileMonitor) tile;
         return !monitor.visiting && !monitor.destroyed && advanced == monitor.advanced
             && getDirection() == monitor.getDirection() && getOrientation() == monitor.getOrientation()
             ? MonitorState.present( monitor ) : MonitorState.MISSING;

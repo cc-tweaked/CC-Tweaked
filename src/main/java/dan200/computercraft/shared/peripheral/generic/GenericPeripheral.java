@@ -67,9 +67,8 @@ class GenericPeripheral implements IDynamicPeripheral
     public boolean equals( @Nullable IPeripheral other )
     {
         if( other == this ) return true;
-        if( !(other instanceof GenericPeripheral) ) return false;
+        if( !(other instanceof GenericPeripheral generic) ) return false;
 
-        GenericPeripheral generic = (GenericPeripheral) other;
         return tile == generic.tile && methods.equals( generic.methods );
     }
 }

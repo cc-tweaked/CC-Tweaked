@@ -162,12 +162,12 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         ItemStack currentItem = player.getItemInHand( hand );
         if( !currentItem.isEmpty() )
         {
-            if( currentItem.getItem() instanceof DyeItem )
+            if( currentItem.getItem() instanceof DyeItem dyeItem )
             {
                 // Dye to change turtle colour
                 if( !getLevel().isClientSide )
                 {
-                    DyeColor dye = ((DyeItem) currentItem.getItem()).getDyeColor();
+                    DyeColor dye = dyeItem.getDyeColor();
                     if( brain.getDyeColour() != dye )
                     {
                         brain.setDyeColour( dye );

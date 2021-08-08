@@ -57,7 +57,7 @@ public class TurtleModem extends AbstractTurtleUpgrade
         @Override
         public boolean equals( IPeripheral other )
         {
-            return this == other || (other instanceof Peripheral && ((Peripheral) other).turtle == turtle);
+            return this == other || (other instanceof Peripheral modem && modem.turtle == turtle);
         }
     }
 
@@ -131,9 +131,9 @@ public class TurtleModem extends AbstractTurtleUpgrade
         if( !turtle.getLevel().isClientSide )
         {
             IPeripheral peripheral = turtle.getPeripheral( side );
-            if( peripheral instanceof Peripheral )
+            if( peripheral instanceof Peripheral modem )
             {
-                ModemState state = ((Peripheral) peripheral).getModemState();
+                ModemState state = modem.getModemState();
                 if( state.pollChanged() )
                 {
                     turtle.getUpgradeNBTData( side ).putBoolean( "active", state.isOpen() );

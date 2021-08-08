@@ -73,9 +73,8 @@ public class TurtleSmartItemModel implements BakedModel
         public boolean equals( Object other )
         {
             if( other == this ) return true;
-            if( !(other instanceof TurtleModelCombination) ) return false;
+            if( !(other instanceof TurtleModelCombination otherCombo) ) return false;
 
-            TurtleModelCombination otherCombo = (TurtleModelCombination) other;
             return otherCombo.colour == colour &&
                 otherCombo.leftUpgrade == leftUpgrade &&
                 otherCombo.rightUpgrade == rightUpgrade &&

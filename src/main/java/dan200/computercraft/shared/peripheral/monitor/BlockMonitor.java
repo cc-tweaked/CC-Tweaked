@@ -83,9 +83,8 @@ public class BlockMonitor extends BlockGeneric
         super.setPlacedBy( world, pos, blockState, livingEntity, itemStack );
 
         BlockEntity entity = world.getBlockEntity( pos );
-        if( entity instanceof TileMonitor && !world.isClientSide )
+        if( entity instanceof TileMonitor monitor && !world.isClientSide )
         {
-            TileMonitor monitor = (TileMonitor) entity;
             // Defer the block update if we're being placed by another TE. See #691
             if( livingEntity == null || livingEntity instanceof FakePlayer )
             {

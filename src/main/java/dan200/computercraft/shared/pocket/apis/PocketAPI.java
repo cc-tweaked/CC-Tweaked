@@ -63,8 +63,7 @@ public class PocketAPI implements ILuaAPI
     public final Object[] equipBack()
     {
         Entity entity = computer.getEntity();
-        if( !(entity instanceof Player) ) return new Object[] { false, "Cannot find player" };
-        Player player = (Player) entity;
+        if( !(entity instanceof Player player) ) return new Object[] { false, "Cannot find player" };
         Inventory inventory = player.getInventory();
         IPocketUpgrade previousUpgrade = computer.getUpgrade();
 
@@ -108,8 +107,7 @@ public class PocketAPI implements ILuaAPI
     public final Object[] unequipBack()
     {
         Entity entity = computer.getEntity();
-        if( !(entity instanceof Player) ) return new Object[] { false, "Cannot find player" };
-        Player player = (Player) entity;
+        if( !(entity instanceof Player player) ) return new Object[] { false, "Cannot find player" };
         Inventory inventory = player.getInventory();
         IPocketUpgrade previousUpgrade = computer.getUpgrade();
 

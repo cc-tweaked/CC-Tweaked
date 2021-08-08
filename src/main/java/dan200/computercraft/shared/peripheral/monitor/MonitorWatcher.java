@@ -54,9 +54,8 @@ public final class MonitorWatcher
         for( BlockEntity te : chunk.getBlockEntities().values() )
         {
             // Find all origin monitors who are not already on the queue.
-            if( !(te instanceof TileMonitor) ) continue;
+            if( !(te instanceof TileMonitor monitor) ) continue;
 
-            TileMonitor monitor = (TileMonitor) te;
             ServerMonitor serverMonitor = getMonitor( monitor );
             if( serverMonitor == null || monitor.enqueued ) continue;
 

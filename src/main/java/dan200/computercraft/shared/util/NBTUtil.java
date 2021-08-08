@@ -33,9 +33,8 @@ public final class NBTUtil
         if( object instanceof Boolean ) return ByteTag.valueOf( (byte) ((boolean) (Boolean) object ? 1 : 0) );
         if( object instanceof Number ) return DoubleTag.valueOf( ((Number) object).doubleValue() );
         if( object instanceof String ) return StringTag.valueOf( object.toString() );
-        if( object instanceof Map )
+        if( object instanceof Map<?, ?> m )
         {
-            Map<?, ?> m = (Map<?, ?>) object;
             CompoundTag nbt = new CompoundTag();
             int i = 0;
             for( Map.Entry<?, ?> entry : m.entrySet() )

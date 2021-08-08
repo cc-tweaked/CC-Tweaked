@@ -74,9 +74,8 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     public int getDirectSignal( @Nonnull BlockState state, BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction incomingSide )
     {
         BlockEntity entity = world.getBlockEntity( pos );
-        if( !(entity instanceof TileComputerBase) ) return 0;
+        if( !(entity instanceof TileComputerBase computerEntity) ) return 0;
 
-        TileComputerBase computerEntity = (TileComputerBase) entity;
         ServerComputer computer = computerEntity.getServerComputer();
         if( computer == null ) return 0;
 
@@ -109,9 +108,8 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     public int getBundledRedstoneOutput( Level world, BlockPos pos, Direction side )
     {
         BlockEntity entity = world.getBlockEntity( pos );
-        if( !(entity instanceof TileComputerBase) ) return 0;
+        if( !(entity instanceof TileComputerBase computerEntity) ) return 0;
 
-        TileComputerBase computerEntity = (TileComputerBase) entity;
         ServerComputer computer = computerEntity.getServerComputer();
         if( computer == null ) return 0;
 
@@ -144,16 +142,14 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     @Override
     public void playerWillDestroy( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player )
     {
-        if( !(world instanceof ServerLevel) ) return;
-        ServerLevel serverWorld = (ServerLevel) world;
+        if( !(world instanceof ServerLevel serverWorld) ) return;
 
         // We drop the item here instead of doing it in the harvest method, as we should
         // drop computers for creative players too.
 
         BlockEntity tile = world.getBlockEntity( pos );
-        if( tile instanceof TileComputerBase )
+        if( tile instanceof TileComputerBase computer )
         {
-            TileComputerBase computer = (TileComputerBase) tile;
             LootContext.Builder context = new LootContext.Builder( serverWorld )
                 .withRandom( world.random )
                 .withParameter( LootContextParams.ORIGIN, Vec3.atCenterOf( pos ) )
@@ -176,10 +172,8 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
         super.setPlacedBy( world, pos, state, placer, stack );
 
         BlockEntity tile = world.getBlockEntity( pos );
-        if( !world.isClientSide && tile instanceof IComputerTile && stack.getItem() instanceof IComputerItem )
+        if( !world.isClientSide && tile instanceof IComputerTile computer && stack.getItem() instanceof IComputerItem item )
         {
-            IComputerTile computer = (IComputerTile) tile;
-            IComputerItem item = (IComputerItem) stack.getItem();
 
             int id = item.getComputerID( stack );
             if( id != -1 ) computer.setComputerID( id );

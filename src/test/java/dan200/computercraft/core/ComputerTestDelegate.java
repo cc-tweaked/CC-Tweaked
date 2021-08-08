@@ -340,9 +340,8 @@ public class ComputerTestDelegate
             DynamicNodeBuilder root = new DynamicNodeBuilder( "" );
             for( Object key : tests.keySet() )
             {
-                if( !(key instanceof String) ) throw new LuaException( "Non-key string " + getType( key ) );
+                if( !(key instanceof String name) ) throw new LuaException( "Non-key string " + getType( key ) );
 
-                String name = (String) key;
                 String[] parts = name.split( "\0" );
                 DynamicNodeBuilder builder = root;
                 for( int i = 0; i < parts.length - 1; i++ ) builder = builder.get( parts[i] );

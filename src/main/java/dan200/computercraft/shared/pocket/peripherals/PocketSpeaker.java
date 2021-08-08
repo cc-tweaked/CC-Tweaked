@@ -32,9 +32,7 @@ public class PocketSpeaker extends AbstractPocketUpgrade
     @Override
     public void update( @Nonnull IPocketAccess access, @Nullable IPeripheral peripheral )
     {
-        if( !(peripheral instanceof PocketSpeakerPeripheral) ) return;
-
-        PocketSpeakerPeripheral speaker = (PocketSpeakerPeripheral) peripheral;
+        if( !(peripheral instanceof PocketSpeakerPeripheral speaker) ) return;
 
         Entity entity = access.getEntity();
         if( entity != null )

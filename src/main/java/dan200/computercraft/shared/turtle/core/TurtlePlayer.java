@@ -74,9 +74,8 @@ public final class TurtlePlayer extends FakePlayer
 
     public static TurtlePlayer get( ITurtleAccess access )
     {
-        if( !(access instanceof TurtleBrain) ) return create( access );
+        if( !(access instanceof TurtleBrain brain) ) return create( access );
 
-        TurtleBrain brain = (TurtleBrain) access;
         TurtlePlayer player = brain.cachedPlayer;
         if( player == null || player.getGameProfile() != getProfile( access.getOwningPlayer() )
             || player.getCommandSenderWorld() != access.getLevel() )
