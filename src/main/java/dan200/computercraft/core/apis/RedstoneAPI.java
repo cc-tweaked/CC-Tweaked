@@ -72,6 +72,7 @@ public class RedstoneAPI implements ILuaAPI
      * "back".
      *
      * @return A table of valid sides.
+     * @cc.since 1.2
      */
     @LuaFunction
     public final String[] getSides()
@@ -122,6 +123,7 @@ public class RedstoneAPI implements ILuaAPI
      * @param side  The side to set.
      * @param value The signal strength between 0 and 15.
      * @throws LuaException If {@code value} is not betwene 0 and 15.
+     * @cc.since 1.51
      */
     @LuaFunction( { "setAnalogOutput", "setAnalogueOutput" } )
     public final void setAnalogOutput( ComputerSide side, int value ) throws LuaException
@@ -136,6 +138,7 @@ public class RedstoneAPI implements ILuaAPI
      * @param side The side to get.
      * @return The output signal strength, between 0 and 15.
      * @see #setAnalogOutput
+     * @cc.since 1.51
      */
     @LuaFunction( { "getAnalogOutput", "getAnalogueOutput" } )
     public final int getAnalogOutput( ComputerSide side )
@@ -148,6 +151,7 @@ public class RedstoneAPI implements ILuaAPI
      *
      * @param side The side to get.
      * @return The input signal strength, between 0 and 15.
+     * @cc.since 1.51
      */
     @LuaFunction( { "getAnalogInput", "getAnalogueInput" } )
     public final int getAnalogInput( ComputerSide side )
