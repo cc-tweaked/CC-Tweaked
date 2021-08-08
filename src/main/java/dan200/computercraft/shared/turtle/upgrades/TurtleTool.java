@@ -48,6 +48,9 @@ import java.util.function.Function;
 
 public class TurtleTool extends AbstractTurtleUpgrade
 {
+    private static final TransformationMatrix leftTransform = getMatrixFor( -0.40625f );
+    private static final TransformationMatrix rightTransform = getMatrixFor( 0.40625f );
+
     protected final ItemStack item;
 
     public TurtleTool( ResourceLocation id, String adjective, Item item )
@@ -91,14 +94,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
     @OnlyIn( Dist.CLIENT )
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
-        float xOffset = side == TurtleSide.LEFT ? -0.40625f : 0.40625f;
-        Matrix4f transform = new Matrix4f( new float[] {
-            0.0f, 0.0f, -1.0f, 1.0f + xOffset,
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, -1.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 0.0f, 1.0f,
-        } );
-        return TransformedModel.of( getCraftingItem(), new TransformationMatrix( transform ) );
+        return TransformedModel.of( getCraftingItem(), side == TurtleSide.LEFT ? leftTransform : rightTransform );
     }
 
     @Nonnull
@@ -292,5 +288,15 @@ public class TurtleTool extends AbstractTurtleUpgrade
     {
         Direction direction = tile.isRemoved() ? null : turtle.getDirection().getOpposite();
         DropConsumer.clearAndDrop( turtle.getWorld(), turtle.getPosition(), direction );
+    }
+
+    private static TransformationMatrix getMatrixFor( float offset )
+    {
+        return new TransformationMatrix( new Matrix4f( new float[] {
+            0.0f, 0.0f, -1.0f, 1.0f + offset,
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, -1.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 0.0f, 1.0f,
+        } ) );
     }
 }
