@@ -61,6 +61,7 @@ public class SoundManager
             setPosition( position );
             this.volume = volume;
             this.pitch = pitch;
+            attenuation = ISound.AttenuationType.LINEAR;
         }
 
         void setPosition( Vector3d position )

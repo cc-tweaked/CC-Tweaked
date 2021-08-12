@@ -176,7 +176,8 @@ public abstract class SpeakerPeripheral implements IPeripheral
         World world = getWorld();
         Vector3d pos = getPosition();
 
-        float range = MathHelper.clamp( volume, 1.0f, 3.0f ) * 16;
+        float actualVolume = MathHelper.clamp( volume, 0.0f, 3.0f );
+        float range = actualVolume * 16;
 
         context.issueMainThreadTask( () -> {
             MinecraftServer server = world.getServer();
@@ -186,13 +187,13 @@ public abstract class SpeakerPeripheral implements IPeripheral
             {
                 server.getPlayerList().broadcast(
                     null, pos.x, pos.y, pos.z, range, world.dimension(),
-                    new SPlaySoundPacket( name, SoundCategory.RECORDS, pos, range, pitch )
+                    new SPlaySoundPacket( name, SoundCategory.RECORDS, pos, actualVolume, pitch )
                 );
             }
             else
             {
                 NetworkHandler.sendToAllAround(
-                    new SpeakerPlayClientMessage( getSource(), pos, name, range, pitch ),
+                    new SpeakerPlayClientMessage( getSource(), pos, name, actualVolume, pitch ),
                     world, pos, range
                 );
             }
