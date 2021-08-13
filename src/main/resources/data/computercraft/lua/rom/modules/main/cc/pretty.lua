@@ -16,10 +16,12 @@ The structure of this module is based on [A Prettier Printer][prettier].
 
 @module cc.pretty
 @usage Print a table to the terminal
+
     local pretty = require "cc.pretty"
     pretty.print(pretty.pretty({ 1, 2, 3 }))
 
 @usage Build a custom document and display it
+
     local pretty = require "cc.pretty"
     pretty.print(pretty.group(pretty.text("hello") .. pretty.space_line .. pretty.text("world")))
 ]]
@@ -74,6 +76,7 @@ end
 -- colour.
 -- @treturn Doc The document with the provided text.
 -- @usage Write some blue text.
+--
 --     local pretty = require "cc.pretty"
 --     pretty.print(pretty.text("Hello!", colours.blue))
 local function text(text, colour)
@@ -455,6 +458,7 @@ end
 --    `function: xxxxxxxx` (`false` by default).
 -- @treturn Doc The object formatted as a document.
 -- @usage Display a table on the screen
+--
 --     local pretty = require "cc.pretty"
 --     pretty.print(pretty.pretty({ 1, 2, 3 }))
 local function pretty(obj, options)

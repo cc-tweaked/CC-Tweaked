@@ -28,11 +28,11 @@ import javax.annotation.Nullable;
  * @cc.module monitor
  * @cc.usage Write "Hello, world!" to an adjacent monitor:
  *
- * <pre>
+ * <pre>{@code
  * local monitor = peripheral.find("monitor")
  * monitor.setCursorPos(1, 1)
  * monitor.write("Hello, world!")
- * </pre>
+ * }</pre>
  */
 public class MonitorPeripheral extends TermMethods implements IPeripheral
 {

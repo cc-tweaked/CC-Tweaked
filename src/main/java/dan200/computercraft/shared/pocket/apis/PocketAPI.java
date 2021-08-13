@@ -25,13 +25,13 @@ import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
  * This API is only available on pocket computers. As such, you may use its presence to determine what kind of computer
  * you are using:
  *
- * <pre>
+ * <pre>{@code
  * if pocket then
  *   print("On a pocket computer")
  * else
  *   print("On something else")
  * end
- * </pre>
+ * }</pre>
  *
  * @cc.module pocket
  */

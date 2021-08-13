@@ -1,3 +1,11 @@
+/* Some misc styles */
+
+.big-image {
+    display: block;
+    margin: 0 auto;
+    max-height: 400px;
+}
+
 /* Pretty tables, mostly inherited from table.definition-list */
 table.pretty-table {
     border-collapse: collapse;
