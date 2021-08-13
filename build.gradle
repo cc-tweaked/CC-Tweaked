@@ -280,7 +280,9 @@ task illuaminateDocs(type: Exec, dependsOn: [minifyWeb, luaJavadoc]) {
 }
 
 task docWebsite(type: Copy, dependsOn: [illuaminateDocs]) {
-    from 'doc/logo.png'
+    from 'doc'
+    include 'logo.png'
+    include 'images/**'
     into "${project.docsDir}/lua"
 }
 
