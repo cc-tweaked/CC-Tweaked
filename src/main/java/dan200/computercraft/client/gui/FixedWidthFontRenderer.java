@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 
 public final class FixedWidthFontRenderer
 {
-    private static final RenderType TYPE = RenderTypes.BASIC_TERM;
+    private static final RenderType TYPE = RenderTypes.TERMINAL_WITH_DEPTH;
 
     public static final ResourceLocation FONT = new ResourceLocation( "computercraft", "textures/gui/term_font.png" );
 
@@ -247,15 +247,15 @@ public final class FixedWidthFontRenderer
     )
     {
         MultiBufferSource.BufferSource renderer = Minecraft.getInstance().renderBuffers().bufferSource();
-        VertexConsumer buffer = renderer.getBuffer( RenderTypes.BASIC_TERM );
+        VertexConsumer buffer = renderer.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH );
         drawTerminal( transform, buffer, x, y, terminal, greyscale, topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize );
-        renderer.endBatch( RenderTypes.BASIC_TERM );
+        renderer.endBatch( RenderTypes.TERMINAL_WITH_DEPTH );
     }
 
     public static void drawEmptyTerminal( @Nonnull Matrix4f transform, @Nonnull MultiBufferSource renderer, float x, float y, float width, float height )
     {
         Colour colour = Colour.BLACK;
-        drawQuad( transform, renderer.getBuffer( RenderTypes.BASIC_TERM ), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
+        drawQuad( transform, renderer.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH ), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
     }
 
     public static void drawEmptyTerminal( @Nonnull Matrix4f transform, float x, float y, float width, float height )
@@ -268,6 +268,6 @@ public final class FixedWidthFontRenderer
     public static void drawBlocker( @Nonnull Matrix4f transform, @Nonnull MultiBufferSource renderer, float x, float y, float width, float height )
     {
         Colour colour = Colour.BLACK;
-        drawQuad( transform, renderer.getBuffer( RenderTypes.MONITOR_BLOCKER ), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
+        drawQuad( transform, renderer.getBuffer( RenderTypes.TERMINAL_BLOCKER ), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
     }
 }

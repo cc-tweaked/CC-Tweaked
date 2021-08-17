@@ -5,24 +5,18 @@
  */
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.shared.media.items.ItemPrintout.LINES_PER_PAGE;
 
 public final class PrintoutRenderer
 {
-    private static final ResourceLocation BG = new ResourceLocation( "computercraft", "textures/gui/printout.png" );
     private static final float BG_SIZE = 256.0f;
 
     /**
@@ -62,7 +56,7 @@ public final class PrintoutRenderer
 
     public static void drawText( Matrix4f transform, MultiBufferSource renderer, int x, int y, int start, TextBuffer[] text, TextBuffer[] colours )
     {
-        VertexConsumer buffer = renderer.getBuffer( RenderTypes.BASIC_TERM );
+        VertexConsumer buffer = renderer.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH );
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; line++ )
         {
             FixedWidthFontRenderer.drawString( transform, buffer,
@@ -74,7 +68,7 @@ public final class PrintoutRenderer
 
     public static void drawText( Matrix4f transform, MultiBufferSource renderer, int x, int y, int start, String[] text, String[] colours )
     {
-        VertexConsumer buffer = renderer.getBuffer( RenderTypes.BASIC_TERM );
+        VertexConsumer buffer = renderer.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH );
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; line++ )
         {
             FixedWidthFontRenderer.drawString( transform, buffer,
@@ -90,7 +84,7 @@ public final class PrintoutRenderer
         int leftPages = page;
         int rightPages = pages - page - 1;
 
-        VertexConsumer buffer = renderer.getBuffer( Type.TYPE );
+        VertexConsumer buffer = renderer.getBuffer( RenderTypes.PRINTOUT_BACKGROUND );
 
         if( isBook )
         {
@@ -163,22 +157,5 @@ public final class PrintoutRenderer
     public static float offsetAt( int page )
     {
         return (float) (32 * (1 - Math.pow( 1.2, -page )));
-    }
-
-    private static final class Type extends RenderStateShard
-    {
-        static final RenderType TYPE = RenderType.create(
-            "printout_background", DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.QUADS, 1024,
-            false, false, // useDelegate, needsSorting
-            RenderType.CompositeState.builder()
-                .setTextureState( new RenderStateShard.TextureStateShard( BG, false, false ) ) // blur, minimap
-                .setLightmapState( NO_LIGHTMAP )
-                .createCompositeState( false )
-        );
-
-        private Type( String name, Runnable setup, Runnable destroy )
-        {
-            super( name, setup, destroy );
-        }
     }
 }

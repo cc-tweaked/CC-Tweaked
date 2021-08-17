@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import net.minecraft.Util;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
@@ -21,18 +22,27 @@ import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.util.function.Function;
 
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD )
 public class RenderTypes
 {
     private static MonitorTextureBufferShader monitorTboShader;
-    private static ShaderInstance monitorBasicShader;
+    private static ShaderInstance terminalShader;
 
-    public static final RenderType MONITOR_BASIC = Types.MONITOR_BASIC;
+    public static final RenderType TERMINAL_WITHOUT_DEPTH = Types.TERMINAL_WITHOUT_DEPTH;
+    public static final RenderType TERMINAL_BLOCKER = Types.TERMINAL_BLOCKER;
+    public static final RenderType TERMINAL_WITH_DEPTH = Types.TERMINAL_WITH_DEPTH;
     public static final RenderType MONITOR_TBO = Types.MONITOR_TBO;
-    public static final RenderType MONITOR_BLOCKER = Types.MONITOR_BLOCKER;
 
-    public static final RenderType BASIC_TERM = Types.BASIC_TERM;
+    public static final RenderType PRINTOUT_BACKGROUND = Types.PRINTOUT_BACKGROUND;
+
+    public static final RenderType POSITION_COLOR = Types.POSITION_COLOR;
+
+    public static RenderType positionColorTex( ResourceLocation location )
+    {
+        return Types.POSITION_COLOR_TEX.apply( location );
+    }
 
     @Nonnull
     static MonitorTextureBufferShader getMonitorTextureBufferShader()
@@ -42,10 +52,10 @@ public class RenderTypes
     }
 
     @Nonnull
-    static ShaderInstance getMonitorBasicShader()
+    static ShaderInstance getTerminalShader()
     {
-        if( monitorBasicShader == null ) throw new NullPointerException( "MonitorTboShader has not been registered" );
-        return monitorBasicShader;
+        if( terminalShader == null ) throw new NullPointerException( "MonitorTboShader has not been registered" );
+        return terminalShader;
     }
 
     @SubscribeEvent
@@ -61,12 +71,12 @@ public class RenderTypes
         );
 
         event.registerShader(
-            new MonitorTextureBufferShader(
+            new ShaderInstance(
                 event.getResourceManager(),
-                new ResourceLocation( ComputerCraft.MOD_ID, "monitor_basic" ),
-                MONITOR_BASIC.format()
+                new ResourceLocation( ComputerCraft.MOD_ID, "terminal" ),
+                TERMINAL_WITHOUT_DEPTH.format()
             ),
-            x -> monitorBasicShader = x
+            x -> terminalShader = x
         );
     }
 
@@ -89,33 +99,66 @@ public class RenderTypes
                 .createCompositeState( false )
         );
 
-        static final RenderType MONITOR_BASIC = RenderType.create(
+        static final RenderType TERMINAL_WITHOUT_DEPTH = RenderType.create(
             "monitor_basic", TERM_FORMAT, TERM_MODE, 1024,
             false, false, // useDelegate, needsSorting
             RenderType.CompositeState.builder()
                 .setTextureState( TERM_FONT_TEXTURE )
-                .setShaderState( new ShaderStateShard( RenderTypes::getMonitorBasicShader ) )
+                .setShaderState( new ShaderStateShard( RenderTypes::getTerminalShader ) )
                 .setWriteMaskState( COLOR_WRITE )
                 .createCompositeState( false )
         );
 
-        static final RenderType MONITOR_BLOCKER = RenderType.create(
+        static final RenderType TERMINAL_BLOCKER = RenderType.create(
             "monitor_blocker", TERM_FORMAT, TERM_MODE, 256,
             false, false, // useDelegate, needsSorting
             RenderType.CompositeState.builder()
                 .setTextureState( TERM_FONT_TEXTURE )
-                .setShaderState( new ShaderStateShard( RenderTypes::getMonitorBasicShader ) )
+                .setShaderState( new ShaderStateShard( RenderTypes::getTerminalShader ) )
                 .setWriteMaskState( DEPTH_WRITE )
                 .setLightmapState( NO_LIGHTMAP )
                 .createCompositeState( false )
         );
 
-        static final RenderType BASIC_TERM = RenderType.create(
+        static final RenderType TERMINAL_WITH_DEPTH = RenderType.create(
             "basic_terminal", TERM_FORMAT, TERM_MODE, 1024,
             false, false, // useDelegate, needsSorting
             RenderType.CompositeState.builder()
                 .setTextureState( TERM_FONT_TEXTURE )
-                .setShaderState( new RenderStateShard.ShaderStateShard( GameRenderer::getPositionColorTexShader ) )
+                .setShaderState( POSITION_COLOR_TEX_SHADER )
+                .createCompositeState( false )
+        );
+
+        static final RenderType POSITION_COLOR = RenderType.create(
+            "position_color", DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 128,
+            false, false, // useDelegate, needsSorting
+            RenderType.CompositeState.builder()
+                .setShaderState( POSITION_COLOR_SHADER )
+                .createCompositeState( false )
+        );
+
+        static final Function<ResourceLocation, RenderType> POSITION_COLOR_TEX = Util.memoize( location ->
+        {
+            return RenderType.create(
+                "position_color_tex", DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 1024,
+                false, false, // useDelegate, needsSorting
+                RenderType.CompositeState.builder()
+                    .setTextureState( new RenderStateShard.TextureStateShard( location, false, false ) )// blur, minimap
+                    .setShaderState( POSITION_COLOR_TEX_SHADER )
+                    .createCompositeState( false )
+            );
+        } );
+
+        static final RenderType PRINTOUT_BACKGROUND = RenderType.create(
+            "printout_background", DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.QUADS, 1024,
+            false, false, // useDelegate, needsSorting
+            RenderType.CompositeState.builder()
+                .setTextureState( new RenderStateShard.TextureStateShard(
+                    new ResourceLocation( "computercraft", "textures/gui/printout.png" ),
+                    false, false // blur, minimap
+                ) )
+                .setShaderState( new RenderStateShard.ShaderStateShard( GameRenderer::getPositionTexShader ) )
+                .setLightmapState( NO_LIGHTMAP )
                 .createCompositeState( false )
         );
 

@@ -7,7 +7,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.18'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.19'
     }
 }
 
@@ -69,50 +69,34 @@ minecraft {
             lazyToken('minecraft_classpath') {
                 configurations.shade.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
             }
+
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                computercraft {
+                    source sourceSets.main
+                }
+            }
         }
 
         client {
             workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                computercraft {
-                    source sourceSets.main
-                }
-            }
         }
 
         server {
             workingDirectory project.file("run/server")
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
             arg "--nogui"
-
-            mods {
-                computercraft {
-                    source sourceSets.main
-                }
-            }
         }
 
         data {
             workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-
             args '--mod', 'computercraft', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-            mods {
-                computercraft {
-                    source sourceSets.main
-                }
-            }
         }
 
         testServer {
             workingDirectory project.file('test-files/server')
             parent runs.server
-            arg "--nogui"
 
             mods {
                 cctest {

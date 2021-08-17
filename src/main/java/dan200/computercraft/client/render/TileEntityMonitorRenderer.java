@@ -114,19 +114,26 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
             Matrix4f matrix = transform.last().pose();
 
-            // Sneaky hack here: we get a buffer now in order to flush existing ones and set up the appropriate
-            // render state. I've no clue how well this'll work in future versions of Minecraft, but it does the trick
-            // for now.
             renderTerminal( renderer, matrix, originTerminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale) );
 
             // We don't draw the cursor with the VBO, as it's dynamic and so we'll end up refreshing far more than is
             // reasonable.
             FixedWidthFontRenderer.drawCursor(
-                matrix, renderer.getBuffer( RenderTypes.MONITOR_BASIC ),
+                matrix, renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ),
                 0, 0, terminal, !originTerminal.isColour()
             );
 
             transform.popPose();
+
+            FixedWidthFontRenderer.drawBlocker(
+                transform.last().pose(), renderer,
+                (float) -TileMonitor.RENDER_MARGIN, (float) TileMonitor.RENDER_MARGIN,
+                (float) (xSize + 2 * TileMonitor.RENDER_MARGIN), (float) -(ySize + TileMonitor.RENDER_MARGIN * 2)
+            );
+
+            // Force a flush of the blocker. WorldRenderer.updateCameraAndRender will "finish" all the built-in
+            // buffers before calling renderer.finish, which means the blocker isn't actually rendered at that point!
+            renderer.getBuffer( RenderType.solid() );
         }
         else
         {
@@ -136,16 +143,6 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
             );
         }
-
-        FixedWidthFontRenderer.drawBlocker(
-            transform.last().pose(), renderer,
-            (float) -TileMonitor.RENDER_MARGIN, (float) TileMonitor.RENDER_MARGIN,
-            (float) (xSize + 2 * TileMonitor.RENDER_MARGIN), (float) -(ySize + TileMonitor.RENDER_MARGIN * 2)
-        );
-
-        // Force a flush of the blocker. WorldRenderer.updateCameraAndRender will "finish" all the built-in
-        // buffers before calling renderer.finish, which means the blocker isn't actually rendered at that point!
-        renderer.getBuffer( RenderType.solid() );
 
         transform.popPose();
     }
@@ -209,7 +206,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
                 // And force things to flush. We strictly speaking do this later on anyway for the cursor, but nice to
                 // be consistent.
-                renderer.getBuffer( RenderTypes.MONITOR_BASIC );
+                renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
                 break;
             }
 
@@ -220,7 +217,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 {
                     Tesselator tessellator = Tesselator.getInstance();
                     BufferBuilder builder = tessellator.getBuilder();
-                    builder.begin( RenderTypes.MONITOR_BASIC.mode(), RenderTypes.MONITOR_BASIC.format() );
+                    builder.begin( RenderTypes.TERMINAL_WITHOUT_DEPTH.mode(), RenderTypes.TERMINAL_WITHOUT_DEPTH.format() );
                     FixedWidthFontRenderer.drawTerminalWithoutCursor(
                         IDENTITY, builder, 0, 0,
                         terminal, !monitor.isColour(), yMargin, yMargin, xMargin, xMargin
@@ -230,9 +227,9 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                     vbo.upload( builder );
                 }
 
-                renderer.getBuffer( RenderTypes.MONITOR_BASIC );
-                RenderTypes.MONITOR_BASIC.setupRenderState();
-                vbo.drawWithShader( matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getMonitorBasicShader() );
+                renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
+                RenderTypes.TERMINAL_WITHOUT_DEPTH.setupRenderState();
+                vbo.drawWithShader( matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader() );
                 break;
             }
         }
