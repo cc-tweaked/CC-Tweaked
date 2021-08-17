@@ -10,26 +10,31 @@ We then build each branch, push changes, and upload all versions.
 """
 
 import argparse
-import subprocess
-import shutil
-import sys
-import re
 import os
 import os.path
+import pathlib
+import regex
+import shutil
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
 from dataclasses import dataclass
-from typing import List, Tuple, Optional
+from textwrap import dedent
+from typing import List, Optional
 
 
 @dataclass
 class Branch:
     name: str
     parent: Optional[str] = None
+    java: str = "1.8"
 
 
 BRANCHES: List[Branch] = [
     Branch('mc-1.15.x'),
     Branch('mc-1.16.x', parent='mc-1.15.x'),
-    Branch('mc-1.17.x', parent='mc-1.16.x'),
+    Branch('mc-1.17.x', parent='mc-1.16.x', java="16"),
+    # Branch('mc-fabric-1.17.x', parent='mc-1.17.x', java="16"),
 ]
 
 
@@ -74,12 +79,65 @@ def setup() -> None:
             shutil.copy2(src, file)
 
     with open("settings.gradle", "w") as h:
-        h.write("rootProject.name = 'cc-tweaked'\n")
+        h.write(dedent("""\
+        pluginManagement {
+            repositories {
+                maven {
+                    name = 'Fabric'
+                    url = 'https://maven.fabricmc.net/'
+                }
+                gradlePluginPortal()
+            }
+        }
+
+        rootProject.name = 'cc-tweaked'
+        """))
         for branch in BRANCHES:
             h.write(f"include '{branch.name}'\n")
 
     with open("build.gradle", "w") as h:
         pass
+
+
+def gen_runs() -> None:
+    """
+    Generate .idea run files
+    """
+    # setup()
+    # subprocess.check_call(["./gradlew", "--no-daemon", "genRuns"])
+
+    re = regex.compile(r"(mc-.*)_run(.*)\.xml")
+    for path in pathlib.Path(".idea/runConfigurations").glob("*.xml"):
+        group = re.match(path.name)
+        if not group:
+            continue
+        version, name = group[1], group[2]
+
+        for branch in BRANCHES:
+            if branch.name == version:
+                break
+        else:
+            print("Cannot find Java for branch")
+            continue
+
+        component = 'testMod' if name == 'TestServer' else 'main'
+        xml = ET.parse(path)
+        module = xml.find("./configuration/module")
+        if module is None:
+            print("Unknown module for " + path.name)
+        else:
+            module.set("name", f"cc-tweaked.{version}.{component}")
+
+        version = xml.find("./configuration/option[@name='ALTERNATIVE_JRE_PATH']")
+        if version:
+            version.set("value", branch.java)
+        else:
+            root = xml.find("./configuration")
+            assert root
+            ET.SubElement(root, 'option', {'name': 'ALTERNATIVE_JRE_PATH', 'value': branch.java})
+            ET.SubElement(root, 'option', {'name': 'ALTERNATIVE_JRE_PATH_ENABLED', 'value': 'true'})
+
+        xml.write(path)
 
 
 def check_git() -> None:
@@ -169,6 +227,7 @@ def main() -> None:
         required=True,
     )
     subparsers.add_parser("setup", help="Setup the git repository and build environment.").set_defaults(func=setup)
+    subparsers.add_parser("gen-runs", help="Generate IntelliJ IDEA run configurations.").set_defaults(func=gen_runs)
     subparsers.add_parser("check-git", help="Check the git worktrees are in a state ready for merging.").set_defaults(func=check_git)
     subparsers.add_parser("build", help="Merge and build all branches.").set_defaults(func=build)
     subparsers.add_parser("release", help="Publish a release.").set_defaults(func=release)
