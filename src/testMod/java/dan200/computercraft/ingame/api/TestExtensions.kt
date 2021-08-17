@@ -8,6 +8,7 @@ import net.minecraft.entity.Entity
 import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
+import net.minecraft.world.World
 
 /**
  * Wait until a predicate matches (or the test times out).
@@ -24,13 +25,13 @@ suspend inline fun TestContext.waitUntil(fn: () -> Boolean) {
 /**
  * Wait until a computer has finished running and check it is OK.
  */
-suspend fun TestContext.checkComputerOk(id: Int) {
+suspend fun TestContext.checkComputerOk(id: Int, marker: String = ComputerState.DONE) {
     waitUntil {
         val computer = ComputerState.get(id)
-        computer != null && computer.isDone
+        computer != null && computer.isDone(marker)
     }
 
-    ComputerState.get(id).check()
+    ComputerState.get(id).check(marker)
 }
 
 /**
@@ -40,6 +41,9 @@ suspend fun TestContext.sleep(ticks: Int = 1) {
     val target = tracker.level.gameTime + ticks
     waitUntil { tracker.level.gameTime >= target }
 }
+
+val TestContext.level: World
+    get() = tracker.level
 
 fun TestContext.offset(pos: BlockPos): BlockPos = tracker.structureBlockPos.offset(pos.x, pos.y + 2, pos.z)
 

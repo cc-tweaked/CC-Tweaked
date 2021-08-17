@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.ingame.mod;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.IComputerSystem;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
@@ -14,12 +15,14 @@ import dan200.computercraft.ingame.api.TestContext;
 import dan200.computercraft.ingame.api.TestExtensionsKt;
 import kotlin.coroutines.Continuation;
 
+import java.util.Optional;
+
 /**
  * API exposed to computers to help write tests.
  *
  * Note, we extend this API within startup file of computers (see {@code cctest.lua}).
  *
- * @see TestExtensionsKt#checkComputerOk(TestContext, int, Continuation) To check tests on the computer have passed.
+ * @see TestExtensionsKt#checkComputerOk(TestContext, int, String, Continuation) To check tests on the computer have passed.
  */
 public class TestAPI extends ComputerState implements ILuaAPI
 {
@@ -33,7 +36,8 @@ public class TestAPI extends ComputerState implements ILuaAPI
     @Override
     public void startup()
     {
-        done = false;
+        ComputerCraft.log.info( "Computer #{} has turned on.", id );
+        markers.clear();
         error = null;
         lookup.put( id, this );
     }
@@ -41,6 +45,7 @@ public class TestAPI extends ComputerState implements ILuaAPI
     @Override
     public void shutdown()
     {
+        ComputerCraft.log.info( "Computer #{} has shut down.", id );
         if( lookup.get( id ) == this ) lookup.remove( id );
     }
 
@@ -53,16 +58,28 @@ public class TestAPI extends ComputerState implements ILuaAPI
     @LuaFunction
     public final void fail( String message ) throws LuaException
     {
-        if( done ) throw new LuaException( "Cannot call fail/ok multiple times." );
-        done = true;
+        ComputerCraft.log.error( "Computer #{} failed with {}", id, message );
+        if( markers.contains( ComputerState.DONE ) ) throw new LuaException( "Cannot call fail/ok multiple times." );
+        markers.add( ComputerState.DONE );
         error = message;
         throw new LuaException( message );
     }
 
     @LuaFunction
-    public final void ok() throws LuaException
+    public final void ok( Optional<String> marker ) throws LuaException
     {
-        if( done ) throw new LuaException( "Cannot call fail/ok multiple times." );
-        done = true;
+        String actualMarker = marker.orElse( ComputerState.DONE );
+        if( markers.contains( ComputerState.DONE ) || markers.contains( actualMarker ) )
+        {
+            throw new LuaException( "Cannot call fail/ok multiple times." );
+        }
+
+        markers.add( actualMarker );
+    }
+
+    @LuaFunction
+    public final void log( String message )
+    {
+        ComputerCraft.log.info( "[Computer #{}] {}", id, message );
     }
 }

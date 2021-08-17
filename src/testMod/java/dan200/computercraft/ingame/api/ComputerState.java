@@ -8,30 +8,35 @@ package dan200.computercraft.ingame.api;
 import dan200.computercraft.ingame.mod.TestAPI;
 import kotlin.coroutines.Continuation;
 
+import javax.annotation.Nonnull;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Assertion state of a computer.
  *
  * @see TestAPI For the Lua interface for this.
- * @see TestExtensionsKt#checkComputerOk(TestContext, int, Continuation)
+ * @see TestExtensionsKt#checkComputerOk(TestContext, int, String, Continuation)
  */
 public class ComputerState
 {
+    public static final String DONE = "DONE";
+
     protected static final Map<Integer, ComputerState> lookup = new ConcurrentHashMap<>();
 
-    protected boolean done;
+    protected final Set<String> markers = new HashSet<>();
     protected String error;
 
-    public boolean isDone()
+    public boolean isDone( @Nonnull String marker )
     {
-        return done;
+        return markers.contains( marker );
     }
 
-    public void check()
+    public void check( @Nonnull String marker )
     {
-        if( !done ) throw new IllegalStateException( "Not yet done" );
+        if( !markers.contains( marker ) ) throw new IllegalStateException( "Not yet at " + marker );
         if( error != null ) throw new AssertionError( error );
     }
 

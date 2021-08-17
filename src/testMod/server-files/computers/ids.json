@@ -1,3 +1,5 @@
 {
-  "computer": 14
+  "computer": 16,
+  "peripheral.monitor": 1,
+  "peripheral.printer": 1
 }
