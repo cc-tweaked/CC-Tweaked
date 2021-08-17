@@ -6,9 +6,10 @@
 package dan200.computercraft.ingame.mod;
 
 import com.mojang.brigadier.CommandDispatcher;
-import dan200.computercraft.utils.Copier;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.test.TestFunctionInfo;
+import net.minecraft.test.TestRegistry;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -30,7 +31,14 @@ class CCTestCommand
             } ) )
             .then( literal( "export" ).executes( context -> {
                 exportFiles( context.getSource().getServer() );
-                return 0;
+
+                int total = 0;
+                for( TestFunctionInfo function : TestRegistry.getAllTestFunctions() )
+                {
+                    total += dispatcher.execute( "test import " + function.getTestName(), context.getSource() );
+                    total += dispatcher.execute( "test export " + function.getTestName(), context.getSource() );
+                }
+                return total;
             } ) )
         );
     }

@@ -29,7 +29,7 @@ import java.util.Collection;
 @Mod( TestMod.MOD_ID )
 public class TestMod
 {
-    public static final Path sourceDir = Paths.get( "../../src/test/server-files/" ).toAbsolutePath();
+    public static final Path sourceDir = Paths.get( "../../src/testMod/server-files/" ).toAbsolutePath();
 
     public static final String MOD_ID = "cctest";
 

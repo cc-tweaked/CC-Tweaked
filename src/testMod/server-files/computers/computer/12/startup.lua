@@ -9,4 +9,3 @@ test.eq("computercraft:turtle_normal", new_details.name, "Still a turtle")
 test.neq(old_details.nbt, new_details.nbt, "Colour has changed")
 
 test.ok()
-

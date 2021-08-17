@@ -45,10 +45,17 @@ tasks.withType(JavaExec).configureEach {
     }
 }
 
+sourceSets {
+    main.resources {
+        srcDir 'src/generated/resources'
+    }
+
+    testMod {}
+}
+
 minecraft {
     runs {
-        client {
-            workingDirectory project.file('run')
+        all {
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
 
@@ -57,42 +64,29 @@ minecraft {
                     source sourceSets.main
                 }
             }
+        }
+
+        client {
+            workingDirectory project.file('run')
         }
 
         server {
             workingDirectory project.file("run/server")
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
             arg "--nogui"
-
-            mods {
-                computercraft {
-                    source sourceSets.main
-                }
-            }
         }
 
         data {
             workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-
             args '--mod', 'computercraft', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-            mods {
-                computercraft {
-                    source sourceSets.main
-                }
-            }
         }
 
         testServer {
             workingDirectory project.file('test-files/server')
             parent runs.server
-            arg "--nogui"
 
             mods {
                 cctest {
-                    source sourceSets.test
+                    source sourceSets.testMod
                 }
             }
         }
@@ -101,13 +95,7 @@ minecraft {
     mappings channel: 'parchment', version: "${mapping_version}-${mc_version}"
 
     accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
-    accessTransformer file('src/test/resources/META-INF/accesstransformer.cfg')
-}
-
-sourceSets {
-    main.resources {
-        srcDir 'src/generated/resources'
-    }
+    accessTransformer file('src/testMod/resources/META-INF/accesstransformer.cfg')
 }
 
 repositories {
@@ -122,6 +110,9 @@ configurations {
     shade
     implementation.extendsFrom shade
     cctJavadoc
+
+    testModImplementation.extendsFrom(implementation)
+    testModImplementation.extendsFrom(testImplementation)
 }
 
 dependencies {
@@ -145,10 +136,16 @@ dependencies {
     testImplementation 'org.jetbrains.kotlin:kotlin-reflect:1.3.72'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8'
 
+    testModImplementation sourceSets.main.output
+
     cctJavadoc 'cc.tweaked:cct-javadoc:1.4.1'
 }
 
 // Compile tasks
+
+compileTestModJava {
+    dependsOn(compileJava)
+}
 
 javadoc {
     include "dan200/computercraft/api/**/*.java"
@@ -185,7 +182,7 @@ jar {
     from configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
 }
 
-[compileJava, compileTestJava].forEach {
+[compileJava, compileTestJava, compileTestModJava].forEach {
     it.configure {
         options.compilerArgs << "-Xlint" << "-Xlint:-processing"
     }
@@ -320,7 +317,7 @@ license {
     }
 }
 
-[licenseTest, licenseFormatTest].forEach {
+[licenseTest, licenseFormatTest, licenseTestMod, licenseFormatTestMod].forEach {
     it.configure {
         include("**/*.java")
         header file('config/license/main.txt')
@@ -348,7 +345,7 @@ task setupServer(type: Copy) {
     group "test server"
     description "Sets up the environment for the test server."
 
-    from("src/test/server-files") {
+    from("src/testMod/server-files") {
         include "eula.txt"
         include "server.properties"
     }
@@ -358,7 +355,7 @@ task setupServer(type: Copy) {
 tasks.register('testInGame', JavaExec.class).configure {
     it.group('test server')
     it.description("Runs tests on a temporary Minecraft server.")
-    it.dependsOn(setupServer, 'prepareRunTestServer', 'cleanTestInGame')
+    it.dependsOn(setupServer, 'prepareRunTestServer', 'cleanTestInGame', 'compileTestModJava')
 
     // Copy from runTestServer. We do it in this slightly odd way as runTestServer
     // isn't created until the task is configured (which is no good for us).
