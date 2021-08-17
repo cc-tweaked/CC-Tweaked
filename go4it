@@ -103,8 +103,8 @@ def gen_runs() -> None:
     """
     Generate .idea run files
     """
-    # setup()
-    # subprocess.check_call(["./gradlew", "--no-daemon", "genRuns"])
+    setup()
+    subprocess.check_call(["./gradlew", "--no-daemon", "genIntellijRuns"])
 
     re = regex.compile(r"(mc-.*)_run(.*)\.xml")
     for path in pathlib.Path(".idea/runConfigurations").glob("*.xml"):
@@ -120,7 +120,7 @@ def gen_runs() -> None:
             print("Cannot find Java for branch")
             continue
 
-        component = 'testMod' if name == 'TestServer' else 'main'
+        component = 'testMod' if name.startswith('Test') else 'main'
         xml = ET.parse(path)
         module = xml.find("./configuration/module")
         if module is None:
