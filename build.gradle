@@ -1,13 +1,12 @@
 buildscript {
     repositories {
         mavenCentral()
-        maven {
-            name = "forge"
-            url = "https://maven.minecraftforge.net"
-        }
+        maven { url = "https://maven.minecraftforge.net" }
+        maven { url = 'https://maven.parchmentmc.org' }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:5.0.24'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.+'
+        classpath 'org.parchmentmc:librarian:1.+'
     }
 }
 
@@ -23,6 +22,7 @@ plugins {
 }
 
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
 version = mod_version
 
@@ -98,7 +98,7 @@ minecraft {
         }
     }
 
-    mappings channel: 'official', version: mc_version
+    mappings channel: 'parchment', version: "${mapping_version}-${mc_version}"
 
     accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
     accessTransformer file('src/test/resources/META-INF/accesstransformer.cfg')
@@ -120,7 +120,7 @@ repositories {
 
 configurations {
     shade
-    compile.extendsFrom shade
+    implementation.extendsFrom shade
     cctJavadoc
 }
 
