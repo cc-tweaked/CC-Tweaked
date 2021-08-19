@@ -90,7 +90,6 @@ public final class NetworkHandler
     }
 
     /**
-     * /**
      * Register packet, and a thread-unsafe handler for it.
      *
      * @param <T>       The type of the packet to send.
