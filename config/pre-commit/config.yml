@@ -50,6 +50,6 @@ exclude: |
   (?x)^(
     src/generated|
     src/test/resources/test-rom/data/json-parsing/|
-    src/cctest/server-files/|
+    src/testMod/server-files/|
     config/idea/
   )

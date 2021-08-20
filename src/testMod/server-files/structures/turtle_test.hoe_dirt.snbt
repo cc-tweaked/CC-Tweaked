@@ -1,0 +1,40 @@
+{
+    DataVersion: 2730,
+    size: [3, 3, 3],
+    data: [
+        {pos: [0, 0, 0], state: "minecraft:polished_andesite"},
+        {pos: [0, 0, 1], state: "minecraft:polished_andesite"},
+        {pos: [0, 0, 2], state: "minecraft:polished_andesite"},
+        {pos: [1, 0, 0], state: "minecraft:polished_andesite"},
+        {pos: [1, 0, 1], state: "minecraft:polished_andesite"},
+        {pos: [1, 0, 2], state: "minecraft:polished_andesite"},
+        {pos: [2, 0, 0], state: "minecraft:polished_andesite"},
+        {pos: [2, 0, 1], state: "minecraft:polished_andesite"},
+        {pos: [2, 0, 2], state: "minecraft:polished_andesite"},
+        {pos: [0, 1, 0], state: "minecraft:air"},
+        {pos: [0, 1, 1], state: "minecraft:air"},
+        {pos: [0, 1, 2], state: "minecraft:air"},
+        {pos: [1, 1, 0], state: "computercraft:turtle_normal{facing:south,waterlogged:false}", nbt: {ComputerId: 0, Fuel: 0, Items: [], Label: "turtle_test.hoe_dirt", LeftUpgrade: "minecraft:diamond_hoe", On: 1b, Owner: {LowerId: -6876936588741668278L, Name: "Dev", UpperId: 4039158846114182220L}, Slot: 0, id: "computercraft:turtle_normal"}},
+        {pos: [1, 1, 1], state: "minecraft:dirt"},
+        {pos: [1, 1, 2], state: "minecraft:air"},
+        {pos: [2, 1, 0], state: "minecraft:air"},
+        {pos: [2, 1, 1], state: "minecraft:air"},
+        {pos: [2, 1, 2], state: "minecraft:air"},
+        {pos: [0, 2, 0], state: "minecraft:air"},
+        {pos: [0, 2, 1], state: "minecraft:air"},
+        {pos: [0, 2, 2], state: "minecraft:air"},
+        {pos: [1, 2, 0], state: "minecraft:air"},
+        {pos: [1, 2, 1], state: "minecraft:air"},
+        {pos: [1, 2, 2], state: "minecraft:air"},
+        {pos: [2, 2, 0], state: "minecraft:air"},
+        {pos: [2, 2, 1], state: "minecraft:air"},
+        {pos: [2, 2, 2], state: "minecraft:air"}
+    ],
+    entities: [],
+    palette: [
+        "minecraft:polished_andesite",
+        "minecraft:dirt",
+        "computercraft:turtle_normal{facing:south,waterlogged:false}",
+        "minecraft:air"
+    ]
+}

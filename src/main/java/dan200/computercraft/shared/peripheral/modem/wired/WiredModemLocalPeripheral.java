@@ -34,7 +34,7 @@ public final class WiredModemLocalPeripheral
     private static final String NBT_PERIPHERAL_TYPE = "PeripheralType";
     private static final String NBT_PERIPHERAL_ID = "PeripheralId";
 
-    private int id;
+    private int id = -1;
     private String type;
 
     private IPeripheral peripheral;

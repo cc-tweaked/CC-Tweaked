@@ -290,6 +290,7 @@ end
 -- @treturn number The index of the created process.
 -- @see os.run
 -- @usage Run the "hello" program, and set its title to "Hello!"
+--
 --     local id = multishell.launch({}, "/rom/programs/fun/hello.lua")
 --     multishell.setTitle(id, "Hello!")
 function multishell.launch(tProgramEnv, sProgramPath, ...)

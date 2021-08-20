@@ -91,9 +91,9 @@ public class CommandAPI implements ILuaAPI
      * @cc.treturn number|nil The number of "affected" objects, or `nil` if the command failed. The definition of this
      * varies from command to command.
      * @cc.usage Set the block above the command computer to stone.
-     * <pre>
+     * <pre>{@code
      * commands.exec("setblock ~ ~1 ~ minecraft:stone")
-     * </pre>
+     * }</pre>
      */
     @LuaFunction( mainThread = true )
     public final Object[] exec( String command )
@@ -117,9 +117,9 @@ public class CommandAPI implements ILuaAPI
      * @return The "task id". When this command has been executed, it will queue a `task_complete` event with a matching id.
      * @throws LuaException (hidden) If the task cannot be created.
      * @cc.usage Asynchronously sets the block above the computer to stone.
-     * <pre>
+     * <pre>{@code
      * commands.execAsync("~ ~1 ~ minecraft:stone")
-     * </pre>
+     * }</pre>
      * @cc.see parallel One may also use the parallel API to run multiple commands at once.
      */
     @LuaFunction

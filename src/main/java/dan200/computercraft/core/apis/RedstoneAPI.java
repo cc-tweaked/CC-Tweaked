@@ -30,15 +30,15 @@ import dan200.computercraft.core.computer.ComputerSide;
  *
  * @cc.usage Toggle the redstone signal above the computer every 0.5 seconds.
  *
- * <pre>
+ * <pre>{@code
  * while true do
  *   redstone.setOutput("top", not redstone.getOutput("top"))
  *   sleep(0.5)
  * end
- * </pre>
+ * }</pre>
  * @cc.usage Mimic a redstone comparator in [subtraction mode][comparator].
  *
- * <pre>
+ * <pre>{@code
  * while true do
  *   local rear = rs.getAnalogueInput("back")
  *   local sides = math.max(rs.getAnalogueInput("left"), rs.getAnalogueInput("right"))
@@ -46,7 +46,7 @@ import dan200.computercraft.core.computer.ComputerSide;
  *
  *   os.pullEvent("redstone") -- Wait for a change to inputs.
  * end
- * </pre>
+ * }</pre>
  *
  * [comparator]: https://minecraft.gamepedia.com/Redstone_Comparator#Subtract_signal_strength "Redstone Comparator on
  * the Minecraft wiki."
@@ -205,9 +205,9 @@ public class RedstoneAPI implements ILuaAPI
      * @param mask The mask to test.
      * @return If the colours are on.
      * @cc.usage Check if @{colors.white} and @{colors.black} are on above the computer.
-     * <pre>
+     * <pre>{@code
      * print(redstone.testBundledInput("top", colors.combine(colors.white, colors.black)))
-     * </pre>
+     * }</pre>
      * @see #getBundledInput
      */
     @LuaFunction

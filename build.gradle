@@ -1,13 +1,12 @@
 buildscript {
     repositories {
         mavenCentral()
-        maven {
-            name = "forge"
-            url = "https://maven.minecraftforge.net"
-        }
+        maven { url = "https://maven.minecraftforge.net" }
+        maven { url = 'https://maven.parchmentmc.org' }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.19'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.+'
+        classpath 'org.parchmentmc:librarian:1.+'
     }
 }
 
@@ -23,6 +22,7 @@ plugins {
 }
 
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
 version = mod_version
 
@@ -53,14 +53,7 @@ sourceSets {
         srcDir 'src/generated/resources'
     }
 
-    // Rename to testMod
-    cctest {
-        java {
-            compileClasspath += main.output
-            compileClasspath += configurations.compileClasspath
-            runtimeClasspath += main.output
-        }
-    }
+    testMod {}
 }
 
 minecraft {
@@ -94,30 +87,46 @@ minecraft {
             args '--mod', 'computercraft', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
         }
 
+        testClient {
+            workingDirectory project.file('test-files/client')
+            parent runs.client
+
+            mods {
+                cctest {
+                    source sourceSets.testMod
+                }
+            }
+
+            lazyToken('minecraft_classpath') {
+                (configurations.shade.copyRecursive().resolve() + configurations.testModExtra.copyRecursive().resolve())
+                    .collect { it.absolutePath }
+                    .join(File.pathSeparator)
+            }
+        }
+
         testServer {
             workingDirectory project.file('test-files/server')
             parent runs.server
 
             mods {
                 cctest {
-                    source sourceSets.cctest
+                    source sourceSets.testMod
                 }
             }
 
             lazyToken('minecraft_classpath') {
-                (configurations.shade.copyRecursive().resolve() + configurations.cctest.copyRecursive().resolve())
+                (configurations.shade.copyRecursive().resolve() + configurations.testModExtra.copyRecursive().resolve())
                     .collect { it.absolutePath }
                     .join(File.pathSeparator)
             }
         }
     }
 
-    mappings channel: 'official', version: mc_version
+    mappings channel: 'parchment', version: "${mapping_version}-${mc_version}"
 
     accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
-    accessTransformer file('src/test/resources/META-INF/accesstransformer.cfg')
+    accessTransformer file('src/testMod/resources/META-INF/accesstransformer.cfg')
 }
-
 repositories {
     mavenCentral()
     maven {
@@ -130,10 +139,11 @@ configurations {
     shade
     implementation.extendsFrom shade
 
-    cctest
-    cctestImplementation.extendsFrom cctest
-
     cctJavadoc
+
+    testModExtra
+    testModImplementation.extendsFrom(testModExtra)
+    testModImplementation.extendsFrom(implementation)
 }
 
 dependencies {
@@ -156,18 +166,15 @@ dependencies {
     testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1'
 
-    cctest 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21'
+    testModImplementation sourceSets.main.output
+    testModExtra 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21'
 
     cctJavadoc 'cc.tweaked:cct-javadoc:1.4.1'
 }
 
 // Compile tasks
 
-java {
-    modularity.inferModulePath = true
-}
-
-compileCctestJava {
+compileTestModJava {
     dependsOn(compileJava)
 }
 
@@ -210,7 +217,7 @@ jar {
 
 jar.finalizedBy('reobfJar')
 
-[compileJava, compileTestJava].forEach {
+[compileJava, compileTestJava, compileTestModJava].forEach {
     it.configure {
         options.compilerArgs << "-Xlint" << "-Xlint:-processing"
     }
@@ -308,7 +315,9 @@ task illuaminateDocs(type: Exec, dependsOn: [minifyWeb, luaJavadoc]) {
 }
 
 task docWebsite(type: Copy, dependsOn: [illuaminateDocs]) {
-    from 'doc/logo.png'
+    from 'doc'
+    include 'logo.png'
+    include 'images/**'
     into "${project.docsDir}/lua"
 }
 
@@ -346,7 +355,7 @@ license {
     }
 }
 
-[licenseTest, licenseFormatTest, licenseCctest, licenseFormatCctest].forEach {
+[licenseTest, licenseFormatTest, licenseTestMod, licenseFormatTestMod].forEach {
     it.configure {
         include("**/*.java")
         header file('config/license/main.txt')
@@ -374,57 +383,60 @@ task setupServer(type: Copy) {
     group "test server"
     description "Sets up the environment for the test server."
 
-    from("src/cctest/server-files") {
+    from("src/testMod/server-files") {
         include "eula.txt"
         include "server.properties"
     }
     into "test-files/server"
 }
 
-tasks.register('testInGame', JavaExec.class).configure {
-    it.group('test server')
-    it.description("Runs tests on a temporary Minecraft server.")
-    it.dependsOn(setupServer, 'prepareRunTestServer', 'cleanTestInGame', 'compileCctestJava')
+["Client", "Server"].forEach {name ->
+    tasks.register("test$name", JavaExec.class).configure {
+        it.group('In-game tests')
+        it.description("Runs tests on a temporary Minecraft instance.")
+        it.dependsOn(setupServer, "prepareRunTest$name", "cleanTest$name", 'compileTestModJava')
 
-    // Copy from runTestServer. We do it in this slightly odd way as runTestServer
-    // isn't created until the task is configured (which is no good for us).
-    JavaExec exec = tasks.getByName('runTestServer')
-    exec.copyTo(it)
-    it.setClasspath(exec.getClasspath())
-    it.mainClass = exec.mainClass
-    it.setArgs(exec.getArgs())
+        // Copy from runTestServer. We do it in this slightly odd way as runTestServer
+        // isn't created until the task is configured (which is no good for us).
+        JavaExec exec = tasks.getByName("runTest$name")
+        exec.copyTo(it)
+        it.setClasspath(exec.getClasspath())
+        it.mainClass = exec.mainClass
+        it.setArgs(exec.getArgs())
 
-    it.systemProperty('forge.logging.console.level', 'info')
-    it.systemProperty('cctest.run', 'true')
+        it.systemProperty('forge.logging.console.level', 'info')
+        it.systemProperty('cctest.run', 'true')
 
-    // Jacoco and modlauncher don't play well together as the classes loaded in-game don't
-    // match up with those written to disk. We get Jacoco to dump all classes to disk, and
-    // use that when generating the report.
-    def coverageOut = new File(buildDir, 'jacocoClassDump/testInGame')
-    jacoco.applyTo(it)
-    it.jacoco.setIncludes(["dan200.computercraft.*"])
-    it.jacoco.setClassDumpDir(coverageOut)
-    it.outputs.dir(coverageOut)
-    // Older versions of modlauncher don't include a protection domain (and thus no code
-    // source). Jacoco skips such classes by default, so we need to explicitly include them.
-    it.jacoco.setIncludeNoLocationClasses(true)
-}
-
-tasks.register('jacocoTestInGameReport', JacocoReport.class).configure {
-    it.group('test server')
-    it.description('Generate coverage reports for in-game tests (testInGame)')
-    it.dependsOn('testInGame')
-
-    it.executionData(new File(buildDir, 'jacoco/testInGame.exec'))
-    it.sourceDirectories.from(sourceSets.main.allJava.srcDirs)
-    it.classDirectories.from(new File(buildDir, 'jacocoClassDump/testInGame'))
-
-    it.reports {
-        xml.enabled true
-        html.enabled true
+        // Jacoco and modlauncher don't play well together as the classes loaded in-game don't
+        // match up with those written to disk. We get Jacoco to dump all classes to disk, and
+        // use that when generating the report.
+        def coverageOut = new File(buildDir, "jacocoClassDump/test$name")
+        jacoco.applyTo(it)
+        it.jacoco.setIncludes(["dan200.computercraft.*"])
+        it.jacoco.setClassDumpDir(coverageOut)
+        it.outputs.dir(coverageOut)
+        // Older versions of modlauncher don't include a protection domain (and thus no code
+        // source). Jacoco skips such classes by default, so we need to explicitly include them.
+        it.jacoco.setIncludeNoLocationClasses(true)
     }
+
+    tasks.register("jacocoTest${name}Report", JacocoReport.class).configure {
+        it.group('In-game')
+        it.description("Generate coverage reports for test$name")
+        it.dependsOn("test$name")
+
+        it.executionData(new File(buildDir, "jacoco/test${name}.exec"))
+        it.sourceDirectories.from(sourceSets.main.allJava.srcDirs)
+        it.classDirectories.from(new File(buildDir, "jacocoClassDump/$name"))
+
+        it.reports {
+            xml.enabled true
+            html.enabled true
+        }
+    }
+
+    check.dependsOn("jacocoTest${name}Report")
 }
-check.dependsOn('jacocoTestInGameReport')
 
 
 // Upload tasks
@@ -477,10 +489,6 @@ curseforge {
         id = '282001'
         releaseType = isStable ? 'release' : 'alpha'
         changelog = "Release notes can be found on the GitHub repository (https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
-
-        relations {
-            incompatible "computercraft"
-        }
 
         addGameVersion "${mc_version}"
     }

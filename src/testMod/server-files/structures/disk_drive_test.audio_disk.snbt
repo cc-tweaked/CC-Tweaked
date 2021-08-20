@@ -1,0 +1,40 @@
+{
+    DataVersion: 2730,
+    size: [3, 3, 3],
+    data: [
+        {pos: [0, 0, 0], state: "minecraft:polished_andesite"},
+        {pos: [0, 0, 1], state: "minecraft:polished_andesite"},
+        {pos: [0, 0, 2], state: "minecraft:polished_andesite"},
+        {pos: [1, 0, 0], state: "minecraft:polished_andesite"},
+        {pos: [1, 0, 1], state: "minecraft:polished_andesite"},
+        {pos: [1, 0, 2], state: "minecraft:polished_andesite"},
+        {pos: [2, 0, 0], state: "minecraft:polished_andesite"},
+        {pos: [2, 0, 1], state: "minecraft:polished_andesite"},
+        {pos: [2, 0, 2], state: "minecraft:polished_andesite"},
+        {pos: [0, 1, 0], state: "minecraft:air"},
+        {pos: [0, 1, 1], state: "computercraft:disk_drive{facing:north,state:full}", nbt: {Item: {Count: 1b, id: "minecraft:music_disc_13"}, id: "computercraft:disk_drive"}},
+        {pos: [0, 1, 2], state: "minecraft:air"},
+        {pos: [1, 1, 0], state: "minecraft:air"},
+        {pos: [1, 1, 1], state: "computercraft:computer_advanced{facing:north,state:blinking}", nbt: {ComputerId: 0, Label: "disk_drive_test.audio_disk", On: 1b, id: "computercraft:computer_advanced"}},
+        {pos: [1, 1, 2], state: "minecraft:air"},
+        {pos: [2, 1, 0], state: "minecraft:air"},
+        {pos: [2, 1, 1], state: "minecraft:air"},
+        {pos: [2, 1, 2], state: "minecraft:air"},
+        {pos: [0, 2, 0], state: "minecraft:air"},
+        {pos: [0, 2, 1], state: "minecraft:air"},
+        {pos: [0, 2, 2], state: "minecraft:air"},
+        {pos: [1, 2, 0], state: "minecraft:air"},
+        {pos: [1, 2, 1], state: "minecraft:air"},
+        {pos: [1, 2, 2], state: "minecraft:air"},
+        {pos: [2, 2, 0], state: "minecraft:air"},
+        {pos: [2, 2, 1], state: "minecraft:air"},
+        {pos: [2, 2, 2], state: "minecraft:air"}
+    ],
+    entities: [],
+    palette: [
+        "minecraft:polished_andesite",
+        "minecraft:air",
+        "computercraft:disk_drive{facing:north,state:full}",
+        "computercraft:computer_advanced{facing:north,state:blinking}"
+    ]
+}

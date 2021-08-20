@@ -16,7 +16,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
 
 
 abstract class NullApiEnvironment : IAPIEnvironment {
@@ -52,7 +51,7 @@ class AsyncRunner : NullApiEnvironment() {
 
     override fun queueEvent(event: String?, vararg args: Any?) {
         ComputerCraft.log.debug("Queue event $event ${args.contentToString()}")
-        if (!eventStream.offer(arrayOf(event, *args))) {
+        if (eventStream.trySend(arrayOf(event, *args)).isFailure) {
             throw IllegalStateException("Queue is full")
         }
     }
@@ -107,7 +106,7 @@ class AsyncRunner : NullApiEnvironment() {
         private val empty: Array<Any?> = arrayOf()
 
         @OptIn(ExperimentalTime::class)
-        fun runTest(timeout: Duration = 5.seconds, fn: suspend AsyncRunner.() -> Unit) {
+        fun runTest(timeout: Duration = Duration.seconds(5), fn: suspend AsyncRunner.() -> Unit) {
             runBlocking {
                 val runner = AsyncRunner()
                 try {
