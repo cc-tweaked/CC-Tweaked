@@ -53,7 +53,7 @@ public class TileCable extends TileGeneric
         @Override
         public Level getLevel()
         {
-            return this.getLevel();
+            return TileCable.this.getLevel();
         }
 
         @Nonnull
@@ -166,9 +166,9 @@ public class TileCable extends TileGeneric
     }
 
     @Override
-    public void onLoad()
+    public void clearRemoved()
     {
-        super.onLoad();
+        super.clearRemoved(); // TODO: Replace with onLoad
         TickScheduler.schedule( this );
     }
 

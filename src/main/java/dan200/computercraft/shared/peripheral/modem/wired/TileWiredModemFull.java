@@ -251,9 +251,9 @@ public class TileWiredModemFull extends TileGeneric
     }
 
     @Override
-    public void onLoad()
+    public void clearRemoved()
     {
-        super.onLoad();
+        super.clearRemoved(); // TODO: Replace with onLoad
         TickScheduler.schedule( this );
     }
 
