@@ -363,7 +363,7 @@ task setupServer(type: Copy) {
     into "test-files/server"
 }
 
-["Client", "Server"].forEach {name ->
+["Client", "Server"].forEach { name ->
     tasks.register("test$name", JavaExec.class).configure {
         it.group('In-game tests')
         it.description("Runs tests on a temporary Minecraft instance.")
@@ -400,7 +400,7 @@ task setupServer(type: Copy) {
 
         it.executionData(new File(buildDir, "jacoco/test${name}.exec"))
         it.sourceDirectories.from(sourceSets.main.allJava.srcDirs)
-        it.classDirectories.from(new File(buildDir, "jacocoClassDump/$name"))
+        it.classDirectories.from(new File(buildDir, "jacocoClassDump/test$name"))
 
         it.reports {
             xml.enabled true
