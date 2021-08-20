@@ -37,7 +37,7 @@ public class ComputerState
     public void check( @Nonnull String marker )
     {
         if( !markers.contains( marker ) ) throw new IllegalStateException( "Not yet at " + marker );
-        if( error != null ) throw new AssertionError( error );
+        if( error != null ) throw new RuntimeException( error );
     }
 
     public static ComputerState get( int id )

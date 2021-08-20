@@ -1,6 +1,7 @@
 package dan200.computercraft.ingame
 
 import dan200.computercraft.ingame.api.*
+import dan200.computercraft.shared.Capabilities
 import dan200.computercraft.shared.Registry
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor
 import net.minecraft.block.Blocks
@@ -39,5 +40,26 @@ class Monitor_Test {
                     context.fail("Tile has width and height of ${tile.width}x${tile.height}, but should be 1x1", pos)
                 }
             }
+    }
+
+    @GameTest(batch = "client:Monitor_Test.Looks_acceptable", timeoutTicks = 400)
+    fun Looks_acceptable(helper: GameTestHelper) = helper.sequence {
+        this
+            .thenExecute { helper.normaliseScene() }
+            .thenExecute {
+                helper.positionAtArmorStand()
+
+                // Get the monitor and peripheral. This forces us to create a server monitor at this location.
+                val monitor = helper.getBlockEntity(BlockPos(2, 2, 2)) as TileMonitor
+                monitor.getCapability(Capabilities.CAPABILITY_PERIPHERAL)
+
+                val terminal = monitor.cachedServerMonitor.terminal
+                terminal.write("Hello, world!")
+                terminal.setCursorPos(1, 2)
+                terminal.textColour = 2
+                terminal.backgroundColour = 3
+                terminal.write("Some coloured text")
+            }
+            .thenScreenshot()
     }
 }
