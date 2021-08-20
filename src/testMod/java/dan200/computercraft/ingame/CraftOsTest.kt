@@ -1,13 +1,14 @@
 package dan200.computercraft.ingame
 
 import dan200.computercraft.ingame.api.GameTest
-import dan200.computercraft.ingame.api.TestContext
-import dan200.computercraft.ingame.api.checkComputerOk
+import dan200.computercraft.ingame.api.GameTestHelper
+import dan200.computercraft.ingame.api.sequence
+import dan200.computercraft.ingame.api.thenComputerOk
 
-class CraftOsTest {
+class CraftOs_Test {
     /**
      * Sends a rednet message to another a computer and back again.
      */
     @GameTest
-    suspend fun `Sends basic rednet messages`(context: TestContext) = context.checkComputerOk(13)
+    fun Sends_basic_rednet_messages(context: GameTestHelper) = context.sequence { thenComputerOk(13) }
 }

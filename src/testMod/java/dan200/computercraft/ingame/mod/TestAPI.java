@@ -11,9 +11,8 @@ import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.ingame.api.ComputerState;
-import dan200.computercraft.ingame.api.TestContext;
 import dan200.computercraft.ingame.api.TestExtensionsKt;
-import kotlin.coroutines.Continuation;
+import net.minecraft.test.TestList;
 
 import java.util.Optional;
 
@@ -22,7 +21,7 @@ import java.util.Optional;
  *
  * Note, we extend this API within startup file of computers (see {@code cctest.lua}).
  *
- * @see TestExtensionsKt#checkComputerOk(TestContext, int, String, Continuation) To check tests on the computer have passed.
+ * @see TestExtensionsKt#thenComputerOk(TestList, int, String)  To check tests on the computer have passed.
  */
 public class TestAPI extends ComputerState implements ILuaAPI
 {

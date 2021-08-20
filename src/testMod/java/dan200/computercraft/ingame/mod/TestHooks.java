@@ -1,3 +1,8 @@
+/*
+ * This file is part of ComputerCraft - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Send enquiries to dratcliffe@gmail.com
+ */
 package dan200.computercraft.ingame.mod;
 
 import net.minecraft.client.Minecraft;
@@ -26,15 +31,16 @@ import java.util.stream.Collectors;
 @Mod.EventBusSubscriber( modid = TestMod.MOD_ID )
 public class TestHooks
 {
-    private static final Logger log = LogManager.getLogger( TestHooks.class );
+    private static final Logger LOG = LogManager.getLogger( TestHooks.class );
 
     private static TestResultList runningTests = null;
+    private static boolean shutdown = false;
     private static int countdown = 20;
 
     @SubscribeEvent
     public static void onRegisterCommands( RegisterCommandsEvent event )
     {
-        log.info( "Starting server, registering command helpers." );
+        LOG.info( "Starting server, registering command helpers." );
         TestCommand.register( event.getDispatcher() );
         CCTestCommand.register( event.getDispatcher() );
     }
@@ -51,11 +57,11 @@ public class TestHooks
         ServerWorld world = event.getServer().getLevel( World.OVERWORLD );
         if( world != null ) world.setDayTime( 6000 );
 
-        log.info( "Cleaning up after last run" );
+        LOG.info( "Cleaning up after last run" );
         CommandSource source = server.createCommandSourceStack();
         TestUtils.clearAllTests( source.getLevel(), getStart( source ), TestCollection.singleton, 200 );
 
-        log.info( "Importing files" );
+        LOG.info( "Importing files" );
         CCTestCommand.importFiles( server );
     }
 
@@ -69,7 +75,6 @@ public class TestHooks
         if( countdown == 0 && System.getProperty( "cctest.run", "false" ).equals( "true" ) ) startTests();
 
         TestCollection.singleton.tick();
-        MainThread.INSTANCE.tick();
 
         if( runningTests != null && runningTests.isDone() ) finishTests();
     }
@@ -83,7 +88,7 @@ public class TestHooks
             .filter( x -> FMLLoader.getDist().isClient() | !x.batchName.startsWith( "client" ) )
             .collect( Collectors.toList() );
 
-        log.info( "Running {} tests...", tests.size() );
+        LOG.info( "Running {} tests...", tests.size() );
 
         Collection<TestBatch> batches = TestUtils.groupTestsIntoBatches( tests );
         return new TestResultList( TestUtils.runTestBatches(
@@ -98,25 +103,22 @@ public class TestHooks
 
     private static void finishTests()
     {
-        log.info( "Finished tests - {} were run", runningTests.getTotalCount() );
+        if( shutdown ) return;
+        shutdown = true;
+
+        LOG.info( "Finished tests - {} were run", runningTests.getTotalCount() );
         if( runningTests.hasFailedRequired() )
         {
-            log.error( "{} required tests failed", runningTests.getFailedRequiredCount() );
+            LOG.error( "{} required tests failed", runningTests.getFailedRequiredCount() );
         }
         if( runningTests.hasFailedOptional() )
         {
-            log.warn( "{} optional tests failed", runningTests.getFailedOptionalCount() );
+            LOG.warn( "{} optional tests failed", runningTests.getFailedOptionalCount() );
         }
 
-        if( ServerLifecycleHooks.getCurrentServer().isDedicatedServer() )
+        if( FMLLoader.getDist().isDedicatedServer() )
         {
-            log.info( "Stopping server." );
-
-            // We can't exit in the main thread, as Minecraft registers a shutdown hook which results
-            // in a deadlock. So we do this weird janky thing!
-            Thread thread = new Thread( () -> System.exit( runningTests.hasFailedRequired() ? 1 : 0 ) );
-            thread.setDaemon( true );
-            thread.start();
+            shutdownServer();
         }
         else
         {
@@ -130,10 +132,31 @@ public class TestHooks
         return new BlockPos( pos.getX(), source.getLevel().getHeightmapPos( Heightmap.Type.WORLD_SURFACE, pos ).getY(), pos.getZ() + 3 );
     }
 
+    public static void shutdownCommon()
+    {
+        System.exit( runningTests.hasFailedRequired() ? 1 : 0 );
+    }
+
+    private static void shutdownServer()
+    {
+        // We can't exit normally as Minecraft registers a shutdown hook which results in a deadlock.
+        LOG.info( "Stopping server." );
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        new Thread( () -> {
+            server.halt( true );
+            shutdownCommon();
+        }, "Background shutdown" ).start();
+    }
+
     private static void shutdownClient()
     {
-        Minecraft.getInstance().clearLevel();
-        Minecraft.getInstance().stop();
-        if( runningTests.hasFailedOptional() ) System.exit( 1 );
+        Minecraft minecraft = Minecraft.getInstance();
+        minecraft.execute( () -> {
+            LOG.info( "Stopping client." );
+            minecraft.level.disconnect();
+            minecraft.clearLevel();
+            minecraft.stop();
+            shutdownCommon();
+        } );
     }
 }

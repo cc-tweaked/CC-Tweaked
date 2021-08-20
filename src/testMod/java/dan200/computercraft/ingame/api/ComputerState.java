@@ -6,7 +6,7 @@
 package dan200.computercraft.ingame.api;
 
 import dan200.computercraft.ingame.mod.TestAPI;
-import kotlin.coroutines.Continuation;
+import net.minecraft.test.TestList;
 
 import javax.annotation.Nonnull;
 import java.util.HashSet;
@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Assertion state of a computer.
  *
  * @see TestAPI For the Lua interface for this.
- * @see TestExtensionsKt#checkComputerOk(TestContext, int, String, Continuation)
+ * @see TestExtensionsKt#thenComputerOk(TestList, int, String)
  */
 public class ComputerState
 {

@@ -6,6 +6,7 @@
 package dan200.computercraft.ingame.mod;
 
 import com.mojang.brigadier.CommandDispatcher;
+import dan200.computercraft.ComputerCraft;
 import net.minecraft.command.CommandSource;
 import net.minecraft.data.NBTToSNBTConverter;
 import net.minecraft.server.MinecraftServer;
@@ -13,6 +14,7 @@ import net.minecraft.test.*;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.storage.FolderName;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -63,7 +65,7 @@ class CCTestCommand
     {
         try
         {
-            Copier.replicate( TestMod.sourceDir.resolve( "computers" ), server.getServerDirectory().toPath().resolve( "world/computercraft" ) );
+            Copier.replicate( TestMod.sourceDir.resolve( "computers" ), server.getWorldPath( new FolderName( ComputerCraft.MOD_ID ) ) );
         }
         catch( IOException e )
         {
@@ -75,7 +77,7 @@ class CCTestCommand
     {
         try
         {
-            Copier.replicate( server.getServerDirectory().toPath().resolve( "world/computercraft" ), TestMod.sourceDir.resolve( "computers" ) );
+            Copier.replicate( server.getWorldPath( new FolderName( ComputerCraft.MOD_ID ) ), TestMod.sourceDir.resolve( "computers" ) );
         }
         catch( IOException e )
         {

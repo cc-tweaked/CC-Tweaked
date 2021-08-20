@@ -5,20 +5,21 @@ import dan200.computercraft.shared.Registry
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable
 import net.minecraft.util.math.BlockPos
 
-class ModemTest {
+class Modem_Test {
     @GameTest
-    suspend fun `Have peripherals`(context: TestContext) = context.checkComputerOk(15)
+    fun Have_peripherals(helper: GameTestHelper) = helper.sequence { thenComputerOk(15) }
 
     @GameTest
-    suspend fun `Gains peripherals`(context: TestContext) {
-        val position = BlockPos(2, 0, 2)
-        context.checkComputerOk(16, "initial")
-
-        context.setBlock(position, BlockCable.correctConnections(
-            context.level, context.offset(position),
-            Registry.ModBlocks.CABLE.get().defaultBlockState().setValue(BlockCable.CABLE, true)
-        ))
-
-        context.checkComputerOk(16)
+    fun Gains_peripherals(helper: GameTestHelper) = helper.sequence {
+        val position = BlockPos(2, 2, 2)
+        this
+            .thenComputerOk(16, "initial")
+            .thenExecute {
+                helper.setBlock(position, BlockCable.correctConnections(
+                    helper.level, helper.absolutePos(position),
+                    Registry.ModBlocks.CABLE.get().defaultBlockState().setValue(BlockCable.CABLE, true)
+                ))
+            }
+            .thenComputerOk(16)
     }
 }
