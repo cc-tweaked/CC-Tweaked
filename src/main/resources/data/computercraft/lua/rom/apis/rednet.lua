@@ -28,6 +28,15 @@ local tReceivedMessages = {}
 local tReceivedMessageTimeouts = {}
 local tHostnames = {}
 
+--[[ Patch the bug whenever a computer with an ID grater than 65535 crashes Rednet upon opening.
+-- It modulos the ID to always have an ID lower or equal to 65532
+-- This makes it compatible with the Modem API
+-- Reason to choose 65532 to modulo is because 65533, 65534 an nd 65535 are used respectivel
+]]
+local function idAsChannel(id)
+    return (id or os.getComputerID()) % 65532
+end
+
 --[[- Opens a modem with the given @{peripheral} name, allowing it to send and
 receive messages over rednet.
 
@@ -46,7 +55,7 @@ function open(modem)
     if peripheral.getType(modem) ~= "modem" then
         error("No such modem: " .. modem, 2)
     end
-    peripheral.call(modem, "open", os.getComputerID())
+    peripheral.call(modem, "open", idAsChannel())
     peripheral.call(modem, "open", CHANNEL_BROADCAST)
 end
 
@@ -63,7 +72,7 @@ function close(modem)
         if peripheral.getType(modem) ~= "modem" then
             error("No such modem: " .. modem, 2)
         end
-        peripheral.call(modem, "close", os.getComputerID())
+        peripheral.call(modem, "close", idAsChannel())
         peripheral.call(modem, "close", CHANNEL_BROADCAST)
     else
         -- Close all modems
@@ -85,7 +94,7 @@ function isOpen(modem)
     if modem then
         -- Check if a specific modem is open
         if peripheral.getType(modem) == "modem" then
-            return peripheral.call(modem, "isOpen", os.getComputerID()) and peripheral.call(modem, "isOpen", CHANNEL_BROADCAST)
+            return peripheral.call(modem, "isOpen", idAsChannel()) and peripheral.call(modem, "isOpen", CHANNEL_BROADCAST)
         end
     else
         -- Check if any modem is open
@@ -130,18 +139,20 @@ function send(nRecipient, message, sProtocol)
     tReceivedMessageTimeouts[os.startTimer(30)] = nMessageID
 
     -- Create the message
-    local nReplyChannel = os.getComputerID()
+    local nReplyChannel = idAsChannel()
     local tMessage = {
         nMessageID = nMessageID,
         nRecipient = nRecipient,
+        nSender = os.getComputerID(),
         message = message,
         sProtocol = sProtocol,
     }
 
     local sent = false
-    if nRecipient == os.getComputerID() then
+    nRecipient = idAsChannel(nRecipient)
+    if nRecipient == idAsChannel() then
         -- Loopback to ourselves
-        os.queueEvent("rednet_message", nReplyChannel, message, sProtocol)
+        os.queueEvent("rednet_message", os.getComputerID(), message, sProtocol)
         sent = true
     else
         -- Send on all open modems, to the target and to repeaters
@@ -381,13 +392,13 @@ function run()
         if sEvent == "modem_message" then
             -- Got a modem message, process it and add it to the rednet event queue
             local sModem, nChannel, nReplyChannel, tMessage = p1, p2, p3, p4
-            if isOpen(sModem) and (nChannel == os.getComputerID() or nChannel == CHANNEL_BROADCAST) then
+            if isOpen(sModem) and (nChannel == idAsChannel() or nChannel == CHANNEL_BROADCAST) then
                 if type(tMessage) == "table" and type(tMessage.nMessageID) == "number"
                     and tMessage.nMessageID == tMessage.nMessageID and not tReceivedMessages[tMessage.nMessageID]
                 then
                     tReceivedMessages[tMessage.nMessageID] = true
                     tReceivedMessageTimeouts[os.startTimer(30)] = tMessage.nMessageID
-                    os.queueEvent("rednet_message", nReplyChannel, tMessage.message, tMessage.sProtocol)
+                    os.queueEvent("rednet_message", tMessage.nSender or nReplyChannel, tMessage.message, tMessage.sProtocol)
                 end
             end
 
@@ -398,6 +409,7 @@ function run()
                 local sHostname = tHostnames[tMessage.sProtocol]
                 if sHostname ~= nil and (tMessage.sHostname == nil or tMessage.sHostname == sHostname) then
                     rednet.send(nSenderID, {
+                        nSender = os.getComputerID(),
                         sType = "lookup response",
                         sHostname = sHostname,
                         sProtocol = tMessage.sProtocol,
