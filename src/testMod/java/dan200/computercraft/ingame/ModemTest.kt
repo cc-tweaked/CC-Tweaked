@@ -22,4 +22,10 @@ class Modem_Test {
             }
             .thenComputerOk()
     }
+
+    /**
+     * Sends a modem message to another computer on the same network
+     */
+    @GameTest
+    fun Transmits_messages(context: GameTestHelper) = context.sequence { thenComputerOk("receive") }
 }
