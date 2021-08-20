@@ -11,13 +11,13 @@ class Disk_Drive_Test {
      * @see [#688](https://github.com/SquidDev-CC/CC-Tweaked/issues/688)
      */
     @GameTest
-    fun Audio_disk(helper: GameTestHelper) = helper.sequence { thenComputerOk(3) }
+    fun Audio_disk(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
 
     @GameTest
     fun Ejects_disk(helper: GameTestHelper) = helper.sequence {
         val stackAt = BlockPos(2, 2, 2)
         this
-            .thenComputerOk(4)
+            .thenComputerOk()
             .thenWaitUntil { helper.assertItemEntityPresent(Items.MUSIC_DISC_13, stackAt, 0.0) }
     }
 }

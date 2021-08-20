@@ -10,5 +10,5 @@ class CraftOs_Test {
      * Sends a rednet message to another a computer and back again.
      */
     @GameTest
-    fun Sends_basic_rednet_messages(context: GameTestHelper) = context.sequence { thenComputerOk(13) }
+    fun Sends_basic_rednet_messages(context: GameTestHelper) = context.sequence { thenComputerOk("main") }
 }

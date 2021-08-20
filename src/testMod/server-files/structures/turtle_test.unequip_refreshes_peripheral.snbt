@@ -118,14 +118,14 @@
                 },
                 RightUpgrade: "computercraft:wireless_modem_normal",
                 Fuel: 0,
-                Label: "Unequip refreshes peripheral",
+                Label: "turtle_test.unequip_refreshes_peripheral",
                 Slot: 0,
                 Items: [],
                 id: "computercraft:turtle_normal",
                 RightUpgradeNbt: {
                     active: 0b
                 },
-                ComputerId: 1,
+                ComputerId: 0,
                 On: 1b
             },
             pos: [2, 1, 2],

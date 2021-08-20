@@ -46,7 +46,7 @@
                     Name: "Dev"
                 },
                 Fuel: 0,
-                Label: "Clean turtle",
+                Label: "turtle_test.cleaned_with_cauldrons",
                 Slot: 0,
                 Items: [
                     {
@@ -58,12 +58,12 @@
                                 Name: '{"text":"Clean turtle"}'
                             },
                             Color: 13388876,
-                            ComputerId: 12
+                            ComputerId: 0
                         }
                     }
                 ],
                 id: "computercraft:turtle_normal",
-                ComputerId: 12,
+                ComputerId: 0,
                 On: 1b
             },
             pos: [1, 1, 0],

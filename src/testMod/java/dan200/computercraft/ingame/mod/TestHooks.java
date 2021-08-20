@@ -10,6 +10,7 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.test.*;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.SharedConstants;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
@@ -74,7 +75,7 @@ public class TestHooks
         countdown--;
         if( countdown == 0 && System.getProperty( "cctest.run", "false" ).equals( "true" ) ) startTests();
 
-        TestCollection.singleton.tick();
+        if( !SharedConstants.IS_RUNNING_IN_IDE ) TestCollection.singleton.tick();
 
         if( runningTests != null && runningTests.isDone() ) finishTests();
     }

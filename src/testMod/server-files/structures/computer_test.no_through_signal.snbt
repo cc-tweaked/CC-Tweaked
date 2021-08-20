@@ -109,7 +109,8 @@
         {
             nbt: {
                 id: "computercraft:computer_advanced",
-                ComputerId: 2,
+                Label: "computer_test.no_through_signal",
+                ComputerId: 0,
                 On: 1b
             },
             pos: [2, 1, 2],

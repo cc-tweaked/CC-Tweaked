@@ -104,9 +104,9 @@
         },
         {
             nbt: {
-                Label: "Echo",
+                Label: "craftos_test.sends_basic_rednet_messages.echo",
                 id: "computercraft:computer_advanced",
-                ComputerId: 14,
+                ComputerId: 0,
                 On: 1b
             },
             pos: [1, 1, 2],
@@ -114,9 +114,9 @@
         },
         {
             nbt: {
-                Label: "Main",
+                Label: "craftos_test.sends_basic_rednet_messages.main",
                 id: "computercraft:computer_advanced",
-                ComputerId: 13,
+                ComputerId: 0,
                 On: 1b
             },
             pos: [3, 1, 2],

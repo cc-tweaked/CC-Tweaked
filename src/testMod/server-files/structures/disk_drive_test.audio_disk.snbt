@@ -52,7 +52,8 @@
         {
             nbt: {
                 id: "computercraft:computer_advanced",
-                ComputerId: 3,
+                Label: "disk_drive_test.audio_disk",
+                ComputerId: 0,
                 On: 1b
             },
             pos: [1, 1, 1],

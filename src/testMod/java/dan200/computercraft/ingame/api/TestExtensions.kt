@@ -21,13 +21,15 @@ import javax.imageio.ImageIO
 /**
  * Wait until a computer has finished running and check it is OK.
  */
-fun GameTestSequence.thenComputerOk(id: Int, marker: String = ComputerState.DONE): GameTestSequence =
-    thenWaitUntil {
-        val computer = ComputerState.get(id)
-        if (computer == null || !computer.isDone(marker)) throw GameTestAssertException("Computer #${id} has not finished yet.")
+fun GameTestSequence.thenComputerOk(name: String? = null, marker: String = ComputerState.DONE): GameTestSequence {
+    val label = parent.testName + (if (name == null) "" else ".$name")
+    return this.thenWaitUntil {
+        val computer = ComputerState.get(label)
+        if (computer == null || !computer.isDone(marker)) throw GameTestAssertException("Computer '$label' has not finished yet.")
     }.thenExecute {
-        ComputerState.get(id).check(marker)
+        ComputerState.get(label).check(marker)
     }
+}
 
 /**
  * Run a task on the client

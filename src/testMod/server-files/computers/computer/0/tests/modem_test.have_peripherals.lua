@@ -1,5 +1,3 @@
--- Modem_test.Have_peripherals
-
 local function check_peripherals(expected, msg)
     local peripherals = peripheral.getNames()
     table.sort(peripherals)
@@ -12,5 +10,3 @@ check_peripherals({
     "printer_0",
     "right",
 }, "Starts with peripherals")
-
-test.ok()

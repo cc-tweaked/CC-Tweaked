@@ -110,7 +110,7 @@
                     Name: "Dev"
                 },
                 Fuel: 0,
-                Label: "Uses Compostors",
+                Label: "turtle_test.use_compostors",
                 Slot: 0,
                 Items: [
                     {
@@ -120,7 +120,7 @@
                     }
                 ],
                 id: "computercraft:turtle_normal",
-                ComputerId: 11,
+                ComputerId: 0,
                 On: 1b
             },
             pos: [2, 2, 2],

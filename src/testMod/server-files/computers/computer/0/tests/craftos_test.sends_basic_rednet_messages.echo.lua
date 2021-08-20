@@ -1,4 +1,5 @@
--- CraftOsTest.`Sends basic rednet messages`
+os.getComputerID = function() return 1 end
+os.computerID = os.getComputerID
 
 rednet.open("top")
 while true do

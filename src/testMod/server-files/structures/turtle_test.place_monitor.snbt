@@ -123,7 +123,8 @@
                     }
                 ],
                 id: "computercraft:turtle_normal",
-                ComputerId: 10,
+                Label: "turtle_test.place_monitor",
+                ComputerId: 0,
                 On: 1b
             },
             pos: [1, 1, 2],

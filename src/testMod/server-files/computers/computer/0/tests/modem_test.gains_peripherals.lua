@@ -1,5 +1,3 @@
--- Modem_test.Gains_peripherals
-
 local function check_peripherals(expected, msg)
     local peripherals = peripheral.getNames()
     table.sort(peripherals)
@@ -18,5 +16,3 @@ check_peripherals({
     "monitor_1",
     "printer_1",
 }, "Gains new peripherals")
-
-test.ok()
