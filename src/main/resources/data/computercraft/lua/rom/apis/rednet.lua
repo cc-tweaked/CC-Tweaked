@@ -149,13 +149,16 @@ function send(nRecipient, message, sProtocol)
     }
 
     local sent = false
-    nRecipient = idAsChannel(nRecipient)
-    if nRecipient == idAsChannel() then
+    if nRecipient == os.getComputerID() then
         -- Loopback to ourselves
         os.queueEvent("rednet_message", os.getComputerID(), message, sProtocol)
         sent = true
     else
         -- Send on all open modems, to the target and to repeaters
+        if nRecipient ~= CHANNEL_BROADCAST then
+            nRecipient = idAsChannel(nRecipient)
+        end
+
         for _, sModem in ipairs(peripheral.getNames()) do
             if isOpen(sModem) then
                 peripheral.call(sModem, "transmit", nRecipient, nReplyChannel, tMessage)
@@ -395,6 +398,7 @@ function run()
             if isOpen(sModem) and (nChannel == idAsChannel() or nChannel == CHANNEL_BROADCAST) then
                 if type(tMessage) == "table" and type(tMessage.nMessageID) == "number"
                     and tMessage.nMessageID == tMessage.nMessageID and not tReceivedMessages[tMessage.nMessageID]
+                    and tMessage.nRecipient and tMessage.nRecipient == os.getComputerID() or nChannel == CHANNEL_BROADCAST
                 then
                     tReceivedMessages[tMessage.nMessageID] = true
                     tReceivedMessageTimeouts[os.startTimer(30)] = tMessage.nMessageID
@@ -409,7 +413,6 @@ function run()
                 local sHostname = tHostnames[tMessage.sProtocol]
                 if sHostname ~= nil and (tMessage.sHostname == nil or tMessage.sHostname == sHostname) then
                     rednet.send(nSenderID, {
-                        nSender = os.getComputerID(),
                         sType = "lookup response",
                         sHostname = sHostname,
                         sProtocol = tMessage.sProtocol,
