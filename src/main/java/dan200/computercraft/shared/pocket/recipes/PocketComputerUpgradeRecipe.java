@@ -113,5 +113,5 @@ public final class PocketComputerUpgradeRecipe extends SpecialRecipe
         return SERIALIZER;
     }
 
-    public static final IRecipeSerializer<PocketComputerUpgradeRecipe> SERIALIZER = new SpecialRecipeSerializer<>( PocketComputerUpgradeRecipe::new );
+    public static final SpecialRecipeSerializer<PocketComputerUpgradeRecipe> SERIALIZER = new SpecialRecipeSerializer<>( PocketComputerUpgradeRecipe::new );
 }

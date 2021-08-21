@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "forge:heads"
+    },
+    {
+      "item": "computercraft:computer_advanced"
+    }
+  ],
+  "result": {
+    "item": "minecraft:player_head",
+    "nbt": "{SkullOwner:{Id:\"f3c8d69b-0776-4512-8434-d1b2165909eb\",Name:\"dan200\"}}"
+  }
+}
