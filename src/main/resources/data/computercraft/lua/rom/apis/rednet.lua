@@ -34,7 +34,7 @@ local tHostnames = {}
 -- Reason to choose 65532 to modulo is because 65533, 65534 an nd 65535 are used respectivel
 ]]
 local function idAsChannel(id)
-    return (id or os.getComputerID()) % 65532
+    return (id or os.getComputerID()) % 65533
 end
 
 --[[- Opens a modem with the given @{peripheral} name, allowing it to send and
