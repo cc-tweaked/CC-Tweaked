@@ -287,7 +287,8 @@
                     }
                 ],
                 id: "computercraft:turtle_normal",
-                ComputerId: 5,
+                Label: "turtle_test.shears_sheep",
+                ComputerId: 0,
                 On: 1b
             },
             pos: [2, 3, 2],

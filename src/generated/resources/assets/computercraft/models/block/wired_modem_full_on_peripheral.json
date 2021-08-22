@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "computercraft:block/wired_modem_face_peripheral_on"
+  }
+}

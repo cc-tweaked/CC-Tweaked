@@ -615,7 +615,8 @@
         {
             nbt: {
                 id: "computercraft:computer_advanced",
-                ComputerId: 15,
+                Label: "modem_test.have_peripherals",
+                ComputerId: 0,
                 On: 1b
             },
             pos: [4, 1, 2],

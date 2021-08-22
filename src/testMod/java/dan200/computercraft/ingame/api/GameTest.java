@@ -12,9 +12,7 @@ import java.lang.annotation.Target;
 
 /**
  * A test which manipulates the game. This should applied on an instance function, and should accept a single
- * {@link TestContext} argument.
- *
- * Tests may/should be written as Kotlin coroutines.
+ * {@link GameTestHelper} argument.
  */
 @Retention( RetentionPolicy.RUNTIME )
 @Target( ElementType.METHOD )
@@ -25,7 +23,7 @@ public @interface GameTest
      *
      * @return The time the test can run in ticks.
      */
-    int timeout() default 200;
+    int timeoutTicks() default 200;
 
     /**
      * Number of ticks to delay between building the structure and running the test code.

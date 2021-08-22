@@ -9,7 +9,7 @@
     "tslib": "^2.0.3"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^6.1.0",
+    "@rollup/plugin-typescript": "^8.2.5",
     "requirejs": "^2.3.6",
     "rollup": "^2.33.1",
     "terser": "^5.3.8",

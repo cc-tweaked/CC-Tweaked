@@ -32,7 +32,7 @@ jobs:
       run: |
         ./gradlew assemble || ./gradlew assemble
         ./gradlew downloadAssets || ./gradlew downloadAssets
-        ./gradlew build
+        xvfb-run ./gradlew build
 
     - name: Upload Jar
       uses: actions/upload-artifact@v2
@@ -40,8 +40,17 @@ jobs:
         name: CC-Tweaked
         path: build/libs
 
+    - name: Upload Screnshots
+      uses: actions/upload-artifact@v2
+      with:
+        name: Screenshots
+        path: test-files/client/screenshots
+        if-no-files-found: ignore
+        retention-days: 5
+      if: failure()
+
     - name: Upload Coverage
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v2
 
     - name: Parse test reports
       run: ./tools/parse-reports.py

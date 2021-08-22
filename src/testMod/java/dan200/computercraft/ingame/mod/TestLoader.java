@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.ingame.mod;
 
-import com.google.common.base.CaseFormat;
 import dan200.computercraft.ingame.api.GameTest;
+import dan200.computercraft.ingame.api.GameTestHelper;
 import net.minecraft.test.TestFunctionInfo;
 import net.minecraft.test.TestRegistry;
 import net.minecraft.test.TestTrackerHolder;
@@ -20,6 +20,7 @@ import org.objectweb.asm.Type;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -60,8 +61,8 @@ class TestLoader
             throw new RuntimeException( e );
         }
 
-        String className = CaseFormat.UPPER_CAMEL.to( CaseFormat.LOWER_UNDERSCORE, klass.getSimpleName() );
-        String name = className + "." + method.getName().toLowerCase().replace( ' ', '_' );
+        String className = klass.getSimpleName().toLowerCase( Locale.ROOT );
+        String name = className + "." + method.getName().toLowerCase( Locale.ROOT );
 
         GameTest test = method.getAnnotation( GameTest.class );
 
@@ -70,8 +71,8 @@ class TestLoader
         testFunctions.add( createTestFunction(
             test.batch(), name, name,
             test.required(),
-            new TestRunner( name, method ),
-            test.timeout(),
+            holder -> runTest( holder, method ),
+            test.timeoutTicks(),
             test.setup()
         ) );
     }
@@ -96,5 +97,18 @@ class TestLoader
         func.setupTicks = setupTicks;
         func.rotation = Rotation.NONE;
         return func;
+    }
+
+    private static void runTest( TestTrackerHolder holder, Method method )
+    {
+        GameTestHelper helper = new GameTestHelper( holder );
+        try
+        {
+            method.invoke( method.getDeclaringClass().getConstructor().newInstance(), helper );
+        }
+        catch( Exception e )
+        {
+            helper.fail( e );
+        }
     }
 }

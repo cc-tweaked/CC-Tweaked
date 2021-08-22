@@ -172,7 +172,8 @@
         {
             nbt: {
                 id: "computercraft:computer_advanced",
-                ComputerId: 4,
+                Label: "disk_drive_test.ejects_disk",
+                ComputerId: 0,
                 On: 1b
             },
             pos: [3, 1, 1],

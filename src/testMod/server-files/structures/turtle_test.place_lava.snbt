@@ -151,7 +151,8 @@
                     }
                 ],
                 id: "computercraft:turtle_normal",
-                ComputerId: 6,
+                Label: "turtle_test.place_lava",
+                ComputerId: 0,
                 On: 1b
             },
             pos: [2, 2, 2],

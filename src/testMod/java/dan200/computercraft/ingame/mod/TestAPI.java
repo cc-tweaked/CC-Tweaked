@@ -11,9 +11,8 @@ import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.ingame.api.ComputerState;
-import dan200.computercraft.ingame.api.TestContext;
 import dan200.computercraft.ingame.api.TestExtensionsKt;
-import kotlin.coroutines.Continuation;
+import net.minecraft.test.TestList;
 
 import java.util.Optional;
 
@@ -22,31 +21,39 @@ import java.util.Optional;
  *
  * Note, we extend this API within startup file of computers (see {@code cctest.lua}).
  *
- * @see TestExtensionsKt#checkComputerOk(TestContext, int, String, Continuation) To check tests on the computer have passed.
+ * @see TestExtensionsKt#thenComputerOk(TestList, String, String)  To check tests on the computer have passed.
  */
 public class TestAPI extends ComputerState implements ILuaAPI
 {
-    private final int id;
+    private final IComputerSystem system;
+    private String label;
 
     TestAPI( IComputerSystem system )
     {
-        id = system.getID();
+        this.system = system;
     }
 
     @Override
     public void startup()
     {
-        ComputerCraft.log.info( "Computer #{} has turned on.", id );
+        if( label == null ) label = system.getLabel();
+        if( label == null )
+        {
+            label = "#" + system.getID();
+            ComputerCraft.log.warn( "Computer {} has no label", label );
+        }
+
+        ComputerCraft.log.info( "Computer '{}' has turned on.", label );
         markers.clear();
         error = null;
-        lookup.put( id, this );
+        lookup.put( label, this );
     }
 
     @Override
     public void shutdown()
     {
-        ComputerCraft.log.info( "Computer #{} has shut down.", id );
-        if( lookup.get( id ) == this ) lookup.remove( id );
+        ComputerCraft.log.info( "Computer '{}' has shut down.", label );
+        if( lookup.get( label ) == this ) lookup.remove( label );
     }
 
     @Override
@@ -58,7 +65,7 @@ public class TestAPI extends ComputerState implements ILuaAPI
     @LuaFunction
     public final void fail( String message ) throws LuaException
     {
-        ComputerCraft.log.error( "Computer #{} failed with {}", id, message );
+        ComputerCraft.log.error( "Computer '{}' failed with {}", label, message );
         if( markers.contains( ComputerState.DONE ) ) throw new LuaException( "Cannot call fail/ok multiple times." );
         markers.add( ComputerState.DONE );
         error = message;
@@ -80,6 +87,6 @@ public class TestAPI extends ComputerState implements ILuaAPI
     @LuaFunction
     public final void log( String message )
     {
-        ComputerCraft.log.info( "[Computer #{}] {}", id, message );
+        ComputerCraft.log.info( "[Computer '{}'] {}", label, message );
     }
 }

@@ -159,7 +159,8 @@
                     }
                 ],
                 id: "computercraft:turtle_normal",
-                ComputerId: 7,
+                Label: "turtle_test.place_waterlogged",
+                ComputerId: 0,
                 On: 1b
             },
             pos: [2, 1, 1],

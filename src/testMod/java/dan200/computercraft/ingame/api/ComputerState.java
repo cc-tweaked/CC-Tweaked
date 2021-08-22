@@ -6,7 +6,7 @@
 package dan200.computercraft.ingame.api;
 
 import dan200.computercraft.ingame.mod.TestAPI;
-import kotlin.coroutines.Continuation;
+import net.minecraft.test.TestList;
 
 import javax.annotation.Nonnull;
 import java.util.HashSet;
@@ -18,13 +18,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * Assertion state of a computer.
  *
  * @see TestAPI For the Lua interface for this.
- * @see TestExtensionsKt#checkComputerOk(TestContext, int, String, Continuation)
+ * @see TestExtensionsKt#thenComputerOk(TestList, String, String)
  */
 public class ComputerState
 {
     public static final String DONE = "DONE";
 
-    protected static final Map<Integer, ComputerState> lookup = new ConcurrentHashMap<>();
+    protected static final Map<String, ComputerState> lookup = new ConcurrentHashMap<>();
 
     protected final Set<String> markers = new HashSet<>();
     protected String error;
@@ -37,11 +37,11 @@ public class ComputerState
     public void check( @Nonnull String marker )
     {
         if( !markers.contains( marker ) ) throw new IllegalStateException( "Not yet at " + marker );
-        if( error != null ) throw new AssertionError( error );
+        if( error != null ) throw new RuntimeException( error );
     }
 
-    public static ComputerState get( int id )
+    public static ComputerState get( String label )
     {
-        return lookup.get( id );
+        return lookup.get( label );
     }
 }

@@ -54,7 +54,8 @@
                 Slot: 0,
                 Items: [],
                 id: "computercraft:turtle_normal",
-                ComputerId: 9,
+                Label: "turtle_test.hoe_dirt",
+                ComputerId: 0,
                 On: 1b
             },
             pos: [1, 1, 0],
