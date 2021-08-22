@@ -11,10 +11,14 @@
       "conditions": {
         "items": [
           {
-            "item": "computercraft:pocket_computer_normal"
+            "items": [
+              "computercraft:pocket_computer_normal"
+            ]
           },
           {
-            "item": "computercraft:wireless_modem_advanced"
+            "items": [
+              "computercraft:wireless_modem_advanced"
+            ]
           }
         ]
       }

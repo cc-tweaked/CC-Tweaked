@@ -15,18 +15,15 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CustomRecipe;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nonnull;
 
 public class DiskRecipe extends CustomRecipe
 {
-    private final Ingredient paper = Ingredient.of( Items.PAPER );
-    private final Ingredient redstone = Ingredient.of( Items.REDSTONE );
-
     public DiskRecipe( ResourceLocation id )
     {
         super( id );
@@ -44,12 +41,12 @@ public class DiskRecipe extends CustomRecipe
 
             if( !stack.isEmpty() )
             {
-                if( paper.test( stack ) )
+                if( stack.getItem() == Items.PAPER )
                 {
                     if( paperFound ) return false;
                     paperFound = true;
                 }
-                else if( redstone.test( stack ) )
+                else if( Tags.Items.DUSTS_REDSTONE.contains( stack.getItem() ) )
                 {
                     if( redstoneFound ) return false;
                     redstoneFound = true;
@@ -76,7 +73,7 @@ public class DiskRecipe extends CustomRecipe
 
             if( stack.isEmpty() ) continue;
 
-            if( !paper.test( stack ) && !redstone.test( stack ) )
+            if( stack.getItem() != Items.PAPER && !Tags.Items.DUSTS_REDSTONE.contains( stack.getItem() ) )
             {
                 DyeColor dye = ColourUtils.getStackColour( stack );
                 if( dye != null ) tracker.addColour( dye );
@@ -106,5 +103,5 @@ public class DiskRecipe extends CustomRecipe
         return SERIALIZER;
     }
 
-    public static final RecipeSerializer<DiskRecipe> SERIALIZER = new SimpleRecipeSerializer<>( DiskRecipe::new );
+    public static final SimpleRecipeSerializer<DiskRecipe> SERIALIZER = new SimpleRecipeSerializer<>( DiskRecipe::new );
 }

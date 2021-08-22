@@ -11,10 +11,14 @@
       "conditions": {
         "items": [
           {
-            "item": "computercraft:turtle_advanced"
+            "items": [
+              "computercraft:turtle_advanced"
+            ]
           },
           {
-            "item": "computercraft:wireless_modem_normal"
+            "items": [
+              "computercraft:wireless_modem_normal"
+            ]
           }
         ]
       }

@@ -50,7 +50,7 @@ jobs:
       if: failure()
 
     - name: Upload Coverage
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v2
 
     - name: Parse test reports
       run: ./tools/parse-reports.py

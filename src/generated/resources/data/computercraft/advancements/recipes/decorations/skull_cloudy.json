@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "computercraft:skull_cloudy"
+    ]
+  },
+  "criteria": {
+    "has_monitor": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "computercraft:monitor_normal"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "computercraft:skull_cloudy"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_monitor",
+      "has_the_recipe"
+    ]
+  ]
+}

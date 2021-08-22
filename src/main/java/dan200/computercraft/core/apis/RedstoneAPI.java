@@ -137,8 +137,8 @@ public class RedstoneAPI implements ILuaAPI
      *
      * @param side The side to get.
      * @return The output signal strength, between 0 and 15.
-     * @see #setAnalogOutput
      * @cc.since 1.51
+     * @see #setAnalogOutput
      */
     @LuaFunction( { "getAnalogOutput", "getAnalogueOutput" } )
     public final int getAnalogOutput( ComputerSide side )

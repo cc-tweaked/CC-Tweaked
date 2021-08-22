@@ -11,19 +11,15 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CustomRecipe;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nonnull;
 
 public final class PrintoutRecipe extends CustomRecipe
 {
-    private final Ingredient paper = Ingredient.of( net.minecraft.world.item.Items.PAPER );
-    private final Ingredient leather = Ingredient.of( net.minecraft.world.item.Items.LEATHER );
-    private final Ingredient string = Ingredient.of( Items.STRING );
-
     private PrintoutRecipe( ResourceLocation id )
     {
         super( id );
@@ -77,7 +73,7 @@ public final class PrintoutRecipe extends CustomRecipe
                         numPrintouts++;
                         printoutFound = true;
                     }
-                    else if( paper.test( stack ) )
+                    else if( stack.getItem() == Items.PAPER )
                     {
                         if( printouts == null )
                         {
@@ -87,11 +83,11 @@ public final class PrintoutRecipe extends CustomRecipe
                         numPages++;
                         numPrintouts++;
                     }
-                    else if( string.test( stack ) && !stringFound )
+                    else if( Tags.Items.STRING.contains( stack.getItem() ) && !stringFound )
                     {
                         stringFound = true;
                     }
-                    else if( leather.test( stack ) && !leatherFound )
+                    else if( Tags.Items.LEATHER.contains( stack.getItem() ) && !leatherFound )
                     {
                         leatherFound = true;
                     }
@@ -163,5 +159,5 @@ public final class PrintoutRecipe extends CustomRecipe
         return SERIALIZER;
     }
 
-    public static final RecipeSerializer<?> SERIALIZER = new SimpleRecipeSerializer<>( PrintoutRecipe::new );
+    public static final SimpleRecipeSerializer<?> SERIALIZER = new SimpleRecipeSerializer<>( PrintoutRecipe::new );
 }

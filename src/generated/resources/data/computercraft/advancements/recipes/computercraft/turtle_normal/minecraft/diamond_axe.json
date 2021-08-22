@@ -11,10 +11,14 @@
       "conditions": {
         "items": [
           {
-            "item": "computercraft:turtle_normal"
+            "items": [
+              "computercraft:turtle_normal"
+            ]
           },
           {
-            "item": "minecraft:diamond_axe"
+            "items": [
+              "minecraft:diamond_axe"
+            ]
           }
         ]
       }

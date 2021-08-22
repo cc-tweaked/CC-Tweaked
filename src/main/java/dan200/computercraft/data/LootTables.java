@@ -11,6 +11,9 @@ import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
 import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
+import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
+import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
+import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -21,6 +24,7 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.predicates.AlternativeLootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraftforge.fmllegacy.RegistryObject;
 
@@ -50,6 +54,30 @@ public class LootTables extends LootTableProvider
         computerDrop( add, Registry.ModBlocks.COMPUTER_COMMAND );
         computerDrop( add, Registry.ModBlocks.TURTLE_NORMAL );
         computerDrop( add, Registry.ModBlocks.TURTLE_ADVANCED );
+
+        add.accept( Registry.ModBlocks.CABLE.get().getLootTable(), LootTable
+            .lootTable()
+            .setParamSet( LootContextParamSets.BLOCK )
+            .withPool( LootPool.lootPool()
+                .name( "cable" )
+                .setRolls( ConstantValue.exactly( 1 ) )
+                .add( LootItem.lootTableItem( Registry.ModItems.CABLE.get() ) )
+                .when( ExplosionCondition.survivesExplosion() )
+                .when( LootItemBlockStatePropertyCondition.hasBlockStateProperties( Registry.ModBlocks.CABLE.get() )
+                    .setProperties( StatePropertiesPredicate.Builder.properties().hasProperty( BlockCable.CABLE, true ) )
+                )
+            )
+            .withPool( LootPool.lootPool()
+                .name( "wired_modem" )
+                .setRolls( ConstantValue.exactly( 1 ) )
+                .add( LootItem.lootTableItem( Registry.ModItems.WIRED_MODEM.get() ) )
+                .when( ExplosionCondition.survivesExplosion() )
+                .when( LootItemBlockStatePropertyCondition.hasBlockStateProperties( Registry.ModBlocks.CABLE.get() )
+                    .setProperties( StatePropertiesPredicate.Builder.properties().hasProperty( BlockCable.MODEM, CableModemVariant.None ) )
+                    .invert()
+                )
+            )
+            .build() );
 
         add.accept( CommonHooks.LOOT_TREASURE_DISK, LootTable
             .lootTable()

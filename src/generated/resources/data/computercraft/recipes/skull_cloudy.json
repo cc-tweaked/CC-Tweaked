@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "forge:heads"
+    },
+    {
+      "item": "computercraft:monitor_normal"
+    }
+  ],
+  "result": {
+    "item": "minecraft:player_head",
+    "nbt": "{SkullOwner:{Id:\"6d074736-b1e9-4378-a99b-bd8777821c9c\",Name:\"Cloudhunter\"}}"
+  }
+}

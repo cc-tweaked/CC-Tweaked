@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "computercraft:skull_dan200"
+    ]
+  },
+  "criteria": {
+    "has_computer": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "computercraft:computer_advanced"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "computercraft:skull_dan200"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_computer",
+      "has_the_recipe"
+    ]
+  ]
+}

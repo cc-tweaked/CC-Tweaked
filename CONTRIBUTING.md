@@ -90,10 +90,11 @@ Before we get into writing tests, it's worth mentioning the various test suites 
 
    These tests are run by the '"Core" Java' test suite, and so are also run with `./gradlew test`.
 
- - In-game (`./src/cctest/java/dan200/computercraft/ingame/`): These tests are run on an actual Minecraft server, using
-   [the same system Mojang do][mc-test]. The aim of these is to test in-game behaviour of blocks and peripherals.
+ - In-game (`./src/testMod/java/dan200/computercraft/ingame/`): These tests are run on an actual Minecraft server and client,
+   using [the same system Mojang do][mc-test]. The aim of these is to test in-game behaviour of blocks and peripherals.
 
-   These are run by `./gradlew testInGame`.
+   These are run by `./gradlew testClient` and `./gradlew testServer`. You may want to run the client under `xvfb-run`
+   or similar when running in a headless environment.
 
 ## CraftOS tests
 CraftOS's tests are written using a test system called "mcfly", heavily inspired by [busted] (and thus RSpec). Groups of

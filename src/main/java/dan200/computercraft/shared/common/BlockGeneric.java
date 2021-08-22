@@ -88,6 +88,7 @@ public abstract class BlockGeneric extends BaseEntityBlock
 
     @Nonnull
     @Override
+    @Deprecated
     public RenderShape getRenderShape( @Nonnull BlockState state )
     {
         return RenderShape.MODEL;

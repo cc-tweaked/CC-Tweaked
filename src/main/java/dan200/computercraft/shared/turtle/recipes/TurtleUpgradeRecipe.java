@@ -185,5 +185,5 @@ public final class TurtleUpgradeRecipe extends CustomRecipe
         return SERIALIZER;
     }
 
-    public static final RecipeSerializer<TurtleUpgradeRecipe> SERIALIZER = new SimpleRecipeSerializer<>( TurtleUpgradeRecipe::new );
+    public static final SimpleRecipeSerializer<TurtleUpgradeRecipe> SERIALIZER = new SimpleRecipeSerializer<>( TurtleUpgradeRecipe::new );
 }

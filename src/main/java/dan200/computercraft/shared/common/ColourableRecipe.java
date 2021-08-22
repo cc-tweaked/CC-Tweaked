@@ -98,5 +98,5 @@ public final class ColourableRecipe extends CustomRecipe
         return SERIALIZER;
     }
 
-    public static final RecipeSerializer<?> SERIALIZER = new SimpleRecipeSerializer<>( ColourableRecipe::new );
+    public static final SimpleRecipeSerializer<?> SERIALIZER = new SimpleRecipeSerializer<>( ColourableRecipe::new );
 }

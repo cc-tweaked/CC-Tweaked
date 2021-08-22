@@ -11,10 +11,14 @@
       "conditions": {
         "items": [
           {
-            "item": "computercraft:turtle_advanced"
+            "items": [
+              "computercraft:turtle_advanced"
+            ]
           },
           {
-            "item": "computercraft:speaker"
+            "items": [
+              "computercraft:speaker"
+            ]
           }
         ]
       }

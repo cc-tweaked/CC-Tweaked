@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
 public class BlockDiskDrive extends BlockGeneric
 {
     static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    static final EnumProperty<DiskDriveState> STATE = EnumProperty.create( "state", DiskDriveState.class );
+    public static final EnumProperty<DiskDriveState> STATE = EnumProperty.create( "state", DiskDriveState.class );
 
     private static final BlockEntityTicker<TileDiskDrive> serverTicker = ( level, pos, state, drive ) -> drive.serverTick();
 

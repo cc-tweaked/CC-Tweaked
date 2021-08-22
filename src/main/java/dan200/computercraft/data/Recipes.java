@@ -10,23 +10,28 @@ import dan200.computercraft.data.Tags.CCTags;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.TurtleUpgrades;
+import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.media.recipes.DiskRecipe;
+import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
+import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
+import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ImpostorRecipe;
 import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.data.recipes.*;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.Tags;
@@ -49,6 +54,12 @@ public class Recipes extends RecipeProvider
         diskColours( add );
         pocketUpgrades( add );
         turtleUpgrades( add );
+
+        addSpecial( add, PrintoutRecipe.SERIALIZER );
+        addSpecial( add, DiskRecipe.SERIALIZER );
+        addSpecial( add, ColourableRecipe.SERIALIZER );
+        addSpecial( add, TurtleUpgradeRecipe.SERIALIZER );
+        addSpecial( add, PocketComputerUpgradeRecipe.SERIALIZER );
     }
 
     /**
@@ -307,6 +318,41 @@ public class Recipes extends RecipeProvider
             .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
             .unlockedBy( "has_wireless", inventoryChange( Registry.ModBlocks.WIRELESS_MODEM_NORMAL.get() ) )
             .save( add );
+
+        ShapelessRecipeBuilder
+            .shapeless( Items.PLAYER_HEAD )
+            .requires( Tags.Items.HEADS )
+            .requires( Registry.ModItems.MONITOR_NORMAL.get() )
+            .unlockedBy( "has_monitor", inventoryChange( Registry.ModItems.MONITOR_NORMAL.get() ) )
+            .save(
+                RecipeWrapper.wrap( RecipeSerializer.SHAPELESS_RECIPE, add, playerHead( "Cloudhunter", "6d074736-b1e9-4378-a99b-bd8777821c9c" ) ),
+                new ResourceLocation( ComputerCraft.MOD_ID, "skull_cloudy" )
+            );
+
+        ShapelessRecipeBuilder
+            .shapeless( Items.PLAYER_HEAD )
+            .requires( Tags.Items.HEADS )
+            .requires( Registry.ModItems.COMPUTER_ADVANCED.get() )
+            .unlockedBy( "has_computer", inventoryChange( Registry.ModItems.COMPUTER_ADVANCED.get() ) )
+            .save(
+                RecipeWrapper.wrap( RecipeSerializer.SHAPELESS_RECIPE, add, playerHead( "dan200", "f3c8d69b-0776-4512-8434-d1b2165909eb" ) ),
+                new ResourceLocation( ComputerCraft.MOD_ID, "skull_dan200" )
+            );
+
+        ShapelessRecipeBuilder
+            .shapeless( Registry.ModItems.PRINTED_PAGES.get() )
+            .requires( Registry.ModItems.PRINTED_PAGE.get(), 2 )
+            .requires( Tags.Items.STRING )
+            .unlockedBy( "has_printer", inventoryChange( Registry.ModBlocks.PRINTER.get() ) )
+            .save( RecipeWrapper.wrap( ImpostorShapelessRecipe.SERIALIZER, add ) );
+
+        ShapelessRecipeBuilder
+            .shapeless( Registry.ModItems.PRINTED_BOOK.get() )
+            .requires( Tags.Items.LEATHER )
+            .requires( Registry.ModItems.PRINTED_PAGE.get(), 1 )
+            .requires( Tags.Items.STRING )
+            .unlockedBy( "has_printer", inventoryChange( Registry.ModBlocks.PRINTER.get() ) )
+            .save( RecipeWrapper.wrap( ImpostorShapelessRecipe.SERIALIZER, add ) );
     }
 
     private static DyeColor ofColour( Colour colour )
@@ -322,5 +368,21 @@ public class Recipes extends RecipeProvider
     private static InventoryChangeTrigger.TriggerInstance inventoryChange( ItemLike... stack )
     {
         return InventoryChangeTrigger.TriggerInstance.hasItems( stack );
+    }
+
+    private static CompoundTag playerHead( String name, String uuid )
+    {
+        CompoundTag owner = new CompoundTag();
+        owner.putString( "Name", name );
+        owner.putString( "Id", uuid );
+
+        CompoundTag tag = new CompoundTag();
+        tag.put( "SkullOwner", owner );
+        return tag;
+    }
+
+    private static void addSpecial( Consumer<FinishedRecipe> add, SimpleRecipeSerializer<?> special )
+    {
+        SpecialRecipeBuilder.special( special ).save( add, special.getRegistryName().toString() );
     }
 }
