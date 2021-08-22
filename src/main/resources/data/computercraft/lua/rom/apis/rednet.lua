@@ -24,17 +24,18 @@ CHANNEL_BROADCAST = 65535
 --- The channel used by the Rednet API to repeat messages.
 CHANNEL_REPEAT = 65533
 
+--- Maximum of ID range to use as channel
+MAX_ID = 65500
+
 local tReceivedMessages = {}
 local tReceivedMessageTimeouts = {}
 local tHostnames = {}
 
---[[ Patch the bug whenever a computer with an ID grater than 65535 crashes Rednet upon opening.
--- It modulos the ID to always have an ID lower or equal to 65532
--- This makes it compatible with the Modem API
--- Reason to choose 65532 to modulo is because 65533, 65534 an nd 65535 are used respectivel
-]]
+-- Patch the bug whenever a computer with an ID grater than 65535 crashes Rednet upon opening.
+-- It modulos the ID to always have an ID lower or equal to MAX_ID.
+-- This makes it compatible with the Modem API.
 local function idAsChannel(id)
-    return (id or os.getComputerID()) % 65533
+    return (id or os.getComputerID()) % MAX_ID
 end
 
 --[[- Opens a modem with the given @{peripheral} name, allowing it to send and
