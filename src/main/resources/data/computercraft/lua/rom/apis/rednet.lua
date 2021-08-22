@@ -399,7 +399,7 @@ function run()
             if isOpen(sModem) and (nChannel == idAsChannel() or nChannel == CHANNEL_BROADCAST) then
                 if type(tMessage) == "table" and type(tMessage.nMessageID) == "number"
                     and tMessage.nMessageID == tMessage.nMessageID and not tReceivedMessages[tMessage.nMessageID]
-                    and ((tMessage.nRecipient and tMessage.nRecipient == os.getComputerID()) or nChannel == CHANNEL_BROADCAST)
+                    and tMessage.nRecipient and tMessage.nRecipient == os.getComputerID() or nChannel == CHANNEL_BROADCAST
                 then
                     tReceivedMessages[tMessage.nMessageID] = true
                     tReceivedMessageTimeouts[os.startTimer(30)] = tMessage.nMessageID
