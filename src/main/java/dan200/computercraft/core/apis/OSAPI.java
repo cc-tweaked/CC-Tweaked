@@ -204,15 +204,16 @@ public class OSAPI implements ILuaAPI
     }
 
     /**
-     * Sets an alarm that will fire at the specified world time. When it fires,
-     * an {@code alarm} event will be added to the event queue with the ID
-     * returned from this function as the first parameter.
+     * Sets an alarm that will fire at the specified in-game time. When it
+     * fires, * an {@code alarm} event will be added to the event queue with the
+     * ID * returned from this function as the first parameter.
      *
      * @param time The time at which to fire the alarm, in the range [0.0, 24.0).
      * @return The ID of the new alarm. This can be used to filter the
      * {@code alarm} event, or {@link #cancelAlarm cancel the alarm}.
      * @throws LuaException If the time is out of range.
      * @see #cancelAlarm To cancel an alarm.
+     * @cc.since 1.2
      */
     @LuaFunction
     public final int setAlarm( double time ) throws LuaException
@@ -233,6 +234,7 @@ public class OSAPI implements ILuaAPI
      *
      * @param token The ID of the alarm to cancel.
      * @see #setAlarm To set an alarm.
+     * @cc.since 1.2
      */
     @LuaFunction
     public final void cancelAlarm( int token )
@@ -277,6 +279,7 @@ public class OSAPI implements ILuaAPI
      *
      * @return The label of the computer.
      * @cc.treturn string The label of the computer.
+     * @cc.since 1.3
      */
     @LuaFunction( { "getComputerLabel", "computerLabel" } )
     public final Object[] getComputerLabel()
@@ -289,6 +292,7 @@ public class OSAPI implements ILuaAPI
      * Set the label of this computer.
      *
      * @param label The new label. May be {@code nil} in order to clear it.
+     * @cc.since 1.3
      */
     @LuaFunction
     public final void setComputerLabel( Optional<String> label )
@@ -300,6 +304,7 @@ public class OSAPI implements ILuaAPI
      * Returns the number of seconds that the computer has been running.
      *
      * @return The computer's uptime.
+     * @cc.since 1.2
      */
     @LuaFunction
     public final double clock()
@@ -326,6 +331,14 @@ public class OSAPI implements ILuaAPI
      * @throws LuaException If an invalid locale is passed.
      * @cc.tparam [opt] string|table locale The locale of the time, or a table filled by {@code os.date("*t")} to decode. Defaults to {@code ingame} locale if not specified.
      * @see #date To get a date table that can be converted with this function.
+     * @cc.see textutils.formatTime To convert times into a user-readable string.
+     * @cc.usage Print the current in-game time.
+     * <pre>{@code
+     * textutils.formatTime(os.time())
+     * }</pre>
+     * @cc.since 1.2
+     * @cc.changed 1.80pr1 Add support for getting the local local and UTC time.
+     * @cc.changed 1.83.0 {@link #time(IArguments)} now accepts table arguments and converts them to UNIX timestamps.
      */
     @LuaFunction
     public final Object time( IArguments args ) throws LuaException
@@ -360,6 +373,7 @@ public class OSAPI implements ILuaAPI
      * @param args The locale to get the day for. Defaults to {@code ingame} if not set.
      * @return The day depending on the selected locale.
      * @throws LuaException If an invalid locale is passed.
+     * @cc.since 1.48
      */
     @LuaFunction
     public final int day( Optional<String> args ) throws LuaException
@@ -390,6 +404,14 @@ public class OSAPI implements ILuaAPI
      * @param args The locale to get the milliseconds for. Defaults to {@code ingame} if not set.
      * @return The milliseconds since the epoch depending on the selected locale.
      * @throws LuaException If an invalid locale is passed.
+     * @cc.since 1.80pr1
+     * @cc.usage Get the current time and use {@link #date} to convert it to a table.
+     * <pre>{@code
+     * -- Dividing by 1000 converts it from milliseconds to seconds.
+     * local time = os.epoch("local") / 1000
+     * local time_table = os.date("*t", time)
+     * print(textutils.serialize(time_table))
+     * }</pre>
      */
     @LuaFunction
     public final long epoch( Optional<String> args ) throws LuaException
@@ -438,6 +460,11 @@ public class OSAPI implements ILuaAPI
      * @param timeA   The time to convert to a string. This defaults to the current time.
      * @return The resulting format string.
      * @throws LuaException If an invalid format is passed.
+     * @cc.since 1.83.0
+     * @cc.usage Print the current date in a user-friendly string.
+     * <pre>{@code
+     * os.date("%A %d %B %Y") -- See the reference above!
+     * }</pre>
      */
     @LuaFunction
     public final Object date( Optional<String> formatA, Optional<Long> timeA ) throws LuaException

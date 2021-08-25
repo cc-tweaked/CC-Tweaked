@@ -55,7 +55,12 @@ end
 -- @tparam[opt] boolean bTwentyFourHour Whether to format this as a 24-hour
 -- clock (`18:30`) rather than a 12-hour one (`6:30 AM`)
 -- @treturn string The formatted time
--- @usage textutils.formatTime(os.time())
+-- @usage Print the current in-game time as a 12-hour clock.
+--
+--     textutils.formatTime(os.time())
+-- @usage Print the local time as a 24-hour clock.
+--
+--     textutils.formatTime(os.time("local"), true)
 function formatTime(nTime, bTwentyFourHour)
     expect(1, nTime, "number")
     expect(2, bTwentyFourHour, "boolean", "nil")
