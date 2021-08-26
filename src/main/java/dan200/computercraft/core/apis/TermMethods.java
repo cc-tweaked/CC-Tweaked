@@ -194,8 +194,8 @@ public abstract class TermMethods
      * @param colourArg The new text colour.
      * @throws LuaException (hidden) If the terminal cannot be found.
      * @cc.see colors For a list of colour constants.
-     * @cc.changed 1.80pr1 Standard computers can now use all 16 colors, being changed to grayscale on screen.
      * @cc.since 1.45
+     * @cc.changed 1.80pr1 Standard computers can now use all 16 colors, being changed to grayscale on screen.
      */
     @LuaFunction( { "setTextColour", "setTextColor" } )
     public final void setTextColour( int colourArg ) throws LuaException
