@@ -2,6 +2,8 @@
 function arguments are well-formed and of the correct type.
 
 @module cc.expect
+@since 1.84.0
+@changed 1.96.0 The module can now be called directly as a function, which wraps around `expect.expect`.
 @usage Define a basic function and check it has the correct arguments.
 
     local expect = require "cc.expect"
@@ -97,6 +99,7 @@ end
 -- @tparam number max The maximum value, if nil then `math.huge` is used.
 -- @return The given `value`.
 -- @throws If the value is outside of the allowed range.
+-- @since 1.96.0
 local function range(num, min, max)
   expect(1, num, "number")
   min = expect(2, min, "number", "nil") or -math.huge

@@ -99,6 +99,7 @@ public class FSAPI implements ILuaAPI
      * @throws LuaException On argument errors.
      * @cc.tparam string path The first part of the path. For example, a parent directory path.
      * @cc.tparam string ... Additional parts of the path to combine.
+     * @cc.changed 1.95.0 Now supports multiple arguments.
      * @cc.usage Combine several file paths together
      * <pre>{@code
      * fs.combine("/rom/programs", "../apis", "parallel.lua")
@@ -509,6 +510,7 @@ public class FSAPI implements ILuaAPI
      * @see #getFreeSpace To get the free space available on this drive.
      * @cc.treturn number|nil This drive's capacity. This will be nil for "read-only" drives, such as the ROM or
      * treasure disks.
+     * @cc.since 1.87.0
      */
     @LuaFunction
     public final Object getCapacity( String path ) throws LuaException
@@ -539,6 +541,9 @@ public class FSAPI implements ILuaAPI
      * @cc.treturn { size = number, isDir = boolean, isReadOnly = boolean, created = number, modified = number } The resulting attributes.
      * @see #getSize If you only care about the file's size.
      * @see #isDir If you only care whether a path is a directory or not.
+     * @cc.since 1.87.0
+     * @cc.changed 1.91.0 Renamed `modification` field to `modified`.
+     * @cc.changed 1.95.2 Added `isReadOnly` to attributes.
      */
     @LuaFunction
     public final Map<String, Object> attributes( String path ) throws LuaException

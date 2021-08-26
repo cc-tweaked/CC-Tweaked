@@ -35,6 +35,8 @@ local extensions = { "", ".md", ".txt" }
 -- @treturn string|nil The path to the given topic's help file, or `nil` if it
 -- cannot be found.
 -- @usage help.lookup("disk")
+-- @changed 1.80pr1 Now supports finding .txt files.
+-- @changed 1.97.0 Now supports finding Markdown files.
 function lookup(topic)
     expect(1, topic, "string")
     -- Look on the path variable

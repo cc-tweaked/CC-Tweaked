@@ -56,6 +56,7 @@ end
 -- @tparam string command The program to execute.
 -- @tparam string ... Arguments to this program.
 -- @treturn boolean Whether the program exited successfully.
+-- @since 1.88.0
 -- @usage Run `paint my-image` from within your program:
 --
 --     shell.execute("paint", "my-image")
@@ -131,6 +132,8 @@ end
 --
 --     shell.run("paint", "my-image")
 -- @see shell.execute Run a program directly without parsing the arguments.
+-- @changed 1.80pr1 Programs now get their own environment instead of sharing the same one.
+-- @changed 1.83.0 `arg` is now added to the environment.
 function shell.run(...)
     local tWords = tokenise(...)
     local sCommand = tWords[1]

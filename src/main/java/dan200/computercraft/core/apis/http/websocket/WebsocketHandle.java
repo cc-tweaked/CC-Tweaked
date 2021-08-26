@@ -55,6 +55,8 @@ public class WebsocketHandle implements Closeable
      * @cc.treturn [1] string The received message.
      * @cc.treturn boolean If this was a binary message.
      * @cc.treturn [2] nil If the websocket was closed while waiting, or if we timed out.
+     * @cc.changed 1.81.0 Added return value indicating whether the message was binary.
+     * @cc.changed 1.87.0 Added timeout argument.
      */
     @LuaFunction
     public final MethodResult receive( Optional<Double> timeout ) throws LuaException
@@ -74,6 +76,7 @@ public class WebsocketHandle implements Closeable
      * @param binary  Whether this message should be treated as a
      * @throws LuaException If the message is too large.
      * @throws LuaException If the websocket has been closed.
+     * @cc.changed 1.81.0 Added argument for binary mode.
      */
     @LuaFunction
     public final void send( Object message, Optional<Boolean> binary ) throws LuaException

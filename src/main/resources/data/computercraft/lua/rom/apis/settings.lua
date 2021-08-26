@@ -40,6 +40,7 @@ for _, v in ipairs(valid_types) do valid_types[v] = true end
 --    setting has not been changed.
 --  - `type`: Require values to be of this type. @{set|Setting} the value to another type
 --    will error.
+-- @since 1.87.0
 function define(name, options)
     expect(1, name, "string")
     expect(2, options, "table", "nil")
@@ -67,6 +68,7 @@ end
 -- for that.
 --
 -- @tparam string name The name of this option
+-- @since 1.87.0
 function undefine(name)
     expect(1, name, "string")
     details[name] = nil
@@ -111,6 +113,7 @@ end
 -- this setting. If not given, it will use the setting's default value if given,
 -- or `nil` otherwise.
 -- @return The setting's, or the default if the setting has not been changed.
+-- @changed 1.87.0 Now respects default value if pre-defined and `default` is unset.
 function get(name, default)
     expect(1, name, "string")
     local result = values[name]
@@ -130,6 +133,7 @@ end
 -- @treturn { description? = string, default? = any, type? = string, value? = any }
 -- Information about this setting. This includes all information from @{settings.define},
 -- as well as this setting's value.
+-- @since 1.87.0
 function getDetails(name)
     expect(1, name, "string")
     local deets = copy(details[name]) or {}
@@ -189,6 +193,7 @@ end
 -- corrupted.
 --
 -- @see settings.save
+-- @changed 1.87.0 `sPath` is now optional.
 function load(sPath)
     expect(1, sPath, "string", "nil")
     local file = fs.open(sPath or ".settings", "r")
@@ -226,6 +231,7 @@ end
 -- @treturn boolean If the settings were successfully saved.
 --
 -- @see settings.load
+-- @changed 1.87.0 `sPath` is now optional.
 function save(sPath)
     expect(1, sPath, "string", "nil")
     local file = fs.open(sPath or ".settings", "w")

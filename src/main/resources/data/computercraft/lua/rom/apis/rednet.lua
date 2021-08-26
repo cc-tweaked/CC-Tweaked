@@ -114,6 +114,7 @@ particular protocol.
 @treturn boolean If this message was successfully sent (i.e. if rednet is
 currently @{rednet.open|open}). Note, this does not guarantee the message was
 actually _received_.
+@changed 1.82.0 Now returns whether the message was successfully sent.
 @see rednet.receive
 @usage Send a message to computer #2.
 

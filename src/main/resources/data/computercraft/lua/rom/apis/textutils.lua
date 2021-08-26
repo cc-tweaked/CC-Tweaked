@@ -625,6 +625,7 @@ do
     -- @return[1] The deserialised object
     -- @treturn[2] nil If the object could not be deserialised.
     -- @treturn string A message describing why the JSON string is invalid.
+    -- @since 1.87.0
     unserialise_json = function(s, options)
         expect(1, s, "string")
         expect(2, options, "table", "nil")
@@ -669,6 +670,7 @@ serialised. This includes functions and tables which appear multiple
 times.
 @see cc.pretty.pretty An alternative way to display a table, often more suitable for
 pretty printing.
+@changed 1.97.0 Added `opts` argument.
 @usage Pretty print a basic table.
 
     textutils.serialise({ 1, 2, 3, a = 1, ["another key"] = { true } })

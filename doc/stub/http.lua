@@ -35,6 +35,8 @@
 --
 -- @see http.get  For a synchronous way to make GET requests.
 -- @see http.post For a synchronous way to make POST requests.
+-- @changed 1.80pr1 Added argument for binary handles.
+-- @changed 1.81.0 Added support for table argument.
 function request(...) end
 
 --- Make a HTTP GET request to the given url.
@@ -57,6 +59,10 @@ function request(...) end
 -- error or connection timeout.
 -- @treturn string A message detailing why the request failed.
 -- @treturn Response|nil The failing http response, if available.
+--
+-- @changed 1.80pr1 Response handles are now returned on error if available.
+-- @changed 1.80pr1 Added argument for binary handles.
+-- @changed 1.81.0 Added support for table argument.
 --
 -- @usage Make a request to [example.tweaked.cc](https://example.tweaked.cc),
 -- and print the returned page.
@@ -89,6 +95,9 @@ function get(...) end
 -- error or connection timeout.
 -- @treturn string A message detailing why the request failed.
 -- @treturn Response|nil The failing http response, if available.
+-- @changed 1.80pr1 Response handles are now returned on error if available.
+-- @changed 1.80pr1 Added argument for binary handles.
+-- @changed 1.81.0 Added support for table argument.
 function post(...) end
 
 --- Asynchronously determine whether a URL can be requested.
@@ -142,6 +151,8 @@ function checkURL(url) end
 -- @treturn Websocket The websocket connection.
 -- @treturn[2] false If the websocket connection failed.
 -- @treturn string An error message describing why the connection failed.
+-- @since 1.81.0
+-- @changed 1.95.3 Added User-Agent to default headers.
 function websocket(url, headers) end
 
 --- Asynchronously open a websocket.
@@ -154,4 +165,6 @@ function websocket(url, headers) end
 -- `ws://` or `wss://` protocol.
 -- @tparam[opt] { [string] = string } headers Additional headers to send as part
 -- of the initial websocket connection.
+-- @since 1.81.0
+-- @changed 1.95.3 Added User-Agent to default headers.
 function websocketAsync(url, headers) end

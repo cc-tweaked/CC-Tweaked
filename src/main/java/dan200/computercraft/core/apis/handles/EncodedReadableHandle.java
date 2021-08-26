@@ -50,6 +50,7 @@ public class EncodedReadableHandle extends HandleGeneric
      * @return The read string.
      * @throws LuaException If the file has been closed.
      * @cc.treturn string|nil The read line or {@code nil} if at the end of the file.
+     * @cc.changed 1.81.0 Added option to return trailing newline.
      */
     @LuaFunction
     public final Object[] readLine( Optional<Boolean> withTrailingArg ) throws LuaException
@@ -116,6 +117,7 @@ public class EncodedReadableHandle extends HandleGeneric
      * @throws LuaException When trying to read a negative number of characters.
      * @throws LuaException If the file has been closed.
      * @cc.treturn string|nil The read characters, or {@code nil} if at the of the file.
+     * @cc.since 1.81.0
      */
     @LuaFunction
     public final Object[] read( Optional<Integer> countA ) throws LuaException

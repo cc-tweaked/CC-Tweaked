@@ -47,6 +47,7 @@ end
 -- @tparam string image The string containing the raw-image data.
 -- @treturn table The parsed image data, suitable for use with
 -- @{paintutils.drawImage}.
+-- @since 1.80pr1
 function parseImage(image)
     expect(1, image, "string")
     local tImage = {}
