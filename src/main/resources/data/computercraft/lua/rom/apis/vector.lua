@@ -5,6 +5,7 @@
 -- [wiki]: http://en.wikipedia.org/wiki/Euclidean_vector
 --
 -- @module vector
+-- @since 1.31
 
 --- A 3-dimensional vector, with `x`, `y`, and `z` values.
 --

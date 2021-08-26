@@ -6,6 +6,7 @@
 -- the underlying numerical values.
 --
 -- @module keys
+-- @since 1.4
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 

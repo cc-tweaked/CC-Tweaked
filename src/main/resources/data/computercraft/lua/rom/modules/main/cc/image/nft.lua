@@ -5,6 +5,7 @@
 -- text.
 --
 -- @module cc.image.nft
+-- @since 1.90.0
 -- @usage Load an image from `example.nft` and draw it.
 --
 --     local nft = require "cc.image.nft"

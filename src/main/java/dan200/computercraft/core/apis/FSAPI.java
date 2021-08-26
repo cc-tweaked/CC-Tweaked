@@ -99,6 +99,7 @@ public class FSAPI implements ILuaAPI
      * @throws LuaException On argument errors.
      * @cc.tparam string path The first part of the path. For example, a parent directory path.
      * @cc.tparam string ... Additional parts of the path to combine.
+     * @cc.changed 1.95.0 Now supports multiple arguments.
      * @cc.usage Combine several file paths together
      * <pre>{@code
      * fs.combine("/rom/programs", "../apis", "parallel.lua")
@@ -126,6 +127,7 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The path to get the name from.
      * @return The final part of the path (the file name).
+     * @cc.since 1.2
      * @cc.usage Get the file name of {@code rom/startup.lua}
      * <pre>{@code
      * fs.getName("rom/startup.lua")
@@ -143,6 +145,7 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The path to get the directory from.
      * @return The path with the final part removed (the parent directory).
+     * @cc.since 1.63
      * @cc.usage Get the directory name of {@code rom/startup.lua}
      * <pre>{@code
      * fs.getDir("rom/startup.lua")
@@ -161,6 +164,7 @@ public class FSAPI implements ILuaAPI
      * @param path The file to get the file size of.
      * @return The size of the file, in bytes.
      * @throws LuaException If the path doesn't exist.
+     * @cc.since 1.3
      */
     @LuaFunction
     public final long getSize( String path ) throws LuaException
@@ -459,6 +463,7 @@ public class FSAPI implements ILuaAPI
      * @throws LuaException If the path doesn't exist.
      * @see #getCapacity To get the capacity of this drive.
      * @cc.treturn number|"unlimited" The amount of free space available, in bytes, or "unlimited".
+     * @cc.since 1.4
      */
     @LuaFunction
     public final Object getFreeSpace( String path ) throws LuaException
@@ -485,6 +490,7 @@ public class FSAPI implements ILuaAPI
      * @param path The wildcard-qualified path to search for.
      * @return A list of paths that match the search string.
      * @throws LuaException If the path doesn't exist.
+     * @cc.since 1.6
      */
     @LuaFunction
     public final String[] find( String path ) throws LuaException
@@ -509,6 +515,7 @@ public class FSAPI implements ILuaAPI
      * @see #getFreeSpace To get the free space available on this drive.
      * @cc.treturn number|nil This drive's capacity. This will be nil for "read-only" drives, such as the ROM or
      * treasure disks.
+     * @cc.since 1.87.0
      */
     @LuaFunction
     public final Object getCapacity( String path ) throws LuaException
@@ -539,6 +546,9 @@ public class FSAPI implements ILuaAPI
      * @cc.treturn { size = number, isDir = boolean, isReadOnly = boolean, created = number, modified = number } The resulting attributes.
      * @see #getSize If you only care about the file's size.
      * @see #isDir If you only care whether a path is a directory or not.
+     * @cc.since 1.87.0
+     * @cc.changed 1.91.0 Renamed `modification` field to `modified`.
+     * @cc.changed 1.95.2 Added `isReadOnly` to attributes.
      */
     @LuaFunction
     public final Map<String, Object> attributes( String path ) throws LuaException

@@ -13,6 +13,7 @@ etc) can safely be used in one without affecting the event queue accessed by
 the other.
 
 @module parallel
+@since 1.2
 ]]
 
 local function create(...)

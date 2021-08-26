@@ -47,6 +47,7 @@ public class TermAPI extends TermMethods implements ILuaAPI
      * @cc.treturn number The green channel, will be between 0 and 1.
      * @cc.treturn number The blue channel, will be between 0 and 1.
      * @see TermMethods#setPaletteColour(IArguments) To change the palette colour.
+     * @cc.since 1.81.0
      */
     @LuaFunction( { "nativePaletteColour", "nativePaletteColor" } )
     public final Object[] nativePaletteColour( int colour ) throws LuaException

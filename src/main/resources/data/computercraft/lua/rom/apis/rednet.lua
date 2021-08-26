@@ -15,6 +15,7 @@
 -- determine where given messages should be sent in the first place.
 --
 -- @module rednet
+-- @since 1.2
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
@@ -80,6 +81,7 @@ end
 -- @tparam[opt] string modem Which modem to check. If not given, all connected
 -- modems will be checked.
 -- @treturn boolean If the given modem is open.
+-- @since 1.31
 function isOpen(modem)
     expect(1, modem, "string", "nil")
     if modem then
@@ -114,6 +116,8 @@ particular protocol.
 @treturn boolean If this message was successfully sent (i.e. if rednet is
 currently @{rednet.open|open}). Note, this does not guarantee the message was
 actually _received_.
+@changed 1.6 Added protocol parameter.
+@changed 1.82.0 Now returns whether the message was successfully sent.
 @see rednet.receive
 @usage Send a message to computer #2.
 
@@ -166,6 +170,7 @@ end
 -- using @{rednet.receive} one can filter to only receive messages sent under a
 -- particular protocol.
 -- @see rednet.receive
+-- @changed 1.6 Added protocol parameter.
 function broadcast(message, sProtocol)
     expect(2, sProtocol, "string", "nil")
     send(CHANNEL_BROADCAST, message, sProtocol)
@@ -185,6 +190,7 @@ received.
 @treturn[2] nil If the timeout elapsed and no message was received.
 @see rednet.broadcast
 @see rednet.send
+@changed 1.6 Added protocol filter parameter.
 @usage Receive a rednet message.
 
     local id, message = rednet.receive()
@@ -262,6 +268,7 @@ end
 -- @throws If trying to register a hostname which is reserved, or currently in use.
 -- @see rednet.unhost
 -- @see rednet.lookup
+-- @since 1.6
 function host(sProtocol, sHostname)
     expect(1, sProtocol, "string")
     expect(2, sHostname, "string")
@@ -280,6 +287,7 @@ end
 -- respond to @{rednet.lookup} requests.
 --
 -- @tparam string sProtocol The protocol to unregister your self from.
+-- @since 1.6
 function unhost(sProtocol)
     expect(1, sProtocol, "string")
     tHostnames[sProtocol] = nil
@@ -299,6 +307,7 @@ end
 -- protocol, or @{nil} if none exist.
 -- @treturn[2] number|nil The computer ID with the provided hostname and protocol,
 -- or @{nil} if none exists.
+-- @since 1.6
 function lookup(sProtocol, sHostname)
     expect(1, sProtocol, "string")
     expect(2, sHostname, "string", "nil")
