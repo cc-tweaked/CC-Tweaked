@@ -338,6 +338,7 @@ public class OSAPI implements ILuaAPI
      * }</pre>
      * @cc.since 1.2
      * @cc.changed 1.80pr1 Add support for getting the local local and UTC time.
+     * @cc.changed 1.82.0 Arguments are now case insensitive.
      * @cc.changed 1.83.0 {@link #time(IArguments)} now accepts table arguments and converts them to UNIX timestamps.
      */
     @LuaFunction
@@ -374,6 +375,7 @@ public class OSAPI implements ILuaAPI
      * @return The day depending on the selected locale.
      * @throws LuaException If an invalid locale is passed.
      * @cc.since 1.48
+     * @cc.changed 1.82.0 Arguments are now case insensitive.
      */
     @LuaFunction
     public final int day( Optional<String> args ) throws LuaException

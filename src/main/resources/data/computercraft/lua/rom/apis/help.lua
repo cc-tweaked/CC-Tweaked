@@ -1,6 +1,7 @@
 --- Provides an API to read help files.
 --
 -- @module help
+-- @since 1.2
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
@@ -98,6 +99,7 @@ end
 --
 -- @tparam string prefix The prefix to match
 -- @treturn table A list of matching topics.
+-- @since 1.74
 function completeTopic(sText)
     expect(1, sText, "string")
     local tTopics = topics()

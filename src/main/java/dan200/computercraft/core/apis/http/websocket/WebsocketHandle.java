@@ -55,7 +55,7 @@ public class WebsocketHandle implements Closeable
      * @cc.treturn [1] string The received message.
      * @cc.treturn boolean If this was a binary message.
      * @cc.treturn [2] nil If the websocket was closed while waiting, or if we timed out.
-     * @cc.changed 1.81.0 Added return value indicating whether the message was binary.
+     * @cc.changed 1.80pr1.13 Added return value indicating whether the message was binary.
      * @cc.changed 1.87.0 Added timeout argument.
      */
     @LuaFunction

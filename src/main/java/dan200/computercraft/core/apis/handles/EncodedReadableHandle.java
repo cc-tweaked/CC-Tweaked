@@ -117,7 +117,7 @@ public class EncodedReadableHandle extends HandleGeneric
      * @throws LuaException When trying to read a negative number of characters.
      * @throws LuaException If the file has been closed.
      * @cc.treturn string|nil The read characters, or {@code nil} if at the of the file.
-     * @cc.since 1.81.0
+     * @cc.since 1.80pr1.4
      */
     @LuaFunction
     public final Object[] read( Optional<Integer> countA ) throws LuaException

@@ -26,6 +26,7 @@
 -- terminal display as its parent, and only one of which is visible at a time.
 --
 -- @module window
+-- @since 1.6
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 

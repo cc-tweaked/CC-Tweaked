@@ -5,6 +5,7 @@
 -- `/.settings` file. One can then use @{settings.save} to update the file.
 --
 -- @module settings
+-- @since 1.78
 
 local expect = dofile("rom/modules/main/cc/expect.lua")
 local type, expect, field = type, expect.expect, expect.field

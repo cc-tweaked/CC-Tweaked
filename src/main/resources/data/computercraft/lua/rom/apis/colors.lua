@@ -204,6 +204,7 @@ black = 0x8000
 --
 -- @tparam number ... The colors to combine.
 -- @treturn number The union of the color sets given in `...`
+-- @since 1.2
 -- @usage
 -- ```lua
 -- colors.combine(colors.white, colors.magenta, colours.lightBlue)
@@ -229,6 +230,7 @@ end
 -- @tparam number colors The color from which to subtract.
 -- @tparam number ... The colors to subtract.
 -- @treturn number The resulting color.
+-- @since 1.2
 -- @usage
 -- ```lua
 -- colours.subtract(colours.lime, colours.orange, colours.white)
@@ -251,6 +253,7 @@ end
 -- @tparam number colors A color, or color set
 -- @tparam number color A color or set of colors that `colors` should contain.
 -- @treturn boolean If `colors` contains all colors within `color`.
+-- @since 1.2
 -- @usage
 -- ```lua
 -- colors.test(colors.combine(colors.white, colors.magenta, colours.lightBlue), colors.lightBlue)

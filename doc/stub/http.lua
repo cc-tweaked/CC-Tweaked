@@ -2,6 +2,7 @@
 -- receiving data from them.
 --
 -- @module http
+-- @since 1.1
 
 --- Asynchronously make a HTTP request to the given url.
 --
@@ -35,8 +36,11 @@
 --
 -- @see http.get  For a synchronous way to make GET requests.
 -- @see http.post For a synchronous way to make POST requests.
+--
+-- @changed 1.63 Added argument for headers.
 -- @changed 1.80pr1 Added argument for binary handles.
--- @changed 1.81.0 Added support for table argument.
+-- @changed 1.80pr1.6 Added support for table argument.
+-- @changed 1.86.0 Added PATCH and TRACE methods.
 function request(...) end
 
 --- Make a HTTP GET request to the given url.
@@ -60,9 +64,11 @@ function request(...) end
 -- @treturn string A message detailing why the request failed.
 -- @treturn Response|nil The failing http response, if available.
 --
+-- @changed 1.63 Added argument for headers.
 -- @changed 1.80pr1 Response handles are now returned on error if available.
 -- @changed 1.80pr1 Added argument for binary handles.
--- @changed 1.81.0 Added support for table argument.
+-- @changed 1.80pr1.6 Added support for table argument.
+-- @changed 1.86.0 Added PATCH and TRACE methods.
 --
 -- @usage Make a request to [example.tweaked.cc](https://example.tweaked.cc),
 -- and print the returned page.
@@ -95,9 +101,13 @@ function get(...) end
 -- error or connection timeout.
 -- @treturn string A message detailing why the request failed.
 -- @treturn Response|nil The failing http response, if available.
+--
+-- @since 1.31
+-- @changed 1.63 Added argument for headers.
 -- @changed 1.80pr1 Response handles are now returned on error if available.
 -- @changed 1.80pr1 Added argument for binary handles.
--- @changed 1.81.0 Added support for table argument.
+-- @changed 1.80pr1.6 Added support for table argument.
+-- @changed 1.86.0 Added PATCH and TRACE methods.
 function post(...) end
 
 --- Asynchronously determine whether a URL can be requested.
@@ -151,7 +161,8 @@ function checkURL(url) end
 -- @treturn Websocket The websocket connection.
 -- @treturn[2] false If the websocket connection failed.
 -- @treturn string An error message describing why the connection failed.
--- @since 1.81.0
+-- @since 1.80pr1.1
+-- @changed 1.80pr1.3 No longer asynchronous.
 -- @changed 1.95.3 Added User-Agent to default headers.
 function websocket(url, headers) end
 
@@ -165,6 +176,6 @@ function websocket(url, headers) end
 -- `ws://` or `wss://` protocol.
 -- @tparam[opt] { [string] = string } headers Additional headers to send as part
 -- of the initial websocket connection.
--- @since 1.81.0
+-- @since 1.80pr1.3
 -- @changed 1.95.3 Added User-Agent to default headers.
 function websocketAsync(url, headers) end

@@ -76,6 +76,7 @@ handleMetatable = {
         @param ... The argument to pass to @{Handle:read} for each line.
         @treturn function():string|nil The line iterator.
         @throws If the file cannot be opened for reading
+        @since 1.3
 
         @see io.lines
         @usage Iterate over every line in a file and print it out.
@@ -275,6 +276,7 @@ stderr = defaultError
 --
 -- @see Handle:close
 -- @see io.output
+-- @since 1.55
 function close(file)
     if file == nil then return currentOutput:close() end
 
@@ -288,6 +290,7 @@ end
 --
 -- @see Handle:flush
 -- @see io.output
+-- @since 1.55
 function flush()
     return currentOutput:flush()
 end
@@ -297,6 +300,7 @@ end
 -- @tparam[opt] Handle|string file The new input file, either as a file path or pre-existing handle.
 -- @treturn Handle The current input file.
 -- @throws If the provided filename cannot be opened for reading.
+-- @since 1.55
 function input(file)
     if type_of(file) == "string" then
         local res, err = open(file, "rb")
@@ -329,6 +333,7 @@ In this case, the handle is not used.
 
 @see Handle:lines
 @see io.input
+@since 1.55
 @usage Iterate over every line in a file and print it out.
 
 ```lua
@@ -384,6 +389,7 @@ end
 -- @tparam[opt] Handle|string file The new output file, either as a file path or pre-existing handle.
 -- @treturn Handle The current output file.
 -- @throws If the provided filename cannot be opened for writing.
+-- @since 1.55
 function output(file)
     if type_of(file) == "string" then
         local res, err = open(file, "wb")

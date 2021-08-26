@@ -25,6 +25,7 @@ import java.util.*;
 
 /**
  * @cc.module commands
+ * @cc.since 1.7
  */
 public class CommandAPI implements ILuaAPI
 {
@@ -90,6 +91,8 @@ public class CommandAPI implements ILuaAPI
      * @cc.treturn { string... } The output of this command, as a list of lines.
      * @cc.treturn number|nil The number of "affected" objects, or `nil` if the command failed. The definition of this
      * varies from command to command.
+     * @cc.changed 1.71 Added return value with command output.
+     * @cc.changed 1.85.0 Added return value with the number of affected objects.
      * @cc.usage Set the block above the command computer to stone.
      * <pre>{@code
      * commands.exec("setblock ~ ~1 ~ minecraft:stone")
@@ -193,6 +196,7 @@ public class CommandAPI implements ILuaAPI
      * @return A list of information about each block.
      * @throws LuaException If the coordinates are not within the world.
      * @throws LuaException If trying to get information about more than 4096 blocks.
+     * @cc.since 1.76
      */
     @LuaFunction( mainThread = true )
     public final List<Map<?, ?>> getBlockInfos( int minX, int minY, int minZ, int maxX, int maxY, int maxZ ) throws LuaException
@@ -245,6 +249,7 @@ public class CommandAPI implements ILuaAPI
      * @param z The z position of the block to query.
      * @return The given block's information.
      * @throws LuaException If the coordinates are not within the world, or are not currently loaded.
+     * @cc.changed 1.76 Added block state info to return value
      */
     @LuaFunction( mainThread = true )
     public final Map<?, ?> getBlockInfo( int x, int y, int z ) throws LuaException

@@ -112,7 +112,7 @@ public abstract class TermMethods
      *
      * @return If the cursor is blinking.
      * @throws LuaException (hidden) If the terminal cannot be found.
-     * @cc.since 1.81.0
+     * @cc.since 1.80pr1.9
      */
     @LuaFunction
     public final boolean getCursorBlink() throws LuaException
@@ -180,6 +180,7 @@ public abstract class TermMethods
      * @return The current text colour.
      * @throws LuaException (hidden) If the terminal cannot be found.
      * @cc.see colors For a list of colour constants, returned by this function.
+     * @cc.since 1.74
      */
     @LuaFunction( { "getTextColour", "getTextColor" } )
     public final int getTextColour() throws LuaException
@@ -194,6 +195,7 @@ public abstract class TermMethods
      * @throws LuaException (hidden) If the terminal cannot be found.
      * @cc.see colors For a list of colour constants.
      * @cc.changed 1.80pr1 Standard computers can now use all 16 colors, being changed to grayscale on screen.
+     * @cc.since 1.45
      */
     @LuaFunction( { "setTextColour", "setTextColor" } )
     public final void setTextColour( int colourArg ) throws LuaException
@@ -213,6 +215,7 @@ public abstract class TermMethods
      * @return The current background colour.
      * @throws LuaException (hidden) If the terminal cannot be found.
      * @cc.see colors For a list of colour constants, returned by this function.
+     * @cc.since 1.74
      */
     @LuaFunction( { "getBackgroundColour", "getBackgroundColor" } )
     public final int getBackgroundColour() throws LuaException
@@ -227,6 +230,7 @@ public abstract class TermMethods
      * @param colourArg The new background colour.
      * @throws LuaException (hidden) If the terminal cannot be found.
      * @cc.see colors For a list of colour constants.
+     * @cc.since 1.45
      * @cc.changed 1.80pr1 Standard computers can now use all 16 colors, being changed to grayscale on screen.
      */
     @LuaFunction( { "setBackgroundColour", "setBackgroundColor" } )
@@ -248,6 +252,7 @@ public abstract class TermMethods
      *
      * @return Whether this terminal supports colour.
      * @throws LuaException (hidden) If the terminal cannot be found.
+     * @cc.since 1.45
      */
     @LuaFunction( { "isColour", "isColor" } )
     public final boolean getIsColour() throws LuaException
@@ -270,6 +275,7 @@ public abstract class TermMethods
      * @param backgroundColour The corresponding background colours.
      * @throws LuaException If the three inputs are not the same length.
      * @cc.see colors For a list of colour constants, and their hexadecimal values.
+     * @cc.since 1.74
      * @cc.changed 1.80pr1 Standard computers can now use all 16 colors, being changed to grayscale on screen.
      * @cc.usage Prints "Hello, world!" in rainbow text.
      * <pre>{@code

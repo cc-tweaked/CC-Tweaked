@@ -2,6 +2,7 @@
 -- image files. You can use the `colors` API for easier color manipulation.
 --
 -- @module paintutils
+-- @since 1.45
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 

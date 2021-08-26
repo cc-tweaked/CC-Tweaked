@@ -127,6 +127,7 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The path to get the name from.
      * @return The final part of the path (the file name).
+     * @cc.since 1.2
      * @cc.usage Get the file name of {@code rom/startup.lua}
      * <pre>{@code
      * fs.getName("rom/startup.lua")
@@ -144,6 +145,7 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The path to get the directory from.
      * @return The path with the final part removed (the parent directory).
+     * @cc.since 1.63
      * @cc.usage Get the directory name of {@code rom/startup.lua}
      * <pre>{@code
      * fs.getDir("rom/startup.lua")
@@ -162,6 +164,7 @@ public class FSAPI implements ILuaAPI
      * @param path The file to get the file size of.
      * @return The size of the file, in bytes.
      * @throws LuaException If the path doesn't exist.
+     * @cc.since 1.3
      */
     @LuaFunction
     public final long getSize( String path ) throws LuaException
@@ -460,6 +463,7 @@ public class FSAPI implements ILuaAPI
      * @throws LuaException If the path doesn't exist.
      * @see #getCapacity To get the capacity of this drive.
      * @cc.treturn number|"unlimited" The amount of free space available, in bytes, or "unlimited".
+     * @cc.since 1.4
      */
     @LuaFunction
     public final Object getFreeSpace( String path ) throws LuaException
@@ -486,6 +490,7 @@ public class FSAPI implements ILuaAPI
      * @param path The wildcard-qualified path to search for.
      * @return A list of paths that match the search string.
      * @throws LuaException If the path doesn't exist.
+     * @cc.since 1.6
      */
     @LuaFunction
     public final String[] find( String path ) throws LuaException
