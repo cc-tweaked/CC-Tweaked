@@ -26,7 +26,12 @@ on is present.
 
 ```groovy
 repositories {
-  maven { url 'https://squiddev.cc/maven/' }
+  maven {
+    url 'https://squiddev.cc/maven/'
+    content {
+      includeGroup 'org.squiddev'
+    }
+  }
 }
 
 dependencies {
