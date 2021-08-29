@@ -212,8 +212,8 @@ public class OSAPI implements ILuaAPI
      * @return The ID of the new alarm. This can be used to filter the
      * {@code alarm} event, or {@link #cancelAlarm cancel the alarm}.
      * @throws LuaException If the time is out of range.
-     * @see #cancelAlarm To cancel an alarm.
      * @cc.since 1.2
+     * @see #cancelAlarm To cancel an alarm.
      */
     @LuaFunction
     public final int setAlarm( double time ) throws LuaException
@@ -233,8 +233,8 @@ public class OSAPI implements ILuaAPI
      * alarm from firing.
      *
      * @param token The ID of the alarm to cancel.
-     * @see #setAlarm To set an alarm.
      * @cc.since 1.2
+     * @see #setAlarm To set an alarm.
      */
     @LuaFunction
     public final void cancelAlarm( int token )
@@ -330,7 +330,6 @@ public class OSAPI implements ILuaAPI
      * @return The hour of the selected locale, or a UNIX timestamp from the table, depending on the argument passed in.
      * @throws LuaException If an invalid locale is passed.
      * @cc.tparam [opt] string|table locale The locale of the time, or a table filled by {@code os.date("*t")} to decode. Defaults to {@code ingame} locale if not specified.
-     * @see #date To get a date table that can be converted with this function.
      * @cc.see textutils.formatTime To convert times into a user-readable string.
      * @cc.usage Print the current in-game time.
      * <pre>{@code
@@ -340,6 +339,7 @@ public class OSAPI implements ILuaAPI
      * @cc.changed 1.80pr1 Add support for getting the local local and UTC time.
      * @cc.changed 1.82.0 Arguments are now case insensitive.
      * @cc.changed 1.83.0 {@link #time(IArguments)} now accepts table arguments and converts them to UNIX timestamps.
+     * @see #date To get a date table that can be converted with this function.
      */
     @LuaFunction
     public final Object time( IArguments args ) throws LuaException

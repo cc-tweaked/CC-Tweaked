@@ -461,9 +461,9 @@ public class FSAPI implements ILuaAPI
      * @param path The path to check the free space for.
      * @return The amount of free space available, in bytes.
      * @throws LuaException If the path doesn't exist.
-     * @see #getCapacity To get the capacity of this drive.
      * @cc.treturn number|"unlimited" The amount of free space available, in bytes, or "unlimited".
      * @cc.since 1.4
+     * @see #getCapacity To get the capacity of this drive.
      */
     @LuaFunction
     public final Object getFreeSpace( String path ) throws LuaException
@@ -512,10 +512,10 @@ public class FSAPI implements ILuaAPI
      * @param path The path of the drive to get.
      * @return The drive's capacity.
      * @throws LuaException If the capacity cannot be determined.
-     * @see #getFreeSpace To get the free space available on this drive.
      * @cc.treturn number|nil This drive's capacity. This will be nil for "read-only" drives, such as the ROM or
      * treasure disks.
      * @cc.since 1.87.0
+     * @see #getFreeSpace To get the free space available on this drive.
      */
     @LuaFunction
     public final Object getCapacity( String path ) throws LuaException
@@ -544,11 +544,11 @@ public class FSAPI implements ILuaAPI
      * @return The resulting attributes.
      * @throws LuaException If the path does not exist.
      * @cc.treturn { size = number, isDir = boolean, isReadOnly = boolean, created = number, modified = number } The resulting attributes.
-     * @see #getSize If you only care about the file's size.
-     * @see #isDir If you only care whether a path is a directory or not.
      * @cc.since 1.87.0
      * @cc.changed 1.91.0 Renamed `modification` field to `modified`.
      * @cc.changed 1.95.2 Added `isReadOnly` to attributes.
+     * @see #getSize If you only care about the file's size.
+     * @see #isDir If you only care whether a path is a directory or not.
      */
     @LuaFunction
     public final Map<String, Object> attributes( String path ) throws LuaException

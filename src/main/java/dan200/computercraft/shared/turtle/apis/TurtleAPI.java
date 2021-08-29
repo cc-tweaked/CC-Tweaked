@@ -212,8 +212,8 @@ public class TurtleAPI implements ILuaAPI
      * @cc.tparam [opt] string text When placing a sign, set its contents to this text.
      * @cc.treturn boolean Whether the block could be placed.
      * @cc.treturn string|nil The reason the block was not placed.
-     * @see #place For more information about placing items.
      * @cc.since 1.4
+     * @see #place For more information about placing items.
      */
     @LuaFunction
     public final MethodResult placeUp( IArguments args )
@@ -229,8 +229,8 @@ public class TurtleAPI implements ILuaAPI
      * @cc.tparam [opt] string text When placing a sign, set its contents to this text.
      * @cc.treturn boolean Whether the block could be placed.
      * @cc.treturn string|nil The reason the block was not placed.
-     * @see #place For more information about placing items.
      * @cc.since 1.4
+     * @see #place For more information about placing items.
      */
     @LuaFunction
     public final MethodResult placeDown( IArguments args )
@@ -247,8 +247,8 @@ public class TurtleAPI implements ILuaAPI
      * @throws LuaException If dropping an invalid number of items.
      * @cc.treturn boolean Whether items were dropped.
      * @cc.treturn string|nil The reason the no items were dropped.
-     * @see #select
      * @cc.since 1.31
+     * @see #select
      */
     @LuaFunction
     public final MethodResult drop( Optional<Integer> count ) throws LuaException
@@ -265,8 +265,8 @@ public class TurtleAPI implements ILuaAPI
      * @throws LuaException If dropping an invalid number of items.
      * @cc.treturn boolean Whether items were dropped.
      * @cc.treturn string|nil The reason the no items were dropped.
-     * @see #select
      * @cc.since 1.4
+     * @see #select
      */
     @LuaFunction
     public final MethodResult dropUp( Optional<Integer> count ) throws LuaException
@@ -283,8 +283,8 @@ public class TurtleAPI implements ILuaAPI
      * @throws LuaException If dropping an invalid number of items.
      * @cc.treturn boolean Whether items were dropped.
      * @cc.treturn string|nil The reason the no items were dropped.
-     * @see #select
      * @cc.since 1.4
+     * @see #select
      */
     @LuaFunction
     public final MethodResult dropDown( Optional<Integer> count ) throws LuaException
@@ -528,9 +528,9 @@ public class TurtleAPI implements ILuaAPI
      * @return The fuel level, or "unlimited".
      * @cc.treturn [1] number The current amount of fuel a turtle this turtle has.
      * @cc.treturn [2] "unlimited" If turtles do not consume fuel when moving.
+     * @cc.since 1.4
      * @see #getFuelLimit()
      * @see #refuel(Optional)
-     * @cc.since 1.4
      */
     @LuaFunction
     public final Object getFuelLevel()
@@ -571,9 +571,9 @@ public class TurtleAPI implements ILuaAPI
      * local is_fuel, reason = turtle.refuel(0)
      * if not is_fuel then printError(reason) end
      * }</pre>
+     * @cc.since 1.4
      * @see #getFuelLevel()
      * @see #getFuelLimit()
-     * @cc.since 1.4
      */
     @LuaFunction
     public final MethodResult refuel( Optional<Integer> countA ) throws LuaException
@@ -621,8 +621,8 @@ public class TurtleAPI implements ILuaAPI
      * Get the currently selected slot.
      *
      * @return The current slot.
-     * @see #select
      * @cc.since 1.6
+     * @see #select
      */
     @LuaFunction
     public final int getSelectedSlot()
@@ -638,9 +638,9 @@ public class TurtleAPI implements ILuaAPI
      * @return The limit, or "unlimited".
      * @cc.treturn [1] number The maximum amount of fuel a turtle can hold.
      * @cc.treturn [2] "unlimited" If turtles do not consume fuel when moving.
+     * @cc.since 1.6
      * @see #getFuelLevel()
      * @see #refuel(Optional)
-     * @cc.since 1.6
      */
     @LuaFunction
     public final Object getFuelLimit()
