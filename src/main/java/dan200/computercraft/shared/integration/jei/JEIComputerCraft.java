@@ -90,10 +90,10 @@ public class JEIComputerCraft implements IModPlugin
         runtime.getIngredientManager().addIngredientsAtRuntime( VanillaTypes.ITEM, upgradeItems );
 
         // Hide all upgrade recipes
-        IRecipeCategory<?> category = registry.getRecipeCategory( VanillaRecipeCategoryUid.CRAFTING );
+        IRecipeCategory<?> category = registry.getRecipeCategory( VanillaRecipeCategoryUid.CRAFTING, false );
         if( category != null )
         {
-            for( Object wrapper : registry.getRecipes( category ) )
+            for( Object wrapper : registry.getRecipes( category, null, false ) )
             {
                 if( !(wrapper instanceof Recipe) ) continue;
                 ResourceLocation id = ((Recipe<?>) wrapper).getId();

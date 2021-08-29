@@ -33,6 +33,7 @@ import javax.annotation.Nonnull;
 import java.util.*;
 
 import static net.minecraft.core.NonNullList.of;
+import static net.minecraft.world.item.crafting.Ingredient.of;
 
 class RecipeResolver implements IRecipeManagerPlugin
 {

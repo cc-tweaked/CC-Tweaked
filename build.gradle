@@ -47,7 +47,8 @@ tasks.withType(JavaExec).configureEach {
 
 sourceSets {
     main.java {
-        exclude 'dan200/computercraft/shared/integration/**'
+        exclude 'dan200/computercraft/shared/integration/morered/**'
+        exclude 'dan200/computercraft/shared/integration/crafttweaker/**'
     }
     main.resources {
         srcDir 'src/generated/resources'
@@ -151,11 +152,11 @@ dependencies {
 
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
-    compileOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.0.104:api")
+    compileOnly fg.deobf("mezz.jei:jei-1.17.1:8.0.0.14:api")
     // compileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.5:7.1.0.313")
     // compileOnly fg.deobf("commoble.morered:morered-1.16.5:2.1.1.0")
 
-    // runtimeOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.0.104")
+    runtimeOnly fg.deobf("mezz.jei:jei-1.17.1:8.0.0.14")
 
     shade 'org.squiddev:Cobalt:0.5.2-SNAPSHOT'
 
