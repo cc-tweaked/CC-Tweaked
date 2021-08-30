@@ -18,7 +18,7 @@ import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.computer.items.ItemComputer;
 import dan200.computercraft.shared.computer.recipe.ComputerUpgradeRecipe;
@@ -53,7 +53,6 @@ import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.peripheral.speaker.BlockSpeaker;
 import dan200.computercraft.shared.peripheral.speaker.TileSpeaker;
-import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
@@ -312,11 +311,14 @@ public final class Registry
     {
         static final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create( ForgeRegistries.CONTAINERS, ComputerCraft.MOD_ID );
 
-        public static final RegistryObject<ContainerType<ContainerComputer>> COMPUTER = CONTAINERS.register( "computer",
-            () -> ContainerData.toType( ComputerContainerData::new, ContainerComputer::new ) );
+        public static final RegistryObject<ContainerType<ContainerComputerBase>> COMPUTER = CONTAINERS.register( "computer",
+            () -> ContainerData.toType( ComputerContainerData::new, ContainerComputerBase::new ) );
 
-        public static final RegistryObject<ContainerType<ContainerPocketComputer>> POCKET_COMPUTER = CONTAINERS.register( "pocket_computer",
-            () -> ContainerData.toType( ComputerContainerData::new, ContainerPocketComputer::new ) );
+        public static final RegistryObject<ContainerType<ContainerComputerBase>> POCKET_COMPUTER = CONTAINERS.register( "pocket_computer",
+            () -> ContainerData.toType( ComputerContainerData::new, ContainerComputerBase::new ) );
+
+        public static final RegistryObject<ContainerType<ContainerComputerBase>> POCKET_COMPUTER_NO_TERM = CONTAINERS.register( "pocket_computer_no_term",
+            () -> ContainerData.toType( ComputerContainerData::new, ContainerComputerBase::new ) );
 
         public static final RegistryObject<ContainerType<ContainerTurtle>> TURTLE = CONTAINERS.register( "turtle",
             () -> ContainerData.toType( ComputerContainerData::new, ContainerTurtle::new ) );

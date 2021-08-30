@@ -8,10 +8,11 @@ package dan200.computercraft.shared.computer.blocks;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -50,7 +51,7 @@ public class TileComputer extends TileComputerBase
         return computer;
     }
 
-    public boolean isUsableByPlayer( PlayerEntity player )
+    protected boolean isUsableByPlayer( PlayerEntity player )
     {
         return isUsable( player, false );
     }
@@ -85,7 +86,7 @@ public class TileComputer extends TileComputerBase
     @Override
     public Container createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
     {
-        return new ContainerComputer( id, this );
+        return new ContainerComputerBase( Registry.ModContainers.COMPUTER.get(), id, this::isUsableByPlayer, createServerComputer(), getFamily() );
     }
 
     @Nonnull

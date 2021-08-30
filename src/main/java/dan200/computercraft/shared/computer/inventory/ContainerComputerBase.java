@@ -46,7 +46,7 @@ public class ContainerComputerBase extends Container implements IContainerComput
     private UUID toUploadId;
     private List<FileUpload> toUpload;
 
-    protected ContainerComputerBase( ContainerType<? extends ContainerComputerBase> type, int id, Predicate<PlayerEntity> canUse, IComputer computer, ComputerFamily family )
+    public ContainerComputerBase( ContainerType<? extends ContainerComputerBase> type, int id, Predicate<PlayerEntity> canUse, IComputer computer, ComputerFamily family )
     {
         super( type, id );
         this.canUse = canUse;
@@ -54,7 +54,7 @@ public class ContainerComputerBase extends Container implements IContainerComput
         this.family = family;
     }
 
-    protected ContainerComputerBase( ContainerType<? extends ContainerComputerBase> type, int id, PlayerInventory player, ComputerContainerData data )
+    public ContainerComputerBase( ContainerType<? extends ContainerComputerBase> type, int id, PlayerInventory player, ComputerContainerData data )
     {
         this( type, id, x -> true, getComputer( player, data ), data.getFamily() );
     }

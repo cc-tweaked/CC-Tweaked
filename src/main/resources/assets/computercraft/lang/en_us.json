@@ -130,5 +130,6 @@
     "gui.computercraft.upload.failed.corrupted": "Files corrupted when uploading. Please try again.",
     "gui.computercraft.upload.overwrite": "Files would be overwritten",
     "gui.computercraft.upload.overwrite.detail": "The following files will be overwritten when uploading. Continue?%s",
-    "gui.computercraft.upload.overwrite_button": "Overwrite"
+    "gui.computercraft.upload.overwrite_button": "Overwrite",
+    "gui.computercraft.pocket_computer_overlay": "Pocket computer open. Press ESC to close."
 }
