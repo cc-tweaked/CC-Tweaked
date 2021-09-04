@@ -82,8 +82,8 @@ describe("The textutils library", function()
             expect(textutils.serialise({ 1, 2, 3, a = 1, b = {} }))
                 :eq("{\n  1,\n  2,\n  3,\n  a = 1,\n  b = {},\n}")
 
-            expect(textutils.serialise({ 0 / 0, 1 / 0 }))
-                :eq("{\n  0/0,\n  1/0,\n}")
+            expect(textutils.serialise({ 0 / 0, 1 / 0, -1 / 0 }))
+                :eq("{\n  0/0,\n  1/0,\n  -1/0,\n}")
         end)
 
         it("fails on recursive/repeated tables", function()

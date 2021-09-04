@@ -325,8 +325,10 @@ local function serialize_impl(t, tracking, indent, opts)
     elseif sType == "number" then
         if t ~= t then --nan
             return "0/0"
-        elseif t == serialize_infinity then 
+        elseif t == serialize_infinity then
             return "1/0"
+        elseif t == -serialize_infinity then
+            return "-1/0"
         else
             return tostring(t)
         end
