@@ -268,11 +268,16 @@ local g_tLuaKeywords = {
     ["while"] = true,
 }
 
+local serialize_infinity = math.huge
 local function serialize_impl(t, tracking, indent, opts)
     local sType = type(t)
     if sType == "table" then
         if tracking[t] ~= nil then
-            error("Cannot serialize table with recursive entries", 0)
+            if tracking[t] == t then
+                error("Cannot serialize table with repeated entries", 0)
+            else
+                error("Cannot serialize table with recursive entries", 0)
+            end
         end
         tracking[t] = true
 
@@ -307,13 +312,26 @@ local function serialize_impl(t, tracking, indent, opts)
             result = result .. indent .. "}"
         end
 
-        if opts.allow_repetitions then tracking[t] = nil end
+        if opts.allow_repetitions then
+            tracking[t] = nil
+        else
+            tracking[t] = t
+        end
         return result
 
     elseif sType == "string" then
         return string.format("%q", t)
 
-    elseif sType == "number" or sType == "boolean" or sType == "nil" then
+    elseif sType == "number" then
+        if t ~= t then --nan
+            return "0/0"
+        elseif t == serialize_infinity then 
+            return "1/0"
+        else
+            return tostring(t)
+        end
+
+    elseif sType == "boolean" or sType == "nil" then
         return tostring(t)
 
     else
