@@ -15,7 +15,7 @@ else
 end
 
 local function idAsChannel(id)
-    return (id or os.getComputerID()) % rednet.MAX_ID
+    return (id or os.getComputerID()) % rednet.MAX_ID_CHANNELS
 end
 
 local function open(nChannel)

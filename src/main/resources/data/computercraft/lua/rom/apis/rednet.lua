@@ -25,18 +25,16 @@ CHANNEL_BROADCAST = 65535
 --- The channel used by the Rednet API to repeat messages.
 CHANNEL_REPEAT = 65533
 
---- Maximum of ID range to use as channel
-MAX_ID = 65500
+--- The number of channels rednet reserves for computer IDs. Computers with IDs
+-- greater or equal to this limit wrap around to 0.
+MAX_ID_CHANNELS = 65500
 
 local tReceivedMessages = {}
 local tReceivedMessageTimeouts = {}
 local tHostnames = {}
 
--- Patch the bug whenever a computer with an ID grater than 65535 crashes Rednet upon opening.
--- It modulos the ID to always have an ID lower or equal to MAX_ID.
--- This makes it compatible with the Modem API.
-local function idAsChannel(id)
-    return (id or os.getComputerID()) % MAX_ID
+local function id_as_channel(id)
+    return (id or os.getComputerID()) % MAX_ID_CHANNELS
 end
 
 --[[- Opens a modem with the given @{peripheral} name, allowing it to send and
@@ -57,7 +55,7 @@ function open(modem)
     if peripheral.getType(modem) ~= "modem" then
         error("No such modem: " .. modem, 2)
     end
-    peripheral.call(modem, "open", idAsChannel())
+    peripheral.call(modem, "open", id_as_channel())
     peripheral.call(modem, "open", CHANNEL_BROADCAST)
 end
 
@@ -74,7 +72,7 @@ function close(modem)
         if peripheral.getType(modem) ~= "modem" then
             error("No such modem: " .. modem, 2)
         end
-        peripheral.call(modem, "close", idAsChannel())
+        peripheral.call(modem, "close", id_as_channel())
         peripheral.call(modem, "close", CHANNEL_BROADCAST)
     else
         -- Close all modems
@@ -97,7 +95,7 @@ function isOpen(modem)
     if modem then
         -- Check if a specific modem is open
         if peripheral.getType(modem) == "modem" then
-            return peripheral.call(modem, "isOpen", idAsChannel()) and peripheral.call(modem, "isOpen", CHANNEL_BROADCAST)
+            return peripheral.call(modem, "isOpen", id_as_channel()) and peripheral.call(modem, "isOpen", CHANNEL_BROADCAST)
         end
     else
         -- Check if any modem is open
@@ -144,7 +142,7 @@ function send(nRecipient, message, sProtocol)
     tReceivedMessageTimeouts[os.startTimer(30)] = nMessageID
 
     -- Create the message
-    local nReplyChannel = idAsChannel()
+    local nReplyChannel = id_as_channel()
     local tMessage = {
         nMessageID = nMessageID,
         nRecipient = nRecipient,
@@ -161,7 +159,7 @@ function send(nRecipient, message, sProtocol)
     else
         -- Send on all open modems, to the target and to repeaters
         if nRecipient ~= CHANNEL_BROADCAST then
-            nRecipient = idAsChannel(nRecipient)
+            nRecipient = id_as_channel(nRecipient)
         end
 
         for _, sModem in ipairs(peripheral.getNames()) do
@@ -405,7 +403,7 @@ function run()
         if sEvent == "modem_message" then
             -- Got a modem message, process it and add it to the rednet event queue
             local sModem, nChannel, nReplyChannel, tMessage = p1, p2, p3, p4
-            if isOpen(sModem) and (nChannel == idAsChannel() or nChannel == CHANNEL_BROADCAST) then
+            if isOpen(sModem) and (nChannel == id_as_channel() or nChannel == CHANNEL_BROADCAST) then
                 if type(tMessage) == "table" and type(tMessage.nMessageID) == "number"
                     and tMessage.nMessageID == tMessage.nMessageID and not tReceivedMessages[tMessage.nMessageID]
                     and ((tMessage.nRecipient and tMessage.nRecipient == os.getComputerID()) or nChannel == CHANNEL_BROADCAST)
