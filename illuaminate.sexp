@@ -61,6 +61,8 @@
       (table space)
       (index no-space))
 
+    (allow-clarifying-parens true)
+
     ;; colours imports from colors, and we don't handle that right now.
     ;; keys is entirely dynamic, so we skip it.
     (dynamic-modules colours keys _G)
