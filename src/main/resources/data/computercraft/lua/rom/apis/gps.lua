@@ -21,6 +21,7 @@
 -- [1]: http://www.computercraft.info/forums2/index.php?/topic/3088-how-to-guide-gps-global-position-system/
 --
 -- @module gps
+-- @since 1.31
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 

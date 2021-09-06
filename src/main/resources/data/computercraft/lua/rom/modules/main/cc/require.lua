@@ -6,6 +6,7 @@
 -- custom shell or when running programs yourself.
 --
 -- @module cc.require
+-- @since 1.88.0
 -- @usage Construct the package and require function, and insert them into a
 -- custom environment.
 --

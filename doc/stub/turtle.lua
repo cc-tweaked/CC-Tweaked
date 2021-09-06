@@ -9,5 +9,6 @@ empty, including those outside the crafting "grid".
 @treturn[1] true If crafting succeeds.
 @treturn[2] false If crafting fails.
 @treturn string A string describing why crafting failed.
+@since 1.4
 ]]
 function craft(limit) end

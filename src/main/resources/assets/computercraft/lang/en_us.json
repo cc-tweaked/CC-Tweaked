@@ -123,9 +123,13 @@
     "gui.computercraft.upload.failed.out_of_space": "Not enough space on the computer for these files.",
     "gui.computercraft.upload.failed.computer_off": "You must turn the computer on before uploading files.",
     "gui.computercraft.upload.failed.too_much": "Your files are too large to be uploaded.",
+    "gui.computercraft.upload.failed.name_too_long": "File names are too long to be uploaded.",
+    "gui.computercraft.upload.failed.too_many_files": "Cannot upload this many files.",
     "gui.computercraft.upload.failed.overwrite_dir": "Cannot upload %s, as there is already a directory with the same name.",
-    "computercraft.gui.upload.failed.generic": "Uploading files failed (%s)",
+    "gui.computercraft.upload.failed.generic": "Uploading files failed (%s)",
+    "gui.computercraft.upload.failed.corrupted": "Files corrupted when uploading. Please try again.",
     "gui.computercraft.upload.overwrite": "Files would be overwritten",
     "gui.computercraft.upload.overwrite.detail": "The following files will be overwritten when uploading. Continue?%s",
-    "gui.computercraft.upload.overwrite_button": "Overwrite"
+    "gui.computercraft.upload.overwrite_button": "Overwrite",
+    "gui.computercraft.pocket_computer_overlay": "Pocket computer open. Press ESC to close."
 }

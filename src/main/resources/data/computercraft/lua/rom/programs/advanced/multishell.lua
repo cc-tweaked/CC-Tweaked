@@ -15,6 +15,7 @@
 -- not available to @{os.loadAPI|APIs}.
 --
 -- @module[module] multishell
+-- @since 1.6
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 

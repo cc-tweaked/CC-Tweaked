@@ -12,6 +12,7 @@
 -- @treturn boolean If the path is mounted, rather than a normal file/folder.
 -- @throws If the path does not exist.
 -- @see getDrive
+-- @since 1.87.0
 function isDriveRoot(path) end
 
 --[[- Provides completion for a file or directory name, suitable for use with
@@ -30,5 +31,6 @@ included in the returned list.
 @tparam[opt] boolean include_dirs When @{false}, "raw" directories will not be
 included in the returned list.
 @treturn { string... } A list of possible completion candidates.
+@since 1.74
 ]]
 function complete(path, location, include_files, include_dirs) end

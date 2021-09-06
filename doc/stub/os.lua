@@ -8,6 +8,7 @@ variables and functions exported by it will by available through the use of
 
 @tparam string path The path of the API to load.
 @treturn boolean Whether or not the API was successfully loaded.
+@since 1.2
 
 @deprecated When possible it's best to avoid using this function. It pollutes
 the global table and can mask errors.
@@ -21,6 +22,7 @@ function loadAPI(path) end
 -- This effectively removes the specified table from `_G`.
 --
 -- @tparam string name The name of the API to unload.
+-- @since 1.2
 -- @deprecated See @{os.loadAPI} for why.
 function unloadAPI(name) end
 
@@ -58,6 +60,7 @@ event, printing the error "Terminated".
     end
 
 @see os.pullEventRaw To pull the terminate event.
+@changed 1.3 Added filter argument.
 ]]
 function pullEvent(filter) end
 

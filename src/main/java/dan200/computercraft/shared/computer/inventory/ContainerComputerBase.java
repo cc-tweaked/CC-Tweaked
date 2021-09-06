@@ -10,6 +10,7 @@ import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.filesystem.FileSystemWrapper;
 import dan200.computercraft.shared.computer.core.*;
+import dan200.computercraft.shared.computer.upload.FileSlice;
 import dan200.computercraft.shared.computer.upload.FileUpload;
 import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.NetworkHandler;
@@ -29,6 +30,7 @@ import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -40,9 +42,11 @@ public class ContainerComputerBase extends Container implements IContainerComput
     private final IComputer computer;
     private final ComputerFamily family;
     private final InputState input = new InputState( this );
+
+    private UUID toUploadId;
     private List<FileUpload> toUpload;
 
-    protected ContainerComputerBase( ContainerType<? extends ContainerComputerBase> type, int id, Predicate<PlayerEntity> canUse, IComputer computer, ComputerFamily family )
+    public ContainerComputerBase( ContainerType<? extends ContainerComputerBase> type, int id, Predicate<PlayerEntity> canUse, IComputer computer, ComputerFamily family )
     {
         super( type, id );
         this.canUse = canUse;
@@ -50,7 +54,7 @@ public class ContainerComputerBase extends Container implements IContainerComput
         this.family = family;
     }
 
-    protected ContainerComputerBase( ContainerType<? extends ContainerComputerBase> type, int id, PlayerInventory player, ComputerContainerData data )
+    public ContainerComputerBase( ContainerType<? extends ContainerComputerBase> type, int id, PlayerInventory player, ComputerContainerData data )
     {
         this( type, id, x -> true, getComputer( player, data ), data.getFamily() );
     }
@@ -92,25 +96,52 @@ public class ContainerComputerBase extends Container implements IContainerComput
     }
 
     @Override
-    public void upload( @Nonnull ServerPlayerEntity uploader, @Nonnull List<FileUpload> files )
+    public void startUpload( @Nonnull UUID uuid, @Nonnull List<FileUpload> files )
     {
-        UploadResultMessage message = upload( files, false );
+        toUploadId = uuid;
+        toUpload = files;
+    }
+
+    @Override
+    public void continueUpload( @Nonnull UUID uploadId, @Nonnull List<FileSlice> slices )
+    {
+        if( toUploadId == null || toUpload == null || !toUploadId.equals( uploadId ) )
+        {
+            ComputerCraft.log.warn( "Invalid continueUpload call, skipping." );
+            return;
+        }
+
+        for( FileSlice slice : slices ) slice.apply( toUpload );
+    }
+
+    @Override
+    public void finishUpload( @Nonnull ServerPlayerEntity uploader, @Nonnull UUID uploadId )
+    {
+        if( toUploadId == null || toUpload == null || toUpload.isEmpty() || !toUploadId.equals( uploadId ) )
+        {
+            ComputerCraft.log.warn( "Invalid finishUpload call, skipping." );
+            return;
+        }
+
+        UploadResultMessage message = finishUpload( false );
         NetworkHandler.sendToPlayer( uploader, message );
     }
 
     @Override
-    public void continueUpload( @Nonnull ServerPlayerEntity uploader, boolean overwrite )
+    public void confirmUpload( @Nonnull ServerPlayerEntity uploader, boolean overwrite )
     {
-        List<FileUpload> files = this.toUpload;
-        toUpload = null;
-        if( files == null || files.isEmpty() || !overwrite ) return;
+        if( toUploadId == null || toUpload == null || toUpload.isEmpty() )
+        {
+            ComputerCraft.log.warn( "Invalid finishUpload call, skipping." );
+            return;
+        }
 
-        UploadResultMessage message = upload( files, true );
+        UploadResultMessage message = finishUpload( true );
         NetworkHandler.sendToPlayer( uploader, message );
     }
 
     @Nonnull
-    private UploadResultMessage upload( @Nonnull List<FileUpload> files, boolean forceOverwrite )
+    private UploadResultMessage finishUpload( boolean forceOverwrite )
     {
         ServerComputer computer = (ServerComputer) getComputer();
         if( computer == null ) return UploadResultMessage.COMPUTER_OFF;
@@ -118,9 +149,20 @@ public class ContainerComputerBase extends Container implements IContainerComput
         FileSystem fs = computer.getComputer().getEnvironment().getFileSystem();
         if( fs == null ) return UploadResultMessage.COMPUTER_OFF;
 
+        for( FileUpload upload : toUpload )
+        {
+            if( !upload.checksumMatches() )
+            {
+                ComputerCraft.log.warn( "Checksum failed to match for {}.", upload.getName() );
+                return new UploadResultMessage( UploadResult.ERROR, new TranslationTextComponent( "gui.computercraft.upload.failed.corrupted" ) );
+            }
+        }
+
         try
         {
             List<String> overwrite = new ArrayList<>();
+            List<FileUpload> files = toUpload;
+            toUpload = null;
             for( FileUpload upload : files )
             {
                 if( !fs.exists( upload.getName() ) ) continue;
@@ -139,7 +181,6 @@ public class ContainerComputerBase extends Container implements IContainerComput
             {
                 StringJoiner joiner = new StringJoiner( LIST_PREFIX, LIST_PREFIX, "" );
                 for( String value : overwrite ) joiner.add( value );
-
                 toUpload = files;
                 return new UploadResultMessage(
                     UploadResult.CONFIRM_OVERWRITE,
@@ -167,7 +208,7 @@ public class ContainerComputerBase extends Container implements IContainerComput
         catch( FileSystemException | IOException e )
         {
             ComputerCraft.log.error( "Error uploading files", e );
-            return new UploadResultMessage( UploadResult.ERROR, new TranslationTextComponent( "computercraft.gui.upload.failed.generic", e.getMessage() ) );
+            return new UploadResultMessage( UploadResult.ERROR, new TranslationTextComponent( "gui.computercraft.upload.failed.generic", e.getMessage() ) );
         }
     }
 

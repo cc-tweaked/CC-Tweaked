@@ -8,6 +8,7 @@ and so are not directly usable with the @{shell.setCompletionFunction}. Instead,
 wrap them using @{build}, or your own custom function.
 
 @module cc.shell.completion
+@since 1.85.0
 @see cc.completion For more general helpers, suitable for use with @{_G.read}.
 @see shell.setCompletionFunction
 
@@ -89,6 +90,7 @@ end
 -- @tparam { string... } previous The shell arguments before this one.
 -- @tparam number starting Which argument index this program and args start at.
 -- @treturn { string... } A list of suffixes of matching programs or arguments.
+-- @since 1.97.0
 local function programWithArgs(shell, text, previous, starting)
     if #previous + 1 == starting then
         local tCompletionInfo = shell.getCompletionInfo()
