@@ -43,7 +43,9 @@ public class NoTermComputerScreen<T extends ContainerComputerBase> extends Scree
     protected void init()
     {
         this.passEvents = true; // to allow gui click events pass through mouseHelper protection (see MouseHelper.OnPres:105 code string)
+        minecraft.mouseHandler.grabMouse();
         minecraft.screen = this;
+        
         super.init();
         minecraft.keyboardHandler.setSendRepeatsToGui( true );
 
