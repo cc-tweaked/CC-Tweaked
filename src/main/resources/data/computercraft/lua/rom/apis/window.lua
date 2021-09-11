@@ -414,6 +414,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
 
     function window.scroll(n)
         if type(n) ~= "number" then expect(1, n, "number") end
+        n = math.floor(n)
         if n ~= 0 then
             local tNewLines = {}
             local sEmptyText = sEmptySpaceLine
