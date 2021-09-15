@@ -273,7 +273,7 @@ local function serialize_impl(t, tracking, indent, opts)
     local sType = type(t)
     if sType == "table" then
         if tracking[t] ~= nil then
-            if tracking[t] == t then
+            if tracking[t] == false then
                 error("Cannot serialize table with repeated entries", 0)
             else
                 error("Cannot serialize table with recursive entries", 0)
@@ -315,7 +315,7 @@ local function serialize_impl(t, tracking, indent, opts)
         if opts.allow_repetitions then
             tracking[t] = nil
         else
-            tracking[t] = t
+            tracking[t] = false
         end
         return result
 
