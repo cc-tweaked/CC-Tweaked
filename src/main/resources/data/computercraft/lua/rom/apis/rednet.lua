@@ -26,8 +26,8 @@ CHANNEL_BROADCAST = 65535
 CHANNEL_REPEAT = 65533
 
 local tReceivedMessages = {}
-local tReceivedMessageTimeouts = {}
 local tHostnames = {}
+local nClearTimer
 
 --[[- Opens a modem with the given @{peripheral} name, allowing it to send and
 receive messages over rednet.
@@ -130,8 +130,8 @@ function send(nRecipient, message, sProtocol)
     -- We could do other things to guarantee uniqueness, but we really don't need to
     -- Store it to ensure we don't get our own messages back
     local nMessageID = math.random(1, 2147483647)
-    tReceivedMessages[nMessageID] = true
-    tReceivedMessageTimeouts[os.startTimer(30)] = nMessageID
+    tReceivedMessages[nMessageID] = os.epoch("utc")
+    if not nClearTimer then nClearTimer = os.startTimer(10) end
 
     -- Create the message
     local nReplyChannel = os.getComputerID()
@@ -394,8 +394,8 @@ function run()
                 if type(tMessage) == "table" and type(tMessage.nMessageID) == "number"
                     and tMessage.nMessageID == tMessage.nMessageID and not tReceivedMessages[tMessage.nMessageID]
                 then
-                    tReceivedMessages[tMessage.nMessageID] = true
-                    tReceivedMessageTimeouts[os.startTimer(30)] = tMessage.nMessageID
+                    tReceivedMessages[tMessage.nMessageID] = os.epoch("utc")
+                    if not nClearTimer then nClearTimer = os.startTimer(10) end
                     os.queueEvent("rednet_message", nReplyChannel, tMessage.message, tMessage.sProtocol)
                 end
             end
@@ -414,14 +414,15 @@ function run()
                 end
             end
 
-        elseif sEvent == "timer" then
+        elseif sEvent == "timer" and p1 == nClearTimer then
             -- Got a timer event, use it to clear the event queue
-            local nTimer = p1
-            local nMessage = tReceivedMessageTimeouts[nTimer]
-            if nMessage then
-                tReceivedMessageTimeouts[nTimer] = nil
-                tReceivedMessages[nMessage] = nil
+            nClearTimer = nil
+            local nNow, bFound = os.epoch("utc"), nil
+            for k, v in pairs(tReceivedMessages) do
+                if nNow - v >= 9500 then tReceivedMessages[k] = nil
+                else bFound = true end
             end
+            nClearTimer = bFound and os.startTimer(10)
         end
     end
 end
