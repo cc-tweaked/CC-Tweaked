@@ -9,8 +9,6 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
-import net.minecraft.Util;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
@@ -22,11 +20,12 @@ import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.util.function.Function;
 
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD )
 public class RenderTypes
 {
+    public static final int FULL_BRIGHT_LIGHTMAP = (0xF << 4) | (0xF << 20);
+
     private static MonitorTextureBufferShader monitorTboShader;
     private static ShaderInstance terminalShader;
 
@@ -34,15 +33,17 @@ public class RenderTypes
     public static final RenderType TERMINAL_BLOCKER = Types.TERMINAL_BLOCKER;
     public static final RenderType TERMINAL_WITH_DEPTH = Types.TERMINAL_WITH_DEPTH;
     public static final RenderType MONITOR_TBO = Types.MONITOR_TBO;
+    public static final RenderType PRINTOUT_TEXT = Types.PRINTOUT_TEXT;
 
-    public static final RenderType PRINTOUT_BACKGROUND = Types.PRINTOUT_BACKGROUND;
+    /**
+     * This looks wrong (it should be POSITION_COLOR_TEX_LIGHTMAP surely!) but the fragment/vertex shader for that
+     * appear to entirely ignore the lightmap.
+     *
+     * Note that vanilla maps do the same, so this isn't unreasonable.
+     */
+    public static final RenderType PRINTOUT_BACKGROUND = RenderType.text( new ResourceLocation( "computercraft", "textures/gui/printout.png" ) );
 
     public static final RenderType POSITION_COLOR = Types.POSITION_COLOR;
-
-    public static RenderType positionColorTex( ResourceLocation location )
-    {
-        return Types.POSITION_COLOR_TEX.apply( location );
-    }
 
     @Nonnull
     static MonitorTextureBufferShader getMonitorTextureBufferShader()
@@ -88,6 +89,7 @@ public class RenderTypes
         );
         private static final VertexFormat TERM_FORMAT = DefaultVertexFormat.POSITION_COLOR_TEX;
         private static final VertexFormat.Mode TERM_MODE = VertexFormat.Mode.TRIANGLES;
+        private static final ShaderStateShard TERM_SHADER = new ShaderStateShard( RenderTypes::getTerminalShader );
 
         static final RenderType MONITOR_TBO = RenderType.create(
             "monitor_tbo", DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.TRIANGLE_STRIP, 128,
@@ -100,32 +102,44 @@ public class RenderTypes
         );
 
         static final RenderType TERMINAL_WITHOUT_DEPTH = RenderType.create(
-            "monitor_basic", TERM_FORMAT, TERM_MODE, 1024,
+            "terminal_without_depth", TERM_FORMAT, TERM_MODE, 1024,
             false, false, // useDelegate, needsSorting
             RenderType.CompositeState.builder()
                 .setTextureState( TERM_FONT_TEXTURE )
-                .setShaderState( new ShaderStateShard( RenderTypes::getTerminalShader ) )
+                .setShaderState( TERM_SHADER )
                 .setWriteMaskState( COLOR_WRITE )
                 .createCompositeState( false )
         );
 
         static final RenderType TERMINAL_BLOCKER = RenderType.create(
-            "monitor_blocker", TERM_FORMAT, TERM_MODE, 256,
+            "terminal_blocker", TERM_FORMAT, TERM_MODE, 256,
             false, false, // useDelegate, needsSorting
             RenderType.CompositeState.builder()
                 .setTextureState( TERM_FONT_TEXTURE )
-                .setShaderState( new ShaderStateShard( RenderTypes::getTerminalShader ) )
+                .setShaderState( TERM_SHADER )
                 .setWriteMaskState( DEPTH_WRITE )
-                .setLightmapState( NO_LIGHTMAP )
                 .createCompositeState( false )
         );
 
         static final RenderType TERMINAL_WITH_DEPTH = RenderType.create(
-            "basic_terminal", TERM_FORMAT, TERM_MODE, 1024,
+            "terminal_with_depth", TERM_FORMAT, TERM_MODE, 1024,
             false, false, // useDelegate, needsSorting
             RenderType.CompositeState.builder()
                 .setTextureState( TERM_FONT_TEXTURE )
-                .setShaderState( POSITION_COLOR_TEX_SHADER )
+                .setShaderState( TERM_SHADER )
+                .createCompositeState( false )
+        );
+
+        /**
+         * A variant of {@link #TERMINAL_WITH_DEPTH} which uses the lightmap rather than rendering fullbright.
+         */
+        static final RenderType PRINTOUT_TEXT = RenderType.create(
+            "printout_text", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, TERM_MODE, 1024,
+            false, false, // useDelegate, needsSorting
+            RenderType.CompositeState.builder()
+                .setTextureState( TERM_FONT_TEXTURE )
+                .setShaderState( RenderStateShard.RENDERTYPE_TEXT_SHADER )
+                .setLightmapState( RenderStateShard.LIGHTMAP )
                 .createCompositeState( false )
         );
 
@@ -134,31 +148,6 @@ public class RenderTypes
             false, false, // useDelegate, needsSorting
             RenderType.CompositeState.builder()
                 .setShaderState( POSITION_COLOR_SHADER )
-                .createCompositeState( false )
-        );
-
-        static final Function<ResourceLocation, RenderType> POSITION_COLOR_TEX = Util.memoize( location ->
-        {
-            return RenderType.create(
-                "position_color_tex", DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 1024,
-                false, false, // useDelegate, needsSorting
-                RenderType.CompositeState.builder()
-                    .setTextureState( new RenderStateShard.TextureStateShard( location, false, false ) )// blur, minimap
-                    .setShaderState( POSITION_COLOR_TEX_SHADER )
-                    .createCompositeState( false )
-            );
-        } );
-
-        static final RenderType PRINTOUT_BACKGROUND = RenderType.create(
-            "printout_background", DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.QUADS, 1024,
-            false, false, // useDelegate, needsSorting
-            RenderType.CompositeState.builder()
-                .setTextureState( new RenderStateShard.TextureStateShard(
-                    new ResourceLocation( "computercraft", "textures/gui/printout.png" ),
-                    false, false // blur, minimap
-                ) )
-                .setShaderState( new RenderStateShard.ShaderStateShard( GameRenderer::getPositionTexShader ) )
-                .setLightmapState( NO_LIGHTMAP )
                 .createCompositeState( false )
         );
 

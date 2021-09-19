@@ -17,7 +17,7 @@ import java.util.Map;
 public final class DataHelpers
 {
     private DataHelpers()
-    { }
+    {}
 
     @Nonnull
     public static Map<String, Boolean> getTags( @Nonnull Collection<ResourceLocation> tags )

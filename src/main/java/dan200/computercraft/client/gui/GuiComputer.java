@@ -5,12 +5,12 @@
  */
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
+import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import net.minecraft.network.chat.Component;
@@ -76,9 +76,10 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Computer
     public void renderBg( @Nonnull PoseStack stack, float partialTicks, int mouseX, int mouseY )
     {
         // Draw a border around the terminal
-        RenderSystem.setShaderColor( 1, 1, 1, 1 );
-        RenderSystem.setShaderTexture( 0, ComputerBorderRenderer.getTexture( family ) );
-        ComputerBorderRenderer.render( terminal.x, terminal.y, getBlitOffset(), terminal.getWidth(), terminal.getHeight() );
+        ComputerBorderRenderer.render(
+            ComputerBorderRenderer.getTexture( family ), terminal.x, terminal.y, getBlitOffset(),
+            RenderTypes.FULL_BRIGHT_LIGHTMAP, terminal.getWidth(), terminal.getHeight()
+        );
         ComputerSidebar.renderBackground( stack, leftPos, topPos + sidebarYOffset );
     }
 }

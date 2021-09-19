@@ -26,9 +26,10 @@ public abstract class ItemMapLikeRenderer
      * @param transform The matrix transformation stack
      * @param render    The buffer to render to
      * @param stack     The stack to render
+     * @param light     The packed lightmap coordinates.
      * @see ItemInHandRenderer#renderItem(LivingEntity, ItemStack, ItemTransforms.TransformType, boolean, PoseStack, MultiBufferSource, int)
      */
-    protected abstract void renderItem( PoseStack transform, MultiBufferSource render, ItemStack stack );
+    protected abstract void renderItem( PoseStack transform, MultiBufferSource render, ItemStack stack, int light );
 
     protected void renderItemFirstPerson( PoseStack transform, MultiBufferSource render, int lightTexture, InteractionHand hand, float pitch, float equipProgress, float swingProgress, ItemStack stack )
     {
@@ -90,7 +91,7 @@ public abstract class ItemMapLikeRenderer
         transform.mulPose( Vector3f.XP.rotationDegrees( f2 * -45f ) );
         transform.mulPose( Vector3f.YP.rotationDegrees( offset * f2 * -30f ) );
 
-        renderItem( transform, render, stack );
+        renderItem( transform, render, stack, combinedLight );
 
         transform.popPose();
     }
@@ -135,6 +136,6 @@ public abstract class ItemMapLikeRenderer
         transform.mulPose( Vector3f.XP.rotationDegrees( rX * 20.0F ) );
         transform.scale( 2.0F, 2.0F, 2.0F );
 
-        renderItem( transform, render, stack );
+        renderItem( transform, render, stack, combinedLight );
     }
 }

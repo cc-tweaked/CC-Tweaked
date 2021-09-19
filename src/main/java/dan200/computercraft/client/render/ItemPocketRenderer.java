@@ -54,7 +54,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
     }
 
     @Override
-    protected void renderItem( PoseStack transform, MultiBufferSource renderer, ItemStack stack )
+    protected void renderItem( PoseStack transform, MultiBufferSource renderer, ItemStack stack, int light )
     {
         ClientComputer computer = ItemPocketComputer.createClientComputer( stack );
         Terminal terminal = computer == null ? null : computer.getTerminal();
@@ -91,7 +91,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         int frameColour = item.getColour( stack );
 
         Matrix4f matrix = transform.last().pose();
-        renderFrame( matrix, renderer, family, frameColour, width, height );
+        renderFrame( matrix, renderer, family, frameColour, light, width, height );
 
         // Render the light
         int lightColour = ItemPocketComputer.getLightState( stack );
@@ -114,7 +114,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         transform.popPose();
     }
 
-    private static void renderFrame( Matrix4f transform, MultiBufferSource render, ComputerFamily family, int colour, int width, int height )
+    private static void renderFrame( Matrix4f transform, MultiBufferSource render, ComputerFamily family, int colour, int light, int width, int height )
     {
         ResourceLocation texture = colour != -1 ? ComputerBorderRenderer.BACKGROUND_COLOUR : ComputerBorderRenderer.getTexture( family );
 
@@ -122,7 +122,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         float g = ((colour >>> 8) & 0xFF) / 255.0f;
         float b = (colour & 0xFF) / 255.0f;
 
-        ComputerBorderRenderer.render( transform, render.getBuffer( RenderTypes.positionColorTex( texture ) ), 0, 0, 0, width, height, true, r, g, b );
+        ComputerBorderRenderer.render( transform, render.getBuffer( ComputerBorderRenderer.getRenderType( texture ) ), 0, 0, 0, light, width, height, true, r, g, b );
     }
 
     private static void renderLight( Matrix4f transform, MultiBufferSource render, int colour, int width, int height )

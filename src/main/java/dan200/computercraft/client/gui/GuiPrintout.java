@@ -7,11 +7,11 @@ package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Matrix4f;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -21,6 +21,7 @@ import org.lwjgl.glfw.GLFW;
 import javax.annotation.Nonnull;
 
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
+import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
 
 public class GuiPrintout extends AbstractContainerScreen<ContainerHeldItem>
 {
@@ -97,10 +98,10 @@ public class GuiPrintout extends AbstractContainerScreen<ContainerHeldItem>
         RenderSystem.setShaderColor( 1.0f, 1.0f, 1.0f, 1.0f );
         RenderSystem.enableDepthTest();
 
-        MultiBufferSource.BufferSource renderer = Minecraft.getInstance().renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource renderer = MultiBufferSource.immediate( Tesselator.getInstance().getBuilder() );
         Matrix4f matrix = transform.last().pose();
-        drawBorder( matrix, renderer, leftPos, topPos, getBlitOffset(), page, pages, book );
-        drawText( matrix, renderer, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * page, text, colours );
+        drawBorder( matrix, renderer, leftPos, topPos, getBlitOffset(), page, pages, book, FULL_BRIGHT_LIGHTMAP );
+        drawText( matrix, renderer, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, text, colours );
         renderer.endBatch();
     }
 
