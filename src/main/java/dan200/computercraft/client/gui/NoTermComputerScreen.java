@@ -43,6 +43,10 @@ public class NoTermComputerScreen<T extends ContainerComputerBase> extends Scree
     @Override
     protected void init()
     {
+        this.passEvents = true; // to allow gui click events pass through mouseHelper protection (see MouseHelper.OnPres:105 code string)
+        minecraft.mouseHandler.grabMouse();
+        minecraft.screen = this;
+
         super.init();
         minecraft.keyboardHandler.setSendRepeatsToGui( true );
 
@@ -64,6 +68,13 @@ public class NoTermComputerScreen<T extends ContainerComputerBase> extends Scree
     {
         super.tick();
         terminal.update();
+    }
+
+    @Override
+    public boolean mouseScrolled( double pMouseX, double pMouseY, double pDelta )
+    {
+        minecraft.player.inventory.swapPaint( pDelta );
+        return super.mouseScrolled( pMouseX, pMouseY, pDelta );
     }
 
     @Override
