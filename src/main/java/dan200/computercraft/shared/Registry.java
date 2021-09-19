@@ -82,7 +82,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
-import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -354,6 +354,13 @@ public final class Registry
     }
 
     @SubscribeEvent
+    public static void registerCapabilities( RegisterCapabilitiesEvent event )
+    {
+        event.register( IWiredElement.class );
+        event.register( IPeripheral.class );
+    }
+
+    @SubscribeEvent
     public static void init( FMLCommonSetupEvent event )
     {
         NetworkHandler.setup();
@@ -381,10 +388,6 @@ public final class Registry
             if( item instanceof RecordItem ) return RecordMedia.INSTANCE;
             return null;
         } );
-
-        // Register capabilities
-        CapabilityManager.INSTANCE.register( IWiredElement.class );
-        CapabilityManager.INSTANCE.register( IPeripheral.class );
 
         // Register generic capabilities. This can technically be done off-thread, but we need it to happen
         // after Forge's common setup, so this is easiest.
