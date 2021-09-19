@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.common.extensions.IForgeContainerType;
+import net.minecraftforge.fmllegacy.network.IContainerFactory;
 import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
@@ -37,8 +38,36 @@ public interface ContainerData
         return IForgeContainerType.create( ( id, player, data ) -> factory.create( id, player, reader.apply( data ) ) );
     }
 
+    static <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> toType( Function<FriendlyByteBuf, T> reader, FixedFactory<C, T> factory )
+    {
+        return new FixedPointContainerFactory<>( reader, factory ).type;
+    }
+
     interface Factory<C extends AbstractContainerMenu, T extends ContainerData>
     {
         C create( int id, @Nonnull Inventory inventory, T data );
+    }
+
+    interface FixedFactory<C extends AbstractContainerMenu, T extends ContainerData>
+    {
+        C create( MenuType<C> type, int id, @Nonnull Inventory inventory, T data );
+    }
+
+    class FixedPointContainerFactory<C extends AbstractContainerMenu, T extends ContainerData> implements IContainerFactory<C>
+    {
+        private final IContainerFactory<C> impl;
+        private final MenuType<C> type;
+
+        private FixedPointContainerFactory( Function<FriendlyByteBuf, T> reader, FixedFactory<C, T> factory )
+        {
+            MenuType<C> type = this.type = IForgeContainerType.create( this );
+            impl = ( id, player, data ) -> factory.create( type, id, player, reader.apply( data ) );
+        }
+
+        @Override
+        public C create( int windowId, Inventory inv, FriendlyByteBuf data )
+        {
+            return impl.create( windowId, inv, data );
+        }
     }
 }

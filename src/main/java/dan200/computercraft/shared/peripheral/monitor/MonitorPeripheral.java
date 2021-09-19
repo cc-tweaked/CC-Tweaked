@@ -71,6 +71,7 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral
      *
      * @return The monitor's current scale.
      * @throws LuaException If the monitor cannot be found.
+     * @cc.since 1.81.0
      */
     @LuaFunction
     public final double getTextScale() throws LuaException

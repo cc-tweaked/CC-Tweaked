@@ -35,6 +35,7 @@ import static dan200.computercraft.api.lua.LuaValues.checkFinite;
  * Speakers allow playing notes and other sounds.
  *
  * @cc.module speaker
+ * @cc.since 1.80pr1
  */
 public abstract class SpeakerPeripheral implements IPeripheral
 {

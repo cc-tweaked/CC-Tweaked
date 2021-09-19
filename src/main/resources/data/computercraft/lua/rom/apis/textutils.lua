@@ -2,6 +2,7 @@
 -- manipulating strings.
 --
 -- @module textutils
+-- @since 1.2
 
 local expect = dofile("rom/modules/main/cc/expect.lua")
 local expect, field = expect.expect, expect.field
@@ -17,6 +18,7 @@ local wrap = dofile("rom/modules/main/cc/strings.lua").wrap
 -- Defaults to 20.
 -- @usage textutils.slowWrite("Hello, world!")
 -- @usage textutils.slowWrite("Hello, world!", 5)
+-- @since 1.3
 function slowWrite(text, rate)
     expect(2, rate, "number", "nil")
     rate = rate or 20
@@ -55,7 +57,12 @@ end
 -- @tparam[opt] boolean bTwentyFourHour Whether to format this as a 24-hour
 -- clock (`18:30`) rather than a 12-hour one (`6:30 AM`)
 -- @treturn string The formatted time
--- @usage textutils.formatTime(os.time())
+-- @usage Print the current in-game time as a 12-hour clock.
+--
+--     textutils.formatTime(os.time())
+-- @usage Print the local time as a 24-hour clock.
+--
+--     textutils.formatTime(os.time("local"), true)
 function formatTime(nTime, bTwentyFourHour)
     expect(1, nTime, "number")
     expect(2, bTwentyFourHour, "boolean", "nil")
@@ -217,6 +224,7 @@ end
 --
 -- @tparam {string...}|number ... The rows and text colors to display.
 -- @usage textutils.tabulate(colors.orange, { "1", "2", "3" }, colors.lightBlue, { "A", "B", "C" })
+-- @since 1.3
 function tabulate(...)
     return tabulateCommon(false, ...)
 end
@@ -231,6 +239,7 @@ end
 -- @usage textutils.tabulate(colors.orange, { "1", "2", "3" }, colors.lightBlue, { "A", "B", "C" })
 -- @see textutils.tabulate
 -- @see textutils.pagedPrint
+-- @since 1.3
 function pagedTabulate(...)
     return tabulateCommon(true, ...)
 end
@@ -259,11 +268,16 @@ local g_tLuaKeywords = {
     ["while"] = true,
 }
 
+local serialize_infinity = math.huge
 local function serialize_impl(t, tracking, indent, opts)
     local sType = type(t)
     if sType == "table" then
         if tracking[t] ~= nil then
-            error("Cannot serialize table with recursive entries", 0)
+            if tracking[t] == false then
+                error("Cannot serialize table with repeated entries", 0)
+            else
+                error("Cannot serialize table with recursive entries", 0)
+            end
         end
         tracking[t] = true
 
@@ -298,13 +312,28 @@ local function serialize_impl(t, tracking, indent, opts)
             result = result .. indent .. "}"
         end
 
-        if opts.allow_repetitions then tracking[t] = nil end
+        if opts.allow_repetitions then
+            tracking[t] = nil
+        else
+            tracking[t] = false
+        end
         return result
 
     elseif sType == "string" then
         return string.format("%q", t)
 
-    elseif sType == "number" or sType == "boolean" or sType == "nil" then
+    elseif sType == "number" then
+        if t ~= t then --nan
+            return "0/0"
+        elseif t == serialize_infinity then
+            return "1/0"
+        elseif t == -serialize_infinity then
+            return "-1/0"
+        else
+            return tostring(t)
+        end
+
+    elseif sType == "boolean" or sType == "nil" then
         return tostring(t)
 
     else
@@ -620,6 +649,7 @@ do
     -- @return[1] The deserialised object
     -- @treturn[2] nil If the object could not be deserialised.
     -- @treturn string A message describing why the JSON string is invalid.
+    -- @since 1.87.0
     unserialise_json = function(s, options)
         expect(1, s, "string")
         expect(2, options, "table", "nil")
@@ -664,6 +694,8 @@ serialised. This includes functions and tables which appear multiple
 times.
 @see cc.pretty.pretty An alternative way to display a table, often more suitable for
 pretty printing.
+@since 1.3
+@changed 1.97.0 Added `opts` argument.
 @usage Pretty print a basic table.
 
     textutils.serialise({ 1, 2, 3, a = 1, ["another key"] = { true } })
@@ -697,6 +729,7 @@ serialise = serialize -- GB version
 -- @tparam string s The serialised string to deserialise.
 -- @return[1] The deserialised object
 -- @treturn[2] nil If the object could not be deserialised.
+-- @since 1.3
 function unserialize(s)
     expect(1, s, "string")
     local func = load("return " .. s, "unserialize", "t", {})
@@ -729,6 +762,7 @@ unserialise = unserialize -- GB version
 -- serialised. This includes functions and tables which appear multiple
 -- times.
 -- @usage textutils.serializeJSON({ values = { 1, "2", true } })
+-- @since 1.7
 function serializeJSON(t, bNBTStyle)
     expect(1, t, "table", "string", "number", "boolean")
     expect(2, bNBTStyle, "boolean", "nil")
@@ -746,6 +780,7 @@ unserialiseJSON = unserialise_json
 -- @tparam string str The string to encode
 -- @treturn string The encoded string.
 -- @usage print("https://example.com/?view=" .. textutils.urlEncode("some text&things"))
+-- @since 1.31
 function urlEncode(str)
     expect(1, str, "string")
     if str then
@@ -785,6 +820,7 @@ local tEmpty = {}
 -- @see shell.setCompletionFunction
 -- @see _G.read
 -- @usage textutils.complete( "pa", _ENV )
+-- @since 1.74
 function complete(sSearchText, tSearchTable)
     expect(1, sSearchText, "string")
     expect(2, tSearchTable, "table", "nil")

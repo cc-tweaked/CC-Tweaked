@@ -2,6 +2,7 @@
 --
 -- @see colors
 -- @module colours
+-- @since 1.2
 
 local colours = _ENV
 for k, v in pairs(colors) do

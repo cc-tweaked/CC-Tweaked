@@ -103,7 +103,7 @@
     "gui.computercraft.upload.failed.out_of_space": "これらのファイルに必要なスペースがコンピュータ上にありません。",
     "gui.computercraft.upload.failed.too_much": "アップロードするにはファイルが大きスギます。",
     "gui.computercraft.upload.failed.overwrite_dir": "同じ名前のディレクトリがすでにあるため、%s をアップロードできません。",
-    "computercraft.gui.upload.failed.generic": "ファイルのアップロードに失敗しました(%s)",
+    "gui.computercraft.upload.failed.generic": "ファイルのアップロードに失敗しました(%s)",
     "gui.computercraft.upload.overwrite": "ファイルは上書きされます",
     "gui.computercraft.upload.overwrite_button": "上書き",
     "block.computercraft.wireless_modem_normal": "無線モデム",

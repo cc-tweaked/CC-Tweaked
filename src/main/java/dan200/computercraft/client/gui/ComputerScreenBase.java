@@ -144,22 +144,43 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
                     return;
                 }
 
+                String name = file.getFileName().toString();
+                if( name.length() > UploadFileMessage.MAX_FILE_NAME )
+                {
+                    alert( UploadResult.FAILED_TITLE, new TranslatableComponent( "gui.computercraft.upload.failed.name_too_long" ) );
+                    return;
+                }
+
                 ByteBuffer buffer = ByteBuffer.allocateDirect( (int) fileSize );
                 sbc.read( buffer );
                 buffer.flip();
 
-                toUpload.add( new FileUpload( file.getFileName().toString(), buffer ) );
+                byte[] digest = FileUpload.getDigest( buffer );
+                if( digest == null )
+                {
+                    alert( UploadResult.FAILED_TITLE, new TranslatableComponent( "gui.computercraft.upload.failed.corrupted" ) );
+                    return;
+                }
+
+                buffer.rewind();
+                toUpload.add( new FileUpload( name, buffer, digest ) );
             }
             catch( IOException e )
             {
                 ComputerCraft.log.error( "Failed uploading files", e );
-                alert( UploadResult.FAILED_TITLE, new TranslatableComponent( "computercraft.gui.upload.failed.generic", e.getMessage() ) );
+                alert( UploadResult.FAILED_TITLE, new TranslatableComponent( "gui.computercraft.upload.failed.generic", "Cannot compute checksum" ) );
             }
+        }
+
+        if( toUpload.size() > UploadFileMessage.MAX_FILES )
+        {
+            alert( UploadResult.FAILED_TITLE, new TranslatableComponent( "gui.computercraft.upload.failed.too_many_files" ) );
+            return;
         }
 
         if( toUpload.size() > 0 )
         {
-            NetworkHandler.sendToServer( new UploadFileMessage( computer.getInstanceID(), toUpload ) );
+            UploadFileMessage.send( computer.getInstanceID(), toUpload );
         }
     }
 

@@ -11,10 +11,8 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
-import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
-import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -40,7 +38,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Computer
     }
 
     @Nonnull
-    public static GuiComputer<ContainerComputer> create( ContainerComputer container, Inventory inventory, Component component )
+    public static GuiComputer<ContainerComputerBase> create( ContainerComputerBase container, Inventory inventory, Component component )
     {
         return new GuiComputer<>(
             container, inventory, component,
@@ -49,7 +47,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Computer
     }
 
     @Nonnull
-    public static GuiComputer<ContainerPocketComputer> createPocket( ContainerPocketComputer container, Inventory inventory, Component component )
+    public static GuiComputer<ContainerComputerBase> createPocket( ContainerComputerBase container, Inventory inventory, Component component )
     {
         return new GuiComputer<>(
             container, inventory, component,

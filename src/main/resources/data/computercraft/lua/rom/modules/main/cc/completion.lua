@@ -4,6 +4,7 @@
 -- @module cc.completion
 -- @see cc.shell.completion For additional helpers to use with
 -- @{shell.setCompletionFunction}.
+-- @since 1.85.0
 
 local expect = require "cc.expect".expect
 

@@ -312,6 +312,7 @@ public class WidgetTerminal extends AbstractWidget
     @Override
     public void render( @Nonnull PoseStack transform, int mouseX, int mouseY, float partialTicks )
     {
+        if( !visible ) return;
         Matrix4f matrix = transform.last().pose();
         Terminal terminal = computer.getTerminal();
         if( terminal != null )

@@ -124,7 +124,7 @@
     "gui.computercraft.upload.failed.computer_off": "Ты должен включить компьютер перед загрузой файлов.",
     "gui.computercraft.upload.failed.too_much": "Твои файлы слишком большие для загрузки.",
     "gui.computercraft.upload.failed.overwrite_dir": "Нельзя загрузить %s, поскольку папка с таким же названием уже существует.",
-    "computercraft.gui.upload.failed.generic": "Загрузка файлов не удалась (%s)",
+    "gui.computercraft.upload.failed.generic": "Загрузка файлов не удалась (%s)",
     "gui.computercraft.upload.overwrite": "Файлы будут перезаписаны",
     "gui.computercraft.upload.overwrite.detail": "При загрузке следующие файлы будут перезаписаны. Продолжить?%s",
     "gui.computercraft.upload.overwrite_button": "Перезаписать"

@@ -236,7 +236,7 @@ public final class CommandComputerCraft
                         @Override
                         public AbstractContainerMenu createMenu( int id, @Nonnull Inventory player, @Nonnull Player entity )
                         {
-                            return new ContainerViewComputer( id, computer );
+                            return new ContainerViewComputer( id, player, computer );
                         }
                     } );
                     return 1;

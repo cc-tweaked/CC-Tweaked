@@ -187,6 +187,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
      *
      * @return The current computer's name.
      * @cc.treturn string|nil The current computer's name on the wired network.
+     * @cc.since 1.80pr1.7
      */
     @LuaFunction
     public final Object[] getNameLocal()

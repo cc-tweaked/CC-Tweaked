@@ -436,7 +436,11 @@ task setupServer(type: Copy) {
         }
     }
 
-    check.dependsOn("jacocoTest${name}Report")
+    if (name != "Client" || project.findProperty('cc.tweaked.clientTests') == 'true') {
+        // Don't run client tests unless explicitly opted into them. They're a bit of a faff
+        // to run and pretty flakey.
+        check.dependsOn("jacocoTest${name}Report")
+    }
 }
 
 

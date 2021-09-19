@@ -40,6 +40,6 @@ public class ContinueUploadMessage extends ComputerServerMessage
     protected void handle( NetworkEvent.Context context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
         ServerPlayer player = context.getSender();
-        if( player != null ) container.continueUpload( player, overwrite );
+        if( player != null ) container.confirmUpload( player, overwrite );
     }
 }

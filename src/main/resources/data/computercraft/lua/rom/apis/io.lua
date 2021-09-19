@@ -65,6 +65,30 @@ handleMetatable = {
             return true
         end,
 
+        --[[- Returns an iterator that, each time it is called, returns a new
+        line from the file.
+
+        This can be used in a for loop to iterate over all lines of a file
+
+        Once the end of the file has been reached, @{nil} will be returned. The file is
+        *not* automatically closed.
+
+        @param ... The argument to pass to @{Handle:read} for each line.
+        @treturn function():string|nil The line iterator.
+        @throws If the file cannot be opened for reading
+        @since 1.3
+
+        @see io.lines
+        @usage Iterate over every line in a file and print it out.
+
+        ```lua
+        local file = io.open("/rom/help/intro.txt")
+        for line in file:lines() do
+          print(line)
+        end
+        file:close()
+        ```
+        ]]
         lines = function(self, ...)
             if type_of(self) ~= "table" or getmetatable(self) ~= handleMetatable then
                 error("bad argument #1 (FILE expected, got " .. type_of(self) .. ")", 2)
@@ -81,6 +105,23 @@ handleMetatable = {
             end
         end,
 
+        --[[- Reads data from the file, using the specified formats. For each
+        format provided, the function returns either the data read, or `nil` if
+        no data could be read.
+
+        The following formats are available:
+        - `l`: Returns the next line (without a newline on the end).
+        - `L`: Returns the next line (with a newline on the end).
+        - `a`: Returns the entire rest of the file.
+        - ~~`n`: Returns a number~~ (not implemented in CC).
+
+        These formats can be preceded by a `*` to make it compatible with Lua 5.1.
+
+        If no format is provided, `l` is assumed.
+
+        @param ... The formats to use.
+        @treturn (string|nil)... The data read from the file.
+        ]]
         read = function(self, ...)
             if type_of(self) ~= "table" or getmetatable(self) ~= handleMetatable then
                 error("bad argument #1 (FILE expected, got " .. type_of(self) .. ")", 2)
@@ -124,6 +165,23 @@ handleMetatable = {
             return table.unpack(output, 1, n)
         end,
 
+        --[[- Seeks the file cursor to the specified position, and returns the
+        new position.
+
+        `whence` controls where the seek operation starts, and is a string that
+        may be one of these three values:
+        - `set`: base position is 0 (beginning of the file)
+        - `cur`: base is current position
+        - `end`: base is end of file
+
+        The default value of `whence` is `cur`, and the default value of `offset`
+        is 0. This means that `file:seek()` without arguments returns the current
+        position without moving.
+
+        @tparam[opt] string whence The place to set the cursor from.
+        @tparam[opt] number offset The offset from the start to move to.
+        @treturn number The new location of the file cursor.
+        ]]
         seek = function(self, whence, offset)
             if type_of(self) ~= "table" or getmetatable(self) ~= handleMetatable then
                 error("bad argument #1 (FILE expected, got " .. type_of(self) .. ")", 2)
@@ -154,6 +212,7 @@ handleMetatable = {
         -- @treturn[1] Handle The current file, allowing chained calls.
         -- @treturn[2] nil If the file could not be written to.
         -- @treturn[2] string The error message which occurred while writing.
+        -- @changed 1.81.0 Multiple arguments are now allowed.
         write = function(self, ...)
             if type_of(self) ~= "table" or getmetatable(self) ~= handleMetatable then
                 error("bad argument #1 (FILE expected, got " .. type_of(self) .. ")", 2)
@@ -217,6 +276,7 @@ stderr = defaultError
 --
 -- @see Handle:close
 -- @see io.output
+-- @since 1.55
 function close(file)
     if file == nil then return currentOutput:close() end
 
@@ -230,6 +290,7 @@ end
 --
 -- @see Handle:flush
 -- @see io.output
+-- @since 1.55
 function flush()
     return currentOutput:flush()
 end
@@ -239,6 +300,7 @@ end
 -- @tparam[opt] Handle|string file The new input file, either as a file path or pre-existing handle.
 -- @treturn Handle The current input file.
 -- @throws If the provided filename cannot be opened for reading.
+-- @since 1.55
 function input(file)
     if type_of(file) == "string" then
         local res, err = open(file, "rb")
@@ -271,6 +333,7 @@ In this case, the handle is not used.
 
 @see Handle:lines
 @see io.input
+@since 1.55
 @usage Iterate over every line in a file and print it out.
 
 ```lua
@@ -326,6 +389,7 @@ end
 -- @tparam[opt] Handle|string file The new output file, either as a file path or pre-existing handle.
 -- @treturn Handle The current output file.
 -- @throws If the provided filename cannot be opened for writing.
+-- @since 1.55
 function output(file)
     if type_of(file) == "string" then
         local res, err = open(file, "wb")
@@ -374,6 +438,7 @@ end
 -- documentation} there for full details.
 --
 -- @tparam string ... The strings to write
+-- @changed 1.81.0 Multiple arguments are now allowed.
 function write(...)
     return currentOutput:write(...)
 end

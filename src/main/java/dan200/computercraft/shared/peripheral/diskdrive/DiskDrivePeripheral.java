@@ -186,6 +186,7 @@ public class DiskDrivePeripheral implements IPeripheral
      *
      * @return The ID of the disk in the drive, or {@code nil} if no disk with an ID is inserted.
      * @cc.treturn number The The ID of the disk in the drive, or {@code nil} if no disk with an ID is inserted.
+     * @cc.since 1.4
      */
     @LuaFunction
     public final Object[] getDiskID()
