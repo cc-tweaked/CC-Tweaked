@@ -18,6 +18,7 @@ import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInventory;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.computer.items.ItemComputer;
@@ -312,13 +313,13 @@ public final class Registry
         static final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create( ForgeRegistries.CONTAINERS, ComputerCraft.MOD_ID );
 
         public static final RegistryObject<ContainerType<ContainerComputerBase>> COMPUTER = CONTAINERS.register( "computer",
-            () -> ContainerData.toType( ComputerContainerData::new, ContainerComputerBase::new ) );
+            () -> ContainerData.toType( ComputerContainerData::new, ComputerMenuWithoutInventory::new ) );
 
         public static final RegistryObject<ContainerType<ContainerComputerBase>> POCKET_COMPUTER = CONTAINERS.register( "pocket_computer",
-            () -> ContainerData.toType( ComputerContainerData::new, ContainerComputerBase::new ) );
+            () -> ContainerData.toType( ComputerContainerData::new, ComputerMenuWithoutInventory::new ) );
 
         public static final RegistryObject<ContainerType<ContainerComputerBase>> POCKET_COMPUTER_NO_TERM = CONTAINERS.register( "pocket_computer_no_term",
-            () -> ContainerData.toType( ComputerContainerData::new, ContainerComputerBase::new ) );
+            () -> ContainerData.toType( ComputerContainerData::new, ComputerMenuWithoutInventory::new ) );
 
         public static final RegistryObject<ContainerType<ContainerTurtle>> TURTLE = CONTAINERS.register( "turtle",
             () -> ContainerData.toType( ComputerContainerData::new, ContainerTurtle::new ) );

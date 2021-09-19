@@ -16,14 +16,14 @@ import net.minecraft.entity.player.PlayerInventory;
 
 import javax.annotation.Nonnull;
 
-public class ContainerViewComputer extends ContainerComputerBase
+public class ContainerViewComputer extends ComputerMenuWithoutInventory
 {
     private final int width;
     private final int height;
 
-    public ContainerViewComputer( int id, ServerComputer computer )
+    public ContainerViewComputer( int id, PlayerInventory player, ServerComputer computer )
     {
-        super( Registry.ModContainers.VIEW_COMPUTER.get(), id, player -> canInteractWith( computer, player ), computer, computer.getFamily() );
+        super( Registry.ModContainers.VIEW_COMPUTER.get(), id, player, p -> canInteractWith( computer, p ), computer, computer.getFamily() );
         width = height = 0;
     }
 
