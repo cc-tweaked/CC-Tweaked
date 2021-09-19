@@ -130,7 +130,7 @@ function send(nRecipient, message, sProtocol)
     -- We could do other things to guarantee uniqueness, but we really don't need to
     -- Store it to ensure we don't get our own messages back
     local nMessageID = math.random(1, 2147483647)
-    tReceivedMessages[nMessageID] = os.epoch("utc")
+    tReceivedMessages[nMessageID] = os.clock() + 9.5
     if not nClearTimer then nClearTimer = os.startTimer(10) end
 
     -- Create the message
@@ -394,7 +394,7 @@ function run()
                 if type(tMessage) == "table" and type(tMessage.nMessageID) == "number"
                     and tMessage.nMessageID == tMessage.nMessageID and not tReceivedMessages[tMessage.nMessageID]
                 then
-                    tReceivedMessages[tMessage.nMessageID] = os.epoch("utc")
+                    tReceivedMessages[tMessage.nMessageID] = os.clock() + 9.5
                     if not nClearTimer then nClearTimer = os.startTimer(10) end
                     os.queueEvent("rednet_message", nReplyChannel, tMessage.message, tMessage.sProtocol)
                 end
@@ -417,12 +417,12 @@ function run()
         elseif sEvent == "timer" and p1 == nClearTimer then
             -- Got a timer event, use it to clear the event queue
             nClearTimer = nil
-            local nNow, bFound = os.epoch("utc"), nil
-            for k, v in pairs(tReceivedMessages) do
-                if nNow - v >= 9500 then tReceivedMessages[k] = nil
-                else bFound = true end
+            local nNow, bHasMore = os.clock(), nil
+            for nMessageID, nDeadline in pairs(tReceivedMessages) do
+                if nDeadline >= nNow then tReceivedMessages[nMessageID] = nil
+                else bHasMore = true end
             end
-            nClearTimer = bFound and os.startTimer(10)
+            nClearTimer = bHasMore and os.startTimer(10)
         end
     end
 end
