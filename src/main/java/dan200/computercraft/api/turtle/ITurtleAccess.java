@@ -45,6 +45,13 @@ public interface ITurtleAccess
     BlockPos getPosition();
 
     /**
+     * Returns the ID of the last executed command.
+     *
+     * @return the ID of the last executed command.
+     */
+    int getCommandID();
+
+    /**
      * Attempt to move this turtle to a new position.
      *
      * This will preserve the turtle's internal state, such as it's inventory, computer and upgrades. It should

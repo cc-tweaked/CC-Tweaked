@@ -59,6 +59,7 @@ public class TurtleBrain implements ITurtleAccess
     public static final String NBT_LEFT_UPGRADE = "LeftUpgrade";
     public static final String NBT_LEFT_UPGRADE_DATA = "LeftUpgradeNbt";
     public static final String NBT_FUEL = "Fuel";
+    public static final String NBT_COMMANDS_SUCCESS = "CommandsSuccess";
     public static final String NBT_OVERLAY = "Overlay";
 
     private static final String NBT_SLOT = "Slot";
@@ -74,6 +75,7 @@ public class TurtleBrain implements ITurtleAccess
 
     private final Queue<TurtleCommandQueueEntry> commandQueue = new ArrayDeque<>();
     private int commandsIssued = 0;
+    private int commandsSuccess = 0;
 
     private final Map<TurtleSide, ITurtleUpgrade> upgrades = new EnumMap<>( TurtleSide.class );
     private final Map<TurtleSide, IPeripheral> peripherals = new EnumMap<>( TurtleSide.class );
@@ -157,6 +159,7 @@ public class TurtleBrain implements ITurtleAccess
         // Read fields
         colourHex = nbt.contains( NBT_COLOUR ) ? nbt.getInt( NBT_COLOUR ) : -1;
         fuelLevel = nbt.contains( NBT_FUEL ) ? nbt.getInt( NBT_FUEL ) : 0;
+        commandsSuccess = nbt.contains( NBT_COMMANDS_SUCCESS ) ? nbt.getInt( NBT_COMMANDS_SUCCESS ) : 0;
         overlay = nbt.contains( NBT_OVERLAY ) ? new ResourceLocation( nbt.getString( NBT_OVERLAY ) ) : null;
 
         // Read upgrades
@@ -178,6 +181,7 @@ public class TurtleBrain implements ITurtleAccess
     private void writeCommon( CompoundNBT nbt )
     {
         nbt.putInt( NBT_FUEL, fuelLevel );
+        nbt.putInt( NBT_COMMANDS_SUCCESS, commandsSuccess );
         if( colourHex != -1 ) nbt.putInt( NBT_COLOUR, colourHex );
         if( overlay != null ) nbt.putString( NBT_OVERLAY, overlay.toString() );
 
@@ -281,6 +285,12 @@ public class TurtleBrain implements ITurtleAccess
     public BlockPos getPosition()
     {
         return owner.getBlockPos();
+    }
+
+    @Override
+    public int getCommandID()
+    {
+        return commandsSuccess;
     }
 
     @Override
@@ -792,6 +802,7 @@ public class TurtleBrain implements ITurtleAccess
 
         if( result != null && result.isSuccess() )
         {
+            commandsSuccess++;
             Object[] results = result.getResults();
             if( results != null )
             {

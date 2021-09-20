@@ -55,6 +55,18 @@ public class TurtleAPI implements ILuaAPI
     }
 
     /**
+     * Get the ID of the last successful command.
+     *
+     * @return the ID of the last successful command
+     * @cc.return The ID of the last successful command
+     */
+    @LuaFunction
+    public final int getCommandID()
+    {
+        return turtle.getCommandID();
+    }
+
+    /**
      * Move the turtle forward one block.
      *
      * @return The turtle command result.
