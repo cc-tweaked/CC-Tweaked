@@ -26,15 +26,15 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.util.math.AffineTransformation;
-import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.util.math.AffineTransformation;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -76,7 +76,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
     @Override
     public boolean isItemSuitable( @Nonnull ItemStack stack )
     {
-        CompoundTag tag = stack.getTag();
+        NbtCompound tag = stack.getTag();
         if( tag == null || tag.isEmpty() ) return true;
 
         // Check we've not got anything vaguely interesting on the item. We allow other mods to add their
@@ -107,7 +107,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         float xOffset = side == TurtleSide.LEFT ? -0.40625f : 0.40625f;
-        return TransformedModel.of( getCraftingItem(), new AffineTransformation( new Vector3f( xOffset + 1, 0, 1 ), Vector3f.POSITIVE_Y.getDegreesQuaternion( 270 ), new Vector3f( 1, 1, 1 ), Vector3f.POSITIVE_Z.getDegreesQuaternion( 90 ) ) );
+        return TransformedModel.of( getCraftingItem(), new AffineTransformation( new Vec3f( xOffset + 1, 0, 1 ), Vec3f.POSITIVE_Y.getDegreesQuaternion( 270 ), new Vec3f( 1, 1, 1 ), Vec3f.POSITIVE_Z.getDegreesQuaternion( 90 ) ) );
     }
 
     private TurtleCommandResult attack( ITurtleAccess turtle, Direction direction, TurtleSide side )
@@ -255,7 +255,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         {
             state.getBlock()
                 .onBroken( world, blockPosition, state );
-            if( turtlePlayer.isUsingEffectiveTool( state ) )
+            if( turtlePlayer.canHarvest( state ) )
             {
                 state.getBlock()
                     .afterBreak( world, turtlePlayer, blockPosition, state, tile, turtlePlayer.getMainHandStack() );

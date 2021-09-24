@@ -14,7 +14,7 @@ import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
-import net.minecraft.client.util.math.AffineTransformation;
+import net.minecraft.util.math.AffineTransformation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Matrix4f;
 import org.lwjgl.opengl.GL11;
@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class FixedWidthFontRenderer
-{
+{ //FIXME Make this work like a gui, via BufferBuilder's
     public static final int FONT_HEIGHT = 9;
     public static final int FONT_WIDTH = 6;
     public static final float WIDTH = 256.0f;
@@ -394,21 +394,21 @@ public final class FixedWidthFontRenderer
         private static final VertexFormat FORMAT = VertexFormats.POSITION_COLOR_TEXTURE;
 
         static final RenderLayer MAIN = RenderLayer.of( "terminal_font", FORMAT, GL_MODE, 1024, false, false, // useDelegate, needsSorting
-            RenderLayer.MultiPhaseParameters.builder()
+            RenderLayer.MultiPhaseParameters.Builder()
                 .texture( new RenderPhase.Texture( FONT,
                     false,
                     false ) ) // blur, minimap
-                .alpha( ONE_TENTH_ALPHA )
+                .transparency( TRANSLUCENT_TRANSPARENCY )
                 .lightmap( DISABLE_LIGHTMAP )
                 .writeMaskState( COLOR_MASK )
                 .build( false ) );
 
         static final RenderLayer BLOCKER = RenderLayer.of( "terminal_blocker", FORMAT, GL_MODE, 256, false, false, // useDelegate, needsSorting
-            RenderLayer.MultiPhaseParameters.builder()
+            RenderLayer.MultiPhaseParameters.Builder()
                 .texture( new RenderPhase.Texture( FONT,
                     false,
                     false ) ) // blur, minimap
-                .alpha( ONE_TENTH_ALPHA )
+                .transparency( TRANSLUCENT_TRANSPARENCY )
                 .writeMaskState( ALL_MASK )
                 .lightmap( DISABLE_LIGHTMAP )
                 .build( false ) );

@@ -108,7 +108,7 @@ public class GuiPrintout extends HandledScreen<ContainerHeldItem>
     protected void drawBackground( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
         // Draw the printout
-        RenderSystem.color4f( 1.0f, 1.0f, 1.0f, 1.0f );
+        RenderSystem.clearColor( 1.0f, 1.0f, 1.0f, 1.0f );
         RenderSystem.enableDepthTest();
 
         VertexConsumerProvider.Immediate renderer = MinecraftClient.getInstance()

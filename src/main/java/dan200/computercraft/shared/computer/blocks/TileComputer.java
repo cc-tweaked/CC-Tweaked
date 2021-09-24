@@ -17,6 +17,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
 import javax.annotation.Nonnull;
@@ -26,9 +27,9 @@ public class TileComputer extends TileComputerBase
 {
     private ComputerProxy proxy;
 
-    public TileComputer( ComputerFamily family, BlockEntityType<? extends TileComputer> type )
+    public TileComputer( ComputerFamily family, BlockEntityType<? extends TileComputer> type, BlockPos pos, BlockState state )
     {
-        super( type, family );
+        super( type, family, pos, state );
     }
 
     public boolean isUsableByPlayer( PlayerEntity player )

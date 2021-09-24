@@ -16,7 +16,7 @@ import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -204,7 +204,7 @@ public class CommandAPI implements ILuaAPI
         World world = computer.getWorld();
         BlockPos min = new BlockPos( Math.min( minX, maxX ), Math.min( minY, maxY ), Math.min( minZ, maxZ ) );
         BlockPos max = new BlockPos( Math.max( minX, maxX ), Math.max( minY, maxY ), Math.max( minZ, maxZ ) );
-        if( !World.isInBuildLimit( min ) || !World.isInBuildLimit( max ) )
+        if( !world.isInBuildLimit( min ) || !world.isInBuildLimit( max ) )
         {
             throw new LuaException( "Co-ordinates out of range" );
         }
@@ -252,7 +252,7 @@ public class CommandAPI implements ILuaAPI
         BlockEntity tile = world.getBlockEntity( pos );
         if( tile != null )
         {
-            table.put( "nbt", NBTUtil.toLua( tile.toTag( new CompoundTag() ) ) );
+            table.put( "nbt", NBTUtil.toLua( tile.writeNbt( new NbtCompound() ) ) );
         }
 
         return table;
@@ -289,7 +289,7 @@ public class CommandAPI implements ILuaAPI
         // Get the details of the block
         World world = computer.getWorld();
         BlockPos position = new BlockPos( x, y, z );
-        if( World.isInBuildLimit( position ) )
+        if( world.isInBuildLimit( position ) )
         {
             return getBlockInfo( world, position );
         }

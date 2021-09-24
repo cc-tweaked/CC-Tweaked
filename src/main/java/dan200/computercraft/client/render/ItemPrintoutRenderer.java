@@ -9,7 +9,7 @@ package dan200.computercraft.client.render;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Matrix4f;
 
@@ -33,7 +33,7 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
     @Override
     protected void renderItem( MatrixStack transform, VertexConsumerProvider render, ItemStack stack )
     {
-        transform.multiply( Vector3f.POSITIVE_X.getDegreesQuaternion( 180f ) );
+        transform.multiply( Vec3f.POSITIVE_X.getDegreesQuaternion( 180f ) );
         transform.scale( 0.42f, 0.42f, -0.42f );
         transform.translate( -0.5f, -0.48f, 0.0f );
 
@@ -85,7 +85,7 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
 
         // Move a little bit forward to ensure we're not clipping with the frame
         matrixStack.translate( 0.0f, 0.0f, -0.001f );
-        matrixStack.multiply( Vector3f.POSITIVE_Z.getDegreesQuaternion( 180f ) );
+        matrixStack.multiply( Vec3f.POSITIVE_Z.getDegreesQuaternion( 180f ) );
         matrixStack.scale( 0.95f, 0.95f, -0.95f );
         matrixStack.translate( -0.5f, -0.5f, 0.0f );
 

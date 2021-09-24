@@ -20,7 +20,7 @@ import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
@@ -49,9 +49,9 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     private boolean destroyed = false;
     private boolean connectionsFormed = false;
 
-    public TileWiredModemFull( BlockEntityType<TileWiredModemFull> type )
+    public TileWiredModemFull( BlockEntityType<TileWiredModemFull> type, BlockPos pos, BlockState state )
     {
-        super( type );
+        super( type, pos, state );
         for( int i = 0; i < peripherals.length; i++ )
         {
             Direction facing = Direction.byId( i );
@@ -315,9 +315,9 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void fromTag( @Nonnull BlockState state, @Nonnull CompoundTag nbt )
+    public void readNbt( @Nonnull NbtCompound nbt )
     {
-        super.fromTag( state, nbt );
+        super.readNbt( nbt );
         peripheralAccessAllowed = nbt.getBoolean( NBT_PERIPHERAL_ENABLED );
         for( int i = 0; i < peripherals.length; i++ )
         {
@@ -327,14 +327,15 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 
     @Nonnull
     @Override
-    public CompoundTag toTag( CompoundTag nbt )
+    public NbtCompound writeNbt( NbtCompound nbt )
     {
+    	super.writeNbt( nbt );
         nbt.putBoolean( NBT_PERIPHERAL_ENABLED, peripheralAccessAllowed );
         for( int i = 0; i < peripherals.length; i++ )
         {
             peripherals[i].write( nbt, Integer.toString( i ) );
         }
-        return super.toTag( nbt );
+        return nbt;
     }
 
     @Override

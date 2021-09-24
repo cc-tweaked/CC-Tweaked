@@ -11,7 +11,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -21,9 +21,9 @@ import javax.annotation.Nonnull;
 
 public abstract class TileGeneric extends BlockEntity implements BlockEntityClientSerializable
 {
-    public TileGeneric( BlockEntityType<? extends TileGeneric> type )
+    public TileGeneric( BlockEntityType<? extends TileGeneric> type, BlockPos pos, BlockState state )
     {
-        super( type );
+        super( type, pos, state );
     }
 
     public void destroy()
@@ -82,23 +82,23 @@ public abstract class TileGeneric extends BlockEntity implements BlockEntityClie
     }
 
     @Override
-    public void fromClientTag( CompoundTag compoundTag )
+    public void fromClientTag( NbtCompound compoundTag )
     {
         readDescription( compoundTag );
     }
 
-    protected void readDescription( @Nonnull CompoundTag nbt )
+    protected void readDescription( @Nonnull NbtCompound nbt )
     {
     }
 
     @Override
-    public CompoundTag toClientTag( CompoundTag compoundTag )
+    public NbtCompound toClientTag( NbtCompound compoundTag )
     {
         writeDescription( compoundTag );
         return compoundTag;
     }
 
-    protected void writeDescription( @Nonnull CompoundTag nbt )
+    protected void writeDescription( @Nonnull NbtCompound nbt )
     {
     }
 }

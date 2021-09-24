@@ -18,10 +18,11 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.math.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
@@ -64,8 +65,8 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         // Setup various transformations. Note that these are partially adapted from the corresponding method
         // in ItemRenderer
         transform.push();
-        transform.multiply( Vector3f.POSITIVE_Y.getDegreesQuaternion( 180f ) );
-        transform.multiply( Vector3f.POSITIVE_Z.getDegreesQuaternion( 180f ) );
+        transform.multiply( Vec3f.POSITIVE_Y.getDegreesQuaternion( 180f ) );
+        transform.multiply( Vec3f.POSITIVE_Z.getDegreesQuaternion( 180f ) );
         transform.scale( 0.5f, 0.5f, 0.5f );
 
         float scale = 0.75f / Math.max( width + BORDER * 2, height + BORDER * 2 + LIGHT_HEIGHT );
@@ -114,7 +115,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.getBuffer();
-        buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_COLOR_TEXTURE );
+        buffer.begin( VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE );
 
         ComputerBorderRenderer.render( transform, buffer, 0, 0, 0, width, height, true, r, g, b );
 
@@ -131,7 +132,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.getBuffer();
-        buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_COLOR );
+        buffer.begin( VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR );
         buffer.vertex( transform, width - LIGHT_HEIGHT * 2, height + LIGHT_HEIGHT + BORDER / 2.0f, 0 )
             .color( r, g, b, 1.0f )
             .next();

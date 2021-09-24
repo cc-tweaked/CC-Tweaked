@@ -10,6 +10,7 @@ import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.render.*;
+import net.minecraft.client.render.VertexFormat.DrawMode;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Matrix4f;
 import org.lwjgl.opengl.GL11;
@@ -18,7 +19,7 @@ import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT
 import static dan200.computercraft.shared.media.items.ItemPrintout.LINES_PER_PAGE;
 
 public final class PrintoutRenderer
-{
+{ //FIXME Use BufferBuilders
     /**
      * Width of a page.
      */
@@ -186,24 +187,22 @@ public final class PrintoutRenderer
             .next();
     }
 
-    private static final class Type extends RenderPhase
+    private static final class Type extends RenderLayer
     {
         static final RenderLayer TYPE = RenderLayer.of( "printout_background",
             VertexFormats.POSITION_TEXTURE,
-            GL11.GL_QUADS,
+            VertexFormat.DrawMode.QUADS,
             1024,
-            false,
-            false,
             // useDelegate, needsSorting
             RenderLayer.MultiPhaseParameters.builder()
                 .texture( new RenderPhase.Texture( BG, false, false ) ) // blur, minimap
-                .alpha( ONE_TENTH_ALPHA )
+                .transparency( TRANSLUCENT_TRANSPARENCY )
                 .lightmap( DISABLE_LIGHTMAP )
-                .build( false ) );
+                .build( false ));
 
-        private Type( String name, Runnable setup, Runnable destroy )
+        private Type( String name, VertexFormat vertexFormat, VertexFormat.DrawMode drawMode, int expectedBufferSize, boolean hasCrumbling, boolean translucent, RenderLayer.MultiPhaseParameters phases, Runnable setup, Runnable destroy )
         {
-            super( name, setup, destroy );
+            super( name, vertexFormat, drawMode, expectedBufferSize, hasCrumbling, hasCrumbling, setup, destroy );
         }
     }
 }

@@ -35,7 +35,7 @@ public final class PlayerCreativeLootCondition implements LootCondition
     public boolean test( LootContext lootContext )
     {
         Entity entity = lootContext.get( LootContextParameters.THIS_ENTITY );
-        return entity instanceof PlayerEntity && ((PlayerEntity) entity).abilities.creativeMode;
+        return entity instanceof PlayerEntity && ((PlayerEntity) entity).getAbilities().creativeMode;
     }
 
     @Nonnull

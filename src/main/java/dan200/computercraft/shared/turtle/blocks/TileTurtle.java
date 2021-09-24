@@ -18,6 +18,7 @@ import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
@@ -29,8 +30,8 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.DyeColor;
@@ -41,6 +42,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -57,9 +59,9 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     private TurtleBrain brain = new TurtleBrain( this );
     private MoveState moveState = MoveState.NOT_MOVED;
 
-    public TileTurtle( BlockEntityType<? extends TileGeneric> type, ComputerFamily family )
+    public TileTurtle( BlockEntityType<? extends TileGeneric> type, ComputerFamily family, BlockPos pos, BlockState state )
     {
-        super( type, family );
+        super( type, family, pos, state );
     }
 
     @Override
@@ -233,7 +235,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
                         if( !player.isCreative() )
                         {
                             player.setStackInHand( hand, new ItemStack( Items.BUCKET ) );
-                            player.inventory.markDirty();
+                            player.getInventory().markDirty();
                         }
                     }
                 }
@@ -263,24 +265,22 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         }
     }
 
-    @Override
-    public void tick()
+    public static void tick( World world, BlockPos pos, BlockState state, TileTurtle tileTurtle)
     {
-        super.tick();
-        brain.update();
-        if( !getWorld().isClient && inventoryChanged )
+    	tileTurtle.brain.update();
+        if( !tileTurtle.getWorld().isClient && tileTurtle.inventoryChanged )
         {
-            ServerComputer computer = getServerComputer();
+            ServerComputer computer = tileTurtle.getServerComputer();
             if( computer != null )
             {
                 computer.queueEvent( "turtle_inventory" );
             }
 
-            inventoryChanged = false;
-            for( int n = 0; n < size(); n++ )
+            tileTurtle.inventoryChanged = false;
+            for( int n = 0; n < tileTurtle.size(); n++ )
             {
-                previousInventory.set( n,
-                    getStack( n ).copy() );
+            	tileTurtle.previousInventory.set( n,
+            			tileTurtle.getStack( n ).copy() );
             }
         }
     }
@@ -292,19 +292,19 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
     @Nonnull
     @Override
-    public CompoundTag toTag( @Nonnull CompoundTag nbt )
+    public NbtCompound writeNbt( @Nonnull NbtCompound nbt )
     {
+    	super.readNbt( nbt );
         // Write inventory
-        ListTag nbttaglist = new ListTag();
+        NbtList nbttaglist = new NbtList();
         for( int i = 0; i < INVENTORY_SIZE; i++ )
         {
             if( !inventory.get( i )
                 .isEmpty() )
             {
-                CompoundTag tag = new CompoundTag();
+            	NbtCompound tag = new NbtCompound();
                 tag.putByte( "Slot", (byte) i );
-                inventory.get( i )
-                    .toTag( tag );
+                inventory.get( i ).writeNbt( tag );
                 nbttaglist.add( tag );
             }
         }
@@ -313,27 +313,27 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         // Write brain
         nbt = brain.writeToNBT( nbt );
 
-        return super.toTag( nbt );
+        return nbt;
     }
 
     // IDirectionalTile
 
     @Override
-    public void fromTag( @Nonnull BlockState state, @Nonnull CompoundTag nbt )
+    public void readNbt( @Nonnull NbtCompound nbt )
     {
-        super.fromTag( state, nbt );
+        super.writeNbt( nbt );
 
         // Read inventory
-        ListTag nbttaglist = nbt.getList( "Items", NBTUtil.TAG_COMPOUND );
+        NbtList nbttaglist = nbt.getList( "Items", NBTUtil.TAG_COMPOUND );
         inventory.clear();
         previousInventory.clear();
         for( int i = 0; i < nbttaglist.size(); i++ )
         {
-            CompoundTag tag = nbttaglist.getCompound( i );
+            NbtCompound tag = nbttaglist.getCompound( i );
             int slot = tag.getByte( "Slot" ) & 0xff;
             if( slot < size() )
             {
-                inventory.set( slot, ItemStack.fromTag( tag ) );
+                inventory.set( slot, ItemStack.fromNbt( tag ) );
                 previousInventory.set( slot, inventory.get( slot )
                     .copy() );
             }
@@ -372,14 +372,14 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    protected void writeDescription( @Nonnull CompoundTag nbt )
+    protected void writeDescription( @Nonnull NbtCompound nbt )
     {
         super.writeDescription( nbt );
         brain.writeDescription( nbt );
     }
 
     @Override
-    protected void readDescription( @Nonnull CompoundTag nbt )
+    protected void readDescription( @Nonnull NbtCompound nbt )
     {
         super.readDescription( nbt );
         brain.readDescription( nbt );

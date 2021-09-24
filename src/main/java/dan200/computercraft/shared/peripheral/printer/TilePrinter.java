@@ -23,7 +23,7 @@ import net.minecraft.inventory.Inventories;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
@@ -34,6 +34,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Nameable;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
@@ -70,9 +71,9 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     private String pageTitle = "";
     private boolean printing = false;
 
-    public TilePrinter( BlockEntityType<TilePrinter> type )
+    public TilePrinter( BlockEntityType<TilePrinter> type, BlockPos pos, BlockState state )
     {
-        super( type );
+        super( type, pos, state );
     }
 
     @Override
@@ -165,9 +166,9 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     }
 
     @Override
-    public void fromTag( @Nonnull BlockState state, @Nonnull CompoundTag nbt )
+    public void readNbt( @Nonnull NbtCompound nbt )
     {
-        super.fromTag( state, nbt );
+        super.readNbt( nbt );
 
         customName = nbt.contains( NBT_NAME ) ? Text.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
 
@@ -180,13 +181,14 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         }
 
         // Read inventory
-        Inventories.fromTag( nbt, inventory );
+        Inventories.readNbt( nbt, inventory );
     }
 
     @Nonnull
     @Override
-    public CompoundTag toTag( @Nonnull CompoundTag nbt )
+    public NbtCompound writeNbt( @Nonnull NbtCompound nbt )
     {
+    	super.writeNbt( nbt );
         if( customName != null )
         {
             nbt.putString( NBT_NAME, Text.Serializer.toJson( customName ) );
@@ -201,9 +203,9 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         }
 
         // Write inventory
-        Inventories.toTag( nbt, inventory );
+        Inventories.writeNbt( nbt, inventory );
 
-        return super.toTag( nbt );
+        return nbt;
     }
 
     boolean isPrinting()

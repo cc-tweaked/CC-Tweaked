@@ -11,6 +11,7 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Matrix4f;
@@ -84,11 +85,11 @@ public class ComputerBorderRenderer
     {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.getBuffer();
-        buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_COLOR_TEXTURE );
+        buffer.begin( VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE );
 
         render( IDENTITY, buffer, x, y, z, width, height );
 
-        RenderSystem.enableAlphaTest();
+        RenderSystem.enableDepthTest(); //TODO: enableAlphaTest(). FIXME
         tessellator.draw();
     }
 

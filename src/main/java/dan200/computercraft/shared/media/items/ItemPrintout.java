@@ -13,7 +13,7 @@ import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -60,7 +60,7 @@ public class ItemPrintout extends Item
         }
         if( text != null )
         {
-            CompoundTag tag = stack.getOrCreateTag();
+        	NbtCompound tag = stack.getOrCreateTag();
             tag.putInt( NBT_PAGES, text.length / LINES_PER_PAGE );
             for( int i = 0; i < text.length; i++ )
             {
@@ -72,7 +72,7 @@ public class ItemPrintout extends Item
         }
         if( colours != null )
         {
-            CompoundTag tag = stack.getOrCreateTag();
+        	NbtCompound tag = stack.getOrCreateTag();
             for( int i = 0; i < colours.length; i++ )
             {
                 if( colours[i] != null )
@@ -105,7 +105,7 @@ public class ItemPrintout extends Item
 
     private static String[] getLines( @Nonnull ItemStack stack, String prefix )
     {
-        CompoundTag nbt = stack.getTag();
+    	NbtCompound nbt = stack.getTag();
         int numLines = getPageCount( stack ) * LINES_PER_PAGE;
         String[] lines = new String[numLines];
         for( int i = 0; i < lines.length; i++ )
@@ -117,7 +117,7 @@ public class ItemPrintout extends Item
 
     public static int getPageCount( @Nonnull ItemStack stack )
     {
-        CompoundTag nbt = stack.getTag();
+    	NbtCompound nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_PAGES ) ? nbt.getInt( NBT_PAGES ) : 1;
     }
 
@@ -152,7 +152,7 @@ public class ItemPrintout extends Item
 
     public static String getTitle( @Nonnull ItemStack stack )
     {
-        CompoundTag nbt = stack.getTag();
+    	NbtCompound nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_TITLE ) ? nbt.getString( NBT_TITLE ) : null;
     }
 

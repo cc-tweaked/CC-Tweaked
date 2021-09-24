@@ -135,7 +135,7 @@ public class TurtleSuckCommand implements ITurtleCommand
                 {
                     if( remainder.isEmpty() && leaveStack.isEmpty() )
                     {
-                        entity.remove();
+                        entity.discard();
                     }
                     else if( remainder.isEmpty() )
                     {

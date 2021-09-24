@@ -29,8 +29,8 @@ public final class ImpostorRecipe extends ShapedRecipe
         {
             String group = JsonHelper.getString( json, "group", "" );
             ShapedRecipe recipe = RecipeSerializer.SHAPED.read( identifier, json );
-            ItemStack result = ShapedRecipe.getItemStack( JsonHelper.getObject( json, "result" ) );
-            return new ImpostorRecipe( identifier, group, recipe.getWidth(), recipe.getHeight(), recipe.getPreviewInputs(), result );
+            ItemStack result = ShapedRecipe.outputFromJson( JsonHelper.getObject( json, "result" ) );
+            return new ImpostorRecipe( identifier, group, recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), result );
         }
 
         @Override
@@ -54,7 +54,7 @@ public final class ImpostorRecipe extends ShapedRecipe
             buf.writeVarInt( recipe.getWidth() );
             buf.writeVarInt( recipe.getHeight() );
             buf.writeString( recipe.getGroup() );
-            for( Ingredient ingredient : recipe.getPreviewInputs() )
+            for( Ingredient ingredient : recipe.getIngredients() )
             {
                 ingredient.write( buf );
             }

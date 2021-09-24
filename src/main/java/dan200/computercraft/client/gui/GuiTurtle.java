@@ -44,7 +44,7 @@ public class GuiTurtle extends GuiComputer<ContainerTurtle>
         terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
 
         // Draw border/inventory
-        RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
+        RenderSystem.clearColor( 1.0F, 1.0F, 1.0F, 1.0F );
         client.getTextureManager()
             .bindTexture( texture );
         drawTexture( transform, x, y, 0, 0, backgroundWidth, backgroundHeight );

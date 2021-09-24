@@ -7,14 +7,18 @@
 package dan200.computercraft.shared.turtle.blocks;
 
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.computer.blocks.BlockComputerBase;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
+import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -175,5 +179,11 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Waterl
                 }
             }
         }
+    }
+    
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type){
+    	return world.isClient ? null : BlockTurtle.checkType( type, ComputerCraftRegistry.ModTiles.TURTLE_NORMAL, TileTurtle::tick );
     }
 }

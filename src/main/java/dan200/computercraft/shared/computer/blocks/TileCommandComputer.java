@@ -10,6 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.apis.CommandAPI;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
@@ -19,6 +20,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameRules;
@@ -32,9 +34,9 @@ public class TileCommandComputer extends TileComputer
 {
     private final CommandReceiver receiver;
 
-    public TileCommandComputer( ComputerFamily family, BlockEntityType<? extends TileCommandComputer> type )
+    public TileCommandComputer( ComputerFamily family, BlockEntityType<? extends TileCommandComputer> type, BlockPos pos, BlockState state )
     {
-        super( family, type );
+        super( family, type, pos, state );
         receiver = new CommandReceiver();
     }
 

@@ -16,7 +16,8 @@ import dan200.computercraft.shared.util.IoUtil;
 import net.minecraft.resource.ReloadableResourceManager;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourceReloadListener;
+import net.minecraft.resource.ResourceReloader;
+import net.minecraft.resource.ResourceReloader.Synchronizer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.profiler.Profiler;
@@ -299,7 +300,7 @@ public final class ResourceMount implements IMount
      * While people should really be keeping a permanent reference to this, some people construct it every
      * method call, so let's make this as small as possible.
      */
-    static class Listener implements ResourceReloadListener
+    static class Listener implements ResourceReloader
     {
         private static final Listener INSTANCE = new Listener();
 
@@ -324,7 +325,7 @@ public final class ResourceMount implements IMount
 
         synchronized void add( ReloadableResourceManager manager, ResourceMount mount )
         {
-            if( managers.add( manager ) ) manager.registerListener( this );
+            if( managers.add( manager ) ) manager.registerReloader( this );
             mounts.add( mount );
         }
     }

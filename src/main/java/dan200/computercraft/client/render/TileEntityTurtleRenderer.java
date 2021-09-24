@@ -26,7 +26,7 @@ import net.minecraft.client.render.model.BakedModelManager;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -38,8 +38,8 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Random;
 
-public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle>
-{
+public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
+{ //FIXME: more rendering puzzles.
     private static final ModelIdentifier NORMAL_TURTLE_MODEL = new ModelIdentifier( "computercraft:turtle_normal", "inventory" );
     private static final ModelIdentifier ADVANCED_TURTLE_MODEL = new ModelIdentifier( "computercraft:turtle_advanced", "inventory" );
     private static final ModelIdentifier COLOUR_TURTLE_MODEL = new ModelIdentifier( "computercraft:turtle_colour", "inventory" );
@@ -147,7 +147,7 @@ public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle>
         transform.translate( offset.x, offset.y, offset.z );
 
         transform.translate( 0.5f, 0.5f, 0.5f );
-        transform.multiply( Vector3f.POSITIVE_Y.getDegreesQuaternion( 180.0f - yaw ) );
+        transform.multiply( Vec3f.POSITIVE_Y.getDegreesQuaternion( 180.0f - yaw ) );
         if( label != null && (label.equals( "Dinnerbone" ) || label.equals( "Grumm" )) )
         {
             // Flip the model
@@ -189,7 +189,7 @@ public class TileEntityTurtleRenderer extends BlockEntityRenderer<TileTurtle>
 
         float toolAngle = turtle.getToolRenderAngle( side, f );
         transform.translate( 0.0f, 0.5f, 0.5f );
-        transform.multiply( Vector3f.NEGATIVE_X.getDegreesQuaternion( toolAngle ) );
+        transform.multiply( Vec3f.NEGATIVE_X.getDegreesQuaternion( toolAngle ) );
         transform.translate( 0.0f, -0.5f, -0.5f );
 
         TransformedModel model = upgrade.getModel( turtle.getAccess(), side );

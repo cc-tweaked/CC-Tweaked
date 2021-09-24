@@ -28,6 +28,8 @@ import javax.annotation.Nonnull;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
 
+import java.util.List;
+
 public class GuiComputer<T extends ContainerComputerBase> extends HandledScreen<T>
 {
     protected final ComputerFamily family;
@@ -78,7 +80,7 @@ public class GuiComputer<T extends ContainerComputerBase> extends HandledScreen<
         terminal = new WidgetTerminal( client, () -> computer, termWidth, termHeight, MARGIN, MARGIN, MARGIN, MARGIN );
         terminalWrapper = new WidgetWrapper( terminal, MARGIN + border + x, MARGIN + border + y, termPxWidth, termPxHeight );
 
-        children.add( terminalWrapper );
+        ((List<WidgetWrapper>)children()).add( terminalWrapper ); //FIXME: This is bad.
         setFocused( terminalWrapper );
     }
 
@@ -109,7 +111,7 @@ public class GuiComputer<T extends ContainerComputerBase> extends HandledScreen<
         terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
 
         // Draw a border around the terminal
-        RenderSystem.color4f( 1, 1, 1, 1 );
+        RenderSystem.clearColor( 1, 1, 1, 1 );
         client.getTextureManager()
             .bindTexture( ComputerBorderRenderer.getTexture( family ) );
         ComputerBorderRenderer.render( terminalWrapper.getX() - MARGIN, terminalWrapper.getY() - MARGIN,
@@ -144,7 +146,7 @@ public class GuiComputer<T extends ContainerComputerBase> extends HandledScreen<
     public void removed()
     {
         super.removed();
-        children.remove( terminal );
+        children().remove( terminal );
         terminal = null;
         client.keyboard.setRepeatEvents( false );
     }

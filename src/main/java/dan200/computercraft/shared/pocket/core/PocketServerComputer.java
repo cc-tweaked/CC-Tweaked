@@ -22,7 +22,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
@@ -57,7 +57,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
         if( entity instanceof PlayerEntity )
         {
-            PlayerInventory inventory = ((PlayerEntity) entity).inventory;
+            PlayerInventory inventory = ((PlayerEntity) entity).getInventory();
             return inventory.main.contains( stack ) || inventory.offHand.contains( stack ) ? entity : null;
         }
         else if( entity instanceof LivingEntity )
@@ -87,14 +87,14 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public int getLight()
     {
-        CompoundTag tag = getUserData();
+    	NbtCompound tag = getUserData();
         return tag.contains( NBT_LIGHT, NBTUtil.TAG_ANY_NUMERIC ) ? tag.getInt( NBT_LIGHT ) : -1;
     }
 
     @Override
     public void setLight( int colour )
     {
-        CompoundTag tag = getUserData();
+    	NbtCompound tag = getUserData();
         if( colour >= 0 && colour <= 0xFFFFFF )
         {
             if( !tag.contains( NBT_LIGHT, NBTUtil.TAG_ANY_NUMERIC ) || tag.getInt( NBT_LIGHT ) != colour )
@@ -112,7 +112,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
     @Nonnull
     @Override
-    public CompoundTag getUpgradeNBTData()
+    public NbtCompound getUpgradeNBTData()
     {
         return ItemPocketComputer.getUpgradeInfo( stack );
     }
@@ -122,7 +122,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     {
         if( entity instanceof PlayerEntity )
         {
-            ((PlayerEntity) entity).inventory.markDirty();
+            ((PlayerEntity) entity).getInventory().markDirty();
         }
     }
 

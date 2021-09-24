@@ -23,7 +23,7 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.sound.SoundEvent;
@@ -32,10 +32,10 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Nameable;
-import net.minecraft.util.Tickable;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,7 +43,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public final class TileDiskDrive extends TileGeneric implements DefaultInventory, Tickable, IPeripheralTile, Nameable, NamedScreenHandlerFactory
+public final class TileDiskDrive extends TileGeneric implements DefaultInventory, IPeripheralTile, Nameable, NamedScreenHandlerFactory
 {
     private static final String NBT_NAME = "CustomName";
     private static final String NBT_ITEM = "Item";
@@ -57,9 +57,9 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     private boolean restartRecord = false;
     private boolean ejectQueued;
 
-    public TileDiskDrive( BlockEntityType<TileDiskDrive> type )
+    public TileDiskDrive( BlockEntityType<TileDiskDrive> type, BlockPos pos, BlockState state )
     {
-        super( type );
+        super( type, pos, state );
     }
 
     @Override
@@ -108,22 +108,23 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     }
 
     @Override
-    public void fromTag( @Nonnull BlockState state, @Nonnull CompoundTag nbt )
+    public void readNbt( @Nonnull NbtCompound nbt )
     {
-        super.fromTag( state, nbt );
+        super.readNbt( nbt );
         customName = nbt.contains( NBT_NAME ) ? Text.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
         if( nbt.contains( NBT_ITEM ) )
         {
-            CompoundTag item = nbt.getCompound( NBT_ITEM );
-            diskStack = ItemStack.fromTag( item );
+        	NbtCompound item = nbt.getCompound( NBT_ITEM );
+            diskStack = ItemStack.fromNbt( item );
             diskMount = null;
         }
     }
 
     @Nonnull
     @Override
-    public CompoundTag toTag( @Nonnull CompoundTag nbt )
+    public NbtCompound writeNbt( @Nonnull NbtCompound nbt )
     {
+        super.writeNbt( nbt );
         if( customName != null )
         {
             nbt.putString( NBT_NAME, Text.Serializer.toJson( customName ) );
@@ -131,11 +132,11 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
         if( !diskStack.isEmpty() )
         {
-            CompoundTag item = new CompoundTag();
-            diskStack.toTag( item );
+        	NbtCompound item = new NbtCompound();
+            diskStack.writeNbt( item );
             nbt.put( NBT_ITEM, item );
         }
-        return super.toTag( nbt );
+        return nbt;
     }
 
     @Override
@@ -148,40 +149,39 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         super.markDirty();
     }
 
-    @Override
-    public void tick()
+    public static void tick( World world, BlockPos pos, BlockState state, TileDiskDrive tileDiskDrive)
     {
         // Ejection
-        if( ejectQueued )
+        if( tileDiskDrive.ejectQueued )
         {
-            ejectContents( false );
-            ejectQueued = false;
+        	tileDiskDrive.ejectContents( false );
+        	tileDiskDrive.ejectQueued = false;
         }
 
         // Music
-        synchronized( this )
+        synchronized( tileDiskDrive )
         {
-            if( !world.isClient && recordPlaying != recordQueued || restartRecord )
+            if( !world.isClient && tileDiskDrive.recordPlaying != tileDiskDrive.recordQueued || tileDiskDrive.restartRecord )
             {
-                restartRecord = false;
-                if( recordQueued )
+            	tileDiskDrive.restartRecord = false;
+                if( tileDiskDrive.recordQueued )
                 {
-                    IMedia contents = getDiskMedia();
-                    SoundEvent record = contents != null ? contents.getAudio( diskStack ) : null;
+                    IMedia contents = tileDiskDrive.getDiskMedia();
+                    SoundEvent record = contents != null ? contents.getAudio( tileDiskDrive.diskStack ) : null;
                     if( record != null )
                     {
-                        recordPlaying = true;
-                        playRecord();
+                    	tileDiskDrive.recordPlaying = true;
+                    	tileDiskDrive.playRecord();
                     }
                     else
                     {
-                        recordQueued = false;
+                    	tileDiskDrive.recordQueued = false;
                     }
                 }
                 else
                 {
-                    stopRecord();
-                    recordPlaying = false;
+                	tileDiskDrive.stopRecord();
+                    tileDiskDrive.recordPlaying = false;
                 }
             }
         }
@@ -479,7 +479,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
     private synchronized void ejectContents( boolean destroyed )
     {
-        if( getWorld().isClient || diskStack.isEmpty() )
+        if( this.world.isClient || diskStack.isEmpty() )
         {
             return;
         }

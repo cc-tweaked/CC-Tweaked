@@ -26,7 +26,7 @@ public final class FixedPointTileEntityType<T extends BlockEntity> extends Block
 
     private FixedPointTileEntityType( Supplier<Block> block, Supplier<T> builder )
     {
-        super( builder, Collections.emptySet(), null );
+        super( builder, Collections.emptySet(), null ); //FIXME: Replace with the new BlockEntity handlers.
         this.block = block;
     }
 
@@ -35,11 +35,11 @@ public final class FixedPointTileEntityType<T extends BlockEntity> extends Block
         return new FixedPointSupplier<>( block, builder ).factory;
     }
 
-    @Override
-    public boolean supports( @Nonnull Block block )
-    {
-        return block == this.block.get();
-    }
+//    @Override
+//    public boolean supports( @Nonnull Block block )
+//    {
+//        return block == this.block.get();
+//    }
 
     private static final class FixedPointSupplier<T extends BlockEntity> implements Supplier<T>
     {

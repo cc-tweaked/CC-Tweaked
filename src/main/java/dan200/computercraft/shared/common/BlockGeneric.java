@@ -94,8 +94,8 @@ public abstract class BlockGeneric extends BlockWithEntity
 
     @Nullable
     @Override
-    public BlockEntity createBlockEntity( @Nonnull BlockView world )
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state)
     {
-        return type.instantiate();
+        return type.instantiate(pos, state);
     }
 }

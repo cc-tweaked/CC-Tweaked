@@ -33,7 +33,7 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -92,7 +92,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         ClientComputer computer = getClientComputer( stack );
         if( computer != null && computer.isOn() )
         {
-            CompoundTag computerNBT = computer.getUserData();
+        	NbtCompound computerNBT = computer.getUserData();
             if( computerNBT != null && computerNBT.contains( NBT_LIGHT ) )
             {
                 return computerNBT.getInt( NBT_LIGHT );
@@ -103,7 +103,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     public static void setUpgrade( @Nonnull ItemStack stack, IPocketUpgrade upgrade )
     {
-        CompoundTag compound = stack.getOrCreateTag();
+    	NbtCompound compound = stack.getOrCreateTag();
 
         if( upgrade == null )
         {
@@ -119,7 +119,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         compound.remove( NBT_UPGRADE_INFO );
     }
 
-    public static CompoundTag getUpgradeInfo( @Nonnull ItemStack stack )
+    public static NbtCompound getUpgradeInfo( @Nonnull ItemStack stack )
     {
         return stack.getOrCreateSubTag( NBT_UPGRADE_INFO );
     }
@@ -147,7 +147,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         ItemStack stack = player.getStackInHand( hand );
         if( !world.isClient )
         {
-            PocketServerComputer computer = createServerComputer( world, player.inventory, player, stack );
+            PocketServerComputer computer = createServerComputer( world, player.getInventory(), player, stack );
 
             boolean stop = false;
             if( computer != null )
@@ -177,7 +177,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         if( !world.isClient )
         {
             // Server side
-            Inventory inventory = entity instanceof PlayerEntity ? ((PlayerEntity) entity).inventory : null;
+            Inventory inventory = entity instanceof PlayerEntity ? ((PlayerEntity) entity).getInventory() : null;
             PocketServerComputer computer = createServerComputer( world, inventory, entity, stack );
             if( computer != null )
             {
@@ -341,7 +341,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     public static IPocketUpgrade getUpgrade( @Nonnull ItemStack stack )
     {
-        CompoundTag compound = stack.getTag();
+    	NbtCompound compound = stack.getTag();
         return compound != null && compound.contains( NBT_UPGRADE ) ? PocketUpgrades.get( compound.getString( NBT_UPGRADE ) ) : null;
 
     }
@@ -402,13 +402,13 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     private static int getInstanceID( @Nonnull ItemStack stack )
     {
-        CompoundTag nbt = stack.getTag();
+    	NbtCompound nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_INSTANCE ) ? nbt.getInt( NBT_INSTANCE ) : -1;
     }
 
     private static int getSessionID( @Nonnull ItemStack stack )
     {
-        CompoundTag nbt = stack.getTag();
+    	NbtCompound nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_SESSION ) ? nbt.getInt( NBT_SESSION ) : -1;
     }
 

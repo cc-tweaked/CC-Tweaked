@@ -32,7 +32,7 @@ public class MixinWorld
     @Inject( method = "setBlockEntity", at = @At( "HEAD" ) )
     public void setBlockEntity( BlockPos pos, @Nullable BlockEntity entity, CallbackInfo info )
     {
-        if( !World.isOutOfBuildLimitVertically( pos ) && entity != null && !entity.isRemoved() && iteratingTickingBlockEntities )
+        if( entity != null && !entity.isRemoved() && entity.getWorld().isInBuildLimit(pos) && iteratingTickingBlockEntities )
         {
             setWorld( entity, this );
         }
@@ -42,7 +42,7 @@ public class MixinWorld
     {
         if( entity.getWorld() != world && entity instanceof TileGeneric )
         {
-            entity.setLocation( (World) world, entity.getPos() );
+//            entity.setLocation( (World) world, entity.getPos() ); //TODO why?
         }
     }
 

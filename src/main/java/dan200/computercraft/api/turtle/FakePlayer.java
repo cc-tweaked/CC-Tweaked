@@ -53,7 +53,7 @@ public class FakePlayer extends ServerPlayerEntity
 {
     public FakePlayer( ServerWorld world, GameProfile gameProfile )
     {
-        super( world.getServer(), world, gameProfile, new ServerPlayerInteractionManager( world ) );
+        super( world.getServer(), world, gameProfile );
         networkHandler = new FakeNetHandler( this );
     }
 
@@ -128,7 +128,7 @@ public class FakePlayer extends ServerPlayerEntity
     }
 
     @Override
-    public void openEditBookScreen( ItemStack stack, Hand hand )
+    public void useBook( ItemStack stack, Hand hand )
     {
     }
 
@@ -137,30 +137,30 @@ public class FakePlayer extends ServerPlayerEntity
     {
     }
 
-    @Override
-    public void onSlotUpdate( ScreenHandler container, int slot, ItemStack stack )
-    {
-    }
-
-    @Override
-    public void onHandlerRegistered( ScreenHandler container, DefaultedList<ItemStack> defaultedList )
-    {
-    }
-
-    @Override
-    public void onPropertyUpdate( ScreenHandler container, int key, int value )
-    {
-    }
+//    @Override
+//    public void onSlotUpdate( ScreenHandler container, int slot, ItemStack stack )
+//    {
+//    }
+//
+//    @Override
+//    public void onHandlerRegistered( ScreenHandler container, DefaultedList<ItemStack> defaultedList )
+//    {
+//    }
+//
+//    @Override
+//    public void onPropertyUpdate( ScreenHandler container, int key, int value )
+//    {
+//    }
 
     @Override
     public void closeHandledScreen()
     {
     }
 
-    @Override
-    public void updateCursorStack()
-    {
-    }
+//    @Override
+//    public void updateCursorStack()
+//    {
+//    }
 
     @Override
     public int unlockRecipes( Collection<Recipe<?>> recipes )
@@ -191,17 +191,17 @@ public class FakePlayer extends ServerPlayerEntity
     }
 
     @Override
-    public void method_14222( EntityAnchorArgumentType.EntityAnchor self, Entity entity, EntityAnchorArgumentType.EntityAnchor target )
+    public void lookAtEntity( EntityAnchorArgumentType.EntityAnchor self, Entity entity, EntityAnchorArgumentType.EntityAnchor target )
     {
     }
 
     @Override
-    protected void onStatusEffectApplied( StatusEffectInstance statusEffectInstance )
+    protected void onStatusEffectApplied( StatusEffectInstance statusEffectInstance, @Nullable Entity source )
     {
     }
 
     @Override
-    protected void onStatusEffectUpgraded( StatusEffectInstance statusEffectInstance, boolean particles )
+    protected void onStatusEffectUpgraded( StatusEffectInstance statusEffectInstance, boolean particles, @Nullable Entity source )
     {
     }
 
@@ -215,10 +215,10 @@ public class FakePlayer extends ServerPlayerEntity
     {
     }
 
-    @Override
-    public void setGameMode( GameMode gameMode )
-    {
-    }
+//    @Override
+//    public void setGameMode( GameMode gameMode )
+//    {
+//    }
 
     @Override
     public void sendMessage( Text message, MessageType type, UUID senderUuid )
@@ -232,15 +232,15 @@ public class FakePlayer extends ServerPlayerEntity
         return "[Fake Player]";
     }
 
-    @Override
-    public void sendResourcePackUrl( String url, String hash )
-    {
-    }
+//    @Override
+//    public void sendResourcePackUrl( String url, String hash )
+//    {
+//    }
 
-    @Override
-    public void onStoppedTracking( Entity entity )
-    {
-    }
+//    @Override
+//    public void onStoppedTracking( Entity entity )
+//    {
+//    }
 
     @Override
     public void setCameraEntity( Entity entity )

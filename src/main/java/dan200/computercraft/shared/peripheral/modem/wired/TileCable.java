@@ -23,7 +23,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -74,9 +74,9 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     private boolean hasModemDirection = false;
     private boolean connectionsFormed = false;
 
-    public TileCable( BlockEntityType<? extends TileCable> type )
+    public TileCable( BlockEntityType<? extends TileCable> type, BlockPos pos, BlockState state )
     {
-        super( type );
+        super( type, pos, state );
     }
 
     @Override
@@ -119,7 +119,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
             return ActionResult.FAIL;
         }
 
-        if( getWorld().isClient )
+        if( this.world.isClient )
         {
             return ActionResult.SUCCESS;
         }
@@ -377,20 +377,21 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void fromTag( @Nonnull BlockState state, @Nonnull CompoundTag nbt )
+    public void readNbt( @Nonnull NbtCompound nbt )
     {
-        super.fromTag( state, nbt );
+        super.readNbt( nbt );
         peripheralAccessAllowed = nbt.getBoolean( NBT_PERIPHERAL_ENABLED );
         peripheral.read( nbt, "" );
     }
 
     @Nonnull
     @Override
-    public CompoundTag toTag( CompoundTag nbt )
+    public NbtCompound writeNbt( NbtCompound nbt )
     {
+    	super.writeNbt( nbt );
         nbt.putBoolean( NBT_PERIPHERAL_ENABLED, peripheralAccessAllowed );
         peripheral.write( nbt, "" );
-        return super.toTag( nbt );
+        return nbt;
     }
 
     @Override
@@ -408,9 +409,10 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void resetBlock()
+    public void setCachedState(BlockState state)
     {
-        super.resetBlock();
+        super.setCachedState(state);
+        if(state != null) return;
         hasModemDirection = false;
         if( !world.isClient )
         {

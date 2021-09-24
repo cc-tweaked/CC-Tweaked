@@ -8,7 +8,7 @@ package dan200.computercraft.shared.common;
 
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.network.client.TerminalState;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 public class ClientTerminal implements ITerminal
 {
@@ -80,12 +80,12 @@ public class ClientTerminal implements ITerminal
         }
     }
 
-    public void readDescription( CompoundTag nbt )
+    public void readDescription( NbtCompound nbt )
     {
         colour = nbt.getBoolean( "colour" );
         if( nbt.contains( "terminal" ) )
         {
-            CompoundTag terminal = nbt.getCompound( "terminal" );
+        	NbtCompound terminal = nbt.getCompound( "terminal" );
             resizeTerminal( terminal.getInt( "term_width" ), terminal.getInt( "term_height" ) );
             this.terminal.readFromNBT( terminal );
         }

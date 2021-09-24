@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.fabric.mixin;
 
-import net.minecraft.client.util.math.AffineTransformation;
-import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.util.math.AffineTransformation;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.math.Quaternion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -15,10 +15,10 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface AffineTransformationAccess
 {
     @Accessor
-    Vector3f getTranslation();
+    Vec3f getTranslation();
 
     @Accessor
-    Vector3f getScale();
+    Vec3f getScale();
 
     @Accessor
     Quaternion getRotation1();

@@ -193,24 +193,24 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         if( direction.getAxis() != Direction.Axis.Y )
         {
-            turtlePlayer.yaw = direction.asRotation();
-            turtlePlayer.pitch = 0.0f;
+            turtlePlayer.setYaw(direction.asRotation());
+            turtlePlayer.setPitch(0.0f);
         }
         else
         {
-            turtlePlayer.yaw = turtle.getDirection()
-                .asRotation();
-            turtlePlayer.pitch = DirectionUtil.toPitchAngle( direction );
+            turtlePlayer.setYaw(turtle.getDirection()
+                .asRotation());
+            turtlePlayer.setPitch(DirectionUtil.toPitchAngle( direction ));
         }
 
         turtlePlayer.setPos( posX, posY, posZ );
         turtlePlayer.prevX = posX;
         turtlePlayer.prevY = posY;
         turtlePlayer.prevZ = posZ;
-        turtlePlayer.prevPitch = turtlePlayer.pitch;
-        turtlePlayer.prevYaw = turtlePlayer.yaw;
+        turtlePlayer.prevPitch = turtlePlayer.getPitch();
+        turtlePlayer.prevYaw = turtlePlayer.getYaw();
 
-        turtlePlayer.headYaw = turtlePlayer.yaw;
+        turtlePlayer.headYaw = turtlePlayer.getYaw();
         turtlePlayer.prevHeadYaw = turtlePlayer.headYaw;
     }
 
@@ -403,7 +403,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
                                              Direction side, boolean allowReplaceable, String[] outErrorMessage )
     {
         World world = turtle.getWorld();
-        if( !World.isInBuildLimit( position ) || world.isAir( position ) || (context.getStack()
+        if( !world.isInBuildLimit( position ) || world.isAir( position ) || (context.getStack()
             .getItem() instanceof BlockItem && WorldUtil.isLiquidBlock( world,
             position )) )
         {

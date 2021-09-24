@@ -20,8 +20,10 @@
 		"Toad-Dev"
     ],
     "depends": {
-        "fabricloader": ">=0.4.0",
+        "fabricloader": ">=0.11.3",
         "fabric": "*"
+        "minecraft": "1.17.x",
+        "java": ">=16",
     },
     "suggests": {
         "modmenu": "*"

@@ -21,9 +21,9 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.util.GlAllocationUtils;
-import net.minecraft.client.util.math.AffineTransformation;
+import net.minecraft.util.math.AffineTransformation;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Matrix4f;
@@ -37,8 +37,8 @@ import java.nio.ByteBuffer;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.*;
 
-public class TileEntityMonitorRenderer extends BlockEntityRenderer<TileMonitor>
-{
+public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonitor>
+{ //FIXME get rid of GL Calls. Buffered things or whatever, more research needed.
     /**
      * {@link TileMonitor#RENDER_MARGIN}, but a tiny bit of additional padding to ensure that there is no space between the monitor frame and contents.
      */
@@ -89,8 +89,8 @@ public class TileEntityMonitorRenderer extends BlockEntityRenderer<TileMonitor>
             originPos.getY() - monitorPos.getY() + 0.5,
             originPos.getZ() - monitorPos.getZ() + 0.5 );
 
-        transform.multiply( Vector3f.NEGATIVE_Y.getDegreesQuaternion( yaw ) );
-        transform.multiply( Vector3f.POSITIVE_X.getDegreesQuaternion( pitch ) );
+        transform.multiply( Vec3f.NEGATIVE_Y.getDegreesQuaternion( yaw ) );
+        transform.multiply( Vec3f.POSITIVE_X.getDegreesQuaternion( pitch ) );
         transform.translate( -0.5 + TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN,
             origin.getHeight() - 0.5 - (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN) + 0,
             0.50 );

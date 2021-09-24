@@ -32,7 +32,7 @@ public final class BundledRedstone
 
     public static int getDefaultOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
-        return World.isInBuildLimit( pos ) ? DefaultBundledRedstoneProvider.getDefaultBundledRedstoneOutput( world, pos, side ) : -1;
+        return !world.isInBuildLimit( pos ) ? DefaultBundledRedstoneProvider.getDefaultBundledRedstoneOutput( world, pos, side ) : -1;
     }
 
     public static int getOutput( World world, BlockPos pos, Direction side )
@@ -43,7 +43,7 @@ public final class BundledRedstone
 
     private static int getUnmaskedOutput( World world, BlockPos pos, Direction side )
     {
-        if( !World.isInBuildLimit( pos ) )
+        if( !world.isInBuildLimit( pos ) )
         {
             return -1;
         }

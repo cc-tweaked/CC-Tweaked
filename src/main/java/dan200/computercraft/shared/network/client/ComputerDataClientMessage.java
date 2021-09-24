@@ -9,7 +9,7 @@ package dan200.computercraft.shared.network.client;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 
 import javax.annotation.Nonnull;
@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
 public class ComputerDataClientMessage extends ComputerClientMessage
 {
     private ComputerState state;
-    private CompoundTag userData;
+    private NbtCompound userData;
 
     public ComputerDataClientMessage( ServerComputer computer )
     {
@@ -38,7 +38,7 @@ public class ComputerDataClientMessage extends ComputerClientMessage
     {
         super.toBytes( buf );
         buf.writeEnumConstant( state );
-        buf.writeCompoundTag( userData );
+        buf.writeNbt( userData );
     }
 
     @Override
@@ -46,7 +46,7 @@ public class ComputerDataClientMessage extends ComputerClientMessage
     {
         super.fromBytes( buf );
         state = buf.readEnumConstant( ComputerState.class );
-        userData = buf.readCompoundTag();
+        userData = buf.readNbt();
     }
 
     @Override

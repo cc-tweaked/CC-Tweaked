@@ -43,6 +43,7 @@ import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.turtle.upgrades.*;
 import dan200.computercraft.shared.util.FixedPointTileEntityType;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.block.AbstractBlock;
@@ -151,19 +152,19 @@ public final class ComputerCraftRegistry
 
         public static final BlockEntityType<TileMonitor> MONITOR_NORMAL = ofBlock( () -> ModBlocks.MONITOR_NORMAL,
             "monitor_normal",
-            f -> new TileMonitor( f, false ) );
+            f -> new TileMonitor( f, false, null, null ) );
         public static final BlockEntityType<TileMonitor> MONITOR_ADVANCED = ofBlock( () -> ModBlocks.MONITOR_ADVANCED,
             "monitor_advanced",
-            f -> new TileMonitor( f, true ) );
+            f -> new TileMonitor( f, true, null, null ) );
         public static final BlockEntityType<TileComputer> COMPUTER_NORMAL = ofBlock( () -> ModBlocks.COMPUTER_NORMAL,
             "computer_normal",
-            f -> new TileComputer( ComputerFamily.NORMAL, f ) );
+            f -> new TileComputer( ComputerFamily.NORMAL, f, null, null ) );
         public static final BlockEntityType<TileComputer> COMPUTER_ADVANCED = ofBlock( () -> ModBlocks.COMPUTER_ADVANCED,
             "computer_advanced",
-            f -> new TileComputer( ComputerFamily.ADVANCED, f ) );
+            f -> new TileComputer( ComputerFamily.ADVANCED, f, null, null ) );
         public static final BlockEntityType<TileCommandComputer> COMPUTER_COMMAND = ofBlock( () -> ModBlocks.COMPUTER_COMMAND,
             "computer_command",
-            f -> new TileCommandComputer( ComputerFamily.COMMAND, f ) );
+            f -> new TileCommandComputer( ComputerFamily.COMMAND, f, null, null ) );
         public static final BlockEntityType<TileTurtle> TURTLE_NORMAL = ofBlock( () -> ModBlocks.TURTLE_NORMAL,
             "turtle_normal",
             f -> new TileTurtle( f, ComputerFamily.NORMAL ) );
@@ -179,16 +180,17 @@ public final class ComputerCraftRegistry
         public static final BlockEntityType<TileCable> CABLE = ofBlock( () -> ModBlocks.CABLE, "cable", TileCable::new );
         public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_NORMAL = ofBlock( () -> ModBlocks.WIRELESS_MODEM_NORMAL,
             "wireless_modem_normal",
-            f -> new TileWirelessModem( f, false ) );
+            f -> new TileWirelessModem( f, false, null, null ) );
         public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_ADVANCED = ofBlock( () -> ModBlocks.WIRELESS_MODEM_ADVANCED,
             "wireless_modem_advanced",
             f -> new TileWirelessModem( f, true ) );
 
         private static <T extends BlockEntity> BlockEntityType<T> ofBlock( Supplier<Block> block, String id, Function<BlockEntityType<T>, T> factory )
         {
+        	FabricBlockEntityTypeBuilder.create(factory, block);
             return Registry.register( BLOCK_ENTITY_TYPE,
                 new Identifier( MOD_ID, id ),
-                FixedPointTileEntityType.create( Objects.requireNonNull( block ), factory ) );
+                FabricBlockEntityTypeBuilder.create);
         }
     }
 

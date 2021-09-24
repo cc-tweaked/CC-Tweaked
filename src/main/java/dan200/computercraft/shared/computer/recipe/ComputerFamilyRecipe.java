@@ -45,7 +45,7 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
             ComputerFamily family = RecipeUtil.getFamily( json, "family" );
 
             RecipeUtil.ShapedTemplate template = RecipeUtil.getTemplate( json );
-            ItemStack result = getItemStack( JsonHelper.getObject( json, "result" ) );
+            ItemStack result = outputFromJson( JsonHelper.getObject( json, "result" ) );
 
             return create( identifier, group, template.width, template.height, template.ingredients, result, family );
         }
@@ -78,7 +78,7 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
             buf.writeVarInt( recipe.getWidth() );
             buf.writeVarInt( recipe.getHeight() );
             buf.writeString( recipe.getGroup() );
-            for( Ingredient ingredient : recipe.getPreviewInputs() )
+            for( Ingredient ingredient : recipe.getIngredients() )
             {
                 ingredient.write( buf );
             }

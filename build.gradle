@@ -7,7 +7,7 @@ plugins {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(8)
+        languageVersion = JavaLanguageVersion.of(16)
         vendor = JvmVendorSpec.ADOPTOPENJDK
     }
 }
@@ -55,8 +55,8 @@ dependencies {
     include 'com.electronwill.night-config:toml:3.6.3'
     include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
 
-    modRuntime "me.shedaniel:RoughlyEnoughItems-api:5.12.248"
-    modRuntime "me.shedaniel:RoughlyEnoughItems:5.12.248"
+    modRuntime "me.shedaniel:RoughlyEnoughItems-api:6.0.254-alpha"
+    modRuntime "me.shedaniel:RoughlyEnoughItems:6.0.254-alpha"
 }
 
 processResources {

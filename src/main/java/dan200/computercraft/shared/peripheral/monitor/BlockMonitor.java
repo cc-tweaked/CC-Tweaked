@@ -48,7 +48,7 @@ public class BlockMonitor extends BlockGeneric
     @Nullable
     public BlockState getPlacementState( ItemPlacementContext context )
     {
-        float pitch = context.getPlayer() == null ? 0 : context.getPlayer().pitch;
+        float pitch = context.getPlayer() == null ? 0 : context.getPlayer().getPitch();
         Direction orientation;
         if( pitch > 66.5f )
         {

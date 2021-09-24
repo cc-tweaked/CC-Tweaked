@@ -10,19 +10,20 @@ import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.client.render.entity.EntityRendererFactory.Context;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
 import javax.annotation.Nonnull;
 
 public class TurtlePlayerRenderer extends EntityRenderer<TurtlePlayer>
-{
-    public TurtlePlayerRenderer( EntityRenderDispatcher renderManager )
+{ //FIXME Make sure this isn't an issue. Context was EntityRenderDispatcher.
+    public TurtlePlayerRenderer( Context renderManager )
     {
         super( renderManager );
     }
 
-    public TurtlePlayerRenderer( EntityRenderDispatcher entityRenderDispatcher, EntityRendererRegistry.Context context )
+    public TurtlePlayerRenderer( Context entityRenderDispatcher, EntityRendererRegistry.Context context )
     {
         super( entityRenderDispatcher );
     }

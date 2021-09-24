@@ -44,7 +44,7 @@ public class GuiPrinter extends HandledScreen<ContainerPrinter>
     @Override
     protected void drawBackground( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
-        RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
+        RenderSystem.clearColor( 1.0F, 1.0F, 1.0F, 1.0F );
         client.getTextureManager()
             .bindTexture( BACKGROUND );
         drawTexture( transform, x, y, 0, 0, backgroundWidth, backgroundHeight );
