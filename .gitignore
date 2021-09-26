@@ -4,3 +4,4 @@
 /logs
 /gradle*
 /*.gradle
+/build

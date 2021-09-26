@@ -116,17 +116,25 @@ def gen_runs() -> None:
             if branch.name == version:
                 break
         else:
-            print("Cannot find Java for branch")
+            print(f"Cannot find Java for version for {path}")
             continue
 
         component = 'testMod' if name.startswith('Test') else 'main'
         xml = ET.parse(path)
+
+        # Put run configurations in folders
+        configuration = xml.find("./configuration")
+        if configuration:
+            configuration.set("folderName", version)
+
+        # Ensure they're linked to the right CC:T version
         module = xml.find("./configuration/module")
         if module is None:
             print("Unknown module for " + path.name)
         else:
             module.set("name", f"cc-tweaked.{version}.{component}")
 
+        # Force a specific JDK version
         version = xml.find("./configuration/option[@name='ALTERNATIVE_JRE_PATH']")
         if version:
             version.set("value", branch.java)
