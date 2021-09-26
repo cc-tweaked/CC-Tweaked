@@ -433,7 +433,7 @@ function run()
             nClearTimer = nil
             local nNow, bHasMore = os.clock(), nil
             for nMessageID, nDeadline in pairs(tReceivedMessages) do
-                if nDeadline >= nNow then tReceivedMessages[nMessageID] = nil
+                if nDeadline <= nNow then tReceivedMessages[nMessageID] = nil
                 else bHasMore = true end
             end
             nClearTimer = bHasMore and os.startTimer(10)

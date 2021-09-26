@@ -86,21 +86,22 @@ describe("The rednet library", function()
 
     describe("on fake computers", function()
         local fake_computer = require "support.fake_computer"
+        local debugx = require "support.debug_ext"
 
         local function computer_with_rednet(id, fn, options)
-            local computer = fake_computer.make_computer(id, function(_ENV)
-                local fns = { _ENV.rednet.run }
+            local computer = fake_computer.make_computer(id, function(env)
+                local fns = { env.rednet.run }
                 if options and options.rep then
-                    fns[#fns + 1] = function() _ENV.dofile("rom/programs/rednet/repeat.lua") end
+                    fns[#fns + 1] = function() env.dofile("rom/programs/rednet/repeat.lua") end
                 end
 
                 if fn then
                     fns[#fns + 1] = function()
                         if options and options.open then
-                            _ENV.rednet.open("back")
-                            _ENV.os.queueEvent("x") _ENV.os.pullEvent("x")
+                            env.rednet.open("back")
+                            env.os.queueEvent("x") env.os.pullEvent("x")
                         end
-                        return fn(_ENV.rednet, _ENV)
+                        return fn(env.rednet, env)
                     end
                 end
 
@@ -140,7 +141,7 @@ describe("The rednet library", function()
         end)
 
         it("sends and receives rednet messages", function()
-            local computer_1, modem_1 = computer_with_rednet(1, function(rednet, _ENV)
+            local computer_1, modem_1 = computer_with_rednet(1, function(rednet)
                 rednet.send(2, "Hello")
             end, { open = true })
             local computer_2, modem_2 = computer_with_rednet(2, function(rednet)
@@ -154,7 +155,7 @@ describe("The rednet library", function()
         end)
 
         it("repeats messages between computers", function()
-            local computer_1, modem_1 = computer_with_rednet(1, function(rednet, _ENV)
+            local computer_1, modem_1 = computer_with_rednet(1, function(rednet)
                 rednet.send(3, "Hello")
             end, { open = true })
             local computer_2, modem_2 = computer_with_rednet(2, nil, { open = true, rep = true })
@@ -171,7 +172,7 @@ describe("The rednet library", function()
 
         it("repeats messages between computers with massive ids", function()
             local id_1, id_3 = 24283947, 93428798
-            local computer_1, modem_1 = computer_with_rednet(id_1, function(rednet, _ENV)
+            local computer_1, modem_1 = computer_with_rednet(id_1, function(rednet)
                 rednet.send(id_3, "Hello")
                 local id, message = rednet.receive()
                 expect { id, message }:same { id_3, "World" }
@@ -186,6 +187,40 @@ describe("The rednet library", function()
             fake_computer.add_modem_edge(modem_2, modem_3)
 
             fake_computer.run_all({ computer_1, computer_2, computer_3 }, { computer_1, computer_3 })
+        end)
+
+        it("ignores duplicate messages", function()
+            local computer_1, modem_1 = computer_with_rednet(1, function(rednet)
+                rednet.send(2, "Hello")
+            end, { open = true })
+            local computer_2, modem_2 = computer_with_rednet(2, function(rednet, env)
+                local id, message = rednet.receive()
+                expect { id, message }:same { 1, "Hello" }
+
+                local id = rednet.receive(nil, 1)
+                expect(id):eq(nil)
+
+                env.sleep(10)
+
+                -- Ensure our pending message store is empty. Bit ugly to prod internals, but there's no other way.
+                expect(debugx.getupvalue(rednet.run, "tReceivedMessages")):same({})
+                expect(debugx.getupvalue(rednet.run, "nClearTimer")):eq(nil)
+            end, { open = true })
+
+            local computer_3, modem_3 = computer_with_rednet(3, nil, { open = true, rep = true })
+            fake_computer.add_modem_edge(modem_1, modem_3)
+            fake_computer.add_modem_edge(modem_3, modem_2)
+
+            local computer_4, modem_4 = computer_with_rednet(4, nil, { open = true, rep = true })
+            fake_computer.add_modem_edge(modem_1, modem_4)
+            fake_computer.add_modem_edge(modem_4, modem_2)
+
+            local computers = { computer_1, computer_2, computer_3, computer_4 }
+            fake_computer.run_all(computers, false)
+            fake_computer.advance_all(computers, 1)
+            fake_computer.run_all(computers, { computer_1 })
+            fake_computer.advance_all(computers, 10)
+            fake_computer.run_all(computers, { computer_1, computer_2 })
         end)
     end)
 end)
