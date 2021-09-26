@@ -4,7 +4,6 @@ local function keys(tbl)
     return keys
 end
 
-
 local safe_globals = {
     "assert", "bit32", "coroutine", "debug", "error", "fs", "getmetatable", "io", "ipairs", "math", "next", "pairs",
     "pcall", "print", "printError", "rawequal", "rawget", "rawlen", "rawset", "select", "setmetatable", "string",
