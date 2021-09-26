@@ -14,6 +14,10 @@ else
     print(#tModems .. " modems found.")
 end
 
+local function idAsChannel(id)
+    return (id or os.getComputerID()) % rednet.MAX_ID_CHANNELS
+end
+
 local function open(nChannel)
     for n = 1, #tModems do
         local sModem = tModems[n]
@@ -53,7 +57,7 @@ local ok, error = pcall(function()
                         for n = 1, #tModems do
                             local sOtherModem = tModems[n]
                             peripheral.call(sOtherModem, "transmit", rednet.CHANNEL_REPEAT, nReplyChannel, tMessage)
-                            peripheral.call(sOtherModem, "transmit", tMessage.nRecipient, nReplyChannel, tMessage)
+                            peripheral.call(sOtherModem, "transmit", idAsChannel(tMessage.nRecipient), nReplyChannel, tMessage)
                         end
 
                         -- Log the event
