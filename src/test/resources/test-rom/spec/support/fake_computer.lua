@@ -7,7 +7,7 @@ end
 local safe_globals = {
     "assert", "bit32", "coroutine", "debug", "error", "fs", "getmetatable", "io", "ipairs", "math", "next", "pairs",
     "pcall", "print", "printError", "rawequal", "rawget", "rawlen", "rawset", "select", "setmetatable", "string",
-    "table", "term", "tonumber", "tostring", "type", "utf8", "xpcall",
+    "table", "term", "textutils", "tonumber", "tostring", "type", "utf8", "xpcall",
 }
 
 --- Create a fake computer.
@@ -15,6 +15,7 @@ local function make_computer(id, fn)
     local env = setmetatable({}, _G)
 
     local peripherals = {}
+    local pending_timers, next_timer, clock = {}, 0, 0
     local events = { { n = 1, env } }
     local function queue_event(...) events[#events + 1] = table.pack(...) end
 
@@ -40,9 +41,18 @@ local function make_computer(id, fn)
             if event_data[1] == "terminate" then error("Terminated", 0) end
             return table.unpack(event_data, 1, event_data.n)
         end,
-        startTimer = function() return 0 end,
-        clock = function() return 0 end,
+        startTimer = function(delay)
+            local t = next_timer
+            pending_timers[t], next_timer = clock + delay, next_timer + 1
+            return t
+        end,
+        clock = function() return clock end,
+        sleep = function(time)
+            local timer = env.os.startTimer(time or 0)
+            repeat local _, id = env.os.pullEvent("timer") until id == timer
+        end,
     }
+    env.sleep = env.os.sleep
     env.dofile = function(path)
         local fn, err = loadfile(path, nil, env)
         if fn then return fn() else error(err, 2) end
@@ -67,7 +77,17 @@ local function make_computer(id, fn)
         end
     end
 
-    return { env = env, peripherals = peripherals, queue_event = queue_event, step = step, co = co }
+    local function advance(dt)
+        clock = clock + dt
+        for id, clk in pairs(pending_timers) do
+            if clk <= clock then
+                queue_event("timer", id)
+                pending_timers[id] = nil
+            end
+        end
+    end
+
+    return { env = env, peripherals = peripherals, queue_event = queue_event, step = step, co = co, advance = advance }
 end
 
 local function parse_channel(c)
@@ -137,10 +157,15 @@ local function run_all(computers, require_done)
 
         for _, computer in pairs(computers) do
             if coroutine.status(computer.co) ~= "dead" and (type(require_done) ~= "table" or require_done[computer]) then
-                error(debug.traceback(computer.co, "Computer did not shutdown"), 0)
+                error(debug.traceback(computer.co, ("Computer #%d did not shutdown"):format(computer.env.os.getComputerID())), 0)
             end
         end
     end
+end
+
+--- Advance all computers by a given time.
+local function advance_all(computers, dt)
+    for _, computer in pairs(computers) do computer.advance(dt) end
 end
 
 return {
@@ -148,6 +173,8 @@ return {
     add_modem = add_modem,
     add_modem_edge = add_modem_edge,
     add_api = add_api,
+
     step_all = step_all,
     run_all = run_all,
+    advance_all = advance_all,
 }

@@ -30,8 +30,8 @@ CHANNEL_REPEAT = 65533
 MAX_ID_CHANNELS = 65500
 
 local tReceivedMessages = {}
-local tReceivedMessageTimeouts = {}
 local tHostnames = {}
+local nClearTimer
 
 local function id_as_channel(id)
     return (id or os.getComputerID()) % MAX_ID_CHANNELS
@@ -138,8 +138,8 @@ function send(nRecipient, message, sProtocol)
     -- We could do other things to guarantee uniqueness, but we really don't need to
     -- Store it to ensure we don't get our own messages back
     local nMessageID = math.random(1, 2147483647)
-    tReceivedMessages[nMessageID] = true
-    tReceivedMessageTimeouts[os.startTimer(30)] = nMessageID
+    tReceivedMessages[nMessageID] = os.clock() + 9.5
+    if not nClearTimer then nClearTimer = os.startTimer(10) end
 
     -- Create the message
     local nReplyChannel = id_as_channel()
@@ -408,8 +408,8 @@ function run()
                     and tMessage.nMessageID == tMessage.nMessageID and not tReceivedMessages[tMessage.nMessageID]
                     and ((tMessage.nRecipient and tMessage.nRecipient == os.getComputerID()) or nChannel == CHANNEL_BROADCAST)
                 then
-                    tReceivedMessages[tMessage.nMessageID] = true
-                    tReceivedMessageTimeouts[os.startTimer(30)] = tMessage.nMessageID
+                    tReceivedMessages[tMessage.nMessageID] = os.clock() + 9.5
+                    if not nClearTimer then nClearTimer = os.startTimer(10) end
                     os.queueEvent("rednet_message", tMessage.nSender or nReplyChannel, tMessage.message, tMessage.sProtocol)
                 end
             end
@@ -428,14 +428,15 @@ function run()
                 end
             end
 
-        elseif sEvent == "timer" then
+        elseif sEvent == "timer" and p1 == nClearTimer then
             -- Got a timer event, use it to clear the event queue
-            local nTimer = p1
-            local nMessage = tReceivedMessageTimeouts[nTimer]
-            if nMessage then
-                tReceivedMessageTimeouts[nTimer] = nil
-                tReceivedMessages[nMessage] = nil
+            nClearTimer = nil
+            local nNow, bHasMore = os.clock(), nil
+            for nMessageID, nDeadline in pairs(tReceivedMessages) do
+                if nDeadline <= nNow then tReceivedMessages[nMessageID] = nil
+                else bHasMore = true end
             end
+            nClearTimer = bHasMore and os.startTimer(10)
         end
     end
 end
