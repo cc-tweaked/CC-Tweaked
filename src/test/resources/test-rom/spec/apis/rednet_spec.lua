@@ -84,7 +84,7 @@ describe("The rednet library", function()
         end)
     end)
 
-    describe("on a fake computers", function()
+    describe("on fake computers", function()
         local fake_computer = require "support.fake_computer"
 
         local function computer_with_rednet(id, fn, options)
@@ -162,6 +162,25 @@ describe("The rednet library", function()
                 local id, message = rednet.receive()
                 expect(id):eq(1)
                 expect(message):eq("Hello")
+            end, { open = true })
+            fake_computer.add_modem_edge(modem_1, modem_2)
+            fake_computer.add_modem_edge(modem_2, modem_3)
+
+            fake_computer.run_all({ computer_1, computer_2, computer_3 }, { computer_1, computer_3 })
+        end)
+
+        it("repeats messages between computers with massive ids", function()
+            local id_1, id_3 = 24283947, 93428798
+            local computer_1, modem_1 = computer_with_rednet(id_1, function(rednet, _ENV)
+                rednet.send(id_3, "Hello")
+                local id, message = rednet.receive()
+                expect { id, message }:same { id_3, "World" }
+            end, { open = true })
+            local computer_2, modem_2 = computer_with_rednet(2, nil, { open = true, rep = true })
+            local computer_3, modem_3 = computer_with_rednet(id_3, function(rednet)
+                rednet.send(id_1, "World")
+                local id, message = rednet.receive()
+                expect { id, message }:same { id_1, "Hello" }
             end, { open = true })
             fake_computer.add_modem_edge(modem_1, modem_2)
             fake_computer.add_modem_edge(modem_2, modem_3)

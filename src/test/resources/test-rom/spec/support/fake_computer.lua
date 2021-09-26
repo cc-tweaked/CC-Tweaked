@@ -70,15 +70,22 @@ local function make_computer(id, fn)
     return { env = env, peripherals = peripherals, queue_event = queue_event, step = step, co = co }
 end
 
+local function parse_channel(c)
+    if c < 0 or c > 65535 then error("Expected number in range 0-65535", 3) end
+    return c
+end
+
 --- Add a modem to a computer on a particular side
 local function add_modem(owner, side)
     local open, adjacent = {}, {}
     local peripheral = setmetatable({
-        open = function(channel) open[channel] = true end,
-        close = function(channel) open[channel] = false end,
+        open = function(channel) open[parse_channel(channel)] = true end,
+        close = function(channel) open[parse_channel(channel)] = false end,
         closeAll = function(channel) open = {} end,
-        isOpen = function(channel) return open[channel] == true end,
+        isOpen = function(channel) return open[parse_channel(channel)] == true end,
         transmit = function(channel, reply_channel, payload)
+            channel, reply_channel = parse_channel(channel), parse_channel(reply_channel)
+
             for _, adjacent in pairs(adjacent) do
                 if adjacent.open[channel] then
                     adjacent.owner.queue_event("modem_message", adjacent.side, channel, reply_channel, payload, 123)
