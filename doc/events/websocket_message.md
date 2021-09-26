@@ -10,6 +10,7 @@ This event is normally handled by @{http.Websocket.receive}, but it can also be 
 1. @{string}: The event name.
 2. @{string}: The URL of the WebSocket.
 3. @{string}: The contents of the message.
+4. @{boolean}: Whether this is a binary message.
 
 ## Example
 Prints a message sent by a WebSocket:

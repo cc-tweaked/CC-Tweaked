@@ -13,6 +13,7 @@ import net.minecraft.test.TestTrackerHolder;
 import net.minecraft.util.Rotation;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.fml.unsafe.UnsafeHacks;
 import net.minecraftforge.forgespi.language.ModFileScanData;
 import org.objectweb.asm.Type;
@@ -65,11 +66,12 @@ class TestLoader
         String name = className + "." + method.getName().toLowerCase( Locale.ROOT );
 
         GameTest test = method.getAnnotation( GameTest.class );
+        if( test.batch().startsWith( "client" ) && !FMLLoader.getDist().isClient() ) return;
 
         TestMod.log.info( "Adding test " + name );
         testClassNames.add( className );
         testFunctions.add( createTestFunction(
-            test.batch(), name, name,
+            test.batch(), name, test.template().isEmpty() ? name : className + "." + test.template(),
             test.required(),
             holder -> runTest( holder, method ),
             test.timeoutTicks(),

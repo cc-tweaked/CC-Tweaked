@@ -83,4 +83,90 @@ describe("The rednet library", function()
             expect(rednet.lookup("a_protocol", "a_hostname")):eq(os.getComputerID())
         end)
     end)
+
+    describe("on a fake computers", function()
+        local fake_computer = require "support.fake_computer"
+
+        local function computer_with_rednet(id, fn, options)
+            local computer = fake_computer.make_computer(id, function(_ENV)
+                local fns = { _ENV.rednet.run }
+                if options and options.rep then
+                    fns[#fns + 1] = function() _ENV.dofile("rom/programs/rednet/repeat.lua") end
+                end
+
+                if fn then
+                    fns[#fns + 1] = function()
+                        if options and options.open then
+                            _ENV.rednet.open("back")
+                            _ENV.os.queueEvent("x") _ENV.os.pullEvent("x")
+                        end
+                        return fn(_ENV.rednet, _ENV)
+                    end
+                end
+
+                return parallel.waitForAny(table.unpack(fns))
+            end)
+            local modem = fake_computer.add_modem(computer, "back")
+            fake_computer.add_api(computer, "rom/apis/rednet.lua")
+            return computer, modem
+        end
+
+        it("opens and closes channels", function()
+            local id = math.random(256)
+            local computer = computer_with_rednet(id, function(rednet)
+                expect(rednet.isOpen()):eq(false)
+
+                rednet.open("back")
+                rednet.open("front")
+
+                expect(rednet.isOpen()):eq(true)
+                expect(rednet.isOpen("back")):eq(true)
+                expect(rednet.isOpen("front")):eq(true)
+
+                rednet.close("back")
+                expect(rednet.isOpen("back")):eq(false)
+                expect(rednet.isOpen("front")):eq(true)
+                expect(rednet.isOpen()):eq(true)
+
+                rednet.close()
+
+                expect(rednet.isOpen("back")):eq(false)
+                expect(rednet.isOpen("front")):eq(false)
+                expect(rednet.isOpen()):eq(false)
+            end)
+            fake_computer.add_modem(computer, "front")
+
+            fake_computer.run_all { computer }
+        end)
+
+        it("sends and receives rednet messages", function()
+            local computer_1, modem_1 = computer_with_rednet(1, function(rednet, _ENV)
+                rednet.send(2, "Hello")
+            end, { open = true })
+            local computer_2, modem_2 = computer_with_rednet(2, function(rednet)
+                local id, message = rednet.receive()
+                expect(id):eq(1)
+                expect(message):eq("Hello")
+            end, { open = true })
+            fake_computer.add_modem_edge(modem_1, modem_2)
+
+            fake_computer.run_all { computer_1, computer_2 }
+        end)
+
+        it("repeats messages between computers", function()
+            local computer_1, modem_1 = computer_with_rednet(1, function(rednet, _ENV)
+                rednet.send(3, "Hello")
+            end, { open = true })
+            local computer_2, modem_2 = computer_with_rednet(2, nil, { open = true, rep = true })
+            local computer_3, modem_3 = computer_with_rednet(3, function(rednet)
+                local id, message = rednet.receive()
+                expect(id):eq(1)
+                expect(message):eq("Hello")
+            end, { open = true })
+            fake_computer.add_modem_edge(modem_1, modem_2)
+            fake_computer.add_modem_edge(modem_2, modem_3)
+
+            fake_computer.run_all({ computer_1, computer_2, computer_3 }, { computer_1, computer_3 })
+        end)
+    end)
 end)

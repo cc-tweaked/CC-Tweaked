@@ -2,11 +2,12 @@ package dan200.computercraft.ingame
 
 import dan200.computercraft.ingame.api.GameTest
 import dan200.computercraft.ingame.api.GameTestHelper
+import dan200.computercraft.ingame.api.Timeouts.COMPUTER_TIMEOUT
 import dan200.computercraft.ingame.api.sequence
 import dan200.computercraft.ingame.api.thenComputerOk
 
 class Turtle_Test {
-    @GameTest(timeoutTicks = TIMEOUT)
+    @GameTest(timeoutTicks = COMPUTER_TIMEOUT)
     fun Unequip_refreshes_peripheral(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
 
     /**
@@ -14,7 +15,7 @@ class Turtle_Test {
      *
      * @see [#537](https://github.com/SquidDev-CC/CC-Tweaked/issues/537)
      */
-    @GameTest(timeoutTicks = TIMEOUT)
+    @GameTest(timeoutTicks = COMPUTER_TIMEOUT)
     fun Shears_sheep(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
 
     /**
@@ -22,7 +23,7 @@ class Turtle_Test {
      *
      * @see [#518](https://github.com/SquidDev-CC/CC-Tweaked/issues/518)
      */
-    @GameTest(timeoutTicks = TIMEOUT)
+    @GameTest(timeoutTicks = COMPUTER_TIMEOUT)
     fun Place_lava(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
 
     /**
@@ -30,7 +31,7 @@ class Turtle_Test {
      *
      * @see [#385](https://github.com/SquidDev-CC/CC-Tweaked/issues/385)
      */
-    @GameTest(timeoutTicks = TIMEOUT)
+    @GameTest(timeoutTicks = COMPUTER_TIMEOUT)
     fun Place_waterlogged(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
 
     /**
@@ -38,7 +39,7 @@ class Turtle_Test {
      *
      * @see [#297](https://github.com/SquidDev-CC/CC-Tweaked/issues/297)
      */
-    @GameTest(timeoutTicks = TIMEOUT)
+    @GameTest(timeoutTicks = COMPUTER_TIMEOUT)
     fun Gather_lava(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
 
     /**
@@ -46,7 +47,7 @@ class Turtle_Test {
      *
      * @see [#258](https://github.com/SquidDev-CC/CC-Tweaked/issues/258)
      */
-    @GameTest(timeoutTicks = TIMEOUT)
+    @GameTest(timeoutTicks = COMPUTER_TIMEOUT)
     fun Hoe_dirt(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
 
     /**
@@ -54,14 +55,14 @@ class Turtle_Test {
      *
      * @see [#691](https://github.com/SquidDev-CC/CC-Tweaked/issues/691)
      */
-    @GameTest(timeoutTicks = TIMEOUT)
+    @GameTest(timeoutTicks = COMPUTER_TIMEOUT)
     fun Place_monitor(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
 
     /**
      * Checks turtles can place into compostors. These are non-typical inventories, so
      * worth testing.
      */
-    @GameTest(timeoutTicks = TIMEOUT)
+    @GameTest(timeoutTicks = COMPUTER_TIMEOUT)
     fun Use_compostors(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
 
     /**
@@ -71,8 +72,4 @@ class Turtle_Test {
      */
     @GameTest
     fun Cleaned_with_cauldrons(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
-
-    companion object {
-        const val TIMEOUT = 200
-    }
 }

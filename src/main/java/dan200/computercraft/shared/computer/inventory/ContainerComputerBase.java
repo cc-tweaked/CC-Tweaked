@@ -34,7 +34,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class ContainerComputerBase extends Container implements IContainerComputer
+public abstract class ContainerComputerBase extends Container implements IContainerComputer
 {
     private static final String LIST_PREFIX = "\n \u2022 ";
 

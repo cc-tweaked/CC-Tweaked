@@ -40,6 +40,13 @@ public @interface GameTest
     String batch() default "default";
 
     /**
+     * The template to use for this test. Otherwise defaults to the test's name.
+     *
+     * @return This tests' template.
+     */
+    String template() default "";
+
+    /**
      * If this test must pass. When false, test failures do not cause a build failure.
      *
      * @return If this test is required.

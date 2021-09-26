@@ -7,7 +7,7 @@ package dan200.computercraft.shared.pocket.inventory;
 
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
+import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInventory;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -49,8 +49,8 @@ public class PocketComputerMenuProvider implements INamedContainerProvider
     @Override
     public Container createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity entity )
     {
-        return new ContainerComputerBase(
-            isTypingOnly ? Registry.ModContainers.POCKET_COMPUTER_NO_TERM.get() : Registry.ModContainers.POCKET_COMPUTER.get(), id,
+        return new ComputerMenuWithoutInventory(
+            isTypingOnly ? Registry.ModContainers.POCKET_COMPUTER_NO_TERM.get() : Registry.ModContainers.POCKET_COMPUTER.get(), id, inventory,
             p -> {
                 ItemStack stack = p.getItemInHand( hand );
                 return stack.getItem() == item && ItemPocketComputer.getServerComputer( stack ) == computer;

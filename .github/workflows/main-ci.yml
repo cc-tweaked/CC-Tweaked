@@ -27,6 +27,7 @@ jobs:
       run: |
         mkdir -p ~/.gradle
         echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
+        echo "cc.tweaked.clientTests=true" >> ~/.gradle/gradle.properties
 
     - name: Build with Gradle
       run: |

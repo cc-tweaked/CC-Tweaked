@@ -121,7 +121,7 @@ public class CommandAPI implements ILuaAPI
      * @throws LuaException (hidden) If the task cannot be created.
      * @cc.usage Asynchronously sets the block above the computer to stone.
      * <pre>{@code
-     * commands.execAsync("~ ~1 ~ minecraft:stone")
+     * commands.execAsync("setblock ~ ~1 ~ minecraft:stone")
      * }</pre>
      * @cc.see parallel One may also use the parallel API to run multiple commands at once.
      */
