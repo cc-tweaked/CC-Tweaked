@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.ingame.mod;
 
+import dan200.computercraft.ingame.api.Times;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.MinecraftServer;
@@ -27,7 +28,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 @Mod.EventBusSubscriber( modid = TestMod.MOD_ID )
 public class TestHooks
@@ -56,7 +56,7 @@ public class TestHooks
         rules.getRule( GameRules.RULE_DOMOBSPAWNING ).set( false, server );
 
         ServerWorld world = event.getServer().getLevel( World.OVERWORLD );
-        if( world != null ) world.setDayTime( 6000 );
+        if( world != null ) world.setDayTime( Times.NOON );
 
         LOG.info( "Cleaning up after last run" );
         CommandSource source = server.createCommandSourceStack();
@@ -84,16 +84,12 @@ public class TestHooks
     {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         CommandSource source = server.createCommandSourceStack();
-        Collection<TestFunctionInfo> tests = TestRegistry.getAllTestFunctions()
-            .stream()
-            .filter( x -> FMLLoader.getDist().isClient() | !x.batchName.startsWith( "client" ) )
-            .collect( Collectors.toList() );
+        Collection<TestFunctionInfo> tests = TestRegistry.getAllTestFunctions();
 
         LOG.info( "Running {} tests...", tests.size() );
 
-        Collection<TestBatch> batches = TestUtils.groupTestsIntoBatches( tests );
-        return new TestResultList( TestUtils.runTestBatches(
-            batches, getStart( source ), Rotation.NONE, source.getLevel(), TestCollection.singleton, 8
+        return new TestResultList( TestUtils.runTests(
+            tests, getStart( source ), Rotation.NONE, source.getLevel(), TestCollection.singleton, 8
         ) );
     }
 

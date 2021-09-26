@@ -60,13 +60,6 @@ class CCTestCommand
                 }
                 return total;
             } ) )
-            .then( literal( "runall" ).executes( context -> {
-                TestRegistry.forgetFailedTests();
-                TestResultList result = TestHooks.runTests();
-                result.addListener( new Callback( context.getSource(), result ) );
-                result.addFailureListener( x -> TestRegistry.rememberFailedTest( x.getTestFunction() ) );
-                return 0;
-            } ) )
 
             .then( literal( "promote" ).executes( context -> {
                 if( !FMLLoader.getDist().isClient() ) return error( context.getSource(), "Cannot run on server" );
@@ -96,6 +89,7 @@ class CCTestCommand
                 armorStand.readAdditionalSaveData( nbt );
                 armorStand.copyPosition( player );
                 armorStand.setCustomName( new StringTextComponent( info.getTestName() ) );
+                player.getLevel().addFreshEntity( armorStand );
                 return 0;
             } ) )
         );
