@@ -3,13 +3,11 @@ package dan200.computercraft.ingame.api
 import dan200.computercraft.ingame.mod.ImageUtils
 import dan200.computercraft.ingame.mod.TestMod
 import net.minecraft.block.BlockState
-import net.minecraft.block.Blocks
 import net.minecraft.client.Minecraft
 import net.minecraft.command.arguments.BlockStateInput
 import net.minecraft.entity.item.ArmorStandEntity
 import net.minecraft.util.ScreenShotHelper
 import net.minecraft.util.math.BlockPos
-import net.minecraft.world.gen.Heightmap
 import java.nio.file.Files
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
@@ -133,24 +131,6 @@ fun GameTestHelper.sequence(run: GameTestSequence.() -> GameTestSequence) {
  * Set a block within the test structure.
  */
 fun GameTestHelper.setBlock(pos: BlockPos, state: BlockStateInput) = state.place(level, absolutePos(pos), 3)
-
-/**
- * "Normalise" the current world in preparation for screenshots.
- *
- * Basically removes any dirt and replaces it with concrete.
- */
-fun GameTestHelper.normaliseScene() {
-    val y = level.getHeightmapPos(Heightmap.Type.WORLD_SURFACE, absolutePos(BlockPos.ZERO))
-    for (x in -100..100) {
-        for (z in -100..100) {
-            val pos = y.offset(x, -3, z)
-            val block = level.getBlockState(pos).block
-            if (block == Blocks.DIRT || block == Blocks.GRASS_BLOCK) {
-                level.setBlock(pos, Blocks.WHITE_CONCRETE.defaultBlockState(), 3)
-            }
-        }
-    }
-}
 
 /**
  * Position the player at an armor stand.
