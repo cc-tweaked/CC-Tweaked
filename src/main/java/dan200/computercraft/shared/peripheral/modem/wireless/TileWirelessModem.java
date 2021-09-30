@@ -8,6 +8,7 @@ package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
+import dan200.computercraft.shared.ComputerCraftRegistry.ModTiles;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
@@ -31,7 +32,7 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
 
     public TileWirelessModem( BlockEntityType<? extends TileWirelessModem> type, boolean advanced, BlockPos pos, BlockState state )
     {
-        super( type, pos, state );
+        super( ModTiles.WIRELESS_MODEM_ADVANCED, pos, state );
         this.advanced = advanced;
         modem = new Peripheral( this );
     }

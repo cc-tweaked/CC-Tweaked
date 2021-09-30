@@ -43,10 +43,12 @@ import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.turtle.upgrades.*;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.Factory;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntity;
@@ -61,6 +63,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 
 import java.util.Objects;
@@ -91,31 +94,31 @@ public final class ComputerCraftRegistry
     public static final class ModBlocks
     {
         public static final BlockComputer COMPUTER_NORMAL = register( "computer_normal",
-            new BlockComputer( properties(), ComputerFamily.NORMAL, ModTiles.COMPUTER_NORMAL ) );
+            new BlockComputer( properties(), ComputerFamily.NORMAL, ComputerCraftRegistry.ModTiles.COMPUTER_NORMAL ) );
         public static final BlockComputer COMPUTER_ADVANCED = register( "computer_advanced",
             new BlockComputer( properties(),
                 ComputerFamily.ADVANCED,
-                ModTiles.COMPUTER_ADVANCED ) );
+                ComputerCraftRegistry.ModTiles.COMPUTER_ADVANCED ) );
         public static final BlockComputer COMPUTER_COMMAND = register( "computer_command",
             new BlockComputer( FabricBlockSettings.copyOf( Blocks.STONE )
                 .strength( -1, 6000000.0F ),
                 ComputerFamily.COMMAND,
-                ModTiles.COMPUTER_COMMAND ) );
+                ComputerCraftRegistry.ModTiles.COMPUTER_COMMAND ) );
         public static final BlockTurtle TURTLE_NORMAL = register( "turtle_normal",
-            new BlockTurtle( turtleProperties(), ComputerFamily.NORMAL, ModTiles.TURTLE_NORMAL ) );
+            new BlockTurtle( turtleProperties(), ComputerFamily.NORMAL, ComputerCraftRegistry.ModTiles.TURTLE_NORMAL ) );
         public static final BlockTurtle TURTLE_ADVANCED = register( "turtle_advanced",
-            new BlockTurtle( turtleProperties(), ComputerFamily.ADVANCED, ModTiles.TURTLE_ADVANCED ) );
+            new BlockTurtle( turtleProperties(), ComputerFamily.ADVANCED, ComputerCraftRegistry.ModTiles.TURTLE_ADVANCED ) );
         public static final BlockSpeaker SPEAKER = register( "speaker", new BlockSpeaker( properties() ) );
         public static final BlockDiskDrive DISK_DRIVE = register( "disk_drive", new BlockDiskDrive( properties() ) );
         public static final BlockPrinter PRINTER = register( "printer", new BlockPrinter( properties() ) );
-        public static final BlockMonitor MONITOR_NORMAL = register( "monitor_normal", new BlockMonitor( properties(), ModTiles.MONITOR_NORMAL ) );
-        public static final BlockMonitor MONITOR_ADVANCED = register( "monitor_advanced", new BlockMonitor( properties(), ModTiles.MONITOR_ADVANCED ) );
+        public static final BlockMonitor MONITOR_NORMAL = register( "monitor_normal", new BlockMonitor( properties(), ComputerCraftRegistry.ModTiles.MONITOR_NORMAL ) );
+        public static final BlockMonitor MONITOR_ADVANCED = register( "monitor_advanced", new BlockMonitor( properties(), ComputerCraftRegistry.ModTiles.MONITOR_ADVANCED ) );
         public static final BlockWirelessModem WIRELESS_MODEM_NORMAL = register( "wireless_modem_normal",
-            new BlockWirelessModem( properties(), ModTiles.WIRELESS_MODEM_NORMAL ) );
+            new BlockWirelessModem( properties(), ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_NORMAL ) );
         public static final BlockWirelessModem WIRELESS_MODEM_ADVANCED = register( "wireless_modem_advanced",
-            new BlockWirelessModem( properties(), ModTiles.WIRELESS_MODEM_ADVANCED ) );
+            new BlockWirelessModem( properties(), ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_ADVANCED ) );
         public static final BlockWiredModemFull WIRED_MODEM_FULL = register( "wired_modem_full",
-            new BlockWiredModemFull( emProperties(), ModTiles.WIRED_MODEM_FULL ) );
+            new BlockWiredModemFull( emProperties(), ComputerCraftRegistry.ModTiles.WIRED_MODEM_FULL ) );
         public static final BlockCable CABLE = register( "cable", new BlockCable( emProperties() ) );
 
         private static Block.Settings properties()
@@ -157,9 +160,9 @@ public final class ComputerCraftRegistry
             .create( ( blockPos, blockState ) -> new TileMonitor( ModTiles.MONITOR_ADVANCED, false, blockPos, blockState ),
                 ModBlocks.MONITOR_ADVANCED )
             .build();
-        public static final BlockEntityType<TileComputer> COMPUTER_NORMAL = FabricBlockEntityTypeBuilder.create(
-            ( blockPos, blockState ) -> new TileComputer( ComputerFamily.NORMAL, ModTiles.COMPUTER_NORMAL, blockPos, blockState ),
-            ModBlocks.COMPUTER_NORMAL ).build();
+        public static final BlockEntityType<TileComputer> COMPUTER_NORMAL = (BlockEntityType<TileComputer>) ofBlock(() -> ModBlocks.COMPUTER_NORMAL,
+            "computer_normal",
+            ( blockPos, blockState ) -> new TileComputer( ComputerFamily.NORMAL, ModTiles.COMPUTER_NORMAL, blockPos, blockState ));
         public static final BlockEntityType<TileComputer> COMPUTER_ADVANCED = FabricBlockEntityTypeBuilder
             .create( ( blockPos, blockState ) -> new TileComputer( ComputerFamily.ADVANCED, ModTiles.COMPUTER_ADVANCED, blockPos,
                 blockState ), ModBlocks.COMPUTER_ADVANCED )
@@ -193,9 +196,18 @@ public final class ComputerCraftRegistry
         public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_NORMAL = FabricBlockEntityTypeBuilder.create(
             ( blockPos, blockState ) -> new TileWirelessModem( ModTiles.WIRELESS_MODEM_NORMAL, false, blockPos, blockState ),
             ModBlocks.WIRELESS_MODEM_NORMAL ).build();
-        public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_ADVANCED = FabricBlockEntityTypeBuilder.create(
-            ( blockPos, blockState ) -> new TileWirelessModem( ModTiles.WIRELESS_MODEM_ADVANCED, true, blockPos, blockState ),
-            ModBlocks.WIRELESS_MODEM_ADVANCED ).build();
+        public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_ADVANCED = Registry.register( BLOCK_ENTITY_TYPE,
+            new Identifier( MOD_ID, "wireless_modem_advanced" ),
+            FabricBlockEntityTypeBuilder.create(
+                ( blockPos, blockState ) -> new TileWirelessModem( ModTiles.WIRELESS_MODEM_ADVANCED, true, blockPos, blockState ),
+                ModBlocks.WIRELESS_MODEM_ADVANCED ).build() );
+
+        private static <T extends BlockEntity> BlockEntityType<? extends T> ofBlock( Supplier<Block> block, String id, Factory<? extends T> factory)
+        {
+            return Registry.register( BLOCK_ENTITY_TYPE,
+                new Identifier( MOD_ID, id ),
+                FabricBlockEntityTypeBuilder.create(factory, block.get()).build() );
+        }
     }
 
     public static final class ModItems

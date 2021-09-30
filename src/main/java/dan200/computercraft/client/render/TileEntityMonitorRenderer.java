@@ -100,13 +100,16 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
         double ySize = origin.getHeight() - 2.0 * (TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER);
 
         // Draw the background blocker
+        BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+        buffer.begin( VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_COLOR_TEXTURE );
         FixedWidthFontRenderer.drawBlocker( transform.peek().getModel(),
-            renderer,
+            buffer,
             (float) -TileMonitor.RENDER_MARGIN,
             (float) TileMonitor.RENDER_MARGIN,
             (float) (xSize + 2 * TileMonitor.RENDER_MARGIN),
             (float) -(ySize + TileMonitor.RENDER_MARGIN * 2) );
-
+//        buffer.end();
+        Tessellator.getInstance().draw();
         // Set the contents slightly off the surface to prevent z-fighting
         transform.translate( 0.0, 0.0, 0.001 );
 
@@ -127,7 +130,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
             // Sneaky hack here: we get a buffer now in order to flush existing ones and set up the appropriate
             // render state. I've no clue how well this'll work in future versions of Minecraft, but it does the trick
             // for now.
-            BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+            buffer = Tessellator.getInstance().getBuffer();
             buffer.begin( VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR_TEXTURE );
 //            FixedWidthFontRenderer.TYPE.startDrawing();
 
@@ -139,19 +142,24 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
             // To go along with sneaky hack above: make sure state changes are undone. I would have thought this would
             // happen automatically after these buffers are drawn, but chests will render weird around monitors without this.
-            buffer.end();
+//            buffer.end();
+            Tessellator.getInstance().draw();
 
             transform.pop();
         }
         else
         {
+            buffer = Tessellator.getInstance().getBuffer();
+            buffer.begin( VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR_TEXTURE );
             FixedWidthFontRenderer.drawEmptyTerminal( transform.peek()
                     .getModel(),
-                renderer,
+                buffer,
                 -MARGIN,
                 MARGIN,
                 (float) (xSize + 2 * MARGIN),
                 (float) -(ySize + MARGIN * 2) );
+//            buffer.end();
+            Tessellator.getInstance().draw();
         }
 
         transform.pop();
@@ -224,6 +232,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                     .next();
                 buffer.vertex( pixelWidth + xMargin, pixelHeight + yMargin, 0 )
                     .next();
+//                buffer.end();
                 tessellator.draw();
 
                 GlStateManager._glUseProgram( 0 );
@@ -236,7 +245,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 {
                     Tessellator tessellator = Tessellator.getInstance();
                     BufferBuilder builder = tessellator.getBuffer();
-                    builder.begin( VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR_TEXTURE );
+                    builder.begin( VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_COLOR_TEXTURE );
                     FixedWidthFontRenderer.drawTerminalWithoutCursor( IDENTITY,
                         builder,
                         0,
