@@ -89,7 +89,7 @@ public class ComputerBorderRenderer
 
         render( IDENTITY, buffer, x, y, z, width, height );
 
-        RenderSystem.enableDepthTest(); //TODO: enableAlphaTest(). FIXME
+//        RenderSystem.enableDepthTest(); //TODO: enableAlphaTest(). FIXME
         tessellator.draw();
     }
 

@@ -34,7 +34,7 @@ public class MixinServerPlayerInteractionManager
             ActionResult actionResult = state.onUse( world, player, hand, hitResult );
             if( actionResult.isAccepted() )
             {
-                Criteria.ITEM_USED_ON_BLOCK.test( player, pos, stack );
+                Criteria.ITEM_USED_ON_BLOCK.trigger( player, pos, stack );
                 cir.setReturnValue( actionResult );
             }
         }

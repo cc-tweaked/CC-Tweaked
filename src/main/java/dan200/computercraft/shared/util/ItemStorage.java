@@ -34,7 +34,7 @@ public interface ItemStorage
 
     static boolean areStackable( @Nonnull ItemStack a, @Nonnull ItemStack b )
     {
-        return a == b || (a.getItem() == b.getItem() && ItemStack.areTagsEqual( a, b ));
+        return a == b || (a.getItem() == b.getItem() && ItemStack.areNbtEqual( a, b ));
     }
 
     int size();

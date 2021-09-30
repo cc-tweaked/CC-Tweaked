@@ -19,7 +19,7 @@ import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT
 import static dan200.computercraft.shared.media.items.ItemPrintout.LINES_PER_PAGE;
 
 public final class PrintoutRenderer
-{ //FIXME Use BufferBuilders
+{
     /**
      * Width of a page.
      */
@@ -189,20 +189,26 @@ public final class PrintoutRenderer
 
     private static final class Type extends RenderLayer
     {
+
         static final RenderLayer TYPE = RenderLayer.of( "printout_background",
             VertexFormats.POSITION_TEXTURE,
-            VertexFormat.DrawMode.QUADS,
+            GL11.GL_QUADS,
             1024,
+            false,
+            false,
             // useDelegate, needsSorting
-            RenderLayer.MultiPhaseParameters.builder()
+            Type.MultiPhaseParameters.builder()
                 .texture( new RenderPhase.Texture( BG, false, false ) ) // blur, minimap
-                .transparency( TRANSLUCENT_TRANSPARENCY )
+                .transparency( TRANSLUCENT_TRANSPARENCY)
                 .lightmap( DISABLE_LIGHTMAP )
-                .build( false ));
-
-        private Type( String name, VertexFormat vertexFormat, VertexFormat.DrawMode drawMode, int expectedBufferSize, boolean hasCrumbling, boolean translucent, RenderLayer.MultiPhaseParameters phases, Runnable setup, Runnable destroy )
+                .build( false ) );
+        
+        public Type( String name, VertexFormat vertexFormat, DrawMode drawMode,
+                int expectedBufferSize, boolean hasCrumbling, boolean translucent,
+                Runnable startAction, Runnable endAction )
         {
-            super( name, vertexFormat, drawMode, expectedBufferSize, hasCrumbling, hasCrumbling, setup, destroy );
+            super( name, vertexFormat, drawMode, expectedBufferSize, hasCrumbling, translucent,
+                    startAction, endAction );
         }
     }
 }

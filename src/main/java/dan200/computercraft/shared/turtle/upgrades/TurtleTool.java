@@ -76,7 +76,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
     @Override
     public boolean isItemSuitable( @Nonnull ItemStack stack )
     {
-        NbtCompound tag = stack.getTag();
+        NbtCompound tag = stack.getNbt();
         if( tag == null || tag.isEmpty() ) return true;
 
         // Check we've not got anything vaguely interesting on the item. We allow other mods to add their

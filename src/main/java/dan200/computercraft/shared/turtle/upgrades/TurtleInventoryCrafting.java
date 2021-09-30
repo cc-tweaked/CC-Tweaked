@@ -141,7 +141,7 @@ public class TurtleInventoryCrafting extends CraftingInventory
                 {
                     setStack( slot, remainder );
                 }
-                else if( ItemStack.areItemsEqualIgnoreDamage( existing, remainder ) && ItemStack.areTagsEqual( existing, remainder ) )
+                else if( ItemStack.areItemsEqualIgnoreDamage( existing, remainder ) && ItemStack.areNbtEqual( existing, remainder ) )
                 {
                     remainder.increment( existing.getCount() );
                     setStack( slot, remainder );

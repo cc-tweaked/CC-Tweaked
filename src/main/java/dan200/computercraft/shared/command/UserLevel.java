@@ -59,9 +59,9 @@ public enum UserLevel implements Predicate<ServerCommandSource>
 
         if( this == OWNER || this == OWNER_OP )
         {
-            MinecraftServer server = source.getMinecraftServer();
+            MinecraftServer server = source.getServer();
             Entity sender = source.getEntity();
-            if( server.isSinglePlayer() && sender instanceof PlayerEntity &&
+            if( server.isSingleplayer() && sender instanceof PlayerEntity &&
                 ((PlayerEntity) sender).getGameProfile().getName().equalsIgnoreCase( server.getServerModName() ) )
             {
                 return true;

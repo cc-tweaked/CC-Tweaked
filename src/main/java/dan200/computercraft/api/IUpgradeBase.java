@@ -76,8 +76,8 @@ public interface IUpgradeBase
 
         // A more expanded form of ItemStack.areShareTagsEqual, but allowing an empty tag to be equal to a
         // null one.
-        NbtCompound shareTag = stack.getTag();
-        NbtCompound craftingShareTag = crafting.getTag();
+        NbtCompound shareTag = stack.getNbt();
+        NbtCompound craftingShareTag = crafting.getNbt();
         if( shareTag == craftingShareTag ) return true;
         if( shareTag == null ) return craftingShareTag.isEmpty();
         if( craftingShareTag == null ) return shareTag.isEmpty();

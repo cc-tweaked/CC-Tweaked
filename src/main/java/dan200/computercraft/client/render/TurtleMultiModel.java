@@ -120,9 +120,9 @@ public class TurtleMultiModel implements BakedModel
     @Nonnull
     @Override
     @Deprecated
-    public Sprite getSprite()
+    public Sprite getParticleSprite()
     {
-        return baseModel.getSprite();
+        return baseModel.getParticleSprite();
     }
 
     @Nonnull

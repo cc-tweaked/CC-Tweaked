@@ -103,7 +103,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     public static void setUpgrade( @Nonnull ItemStack stack, IPocketUpgrade upgrade )
     {
-    	NbtCompound compound = stack.getOrCreateTag();
+    	NbtCompound compound = stack.getOrCreateNbt();
 
         if( upgrade == null )
         {
@@ -121,7 +121,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     public static NbtCompound getUpgradeInfo( @Nonnull ItemStack stack )
     {
-        return stack.getOrCreateSubTag( NBT_UPGRADE_INFO );
+        return stack.getOrCreateSubNbt( NBT_UPGRADE_INFO );
     }
 
     //    @Nullable
@@ -274,7 +274,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         ItemStack result = new ItemStack( this );
         if( id >= 0 )
         {
-            result.getOrCreateTag()
+            result.getOrCreateNbt()
                 .putInt( NBT_ID, id );
         }
         if( label != null )
@@ -283,14 +283,14 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         }
         if( upgrade != null )
         {
-            result.getOrCreateTag()
+            result.getOrCreateNbt()
                 .putString( NBT_UPGRADE,
                     upgrade.getUpgradeID()
                         .toString() );
         }
         if( colour != -1 )
         {
-            result.getOrCreateTag()
+            result.getOrCreateNbt()
                 .putInt( NBT_COLOUR, colour );
         }
         return result;
@@ -341,7 +341,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     public static IPocketUpgrade getUpgrade( @Nonnull ItemStack stack )
     {
-    	NbtCompound compound = stack.getTag();
+    	NbtCompound compound = stack.getNbt();
         return compound != null && compound.contains( NBT_UPGRADE ) ? PocketUpgrades.get( compound.getString( NBT_UPGRADE ) ) : null;
 
     }
@@ -350,7 +350,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     private static void setComputerID( @Nonnull ItemStack stack, int computerID )
     {
-        stack.getOrCreateTag()
+        stack.getOrCreateNbt()
             .putInt( NBT_ID, computerID );
     }
 
@@ -402,25 +402,25 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     private static int getInstanceID( @Nonnull ItemStack stack )
     {
-    	NbtCompound nbt = stack.getTag();
+    	NbtCompound nbt = stack.getNbt();
         return nbt != null && nbt.contains( NBT_INSTANCE ) ? nbt.getInt( NBT_INSTANCE ) : -1;
     }
 
     private static int getSessionID( @Nonnull ItemStack stack )
     {
-    	NbtCompound nbt = stack.getTag();
+    	NbtCompound nbt = stack.getNbt();
         return nbt != null && nbt.contains( NBT_SESSION ) ? nbt.getInt( NBT_SESSION ) : -1;
     }
 
     private static void setInstanceID( @Nonnull ItemStack stack, int instanceID )
     {
-        stack.getOrCreateTag()
+        stack.getOrCreateNbt()
             .putInt( NBT_INSTANCE, instanceID );
     }
 
     private static void setSessionID( @Nonnull ItemStack stack, int sessionID )
     {
-        stack.getOrCreateTag()
+        stack.getOrCreateNbt()
             .putInt( NBT_SESSION, sessionID );
     }
 

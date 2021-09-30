@@ -21,6 +21,7 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
+import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedModelManager;
 import net.minecraft.client.render.model.BakedQuad;
@@ -47,11 +48,11 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
 
     private final Random random = new Random( 0 );
 
-    public TileEntityTurtleRenderer( BlockEntityRenderDispatcher renderDispatcher )
+    public TileEntityTurtleRenderer( BlockEntityRendererFactory.Context context )
     {
-        super( renderDispatcher );
+//      super( rendererDispatcher );
     }
-
+    
     public static ModelIdentifier getTurtleModel( ComputerFamily family, boolean coloured )
     {
         switch( family )
@@ -116,11 +117,11 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
         // Render the label
         String label = turtle.createProxy()
             .getLabel();
-        HitResult hit = dispatcher.crosshairTarget;
+        MinecraftClient mc = MinecraftClient.getInstance();
+        HitResult hit = mc.crosshairTarget;
         if( label != null && hit.getType() == HitResult.Type.BLOCK && turtle.getPos()
             .equals( ((BlockHitResult) hit).getBlockPos() ) )
         {
-            MinecraftClient mc = MinecraftClient.getInstance();
             TextRenderer font = mc.textRenderer;
 
             transform.push();

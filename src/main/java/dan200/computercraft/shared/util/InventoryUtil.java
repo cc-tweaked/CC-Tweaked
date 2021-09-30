@@ -30,7 +30,7 @@ public final class InventoryUtil
 
     public static boolean areItemsStackable( @Nonnull ItemStack a, @Nonnull ItemStack b )
     {
-        return a == b || (a.getItem() == b.getItem() && ItemStack.areTagsEqual( a, b ));
+        return a == b || (a.getItem() == b.getItem() && ItemStack.areNbtEqual( a, b ));
     }
 
     // Methods for finding inventories:

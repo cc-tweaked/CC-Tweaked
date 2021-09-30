@@ -35,12 +35,13 @@ import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientBlockEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
-import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegistry;
-import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
-import net.fabricmc.fabric.mixin.object.builder.ModelPredicateProviderRegistrySpecificAccessor;
+import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.minecraft.client.item.ModelPredicateProvider;
+import net.minecraft.client.item.UnclampedModelPredicateProvider;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.item.Item;
 import net.minecraft.screen.PlayerScreenHandler;
@@ -82,10 +83,10 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
         BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.MONITOR_ADVANCED, RenderLayer.getCutout() );
 
         // Setup TESRs
-        BlockEntityRendererRegistry.INSTANCE.register( ComputerCraftRegistry.ModTiles.MONITOR_NORMAL, TileEntityMonitorRenderer::new );
-        BlockEntityRendererRegistry.INSTANCE.register( ComputerCraftRegistry.ModTiles.MONITOR_ADVANCED, TileEntityMonitorRenderer::new );
-        BlockEntityRendererRegistry.INSTANCE.register( ComputerCraftRegistry.ModTiles.TURTLE_NORMAL, TileEntityTurtleRenderer::new );
-        BlockEntityRendererRegistry.INSTANCE.register( ComputerCraftRegistry.ModTiles.TURTLE_ADVANCED, TileEntityTurtleRenderer::new );
+        BlockEntityRendererRegistry.register( ComputerCraftRegistry.ModTiles.MONITOR_NORMAL, TileEntityMonitorRenderer::new );
+        BlockEntityRendererRegistry.register( ComputerCraftRegistry.ModTiles.MONITOR_ADVANCED, TileEntityMonitorRenderer::new );
+        BlockEntityRendererRegistry.register( ComputerCraftRegistry.ModTiles.TURTLE_NORMAL, TileEntityTurtleRenderer::new );
+        BlockEntityRendererRegistry.register( ComputerCraftRegistry.ModTiles.TURTLE_ADVANCED, TileEntityTurtleRenderer::new );
 
         ClientSpriteRegistryCallback.event( PlayerScreenHandler.BLOCK_ATLAS_TEXTURE )
             .register( ClientRegistry::onTextureStitchEvent );
@@ -94,15 +95,15 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
             TurtleModelLoader.INSTANCE.loadModel(
                 name ) : null );
 
-        EntityRendererRegistry.INSTANCE.register( ComputerCraftRegistry.ModEntities.TURTLE_PLAYER, TurtlePlayerRenderer::new );
+        EntityRendererRegistry.register( ComputerCraftRegistry.ModEntities.TURTLE_PLAYER, TurtlePlayerRenderer::new );
 
         registerItemProperty( "state",
-            ( stack, world, player ) -> ItemPocketComputer.getState( stack )
+            ( stack, world, player, integer ) -> ItemPocketComputer.getState( stack )
                 .ordinal(),
             () -> ComputerCraftRegistry.ModItems.POCKET_COMPUTER_NORMAL,
             () -> ComputerCraftRegistry.ModItems.POCKET_COMPUTER_ADVANCED );
         registerItemProperty( "state",
-            ( stack, world, player ) -> IColouredItem.getColourBasic( stack ) != -1 ? 1 : 0,
+            ( stack, world, player, integer ) -> IColouredItem.getColourBasic( stack ) != -1 ? 1 : 0,
             () -> ComputerCraftRegistry.ModItems.POCKET_COMPUTER_NORMAL,
             () -> ComputerCraftRegistry.ModItems.POCKET_COMPUTER_ADVANCED );
         ClientRegistry.onItemColours();
@@ -127,12 +128,12 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
     }
 
     @SafeVarargs
-    private static void registerItemProperty( String name, ModelPredicateProvider getter, Supplier<? extends Item>... items )
+    private static void registerItemProperty( String name, UnclampedModelPredicateProvider getter, Supplier<? extends Item>... items )
     {
         Identifier id = new Identifier( ComputerCraft.MOD_ID, name );
         for( Supplier<? extends Item> item : items )
         {
-            ModelPredicateProviderRegistrySpecificAccessor.callRegister( item.get(), id, getter );
+        	FabricModelPredicateProviderRegistry.register( item.get(), id, getter );
         }
     }
 }

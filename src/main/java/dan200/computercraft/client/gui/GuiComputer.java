@@ -152,9 +152,9 @@ public class GuiComputer<T extends ContainerComputerBase> extends HandledScreen<
     }
 
     @Override
-    public void tick()
+    public void handledScreenTick()
     {
-        super.tick();
+        super.handledScreenTick(); // FIXME most likely unneeded.
         terminal.update();
     }
 }

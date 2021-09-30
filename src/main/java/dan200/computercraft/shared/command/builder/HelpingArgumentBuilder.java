@@ -66,7 +66,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<ServerC
         // An ugly hack to extract usage information from the dispatcher. We generate a temporary node, generate
         // the shorthand usage, and emit that.
         CommandDispatcher<ServerCommandSource> dispatcher = context.getSource()
-            .getMinecraftServer()
+            .getServer()
             .getCommandManager()
             .getDispatcher();
         CommandNode<ServerCommandSource> temp = new LiteralCommandNode<>( "_", null, x -> true, null, null, false );

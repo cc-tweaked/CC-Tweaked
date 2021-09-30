@@ -367,10 +367,5 @@ public class FakeNetHandler extends ServerPlayNetworkHandler
         public void disableAutoRead()
         {
         }
-
-        @Override
-        public void setCompressionThreshold( int threshold )
-        {
-        }
     }
 }

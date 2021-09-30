@@ -207,31 +207,11 @@ public final class TurtlePlayer extends FakePlayer
     {
     }
 
-//    @Override //FIXME: These need to be fixed.
-//    public void openEditBookScreen( @Nonnull ItemStack stack, @Nonnull Hand hand )
-//    {
-//    }
-
     @Override
     public void closeHandledScreen()
     {
     }
-
-//    @Override
-//    public void updateCursorStack()
-//    {
-//    }
-
-//    @Override
-//    protected void onStatusEffectApplied( @Nonnull StatusEffectInstance id )
-//    {
-//    }
-
-//    @Override
-//    protected void onStatusEffectUpgraded( @Nonnull StatusEffectInstance id, boolean apply )
-//    {
-//    }
-
+    
     @Override
     protected void onStatusEffectRemoved( @Nonnull StatusEffectInstance effect )
     {

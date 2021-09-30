@@ -20,6 +20,7 @@ import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
+import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.util.GlAllocationUtils;
 import net.minecraft.util.math.AffineTransformation;
 import net.minecraft.client.util.math.MatrixStack;
@@ -47,11 +48,10 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
         .getMatrix();
     private static ByteBuffer tboContents;
 
-    public TileEntityMonitorRenderer( BlockEntityRenderDispatcher rendererDispatcher )
+    public TileEntityMonitorRenderer( BlockEntityRendererFactory.Context context )
     {
-        super( rendererDispatcher );
+//        super( rendererDispatcher );
     }
-
     @Override
     public void render( @Nonnull TileMonitor monitor, float partialTicks, @Nonnull MatrixStack transform, @Nonnull VertexConsumerProvider renderer,
                         int lightmapCoord, int overlayLight )
@@ -198,22 +198,21 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                         }
                     }
                     monitorBuffer.flip();
-
-                    GlStateManager.bindBuffers( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer );
-                    GlStateManager.bufferData( GL31.GL_TEXTURE_BUFFER, monitorBuffer, GL20.GL_STATIC_DRAW );
-                    GlStateManager.bindBuffers( GL31.GL_TEXTURE_BUFFER, 0 );
+                    GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer );
+                    GlStateManager._glBufferData( GL31.GL_TEXTURE_BUFFER, monitorBuffer, GL20.GL_STATIC_DRAW );
+                    GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
                 }
 
                 // Nobody knows what they're doing!
-                GlStateManager.activeTexture( MonitorTextureBufferShader.TEXTURE_INDEX );
+                GlStateManager._activeTexture( MonitorTextureBufferShader.TEXTURE_INDEX );
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, monitor.tboTexture );
-                GlStateManager.activeTexture( GL13.GL_TEXTURE0 );
+                GlStateManager._activeTexture( GL13.GL_TEXTURE0 );
 
                 MonitorTextureBufferShader.setupUniform( matrix, width, height, terminal.getPalette(), !monitor.isColour() );
 
                 Tessellator tessellator = Tessellator.getInstance();
                 BufferBuilder buffer = tessellator.getBuffer();
-                buffer.begin( GL11.GL_TRIANGLE_STRIP, VertexFormats.POSITION );
+                buffer.begin( VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION );
                 buffer.vertex( -xMargin, -yMargin, 0 )
                     .next();
                 buffer.vertex( -xMargin, pixelHeight + yMargin, 0 )
@@ -224,7 +223,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                     .next();
                 tessellator.draw();
 
-                GlStateManager.useProgram( 0 );
+                GlStateManager._glUseProgram( 0 );
                 break;
             }
 
@@ -252,8 +251,9 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
                 vbo.bind();
                 FixedWidthFontRenderer.TYPE.getVertexFormat()
-                    .startDrawing( 0L );
-                vbo.draw( matrix, FixedWidthFontRenderer.TYPE.getDrawMode() );
+                    .startDrawing();
+//                vbo.draw( matrix, FixedWidthFontRenderer.TYPE.getDrawMode() );
+                vbo.drawElements(); //FIXME: Is this ok?
                 VertexBuffer.unbind();
                 FixedWidthFontRenderer.TYPE.getVertexFormat()
                     .endDrawing();

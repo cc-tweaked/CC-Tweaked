@@ -23,15 +23,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class FixedWidthFontRenderer
-{ //FIXME Make this work like a gui, via BufferBuilder's
+{
     public static final int FONT_HEIGHT = 9;
     public static final int FONT_WIDTH = 6;
     public static final float WIDTH = 256.0f;
     public static final float BACKGROUND_START = (WIDTH - 6.0f) / WIDTH;
     public static final float BACKGROUND_END = (WIDTH - 4.0f) / WIDTH;
     private static final Matrix4f IDENTITY = AffineTransformation.identity()
-        .getMatrix();
-    private static final Identifier FONT = new Identifier( "computercraft", "textures/gui/term_font.png" );
+            .getMatrix();
+    public static final Identifier FONT = new Identifier( "computercraft", "textures/gui/term_font.png" );
     public static final RenderLayer TYPE = Type.MAIN;
 
 
