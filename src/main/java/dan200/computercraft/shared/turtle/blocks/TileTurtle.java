@@ -309,7 +309,6 @@ public class TileTurtle extends TileComputerBase
     @Override
     public NbtCompound writeNbt( @Nonnull NbtCompound nbt )
     {
-        super.readNbt( nbt );
         // Write inventory
         NbtList nbttaglist = new NbtList();
         for( int i = 0; i < INVENTORY_SIZE; i++ )
@@ -327,7 +326,7 @@ public class TileTurtle extends TileComputerBase
         // Write brain
         nbt = brain.writeToNBT( nbt );
 
-        return nbt;
+        return super.writeNbt( nbt );
     }
 
     // IDirectionalTile
@@ -335,7 +334,7 @@ public class TileTurtle extends TileComputerBase
     @Override
     public void readNbt( @Nonnull NbtCompound nbt )
     {
-        super.writeNbt( nbt );
+        super.readNbt( nbt );
 
         // Read inventory
         NbtList nbttaglist = nbt.getList( "Items", NBTUtil.TAG_COMPOUND );
