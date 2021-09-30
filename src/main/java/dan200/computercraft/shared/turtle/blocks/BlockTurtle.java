@@ -196,9 +196,9 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Waterl
         return new TileTurtle(getTypeByFamily(getFamily()), pos, state, getFamily());
     }
 
-//    @Nullable
-//    @Override
-//    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type){
-//    	return world.isClient ? BlockTurtle.checkType( type, getTypeByFamily(getFamily()), TileTurtle::tick ) : super.getTicker(world, state, type);
-//    }
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type){
+    	return world.isClient ? BlockTurtle.checkType( type, getTypeByFamily(getFamily()), ( world1, pos, state1, computer ) -> computer.clientTick() ) : super.getTicker(world, state, type);
+    }
 }

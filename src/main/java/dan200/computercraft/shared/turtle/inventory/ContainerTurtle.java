@@ -59,8 +59,6 @@ public class ContainerTurtle extends ContainerComputerBase
         super( ComputerCraftRegistry.ModContainers.TURTLE, id, canUse, computer, family );
         this.properties = properties;
 
-        System.out.println("Contaienr Turtle init" + properties);
-
         addProperties( properties );
 
         // Turtle inventory
@@ -113,7 +111,6 @@ public class ContainerTurtle extends ContainerComputerBase
     @Override
     public ItemStack transferSlot( @Nonnull PlayerEntity player, int slotNum )
     {
-        System.out.println("transferSlot");
         if( slotNum >= 0 && slotNum < 16 )
         {
             return tryItemMerge( player, slotNum, 16, 52, true );
@@ -128,7 +125,6 @@ public class ContainerTurtle extends ContainerComputerBase
     @Nonnull
     private ItemStack tryItemMerge( PlayerEntity player, int slotNum, int firstSlot, int lastSlot, boolean reverse )
     {
-        System.out.println("tryItemMerge");
         Slot slot = slots.get( slotNum );
         ItemStack originalStack = ItemStack.EMPTY;
         if( slot != null && slot.hasStack() )
@@ -159,11 +155,5 @@ public class ContainerTurtle extends ContainerComputerBase
             }
         }
         return originalStack;
-    }
-    @Override
-    public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
-        super.onSlotClick(slotIndex, button, actionType, player);
-
-        System.out.println("on slot click: " + slotIndex);
     }
 }

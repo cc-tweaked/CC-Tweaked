@@ -271,43 +271,40 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         }
     }
 
-    public static void tick( World world, BlockPos pos, BlockState state, TileComputerBase tileComputerBase )
+    public void serverTick()
     {
-        if( !world.isClient )
+        ServerComputer computer = createServerComputer();
+        if( computer == null )
         {
-            ServerComputer computer = tileComputerBase.createServerComputer();
-            if( computer == null )
-            {
-                return;
-            }
+            return;
+        }
 
-            // If the computer isn't on and should be, then turn it on
-            if( tileComputerBase.startOn || (tileComputerBase.fresh && tileComputerBase.on) )
-            {
-                computer.turnOn();
-                tileComputerBase.startOn = false;
-            }
+        // If the computer isn't on and should be, then turn it on
+        if( startOn || (fresh && on) )
+        {
+            computer.turnOn();
+            startOn = false;
+        }
 
-            computer.keepAlive();
+        computer.keepAlive();
 
-            tileComputerBase.fresh = false;
-            tileComputerBase.computerID = computer.getID();
-            tileComputerBase.label = computer.getLabel();
-            tileComputerBase.on = computer.isOn();
+        fresh = false;
+        computerID = computer.getID();
+        label = computer.getLabel();
+        on = computer.isOn();
 
-            if( computer.hasOutputChanged() )
-            {
-            	tileComputerBase.updateOutput();
-            }
+        if( computer.hasOutputChanged() )
+        {
+            updateOutput();
+        }
 
-            // Update the block state if needed. We don't fire a block update intentionally,
-            // as this only really is needed on the client side.
-            tileComputerBase.updateBlockState( computer.getState() );
+        // Update the block state if needed. We don't fire a block update intentionally,
+        // as this only really is needed on the client side.
+        updateBlockState( computer.getState() );
 
-            if( computer.hasOutputChanged() )
-            {
-            	tileComputerBase.updateOutput();
-            }
+        if( computer.hasOutputChanged() )
+        {
+            updateOutput();
         }
     }
 

@@ -40,11 +40,6 @@ public class GuiTurtle extends ComputerScreenBase<ContainerTurtle>
         backgroundHeight = TEX_HEIGHT;
 
     }
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        System.out.println(mouseX + " " + mouseY + " " + button);
-        return super.mouseClicked(mouseX, mouseY, button);
-    }
 
     @Override
     protected WidgetTerminal createTerminal()

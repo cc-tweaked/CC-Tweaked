@@ -65,14 +65,16 @@ public class WidgetTerminal extends ClickableWidget {
         innerHeight = termHeight * FONT_HEIGHT;
     }
 
+    private boolean inTermRegion( double mouseX, double mouseY )
+    {
+        return active && visible && mouseX >= innerX && mouseY >= innerY && mouseX < innerX + innerWidth && mouseY < innerY + innerHeight;
+    }
+
     @Override
     public boolean mouseClicked( double mouseX, double mouseY, int button )
     {
-        ClientComputer computer = this.computer;
-        if( computer == null || !computer.isColour() || button < 0 || button > 2 )
-        {
-            return false;
-        }
+        if( !inTermRegion( mouseX, mouseY ) ) return false;
+        if( !computer.isColour() || button < 0 || button > 2 ) return false;
 
         Terminal term = computer.getTerminal();
         if( term != null )
@@ -95,11 +97,8 @@ public class WidgetTerminal extends ClickableWidget {
     @Override
     public boolean mouseReleased( double mouseX, double mouseY, int button )
     {
-        ClientComputer computer = this.computer;
-        if( computer == null || !computer.isColour() || button < 0 || button > 2 )
-        {
-            return false;
-        }
+        if( !inTermRegion( mouseX, mouseY ) ) return false;
+        if( !computer.isColour() || button < 0 || button > 2 ) return false;
 
         Terminal term = computer.getTerminal();
         if( term != null )
@@ -125,11 +124,8 @@ public class WidgetTerminal extends ClickableWidget {
     @Override
     public boolean mouseDragged( double mouseX, double mouseY, int button, double v2, double v3 )
     {
-        ClientComputer computer = this.computer;
-        if( computer == null || !computer.isColour() || button < 0 || button > 2 )
-        {
-            return false;
-        }
+        if( !inTermRegion( mouseX, mouseY ) ) return false;
+        if( !computer.isColour() || button < 0 || button > 2 ) return false;
 
         Terminal term = computer.getTerminal();
         if( term != null )
@@ -153,11 +149,8 @@ public class WidgetTerminal extends ClickableWidget {
     @Override
     public boolean mouseScrolled( double mouseX, double mouseY, double delta )
     {
-        ClientComputer computer = this.computer;
-        if( computer == null || !computer.isColour() || delta == 0 )
-        {
-            return false;
-        }
+        if( !inTermRegion( mouseX, mouseY ) ) return false;
+        if( !computer.isColour() || delta == 0 ) return false;
 
         Terminal term = computer.getTerminal();
         if( term != null )

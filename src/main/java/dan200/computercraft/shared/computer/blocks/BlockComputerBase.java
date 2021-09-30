@@ -221,7 +221,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
         return world.isClient ? null : (world1, pos, state1, tile) -> {
             if (tile instanceof TileComputerBase computer) {
-                TileComputerBase.tick(world1, pos, state1, computer);
+                computer.serverTick();
             }
         };
     }
