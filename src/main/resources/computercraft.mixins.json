@@ -13,7 +13,8 @@
         "SoundEventAccess",
         "WorldSavePathAccess",
         "MixinServerPlayerInteractionManager",
-        "MusicDiscItemAccessor"
+        "MusicDiscItemAccessor",
+        "GameRendererMixin"
     ],
     "client": [
         "AffineTransformationAccess",

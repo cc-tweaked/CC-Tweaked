@@ -7,6 +7,7 @@
 package dan200.computercraft;
 
 import dan200.computercraft.api.turtle.event.TurtleAction;
+import dan200.computercraft.client.render.MonitorTextureBufferShader;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.shared.common.ColourableRecipe;
@@ -30,6 +31,7 @@ import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.render.*;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
@@ -37,6 +39,7 @@ import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -81,6 +84,7 @@ public final class ComputerCraft implements ModInitializer
     public static int maxNotesPerTick = 8;
     public static MonitorRenderer monitorRenderer = MonitorRenderer.BEST;
     public static double monitorDistanceSq = 4096;
+    public static int monitorDistance = 65;
     public static long monitorBandwidth = 1_000_000;
 
     public static boolean turtlesNeedFuel = true;

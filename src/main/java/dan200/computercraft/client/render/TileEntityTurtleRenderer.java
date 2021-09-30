@@ -48,9 +48,11 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
 
     private final Random random = new Random( 0 );
 
+    BlockEntityRenderDispatcher dispatcher;
+
     public TileEntityTurtleRenderer( BlockEntityRendererFactory.Context context )
     {
-//      super( rendererDispatcher );
+        dispatcher = context.getRenderDispatcher();
     }
     
     public static ModelIdentifier getTurtleModel( ComputerFamily family, boolean coloured )

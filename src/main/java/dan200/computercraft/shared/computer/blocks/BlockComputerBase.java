@@ -8,13 +8,17 @@ package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.items.IComputerItem;
+import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
+import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -210,5 +214,15 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
             state.onStacksDropped( serverWorld, pos, player.getMainHandStack() );
         }
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+        return world.isClient ? null : (world1, pos, state1, tile) -> {
+            if (tile instanceof TileComputerBase computer) {
+                TileComputerBase.tick(world1, pos, state1, computer);
+            }
+        };
     }
 }

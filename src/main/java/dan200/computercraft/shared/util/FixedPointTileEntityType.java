@@ -3,17 +3,17 @@
 // * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
 // * Send enquiries to dratcliffe@gmail.com
 // */
-//
 //package dan200.computercraft.shared.util;
 //
 //import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 //import net.minecraft.block.Block;
+//import net.minecraft.block.BlockState;
 //import net.minecraft.block.entity.BlockEntity;
 //import net.minecraft.block.entity.BlockEntityType;
+//import net.minecraft.util.math.BlockPos;
 //
 //import javax.annotation.Nonnull;
 //import java.util.Collections;
-//import java.util.function.Function;
 //import java.util.function.Supplier;
 //
 ///**
@@ -23,40 +23,52 @@
 // */
 //public final class FixedPointTileEntityType<T extends BlockEntity> extends BlockEntityType<T>
 //{
-//    private final Supplier<Block> block;
+//    private final Supplier<? extends Block> block;
 //
-//    private FixedPointTileEntityType( Supplier<Block> block, Supplier<T> builder )
+//    private FixedPointTileEntityType( Supplier<? extends Block> block, FabricBlockEntityTypeBuilder.Factory<T> builder )
 //    {
-//        super( builder, Collections.emptySet(), null ); //FIXME: Replace with the new BlockEntity handlers.
+//        super(builder, Collections.emptySet(), null );
 //        this.block = block;
 //    }
 //
-//    public static <T extends BlockEntity> FixedPointTileEntityType<T> create( Supplier<Block> block, Function<BlockEntityType<T>, T> builder )
+//    public static <T extends BlockEntity> FixedPointTileEntityType<T> create( Supplier<? extends Block> block, FixedPointBlockEntitySupplier<T> builder )
 //    {
 //        return new FixedPointSupplier<>( block, builder ).factory;
 //    }
 //
-////    @Override
-////    public boolean supports( @Nonnull Block block )
-////    {
-////        return block == this.block.get();
-////    }
+//    @Override
+//    public boolean supports( @Nonnull BlockState block )
+//    {
+//        return block.getBlock() == this.block.get();
+//    }
 //
-//    private static final class FixedPointSupplier<T extends BlockEntity> implements Supplier<T>
+//    public Block getBlock()
+//    {
+//        return block.get();
+//    }
+//
+//    private static final class FixedPointSupplier<T extends BlockEntity> implements FabricBlockEntityTypeBuilder.Factory<T>
 //    {
 //        final FixedPointTileEntityType<T> factory;
-//        private final Function<BlockEntityType<T>, T> builder;
+//        private final FixedPointBlockEntitySupplier<T> builder;
 //
-//        private FixedPointSupplier( Supplier<Block> block, Function<BlockEntityType<T>, T> builder )
+//        private FixedPointSupplier( Supplier<? extends Block> block, FixedPointBlockEntitySupplier<T> builder )
 //        {
-//            factory = FabricBlockEntityTypeBuilder.create( this, block );
+//            factory = new FixedPointTileEntityType<>( block, this );
 //            this.builder = builder;
 //        }
 //
+//        @Nonnull
 //        @Override
-//        public T get()
+//        public T create(@Nonnull BlockPos pos, @Nonnull BlockState state )
 //        {
-//            return builder.apply( factory );
+//            return builder.create( factory, pos, state );
 //        }
+//    }
+//
+//    @FunctionalInterface
+//    public interface FixedPointBlockEntitySupplier<T extends BlockEntity>
+//    {
+//        T create( BlockEntityType<T> type, BlockPos pos, BlockState state );
 //    }
 //}

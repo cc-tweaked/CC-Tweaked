@@ -7,6 +7,8 @@
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
@@ -39,6 +41,7 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.*;
+import static net.minecraft.client.util.GlAllocationUtils.allocateByteBuffer;
 
 public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonitor>
 { //FIXME get rid of GL Calls. Buffered things or whatever, more research needed.
@@ -52,7 +55,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
     public TileEntityMonitorRenderer( BlockEntityRendererFactory.Context context )
     {
-//        super( rendererDispatcher );
+//        super( context );
     }
     @Override
     public void render( @Nonnull TileMonitor monitor, float partialTicks, @Nonnull MatrixStack transform, @Nonnull VertexConsumerProvider renderer,
@@ -99,17 +102,6 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
         double xSize = origin.getWidth() - 2.0 * (TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER);
         double ySize = origin.getHeight() - 2.0 * (TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER);
 
-        // Draw the background blocker
-        FixedWidthFontRenderer.drawBlocker( transform.peek().getModel(),
-            renderer,
-            (float) -TileMonitor.RENDER_MARGIN,
-            (float) TileMonitor.RENDER_MARGIN,
-            (float) (xSize + 2 * TileMonitor.RENDER_MARGIN),
-            (float) -(ySize + TileMonitor.RENDER_MARGIN * 2) );
-
-        // Set the contents slightly off the surface to prevent z-fighting
-        transform.translate( 0.0, 0.0, 0.001 );
-
         // Draw the contents
         Terminal terminal = originTerminal.getTerminal();
         if( terminal != null )
@@ -124,24 +116,23 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
             Matrix4f matrix = transform.peek().getModel();
 
-            // Sneaky hack here: we get a buffer now in order to flush existing ones and set up the appropriate
-            // render state. I've no clue how well this'll work in future versions of Minecraft, but it does the trick
-            // for now.
-            BufferBuilder buffer = Tessellator.getInstance().getBuffer();
-            buffer.begin( VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR_TEXTURE );
-//            FixedWidthFontRenderer.TYPE.startDrawing();
-
-            renderTerminal( matrix, originTerminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale) );
+            renderTerminal( renderer, matrix, originTerminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale) );
 
             // We don't draw the cursor with the VBO, as it's dynamic and so we'll end up refreshing far more than is
             // reasonable.
-            FixedWidthFontRenderer.drawCursor( matrix, buffer, 0, 0, terminal, !originTerminal.isColour() );
-
-            // To go along with sneaky hack above: make sure state changes are undone. I would have thought this would
-            // happen automatically after these buffers are drawn, but chests will render weird around monitors without this.
-            buffer.end();
+            FixedWidthFontRenderer.drawCursor( matrix, renderer.getBuffer(RenderTypes.TERMINAL_WITHOUT_DEPTH), 0, 0, terminal, !originTerminal.isColour() );
 
             transform.pop();
+
+            // Draw the background blocker
+            FixedWidthFontRenderer.drawBlocker( transform.peek().getModel(),
+                renderer,
+                (float) -TileMonitor.RENDER_MARGIN,
+                (float) TileMonitor.RENDER_MARGIN,
+                (float) (xSize + 2 * TileMonitor.RENDER_MARGIN),
+                (float) -(ySize + TileMonitor.RENDER_MARGIN * 2) );
+
+            renderer.getBuffer( RenderLayer.getSolid() );
         }
         else
         {
@@ -157,7 +148,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
         transform.pop();
     }
 
-    private static void renderTerminal( Matrix4f matrix, ClientMonitor monitor, float xMargin, float yMargin )
+    private static void renderTerminal(VertexConsumerProvider renderer, Matrix4f matrix, ClientMonitor monitor, float xMargin, float yMargin )
     {
         Terminal terminal = monitor.getTerminal();
 
@@ -172,10 +163,6 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
         {
             case TBO:
             {
-                if( !MonitorTextureBufferShader.use() )
-                {
-                    return;
-                }
 
                 int width = terminal.getWidth(), height = terminal.getHeight();
                 int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
@@ -185,7 +172,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                     int size = width * height * 3;
                     if( tboContents == null || tboContents.capacity() < size )
                     {
-                        tboContents = GlAllocationUtils.allocateByteBuffer( size );
+                        tboContents = allocateByteBuffer( size );
                     }
 
                     ByteBuffer monitorBuffer = tboContents;
@@ -201,32 +188,28 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                         }
                     }
                     monitorBuffer.flip();
+
                     GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer );
                     GlStateManager._glBufferData( GL31.GL_TEXTURE_BUFFER, monitorBuffer, GL20.GL_STATIC_DRAW );
                     GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
                 }
 
                 // Nobody knows what they're doing!
-                GlStateManager._activeTexture( MonitorTextureBufferShader.TEXTURE_INDEX );
+                int active = GlStateManager._getActiveTexture();
+                RenderSystem.activeTexture( MonitorTextureBufferShader.TEXTURE_INDEX );
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, monitor.tboTexture );
-                GlStateManager._activeTexture( GL13.GL_TEXTURE0 );
+                RenderSystem.activeTexture( active );
 
-                MonitorTextureBufferShader.setupUniform( matrix, width, height, terminal.getPalette(), !monitor.isColour() );
+                MonitorTextureBufferShader shader = RenderTypes.getMonitorTextureBufferShader();
+                shader.setupUniform( width, height, terminal.getPalette(), !monitor.isColour() );
 
-                Tessellator tessellator = Tessellator.getInstance();
-                BufferBuilder buffer = tessellator.getBuffer();
-                buffer.begin( VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION );
-                buffer.vertex( -xMargin, -yMargin, 0 )
-                    .next();
-                buffer.vertex( -xMargin, pixelHeight + yMargin, 0 )
-                    .next();
-                buffer.vertex( pixelWidth + xMargin, -yMargin, 0 )
-                    .next();
-                buffer.vertex( pixelWidth + xMargin, pixelHeight + yMargin, 0 )
-                    .next();
-                tessellator.draw();
+                VertexConsumer buffer = renderer.getBuffer( RenderTypes.MONITOR_TBO );
+                tboVertex( buffer, matrix, -xMargin, -yMargin );
+                tboVertex( buffer, matrix, -xMargin, pixelHeight + yMargin );
+                tboVertex( buffer, matrix, pixelWidth + xMargin, -yMargin );
+                tboVertex( buffer, matrix, pixelWidth + xMargin, pixelHeight + yMargin );
 
-                GlStateManager._glUseProgram( 0 );
+                renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
                 break;
             }
 
@@ -236,7 +219,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 {
                     Tessellator tessellator = Tessellator.getInstance();
                     BufferBuilder builder = tessellator.getBuffer();
-                    builder.begin( VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR_TEXTURE );
+                    builder.begin( RenderTypes.TERMINAL_WITHOUT_DEPTH.getDrawMode(), RenderTypes.TERMINAL_WITHOUT_DEPTH.getVertexFormat() );
                     FixedWidthFontRenderer.drawTerminalWithoutCursor( IDENTITY,
                         builder,
                         0,
@@ -252,15 +235,23 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                     vbo.upload( builder );
                 }
 
-                vbo.bind();
-                VertexFormats.POSITION_COLOR_TEXTURE
-                    .startDrawing();
-//                vbo.draw( matrix, FixedWidthFontRenderer.TYPE.getDrawMode() );
-                vbo.drawElements(); //FIXME: Is this ok?
-                VertexBuffer.unbind();
-                VertexFormats.POSITION_COLOR_TEXTURE
-                    .endDrawing();
+                renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
+
+                RenderTypes.TERMINAL_WITHOUT_DEPTH.startDrawing();
+                vbo.setShader(matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader());
                 break;
         }
+    }
+
+    private static void tboVertex( VertexConsumer builder, Matrix4f matrix, float x, float y )
+    {
+        // We encode position in the UV, as that's not transformed by the matrix.
+        builder.vertex( matrix, x, y, 0 ).texture(x, y).next();
+    }
+
+    @Override
+    public int getRenderDistance()
+    {
+        return ComputerCraft.monitorDistance;
     }
 }

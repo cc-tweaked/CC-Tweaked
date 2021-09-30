@@ -19,6 +19,7 @@ import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.common.TileGeneric;
+import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
@@ -34,6 +35,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientBlockEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+//import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -77,7 +79,6 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
         // While turtles themselves are not transparent, their upgrades may be.
         BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.TURTLE_NORMAL, RenderLayer.getTranslucent() );
         BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.TURTLE_ADVANCED, RenderLayer.getTranslucent() );
-
         // Monitors' textures have transparent fronts and so count as cutouts.
         BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.MONITOR_NORMAL, RenderLayer.getCutout() );
         BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.MONITOR_ADVANCED, RenderLayer.getCutout() );
@@ -90,7 +91,7 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
 
         ClientSpriteRegistryCallback.event( PlayerScreenHandler.BLOCK_ATLAS_TEXTURE )
             .register( ClientRegistry::onTextureStitchEvent );
-        ModelLoadingRegistry.INSTANCE.registerAppender( ClientRegistry::onModelBakeEvent );
+        ModelLoadingRegistry.INSTANCE.registerModelProvider( ClientRegistry::onModelBakeEvent );
         ModelLoadingRegistry.INSTANCE.registerResourceProvider( loader -> ( name, context ) -> TurtleModelLoader.INSTANCE.accepts( name ) ?
             TurtleModelLoader.INSTANCE.loadModel(
                 name ) : null );

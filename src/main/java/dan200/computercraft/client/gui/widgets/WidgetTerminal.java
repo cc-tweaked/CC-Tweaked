@@ -8,57 +8,67 @@ package dan200.computercraft.client.gui.widgets;
 
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.IComputer;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.util.ChatUtil;
+import net.minecraft.util.math.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
+import javax.annotation.Nonnull;
 import java.util.BitSet;
 import java.util.function.Supplier;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
+import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
 
-public class WidgetTerminal implements Element
-{
+public class WidgetTerminal extends ClickableWidget {
     private static final float TERMINATE_TIME = 0.5f;
 
-    private final MinecraftClient client;
-    private final Supplier<ClientComputer> computer;
-    private final int termWidth;
-    private final int termHeight;
-    private final int leftMargin;
-    private final int rightMargin;
-    private final int topMargin;
-    private final int bottomMargin;
+//    private final MinecraftClient client;
+    private final ClientComputer computer;
+
+    // The positions of the actual terminal
+    private final int innerX;
+    private final int innerY;
+    private final int innerWidth;
+    private final int innerHeight;
+
     private final BitSet keysDown = new BitSet( 256 );
-    private boolean focused;
+//    private boolean focused;
     private float terminateTimer = -1;
     private float rebootTimer = -1;
     private float shutdownTimer = -1;
+
     private int lastMouseButton = -1;
     private int lastMouseX = -1;
     private int lastMouseY = -1;
 
-    public WidgetTerminal( MinecraftClient client, Supplier<ClientComputer> computer, int termWidth, int termHeight, int leftMargin, int rightMargin,
-                           int topMargin, int bottomMargin )
+    public WidgetTerminal( @Nonnull ClientComputer computer, int x, int y, int termWidth, int termHeight )
     {
-        this.client = client;
+        super( x, y, termWidth * FONT_WIDTH + MARGIN * 2, termHeight * FONT_HEIGHT + MARGIN * 2, LiteralText.EMPTY);
+
         this.computer = computer;
-        this.termWidth = termWidth;
-        this.termHeight = termHeight;
-        this.leftMargin = leftMargin;
-        this.rightMargin = rightMargin;
-        this.topMargin = topMargin;
-        this.bottomMargin = bottomMargin;
+
+        innerX = x + MARGIN;
+        innerY = y + MARGIN;
+        innerWidth = termWidth * FONT_WIDTH;
+        innerHeight = termHeight * FONT_HEIGHT;
     }
 
     @Override
     public boolean mouseClicked( double mouseX, double mouseY, int button )
     {
-        ClientComputer computer = this.computer.get();
+        ClientComputer computer = this.computer;
         if( computer == null || !computer.isColour() || button < 0 || button > 2 )
         {
             return false;
@@ -85,7 +95,7 @@ public class WidgetTerminal implements Element
     @Override
     public boolean mouseReleased( double mouseX, double mouseY, int button )
     {
-        ClientComputer computer = this.computer.get();
+        ClientComputer computer = this.computer;
         if( computer == null || !computer.isColour() || button < 0 || button > 2 )
         {
             return false;
@@ -115,7 +125,7 @@ public class WidgetTerminal implements Element
     @Override
     public boolean mouseDragged( double mouseX, double mouseY, int button, double v2, double v3 )
     {
-        ClientComputer computer = this.computer.get();
+        ClientComputer computer = this.computer;
         if( computer == null || !computer.isColour() || button < 0 || button > 2 )
         {
             return false;
@@ -143,7 +153,7 @@ public class WidgetTerminal implements Element
     @Override
     public boolean mouseScrolled( double mouseX, double mouseY, double delta )
     {
-        ClientComputer computer = this.computer.get();
+        ClientComputer computer = this.computer;
         if( computer == null || !computer.isColour() || delta == 0 )
         {
             return false;
@@ -198,7 +208,7 @@ public class WidgetTerminal implements Element
 
                 case GLFW.GLFW_KEY_V:
                     // Ctrl+V for paste
-                    String clipboard = client.keyboard.getClipboard();
+                    String clipboard = MinecraftClient.getInstance().keyboard.getClipboard();
                     if( clipboard != null )
                     {
                         // Clip to the first occurrence of \r or \n
@@ -239,7 +249,7 @@ public class WidgetTerminal implements Element
             // Queue the "key" event and add to the down set
             boolean repeat = keysDown.get( key );
             keysDown.set( key );
-            IComputer computer = this.computer.get();
+            IComputer computer = this.computer;
             if( computer != null )
             {
                 computer.keyDown( key, repeat );
@@ -256,7 +266,7 @@ public class WidgetTerminal implements Element
         if( key >= 0 && keysDown.get( key ) )
         {
             keysDown.set( key, false );
-            IComputer computer = this.computer.get();
+            IComputer computer = this.computer;
             if( computer != null )
             {
                 computer.keyUp( key );
@@ -296,35 +306,26 @@ public class WidgetTerminal implements Element
     }
 
     @Override
-    public boolean changeFocus( boolean reversed )
+    public void onFocusedChanged( boolean focused )
     {
-        if( focused )
+        if( !focused )
         {
             // When blurring, we should make all keys go up
             for( int key = 0; key < keysDown.size(); key++ )
             {
-                if( keysDown.get( key ) )
-                {
-                    queueEvent( "key_up", key );
-                }
+                if( keysDown.get( key ) ) computer.keyUp( key );
             }
             keysDown.clear();
 
             // When blurring, we should make the last mouse button go up
             if( lastMouseButton > 0 )
             {
-                IComputer computer = this.computer.get();
-                if( computer != null )
-                {
-                    computer.mouseUp( lastMouseButton + 1, lastMouseX + 1, lastMouseY + 1 );
-                }
+                computer.mouseUp( lastMouseButton + 1, lastMouseX + 1, lastMouseY + 1 );
                 lastMouseButton = -1;
             }
 
             shutdownTimer = terminateTimer = rebootTimer = -1;
         }
-        focused = !focused;
-        return true;
     }
 
     @Override
@@ -335,7 +336,7 @@ public class WidgetTerminal implements Element
 
     private void queueEvent( String event, Object... args )
     {
-        ClientComputer computer = this.computer.get();
+        ClientComputer computer = this.computer;
         if( computer != null )
         {
             computer.queueEvent( event, args );
@@ -351,7 +352,7 @@ public class WidgetTerminal implements Element
 
         if( shutdownTimer >= 0 && shutdownTimer < TERMINATE_TIME && (shutdownTimer += 0.05f) > TERMINATE_TIME )
         {
-            ClientComputer computer = this.computer.get();
+            ClientComputer computer = this.computer;
             if( computer != null )
             {
                 computer.shutdown();
@@ -360,7 +361,7 @@ public class WidgetTerminal implements Element
 
         if( rebootTimer >= 0 && rebootTimer < TERMINATE_TIME && (rebootTimer += 0.05f) > TERMINATE_TIME )
         {
-            ClientComputer computer = this.computer.get();
+            ClientComputer computer = this.computer;
             if( computer != null )
             {
                 computer.reboot();
@@ -370,31 +371,41 @@ public class WidgetTerminal implements Element
 
     private void queueEvent( String event )
     {
-        ClientComputer computer = this.computer.get();
+        ClientComputer computer = this.computer;
         if( computer != null )
         {
             computer.queueEvent( event );
         }
     }
 
-    public void draw( int originX, int originY )
+    @Override
+    public void render(@Nonnull MatrixStack transform, int mouseX, int mouseY, float partialTicks )
     {
-        synchronized( computer )
+        if( !visible ) return;
+        Matrix4f matrix = transform.peek().getModel();
+        Terminal terminal = computer.getTerminal();
+        if( terminal != null )
         {
-            // Draw the screen contents
-            ClientComputer computer = this.computer.get();
-            Terminal terminal = computer != null ? computer.getTerminal() : null;
-            if( terminal != null )
-            {
-                FixedWidthFontRenderer.drawTerminal( originX, originY, terminal, !computer.isColour(), topMargin, bottomMargin, leftMargin,
-                    rightMargin );
-            }
-            else
-            {
-                FixedWidthFontRenderer.drawEmptyTerminal( originX - leftMargin,
-                    originY - rightMargin, termWidth * FONT_WIDTH + leftMargin + rightMargin,
-                    termHeight * FONT_HEIGHT + topMargin + bottomMargin );
-            }
+            FixedWidthFontRenderer.drawTerminal( matrix, innerX, innerY, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN );
         }
+        else
+        {
+            FixedWidthFontRenderer.drawEmptyTerminal( matrix, x, y, width, height );
+        }
+    }
+
+    @Override
+    public void appendNarrations(NarrationMessageBuilder builder) {
+
+    }
+
+    public static int getWidth( int termWidth )
+    {
+        return termWidth * FONT_WIDTH + MARGIN * 2;
+    }
+
+    public static int getHeight( int termHeight )
+    {
+        return termHeight * FONT_HEIGHT + MARGIN * 2;
     }
 }

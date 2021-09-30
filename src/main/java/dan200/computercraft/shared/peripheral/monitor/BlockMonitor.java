@@ -7,7 +7,9 @@
 package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.api.turtle.FakePlayer;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
+import dan200.computercraft.shared.computer.blocks.TileComputer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -34,9 +36,12 @@ public class BlockMonitor extends BlockGeneric
 
     static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.of( "state", MonitorEdgeState.class );
 
-    public BlockMonitor( Settings settings, BlockEntityType<? extends TileMonitor> type )
+    public boolean advanced = false;
+
+    public BlockMonitor( Settings settings, BlockEntityType<? extends TileMonitor> type, boolean advanced )
     {
         super( settings, type );
+        this.advanced = advanced;
         // TODO: Test underwater - do we need isSolid at all?
         setDefaultState( getStateManager().getDefaultState()
             .with( ORIENTATION, Direction.NORTH )
@@ -96,5 +101,12 @@ public class BlockMonitor extends BlockGeneric
     protected void appendProperties( StateManager.Builder<Block, BlockState> builder )
     {
         builder.add( ORIENTATION, FACING, STATE );
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state)
+    {
+        return new TileMonitor(advanced ? ComputerCraftRegistry.ModTiles.MONITOR_ADVANCED : ComputerCraftRegistry.ModTiles.MONITOR_NORMAL, advanced, pos, state);
     }
 }

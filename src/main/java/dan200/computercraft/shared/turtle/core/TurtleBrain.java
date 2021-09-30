@@ -256,7 +256,7 @@ public class TurtleBrain implements ITurtleAccess
                     {
                         // Copy the old turtle state into the new turtle
                         TileTurtle newTurtle = (TileTurtle) newTile;
-                        newTurtle.setBlockPos( pos ); //FIXME: setLocation no longer exists. 
+                        // newTurtle.setLocation( world, pos ); //FIXME: setLocation no longer exists.
                         newTurtle.transferStateFrom( oldOwner );
                         newTurtle.createServerComputer()
                             .setWorld( world );

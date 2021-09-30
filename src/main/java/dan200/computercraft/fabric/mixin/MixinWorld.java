@@ -30,13 +30,13 @@ public class MixinWorld
     protected boolean iteratingTickingBlockEntities;
 
 //    @Inject( method = "setBlockEntity", at = @At( "HEAD" ) )
-//    public void setBlockEntity( BlockPos pos, @Nullable BlockEntity entity, CallbackInfo info )
-//    {
-//        if( entity != null && !entity.isRemoved() && entity.getWorld().isInBuildLimit(pos) && iteratingTickingBlockEntities )
-//        {
-//            setWorld( entity, this );
-//        }
-//    }
+    public void setBlockEntity( BlockPos pos, @Nullable BlockEntity entity, CallbackInfo info )
+    {
+        if( entity != null && !entity.isRemoved() && entity.getWorld().isInBuildLimit(pos) && iteratingTickingBlockEntities )
+        {
+            setWorld( entity, this );
+        }
+    }
 
     private static void setWorld( BlockEntity entity, Object world )
     {
@@ -47,14 +47,14 @@ public class MixinWorld
     }
 
 //    @Inject( method = "addBlockEntities", at = @At( "HEAD" ) )
-//    public void addBlockEntities( Collection<BlockEntity> entities, CallbackInfo info )
-//    {
-//        if( iteratingTickingBlockEntities )
-//        {
-//            for( BlockEntity entity : entities )
-//            {
-//                setWorld( entity, this );
-//            }
-//        }
-//    }
+    public void addBlockEntities( Collection<BlockEntity> entities, CallbackInfo info )
+    {
+        if( iteratingTickingBlockEntities )
+        {
+            for( BlockEntity entity : entities )
+            {
+                setWorld( entity, this );
+            }
+        }
+    }
 }

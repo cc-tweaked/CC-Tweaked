@@ -27,14 +27,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin( Block.class )
 public class MixinBlock
 {
-    @Inject( method = "dropStack(Lnet/minecraft/world/World;Ljava/util/function/Supplier;Lnet/minecraft/item/ItemStack;)V",
-        at = @At( value = "HEAD" ),
-        cancellable = true )
-    private static void dropStack( World world, Supplier<ItemEntity> itemEntitySupplier, ItemStack stack, CallbackInfo callbackInfo )
-    {
-        if( DropConsumer.onHarvestDrops( world, itemEntitySupplier.get().getBlockPos(), stack ) )
-        {
-            callbackInfo.cancel();
-        }
-    }
+//    @Inject( method = "dropStack",
+//        at = @At( value = "INVOKE", target = "Lnet/minecraft/world/World;spawnEntity(Lnet/minecraft/entity/Entity;)Z" ),
+//        cancellable = true )
+//    private static void dropStack( World world, BlockPos pos, ItemStack stack, CallbackInfo callbackInfo )
+//    {
+//        if( DropConsumer.onHarvestDrops( world, itemEntitySupplier.get().getBlockPos(), stack ) )
+//        {
+//            callbackInfo.cancel();
+//        }
+//    }
 }

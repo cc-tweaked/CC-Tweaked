@@ -53,7 +53,7 @@ public final class PrintoutRenderer
 
     public static void drawText( Matrix4f transform, VertexConsumerProvider renderer, int x, int y, int start, TextBuffer[] text, TextBuffer[] colours )
     {
-        VertexConsumer buffer = Tessellator.getInstance().getBuffer();
+        /*VertexConsumer buffer = renderer.getBuffer( FixedWidthFontRenderer.TYPE );
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; line++ )
         {
             FixedWidthFontRenderer.drawString( transform,
@@ -67,12 +67,12 @@ public final class PrintoutRenderer
                 false,
                 0,
                 0 );
-        }
+        }*/
     }
 
     public static void drawText( Matrix4f transform, VertexConsumerProvider renderer, int x, int y, int start, String[] text, String[] colours )
     {
-        VertexConsumer buffer = Tessellator.getInstance().getBuffer();
+        /*VertexConsumer buffer = renderer.getBuffer( FixedWidthFontRenderer.TYPE );
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; line++ )
         {
             FixedWidthFontRenderer.drawString( transform,
@@ -86,7 +86,7 @@ public final class PrintoutRenderer
                 false,
                 0,
                 0 );
-        }
+        }*/
     }
 
     public static void drawBorder( Matrix4f transform, VertexConsumerProvider renderer, float x, float y, float z, int page, int pages, boolean isBook )
@@ -187,28 +187,22 @@ public final class PrintoutRenderer
             .next();
     }
 
-//    private static final class Type extends RenderLayer
-//    {
-//
-//        static final RenderLayer TYPE = RenderLayer.of( "printout_background",
-//            VertexFormats.POSITION_TEXTURE,
-//            GL11.GL_QUADS,
-//            1024,
-//            false,
-//            false,
-//            // useDelegate, needsSorting
-//            Type.MultiPhaseParameters.builder()
-//                .texture( new RenderPhase.Texture( BG, false, false ) ) // blur, minimap
-//                .transparency( TRANSLUCENT_TRANSPARENCY)
-//                .lightmap( DISABLE_LIGHTMAP )
-//                .build( false ) );
-//        
-//        public Type( String name, VertexFormat vertexFormat, DrawMode drawMode,
-//                int expectedBufferSize, boolean hasCrumbling, boolean translucent,
-//                Runnable startAction, Runnable endAction )
-//        {
-//            super( name, vertexFormat, drawMode, expectedBufferSize, hasCrumbling, translucent,
-//                    startAction, endAction );
-//        }
-//    }
+    private static final class Type extends RenderLayer
+    {
+        static final RenderLayer TYPE = null;/*RenderLayer.of( "printout_background",
+            VertexFormats.POSITION_TEXTURE,
+            VertexFormat.DrawMode.QUADS,
+            1024,
+            // useDelegate, needsSorting
+            RenderLayer.MultiPhaseParameters.builder()
+                .texture( new RenderPhase.Texture( BG, false, false ) ) // blur, minimap
+                .transparency( TRANSLUCENT_TRANSPARENCY )
+                .lightmap( DISABLE_LIGHTMAP )
+                .build( false ));*/
+
+        private Type( String name, VertexFormat vertexFormat, VertexFormat.DrawMode drawMode, int expectedBufferSize, boolean hasCrumbling, boolean translucent, RenderLayer.MultiPhaseParameters phases, Runnable setup, Runnable destroy )
+        {
+            super( name, vertexFormat, drawMode, expectedBufferSize, hasCrumbling, hasCrumbling, setup, destroy );
+        }
+    }
 }

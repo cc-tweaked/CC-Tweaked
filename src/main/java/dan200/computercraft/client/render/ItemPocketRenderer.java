@@ -117,7 +117,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         BufferBuilder buffer = tessellator.getBuffer();
         buffer.begin( VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE );
 
-        ComputerBorderRenderer.render( transform, buffer, 0, 0, 0, width, height, true, r, g, b );
+//        ComputerBorderRenderer.render( transform, buffer, 0, 0, 0, width, height, true, r, g, b );
 
         tessellator.draw();
     }

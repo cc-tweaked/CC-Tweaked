@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '0.7-SNAPSHOT'
+    id 'fabric-loom' version '0.9-SNAPSHOT'
     id 'maven-publish'
     id "checkstyle"
     id "com.github.hierynomus.license" version "0.15.0"
@@ -21,10 +21,15 @@ repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
     maven { url "https://maven.shedaniel.me/" }
+    maven { url "https://maven.terraformersmc.com/" }
     maven {
         name "SquidDev"
         url "https://squiddev.cc/maven"
     }
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/cc.accesswidener")
 }
 
 configurations {
@@ -42,7 +47,7 @@ dependencies {
     modApi("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
-    modImplementation "io.github.prospector:modmenu:${modmenu_version}"
+    modImplementation "com.terraformersmc:modmenu:${modmenu_version}"
     modImplementation "me.shedaniel.cloth.api:cloth-utils-v1:${cloth_api_version}"
 
     implementation 'com.electronwill.night-config:toml:3.6.3'
@@ -55,8 +60,8 @@ dependencies {
     include 'com.electronwill.night-config:toml:3.6.3'
     include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
 
-    modRuntime "me.shedaniel:RoughlyEnoughItems-api:6.0.254-alpha"
-    modRuntime "me.shedaniel:RoughlyEnoughItems:6.0.254-alpha"
+    modRuntime "me.shedaniel:RoughlyEnoughItems-api-fabric:6.0.254-alpha"
+    modRuntime "me.shedaniel:RoughlyEnoughItems-fabric:6.0.254-alpha"
 }
 
 processResources {

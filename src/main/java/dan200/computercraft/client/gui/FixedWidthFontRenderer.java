@@ -7,9 +7,13 @@
 package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.FrameInfo;
+import dan200.computercraft.client.render.MonitorTextureBufferShader;
+import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
+//import dan200.computercraft.fabric.mixin.RenderLayerAccessor;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.MinecraftClient;
@@ -30,43 +34,15 @@ public final class FixedWidthFontRenderer
     public static final float BACKGROUND_START = (WIDTH - 6.0f) / WIDTH;
     public static final float BACKGROUND_END = (WIDTH - 4.0f) / WIDTH;
     private static final Matrix4f IDENTITY = AffineTransformation.identity()
-            .getMatrix();
+        .getMatrix();
     public static final Identifier FONT = new Identifier( "computercraft", "textures/gui/term_font.png" );
 //    public static final RenderLayer TYPE = Type.MAIN;
+//    public static final RenderLayer MONITOR_TBO = Type.MONITOR_TBO;
+//    public static final Shader FONT_SHADER = new Shader();
 
 
     private FixedWidthFontRenderer()
     {
-    }
-
-    public static void drawString( float x, float y, @Nonnull TextBuffer text, @Nonnull TextBuffer textColour, @Nullable TextBuffer backgroundColour,
-                                   @Nonnull Palette palette, boolean greyscale, float leftMarginSize, float rightMarginSize )
-    {
-        bindFont();
-
-        VertexConsumerProvider.Immediate renderer = MinecraftClient.getInstance()
-            .getBufferBuilders()
-            .getEntityVertexConsumers();
-        drawString( IDENTITY,
-            Tessellator.getInstance().getBuffer(),
-            x,
-            y,
-            text,
-            textColour,
-            backgroundColour,
-            palette,
-            greyscale,
-            leftMarginSize,
-            rightMarginSize );
-        renderer.draw();
-    }
-
-    private static void bindFont()
-    {
-        MinecraftClient.getInstance()
-            .getTextureManager()
-            .bindTexture( FONT );
-        RenderSystem.texParameter( GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP );
     }
 
     public static void drawString( @Nonnull Matrix4f transform, @Nonnull VertexConsumer renderer, float x, float y, @Nonnull TextBuffer text,
@@ -342,12 +318,12 @@ public final class FixedWidthFontRenderer
     public static void drawTerminal( @Nonnull Matrix4f transform, float x, float y, @Nonnull Terminal terminal, boolean greyscale, float topMarginSize,
                                      float bottomMarginSize, float leftMarginSize, float rightMarginSize )
     {
-        bindFont();
+//        bindFont();
 
         VertexConsumerProvider.Immediate renderer = MinecraftClient.getInstance()
             .getBufferBuilders()
             .getEntityVertexConsumers();
-        VertexConsumer buffer = Tessellator.getInstance().getBuffer();
+        VertexConsumer buffer = renderer.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH );
         drawTerminal( transform, buffer, x, y, terminal, greyscale, topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize );
         renderer.draw();
     }
@@ -360,12 +336,13 @@ public final class FixedWidthFontRenderer
 
     public static void drawEmptyTerminal( float x, float y, float width, float height )
     {
+        Colour colour = Colour.BLACK;
         drawEmptyTerminal( IDENTITY, x, y, width, height );
     }
 
     public static void drawEmptyTerminal( @Nonnull Matrix4f transform, float x, float y, float width, float height )
     {
-        bindFont();
+//        bindFont();
 
         VertexConsumerProvider.Immediate renderer = MinecraftClient.getInstance()
             .getBufferBuilders()
@@ -378,44 +355,12 @@ public final class FixedWidthFontRenderer
                                           float height )
     {
         Colour colour = Colour.BLACK;
-        drawQuad( transform, Tessellator.getInstance().getBuffer(), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
+        drawQuad( transform, renderer.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH ), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
     }
 
     public static void drawBlocker( @Nonnull Matrix4f transform, @Nonnull VertexConsumerProvider renderer, float x, float y, float width, float height )
     {
         Colour colour = Colour.BLACK;
-        drawQuad( transform, Tessellator.getInstance().getBuffer(), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
+        drawQuad( transform, renderer.getBuffer(RenderTypes.TERMINAL_BLOCKER), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
     }
-
-//    private static final class Type extends RenderPhase
-//    {
-//        private static final int GL_MODE = GL11.GL_TRIANGLES;
-//
-//        private static final VertexFormat FORMAT = VertexFormats.POSITION_COLOR_TEXTURE;
-//
-//        static final RenderLayer MAIN = RenderLayer.of( "terminal_font", FORMAT, GL_MODE, 1024, false, false, // useDelegate, needsSorting
-//            RenderLayer.MultiPhaseParameters.Builder()
-//                .texture( new RenderPhase.Texture( FONT,
-//                    false,
-//                    false ) ) // blur, minimap
-//                .transparency( TRANSLUCENT_TRANSPARENCY )
-//                .lightmap( DISABLE_LIGHTMAP )
-//                .writeMaskState( COLOR_MASK )
-//                .build( false ) );
-//
-//        static final RenderLayer BLOCKER = RenderLayer.of( "terminal_blocker", FORMAT, GL_MODE, 256, false, false, // useDelegate, needsSorting
-//            RenderLayer.MultiPhaseParameters.Builder()
-//                .texture( new RenderPhase.Texture( FONT,
-//                    false,
-//                    false ) ) // blur, minimap
-//                .transparency( TRANSLUCENT_TRANSPARENCY )
-//                .writeMaskState( ALL_MASK )
-//                .lightmap( DISABLE_LIGHTMAP )
-//                .build( false ) );
-//
-//        private Type( String name, Runnable setup, Runnable destroy )
-//        {
-//            super( name, setup, destroy );
-//        }
-//    }
 }

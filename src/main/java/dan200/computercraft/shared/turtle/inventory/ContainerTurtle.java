@@ -23,12 +23,18 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ArrayPropertyDelegate;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.util.crash.CrashException;
+import net.minecraft.util.crash.CrashReport;
+import net.minecraft.util.crash.CrashReportSection;
+import net.minecraft.util.registry.Registry;
 
 import javax.annotation.Nonnull;
 import java.util.function.Predicate;
 
 public class ContainerTurtle extends ContainerComputerBase
 {
+    public static final int BORDER = 8;
     public static final int PLAYER_START_Y = 134;
     public static final int TURTLE_START_X = 175;
 
@@ -52,6 +58,8 @@ public class ContainerTurtle extends ContainerComputerBase
     {
         super( ComputerCraftRegistry.ModContainers.TURTLE, id, canUse, computer, family );
         this.properties = properties;
+
+        System.out.println("Contaienr Turtle init" + properties);
 
         addProperties( properties );
 
@@ -105,6 +113,7 @@ public class ContainerTurtle extends ContainerComputerBase
     @Override
     public ItemStack transferSlot( @Nonnull PlayerEntity player, int slotNum )
     {
+        System.out.println("transferSlot");
         if( slotNum >= 0 && slotNum < 16 )
         {
             return tryItemMerge( player, slotNum, 16, 52, true );
@@ -119,6 +128,7 @@ public class ContainerTurtle extends ContainerComputerBase
     @Nonnull
     private ItemStack tryItemMerge( PlayerEntity player, int slotNum, int firstSlot, int lastSlot, boolean reverse )
     {
+        System.out.println("tryItemMerge");
         Slot slot = slots.get( slotNum );
         ItemStack originalStack = ItemStack.EMPTY;
         if( slot != null && slot.hasStack() )
@@ -149,5 +159,11 @@ public class ContainerTurtle extends ContainerComputerBase
             }
         }
         return originalStack;
+    }
+    @Override
+    public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
+        super.onSlotClick(slotIndex, button, actionType, player);
+
+        System.out.println("on slot click: " + slotIndex);
     }
 }

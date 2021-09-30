@@ -12,7 +12,7 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.fabric.mixin.MixinBlockEntity;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
@@ -64,10 +64,9 @@ public class TileTurtle extends TileComputerBase
     private TurtleBrain brain = new TurtleBrain( this );
     private MoveState moveState = MoveState.NOT_MOVED;
 
-    public TileTurtle( BlockEntityType<? extends TileGeneric> type,
-            ComputerFamily family, BlockPos pos, BlockState state )
+    public TileTurtle( BlockEntityType<? extends TileGeneric> type, BlockPos pos, BlockState state, ComputerFamily family )
     {
-        super( type, family, pos, state );
+        super(type, family, pos, state );
     }
 
     @Override
@@ -256,10 +255,10 @@ public class TileTurtle extends TileComputerBase
         // Open GUI or whatever
         return super.onActivate( player, hand, hit );
     }
-    
-    public void setBlockPos( BlockPos pos ) {
-        ((MixinBlockEntity) (Object) this).setBlockPos(pos); // FIXME this looks really bad.
-    }
+
+//    public void setBlockPos( BlockPos pos ) {
+//        ((MixinBlockEntity) (Object) this).setBlockPos(pos); // FIXME this looks really bad.
+//    }
 
     @Override
     public void onNeighbourChange( @Nonnull BlockPos neighbour )
@@ -282,8 +281,8 @@ public class TileTurtle extends TileComputerBase
     public static void tick( World world, BlockPos pos, BlockState state,
             TileTurtle tileTurtle )
     {
-        tileTurtle.brain.update();
-        if( !tileTurtle.getWorld().isClient && tileTurtle.inventoryChanged )
+    	tileTurtle.brain.update();
+        if( !world.isClient && tileTurtle.inventoryChanged )
         {
             ServerComputer computer = tileTurtle.getServerComputer();
             if( computer != null )
@@ -565,6 +564,7 @@ public class TileTurtle extends TileComputerBase
     public ScreenHandler createMenu( int id, @Nonnull PlayerInventory inventory,
             @Nonnull PlayerEntity player )
     {
+        System.out.println(inventory.player.getDisplayName());
         return new ContainerTurtle( id, inventory, brain );
     }
 

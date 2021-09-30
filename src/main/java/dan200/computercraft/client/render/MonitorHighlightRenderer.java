@@ -12,13 +12,11 @@ import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 
 import java.util.EnumSet;
@@ -49,12 +47,10 @@ public final class MonitorHighlightRenderer
         World world = entity.getEntityWorld();
 
         BlockEntity tile = world.getBlockEntity( pos );
-        if( !(tile instanceof TileMonitor) )
+        if( !(tile instanceof TileMonitor monitor) )
         {
             return false;
         }
-
-        TileMonitor monitor = (TileMonitor) tile;
 
         // Determine which sides are part of the external faces of the monitor, and so which need to be rendered.
         EnumSet<Direction> faces = EnumSet.allOf( Direction.class );
@@ -87,53 +83,54 @@ public final class MonitorHighlightRenderer
         // I wish I could think of a better way to do this
         Matrix4f transform = matrixStack.peek()
             .getModel();
+        Matrix3f normal = matrixStack.peek().getNormal();
         if( faces.contains( NORTH ) || faces.contains( WEST ) )
         {
-            line( vertexConsumer, transform, 0, 0, 0, UP );
+            line( vertexConsumer, transform, normal, 0, 0, 0, UP );
         }
         if( faces.contains( SOUTH ) || faces.contains( WEST ) )
         {
-            line( vertexConsumer, transform, 0, 0, 1, UP );
+            line( vertexConsumer, transform, normal, 0, 0, 1, UP );
         }
         if( faces.contains( NORTH ) || faces.contains( EAST ) )
         {
-            line( vertexConsumer, transform, 1, 0, 0, UP );
+            line( vertexConsumer, transform, normal, 1, 0, 0, UP );
         }
         if( faces.contains( SOUTH ) || faces.contains( EAST ) )
         {
-            line( vertexConsumer, transform, 1, 0, 1, UP );
+            line( vertexConsumer, transform, normal, 1, 0, 1, UP );
         }
         if( faces.contains( NORTH ) || faces.contains( DOWN ) )
         {
-            line( vertexConsumer, transform, 0, 0, 0, EAST );
+            line( vertexConsumer, transform, normal, 0, 0, 0, EAST );
         }
         if( faces.contains( SOUTH ) || faces.contains( DOWN ) )
         {
-            line( vertexConsumer, transform, 0, 0, 1, EAST );
+            line( vertexConsumer, transform, normal, 0, 0, 1, EAST );
         }
         if( faces.contains( NORTH ) || faces.contains( UP ) )
         {
-            line( vertexConsumer, transform, 0, 1, 0, EAST );
+            line( vertexConsumer, transform, normal, 0, 1, 0, EAST );
         }
         if( faces.contains( SOUTH ) || faces.contains( UP ) )
         {
-            line( vertexConsumer, transform, 0, 1, 1, EAST );
+            line( vertexConsumer, transform, normal, 0, 1, 1, EAST );
         }
         if( faces.contains( WEST ) || faces.contains( DOWN ) )
         {
-            line( vertexConsumer, transform, 0, 0, 0, SOUTH );
+            line( vertexConsumer, transform, normal, 0, 0, 0, SOUTH );
         }
         if( faces.contains( EAST ) || faces.contains( DOWN ) )
         {
-            line( vertexConsumer, transform, 1, 0, 0, SOUTH );
+            line( vertexConsumer, transform, normal, 1, 0, 0, SOUTH );
         }
         if( faces.contains( WEST ) || faces.contains( UP ) )
         {
-            line( vertexConsumer, transform, 0, 1, 0, SOUTH );
+            line( vertexConsumer, transform, normal, 0, 1, 0, SOUTH );
         }
         if( faces.contains( EAST ) || faces.contains( UP ) )
         {
-            line( vertexConsumer, transform, 1, 1, 0, SOUTH );
+            line( vertexConsumer, transform, normal, 1, 1, 0, SOUTH );
         }
 
         matrixStack.pop();
@@ -141,13 +138,15 @@ public final class MonitorHighlightRenderer
         return true;
     }
 
-    private static void line( VertexConsumer buffer, Matrix4f transform, float x, float y, float z, Direction direction )
+    private static void line( VertexConsumer buffer, Matrix4f transform, Matrix3f normal, float x, float y, float z, Direction direction )
     {
         buffer.vertex( transform, x, y, z )
             .color( 0, 0, 0, 0.4f )
+            .normal(normal, direction.getOffsetX(), direction.getOffsetY(), direction.getOffsetZ())
             .next();
         buffer.vertex( transform, x + direction.getOffsetX(), y + direction.getOffsetY(), z + direction.getOffsetZ() )
             .color( 0, 0, 0, 0.4f )
+            .normal(normal, direction.getOffsetX(), direction.getOffsetY(), direction.getOffsetZ())
             .next();
     }
 }

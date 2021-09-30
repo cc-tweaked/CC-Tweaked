@@ -35,6 +35,10 @@ public abstract class BlockGeneric extends BlockWithEntity
         this.type = type;
     }
 
+    public BlockEntityType<? extends TileGeneric> getType() {
+        return type;
+    }
+
     @Override
     public BlockRenderType getRenderType( BlockState state )
     {
@@ -96,6 +100,9 @@ public abstract class BlockGeneric extends BlockWithEntity
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state)
     {
-        return type.instantiate(pos, state);
+        if (this.type != null) {
+            return type.instantiate(pos, state);
+        }
+        return null;
     }
 }

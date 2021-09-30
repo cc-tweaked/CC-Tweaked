@@ -42,13 +42,11 @@ import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.turtle.upgrades.*;
+//import dan200.computercraft.shared.util.FixedPointTileEntityType;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.Material;
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.EntityType;
@@ -61,6 +59,7 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 
 import java.util.Objects;
@@ -108,8 +107,8 @@ public final class ComputerCraftRegistry
         public static final BlockSpeaker SPEAKER = register( "speaker", new BlockSpeaker( properties() ) );
         public static final BlockDiskDrive DISK_DRIVE = register( "disk_drive", new BlockDiskDrive( properties() ) );
         public static final BlockPrinter PRINTER = register( "printer", new BlockPrinter( properties() ) );
-        public static final BlockMonitor MONITOR_NORMAL = register( "monitor_normal", new BlockMonitor( properties(), ModTiles.MONITOR_NORMAL ) );
-        public static final BlockMonitor MONITOR_ADVANCED = register( "monitor_advanced", new BlockMonitor( properties(), ModTiles.MONITOR_ADVANCED ) );
+        public static final BlockMonitor MONITOR_NORMAL = register( "monitor_normal", new BlockMonitor( properties(), ModTiles.MONITOR_NORMAL, false ) );
+        public static final BlockMonitor MONITOR_ADVANCED = register( "monitor_advanced", new BlockMonitor( properties(), ModTiles.MONITOR_ADVANCED, true ) );
         public static final BlockWirelessModem WIRELESS_MODEM_NORMAL = register( "wireless_modem_normal",
             new BlockWirelessModem( properties(), ModTiles.WIRELESS_MODEM_NORMAL ) );
         public static final BlockWirelessModem WIRELESS_MODEM_ADVANCED = register( "wireless_modem_advanced",
@@ -149,53 +148,53 @@ public final class ComputerCraftRegistry
     public static class ModTiles
     {
 
-        public static final BlockEntityType<TileMonitor> MONITOR_NORMAL = FabricBlockEntityTypeBuilder
-            .create( ( blockPos, blockState ) -> new TileMonitor( ModTiles.MONITOR_NORMAL, false, blockPos, blockState ),
-                ModBlocks.MONITOR_NORMAL )
-            .build();
-        public static final BlockEntityType<TileMonitor> MONITOR_ADVANCED = FabricBlockEntityTypeBuilder
-            .create( ( blockPos, blockState ) -> new TileMonitor( ModTiles.MONITOR_ADVANCED, false, blockPos, blockState ),
-                ModBlocks.MONITOR_ADVANCED )
-            .build();
-        public static final BlockEntityType<TileComputer> COMPUTER_NORMAL = FabricBlockEntityTypeBuilder.create(
-            ( blockPos, blockState ) -> new TileComputer( ComputerFamily.NORMAL, ModTiles.COMPUTER_NORMAL, blockPos, blockState ),
-            ModBlocks.COMPUTER_NORMAL ).build();
-        public static final BlockEntityType<TileComputer> COMPUTER_ADVANCED = FabricBlockEntityTypeBuilder
-            .create( ( blockPos, blockState ) -> new TileComputer( ComputerFamily.ADVANCED, ModTiles.COMPUTER_ADVANCED, blockPos,
-                blockState ), ModBlocks.COMPUTER_ADVANCED )
-            .build();
-        public static final BlockEntityType<TileCommandComputer> COMPUTER_COMMAND = FabricBlockEntityTypeBuilder
-            .create( ( blockPos, blockState ) -> new TileCommandComputer( ComputerFamily.COMMAND, ModTiles.COMPUTER_COMMAND, blockPos,
-                blockState ), ModBlocks.COMPUTER_COMMAND )
-            .build();
-        public static final BlockEntityType<TileTurtle> TURTLE_NORMAL = FabricBlockEntityTypeBuilder.create(
-            ( blockPos, blockState ) -> new TileTurtle( ModTiles.TURTLE_NORMAL, ComputerFamily.NORMAL, blockPos, blockState ),
-            ModBlocks.TURTLE_NORMAL ).build();
-        public static final BlockEntityType<TileTurtle> TURTLE_ADVANCED = FabricBlockEntityTypeBuilder.create(
-            ( blockPos, blockState ) -> new TileTurtle( ModTiles.TURTLE_ADVANCED, ComputerFamily.ADVANCED, blockPos, blockState ),
-            ModBlocks.TURTLE_ADVANCED ).build();
-        public static final BlockEntityType<TileSpeaker> SPEAKER = FabricBlockEntityTypeBuilder
-            .create( ( blockPos, blockState ) -> new TileSpeaker( ModTiles.SPEAKER, blockPos, blockState ), ModBlocks.SPEAKER )
-            .build();
-        public static final BlockEntityType<TileDiskDrive> DISK_DRIVE = FabricBlockEntityTypeBuilder
-            .create( ( blockPos, blockState ) -> new TileDiskDrive( ModTiles.DISK_DRIVE, blockPos, blockState ),
-                ModBlocks.DISK_DRIVE )
-            .build();
-        public static final BlockEntityType<TilePrinter> PRINTER = FabricBlockEntityTypeBuilder
-            .create( ( blockPos, blockState ) -> new TilePrinter( ModTiles.PRINTER, blockPos, blockState ), ModBlocks.PRINTER )
-            .build();
-        public static final BlockEntityType<TileWiredModemFull> WIRED_MODEM_FULL = FabricBlockEntityTypeBuilder
-            .create( ( blockPos, blockState ) -> new TileWiredModemFull( ModTiles.WIRED_MODEM_FULL, blockPos, blockState ),
-                ModBlocks.WIRED_MODEM_FULL )
-            .build();
-        public static final BlockEntityType<TileCable> CABLE = FabricBlockEntityTypeBuilder
-            .create( ( blockPos, blockState ) -> new TileCable( ModTiles.CABLE, blockPos, blockState ), ModBlocks.CABLE ).build();
-        public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_NORMAL = FabricBlockEntityTypeBuilder.create(
-            ( blockPos, blockState ) -> new TileWirelessModem( ModTiles.WIRELESS_MODEM_NORMAL, false, blockPos, blockState ),
-            ModBlocks.WIRELESS_MODEM_NORMAL ).build();
-        public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_ADVANCED = FabricBlockEntityTypeBuilder.create(
-            ( blockPos, blockState ) -> new TileWirelessModem( ModTiles.WIRELESS_MODEM_ADVANCED, true, blockPos, blockState ),
-            ModBlocks.WIRELESS_MODEM_ADVANCED ).build();
+        public static final BlockEntityType<TileMonitor> MONITOR_NORMAL = ofBlock( ModBlocks.MONITOR_NORMAL,
+            "monitor_normal",
+            (blockPos, blockState) -> new TileMonitor(ModTiles.MONITOR_NORMAL, false, blockPos, blockState) );
+        public static final BlockEntityType<TileMonitor> MONITOR_ADVANCED = ofBlock( ModBlocks.MONITOR_ADVANCED,
+            "monitor_advanced",
+            (blockPos, blockState) -> new TileMonitor(ModTiles.MONITOR_ADVANCED, true, blockPos, blockState) );
+        public static final BlockEntityType<TileComputer> COMPUTER_NORMAL = ofBlock( ModBlocks.COMPUTER_NORMAL,
+            "computer_normal",
+            (blockPos, blockState) -> new TileComputer(ComputerFamily.NORMAL, ModTiles.COMPUTER_NORMAL, blockPos, blockState) );
+        public static final BlockEntityType<TileComputer> COMPUTER_ADVANCED = ofBlock( ModBlocks.COMPUTER_ADVANCED,
+            "computer_advanced",
+            (blockPos, blockState) -> new TileComputer(ComputerFamily.ADVANCED, ModTiles.COMPUTER_ADVANCED, blockPos, blockState) );
+        public static final BlockEntityType<TileCommandComputer> COMPUTER_COMMAND = ofBlock( ModBlocks.COMPUTER_COMMAND,
+            "computer_command",
+            (blockPos, blockState) -> new TileCommandComputer(ComputerFamily.COMMAND, ModTiles.COMPUTER_COMMAND, blockPos, blockState) );
+        public static final BlockEntityType<TileTurtle> TURTLE_NORMAL = ofBlock( ModBlocks.TURTLE_NORMAL,
+            "turtle_normal",
+            (blockPos, blockState) -> new TileTurtle(ModTiles.TURTLE_NORMAL, blockPos, blockState, ComputerFamily.NORMAL ) );
+        public static final BlockEntityType<TileTurtle> TURTLE_ADVANCED = ofBlock( ModBlocks.TURTLE_ADVANCED,
+            "turtle_advanced",
+            (blockPos, blockState) -> new TileTurtle(ModTiles.TURTLE_ADVANCED, blockPos, blockState, ComputerFamily.ADVANCED ) );
+        public static final BlockEntityType<TileSpeaker> SPEAKER = ofBlock( ModBlocks.SPEAKER, "speaker",
+            (blockPos, blockState) -> new TileSpeaker(ModTiles.SPEAKER, blockPos, blockState ) );
+        public static final BlockEntityType<TileDiskDrive> DISK_DRIVE = ofBlock( ModBlocks.DISK_DRIVE, "disk_drive",
+            (blockPos, blockState) -> new TileDiskDrive(ModTiles.DISK_DRIVE, blockPos, blockState ) );
+        public static final BlockEntityType<TilePrinter> PRINTER = ofBlock( ModBlocks.PRINTER, "printer",
+            (blockPos, blockState) -> new TilePrinter(ModTiles.PRINTER, blockPos, blockState ) );
+        public static final BlockEntityType<TileWiredModemFull> WIRED_MODEM_FULL = ofBlock( ModBlocks.WIRED_MODEM_FULL,
+            "wired_modem_full",
+            (blockPos, blockState) -> new TileWiredModemFull(ModTiles.WIRED_MODEM_FULL, blockPos, blockState ) );
+        public static final BlockEntityType<TileCable> CABLE = ofBlock( ModBlocks.CABLE, "cable",
+            (blockPos, blockState) -> new TileCable(ModTiles.CABLE, blockPos, blockState ) );
+        public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_NORMAL = ofBlock( ModBlocks.WIRELESS_MODEM_NORMAL,
+            "wireless_modem_normal",
+            (blockPos, blockState) -> new TileWirelessModem(ModTiles.WIRELESS_MODEM_NORMAL, false, blockPos, blockState) );
+        public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_ADVANCED = ofBlock( ModBlocks.WIRELESS_MODEM_ADVANCED,
+            "wireless_modem_advanced",
+            (blockPos, blockState) -> new TileWirelessModem(ModTiles.WIRELESS_MODEM_ADVANCED, true, blockPos, blockState) );
+
+        private static <T extends BlockEntity> BlockEntityType<T> ofBlock( Block block, String id, BiFunction<BlockPos, BlockState, T> factory )
+        {
+            BlockEntityType<T> blockEntityType = FabricBlockEntityTypeBuilder.create(factory::apply, block).build();
+            return Registry.register( BLOCK_ENTITY_TYPE,
+                new Identifier( MOD_ID, id ),
+                blockEntityType
+            );
+        }
     }
 
     public static final class ModItems

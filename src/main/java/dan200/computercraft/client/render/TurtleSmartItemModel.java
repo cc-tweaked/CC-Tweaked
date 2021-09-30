@@ -142,13 +142,20 @@ public class TurtleSmartItemModel implements BakedModel
         return familyModel.isBuiltin();
     }
 
-    @Nonnull
     @Override
     @Deprecated
     public Sprite getParticleSprite()
     {
         return familyModel.getParticleSprite();
     }
+
+//    @Nonnull
+//    @Override
+//    @Deprecated
+//    public Sprite getSprite()
+//    {
+//        return familyModel.getSprite();
+//    }
 
     @Nonnull
     @Override

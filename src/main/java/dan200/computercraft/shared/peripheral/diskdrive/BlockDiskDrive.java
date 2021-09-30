@@ -8,6 +8,7 @@ package dan200.computercraft.shared.peripheral.diskdrive;
 
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
+import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.peripheral.speaker.BlockSpeaker;
 import dan200.computercraft.shared.peripheral.speaker.TileSpeaker;
 import net.minecraft.block.Block;
@@ -53,13 +54,13 @@ public class BlockDiskDrive extends BlockGeneric
             placement.getPlayerFacing()
                 .getOpposite() );
     }
-    
+
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type){
     	return world.isClient ? null : BlockDiskDrive.checkType( type, ComputerCraftRegistry.ModTiles.DISK_DRIVE, TileDiskDrive::tick );
     }
-    
+
     @Override
     public void afterBreak(
         @Nonnull World world, @Nonnull PlayerEntity player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack
@@ -97,5 +98,12 @@ public class BlockDiskDrive extends BlockGeneric
     protected void appendProperties( StateManager.Builder<Block, BlockState> properties )
     {
         properties.add( FACING, STATE );
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state)
+    {
+        return new TileDiskDrive(ComputerCraftRegistry.ModTiles.DISK_DRIVE, pos, state);
     }
 }
