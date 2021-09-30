@@ -9,7 +9,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.BlockPos;
 
 @Mixin( BlockEntity.class )
-public class BlockEntityMixin
+public class MixinBlockEntity
 {
     @Final
     @Mutable

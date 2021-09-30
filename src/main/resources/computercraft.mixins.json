@@ -6,6 +6,7 @@
         "MinecraftServerAccess",
         "MixinBlock",
         "MixinEntity",
+        "MixinBlockEntity",
         "MixinServerWorld",
         "MixinWorld",
         "SignBlockEntityAccess",

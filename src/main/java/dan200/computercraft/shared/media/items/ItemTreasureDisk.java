@@ -41,7 +41,7 @@ public class ItemTreasureDisk extends Item implements IMedia
     public static ItemStack create( String subPath, int colourIndex )
     {
         ItemStack result = new ItemStack( ComputerCraftRegistry.ModItems.TREASURE_DISK );
-        NbtCompound nbt = result.getOrCreateTag();
+        NbtCompound nbt = result.getOrCreateNbt();
         nbt.putString( NBT_SUB_PATH, subPath );
 
         int slash = subPath.indexOf( '/' );
@@ -62,7 +62,7 @@ public class ItemTreasureDisk extends Item implements IMedia
 
     public static int getColour( @Nonnull ItemStack stack )
     {
-    	NbtCompound nbt = stack.getTag();
+    	NbtCompound nbt = stack.getNbt();
         return nbt != null && nbt.contains( NBT_COLOUR ) ? nbt.getInt( NBT_COLOUR ) : Colour.BLUE.getHex();
     }
 
@@ -84,7 +84,7 @@ public class ItemTreasureDisk extends Item implements IMedia
     @Nonnull
     private static String getTitle( @Nonnull ItemStack stack )
     {
-    	NbtCompound nbt = stack.getTag();
+    	NbtCompound nbt = stack.getNbt();
         return nbt != null && nbt.contains( NBT_TITLE ) ? nbt.getString( NBT_TITLE ) : "'alongtimeago' by dan200";
     }
 
@@ -128,7 +128,7 @@ public class ItemTreasureDisk extends Item implements IMedia
     @Nonnull
     private static String getSubPath( @Nonnull ItemStack stack )
     {
-    	NbtCompound nbt = stack.getTag();
+    	NbtCompound nbt = stack.getNbt();
         return nbt != null && nbt.contains( NBT_SUB_PATH ) ? nbt.getString( NBT_SUB_PATH ) : "dan200/alongtimeago";
     }
 }

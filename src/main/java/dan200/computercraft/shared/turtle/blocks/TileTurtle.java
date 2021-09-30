@@ -12,6 +12,7 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.fabric.mixin.MixinBlockEntity;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
@@ -24,6 +25,7 @@ import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.util.*;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -254,6 +256,10 @@ public class TileTurtle extends TileComputerBase
         // Open GUI or whatever
         return super.onActivate( player, hand, hit );
     }
+    
+    public void setBlockPos( BlockPos pos ) {
+        ((MixinBlockEntity) (Object) this).setBlockPos(pos); // FIXME this looks really bad.
+    }
 
     @Override
     public void onNeighbourChange( @Nonnull BlockPos neighbour )
@@ -404,11 +410,6 @@ public class TileTurtle extends TileComputerBase
         updateOutput();
         updateInput();
         onTileEntityChange();
-    }
-
-    public void setBlockPos( BlockPos pos )
-    {
-    	this.pos.;
     }
 
     public void onTileEntityChange()

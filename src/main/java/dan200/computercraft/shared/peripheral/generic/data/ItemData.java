@@ -43,7 +43,7 @@ public class ItemData
     public static <T extends Map<? super String, Object>> T fillBasic( @Nonnull T data, @Nonnull ItemStack stack )
     {
         fillBasicSafe( data, stack );
-        String hash = NBTUtil.getNBTHash( stack.getTag() );
+        String hash = NBTUtil.getNBTHash( stack.getNbt() );
         if( hash != null ) data.put( "nbt", hash );
 
         return data;
@@ -78,7 +78,7 @@ public class ItemData
             .collect( Collectors.toList() )
         ) ); // chaos x2
 
-        NbtCompound tag = stack.getTag();
+        NbtCompound tag = stack.getNbt();
         if( tag != null && tag.contains( "display", NBTUtil.TAG_COMPOUND ) )
         {
         	NbtCompound displayTag = tag.getCompound( "display" );

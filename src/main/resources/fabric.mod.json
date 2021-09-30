@@ -21,9 +21,9 @@
     ],
     "depends": {
         "fabricloader": ">=0.11.3",
-        "fabric": "*"
+        "fabric": "*",
         "minecraft": "1.17.x",
-        "java": ">=16",
+        "java": ">=16"
     },
     "suggests": {
         "modmenu": "*"

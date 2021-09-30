@@ -78,14 +78,14 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     {
         if( id >= 0 )
         {
-            stack.getOrCreateTag()
+            stack.getOrCreateNbt()
                 .putInt( NBT_ID, id );
         }
     }
 
     public static int getDiskID( @Nonnull ItemStack stack )
     {
-    	NbtCompound nbt = stack.getTag();
+    	NbtCompound nbt = stack.getNbt();
         return nbt != null && nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
     }
 

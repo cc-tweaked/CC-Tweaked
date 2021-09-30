@@ -34,6 +34,8 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
 
 import javax.annotation.Nonnull;
+
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.*;
@@ -125,8 +127,9 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
             // Sneaky hack here: we get a buffer now in order to flush existing ones and set up the appropriate
             // render state. I've no clue how well this'll work in future versions of Minecraft, but it does the trick
             // for now.
-            VertexConsumer buffer = renderer.getBuffer( FixedWidthFontRenderer.TYPE );
-            FixedWidthFontRenderer.TYPE.startDrawing();
+            BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+            buffer.begin( VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR_TEXTURE );
+//            FixedWidthFontRenderer.TYPE.startDrawing();
 
             renderTerminal( matrix, originTerminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale) );
 
@@ -136,7 +139,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
             // To go along with sneaky hack above: make sure state changes are undone. I would have thought this would
             // happen automatically after these buffers are drawn, but chests will render weird around monitors without this.
-            FixedWidthFontRenderer.TYPE.endDrawing();
+            buffer.end();
 
             transform.pop();
         }
@@ -233,7 +236,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 {
                     Tessellator tessellator = Tessellator.getInstance();
                     BufferBuilder builder = tessellator.getBuffer();
-                    builder.begin( FixedWidthFontRenderer.TYPE.getDrawMode(), FixedWidthFontRenderer.TYPE.getVertexFormat() );
+                    builder.begin( VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR_TEXTURE );
                     FixedWidthFontRenderer.drawTerminalWithoutCursor( IDENTITY,
                         builder,
                         0,
@@ -250,12 +253,12 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 }
 
                 vbo.bind();
-                FixedWidthFontRenderer.TYPE.getVertexFormat()
+                VertexFormats.POSITION_COLOR_TEXTURE
                     .startDrawing();
 //                vbo.draw( matrix, FixedWidthFontRenderer.TYPE.getDrawMode() );
                 vbo.drawElements(); //FIXME: Is this ok?
                 VertexBuffer.unbind();
-                FixedWidthFontRenderer.TYPE.getVertexFormat()
+                VertexFormats.POSITION_COLOR_TEXTURE
                     .endDrawing();
                 break;
         }

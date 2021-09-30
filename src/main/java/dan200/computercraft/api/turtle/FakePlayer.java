@@ -347,10 +347,5 @@ public class FakePlayer extends ServerPlayerEntity
         public void disableAutoRead()
         {
         }
-
-        @Override
-        public void setCompressionThreshold( int size )
-        {
-        }
     }
 }

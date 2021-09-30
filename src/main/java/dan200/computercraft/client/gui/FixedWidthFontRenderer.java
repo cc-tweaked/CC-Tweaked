@@ -32,7 +32,7 @@ public final class FixedWidthFontRenderer
     private static final Matrix4f IDENTITY = AffineTransformation.identity()
             .getMatrix();
     public static final Identifier FONT = new Identifier( "computercraft", "textures/gui/term_font.png" );
-    public static final RenderLayer TYPE = Type.MAIN;
+//    public static final RenderLayer TYPE = Type.MAIN;
 
 
     private FixedWidthFontRenderer()
@@ -48,7 +48,7 @@ public final class FixedWidthFontRenderer
             .getBufferBuilders()
             .getEntityVertexConsumers();
         drawString( IDENTITY,
-            ((VertexConsumerProvider) renderer).getBuffer( TYPE ),
+            Tessellator.getInstance().getBuffer(),
             x,
             y,
             text,
@@ -347,9 +347,9 @@ public final class FixedWidthFontRenderer
         VertexConsumerProvider.Immediate renderer = MinecraftClient.getInstance()
             .getBufferBuilders()
             .getEntityVertexConsumers();
-        VertexConsumer buffer = renderer.getBuffer( TYPE );
+        VertexConsumer buffer = Tessellator.getInstance().getBuffer();
         drawTerminal( transform, buffer, x, y, terminal, greyscale, topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize );
-        renderer.draw( TYPE );
+        renderer.draw();
     }
 
     public static void drawTerminal( float x, float y, @Nonnull Terminal terminal, boolean greyscale, float topMarginSize, float bottomMarginSize,
@@ -378,44 +378,44 @@ public final class FixedWidthFontRenderer
                                           float height )
     {
         Colour colour = Colour.BLACK;
-        drawQuad( transform, renderer.getBuffer( TYPE ), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
+        drawQuad( transform, Tessellator.getInstance().getBuffer(), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
     }
 
     public static void drawBlocker( @Nonnull Matrix4f transform, @Nonnull VertexConsumerProvider renderer, float x, float y, float width, float height )
     {
         Colour colour = Colour.BLACK;
-        drawQuad( transform, renderer.getBuffer( Type.BLOCKER ), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
+        drawQuad( transform, Tessellator.getInstance().getBuffer(), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
     }
 
-    private static final class Type extends RenderPhase
-    {
-        private static final int GL_MODE = GL11.GL_TRIANGLES;
-
-        private static final VertexFormat FORMAT = VertexFormats.POSITION_COLOR_TEXTURE;
-
-        static final RenderLayer MAIN = RenderLayer.of( "terminal_font", FORMAT, GL_MODE, 1024, false, false, // useDelegate, needsSorting
-            RenderLayer.MultiPhaseParameters.Builder()
-                .texture( new RenderPhase.Texture( FONT,
-                    false,
-                    false ) ) // blur, minimap
-                .transparency( TRANSLUCENT_TRANSPARENCY )
-                .lightmap( DISABLE_LIGHTMAP )
-                .writeMaskState( COLOR_MASK )
-                .build( false ) );
-
-        static final RenderLayer BLOCKER = RenderLayer.of( "terminal_blocker", FORMAT, GL_MODE, 256, false, false, // useDelegate, needsSorting
-            RenderLayer.MultiPhaseParameters.Builder()
-                .texture( new RenderPhase.Texture( FONT,
-                    false,
-                    false ) ) // blur, minimap
-                .transparency( TRANSLUCENT_TRANSPARENCY )
-                .writeMaskState( ALL_MASK )
-                .lightmap( DISABLE_LIGHTMAP )
-                .build( false ) );
-
-        private Type( String name, Runnable setup, Runnable destroy )
-        {
-            super( name, setup, destroy );
-        }
-    }
+//    private static final class Type extends RenderPhase
+//    {
+//        private static final int GL_MODE = GL11.GL_TRIANGLES;
+//
+//        private static final VertexFormat FORMAT = VertexFormats.POSITION_COLOR_TEXTURE;
+//
+//        static final RenderLayer MAIN = RenderLayer.of( "terminal_font", FORMAT, GL_MODE, 1024, false, false, // useDelegate, needsSorting
+//            RenderLayer.MultiPhaseParameters.Builder()
+//                .texture( new RenderPhase.Texture( FONT,
+//                    false,
+//                    false ) ) // blur, minimap
+//                .transparency( TRANSLUCENT_TRANSPARENCY )
+//                .lightmap( DISABLE_LIGHTMAP )
+//                .writeMaskState( COLOR_MASK )
+//                .build( false ) );
+//
+//        static final RenderLayer BLOCKER = RenderLayer.of( "terminal_blocker", FORMAT, GL_MODE, 256, false, false, // useDelegate, needsSorting
+//            RenderLayer.MultiPhaseParameters.Builder()
+//                .texture( new RenderPhase.Texture( FONT,
+//                    false,
+//                    false ) ) // blur, minimap
+//                .transparency( TRANSLUCENT_TRANSPARENCY )
+//                .writeMaskState( ALL_MASK )
+//                .lightmap( DISABLE_LIGHTMAP )
+//                .build( false ) );
+//
+//        private Type( String name, Runnable setup, Runnable destroy )
+//        {
+//            super( name, setup, destroy );
+//        }
+//    }
 }

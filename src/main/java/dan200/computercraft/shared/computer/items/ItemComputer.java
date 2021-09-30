@@ -25,7 +25,7 @@ public class ItemComputer extends ItemComputerBase
         ItemStack result = new ItemStack( this );
         if( id >= 0 )
         {
-            result.getOrCreateTag()
+            result.getOrCreateNbt()
                 .putInt( NBT_ID, id );
         }
         if( label != null )
