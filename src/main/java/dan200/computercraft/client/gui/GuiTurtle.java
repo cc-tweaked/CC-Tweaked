@@ -8,6 +8,7 @@ package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -36,7 +37,7 @@ public class GuiTurtle extends ComputerScreenBase<ContainerTurtle>
         super( container, player, title, BORDER );
 
         family = container.getFamily();
-        backgroundWidth = TEX_WIDTH;
+        backgroundWidth = TEX_WIDTH + ComputerSidebar.WIDTH;
         backgroundHeight = TEX_HEIGHT;
 
     }
@@ -45,7 +46,7 @@ public class GuiTurtle extends ComputerScreenBase<ContainerTurtle>
     protected WidgetTerminal createTerminal()
     {
         return new WidgetTerminal(
-            computer, x + BORDER, y + BORDER,
+            computer, x + BORDER + ComputerSidebar.WIDTH, y + BORDER,
             ComputerCraft.turtleTermWidth, ComputerCraft.turtleTermHeight
         );
     }
@@ -55,7 +56,7 @@ public class GuiTurtle extends ComputerScreenBase<ContainerTurtle>
     {
         boolean advanced = family == ComputerFamily.ADVANCED;
         RenderSystem.setShaderTexture( 0, advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
-        drawTexture( transform, x, y, 0, 0, TEX_WIDTH, TEX_HEIGHT );
+        drawTexture( transform, x + ComputerSidebar.WIDTH, y, 0, 0, TEX_WIDTH, TEX_HEIGHT );
 
         // Draw selection slot
         int slot = getScreenHandler().getSelectedSlot();
@@ -71,5 +72,6 @@ public class GuiTurtle extends ComputerScreenBase<ContainerTurtle>
         }
 
         RenderSystem.setShaderTexture( 0, advanced ? ComputerBorderRenderer.BACKGROUND_ADVANCED : ComputerBorderRenderer.BACKGROUND_NORMAL );
+        ComputerSidebar.renderBackground( transform, x, y + sidebarYOffset );
     }
 }
