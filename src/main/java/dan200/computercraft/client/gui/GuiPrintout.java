@@ -22,6 +22,7 @@ import org.lwjgl.glfw.GLFW;
 import javax.annotation.Nonnull;
 
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
+import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
 
 public class GuiPrintout extends HandledScreen<ContainerHeldItem>
 {
@@ -108,7 +109,7 @@ public class GuiPrintout extends HandledScreen<ContainerHeldItem>
     protected void drawBackground( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
         // Draw the printout
-        RenderSystem.clearColor( 1.0f, 1.0f, 1.0f, 1.0f );
+        RenderSystem.setShaderColor( 1.0f, 1.0f, 1.0f, 1.0f );
         RenderSystem.enableDepthTest();
 
         VertexConsumerProvider.Immediate renderer = MinecraftClient.getInstance()
@@ -116,8 +117,8 @@ public class GuiPrintout extends HandledScreen<ContainerHeldItem>
             .getEntityVertexConsumers();
         Matrix4f matrix = transform.peek()
             .getModel();
-        drawBorder( matrix, renderer, x, y, getZOffset(), page, pages, book );
-        drawText( matrix, renderer, x + X_TEXT_MARGIN, y + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * page, text, colours );
+        drawBorder( matrix, renderer, x, y, getZOffset(), page, pages, book, FULL_BRIGHT_LIGHTMAP );
+        drawText( matrix, renderer, x + X_TEXT_MARGIN, y + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, text, colours );
         renderer.draw();
     }
 

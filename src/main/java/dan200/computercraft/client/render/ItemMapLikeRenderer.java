@@ -89,7 +89,7 @@ public abstract class ItemMapLikeRenderer
         transform.multiply( Vec3f.POSITIVE_X.getDegreesQuaternion( rX * 20.0F ) );
         transform.scale( 2.0F, 2.0F, 2.0F );
 
-        renderItem( transform, render, stack );
+        renderItem( transform, render, stack, combinedLight );
     }
 
     /**
@@ -133,7 +133,7 @@ public abstract class ItemMapLikeRenderer
         transform.multiply( Vec3f.POSITIVE_X.getDegreesQuaternion( f2 * -45f ) );
         transform.multiply( Vec3f.POSITIVE_Y.getDegreesQuaternion( offset * f2 * -30f ) );
 
-        renderItem( transform, render, stack );
+        renderItem( transform, render, stack, combinedLight );
 
         transform.pop();
     }
@@ -145,5 +145,5 @@ public abstract class ItemMapLikeRenderer
      * @param render    The buffer to render to
      * @param stack     The stack to render
      */
-    protected abstract void renderItem( MatrixStack transform, VertexConsumerProvider render, ItemStack stack );
+    protected abstract void renderItem( MatrixStack transform, VertexConsumerProvider render, ItemStack stack, int light );
 }

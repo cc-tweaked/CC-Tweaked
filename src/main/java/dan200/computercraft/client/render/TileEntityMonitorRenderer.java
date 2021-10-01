@@ -102,20 +102,6 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
         double xSize = origin.getWidth() - 2.0 * (TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER);
         double ySize = origin.getHeight() - 2.0 * (TileMonitor.RENDER_MARGIN + TileMonitor.RENDER_BORDER);
 
-//         // Draw the background blocker
-//         BufferBuilder buffer = Tessellator.getInstance().getBuffer();
-//         buffer.begin( VertexFormat.DrawMode.TRIANGLES, VertexFormats.POSITION_COLOR_TEXTURE );
-//         FixedWidthFontRenderer.drawBlocker( transform.peek().getModel(),
-//             buffer,
-//             (float) -TileMonitor.RENDER_MARGIN,
-//             (float) TileMonitor.RENDER_MARGIN,
-//             (float) (xSize + 2 * TileMonitor.RENDER_MARGIN),
-//             (float) -(ySize + TileMonitor.RENDER_MARGIN * 2) );
-// //        buffer.end();
-//         Tessellator.getInstance().draw();
-//         // Set the contents slightly off the surface to prevent z-fighting
-//         transform.translate( 0.0, 0.0, 0.001 );
-
         // Draw the contents
         Terminal terminal = originTerminal.getTerminal();
         if( terminal != null )
@@ -150,17 +136,13 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
         }
         else
         {
-            buffer = Tessellator.getInstance().getBuffer();
-            buffer.begin( VertexFormat.DrawMode.TRIANGLE_STRIP, VertexFormats.POSITION_COLOR_TEXTURE );
             FixedWidthFontRenderer.drawEmptyTerminal( transform.peek()
                     .getModel(),
-                buffer,
+                renderer,
                 -MARGIN,
                 MARGIN,
                 (float) (xSize + 2 * MARGIN),
                 (float) -(ySize + MARGIN * 2) );
-//            buffer.end();
-            Tessellator.getInstance().draw();
         }
 
         transform.pop();

@@ -188,7 +188,6 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     @Override
     public NbtCompound writeNbt( @Nonnull NbtCompound nbt )
     {
-    	super.writeNbt( nbt );
         if( customName != null )
         {
             nbt.putString( NBT_NAME, Text.Serializer.toJson( customName ) );
@@ -205,7 +204,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         // Write inventory
         Inventories.writeNbt( nbt, inventory );
 
-        return nbt;
+        return super.writeNbt( nbt );
     }
 
     boolean isPrinting()

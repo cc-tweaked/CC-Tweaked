@@ -111,9 +111,9 @@ public final class ComputerCraftRegistry
         public static final BlockMonitor MONITOR_NORMAL = register( "monitor_normal", new BlockMonitor( properties(), ModTiles.MONITOR_NORMAL, false ) );
         public static final BlockMonitor MONITOR_ADVANCED = register( "monitor_advanced", new BlockMonitor( properties(), ModTiles.MONITOR_ADVANCED, true ) );
         public static final BlockWirelessModem WIRELESS_MODEM_NORMAL = register( "wireless_modem_normal",
-            new BlockWirelessModem( properties(), ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_NORMAL ) );
+            new BlockWirelessModem( properties(), ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_NORMAL, ComputerFamily.NORMAL ) );
         public static final BlockWirelessModem WIRELESS_MODEM_ADVANCED = register( "wireless_modem_advanced",
-            new BlockWirelessModem( properties(), ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_ADVANCED ) );
+            new BlockWirelessModem( properties(), ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_ADVANCED, ComputerFamily.ADVANCED ) );
         public static final BlockWiredModemFull WIRED_MODEM_FULL = register( "wired_modem_full",
             new BlockWiredModemFull( emProperties(), ComputerCraftRegistry.ModTiles.WIRED_MODEM_FULL ) );
         public static final BlockCable CABLE = register( "cable", new BlockCable( emProperties() ) );

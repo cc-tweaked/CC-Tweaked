@@ -32,7 +32,7 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
 
     public TileWirelessModem( BlockEntityType<? extends TileWirelessModem> type, boolean advanced, BlockPos pos, BlockState state )
     {
-        super( ModTiles.WIRELESS_MODEM_ADVANCED, pos, state );
+        super( type, pos, state );
         this.advanced = advanced;
         modem = new Peripheral( this );
     }
