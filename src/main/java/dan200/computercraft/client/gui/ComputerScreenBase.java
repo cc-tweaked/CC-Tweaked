@@ -1,5 +1,6 @@
 package dan200.computercraft.client.gui;
 
+import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -23,14 +24,14 @@ public abstract class ComputerScreenBase <T extends ContainerComputerBase> exten
     protected final ClientComputer computer;
     protected final ComputerFamily family;
 
-    protected final int sidebarYOffset = 0;
+    protected final int sidebarYOffset;
 
     public ComputerScreenBase(T container, PlayerInventory player, Text title, int sidebarYOffset )
     {
         super( container, player, title );
         computer = (ClientComputer) container.getComputer();
         family = container.getFamily();
-//        this.sidebarYOffset = sidebarYOffset;
+        this.sidebarYOffset = sidebarYOffset;
     }
 
     protected abstract WidgetTerminal createTerminal();
@@ -42,7 +43,7 @@ public abstract class ComputerScreenBase <T extends ContainerComputerBase> exten
         client.keyboard.setRepeatEvents( true );
 
         terminal = addDrawableChild( createTerminal() );
-//        ComputerSidebar.addButtons( this, computer, this::addButton, leftPos, topPos + sidebarYOffset );
+        ComputerSidebar.addButtons( this, computer, this::addDrawableChild, x, y + sidebarYOffset );
         setFocused( terminal );
     }
 

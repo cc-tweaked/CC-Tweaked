@@ -6,29 +6,23 @@
 
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
-import dan200.computercraft.client.gui.widgets.WidgetWrapper;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.client.render.RenderTypes;
-import dan200.computercraft.shared.computer.core.ClientComputer;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
-import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
 
-import java.util.List;
-
-import static dan200.computercraft.client.render.ComputerBorderRenderer.*;
+import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
+import static dan200.computercraft.client.render.ComputerBorderRenderer.getTexture;
 
 public final class GuiComputer<T extends ContainerComputerBase> extends ComputerScreenBase<T>
 {
@@ -41,7 +35,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Computer
         this.termWidth = termWidth;
         this.termHeight = termHeight;
 
-        backgroundWidth = WidgetTerminal.getWidth( termWidth ) + BORDER * 2;
+        backgroundWidth = WidgetTerminal.getWidth( termWidth ) + BORDER * 2 + ComputerSidebar.WIDTH;
         backgroundHeight = WidgetTerminal.getHeight( termHeight ) + BORDER * 2;
     }
 
@@ -64,7 +58,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Computer
     protected WidgetTerminal createTerminal()
     {
         return new WidgetTerminal( computer,
-            x + BORDER, y + BORDER, termWidth, termHeight
+            x + ComputerSidebar.WIDTH + BORDER, y + BORDER, termWidth, termHeight
         );
     }
     @Override
@@ -73,5 +67,6 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Computer
         ComputerBorderRenderer.render(
             getTexture(family), terminal.x, terminal.y, getZOffset(),
             RenderTypes.FULL_BRIGHT_LIGHTMAP, terminal.getWidth(), terminal.getHeight() );
+        ComputerSidebar.renderBackground( stack, x, y + sidebarYOffset );
     }
 }

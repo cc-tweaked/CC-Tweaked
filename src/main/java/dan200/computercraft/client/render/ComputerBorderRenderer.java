@@ -39,7 +39,8 @@ public class ComputerBorderRenderer
     private static final int LIGHT_CORNER_Y = 80;
 
     public static final int LIGHT_HEIGHT = 8;
-    private static final float TEX_SCALE = 1 / 256.0f;
+    public static final int TEX_SIZE = 256;
+    private static final float TEX_SCALE = 1 / (float) TEX_SIZE;
 
     static
     {

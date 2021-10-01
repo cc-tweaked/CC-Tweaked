@@ -32,7 +32,6 @@ public class MixinWorld
     @Inject( method = "addBlockEntity", at = @At( "HEAD" ) )
     public void addBlockEntity( @Nullable BlockEntity entity, CallbackInfo info )
     {
-        System.out.println("addBlockEntity");
         if( entity != null && !entity.isRemoved() && entity.getWorld().isInBuildLimit(entity.getPos()) && iteratingTickingBlockEntities )
         {
             setWorld( entity, this );
@@ -41,7 +40,6 @@ public class MixinWorld
 
     private static void setWorld( BlockEntity entity, Object world )
     {
-        System.out.println("setWorld");
         if( entity.getWorld() != world && entity instanceof TileGeneric )
         {
             entity.setWorld( (World) world ); //TODO why?
