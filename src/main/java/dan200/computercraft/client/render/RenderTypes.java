@@ -21,6 +21,11 @@ public class RenderTypes {
     public static final RenderLayer MONITOR_TBO = Types.MONITOR_TBO;
     public static final RenderLayer TERMINAL_BLOCKER = Types.BLOCKER;
     public static final RenderLayer TERMINAL_WITH_DEPTH = Types.TERMINAL_WITH_DEPTH;
+    public static final RenderLayer PRINTOUT_TEXT = Types.PRINTOUT_TEXT;
+
+    public static final RenderLayer PRINTOUT_BACKGROUND = RenderLayer.getText(new Identifier( "computercraft", "textures/gui/printout.png" ));
+
+    public static final RenderLayer POSITION_COLOR = Types.POSITION_COLOR;
 
     @Nonnull
     static MonitorTextureBufferShader getMonitorTextureBufferShader()
@@ -77,6 +82,24 @@ public class RenderTypes {
             RenderLayer.MultiPhaseParameters.builder()
                 .texture( TERM_FONT_TEXTURE )
                 .shader( TERM_SHADER )
+                .build( false )
+        );
+
+        static final RenderLayer PRINTOUT_TEXT = RenderLayer.of(
+            "printout_text", VertexFormats.POSITION_COLOR_TEXTURE_LIGHT, GL_MODE, 1024,
+            false, false, // useDelegate, needsSorting
+            RenderLayer.MultiPhaseParameters.builder()
+                .texture( TERM_FONT_TEXTURE )
+                .shader( RenderPhase.TEXT_SHADER )
+                .lightmap(RenderPhase.ENABLE_LIGHTMAP)
+                .build( false )
+        );
+
+        static final RenderLayer POSITION_COLOR = RenderLayer.of(
+            "position_color", VertexFormats.POSITION_COLOR, VertexFormat.DrawMode.QUADS, 128,
+            false, false, // useDelegate, needsSorting
+            RenderLayer.MultiPhaseParameters.builder()
+                .shader( COLOR_SHADER )
                 .build( false )
         );
 

@@ -25,14 +25,6 @@ public class GuiPrinter extends HandledScreen<ContainerPrinter>
         super( container, player, title );
     }
 
-    /*@Override
-    protected void drawGuiContainerForegroundLayer( int mouseX, int mouseY )
-    {
-        String title = getTitle().getFormattedText();
-        font.drawString( title, (xSize - font.getStringWidth( title )) / 2.0f, 6, 0x404040 );
-        font.drawString( I18n.format( "container.inventory" ), 8, ySize - 96 + 2, 0x404040 );
-    }*/
-
     @Override
     public void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
     {
@@ -44,9 +36,8 @@ public class GuiPrinter extends HandledScreen<ContainerPrinter>
     @Override
     protected void drawBackground( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
-        RenderSystem.clearColor( 1.0F, 1.0F, 1.0F, 1.0F );
-        client.getTextureManager()
-            .bindTexture( BACKGROUND );
+        RenderSystem.setShaderColor( 1.0F, 1.0F, 1.0F, 1.0F );
+        RenderSystem.setShaderTexture( 0, BACKGROUND );
         drawTexture( transform, x, y, 0, 0, backgroundWidth, backgroundHeight );
 
         if( getScreenHandler().isPrinting() )

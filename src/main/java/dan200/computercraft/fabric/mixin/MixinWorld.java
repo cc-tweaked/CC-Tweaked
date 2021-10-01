@@ -29,10 +29,11 @@ public class MixinWorld
     @Shadow
     protected boolean iteratingTickingBlockEntities;
 
-//    @Inject( method = "setBlockEntity", at = @At( "HEAD" ) )
-    public void setBlockEntity( BlockPos pos, @Nullable BlockEntity entity, CallbackInfo info )
+    @Inject( method = "addBlockEntity", at = @At( "HEAD" ) )
+    public void addBlockEntity( @Nullable BlockEntity entity, CallbackInfo info )
     {
-        if( entity != null && !entity.isRemoved() && entity.getWorld().isInBuildLimit(pos) && iteratingTickingBlockEntities )
+        System.out.println("addBlockEntity");
+        if( entity != null && !entity.isRemoved() && entity.getWorld().isInBuildLimit(entity.getPos()) && iteratingTickingBlockEntities )
         {
             setWorld( entity, this );
         }
@@ -40,9 +41,10 @@ public class MixinWorld
 
     private static void setWorld( BlockEntity entity, Object world )
     {
+        System.out.println("setWorld");
         if( entity.getWorld() != world && entity instanceof TileGeneric )
         {
-//            entity.setLocation( (World) world, entity.getPos() ); //TODO why?
+            entity.setWorld( (World) world ); //TODO why?
         }
     }
 

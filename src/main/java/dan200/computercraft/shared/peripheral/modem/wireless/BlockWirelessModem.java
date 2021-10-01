@@ -6,12 +6,17 @@
 
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
+import dan200.computercraft.shared.computer.blocks.TileComputer;
+import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
+import dan200.computercraft.shared.peripheral.modem.wired.TileWiredModemFull;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.Waterloggable;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemPlacementContext;
@@ -36,9 +41,12 @@ public class BlockWirelessModem extends BlockGeneric implements Waterloggable
     public static final DirectionProperty FACING = Properties.FACING;
     public static final BooleanProperty ON = BooleanProperty.of( "on" );
 
-    public BlockWirelessModem( Settings settings, BlockEntityType<? extends TileWirelessModem> type )
+    private final ComputerFamily family;
+
+    public BlockWirelessModem(Settings settings, BlockEntityType<? extends TileWirelessModem> type, ComputerFamily family)
     {
         super( settings, type );
+        this.family = family;
         setDefaultState( getStateManager().getDefaultState()
             .with( FACING, Direction.NORTH )
             .with( ON, false )
@@ -94,5 +102,20 @@ public class BlockWirelessModem extends BlockGeneric implements Waterloggable
     protected void appendProperties( StateManager.Builder<Block, BlockState> builder )
     {
         builder.add( FACING, ON, WATERLOGGED );
+    }
+
+    public BlockEntityType<? extends TileWirelessModem> getTypeByFamily(ComputerFamily family)
+    {
+        return switch (family) {
+            case ADVANCED -> ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_ADVANCED;
+            default -> ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_NORMAL;
+        };
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity createBlockEntity(BlockPos pos, BlockState state)
+    {
+        return new TileWirelessModem(getTypeByFamily(family), family == ComputerFamily.ADVANCED, pos, state);
     }
 }

@@ -26,6 +26,8 @@ import org.lwjgl.opengl.GL11;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
+
 public final class FixedWidthFontRenderer
 {
     public static final int FONT_HEIGHT = 9;
@@ -36,9 +38,6 @@ public final class FixedWidthFontRenderer
     private static final Matrix4f IDENTITY = AffineTransformation.identity()
         .getMatrix();
     public static final Identifier FONT = new Identifier( "computercraft", "textures/gui/term_font.png" );
-//    public static final RenderLayer TYPE = Type.MAIN;
-//    public static final RenderLayer MONITOR_TBO = Type.MONITOR_TBO;
-//    public static final Shader FONT_SHADER = new Shader();
 
 
     private FixedWidthFontRenderer()
@@ -47,7 +46,7 @@ public final class FixedWidthFontRenderer
 
     public static void drawString( @Nonnull Matrix4f transform, @Nonnull VertexConsumer renderer, float x, float y, @Nonnull TextBuffer text,
                                    @Nonnull TextBuffer textColour, @Nullable TextBuffer backgroundColour, @Nonnull Palette palette, boolean greyscale,
-                                   float leftMarginSize, float rightMarginSize )
+                                   float leftMarginSize, float rightMarginSize, int light )
     {
         if( backgroundColour != null )
         {
@@ -75,7 +74,7 @@ public final class FixedWidthFontRenderer
             {
                 index = '?';
             }
-            drawChar( transform, renderer, x + i * FONT_WIDTH, y, index, r, g, b );
+            drawChar( transform, renderer, x + i * FONT_WIDTH, y, index, r, g, b, light );
         }
 
     }
@@ -146,7 +145,7 @@ public final class FixedWidthFontRenderer
         return (float) ((rgb[0] + rgb[1] + rgb[2]) / 3);
     }
 
-    private static void drawChar( Matrix4f transform, VertexConsumer buffer, float x, float y, int index, float r, float g, float b )
+    private static void drawChar( Matrix4f transform, VertexConsumer buffer, float x, float y, int index, float r, float g, float b, int light )
     {
         // Short circuit to avoid the common case - the texture should be blank here after all.
         if( index == '\0' || index == ' ' )
@@ -163,26 +162,32 @@ public final class FixedWidthFontRenderer
         buffer.vertex( transform, x, y, 0f )
             .color( r, g, b, 1.0f )
             .texture( xStart / WIDTH, yStart / WIDTH )
+            .light(light)
             .next();
         buffer.vertex( transform, x, y + FONT_HEIGHT, 0f )
             .color( r, g, b, 1.0f )
             .texture( xStart / WIDTH, (yStart + FONT_HEIGHT) / WIDTH )
+            .light(light)
             .next();
         buffer.vertex( transform, x + FONT_WIDTH, y, 0f )
             .color( r, g, b, 1.0f )
             .texture( (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH )
+            .light(light)
             .next();
         buffer.vertex( transform, x + FONT_WIDTH, y, 0f )
             .color( r, g, b, 1.0f )
             .texture( (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH )
+            .light(light)
             .next();
         buffer.vertex( transform, x, y + FONT_HEIGHT, 0f )
             .color( r, g, b, 1.0f )
             .texture( xStart / WIDTH, (yStart + FONT_HEIGHT) / WIDTH )
+            .light(light)
             .next();
         buffer.vertex( transform, x + FONT_WIDTH, y + FONT_HEIGHT, 0f )
             .color( r, g, b, 1.0f )
             .texture( (xStart + FONT_WIDTH) / WIDTH, (yStart + FONT_HEIGHT) / WIDTH )
+            .light(light)
             .next();
     }
 
@@ -276,7 +281,7 @@ public final class FixedWidthFontRenderer
                 palette,
                 greyscale,
                 leftMarginSize,
-                rightMarginSize );
+                rightMarginSize, FULL_BRIGHT_LIGHTMAP );
         }
     }
 
@@ -304,7 +309,7 @@ public final class FixedWidthFontRenderer
                 b = (float) colour[2];
             }
 
-            drawChar( transform, buffer, x + cursorX * FONT_WIDTH, y + cursorY * FONT_HEIGHT, '_', r, g, b );
+            drawChar( transform, buffer, x + cursorX * FONT_WIDTH, y + cursorY * FONT_HEIGHT, '_', r, g, b, FULL_BRIGHT_LIGHTMAP );
         }
     }
 
