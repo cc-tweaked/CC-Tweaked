@@ -79,6 +79,9 @@ public class WidgetTerminal extends ClickableWidget {
         Terminal term = computer.getTerminal();
         if( term != null )
         {
+            mouseX -= innerX;
+            mouseY -= innerY;
+            System.out.println(mouseX);
             int charX = (int) (mouseX / FONT_WIDTH);
             int charY = (int) (mouseY / FONT_HEIGHT);
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
@@ -103,6 +106,8 @@ public class WidgetTerminal extends ClickableWidget {
         Terminal term = computer.getTerminal();
         if( term != null )
         {
+            mouseX -= innerX;
+            mouseY -= innerY;
             int charX = (int) (mouseX / FONT_WIDTH);
             int charY = (int) (mouseY / FONT_HEIGHT);
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
@@ -130,6 +135,8 @@ public class WidgetTerminal extends ClickableWidget {
         Terminal term = computer.getTerminal();
         if( term != null )
         {
+            mouseX -= innerX;
+            mouseY -= innerY;
             int charX = (int) (mouseX / FONT_WIDTH);
             int charY = (int) (mouseY / FONT_HEIGHT);
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
@@ -155,6 +162,8 @@ public class WidgetTerminal extends ClickableWidget {
         Terminal term = computer.getTerminal();
         if( term != null )
         {
+            mouseX -= innerX;
+            mouseY -= innerY;
             int charX = (int) (mouseX / FONT_WIDTH);
             int charY = (int) (mouseY / FONT_HEIGHT);
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
