@@ -84,6 +84,16 @@ for _, method in ipairs { "nativePaletteColor", "nativePaletteColour" } do
     native[method] = nil
 end
 
+-- Make color arguments case-insensitive.
+term.blit = function(text, textColor, backgroundColor)
+    expect(1, text, "string")
+    expect(2, textColor, "string")
+    expect(3, backgroundColor, "string")
+    textColor = textColor:lower()
+    backgroundColor = backgroundColor:lower()
+    return redirectTarget.blit(text, textColor, backgroundColor)
+end
+
 for k, v in pairs(native) do
     if type(k) == "string" and type(v) == "function" and rawget(term, k) == nil then
         term[k] = wrap(k)
