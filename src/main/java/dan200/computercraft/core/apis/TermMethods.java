@@ -293,7 +293,7 @@ public abstract class TermMethods
         Terminal terminal = getTerminal();
         synchronized( terminal )
         {
-            terminal.blit( text, textColour.toLowerCase(), backgroundColour.toLowerCase() );
+            terminal.blit( text, textColour, backgroundColour );
             terminal.setCursorPos( terminal.getCursorX() + text.length(), terminal.getCursorY() );
         }
     }
