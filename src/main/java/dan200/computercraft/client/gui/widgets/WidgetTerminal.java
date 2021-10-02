@@ -81,7 +81,6 @@ public class WidgetTerminal extends ClickableWidget {
         {
             mouseX -= innerX;
             mouseY -= innerY;
-            System.out.println(mouseX);
             int charX = (int) (mouseX / FONT_WIDTH);
             int charY = (int) (mouseY / FONT_HEIGHT);
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );

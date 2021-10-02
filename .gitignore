@@ -21,3 +21,4 @@
 .gradle
 *.DS_Store
 .project
+*.launch
