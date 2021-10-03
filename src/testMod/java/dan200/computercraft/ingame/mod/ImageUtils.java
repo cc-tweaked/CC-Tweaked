@@ -18,9 +18,9 @@ public final class ImageUtils
     private static final Logger LOG = LogManager.getLogger( ImageUtils.class );
 
     /**
-     * Allow 0.1% of pixels to fail. This allows for slight differences at the edges.
+     * Allow 0.3% of pixels to fail. This allows for slight differences at the edges.
      */
-    private static final double PIXEL_THRESHOLD = 0.001;
+    private static final double PIXEL_THRESHOLD = 0.003;
 
     /**
      * Maximum possible distance between two colours. Floating point differences means we need some fuzziness here.
