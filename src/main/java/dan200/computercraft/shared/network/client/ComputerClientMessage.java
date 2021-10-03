@@ -18,15 +18,16 @@ import javax.annotation.Nonnull;
  */
 public abstract class ComputerClientMessage implements NetworkMessage
 {
-    private int instanceId;
+    private final int instanceId;
 
     public ComputerClientMessage( int instanceId )
     {
         this.instanceId = instanceId;
     }
 
-    public ComputerClientMessage()
+    public ComputerClientMessage( @Nonnull PacketByteBuf buf )
     {
+        instanceId = buf.readVarInt();
     }
 
     public int getInstanceId()
@@ -38,12 +39,6 @@ public abstract class ComputerClientMessage implements NetworkMessage
     public void toBytes( @Nonnull PacketByteBuf buf )
     {
         buf.writeVarInt( instanceId );
-    }
-
-    @Override
-    public void fromBytes( @Nonnull PacketByteBuf buf )
-    {
-        instanceId = buf.readVarInt();
     }
 
     public ClientComputer getComputer()

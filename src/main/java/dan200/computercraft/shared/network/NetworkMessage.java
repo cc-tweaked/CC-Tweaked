@@ -26,18 +26,6 @@ public interface NetworkMessage
     void toBytes( @Nonnull PacketByteBuf buf );
 
     /**
-     * Read this packet from a buffer.
-     *
-     * This may be called on any thread, so this should be a pure operation.
-     *
-     * @param buf The buffer to read data from.
-     */
-    default void fromBytes( @Nonnull PacketByteBuf buf )
-    {
-        throw new IllegalStateException( "Should have been registered using a \"from bytes\" method" );
-    }
-
-    /**
      * Handle this {@link NetworkMessage}.
      *
      * @param context The context with which to handle this message

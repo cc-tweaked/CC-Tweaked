@@ -79,19 +79,4 @@ public class ClientTerminal implements ITerminal
             terminalChanged = true;
         }
     }
-
-    public void readDescription( NbtCompound nbt )
-    {
-        colour = nbt.getBoolean( "colour" );
-        if( nbt.contains( "terminal" ) )
-        {
-        	NbtCompound terminal = nbt.getCompound( "terminal" );
-            resizeTerminal( terminal.getInt( "term_width" ), terminal.getInt( "term_height" ) );
-            this.terminal.readFromNBT( terminal );
-        }
-        else
-        {
-            deleteTerminal();
-        }
-    }
 }

@@ -31,7 +31,7 @@ public class TileSpeaker extends TileGeneric implements IPeripheralTile
         super( type, pos, state );
         peripheral = new Peripheral( this );
     }
-    
+
     public static void tick( World world, BlockPos pos, BlockState state, TileSpeaker tileSpeaker )
     {
         tileSpeaker.peripheral.update();

@@ -8,10 +8,11 @@ package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInventory;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -104,7 +105,7 @@ public class TileComputer extends TileComputerBase
     @Override
     public ScreenHandler createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
     {
-        return new ContainerComputer( id, this );
+        return new ComputerMenuWithoutInventory( ComputerCraftRegistry.ModContainers.COMPUTER, id, inventory, this::isUsableByPlayer, createServerComputer(), getFamily() );
     }
 
 }

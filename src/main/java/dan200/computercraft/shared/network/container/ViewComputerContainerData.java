@@ -21,9 +21,8 @@ import javax.annotation.Nonnull;
  */
 public class ViewComputerContainerData extends ComputerContainerData
 {
-    private static final Identifier IDENTIFIER = new Identifier( ComputerCraft.MOD_ID, "view_computer_container_data" );
-    private int width;
-    private int height;
+    private final int width;
+    private final int height;
 
     public ViewComputerContainerData( ServerComputer computer )
     {
@@ -40,24 +39,11 @@ public class ViewComputerContainerData extends ComputerContainerData
         }
     }
 
-    public ViewComputerContainerData( PacketByteBuf packetByteBuf )
+    public ViewComputerContainerData( PacketByteBuf buffer )
     {
-        super( new PacketByteBuf( packetByteBuf.copy() ) );
-        fromBytes( packetByteBuf );
-    }
-
-    @Override
-    public void fromBytes( PacketByteBuf buf )
-    {
-        super.fromBytes( buf );
-        width = buf.readVarInt();
-        height = buf.readVarInt();
-    }
-
-    @Override
-    public Identifier getId()
-    {
-        return IDENTIFIER;
+        super( buffer );
+        width = buffer.readVarInt();
+        height = buffer.readVarInt();
     }
 
     @Override

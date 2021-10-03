@@ -56,18 +56,17 @@ public enum UserLevel implements Predicate<ServerCommandSource>
     public boolean test( ServerCommandSource source )
     {
         if( this == ANYONE ) return true;
-
-        if( this == OWNER || this == OWNER_OP )
-        {
-            MinecraftServer server = source.getServer();
-            Entity sender = source.getEntity();
-            if( server.isSingleplayer() && sender instanceof PlayerEntity &&
-                ((PlayerEntity) sender).getGameProfile().getName().equalsIgnoreCase( server.getServerModName() ) )
-            {
-                return true;
-            }
-        }
-
+        if( this == OWNER ) return isOwner( source );
+        if( this == OWNER_OP && isOwner( source ) ) return true;
         return source.hasPermissionLevel( toLevel() );
+    }
+
+    private static boolean isOwner( ServerCommandSource source )
+    {
+        MinecraftServer server = source.getServer();
+        Entity sender = source.getEntity();
+        return server.isDedicated()
+            ? source.getEntity() == null && source.hasPermissionLevel( 4 ) && source.getName().equals( "Server" )
+            : sender instanceof PlayerEntity && ((PlayerEntity) sender).getGameProfile().getName().equalsIgnoreCase( server.getServerModName() );
     }
 }

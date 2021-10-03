@@ -11,10 +11,10 @@ import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.client.render.RenderTypes;
-import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+//import dan200.computercraft.shared.computer.inventory.ContainerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
-import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
+//import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
@@ -39,12 +39,12 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Computer
         backgroundHeight = WidgetTerminal.getHeight( termHeight ) + BORDER * 2;
     }
 
-    public static GuiComputer<ContainerComputer> create( ContainerComputer container, PlayerInventory inventory, Text component )
+    public static GuiComputer<ContainerComputerBase> create( ContainerComputerBase container, PlayerInventory inventory, Text component )
     {
         return new GuiComputer<>( container, inventory, component, ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight );
     }
 
-    public static GuiComputer<ContainerPocketComputer> createPocket( ContainerPocketComputer container, PlayerInventory inventory, Text component )
+    public static GuiComputer<ContainerComputerBase> createPocket( ContainerComputerBase container, PlayerInventory inventory, Text component )
     {
         return new GuiComputer<>( container, inventory, component, ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight );
     }

@@ -13,12 +13,17 @@ import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInventory;
+import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.computer.items.ItemComputer;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
+import dan200.computercraft.shared.network.container.ComputerContainerData;
+import dan200.computercraft.shared.network.container.ContainerData;
+import dan200.computercraft.shared.network.container.HeldItemContainerData;
+import dan200.computercraft.shared.network.container.ViewComputerContainerData;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
@@ -32,7 +37,6 @@ import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.peripheral.speaker.BlockSpeaker;
 import dan200.computercraft.shared.peripheral.speaker.TileSpeaker;
-import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
@@ -42,10 +46,8 @@ import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.turtle.upgrades.*;
-//import dan200.computercraft.shared.util.FixedPointTileEntityType;
-import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
-import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.Factory;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -63,10 +65,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 
-import java.util.Objects;
 import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static net.minecraft.util.registry.Registry.BLOCK_ENTITY_TYPE;
 
@@ -258,23 +257,19 @@ public final class ComputerCraftRegistry
 
     public static class ModContainers
     {
-        public static final ScreenHandlerType<ContainerComputer> COMPUTER = registerExtended( "computer", ContainerComputer::new );
-        public static final ScreenHandlerType<ContainerPocketComputer> POCKET_COMPUTER = registerExtended( "pocket_computer", ContainerPocketComputer::new );
-        public static final ScreenHandlerType<ContainerTurtle> TURTLE = registerExtended( "turtle", ContainerTurtle::new );
+        public static final ScreenHandlerType<ContainerComputerBase> COMPUTER = ContainerData.toType(new Identifier( MOD_ID, "computer" ), ModContainers.COMPUTER, ComputerContainerData::new, ComputerMenuWithoutInventory::new );
+        public static final ScreenHandlerType<ContainerComputerBase> POCKET_COMPUTER = ContainerData.toType( new Identifier( MOD_ID, "pocket_computer" ), ModContainers.POCKET_COMPUTER, ComputerContainerData::new, ComputerMenuWithoutInventory::new );
+        public static final ScreenHandlerType<ContainerComputerBase> POCKET_COMPUTER_NO_TERM = ContainerData.toType( new Identifier( MOD_ID, "pocket_computer_no_term" ), ModContainers.POCKET_COMPUTER_NO_TERM, ComputerContainerData::new, ComputerMenuWithoutInventory::new );
+        public static final ScreenHandlerType<ContainerTurtle> TURTLE = ContainerData.toType( new Identifier( MOD_ID, "turtle" ), ComputerContainerData::new, ContainerTurtle::new );
         public static final ScreenHandlerType<ContainerDiskDrive> DISK_DRIVE = registerSimple( "disk_drive", ContainerDiskDrive::new );
         public static final ScreenHandlerType<ContainerPrinter> PRINTER = registerSimple( "printer", ContainerPrinter::new );
-        public static final ScreenHandlerType<ContainerHeldItem> PRINTOUT = registerExtended( "printout", ContainerHeldItem::createPrintout );
-        public static final ScreenHandlerType<ContainerViewComputer> VIEW_COMPUTER = registerExtended( "view_computer", ContainerViewComputer::new );
+        public static final ScreenHandlerType<ContainerHeldItem> PRINTOUT = ContainerData.toType( new Identifier( MOD_ID, "printout" ), HeldItemContainerData::new, ContainerHeldItem::createPrintout );
+        public static final ScreenHandlerType<ContainerViewComputer> VIEW_COMPUTER = ContainerData.toType( new Identifier( MOD_ID, "view_computer" ), ViewComputerContainerData::new, ContainerViewComputer::new );
 
         private static <T extends ScreenHandler> ScreenHandlerType<T> registerSimple( String id,
                                                                                       ScreenHandlerRegistry.SimpleClientHandlerFactory<T> function )
         {
             return ScreenHandlerRegistry.registerSimple( new Identifier( MOD_ID, id ), function );
-        }
-
-        private static <T extends ScreenHandler> ScreenHandlerType<T> registerExtended( String id, ScreenHandlerRegistry.ExtendedClientHandlerFactory<T> function )
-        {
-            return ScreenHandlerRegistry.registerExtended( new Identifier( MOD_ID, id ), function );
         }
     }
 

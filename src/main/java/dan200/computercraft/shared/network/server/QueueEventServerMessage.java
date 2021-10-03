@@ -9,6 +9,7 @@ package dan200.computercraft.shared.network.server;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.util.NBTUtil;
+import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 
@@ -23,8 +24,8 @@ import javax.annotation.Nullable;
  */
 public class QueueEventServerMessage extends ComputerServerMessage
 {
-    private String event;
-    private Object[] args;
+    private final String event;
+    private final Object[] args;
 
     public QueueEventServerMessage( int instanceId, @Nonnull String event, @Nullable Object[] args )
     {
@@ -33,8 +34,13 @@ public class QueueEventServerMessage extends ComputerServerMessage
         this.args = args;
     }
 
-    public QueueEventServerMessage()
+    public QueueEventServerMessage( @Nonnull PacketByteBuf buf )
     {
+        super( buf );
+        event = buf.readString( Short.MAX_VALUE );
+
+        NbtCompound args = buf.readNbt();
+        this.args = args == null ? null : NBTUtil.decodeObjects( args );
     }
 
     @Override
@@ -46,17 +52,7 @@ public class QueueEventServerMessage extends ComputerServerMessage
     }
 
     @Override
-    public void fromBytes( @Nonnull PacketByteBuf buf )
-    {
-        super.fromBytes( buf );
-        event = buf.readString( Short.MAX_VALUE );
-
-        NbtCompound args = buf.readNbt();
-        this.args = args == null ? null : NBTUtil.decodeObjects( args );
-    }
-
-    @Override
-    protected void handle( @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
+    protected void handle(PacketContext context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
         computer.queueEvent( event, args );
     }

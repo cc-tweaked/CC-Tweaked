@@ -20,12 +20,13 @@ import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
-import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+//import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
-import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
+//import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.util.Config;
@@ -115,9 +116,11 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
     // My IDE doesn't think so, but we do actually need these generics.
     private static void registerContainers()
     {
-        ScreenRegistry.<ContainerComputer, GuiComputer<ContainerComputer>>register( ComputerCraftRegistry.ModContainers.COMPUTER, GuiComputer::create );
-        ScreenRegistry.<ContainerPocketComputer, GuiComputer<ContainerPocketComputer>>register( ComputerCraftRegistry.ModContainers.POCKET_COMPUTER,
+        ScreenRegistry.<ContainerComputerBase, GuiComputer<ContainerComputerBase>>register( ComputerCraftRegistry.ModContainers.COMPUTER, GuiComputer::create );
+        ScreenRegistry.<ContainerComputerBase, GuiComputer<ContainerComputerBase>>register( ComputerCraftRegistry.ModContainers.POCKET_COMPUTER,
             GuiComputer::createPocket );
+        ScreenRegistry.<ContainerComputerBase, NoTermComputerScreen<ContainerComputerBase>>register( ComputerCraftRegistry.ModContainers.POCKET_COMPUTER_NO_TERM,
+            NoTermComputerScreen::new );
         ScreenRegistry.<ContainerTurtle, GuiTurtle>register( ComputerCraftRegistry.ModContainers.TURTLE, GuiTurtle::new );
 
         ScreenRegistry.<ContainerPrinter, GuiPrinter>register( ComputerCraftRegistry.ModContainers.PRINTER, GuiPrinter::new );

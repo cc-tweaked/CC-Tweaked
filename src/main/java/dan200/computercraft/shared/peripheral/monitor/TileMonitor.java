@@ -170,8 +170,6 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
         int oldXIndex = xIndex;
         int oldYIndex = yIndex;
-        int oldWidth = width;
-        int oldHeight = height;
 
         xIndex = nbt.getInt( NBT_X );
         yIndex = nbt.getInt( NBT_Y );
@@ -182,27 +180,14 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
         {
             // If our index has changed then it's possible the origin monitor has changed. Thus
             // we'll clear our cache. If we're the origin then we'll need to remove the glList as well.
-            if( oldXIndex == 0 && oldYIndex == 0 && clientMonitor != null )
-            {
-                clientMonitor.destroy();
-            }
+            if( oldXIndex == 0 && oldYIndex == 0 && clientMonitor != null ) clientMonitor.destroy();
             clientMonitor = null;
         }
 
         if( xIndex == 0 && yIndex == 0 )
         {
             // If we're the origin terminal then create it.
-            if( clientMonitor == null )
-            {
-                clientMonitor = new ClientMonitor( advanced, this );
-            }
-            clientMonitor.readDescription( nbt );
-        }
-
-        if( oldXIndex != xIndex || oldYIndex != yIndex || oldWidth != width || oldHeight != height )
-        {
-            // One of our properties has changed, so ensure we redraw the block
-            updateBlock();
+            if( clientMonitor == null ) clientMonitor = new ClientMonitor( advanced, this );
         }
     }
 
@@ -214,11 +199,6 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
         nbt.putInt( NBT_Y, yIndex );
         nbt.putInt( NBT_WIDTH, width );
         nbt.putInt( NBT_HEIGHT, height );
-
-        if( xIndex == 0 && yIndex == 0 && serverMonitor != null )
-        {
-            serverMonitor.writeDescription( nbt );
-        }
     }
 
     private TileMonitor getNeighbour( int x, int y )

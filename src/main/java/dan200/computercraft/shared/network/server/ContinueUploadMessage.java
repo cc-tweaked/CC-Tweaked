@@ -3,59 +3,44 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.shared.computer.core.IContainerComputer;
-import dan200.computercraft.shared.computer.core.InputState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import net.fabricmc.fabric.api.network.PacketContext;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 import javax.annotation.Nonnull;
 
-public class KeyEventServerMessage extends ComputerServerMessage
+public class ContinueUploadMessage extends ComputerServerMessage
 {
-    public static final int TYPE_DOWN = 0;
-    public static final int TYPE_REPEAT = 1;
-    public static final int TYPE_UP = 2;
+    private final boolean overwrite;
 
-    private final int type;
-    private final int key;
-
-    public KeyEventServerMessage( int instanceId, int type, int key )
+    public ContinueUploadMessage( int instanceId, boolean overwrite )
     {
         super( instanceId );
-        this.type = type;
-        this.key = key;
+        this.overwrite = overwrite;
     }
 
-    public KeyEventServerMessage( @Nonnull PacketByteBuf buf )
+    public ContinueUploadMessage( @Nonnull PacketByteBuf buf )
     {
         super( buf );
-        type = buf.readByte();
-        key = buf.readVarInt();
+        overwrite = buf.readBoolean();
     }
 
     @Override
     public void toBytes( @Nonnull PacketByteBuf buf )
     {
         super.toBytes( buf );
-        buf.writeByte( type );
-        buf.writeVarInt( key );
+        buf.writeBoolean( overwrite );
     }
 
     @Override
     protected void handle(PacketContext context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
-        InputState input = container.getInput();
-        if( type == TYPE_UP )
-        {
-            input.keyUp( key );
-        }
-        else
-        {
-            input.keyDown( key, type == TYPE_REPEAT );
-        }
+        ServerPlayerEntity player = (ServerPlayerEntity) context.getPlayer();
+        if( player != null ) container.confirmUpload( player, overwrite );
     }
 }

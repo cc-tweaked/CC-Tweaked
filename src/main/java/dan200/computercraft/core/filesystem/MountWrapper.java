@@ -293,9 +293,8 @@ class MountWrapper
 
     private FileSystemException localExceptionOf( @Nullable String localPath, @Nonnull IOException e )
     {
-        if( !location.isEmpty() && e instanceof FileOperationException )
+        if( !location.isEmpty() && e instanceof FileOperationException ex )
         {
-            FileOperationException ex = (FileOperationException) e;
             if( ex.getFilename() != null ) return localExceptionOf( ex.getFilename(), ex.getMessage() );
         }
 

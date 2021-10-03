@@ -56,18 +56,21 @@ public final class NetworkHandler
         }
 
         // Server messages
-        registerMainThread( 0, ComputerActionServerMessage::new );
-        registerMainThread( 1, QueueEventServerMessage::new );
-        registerMainThread( 2, RequestComputerMessage::new );
-        registerMainThread( 3, KeyEventServerMessage::new );
-        registerMainThread( 4, MouseEventServerMessage::new );
+        registerMainThread( 0, ComputerActionServerMessage.class, ComputerActionServerMessage::new );
+        registerMainThread( 1, QueueEventServerMessage.class, QueueEventServerMessage::new );
+        registerMainThread( 2, RequestComputerMessage.class, RequestComputerMessage::new );
+        registerMainThread( 3, KeyEventServerMessage.class, KeyEventServerMessage::new );
+        registerMainThread( 4, MouseEventServerMessage.class, MouseEventServerMessage::new );
+        registerMainThread( 5, UploadFileMessage.class, UploadFileMessage::new );
+        registerMainThread( 6, ContinueUploadMessage.class, ContinueUploadMessage::new );
 
         // Client messages
-        registerMainThread( 10, ChatTableClientMessage::new );
-        registerMainThread( 11, ComputerDataClientMessage::new );
-        registerMainThread( 12, ComputerDeletedClientMessage::new );
-        registerMainThread( 13, ComputerTerminalClientMessage::new );
+        registerMainThread( 10, ChatTableClientMessage.class, ChatTableClientMessage::new );
+        registerMainThread( 11, ComputerDataClientMessage.class, ComputerDataClientMessage::new );
+        registerMainThread( 12, ComputerDeletedClientMessage.class, ComputerDeletedClientMessage::new );
+        registerMainThread( 13, ComputerTerminalClientMessage.class, ComputerTerminalClientMessage::new );
         registerMainThread( 14, PlayRecordClientMessage.class, PlayRecordClientMessage::new );
+        registerMainThread( 19, UploadResultMessage.class, UploadResultMessage::new );
     }
 
     private static void receive( PacketContext context, PacketByteBuf buffer )
@@ -75,22 +78,6 @@ public final class NetworkHandler
         int type = buffer.readByte();
         packetReaders.get( type )
             .accept( context, buffer );
-    }
-
-    /**
-     * /** Register packet, and a thread-unsafe handler for it.
-     *
-     * @param <T>     The type of the packet to send.
-     * @param id      The identifier for this packet type
-     * @param factory The factory for this type of packet.
-     */
-    private static <T extends NetworkMessage> void registerMainThread( int id, Supplier<T> factory )
-    {
-        registerMainThread( id, getType( factory ), buf -> {
-            T instance = factory.get();
-            instance.fromBytes( buf );
-            return instance;
-        } );
     }
 
     /**

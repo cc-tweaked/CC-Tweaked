@@ -17,7 +17,6 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
-import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.RedstoneUtil;
 import joptsimple.internal.Strings;

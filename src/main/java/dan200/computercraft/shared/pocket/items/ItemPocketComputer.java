@@ -23,7 +23,7 @@ import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.pocket.apis.PocketAPI;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
-import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
+import dan200.computercraft.shared.pocket.inventory.PocketComputerMenuProvider;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.item.TooltipContext;
@@ -164,8 +164,9 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
             if( !stop && computer != null )
             {
-                computer.sendTerminalState( player );
-                new ComputerContainerData( computer ).open( player, new ContainerPocketComputer.Factory( computer, stack, this, hand ) );
+//                computer.sendTerminalState( player );
+                boolean isTypingOnly = hand == Hand.OFF_HAND;
+                new ComputerContainerData( computer ).open( player, new PocketComputerMenuProvider( computer, stack, this, hand, isTypingOnly ) );
             }
         }
         return new TypedActionResult<>( ActionResult.SUCCESS, stack );

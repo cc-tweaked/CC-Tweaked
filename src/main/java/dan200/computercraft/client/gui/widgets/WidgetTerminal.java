@@ -34,7 +34,6 @@ import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
 public class WidgetTerminal extends ClickableWidget {
     private static final float TERMINATE_TIME = 0.5f;
 
-//    private final MinecraftClient client;
     private final ClientComputer computer;
 
     // The positions of the actual terminal
@@ -43,8 +42,6 @@ public class WidgetTerminal extends ClickableWidget {
     private final int innerWidth;
     private final int innerHeight;
 
-    private final BitSet keysDown = new BitSet( 256 );
-//    private boolean focused;
     private float terminateTimer = -1;
     private float rebootTimer = -1;
     private float shutdownTimer = -1;
@@ -52,6 +49,8 @@ public class WidgetTerminal extends ClickableWidget {
     private int lastMouseButton = -1;
     private int lastMouseX = -1;
     private int lastMouseY = -1;
+
+    private final BitSet keysDown = new BitSet( 256 );
 
     public WidgetTerminal( @Nonnull ClientComputer computer, int x, int y, int termWidth, int termHeight )
     {
@@ -63,6 +62,18 @@ public class WidgetTerminal extends ClickableWidget {
         innerY = y + MARGIN;
         innerWidth = termWidth * FONT_WIDTH;
         innerHeight = termHeight * FONT_HEIGHT;
+    }
+
+    @Override
+    public boolean charTyped( char ch, int modifiers )
+    {
+        if( ch >= 32 && ch <= 126 || ch >= 160 && ch <= 255 ) // printable chars in byte range
+        {
+            // Queue the "char" event
+            queueEvent( "char", Character.toString( ch ));
+        }
+
+        return true;
     }
 
     private boolean inTermRegion( double mouseX, double mouseY )
@@ -79,10 +90,8 @@ public class WidgetTerminal extends ClickableWidget {
         Terminal term = computer.getTerminal();
         if( term != null )
         {
-            mouseX -= innerX;
-            mouseY -= innerY;
-            int charX = (int) (mouseX / FONT_WIDTH);
-            int charY = (int) (mouseY / FONT_HEIGHT);
+            int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
+            int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
             charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
@@ -105,10 +114,8 @@ public class WidgetTerminal extends ClickableWidget {
         Terminal term = computer.getTerminal();
         if( term != null )
         {
-            mouseX -= innerX;
-            mouseY -= innerY;
-            int charX = (int) (mouseX / FONT_WIDTH);
-            int charY = (int) (mouseY / FONT_HEIGHT);
+            int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
+            int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
             charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
@@ -134,10 +141,8 @@ public class WidgetTerminal extends ClickableWidget {
         Terminal term = computer.getTerminal();
         if( term != null )
         {
-            mouseX -= innerX;
-            mouseY -= innerY;
-            int charX = (int) (mouseX / FONT_WIDTH);
-            int charY = (int) (mouseY / FONT_HEIGHT);
+            int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
+            int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
             charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
@@ -161,10 +166,8 @@ public class WidgetTerminal extends ClickableWidget {
         Terminal term = computer.getTerminal();
         if( term != null )
         {
-            mouseX -= innerX;
-            mouseY -= innerY;
-            int charX = (int) (mouseX / FONT_WIDTH);
-            int charY = (int) (mouseY / FONT_HEIGHT);
+            int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
+            int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
             charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
             charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
 
@@ -250,11 +253,7 @@ public class WidgetTerminal extends ClickableWidget {
             // Queue the "key" event and add to the down set
             boolean repeat = keysDown.get( key );
             keysDown.set( key );
-            IComputer computer = this.computer;
-            if( computer != null )
-            {
-                computer.keyDown( key, repeat );
-            }
+            computer.keyDown( key, repeat );
         }
 
         return true;
@@ -267,11 +266,7 @@ public class WidgetTerminal extends ClickableWidget {
         if( key >= 0 && keysDown.get( key ) )
         {
             keysDown.set( key, false );
-            IComputer computer = this.computer;
-            if( computer != null )
-            {
-                computer.keyUp( key );
-            }
+            computer.keyUp( key );
         }
 
         switch( key )
@@ -289,18 +284,6 @@ public class WidgetTerminal extends ClickableWidget {
             case GLFW.GLFW_KEY_RIGHT_CONTROL:
                 terminateTimer = rebootTimer = shutdownTimer = -1;
                 break;
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean charTyped( char ch, int modifiers )
-    {
-        if( ch >= 32 && ch <= 126 || ch >= 160 && ch <= 255 ) // printable chars in byte range
-        {
-            // Queue the "char" event
-            queueEvent( "char", Character.toString( ch ) );
         }
 
         return true;
@@ -337,11 +320,7 @@ public class WidgetTerminal extends ClickableWidget {
 
     private void queueEvent( String event, Object... args )
     {
-        ClientComputer computer = this.computer;
-        if( computer != null )
-        {
-            computer.queueEvent( event, args );
-        }
+        computer.queueEvent( event, args );
     }
 
     public void update()
@@ -353,20 +332,12 @@ public class WidgetTerminal extends ClickableWidget {
 
         if( shutdownTimer >= 0 && shutdownTimer < TERMINATE_TIME && (shutdownTimer += 0.05f) > TERMINATE_TIME )
         {
-            ClientComputer computer = this.computer;
-            if( computer != null )
-            {
-                computer.shutdown();
-            }
+            computer.shutdown();
         }
 
         if( rebootTimer >= 0 && rebootTimer < TERMINATE_TIME && (rebootTimer += 0.05f) > TERMINATE_TIME )
         {
-            ClientComputer computer = this.computer;
-            if( computer != null )
-            {
-                computer.reboot();
-            }
+            computer.reboot();
         }
     }
 
