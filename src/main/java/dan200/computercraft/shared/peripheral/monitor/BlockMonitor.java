@@ -36,7 +36,7 @@ public class BlockMonitor extends BlockGeneric
 
     static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.of( "state", MonitorEdgeState.class );
 
-    public boolean advanced = false;
+    public boolean advanced;
 
     public BlockMonitor( Settings settings, BlockEntityType<? extends TileMonitor> type, boolean advanced )
     {
@@ -83,9 +83,8 @@ public class BlockMonitor extends BlockGeneric
         super.onPlaced( world, pos, blockState, livingEntity, itemStack );
 
         BlockEntity entity = world.getBlockEntity( pos );
-        if( entity instanceof TileMonitor && !world.isClient )
+        if( entity instanceof TileMonitor monitor && !world.isClient )
         {
-            TileMonitor monitor = (TileMonitor) entity;
             // Defer the block update if we're being placed by another TE. See #691
             if( livingEntity == null || livingEntity instanceof FakePlayer )
             {

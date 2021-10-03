@@ -75,6 +75,8 @@ public final class ComputerCraft implements ModInitializer
     ) );
     public static int httpMaxRequests = 16;
     public static int httpMaxWebsockets = 4;
+    public static int httpDownloadBandwidth = 32 * 1024 * 1024;
+    public static int httpUploadBandwidth = 32 * 1024 * 1024;
 
     public static boolean enableCommandBlock = false;
     public static int modemRange = 64;

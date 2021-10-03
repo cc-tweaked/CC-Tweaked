@@ -19,12 +19,14 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 public class TileSpeaker extends TileGeneric implements IPeripheralTile
 {
     public static final int MIN_TICKS_BETWEEN_SOUNDS = 1;
 
     private final SpeakerPeripheral peripheral;
+    private final UUID source = UUID.randomUUID();
 
     public TileSpeaker( BlockEntityType<TileSpeaker> type, BlockPos pos, BlockState state )
     {
@@ -64,6 +66,12 @@ public class TileSpeaker extends TileGeneric implements IPeripheralTile
         {
             BlockPos pos = speaker.getPos();
             return new Vec3d( pos.getX(), pos.getY(), pos.getZ() );
+        }
+
+        @Override
+        protected UUID getSource()
+        {
+            return speaker.source;
         }
 
         @Override
