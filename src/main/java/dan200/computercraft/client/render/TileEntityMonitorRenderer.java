@@ -125,12 +125,11 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
             transform.pop();
 
             // Draw the background blocker
-            FixedWidthFontRenderer.drawBlocker( transform.peek().getModel(),
-                renderer,
-                (float) -TileMonitor.RENDER_MARGIN,
-                (float) TileMonitor.RENDER_MARGIN,
-                (float) (xSize + 2 * TileMonitor.RENDER_MARGIN),
-                (float) -(ySize + TileMonitor.RENDER_MARGIN * 2) );
+            FixedWidthFontRenderer.drawBlocker(
+                transform.peek().getModel(), renderer,
+                -MARGIN, MARGIN,
+                (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
+            );
 
             renderer.getBuffer( RenderLayer.getSolid() );
         }

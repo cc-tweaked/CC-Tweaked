@@ -1,6 +1,5 @@
 if not turtle then
-    local programName = arg[0] or fs.getName(shell.getRunningProgram())
-    print("Usage: " .. programName .. " [number]")
+    printError("Requires a Turtle")
     return
 end
 
@@ -10,19 +9,19 @@ if not turtle.craft then
 end
 
 local tArgs = { ... }
-local nLimit = nil
-if #tArgs < 1 then
-    print("Usage: craft [number]")
+local nLimit = tonumber(tArgs[1])
+
+if not nLimit and tArgs[1] ~= "all" then
+    local programName = arg[0] or fs.getName(shell.getRunningProgram())
+    print("Usage: " .. programName .. " all|<number>")
     return
-else
-    nLimit = tonumber(tArgs[1])
 end
 
 local nCrafted = 0
 local nOldCount = turtle.getItemCount(turtle.getSelectedSlot())
 if turtle.craft(nLimit) then
     local nNewCount = turtle.getItemCount(turtle.getSelectedSlot())
-    if nOldCount <= nLimit then
+    if not nLimit or nOldCount <= nLimit then
         nCrafted = nNewCount
     else
         nCrafted = nOldCount - nNewCount

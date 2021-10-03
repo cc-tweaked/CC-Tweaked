@@ -43,6 +43,9 @@ public class NoTermComputerScreen<T extends ContainerComputerBase> extends Scree
     @Override
     protected void init()
     {
+        this.passEvents = true;
+        client.mouse.lockCursor();
+        client.currentScreen = this;
         super.init();
         client.keyboard.setRepeatEvents( true );
 
@@ -64,6 +67,13 @@ public class NoTermComputerScreen<T extends ContainerComputerBase> extends Scree
     {
         super.tick();
         terminal.update();
+    }
+
+    @Override
+    public boolean mouseScrolled( double pMouseX, double pMouseY, double pDelta )
+    {
+        client.player.getInventory().scrollInHotbar( pDelta );
+        return super.mouseScrolled( pMouseX, pMouseY, pDelta );
     }
 
     @Override

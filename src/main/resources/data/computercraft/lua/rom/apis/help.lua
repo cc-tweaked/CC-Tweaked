@@ -1,6 +1,7 @@
 --- Provides an API to read help files.
 --
 -- @module help
+-- @since 1.2
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
@@ -27,21 +28,26 @@ function setPath(_sPath)
     sPath = _sPath
 end
 
+local extensions = { "", ".md", ".txt" }
+
 --- Returns the location of the help file for the given topic.
 --
 -- @tparam string topic The topic to find
 -- @treturn string|nil The path to the given topic's help file, or `nil` if it
 -- cannot be found.
 -- @usage help.lookup("disk")
-function lookup(_sTopic)
-    expect(1, _sTopic, "string")
+-- @changed 1.80pr1 Now supports finding .txt files.
+-- @changed 1.97.0 Now supports finding Markdown files.
+function lookup(topic)
+    expect(1, topic, "string")
     -- Look on the path variable
-    for sPath in string.gmatch(sPath, "[^:]+") do
-        sPath = fs.combine(sPath, _sTopic)
-        if fs.exists(sPath) and not fs.isDir(sPath) then
-            return sPath
-        elseif fs.exists(sPath .. ".txt") and not fs.isDir(sPath .. ".txt") then
-            return sPath .. ".txt"
+    for path in string.gmatch(sPath, "[^:]+") do
+        path = fs.combine(path, topic)
+        for _, extension in ipairs(extensions) do
+            local file = path .. extension
+            if fs.exists(file) and not fs.isDir(file) then
+                return file
+            end
         end
     end
 
@@ -52,6 +58,7 @@ end
 --- Returns a list of topics that can be looked up and/or displayed.
 --
 -- @treturn table A list of topics in alphabetical order.
+-- @usage help.topics()
 function topics()
     -- Add index
     local tItems = {
@@ -65,8 +72,11 @@ function topics()
             for _, sFile in pairs(tList) do
                 if string.sub(sFile, 1, 1) ~= "." then
                     if not fs.isDir(fs.combine(sPath, sFile)) then
-                        if #sFile > 4 and sFile:sub(-4) == ".txt" then
-                            sFile = sFile:sub(1, -5)
+                        for i = 2, #extensions do
+                            local extension = extensions[i]
+                            if #sFile > #extension and sFile:sub(-#extension) == extension then
+                                sFile = sFile:sub(1, -#extension - 1)
+                            end
                         end
                         tItems[sFile] = true
                     end
@@ -89,6 +99,7 @@ end
 --
 -- @tparam string prefix The prefix to match
 -- @treturn table A list of matching topics.
+-- @since 1.74
 function completeTopic(sText)
     expect(1, sText, "string")
     local tTopics = topics()

@@ -242,8 +242,8 @@ end
     Converts each colour in a single line of the canvas and draws it
     returns: nil
 ]]
-local text, fg, bg = "", "", ""
 local function drawCanvasLine(y)
+    local text, fg, bg = "", "", ""
     for x = 1, w - 2 do
         local pixel = getCanvasPixel(x, y)
         if pixel then
@@ -256,6 +256,7 @@ local function drawCanvasLine(y)
             bg = bg .. color_hex_lookup[canvasColour]
         end
     end
+
     term.setCursorPos(1, y)
     term.blit(text, fg, bg)
 end
@@ -289,6 +290,7 @@ local menu_choices = {
         return false
     end,
     Exit = function()
+        sleep(0) -- Super janky, but consumes stray "char" events from pressing Ctrl then E separately.
         return true
     end,
 }
