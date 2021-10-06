@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.client.render;
 
-import com.google.common.base.Objects;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Transformation;
 import dan200.computercraft.api.client.TransformedModel;
@@ -50,52 +49,15 @@ public class TurtleSmartItemModel implements BakedModel
         flip = new Transformation( stack.last().pose() );
     }
 
-    private static class TurtleModelCombination
+    private static record TurtleModelCombination(
+        boolean colour,
+        ITurtleUpgrade leftUpgrade,
+        ITurtleUpgrade rightUpgrade,
+        ResourceLocation overlay,
+        boolean christmas,
+        boolean flip
+    )
     {
-        final boolean colour;
-        final ITurtleUpgrade leftUpgrade;
-        final ITurtleUpgrade rightUpgrade;
-        final ResourceLocation overlay;
-        final boolean christmas;
-        final boolean flip;
-
-        TurtleModelCombination( boolean colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, ResourceLocation overlay, boolean christmas, boolean flip )
-        {
-            this.colour = colour;
-            this.leftUpgrade = leftUpgrade;
-            this.rightUpgrade = rightUpgrade;
-            this.overlay = overlay;
-            this.christmas = christmas;
-            this.flip = flip;
-        }
-
-        @Override
-        public boolean equals( Object other )
-        {
-            if( other == this ) return true;
-            if( !(other instanceof TurtleModelCombination otherCombo) ) return false;
-
-            return otherCombo.colour == colour &&
-                otherCombo.leftUpgrade == leftUpgrade &&
-                otherCombo.rightUpgrade == rightUpgrade &&
-                Objects.equal( otherCombo.overlay, overlay ) &&
-                otherCombo.christmas == christmas &&
-                otherCombo.flip == flip;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = 0;
-            result = prime * result + (colour ? 1 : 0);
-            result = prime * result + (leftUpgrade != null ? leftUpgrade.hashCode() : 0);
-            result = prime * result + (rightUpgrade != null ? rightUpgrade.hashCode() : 0);
-            result = prime * result + (overlay != null ? overlay.hashCode() : 0);
-            result = prime * result + (christmas ? 1 : 0);
-            result = prime * result + (flip ? 1 : 0);
-            return result;
-        }
     }
 
     private final BakedModel familyModel;
