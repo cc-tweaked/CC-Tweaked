@@ -20,7 +20,7 @@ public interface IColouredItem
 
     static int getColourBasic( ItemStack stack )
     {
-    	NbtCompound tag = stack.getNbt();
+        NbtCompound tag = stack.getNbt();
         return tag != null && tag.contains( NBT_COLOUR ) ? tag.getInt( NBT_COLOUR ) : -1;
     }
 
@@ -35,7 +35,7 @@ public interface IColouredItem
     {
         if( colour == -1 )
         {
-        	NbtCompound tag = stack.getNbt();
+            NbtCompound tag = stack.getNbt();
             if( tag != null )
             {
                 tag.remove( NBT_COLOUR );

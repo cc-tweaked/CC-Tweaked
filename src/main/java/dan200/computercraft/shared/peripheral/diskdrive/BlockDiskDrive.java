@@ -8,9 +8,6 @@ package dan200.computercraft.shared.peripheral.diskdrive;
 
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
-import dan200.computercraft.shared.computer.blocks.TileComputer;
-import dan200.computercraft.shared.peripheral.speaker.BlockSpeaker;
-import dan200.computercraft.shared.peripheral.speaker.TileSpeaker;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -57,8 +54,9 @@ public class BlockDiskDrive extends BlockGeneric
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type){
-    	return world.isClient ? null : BlockDiskDrive.checkType( type, ComputerCraftRegistry.ModTiles.DISK_DRIVE, TileDiskDrive::tick );
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker( World world, BlockState state, BlockEntityType<T> type )
+    {
+        return world.isClient ? null : BlockDiskDrive.checkType( type, ComputerCraftRegistry.ModTiles.DISK_DRIVE, TileDiskDrive::tick );
     }
 
     @Override
@@ -102,8 +100,8 @@ public class BlockDiskDrive extends BlockGeneric
 
     @Nullable
     @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state)
+    public BlockEntity createBlockEntity( BlockPos pos, BlockState state )
     {
-        return new TileDiskDrive(ComputerCraftRegistry.ModTiles.DISK_DRIVE, pos, state);
+        return new TileDiskDrive( ComputerCraftRegistry.ModTiles.DISK_DRIVE, pos, state );
     }
 }

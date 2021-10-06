@@ -193,14 +193,14 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         if( direction.getAxis() != Direction.Axis.Y )
         {
-            turtlePlayer.setYaw(direction.asRotation());
-            turtlePlayer.setPitch(0.0f);
+            turtlePlayer.setYaw( direction.asRotation() );
+            turtlePlayer.setPitch( 0.0f );
         }
         else
         {
-            turtlePlayer.setYaw(turtle.getDirection()
-                .asRotation());
-            turtlePlayer.setPitch(DirectionUtil.toPitchAngle( direction ));
+            turtlePlayer.setYaw( turtle.getDirection()
+                .asRotation() );
+            turtlePlayer.setPitch( DirectionUtil.toPitchAngle( direction ) );
         }
 
         turtlePlayer.setPos( posX, posY, posZ );

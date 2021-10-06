@@ -87,14 +87,14 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public int getLight()
     {
-    	NbtCompound tag = getUserData();
+        NbtCompound tag = getUserData();
         return tag.contains( NBT_LIGHT, NBTUtil.TAG_ANY_NUMERIC ) ? tag.getInt( NBT_LIGHT ) : -1;
     }
 
     @Override
     public void setLight( int colour )
     {
-    	NbtCompound tag = getUserData();
+        NbtCompound tag = getUserData();
         if( colour >= 0 && colour <= 0xFFFFFF )
         {
             if( !tag.contains( NBT_LIGHT, NBTUtil.TAG_ANY_NUMERIC ) || tag.getInt( NBT_LIGHT ) != colour )

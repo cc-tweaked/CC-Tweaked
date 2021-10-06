@@ -72,7 +72,7 @@ public class ItemData
 
         // requireNonNull is safe because we got the Identifiers out of the TagGroup to start with. Would be nicer
         // to stream the tags directly but TagGroup isn't a collection :(
-        TagGroup<Item> itemTags = ServerTagManagerHolder.getTagManager().getOrCreateTagGroup(Registry.ITEM_KEY);
+        TagGroup<Item> itemTags = ServerTagManagerHolder.getTagManager().getOrCreateTagGroup( Registry.ITEM_KEY );
         data.put( "tags", DataHelpers.getTags( itemTags.getTagIds().stream()
             .filter( id -> Objects.requireNonNull( itemTags.getTag( id ) ).contains( stack.getItem() ) )
             .collect( Collectors.toList() )
@@ -81,7 +81,7 @@ public class ItemData
         NbtCompound tag = stack.getNbt();
         if( tag != null && tag.contains( "display", NBTUtil.TAG_COMPOUND ) )
         {
-        	NbtCompound displayTag = tag.getCompound( "display" );
+            NbtCompound displayTag = tag.getCompound( "display" );
             if( displayTag.contains( "Lore", NBTUtil.TAG_LIST ) )
             {
                 NbtList loreTag = displayTag.getList( "Lore", NBTUtil.TAG_STRING );

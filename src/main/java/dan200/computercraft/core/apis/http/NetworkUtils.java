@@ -201,7 +201,7 @@ public final class NetworkUtils
         {
             return "Timed out";
         }
-        else if( cause instanceof SSLHandshakeException || (cause instanceof DecoderException && cause.getCause() instanceof SSLHandshakeException) )
+        else if( cause instanceof SSLHandshakeException || cause instanceof DecoderException && cause.getCause() instanceof SSLHandshakeException )
         {
             return "Could not create a secure connection";
         }

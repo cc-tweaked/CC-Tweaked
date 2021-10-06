@@ -8,7 +8,6 @@ package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
-import dan200.computercraft.shared.ComputerCraftRegistry.ModTiles;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
@@ -45,10 +44,10 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void setCachedState(BlockState state)
+    public void setCachedState( BlockState state )
     {
-        super.setCachedState(state);
-        if(state != null) return;
+        super.setCachedState( state );
+        if( state != null ) return;
         hasModemDirection = false;
         world.getBlockTickScheduler()
             .schedule( getPos(),

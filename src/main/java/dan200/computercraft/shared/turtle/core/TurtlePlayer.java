@@ -26,7 +26,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -84,9 +83,9 @@ public final class TurtlePlayer extends FakePlayer
         BlockPos position = turtle.getPosition();
         setPos( position.getX() + 0.5, position.getY() + 0.5, position.getZ() + 0.5 );
 
-        setYaw(turtle.getDirection()
-            .asRotation());
-        setPitch(0.0f);
+        setYaw( turtle.getDirection()
+            .asRotation() );
+        setPitch( 0.0f );
 
         getInventory().clear();
     }
@@ -211,7 +210,7 @@ public final class TurtlePlayer extends FakePlayer
     public void closeHandledScreen()
     {
     }
-    
+
     @Override
     protected void onStatusEffectRemoved( @Nonnull StatusEffectInstance effect )
     {

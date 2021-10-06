@@ -7,15 +7,12 @@
 package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.shared.ComputerCraftRegistry;
-import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.ComputerRegistry;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.items.ComputerItemFactory;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
@@ -25,7 +22,6 @@ import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -64,9 +60,10 @@ public class BlockComputer extends BlockComputerBase<TileComputer>
         return tile instanceof TileComputer ? ComputerItemFactory.create( (TileComputer) tile ) : ItemStack.EMPTY;
     }
 
-    public BlockEntityType<? extends TileComputer> getTypeByFamily(ComputerFamily family)
+    public BlockEntityType<? extends TileComputer> getTypeByFamily( ComputerFamily family )
     {
-        return switch (family) {
+        return switch ( family )
+        {
             case COMMAND -> ComputerCraftRegistry.ModTiles.COMPUTER_COMMAND;
             case ADVANCED -> ComputerCraftRegistry.ModTiles.COMPUTER_ADVANCED;
             default -> ComputerCraftRegistry.ModTiles.COMPUTER_NORMAL;
@@ -75,8 +72,8 @@ public class BlockComputer extends BlockComputerBase<TileComputer>
 
     @Nullable
     @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state)
+    public BlockEntity createBlockEntity( BlockPos pos, BlockState state )
     {
-        return new TileComputer(getFamily(), getTypeByFamily(getFamily()), pos, state);
+        return new TileComputer( getFamily(), getTypeByFamily( getFamily() ), pos, state );
     }
 }

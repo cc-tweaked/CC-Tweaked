@@ -2,7 +2,7 @@ plugins {
     id 'fabric-loom' version '0.9-SNAPSHOT'
     id 'maven-publish'
     id "checkstyle"
-    id "com.github.hierynomus.license" version "0.15.0"
+    id "com.github.hierynomus.license" version "0.16.1"
 }
 
 java {
@@ -37,7 +37,7 @@ configurations {
 }
 
 dependencies {
-    checkstyle "com.puppycrawl.tools:checkstyle:8.25"
+    checkstyle 'com.puppycrawl.tools:checkstyle:8.45.1'
 
     minecraft "com.mojang:minecraft:${mc_version}"
     mappings "net.fabricmc:yarn:${mc_version}+build.${mappings_version}:v2"

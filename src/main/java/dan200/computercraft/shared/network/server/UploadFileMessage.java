@@ -13,7 +13,6 @@ import dan200.computercraft.shared.computer.upload.FileUpload;
 import dan200.computercraft.shared.network.NetworkHandler;
 import io.netty.handler.codec.DecoderException;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 
@@ -174,7 +173,7 @@ public class UploadFileMessage extends ComputerServerMessage
     }
 
     @Override
-    protected void handle(PacketContext context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
+    protected void handle( PacketContext context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
         ServerPlayerEntity player = (ServerPlayerEntity) context.getPlayer();
         if( player != null )

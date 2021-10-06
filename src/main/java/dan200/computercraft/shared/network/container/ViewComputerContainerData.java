@@ -6,11 +6,9 @@
 
 package dan200.computercraft.shared.network.container;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.Identifier;
 
 import javax.annotation.Nonnull;
 

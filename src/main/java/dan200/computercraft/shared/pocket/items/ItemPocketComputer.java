@@ -92,7 +92,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         ClientComputer computer = getClientComputer( stack );
         if( computer != null && computer.isOn() )
         {
-        	NbtCompound computerNBT = computer.getUserData();
+            NbtCompound computerNBT = computer.getUserData();
             if( computerNBT != null && computerNBT.contains( NBT_LIGHT ) )
             {
                 return computerNBT.getInt( NBT_LIGHT );
@@ -103,7 +103,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     public static void setUpgrade( @Nonnull ItemStack stack, IPocketUpgrade upgrade )
     {
-    	NbtCompound compound = stack.getOrCreateNbt();
+        NbtCompound compound = stack.getOrCreateNbt();
 
         if( upgrade == null )
         {
@@ -164,7 +164,6 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
             if( !stop && computer != null )
             {
-//                computer.sendTerminalState( player );
                 boolean isTypingOnly = hand == Hand.OFF_HAND;
                 new ComputerContainerData( computer ).open( player, new PocketComputerMenuProvider( computer, stack, this, hand, isTypingOnly ) );
             }
@@ -342,7 +341,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     public static IPocketUpgrade getUpgrade( @Nonnull ItemStack stack )
     {
-    	NbtCompound compound = stack.getNbt();
+        NbtCompound compound = stack.getNbt();
         return compound != null && compound.contains( NBT_UPGRADE ) ? PocketUpgrades.get( compound.getString( NBT_UPGRADE ) ) : null;
 
     }
@@ -403,13 +402,13 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     private static int getInstanceID( @Nonnull ItemStack stack )
     {
-    	NbtCompound nbt = stack.getNbt();
+        NbtCompound nbt = stack.getNbt();
         return nbt != null && nbt.contains( NBT_INSTANCE ) ? nbt.getInt( NBT_INSTANCE ) : -1;
     }
 
     private static int getSessionID( @Nonnull ItemStack stack )
     {
-    	NbtCompound nbt = stack.getNbt();
+        NbtCompound nbt = stack.getNbt();
         return nbt != null && nbt.contains( NBT_SESSION ) ? nbt.getInt( NBT_SESSION ) : -1;
     }
 

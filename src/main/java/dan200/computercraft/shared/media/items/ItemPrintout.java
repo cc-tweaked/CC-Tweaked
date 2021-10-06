@@ -60,7 +60,7 @@ public class ItemPrintout extends Item
         }
         if( text != null )
         {
-        	NbtCompound tag = stack.getOrCreateNbt();
+            NbtCompound tag = stack.getOrCreateNbt();
             tag.putInt( NBT_PAGES, text.length / LINES_PER_PAGE );
             for( int i = 0; i < text.length; i++ )
             {
@@ -72,7 +72,7 @@ public class ItemPrintout extends Item
         }
         if( colours != null )
         {
-        	NbtCompound tag = stack.getOrCreateNbt();
+            NbtCompound tag = stack.getOrCreateNbt();
             for( int i = 0; i < colours.length; i++ )
             {
                 if( colours[i] != null )
@@ -105,7 +105,7 @@ public class ItemPrintout extends Item
 
     private static String[] getLines( @Nonnull ItemStack stack, String prefix )
     {
-    	NbtCompound nbt = stack.getNbt();
+        NbtCompound nbt = stack.getNbt();
         int numLines = getPageCount( stack ) * LINES_PER_PAGE;
         String[] lines = new String[numLines];
         for( int i = 0; i < lines.length; i++ )
@@ -117,7 +117,7 @@ public class ItemPrintout extends Item
 
     public static int getPageCount( @Nonnull ItemStack stack )
     {
-    	NbtCompound nbt = stack.getNbt();
+        NbtCompound nbt = stack.getNbt();
         return nbt != null && nbt.contains( NBT_PAGES ) ? nbt.getInt( NBT_PAGES ) : 1;
     }
 
@@ -152,7 +152,7 @@ public class ItemPrintout extends Item
 
     public static String getTitle( @Nonnull ItemStack stack )
     {
-    	NbtCompound nbt = stack.getNbt();
+        NbtCompound nbt = stack.getNbt();
         return nbt != null && nbt.contains( NBT_TITLE ) ? nbt.getString( NBT_TITLE ) : null;
     }
 

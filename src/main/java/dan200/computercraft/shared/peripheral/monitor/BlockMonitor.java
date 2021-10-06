@@ -9,7 +9,6 @@ package dan200.computercraft.shared.peripheral.monitor;
 import dan200.computercraft.api.turtle.FakePlayer;
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
-import dan200.computercraft.shared.computer.blocks.TileComputer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -104,8 +103,8 @@ public class BlockMonitor extends BlockGeneric
 
     @Nullable
     @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state)
+    public BlockEntity createBlockEntity( BlockPos pos, BlockState state )
     {
-        return new TileMonitor(advanced ? ComputerCraftRegistry.ModTiles.MONITOR_ADVANCED : ComputerCraftRegistry.ModTiles.MONITOR_NORMAL, advanced, pos, state);
+        return new TileMonitor( advanced ? ComputerCraftRegistry.ModTiles.MONITOR_ADVANCED : ComputerCraftRegistry.ModTiles.MONITOR_NORMAL, advanced, pos, state );
     }
 }

@@ -20,24 +20,15 @@ import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.client.util.GlAllocationUtils;
-import net.minecraft.util.math.AffineTransformation;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Vec3f;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Matrix4f;
+import net.minecraft.util.math.*;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
 
 import javax.annotation.Nonnull;
-
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.*;
@@ -55,7 +46,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
     public TileEntityMonitorRenderer( BlockEntityRendererFactory.Context context )
     {
-//        super( context );
+        // super( context );
     }
     @Override
     public void render( @Nonnull TileMonitor monitor, float partialTicks, @Nonnull MatrixStack transform, @Nonnull VertexConsumerProvider renderer,
@@ -120,7 +111,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
             // We don't draw the cursor with the VBO, as it's dynamic and so we'll end up refreshing far more than is
             // reasonable.
-            FixedWidthFontRenderer.drawCursor( matrix, renderer.getBuffer(RenderTypes.TERMINAL_WITHOUT_DEPTH), 0, 0, terminal, !originTerminal.isColour() );
+            FixedWidthFontRenderer.drawCursor( matrix, renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ), 0, 0, terminal, !originTerminal.isColour() );
 
             transform.pop();
 
@@ -147,7 +138,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
         transform.pop();
     }
 
-    private static void renderTerminal(VertexConsumerProvider renderer, Matrix4f matrix, ClientMonitor monitor, float xMargin, float yMargin )
+    private static void renderTerminal( VertexConsumerProvider renderer, Matrix4f matrix, ClientMonitor monitor, float xMargin, float yMargin )
     {
         Terminal terminal = monitor.getTerminal();
 
@@ -237,7 +228,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
 
                 RenderTypes.TERMINAL_WITHOUT_DEPTH.startDrawing();
-                vbo.setShader(matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader());
+                vbo.setShader( matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader() );
                 break;
         }
     }
@@ -245,7 +236,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
     private static void tboVertex( VertexConsumer builder, Matrix4f matrix, float x, float y )
     {
         // We encode position in the UV, as that's not transformed by the matrix.
-        builder.vertex( matrix, x, y, 0 ).texture(x, y).next();
+        builder.vertex( matrix, x, y, 0 ).texture( x, y ).next();
     }
 
     @Override

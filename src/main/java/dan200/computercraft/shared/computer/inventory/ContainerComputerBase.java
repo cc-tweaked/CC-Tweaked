@@ -19,7 +19,6 @@ import dan200.computercraft.shared.network.client.UploadResultMessage;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -113,7 +112,7 @@ public abstract class ContainerComputerBase extends ScreenHandler implements ICo
     }
 
     @Override
-    public void startUpload(@Nonnull UUID uuid, @Nonnull List<FileUpload> files )
+    public void startUpload( @Nonnull UUID uuid, @Nonnull List<FileUpload> files )
     {
         toUploadId = uuid;
         toUpload = files;
@@ -132,7 +131,7 @@ public abstract class ContainerComputerBase extends ScreenHandler implements ICo
     }
 
     @Override
-    public void finishUpload(@Nonnull ServerPlayerEntity uploader, @Nonnull UUID uploadId )
+    public void finishUpload( @Nonnull ServerPlayerEntity uploader, @Nonnull UUID uploadId )
     {
         if( toUploadId == null || toUpload == null || toUpload.isEmpty() || !toUploadId.equals( uploadId ) )
         {

@@ -12,7 +12,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
@@ -20,7 +19,6 @@ import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 
 import java.util.EnumSet;
-
 import static net.minecraft.util.math.Direction.*;
 
 /**
@@ -34,9 +32,7 @@ public final class MonitorHighlightRenderer
     {
     }
 
-    public static boolean drawHighlight(
-        MatrixStack matrixStack, VertexConsumer vertexConsumer, Entity entity, double d, double e, double f, BlockPos pos, BlockState blockState
-    )
+    public static boolean drawHighlight( MatrixStack matrixStack, VertexConsumer vertexConsumer, Entity entity, double d, double e, double f, BlockPos pos, BlockState blockState )
     {
         // Preserve normal behaviour when crouching.
         if( entity.isInSneakingPose() )
@@ -142,11 +138,11 @@ public final class MonitorHighlightRenderer
     {
         buffer.vertex( transform, x, y, z )
             .color( 0, 0, 0, 0.4f )
-            .normal(normal, direction.getOffsetX(), direction.getOffsetY(), direction.getOffsetZ())
+            .normal( normal, direction.getOffsetX(), direction.getOffsetY(), direction.getOffsetZ() )
             .next();
         buffer.vertex( transform, x + direction.getOffsetX(), y + direction.getOffsetY(), z + direction.getOffsetZ() )
             .color( 0, 0, 0, 0.4f )
-            .normal(normal, direction.getOffsetX(), direction.getOffsetY(), direction.getOffsetZ())
+            .normal( normal, direction.getOffsetX(), direction.getOffsetY(), direction.getOffsetZ() )
             .next();
     }
 }

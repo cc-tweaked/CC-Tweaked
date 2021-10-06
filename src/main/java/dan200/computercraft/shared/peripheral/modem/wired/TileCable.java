@@ -388,7 +388,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     @Override
     public NbtCompound writeNbt( NbtCompound nbt )
     {
-    	super.writeNbt( nbt );
+        super.writeNbt( nbt );
         nbt.putBoolean( NBT_PERIPHERAL_ENABLED, peripheralAccessAllowed );
         peripheral.write( nbt, "" );
         return nbt;
@@ -409,10 +409,10 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void setCachedState(BlockState state)
+    public void setCachedState( BlockState state )
     {
-        super.setCachedState(state);
-        if(state != null) return;
+        super.setCachedState( state );
+        if( state != null ) return;
         hasModemDirection = false;
         if( !world.isClient )
         {

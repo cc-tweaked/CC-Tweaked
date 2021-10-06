@@ -1,3 +1,8 @@
+/*
+ * This file is part of ComputerCraft - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Send enquiries to dratcliffe@gmail.com
+ */
 package dan200.computercraft.client.gui;
 
 import dan200.computercraft.ComputerCraft;
@@ -100,8 +105,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
     @Override
     public final boolean mouseDragged( double x, double y, int button, double deltaX, double deltaY )
     {
-        return (getFocused() != null && getFocused().mouseDragged( x, y, button, deltaX, deltaY ))
-            || super.mouseDragged( x, y, button, deltaX, deltaY );
+        return getFocused() != null && getFocused().mouseDragged( x, y, button, deltaX, deltaY ) || super.mouseDragged( x, y, button, deltaX, deltaY );
     }
 
     @Override

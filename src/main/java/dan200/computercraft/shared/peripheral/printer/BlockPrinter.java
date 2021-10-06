@@ -8,7 +8,6 @@ package dan200.computercraft.shared.peripheral.printer;
 
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
-import dan200.computercraft.shared.computer.blocks.TileComputer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -92,8 +91,8 @@ public class BlockPrinter extends BlockGeneric
 
     @Nullable
     @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state)
+    public BlockEntity createBlockEntity( BlockPos pos, BlockState state )
     {
-        return new TilePrinter(ComputerCraftRegistry.ModTiles.PRINTER, pos, state);
+        return new TilePrinter( ComputerCraftRegistry.ModTiles.PRINTER, pos, state );
     }
 }

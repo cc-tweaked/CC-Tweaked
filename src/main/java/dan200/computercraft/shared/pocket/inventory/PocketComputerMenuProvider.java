@@ -6,7 +6,6 @@
 package dan200.computercraft.shared.pocket.inventory;
 
 import dan200.computercraft.shared.ComputerCraftRegistry;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInventory;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
@@ -32,7 +31,7 @@ public class PocketComputerMenuProvider implements NamedScreenHandlerFactory, Ex
     private final Hand hand;
     private final boolean isTypingOnly;
 
-    public PocketComputerMenuProvider(ServerComputer computer, ItemStack stack, ItemPocketComputer item, Hand hand, boolean isTypingOnly )
+    public PocketComputerMenuProvider( ServerComputer computer, ItemStack stack, ItemPocketComputer item, Hand hand, boolean isTypingOnly )
     {
         this.computer = computer;
         name = stack.getName();
@@ -51,7 +50,7 @@ public class PocketComputerMenuProvider implements NamedScreenHandlerFactory, Ex
 
     @Nullable
     @Override
-    public ScreenHandler createMenu(int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity entity )
+    public ScreenHandler createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity entity )
     {
         return new ComputerMenuWithoutInventory(
             isTypingOnly ? ComputerCraftRegistry.ModContainers.POCKET_COMPUTER_NO_TERM : ComputerCraftRegistry.ModContainers.POCKET_COMPUTER, id, inventory,
@@ -64,8 +63,9 @@ public class PocketComputerMenuProvider implements NamedScreenHandlerFactory, Ex
     }
 
     @Override
-    public void writeScreenOpeningData(ServerPlayerEntity player, PacketByteBuf packetByteBuf) {
-        packetByteBuf.writeInt(computer.getInstanceID());
-        packetByteBuf.writeEnumConstant(computer.getFamily());
+    public void writeScreenOpeningData( ServerPlayerEntity player, PacketByteBuf packetByteBuf )
+    {
+        packetByteBuf.writeInt( computer.getInstanceID() );
+        packetByteBuf.writeEnumConstant( computer.getFamily() );
     }
 }

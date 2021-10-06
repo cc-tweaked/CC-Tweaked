@@ -144,6 +144,7 @@ public abstract class ItemMapLikeRenderer
      * @param transform The matrix transformation stack
      * @param render    The buffer to render to
      * @param stack     The stack to render
+     * @param light     TODO rebase
      */
     protected abstract void renderItem( MatrixStack transform, VertexConsumerProvider render, ItemStack stack, int light );
 }

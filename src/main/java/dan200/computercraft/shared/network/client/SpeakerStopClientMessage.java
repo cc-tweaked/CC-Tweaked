@@ -43,7 +43,7 @@ public class SpeakerStopClientMessage implements NetworkMessage
     }
 
     @Override
-    @Environment(EnvType.CLIENT)
+    @Environment( EnvType.CLIENT )
     public void handle( PacketContext context )
     {
         SoundManager.stopSound( source );

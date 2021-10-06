@@ -8,7 +8,6 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
-import dan200.computercraft.shared.peripheral.speaker.TileSpeaker;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -40,8 +39,8 @@ public class BlockWiredModemFull extends BlockGeneric
 
     @Nullable
     @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state)
+    public BlockEntity createBlockEntity( BlockPos pos, BlockState state )
     {
-        return new TileWiredModemFull(ComputerCraftRegistry.ModTiles.WIRED_MODEM_FULL, pos, state);
+        return new TileWiredModemFull( ComputerCraftRegistry.ModTiles.WIRED_MODEM_FULL, pos, state );
     }
 }

@@ -22,7 +22,7 @@ import java.util.function.Predicate;
  */
 public class ComputerMenuWithoutInventory extends ContainerComputerBase
 {
-    public ComputerMenuWithoutInventory(ScreenHandlerType<? extends ContainerComputerBase> type, int id, PlayerInventory player, Predicate<PlayerEntity> canUse, IComputer computer, ComputerFamily family )
+    public ComputerMenuWithoutInventory( ScreenHandlerType<? extends ContainerComputerBase> type, int id, PlayerInventory player, Predicate<PlayerEntity> canUse, IComputer computer, ComputerFamily family )
     {
         super( type, id, canUse, computer, family );
         addSlots( player );

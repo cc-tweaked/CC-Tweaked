@@ -114,7 +114,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         customName = nbt.contains( NBT_NAME ) ? Text.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
         if( nbt.contains( NBT_ITEM ) )
         {
-        	NbtCompound item = nbt.getCompound( NBT_ITEM );
+            NbtCompound item = nbt.getCompound( NBT_ITEM );
             diskStack = ItemStack.fromNbt( item );
             diskMount = null;
         }
@@ -132,7 +132,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
         if( !diskStack.isEmpty() )
         {
-        	NbtCompound item = new NbtCompound();
+            NbtCompound item = new NbtCompound();
             diskStack.writeNbt( item );
             nbt.put( NBT_ITEM, item );
         }
@@ -149,13 +149,13 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         super.markDirty();
     }
 
-    public static void tick( World world, BlockPos pos, BlockState state, TileDiskDrive tileDiskDrive)
+    public static void tick( World world, BlockPos pos, BlockState state, TileDiskDrive tileDiskDrive )
     {
         // Ejection
         if( tileDiskDrive.ejectQueued )
         {
-        	tileDiskDrive.ejectContents( false );
-        	tileDiskDrive.ejectQueued = false;
+            tileDiskDrive.ejectContents( false );
+            tileDiskDrive.ejectQueued = false;
         }
 
         // Music
@@ -163,24 +163,24 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         {
             if( !world.isClient && tileDiskDrive.recordPlaying != tileDiskDrive.recordQueued || tileDiskDrive.restartRecord )
             {
-            	tileDiskDrive.restartRecord = false;
+                tileDiskDrive.restartRecord = false;
                 if( tileDiskDrive.recordQueued )
                 {
                     IMedia contents = tileDiskDrive.getDiskMedia();
                     SoundEvent record = contents != null ? contents.getAudio( tileDiskDrive.diskStack ) : null;
                     if( record != null )
                     {
-                    	tileDiskDrive.recordPlaying = true;
-                    	tileDiskDrive.playRecord();
+                        tileDiskDrive.recordPlaying = true;
+                        tileDiskDrive.playRecord();
                     }
                     else
                     {
-                    	tileDiskDrive.recordQueued = false;
+                        tileDiskDrive.recordQueued = false;
                     }
                 }
                 else
                 {
-                	tileDiskDrive.stopRecord();
+                    tileDiskDrive.stopRecord();
                     tileDiskDrive.recordPlaying = false;
                 }
             }

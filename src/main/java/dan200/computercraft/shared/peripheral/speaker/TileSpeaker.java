@@ -9,7 +9,6 @@ package dan200.computercraft.shared.peripheral.speaker;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.common.TileGeneric;
-import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.util.math.BlockPos;

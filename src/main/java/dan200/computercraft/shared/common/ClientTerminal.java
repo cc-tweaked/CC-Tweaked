@@ -85,7 +85,7 @@ public class ClientTerminal implements ITerminal
         colour = nbt.getBoolean( "colour" );
         if( nbt.contains( "terminal" ) )
         {
-        	NbtCompound terminal = nbt.getCompound( "terminal" );
+            NbtCompound terminal = nbt.getCompound( "terminal" );
             resizeTerminal( terminal.getInt( "term_width" ), terminal.getInt( "term_height" ) );
             this.terminal.readFromNBT( terminal );
         }

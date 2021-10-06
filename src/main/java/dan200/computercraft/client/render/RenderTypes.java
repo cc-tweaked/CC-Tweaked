@@ -1,3 +1,8 @@
+/*
+ * This file is part of ComputerCraft - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Send enquiries to dratcliffe@gmail.com
+ */
 package dan200.computercraft.client.render;
 
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
@@ -7,7 +12,8 @@ import net.minecraft.util.Identifier;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class RenderTypes {
+public class RenderTypes
+{
 
     public static final int FULL_BRIGHT_LIGHTMAP = (0xF << 4) | (0xF << 20);
 
@@ -23,7 +29,7 @@ public class RenderTypes {
     public static final RenderLayer TERMINAL_WITH_DEPTH = Types.TERMINAL_WITH_DEPTH;
     public static final RenderLayer PRINTOUT_TEXT = Types.PRINTOUT_TEXT;
 
-    public static final RenderLayer PRINTOUT_BACKGROUND = RenderLayer.getText(new Identifier( "computercraft", "textures/gui/printout.png" ));
+    public static final RenderLayer PRINTOUT_BACKGROUND = RenderLayer.getText( new Identifier( "computercraft", "textures/gui/printout.png" ) );
 
     public static final RenderLayer POSITION_COLOR = Types.POSITION_COLOR;
 
@@ -54,8 +60,8 @@ public class RenderTypes {
 
         public static final RenderLayer MONITOR_TBO = RenderLayer.of( "monitor_tbo", VertexFormats.POSITION_TEXTURE, VertexFormat.DrawMode.TRIANGLE_STRIP, 128, false, false, // useDelegate, needsSorting
             RenderLayer.MultiPhaseParameters.builder()
-                .texture(TERM_FONT_TEXTURE ) // blur, minimap
-                .shader(new RenderPhase.Shader(RenderTypes::getMonitorTextureBufferShader))
+                .texture( TERM_FONT_TEXTURE ) // blur, minimap
+                .shader( new RenderPhase.Shader( RenderTypes::getMonitorTextureBufferShader ) )
                 .writeMaskState( RenderLayer.ALL_MASK )
                 .build( false ) );
 
@@ -72,7 +78,7 @@ public class RenderTypes {
         static final RenderLayer BLOCKER = RenderLayer.of( "terminal_blocker", FORMAT, GL_MODE, 256, false, false, // useDelegate, needsSorting
             RenderLayer.MultiPhaseParameters.builder()
                 .texture( TERM_FONT_TEXTURE )
-                .shader(TERM_SHADER)
+                .shader( TERM_SHADER )
                 .writeMaskState( DEPTH_MASK )
                 .build( false ) );
 
@@ -91,7 +97,7 @@ public class RenderTypes {
             RenderLayer.MultiPhaseParameters.builder()
                 .texture( TERM_FONT_TEXTURE )
                 .shader( RenderPhase.TEXT_SHADER )
-                .lightmap(RenderPhase.ENABLE_LIGHTMAP)
+                .lightmap( RenderPhase.ENABLE_LIGHTMAP )
                 .build( false )
         );
 

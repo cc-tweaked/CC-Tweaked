@@ -75,7 +75,7 @@ public final class AddressRule
         if( this.port != null && this.port != port ) return false;
         return predicate.matches( domain )
             || predicate.matches( address )
-            || (ipv4Address != null && predicate.matches( ipv4Address ));
+            || ipv4Address != null && predicate.matches( ipv4Address );
     }
 
     public static Options apply( Iterable<? extends AddressRule> rules, String domain, InetSocketAddress socketAddress )

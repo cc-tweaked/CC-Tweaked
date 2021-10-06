@@ -8,7 +8,6 @@ package dan200.computercraft.shared.network.server;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 
@@ -38,7 +37,7 @@ public class ContinueUploadMessage extends ComputerServerMessage
     }
 
     @Override
-    protected void handle(PacketContext context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
+    protected void handle( PacketContext context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
         ServerPlayerEntity player = (ServerPlayerEntity) context.getPlayer();
         if( player != null ) container.confirmUpload( player, overwrite );

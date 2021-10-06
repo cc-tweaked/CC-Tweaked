@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
-import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
@@ -275,8 +274,8 @@ public class BlockCable extends BlockGeneric implements Waterloggable
 
     @Nullable
     @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state)
+    public BlockEntity createBlockEntity( BlockPos pos, BlockState state )
     {
-        return new TileCable(ComputerCraftRegistry.ModTiles.CABLE, pos, state);
+        return new TileCable( ComputerCraftRegistry.ModTiles.CABLE, pos, state );
     }
 }

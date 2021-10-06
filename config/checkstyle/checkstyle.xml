@@ -58,13 +58,13 @@
         <module name="SimplifyBooleanExpression" />
         <module name="SimplifyBooleanReturn" />
         <module name="StringLiteralEquality" />
-        <module name="UnnecessaryParentheses" />
+        <!-- <module name="UnnecessaryParentheses" /> -->
         <module name="UnnecessarySemicolonAfterTypeMemberDeclaration" />
         <module name="UnnecessarySemicolonInTryWithResources" />
         <module name="UnnecessarySemicolonInEnumeration" />
 
         <!-- Imports -->
-        <module name="CustomImportOrder" />
+        <!--<module name="CustomImportOrder" />-->
         <module name="IllegalImport" />
         <module name="RedundantImport" />
         <module name="UnusedImports" />

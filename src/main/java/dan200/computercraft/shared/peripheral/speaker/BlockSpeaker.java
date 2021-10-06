@@ -8,7 +8,6 @@ package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
-import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -52,15 +51,16 @@ public class BlockSpeaker extends BlockGeneric
 
     @Nullable
     @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state)
+    public BlockEntity createBlockEntity( BlockPos pos, BlockState state )
     {
-        return new TileSpeaker(ComputerCraftRegistry.ModTiles.SPEAKER, pos, state);
+        return new TileSpeaker( ComputerCraftRegistry.ModTiles.SPEAKER, pos, state );
     }
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker( World world, BlockState state, BlockEntityType<T> type){
-    	return world.isClient ? null : BlockSpeaker.checkType( type, ComputerCraftRegistry.ModTiles.SPEAKER, TileSpeaker::tick );
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker( World world, BlockState state, BlockEntityType<T> type )
+    {
+        return world.isClient ? null : BlockSpeaker.checkType( type, ComputerCraftRegistry.ModTiles.SPEAKER, TileSpeaker::tick );
     }
 
 }

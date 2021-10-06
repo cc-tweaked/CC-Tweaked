@@ -12,7 +12,6 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
 import dan200.computercraft.shared.ComputerCraftRegistry;
-import dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral;
 import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

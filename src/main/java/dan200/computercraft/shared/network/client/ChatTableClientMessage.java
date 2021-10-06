@@ -30,7 +30,7 @@ public class ChatTableClientMessage implements NetworkMessage
         this.table = table;
     }
 
-    public ChatTableClientMessage(@Nonnull PacketByteBuf buf)
+    public ChatTableClientMessage( @Nonnull PacketByteBuf buf )
     {
         int id = buf.readVarInt();
         int columns = buf.readVarInt();

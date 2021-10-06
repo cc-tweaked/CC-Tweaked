@@ -13,11 +13,12 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.shared.util.IoUtil;
-import net.minecraft.resource.*;
-import net.minecraft.resource.ResourceReloader.Synchronizer;
+import net.minecraft.resource.ReloadableResourceManager;
+import net.minecraft.resource.Resource;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.SynchronousResourceReloader;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
-import net.minecraft.util.profiler.Profiler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,8 +28,6 @@ import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 public final class ResourceMount implements IMount

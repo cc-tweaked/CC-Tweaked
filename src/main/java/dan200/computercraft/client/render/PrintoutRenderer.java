@@ -9,11 +9,9 @@ package dan200.computercraft.client.render;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Palette;
-import net.minecraft.client.render.*;
-import net.minecraft.client.render.VertexFormat.DrawMode;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.util.math.Matrix4f;
-import org.lwjgl.opengl.GL11;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.shared.media.items.ItemPrintout.LINES_PER_PAGE;
@@ -95,7 +93,7 @@ public final class PrintoutRenderer
         int leftPages = page;
         int rightPages = pages - page - 1;
 
-        VertexConsumer buffer = renderer.getBuffer(RenderTypes.PRINTOUT_BACKGROUND);
+        VertexConsumer buffer = renderer.getBuffer( RenderTypes.PRINTOUT_BACKGROUND );
 
         if( isBook )
         {

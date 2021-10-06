@@ -259,7 +259,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     {
         if( pos.equals( getPos() ) )
         {
-            return MonitorState.present(this);
+            return MonitorState.present( this );
         }
 
         World world = getWorld();
@@ -309,7 +309,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     @Override
     public NbtCompound writeNbt( NbtCompound tag )
     {
-    	super.writeNbt( tag );
+        super.writeNbt( tag );
         tag.putInt( NBT_X, xIndex );
         tag.putInt( NBT_Y, yIndex );
         tag.putInt( NBT_WIDTH, width );
@@ -317,11 +317,11 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
         return tag;
     }
 
-//    @Override //TODO: make BlockEntityRenderer work with this, i guess.
-//    public double getRenderDistance()
-//    {
-//        return ComputerCraft.monitorDistanceSq;
-//    }
+    //    @Override //TODO: make BlockEntityRenderer work with this, i guess.
+    //    public double getRenderDistance()
+    //    {
+    //        return ComputerCraft.monitorDistanceSq;
+    //    }
 
     // Sizing and placement stuff
 

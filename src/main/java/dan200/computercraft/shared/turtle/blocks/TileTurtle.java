@@ -12,21 +12,17 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.fabric.mixin.MixinBlockEntity;
-import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.util.*;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -45,7 +41,6 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -67,7 +62,7 @@ public class TileTurtle extends TileComputerBase
 
     public TileTurtle( BlockEntityType<? extends TileGeneric> type, BlockPos pos, BlockState state, ComputerFamily family )
     {
-        super(type, family, pos, state );
+        super( type, family, pos, state );
     }
 
     @Override
@@ -279,7 +274,7 @@ public class TileTurtle extends TileComputerBase
     public void serverTick( )
     {
         super.serverTick();
-    	brain.update();
+        brain.update();
         if( inventoryChanged )
         {
             ServerComputer computer = getServerComputer();
@@ -303,7 +298,7 @@ public class TileTurtle extends TileComputerBase
 
     @Override
     protected void updateBlockState( ComputerState newState )
-    {}
+    { }
 
     @Nonnull
     @Override

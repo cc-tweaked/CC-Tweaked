@@ -46,7 +46,7 @@ public class KeyEventServerMessage extends ComputerServerMessage
     }
 
     @Override
-    protected void handle(PacketContext context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
+    protected void handle( PacketContext context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
         InputState input = container.getInput();
         if( type == TYPE_UP )

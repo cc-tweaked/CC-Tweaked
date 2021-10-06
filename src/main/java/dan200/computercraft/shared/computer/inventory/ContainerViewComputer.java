@@ -14,7 +14,6 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.container.ViewComputerContainerData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.network.PacketByteBuf;
 
 import javax.annotation.Nonnull;
 

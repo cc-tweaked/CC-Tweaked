@@ -45,7 +45,7 @@ public interface IContainerComputer
      * @param uploadId The unique ID of this upload.
      * @param files    The files to upload.
      */
-    void startUpload(@Nonnull UUID uploadId, @Nonnull List<FileUpload> files );
+    void startUpload( @Nonnull UUID uploadId, @Nonnull List<FileUpload> files );
 
     /**
      * Append more data to partially uploaded files.
@@ -61,7 +61,7 @@ public interface IContainerComputer
      * @param uploader The player uploading files.
      * @param uploadId The unique ID of this upload.
      */
-    void finishUpload(@Nonnull ServerPlayerEntity uploader, @Nonnull UUID uploadId );
+    void finishUpload( @Nonnull ServerPlayerEntity uploader, @Nonnull UUID uploadId );
 
     /**
      * Continue an upload.

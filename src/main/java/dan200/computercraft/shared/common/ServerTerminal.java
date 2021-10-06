@@ -90,7 +90,7 @@ public class ServerTerminal implements ITerminal
         nbt.putBoolean( "colour", colour );
         if( terminal != null )
         {
-        	NbtCompound terminal = new NbtCompound();
+            NbtCompound terminal = new NbtCompound();
             terminal.putInt( "term_width", this.terminal.getWidth() );
             terminal.putInt( "term_height", this.terminal.getHeight() );
             this.terminal.writeToNBT( terminal );

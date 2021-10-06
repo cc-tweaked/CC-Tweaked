@@ -8,7 +8,6 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.shared.common.ClientTerminal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

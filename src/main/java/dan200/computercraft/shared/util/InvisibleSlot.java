@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
 
 public class InvisibleSlot extends Slot
 {
-    public InvisibleSlot(Inventory container, int slot )
+    public InvisibleSlot( Inventory container, int slot )
     {
         super( container, slot, 0, 0 );
     }

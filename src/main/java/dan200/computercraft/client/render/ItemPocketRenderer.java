@@ -19,9 +19,8 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.math.Matrix4f;
-import org.lwjgl.opengl.GL11;
+import net.minecraft.util.math.Vec3f;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
@@ -104,7 +103,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         transform.pop();
     }
 
-    private static void renderFrame( Matrix4f transform, VertexConsumerProvider render, ComputerFamily family, int colour,  int light, int width, int height )
+    private static void renderFrame( Matrix4f transform, VertexConsumerProvider render, ComputerFamily family, int colour, int light, int width, int height )
     {
         RenderSystem.enableBlend();
         MinecraftClient.getInstance()

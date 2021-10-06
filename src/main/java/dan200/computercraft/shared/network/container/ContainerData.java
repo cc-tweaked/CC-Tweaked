@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.network.container;
 
-import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -24,7 +23,7 @@ import java.util.function.Function;
  */
 public interface ContainerData
 {
-    static <C extends ScreenHandler, T extends ContainerData> ScreenHandlerType<C> toType(Identifier identifier, Function<PacketByteBuf, T> reader,
+    static <C extends ScreenHandler, T extends ContainerData> ScreenHandlerType<C> toType( Identifier identifier, Function<PacketByteBuf, T> reader,
                                                                                           Factory<C, T> factory )
     {
         return ScreenHandlerRegistry.registerExtended( identifier,
@@ -32,7 +31,7 @@ public interface ContainerData
                 playerInventory,
                 reader.apply( packetByteBuf ) ) );
     }
-    static <C extends ScreenHandler, T extends ContainerData> ScreenHandlerType<C> toType(Identifier identifier, ScreenHandlerType<C> type, Function<PacketByteBuf, T> reader,
+    static <C extends ScreenHandler, T extends ContainerData> ScreenHandlerType<C> toType( Identifier identifier, ScreenHandlerType<C> type, Function<PacketByteBuf, T> reader,
                                                                                           FixedFactory<C, T> factory )
     {
         return ScreenHandlerRegistry.registerExtended( identifier,
@@ -45,7 +44,7 @@ public interface ContainerData
 
     default void open( PlayerEntity player, NamedScreenHandlerFactory owner )
     {
-        if (player.world.isClient) return;
+        if ( player.world.isClient ) return;
         player.openHandledScreen( owner );
     }
 

@@ -329,7 +329,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     @Override
     public NbtCompound writeNbt( NbtCompound nbt )
     {
-    	super.writeNbt( nbt );
+        super.writeNbt( nbt );
         nbt.putBoolean( NBT_PERIPHERAL_ENABLED, peripheralAccessAllowed );
         for( int i = 0; i < peripherals.length; i++ )
         {

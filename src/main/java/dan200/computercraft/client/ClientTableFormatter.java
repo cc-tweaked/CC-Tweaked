@@ -21,10 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 
-@SuppressWarnings( {
-    "MethodCallSideOnly",
-    "LocalVariableDeclarationSideOnly"
-} )
 public class ClientTableFormatter implements TableFormatter
 {
     public static final ClientTableFormatter INSTANCE = new ClientTableFormatter();

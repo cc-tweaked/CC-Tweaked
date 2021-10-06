@@ -279,7 +279,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         }
 
         // If the computer isn't on and should be, then turn it on
-        if( startOn || (fresh && on) )
+        if( startOn || fresh && on )
         {
             computer.turnOn();
             startOn = false;

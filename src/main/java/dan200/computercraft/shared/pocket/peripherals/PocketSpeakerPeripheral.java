@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.pocket.peripherals;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral;
 import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;

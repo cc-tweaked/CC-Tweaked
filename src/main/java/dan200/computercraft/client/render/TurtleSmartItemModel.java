@@ -70,7 +70,7 @@ public class TurtleSmartItemModel implements BakedModel
         {
             @Nonnull
             @Override
-            public BakedModel apply( BakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity, int seed)
+            public BakedModel apply( BakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity, int seed )
             {
                 ItemTurtle turtle = (ItemTurtle) stack.getItem();
                 int colour = turtle.getColour( stack );
@@ -149,13 +149,13 @@ public class TurtleSmartItemModel implements BakedModel
         return familyModel.getParticleSprite();
     }
 
-//    @Nonnull
-//    @Override
-//    @Deprecated
-//    public Sprite getSprite()
-//    {
-//        return familyModel.getSprite();
-//    }
+    //    @Nonnull
+    //    @Override
+    //    @Deprecated
+    //    public Sprite getSprite()
+    //    {
+    //        return familyModel.getSprite();
+    //    }
 
     @Nonnull
     @Override

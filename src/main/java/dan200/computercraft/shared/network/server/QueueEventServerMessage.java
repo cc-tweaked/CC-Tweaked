@@ -52,7 +52,7 @@ public class QueueEventServerMessage extends ComputerServerMessage
     }
 
     @Override
-    protected void handle(PacketContext context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
+    protected void handle( PacketContext context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
         computer.queueEvent( event, args );
     }

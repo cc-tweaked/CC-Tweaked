@@ -65,8 +65,8 @@ public final class NBTUtil
             int i = 0;
             for( Map.Entry<?, ?> entry : m.entrySet() )
             {
-            	NbtElement key = toNBTTag( entry.getKey() );
-            	NbtElement value = toNBTTag( entry.getKey() );
+                NbtElement key = toNBTTag( entry.getKey() );
+                NbtElement value = toNBTTag( entry.getKey() );
                 if( key != null && value != null )
                 {
                     nbt.put( "k" + i, key );
@@ -155,7 +155,7 @@ public final class NBTUtil
                 return tag.asString();
             case TAG_COMPOUND: // Compound
             {
-            	NbtCompound compound = (NbtCompound) tag;
+                NbtCompound compound = (NbtCompound) tag;
                 Map<String, Object> map = new HashMap<>( compound.getSize() );
                 for( String key : compound.getKeys() )
                 {

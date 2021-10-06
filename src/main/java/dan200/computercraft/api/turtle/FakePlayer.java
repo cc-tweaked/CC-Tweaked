@@ -133,30 +133,30 @@ public class FakePlayer extends ServerPlayerEntity
     {
     }
 
-//    @Override
-//    public void onSlotUpdate( ScreenHandler container, int slot, ItemStack stack )
-//    {
-//    }
-//
-//    @Override
-//    public void onHandlerRegistered( ScreenHandler container, DefaultedList<ItemStack> defaultedList )
-//    {
-//    }
-//
-//    @Override
-//    public void onPropertyUpdate( ScreenHandler container, int key, int value )
-//    {
-//    }
+    //    @Override
+    //    public void onSlotUpdate( ScreenHandler container, int slot, ItemStack stack )
+    //    {
+    //    }
+    //
+    //    @Override
+    //    public void onHandlerRegistered( ScreenHandler container, DefaultedList<ItemStack> defaultedList )
+    //    {
+    //    }
+    //
+    //    @Override
+    //    public void onPropertyUpdate( ScreenHandler container, int key, int value )
+    //    {
+    //    }
 
     @Override
     public void closeHandledScreen()
     {
     }
 
-//    @Override
-//    public void updateCursorStack()
-//    {
-//    }
+    //    @Override
+    //    public void updateCursorStack()
+    //    {
+    //    }
 
     @Override
     public int unlockRecipes( Collection<Recipe<?>> recipes )
@@ -211,10 +211,10 @@ public class FakePlayer extends ServerPlayerEntity
     {
     }
 
-//    @Override
-//    public void setGameMode( GameMode gameMode )
-//    {
-//    }
+    //    @Override
+    //    public void setGameMode( GameMode gameMode )
+    //    {
+    //    }
 
     @Override
     public void sendMessage( Text message, MessageType type, UUID senderUuid )
@@ -228,15 +228,15 @@ public class FakePlayer extends ServerPlayerEntity
         return "[Fake Player]";
     }
 
-//    @Override
-//    public void sendResourcePackUrl( String url, String hash )
-//    {
-//    }
+    //    @Override
+    //    public void sendResourcePackUrl( String url, String hash )
+    //    {
+    //    }
 
-//    @Override
-//    public void onStoppedTracking( Entity entity )
-//    {
-//    }
+    //    @Override
+    //    public void onStoppedTracking( Entity entity )
+    //    {
+    //    }
 
     @Override
     public void setCameraEntity( Entity entity )

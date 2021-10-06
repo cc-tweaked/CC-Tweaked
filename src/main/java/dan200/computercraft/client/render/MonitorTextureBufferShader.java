@@ -1,3 +1,8 @@
+/*
+ * This file is part of ComputerCraft - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Send enquiries to dratcliffe@gmail.com
+ */
 package dan200.computercraft.client.render;
 
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
@@ -24,8 +29,9 @@ public class MonitorTextureBufferShader extends Shader
     private final GlUniform width;
     private final GlUniform height;
 
-    public MonitorTextureBufferShader(ResourceFactory factory, String name, VertexFormat format) throws IOException {
-        super(factory, name, format);
+    public MonitorTextureBufferShader( ResourceFactory factory, String name, VertexFormat format ) throws IOException
+    {
+        super( factory, name, format );
 
         width = getUniformChecked( "Width" );
         height = getUniformChecked( "Height" );

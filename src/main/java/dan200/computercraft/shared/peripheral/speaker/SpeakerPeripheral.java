@@ -147,7 +147,9 @@ public abstract class SpeakerPeripheral implements IPeripheral
                     null, pos.x, pos.y, pos.z, range, world.getRegistryKey(),
                     new PlaySoundIdS2CPacket( name, SoundCategory.RECORDS, pos, actualVolume, pitch )
                 );
-            } else {
+            }
+            else
+            {
                 NetworkHandler.sendToAllAround(
                     new SpeakerPlayClientMessage( getSource(), pos, name, actualVolume, pitch ),
                     world, pos, range
