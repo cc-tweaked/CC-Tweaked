@@ -6,9 +6,7 @@
 package dan200.computercraft.client.gui.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -19,7 +17,6 @@ import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * Version of {@link net.minecraft.client.gui.widget.TexturedButtonWidget} which allows changing some properties
@@ -68,7 +65,7 @@ public class DynamicImageButton extends ButtonWidget
     }
 
     @Override
-    public void renderButton(@Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
+    public void renderButton( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
     {
         RenderSystem.setShaderTexture( 0, texture );
         RenderSystem.disableDepthTest();
@@ -90,7 +87,7 @@ public class DynamicImageButton extends ButtonWidget
         return tooltip.isEmpty() ? LiteralText.EMPTY : tooltip.get( 0 );
     }
 
-//    @Override
+    // @Override
     public void renderToolTip( @Nonnull MatrixStack stack, int mouseX, int mouseY )
     {
         List<Text> tooltip = this.tooltip.get();

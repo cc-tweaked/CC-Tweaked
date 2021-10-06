@@ -6,22 +6,18 @@
 
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.FrameInfo;
-import dan200.computercraft.client.render.MonitorTextureBufferShader;
 import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
-//import dan200.computercraft.fabric.mixin.RenderLayerAccessor;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.*;
-import net.minecraft.util.math.AffineTransformation;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.AffineTransformation;
 import net.minecraft.util.math.Matrix4f;
-import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -162,32 +158,32 @@ public final class FixedWidthFontRenderer
         buffer.vertex( transform, x, y, 0f )
             .color( r, g, b, 1.0f )
             .texture( xStart / WIDTH, yStart / WIDTH )
-            .light(light)
+            .light( light )
             .next();
         buffer.vertex( transform, x, y + FONT_HEIGHT, 0f )
             .color( r, g, b, 1.0f )
             .texture( xStart / WIDTH, (yStart + FONT_HEIGHT) / WIDTH )
-            .light(light)
+            .light( light )
             .next();
         buffer.vertex( transform, x + FONT_WIDTH, y, 0f )
             .color( r, g, b, 1.0f )
             .texture( (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH )
-            .light(light)
+            .light( light )
             .next();
         buffer.vertex( transform, x + FONT_WIDTH, y, 0f )
             .color( r, g, b, 1.0f )
             .texture( (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH )
-            .light(light)
+            .light( light )
             .next();
         buffer.vertex( transform, x, y + FONT_HEIGHT, 0f )
             .color( r, g, b, 1.0f )
             .texture( xStart / WIDTH, (yStart + FONT_HEIGHT) / WIDTH )
-            .light(light)
+            .light( light )
             .next();
         buffer.vertex( transform, x + FONT_WIDTH, y + FONT_HEIGHT, 0f )
             .color( r, g, b, 1.0f )
             .texture( (xStart + FONT_WIDTH) / WIDTH, (yStart + FONT_HEIGHT) / WIDTH )
-            .light(light)
+            .light( light )
             .next();
     }
 
@@ -323,8 +319,6 @@ public final class FixedWidthFontRenderer
     public static void drawTerminal( @Nonnull Matrix4f transform, float x, float y, @Nonnull Terminal terminal, boolean greyscale, float topMarginSize,
                                      float bottomMarginSize, float leftMarginSize, float rightMarginSize )
     {
-//        bindFont();
-
         VertexConsumerProvider.Immediate renderer = MinecraftClient.getInstance()
             .getBufferBuilders()
             .getEntityVertexConsumers();
@@ -347,8 +341,6 @@ public final class FixedWidthFontRenderer
 
     public static void drawEmptyTerminal( @Nonnull Matrix4f transform, float x, float y, float width, float height )
     {
-//        bindFont();
-
         VertexConsumerProvider.Immediate renderer = MinecraftClient.getInstance()
             .getBufferBuilders()
             .getEntityVertexConsumers();
@@ -366,6 +358,6 @@ public final class FixedWidthFontRenderer
     public static void drawBlocker( @Nonnull Matrix4f transform, @Nonnull VertexConsumerProvider renderer, float x, float y, float width, float height )
     {
         Colour colour = Colour.BLACK;
-        drawQuad( transform, renderer.getBuffer(RenderTypes.TERMINAL_BLOCKER), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
+        drawQuad( transform, renderer.getBuffer( RenderTypes.TERMINAL_BLOCKER ), x, y, width, height, colour.getR(), colour.getG(), colour.getB() );
     }
 }

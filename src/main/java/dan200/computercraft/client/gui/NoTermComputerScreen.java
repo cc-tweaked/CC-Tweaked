@@ -27,7 +27,7 @@ public class NoTermComputerScreen<T extends ContainerComputerBase> extends Scree
     private final T menu;
     private WidgetTerminal terminal;
 
-    public NoTermComputerScreen(T menu, PlayerInventory player, Text title )
+    public NoTermComputerScreen( T menu, PlayerInventory player, Text title )
     {
         super( title );
         this.menu = menu;
@@ -102,7 +102,7 @@ public class NoTermComputerScreen<T extends ContainerComputerBase> extends Scree
     }
 
     @Override
-    public void render(MatrixStack transform, int mouseX, int mouseY, float partialTicks )
+    public void render( MatrixStack transform, int mouseX, int mouseY, float partialTicks )
     {
         super.render( transform, mouseX, mouseY, partialTicks );
 

@@ -40,7 +40,7 @@ public final class OptionScreen extends Screen
 
     private final Screen originalScreen;
 
-    private OptionScreen(Text title, Text message, List<ClickableWidget> buttons, Runnable exit, Screen originalScreen )
+    private OptionScreen( Text title, Text message, List<ClickableWidget> buttons, Runnable exit, Screen originalScreen )
     {
         super( title );
         this.message = message;
@@ -87,7 +87,7 @@ public final class OptionScreen extends Screen
     }
 
     @Override
-    public void render(@Nonnull MatrixStack transform, int mouseX, int mouseY, float partialTicks )
+    public void render( @Nonnull MatrixStack transform, int mouseX, int mouseY, float partialTicks )
     {
         renderBackground( transform );
 

@@ -54,7 +54,8 @@ public final class CableHighlightRenderer
         Matrix4f matrix4f = stack.peek()
             .getModel();
         Matrix3f normal = stack.peek().getNormal();
-        shape.forEachEdge( ( x1, y1, z1, x2, y2, z2 ) -> { float xDelta = (float) (x2 - x1);
+        shape.forEachEdge( ( x1, y1, z1, x2, y2, z2 ) -> {
+            float xDelta = (float) (x2 - x1);
             float yDelta = (float) (y2 - y1);
             float zDelta = (float) (z2 - z1);
             float len = MathHelper.sqrt( xDelta * xDelta + yDelta * yDelta + zDelta * zDelta );
@@ -64,11 +65,11 @@ public final class CableHighlightRenderer
 
             consumer.vertex( matrix4f, (float) (x1 + xOffset), (float) (y1 + yOffset), (float) (z1 + zOffset) )
                 .color( 0, 0, 0, 0.4f )
-                .normal(normal, xDelta, yDelta, zDelta)
+                .normal( normal, xDelta, yDelta, zDelta )
                 .next();
             consumer.vertex( matrix4f, (float) (x2 + xOffset), (float) (y2 + yOffset), (float) (z2 + zOffset) )
                 .color( 0, 0, 0, 0.4f )
-                .normal(normal, xDelta, yDelta, zDelta)
+                .normal( normal, xDelta, yDelta, zDelta )
                 .next();
         } );
 

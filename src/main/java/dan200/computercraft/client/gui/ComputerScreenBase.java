@@ -29,7 +29,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class ComputerScreenBase <T extends ContainerComputerBase> extends HandledScreen<T> {
+public abstract class ComputerScreenBase<T extends ContainerComputerBase> extends HandledScreen<T>
+{
 
     private static final Text OK = new TranslatableText( "gui.ok" );
     private static final Text CANCEL = new TranslatableText( "gui.cancel" );
@@ -41,7 +42,7 @@ public abstract class ComputerScreenBase <T extends ContainerComputerBase> exten
 
     protected final int sidebarYOffset;
 
-    public ComputerScreenBase(T container, PlayerInventory player, Text title, int sidebarYOffset )
+    public ComputerScreenBase( T container, PlayerInventory player, Text title, int sidebarYOffset )
     {
         super( container, player, title );
         computer = (ClientComputer) container.getComputer();
@@ -89,7 +90,7 @@ public abstract class ComputerScreenBase <T extends ContainerComputerBase> exten
     }
 
     @Override
-    public final void render(@Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
+    public final void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
     {
         renderBackground( stack );
         super.render( stack, mouseX, mouseY, partialTicks );
@@ -113,7 +114,7 @@ public abstract class ComputerScreenBase <T extends ContainerComputerBase> exten
     public void filesDragged( @Nonnull List<Path> files )
     {
         // TODO: this thing doesn't work in Tweaked at this moment
-        if (true) return;
+        if ( true ) return;
         if( files.isEmpty() ) return;
 
         if( computer == null || !computer.isOn() )

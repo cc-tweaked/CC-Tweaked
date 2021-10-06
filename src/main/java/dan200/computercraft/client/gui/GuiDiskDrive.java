@@ -7,7 +7,6 @@
 package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.render.GameRenderer;
@@ -38,9 +37,9 @@ public class GuiDiskDrive extends HandledScreen<ContainerDiskDrive>
     @Override
     protected void drawBackground( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, BACKGROUND);
+        RenderSystem.setShader( GameRenderer::getPositionTexShader );
+        RenderSystem.setShaderColor( 1.0F, 1.0F, 1.0F, 1.0F );
+        RenderSystem.setShaderTexture( 0, BACKGROUND );
         drawTexture( transform, x, y, 0, 0, backgroundWidth, backgroundHeight );
     }
 }

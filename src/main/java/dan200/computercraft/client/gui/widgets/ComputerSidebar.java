@@ -45,7 +45,7 @@ public final class ComputerSidebar
     {
     }
 
-    public static void addButtons(Screen screen, ClientComputer computer, Consumer<ClickableWidget> add, int x, int y )
+    public static void addButtons( Screen screen, ClientComputer computer, Consumer<ClickableWidget> add, int x, int y )
     {
         x += CORNERS_BORDER + 1;
         y += CORNERS_BORDER + ICON_MARGIN;
@@ -55,10 +55,10 @@ public final class ComputerSidebar
             TEXTURE, TEX_SIZE, TEX_SIZE, b -> toggleComputer( computer ),
             () -> computer.isOn() ? Arrays.asList(
                 new TranslatableText( "gui.computercraft.tooltip.turn_off" ),
-                ChatHelpers.coloured(new TranslatableText( "gui.computercraft.tooltip.turn_off.key" ), Formatting.GRAY)
+                ChatHelpers.coloured( new TranslatableText( "gui.computercraft.tooltip.turn_off.key" ), Formatting.GRAY )
             ) : Arrays.asList(
                 new TranslatableText( "gui.computercraft.tooltip.turn_on" ),
-                ChatHelpers.coloured(new TranslatableText( "gui.computercraft.tooltip.turn_off.key" ), Formatting.GRAY)
+                ChatHelpers.coloured( new TranslatableText( "gui.computercraft.tooltip.turn_off.key" ), Formatting.GRAY )
             )
         ) );
 
@@ -69,12 +69,12 @@ public final class ComputerSidebar
             TEXTURE, TEX_SIZE, TEX_SIZE, b -> computer.queueEvent( "terminate" ),
             Arrays.asList(
                 new TranslatableText( "gui.computercraft.tooltip.terminate" ),
-                ChatHelpers.coloured(new TranslatableText( "gui.computercraft.tooltip.terminate.key" ), Formatting.GRAY)
+                ChatHelpers.coloured( new TranslatableText( "gui.computercraft.tooltip.terminate.key" ), Formatting.GRAY )
             )
         ) );
     }
 
-    public static void renderBackground(MatrixStack transform, int x, int y )
+    public static void renderBackground( MatrixStack transform, int x, int y )
     {
         Screen.drawTexture( transform,
             x, y, 0, 102, WIDTH, FULL_BORDER,

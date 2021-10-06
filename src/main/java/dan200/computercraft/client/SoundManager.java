@@ -21,7 +21,7 @@ public class SoundManager
 {
     private static final Map<UUID, MoveableSound> sounds = new HashMap<>();
 
-    public static void playSound(UUID source, Vec3d position, SoundEvent event, float volume, float pitch )
+    public static void playSound( UUID source, Vec3d position, SoundEvent event, float volume, float pitch )
     {
         var soundManager = MinecraftClient.getInstance().getSoundManager();
 

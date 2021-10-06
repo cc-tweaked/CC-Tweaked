@@ -65,7 +65,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Computer
     public void drawBackground( @Nonnull MatrixStack stack, float partialTicks, int mouseX, int mouseY )
     {
         ComputerBorderRenderer.render(
-            getTexture(family), terminal.x, terminal.y, getZOffset(),
+            getTexture( family ), terminal.x, terminal.y, getZOffset(),
             RenderTypes.FULL_BRIGHT_LIGHTMAP, terminal.getWidth(), terminal.getHeight() );
         ComputerSidebar.renderBackground( stack, x, y + sidebarYOffset );
     }

@@ -8,30 +8,25 @@ package dan200.computercraft.client.gui.widgets;
 
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.computer.core.ClientComputer;
-import dan200.computercraft.shared.computer.core.IComputer;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.util.ChatUtil;
 import net.minecraft.util.math.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
 import java.util.BitSet;
-import java.util.function.Supplier;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
 
-public class WidgetTerminal extends ClickableWidget {
+public class WidgetTerminal extends ClickableWidget
+{
     private static final float TERMINATE_TIME = 0.5f;
 
     private final ClientComputer computer;
@@ -54,7 +49,7 @@ public class WidgetTerminal extends ClickableWidget {
 
     public WidgetTerminal( @Nonnull ClientComputer computer, int x, int y, int termWidth, int termHeight )
     {
-        super( x, y, termWidth * FONT_WIDTH + MARGIN * 2, termHeight * FONT_HEIGHT + MARGIN * 2, LiteralText.EMPTY);
+        super( x, y, termWidth * FONT_WIDTH + MARGIN * 2, termHeight * FONT_HEIGHT + MARGIN * 2, LiteralText.EMPTY );
 
         this.computer = computer;
 
@@ -70,7 +65,7 @@ public class WidgetTerminal extends ClickableWidget {
         if( ch >= 32 && ch <= 126 || ch >= 160 && ch <= 255 ) // printable chars in byte range
         {
             // Queue the "char" event
-            queueEvent( "char", Character.toString( ch ));
+            queueEvent( "char", Character.toString( ch ) );
         }
 
         return true;
@@ -351,7 +346,7 @@ public class WidgetTerminal extends ClickableWidget {
     }
 
     @Override
-    public void render(@Nonnull MatrixStack transform, int mouseX, int mouseY, float partialTicks )
+    public void render( @Nonnull MatrixStack transform, int mouseX, int mouseY, float partialTicks )
     {
         if( !visible ) return;
         Matrix4f matrix = transform.peek().getModel();
@@ -367,7 +362,8 @@ public class WidgetTerminal extends ClickableWidget {
     }
 
     @Override
-    public void appendNarrations(NarrationMessageBuilder builder) {
+    public void appendNarrations( NarrationMessageBuilder builder )
+    {
 
     }
 
