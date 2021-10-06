@@ -28,6 +28,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -43,7 +44,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -271,7 +271,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         super.load( nbt );
 
         // Read inventory
-        ListTag nbttaglist = nbt.getList( "Items", Constants.NBT.TAG_COMPOUND );
+        ListTag nbttaglist = nbt.getList( "Items", Tag.TAG_COMPOUND );
         inventory.clear();
         previousInventory.clear();
         for( int i = 0; i < nbttaglist.size(); i++ )

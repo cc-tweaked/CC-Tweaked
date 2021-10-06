@@ -26,6 +26,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.Container;
@@ -40,7 +41,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
@@ -206,7 +206,7 @@ public class TurtleBrain implements ITurtleAccess
         selectedSlot = nbt.getInt( NBT_SLOT );
 
         // Read owner
-        if( nbt.contains( "Owner", Constants.NBT.TAG_COMPOUND ) )
+        if( nbt.contains( "Owner", Tag.TAG_COMPOUND ) )
         {
             CompoundTag owner = nbt.getCompound( "Owner" );
             owningPlayer = new GameProfile(

@@ -7,7 +7,6 @@ package dan200.computercraft.shared.util;
 
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.nbt.*;
-import net.minecraftforge.common.util.Constants;
 import org.apache.commons.codec.binary.Hex;
 
 import javax.annotation.Nonnull;
@@ -20,8 +19,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static net.minecraftforge.common.util.Constants.NBT.*;
 
 public final class NBTUtil
 {
@@ -74,14 +71,14 @@ public final class NBTUtil
         if( tag == null ) return null;
         switch( tag.getId() )
         {
-            case TAG_BYTE:
+            case Tag.TAG_BYTE:
                 return ((ByteTag) tag).getAsByte() > 0;
-            case TAG_DOUBLE:
+            case Tag.TAG_DOUBLE:
                 return ((DoubleTag) tag).getAsDouble();
             default:
-            case TAG_STRING:
+            case Tag.TAG_STRING:
                 return tag.getAsString();
-            case TAG_COMPOUND:
+            case Tag.TAG_COMPOUND:
             {
                 CompoundTag c = (CompoundTag) tag;
                 int len = c.getInt( "len" );
@@ -104,17 +101,17 @@ public final class NBTUtil
         byte typeID = tag.getId();
         switch( typeID )
         {
-            case Constants.NBT.TAG_BYTE:
-            case Constants.NBT.TAG_SHORT:
-            case Constants.NBT.TAG_INT:
-            case Constants.NBT.TAG_LONG:
+            case Tag.TAG_BYTE:
+            case Tag.TAG_SHORT:
+            case Tag.TAG_INT:
+            case Tag.TAG_LONG:
                 return ((NumericTag) tag).getAsLong();
-            case Constants.NBT.TAG_FLOAT:
-            case Constants.NBT.TAG_DOUBLE:
+            case Tag.TAG_FLOAT:
+            case Tag.TAG_DOUBLE:
                 return ((NumericTag) tag).getAsDouble();
-            case Constants.NBT.TAG_STRING: // String
+            case Tag.TAG_STRING: // String
                 return tag.getAsString();
-            case Constants.NBT.TAG_COMPOUND: // Compound
+            case Tag.TAG_COMPOUND: // Compound
             {
                 CompoundTag compound = (CompoundTag) tag;
                 Map<String, Object> map = new HashMap<>( compound.size() );
@@ -125,21 +122,21 @@ public final class NBTUtil
                 }
                 return map;
             }
-            case Constants.NBT.TAG_LIST:
+            case Tag.TAG_LIST:
             {
                 ListTag list = (ListTag) tag;
                 Map<Integer, Object> map = new HashMap<>( list.size() );
                 for( int i = 0; i < list.size(); i++ ) map.put( i, toLua( list.get( i ) ) );
                 return map;
             }
-            case Constants.NBT.TAG_BYTE_ARRAY:
+            case Tag.TAG_BYTE_ARRAY:
             {
                 byte[] array = ((ByteArrayTag) tag).getAsByteArray();
                 Map<Integer, Byte> map = new HashMap<>( array.length );
                 for( int i = 0; i < array.length; i++ ) map.put( i + 1, array[i] );
                 return map;
             }
-            case Constants.NBT.TAG_INT_ARRAY:
+            case Tag.TAG_INT_ARRAY:
             {
                 int[] array = ((IntArrayTag) tag).getAsIntArray();
                 Map<Integer, Integer> map = new HashMap<>( array.length );

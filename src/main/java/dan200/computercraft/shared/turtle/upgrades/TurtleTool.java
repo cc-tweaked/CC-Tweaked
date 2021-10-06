@@ -19,6 +19,7 @@ import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -36,7 +37,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import org.apache.commons.lang3.tuple.Pair;
@@ -75,8 +75,8 @@ public class TurtleTool extends AbstractTurtleUpgrade
         // Check we've not got anything vaguely interesting on the item. We allow other mods to add their
         // own NBT, with the understanding such details will be lost to the mist of time.
         if( stack.isDamaged() || stack.isEnchanted() || stack.hasCustomHoverName() ) return false;
-        if( tag.contains( "AttributeModifiers", Constants.NBT.TAG_LIST ) &&
-            !tag.getList( "AttributeModifiers", Constants.NBT.TAG_COMPOUND ).isEmpty() )
+        if( tag.contains( "AttributeModifiers", Tag.TAG_LIST ) &&
+            !tag.getList( "AttributeModifiers", Tag.TAG_COMPOUND ).isEmpty() )
         {
             return false;
         }

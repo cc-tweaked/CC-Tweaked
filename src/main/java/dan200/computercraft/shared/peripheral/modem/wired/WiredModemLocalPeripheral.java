@@ -12,9 +12,9 @@ import dan200.computercraft.shared.util.IDAssigner;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullConsumer;
 
@@ -131,10 +131,10 @@ public final class WiredModemLocalPeripheral
 
     public void read( @Nonnull CompoundTag tag, @Nonnull String suffix )
     {
-        id = tag.contains( NBT_PERIPHERAL_ID + suffix, Constants.NBT.TAG_ANY_NUMERIC )
+        id = tag.contains( NBT_PERIPHERAL_ID + suffix, Tag.TAG_ANY_NUMERIC )
             ? tag.getInt( NBT_PERIPHERAL_ID + suffix ) : -1;
 
-        type = tag.contains( NBT_PERIPHERAL_TYPE + suffix, Constants.NBT.TAG_STRING )
+        type = tag.contains( NBT_PERIPHERAL_TYPE + suffix, Tag.TAG_STRING )
             ? tag.getString( NBT_PERIPHERAL_TYPE + suffix ) : null;
     }
 

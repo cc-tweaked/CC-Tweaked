@@ -15,7 +15,6 @@ import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -69,12 +68,12 @@ public class ItemData
         data.put( "tags", DataHelpers.getTags( stack.getItem().getTags() ) );
 
         CompoundTag tag = stack.getTag();
-        if( tag != null && tag.contains( "display", Constants.NBT.TAG_COMPOUND ) )
+        if( tag != null && tag.contains( "display", Tag.TAG_COMPOUND ) )
         {
             CompoundTag displayTag = tag.getCompound( "display" );
-            if( displayTag.contains( "Lore", Constants.NBT.TAG_LIST ) )
+            if( displayTag.contains( "Lore", Tag.TAG_LIST ) )
             {
-                ListTag loreTag = displayTag.getList( "Lore", Constants.NBT.TAG_STRING );
+                ListTag loreTag = displayTag.getList( "Lore", Tag.TAG_STRING );
                 data.put( "lore", loreTag.stream()
                     .map( ItemData::parseTextComponent )
                     .filter( Objects::nonNull )

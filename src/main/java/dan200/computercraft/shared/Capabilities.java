@@ -8,15 +8,14 @@ package dan200.computercraft.shared;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
 
 public final class Capabilities
 {
-    @CapabilityInject( IPeripheral.class )
-    public static Capability<IPeripheral> CAPABILITY_PERIPHERAL = null;
+    public static final Capability<IPeripheral> CAPABILITY_PERIPHERAL = CapabilityManager.get( new CapabilityToken<>() {} );
 
-    @CapabilityInject( IWiredElement.class )
-    public static Capability<IWiredElement> CAPABILITY_WIRED_ELEMENT = null;
+    public static final Capability<IWiredElement> CAPABILITY_WIRED_ELEMENT = CapabilityManager.get( new CapabilityToken<>() {} );
 
     private Capabilities()
     {

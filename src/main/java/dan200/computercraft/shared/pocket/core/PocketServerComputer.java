@@ -16,6 +16,7 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -24,7 +25,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -83,7 +83,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     public int getLight()
     {
         CompoundTag tag = getUserData();
-        return tag.contains( NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) ? tag.getInt( NBT_LIGHT ) : -1;
+        return tag.contains( NBT_LIGHT, Tag.TAG_ANY_NUMERIC ) ? tag.getInt( NBT_LIGHT ) : -1;
     }
 
     @Override
@@ -92,13 +92,13 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         CompoundTag tag = getUserData();
         if( colour >= 0 && colour <= 0xFFFFFF )
         {
-            if( !tag.contains( NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) || tag.getInt( NBT_LIGHT ) != colour )
+            if( !tag.contains( NBT_LIGHT, Tag.TAG_ANY_NUMERIC ) || tag.getInt( NBT_LIGHT ) != colour )
             {
                 tag.putInt( NBT_LIGHT, colour );
                 updateUserData();
             }
         }
-        else if( tag.contains( NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) )
+        else if( tag.contains( NBT_LIGHT, Tag.TAG_ANY_NUMERIC ) )
         {
             tag.remove( NBT_LIGHT );
             updateUserData();
