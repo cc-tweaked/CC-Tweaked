@@ -63,14 +63,14 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @Override
     public void receiveSameDimension( @Nonnull Packet packet, double distance )
     {
-        if( packet.getSender() == this || !state.isOpen( packet.getChannel() ) ) return;
+        if( packet.sender() == this || !state.isOpen( packet.channel() ) ) return;
 
         synchronized( computers )
         {
             for( IComputerAccess computer : computers )
             {
                 computer.queueEvent( "modem_message",
-                    computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload(), distance );
+                    computer.getAttachmentName(), packet.channel(), packet.replyChannel(), packet.payload(), distance );
             }
         }
     }
@@ -78,14 +78,14 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     @Override
     public void receiveDifferentDimension( @Nonnull Packet packet )
     {
-        if( packet.getSender() == this || !state.isOpen( packet.getChannel() ) ) return;
+        if( packet.sender() == this || !state.isOpen( packet.channel() ) ) return;
 
         synchronized( computers )
         {
             for( IComputerAccess computer : computers )
             {
                 computer.queueEvent( "modem_message",
-                    computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload() );
+                    computer.getAttachmentName(), packet.channel(), packet.replyChannel(), packet.payload() );
             }
         }
     }

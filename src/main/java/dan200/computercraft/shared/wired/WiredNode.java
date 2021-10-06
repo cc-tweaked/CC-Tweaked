@@ -80,7 +80,7 @@ public final class WiredNode implements IWiredNode
     public void transmitSameDimension( @Nonnull Packet packet, double range )
     {
         Objects.requireNonNull( packet, "packet cannot be null" );
-        if( !(packet.getSender() instanceof IWiredSender) || ((IWiredSender) packet.getSender()).getNode() != this )
+        if( !(packet.sender() instanceof IWiredSender) || ((IWiredSender) packet.sender()).getNode() != this )
         {
             throw new IllegalArgumentException( "Sender is not in the network" );
         }
@@ -100,7 +100,7 @@ public final class WiredNode implements IWiredNode
     public void transmitInterdimensional( @Nonnull Packet packet )
     {
         Objects.requireNonNull( packet, "packet cannot be null" );
-        if( !(packet.getSender() instanceof IWiredSender) || ((IWiredSender) packet.getSender()).getNode() != this )
+        if( !(packet.sender() instanceof IWiredSender) || ((IWiredSender) packet.sender()).getNode() != this )
         {
             throw new IllegalArgumentException( "Sender is not in the network" );
         }

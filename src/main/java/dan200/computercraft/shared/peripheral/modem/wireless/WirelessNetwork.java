@@ -63,7 +63,7 @@ public class WirelessNetwork implements IPacketNetwork
 
     private static void tryTransmit( IPacketReceiver receiver, Packet packet, double range, boolean interdimensional )
     {
-        IPacketSender sender = packet.getSender();
+        IPacketSender sender = packet.sender();
         if( receiver.getLevel() == sender.getLevel() )
         {
             double receiveRange = Math.max( range, receiver.getRange() ); // Ensure range is symmetrical

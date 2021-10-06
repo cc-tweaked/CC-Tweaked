@@ -325,9 +325,9 @@ public final class WiredNetwork implements IWiredNetwork
         TreeSet<TransmitPoint> transmitTo = new TreeSet<>();
 
         {
-            TransmitPoint startEntry = start.element.getLevel() != packet.getSender().getLevel()
+            TransmitPoint startEntry = start.element.getLevel() != packet.sender().getLevel()
                 ? new TransmitPoint( start, Double.POSITIVE_INFINITY, true )
-                : new TransmitPoint( start, start.element.getPosition().distanceTo( packet.getSender().getPosition() ), false );
+                : new TransmitPoint( start, start.element.getPosition().distanceTo( packet.sender().getPosition() ), false );
             points.put( start, startEntry );
             transmitTo.add( startEntry );
         }
