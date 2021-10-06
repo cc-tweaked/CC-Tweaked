@@ -7,6 +7,7 @@ package dan200.computercraft.ingame.mod;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
+import dan200.computercraft.ingame.api.Times;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
@@ -29,7 +30,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 @Mod.EventBusSubscriber( modid = TestMod.MOD_ID )
 public class TestHooks
@@ -58,7 +58,7 @@ public class TestHooks
         rules.getRule( GameRules.RULE_DOMOBSPAWNING ).set( false, server );
 
         ServerLevel world = event.getServer().getLevel( Level.OVERWORLD );
-        if( world != null ) world.setDayTime( 6000 );
+        if( world != null ) world.setDayTime( Times.NOON );
 
         LOG.info( "Cleaning up after last run" );
         CommandSourceStack source = server.createCommandSourceStack();
@@ -86,16 +86,12 @@ public class TestHooks
     {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         CommandSourceStack source = server.createCommandSourceStack();
-        Collection<TestFunction> tests = GameTestRegistry.getAllTestFunctions()
-            .stream()
-            .filter( x -> FMLLoader.getDist().isClient() | !x.getBatchName().startsWith( "client" ) )
-            .collect( Collectors.toList() );
+        Collection<TestFunction> tests = GameTestRegistry.getAllTestFunctions();
 
         LOG.info( "Running {} tests...", tests.size() );
 
-        Collection<GameTestBatch> batches = GameTestRunner.groupTestsIntoBatches( tests );
-        return new MultipleTestTracker( GameTestRunner.runTestBatches(
-            batches, getStart( source ), Rotation.NONE, source.getLevel(), GameTestTicker.SINGLETON, 8
+        return new MultipleTestTracker( GameTestRunner.runTests(
+            tests, getStart( source ), Rotation.NONE, source.getLevel(), GameTestTicker.SINGLETON, 8
         ) );
     }
 

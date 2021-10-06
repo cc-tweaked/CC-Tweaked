@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.core.apis;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.peripheral.IComputerAccess;
@@ -30,6 +31,11 @@ public abstract class ComputerAccess implements IComputerAccess
     public void unmountAll()
     {
         FileSystem fileSystem = environment.getFileSystem();
+        if( !mounts.isEmpty() )
+        {
+            ComputerCraft.log.warn( "Peripheral or API called mount but did not call unmount for {}", mounts );
+        }
+
         for( String mount : mounts )
         {
             fileSystem.unmount( mount );

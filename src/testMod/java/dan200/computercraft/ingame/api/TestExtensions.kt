@@ -7,19 +7,32 @@ import net.minecraft.client.Screenshot
 import net.minecraft.commands.arguments.blocks.BlockInput
 import net.minecraft.core.BlockPos
 import net.minecraft.gametest.framework.GameTestAssertException
+import net.minecraft.gametest.framework.GameTestAssertPosException
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.gametest.framework.GameTestSequence
 import net.minecraft.world.entity.decoration.ArmorStand
-import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.level.levelgen.Heightmap
 import java.nio.file.Files
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.Supplier
 import javax.imageio.ImageIO
 
+object Times {
+    const val NOON: Long = 6000
+}
+
+/**
+ * Custom timeouts for various test types.
+ */
+object Timeouts {
+    const val COMPUTER_TIMEOUT: Int = 200
+
+    const val CLIENT_TIMEOUT: Int = 400
+}
 
 /**
  * Wait until a computer has finished running and check it is OK.
@@ -58,25 +71,31 @@ fun GameTestSequence.thenScreenshot(name: String? = null): GameTestSequence {
     val suffix = if (name == null) "" else "-$name"
     val fullName = "${parent.testName}$suffix"
 
-    val counter = AtomicInteger()
+    var counter = 0
+    val hasScreenshot = AtomicBoolean()
+
     return this
         // Wait until all chunks have been rendered and we're idle for an extended period.
-        .thenExecute { counter.set(0) }
+        .thenExecute { counter = 0 }
         .thenWaitUntil {
-            if (Minecraft.getInstance().levelRenderer.hasRenderedAllChunks()) {
-                val idleFor = counter.getAndIncrement()
+            val renderer = Minecraft.getInstance().levelRenderer
+            if (renderer.chunkRenderDispatcher != null && renderer.hasRenderedAllChunks()) {
+                val idleFor = ++counter
                 if (idleFor <= 20) throw GameTestAssertException("Only idle for $idleFor ticks")
             } else {
-                counter.set(0)
+                counter = 0
                 throw GameTestAssertException("Waiting for client to finish rendering")
             }
         }
         // Now disable the GUI, take a screenshot and reenable it. We sleep either side to give the client time to do
         // its thing.
-        .thenExecute { Minecraft.getInstance().options.hideGui = true }
+        .thenExecute {
+            Minecraft.getInstance().options.hideGui = true
+            hasScreenshot.set(false)
+        }
         .thenIdle(5) // Some delay before/after to ensure the render thread has caught up.
-        .thenOnClient { screenshot("$fullName.png") }
-        .thenIdle(2)
+        .thenOnClient { screenshot("$fullName.png") { hasScreenshot.set(true) } }
+        .thenWaitUntil { if (!hasScreenshot.get()) throw GameTestAssertException("Screenshot does not exist") }
         .thenExecute {
             Minecraft.getInstance().options.hideGui = false
 
@@ -87,20 +106,21 @@ fun GameTestSequence.thenScreenshot(name: String? = null): GameTestSequence {
             if (!Files.exists(originalPath)) throw GameTestAssertException("$fullName does not exist. Use `/cctest promote' to create it.");
 
             val screenshot = ImageIO.read(screenshotPath.toFile())
+                ?: throw GameTestAssertException("Error reading screenshot from $screenshotPath")
             val original = ImageIO.read(originalPath.toFile())
 
             if (screenshot.width != original.width || screenshot.height != original.height) {
                 throw GameTestAssertException("$fullName screenshot is ${screenshot.width}x${screenshot.height} but original is ${original.width}x${original.height}")
             }
 
-            if (ImageUtils.areSame(screenshot, original)) return@thenExecute
-
             ImageUtils.writeDifference(screenshotsPath.resolve("$fullName.diff.png"), screenshot, original)
-            throw GameTestAssertException("Images are different.")
+            if (!ImageUtils.areSame(screenshot, original)) throw GameTestAssertException("Images are different.")
         }
 }
 
 val GameTestHelper.testName: String get() = testInfo.testName
+
+val GameTestHelper.structureName: String get() = testInfo.structureName
 
 /**
  * Modify a block state within the test.
@@ -113,38 +133,30 @@ fun GameTestHelper.sequence(run: GameTestSequence.() -> GameTestSequence) {
     run(startSequence()).thenSucceed()
 }
 
+fun <T : BlockEntity> GameTestHelper.getBlockEntity(pos: BlockPos, type: BlockEntityType<T>): T {
+    val tile = getBlockEntity(pos)
+    @Suppress("UNCHECKED_CAST")
+    return when {
+        tile == null -> throw GameTestAssertPosException("Expected ${type.registryName}, but no tile was there", absolutePos(pos), pos, 0)
+        tile.type != type -> throw GameTestAssertPosException("Expected ${type.registryName} but got ${tile.type.registryName}", absolutePos(pos), pos, 0)
+        else -> tile as T
+    }
+}
+
 /**
  * Set a block within the test structure.
  */
 fun GameTestHelper.setBlock(pos: BlockPos, state: BlockInput) = state.place(level, absolutePos(pos), 3)
 
 /**
- * "Normalise" the current world in preparation for screenshots.
- *
- * Basically removes any dirt and replaces it with concrete.
- */
-fun GameTestHelper.normaliseScene() {
-    val y = level.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, absolutePos(BlockPos.ZERO))
-    for (x in -100..100) {
-        for (z in -100..100) {
-            val pos = y.offset(x, -3, z)
-            val block = level.getBlockState(pos).block
-            if (block == Blocks.DIRT || block == Blocks.GRASS_BLOCK) {
-                level.setBlock(pos, Blocks.WHITE_CONCRETE.defaultBlockState(), 3)
-            }
-        }
-    }
-}
-
-/**
  * Position the player at an armor stand.
  */
 fun GameTestHelper.positionAtArmorStand() {
-    val entities = level.getEntities(null, bounds) { it.name.string == testName }
-    if (entities.size <= 0 || entities[0] !is ArmorStand) throw IllegalStateException("Cannot find armor stand")
+    val entities = level.getEntities(null, bounds) { it.name.string == structureName }
+    if (entities.size <= 0 || entities[0] !is ArmorStand) throw GameTestAssertException("Cannot find armor stand")
 
     val stand = entities[0] as ArmorStand
-    val player = level.randomPlayer ?: throw NullPointerException("Player does not exist")
+    val player = level.randomPlayer ?: throw GameTestAssertException("Player does not exist")
 
     player.connection.teleport(stand.x, stand.y, stand.z, stand.yRot, stand.xRot)
 }
@@ -153,7 +165,10 @@ fun GameTestHelper.positionAtArmorStand() {
 class ClientTestHelper {
     val minecraft: Minecraft = Minecraft.getInstance()
 
-    fun screenshot(name: String) {
-        Screenshot.grab(minecraft.gameDirectory, name, minecraft.mainRenderTarget) { TestMod.log.info(it.string) }
+    fun screenshot(name: String, callback: () -> Unit = {}) {
+        Screenshot.grab(minecraft.gameDirectory, name, minecraft.mainRenderTarget) {
+            TestMod.log.info(it.string)
+            callback()
+        }
     }
 }

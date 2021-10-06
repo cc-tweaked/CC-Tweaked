@@ -127,8 +127,8 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
             FixedWidthFontRenderer.drawBlocker(
                 transform.last().pose(), renderer,
-                (float) -TileMonitor.RENDER_MARGIN, (float) TileMonitor.RENDER_MARGIN,
-                (float) (xSize + 2 * TileMonitor.RENDER_MARGIN), (float) -(ySize + TileMonitor.RENDER_MARGIN * 2)
+                -MARGIN, MARGIN,
+                (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
             );
 
             // Force a flush of the blocker. WorldRenderer.updateCameraAndRender will "finish" all the built-in

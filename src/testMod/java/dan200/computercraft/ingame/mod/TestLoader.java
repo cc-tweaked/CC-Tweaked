@@ -8,6 +8,7 @@ package dan200.computercraft.ingame.mod;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestRegistry;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.forgespi.language.ModFileScanData;
 import org.objectweb.asm.Type;
 
@@ -46,6 +47,9 @@ class TestLoader
         {
             throw new RuntimeException( e );
         }
+
+        GameTest test = method.getAnnotation( GameTest.class );
+        if( test.batch().startsWith( "client" ) && !FMLLoader.getDist().isClient() ) return;
 
         GameTestRegistry.register( method );
     }
