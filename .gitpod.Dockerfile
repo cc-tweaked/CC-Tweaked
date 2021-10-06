@@ -16,4 +16,4 @@ RUN sudo apt-get -q update && \
     sudo apt install -yq openjdk-8-jdk openjdk-16-jdk
 
 # This is so that you can use java 8 until such a time as you switch to java 16
-RUN sudo update-java-alternatives --set java-1.8.0-openjdk-amd64
+RUN sudo update-java-alternatives --set java-1.16.0-openjdk-amd64
