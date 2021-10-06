@@ -42,7 +42,7 @@
     "commands.computercraft.synopsis": "Verschiedene Befehle um Computer zu kontrollieren.",
     "commands.computercraft.desc": "Der /computercraft Befehl enthält verschiedene Werkzeuge um Computer zu debuggen, kontrollieren oder mit ihnen zu interagieren.",
     "commands.computercraft.help.synopsis": "Zeigt die Hilfe für den angegebenen Befehl",
-    "commands.computercraft.help.desc": "Zeigt diese Hilfe",
+    "commands.computercraft.help.desc": "Zeigt diese Hilfe Nachricht",
     "commands.computercraft.help.no_children": "%s hat keine Unterbefehle",
     "commands.computercraft.help.no_command": "Unbekannter Befehl '%s'",
     "commands.computercraft.dump.synopsis": "Zeigt den Status eines Computers.",
