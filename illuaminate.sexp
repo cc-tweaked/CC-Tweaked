@@ -71,6 +71,7 @@
       :max
       _CC_DEFAULT_SETTINGS
       _CC_DISABLE_LUA51_FEATURES
+      _HOST
       ;; Ideally we'd pick these up from bios.lua, but illuaminate currently
       ;; isn't smart enough.
       sleep write printError read rs)))
