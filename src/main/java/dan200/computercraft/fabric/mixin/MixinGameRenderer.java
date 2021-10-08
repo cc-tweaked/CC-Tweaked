@@ -24,9 +24,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @Mixin( GameRenderer.class )
-public class GameRendererMixin
+public class MixinGameRenderer
 {
-    @SuppressWarnings( "UnresolvedMixinReference" )
     @Inject( method = "loadShaders", at = @At( value = "INVOKE_ASSIGN", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 53 ), locals = LocalCapture.CAPTURE_FAILSOFT )
     private void loadShaders( ResourceManager manager, CallbackInfo info, List<Program> list, List<Pair<Shader, Consumer<Shader>>> list2 ) throws IOException
     {

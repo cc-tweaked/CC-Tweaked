@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.fabric.mixin.SoundEventAccess;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -74,7 +73,7 @@ public class PlayRecordClientMessage implements NetworkMessage
         {
             buf.writeBoolean( true );
             buf.writeString( name );
-            buf.writeIdentifier( ((SoundEventAccess) soundEvent).getId() );
+            buf.writeIdentifier( soundEvent.getId() );
         }
     }
 

@@ -152,10 +152,9 @@ public final class NetworkHandler
 
     public static void sendToAllTracking( NetworkMessage packet, WorldChunk chunk )
     {
-        // maybe bug with worlds
         for( PlayerEntity player : chunk.getWorld().getPlayers() )
         {
-            if ( player.getChunkPos().equals( chunk.getPos() ) )
+            if ( chunk.getWorld().getRegistryKey().getValue() == player.getEntityWorld().getRegistryKey().getValue() && player.getChunkPos().equals( chunk.getPos() ) )
             {
                 ((ServerPlayerEntity) player).networkHandler.sendPacket( new CustomPayloadS2CPacket( ID, encode( packet ) ) );
             }

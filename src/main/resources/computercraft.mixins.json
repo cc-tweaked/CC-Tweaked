@@ -6,25 +6,21 @@
         "MinecraftServerAccess",
         "MixinBlock",
         "MixinEntity",
-        "MixinBlockEntity",
         "MixinServerWorld",
         "MixinWorld",
         "SignBlockEntityAccess",
-        "SoundEventAccess",
         "WorldSavePathAccess",
         "MixinServerPlayerInteractionManager",
-        "MusicDiscItemAccessor",
-        "GameRendererMixin",
         "MixinMatrix4f"
     ],
     "client": [
-        "AffineTransformationAccess",
         "ChatHudAccess",
         "HeldItemRendererAccess",
         "MixinHeldItemRenderer",
         "MixinItemFrameEntityRenderer",
         "MixinMinecraftClient",
         "MixinScreen",
+        "MixinGameRenderer",
         "MixinWorldRenderer"
     ],
     "server": [
