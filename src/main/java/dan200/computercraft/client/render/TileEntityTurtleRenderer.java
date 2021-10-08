@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.client.render;
 
 import dan200.computercraft.api.client.TransformedModel;
@@ -148,7 +147,7 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
         transform.pop();
     }
 
-    public void renderUpgrade( @Nonnull MatrixStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, TileTurtle turtle,
+    private void renderUpgrade( @Nonnull MatrixStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, TileTurtle turtle,
                                       TurtleSide side, float f )
     {
         ITurtleUpgrade upgrade = turtle.getUpgrade( side );
@@ -171,7 +170,7 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
         transform.pop();
     }
 
-    public void renderModel( @Nonnull MatrixStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight,
+    private void renderModel( @Nonnull MatrixStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight,
                                     ModelIdentifier modelLocation, int[] tints )
     {
         BakedModelManager modelManager = MinecraftClient.getInstance()
@@ -181,7 +180,7 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
         renderModel( transform, renderer, lightmapCoord, overlayLight, modelManager.getModel( modelLocation ), tints );
     }
 
-    public void renderModel( @Nonnull MatrixStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, BakedModel model,
+    private void renderModel( @Nonnull MatrixStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, BakedModel model,
                                     int[] tints )
     {
         random.setSeed( 0 );

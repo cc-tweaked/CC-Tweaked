@@ -12,6 +12,8 @@ import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.api.turtle.event.TurtleEvent;
+import dan200.computercraft.fabric.mixin.MixinMatrix4f;
+import dan200.computercraft.fabric.mixininterface.IMatrix4f;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
@@ -26,8 +28,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.math.AffineTransformation;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.client.render.model.json.Transformation;
+import net.minecraft.util.math.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -38,9 +40,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -106,8 +105,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
     @Environment( EnvType.CLIENT )
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
-        float xOffset = side == TurtleSide.LEFT ? -0.40625f : 0.40625f;
-        return TransformedModel.of( getCraftingItem(), new AffineTransformation( new Vec3f( xOffset + 1, 0, 1 ), Vec3f.POSITIVE_Y.getDegreesQuaternion( 270 ), new Vec3f( 1, 1, 1 ), Vec3f.POSITIVE_Z.getDegreesQuaternion( 90 ) ) );
+        return TransformedModel.of( getCraftingItem(), side == TurtleSide.LEFT ? Transforms.leftTransform : Transforms.rightTransform );
     }
 
     private TurtleCommandResult attack( ITurtleAccess turtle, Direction direction, TurtleSide side )
@@ -295,5 +293,23 @@ public class TurtleTool extends AbstractTurtleUpgrade
     {
         Block block = state.getBlock();
         return !state.isAir() && block != Blocks.BEDROCK && state.calcBlockBreakingDelta( player, world, pos ) > 0;
+    }
+
+    private static class Transforms
+    {
+        static final AffineTransformation leftTransform = getMatrixFor( -0.40625f );
+        static final AffineTransformation rightTransform = getMatrixFor( 0.40625f );
+
+        private static AffineTransformation getMatrixFor( float offset )
+        {
+            Matrix4f matrix = new Matrix4f();
+            ((IMatrix4f) (Object) matrix).setFloatArray( new float[] {
+                0.0f, 0.0f, -1.0f, 1.0f + offset,
+                1.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, -1.0f, 0.0f, 1.0f,
+                0.0f, 0.0f, 0.0f, 1.0f,
+            } );
+            return new AffineTransformation( matrix );
+        }
     }
 }

@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.client.render;
 
 import com.google.common.base.Objects;
@@ -55,8 +54,60 @@ public class TurtleSmartItemModel implements BakedModel
             .getModel() );
     }
 
+    private static class TurtleModelCombination
+    {
+        final boolean colour;
+        final ITurtleUpgrade leftUpgrade;
+        final ITurtleUpgrade rightUpgrade;
+        final Identifier overlay;
+        final boolean christmas;
+        final boolean flip;
+
+        TurtleModelCombination( boolean colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, Identifier overlay, boolean christmas,
+                                boolean flip )
+        {
+            this.colour = colour;
+            this.leftUpgrade = leftUpgrade;
+            this.rightUpgrade = rightUpgrade;
+            this.overlay = overlay;
+            this.christmas = christmas;
+            this.flip = flip;
+        }
+
+        @Override
+        public boolean equals( Object other )
+        {
+            if( other == this )
+            {
+                return true;
+            }
+            if( !(other instanceof TurtleModelCombination otherCombo) )
+            {
+                return false;
+            }
+
+            return otherCombo.colour == colour && otherCombo.leftUpgrade == leftUpgrade && otherCombo.rightUpgrade == rightUpgrade && Objects.equal(
+                otherCombo.overlay, overlay ) && otherCombo.christmas == christmas && otherCombo.flip == flip;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 0;
+            result = prime * result + (colour ? 1 : 0);
+            result = prime * result + (leftUpgrade != null ? leftUpgrade.hashCode() : 0);
+            result = prime * result + (rightUpgrade != null ? rightUpgrade.hashCode() : 0);
+            result = prime * result + (overlay != null ? overlay.hashCode() : 0);
+            result = prime * result + (christmas ? 1 : 0);
+            result = prime * result + (flip ? 1 : 0);
+            return result;
+        }
+    }
+
     private final BakedModel familyModel;
     private final BakedModel colourModel;
+
     private final HashMap<TurtleModelCombination, BakedModel> cachedModels = new HashMap<>();
     private final ModelOverrideList overrides;
 
@@ -79,9 +130,7 @@ public class TurtleSmartItemModel implements BakedModel
                 Identifier overlay = turtle.getOverlay( stack );
                 boolean christmas = HolidayUtil.getCurrentHoliday() == Holiday.CHRISTMAS;
                 String label = turtle.getLabel( stack );
-                // TODO make upside down turtle items render properly (currently inivisible)
-                //boolean flip = label != null && (label.equals("Dinnerbone") || label.equals("Grumm"));
-                boolean flip = false;
+                boolean flip = label != null && (label.equals( "Dinnerbone" ) || label.equals( "Grumm" ));
                 TurtleModelCombination combo = new TurtleModelCombination( colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip );
 
                 BakedModel model = cachedModels.get( combo );
@@ -149,22 +198,6 @@ public class TurtleSmartItemModel implements BakedModel
         return familyModel.getParticleSprite();
     }
 
-    //    @Nonnull
-    //    @Override
-    //    @Deprecated
-    //    public Sprite getSprite()
-    //    {
-    //        return familyModel.getSprite();
-    //    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public ModelTransformation getTransformation()
-    {
-        return familyModel.getTransformation();
-    }
-
     @Nonnull
     @Override
     public ModelOverrideList getOverrides()
@@ -172,56 +205,12 @@ public class TurtleSmartItemModel implements BakedModel
         return overrides;
     }
 
-    private static class TurtleModelCombination
+    @Nonnull
+    @Override
+    @Deprecated
+    public ModelTransformation getTransformation()
     {
-        final boolean colour;
-        final ITurtleUpgrade leftUpgrade;
-        final ITurtleUpgrade rightUpgrade;
-        final Identifier overlay;
-        final boolean christmas;
-        final boolean flip;
-
-        TurtleModelCombination( boolean colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, Identifier overlay, boolean christmas,
-                                boolean flip )
-        {
-            this.colour = colour;
-            this.leftUpgrade = leftUpgrade;
-            this.rightUpgrade = rightUpgrade;
-            this.overlay = overlay;
-            this.christmas = christmas;
-            this.flip = flip;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = 0;
-            result = prime * result + (colour ? 1 : 0);
-            result = prime * result + (leftUpgrade != null ? leftUpgrade.hashCode() : 0);
-            result = prime * result + (rightUpgrade != null ? rightUpgrade.hashCode() : 0);
-            result = prime * result + (overlay != null ? overlay.hashCode() : 0);
-            result = prime * result + (christmas ? 1 : 0);
-            result = prime * result + (flip ? 1 : 0);
-            return result;
-        }
-
-        @Override
-        public boolean equals( Object other )
-        {
-            if( other == this )
-            {
-                return true;
-            }
-            if( !(other instanceof TurtleModelCombination) )
-            {
-                return false;
-            }
-
-            TurtleModelCombination otherCombo = (TurtleModelCombination) other;
-            return otherCombo.colour == colour && otherCombo.leftUpgrade == leftUpgrade && otherCombo.rightUpgrade == rightUpgrade && Objects.equal(
-                otherCombo.overlay, overlay ) && otherCombo.christmas == christmas && otherCombo.flip == flip;
-        }
+        return familyModel.getTransformation();
     }
 
 }

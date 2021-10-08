@@ -14,11 +14,11 @@
         "WorldSavePathAccess",
         "MixinServerPlayerInteractionManager",
         "MusicDiscItemAccessor",
-        "GameRendererMixin"
+        "GameRendererMixin",
+        "MixinMatrix4f"
     ],
     "client": [
         "AffineTransformationAccess",
-        "BakedQuadAccess",
         "ChatHudAccess",
         "HeldItemRendererAccess",
         "MixinHeldItemRenderer",

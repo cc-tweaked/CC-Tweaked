@@ -30,7 +30,7 @@ public class TurtleMultiModel implements BakedModel
     private final TransformedModel leftUpgradeModel;
     private final TransformedModel rightUpgradeModel;
     private List<BakedQuad> generalQuads = null;
-    private Map<Direction, List<BakedQuad>> faceQuads = new EnumMap<>( Direction.class );
+    private final Map<Direction, List<BakedQuad>> faceQuads = new EnumMap<>( Direction.class );
 
     public TurtleMultiModel( BakedModel baseModel, BakedModel overlayModel, AffineTransformation generalTransform, TransformedModel leftUpgradeModel,
                              TransformedModel rightUpgradeModel )
@@ -117,20 +117,13 @@ public class TurtleMultiModel implements BakedModel
         return baseModel.isBuiltin();
     }
 
+    @Nonnull
     @Override
     @Deprecated
     public Sprite getParticleSprite()
     {
         return baseModel.getParticleSprite();
     }
-
-    //    @Nonnull
-    //    @Override
-    //    @Deprecated
-    //    public Sprite getSprite()
-    //    {
-    //        return baseModel.getSprite();
-    //    }
 
     @Nonnull
     @Override
