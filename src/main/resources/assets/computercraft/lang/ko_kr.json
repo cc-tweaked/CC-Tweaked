@@ -1,5 +1,5 @@
 {
-    "itemGroup.computercraft": "컴퓨터크래프트",
+    "itemGroup.computercraft.main": "컴퓨터크래프트",
     "block.computercraft.computer_normal": "컴퓨터",
     "block.computercraft.computer_advanced": "고급 컴퓨터",
     "block.computercraft.computer_command": "명령 컴퓨터",

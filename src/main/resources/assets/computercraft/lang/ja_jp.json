@@ -1,5 +1,5 @@
 {
-    "itemGroup.computercraft": "ComputerCraft",
+    "itemGroup.computercraft.main": "ComputerCraft",
     "block.computercraft.computer_normal": "コンピューター",
     "block.computercraft.computer_advanced": "高度なコンピューター",
     "block.computercraft.computer_command": "コマンドコンピューター",

@@ -1,5 +1,5 @@
 {
-    "itemGroup.computercraft": "ComputerCraft",
+    "itemGroup.computercraft.main": "ComputerCraft",
     "block.computercraft.computer_normal": "Máy tính",
     "block.computercraft.computer_advanced": "Máy tính tiên tiến",
     "block.computercraft.computer_command": "Máy tính điều khiển",

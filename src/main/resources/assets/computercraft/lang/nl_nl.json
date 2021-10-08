@@ -1,5 +1,5 @@
 {
-    "itemGroup.computercraft": "ComputerCraft",
+    "itemGroup.computercraft.main": "ComputerCraft",
     "block.computercraft.computer_normal": "Computer",
     "block.computercraft.computer_advanced": "Geavanceerde Computer",
     "block.computercraft.computer_command": "Commandocomputer",
