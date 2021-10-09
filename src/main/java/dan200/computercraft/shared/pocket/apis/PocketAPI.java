@@ -68,7 +68,7 @@ public class PocketAPI implements ILuaAPI
             return new Object[] { false, "Cannot find player" };
         }
         PlayerEntity player = (PlayerEntity) entity;
-        PlayerInventory inventory = player.inventory;
+        PlayerInventory inventory = player.getInventory();
         IPocketUpgrade previousUpgrade = computer.getUpgrade();
 
         // Attempt to find the upgrade, starting in the main segment, and then looking in the opposite
@@ -143,7 +143,7 @@ public class PocketAPI implements ILuaAPI
             return new Object[] { false, "Cannot find player" };
         }
         PlayerEntity player = (PlayerEntity) entity;
-        PlayerInventory inventory = player.inventory;
+        PlayerInventory inventory = player.getInventory();
         IPocketUpgrade previousUpgrade = computer.getUpgrade();
 
         if( previousUpgrade == null )

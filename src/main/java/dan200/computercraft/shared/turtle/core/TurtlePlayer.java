@@ -26,7 +26,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
@@ -84,11 +83,11 @@ public final class TurtlePlayer extends FakePlayer
         BlockPos position = turtle.getPosition();
         setPos( position.getX() + 0.5, position.getY() + 0.5, position.getZ() + 0.5 );
 
-        yaw = turtle.getDirection()
-            .asRotation();
-        pitch = 0.0f;
+        setYaw( turtle.getDirection()
+            .asRotation() );
+        setPitch( 0.0f );
 
-        inventory.clear();
+        getInventory().clear();
     }
 
     public static TurtlePlayer get( ITurtleAccess access )
@@ -112,23 +111,23 @@ public final class TurtlePlayer extends FakePlayer
     public void loadInventory( @Nonnull ItemStack currentStack )
     {
         // Load up the fake inventory
-        inventory.selectedSlot = 0;
-        inventory.setStack( 0, currentStack );
+        getInventory().selectedSlot = 0;
+        getInventory().setStack( 0, currentStack );
     }
 
     public ItemStack unloadInventory( ITurtleAccess turtle )
     {
         // Get the item we placed with
-        ItemStack results = inventory.getStack( 0 );
-        inventory.setStack( 0, ItemStack.EMPTY );
+        ItemStack results = getInventory().getStack( 0 );
+        getInventory().setStack( 0, ItemStack.EMPTY );
 
         // Store (or drop) anything else we found
         BlockPos dropPosition = turtle.getPosition();
         Direction dropDirection = turtle.getDirection()
             .getOpposite();
-        for( int i = 0; i < inventory.size(); i++ )
+        for( int i = 0; i < getInventory().size(); i++ )
         {
-            ItemStack stack = inventory.getStack( i );
+            ItemStack stack = getInventory().getStack( i );
             if( !stack.isEmpty() )
             {
                 ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
@@ -136,10 +135,10 @@ public final class TurtlePlayer extends FakePlayer
                 {
                     WorldUtil.dropItemStack( remainder, turtle.getWorld(), dropPosition, dropDirection );
                 }
-                inventory.setStack( i, ItemStack.EMPTY );
+                getInventory().setStack( i, ItemStack.EMPTY );
             }
         }
-        inventory.markDirty();
+        getInventory().markDirty();
         return results;
     }
 
@@ -208,27 +207,7 @@ public final class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    public void useBook( @Nonnull ItemStack stack, @Nonnull Hand hand )
-    {
-    }
-
-    @Override
     public void closeHandledScreen()
-    {
-    }
-
-    @Override
-    public void updateCursorStack()
-    {
-    }
-
-    @Override
-    protected void onStatusEffectApplied( @Nonnull StatusEffectInstance id )
-    {
-    }
-
-    @Override
-    protected void onStatusEffectUpgraded( @Nonnull StatusEffectInstance id, boolean apply )
     {
     }
 

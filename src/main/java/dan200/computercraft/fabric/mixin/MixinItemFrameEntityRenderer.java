@@ -12,6 +12,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.ItemFrameEntityRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.ItemFrameEntity;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,16 +24,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Environment( EnvType.CLIENT )
 public class MixinItemFrameEntityRenderer
 {
-    @Inject( method = "render", at = @At( "HEAD" ), cancellable = true )
+    @Inject(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/util/math/MatrixStack;multiply(Lnet/minecraft/util/math/Quaternion;)V",
+            ordinal = 2,
+            shift = At.Shift.AFTER
+        ),
+        cancellable = true )
     private void renderItem(
         ItemFrameEntity itemFrameEntity, float f, float g, MatrixStack matrixStack,
-        VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo info
+        VertexConsumerProvider vertexConsumerProvider, int itemFrameEntityLight, CallbackInfo info
     )
     {
         ItemStack stack = itemFrameEntity.getHeldItemStack();
         if( stack.getItem() instanceof ItemPrintout )
         {
-            ItemPrintoutRenderer.INSTANCE.renderInFrame( matrixStack, vertexConsumerProvider, stack );
+            int light = itemFrameEntity.getType() == EntityType.GLOW_ITEM_FRAME ? 0xf000d2 : itemFrameEntityLight; // See getLightVal.
+            ItemPrintoutRenderer.INSTANCE.renderInFrame( matrixStack, vertexConsumerProvider, stack, light );
+            // TODO: need to find how to make if statement instead return, like it doing Forge
+            matrixStack.pop();
             info.cancel();
         }
     }

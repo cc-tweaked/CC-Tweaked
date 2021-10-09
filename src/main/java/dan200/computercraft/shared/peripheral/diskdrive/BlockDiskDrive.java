@@ -11,6 +11,8 @@ import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
@@ -50,6 +52,13 @@ public class BlockDiskDrive extends BlockGeneric
                 .getOpposite() );
     }
 
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker( World world, BlockState state, BlockEntityType<T> type )
+    {
+        return world.isClient ? null : BlockDiskDrive.checkType( type, ComputerCraftRegistry.ModTiles.DISK_DRIVE, TileDiskDrive::tick );
+    }
+
     @Override
     public void afterBreak(
         @Nonnull World world, @Nonnull PlayerEntity player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack
@@ -87,5 +96,12 @@ public class BlockDiskDrive extends BlockGeneric
     protected void appendProperties( StateManager.Builder<Block, BlockState> properties )
     {
         properties.add( FACING, STATE );
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity createBlockEntity( BlockPos pos, BlockState state )
+    {
+        return new TileDiskDrive( ComputerCraftRegistry.ModTiles.DISK_DRIVE, pos, state );
     }
 }

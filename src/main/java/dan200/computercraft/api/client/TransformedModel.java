@@ -6,16 +6,17 @@
 
 package dan200.computercraft.api.client;
 
-import dan200.computercraft.fabric.mixin.AffineTransformationAccess;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedModelManager;
 import net.minecraft.client.util.ModelIdentifier;
+import net.minecraft.util.math.AffineTransformation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.AffineTransformation;
+import net.minecraft.util.math.Vec3f;
+
 import javax.annotation.Nonnull;
 import java.util.Objects;
 
@@ -72,22 +73,14 @@ public final class TransformedModel
     {
         matrixStack.push();
 
-        AffineTransformationAccess access = (AffineTransformationAccess) (Object) matrix;
-        if( access.getTranslation() != null )
-        {
-            matrixStack.translate( access.getTranslation().getX(), access.getTranslation().getY(), access.getTranslation().getZ() );
-        }
+        Vec3f translation = matrix.getTranslation();
+        matrixStack.translate( translation.getX(), translation.getY(), translation.getZ() );
 
         matrixStack.multiply( matrix.getRotation2() );
 
-        if( access.getScale() != null )
-        {
-            matrixStack.scale( access.getScale().getX(), access.getScale().getY(), access.getScale().getZ() );
-        }
+        Vec3f scale = matrix.getScale();
+        matrixStack.scale( scale.getX(), scale.getY(), scale.getZ() );
 
-        if( access.getRotation1() != null )
-        {
-            matrixStack.multiply( access.getRotation1() );
-        }
+        matrixStack.multiply( matrix.getRotation1() );
     }
 }

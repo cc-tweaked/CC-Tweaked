@@ -100,9 +100,8 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     {
         if( closed || request.checkClosed() ) return;
 
-        if( message instanceof HttpResponse )
+        if( message instanceof HttpResponse response )
         {
-            HttpResponse response = (HttpResponse) message;
 
             if( request.redirects.get() > 0 )
             {
@@ -137,9 +136,8 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
             responseHeaders.add( response.headers() );
         }
 
-        if( message instanceof HttpContent )
+        if( message instanceof HttpContent content )
         {
-            HttpContent content = (HttpContent) message;
 
             if( responseBody == null )
             {
@@ -162,9 +160,8 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
                 responseBody.addComponent( true, partial.retain() );
             }
 
-            if( message instanceof LastHttpContent )
+            if( message instanceof LastHttpContent last )
             {
-                LastHttpContent last = (LastHttpContent) message;
                 responseHeaders.add( last.trailingHeaders() );
 
                 // Set the content length, if not already given.

@@ -8,6 +8,7 @@ package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.ComputerCraft;
 import net.fabricmc.fabric.api.network.PacketContext;
+import net.minecraft.network.PacketByteBuf;
 
 public class ComputerDeletedClientMessage extends ComputerClientMessage
 {
@@ -16,8 +17,9 @@ public class ComputerDeletedClientMessage extends ComputerClientMessage
         super( instanceId );
     }
 
-    public ComputerDeletedClientMessage()
+    public ComputerDeletedClientMessage( PacketByteBuf buffer )
     {
+        super( buffer );
     }
 
     @Override

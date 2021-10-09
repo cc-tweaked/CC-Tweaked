@@ -8,13 +8,14 @@ package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.network.PacketByteBuf;
 
 import javax.annotation.Nonnull;
 
 public class ComputerActionServerMessage extends ComputerServerMessage
 {
-    private Action action;
+    private final Action action;
 
     public ComputerActionServerMessage( int instanceId, Action action )
     {
@@ -22,8 +23,10 @@ public class ComputerActionServerMessage extends ComputerServerMessage
         this.action = action;
     }
 
-    public ComputerActionServerMessage()
+    public ComputerActionServerMessage( @Nonnull PacketByteBuf buf )
     {
+        super( buf );
+        action = buf.readEnumConstant( Action.class );
     }
 
     @Override
@@ -34,14 +37,7 @@ public class ComputerActionServerMessage extends ComputerServerMessage
     }
 
     @Override
-    public void fromBytes( @Nonnull PacketByteBuf buf )
-    {
-        super.fromBytes( buf );
-        action = buf.readEnumConstant( Action.class );
-    }
-
-    @Override
-    protected void handle( @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
+    protected void handle( PacketContext context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
         switch( action )
         {

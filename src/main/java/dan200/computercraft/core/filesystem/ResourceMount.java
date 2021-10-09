@@ -12,15 +12,13 @@ import com.google.common.io.ByteStreams;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
-import dan200.computercraft.core.filesystem.ResourceMount.Listener;
 import dan200.computercraft.shared.util.IoUtil;
 import net.minecraft.resource.ReloadableResourceManager;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourceReloader;
+import net.minecraft.resource.SynchronousResourceReloader;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
-import net.minecraft.util.profiler.Profiler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,8 +28,6 @@ import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 public final class ResourceMount implements IMount
@@ -114,6 +110,7 @@ public final class ResourceMount implements IMount
             existingNamespace = file.getNamespace();
 
             if( !file.getNamespace().equals( namespace ) ) continue;
+            if( !FileSystem.contains( subPath, file.getPath() ) ) continue; // Some packs seem to include the parent?
 
             String localPath = FileSystem.toLocal( file.getPath(), subPath );
             create( newRoot, localPath );
@@ -300,7 +297,7 @@ public final class ResourceMount implements IMount
      * While people should really be keeping a permanent reference to this, some people construct it every
      * method call, so let's make this as small as possible.
      */
-    static class Listener implements ResourceReloader
+    static class Listener implements SynchronousResourceReloader
     {
         private static final Listener INSTANCE = new Listener();
 
@@ -308,19 +305,9 @@ public final class ResourceMount implements IMount
         private final Set<ReloadableResourceManager> managers = Collections.newSetFromMap( new WeakHashMap<>() );
 
         @Override
-        public CompletableFuture<Void> reload( Synchronizer synchronizer, ResourceManager manager, Profiler prepareProfiler, Profiler applyProfiler, Executor prepareExecutor, Executor applyExecutor )
+        public void reload( @Nonnull ResourceManager manager )
         {
-            return CompletableFuture.runAsync( () -> {
-                prepareProfiler.push( "Mount reloading" );
-                try
-                {
-                    for( ResourceMount mount : mounts ) mount.load();
-                }
-                finally
-                {
-                    prepareProfiler.pop();
-                }
-            }, prepareExecutor );
+            for( ResourceMount mount : mounts ) mount.load();
         }
 
         synchronized void add( ReloadableResourceManager manager, ResourceMount mount )

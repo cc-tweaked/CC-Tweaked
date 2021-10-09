@@ -13,11 +13,12 @@ import net.minecraft.item.EnchantedBookItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.tag.ServerTagManagerHolder;
 import net.minecraft.tag.TagGroup;
 import net.minecraft.text.Text;
+import net.minecraft.util.registry.Registry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -71,7 +72,7 @@ public class ItemData
 
         // requireNonNull is safe because we got the Identifiers out of the TagGroup to start with. Would be nicer
         // to stream the tags directly but TagGroup isn't a collection :(
-        TagGroup<Item> itemTags = ServerTagManagerHolder.getTagManager().getItems();
+        TagGroup<Item> itemTags = ServerTagManagerHolder.getTagManager().getOrCreateTagGroup( Registry.ITEM_KEY );
         data.put( "tags", DataHelpers.getTags( itemTags.getTagIds().stream()
             .filter( id -> Objects.requireNonNull( itemTags.getTag( id ) ).contains( stack.getItem() ) )
             .collect( Collectors.toList() )

@@ -26,7 +26,7 @@ public class SignInspectHandler
             Map<Integer, String> textTable = new HashMap<>();
             for( int k = 0; k < 4; k++ )
             {
-                textTable.put( k + 1, ((SignBlockEntityAccess) sbe).getText()[k].asString() );
+                textTable.put( k + 1, ((SignBlockEntityAccess) sbe).getTexts()[k].asString() );
             }
             event.getData().put( "text", textTable );
         }

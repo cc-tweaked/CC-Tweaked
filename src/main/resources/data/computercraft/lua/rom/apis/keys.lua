@@ -6,6 +6,7 @@
 -- the underlying numerical values.
 --
 -- @module keys
+-- @since 1.4
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
@@ -76,7 +77,7 @@ tKeys[269] = 'end'
 tKeys[280] = 'capsLock'
 tKeys[281] = 'scrollLock'
 tKeys[282] = 'numLock'
--- tKeys[283] = 'printScreen'
+tKeys[283] = 'printScreen'
 tKeys[284] = 'pause'
 tKeys[290] = 'f1'
 tKeys[291] = 'f2'
@@ -115,7 +116,7 @@ tKeys[328] = 'numPad8'
 tKeys[329] = 'numPad9'
 tKeys[330] = 'numPadDecimal'
 tKeys[331] = 'numPadDivide'
--- tKeys[332] = 'numPadMultiply'
+tKeys[332] = 'numPadMultiply'
 tKeys[333] = 'numPadSubtract'
 tKeys[334] = 'numPadAdd'
 tKeys[335] = 'numPadEnter'
@@ -123,12 +124,12 @@ tKeys[336] = 'numPadEqual'
 tKeys[340] = 'leftShift'
 tKeys[341] = 'leftCtrl'
 tKeys[342] = 'leftAlt'
--- tKeys[343] = 'leftSuper'
+tKeys[343] = 'leftSuper'
 tKeys[344] = 'rightShift'
 tKeys[345] = 'rightCtrl'
 tKeys[346] = 'rightAlt'
 -- tKeys[347] = 'rightSuper'
--- tKeys[348] = 'menu'
+tKeys[348] = 'menu'
 
 local keys = _ENV
 for nKey, sKey in pairs(tKeys) do

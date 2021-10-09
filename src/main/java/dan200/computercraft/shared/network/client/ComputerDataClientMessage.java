@@ -19,8 +19,8 @@ import javax.annotation.Nonnull;
  */
 public class ComputerDataClientMessage extends ComputerClientMessage
 {
-    private ComputerState state;
-    private NbtCompound userData;
+    private final ComputerState state;
+    private final NbtCompound userData;
 
     public ComputerDataClientMessage( ServerComputer computer )
     {
@@ -29,8 +29,11 @@ public class ComputerDataClientMessage extends ComputerClientMessage
         userData = computer.getUserData();
     }
 
-    public ComputerDataClientMessage()
+    public ComputerDataClientMessage( @Nonnull PacketByteBuf buf )
     {
+        super( buf );
+        state = buf.readEnumConstant( ComputerState.class );
+        userData = buf.readNbt();
     }
 
     @Override
@@ -39,14 +42,6 @@ public class ComputerDataClientMessage extends ComputerClientMessage
         super.toBytes( buf );
         buf.writeEnumConstant( state );
         buf.writeNbt( userData );
-    }
-
-    @Override
-    public void fromBytes( @Nonnull PacketByteBuf buf )
-    {
-        super.fromBytes( buf );
-        state = buf.readEnumConstant( ComputerState.class );
-        userData = buf.readNbt();
     }
 
     @Override

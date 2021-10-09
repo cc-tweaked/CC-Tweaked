@@ -1,9 +1,10 @@
 --- Various utilities for working with strings and text.
 --
 -- @module cc.strings
+-- @since 1.95.0
 -- @see textutils For additional string related utilities.
 
-local expect = require "cc.expect".expect
+local expect = (require and require("cc.expect") or dofile("rom/modules/main/cc/expect.lua")).expect
 
 --[[- Wraps a block of text, so that each line fits within the given width.
 

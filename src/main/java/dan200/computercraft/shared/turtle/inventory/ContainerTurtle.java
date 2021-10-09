@@ -6,6 +6,7 @@
 
 package dan200.computercraft.shared.turtle.inventory;
 
+import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
@@ -29,8 +30,10 @@ import java.util.function.Predicate;
 
 public class ContainerTurtle extends ContainerComputerBase
 {
+    public static final int BORDER = 8;
     public static final int PLAYER_START_Y = 134;
-    public static final int TURTLE_START_X = 175;
+    public static final int TURTLE_START_X = ComputerSidebar.WIDTH + 175;
+    public static final int PLAYER_START_X = ComputerSidebar.WIDTH + BORDER;
 
     private final PropertyDelegate properties;
 
@@ -69,14 +72,14 @@ public class ContainerTurtle extends ContainerComputerBase
         {
             for( int x = 0; x < 9; x++ )
             {
-                addSlot( new Slot( playerInventory, x + y * 9 + 9, 8 + x * 18, PLAYER_START_Y + 1 + y * 18 ) );
+                addSlot( new Slot( playerInventory, x + y * 9 + 9, PLAYER_START_X + x * 18, PLAYER_START_Y + 1 + y * 18 ) );
             }
         }
 
         // Player hotbar
         for( int x = 0; x < 9; x++ )
         {
-            addSlot( new Slot( playerInventory, x, 8 + x * 18, PLAYER_START_Y + 3 * 18 + 5 ) );
+            addSlot( new Slot( playerInventory, x, PLAYER_START_X + x * 18, PLAYER_START_Y + 3 * 18 + 5 ) );
         }
     }
 

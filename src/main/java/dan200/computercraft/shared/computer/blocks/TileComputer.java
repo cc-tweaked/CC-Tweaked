@@ -8,15 +8,17 @@ package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInventory;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 
 import javax.annotation.Nonnull;
@@ -26,9 +28,9 @@ public class TileComputer extends TileComputerBase
 {
     private ComputerProxy proxy;
 
-    public TileComputer( ComputerFamily family, BlockEntityType<? extends TileComputer> type )
+    public TileComputer( ComputerFamily family, BlockEntityType<? extends TileComputer> type, BlockPos pos, BlockState state )
     {
-        super( type, family );
+        super( type, family, pos, state );
     }
 
     public boolean isUsableByPlayer( PlayerEntity player )
@@ -103,7 +105,7 @@ public class TileComputer extends TileComputerBase
     @Override
     public ScreenHandler createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
     {
-        return new ContainerComputer( id, this );
+        return new ComputerMenuWithoutInventory( ComputerCraftRegistry.ModContainers.COMPUTER, id, inventory, this::isUsableByPlayer, createServerComputer(), getFamily() );
     }
 
 }

@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 
 public class ComputerTerminalClientMessage extends ComputerClientMessage
 {
-    private TerminalState state;
+    private final TerminalState state;
 
     public ComputerTerminalClientMessage( int instanceId, TerminalState state )
     {
@@ -21,8 +21,10 @@ public class ComputerTerminalClientMessage extends ComputerClientMessage
         this.state = state;
     }
 
-    public ComputerTerminalClientMessage()
+    public ComputerTerminalClientMessage( @Nonnull PacketByteBuf buf )
     {
+        super( buf );
+        state = new TerminalState( buf );
     }
 
     @Override
@@ -30,13 +32,6 @@ public class ComputerTerminalClientMessage extends ComputerClientMessage
     {
         super.toBytes( buf );
         state.write( buf );
-    }
-
-    @Override
-    public void fromBytes( @Nonnull PacketByteBuf buf )
-    {
-        super.fromBytes( buf );
-        state = new TerminalState( buf );
     }
 
     @Override

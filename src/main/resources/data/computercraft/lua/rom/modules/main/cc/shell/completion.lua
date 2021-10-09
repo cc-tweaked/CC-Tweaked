@@ -8,6 +8,7 @@ and so are not directly usable with the @{shell.setCompletionFunction}. Instead,
 wrap them using @{build}, or your own custom function.
 
 @module cc.shell.completion
+@since 1.85.0
 @see cc.completion For more general helpers, suitable for use with @{_G.read}.
 @see shell.setCompletionFunction
 
@@ -29,8 +30,8 @@ local completion = require "cc.completion"
 
 --- Complete the name of a file relative to the current working directory.
 --
--- @tparam table shell The shell we're completing in
--- @tparam { string... } choices The list of choices to complete from.
+-- @tparam table shell The shell we're completing in.
+-- @tparam string text Current text to complete.
 -- @treturn { string... } A list of suffixes of matching files.
 local function file(shell, text)
     return fs.complete(text, shell.dir(), true, false)
@@ -38,8 +39,8 @@ end
 
 --- Complete the name of a directory relative to the current working directory.
 --
--- @tparam table shell The shell we're completing in
--- @tparam { string... } choices The list of choices to complete from.
+-- @tparam table shell The shell we're completing in.
+-- @tparam string text Current text to complete.
 -- @treturn { string... } A list of suffixes of matching directories.
 local function dir(shell, text)
     return fs.complete(text, shell.dir(), false, true)
@@ -48,8 +49,8 @@ end
 --- Complete the name of a file or directory relative to the current working
 -- directory.
 --
--- @tparam table shell The shell we're completing in
--- @tparam { string... } choices The list of choices to complete from.
+-- @tparam table shell The shell we're completing in.
+-- @tparam string text Current text to complete.
 -- @tparam { string... } previous The shell arguments before this one.
 -- @tparam[opt] boolean add_space Whether to add a space after the completed item.
 -- @treturn { string... } A list of suffixes of matching files and directories.
@@ -74,12 +75,45 @@ end
 
 --- Complete the name of a program.
 --
--- @tparam table shell The shell we're completing in
--- @tparam { string... } choices The list of choices to complete from.
+-- @tparam table shell The shell we're completing in.
+-- @tparam string text Current text to complete.
 -- @treturn { string... } A list of suffixes of matching programs.
 -- @see shell.completeProgram
 local function program(shell, text)
     return shell.completeProgram(text)
+end
+
+--- Complete arguments of a program.
+--
+-- @tparam table shell The shell we're completing in.
+-- @tparam string text Current text to complete.
+-- @tparam { string... } previous The shell arguments before this one.
+-- @tparam number starting Which argument index this program and args start at.
+-- @treturn { string... } A list of suffixes of matching programs or arguments.
+-- @since 1.97.0
+local function programWithArgs(shell, text, previous, starting)
+    if #previous + 1 == starting then
+        local tCompletionInfo = shell.getCompletionInfo()
+        if text:sub(-1) ~= "/" and tCompletionInfo[shell.resolveProgram(text)] then
+            return { " " }
+        else
+            local results = shell.completeProgram(text)
+            for n = 1, #results do
+                local sResult = results[n]
+                if sResult:sub(-1) ~= "/" and tCompletionInfo[shell.resolveProgram(text .. sResult)] then
+                    results[n] = sResult .. " "
+                end
+            end
+            return results
+        end
+    else
+        local program = previous[starting]
+        local resolved = shell.resolveProgram(program)
+        if not resolved then return end
+        local tCompletion = shell.getCompletionInfo()[resolved]
+        if not tCompletion then return end
+        return tCompletion.fnComplete(shell, #previous - starting + 1, text, { program, table.unpack(previous, starting + 1, #previous) })
+    end
 end
 
 --[[- A helper function for building shell completion arguments.
@@ -144,6 +178,7 @@ return {
     dir = dir,
     dirOrFile = dirOrFile,
     program = program,
+    programWithArgs = programWithArgs,
 
     -- Re-export various other functions
     help = wrap(help.completeTopic), --- Wraps @{help.completeTopic} as a @{build} compatible function.

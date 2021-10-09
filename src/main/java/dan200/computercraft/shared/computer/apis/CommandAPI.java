@@ -204,7 +204,7 @@ public class CommandAPI implements ILuaAPI
         World world = computer.getWorld();
         BlockPos min = new BlockPos( Math.min( minX, maxX ), Math.min( minY, maxY ), Math.min( minZ, maxZ ) );
         BlockPos max = new BlockPos( Math.max( minX, maxX ), Math.max( minY, maxY ), Math.max( minZ, maxZ ) );
-        if( !World.isInBuildLimit( min ) || !World.isInBuildLimit( max ) )
+        if( !world.isInBuildLimit( min ) || !world.isInBuildLimit( max ) )
         {
             throw new LuaException( "Co-ordinates out of range" );
         }
@@ -289,7 +289,7 @@ public class CommandAPI implements ILuaAPI
         // Get the details of the block
         World world = computer.getWorld();
         BlockPos position = new BlockPos( x, y, z );
-        if( World.isInBuildLimit( position ) )
+        if( world.isInBuildLimit( position ) )
         {
             return getBlockInfo( world, position );
         }

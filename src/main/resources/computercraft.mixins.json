@@ -1,7 +1,7 @@
 {
     "required": true,
     "package": "dan200.computercraft.fabric.mixin",
-    "compatibilityLevel": "JAVA_8",
+    "compatibilityLevel": "JAVA_16",
     "mixins": [
         "MinecraftServerAccess",
         "MixinBlock",
@@ -9,20 +9,18 @@
         "MixinServerWorld",
         "MixinWorld",
         "SignBlockEntityAccess",
-        "SoundEventAccess",
         "WorldSavePathAccess",
         "MixinServerPlayerInteractionManager",
-        "MusicDiscItemAccessor"
+        "MixinMatrix4f"
     ],
     "client": [
-        "AffineTransformationAccess",
-        "BakedQuadAccess",
         "ChatHudAccess",
         "HeldItemRendererAccess",
         "MixinHeldItemRenderer",
         "MixinItemFrameEntityRenderer",
         "MixinMinecraftClient",
         "MixinScreen",
+        "MixinGameRenderer",
         "MixinWorldRenderer"
     ],
     "server": [

@@ -14,6 +14,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import me.shedaniel.cloth.api.utils.v1.GameInstanceUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
@@ -30,6 +31,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.WorldChunk;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -56,18 +58,25 @@ public final class NetworkHandler
         }
 
         // Server messages
-        registerMainThread( 0, ComputerActionServerMessage::new );
-        registerMainThread( 1, QueueEventServerMessage::new );
-        registerMainThread( 2, RequestComputerMessage::new );
-        registerMainThread( 3, KeyEventServerMessage::new );
-        registerMainThread( 4, MouseEventServerMessage::new );
+        registerMainThread( 0, ComputerActionServerMessage.class, ComputerActionServerMessage::new );
+        registerMainThread( 1, QueueEventServerMessage.class, QueueEventServerMessage::new );
+        registerMainThread( 2, RequestComputerMessage.class, RequestComputerMessage::new );
+        registerMainThread( 3, KeyEventServerMessage.class, KeyEventServerMessage::new );
+        registerMainThread( 4, MouseEventServerMessage.class, MouseEventServerMessage::new );
+        registerMainThread( 5, UploadFileMessage.class, UploadFileMessage::new );
+        registerMainThread( 6, ContinueUploadMessage.class, ContinueUploadMessage::new );
 
         // Client messages
-        registerMainThread( 10, ChatTableClientMessage::new );
-        registerMainThread( 11, ComputerDataClientMessage::new );
-        registerMainThread( 12, ComputerDeletedClientMessage::new );
-        registerMainThread( 13, ComputerTerminalClientMessage::new );
+        registerMainThread( 10, ChatTableClientMessage.class, ChatTableClientMessage::new );
+        registerMainThread( 11, ComputerDataClientMessage.class, ComputerDataClientMessage::new );
+        registerMainThread( 12, ComputerDeletedClientMessage.class, ComputerDeletedClientMessage::new );
+        registerMainThread( 13, ComputerTerminalClientMessage.class, ComputerTerminalClientMessage::new );
         registerMainThread( 14, PlayRecordClientMessage.class, PlayRecordClientMessage::new );
+        registerMainThread( 15, MonitorClientMessage.class, MonitorClientMessage::new );
+        registerMainThread( 16, SpeakerPlayClientMessage.class, SpeakerPlayClientMessage::new );
+        registerMainThread( 17, SpeakerStopClientMessage.class, SpeakerStopClientMessage::new );
+        registerMainThread( 18, SpeakerMoveClientMessage.class, SpeakerMoveClientMessage::new );
+        registerMainThread( 19, UploadResultMessage.class, UploadResultMessage::new );
     }
 
     private static void receive( PacketContext context, PacketByteBuf buffer )
@@ -75,22 +84,6 @@ public final class NetworkHandler
         int type = buffer.readByte();
         packetReaders.get( type )
             .accept( context, buffer );
-    }
-
-    /**
-     * /** Register packet, and a thread-unsafe handler for it.
-     *
-     * @param <T>     The type of the packet to send.
-     * @param id      The identifier for this packet type
-     * @param factory The factory for this type of packet.
-     */
-    private static <T extends NetworkMessage> void registerMainThread( int id, Supplier<T> factory )
-    {
-        registerMainThread( id, getType( factory ), buf -> {
-            T instance = factory.get();
-            instance.fromBytes( buf );
-            return instance;
-        } );
     }
 
     /**
@@ -118,17 +111,24 @@ public final class NetworkHandler
             .getClass();
     }
 
-    public static void sendToPlayer( PlayerEntity player, NetworkMessage packet )
-    {
-        ((ServerPlayerEntity) player).networkHandler.sendPacket( new CustomPayloadS2CPacket( ID, encode( packet ) ) );
-    }
-
     private static PacketByteBuf encode( NetworkMessage message )
     {
         PacketByteBuf buf = new PacketByteBuf( Unpooled.buffer() );
         buf.writeByte( packetIds.getInt( message.getClass() ) );
         message.toBytes( buf );
         return buf;
+    }
+
+    public static void sendToPlayer( PlayerEntity player, NetworkMessage packet )
+    {
+        ((ServerPlayerEntity) player).networkHandler.sendPacket( new CustomPayloadS2CPacket( ID, encode( packet ) ) );
+    }
+
+    public static void sendToAllPlayers( NetworkMessage packet )
+    {
+        MinecraftServer server = GameInstanceUtils.getServer();
+        server.getPlayerManager()
+            .sendToAll( new CustomPayloadS2CPacket( ID, encode( packet ) ) );
     }
 
     public static void sendToAllPlayers( MinecraftServer server, NetworkMessage packet )
@@ -148,5 +148,16 @@ public final class NetworkHandler
         world.getServer()
             .getPlayerManager()
             .sendToAround( null, pos.x, pos.y, pos.z, range, world.getRegistryKey(), new CustomPayloadS2CPacket( ID, encode( packet ) ) );
+    }
+
+    public static void sendToAllTracking( NetworkMessage packet, WorldChunk chunk )
+    {
+        for( PlayerEntity player : chunk.getWorld().getPlayers() )
+        {
+            if ( chunk.getWorld().getRegistryKey().getValue() == player.getEntityWorld().getRegistryKey().getValue() && player.getChunkPos().equals( chunk.getPos() ) )
+            {
+                ((ServerPlayerEntity) player).networkHandler.sendPacket( new CustomPayloadS2CPacket( ID, encode( packet ) ) );
+            }
+        }
     }
 }

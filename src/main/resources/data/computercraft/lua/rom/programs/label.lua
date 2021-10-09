@@ -9,7 +9,6 @@ local function printUsage()
     print(programName .. " clear <drive>")
 end
 
-
 local function checkDrive(sDrive)
     if peripheral.getType(sDrive) == "drive" then
         -- Check the disk exists

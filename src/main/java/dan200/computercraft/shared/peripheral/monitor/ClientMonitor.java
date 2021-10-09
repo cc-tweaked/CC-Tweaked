@@ -8,7 +8,6 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.shared.common.ClientTerminal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -82,15 +81,15 @@ public final class ClientMonitor extends ClientTerminal
 
                 deleteBuffers();
 
-                tboBuffer = GlStateManager.genBuffers();
-                GlStateManager.bindBuffers( GL31.GL_TEXTURE_BUFFER, tboBuffer );
+                tboBuffer = GlStateManager._glGenBuffers();
+                GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, tboBuffer );
                 GL15.glBufferData( GL31.GL_TEXTURE_BUFFER, 0, GL15.GL_STATIC_DRAW );
-                tboTexture = GlStateManager.genTextures();
+                tboTexture = GlStateManager._genTexture();
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, tboTexture );
                 GL31.glTexBuffer( GL31.GL_TEXTURE_BUFFER, GL30.GL_R8UI, tboBuffer );
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, 0 );
 
-                GlStateManager.bindBuffers( GL31.GL_TEXTURE_BUFFER, 0 );
+                GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
 
                 addMonitor();
                 return true;
@@ -102,7 +101,7 @@ public final class ClientMonitor extends ClientTerminal
                 }
 
                 deleteBuffers();
-                buffer = new VertexBuffer( FixedWidthFontRenderer.TYPE.getVertexFormat() );
+                buffer = new VertexBuffer();
                 addMonitor();
                 return true;
 
@@ -122,7 +121,7 @@ public final class ClientMonitor extends ClientTerminal
 
         if( tboTexture != 0 )
         {
-            GlStateManager.deleteTexture( tboTexture );
+            GlStateManager._deleteTexture( tboTexture );
             tboTexture = 0;
         }
 

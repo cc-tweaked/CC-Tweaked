@@ -18,7 +18,6 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -33,6 +32,11 @@ public abstract class BlockGeneric extends BlockWithEntity
     {
         super( settings );
         this.type = type;
+    }
+
+    public BlockEntityType<? extends TileGeneric> getType()
+    {
+        return type;
     }
 
     @Override
@@ -94,8 +98,12 @@ public abstract class BlockGeneric extends BlockWithEntity
 
     @Nullable
     @Override
-    public BlockEntity createBlockEntity( @Nonnull BlockView world )
+    public BlockEntity createBlockEntity( BlockPos pos, BlockState state )
     {
-        return type.instantiate();
+        if ( this.type != null )
+        {
+            return type.instantiate( pos, state );
+        }
+        return null;
     }
 }

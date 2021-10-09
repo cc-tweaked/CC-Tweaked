@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.turtle.blocks;
 
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.computer.blocks.BlockComputerBase;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -15,6 +16,7 @@ import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -136,9 +138,8 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Waterl
         super.onPlaced( world, pos, state, player, stack );
 
         BlockEntity tile = world.getBlockEntity( pos );
-        if( !world.isClient && tile instanceof TileTurtle )
+        if( !world.isClient && tile instanceof TileTurtle turtle )
         {
-            TileTurtle turtle = (TileTurtle) tile;
 
             if( player instanceof PlayerEntity )
             {
@@ -175,5 +176,28 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Waterl
                 }
             }
         }
+    }
+
+    public BlockEntityType<? extends TileTurtle> getTypeByFamily( ComputerFamily family )
+    {
+        if ( family == ComputerFamily.ADVANCED )
+        {
+            return ComputerCraftRegistry.ModTiles.TURTLE_ADVANCED;
+        }
+        return ComputerCraftRegistry.ModTiles.TURTLE_NORMAL;
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity createBlockEntity( BlockPos pos, BlockState state )
+    {
+        return new TileTurtle( getTypeByFamily( getFamily() ), pos, state, getFamily() );
+    }
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker( World world, BlockState state, BlockEntityType<T> type )
+    {
+        return world.isClient ? BlockTurtle.checkType( type, getTypeByFamily( getFamily() ), ( world1, pos, state1, computer ) -> computer.clientTick() ) : super.getTicker( world, state, type );
     }
 }

@@ -74,9 +74,9 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     private boolean hasModemDirection = false;
     private boolean connectionsFormed = false;
 
-    public TileCable( BlockEntityType<? extends TileCable> type )
+    public TileCable( BlockEntityType<? extends TileCable> type, BlockPos pos, BlockState state )
     {
-        super( type );
+        super( type, pos, state );
     }
 
     @Override
@@ -119,7 +119,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
             return ActionResult.FAIL;
         }
 
-        if( getWorld().isClient )
+        if( this.world.isClient )
         {
             return ActionResult.SUCCESS;
         }
@@ -377,9 +377,9 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void readNbt( @Nonnull BlockState state, @Nonnull NbtCompound nbt )
+    public void readNbt( @Nonnull NbtCompound nbt )
     {
-        super.readNbt( state, nbt );
+        super.readNbt( nbt );
         peripheralAccessAllowed = nbt.getBoolean( NBT_PERIPHERAL_ENABLED );
         peripheral.read( nbt, "" );
     }
@@ -408,9 +408,10 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void resetBlock()
+    public void setCachedState( BlockState state )
     {
-        super.resetBlock();
+        super.setCachedState( state );
+        if( state != null ) return;
         hasModemDirection = false;
         if( !world.isClient )
         {

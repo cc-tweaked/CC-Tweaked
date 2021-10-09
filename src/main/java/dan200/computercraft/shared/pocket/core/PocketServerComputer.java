@@ -57,7 +57,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
         if( entity instanceof PlayerEntity )
         {
-            PlayerInventory inventory = ((PlayerEntity) entity).inventory;
+            PlayerInventory inventory = ((PlayerEntity) entity).getInventory();
             return inventory.main.contains( stack ) || inventory.offHand.contains( stack ) ? entity : null;
         }
         else if( entity instanceof LivingEntity )
@@ -122,7 +122,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     {
         if( entity instanceof PlayerEntity )
         {
-            ((PlayerEntity) entity).inventory.markDirty();
+            ((PlayerEntity) entity).getInventory().markDirty();
         }
     }
 

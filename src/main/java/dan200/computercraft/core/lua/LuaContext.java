@@ -9,6 +9,8 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.ILuaTask;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.MethodResult;
+import dan200.computercraft.core.asm.TaskCallback;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.MainThread;
 
@@ -65,5 +67,12 @@ class LuaContext implements ILuaContext
         {
             throw new LuaException( "Task limit exceeded" );
         }
+    }
+
+    @Nonnull
+    @Override
+    public MethodResult executeMainThreadTask( @Nonnull ILuaTask task ) throws LuaException
+    {
+        return TaskCallback.make( this, task );
     }
 }

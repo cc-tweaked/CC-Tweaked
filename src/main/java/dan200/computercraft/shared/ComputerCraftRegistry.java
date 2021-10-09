@@ -13,12 +13,17 @@ import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.inventory.ContainerComputer;
+import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInventory;
+import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.computer.items.ItemComputer;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
+import dan200.computercraft.shared.network.container.ComputerContainerData;
+import dan200.computercraft.shared.network.container.ContainerData;
+import dan200.computercraft.shared.network.container.HeldItemContainerData;
+import dan200.computercraft.shared.network.container.ViewComputerContainerData;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
@@ -32,7 +37,6 @@ import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.peripheral.speaker.BlockSpeaker;
 import dan200.computercraft.shared.peripheral.speaker.TileSpeaker;
-import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
@@ -42,13 +46,10 @@ import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.turtle.upgrades.*;
-import dan200.computercraft.shared.util.FixedPointTileEntityType;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.Material;
+import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.EntityType;
@@ -61,12 +62,10 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
 
-import java.util.Objects;
 import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static net.minecraft.util.registry.Registry.BLOCK_ENTITY_TYPE;
 
@@ -91,31 +90,31 @@ public final class ComputerCraftRegistry
     public static final class ModBlocks
     {
         public static final BlockComputer COMPUTER_NORMAL = register( "computer_normal",
-            new BlockComputer( properties(), ComputerFamily.NORMAL, ModTiles.COMPUTER_NORMAL ) );
+            new BlockComputer( properties(), ComputerFamily.NORMAL, ComputerCraftRegistry.ModTiles.COMPUTER_NORMAL ) );
         public static final BlockComputer COMPUTER_ADVANCED = register( "computer_advanced",
             new BlockComputer( properties(),
                 ComputerFamily.ADVANCED,
-                ModTiles.COMPUTER_ADVANCED ) );
+                ComputerCraftRegistry.ModTiles.COMPUTER_ADVANCED ) );
         public static final BlockComputer COMPUTER_COMMAND = register( "computer_command",
             new BlockComputer( FabricBlockSettings.copyOf( Blocks.STONE )
                 .strength( -1, 6000000.0F ),
                 ComputerFamily.COMMAND,
-                ModTiles.COMPUTER_COMMAND ) );
+                ComputerCraftRegistry.ModTiles.COMPUTER_COMMAND ) );
         public static final BlockTurtle TURTLE_NORMAL = register( "turtle_normal",
-            new BlockTurtle( turtleProperties(), ComputerFamily.NORMAL, ModTiles.TURTLE_NORMAL ) );
+            new BlockTurtle( turtleProperties(), ComputerFamily.NORMAL, ComputerCraftRegistry.ModTiles.TURTLE_NORMAL ) );
         public static final BlockTurtle TURTLE_ADVANCED = register( "turtle_advanced",
-            new BlockTurtle( turtleProperties(), ComputerFamily.ADVANCED, ModTiles.TURTLE_ADVANCED ) );
+            new BlockTurtle( turtleProperties(), ComputerFamily.ADVANCED, ComputerCraftRegistry.ModTiles.TURTLE_ADVANCED ) );
         public static final BlockSpeaker SPEAKER = register( "speaker", new BlockSpeaker( properties() ) );
         public static final BlockDiskDrive DISK_DRIVE = register( "disk_drive", new BlockDiskDrive( properties() ) );
         public static final BlockPrinter PRINTER = register( "printer", new BlockPrinter( properties() ) );
-        public static final BlockMonitor MONITOR_NORMAL = register( "monitor_normal", new BlockMonitor( properties(), ModTiles.MONITOR_NORMAL ) );
-        public static final BlockMonitor MONITOR_ADVANCED = register( "monitor_advanced", new BlockMonitor( properties(), ModTiles.MONITOR_ADVANCED ) );
+        public static final BlockMonitor MONITOR_NORMAL = register( "monitor_normal", new BlockMonitor( properties(), ModTiles.MONITOR_NORMAL, false ) );
+        public static final BlockMonitor MONITOR_ADVANCED = register( "monitor_advanced", new BlockMonitor( properties(), ModTiles.MONITOR_ADVANCED, true ) );
         public static final BlockWirelessModem WIRELESS_MODEM_NORMAL = register( "wireless_modem_normal",
-            new BlockWirelessModem( properties(), ModTiles.WIRELESS_MODEM_NORMAL ) );
+            new BlockWirelessModem( properties(), ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_NORMAL, ComputerFamily.NORMAL ) );
         public static final BlockWirelessModem WIRELESS_MODEM_ADVANCED = register( "wireless_modem_advanced",
-            new BlockWirelessModem( properties(), ModTiles.WIRELESS_MODEM_ADVANCED ) );
+            new BlockWirelessModem( properties(), ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_ADVANCED, ComputerFamily.ADVANCED ) );
         public static final BlockWiredModemFull WIRED_MODEM_FULL = register( "wired_modem_full",
-            new BlockWiredModemFull( emProperties(), ModTiles.WIRED_MODEM_FULL ) );
+            new BlockWiredModemFull( emProperties(), ComputerCraftRegistry.ModTiles.WIRED_MODEM_FULL ) );
         public static final BlockCable CABLE = register( "cable", new BlockCable( emProperties() ) );
 
         private static Block.Settings properties()
@@ -149,46 +148,52 @@ public final class ComputerCraftRegistry
     public static class ModTiles
     {
 
-        public static final BlockEntityType<TileMonitor> MONITOR_NORMAL = ofBlock( () -> ModBlocks.MONITOR_NORMAL,
+        public static final BlockEntityType<TileMonitor> MONITOR_NORMAL = ofBlock( ModBlocks.MONITOR_NORMAL,
             "monitor_normal",
-            f -> new TileMonitor( f, false ) );
-        public static final BlockEntityType<TileMonitor> MONITOR_ADVANCED = ofBlock( () -> ModBlocks.MONITOR_ADVANCED,
+            ( blockPos, blockState ) -> new TileMonitor( ModTiles.MONITOR_NORMAL, false, blockPos, blockState ) );
+        public static final BlockEntityType<TileMonitor> MONITOR_ADVANCED = ofBlock( ModBlocks.MONITOR_ADVANCED,
             "monitor_advanced",
-            f -> new TileMonitor( f, true ) );
-        public static final BlockEntityType<TileComputer> COMPUTER_NORMAL = ofBlock( () -> ModBlocks.COMPUTER_NORMAL,
+            ( blockPos, blockState ) -> new TileMonitor( ModTiles.MONITOR_ADVANCED, true, blockPos, blockState ) );
+        public static final BlockEntityType<TileComputer> COMPUTER_NORMAL = ofBlock( ModBlocks.COMPUTER_NORMAL,
             "computer_normal",
-            f -> new TileComputer( ComputerFamily.NORMAL, f ) );
-        public static final BlockEntityType<TileComputer> COMPUTER_ADVANCED = ofBlock( () -> ModBlocks.COMPUTER_ADVANCED,
+            ( blockPos, blockState ) -> new TileComputer( ComputerFamily.NORMAL, ModTiles.COMPUTER_NORMAL, blockPos, blockState ) );
+        public static final BlockEntityType<TileComputer> COMPUTER_ADVANCED = ofBlock( ModBlocks.COMPUTER_ADVANCED,
             "computer_advanced",
-            f -> new TileComputer( ComputerFamily.ADVANCED, f ) );
-        public static final BlockEntityType<TileCommandComputer> COMPUTER_COMMAND = ofBlock( () -> ModBlocks.COMPUTER_COMMAND,
+            ( blockPos, blockState ) -> new TileComputer( ComputerFamily.ADVANCED, ModTiles.COMPUTER_ADVANCED, blockPos, blockState ) );
+        public static final BlockEntityType<TileCommandComputer> COMPUTER_COMMAND = ofBlock( ModBlocks.COMPUTER_COMMAND,
             "computer_command",
-            f -> new TileCommandComputer( ComputerFamily.COMMAND, f ) );
-        public static final BlockEntityType<TileTurtle> TURTLE_NORMAL = ofBlock( () -> ModBlocks.TURTLE_NORMAL,
+            ( blockPos, blockState ) -> new TileCommandComputer( ComputerFamily.COMMAND, ModTiles.COMPUTER_COMMAND, blockPos, blockState ) );
+        public static final BlockEntityType<TileTurtle> TURTLE_NORMAL = ofBlock( ModBlocks.TURTLE_NORMAL,
             "turtle_normal",
-            f -> new TileTurtle( f, ComputerFamily.NORMAL ) );
-        public static final BlockEntityType<TileTurtle> TURTLE_ADVANCED = ofBlock( () -> ModBlocks.TURTLE_ADVANCED,
+            ( blockPos, blockState ) -> new TileTurtle( ModTiles.TURTLE_NORMAL, blockPos, blockState, ComputerFamily.NORMAL ) );
+        public static final BlockEntityType<TileTurtle> TURTLE_ADVANCED = ofBlock( ModBlocks.TURTLE_ADVANCED,
             "turtle_advanced",
-            f -> new TileTurtle( f, ComputerFamily.ADVANCED ) );
-        public static final BlockEntityType<TileSpeaker> SPEAKER = ofBlock( () -> ModBlocks.SPEAKER, "speaker", TileSpeaker::new );
-        public static final BlockEntityType<TileDiskDrive> DISK_DRIVE = ofBlock( () -> ModBlocks.DISK_DRIVE, "disk_drive", TileDiskDrive::new );
-        public static final BlockEntityType<TilePrinter> PRINTER = ofBlock( () -> ModBlocks.PRINTER, "printer", TilePrinter::new );
-        public static final BlockEntityType<TileWiredModemFull> WIRED_MODEM_FULL = ofBlock( () -> ModBlocks.WIRED_MODEM_FULL,
+            ( blockPos, blockState ) -> new TileTurtle( ModTiles.TURTLE_ADVANCED, blockPos, blockState, ComputerFamily.ADVANCED ) );
+        public static final BlockEntityType<TileSpeaker> SPEAKER = ofBlock( ModBlocks.SPEAKER, "speaker",
+            ( blockPos, blockState ) -> new TileSpeaker( ModTiles.SPEAKER, blockPos, blockState ) );
+        public static final BlockEntityType<TileDiskDrive> DISK_DRIVE = ofBlock( ModBlocks.DISK_DRIVE, "disk_drive",
+            ( blockPos, blockState ) -> new TileDiskDrive( ModTiles.DISK_DRIVE, blockPos, blockState ) );
+        public static final BlockEntityType<TilePrinter> PRINTER = ofBlock( ModBlocks.PRINTER, "printer",
+            ( blockPos, blockState ) -> new TilePrinter( ModTiles.PRINTER, blockPos, blockState ) );
+        public static final BlockEntityType<TileWiredModemFull> WIRED_MODEM_FULL = ofBlock( ModBlocks.WIRED_MODEM_FULL,
             "wired_modem_full",
-            TileWiredModemFull::new );
-        public static final BlockEntityType<TileCable> CABLE = ofBlock( () -> ModBlocks.CABLE, "cable", TileCable::new );
-        public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_NORMAL = ofBlock( () -> ModBlocks.WIRELESS_MODEM_NORMAL,
+            ( blockPos, blockState ) -> new TileWiredModemFull( ModTiles.WIRED_MODEM_FULL, blockPos, blockState ) );
+        public static final BlockEntityType<TileCable> CABLE = ofBlock( ModBlocks.CABLE, "cable",
+            ( blockPos, blockState ) -> new TileCable( ModTiles.CABLE, blockPos, blockState ) );
+        public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_NORMAL = ofBlock( ModBlocks.WIRELESS_MODEM_NORMAL,
             "wireless_modem_normal",
-            f -> new TileWirelessModem( f, false ) );
-        public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_ADVANCED = ofBlock( () -> ModBlocks.WIRELESS_MODEM_ADVANCED,
+            ( blockPos, blockState ) -> new TileWirelessModem( ModTiles.WIRELESS_MODEM_NORMAL, false, blockPos, blockState ) );
+        public static final BlockEntityType<TileWirelessModem> WIRELESS_MODEM_ADVANCED = ofBlock( ModBlocks.WIRELESS_MODEM_ADVANCED,
             "wireless_modem_advanced",
-            f -> new TileWirelessModem( f, true ) );
+            ( blockPos, blockState ) -> new TileWirelessModem( ModTiles.WIRELESS_MODEM_ADVANCED, true, blockPos, blockState ) );
 
-        private static <T extends BlockEntity> BlockEntityType<T> ofBlock( Supplier<Block> block, String id, Function<BlockEntityType<T>, T> factory )
+        private static <T extends BlockEntity> BlockEntityType<T> ofBlock( Block block, String id, BiFunction<BlockPos, BlockState, T> factory )
         {
+            BlockEntityType<T> blockEntityType = FabricBlockEntityTypeBuilder.create( factory::apply, block ).build();
             return Registry.register( BLOCK_ENTITY_TYPE,
                 new Identifier( MOD_ID, id ),
-                FixedPointTileEntityType.create( Objects.requireNonNull( block ), factory ) );
+                blockEntityType
+            );
         }
     }
 
@@ -252,23 +257,19 @@ public final class ComputerCraftRegistry
 
     public static class ModContainers
     {
-        public static final ScreenHandlerType<ContainerComputer> COMPUTER = registerExtended( "computer", ContainerComputer::new );
-        public static final ScreenHandlerType<ContainerPocketComputer> POCKET_COMPUTER = registerExtended( "pocket_computer", ContainerPocketComputer::new );
-        public static final ScreenHandlerType<ContainerTurtle> TURTLE = registerExtended( "turtle", ContainerTurtle::new );
+        public static final ScreenHandlerType<ContainerComputerBase> COMPUTER = ContainerData.toType( new Identifier( MOD_ID, "computer" ), ModContainers.COMPUTER, ComputerContainerData::new, ComputerMenuWithoutInventory::new );
+        public static final ScreenHandlerType<ContainerComputerBase> POCKET_COMPUTER = ContainerData.toType( new Identifier( MOD_ID, "pocket_computer" ), ModContainers.POCKET_COMPUTER, ComputerContainerData::new, ComputerMenuWithoutInventory::new );
+        public static final ScreenHandlerType<ContainerComputerBase> POCKET_COMPUTER_NO_TERM = ContainerData.toType( new Identifier( MOD_ID, "pocket_computer_no_term" ), ModContainers.POCKET_COMPUTER_NO_TERM, ComputerContainerData::new, ComputerMenuWithoutInventory::new );
+        public static final ScreenHandlerType<ContainerTurtle> TURTLE = ContainerData.toType( new Identifier( MOD_ID, "turtle" ), ComputerContainerData::new, ContainerTurtle::new );
         public static final ScreenHandlerType<ContainerDiskDrive> DISK_DRIVE = registerSimple( "disk_drive", ContainerDiskDrive::new );
         public static final ScreenHandlerType<ContainerPrinter> PRINTER = registerSimple( "printer", ContainerPrinter::new );
-        public static final ScreenHandlerType<ContainerHeldItem> PRINTOUT = registerExtended( "printout", ContainerHeldItem::createPrintout );
-        public static final ScreenHandlerType<ContainerViewComputer> VIEW_COMPUTER = registerExtended( "view_computer", ContainerViewComputer::new );
+        public static final ScreenHandlerType<ContainerHeldItem> PRINTOUT = ContainerData.toType( new Identifier( MOD_ID, "printout" ), HeldItemContainerData::new, ContainerHeldItem::createPrintout );
+        public static final ScreenHandlerType<ContainerViewComputer> VIEW_COMPUTER = ContainerData.toType( new Identifier( MOD_ID, "view_computer" ), ViewComputerContainerData::new, ContainerViewComputer::new );
 
         private static <T extends ScreenHandler> ScreenHandlerType<T> registerSimple( String id,
                                                                                       ScreenHandlerRegistry.SimpleClientHandlerFactory<T> function )
         {
             return ScreenHandlerRegistry.registerSimple( new Identifier( MOD_ID, id ), function );
-        }
-
-        private static <T extends ScreenHandler> ScreenHandlerType<T> registerExtended( String id, ScreenHandlerRegistry.ExtendedClientHandlerFactory<T> function )
-        {
-            return ScreenHandlerRegistry.registerExtended( new Identifier( MOD_ID, id ), function );
         }
     }
 

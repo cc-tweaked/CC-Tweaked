@@ -14,5 +14,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface SignBlockEntityAccess
 {
     @Accessor
-    Text[] getText();
+    Text[] getTexts();
 }

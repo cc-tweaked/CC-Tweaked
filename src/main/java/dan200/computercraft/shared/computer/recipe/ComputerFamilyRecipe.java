@@ -45,7 +45,7 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
             ComputerFamily family = RecipeUtil.getFamily( json, "family" );
 
             RecipeUtil.ShapedTemplate template = RecipeUtil.getTemplate( json );
-            ItemStack result = getItem( JsonHelper.getObject( json, "result" ) );
+            ItemStack result = outputFromJson( JsonHelper.getObject( json, "result" ) );
 
             return create( identifier, group, template.width, template.height, template.ingredients, result, family );
         }

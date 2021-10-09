@@ -8,6 +8,9 @@ package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.client.gui.widgets.ComputerSidebar;
+import dan200.computercraft.client.gui.widgets.WidgetTerminal;
+import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import net.minecraft.client.util.math.MatrixStack;
@@ -17,40 +20,46 @@ import net.minecraft.util.Identifier;
 
 import javax.annotation.Nonnull;
 
-public class GuiTurtle extends GuiComputer<ContainerTurtle>
+import static dan200.computercraft.shared.turtle.inventory.ContainerTurtle.BORDER;
+
+public class GuiTurtle extends ComputerScreenBase<ContainerTurtle>
 {
     private static final Identifier BACKGROUND_NORMAL = new Identifier( "computercraft", "textures/gui/turtle_normal.png" );
     private static final Identifier BACKGROUND_ADVANCED = new Identifier( "computercraft", "textures/gui/turtle_advanced.png" );
-    private final ContainerTurtle container;
+
+    private static final int TEX_WIDTH = 254;
+    private static final int TEX_HEIGHT = 217;
+
+    private final ComputerFamily family;
 
     public GuiTurtle( ContainerTurtle container, PlayerInventory player, Text title )
     {
-        super( container, player, title, ComputerCraft.turtleTermWidth, ComputerCraft.turtleTermHeight );
+        super( container, player, title, BORDER );
 
-        this.container = container;
+        family = container.getFamily();
+        backgroundWidth = TEX_WIDTH + ComputerSidebar.WIDTH;
+        backgroundHeight = TEX_HEIGHT;
+
     }
 
     @Override
-    protected void init()
+    protected WidgetTerminal createTerminal()
     {
-        initTerminal( 8, 0, 80 );
+        return new WidgetTerminal(
+            computer, x + BORDER + ComputerSidebar.WIDTH, y + BORDER,
+            ComputerCraft.turtleTermWidth, ComputerCraft.turtleTermHeight
+        );
     }
 
     @Override
     public void drawBackground( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
-        // Draw term
-        Identifier texture = family == ComputerFamily.ADVANCED ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL;
-        terminal.draw( terminalWrapper.getX(), terminalWrapper.getY() );
-
-        // Draw border/inventory
-        RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        client.getTextureManager()
-            .bindTexture( texture );
-        drawTexture( transform, x, y, 0, 0, backgroundWidth, backgroundHeight );
+        boolean advanced = family == ComputerFamily.ADVANCED;
+        RenderSystem.setShaderTexture( 0, advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
+        drawTexture( transform, x + ComputerSidebar.WIDTH, y, 0, 0, TEX_WIDTH, TEX_HEIGHT );
 
         // Draw selection slot
-        int slot = container.getSelectedSlot();
+        int slot = getScreenHandler().getSelectedSlot();
         if( slot >= 0 )
         {
             int slotX = slot % 4;
@@ -61,5 +70,8 @@ public class GuiTurtle extends GuiComputer<ContainerTurtle>
                 24,
                 24 );
         }
+
+        RenderSystem.setShaderTexture( 0, advanced ? ComputerBorderRenderer.BACKGROUND_ADVANCED : ComputerBorderRenderer.BACKGROUND_NORMAL );
+        ComputerSidebar.renderBackground( transform, x, y + sidebarYOffset );
     }
 }

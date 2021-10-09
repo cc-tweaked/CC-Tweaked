@@ -36,11 +36,6 @@ public class ContainerHeldItem extends ScreenHandler
             .copy();
     }
 
-    public static ContainerHeldItem createPrintout( int id, PlayerInventory inventory, PacketByteBuf data )
-    {
-        return createPrintout( id, inventory, new HeldItemContainerData( data ) );
-    }
-
     public static ContainerHeldItem createPrintout( int id, PlayerInventory inventory, HeldItemContainerData data )
     {
         return new ContainerHeldItem( ComputerCraftRegistry.ModContainers.PRINTOUT, id, inventory.player, data.getHand() );
