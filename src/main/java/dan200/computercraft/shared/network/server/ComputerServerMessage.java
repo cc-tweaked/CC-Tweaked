@@ -22,27 +22,22 @@ import javax.annotation.Nonnull;
  */
 public abstract class ComputerServerMessage implements NetworkMessage
 {
-    private int instanceId;
+    private final int instanceId;
 
     public ComputerServerMessage( int instanceId )
     {
         this.instanceId = instanceId;
     }
 
-    public ComputerServerMessage()
+    public ComputerServerMessage( @Nonnull PacketByteBuf buf )
     {
+        instanceId = buf.readVarInt();
     }
 
     @Override
     public void toBytes( @Nonnull PacketByteBuf buf )
     {
         buf.writeVarInt( instanceId );
-    }
-
-    @Override
-    public void fromBytes( @Nonnull PacketByteBuf buf )
-    {
-        instanceId = buf.readVarInt();
     }
 
     @Override
@@ -60,8 +55,8 @@ public abstract class ComputerServerMessage implements NetworkMessage
             return;
         }
 
-        handle( computer, container );
+        handle( context, computer, container );
     }
 
-    protected abstract void handle( @Nonnull ServerComputer computer, @Nonnull IContainerComputer container );
+    protected abstract void handle( PacketContext context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container );
 }

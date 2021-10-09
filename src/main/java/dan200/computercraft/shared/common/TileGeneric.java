@@ -21,9 +21,9 @@ import javax.annotation.Nonnull;
 
 public abstract class TileGeneric extends BlockEntity implements BlockEntityClientSerializable
 {
-    public TileGeneric( BlockEntityType<? extends TileGeneric> type )
+    public TileGeneric( BlockEntityType<? extends TileGeneric> type, BlockPos pos, BlockState state )
     {
-        super( type );
+        super( type, pos, state );
     }
 
     public void destroy()

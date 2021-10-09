@@ -271,4 +271,11 @@ public class BlockCable extends BlockGeneric implements Waterloggable
                 .with( DOWN, false );
         }
     }
+
+    @Nullable
+    @Override
+    public BlockEntity createBlockEntity( BlockPos pos, BlockState state )
+    {
+        return new TileCable( ComputerCraftRegistry.ModTiles.CABLE, pos, state );
+    }
 }

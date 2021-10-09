@@ -36,7 +36,7 @@ public final class WorldUtil
 
     public static boolean isLiquidBlock( World world, BlockPos pos )
     {
-        if( !World.isInBuildLimit( pos ) )
+        if( !world.isInBuildLimit( pos ) )
         {
             return false;
         }

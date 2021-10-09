@@ -6,17 +6,14 @@
 
 package dan200.computercraft.shared.network.container;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.Identifier;
 
 public class ComputerContainerData implements ContainerData
 {
-    private static final Identifier IDENTIFIER = new Identifier( ComputerCraft.MOD_ID, "computer_container_data" );
-    private int id;
-    private ComputerFamily family;
+    private final int id;
+    private final ComputerFamily family;
 
     public ComputerContainerData( ServerComputer computer )
     {
@@ -26,18 +23,8 @@ public class ComputerContainerData implements ContainerData
 
     public ComputerContainerData( PacketByteBuf byteBuf )
     {
-        fromBytes( byteBuf );
-    }
-
-    public void fromBytes( PacketByteBuf buf )
-    {
-        id = buf.readInt();
-        family = buf.readEnumConstant( ComputerFamily.class );
-    }
-
-    public Identifier getId()
-    {
-        return IDENTIFIER;
+        id = byteBuf.readInt();
+        family = byteBuf.readEnumConstant( ComputerFamily.class );
     }
 
     @Override

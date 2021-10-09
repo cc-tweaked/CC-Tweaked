@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.api.turtle.FakePlayer;
+import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -34,9 +35,12 @@ public class BlockMonitor extends BlockGeneric
 
     static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.of( "state", MonitorEdgeState.class );
 
-    public BlockMonitor( Settings settings, BlockEntityType<? extends TileMonitor> type )
+    public boolean advanced;
+
+    public BlockMonitor( Settings settings, BlockEntityType<? extends TileMonitor> type, boolean advanced )
     {
         super( settings, type );
+        this.advanced = advanced;
         // TODO: Test underwater - do we need isSolid at all?
         setDefaultState( getStateManager().getDefaultState()
             .with( ORIENTATION, Direction.NORTH )
@@ -48,7 +52,7 @@ public class BlockMonitor extends BlockGeneric
     @Nullable
     public BlockState getPlacementState( ItemPlacementContext context )
     {
-        float pitch = context.getPlayer() == null ? 0 : context.getPlayer().pitch;
+        float pitch = context.getPlayer() == null ? 0 : context.getPlayer().getPitch();
         Direction orientation;
         if( pitch > 66.5f )
         {
@@ -78,9 +82,8 @@ public class BlockMonitor extends BlockGeneric
         super.onPlaced( world, pos, blockState, livingEntity, itemStack );
 
         BlockEntity entity = world.getBlockEntity( pos );
-        if( entity instanceof TileMonitor && !world.isClient )
+        if( entity instanceof TileMonitor monitor && !world.isClient )
         {
-            TileMonitor monitor = (TileMonitor) entity;
             // Defer the block update if we're being placed by another TE. See #691
             if( livingEntity == null || livingEntity instanceof FakePlayer )
             {
@@ -96,5 +99,12 @@ public class BlockMonitor extends BlockGeneric
     protected void appendProperties( StateManager.Builder<Block, BlockState> builder )
     {
         builder.add( ORIENTATION, FACING, STATE );
+    }
+
+    @Nullable
+    @Override
+    public BlockEntity createBlockEntity( BlockPos pos, BlockState state )
+    {
+        return new TileMonitor( advanced ? ComputerCraftRegistry.ModTiles.MONITOR_ADVANCED : ComputerCraftRegistry.ModTiles.MONITOR_NORMAL, advanced, pos, state );
     }
 }

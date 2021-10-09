@@ -9,6 +9,7 @@ package dan200.computercraft.shared.network.server;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.InputState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.network.PacketByteBuf;
 
 import javax.annotation.Nonnull;
@@ -19,8 +20,8 @@ public class KeyEventServerMessage extends ComputerServerMessage
     public static final int TYPE_REPEAT = 1;
     public static final int TYPE_UP = 2;
 
-    private int type;
-    private int key;
+    private final int type;
+    private final int key;
 
     public KeyEventServerMessage( int instanceId, int type, int key )
     {
@@ -29,8 +30,11 @@ public class KeyEventServerMessage extends ComputerServerMessage
         this.key = key;
     }
 
-    public KeyEventServerMessage()
+    public KeyEventServerMessage( @Nonnull PacketByteBuf buf )
     {
+        super( buf );
+        type = buf.readByte();
+        key = buf.readVarInt();
     }
 
     @Override
@@ -42,15 +46,7 @@ public class KeyEventServerMessage extends ComputerServerMessage
     }
 
     @Override
-    public void fromBytes( @Nonnull PacketByteBuf buf )
-    {
-        super.fromBytes( buf );
-        type = buf.readByte();
-        key = buf.readVarInt();
-    }
-
-    @Override
-    protected void handle( @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
+    protected void handle( PacketContext context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
         InputState input = container.getInput();
         if( type == TYPE_UP )

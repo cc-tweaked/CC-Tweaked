@@ -14,25 +14,23 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.container.ViewComputerContainerData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.network.PacketByteBuf;
 
 import javax.annotation.Nonnull;
 
-public class ContainerViewComputer extends ContainerComputerBase
+public class ContainerViewComputer extends ComputerMenuWithoutInventory
 {
     private final int width;
     private final int height;
 
-    public ContainerViewComputer( int id, ServerComputer computer )
+    public ContainerViewComputer( int id, PlayerInventory player, ServerComputer computer )
     {
-        super( ComputerCraftRegistry.ModContainers.VIEW_COMPUTER, id, player -> canInteractWith( computer, player ), computer, computer.getFamily() );
+        super( ComputerCraftRegistry.ModContainers.VIEW_COMPUTER, id, player, p -> canInteractWith( computer, p ), computer, computer.getFamily() );
         width = height = 0;
     }
 
-    public ContainerViewComputer( int id, PlayerInventory player, PacketByteBuf packetByteBuf )
+    public ContainerViewComputer( int id, PlayerInventory player, ViewComputerContainerData data )
     {
-        super( ComputerCraftRegistry.ModContainers.VIEW_COMPUTER, id, player, packetByteBuf );
-        ViewComputerContainerData data = new ViewComputerContainerData( new PacketByteBuf( packetByteBuf.copy() ) );
+        super( ComputerCraftRegistry.ModContainers.VIEW_COMPUTER, id, player, data );
         width = data.getWidth();
         height = data.getHeight();
     }

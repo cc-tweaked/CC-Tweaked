@@ -29,9 +29,9 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
     private Direction modemDirection = Direction.DOWN;
     private boolean destroyed = false;
 
-    public TileWirelessModem( BlockEntityType<? extends TileWirelessModem> type, boolean advanced )
+    public TileWirelessModem( BlockEntityType<? extends TileWirelessModem> type, boolean advanced, BlockPos pos, BlockState state )
     {
-        super( type );
+        super( type, pos, state );
         this.advanced = advanced;
         modem = new Peripheral( this );
     }
@@ -44,9 +44,10 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void resetBlock()
+    public void setCachedState( BlockState state )
     {
-        super.resetBlock();
+        super.setCachedState( state );
+        if( state != null ) return;
         hasModemDirection = false;
         world.getBlockTickScheduler()
             .schedule( getPos(),

@@ -4,6 +4,7 @@
 -- @module cc.completion
 -- @see cc.shell.completion For additional helpers to use with
 -- @{shell.setCompletionFunction}.
+-- @since 1.85.0
 
 local expect = require "cc.expect".expect
 
@@ -31,8 +32,9 @@ end
 -- @treturn { string... } A list of suffixes of matching strings.
 -- @usage Call @{_G.read}, completing the names of various animals.
 --
+--     local completion = require "cc.completion"
 --     local animals = { "dog", "cat", "lion", "unicorn" }
---     read(nil, nil, function(text) return choice(text, animals) end)
+--     read(nil, nil, function(text) return completion.choice(text, animals) end)
 local function choice(text, choices, add_space)
     expect(1, text, "string")
     expect(2, choices, "table")

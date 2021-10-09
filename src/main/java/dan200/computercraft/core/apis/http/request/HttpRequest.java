@@ -167,6 +167,7 @@ public class HttpRequest extends Resource<HttpRequest>
                         }
 
                         ChannelPipeline p = ch.pipeline();
+                        p.addLast( NetworkUtils.SHAPING_HANDLER );
                         if( sslContext != null )
                         {
                             p.addLast( sslContext.newHandler( ch.alloc(), uri.getHost(), socketAddress.getPort() ) );

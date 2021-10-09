@@ -5,6 +5,7 @@
 -- [wiki]: http://en.wikipedia.org/wiki/Euclidean_vector
 --
 -- @module vector
+-- @since 1.31
 
 --- A 3-dimensional vector, with `x`, `y`, and `z` values.
 --
@@ -151,6 +152,15 @@ local vector = {
     tostring = function(self)
         return self.x .. "," .. self.y .. "," .. self.z
     end,
+
+    --- Check for equality between two vectors.
+    --
+    -- @tparam Vector self The first vector to compare.
+    -- @tparam Vector other The second vector to compare to.
+    -- @treturn boolean Whether or not the vectors are equal.
+    equals = function(self, other)
+        return self.x == other.x and self.y == other.y and self.z == other.z
+    end,
 }
 
 local vmetatable = {
@@ -161,6 +171,7 @@ local vmetatable = {
     __div = vector.div,
     __unm = vector.unm,
     __tostring = vector.tostring,
+    __eq = vector.equals,
 }
 
 --- Construct a new @{Vector} with the given coordinates.

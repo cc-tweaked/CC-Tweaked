@@ -7,6 +7,7 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.collect.ImmutableMap;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.*;
@@ -16,6 +17,7 @@ import dan200.computercraft.api.network.wired.IWiredSender;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
+import dan200.computercraft.api.peripheral.NotAttachedException;
 import dan200.computercraft.core.apis.PeripheralAPI;
 import dan200.computercraft.core.asm.PeripheralMethod;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
@@ -24,10 +26,7 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -326,6 +325,9 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         private final String type;
         private final Map<String, PeripheralMethod> methodMap;
 
+        private volatile boolean attached;
+        private final Set<String> mounts = new HashSet<>();
+
         RemotePeripheralWrapper( WiredModemElement element, IPeripheral peripheral, IComputerAccess computer, String name )
         {
             this.element = element;
@@ -339,6 +341,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
 
         public void attach()
         {
+            attached = true;
             peripheral.attach( this );
             computer.queueEvent( "peripheral", getAttachmentName() );
         }
@@ -347,6 +350,18 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         {
             peripheral.detach( this );
             computer.queueEvent( "peripheral_detach", getAttachmentName() );
+            attached = false;
+
+            synchronized( this )
+            {
+                if( !mounts.isEmpty() )
+                {
+                    ComputerCraft.log.warn( "Peripheral {} called mount but did not call unmount for {}", peripheral, mounts );
+                }
+
+                for( String mount : mounts ) computer.unmount( mount );
+                mounts.clear();
+            }
         }
 
         public String getType()
@@ -372,51 +387,68 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         // IComputerAccess implementation
 
         @Override
-        public String mount( @Nonnull String desiredLocation, @Nonnull IMount mount )
+        public synchronized String mount( @Nonnull String desiredLocation, @Nonnull IMount mount )
         {
-            return computer.mount( desiredLocation, mount, name );
+            if( !attached ) throw new NotAttachedException();
+            String mounted = computer.mount( desiredLocation, mount, name );
+            mounts.add( mounted );
+            return mounted;
         }
 
         @Override
-        public String mount( @Nonnull String desiredLocation, @Nonnull IMount mount, @Nonnull String driveName )
+        public synchronized String mount( @Nonnull String desiredLocation, @Nonnull IMount mount, @Nonnull String driveName )
         {
-            return computer.mount( desiredLocation, mount, driveName );
+            if( !attached ) throw new NotAttachedException();
+            String mounted = computer.mount( desiredLocation, mount, driveName );
+            mounts.add( mounted );
+            return mounted;
         }
 
         @Nonnull
         @Override
         public String getAttachmentName()
         {
+            if( !attached ) throw new NotAttachedException();
             return name;
         }
 
         @Override
-        public String mountWritable( @Nonnull String desiredLocation, @Nonnull IWritableMount mount )
+        public synchronized String mountWritable( @Nonnull String desiredLocation, @Nonnull IWritableMount mount )
         {
-            return computer.mountWritable( desiredLocation, mount, name );
+            if( !attached ) throw new NotAttachedException();
+            String mounted = computer.mountWritable( desiredLocation, mount, name );
+            mounts.add( mounted );
+            return mounted;
         }
 
         @Override
-        public String mountWritable( @Nonnull String desiredLocation, @Nonnull IWritableMount mount, @Nonnull String driveName )
+        public synchronized String mountWritable( @Nonnull String desiredLocation, @Nonnull IWritableMount mount, @Nonnull String driveName )
         {
-            return computer.mountWritable( desiredLocation, mount, driveName );
+            if( !attached ) throw new NotAttachedException();
+            String mounted = computer.mountWritable( desiredLocation, mount, driveName );
+            mounts.add( mounted );
+            return mounted;
         }
 
         @Override
-        public void unmount( String location )
+        public synchronized void unmount( String location )
         {
+            if( !attached ) throw new NotAttachedException();
             computer.unmount( location );
+            mounts.remove( location );
         }
 
         @Override
         public int getID()
         {
+            if( !attached ) throw new NotAttachedException();
             return computer.getID();
         }
 
         @Override
         public void queueEvent( @Nonnull String event, Object... arguments )
         {
+            if( !attached ) throw new NotAttachedException();
             computer.queueEvent( event, arguments );
         }
 
@@ -424,6 +456,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         @Override
         public Map<String, IPeripheral> getAvailablePeripherals()
         {
+            if( !attached ) throw new NotAttachedException();
             synchronized( element.getRemotePeripherals() )
             {
                 return ImmutableMap.copyOf( element.getRemotePeripherals() );
@@ -434,6 +467,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         @Override
         public IPeripheral getAvailablePeripheral( @Nonnull String name )
         {
+            if( !attached ) throw new NotAttachedException();
             synchronized( element.getRemotePeripherals() )
             {
                 return element.getRemotePeripherals()
@@ -445,6 +479,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         @Override
         public IWorkMonitor getMainThreadMonitor()
         {
+            if( !attached ) throw new NotAttachedException();
             return computer.getMainThreadMonitor();
         }
     }

@@ -309,9 +309,9 @@ public final class Environment implements IAPIEnvironment
         {
             int index = side.ordinal();
             IPeripheral existing = peripherals[index];
-            if( (existing == null && peripheral != null) ||
-                (existing != null && peripheral == null) ||
-                (existing != null && !existing.equals( peripheral )) )
+            if( existing == null && peripheral != null ||
+                existing != null && peripheral == null ||
+                existing != null && !existing.equals( peripheral ) )
             {
                 peripherals[index] = peripheral;
                 if( peripheralListener != null ) peripheralListener.onPeripheralChanged( side, peripheral );

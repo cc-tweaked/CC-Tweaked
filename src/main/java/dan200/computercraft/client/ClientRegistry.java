@@ -77,7 +77,7 @@ public final class ClientRegistry
     }
 
     @SuppressWarnings( "NewExpressionSideOnly" )
-    public static void onModelBakeEvent( ResourceManager manager, Consumer<ModelIdentifier> out )
+    public static void onModelBakeEvent( ResourceManager manager, Consumer<Identifier> out )
     {
         for( String model : EXTRA_MODELS )
         {

@@ -3,11 +3,9 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.media.items;
 
 import dan200.computercraft.api.media.IMedia;
-import dan200.computercraft.fabric.mixin.MusicDiscItemAccessor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MusicDiscItem;
@@ -53,6 +51,6 @@ public final class RecordMedia implements IMedia
         {
             return null;
         }
-        return ((MusicDiscItemAccessor) item).getSound();
+        return ((MusicDiscItem) item).getSound();
     }
 }

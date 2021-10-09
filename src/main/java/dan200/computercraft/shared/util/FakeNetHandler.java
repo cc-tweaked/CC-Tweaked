@@ -242,10 +242,10 @@ public class FakeNetHandler extends ServerPlayNetworkHandler
     {
     }
 
-    @Override
-    public void onConfirmScreenAction( ConfirmScreenActionC2SPacket packet )
-    {
-    }
+    //    @Override
+    //    public void onConfirmScreenAction( ConfirmScreenActionC2SPacket packet )
+    //    {
+    //    }
 
     @Override
     public void onSignUpdate( @Nonnull UpdateSignC2SPacket packet )
@@ -365,11 +365,6 @@ public class FakeNetHandler extends ServerPlayNetworkHandler
 
         @Override
         public void disableAutoRead()
-        {
-        }
-
-        @Override
-        public void setCompressionThreshold( int threshold )
         {
         }
     }

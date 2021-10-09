@@ -26,6 +26,7 @@
 -- terminal display as its parent, and only one of which is visible at a time.
 --
 -- @module window
+-- @since 1.6
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
@@ -52,24 +53,40 @@ local type = type
 local string_rep = string.rep
 local string_sub = string.sub
 
---- Returns a terminal object that is a space within the specified parent
--- terminal object. This can then be used (or even redirected to) in the same
--- manner as eg a wrapped monitor. Refer to @{term|the term API} for a list of
--- functions available to it.
---
--- @{term} itself may not be passed as the parent, though @{term.native} is
--- acceptable. Generally, @{term.current} or a wrapped monitor will be most
--- suitable, though windows may even have other windows assigned as their
--- parents.
---
--- @tparam term.Redirect parent The parent terminal redirect to draw to.
--- @tparam number nX The x coordinate this window is drawn at in the parent terminal
--- @tparam number nY The y coordinate this window is drawn at in the parent terminal
--- @tparam number nWidth The width of this window
--- @tparam number nHeight The height of this window
--- @tparam[opt] boolean bStartVisible Whether this window is visible by
--- default. Defaults to `true`.
--- @treturn Window The constructed window
+--[[- Returns a terminal object that is a space within the specified parent
+terminal object. This can then be used (or even redirected to) in the same
+manner as eg a wrapped monitor. Refer to @{term|the term API} for a list of
+functions available to it.
+
+@{term} itself may not be passed as the parent, though @{term.native} is
+acceptable. Generally, @{term.current} or a wrapped monitor will be most
+suitable, though windows may even have other windows assigned as their
+parents.
+
+@tparam term.Redirect parent The parent terminal redirect to draw to.
+@tparam number nX The x coordinate this window is drawn at in the parent terminal
+@tparam number nY The y coordinate this window is drawn at in the parent terminal
+@tparam number nWidth The width of this window
+@tparam number nHeight The height of this window
+@tparam[opt] boolean bStartVisible Whether this window is visible by
+default. Defaults to `true`.
+@treturn Window The constructed window
+@since 1.6
+@usage Create a smaller window, fill it red and write some text to it.
+
+    local my_window = window.create(term.current(), 1, 1, 20, 5)
+    my_window.setBackgroundColour(colours.red)
+    my_window.setTextColour(colours.white)
+    my_window.clear()
+    my_window.write("Testing my window!")
+
+@usage Create a smaller window and redirect to it.
+
+    local my_window = window.create(term.current(), 1, 1, 25, 5)
+    term.redirect(my_window)
+    print("Writing some long text which will wrap around and show the bounds of this window.")
+
+]]
 function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     expect(1, parent, "table")
     expect(2, nX, "number")
@@ -125,7 +142,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     -- Helper functions
     local function updateCursorPos()
         if nCursorX >= 1 and nCursorY >= 1 and
-            nCursorX <= nWidth and nCursorY <= nHeight then
+           nCursorX <= nWidth and nCursorY <= nHeight then
             parent.setCursorPos(nX + nCursorX - 1, nY + nCursorY - 1)
         else
             parent.setCursorPos(0, 0)
@@ -446,6 +463,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     -- @treturn string The text colours of this line, suitable for use with @{term.blit}.
     -- @treturn string The background colours of this line, suitable for use with @{term.blit}.
     -- @throws If `y` is not between 1 and this window's height.
+    -- @since 1.84.0
     function window.getLine(y)
         if type(y) ~= "number" then expect(1, y, "number") end
 
@@ -479,6 +497,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     --
     -- @treturn boolean Whether this window is visible.
     -- @see Window:setVisible
+    -- @since 1.94.0
     function window.isVisible()
         return bVisible
     end
@@ -525,6 +544,7 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
     -- @tparam number new_height The new height of this window.
     -- @tparam[opt] term.Redirect new_parent The new redirect object this
     -- window should draw to.
+    -- @changed 1.85.0 Add `new_parent` parameter.
     function window.reposition(new_x, new_y, new_width, new_height, new_parent)
         if type(new_x) ~= "number" then expect(1, new_x, "number") end
         if type(new_y) ~= "number" then expect(2, new_y, "number") end

@@ -62,6 +62,7 @@ public interface IAPIEnvironment
     @Nullable
     IPeripheral getPeripheral( ComputerSide side );
 
+    @Nullable
     String getLabel();
 
     void setLabel( @Nullable String label );

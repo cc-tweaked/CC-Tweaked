@@ -88,4 +88,11 @@ public class BlockPrinter extends BlockGeneric
     {
         properties.add( FACING, TOP, BOTTOM );
     }
+
+    @Nullable
+    @Override
+    public BlockEntity createBlockEntity( BlockPos pos, BlockState state )
+    {
+        return new TilePrinter( ComputerCraftRegistry.ModTiles.PRINTER, pos, state );
+    }
 }

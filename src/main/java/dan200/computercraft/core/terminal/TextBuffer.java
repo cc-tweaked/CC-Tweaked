@@ -79,6 +79,7 @@ public class TextBuffer
         }
     }
 
+    @Override
     public String toString()
     {
         return new String( text );

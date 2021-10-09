@@ -23,7 +23,7 @@ import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.pocket.apis.PocketAPI;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
-import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
+import dan200.computercraft.shared.pocket.inventory.PocketComputerMenuProvider;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.item.TooltipContext;
@@ -147,7 +147,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         ItemStack stack = player.getStackInHand( hand );
         if( !world.isClient )
         {
-            PocketServerComputer computer = createServerComputer( world, player.inventory, player, stack );
+            PocketServerComputer computer = createServerComputer( world, player.getInventory(), player, stack );
 
             boolean stop = false;
             if( computer != null )
@@ -164,8 +164,8 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
             if( !stop && computer != null )
             {
-                computer.sendTerminalState( player );
-                new ComputerContainerData( computer ).open( player, new ContainerPocketComputer.Factory( computer, stack, this, hand ) );
+                boolean isTypingOnly = hand == Hand.OFF_HAND;
+                new ComputerContainerData( computer ).open( player, new PocketComputerMenuProvider( computer, stack, this, hand, isTypingOnly ) );
             }
         }
         return new TypedActionResult<>( ActionResult.SUCCESS, stack );
@@ -177,7 +177,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         if( !world.isClient )
         {
             // Server side
-            Inventory inventory = entity instanceof PlayerEntity ? ((PlayerEntity) entity).inventory : null;
+            Inventory inventory = entity instanceof PlayerEntity ? ((PlayerEntity) entity).getInventory() : null;
             PocketServerComputer computer = createServerComputer( world, inventory, entity, stack );
             if( computer != null )
             {

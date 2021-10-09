@@ -9,6 +9,7 @@ package dan200.computercraft.client.render;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Vec3f;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3f;
@@ -31,16 +32,16 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
     }
 
     @Override
-    protected void renderItem( MatrixStack transform, VertexConsumerProvider render, ItemStack stack )
+    protected void renderItem( MatrixStack transform, VertexConsumerProvider render, ItemStack stack, int light )
     {
         transform.multiply( Vec3f.POSITIVE_X.getDegreesQuaternion( 180f ) );
         transform.scale( 0.42f, 0.42f, -0.42f );
         transform.translate( -0.5f, -0.48f, 0.0f );
 
-        drawPrintout( transform, render, stack );
+        drawPrintout( transform, render, stack, light );
     }
 
-    private static void drawPrintout( MatrixStack transform, VertexConsumerProvider render, ItemStack stack )
+    private static void drawPrintout( MatrixStack transform, VertexConsumerProvider render, ItemStack stack, int light )
     {
         int pages = ItemPrintout.getPageCount( stack );
         boolean book = ((ItemPrintout) stack.getItem()).getType() == ItemPrintout.Type.BOOK;
@@ -72,11 +73,11 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
 
         Matrix4f matrix = transform.peek()
             .getModel();
-        drawBorder( matrix, render, 0, 0, -0.01f, 0, pages, book );
-        drawText( matrix, render, X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, ItemPrintout.getText( stack ), ItemPrintout.getColours( stack ) );
+        drawBorder( matrix, render, 0, 0, -0.01f, 0, pages, book, light );
+        drawText( matrix, render, X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, light, ItemPrintout.getText( stack ), ItemPrintout.getColours( stack ) );
     }
 
-    public boolean renderInFrame( MatrixStack matrixStack, VertexConsumerProvider consumerProvider, ItemStack stack )
+    public boolean renderInFrame( MatrixStack matrixStack, VertexConsumerProvider consumerProvider, ItemStack stack, int light )
     {
         if( !(stack.getItem() instanceof ItemPrintout) )
         {
@@ -89,7 +90,7 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
         matrixStack.scale( 0.95f, 0.95f, -0.95f );
         matrixStack.translate( -0.5f, -0.5f, 0.0f );
 
-        drawPrintout( matrixStack, consumerProvider, stack );
+        drawPrintout( matrixStack, consumerProvider, stack, light );
 
         return true;
     }

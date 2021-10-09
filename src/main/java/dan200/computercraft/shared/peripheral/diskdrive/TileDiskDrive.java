@@ -32,10 +32,10 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Nameable;
-import net.minecraft.util.Tickable;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,7 +43,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public final class TileDiskDrive extends TileGeneric implements DefaultInventory, Tickable, IPeripheralTile, Nameable, NamedScreenHandlerFactory
+public final class TileDiskDrive extends TileGeneric implements DefaultInventory, IPeripheralTile, Nameable, NamedScreenHandlerFactory
 {
     private static final String NBT_NAME = "CustomName";
     private static final String NBT_ITEM = "Item";
@@ -57,9 +57,9 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     private boolean restartRecord = false;
     private boolean ejectQueued;
 
-    public TileDiskDrive( BlockEntityType<TileDiskDrive> type )
+    public TileDiskDrive( BlockEntityType<TileDiskDrive> type, BlockPos pos, BlockState state )
     {
-        super( type );
+        super( type, pos, state );
     }
 
     @Override
@@ -108,9 +108,9 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     }
 
     @Override
-    public void readNbt( @Nonnull BlockState state, @Nonnull NbtCompound nbt )
+    public void readNbt( @Nonnull NbtCompound nbt )
     {
-        super.readNbt( state, nbt );
+        super.readNbt( nbt );
         customName = nbt.contains( NBT_NAME ) ? Text.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
         if( nbt.contains( NBT_ITEM ) )
         {
@@ -148,40 +148,39 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         super.markDirty();
     }
 
-    @Override
-    public void tick()
+    public static void tick( World world, BlockPos pos, BlockState state, TileDiskDrive tileDiskDrive )
     {
         // Ejection
-        if( ejectQueued )
+        if( tileDiskDrive.ejectQueued )
         {
-            ejectContents( false );
-            ejectQueued = false;
+            tileDiskDrive.ejectContents( false );
+            tileDiskDrive.ejectQueued = false;
         }
 
         // Music
-        synchronized( this )
+        synchronized( tileDiskDrive )
         {
-            if( !world.isClient && recordPlaying != recordQueued || restartRecord )
+            if( !world.isClient && tileDiskDrive.recordPlaying != tileDiskDrive.recordQueued || tileDiskDrive.restartRecord )
             {
-                restartRecord = false;
-                if( recordQueued )
+                tileDiskDrive.restartRecord = false;
+                if( tileDiskDrive.recordQueued )
                 {
-                    IMedia contents = getDiskMedia();
-                    SoundEvent record = contents != null ? contents.getAudio( diskStack ) : null;
+                    IMedia contents = tileDiskDrive.getDiskMedia();
+                    SoundEvent record = contents != null ? contents.getAudio( tileDiskDrive.diskStack ) : null;
                     if( record != null )
                     {
-                        recordPlaying = true;
-                        playRecord();
+                        tileDiskDrive.recordPlaying = true;
+                        tileDiskDrive.playRecord();
                     }
                     else
                     {
-                        recordQueued = false;
+                        tileDiskDrive.recordQueued = false;
                     }
                 }
                 else
                 {
-                    stopRecord();
-                    recordPlaying = false;
+                    tileDiskDrive.stopRecord();
+                    tileDiskDrive.recordPlaying = false;
                 }
             }
         }
@@ -479,7 +478,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
     private synchronized void ejectContents( boolean destroyed )
     {
-        if( getWorld().isClient || diskStack.isEmpty() )
+        if( this.world.isClient || diskStack.isEmpty() )
         {
             return;
         }

@@ -2,38 +2,37 @@
 -- manipulating strings.
 --
 -- @module textutils
+-- @since 1.2
 
 local expect = dofile("rom/modules/main/cc/expect.lua")
 local expect, field = expect.expect, expect.field
+local wrap = dofile("rom/modules/main/cc/strings.lua").wrap
 
 --- Slowly writes string text at current cursor position,
 -- character-by-character.
 --
 -- Like @{_G.write}, this does not insert a newline at the end.
 --
--- @tparam string sText The the text to write to the screen
--- @tparam[opt] number nRate The number of characters to write each second,
+-- @tparam string text The the text to write to the screen
+-- @tparam[opt] number rate The number of characters to write each second,
 -- Defaults to 20.
 -- @usage textutils.slowWrite("Hello, world!")
 -- @usage textutils.slowWrite("Hello, world!", 5)
-function slowWrite(sText, nRate)
-    expect(2, nRate, "number", "nil")
-    nRate = nRate or 20
-    if nRate < 0 then
+-- @since 1.3
+function slowWrite(text, rate)
+    expect(2, rate, "number", "nil")
+    rate = rate or 20
+    if rate < 0 then
         error("Rate must be positive", 2)
     end
-    local nSleep = 1 / nRate
+    local to_sleep = 1 / rate
 
-    sText = tostring(sText)
-    local x, y = term.getCursorPos()
-    local len = #sText
+    local wrapped_lines = wrap(tostring(text), (term.getSize()))
+    local wrapped_str = table.concat(wrapped_lines, "\n")
 
-    for n = 1, len do
-        term.setCursorPos(x, y)
-        sleep(nSleep)
-        local nLines = write(string.sub(sText, 1, n))
-        local _, newY = term.getCursorPos()
-        y = newY - nLines
+    for n = 1, #wrapped_str do
+        sleep(to_sleep)
+        write(wrapped_str:sub(n, n))
     end
 end
 
@@ -58,7 +57,12 @@ end
 -- @tparam[opt] boolean bTwentyFourHour Whether to format this as a 24-hour
 -- clock (`18:30`) rather than a 12-hour one (`6:30 AM`)
 -- @treturn string The formatted time
--- @usage textutils.formatTime(os.time())
+-- @usage Print the current in-game time as a 12-hour clock.
+--
+--     textutils.formatTime(os.time())
+-- @usage Print the local time as a 24-hour clock.
+--
+--     textutils.formatTime(os.time("local"), true)
 function formatTime(nTime, bTwentyFourHour)
     expect(1, nTime, "number")
     expect(2, bTwentyFourHour, "boolean", "nil")
@@ -220,6 +224,7 @@ end
 --
 -- @tparam {string...}|number ... The rows and text colors to display.
 -- @usage textutils.tabulate(colors.orange, { "1", "2", "3" }, colors.lightBlue, { "A", "B", "C" })
+-- @since 1.3
 function tabulate(...)
     return tabulateCommon(false, ...)
 end
@@ -234,6 +239,7 @@ end
 -- @usage textutils.tabulate(colors.orange, { "1", "2", "3" }, colors.lightBlue, { "A", "B", "C" })
 -- @see textutils.tabulate
 -- @see textutils.pagedPrint
+-- @since 1.3
 function pagedTabulate(...)
     return tabulateCommon(true, ...)
 end
@@ -262,45 +268,72 @@ local g_tLuaKeywords = {
     ["while"] = true,
 }
 
-local function serializeImpl(t, tTracking, sIndent)
+local serialize_infinity = math.huge
+local function serialize_impl(t, tracking, indent, opts)
     local sType = type(t)
     if sType == "table" then
-        if tTracking[t] ~= nil then
-            error("Cannot serialize table with recursive entries", 0)
+        if tracking[t] ~= nil then
+            if tracking[t] == false then
+                error("Cannot serialize table with repeated entries", 0)
+            else
+                error("Cannot serialize table with recursive entries", 0)
+            end
         end
-        tTracking[t] = true
+        tracking[t] = true
 
+        local result
         if next(t) == nil then
             -- Empty tables are simple
-            return "{}"
+            result = "{}"
         else
             -- Other tables take more work
-            local sResult = "{\n"
-            local sSubIndent = sIndent .. "  "
-            local tSeen = {}
+            local open, sub_indent, open_key, close_key, equal, comma = "{\n", indent .. "  ", "[ ", " ] = ", " = ", ",\n"
+            if opts.compact then
+                open, sub_indent, open_key, close_key, equal, comma = "{", "", "[", "]=", "=", ","
+            end
+
+            result = open
+            local seen_keys = {}
             for k, v in ipairs(t) do
-                tSeen[k] = true
-                sResult = sResult .. sSubIndent .. serializeImpl(v, tTracking, sSubIndent) .. ",\n"
+                seen_keys[k] = true
+                result = result .. sub_indent .. serialize_impl(v, tracking, sub_indent, opts) .. comma
             end
             for k, v in pairs(t) do
-                if not tSeen[k] then
+                if not seen_keys[k] then
                     local sEntry
                     if type(k) == "string" and not g_tLuaKeywords[k] and string.match(k, "^[%a_][%a%d_]*$") then
-                        sEntry = k .. " = " .. serializeImpl(v, tTracking, sSubIndent) .. ",\n"
+                        sEntry = k .. equal .. serialize_impl(v, tracking, sub_indent, opts) .. comma
                     else
-                        sEntry = "[ " .. serializeImpl(k, tTracking, sSubIndent) .. " ] = " .. serializeImpl(v, tTracking, sSubIndent) .. ",\n"
+                        sEntry = open_key .. serialize_impl(k, tracking, sub_indent, opts) .. close_key .. serialize_impl(v, tracking, sub_indent, opts) .. comma
                     end
-                    sResult = sResult .. sSubIndent .. sEntry
+                    result = result .. sub_indent .. sEntry
                 end
             end
-            sResult = sResult .. sIndent .. "}"
-            return sResult
+            result = result .. indent .. "}"
         end
+
+        if opts.allow_repetitions then
+            tracking[t] = nil
+        else
+            tracking[t] = false
+        end
+        return result
 
     elseif sType == "string" then
         return string.format("%q", t)
 
-    elseif sType == "number" or sType == "boolean" or sType == "nil" then
+    elseif sType == "number" then
+        if t ~= t then --nan
+            return "0/0"
+        elseif t == serialize_infinity then
+            return "1/0"
+        elseif t == -serialize_infinity then
+            return "-1/0"
+        else
+            return tostring(t)
+        end
+
+    elseif sType == "boolean" or sType == "nil" then
         return tostring(t)
 
     else
@@ -616,6 +649,7 @@ do
     -- @return[1] The deserialised object
     -- @treturn[2] nil If the object could not be deserialised.
     -- @treturn string A message describing why the JSON string is invalid.
+    -- @since 1.87.0
     unserialise_json = function(s, options)
         expect(1, s, "string")
         expect(2, options, "table", "nil")
@@ -645,17 +679,45 @@ do
     end
 end
 
---- Convert a Lua object into a textual representation, suitable for
--- saving in a file or pretty-printing.
---
--- @param t The object to serialise
--- @treturn string The serialised representation
--- @throws If the object contains a value which cannot be
--- serialised. This includes functions and tables which appear multiple
--- times.
-function serialize(t)
+--[[- Convert a Lua object into a textual representation, suitable for
+saving in a file or pretty-printing.
+
+@param t The object to serialise
+@tparam { compact? = boolean, allow_repetitions? = boolean } opts Options for serialisation.
+ - `compact`: Do not emit indentation and other whitespace between terms.
+ - `allow_repetitions`: Relax the check for recursive tables, allowing them to appear multiple
+   times (as long as tables do not appear inside themselves).
+
+@treturn string The serialised representation
+@throws If the object contains a value which cannot be
+serialised. This includes functions and tables which appear multiple
+times.
+@see cc.pretty.pretty An alternative way to display a table, often more suitable for
+pretty printing.
+@since 1.3
+@changed 1.97.0 Added `opts` argument.
+@usage Pretty print a basic table.
+
+    textutils.serialise({ 1, 2, 3, a = 1, ["another key"] = { true } })
+
+@usage Demonstrates some of the other options
+
+    local tbl = { 1, 2, 3 }
+    print(textutils.serialize({ tbl, tbl }, { allow_repetitions = true }))
+
+    print(textutils.serialize(tbl, { compact = true }))
+]]
+function serialize(t, opts)
     local tTracking = {}
-    return serializeImpl(t, tTracking, "")
+    expect(2, opts, "table", "nil")
+
+    if opts then
+        field(opts, "compact", "boolean", "nil")
+        field(opts, "allow_repetitions", "boolean", "nil")
+    else
+        opts = {}
+    end
+    return serialize_impl(t, tTracking, "", opts)
 end
 
 serialise = serialize -- GB version
@@ -667,6 +729,7 @@ serialise = serialize -- GB version
 -- @tparam string s The serialised string to deserialise.
 -- @return[1] The deserialised object
 -- @treturn[2] nil If the object could not be deserialised.
+-- @since 1.3
 function unserialize(s)
     expect(1, s, "string")
     local func = load("return " .. s, "unserialize", "t", {})
@@ -699,6 +762,7 @@ unserialise = unserialize -- GB version
 -- serialised. This includes functions and tables which appear multiple
 -- times.
 -- @usage textutils.serializeJSON({ values = { 1, "2", true } })
+-- @since 1.7
 function serializeJSON(t, bNBTStyle)
     expect(1, t, "table", "string", "number", "boolean")
     expect(2, bNBTStyle, "boolean", "nil")
@@ -716,6 +780,7 @@ unserialiseJSON = unserialise_json
 -- @tparam string str The string to encode
 -- @treturn string The encoded string.
 -- @usage print("https://example.com/?view=" .. textutils.urlEncode("some text&things"))
+-- @since 1.31
 function urlEncode(str)
     expect(1, str, "string")
     if str then
@@ -728,7 +793,7 @@ function urlEncode(str)
             else
                 -- Non-ASCII (encode as UTF-8)
                 return
-                string.format("%%%02X", 192 + bit32.band(bit32.arshift(n, 6), 31)) ..
+                    string.format("%%%02X", 192 + bit32.band(bit32.arshift(n, 6), 31)) ..
                     string.format("%%%02X", 128 + bit32.band(n, 63))
             end
         end)
@@ -755,6 +820,7 @@ local tEmpty = {}
 -- @see shell.setCompletionFunction
 -- @see _G.read
 -- @usage textutils.complete( "pa", _ENV )
+-- @since 1.74
 function complete(sSearchText, tSearchTable)
     expect(1, sSearchText, "string")
     expect(2, tSearchTable, "table", "nil")

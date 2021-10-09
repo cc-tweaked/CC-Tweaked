@@ -49,9 +49,9 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     private boolean destroyed = false;
     private boolean connectionsFormed = false;
 
-    public TileWiredModemFull( BlockEntityType<TileWiredModemFull> type )
+    public TileWiredModemFull( BlockEntityType<TileWiredModemFull> type, BlockPos pos, BlockState state )
     {
-        super( type );
+        super( type, pos, state );
         for( int i = 0; i < peripherals.length; i++ )
         {
             Direction facing = Direction.byId( i );
@@ -315,9 +315,9 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void readNbt( @Nonnull BlockState state, @Nonnull NbtCompound nbt )
+    public void readNbt( @Nonnull NbtCompound nbt )
     {
-        super.readNbt( state, nbt );
+        super.readNbt( nbt );
         peripheralAccessAllowed = nbt.getBoolean( NBT_PERIPHERAL_ENABLED );
         for( int i = 0; i < peripherals.length; i++ )
         {

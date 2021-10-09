@@ -11,18 +11,23 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.fabric.mixin.SoundEventAccess;
+import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.network.client.SpeakerMoveClientMessage;
+import dan200.computercraft.shared.network.client.SpeakerPlayClientMessage;
 import net.minecraft.block.enums.Instrument;
 import net.minecraft.network.packet.s2c.play.PlaySoundIdS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static dan200.computercraft.api.lua.LuaValues.checkFinite;
@@ -34,15 +39,39 @@ import static dan200.computercraft.api.lua.LuaValues.checkFinite;
  */
 public abstract class SpeakerPeripheral implements IPeripheral
 {
+    private static final int MIN_TICKS_BETWEEN_SOUNDS = 1;
+
     private final AtomicInteger notesThisTick = new AtomicInteger();
     private long clock = 0;
     private long lastPlayTime = 0;
+
+    private long lastPositionTime;
+    private Vec3d lastPosition;
 
     public void update()
     {
         clock++;
         notesThisTick.set( 0 );
+
+        // Push position updates to any speakers which have ever played a note,
+        // have moved by a non-trivial amount and haven't had a position update
+        // in the last second.
+        if( lastPlayTime > 0 && (clock - lastPositionTime) >= 20 )
+        {
+            Vec3d position = getPosition();
+            if( lastPosition == null || lastPosition.distanceTo( position ) >= 0.1 )
+            {
+                lastPosition = position;
+                lastPositionTime = clock;
+                NetworkHandler.sendToAllTracking(
+                    new SpeakerMoveClientMessage( getSource(), position ),
+                    getWorld().getWorldChunk( new BlockPos( position ) )
+                );
+            }
+        }
     }
+
+    protected abstract UUID getSource();
 
     public boolean madeSound( long ticks )
     {
@@ -90,15 +119,19 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
     private synchronized boolean playSound( ILuaContext context, Identifier name, float volume, float pitch, boolean isNote ) throws LuaException
     {
-        if( clock - lastPlayTime < TileSpeaker.MIN_TICKS_BETWEEN_SOUNDS && (!isNote || clock - lastPlayTime != 0 || notesThisTick.get() >= ComputerCraft.maxNotesPerTick) )
+        if( clock - lastPlayTime < MIN_TICKS_BETWEEN_SOUNDS )
         {
-            // Rate limiting occurs when we've already played a sound within the last tick, or we've
-            // played more notes than allowable within the current tick.
-            return false;
+            // Rate limiting occurs when we've already played a sound within the last tick.
+            if( !isNote ) return false;
+            // Or we've played more notes than allowable within the current tick.
+            if( clock - lastPlayTime != 0 || notesThisTick.get() >= ComputerCraft.maxNotesPerTick ) return false;
         }
 
         World world = getWorld();
         Vec3d pos = getPosition();
+
+        float actualVolume = MathHelper.clamp( volume, 0.0f, 3.0f );
+        float range = actualVolume * 16;
 
         context.issueMainThreadTask( () -> {
             MinecraftServer server = world.getServer();
@@ -107,15 +140,20 @@ public abstract class SpeakerPeripheral implements IPeripheral
                 return null;
             }
 
-            float adjVolume = Math.min( volume, 3.0f );
-            server.getPlayerManager()
-                .sendToAround( null,
-                    pos.x,
-                    pos.y,
-                    pos.z,
-                    adjVolume > 1.0f ? 16 * adjVolume : 16.0,
-                    world.getRegistryKey(),
-                    new PlaySoundIdS2CPacket( name, SoundCategory.RECORDS, pos, adjVolume, pitch ) );
+            if( isNote )
+            {
+                server.getPlayerManager().sendToAround(
+                    null, pos.x, pos.y, pos.z, range, world.getRegistryKey(),
+                    new PlaySoundIdS2CPacket( name, SoundCategory.RECORDS, pos, actualVolume, pitch )
+                );
+            }
+            else
+            {
+                NetworkHandler.sendToAllAround(
+                    new SpeakerPlayClientMessage( getSource(), pos, name, actualVolume, pitch ),
+                    world, pos, range
+                );
+            }
             return null;
         } );
 
@@ -167,7 +205,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
         // If the resource location for note block notes changes, this method call will need to be updated
         boolean success = playSound( context,
-            ((SoundEventAccess) instrument.getSound()).getId(),
+            instrument.getSound().getId(),
             volume,
             (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ),
             true );

@@ -131,11 +131,11 @@ public class TurtleMoveCommand implements ITurtleCommand
 
     private static TurtleCommandResult canEnter( TurtlePlayer turtlePlayer, World world, BlockPos position )
     {
-        if( World.isOutOfBuildLimitVertically( position ) )
+        if( world.isOutOfHeightLimit( position ) )
         {
             return TurtleCommandResult.failure( position.getY() < 0 ? "Too low to move" : "Too high to move" );
         }
-        if( !World.isInBuildLimit( position ) )
+        if( !world.isInBuildLimit( position ) )
         {
             return TurtleCommandResult.failure( "Cannot leave the world" );
         }

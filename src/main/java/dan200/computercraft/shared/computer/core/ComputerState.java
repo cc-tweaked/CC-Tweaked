@@ -12,13 +12,15 @@ import javax.annotation.Nonnull;
 
 public enum ComputerState implements StringIdentifiable
 {
-    OFF( "off" ), ON( "on" ), BLINKING( "blinking" );
+    OFF( "off", "" ), ON( "on", "_on" ), BLINKING( "blinking", "_blink" );
 
     private final String name;
+    private final String texture;
 
-    ComputerState( String name )
+    ComputerState( String name, String texture )
     {
         this.name = name;
+        this.texture = texture;
     }
 
     @Nonnull
@@ -32,5 +34,11 @@ public enum ComputerState implements StringIdentifiable
     public String toString()
     {
         return name;
+    }
+
+    @Nonnull
+    public String getTexture()
+    {
+        return texture;
     }
 }

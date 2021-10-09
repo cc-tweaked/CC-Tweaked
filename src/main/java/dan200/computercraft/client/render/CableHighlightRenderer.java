@@ -18,9 +18,7 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.util.shape.VoxelShape;
 
 @Environment( EnvType.CLIENT )
@@ -49,17 +47,29 @@ public final class CableHighlightRenderer
             state );
 
         Vec3d cameraPos = info.getPos();
+
         double xOffset = pos.getX() - cameraPos.getX();
         double yOffset = pos.getY() - cameraPos.getY();
         double zOffset = pos.getZ() - cameraPos.getZ();
         Matrix4f matrix4f = stack.peek()
             .getModel();
+        Matrix3f normal = stack.peek().getNormal();
         shape.forEachEdge( ( x1, y1, z1, x2, y2, z2 ) -> {
+            float xDelta = (float) (x2 - x1);
+            float yDelta = (float) (y2 - y1);
+            float zDelta = (float) (z2 - z1);
+            float len = MathHelper.sqrt( xDelta * xDelta + yDelta * yDelta + zDelta * zDelta );
+            xDelta = xDelta / len;
+            yDelta = yDelta / len;
+            zDelta = zDelta / len;
+
             consumer.vertex( matrix4f, (float) (x1 + xOffset), (float) (y1 + yOffset), (float) (z1 + zOffset) )
                 .color( 0, 0, 0, 0.4f )
+                .normal( normal, xDelta, yDelta, zDelta )
                 .next();
             consumer.vertex( matrix4f, (float) (x2 + xOffset), (float) (y2 + yOffset), (float) (z2 + zOffset) )
                 .color( 0, 0, 0, 0.4f )
+                .normal( normal, xDelta, yDelta, zDelta )
                 .next();
         } );
 

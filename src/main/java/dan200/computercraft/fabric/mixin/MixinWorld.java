@@ -7,7 +7,6 @@ package dan200.computercraft.fabric.mixin;
 
 import dan200.computercraft.shared.common.TileGeneric;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,10 +28,10 @@ public class MixinWorld
     @Shadow
     protected boolean iteratingTickingBlockEntities;
 
-    @Inject( method = "setBlockEntity", at = @At( "HEAD" ) )
-    public void setBlockEntity( BlockPos pos, @Nullable BlockEntity entity, CallbackInfo info )
+    @Inject( method = "addBlockEntity", at = @At( "HEAD" ) )
+    public void addBlockEntity( @Nullable BlockEntity entity, CallbackInfo info )
     {
-        if( !World.isOutOfBuildLimitVertically( pos ) && entity != null && !entity.isRemoved() && iteratingTickingBlockEntities )
+        if( entity != null && !entity.isRemoved() && entity.getWorld().isInBuildLimit( entity.getPos() ) && iteratingTickingBlockEntities )
         {
             setWorld( entity, this );
         }
@@ -42,11 +41,11 @@ public class MixinWorld
     {
         if( entity.getWorld() != world && entity instanceof TileGeneric )
         {
-            entity.setLocation( (World) world, entity.getPos() );
+            entity.setWorld( (World) world ); //TODO why?
         }
     }
 
-    @Inject( method = "addBlockEntities", at = @At( "HEAD" ) )
+    //    @Inject( method = "addBlockEntities", at = @At( "HEAD" ) )
     public void addBlockEntities( Collection<BlockEntity> entities, CallbackInfo info )
     {
         if( iteratingTickingBlockEntities )

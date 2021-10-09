@@ -5,16 +5,14 @@
  */
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Matrix4f;
-import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
 
@@ -42,7 +40,8 @@ public class ComputerBorderRenderer
     private static final int LIGHT_CORNER_Y = 80;
 
     public static final int LIGHT_HEIGHT = 8;
-    private static final float TEX_SCALE = 1 / 256.0f;
+    public static final int TEX_SIZE = 256;
+    private static final float TEX_SCALE = 1 / (float) TEX_SIZE;
 
     static
     {
@@ -54,11 +53,14 @@ public class ComputerBorderRenderer
     private final int z;
     private final float r, g, b;
 
-    public ComputerBorderRenderer( Matrix4f transform, VertexConsumer builder, int z, float r, float g, float b )
+    private final int light;
+
+    public ComputerBorderRenderer( Matrix4f transform, VertexConsumer builder, int z, int light, float r, float g, float b )
     {
         this.transform = transform;
         this.builder = builder;
         this.z = z;
+        this.light = light;
         this.r = r;
         this.g = g;
         this.b = b;
@@ -80,31 +82,17 @@ public class ComputerBorderRenderer
         }
     }
 
-    public static void render( int x, int y, int z, int width, int height )
+    public static void render( Identifier location, int x, int y, int z, int light, int width, int height )
     {
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
-        buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_COLOR_TEXTURE );
-
-        render( IDENTITY, buffer, x, y, z, width, height );
-
-        RenderSystem.enableAlphaTest();
-        tessellator.draw();
+        VertexConsumerProvider.Immediate source = VertexConsumerProvider.immediate( Tessellator.getInstance().getBuffer() );
+        render( IDENTITY, source.getBuffer( RenderLayer.getText( location ) ), x, y, z, light, width, height, false, 1, 1, 1 );
+        source.draw();
     }
 
-    public static void render( Matrix4f transform, VertexConsumer buffer, int x, int y, int z, int width, int height )
-    {
-        render( transform, buffer, x, y, z, width, height, 1, 1, 1 );
-    }
 
-    public static void render( Matrix4f transform, VertexConsumer buffer, int x, int y, int z, int width, int height, float r, float g, float b )
+    public static void render( Matrix4f transform, VertexConsumer buffer, int x, int y, int z, int light, int width, int height, boolean withLight, float r, float g, float b )
     {
-        render( transform, buffer, x, y, z, width, height, false, r, g, b );
-    }
-
-    public static void render( Matrix4f transform, VertexConsumer buffer, int x, int y, int z, int width, int height, boolean withLight, float r, float g, float b )
-    {
-        new ComputerBorderRenderer( transform, buffer, z, r, g, b ).doRender( x, y, width, height, withLight );
+        new ComputerBorderRenderer( transform, buffer, z, light, r, g, b ).doRender( x, y, width, height, withLight );
     }
 
     public void doRender( int x, int y, int width, int height, boolean withLight )
@@ -157,18 +145,22 @@ public class ComputerBorderRenderer
         builder.vertex( transform, x, y + height, z )
             .color( r, g, b, 1.0f )
             .texture( u * TEX_SCALE, (v + textureHeight) * TEX_SCALE )
+            .light( light )
             .next();
         builder.vertex( transform, x + width, y + height, z )
             .color( r, g, b, 1.0f )
             .texture( (u + textureWidth) * TEX_SCALE, (v + textureHeight) * TEX_SCALE )
+            .light( light )
             .next();
         builder.vertex( transform, x + width, y, z )
             .color( r, g, b, 1.0f )
             .texture( (u + textureWidth) * TEX_SCALE, v * TEX_SCALE )
+            .light( light )
             .next();
         builder.vertex( transform, x, y, z )
             .color( r, g, b, 1.0f )
             .texture( u * TEX_SCALE, v * TEX_SCALE )
+            .light( light )
             .next();
     }
 }

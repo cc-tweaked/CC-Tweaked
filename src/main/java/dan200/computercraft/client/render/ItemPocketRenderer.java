@@ -15,15 +15,12 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3f;
-import org.lwjgl.opengl.GL11;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
@@ -41,7 +38,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
     }
 
     @Override
-    protected void renderItem( MatrixStack transform, VertexConsumerProvider render, ItemStack stack )
+    protected void renderItem( MatrixStack transform, VertexConsumerProvider render, ItemStack stack, int light )
     {
         ClientComputer computer = ItemPocketComputer.createClientComputer( stack );
         Terminal terminal = computer == null ? null : computer.getTerminal();
@@ -79,7 +76,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
         Matrix4f matrix = transform.peek()
             .getModel();
-        renderFrame( matrix, family, frameColour, width, height );
+        renderFrame( matrix, render, family, frameColour, light, width, height );
 
         // Render the light
         int lightColour = ItemPocketComputer.getLightState( stack );
@@ -91,7 +88,12 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
         if( computer != null && terminal != null )
         {
-            FixedWidthFontRenderer.drawTerminal( matrix, MARGIN, MARGIN, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN );
+            FixedWidthFontRenderer.drawTerminal(
+                matrix, render.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ),
+                MARGIN, MARGIN, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN
+            );
+            FixedWidthFontRenderer.drawBlocker( transform.peek().getModel(), render, 0, 0, width, height );
+
         }
         else
         {
@@ -101,24 +103,20 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         transform.pop();
     }
 
-    private static void renderFrame( Matrix4f transform, ComputerFamily family, int colour, int width, int height )
+    private static void renderFrame( Matrix4f transform, VertexConsumerProvider render, ComputerFamily family, int colour, int light, int width, int height )
     {
         RenderSystem.enableBlend();
         MinecraftClient.getInstance()
             .getTextureManager()
             .bindTexture( colour != -1 ? ComputerBorderRenderer.BACKGROUND_COLOUR : ComputerBorderRenderer.getTexture( family ) );
 
+        Identifier texture = colour != -1 ? ComputerBorderRenderer.BACKGROUND_COLOUR : ComputerBorderRenderer.getTexture( family );
+
         float r = ((colour >>> 16) & 0xFF) / 255.0f;
         float g = ((colour >>> 8) & 0xFF) / 255.0f;
         float b = (colour & 0xFF) / 255.0f;
 
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
-        buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_COLOR_TEXTURE );
-
-        ComputerBorderRenderer.render( transform, buffer, 0, 0, 0, width, height, true, r, g, b );
-
-        tessellator.draw();
+        ComputerBorderRenderer.render( transform, render.getBuffer( RenderLayer.getText( texture ) ), 0, 0, 0, light, width, height, true, r, g, b );
     }
 
     private static void renderLight( Matrix4f transform, int colour, int width, int height )
@@ -131,7 +129,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder buffer = tessellator.getBuffer();
-        buffer.begin( GL11.GL_QUADS, VertexFormats.POSITION_COLOR );
+        buffer.begin( VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR );
         buffer.vertex( transform, width - LIGHT_HEIGHT * 2, height + LIGHT_HEIGHT + BORDER / 2.0f, 0 )
             .color( r, g, b, 1.0f )
             .next();

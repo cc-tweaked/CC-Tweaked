@@ -14,25 +14,24 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Set;
 
 public final class BundledRedstone
 {
-    private static final Set<IBundledRedstoneProvider> providers = new LinkedHashSet<>();
+    private static final ArrayList<IBundledRedstoneProvider> providers = new ArrayList<>();
 
     private BundledRedstone() {}
 
     public static synchronized void register( @Nonnull IBundledRedstoneProvider provider )
     {
         Objects.requireNonNull( provider, "provider cannot be null" );
-        providers.add( provider );
+        if( !providers.contains( provider ) ) providers.add( provider );
     }
 
     public static int getDefaultOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
-        return World.isInBuildLimit( pos ) ? DefaultBundledRedstoneProvider.getDefaultBundledRedstoneOutput( world, pos, side ) : -1;
+        return world.isInBuildLimit( pos ) ? DefaultBundledRedstoneProvider.getDefaultBundledRedstoneOutput( world, pos, side ) : -1;
     }
 
     public static int getOutput( World world, BlockPos pos, Direction side )
@@ -43,7 +42,7 @@ public final class BundledRedstone
 
     private static int getUnmaskedOutput( World world, BlockPos pos, Direction side )
     {
-        if( !World.isInBuildLimit( pos ) )
+        if( !world.isInBuildLimit( pos ) )
         {
             return -1;
         }

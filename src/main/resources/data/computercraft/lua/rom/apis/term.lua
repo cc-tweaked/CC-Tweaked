@@ -31,6 +31,7 @@ local term = _ENV
 -- @tparam Redirect target The terminal redirect the @{term} API will draw to.
 -- @treturn Redirect The previous redirect object, as returned by
 -- @{term.current}.
+-- @since 1.31
 -- @usage
 -- Redirect to a monitor on the right of the computer.
 --     term.redirect(peripheral.wrap("right"))
@@ -56,6 +57,7 @@ end
 --- Returns the current terminal object of the computer.
 --
 -- @treturn Redirect The current terminal redirect
+-- @since 1.6
 -- @usage
 -- Create a new @{window} which draws to the current redirect target
 --     window.create(term.current(), 1, 1, 10, 10)
@@ -70,6 +72,7 @@ end
 -- terminal object, and so drawing may interfere with other programs.
 --
 -- @treturn Redirect The native terminal redirect.
+-- @since 1.6
 term.native = function()
     return native
 end

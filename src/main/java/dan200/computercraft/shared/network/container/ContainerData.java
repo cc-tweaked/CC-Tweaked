@@ -24,10 +24,18 @@ import java.util.function.Function;
 public interface ContainerData
 {
     static <C extends ScreenHandler, T extends ContainerData> ScreenHandlerType<C> toType( Identifier identifier, Function<PacketByteBuf, T> reader,
-                                                                                           Factory<C, T> factory )
+                                                                                          Factory<C, T> factory )
     {
         return ScreenHandlerRegistry.registerExtended( identifier,
             ( id, playerInventory, packetByteBuf ) -> factory.create( id,
+                playerInventory,
+                reader.apply( packetByteBuf ) ) );
+    }
+    static <C extends ScreenHandler, T extends ContainerData> ScreenHandlerType<C> toType( Identifier identifier, ScreenHandlerType<C> type, Function<PacketByteBuf, T> reader,
+                                                                                          FixedFactory<C, T> factory )
+    {
+        return ScreenHandlerRegistry.registerExtended( identifier,
+            ( id, playerInventory, packetByteBuf ) -> factory.create( type, id,
                 playerInventory,
                 reader.apply( packetByteBuf ) ) );
     }
@@ -36,11 +44,17 @@ public interface ContainerData
 
     default void open( PlayerEntity player, NamedScreenHandlerFactory owner )
     {
+        if ( player.world.isClient ) return;
         player.openHandledScreen( owner );
     }
 
     interface Factory<C extends ScreenHandler, T extends ContainerData>
     {
         C create( int id, @Nonnull PlayerInventory inventory, T data );
+    }
+
+    interface FixedFactory<C extends ScreenHandler, T extends ContainerData>
+    {
+        C create( ScreenHandlerType<C> type, int id, @Nonnull PlayerInventory inventory, T data );
     }
 }

@@ -49,7 +49,7 @@ public final class InventoryUtil
                 return ((InventoryProvider) block).getInventory( blockState, world, pos );
             }
             // Check if block is BlockEntity w/ Inventory
-            if( block.hasBlockEntity() )
+            if( blockState.hasBlockEntity() )
             {
                 BlockEntity tileEntity = world.getBlockEntity( pos );
 
