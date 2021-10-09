@@ -12,7 +12,6 @@ import com.google.common.io.ByteStreams;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
-import dan200.computercraft.core.filesystem.ResourceMount.Listener;
 import dan200.computercraft.shared.util.IoUtil;
 import net.minecraft.resource.ReloadableResourceManager;
 import net.minecraft.resource.Resource;

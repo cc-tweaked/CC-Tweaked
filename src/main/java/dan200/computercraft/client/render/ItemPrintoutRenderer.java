@@ -9,7 +9,6 @@ package dan200.computercraft.client.render;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Vec3f;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3f;

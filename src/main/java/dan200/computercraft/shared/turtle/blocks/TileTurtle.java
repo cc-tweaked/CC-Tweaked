@@ -19,7 +19,6 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.turtle.apis.TurtleAPI;
-import dan200.computercraft.shared.turtle.blocks.TileTurtle.MoveState;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.util.*;

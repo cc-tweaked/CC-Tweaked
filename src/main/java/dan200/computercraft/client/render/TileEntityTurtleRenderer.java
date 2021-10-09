@@ -26,7 +26,6 @@ import net.minecraft.client.render.model.BakedModelManager;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Vec3f;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -34,6 +33,7 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
+
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Random;

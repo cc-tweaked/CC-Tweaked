@@ -11,7 +11,6 @@ import dan200.computercraft.shared.network.client.TerminalState;
 import net.minecraft.nbt.NbtCompound;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import net.minecraft.nbt.NbtCompound;
 
 public class ServerTerminal implements ITerminal
 {
