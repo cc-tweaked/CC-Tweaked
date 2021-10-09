@@ -43,7 +43,7 @@ public class MixinItemFrameEntityRenderer
         {
             int light = itemFrameEntity.getType() == EntityType.GLOW_ITEM_FRAME ? 0xf000d2 : itemFrameEntityLight; // See getLightVal.
             ItemPrintoutRenderer.INSTANCE.renderInFrame( matrixStack, vertexConsumerProvider, stack, light );
-            // TODO: need to find how to make if instead return, like it doing Forge
+            // TODO: need to find how to make if statement instead return, like it doing Forge
             matrixStack.pop();
             info.cancel();
         }
