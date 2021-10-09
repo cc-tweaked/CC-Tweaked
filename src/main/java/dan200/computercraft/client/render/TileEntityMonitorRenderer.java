@@ -35,7 +35,7 @@ import static dan200.computercraft.client.gui.FixedWidthFontRenderer.*;
 import static net.minecraft.client.util.GlAllocationUtils.allocateByteBuffer;
 
 public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonitor>
-{ //FIXME get rid of GL Calls. Buffered things or whatever, more research needed.
+{
     /**
      * {@link TileMonitor#RENDER_MARGIN}, but a tiny bit of additional padding to ensure that there is no space between the monitor frame and contents.
      */

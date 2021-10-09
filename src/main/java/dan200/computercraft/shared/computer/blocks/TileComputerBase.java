@@ -334,7 +334,6 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public NbtCompound writeNbt( @Nonnull NbtCompound nbt )
     {
-        super.writeNbt( nbt );
         // Save ID, label and power state
         if( computerID >= 0 )
         {
@@ -345,7 +344,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             nbt.putString( NBT_LABEL, label );
         }
         nbt.putBoolean( NBT_ON, on );
-        return nbt;
+        return super.writeNbt( nbt );
     }
 
     @Override

@@ -307,14 +307,13 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
     @Nonnull
     @Override
-    public NbtCompound writeNbt( NbtCompound tag )
+    public NbtCompound writeNbt( NbtCompound nbt )
     {
-        super.writeNbt( tag );
-        tag.putInt( NBT_X, xIndex );
-        tag.putInt( NBT_Y, yIndex );
-        tag.putInt( NBT_WIDTH, width );
-        tag.putInt( NBT_HEIGHT, height );
-        return tag;
+        nbt.putInt( NBT_X, xIndex );
+        nbt.putInt( NBT_Y, yIndex );
+        nbt.putInt( NBT_WIDTH, width );
+        nbt.putInt( NBT_HEIGHT, height );
+        return super.writeNbt( nbt );
     }
 
     //    @Override //TODO: make BlockEntityRenderer work with this, i guess.

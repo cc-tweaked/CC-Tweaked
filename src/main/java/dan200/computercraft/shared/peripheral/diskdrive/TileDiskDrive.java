@@ -124,7 +124,6 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     @Override
     public NbtCompound writeNbt( @Nonnull NbtCompound nbt )
     {
-        super.writeNbt( nbt );
         if( customName != null )
         {
             nbt.putString( NBT_NAME, Text.Serializer.toJson( customName ) );
@@ -136,7 +135,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
             diskStack.writeNbt( item );
             nbt.put( NBT_ITEM, item );
         }
-        return nbt;
+        return super.writeNbt( nbt );
     }
 
     @Override
