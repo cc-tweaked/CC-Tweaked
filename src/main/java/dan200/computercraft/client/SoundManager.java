@@ -10,8 +10,8 @@ import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.ITickableSound;
 import net.minecraft.client.audio.LocatableSound;
 import net.minecraft.client.audio.SoundHandler;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.vector.Vector3d;
 
 import java.util.HashMap;
@@ -22,7 +22,7 @@ public class SoundManager
 {
     private static final Map<UUID, MoveableSound> sounds = new HashMap<>();
 
-    public static void playSound( UUID source, Vector3d position, SoundEvent event, float volume, float pitch )
+    public static void playSound( UUID source, Vector3d position, ResourceLocation event, float volume, float pitch )
     {
         SoundHandler soundManager = Minecraft.getInstance().getSoundManager();
 
@@ -55,7 +55,7 @@ public class SoundManager
 
     private static class MoveableSound extends LocatableSound implements ITickableSound
     {
-        protected MoveableSound( SoundEvent sound, Vector3d position, float volume, float pitch )
+        protected MoveableSound( ResourceLocation sound, Vector3d position, float volume, float pitch )
         {
             super( sound, SoundCategory.RECORDS );
             setPosition( position );
