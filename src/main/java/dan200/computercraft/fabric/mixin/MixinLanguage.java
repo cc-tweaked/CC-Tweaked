@@ -22,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
 
 /**
@@ -59,6 +60,7 @@ public class MixinLanguage
     @Inject( method = "create", locals = LocalCapture.CAPTURE_FAILSOFT, at = @At( value = "INVOKE", remap = false, target = "Lcom/google/common/collect/ImmutableMap$Builder;build()Lcom/google/common/collect/ImmutableMap;" ) )
     private static void create( CallbackInfoReturnable<Language> cir, ImmutableMap.Builder<String, String> builder )
     {
+        final Map<String, String> originalTranslation = builder.build();
         /*  We must ensure that the keys are de-duplicated because we can't catch the error that might otherwise
          *  occur when the injected function calls build() on the ImmutableMap builder. So we use our own hash map and
          *  exclude "minecraft", as the injected function has already loaded those keys at this point.
@@ -69,6 +71,9 @@ public class MixinLanguage
             .filter( id -> !id.equals( "minecraft" ) ).forEach( id -> {
                 loadModLangFile( id, translations::put );
             } );
+
+        // This is needed to remove keys that exist in vanilla Minecraft (Consistency+ does this)
+        translations.keySet().removeIf( originalTranslation::containsKey );
 
         builder.putAll( translations );
     }

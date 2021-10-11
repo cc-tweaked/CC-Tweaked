@@ -8,11 +8,11 @@ package dan200.computercraft.shared.util;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.collection.DefaultedList;
@@ -24,6 +24,7 @@ import java.util.Set;
 
 public final class RecipeUtil
 {
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private RecipeUtil() {}
 
     public static ShapedTemplate getTemplate( JsonObject json )
@@ -109,6 +110,22 @@ public final class RecipeUtil
         }
 
         throw new JsonSyntaxException( "Unknown computer family '" + familyName + "' for field " + name );
+    }
+
+    public static void setNbt( ItemStack itemStack, JsonObject result )
+    {
+        JsonElement nbtElement = result.get( "nbt" );
+        if ( nbtElement != null )
+        {
+            try
+            {
+                itemStack.setNbt( StringNbtReader.parse( nbtElement.isJsonObject() ? GSON.toJson( nbtElement ) : JsonHelper.asString( nbtElement, "nbt" ) ) );
+            }
+            catch( CommandSyntaxException e )
+            {
+                throw new JsonSyntaxException( "Invalid NBT entry: " + e.getMessage() );
+            }
+        }
     }
 
     public static class ShapedTemplate

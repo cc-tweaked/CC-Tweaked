@@ -41,9 +41,10 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
             {
                 throw new JsonParseException( "Too many ingredients for shapeless recipe the max is 9" );
             }
-
-            ItemStack itemstack = ShapedRecipe.outputFromJson( JsonHelper.getObject( json, "result" ) );
-            return new ImpostorShapelessRecipe( id, s, itemstack, ingredients );
+            JsonObject resultObject = JsonHelper.getObject( json, "result" );
+            ItemStack itemStack = ShapedRecipe.outputFromJson( resultObject );
+            RecipeUtil.setNbt( itemStack, resultObject );
+            return new ImpostorShapelessRecipe( id, s, itemStack, ingredients );
         }
 
         private DefaultedList<Ingredient> readIngredients( JsonArray arrays )

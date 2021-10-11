@@ -64,36 +64,23 @@ public final class ModelTransformer
         {
             for( VertexFormatElement element : format.getElements() ) // For each vertex element
             {
-                if( element.isPosition() &&
-                    element.getDataType() == VertexFormatElement.DataType.FLOAT &&
-                    element.getLength() == 3 ) // When we find a position element
+                int start = offsetBytes / Integer.BYTES;
+                if( element.getType() == VertexFormatElement.Type.POSITION && element.getDataType() == VertexFormatElement.DataType.FLOAT ) // When we find a position element
                 {
-                    for ( int j = 0; j < 4; ++j ) // For each corner of the quad
-                    {
-                        int start = offsetBytes + j * format.getVertexSize();
-                        if ( (start % 4) == 0 )
-                        {
-                            start = start / 4;
+                    Vector4f pos = new Vector4f( Float.intBitsToFloat( vertexData[start] ),
+                        Float.intBitsToFloat( vertexData[start + 1] ),
+                        Float.intBitsToFloat( vertexData[start + 2] ),
+                        1 );
 
-                            // Extract the position
-                            Vector4f pos = new Vector4f(
-                                Float.intBitsToFloat( vertexData[start] ),
-                                Float.intBitsToFloat( vertexData[start + 1] ),
-                                Float.intBitsToFloat( vertexData[start + 2] ),
-                                1
-                            );
+                    // Transform the position
+                    pos.transform( transform );
 
-                            // Transform the position
-                            pos.transform( transform );
-
-                            // Insert the position
-                            vertexData[start] = Float.floatToRawIntBits( pos.getX() );
-                            vertexData[start + 1] = Float.floatToRawIntBits( pos.getY() );
-                            vertexData[start + 2] = Float.floatToRawIntBits( pos.getZ() );
-                        }
-                    }
+                    // Insert the position
+                    vertexData[start] = Float.floatToRawIntBits( pos.getX() );
+                    vertexData[start + 1] = Float.floatToRawIntBits( pos.getY() );
+                    vertexData[start + 2] = Float.floatToRawIntBits( pos.getZ() );
                 }
-                offsetBytes += element.getLength();
+                offsetBytes += element.getByteLength();
             }
         }
         return copy;
