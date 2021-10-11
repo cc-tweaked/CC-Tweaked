@@ -12,7 +12,7 @@ import com.google.gson.*;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.collection.DefaultedList;
@@ -119,7 +119,7 @@ public final class RecipeUtil
         {
             try
             {
-                itemStack.setNbt( NbtHelper.method_32260( nbtElement.isJsonObject() ? GSON.toJson( nbtElement ) : nbtElement.getAsString() ) );
+                itemStack.setNbt( StringNbtReader.parse( nbtElement.isJsonObject() ? GSON.toJson( nbtElement ) : JsonHelper.asString( nbtElement, "nbt" ) ) );
             }
             catch( CommandSyntaxException e )
             {
