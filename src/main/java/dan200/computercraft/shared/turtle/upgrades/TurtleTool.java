@@ -23,6 +23,7 @@ import dan200.computercraft.shared.util.WorldUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -231,6 +232,10 @@ public class TurtleTool extends AbstractTurtleUpgrade
         if( TurtleEvent.post( digEvent ) )
         {
             return TurtleCommandResult.failure( digEvent.getFailureMessage() );
+        }
+
+        if (!PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(world, turtlePlayer, blockPosition, state, null)) {
+            return TurtleCommandResult.failure( "Break cancelled" );
         }
 
         // Consume the items the block drops
