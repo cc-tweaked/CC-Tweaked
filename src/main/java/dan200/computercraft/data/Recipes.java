@@ -104,8 +104,8 @@ public class Recipes extends RecipeProvider
                     .shaped( result.getItem() )
                     .group( String.format( "%s:turtle_%s", ComputerCraft.MOD_ID, nameId ) )
                     .pattern( "#T" )
-                    .define( '#', base.getItem() )
-                    .define( 'T', upgrade.getCraftingItem().getItem() )
+                    .define( 'T', base.getItem() )
+                    .define( '#', upgrade.getCraftingItem().getItem() )
                     .unlockedBy( "has_items",
                         inventoryChange( base.getItem(), upgrade.getCraftingItem().getItem() ) )
                     .save(
@@ -133,14 +133,14 @@ public class Recipes extends RecipeProvider
             String nameId = family.name().toLowerCase( Locale.ROOT );
 
             PocketUpgrades.getVanillaUpgrades().forEach( upgrade -> {
-                ItemStack result = PocketComputerItemFactory.create( -1, null, -1, family, null );
+                ItemStack result = PocketComputerItemFactory.create( -1, null, -1, family, upgrade );
                 ShapedRecipeBuilder
                     .shaped( result.getItem() )
                     .group( String.format( "%s:pocket_%s", ComputerCraft.MOD_ID, nameId ) )
                     .pattern( "#" )
                     .pattern( "P" )
-                    .define( '#', base.getItem() )
-                    .define( 'P', upgrade.getCraftingItem().getItem() )
+                    .define( 'P', base.getItem() )
+                    .define( '#', upgrade.getCraftingItem().getItem() )
                     .unlockedBy( "has_items",
                         inventoryChange( base.getItem(), upgrade.getCraftingItem().getItem() ) )
                     .save(

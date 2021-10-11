@@ -5,10 +5,10 @@
     "#T"
   ],
   "key": {
-    "#": {
+    "T": {
       "item": "computercraft:turtle_advanced"
     },
-    "T": {
+    "#": {
       "item": "minecraft:crafting_table"
     }
   },

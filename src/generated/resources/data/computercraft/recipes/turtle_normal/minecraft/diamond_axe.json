@@ -5,10 +5,10 @@
     "#T"
   ],
   "key": {
-    "#": {
+    "T": {
       "item": "computercraft:turtle_normal"
     },
-    "T": {
+    "#": {
       "item": "minecraft:diamond_axe"
     }
   },
