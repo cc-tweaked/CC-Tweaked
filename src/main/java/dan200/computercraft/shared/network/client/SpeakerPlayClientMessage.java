@@ -11,7 +11,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
@@ -67,7 +66,6 @@ public class SpeakerPlayClientMessage implements NetworkMessage
     @Environment( EnvType.CLIENT )
     public void handle( PacketContext context )
     {
-        SoundEvent sound = new SoundEvent( this.sound );
         SoundManager.playSound( source, pos, sound, volume, pitch );
     }
 }
