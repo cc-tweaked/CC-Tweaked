@@ -14,6 +14,7 @@
     }
   },
   "result": {
-    "item": "computercraft:pocket_computer_normal"
+    "item": "computercraft:pocket_computer_normal",
+    "nbt": "{Upgrade:\"computercraft:wireless_modem_advanced\"}"
   }
 }
