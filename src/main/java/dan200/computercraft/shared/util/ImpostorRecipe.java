@@ -29,8 +29,10 @@ public final class ImpostorRecipe extends ShapedRecipe
         {
             String group = JsonHelper.getString( json, "group", "" );
             ShapedRecipe recipe = RecipeSerializer.SHAPED.read( identifier, json );
-            ItemStack result = ShapedRecipe.outputFromJson( JsonHelper.getObject( json, "result" ) );
-            return new ImpostorRecipe( identifier, group, recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), result );
+            JsonObject resultObject = JsonHelper.getObject( json, "result" );
+            ItemStack itemStack = ShapedRecipe.outputFromJson( resultObject );
+            RecipeUtil.setNbt( itemStack, resultObject );
+            return new ImpostorRecipe( identifier, group, recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), itemStack );
         }
 
         @Override
