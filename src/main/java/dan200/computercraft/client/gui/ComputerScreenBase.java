@@ -109,12 +109,6 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
     }
 
     @Override
-    public boolean mouseReleased( double mouseX, double mouseY, int button )
-    {
-        return (getFocused() != null && getFocused().mouseReleased( mouseX, mouseY, button )) || super.mouseReleased( x, y, button );
-    }
-
-    @Override
     protected void drawForeground( @Nonnull MatrixStack transform, int mouseX, int mouseY )
     {
         // Skip rendering labels.
