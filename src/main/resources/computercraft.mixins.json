@@ -21,7 +21,8 @@
         "MixinMinecraftClient",
         "MixinScreen",
         "MixinGameRenderer",
-        "MixinWorldRenderer"
+        "MixinWorldRenderer",
+        "MixinHandledScreen"
     ],
     "server": [
         "MixinLanguage"

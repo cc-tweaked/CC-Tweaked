@@ -49,7 +49,7 @@ public class NoTermComputerScreen<T extends ContainerComputerBase> extends Scree
         super.init();
         client.keyboard.setRepeatEvents( true );
 
-        terminal = addDrawableChild( new WidgetTerminal( (ClientComputer) menu.getComputer(), 0, 0, ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight ) );
+        terminal = addSelectableChild( new WidgetTerminal( (ClientComputer) menu.getComputer(), 0, 0, ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight ) );
         terminal.visible = false;
         terminal.active = false;
         setFocused( terminal );
