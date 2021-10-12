@@ -234,7 +234,8 @@ public class TurtleTool extends AbstractTurtleUpgrade
             return TurtleCommandResult.failure( digEvent.getFailureMessage() );
         }
 
-        if (!PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(world, turtlePlayer, blockPosition, state, null)) {
+        if ( !PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak( world, turtlePlayer, blockPosition, state, null ) )
+        {
             return TurtleCommandResult.failure( "Break cancelled" );
         }
 
