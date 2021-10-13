@@ -36,7 +36,7 @@ public class ComputerUpgradeRecipe extends ComputerFamilyRecipe
         return SERIALIZER;
     }
 
-    public static final RecipeSerializer<ComputerUpgradeRecipe> SERIALIZER = new Serializer<ComputerUpgradeRecipe>()
+    public static final RecipeSerializer<ComputerUpgradeRecipe> SERIALIZER = new Serializer<>()
     {
         @Override
         protected ComputerUpgradeRecipe create( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )

@@ -110,9 +110,8 @@ public class BlockModelProvider extends BlockStateProvider
 
         BlockModelBuilder model = models()
             .getBuilder( name( block ) )
-            .customLoader( BasicCustomLoader.makeFactory( new ResourceLocation( ComputerCraft.MOD_ID, "turtle" ), x -> {
-                x.addProperty( "model", base.getLocation().toString() );
-            } ) )
+            .customLoader( BasicCustomLoader.makeFactory( new ResourceLocation( ComputerCraft.MOD_ID, "turtle" ),
+                x -> x.addProperty( "model", base.getLocation().toString() ) ) )
             .end();
 
         for( Direction facing : BlockTurtle.FACING.getPossibleValues() )

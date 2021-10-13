@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.BlockGeneric;
+import dan200.computercraft.shared.util.WaterloggableHelpers;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -176,7 +177,7 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock
     @Deprecated
     public FluidState getFluidState( @Nonnull BlockState state )
     {
-        return getWaterloggedFluidState( state );
+        return WaterloggableHelpers.getFluidState( state );
     }
 
     @Nonnull
@@ -184,7 +185,7 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock
     @Deprecated
     public BlockState updateShape( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull LevelAccessor world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
     {
-        updateWaterloggedPostPlacement( state, world, pos );
+        WaterloggableHelpers.updateShape( state, world, pos );
         // Should never happen, but handle the case where we've no modem or cable.
         if( !state.getValue( CABLE ) && state.getValue( MODEM ) == CableModemVariant.None )
         {
@@ -209,7 +210,7 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock
     public BlockState getStateForPlacement( @Nonnull BlockPlaceContext context )
     {
         BlockState state = defaultBlockState()
-            .setValue( WATERLOGGED, getWaterloggedStateForPlacement( context ) );
+            .setValue( WATERLOGGED, getFluidStateForPlacement( context ) );
 
         if( context.getItemInHand().getItem() instanceof ItemBlockCable.Cable )
         {

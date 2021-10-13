@@ -152,7 +152,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         return super.save( nbt );
     }
 
-    protected void serverTick()
+    void serverTick()
     {
         // Ejection
         if( ejectQueued )

@@ -101,7 +101,7 @@ public final class MonitorWatcher
             if( !(world instanceof ServerLevel) ) continue;
 
             LevelChunk chunk = world.getChunkAt( pos );
-            if( !((ServerLevel) world).getChunkSource().chunkMap.getPlayers( chunk.getPos(), false ).findAny().isPresent() )
+            if( ((ServerLevel) world).getChunkSource().chunkMap.getPlayers( chunk.getPos(), false ).findAny().isEmpty() )
             {
                 continue;
             }

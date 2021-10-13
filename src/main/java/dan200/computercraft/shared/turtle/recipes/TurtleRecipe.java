@@ -41,7 +41,7 @@ public final class TurtleRecipe extends ComputerFamilyRecipe
         return TurtleItemFactory.create( computerID, label, -1, getFamily(), null, null, 0, null );
     }
 
-    public static final RecipeSerializer<TurtleRecipe> SERIALIZER = new Serializer<TurtleRecipe>()
+    public static final RecipeSerializer<TurtleRecipe> SERIALIZER = new Serializer<>()
     {
         @Override
         protected TurtleRecipe create( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )

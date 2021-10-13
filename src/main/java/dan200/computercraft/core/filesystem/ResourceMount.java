@@ -292,7 +292,7 @@ public final class ResourceMount implements IMount
     }
 
     /**
-     * A {@link ISelectiveResourceReloadListener} which reloads any associated mounts.
+     * A {@link ResourceManagerReloadListener} which reloads any associated mounts.
      *
      * While people should really be keeping a permanent reference to this, some people construct it every
      * method call, so let's make this as small as possible.

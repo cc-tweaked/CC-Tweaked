@@ -11,8 +11,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.Tags;
 
-import javax.annotation.Nullable;
-
 public final class ColourUtils
 {
     @SuppressWarnings( { "unchecked", "rawtypes" } )
@@ -35,7 +33,6 @@ public final class ColourUtils
         Tags.Items.DYES_BLACK,
     };
 
-    @Nullable
     private ColourUtils() {}
 
     public static DyeColor getStackColour( ItemStack stack )

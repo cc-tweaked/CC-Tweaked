@@ -9,6 +9,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nonnull;
 import java.util.Set;
@@ -16,7 +17,7 @@ import java.util.Set;
 /**
  * Provides a delegate over inventories.
  *
- * This may be used both on {@link net.minecraft.tileentity.TileEntity}s to redirect the inventory to another tile,
+ * This may be used both on {@link BlockEntity}s to redirect the inventory to another tile,
  * and by other interfaces to have inventories which change their backing store.
  */
 @FunctionalInterface

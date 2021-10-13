@@ -44,7 +44,7 @@ public final class ComputerMBean implements DynamicMBean, Tracker
         add( "task", TrackingField.TOTAL_TIME, attributes, TrackingField.TASKS );
         add( "serverTask", TrackingField.SERVER_TIME, attributes, TrackingField.SERVER_COUNT );
 
-        this.info = new MBeanInfo(
+        info = new MBeanInfo(
             ComputerMBean.class.getSimpleName(),
             "metrics about all computers on the server",
             attributes.toArray( new MBeanAttributeInfo[0] ), null, null, null
@@ -69,7 +69,7 @@ public final class ComputerMBean implements DynamicMBean, Tracker
     }
 
     @Override
-    public Object getAttribute( String attribute ) throws AttributeNotFoundException, MBeanException, ReflectionException
+    public Object getAttribute( String attribute ) throws AttributeNotFoundException
     {
         LongSupplier value = attributes.get( attribute );
         if( value == null ) throw new AttributeNotFoundException();
@@ -95,7 +95,7 @@ public final class ComputerMBean implements DynamicMBean, Tracker
     }
 
     @Override
-    public Object invoke( String actionName, Object[] params, String[] signature ) throws MBeanException, ReflectionException
+    public Object invoke( String actionName, Object[] params, String[] signature )
     {
         return null;
     }
@@ -149,7 +149,7 @@ public final class ComputerMBean implements DynamicMBean, Tracker
 
     private static class Counter
     {
-        AtomicLong value = new AtomicLong();
-        AtomicLong count = new AtomicLong();
+        final AtomicLong value = new AtomicLong();
+        final AtomicLong count = new AtomicLong();
     }
 }

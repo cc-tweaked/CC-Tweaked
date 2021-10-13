@@ -22,7 +22,7 @@ public final class ComputerProxy
         this.get = get;
     }
 
-    protected TileComputerBase getTile()
+    TileComputerBase getTile()
     {
         return get.get();
     }

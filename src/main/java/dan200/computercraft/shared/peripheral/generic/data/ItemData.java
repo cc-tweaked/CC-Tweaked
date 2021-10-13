@@ -148,7 +148,7 @@ public class ItemData
      *
      * @param rawEnchants The raw NBT list of enchantments
      * @param enchants    The enchantment map to add it to.
-     * @see net.minecraft.enchantment.EnchantmentHelper
+     * @see EnchantmentHelper
      */
     private static void addEnchantments( @Nonnull ListTag rawEnchants, @Nonnull ArrayList<Map<String, Object>> enchants )
     {

@@ -30,7 +30,7 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
 
     private static class Peripheral extends UpgradeSpeakerPeripheral
     {
-        ITurtleAccess turtle;
+        final ITurtleAccess turtle;
 
         Peripheral( ITurtleAccess turtle )
         {

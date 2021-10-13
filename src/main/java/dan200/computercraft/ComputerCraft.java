@@ -19,8 +19,6 @@ import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -43,10 +41,10 @@ public final class ComputerCraft
 
     public static boolean httpEnabled = true;
     public static boolean httpWebsocketEnabled = true;
-    public static List<AddressRule> httpRules = Collections.unmodifiableList( Arrays.asList(
+    public static List<AddressRule> httpRules = List.of(
         AddressRule.parse( "$private", null, Action.DENY.toPartial() ),
         AddressRule.parse( "*", null, Action.ALLOW.toPartial() )
-    ) );
+    );
 
     public static int httpMaxRequests = 16;
     public static int httpMaxWebsockets = 4;

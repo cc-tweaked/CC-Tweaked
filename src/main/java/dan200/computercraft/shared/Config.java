@@ -25,11 +25,9 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD )
 public final class Config
@@ -337,8 +335,8 @@ public final class Config
         // HTTP
         ComputerCraft.httpEnabled = httpEnabled.get();
         ComputerCraft.httpWebsocketEnabled = httpWebsocketEnabled.get();
-        ComputerCraft.httpRules = Collections.unmodifiableList( httpRules.get().stream()
-            .map( AddressRuleConfig::parseRule ).filter( Objects::nonNull ).collect( Collectors.toList() ) );
+        ComputerCraft.httpRules = httpRules.get().stream()
+            .map( AddressRuleConfig::parseRule ).filter( Objects::nonNull ).toList();
 
         ComputerCraft.httpMaxRequests = httpMaxRequests.get();
         ComputerCraft.httpMaxWebsockets = httpMaxWebsockets.get();

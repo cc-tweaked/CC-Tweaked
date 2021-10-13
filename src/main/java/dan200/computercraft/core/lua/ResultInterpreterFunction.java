@@ -24,7 +24,7 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
     static class Container
     {
         ILuaCallback callback;
-        int errorAdjust;
+        final int errorAdjust;
 
         Container( ILuaCallback callback, int errorAdjust )
         {

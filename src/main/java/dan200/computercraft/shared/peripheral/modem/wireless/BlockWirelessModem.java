@@ -7,6 +7,7 @@ package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
+import dan200.computercraft.shared.util.WaterloggableHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -64,7 +65,7 @@ public class BlockWirelessModem extends BlockGeneric implements SimpleWaterlogge
     @Deprecated
     public FluidState getFluidState( @Nonnull BlockState state )
     {
-        return getWaterloggedFluidState( state );
+        return WaterloggableHelpers.getFluidState( state );
     }
 
     @Nonnull
@@ -72,7 +73,7 @@ public class BlockWirelessModem extends BlockGeneric implements SimpleWaterlogge
     @Deprecated
     public BlockState updateShape( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull LevelAccessor world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
     {
-        updateWaterloggedPostPlacement( state, world, pos );
+        WaterloggableHelpers.updateShape( state, world, pos );
         return side == state.getValue( FACING ) && !state.canSurvive( world, pos )
             ? state.getFluidState().createLegacyBlock()
             : state;
@@ -92,6 +93,6 @@ public class BlockWirelessModem extends BlockGeneric implements SimpleWaterlogge
     {
         return defaultBlockState()
             .setValue( FACING, placement.getClickedFace().getOpposite() )
-            .setValue( WATERLOGGED, getWaterloggedStateForPlacement( placement ) );
+            .setValue( WATERLOGGED, getFluidStateForPlacement( placement ) );
     }
 }

@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 /**
- * An alternative to {@link net.minecraft.data.LootTableProvider}, with a more flexible interface.
+ * An alternative to {@link net.minecraft.data.loot.LootTableProvider}, with a more flexible interface.
  */
 public abstract class LootTableProvider implements DataProvider
 {

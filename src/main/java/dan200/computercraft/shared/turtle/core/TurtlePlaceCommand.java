@@ -17,6 +17,7 @@ import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -149,8 +150,8 @@ public class TurtlePlaceCommand implements ITurtleCommand
      * @param hitEntity    The entity we're interacting with.
      * @param hitPos       The position our ray trace hit the entity.
      * @return If this item was deployed.
-     * @see net.minecraft.network.play.ServerPlayNetHandler#handleInteract(CUseEntityPacket)
-     * @see net.minecraft.entity.player.PlayerEntity#interactOn(Entity, Hand)
+     * @see net.minecraft.server.network.ServerGamePacketListenerImpl#handleInteract(ServerboundInteractPacket)
+     * @see net.minecraft.world.entity.player.Player#interactOn(Entity, InteractionHand)
      */
     private static boolean doDeployOnEntity( @Nonnull ItemStack stack, TurtlePlayer turtlePlayer, @Nonnull Entity hitEntity, @Nonnull Vec3 hitPos )
     {
@@ -260,7 +261,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
      * @param context      The context of this place action.
      * @param hit          Where the block we're placing against was clicked.
      * @return If this item was deployed.
-     * @see net.minecraft.server.management.PlayerInteractionManager#useItemOn For the original implementation.
+     * @see net.minecraft.server.level.ServerPlayerGameMode#useItemOn  For the original implementation.
      */
     private static InteractionResult doDeployOnBlock(
         @Nonnull ItemStack stack, TurtlePlayer turtlePlayer, BlockPos position, UseOnContext context, BlockHitResult hit

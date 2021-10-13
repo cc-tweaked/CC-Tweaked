@@ -93,7 +93,7 @@ public class DynamicImageButton extends Button
         List<Component> tooltip = this.tooltip.get();
         if( !tooltip.isEmpty() )
         {
-            screen.renderComponentToolTip( stack, tooltip, mouseX, mouseY, screen.getMinecraft().font );
+            screen.renderComponentTooltip( stack, tooltip, mouseX, mouseY );
         }
     }
 }

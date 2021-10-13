@@ -62,7 +62,7 @@ public final class ComputerCraftAPI
      *
      * eg: if createUniqueNumberedSaveDir( world, "computer/disk" ) was called returns 42, then "computer/disk/42" is now
      * available for writing.
-     * @see #createSaveDirMount(World, String, long)
+     * @see #createSaveDirMount(Level, String, long)
      */
     public static int createUniqueNumberedSaveDir( @Nonnull Level world, @Nonnull String parentSubPath )
     {
@@ -81,7 +81,7 @@ public final class ComputerCraftAPI
      * @param capacity The amount of data that can be stored in the directory before it fills up, in bytes.
      * @return The mount, or null if it could be created for some reason. Use IComputerAccess.mount() or IComputerAccess.mountWritable()
      * to mount this on a Computers' file system.
-     * @see #createUniqueNumberedSaveDir(World, String)
+     * @see #createUniqueNumberedSaveDir(Level, String)
      * @see IComputerAccess#mount(String, IMount)
      * @see IComputerAccess#mountWritable(String, IWritableMount)
      * @see IMount

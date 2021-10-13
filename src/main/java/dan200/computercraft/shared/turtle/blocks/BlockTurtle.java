@@ -12,6 +12,7 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
+import dan200.computercraft.shared.util.WaterloggableHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -98,7 +99,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Simple
     {
         return defaultBlockState()
             .setValue( FACING, placement.getHorizontalDirection() )
-            .setValue( WATERLOGGED, getWaterloggedStateForPlacement( placement ) );
+            .setValue( WATERLOGGED, getFluidStateForPlacement( placement ) );
     }
 
     @Nonnull
@@ -106,7 +107,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Simple
     @Deprecated
     public FluidState getFluidState( @Nonnull BlockState state )
     {
-        return getWaterloggedFluidState( state );
+        return WaterloggableHelpers.getFluidState( state );
     }
 
     @Nonnull
@@ -114,7 +115,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Simple
     @Deprecated
     public BlockState updateShape( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull LevelAccessor world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
     {
-        updateWaterloggedPostPlacement( state, world, pos );
+        WaterloggableHelpers.updateShape( state, world, pos );
         return state;
     }
 

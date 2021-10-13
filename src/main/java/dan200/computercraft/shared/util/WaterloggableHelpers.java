@@ -16,9 +16,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 
 /**
- * Represents a block which can be filled with water
- *
- * I'm fairly sure this exists on 1.14, but it's a useful convenience wrapper to have on 1.13.
+ * Helpers for working with waterlogged blocks.
  */
 public final class WaterloggableHelpers
 {
@@ -29,24 +27,24 @@ public final class WaterloggableHelpers
     }
 
     /**
-     * Call from {@link net.minecraft.block.Block#getFluidState(BlockState)}.
+     * Call from {@link net.minecraft.world.level.block.Block#getFluidState(BlockState)}.
      *
      * @param state The current state
      * @return This waterlogged block's current fluid
      */
-    public static FluidState getWaterloggedFluidState( BlockState state )
+    public static FluidState getFluidState( BlockState state )
     {
         return state.getValue( WATERLOGGED ) ? Fluids.WATER.getSource( false ) : Fluids.EMPTY.defaultFluidState();
     }
 
     /**
-     * Call from {@link net.minecraft.block.Block#updatePostPlacement(BlockState, Direction, BlockState, IWorld, BlockPos, BlockPos)}.
+     * Call from {@link net.minecraft.world.level.block.Block#updateShape(BlockState, Direction, BlockState, LevelAccessor, BlockPos, BlockPos)}.
      *
      * @param state The current state
      * @param world The position of this block
      * @param pos   The world this block exists in
      */
-    public static void updateWaterloggedPostPlacement( BlockState state, LevelAccessor world, BlockPos pos )
+    public static void updateShape( BlockState state, LevelAccessor world, BlockPos pos )
     {
         if( state.getValue( WATERLOGGED ) )
         {
@@ -54,7 +52,7 @@ public final class WaterloggableHelpers
         }
     }
 
-    public static boolean getWaterloggedStateForPlacement( BlockPlaceContext context )
+    public static boolean getFluidStateForPlacement( BlockPlaceContext context )
     {
         return context.getLevel().getFluidState( context.getClickedPos() ).getType() == Fluids.WATER;
     }

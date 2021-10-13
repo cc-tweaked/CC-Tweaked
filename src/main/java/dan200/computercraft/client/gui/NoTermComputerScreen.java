@@ -43,7 +43,7 @@ public class NoTermComputerScreen<T extends ContainerComputerBase> extends Scree
     @Override
     protected void init()
     {
-        this.passEvents = true; // to allow gui click events pass through mouseHelper protection (see MouseHelper.OnPres:105 code string)
+        passEvents = true; // Pass mouse vents through to the game's mouse handler.
         minecraft.mouseHandler.grabMouse();
         minecraft.screen = this;
 
@@ -103,7 +103,7 @@ public class NoTermComputerScreen<T extends ContainerComputerBase> extends Scree
     }
 
     @Override
-    public void render( PoseStack transform, int mouseX, int mouseY, float partialTicks )
+    public void render( @Nonnull PoseStack transform, int mouseX, int mouseY, float partialTicks )
     {
         super.render( transform, mouseX, mouseY, partialTicks );
 

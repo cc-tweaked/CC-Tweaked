@@ -7,6 +7,7 @@ package dan200.computercraft.shared.peripheral.generic.methods;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.GenericSource;
+import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
@@ -60,9 +61,10 @@ public class InventoryMethods implements GenericSource
      * List all items in this inventory. This returns a table, with an entry for each slot.
      *
      * Each item in the inventory is represented by a table containing some basic information, much like
-     * {@link dan200.computercraft.shared.turtle.apis.TurtleAPI#getItemDetail} includes. More information can be fetched
-     * with {@link #getItemDetail}. The table contains the item `name`, the `count` and an a (potentially nil) hash of
-     * the item's `nbt.` This NBT data doesn't contain anything useful, but allows you to distinguish identical items.
+     * {@link dan200.computercraft.shared.turtle.apis.TurtleAPI#getItemDetail(ILuaContext, Optional, Optional)}
+     * includes. More information can be fetched with {@link #getItemDetail}. The table contains the item `name`, the
+     * `count` and an a (potentially nil) hash of the item's `nbt.` This NBT data doesn't contain anything useful, but
+     * allows you to distinguish identical items.
      *
      * The returned table is sparse, and so empty slots will be `nil` - it is recommended to loop over using `pairs`
      * rather than `ipairs`.
