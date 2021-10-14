@@ -31,7 +31,7 @@ public class MixinWorld
     @Inject( method = "addBlockEntity", at = @At( "HEAD" ) )
     public void addBlockEntity( @Nullable BlockEntity entity, CallbackInfo info )
     {
-        if( entity != null && !entity.isRemoved() && entity.getWorld().isInBuildLimit( entity.getPos() ) && iteratingTickingBlockEntities )
+        if( entity != null && !entity.isRemoved() && entity.getWorld() != null && entity.getWorld().isInBuildLimit( entity.getPos() ) && iteratingTickingBlockEntities )
         {
             setWorld( entity, this );
         }
