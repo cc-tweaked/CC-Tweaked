@@ -17,7 +17,7 @@ This mod includes textures that are more in-line with the style of Mojang's new 
 We also have a second resourcepack made by [3prm3](https://github.com/3prm3), it features a complete overhaul and can be enabled by enabling the `overhaul` resource pack, go check out his resource pack over here!
 
 # Does this work with shaders/sodium?
-* [ YES ] Sodium 
+* [ YES ] Sodium
 * [ YES ] Optifine
 	* Works with VBO Rendering (automatically set)
 	* No issues
@@ -32,7 +32,7 @@ We also have a second resourcepack made by [3prm3](https://github.com/3prm3), it
 			- ![](https://user-images.githubusercontent.com/10422110/136869483-91824c5f-841f-4316-bfb1-2412477a29ee.png)
 			- ![](https://user-images.githubusercontent.com/10422110/136869535-a16581a3-5e0a-4632-923f-c8de8cc8a6ea.png)
 		</details>
-* [ YES ] Canvas 
+* [ YES ] Canvas
 	* Works with TBO Rendering (Default)
 	* Scuffed with VBO Rendering
 	* <details>
@@ -63,7 +63,7 @@ If you need help getting started with CC: Restitched, want to show off your late
 Main Known issue
 * Mods that add blocks that can be used as peripherals for CC: T on forge, don't work with CC: R.
 	* This is because of the differences between forge and fabric, and that mod devs, to my knowledge have not agreed upon a standard method in which to implement cross compatibility between mods,
-* Occasionally a computer will say "File not found" when running a built in program, this is normal just hold `crtl+r` to reboot it. 
+* Occasionally a computer will say "File not found" when running a built in program, this is normal just hold `crtl+r` to reboot it.
 	* We do not know what causes it directly, however it happens when the world is `/reload`ed, and currently running programs are not affected so nothing *should break*
 
 ## Perpherals
