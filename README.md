@@ -45,7 +45,6 @@ We also have a second resourcepack made by [3prm3](https://github.com/3prm3), it
 		* Turtle Texture for some reason?
 			- ![](https://i.imgur.com/OEmZXsx.png)
 		</details>
-		
 
 ## Contributing
 Any contribution is welcome, be that using the mod, reporting bugs or contributing code. In order to start helping develop CC: R there are a few rules;
