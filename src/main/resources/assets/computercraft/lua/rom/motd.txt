@@ -1,4 +1,4 @@
-View the source code at https://github.com/Merith-TK/cc-restiched
+View the source code at https://github.com/cc-tweaked/cc-restiched
 View the documentation at https://wiki.computercraft.cc
 Visit the forum at https://forums.computercraft.cc
 You can disable these messages by running "set motd.enable false"

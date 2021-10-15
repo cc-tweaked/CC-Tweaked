@@ -1,8 +1,8 @@
 <img src="logo.png" alt="CC: Restitched" width="100%"/>
 
-[![Current build status](https://github.com/Merith-TK/cc-restitched/workflows/Build/badge.svg)](https://github.com/Merith-TK/cc-restitched/actions "Current build status")
+[![Current build status](https://github.com/cc-tweaked/cc-restitched/workflows/Build/badge.svg)](https://github.com/cc-tweaked/cc-restitched/actions "Current build status")
 [![Download CC: Restitched  on CurseForge](https://camo.githubusercontent.com/07622e6662ef5ead080c4840ef6514a34e079d63015f7e51c977a55b1881dfb9/687474703a2f2f63662e776179326d7563686e6f6973652e65752f7469746c652f63632d726573746974636865642e737667)](https://www.curseforge.com/minecraft/mc-mods/cc-restitched "Download CC:  Restitched on CurseForge")
-[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-908a85?logo=gitpod)](https://gitpod.io/#https://github.com/Merith-TK/cc-restitched/tree/1.17-alpha)
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-908a85?logo=gitpod)](https://gitpod.io/#https://github.com/cc-tweaked/cc-restitched/tree/1.17-alpha)
 
 # CC: R Version VS CC: T Version
 CC: R Strives to maintain perfect pairity with CC: T, however in some cases this is not possible, so CC: R might have a "newer" version than what CC: T has, these newer versions will be primarily bugfixes and the like because fabric is "weird" when porting a forge mod.
@@ -53,7 +53,7 @@ Any contribution is welcome, be that using the mod, reporting bugs or contributi
 3) Unless the code is taken directly from CC:Tweaked, `lua` code is offlimits from alteration.
 
 ## Bleeding Edge Builds
-Bleeding edge builds can be found [here](https://github.com/Merith-TK/cc-restitched/actions) at Github Actions.
+Bleeding edge builds can be found [here](https://github.com/cc-tweaked/cc-restitched/actions) at Github Actions.
 
 ## Community
 If you need help getting started with CC: Restitched, want to show off your latest project, or just want to chat about ComputerCraft, here is the [Forum](https://forums.computercraft.cc/) and the [Discord](https://discord.gg/H2UyJXe).
@@ -68,7 +68,7 @@ Main Known issue
 ## Perpherals
 Unfortunately, unlike the original CC: Tweaked project, CC: Restitched, does not have any actual peripheral mods, currently the only one we have is an example for mod devs to get started with making/adding the peripheral API to their mods!
 
-If your a mod dev made a mod with CC: R peripheral support, OR if your a player who found a mod with CC: R support, please open an [issue here](https://github.com/Merith-TK/cc-restitched/issues/new?assignees=&labels=peripheralShoutout&template=peripheral_shoutout.md) to let us know so we can add it to the list!
+If your a mod dev made a mod with CC: R peripheral support, OR if your a player who found a mod with CC: R support, please open an [issue here](https://github.com/cc-tweaked/cc-restitched/issues/new?assignees=&labels=peripheralShoutout&template=peripheral_shoutout.md) to let us know so we can add it to the list!
 
 * ![icon](https://raw.githubusercontent.com/Toad-Dev/cc-peripheral-test/master/src/main/resources/assets/cc_test/textures/block/test_peripheral.png) [CC Peripheral Test [1.16.5]](https://github.com/Toad-Dev/cc-peripheral-test)
 	* This is an example mod for how to make peripherals that work as a block, or as a turtle upgrade!
