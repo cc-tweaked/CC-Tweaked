@@ -16,11 +16,11 @@ automatically with GitHub, so please don't submit PRs adding/changing translatio
 In order to develop CC: Tweaked, you'll need to download the source code and then run it. This is a pretty simple
 process. When building on Windows, Use `gradlew.bat` instead of `./gradlew`.
 
- - **Clone the repository:** `git clone https://github.com/SquidDev-CC/CC-Tweaked.git && cd CC-Tweaked`
+ - **Clone the repository:** `git clone https://github.com/cc-tweaked/CC-Tweaked.git && cd CC-Tweaked`
  - **Setup Forge:** `./gradlew build`
  - **Run Minecraft:** `./gradlew runClient` (or run the `GradleStart` class from your IDE).
  - **Optionally:** For small PRs (especially those only touching Lua code), it may be easier to use GitPod, which
-   provides a pre-configured environment: [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-2b2b2b?logo=gitpod)](https://gitpod.io/#https://github.com/SquidDev-CC/CC-Tweaked/)
+   provides a pre-configured environment: [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-2b2b2b?logo=gitpod)](https://gitpod.io/#https://github.com/cc-tweaked/CC-Tweaked/)
 
    Do note you will need to download the mod after compiling to test.
 
@@ -103,7 +103,7 @@ tests go inside `describe` blocks, and a single test goes inside `it`.
 Assertions are generally written using `expect` (inspired by Hamcrest and the like). For instance, `expect(foo):eq("bar")`
 asserts that your variable `foo` is equal to the expected value `"bar"`.
 
-[new-issue]: https://github.com/SquidDev-CC/CC-Tweaked/issues/new/choose "Create a new issue"
+[new-issue]: https://github.com/cc-tweaked/CC-Tweaked/issues/new/choose "Create a new issue"
 [community]: README.md#Community "Get in touch with the community."
 [checkstyle]: https://checkstyle.org/
 [illuaminate]: https://github.com/SquidDev/illuaminate/ "Illuaminate on GitHub"

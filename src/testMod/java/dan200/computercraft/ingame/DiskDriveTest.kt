@@ -8,7 +8,7 @@ class Disk_Drive_Test {
     /**
      * Ensure audio disks exist and we can play them.
      *
-     * @see [#688](https://github.com/SquidDev-CC/CC-Tweaked/issues/688)
+     * @see [#688](https://github.com/cc-tweaked/CC-Tweaked/issues/688)
      */
     @GameTest
     fun Audio_disk(helper: GameTestHelper) = helper.sequence { thenComputerOk() }

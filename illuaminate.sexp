@@ -18,7 +18,7 @@
     (title "CC: Tweaked")
     (logo src/main/resources/pack.png)
     (url https://tweaked.cc/)
-    (source-link https://github.com/SquidDev-CC/CC-Tweaked/blob/${commit}/${path}#L${line})
+    (source-link https://github.com/cc-tweaked/CC-Tweaked/blob/${commit}/${path}#L${line})
 
     (styles src/web/styles.css)
     (scripts build/rollup/index.js)

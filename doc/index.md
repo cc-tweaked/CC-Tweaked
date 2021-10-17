@@ -43,8 +43,8 @@ If you get stuck, do pop in to the [Minecraft Computer Mod Discord guild][discor
 ## Get Involved
 CC: Tweaked lives on [GitHub]. If you've got any ideas, feedback or bugs please do [create an issue][bug].
 
-[github]: https://github.com/SquidDev-CC/CC-Tweaked/ "CC: Tweaked on GitHub"
-[bug]: https://github.com/SquidDev-CC/CC-Tweaked/issues/new/choose
+[github]: https://github.com/cc-tweaked/CC-Tweaked/ "CC: Tweaked on GitHub"
+[bug]: https://github.com/cc-tweaked/CC-Tweaked/issues/new/choose
 [computercraft]: https://github.com/dan200/ComputerCraft "ComputerCraft on GitHub"
 [curseforge]: https://minecraft.curseforge.com/projects/cc-tweaked "Download CC: Tweaked from CurseForge"
 [modrinth]: https://modrinth.com/mod/gu7yAYhd "Download CC: Tweaked from Modrinth"

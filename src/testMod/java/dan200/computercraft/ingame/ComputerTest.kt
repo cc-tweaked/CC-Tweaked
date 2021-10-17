@@ -9,7 +9,7 @@ class Computer_Test {
     /**
      * Ensures redstone signals do not travel through computers.
      *
-     * @see [#548](https://github.com/SquidDev-CC/CC-Tweaked/issues/548)
+     * @see [#548](https://github.com/cc-tweaked/CC-Tweaked/issues/548)
      */
     @GameTest
     fun No_through_signal(context: GameTestHelper) = context.sequence {

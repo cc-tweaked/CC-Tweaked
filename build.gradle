@@ -463,7 +463,7 @@ curseforge {
     project {
         id = '282001'
         releaseType = 'release'
-        changelog = "Release notes can be found on the GitHub repository (https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
+        changelog = "Release notes can be found on the GitHub repository (https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
 
         addGameVersion "${mc_version}"
     }
@@ -481,7 +481,7 @@ tasks.register('publishModrinth', TaskModrinthUpload.class).configure {
     versionNumber = "${project.mc_version}-${project.mod_version}"
     uploadFile = jar
     addGameVersion(project.mc_version)
-    changelog = "Release notes can be found on the [GitHub repository](https://github.com/SquidDev-CC/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
+    changelog = "Release notes can be found on the [GitHub repository](https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
     addLoader('forge')
 }
 
@@ -498,21 +498,21 @@ publishing {
             pom {
                 name = 'CC: Tweaked'
                 description = 'CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles and more to Minecraft.'
-                url = 'https://github.com/SquidDev-CC/CC-Tweaked'
+                url = 'https://github.com/cc-tweaked/CC-Tweaked'
 
                 scm {
-                    url = 'https://github.com/SquidDev-CC/CC-Tweaked.git'
+                    url = 'https://github.com/cc-tweaked/CC-Tweaked.git'
                 }
 
                 issueManagement {
                     system = 'github'
-                    url = 'https://github.com/SquidDev-CC/CC-Tweaked/issues'
+                    url = 'https://github.com/cc-tweaked/CC-Tweaked/issues'
                 }
 
                 licenses {
                     license {
                         name = 'ComputerCraft Public License, Version 1.0'
-                        url = 'https://github.com/SquidDev-CC/CC-Tweaked/blob/mc-1.15.x/LICENSE'
+                        url = 'https://github.com/cc-tweaked/CC-Tweaked/blob/mc-1.15.x/LICENSE'
                     }
                 }
 
@@ -537,7 +537,7 @@ publishing {
 
 githubRelease {
     token project.hasProperty('githubApiKey') ? project.githubApiKey : ''
-    owner 'SquidDev-CC'
+    owner 'cc-tweaked'
     repo 'CC-Tweaked'
     targetCommitish.set(project.provider({
         try {
