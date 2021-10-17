@@ -232,9 +232,8 @@ public class BlockCable extends BlockGeneric implements Waterloggable
     public void onPlaced( World world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, @Nonnull ItemStack stack )
     {
         BlockEntity tile = world.getBlockEntity( pos );
-        if( tile instanceof TileCable )
+        if( tile instanceof TileCable cable )
         {
-            TileCable cable = (TileCable) tile;
             if( cable.hasCable() )
             {
                 cable.connectionsChanged();
