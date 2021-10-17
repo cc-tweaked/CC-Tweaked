@@ -7,6 +7,7 @@ package dan200.computercraft.fabric.mixin;
 
 import dan200.computercraft.shared.common.TileGeneric;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,12 +27,18 @@ import java.util.Collection;
 public class MixinWorld
 {
     @Shadow
-    protected boolean iteratingTickingBlockEntities;
+    private boolean iteratingTickingBlockEntities;
+
+    @Shadow
+    public boolean isInBuildLimit( BlockPos pos )
+    {
+        return false;
+    }
 
     @Inject( method = "addBlockEntity", at = @At( "HEAD" ) )
     public void addBlockEntity( @Nullable BlockEntity entity, CallbackInfo info )
     {
-        if( entity != null && !entity.isRemoved() && entity.getWorld() != null && entity.getWorld().isInBuildLimit( entity.getPos() ) && iteratingTickingBlockEntities )
+        if( entity != null && !entity.isRemoved() && this.isInBuildLimit( entity.getPos() ) && iteratingTickingBlockEntities )
         {
             setWorld( entity, this );
         }
@@ -41,7 +48,7 @@ public class MixinWorld
     {
         if( entity.getWorld() != world && entity instanceof TileGeneric )
         {
-            entity.setWorld( (World) world ); //TODO why?
+            entity.setWorld( (World) world );
         }
     }
 
