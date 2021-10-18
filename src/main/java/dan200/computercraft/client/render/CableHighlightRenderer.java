@@ -18,6 +18,7 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.util.shape.VoxelShape;
 
@@ -40,8 +41,12 @@ public final class CableHighlightRenderer
             return false;
         }
 
+        HitResult hitResult = MinecraftClient.getInstance().crosshairTarget;
+
+        Vec3d hitPos = hitResult != null ? hitResult.getPos() : new Vec3d( d, e, f );
+
         VoxelShape shape = WorldUtil.isVecInside( CableShapes.getModemShape( state ),
-            new Vec3d( d, e, f ).subtract( pos.getX(),
+            hitPos.subtract( pos.getX(),
                 pos.getY(),
                 pos.getZ() ) ) ? CableShapes.getModemShape( state ) : CableShapes.getCableShape(
             state );
