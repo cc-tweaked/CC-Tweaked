@@ -10,25 +10,26 @@ import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
+import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.Waterloggable;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
-import net.minecraft.world.WorldView;
+import net.minecraft.world.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -122,52 +123,50 @@ public class BlockCable extends BlockGeneric implements Waterloggable
         return getWaterloggedFluidState( state );
     }
 
-    //    @Override
-    //    public boolean removedByPlayer( BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, FluidState fluid )
-    //    {
-    //        if( state.get( CABLE ) && state.get( MODEM ).getFacing() != null )
-    //        {
-    //            BlockHitResult hit = world.raycast( new RaycastContext(
-    //                WorldUtil.getRayStart( player ), WorldUtil.getRayEnd( player ),
-    //                RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, player
-    //            ) );
-    //            if( hit.getType() == HitResult.Type.BLOCK )
-    //            {
-    //                BlockEntity tile = world.getBlockEntity( pos );
-    //                if( tile instanceof TileCable && tile.hasWorld() )
-    //                {
-    //                    TileCable cable = (TileCable) tile;
-    //
-    //                    ItemStack item;
-    //                    BlockState newState;
-    //
-    //                    if( WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getPos().subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
-    //                    {
-    //                        newState = state.with( MODEM, CableModemVariant.None );
-    //                        item = new ItemStack( ComputerCraftRegistry.ModItems.WIRED_MODEM.get() );
-    //                    }
-    //                    else
-    //                    {
-    //                        newState = state.with( CABLE, false );
-    //                        item = new ItemStack( ComputerCraftRegistry.ModItems.CABLE.get() );
-    //                    }
-    //
-    //                    world.setBlockState( pos, correctConnections( world, pos, newState ), 3 );
-    //
-    //                    cable.modemChanged();
-    //                    cable.connectionsChanged();
-    //                    if( !world.isClient && !player.abilities.creativeMode )
-    //                    {
-    //                        Block.dropStack( world, pos, item );
-    //                    }
-    //
-    //                    return false;
-    //                }
-    //            }
-    //        }
-    //
-    //        return super.removedByPlayer( state, world, pos, player, willHarvest, fluid );
-    //    }
+    public boolean removedByPlayer( BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, FluidState fluid )
+    {
+        if( state.get( CABLE ) && state.get( MODEM ).getFacing() != null )
+        {
+            BlockHitResult hit = world.raycast( new RaycastContext(
+                WorldUtil.getRayStart( player ), WorldUtil.getRayEnd( player ),
+                RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, player
+            ) );
+            if( hit.getType() == HitResult.Type.BLOCK )
+            {
+                BlockEntity tile = world.getBlockEntity( pos );
+                if( tile instanceof TileCable cable && tile.hasWorld() )
+                {
+
+                    ItemStack item;
+                    BlockState newState;
+
+                    if( WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getPos().subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
+                    {
+                        newState = state.with( MODEM, CableModemVariant.None );
+                        item = new ItemStack( ComputerCraftRegistry.ModItems.WIRED_MODEM );
+                    }
+                    else
+                    {
+                        newState = state.with( CABLE, false );
+                        item = new ItemStack( ComputerCraftRegistry.ModItems.CABLE );
+                    }
+
+                    world.setBlockState( pos, correctConnections( world, pos, newState ), 3 );
+
+                    cable.modemChanged();
+                    cable.connectionsChanged();
+                    if( !world.isClient && !player.getAbilities().creativeMode )
+                    {
+                        Block.dropStack( world, pos, item );
+                    }
+
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
 
     // TODO Re-implement, likely will need mixin
     //    @Override

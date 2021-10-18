@@ -25,6 +25,7 @@ import dan200.computercraft.shared.media.items.RecordMedia;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
+import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.turtle.FurnaceRefuelHandler;
 import dan200.computercraft.shared.turtle.SignInspectHandler;
@@ -34,6 +35,7 @@ import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.CommandBlockBlockEntity;
 import net.minecraft.item.Item;
@@ -121,6 +123,11 @@ public final class ComputerCraftProxyCommon
             {
                 ((TileGeneric) blockEntity).onChunkUnloaded();
             }
+        } );
+
+        PlayerBlockBreakEvents.BEFORE.register( ( world, player, pos, state, blockEntity ) -> {
+            if ( state.getBlock() instanceof BlockCable blockCable ) return blockCable.removedByPlayer( state, world, pos, player, false, null );
+            return true;
         } );
 
         // Config
