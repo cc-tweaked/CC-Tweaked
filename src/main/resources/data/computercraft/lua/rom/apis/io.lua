@@ -1,6 +1,7 @@
---- Emulates Lua's standard [io library][io].
+--- The io library emulates Lua's standard [io library][io] to provide I/O ([input/output][I/O]) methods for reading and file manipulation such as reading and writing files.
 --
 -- [io]: https://www.lua.org/manual/5.1/manual.html#5.7
+-- [I/O]: https://en.wikipedia.org/wiki/Input/output
 --
 -- @module io
 
