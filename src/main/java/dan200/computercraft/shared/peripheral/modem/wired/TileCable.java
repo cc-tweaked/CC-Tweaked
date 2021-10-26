@@ -46,7 +46,6 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     private final IWiredNode node = cable.getNode();
     private boolean peripheralAccessAllowed;
     private boolean destroyed = false;
-    private Direction modemDirection = Direction.NORTH;
     private final WiredModemPeripheral modem = new WiredModemPeripheral( new ModemState( () -> TickScheduler.schedule( this ) ), cable )
     {
         @Nonnull
@@ -60,7 +59,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
         @Override
         public Vec3d getPosition()
         {
-            BlockPos pos = getPos().offset( modemDirection );
+            BlockPos pos = getPos().offset( getDirection() );
             return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
 
@@ -71,7 +70,6 @@ public class TileCable extends TileGeneric implements IPeripheralTile
             return TileCable.this;
         }
     };
-    private boolean hasModemDirection = false;
     private boolean connectionsFormed = false;
 
     public TileCable( BlockEntityType<? extends TileCable> type, BlockPos pos, BlockState state )
@@ -176,8 +174,8 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     @Nonnull
     private Direction getDirection()
     {
-        refreshDirection();
-        return modemDirection == null ? Direction.NORTH : modemDirection;
+        Direction direction = getMaybeDirection();
+        return direction == null ? Direction.NORTH : direction;
     }
 
     public boolean hasModem()
@@ -312,8 +310,6 @@ public class TileCable extends TileGeneric implements IPeripheralTile
             return;
         }
 
-        refreshDirection();
-
         if( modem.getModemState()
             .pollChanged() )
         {
@@ -327,7 +323,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
             connectionsChanged();
             if( peripheralAccessAllowed )
             {
-                peripheral.attach( world, pos, modemDirection );
+                peripheral.attach( world, pos, getDirection() );
                 updateConnectedPeripherals();
             }
         }
@@ -360,20 +356,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     @Nullable
     private Direction getMaybeDirection()
     {
-        refreshDirection();
-        return modemDirection;
-    }
-
-    private void refreshDirection()
-    {
-        if( hasModemDirection )
-        {
-            return;
-        }
-
-        hasModemDirection = true;
-        modemDirection = getCachedState().get( BlockCable.MODEM )
-            .getFacing();
+        return getCachedState().get( BlockCable.MODEM ).getFacing();
     }
 
     @Override
@@ -412,7 +395,6 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     {
         super.setCachedState( state );
         if( state != null ) return;
-        hasModemDirection = false;
         if( !world.isClient )
         {
             world.getBlockTickScheduler()
