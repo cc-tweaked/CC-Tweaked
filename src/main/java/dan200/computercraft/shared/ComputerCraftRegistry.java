@@ -49,6 +49,7 @@ import dan200.computercraft.shared.turtle.upgrades.*;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
+import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -114,8 +115,8 @@ public final class ComputerCraftRegistry
         public static final BlockWirelessModem WIRELESS_MODEM_ADVANCED = register( "wireless_modem_advanced",
             new BlockWirelessModem( properties(), ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_ADVANCED, ComputerFamily.ADVANCED ) );
         public static final BlockWiredModemFull WIRED_MODEM_FULL = register( "wired_modem_full",
-            new BlockWiredModemFull( emProperties(), ComputerCraftRegistry.ModTiles.WIRED_MODEM_FULL ) );
-        public static final BlockCable CABLE = register( "cable", new BlockCable( emProperties() ) );
+            new BlockWiredModemFull( modemProperties(), ComputerCraftRegistry.ModTiles.WIRED_MODEM_FULL ) );
+        public static final BlockCable CABLE = register( "cable", new BlockCable( modemProperties() ) );
 
         private static Block.Settings properties()
         {
@@ -133,9 +134,11 @@ public final class ComputerCraftRegistry
                 .strength( 2.5f );
         }
 
-        private static Block.Settings emProperties()
+        private static Block.Settings modemProperties()
         {
             return FabricBlockSettings.copyOf( Blocks.STONE )
+                .breakByHand( true )
+                .breakByTool( FabricToolTags.PICKAXES )
                 .strength( 1.5f );
         }
 
