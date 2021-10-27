@@ -8,7 +8,7 @@
 CC: R Strives to maintain perfect pairity with CC: T, however in some cases this is not possible, so CC: R might have a "newer" version than what CC: T has, these newer versions will be primarily bugfixes and the like because fabric is "weird" when porting a forge mod.
 
 ## What is CC: Restiched
-This is an fork of [Zundrel/cc-tweaked-fabric](https://github.com/Zundrel/cc-tweaked-fabric) who's goal was to port [SquidDev-CC/CC-Tweaked](https://github.com/SquidDev-CC/CC-Tweaked) to the [Fabric](https://fabricmc.net/) modloader. I picked up maintaining the mod because the team working on Zundrel's fork can no longer mantain it so I picked it up to make it as equal as possible with CC: T.
+This is an fork of [Zundrel/cc-tweaked-fabric](https://github.com/Zundrel/cc-tweaked-fabric) who's goal was to port [SquidDev-CC/CC-Tweaked](https://github.com/SquidDev-CC/CC-Tweaked) to the [Fabric](https://fabricmc.net/) modloader. I picked up maintaining the mod because the team working on Zundrel's fork can no longer mantain it so, I picked it up to make it as equal as possible with CC: T.
 
 ## Resource Packs
 This mod includes textures that are more in-line with the style of Mojang's new texture-artist, Jappa. If you prefer the original textures, enable the "Classic" resource pack.
@@ -16,7 +16,7 @@ This mod includes textures that are more in-line with the style of Mojang's new 
 <img src="https://raw.githubusercontent.com/3prm3/cc-pack/main/pack.png" alt="CC: Restitched" width="16"  height="16"/> [3prm3/cc-pack](https://github.com/3prm3/cc-pack/)
 We also have a second resourcepack made by [3prm3](https://github.com/3prm3), it features a complete overhaul and can be enabled by enabling the `overhaul` resource pack, go check out his resource pack over here!
 
-# Does this work with shaders/sodium?
+# Does this work with shaders/[Sodium?](https://github.com/CaffeineMC/sodium-fabric)
 * [ YES ] Sodium
 * [ YES ] Optifine
 	* Works with VBO Rendering (automatically set)
@@ -38,7 +38,7 @@ We also have a second resourcepack made by [3prm3](https://github.com/3prm3), it
 	* <details>
 		<summary>VBO is broken</summary>
 
-  		Monitors are just... scuffed beyond beleif
+  		Monitors are just... scuffed beyond belief.
 		- ![](https://i.imgur.com/JVNZ2Pn.png)
 		- ![](https://i.imgur.com/SXXpr54.png)
 			* The content to the left is supposed to be on the monitors to the right, also the bottom one is supposed to `black/white` not colored.
@@ -50,7 +50,7 @@ We also have a second resourcepack made by [3prm3](https://github.com/3prm3), it
 Any contribution is welcome, be that using the mod, reporting bugs or contributing code. In order to start helping develop CC: R there are a few rules;
 1) Follow the [Fabric](https://fabricmc.net/) programming guidelines as close as possible. This means you have to use [`loom`](https://fabricmc.net/wiki/tutorial:mappings) mappings, if you use anything else, your code will be rejected.
 2) You cannot intentionally implement bugs and security vulnerabilities.
-3) Unless the code is taken directly from CC:Tweaked, `lua` code is offlimits from alteration.
+3) Unless the code is taken directly from CC: Tweaked, `lua` code is offlimits from alteration.
 
 ## Bleeding Edge Builds
 Bleeding edge builds can be found [here](https://github.com/cc-tweaked/cc-restitched/actions) at Github Actions.
@@ -68,7 +68,7 @@ Main Known issue
 ## Perpherals
 Unfortunately, unlike the original CC: Tweaked project, CC: Restitched, does not have any actual peripheral mods, currently the only one we have is an example for mod devs to get started with making/adding the peripheral API to their mods!
 
-If your a mod dev made a mod with CC: R peripheral support, OR if your a player who found a mod with CC: R support, please open an [issue here](https://github.com/cc-tweaked/cc-restitched/issues/new?assignees=&labels=peripheralShoutout&template=peripheral_shoutout.md) to let us know so we can add it to the list!
+If you're a mod dev, made a mod with CC: R peripheral support OR if you're a player who found a mod with CC: R support, please open an [issue here](https://github.com/cc-tweaked/cc-restitched/issues/new?assignees=&labels=peripheralShoutout&template=peripheral_shoutout.md) to let us know so we can add it to the list!
 
 * ![icon](https://raw.githubusercontent.com/Toad-Dev/cc-peripheral-test/master/src/main/resources/assets/cc_test/textures/block/test_peripheral.png) [CC Peripheral Test [1.16.5]](https://github.com/Toad-Dev/cc-peripheral-test)
 	* This is an example mod for how to make peripherals that work as a block, or as a turtle upgrade!
