@@ -9,16 +9,17 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleVerb;
+import dan200.computercraft.shared.ComputerCraftTags;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ToolType;
 
 import javax.annotation.Nonnull;
 
@@ -40,21 +41,15 @@ public class TurtleShovel extends TurtleTool
     }
 
     @Override
-    protected boolean canBreakBlock( BlockState state, World world, BlockPos pos, TurtlePlayer player )
+    protected TurtleCommandResult checkBlockBreakable( BlockState state, World world, BlockPos pos, TurtlePlayer player )
     {
-        if( !super.canBreakBlock( state, world, pos, player ) ) return false;
+        TurtleCommandResult result = super.checkBlockBreakable( state, world, pos, player );
+        if( !result.isSuccess() ) return result;
 
-        Material material = state.getMaterial();
-        return material == Material.DIRT ||
-            material == Material.SAND ||
-            material == Material.TOP_SNOW ||
-            material == Material.CLAY ||
-            material == Material.SNOW ||
-            material == Material.PLANT ||
-            material == Material.CACTUS ||
-            material == Material.VEGETABLE ||
-            material == Material.LEAVES ||
-            material == Material.REPLACEABLE_PLANT;
+        return state.isToolEffective( ToolType.SHOVEL )
+            || state.is( ComputerCraftTags.Blocks.TURTLE_SHOVEL_BREAKABLE )
+            || isTriviallyBreakable( world, pos, state )
+            ? result : INEFFECTIVE;
     }
 
     @Nonnull

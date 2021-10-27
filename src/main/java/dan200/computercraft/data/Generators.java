@@ -7,6 +7,7 @@ package dan200.computercraft.data;
 
 import dan200.computercraft.shared.Registry;
 import net.minecraft.data.DataGenerator;
+import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
@@ -20,9 +21,14 @@ public class Generators
         Registry.registerLoot();
 
         DataGenerator generator = event.getGenerator();
-        generator.addProvider( new Recipes( generator ) );
-        generator.addProvider( new LootTables( generator ) );
-        generator.addProvider( new Tags( generator, event.getExistingFileHelper() ) );
-        generator.addProvider( new BlockModelProvider( generator, event.getExistingFileHelper() ) );
+        ExistingFileHelper existingFiles = event.getExistingFileHelper();
+
+        generator.addProvider( new RecipeGenerator( generator ) );
+        generator.addProvider( new LootTableGenerator( generator ) );
+        generator.addProvider( new BlockModelProvider( generator, existingFiles ) );
+
+        BlockTagsGenerator blockTags = new BlockTagsGenerator( generator, existingFiles );
+        generator.addProvider( blockTags );
+        generator.addProvider( new ItemTagsGenerator( generator, blockTags, existingFiles ) );
     }
 }

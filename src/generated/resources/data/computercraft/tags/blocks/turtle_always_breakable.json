@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:leaves",
+    "minecraft:bamboo",
+    "minecraft:bamboo_sapling"
+  ]
+}

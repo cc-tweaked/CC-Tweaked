@@ -5,9 +5,10 @@
  */
 package dan200.computercraft.shared.turtle.upgrades;
 
+import dan200.computercraft.api.turtle.TurtleCommandResult;
+import dan200.computercraft.shared.ComputerCraftTags;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -32,16 +33,14 @@ public class TurtleSword extends TurtleTool
     }
 
     @Override
-    protected boolean canBreakBlock( BlockState state, World world, BlockPos pos, TurtlePlayer player )
+    protected TurtleCommandResult checkBlockBreakable( BlockState state, World world, BlockPos pos, TurtlePlayer player )
     {
-        if( !super.canBreakBlock( state, world, pos, player ) ) return false;
+        TurtleCommandResult result = super.checkBlockBreakable( state, world, pos, player );
+        if( !result.isSuccess() ) return result;
 
-        Material material = state.getMaterial();
-        return material == Material.PLANT ||
-            material == Material.LEAVES ||
-            material == Material.REPLACEABLE_PLANT ||
-            material == Material.WOOL ||
-            material == Material.WEB;
+        return state.is( ComputerCraftTags.Blocks.TURTLE_SWORD_BREAKABLE )
+            || isTriviallyBreakable( world, pos, state )
+            ? result : INEFFECTIVE;
     }
 
     @Override

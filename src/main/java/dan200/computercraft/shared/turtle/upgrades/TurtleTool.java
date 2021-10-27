@@ -10,6 +10,7 @@ import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
+import dan200.computercraft.shared.ComputerCraftTags;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
@@ -34,6 +35,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.TransformationMatrix;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -48,6 +50,9 @@ import java.util.function.Function;
 
 public class TurtleTool extends AbstractTurtleUpgrade
 {
+    protected static final TurtleCommandResult UNBREAKABLE = TurtleCommandResult.failure( "Unbreakable block detected" );
+    protected static final TurtleCommandResult INEFFECTIVE = TurtleCommandResult.failure( "Cannot break block with this tool" );
+
     protected final ItemStack item;
 
     public TurtleTool( ResourceLocation id, String adjective, Item item )
@@ -109,13 +114,14 @@ public class TurtleTool extends AbstractTurtleUpgrade
         }
     }
 
-    protected boolean canBreakBlock( BlockState state, World world, BlockPos pos, TurtlePlayer player )
+    protected TurtleCommandResult checkBlockBreakable( BlockState state, World world, BlockPos pos, TurtlePlayer player )
     {
         Block block = state.getBlock();
         return !state.isAir()
             && block != Blocks.BEDROCK
             && state.getDestroyProgress( player, world, pos ) > 0
-            && block.canEntityDestroy( state, world, pos, player );
+            && block.canEntityDestroy( state, world, pos, player )
+            ? TurtleCommandResult.success() : UNBREAKABLE;
     }
 
     protected float getDamageMultiplier()
@@ -166,6 +172,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
             {
                 float damage = (float) turtlePlayer.getAttributeValue( Attributes.ATTACK_DAMAGE );
                 damage *= getDamageMultiplier();
+                ComputerCraft.log.info( "Dealing {} damage", damage );
                 if( damage > 0.0f )
                 {
                     DamageSource source = DamageSource.playerAttack( turtlePlayer );
@@ -238,10 +245,8 @@ public class TurtleTool extends AbstractTurtleUpgrade
         }
 
         // Check if we can break the block
-        if( !canBreakBlock( state, world, blockPosition, turtlePlayer ) )
-        {
-            return TurtleCommandResult.failure( "Unbreakable block detected" );
-        }
+        TurtleCommandResult breakable = checkBlockBreakable( state, world, blockPosition, turtlePlayer );
+        if( !breakable.isSuccess() ) return breakable;
 
         // Fire the dig event, checking whether it was cancelled.
         TurtleBlockEvent.Dig digEvent = new TurtleBlockEvent.Dig( turtle, turtlePlayer, world, blockPosition, state, this, side );
@@ -301,5 +306,12 @@ public class TurtleTool extends AbstractTurtleUpgrade
                 0.0f, 0.0f, 0.0f, 1.0f,
             } ) );
         }
+    }
+
+    protected boolean isTriviallyBreakable( IWorldReader reader, BlockPos pos, BlockState state )
+    {
+        return state.is( ComputerCraftTags.Blocks.TURTLE_ALWAYS_BREAKABLE )
+            // Allow breaking any "instabreak" block.
+            || (state.getDestroySpeed( reader, pos ) == 0 && state.getHarvestLevel() <= 0);
     }
 }
