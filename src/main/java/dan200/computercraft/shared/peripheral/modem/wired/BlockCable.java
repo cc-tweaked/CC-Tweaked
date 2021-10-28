@@ -11,6 +11,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.util.WorldUtil;
+import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
@@ -37,7 +38,7 @@ import java.util.EnumMap;
 
 import static dan200.computercraft.shared.util.WaterloggableHelpers.*;
 
-public class BlockCable extends BlockGeneric implements Waterloggable
+public class BlockCable extends BlockGeneric implements Waterloggable, BlockPickInteractionAware
 {
     public static final EnumProperty<CableModemVariant> MODEM = EnumProperty.of( "modem", CableModemVariant.class );
     public static final BooleanProperty CABLE = BooleanProperty.of( "cable" );
@@ -168,21 +169,21 @@ public class BlockCable extends BlockGeneric implements Waterloggable
         return true;
     }
 
-    // TODO Re-implement, likely will need mixin
-    //    @Override
-    //    public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
-    //        Direction modem = state.get( MODEM ).getFacing();
-    //        boolean cable = state.get( CABLE );
-    //
-    //        // If we've only got one, just use that.
-    //        if( !cable ) return new ItemStack( ComputerCraftRegistry.ModItems.WIRED_MODEM.get() );
-    //        if( modem == null ) return new ItemStack( ComputerCraftRegistry.ModItems.CABLE.get() );
-    //
-    //        // We've a modem and cable, so try to work out which one we're interacting with
-    //        return hit != null && WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getPos().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
-    //            ? new ItemStack( ComputerCraftRegistry.ModItems.WIRED_MODEM.get() )
-    //            : new ItemStack( ComputerCraftRegistry.ModItems.CABLE.get() );
-    //    }
+    @Override
+    public ItemStack getPickedStack( BlockState state, BlockView world, BlockPos pos, @Nullable PlayerEntity player, HitResult hit )
+    {
+        Direction modem = state.get( MODEM ).getFacing();
+        boolean cable = state.get( CABLE );
+
+        // If we've only got one, just use that.
+        if( !cable ) return new ItemStack( ComputerCraftRegistry.ModItems.WIRED_MODEM );
+        if( modem == null ) return new ItemStack( ComputerCraftRegistry.ModItems.CABLE );
+
+        // We've a modem and cable, so try to work out which one we're interacting with
+        return hit != null && WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getPos().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
+            ? new ItemStack( ComputerCraftRegistry.ModItems.WIRED_MODEM )
+            : new ItemStack( ComputerCraftRegistry.ModItems.CABLE );
+    }
 
     @Override
     @Deprecated
