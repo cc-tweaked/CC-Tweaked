@@ -117,8 +117,6 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
     @Override
     public void filesDragged( @Nonnull List<Path> files )
     {
-        // TODO: this thing doesn't work in Tweaked at this moment
-        if ( true ) return;
         if( files.isEmpty() ) return;
 
         if( computer == null || !computer.isOn() )
