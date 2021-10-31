@@ -5,7 +5,7 @@
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-908a85?logo=gitpod)](https://gitpod.io/#https://github.com/cc-tweaked/cc-restitched/tree/1.17-alpha)
 
 # CC: R Version VS CC: T Version
-CC: R Strives to maintain perfect pairity with CC: T, however in some cases this is not possible, so CC: R might have a "newer" version than what CC: T has, these newer versions will be primarily bugfixes and the like because fabric is "weird" when porting a forge mod.
+CC: R Strives to maintain perfect pairity with CC: T, however in some cases this is not possible, so CC: R might have a "newer" version than what CC: T has, these newer versions will be primarily bugfixes and the like because [Fabric](https://fabricmc.net/) is "weird" when porting a Forge mod.
 
 ## What is CC: Restiched
 This is an fork of [Zundrel/cc-tweaked-fabric](https://github.com/Zundrel/cc-tweaked-fabric) who's goal was to port [SquidDev-CC/CC-Tweaked](https://github.com/SquidDev-CC/CC-Tweaked) to the [Fabric](https://fabricmc.net/) modloader. I picked up maintaining the mod because the team working on Zundrel's fork can no longer mantain it so, I picked it up to make it as equal as possible with CC: T.
@@ -60,8 +60,8 @@ If you need help getting started with CC: Restitched, want to show off your late
 
 ## Known Bugs/Issues
 Main Known issue
-* Mods that add blocks that can be used as peripherals for CC: T on forge, don't work with CC: R.
-	* This is because of the differences between forge and fabric, and that mod devs, to my knowledge have not agreed upon a standard method in which to implement cross compatibility between mods,
+* Mods that add blocks that can be used as peripherals for CC: T on Forge, don't work with CC: R.
+	* This is because of the differences between Forge and [Fabric](https://fabricmc.net/), and that mod devs, to my knowledge have not agreed upon a standard method in which to implement cross compatibility between mods,
 * Occasionally a computer will say "File not found" when running a built in program, this is normal just hold `crtl+r` to reboot it.
 	* We do not know what causes it directly, however it happens when the world is `/reload`ed, and currently running programs are not affected so nothing *should break*
 
