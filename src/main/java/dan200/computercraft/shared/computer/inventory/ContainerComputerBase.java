@@ -213,6 +213,7 @@ public abstract class ContainerComputerBase extends ScreenHandler implements ICo
             {
                 try( FileSystemWrapper<WritableByteChannel> channel = fs.openForWrite( file.getName(), false, Function.identity() ) )
                 {
+                    file.getBytes().rewind();
                     channel.get().write( file.getBytes() );
                 }
             }
