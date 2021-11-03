@@ -59,5 +59,22 @@ public class BlockTagsGenerator extends BlockTagsProvider
         );
 
         tag( TURTLE_SWORD_BREAKABLE ).addTags( BlockTags.WOOL ).add( Blocks.COBWEB );
+
+        // Make all blocks aside from command computer mineable.
+        tag( BlockTags.MINEABLE_WITH_PICKAXE ).add(
+            Registry.ModBlocks.COMPUTER_NORMAL.get(),
+            Registry.ModBlocks.COMPUTER_ADVANCED.get(),
+            Registry.ModBlocks.TURTLE_NORMAL.get(),
+            Registry.ModBlocks.TURTLE_ADVANCED.get(),
+            Registry.ModBlocks.SPEAKER.get(),
+            Registry.ModBlocks.DISK_DRIVE.get(),
+            Registry.ModBlocks.PRINTER.get(),
+            Registry.ModBlocks.MONITOR_NORMAL.get(),
+            Registry.ModBlocks.MONITOR_ADVANCED.get(),
+            Registry.ModBlocks.WIRELESS_MODEM_NORMAL.get(),
+            Registry.ModBlocks.WIRELESS_MODEM_ADVANCED.get(),
+            Registry.ModBlocks.WIRED_MODEM_FULL.get(),
+            Registry.ModBlocks.CABLE.get()
+        );
     }
 }

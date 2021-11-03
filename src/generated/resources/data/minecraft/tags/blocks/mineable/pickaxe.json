@@ -1,0 +1,18 @@
+{
+  "replace": false,
+  "values": [
+    "computercraft:computer_normal",
+    "computercraft:computer_advanced",
+    "computercraft:turtle_normal",
+    "computercraft:turtle_advanced",
+    "computercraft:speaker",
+    "computercraft:disk_drive",
+    "computercraft:printer",
+    "computercraft:monitor_normal",
+    "computercraft:monitor_advanced",
+    "computercraft:wireless_modem_normal",
+    "computercraft:wireless_modem_advanced",
+    "computercraft:wired_modem_full",
+    "computercraft:cable"
+  ]
+}
