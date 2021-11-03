@@ -97,6 +97,7 @@ public final class DropConsumer
         if( dropEntity == null || drops.getEntity() != dropEntity ) return;
 
         for( ItemEntity drop : drops.getDrops() ) handleDrops( drop.getItem() );
+        drops.getDrops().clear();
         drops.setCanceled( true );
     }
 }

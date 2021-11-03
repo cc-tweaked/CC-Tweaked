@@ -9,7 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.AbstractSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.resources.sounds.TickableSoundInstance;
-import net.minecraft.sounds.SoundEvent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
 
@@ -21,7 +21,7 @@ public class SoundManager
 {
     private static final Map<UUID, MoveableSound> sounds = new HashMap<>();
 
-    public static void playSound( UUID source, Vec3 position, SoundEvent event, float volume, float pitch )
+    public static void playSound( UUID source, Vec3 position, ResourceLocation event, float volume, float pitch )
     {
         var soundManager = Minecraft.getInstance().getSoundManager();
 
@@ -54,7 +54,7 @@ public class SoundManager
 
     private static class MoveableSound extends AbstractSoundInstance implements TickableSoundInstance
     {
-        protected MoveableSound( SoundEvent sound, Vec3 position, float volume, float pitch )
+        protected MoveableSound( ResourceLocation sound, Vec3 position, float volume, float pitch )
         {
             super( sound, SoundSource.RECORDS );
             setPosition( position );

@@ -1,8 +1,8 @@
 modLoader="javafml"
 loaderVersion="[37,38)"
 
-issueTrackerURL="https://github.com/SquidDev-CC/CC-Tweaked/issues"
-displayURL="https://github.com/SquidDev-CC/CC-Tweaked"
+issueTrackerURL="https://github.com/cc-tweaked/CC-Tweaked/issues"
+displayURL="https://github.com/cc-tweaked/CC-Tweaked"
 logoFile="pack.png"
 
 credits="Created by Daniel Ratcliffe (@DanTwoHundred)"

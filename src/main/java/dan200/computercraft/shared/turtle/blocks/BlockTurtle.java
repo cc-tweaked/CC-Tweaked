@@ -47,7 +47,8 @@ import net.minecraftforge.fmllegacy.RegistryObject;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static dan200.computercraft.shared.util.WaterloggableHelpers.*;
+import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
+import static dan200.computercraft.shared.util.WaterloggableHelpers.getFluidStateForPlacement;
 
 public class BlockTurtle extends BlockComputerBase<TileTurtle> implements SimpleWaterloggedBlock
 {

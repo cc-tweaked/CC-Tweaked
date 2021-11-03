@@ -18,7 +18,7 @@
     (title "CC: Tweaked")
     (logo src/main/resources/pack.png)
     (url https://tweaked.cc/)
-    (source-link https://github.com/SquidDev-CC/CC-Tweaked/blob/${commit}/${path}#L${line})
+    (source-link https://github.com/cc-tweaked/CC-Tweaked/blob/${commit}/${path}#L${line})
 
     (styles src/web/styles.css)
     (scripts build/rollup/index.js)
@@ -71,6 +71,7 @@
       :max
       _CC_DEFAULT_SETTINGS
       _CC_DISABLE_LUA51_FEATURES
+      _HOST
       ;; Ideally we'd pick these up from bios.lua, but illuaminate currently
       ;; isn't smart enough.
       sleep write printError read rs)))

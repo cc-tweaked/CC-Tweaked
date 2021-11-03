@@ -341,6 +341,7 @@ public final class Config
         ComputerCraft.httpMaxRequests = httpMaxRequests.get();
         ComputerCraft.httpMaxWebsockets = httpMaxWebsockets.get();
         ComputerCraft.httpDownloadBandwidth = httpDownloadBandwidth.get();
+        ComputerCraft.httpUploadBandwidth = httpUploadBandwidth.get();
         NetworkUtils.reloadConfig();
 
         // Peripheral

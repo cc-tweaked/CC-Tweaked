@@ -6,7 +6,6 @@
 package dan200.computercraft.data;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.data.Tags.CCTags;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.TurtleUpgrades;
@@ -40,9 +39,12 @@ import javax.annotation.Nonnull;
 import java.util.Locale;
 import java.util.function.Consumer;
 
-public class Recipes extends RecipeProvider
+import static dan200.computercraft.shared.ComputerCraftTags.Items.COMPUTER;
+import static dan200.computercraft.shared.ComputerCraftTags.Items.WIRED_MODEM;
+
+public class RecipeGenerator extends RecipeProvider
 {
-    public Recipes( DataGenerator generator )
+    public RecipeGenerator( DataGenerator generator )
     {
         super( generator );
     }
@@ -105,8 +107,8 @@ public class Recipes extends RecipeProvider
                     .shaped( result.getItem() )
                     .group( String.format( "%s:turtle_%s", ComputerCraft.MOD_ID, nameId ) )
                     .pattern( "#T" )
-                    .define( '#', base.getItem() )
-                    .define( 'T', upgrade.getCraftingItem().getItem() )
+                    .define( 'T', base.getItem() )
+                    .define( '#', upgrade.getCraftingItem().getItem() )
                     .unlockedBy( "has_items",
                         inventoryChange( base.getItem(), upgrade.getCraftingItem().getItem() ) )
                     .save(
@@ -134,14 +136,14 @@ public class Recipes extends RecipeProvider
             String nameId = family.name().toLowerCase( Locale.ROOT );
 
             PocketUpgrades.getVanillaUpgrades().forEach( upgrade -> {
-                ItemStack result = PocketComputerItemFactory.create( -1, null, -1, family, null );
+                ItemStack result = PocketComputerItemFactory.create( -1, null, -1, family, upgrade );
                 ShapedRecipeBuilder
                     .shaped( result.getItem() )
                     .group( String.format( "%s:pocket_%s", ComputerCraft.MOD_ID, nameId ) )
                     .pattern( "#" )
                     .pattern( "P" )
-                    .define( '#', base.getItem() )
-                    .define( 'P', upgrade.getCraftingItem().getItem() )
+                    .define( 'P', base.getItem() )
+                    .define( '#', upgrade.getCraftingItem().getItem() )
                     .unlockedBy( "has_items",
                         inventoryChange( base.getItem(), upgrade.getCraftingItem().getItem() ) )
                     .save(
@@ -163,8 +165,8 @@ public class Recipes extends RecipeProvider
             .pattern( " # " )
             .define( '#', Tags.Items.STONE )
             .define( 'R', Tags.Items.DUSTS_REDSTONE )
-            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
-            .unlockedBy( "has_modem", inventoryChange( CCTags.COMPUTER ) )
+            .unlockedBy( "has_computer", inventoryChange( COMPUTER ) )
+            .unlockedBy( "has_modem", inventoryChange( WIRED_MODEM ) )
             .save( add );
 
         ShapedRecipeBuilder
@@ -207,7 +209,7 @@ public class Recipes extends RecipeProvider
             .pattern( "#R#" )
             .define( '#', Tags.Items.STONE )
             .define( 'R', Tags.Items.DUSTS_REDSTONE )
-            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .unlockedBy( "has_computer", inventoryChange( COMPUTER ) )
             .save( add );
 
         ShapedRecipeBuilder
@@ -217,7 +219,7 @@ public class Recipes extends RecipeProvider
             .pattern( "###" )
             .define( '#', Tags.Items.STONE )
             .define( 'G', Tags.Items.GLASS_PANES )
-            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .unlockedBy( "has_computer", inventoryChange( COMPUTER ) )
             .save( add );
 
         ShapedRecipeBuilder
@@ -227,7 +229,7 @@ public class Recipes extends RecipeProvider
             .pattern( "###" )
             .define( '#', Tags.Items.INGOTS_GOLD )
             .define( 'G', Tags.Items.GLASS_PANES )
-            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .unlockedBy( "has_computer", inventoryChange( COMPUTER ) )
             .save( add );
 
         ShapedRecipeBuilder
@@ -238,7 +240,7 @@ public class Recipes extends RecipeProvider
             .define( '#', Tags.Items.STONE )
             .define( 'A', Items.GOLDEN_APPLE )
             .define( 'G', Tags.Items.GLASS_PANES )
-            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .unlockedBy( "has_computer", inventoryChange( COMPUTER ) )
             .unlockedBy( "has_apple", inventoryChange( Items.GOLDEN_APPLE ) )
             .save( add );
 
@@ -250,7 +252,7 @@ public class Recipes extends RecipeProvider
             .define( '#', Tags.Items.INGOTS_GOLD )
             .define( 'A', Items.GOLDEN_APPLE )
             .define( 'G', Tags.Items.GLASS_PANES )
-            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .unlockedBy( "has_computer", inventoryChange( COMPUTER ) )
             .unlockedBy( "has_apple", inventoryChange( Items.GOLDEN_APPLE ) )
             .save( add );
 
@@ -262,7 +264,7 @@ public class Recipes extends RecipeProvider
             .define( '#', Tags.Items.STONE )
             .define( 'R', Tags.Items.DUSTS_REDSTONE )
             .define( 'D', Tags.Items.DYES )
-            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .unlockedBy( "has_computer", inventoryChange( COMPUTER ) )
             .save( add );
 
         ShapedRecipeBuilder
@@ -273,7 +275,7 @@ public class Recipes extends RecipeProvider
             .define( '#', Tags.Items.STONE )
             .define( 'N', Blocks.NOTE_BLOCK )
             .define( 'R', Tags.Items.DUSTS_REDSTONE )
-            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .unlockedBy( "has_computer", inventoryChange( COMPUTER ) )
             .save( add );
 
         ShapedRecipeBuilder
@@ -283,19 +285,19 @@ public class Recipes extends RecipeProvider
             .pattern( "###" )
             .define( '#', Tags.Items.STONE )
             .define( 'R', Tags.Items.DUSTS_REDSTONE )
-            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .unlockedBy( "has_computer", inventoryChange( COMPUTER ) )
             .unlockedBy( "has_cable", inventoryChange( Registry.ModItems.CABLE.get() ) )
             .save( add );
 
         ShapelessRecipeBuilder
             .shapeless( Registry.ModBlocks.WIRED_MODEM_FULL.get() )
             .requires( Registry.ModItems.WIRED_MODEM.get() )
-            .unlockedBy( "has_modem", inventoryChange( CCTags.WIRED_MODEM ) )
+            .unlockedBy( "has_modem", inventoryChange( WIRED_MODEM ) )
             .save( add, new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full_from" ) );
         ShapelessRecipeBuilder
             .shapeless( Registry.ModItems.WIRED_MODEM.get() )
             .requires( Registry.ModBlocks.WIRED_MODEM_FULL.get() )
-            .unlockedBy( "has_modem", inventoryChange( CCTags.WIRED_MODEM ) )
+            .unlockedBy( "has_modem", inventoryChange( WIRED_MODEM ) )
             .save( add, new ResourceLocation( ComputerCraft.MOD_ID, "wired_modem_full_to" ) );
 
         ShapedRecipeBuilder
@@ -305,7 +307,7 @@ public class Recipes extends RecipeProvider
             .pattern( "###" )
             .define( '#', Tags.Items.STONE )
             .define( 'E', Tags.Items.ENDER_PEARLS )
-            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .unlockedBy( "has_computer", inventoryChange( COMPUTER ) )
             .save( add );
 
         ShapedRecipeBuilder
@@ -315,7 +317,7 @@ public class Recipes extends RecipeProvider
             .pattern( "###" )
             .define( '#', Tags.Items.INGOTS_GOLD )
             .define( 'E', Items.ENDER_EYE )
-            .unlockedBy( "has_computer", inventoryChange( CCTags.COMPUTER ) )
+            .unlockedBy( "has_computer", inventoryChange( COMPUTER ) )
             .unlockedBy( "has_wireless", inventoryChange( Registry.ModBlocks.WIRELESS_MODEM_NORMAL.get() ) )
             .save( add );
 

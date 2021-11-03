@@ -35,7 +35,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.EnumMap;
 
-import static dan200.computercraft.shared.util.WaterloggableHelpers.*;
+import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
+import static dan200.computercraft.shared.util.WaterloggableHelpers.getFluidStateForPlacement;
 
 public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock
 {

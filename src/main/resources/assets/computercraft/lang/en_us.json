@@ -40,7 +40,7 @@
     "chat.computercraft.wired_modem.peripheral_connected": "Peripheral \"%s\" connected to network",
     "chat.computercraft.wired_modem.peripheral_disconnected": "Peripheral \"%s\" disconnected from network",
     "commands.computercraft.synopsis": "Various commands for controlling computers.",
-    "commands.computercraft.desc": "The /computercraft command provides various debugging and administrator tools for controlling and  interacting with computers.",
+    "commands.computercraft.desc": "The /computercraft command provides various debugging and administrator tools for controlling and interacting with computers.",
     "commands.computercraft.help.synopsis": "Provide help for a specific command",
     "commands.computercraft.help.desc": "Displays this help message",
     "commands.computercraft.help.no_children": "%s has no sub-commands",

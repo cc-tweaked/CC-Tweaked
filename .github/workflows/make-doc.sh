@@ -13,7 +13,7 @@ chmod 600 "$HOME/.ssh/key"
 # And upload
 rsync -avc -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no -p $SSH_PORT" \
       "$GITHUB_WORKSPACE/build/docs/lua/" \
-      "$SSH_USER@$SSH_HOST:/var/www/tweaked.cc/$DEST"
+      "$SSH_USER@$SSH_HOST:/$DEST"
 rsync -avc -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no -p $SSH_PORT" \
       "$GITHUB_WORKSPACE/build/docs/javadoc/" \
-      "$SSH_USER@$SSH_HOST:/var/www/tweaked.cc/$DEST/javadoc"
+      "$SSH_USER@$SSH_HOST:/$DEST/javadoc"

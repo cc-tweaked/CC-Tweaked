@@ -9,12 +9,10 @@ import dan200.computercraft.client.SoundManager;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fmllegacy.network.NetworkEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
@@ -68,7 +66,6 @@ public class SpeakerPlayClientMessage implements NetworkMessage
     @OnlyIn( Dist.CLIENT )
     public void handle( NetworkEvent.Context context )
     {
-        SoundEvent sound = ForgeRegistries.SOUND_EVENTS.getValue( this.sound );
-        if( sound != null ) SoundManager.playSound( source, pos, sound, volume, pitch );
+        SoundManager.playSound( source, pos, sound, volume, pitch );
     }
 }

@@ -13,7 +13,7 @@ class Turtle_Test {
     /**
      * Checks turtles can sheer sheep (and drop items)
      *
-     * @see [#537](https://github.com/SquidDev-CC/CC-Tweaked/issues/537)
+     * @see [#537](https://github.com/cc-tweaked/CC-Tweaked/issues/537)
      */
     @GameTest(timeoutTicks = COMPUTER_TIMEOUT)
     fun Shears_sheep(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
@@ -21,7 +21,7 @@ class Turtle_Test {
     /**
      * Checks turtles can place lava.
      *
-     * @see [#518](https://github.com/SquidDev-CC/CC-Tweaked/issues/518)
+     * @see [#518](https://github.com/cc-tweaked/CC-Tweaked/issues/518)
      */
     @GameTest(timeoutTicks = COMPUTER_TIMEOUT)
     fun Place_lava(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
@@ -29,7 +29,7 @@ class Turtle_Test {
     /**
      * Checks turtles can place when waterlogged.
      *
-     * @see [#385](https://github.com/SquidDev-CC/CC-Tweaked/issues/385)
+     * @see [#385](https://github.com/cc-tweaked/CC-Tweaked/issues/385)
      */
     @GameTest(timeoutTicks = COMPUTER_TIMEOUT)
     fun Place_waterlogged(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
@@ -37,7 +37,7 @@ class Turtle_Test {
     /**
      * Checks turtles can pick up lava
      *
-     * @see [#297](https://github.com/SquidDev-CC/CC-Tweaked/issues/297)
+     * @see [#297](https://github.com/cc-tweaked/CC-Tweaked/issues/297)
      */
     @GameTest(timeoutTicks = COMPUTER_TIMEOUT)
     fun Gather_lava(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
@@ -45,7 +45,7 @@ class Turtle_Test {
     /**
      * Checks turtles can hoe dirt.
      *
-     * @see [#258](https://github.com/SquidDev-CC/CC-Tweaked/issues/258)
+     * @see [#258](https://github.com/cc-tweaked/CC-Tweaked/issues/258)
      */
     @GameTest(timeoutTicks = COMPUTER_TIMEOUT)
     fun Hoe_dirt(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
@@ -53,7 +53,7 @@ class Turtle_Test {
     /**
      * Checks turtles can place monitors
      *
-     * @see [#691](https://github.com/SquidDev-CC/CC-Tweaked/issues/691)
+     * @see [#691](https://github.com/cc-tweaked/CC-Tweaked/issues/691)
      */
     @GameTest(timeoutTicks = COMPUTER_TIMEOUT)
     fun Place_monitor(helper: GameTestHelper) = helper.sequence { thenComputerOk() }

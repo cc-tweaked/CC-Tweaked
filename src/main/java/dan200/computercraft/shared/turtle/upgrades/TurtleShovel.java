@@ -9,6 +9,7 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleVerb;
+import dan200.computercraft.shared.ComputerCraftTags;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import net.minecraft.core.BlockPos;
@@ -18,7 +19,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
 
 import javax.annotation.Nonnull;
 
@@ -40,21 +40,14 @@ public class TurtleShovel extends TurtleTool
     }
 
     @Override
-    protected boolean canBreakBlock( BlockState state, Level world, BlockPos pos, TurtlePlayer player )
+    protected TurtleCommandResult checkBlockBreakable( BlockState state, Level world, BlockPos pos, TurtlePlayer player )
     {
-        if( !super.canBreakBlock( state, world, pos, player ) ) return false;
+        TurtleCommandResult result = super.checkBlockBreakable( state, world, pos, player );
+        if( !result.isSuccess() ) return result;
 
-        Material material = state.getMaterial();
-        return material == Material.DIRT ||
-            material == Material.SAND ||
-            material == Material.TOP_SNOW ||
-            material == Material.CLAY ||
-            material == Material.SNOW ||
-            material == Material.PLANT ||
-            material == Material.CACTUS ||
-            material == Material.VEGETABLE ||
-            material == Material.LEAVES ||
-            material == Material.REPLACEABLE_PLANT;
+        return state.is( ComputerCraftTags.Blocks.TURTLE_SHOVEL_BREAKABLE )
+            || isTriviallyBreakable( world, pos, state )
+            ? result : INEFFECTIVE;
     }
 
     @Nonnull
