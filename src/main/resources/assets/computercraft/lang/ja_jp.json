@@ -127,5 +127,9 @@
     "gui.computercraft.tooltip.turn_off": "このコンピュータをオフにする",
     "gui.computercraft.upload.success.msg": "%d個のファイルがアップロードされました。",
     "gui.computercraft.upload.failed.computer_off": "ファイルをアップロードする前にコンピュータを起動する必要があります。",
-    "gui.computercraft.upload.overwrite.detail": "アップロード時に次のファイルが上書きされます。継続しますか？%s"
+    "gui.computercraft.upload.overwrite.detail": "アップロード時に次のファイルが上書きされます。継続しますか？%s",
+    "gui.computercraft.upload.failed.name_too_long": "ファイル名が長すぎてアップロードできません。",
+    "gui.computercraft.upload.failed.too_many_files": "多くのファイルをアップロードできません。",
+    "gui.computercraft.upload.failed.corrupted": "アップロード時にファイルが破損しました。 もう一度やり直してください。",
+    "gui.computercraft.pocket_computer_overlay": "ポケットコンピュータを開いています。 ESCを押して閉じます。"
 }
