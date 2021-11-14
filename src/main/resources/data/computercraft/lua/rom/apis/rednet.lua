@@ -403,10 +403,11 @@ function run()
         if sEvent == "modem_message" then
             -- Got a modem message, process it and add it to the rednet event queue
             local sModem, nChannel, nReplyChannel, tMessage = p1, p2, p3, p4
-            if isOpen(sModem) and (nChannel == id_as_channel() or nChannel == CHANNEL_BROADCAST) then
+            if nChannel == id_as_channel() or nChannel == CHANNEL_BROADCAST then
                 if type(tMessage) == "table" and type(tMessage.nMessageID) == "number"
                     and tMessage.nMessageID == tMessage.nMessageID and not tReceivedMessages[tMessage.nMessageID]
                     and ((tMessage.nRecipient and tMessage.nRecipient == os.getComputerID()) or nChannel == CHANNEL_BROADCAST)
+                    and isOpen(sModem)
                 then
                     tReceivedMessages[tMessage.nMessageID] = os.clock() + 9.5
                     if not nClearTimer then nClearTimer = os.startTimer(10) end
