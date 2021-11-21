@@ -1,16 +1,14 @@
 /*
- * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
- * Send enquiries to dratcliffe@gmail.com
+ * This file is part of the public ComputerCraft API - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
+ * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-package dan200.computercraft.core.asm;
-
-import dan200.computercraft.api.lua.*;
+package dan200.computercraft.api.lua;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 
-public final class TaskCallback implements ILuaCallback
+final class TaskCallback implements ILuaCallback
 {
     private final MethodResult pull = MethodResult.pullEvent( "task_complete", this );
     private final long task;
@@ -47,19 +45,7 @@ public final class TaskCallback implements ILuaCallback
         }
     }
 
-    static Object[] checkUnwrap( MethodResult result )
-    {
-        if( result.getCallback() != null )
-        {
-            // Due to how tasks are implemented, we can't currently return a MethodResult. This is an
-            // entirely artificial limitation - we can remove it if it ever becomes an issue.
-            throw new IllegalStateException( "Cannot return MethodResult for mainThread task." );
-        }
-
-        return result.getResult();
-    }
-
-    public static MethodResult make( ILuaContext context, ILuaTask func ) throws LuaException
+    static MethodResult make( ILuaContext context, ILuaTask func ) throws LuaException
     {
         long task = context.issueMainThreadTask( func );
         return new TaskCallback( task ).pull;

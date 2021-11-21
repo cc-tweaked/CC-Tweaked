@@ -26,7 +26,7 @@ public class BasicCustomLoader<T extends ModelBuilder<T>> extends CustomLoaderBu
 
     public static <T extends ModelBuilder<T>> BiFunction<T, ExistingFileHelper, CustomLoaderBuilder<T>> makeFactory( ResourceLocation id )
     {
-        return makeFactory( id, j -> { } );
+        return makeFactory( id, j -> {} );
     }
 
     public static <T extends ModelBuilder<T>> BiFunction<T, ExistingFileHelper, CustomLoaderBuilder<T>> makeFactory( ResourceLocation id, Consumer<JsonObject> extra )
