@@ -33,6 +33,7 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -324,7 +325,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
             }
         }
         signTile.setChanged();
-        world.sendBlockUpdated( tile.getBlockPos(), tile.getBlockState(), tile.getBlockState(), 3 );
+        world.sendBlockUpdated( tile.getBlockPos(), tile.getBlockState(), tile.getBlockState(), Constants.BlockFlags.DEFAULT );
     }
 
     private static class ErrorMessage

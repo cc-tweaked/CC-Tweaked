@@ -16,6 +16,7 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
 
@@ -35,7 +36,7 @@ public abstract class TileGeneric extends TileEntity
         setChanged();
         BlockPos pos = getBlockPos();
         BlockState state = getBlockState();
-        getLevel().sendBlockUpdated( pos, state, state, 3 );
+        getLevel().sendBlockUpdated( pos, state, state, Constants.BlockFlags.DEFAULT );
     }
 
     @Nonnull
