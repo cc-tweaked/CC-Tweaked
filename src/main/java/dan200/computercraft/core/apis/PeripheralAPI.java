@@ -17,6 +17,7 @@ import dan200.computercraft.core.asm.NamedMethod;
 import dan200.computercraft.core.asm.PeripheralMethod;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.tracking.TrackingField;
+import dan200.computercraft.shared.util.LuaUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -36,6 +37,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         private final IPeripheral peripheral;
 
         private final String type;
+        private final Set<String> additionalTypes;
         private final Map<String, PeripheralMethod> methodMap;
         private boolean attached;
 
@@ -47,6 +49,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             attached = false;
 
             type = Objects.requireNonNull( peripheral.getType(), "Peripheral type cannot be null" );
+            additionalTypes = peripheral.getAdditionalTypes();
 
             methodMap = PeripheralAPI.getMethods( peripheral );
         }
@@ -59,6 +62,11 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         public String getType()
         {
             return type;
+        }
+
+        public Set<String> getAdditionalTypes()
+        {
+            return additionalTypes;
         }
 
         public Collection<String> getMethods()
@@ -298,7 +306,23 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         synchronized( peripherals )
         {
             PeripheralWrapper p = peripherals[side.ordinal()];
-            if( p != null ) return new Object[] { p.getType() };
+            return p == null ? null : LuaUtil.consArray( p.getType(), p.getAdditionalTypes() );
+        }
+    }
+
+    @LuaFunction
+    public final Object[] hasType( String sideName, String type )
+    {
+        ComputerSide side = ComputerSide.valueOfInsensitive( sideName );
+        if( side == null ) return null;
+
+        synchronized( peripherals )
+        {
+            PeripheralWrapper p = peripherals[side.ordinal()];
+            if( p != null )
+            {
+                return new Object[] { p.getType().equals( type ) || p.getAdditionalTypes().contains( type ) };
+            }
         }
         return null;
     }
