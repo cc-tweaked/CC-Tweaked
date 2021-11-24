@@ -8,6 +8,7 @@ package dan200.computercraft.shared;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.computer.MainThread;
+import dan200.computercraft.core.filesystem.ResourceMount;
 import dan200.computercraft.core.tracking.ComputerMBean;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.command.CommandComputerCraft;
@@ -23,6 +24,7 @@ import net.minecraft.loot.TableLootEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
@@ -137,5 +139,11 @@ public final class CommonHooks
             .setRolls( ConstantRange.exactly( 1 ) )
             .name( "computercraft_treasure" )
             .build() );
+    }
+
+    @SubscribeEvent
+    public static void onAddReloadListeners( AddReloadListenerEvent event )
+    {
+        event.addListener( ResourceMount.RELOAD_LISTENER );
     }
 }
