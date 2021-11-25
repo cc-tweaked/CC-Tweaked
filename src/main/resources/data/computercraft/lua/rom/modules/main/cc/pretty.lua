@@ -488,7 +488,7 @@ local function prettyPrint(obj, options, ribbon_frac)
     expect(2, options, "table", "nil")
     options = options or {}
     expect(3, ribbon_frac, "number", "nil")
-    
+
     return print(pretty(obj, options), ribbon_frac)
 end
 
