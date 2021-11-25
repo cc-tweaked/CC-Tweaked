@@ -484,9 +484,9 @@ end
 -- @tparam[opt] number  ribbon_frac The maximum fraction of the width that we should write in.
 -- @see pretty
 -- @see print
-local function prettyPrint(obj, options, ribbon_frac)    
+local function prettyPrint(obj, options, ribbon_frac)
     expect(2, options, "table", "nil")
-    options = options or {}    
+    options = options or {}
     expect(3, ribbon_frac, "number", "nil")
     
     return print(pretty(obj, options), ribbon_frac)
