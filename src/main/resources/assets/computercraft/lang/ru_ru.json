@@ -123,12 +123,12 @@
     "gui.computercraft.upload.failed.out_of_space": "Недостаточно места в компьютере для этих файлов.",
     "gui.computercraft.upload.failed.computer_off": "Ты должен включить компьютер перед загрузой файлов.",
     "gui.computercraft.upload.failed.too_much": "Твои файлы слишком большие для загрузки.",
-    "gui.computercraft.upload.failed.overwrite_dir": "Нельзя загрузить %s, поскольку папка с таким же названием уже существует.",
-    "gui.computercraft.upload.failed.generic": "Загрузка файлов не удалась (%s)",
-    "gui.computercraft.upload.overwrite": "Файлы будут перезаписаны",
-    "gui.computercraft.upload.overwrite.detail": "При загрузке следующие файлы будут перезаписаны. Продолжить?%s",
-    "gui.computercraft.upload.overwrite_button": "Перезаписать",
     "gui.computercraft.upload.failed.name_too_long": "Названия файлов слишком длинны для загрузки.",
     "gui.computercraft.upload.failed.too_many_files": "Нельзя загрузить столько файлов.",
-    "gui.computercraft.upload.failed.corrupted": "Файлы повреждены при загрузки. Попробуй снова."
+    "gui.computercraft.upload.failed.overwrite_dir": "Нельзя загрузить %s, поскольку папка с таким же названием уже существует.",
+    "gui.computercraft.upload.failed.generic": "Загрузка файлов не удалась (%s)",
+    "gui.computercraft.upload.failed.corrupted": "Файлы повреждены при загрузки. Попробуй снова.",
+    "gui.computercraft.upload.overwrite": "Файлы будут перезаписаны",
+    "gui.computercraft.upload.overwrite.detail": "При загрузке следующие файлы будут перезаписаны. Продолжить?%s",
+    "gui.computercraft.upload.overwrite_button": "Перезаписать"
 }

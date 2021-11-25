@@ -15,12 +15,16 @@ import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
 /**
@@ -187,22 +191,24 @@ public class CommandAPI implements ILuaAPI
      * Blocks are traversed by ascending y level, followed by z and x - the returned
      * table may be indexed using `x + z*width + y*depth*depth`.
      *
-     * @param minX The start x coordinate of the range to query.
-     * @param minY The start y coordinate of the range to query.
-     * @param minZ The start z coordinate of the range to query.
-     * @param maxX The end x coordinate of the range to query.
-     * @param maxY The end y coordinate of the range to query.
-     * @param maxZ The end z coordinate of the range to query.
+     * @param minX      The start x coordinate of the range to query.
+     * @param minY      The start y coordinate of the range to query.
+     * @param minZ      The start z coordinate of the range to query.
+     * @param maxX      The end x coordinate of the range to query.
+     * @param maxY      The end y coordinate of the range to query.
+     * @param maxZ      The end z coordinate of the range to query.
+     * @param dimension The dimension to query (e.g. "minecraft:overworld"). Defaults to the current dimension.
      * @return A list of information about each block.
      * @throws LuaException If the coordinates are not within the world.
      * @throws LuaException If trying to get information about more than 4096 blocks.
      * @cc.since 1.76
+     * @cc.changed 1.99 Added {@code dimension} argument.
      */
     @LuaFunction( mainThread = true )
-    public final List<Map<?, ?>> getBlockInfos( int minX, int minY, int minZ, int maxX, int maxY, int maxZ ) throws LuaException
+    public final List<Map<?, ?>> getBlockInfos( int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Optional<String> dimension ) throws LuaException
     {
         // Get the details of the block
-        Level world = computer.getLevel();
+        Level world = getLevel( dimension );
         BlockPos min = new BlockPos(
             Math.min( minX, maxX ),
             Math.min( minY, maxY ),
@@ -244,26 +250,38 @@ public class CommandAPI implements ILuaAPI
      * with @{turtle.inspect}). If there is a tile entity for that block, its NBT
      * will also be returned.
      *
-     * @param x The x position of the block to query.
-     * @param y The y position of the block to query.
-     * @param z The z position of the block to query.
+     * @param x         The x position of the block to query.
+     * @param y         The y position of the block to query.
+     * @param z         The z position of the block to query.
+     * @param dimension The dimension to query (e.g. "minecraft:overworld"). Defaults to the current dimension.
      * @return The given block's information.
      * @throws LuaException If the coordinates are not within the world, or are not currently loaded.
      * @cc.changed 1.76 Added block state info to return value
+     * @cc.changed 1.99 Added {@code dimension} argument.
      */
     @LuaFunction( mainThread = true )
-    public final Map<?, ?> getBlockInfo( int x, int y, int z ) throws LuaException
+    public final Map<?, ?> getBlockInfo( int x, int y, int z, Optional<String> dimension ) throws LuaException
     {
-        // Get the details of the block
-        Level world = computer.getLevel();
+        Level level = getLevel( dimension );
         BlockPos position = new BlockPos( x, y, z );
-        if( world != null && world.isInWorldBounds( position ) )
-        {
-            return getBlockInfo( world, position );
-        }
-        else
-        {
-            throw new LuaException( "Co-ordinates out of range" );
-        }
+        if( !level.isInWorldBounds( position ) ) throw new LuaException( "Co-ordinates out of range" );
+        return getBlockInfo( level, position );
+    }
+
+    @Nonnull
+    private Level getLevel( @Nonnull Optional<String> id ) throws LuaException
+    {
+        Level currentLevel = computer.getLevel();
+        if( currentLevel == null ) throw new LuaException( "No world exists" );
+
+        if( !id.isPresent() ) return currentLevel;
+
+        ResourceLocation dimensionId = ResourceLocation.tryParse( id.get() );
+        if( dimensionId == null ) throw new LuaException( "Invalid dimension name" );
+
+        Level level = currentLevel.getServer().getLevel( ResourceKey.create( Registry.DIMENSION_REGISTRY, dimensionId ) );
+        if( level == null ) throw new LuaException( "Unknown dimension" );
+
+        return level;
     }
 }

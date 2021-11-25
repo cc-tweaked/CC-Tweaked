@@ -11,7 +11,6 @@ import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.core.apis.IAPIEnvironment;
-import dan200.computercraft.core.asm.TaskCallback;
 import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
@@ -767,7 +766,7 @@ public class TurtleAPI implements ILuaAPI
     {
         int actualSlot = checkSlot( slot ).orElse( turtle.getSelectedSlot() );
         return detailed.orElse( false )
-            ? TaskCallback.make( context, () -> getItemDetail( actualSlot, true ) )
+            ? context.executeMainThreadTask( () -> getItemDetail( actualSlot, true ) )
             : MethodResult.of( getItemDetail( actualSlot, false ) );
     }
 

@@ -124,7 +124,7 @@ public class GeneratorTest
     {
         @LuaFunction
         public final void go()
-        { }
+        {}
     }
 
     public static class Basic2 extends Basic
@@ -139,14 +139,14 @@ public class GeneratorTest
     {
         @LuaFunction
         public final void go()
-        { }
+        {}
     }
 
     public static class NonInstance
     {
         @LuaFunction
         public static void go()
-        { }
+        {}
     }
 
     public static class IllegalThrows
@@ -162,42 +162,42 @@ public class GeneratorTest
     {
         @LuaFunction( { "go1", "go2" } )
         public final void go()
-        { }
+        {}
     }
 
     public static class ArgKinds
     {
         @LuaFunction
         public final void objectArg( Object arg )
-        { }
+        {}
 
         @LuaFunction
         public final void intArg( int arg )
-        { }
+        {}
 
         @LuaFunction
         public final void optIntArg( Optional<Integer> arg )
-        { }
+        {}
 
         @LuaFunction
         public final void context( ILuaContext arg )
-        { }
+        {}
 
         @LuaFunction
         public final void arguments( IArguments arg )
-        { }
+        {}
 
         @LuaFunction
         public final void unknown( IComputerAccess arg )
-        { }
+        {}
 
         @LuaFunction
         public final void illegalMap( Map<String, Integer> arg )
-        { }
+        {}
 
         @LuaFunction
         public final void optIllegalMap( Optional<Map<String, Integer>> arg )
-        { }
+        {}
     }
 
     public static class EnumMethods
@@ -219,7 +219,7 @@ public class GeneratorTest
     {
         @LuaFunction( mainThread = true )
         public final void go()
-        { }
+        {}
     }
 
     private static <T> T find( Collection<NamedMethod<T>> methods, String name )
@@ -255,13 +255,6 @@ public class GeneratorTest
         public long issueMainThreadTask( @Nonnull ILuaTask task )
         {
             return 0;
-        }
-
-        @Nonnull
-        @Override
-        public MethodResult executeMainThreadTask( @Nonnull ILuaTask task ) throws LuaException
-        {
-            return TaskCallback.make( this, task );
         }
     };
 }

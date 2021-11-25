@@ -57,7 +57,7 @@ class Monitor_Test {
                 val monitor = helper.getBlockEntity(BlockPos(2, 2, 3), Registry.ModBlockEntities.MONITOR_ADVANCED.get())
                 monitor.getCapability(Capabilities.CAPABILITY_PERIPHERAL)
 
-                val terminal = monitor.cachedServerMonitor.terminal
+                val terminal = monitor.cachedServerMonitor!!.terminal
                 terminal.write("Hello, world!")
                 terminal.setCursorPos(1, 2)
                 terminal.textColour = 2

@@ -40,5 +40,8 @@ public interface ILuaContext
      * @throws LuaException If the task could not be queued, or if the task threw an exception.
      */
     @Nonnull
-    MethodResult executeMainThreadTask( @Nonnull ILuaTask task ) throws LuaException;
+    default MethodResult executeMainThreadTask( @Nonnull ILuaTask task ) throws LuaException
+    {
+        return TaskCallback.make( this, task );
+    }
 }

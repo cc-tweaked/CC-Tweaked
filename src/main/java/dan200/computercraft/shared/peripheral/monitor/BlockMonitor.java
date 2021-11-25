@@ -92,7 +92,7 @@ public class BlockMonitor extends BlockGeneric
                 return;
             }
 
-            monitor.updateNeighbors();
+            monitor.expand();
         }
     }
 }

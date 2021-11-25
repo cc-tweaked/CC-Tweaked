@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
 
@@ -35,7 +36,7 @@ public abstract class TileGeneric extends BlockEntity
         setChanged();
         BlockPos pos = getBlockPos();
         BlockState state = getBlockState();
-        getLevel().sendBlockUpdated( pos, state, state, 3 );
+        getLevel().sendBlockUpdated( pos, state, state, Constants.BlockFlags.DEFAULT );
     }
 
     @Nonnull
