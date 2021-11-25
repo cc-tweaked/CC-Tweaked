@@ -442,6 +442,17 @@ local function pretty(obj, options)
     return pretty_impl(obj, actual_options, {})
 end
 
+--- A shortcut for pretty.print(pretty.pretty(obj, options), ribbon_frac)
+-- @see pretty
+-- @see print
+local function prettyPrint(obj, options, ribbon_frac)    
+    expect(2, options, "table", "nil")
+    options = options or {}    
+    expect(3, ribbon_frac, "number", "nil")
+    
+    return print(pretty(obj))
+end
+
 return {
     empty = empty,
     space = space,
@@ -457,4 +468,6 @@ return {
     render = render,
 
     pretty = pretty,
+    
+    prettyPrint = prettyPrint,
 }
