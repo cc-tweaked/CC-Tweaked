@@ -1,7 +1,28 @@
---- The @{cc.expect} library provides helper functions for verifying that
--- function arguments are well-formed and of the correct type.
---
--- @module cc.expect
+--[[- The @{cc.expect} library provides helper functions for verifying that
+function arguments are well-formed and of the correct type.
+
+@module cc.expect
+@since 1.84.0
+@changed 1.96.0 The module can now be called directly as a function, which wraps around `expect.expect`.
+@usage Define a basic function and check it has the correct arguments.
+
+    local expect = require "cc.expect"
+    local expect, field = expect.expect, expect.field
+
+    local function add_person(name, info)
+        expect(1, name, "string")
+        expect(2, info, "table", "nil")
+
+        if info then
+            print("Got age=", field(info, "age", "number"))
+            print("Got gender=", field(info, "gender", "string", "nil"))
+        end
+    end
+
+    add_person("Anastazja") -- `info' is optional
+    add_person("Kion", { age = 23 }) -- `gender' is optional
+    add_person("Caoimhin", { age = 23, gender = true }) -- error!
+]]
 
 local native_select, native_type = select, type
 
@@ -32,10 +53,8 @@ local function expect(index, value, ...)
 
     -- If we can determine the function name with a high level of confidence, try to include it.
     local name
-    if native_type(debug) == "table" and native_type(debug.getinfo) == "function" then
-        local ok, info = pcall(debug.getinfo, 3, "nS")
-        if ok and info.name and #info.name ~= "" and info.what ~= "C" then name = info.name end
-    end
+    local ok, info = pcall(debug.getinfo, 3, "nS")
+    if ok and info.name and info.name ~= "" and info.what ~= "C" then name = info.name end
 
     local type_names = get_type_names(...)
     if name then
@@ -69,7 +88,35 @@ local function field(tbl, index, ...)
     end
 end
 
-return {
+local function is_nan(num)
+  return num ~= num
+end
+
+--- Expect a number to be within a specific range.
+--
+-- @tparam number num The value to check.
+-- @tparam number min The minimum value, if nil then `-math.huge` is used.
+-- @tparam number max The maximum value, if nil then `math.huge` is used.
+-- @return The given `value`.
+-- @throws If the value is outside of the allowed range.
+-- @since 1.96.0
+local function range(num, min, max)
+  expect(1, num, "number")
+  min = expect(2, min, "number", "nil") or -math.huge
+  max = expect(3, max, "number", "nil") or math.huge
+  if min > max then
+      error("min must be less than or equal to max)", 2)
+  end
+
+  if is_nan(num) or num < min or num > max then
+      error(("number outside of range (expected %s to be within %s and %s)"):format(num, min, max), 3)
+  end
+
+  return num
+end
+
+return setmetatable({
     expect = expect,
     field = field,
-}
+    range = range,
+}, { __call = function(_, ...) return expect(...) end })

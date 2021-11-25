@@ -1,8 +1,8 @@
 modLoader="javafml"
-loaderVersion="[35,36)"
+loaderVersion="[36,37)"
 
-issueTrackerURL="https://github.com/SquidDev-CC/CC-Tweaked/issues"
-displayURL="https://github.com/SquidDev-CC/CC-Tweaked"
+issueTrackerURL="https://github.com/cc-tweaked/CC-Tweaked/issues"
+displayURL="https://github.com/cc-tweaked/CC-Tweaked"
 logoFile="pack.png"
 
 credits="Created by Daniel Ratcliffe (@DanTwoHundred)"
@@ -20,6 +20,6 @@ CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles a
 [[dependencies.computercraft]]
     modId="forge"
     mandatory=true
-    versionRange="[35.0.1,36)"
+    versionRange="[36.1.0,37)"
     ordering="NONE"
     side="BOTH"

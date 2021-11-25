@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.computer;
@@ -93,7 +93,7 @@ public final class MainThread
             executor.updateTime();
 
             // We're not currently on the queue, so update its current execution time to
-            // ensure its at least as high as the minimum.
+            // ensure it's at least as high as the minimum.
             long newRuntime = minimumTime;
 
             // Slow down new computers a little bit.

@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.asm;
 
 import dan200.computercraft.api.lua.*;
@@ -14,7 +13,7 @@ import java.util.Collections;
 public interface LuaMethod
 {
     Generator<LuaMethod> GENERATOR = new Generator<>( LuaMethod.class, Collections.singletonList( ILuaContext.class ),
-        m -> ( target, context, args ) -> TaskCallback.make( context, () -> TaskCallback.checkUnwrap( m.apply( target, context, args ) ) )
+        m -> ( target, context, args ) -> context.executeMainThreadTask( () -> ResultHelpers.checkNormalResult( m.apply( target, context, args ) ) )
     );
 
     IntCache<LuaMethod> DYNAMIC = new IntCache<>(

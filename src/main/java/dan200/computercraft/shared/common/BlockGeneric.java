@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.common;
@@ -36,22 +36,22 @@ public abstract class BlockGeneric extends Block
 
     @Override
     @Deprecated
-    public final void onReplaced( @Nonnull BlockState block, @Nonnull World world, @Nonnull BlockPos pos, BlockState replace, boolean bool )
+    public final void onRemove( @Nonnull BlockState block, @Nonnull World world, @Nonnull BlockPos pos, BlockState replace, boolean bool )
     {
         if( block.getBlock() == replace.getBlock() ) return;
 
-        TileEntity tile = world.getTileEntity( pos );
-        super.onReplaced( block, world, pos, replace, bool );
-        world.removeTileEntity( pos );
+        TileEntity tile = world.getBlockEntity( pos );
+        super.onRemove( block, world, pos, replace, bool );
+        world.removeBlockEntity( pos );
         if( tile instanceof TileGeneric ) ((TileGeneric) tile).destroy();
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public final ActionResultType onBlockActivated( @Nonnull BlockState state, World world, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand hand, @Nonnull BlockRayTraceResult hit )
+    public final ActionResultType use( @Nonnull BlockState state, World world, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand hand, @Nonnull BlockRayTraceResult hit )
     {
-        TileEntity tile = world.getTileEntity( pos );
+        TileEntity tile = world.getBlockEntity( pos );
         return tile instanceof TileGeneric ? ((TileGeneric) tile).onActivate( player, hand, hit ) : ActionResultType.PASS;
     }
 
@@ -59,14 +59,14 @@ public abstract class BlockGeneric extends Block
     @Deprecated
     public final void neighborChanged( @Nonnull BlockState state, World world, @Nonnull BlockPos pos, @Nonnull Block neighbourBlock, @Nonnull BlockPos neighbourPos, boolean isMoving )
     {
-        TileEntity tile = world.getTileEntity( pos );
+        TileEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileGeneric ) ((TileGeneric) tile).onNeighbourChange( neighbourPos );
     }
 
     @Override
     public final void onNeighborChange( BlockState state, IWorldReader world, BlockPos pos, BlockPos neighbour )
     {
-        TileEntity tile = world.getTileEntity( pos );
+        TileEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileGeneric ) ((TileGeneric) tile).onNeighbourTileEntityChange( neighbour );
     }
 
@@ -74,7 +74,7 @@ public abstract class BlockGeneric extends Block
     @Deprecated
     public void tick( @Nonnull BlockState state, ServerWorld world, @Nonnull BlockPos pos, @Nonnull Random rand )
     {
-        TileEntity te = world.getTileEntity( pos );
+        TileEntity te = world.getBlockEntity( pos );
         if( te instanceof TileGeneric ) ((TileGeneric) te).blockTick();
     }
 

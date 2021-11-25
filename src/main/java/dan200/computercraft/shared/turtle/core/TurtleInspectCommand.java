@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.turtle.core;
@@ -39,7 +39,7 @@ public class TurtleInspectCommand implements ITurtleCommand
         // Check if thing in front is air or not
         World world = turtle.getWorld();
         BlockPos oldPosition = turtle.getPosition();
-        BlockPos newPosition = oldPosition.offset( direction );
+        BlockPos newPosition = oldPosition.relative( direction );
 
         BlockState state = world.getBlockState( newPosition );
         if( state.getBlock().isAir( state, world, newPosition ) )
@@ -50,7 +50,7 @@ public class TurtleInspectCommand implements ITurtleCommand
         Map<String, Object> table = BlockData.fill( new HashMap<>(), state );
 
         // Fire the event, exiting if it is cancelled
-        TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );
+        TurtlePlayer turtlePlayer = TurtlePlayer.getWithPosition( turtle, oldPosition, direction );
         TurtleBlockEvent.Inspect event = new TurtleBlockEvent.Inspect( turtle, turtlePlayer, world, newPosition, state, table );
         if( MinecraftForge.EVENT_BUS.post( event ) ) return TurtleCommandResult.failure( event.getFailureMessage() );
 

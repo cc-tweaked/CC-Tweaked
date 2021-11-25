@@ -47,6 +47,30 @@ else
     stringColour = colours.white
 end
 
+local runHandler = [[multishell.setTitle(multishell.getCurrent(), %q)
+local current = term.current()
+local ok, err = load(%q, %q, nil, _ENV)
+if ok then ok, err = pcall(ok, ...) end
+term.redirect(current)
+term.setTextColor(term.isColour() and colours.yellow or colours.white)
+term.setBackgroundColor(colours.black)
+term.setCursorBlink(false)
+local _, y = term.getCursorPos()
+local _, h = term.getSize()
+if not ok then
+    printError(err)
+end
+if ok and y >= h then
+    term.scroll(1)
+end
+term.setCursorPos(1, h)
+if ok then
+    write("Program finished. ")
+end
+write("Press any key to continue")
+os.pullEvent('key')
+]]
+
 -- Menus
 local bMenu = false
 local nMenuItem = 1
@@ -89,7 +113,7 @@ local function load(_sPath)
     end
 end
 
-local function save(_sPath)
+local function save(_sPath, fWrite)
     -- Create intervening folder
     local sDir = _sPath:sub(1, _sPath:len() - fs.getName(_sPath):len())
     if not fs.exists(sDir) then
@@ -101,8 +125,8 @@ local function save(_sPath)
     local function innerSave()
         file, fileerr = fs.open(_sPath, "w")
         if file then
-            for _, sLine in ipairs(tLines) do
-                file.write(sLine .. "\n")
+            if file then
+                fWrite(file)
             end
         else
             error("Failed to open " .. _sPath)
@@ -293,7 +317,11 @@ local tMenuFuncs = {
         if bReadOnly then
             sStatus = "Access denied"
         else
-            local ok, _, fileerr  = save(sPath)
+            local ok, _, fileerr  = save(sPath, function(file)
+                for _, sLine in ipairs(tLines) do
+                    file.write(sLine .. "\n")
+                end
+            end)
             if ok then
                 sStatus = "Saved to " .. sPath
             else
@@ -390,8 +418,18 @@ local tMenuFuncs = {
         bRunning = false
     end,
     Run = function()
-        local sTempPath = "/.temp"
-        local ok = save(sTempPath)
+        local sTitle = fs.getName(sPath)
+        if sTitle:sub(-4) == ".lua" then
+            sTitle = sTitle:sub(1, -5)
+        end
+        local sTempPath = bReadOnly and ".temp." .. sTitle or fs.combine(fs.getDir(sPath), ".temp." .. sTitle)
+        if fs.exists(sTempPath) then
+            sStatus = "Error saving to " .. sTempPath
+            return
+        end
+        local ok = save(sTempPath, function(file)
+            file.write(runHandler:format(sTitle, table.concat(tLines, "\n"), "@" .. fs.getName(sPath)))
+        end)
         if ok then
             local nTask = shell.openTab(sTempPath)
             if nTask then
@@ -667,8 +705,8 @@ while bRunning do
                 end
             end
 
-        elseif param == keys.enter then
-            -- Enter
+        elseif param == keys.enter or param == keys.numPadEnter then
+            -- Enter/Numpad Enter
             if not bMenu and not bReadOnly then
                 -- Newline
                 local sLine = tLines[y]
@@ -687,7 +725,7 @@ while bRunning do
 
             end
 
-        elseif param == keys.leftCtrl or param == keys.rightCtrl or param == keys.rightAlt then
+        elseif param == keys.leftCtrl or param == keys.rightCtrl then
             -- Menu toggle
             bMenu = not bMenu
             if bMenu then
@@ -696,7 +734,12 @@ while bRunning do
                 term.setCursorBlink(true)
             end
             redrawMenu()
-
+        elseif param == keys.rightAlt then
+            if bMenu then
+                bMenu = false
+                term.setCursorBlink(true)
+                redrawMenu()
+            end
         end
 
     elseif sEvent == "char" then
@@ -758,6 +801,7 @@ while bRunning do
                 end
             else
                 bMenu = false
+                term.setCursorBlink(true)
                 redrawMenu()
             end
         end

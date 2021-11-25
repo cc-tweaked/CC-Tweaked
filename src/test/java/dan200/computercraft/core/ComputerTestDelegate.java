@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core;
@@ -42,6 +42,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static dan200.computercraft.api.lua.LuaValues.getType;
@@ -67,6 +69,12 @@ public class ComputerTestDelegate
 
     private static final long TIMEOUT = TimeUnit.SECONDS.toNanos( 10 );
 
+    private static final Set<String> SKIP_KEYWORDS = new HashSet<>(
+        Arrays.asList( System.getProperty( "cc.skip_keywords", "" ).split( "," ) )
+    );
+
+    private static final Pattern KEYWORD = Pattern.compile( ":([a-z_]+)" );
+
     private final ReentrantLock lock = new ReentrantLock();
     private Computer computer;
 
@@ -89,7 +97,7 @@ public class ComputerTestDelegate
 
         if( REPORT_PATH.delete() ) ComputerCraft.log.info( "Deleted previous coverage report." );
 
-        Terminal term = new Terminal( 78, 20 );
+        Terminal term = new Terminal( 80, 30 );
         IWritableMount mount = new FileMount( new File( "test-files/mount" ), 10_000_000 );
 
         // Remove any existing files
@@ -212,16 +220,21 @@ public class ComputerTestDelegate
 
         void runs( String name, Executable executor )
         {
-            DynamicNodeBuilder child = children.get( name );
-            int id = 0;
-            while( child != null )
-            {
-                id++;
-                String subName = name + "_" + id;
-                child = children.get( subName );
-            }
+            if( this.executor != null ) throw new IllegalStateException( name + " is leaf node" );
+            if( children.containsKey( name ) ) throw new IllegalStateException( "Duplicate key for " + name );
 
             children.put( name, new DynamicNodeBuilder( name, executor ) );
+        }
+
+        boolean isActive()
+        {
+            Matcher matcher = KEYWORD.matcher( name );
+            while( matcher.find() )
+            {
+                if( SKIP_KEYWORDS.contains( matcher.group( 1 ) ) ) return false;
+            }
+
+            return true;
         }
 
         DynamicNode build()
@@ -233,7 +246,9 @@ public class ComputerTestDelegate
 
         Stream<DynamicNode> buildChildren()
         {
-            return children.values().stream().map( DynamicNodeBuilder::build );
+            return children.values().stream()
+                .filter( DynamicNodeBuilder::isActive )
+                .map( DynamicNodeBuilder::build );
         }
     }
 

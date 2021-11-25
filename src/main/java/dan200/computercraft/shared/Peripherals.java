@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared;
@@ -40,13 +40,13 @@ public final class Peripherals
     @Nullable
     public static IPeripheral getPeripheral( World world, BlockPos pos, Direction side, NonNullConsumer<LazyOptional<IPeripheral>> invalidate )
     {
-        return World.isValid( pos ) && !world.isRemote ? getPeripheralAt( world, pos, side, invalidate ) : null;
+        return World.isInWorldBounds( pos ) && !world.isClientSide ? getPeripheralAt( world, pos, side, invalidate ) : null;
     }
 
     @Nullable
     private static IPeripheral getPeripheralAt( World world, BlockPos pos, Direction side, NonNullConsumer<LazyOptional<IPeripheral>> invalidate )
     {
-        TileEntity block = world.getTileEntity( pos );
+        TileEntity block = world.getBlockEntity( pos );
         if( block != null )
         {
             LazyOptional<IPeripheral> peripheral = block.getCapability( CAPABILITY_PERIPHERAL, side );
@@ -67,7 +67,7 @@ public final class Peripherals
             }
         }
 
-        return CapabilityUtil.unwrap( GenericPeripheralProvider.getPeripheral( world, pos, side ), invalidate );
+        return GenericPeripheralProvider.getPeripheral( world, pos, side, invalidate );
     }
 
 }

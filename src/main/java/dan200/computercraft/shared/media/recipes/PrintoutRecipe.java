@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.media.recipes;
@@ -10,34 +10,30 @@ import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.SpecialRecipe;
 import net.minecraft.item.crafting.SpecialRecipeSerializer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nonnull;
 
 public final class PrintoutRecipe extends SpecialRecipe
 {
-    private final Ingredient paper = Ingredient.fromItems( net.minecraft.item.Items.PAPER );
-    private final Ingredient leather = Ingredient.fromItems( net.minecraft.item.Items.LEATHER );
-    private final Ingredient string = Ingredient.fromItems( Items.STRING );
-
     private PrintoutRecipe( ResourceLocation id )
     {
         super( id );
     }
 
     @Override
-    public boolean canFit( int x, int y )
+    public boolean canCraftInDimensions( int x, int y )
     {
         return x >= 3 && y >= 3;
     }
 
     @Nonnull
     @Override
-    public ItemStack getRecipeOutput()
+    public ItemStack getResultItem()
     {
         return ItemPrintout.createMultipleFromTitleAndText( null, null, null );
     }
@@ -45,12 +41,12 @@ public final class PrintoutRecipe extends SpecialRecipe
     @Override
     public boolean matches( @Nonnull CraftingInventory inventory, @Nonnull World world )
     {
-        return !getCraftingResult( inventory ).isEmpty();
+        return !assemble( inventory ).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull CraftingInventory inventory )
+    public ItemStack assemble( @Nonnull CraftingInventory inventory )
     {
         // See if we match the recipe, and extract the input disk ID and dye colour
         int numPages = 0;
@@ -63,7 +59,7 @@ public final class PrintoutRecipe extends SpecialRecipe
         {
             for( int x = 0; x < inventory.getWidth(); x++ )
             {
-                ItemStack stack = inventory.getStackInSlot( x + y * inventory.getWidth() );
+                ItemStack stack = inventory.getItem( x + y * inventory.getWidth() );
                 if( !stack.isEmpty() )
                 {
                     if( stack.getItem() instanceof ItemPrintout && ((ItemPrintout) stack.getItem()).getType() != ItemPrintout.Type.BOOK )
@@ -77,7 +73,7 @@ public final class PrintoutRecipe extends SpecialRecipe
                         numPrintouts++;
                         printoutFound = true;
                     }
-                    else if( paper.test( stack ) )
+                    else if( stack.getItem() == Items.PAPER )
                     {
                         if( printouts == null )
                         {
@@ -87,11 +83,11 @@ public final class PrintoutRecipe extends SpecialRecipe
                         numPages++;
                         numPrintouts++;
                     }
-                    else if( string.test( stack ) && !stringFound )
+                    else if( Tags.Items.STRING.contains( stack.getItem() ) && !stringFound )
                     {
                         stringFound = true;
                     }
-                    else if( leather.test( stack ) && !leatherFound )
+                    else if( Tags.Items.LEATHER.contains( stack.getItem() ) && !leatherFound )
                     {
                         leatherFound = true;
                     }
@@ -163,5 +159,5 @@ public final class PrintoutRecipe extends SpecialRecipe
         return SERIALIZER;
     }
 
-    public static final IRecipeSerializer<?> SERIALIZER = new SpecialRecipeSerializer<>( PrintoutRecipe::new );
+    public static final SpecialRecipeSerializer<?> SERIALIZER = new SpecialRecipeSerializer<>( PrintoutRecipe::new );
 }

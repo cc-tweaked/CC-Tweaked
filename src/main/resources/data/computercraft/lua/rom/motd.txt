@@ -1,5 +1,5 @@
-Please report bugs at https://github.com/SquidDev-CC/CC-Tweaked. Thanks!
-View the documentation at https://wiki.computercraft.cc
+Please report bugs at https://github.com/cc-tweaked/CC-Tweaked. Thanks!
+View the documentation at https://tweaked.cc
 Show off your programs or ask for help at our forum: https://forums.computercraft.cc
 You can disable these messages by running "set motd.enable false".
 Use "pastebin put" to upload a program to pastebin.
@@ -21,3 +21,4 @@ The "equip" programs let you add upgrades to a turtle without crafting.
 You can change the color of a disk by crafting or right clicking it with dye.
 You can print on a printed page again to get multiple colors.
 Holding the Ctrl and T keys terminates the running program.
+You can drag and drop files onto an open computer to upload them.

@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared;
@@ -12,24 +12,24 @@ import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.event.TurtleAction;
+import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRuleConfig;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec.Builder;
+import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static net.minecraftforge.common.ForgeConfigSpec.Builder;
-import static net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD )
 public final class Config
@@ -43,7 +43,6 @@ public final class Config
     private static final ConfigValue<Integer> maximumFilesOpen;
     private static final ConfigValue<Boolean> disableLua51Features;
     private static final ConfigValue<String> defaultComputerSettings;
-    private static final ConfigValue<Boolean> debugEnabled;
     private static final ConfigValue<Boolean> logComputerErrors;
     private static final ConfigValue<Boolean> commandRequireCreative;
 
@@ -57,6 +56,9 @@ public final class Config
 
     private static final ConfigValue<Integer> httpMaxRequests;
     private static final ConfigValue<Integer> httpMaxWebsockets;
+
+    private static final ConfigValue<Integer> httpDownloadBandwidth;
+    private static final ConfigValue<Integer> httpUploadBandwidth;
 
     private static final ConfigValue<Boolean> commandBlockEnabled;
     private static final ConfigValue<Integer> modemRange;
@@ -121,10 +123,6 @@ public final class Config
                     "autocompletion" )
                 .define( "default_computer_settings", ComputerCraft.defaultComputerSettings );
 
-            debugEnabled = builder
-                .comment( "Enable Lua's debug library. This is sandboxed to each computer, so is generally safe to be used by players." )
-                .define( "debug_enabled", ComputerCraft.debugEnable );
-
             logComputerErrors = builder
                 .comment( "Log exceptions thrown by peripherals and other Lua objects.\n" +
                     "This makes it easier for mod authors to debug problems, but may result in log spam should people use buggy methods." )
@@ -180,12 +178,10 @@ public final class Config
                     "Each rule is an item with a 'host' to match against, and a series of properties. " +
                     "The host may be a domain name (\"pastebin.com\"),\n" +
                     "wildcard (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\"). If no rules, the domain is blocked." )
-                .defineList( "rules",
-                    Stream.concat(
-                        Stream.of( ComputerCraft.DEFAULT_HTTP_DENY ).map( x -> AddressRuleConfig.makeRule( x, Action.DENY ) ),
-                        Stream.of( ComputerCraft.DEFAULT_HTTP_ALLOW ).map( x -> AddressRuleConfig.makeRule( x, Action.ALLOW ) )
-                    ).collect( Collectors.toList() ),
-                    x -> x instanceof UnmodifiableConfig && AddressRuleConfig.checkRule( (UnmodifiableConfig) x ) );
+                .defineList( "rules", Arrays.asList(
+                    AddressRuleConfig.makeRule( "$private", Action.DENY ),
+                    AddressRuleConfig.makeRule( "*", Action.ALLOW )
+                ), x -> x instanceof UnmodifiableConfig && AddressRuleConfig.checkRule( (UnmodifiableConfig) x ) );
 
             httpMaxRequests = builder
                 .comment( "The number of http requests a computer can make at one time. Additional requests will be queued, and sent when the running requests have finished. Set to 0 for unlimited." )
@@ -194,6 +190,20 @@ public final class Config
             httpMaxWebsockets = builder
                 .comment( "The number of websockets a computer can have open at one time. Set to 0 for unlimited." )
                 .defineInRange( "max_websockets", ComputerCraft.httpMaxWebsockets, 1, Integer.MAX_VALUE );
+
+            builder
+                .comment( "Limits bandwidth used by computers" )
+                .push( "bandwidth" );
+
+            httpDownloadBandwidth = builder
+                .comment( "The number of bytes which can be downloaded in a second. This is shared across all computers. (bytes/s)" )
+                .defineInRange( "global_download", ComputerCraft.httpDownloadBandwidth, 1, Integer.MAX_VALUE );
+
+            httpUploadBandwidth = builder
+                .comment( "The number of bytes which can be uploaded in a second. This is shared across all computers. (bytes/s)" )
+                .defineInRange( "global_upload", ComputerCraft.httpUploadBandwidth, 1, Integer.MAX_VALUE );
+
+            builder.pop();
 
             builder.pop();
         }
@@ -320,7 +330,6 @@ public final class Config
         ComputerCraft.maximumFilesOpen = maximumFilesOpen.get();
         ComputerCraft.disableLua51Features = disableLua51Features.get();
         ComputerCraft.defaultComputerSettings = defaultComputerSettings.get();
-        ComputerCraft.debugEnable = debugEnabled.get();
         ComputerCraft.computerThreads = computerThreads.get();
         ComputerCraft.logComputerErrors = logComputerErrors.get();
         ComputerCraft.commandRequireCreative = commandRequireCreative.get();
@@ -338,6 +347,9 @@ public final class Config
 
         ComputerCraft.httpMaxRequests = httpMaxRequests.get();
         ComputerCraft.httpMaxWebsockets = httpMaxWebsockets.get();
+        ComputerCraft.httpDownloadBandwidth = httpDownloadBandwidth.get();
+        ComputerCraft.httpUploadBandwidth = httpUploadBandwidth.get();
+        NetworkUtils.reloadConfig();
 
         // Peripheral
         ComputerCraft.enableCommandBlock = commandBlockEnabled.get();

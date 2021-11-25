@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.monitor;
@@ -33,6 +33,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
@@ -49,23 +50,24 @@ public class TileMonitor extends TileGeneric
 
     private final boolean advanced;
 
-    private ServerMonitor m_serverMonitor;
-    private ClientMonitor m_clientMonitor;
+    private ServerMonitor serverMonitor;
+    private ClientMonitor clientMonitor;
     private MonitorPeripheral peripheral;
     private LazyOptional<IPeripheral> peripheralCap;
-    private final Set<IComputerAccess> m_computers = new HashSet<>();
+    private final Set<IComputerAccess> computers = new HashSet<>();
 
-    private boolean m_destroyed = false;
-    private boolean visiting = false;
+    private boolean needsUpdate = false;
+    private boolean needsValidating = false;
+    private boolean destroyed = false;
 
     // MonitorWatcher state.
     boolean enqueued;
     TerminalState cached;
 
-    private int m_width = 1;
-    private int m_height = 1;
-    private int m_xIndex = 0;
-    private int m_yIndex = 0;
+    private int width = 1;
+    private int height = 1;
+    private int xIndex = 0;
+    private int yIndex = 0;
 
     public TileMonitor( TileEntityType<? extends TileMonitor> type, boolean advanced )
     {
@@ -77,6 +79,7 @@ public class TileMonitor extends TileGeneric
     public void onLoad()
     {
         super.onLoad();
+        needsValidating = true; // Same, tbh
         TickScheduler.schedule( this );
     }
 
@@ -84,37 +87,37 @@ public class TileMonitor extends TileGeneric
     public void destroy()
     {
         // TODO: Call this before using the block
-        if( m_destroyed ) return;
-        m_destroyed = true;
-        if( !getWorld().isRemote ) contractNeighbours();
+        if( destroyed ) return;
+        destroyed = true;
+        if( !getLevel().isClientSide ) contractNeighbours();
     }
 
     @Override
-    public void remove()
+    public void setRemoved()
     {
-        super.remove();
-        if( m_clientMonitor != null && m_xIndex == 0 && m_yIndex == 0 ) m_clientMonitor.destroy();
+        super.setRemoved();
+        if( clientMonitor != null && xIndex == 0 && yIndex == 0 ) clientMonitor.destroy();
     }
 
     @Override
     public void onChunkUnloaded()
     {
         super.onChunkUnloaded();
-        if( m_clientMonitor != null && m_xIndex == 0 && m_yIndex == 0 ) m_clientMonitor.destroy();
+        if( clientMonitor != null && xIndex == 0 && yIndex == 0 ) clientMonitor.destroy();
     }
 
     @Nonnull
     @Override
     public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
     {
-        if( !player.isCrouching() && getFront() == hit.getFace() )
+        if( !player.isCrouching() && getFront() == hit.getDirection() )
         {
-            if( !getWorld().isRemote )
+            if( !getLevel().isClientSide )
             {
                 monitorTouched(
-                    (float) (hit.getHitVec().x - hit.getPos().getX()),
-                    (float) (hit.getHitVec().y - hit.getPos().getY()),
-                    (float) (hit.getHitVec().z - hit.getPos().getZ())
+                    (float) (hit.getLocation().x - hit.getBlockPos().getX()),
+                    (float) (hit.getLocation().y - hit.getBlockPos().getY()),
+                    (float) (hit.getLocation().z - hit.getBlockPos().getZ())
                 );
             }
             return ActionResultType.SUCCESS;
@@ -125,51 +128,47 @@ public class TileMonitor extends TileGeneric
 
     @Nonnull
     @Override
-    public CompoundNBT write( CompoundNBT tag )
+    public CompoundNBT save( CompoundNBT tag )
     {
-        tag.putInt( NBT_X, m_xIndex );
-        tag.putInt( NBT_Y, m_yIndex );
-        tag.putInt( NBT_WIDTH, m_width );
-        tag.putInt( NBT_HEIGHT, m_height );
-        return super.write( tag );
+        tag.putInt( NBT_X, xIndex );
+        tag.putInt( NBT_Y, yIndex );
+        tag.putInt( NBT_WIDTH, width );
+        tag.putInt( NBT_HEIGHT, height );
+        return super.save( tag );
     }
 
     @Override
-    public void read( @Nonnull BlockState state, @Nonnull CompoundNBT nbt )
+    public void load( @Nonnull BlockState state, @Nonnull CompoundNBT nbt )
     {
-        super.read( state, nbt );
+        super.load( state, nbt );
 
-        m_xIndex = nbt.getInt( NBT_X );
-        m_yIndex = nbt.getInt( NBT_Y );
-        m_width = nbt.getInt( NBT_WIDTH );
-        m_height = nbt.getInt( NBT_HEIGHT );
+        xIndex = nbt.getInt( NBT_X );
+        yIndex = nbt.getInt( NBT_Y );
+        width = nbt.getInt( NBT_WIDTH );
+        height = nbt.getInt( NBT_HEIGHT );
     }
 
     @Override
     public void blockTick()
     {
-        if( m_xIndex != 0 || m_yIndex != 0 || m_serverMonitor == null ) return;
-
-        m_serverMonitor.clearChanged();
-
-        if( m_serverMonitor.pollResized() )
+        if( needsValidating )
         {
-            for( int x = 0; x < m_width; x++ )
-            {
-                for( int y = 0; y < m_height; y++ )
-                {
-                    TileMonitor monitor = getNeighbour( x, y );
-                    if( monitor == null ) continue;
-
-                    for( IComputerAccess computer : monitor.m_computers )
-                    {
-                        computer.queueEvent( "monitor_resize", computer.getAttachmentName() );
-                    }
-                }
-            }
+            needsValidating = false;
+            validate();
         }
 
-        if( m_serverMonitor.pollTerminalChanged() ) MonitorWatcher.enqueue( this );
+        if( needsUpdate )
+        {
+            needsUpdate = false;
+            expand();
+        }
+
+        if( xIndex != 0 || yIndex != 0 || serverMonitor == null ) return;
+
+        serverMonitor.clearChanged();
+
+        if( serverMonitor.pollResized() ) eachComputer( c -> c.queueEvent( "monitor_resize", c.getAttachmentName() ) );
+        if( serverMonitor.pollTerminalChanged() ) MonitorWatcher.enqueue( this );
     }
 
     @Override
@@ -193,64 +192,68 @@ public class TileMonitor extends TileGeneric
         return super.getCapability( cap, side );
     }
 
+    @Nullable
     public ServerMonitor getCachedServerMonitor()
     {
-        return m_serverMonitor;
+        return serverMonitor;
     }
 
+    @Nullable
     private ServerMonitor getServerMonitor()
     {
-        if( m_serverMonitor != null ) return m_serverMonitor;
+        if( serverMonitor != null ) return serverMonitor;
 
-        TileMonitor origin = getOrigin();
+        TileMonitor origin = getOrigin().getMonitor();
         if( origin == null ) return null;
 
-        return m_serverMonitor = origin.m_serverMonitor;
+        return serverMonitor = origin.serverMonitor;
     }
 
+    @Nullable
     private ServerMonitor createServerMonitor()
     {
-        if( m_serverMonitor != null ) return m_serverMonitor;
+        if( serverMonitor != null ) return serverMonitor;
 
-        if( m_xIndex == 0 && m_yIndex == 0 )
+        if( xIndex == 0 && yIndex == 0 )
         {
             // If we're the origin, set up the new monitor
-            m_serverMonitor = new ServerMonitor( advanced, this );
-            m_serverMonitor.rebuild();
+            serverMonitor = new ServerMonitor( advanced, this );
+            serverMonitor.rebuild();
 
             // And propagate it to child monitors
-            for( int x = 0; x < m_width; x++ )
+            for( int x = 0; x < width; x++ )
             {
-                for( int y = 0; y < m_height; y++ )
+                for( int y = 0; y < height; y++ )
                 {
-                    TileMonitor monitor = getNeighbour( x, y );
-                    if( monitor != null ) monitor.m_serverMonitor = m_serverMonitor;
+                    TileMonitor monitor = getLoadedMonitor( x, y ).getMonitor();
+                    if( monitor != null ) monitor.serverMonitor = serverMonitor;
                 }
             }
 
-            return m_serverMonitor;
+            return serverMonitor;
         }
         else
         {
             // Otherwise fetch the origin and attempt to get its monitor
             // Note this may load chunks, but we don't really have a choice here.
-            BlockPos pos = getPos();
-            TileEntity te = world.getTileEntity( pos.offset( getRight(), -m_xIndex ).offset( getDown(), -m_yIndex ) );
+            BlockPos pos = getBlockPos();
+            TileEntity te = level.getBlockEntity( toWorldPos( 0, 0 ) );
             if( !(te instanceof TileMonitor) ) return null;
 
-            return m_serverMonitor = ((TileMonitor) te).createServerMonitor();
+            return serverMonitor = ((TileMonitor) te).createServerMonitor();
         }
     }
 
+    @Nullable
     public ClientMonitor getClientMonitor()
     {
-        if( m_clientMonitor != null ) return m_clientMonitor;
+        if( clientMonitor != null ) return clientMonitor;
 
-        BlockPos pos = getPos();
-        TileEntity te = world.getTileEntity( pos.offset( getRight(), -m_xIndex ).offset( getDown(), -m_yIndex ) );
+        BlockPos pos = getBlockPos();
+        TileEntity te = level.getBlockEntity( toWorldPos( 0, 0 ) );
         if( !(te instanceof TileMonitor) ) return null;
 
-        return m_clientMonitor = ((TileMonitor) te).m_clientMonitor;
+        return clientMonitor = ((TileMonitor) te).clientMonitor;
     }
 
     // Networking stuff
@@ -259,10 +262,10 @@ public class TileMonitor extends TileGeneric
     protected void writeDescription( @Nonnull CompoundNBT nbt )
     {
         super.writeDescription( nbt );
-        nbt.putInt( NBT_X, m_xIndex );
-        nbt.putInt( NBT_Y, m_yIndex );
-        nbt.putInt( NBT_WIDTH, m_width );
-        nbt.putInt( NBT_HEIGHT, m_height );
+        nbt.putInt( NBT_X, xIndex );
+        nbt.putInt( NBT_Y, yIndex );
+        nbt.putInt( NBT_WIDTH, width );
+        nbt.putInt( NBT_HEIGHT, height );
     }
 
     @Override
@@ -270,69 +273,64 @@ public class TileMonitor extends TileGeneric
     {
         super.readDescription( nbt );
 
-        int oldXIndex = m_xIndex;
-        int oldYIndex = m_yIndex;
-        int oldWidth = m_width;
-        int oldHeight = m_height;
+        int oldXIndex = xIndex;
+        int oldYIndex = yIndex;
 
-        m_xIndex = nbt.getInt( NBT_X );
-        m_yIndex = nbt.getInt( NBT_Y );
-        m_width = nbt.getInt( NBT_WIDTH );
-        m_height = nbt.getInt( NBT_HEIGHT );
+        xIndex = nbt.getInt( NBT_X );
+        yIndex = nbt.getInt( NBT_Y );
+        width = nbt.getInt( NBT_WIDTH );
+        height = nbt.getInt( NBT_HEIGHT );
 
-        if( oldXIndex != m_xIndex || oldYIndex != m_yIndex )
+        if( oldXIndex != xIndex || oldYIndex != yIndex )
         {
             // If our index has changed then it's possible the origin monitor has changed. Thus
             // we'll clear our cache. If we're the origin then we'll need to remove the glList as well.
-            if( oldXIndex == 0 && oldYIndex == 0 && m_clientMonitor != null ) m_clientMonitor.destroy();
-            m_clientMonitor = null;
+            if( oldXIndex == 0 && oldYIndex == 0 && clientMonitor != null ) clientMonitor.destroy();
+            clientMonitor = null;
         }
 
-        if( m_xIndex == 0 && m_yIndex == 0 )
+        if( xIndex == 0 && yIndex == 0 )
         {
             // If we're the origin terminal then create it.
-            if( m_clientMonitor == null ) m_clientMonitor = new ClientMonitor( advanced, this );
-        }
-
-        if( oldXIndex != m_xIndex || oldYIndex != m_yIndex ||
-            oldWidth != m_width || oldHeight != m_height )
-        {
-            // One of our properties has changed, so ensure we redraw the block
-            updateBlock();
+            if( clientMonitor == null ) clientMonitor = new ClientMonitor( advanced, this );
         }
     }
 
     public final void read( TerminalState state )
     {
-        if( m_xIndex != 0 || m_yIndex != 0 )
+        if( xIndex != 0 || yIndex != 0 )
         {
-            ComputerCraft.log.warn( "Receiving monitor state for non-origin terminal at {}", getPos() );
+            ComputerCraft.log.warn( "Receiving monitor state for non-origin terminal at {}", getBlockPos() );
             return;
         }
 
-        if( m_clientMonitor == null ) m_clientMonitor = new ClientMonitor( advanced, this );
-        m_clientMonitor.read( state );
+        if( clientMonitor == null ) clientMonitor = new ClientMonitor( advanced, this );
+        clientMonitor.read( state );
     }
 
     // Sizing and placement stuff
 
     private void updateBlockState()
     {
-        getWorld().setBlockState( getPos(), getBlockState()
-            .with( BlockMonitor.STATE, MonitorEdgeState.fromConnections(
-                m_yIndex < m_height - 1, m_yIndex > 0,
-                m_xIndex > 0, m_xIndex < m_width - 1 ) ), 2 );
+        getLevel().setBlock( getBlockPos(), getBlockState()
+            .setValue( BlockMonitor.STATE, MonitorEdgeState.fromConnections(
+                yIndex < height - 1, yIndex > 0,
+                xIndex > 0, xIndex < width - 1 ) ), 2 );
     }
 
     // region Sizing and placement stuff
     public Direction getDirection()
     {
-        return getBlockState().get( BlockMonitor.FACING );
+        // Ensure we're actually a monitor block. This _should_ always be the case, but sometimes there's
+        // fun problems with the block being missing on the client.
+        BlockState state = getBlockState();
+        return state.hasProperty( BlockMonitor.FACING ) ? state.getValue( BlockMonitor.FACING ) : Direction.NORTH;
     }
 
     public Direction getOrientation()
     {
-        return getBlockState().get( BlockMonitor.ORIENTATION );
+        BlockState state = getBlockState();
+        return state.hasProperty( BlockMonitor.ORIENTATION ) ? state.getValue( BlockMonitor.ORIENTATION ) : Direction.NORTH;
     }
 
     public Direction getFront()
@@ -343,7 +341,7 @@ public class TileMonitor extends TileGeneric
 
     public Direction getRight()
     {
-        return getDirection().rotateYCCW();
+        return getDirection().getCounterClockWise();
     }
 
     public Direction getDown()
@@ -355,65 +353,79 @@ public class TileMonitor extends TileGeneric
 
     public int getWidth()
     {
-        return m_width;
+        return width;
     }
 
     public int getHeight()
     {
-        return m_height;
+        return height;
     }
 
     public int getXIndex()
     {
-        return m_xIndex;
+        return xIndex;
     }
 
     public int getYIndex()
     {
-        return m_yIndex;
+        return yIndex;
     }
 
-    private TileMonitor getSimilarMonitorAt( BlockPos pos )
+    boolean isCompatible( TileMonitor other )
     {
-        if( pos.equals( getPos() ) ) return this;
+        return !other.destroyed && advanced == other.advanced && getOrientation() == other.getOrientation() && getDirection() == other.getDirection();
+    }
 
-        int y = pos.getY();
-        World world = getWorld();
-        if( world == null || !world.isAreaLoaded( pos, 0 ) ) return null;
+    /**
+     * Get a tile within the current monitor only if it is loaded and compatible.
+     *
+     * @param x Absolute X position in monitor coordinates
+     * @param y Absolute Y position in monitor coordinates
+     * @return The located monitor
+     */
+    @Nonnull
+    private MonitorState getLoadedMonitor( int x, int y )
+    {
+        if( x == xIndex && y == yIndex ) return MonitorState.present( this );
+        BlockPos pos = toWorldPos( x, y );
 
-        TileEntity tile = world.getTileEntity( pos );
-        if( !(tile instanceof TileMonitor) ) return null;
+        World world = getLevel();
+        if( world == null || !world.isAreaLoaded( pos, 0 ) ) return MonitorState.UNLOADED;
+
+        TileEntity tile = world.getBlockEntity( pos );
+        if( !(tile instanceof TileMonitor) ) return MonitorState.MISSING;
 
         TileMonitor monitor = (TileMonitor) tile;
-        return !monitor.visiting && !monitor.m_destroyed && advanced == monitor.advanced
-            && getDirection() == monitor.getDirection() && getOrientation() == monitor.getOrientation()
-            ? monitor : null;
+        return isCompatible( monitor ) ? MonitorState.present( monitor ) : MonitorState.MISSING;
     }
 
-    private TileMonitor getNeighbour( int x, int y )
+    private MonitorState getOrigin()
     {
-        BlockPos pos = getPos();
-        Direction right = getRight();
-        Direction down = getDown();
-        int xOffset = -m_xIndex + x;
-        int yOffset = -m_yIndex + y;
-        return getSimilarMonitorAt( pos.offset( right, xOffset ).offset( down, yOffset ) );
+        return getLoadedMonitor( 0, 0 );
     }
 
-    private TileMonitor getOrigin()
+    /**
+     * Convert monitor coordinates to world coordinates.
+     *
+     * @param x Absolute X position in monitor coordinates
+     * @param y Absolute Y position in monitor coordinates
+     * @return The monitor's position.
+     */
+    BlockPos toWorldPos( int x, int y )
     {
-        return getNeighbour( 0, 0 );
+        if( xIndex == x && yIndex == y ) return getBlockPos();
+        return getBlockPos().relative( getRight(), -xIndex + x ).relative( getDown(), -yIndex + y );
     }
 
-    private void resize( int width, int height )
+    void resize( int width, int height )
     {
         // If we're not already the origin then we'll need to generate a new terminal.
-        if( m_xIndex != 0 || m_yIndex != 0 ) m_serverMonitor = null;
+        if( xIndex != 0 || yIndex != 0 ) serverMonitor = null;
 
-        m_xIndex = 0;
-        m_yIndex = 0;
-        m_width = width;
-        m_height = height;
+        xIndex = 0;
+        yIndex = 0;
+        this.width = width;
+        this.height = height;
 
         // Determine if we actually need a monitor. In order to do this, simply check if
         // any component monitor been wrapped as a peripheral. Whilst this flag may be
@@ -424,7 +436,7 @@ public class TileMonitor extends TileGeneric
         {
             for( int y = 0; y < height; y++ )
             {
-                TileMonitor monitor = getNeighbour( x, y );
+                TileMonitor monitor = getLoadedMonitor( x, y ).getMonitor();
                 if( monitor != null && monitor.peripheral != null )
                 {
                     needsTerminal = true;
@@ -436,194 +448,127 @@ public class TileMonitor extends TileGeneric
         // Either delete the current monitor or sync a new one.
         if( needsTerminal )
         {
-            if( m_serverMonitor == null ) m_serverMonitor = new ServerMonitor( advanced, this );
+            if( serverMonitor == null ) serverMonitor = new ServerMonitor( advanced, this );
         }
         else
         {
-            m_serverMonitor = null;
+            serverMonitor = null;
         }
 
         // Update the terminal's width and height and rebuild it. This ensures the monitor
         // is consistent when syncing it to other monitors.
-        if( m_serverMonitor != null ) m_serverMonitor.rebuild();
+        if( serverMonitor != null ) serverMonitor.rebuild();
 
         // Update the other monitors, setting coordinates, dimensions and the server terminal
+        BlockPos pos = getBlockPos();
+        Direction down = getDown(), right = getRight();
         for( int x = 0; x < width; x++ )
         {
             for( int y = 0; y < height; y++ )
             {
-                TileMonitor monitor = getNeighbour( x, y );
-                if( monitor == null ) continue;
+                TileEntity other = getLevel().getBlockEntity( pos.relative( right, x ).relative( down, y ) );
+                if( !(other instanceof TileMonitor) || !isCompatible( (TileMonitor) other ) ) continue;
 
-                monitor.m_xIndex = x;
-                monitor.m_yIndex = y;
-                monitor.m_width = width;
-                monitor.m_height = height;
-                monitor.m_serverMonitor = m_serverMonitor;
+                TileMonitor monitor = (TileMonitor) other;
+                monitor.xIndex = x;
+                monitor.yIndex = y;
+                monitor.width = width;
+                monitor.height = height;
+                monitor.serverMonitor = serverMonitor;
+                monitor.needsUpdate = monitor.needsValidating = false;
                 monitor.updateBlockState();
                 monitor.updateBlock();
             }
         }
     }
 
-    private boolean mergeLeft()
+    void updateNeighborsDeferred()
     {
-        TileMonitor left = getNeighbour( -1, 0 );
-        if( left == null || left.m_yIndex != 0 || left.m_height != m_height ) return false;
-
-        int width = left.m_width + m_width;
-        if( width > ComputerCraft.monitorWidth ) return false;
-
-        TileMonitor origin = left.getOrigin();
-        if( origin != null ) origin.resize( width, m_height );
-        left.expand();
-        return true;
+        needsUpdate = true;
     }
 
-    private boolean mergeRight()
-    {
-        TileMonitor right = getNeighbour( m_width, 0 );
-        if( right == null || right.m_yIndex != 0 || right.m_height != m_height ) return false;
-
-        int width = m_width + right.m_width;
-        if( width > ComputerCraft.monitorWidth ) return false;
-
-        TileMonitor origin = getOrigin();
-        if( origin != null ) origin.resize( width, m_height );
-        expand();
-        return true;
-    }
-
-    private boolean mergeUp()
-    {
-        TileMonitor above = getNeighbour( 0, m_height );
-        if( above == null || above.m_xIndex != 0 || above.m_width != m_width ) return false;
-
-        int height = above.m_height + m_height;
-        if( height > ComputerCraft.monitorHeight ) return false;
-
-        TileMonitor origin = getOrigin();
-        if( origin != null ) origin.resize( m_width, height );
-        expand();
-        return true;
-    }
-
-    private boolean mergeDown()
-    {
-        TileMonitor below = getNeighbour( 0, -1 );
-        if( below == null || below.m_xIndex != 0 || below.m_width != m_width ) return false;
-
-        int height = m_height + below.m_height;
-        if( height > ComputerCraft.monitorHeight ) return false;
-
-        TileMonitor origin = below.getOrigin();
-        if( origin != null ) origin.resize( m_width, height );
-        below.expand();
-        return true;
-    }
-
-    @SuppressWarnings( "StatementWithEmptyBody" )
     void expand()
     {
-        while( mergeLeft() || mergeRight() || mergeUp() || mergeDown() ) ;
+        TileMonitor monitor = getOrigin().getMonitor();
+        if( monitor != null && monitor.xIndex == 0 && monitor.yIndex == 0 ) new Expander( monitor ).expand();
     }
 
-    void contractNeighbours()
+    private void contractNeighbours()
     {
-        visiting = true;
-        if( m_xIndex > 0 )
+        if( width == 1 && height == 1 ) return;
+
+        BlockPos pos = getBlockPos();
+        Direction down = getDown(), right = getRight();
+        BlockPos origin = toWorldPos( 0, 0 );
+
+        TileMonitor toLeft = null, toAbove = null, toRight = null, toBelow = null;
+        if( xIndex > 0 ) toLeft = tryResizeAt( pos.relative( right, -xIndex ), xIndex, 1 );
+        if( yIndex > 0 ) toAbove = tryResizeAt( origin, width, yIndex );
+        if( xIndex < width - 1 ) toRight = tryResizeAt( pos.relative( right, 1 ), width - xIndex - 1, 1 );
+        if( yIndex < height - 1 )
         {
-            TileMonitor left = getNeighbour( m_xIndex - 1, m_yIndex );
-            if( left != null ) left.contract();
+            toBelow = tryResizeAt( origin.relative( down, yIndex + 1 ), width, height - yIndex - 1 );
         }
-        if( m_xIndex + 1 < m_width )
-        {
-            TileMonitor right = getNeighbour( m_xIndex + 1, m_yIndex );
-            if( right != null ) right.contract();
-        }
-        if( m_yIndex > 0 )
-        {
-            TileMonitor below = getNeighbour( m_xIndex, m_yIndex - 1 );
-            if( below != null ) below.contract();
-        }
-        if( m_yIndex + 1 < m_height )
-        {
-            TileMonitor above = getNeighbour( m_xIndex, m_yIndex + 1 );
-            if( above != null ) above.contract();
-        }
-        visiting = false;
+
+        if( toLeft != null ) toLeft.expand();
+        if( toAbove != null ) toAbove.expand();
+        if( toRight != null ) toRight.expand();
+        if( toBelow != null ) toBelow.expand();
     }
 
-    void contract()
+    @Nullable
+    private TileMonitor tryResizeAt( BlockPos pos, int width, int height )
     {
-        int height = m_height;
-        int width = m_width;
-
-        TileMonitor origin = getOrigin();
-        if( origin == null )
+        TileEntity tile = level.getBlockEntity( pos );
+        if( tile instanceof TileMonitor && isCompatible( (TileMonitor) tile ) )
         {
-            TileMonitor right = width > 1 ? getNeighbour( 1, 0 ) : null;
-            TileMonitor below = height > 1 ? getNeighbour( 0, 1 ) : null;
+            TileMonitor monitor = (TileMonitor) tile;
+            monitor.resize( width, height );
+            return monitor;
+        }
 
-            if( right != null ) right.resize( width - 1, 1 );
-            if( below != null ) below.resize( width, height - 1 );
-            if( right != null ) right.expand();
-            if( below != null ) below.expand();
+        return null;
+    }
 
+
+    private boolean checkMonitorAt( int xIndex, int yIndex )
+    {
+        MonitorState state = getLoadedMonitor( xIndex, yIndex );
+        if( state.isMissing() ) return false;
+
+        TileMonitor monitor = state.getMonitor();
+        if( monitor == null ) return true;
+
+        return monitor.xIndex == xIndex && monitor.yIndex == yIndex && monitor.width == width && monitor.height == height;
+    }
+
+    private void validate()
+    {
+        if( xIndex == 0 && yIndex == 0 && width == 1 && height == 1 ) return;
+
+        if( xIndex >= 0 && xIndex <= width && width > 0 && width <= ComputerCraft.monitorWidth &&
+            yIndex >= 0 && yIndex <= height && height > 0 && height <= ComputerCraft.monitorHeight &&
+            checkMonitorAt( 0, 0 ) && checkMonitorAt( 0, height - 1 ) &&
+            checkMonitorAt( width - 1, 0 ) && checkMonitorAt( width - 1, height - 1 ) )
+        {
             return;
         }
 
-        for( int y = 0; y < height; y++ )
-        {
-            for( int x = 0; x < width; x++ )
-            {
-                TileMonitor monitor = origin.getNeighbour( x, y );
-                if( monitor != null ) continue;
-
-                // Decompose
-                TileMonitor above = null;
-                TileMonitor left = null;
-                TileMonitor right = null;
-                TileMonitor below = null;
-
-                if( y > 0 )
-                {
-                    above = origin;
-                    above.resize( width, y );
-                }
-                if( x > 0 )
-                {
-                    left = origin.getNeighbour( 0, y );
-                    left.resize( x, 1 );
-                }
-                if( x + 1 < width )
-                {
-                    right = origin.getNeighbour( x + 1, y );
-                    right.resize( width - (x + 1), 1 );
-                }
-                if( y + 1 < height )
-                {
-                    below = origin.getNeighbour( 0, y + 1 );
-                    below.resize( width, height - (y + 1) );
-                }
-
-                // Re-expand
-                if( above != null ) above.expand();
-                if( left != null ) left.expand();
-                if( right != null ) right.expand();
-                if( below != null ) below.expand();
-                return;
-            }
-        }
+        // Something in our monitor is invalid. For now, let's just reset ourselves and then try to integrate ourselves
+        // later.
+        ComputerCraft.log.warn( "Monitor is malformed, resetting to 1x1." );
+        resize( 1, 1 );
+        needsUpdate = true;
     }
+    // endregion
 
     private void monitorTouched( float xPos, float yPos, float zPos )
     {
         XYPair pair = XYPair
             .of( xPos, yPos, zPos, getDirection(), getOrientation() )
-            .add( m_xIndex, m_height - m_yIndex - 1 );
+            .add( xIndex, height - yIndex - 1 );
 
-        if( pair.x > m_width - RENDER_BORDER || pair.y > m_height - RENDER_BORDER || pair.x < RENDER_BORDER || pair.y < RENDER_BORDER )
+        if( pair.x > width - RENDER_BORDER || pair.y > height - RENDER_BORDER || pair.x < RENDER_BORDER || pair.y < RENDER_BORDER )
         {
             return;
         }
@@ -634,65 +579,57 @@ public class TileMonitor extends TileGeneric
         Terminal originTerminal = serverTerminal.getTerminal();
         if( originTerminal == null ) return;
 
-        double xCharWidth = (m_width - (RENDER_BORDER + RENDER_MARGIN) * 2.0) / originTerminal.getWidth();
-        double yCharHeight = (m_height - (RENDER_BORDER + RENDER_MARGIN) * 2.0) / originTerminal.getHeight();
+        double xCharWidth = (width - (RENDER_BORDER + RENDER_MARGIN) * 2.0) / originTerminal.getWidth();
+        double yCharHeight = (height - (RENDER_BORDER + RENDER_MARGIN) * 2.0) / originTerminal.getHeight();
 
         int xCharPos = (int) Math.min( originTerminal.getWidth(), Math.max( (pair.x - RENDER_BORDER - RENDER_MARGIN) / xCharWidth + 1.0, 1.0 ) );
         int yCharPos = (int) Math.min( originTerminal.getHeight(), Math.max( (pair.y - RENDER_BORDER - RENDER_MARGIN) / yCharHeight + 1.0, 1.0 ) );
 
-        for( int y = 0; y < m_height; y++ )
+        eachComputer( c -> c.queueEvent( "monitor_touch", c.getAttachmentName(), xCharPos, yCharPos ) );
+    }
+
+    private void eachComputer( Consumer<IComputerAccess> fun )
+    {
+        for( int x = 0; x < width; x++ )
         {
-            for( int x = 0; x < m_width; x++ )
+            for( int y = 0; y < height; y++ )
             {
-                TileMonitor monitor = getNeighbour( x, y );
+                TileMonitor monitor = getLoadedMonitor( x, y ).getMonitor();
                 if( monitor == null ) continue;
 
-                for( IComputerAccess computer : monitor.m_computers )
-                {
-                    computer.queueEvent( "monitor_touch", computer.getAttachmentName(), xCharPos, yCharPos );
-                }
+                for( IComputerAccess computer : monitor.computers ) fun.accept( computer );
             }
         }
     }
-    // endregion
 
     void addComputer( IComputerAccess computer )
     {
-        m_computers.add( computer );
+        computers.add( computer );
     }
 
     void removeComputer( IComputerAccess computer )
     {
-        m_computers.remove( computer );
+        computers.remove( computer );
     }
 
     @Nonnull
     @Override
     public AxisAlignedBB getRenderBoundingBox()
     {
-        TileMonitor start = getNeighbour( 0, 0 );
-        TileMonitor end = getNeighbour( m_width - 1, m_height - 1 );
-        if( start != null && end != null )
-        {
-            BlockPos startPos = start.getPos();
-            BlockPos endPos = end.getPos();
-            int minX = Math.min( startPos.getX(), endPos.getX() );
-            int minY = Math.min( startPos.getY(), endPos.getY() );
-            int minZ = Math.min( startPos.getZ(), endPos.getZ() );
-            int maxX = Math.max( startPos.getX(), endPos.getX() ) + 1;
-            int maxY = Math.max( startPos.getY(), endPos.getY() ) + 1;
-            int maxZ = Math.max( startPos.getZ(), endPos.getZ() ) + 1;
-            return new AxisAlignedBB( minX, minY, minZ, maxX, maxY, maxZ );
-        }
-        else
-        {
-            BlockPos pos = getPos();
-            return new AxisAlignedBB( pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1 );
-        }
+        BlockPos startPos = toWorldPos( 0, 0 );
+        BlockPos endPos = toWorldPos( width, height );
+        return new AxisAlignedBB(
+            Math.min( startPos.getX(), endPos.getX() ),
+            Math.min( startPos.getY(), endPos.getY() ),
+            Math.min( startPos.getZ(), endPos.getZ() ),
+            Math.max( startPos.getX(), endPos.getX() ) + 1,
+            Math.max( startPos.getY(), endPos.getY() ) + 1,
+            Math.max( startPos.getZ(), endPos.getZ() ) + 1
+        );
     }
 
     @Override
-    public double getMaxRenderDistanceSquared()
+    public double getViewDistance()
     {
         return ComputerCraft.monitorDistanceSq;
     }

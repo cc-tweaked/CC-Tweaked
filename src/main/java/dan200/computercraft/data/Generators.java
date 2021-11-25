@@ -1,13 +1,13 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.data;
 
-import dan200.computercraft.shared.proxy.ComputerCraftProxyCommon;
+import dan200.computercraft.shared.Registry;
 import net.minecraft.data.DataGenerator;
+import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
@@ -18,11 +18,17 @@ public class Generators
     @SubscribeEvent
     public static void gather( GatherDataEvent event )
     {
-        ComputerCraftProxyCommon.registerLoot();
+        Registry.registerLoot();
 
         DataGenerator generator = event.getGenerator();
-        generator.addProvider( new Recipes( generator ) );
-        generator.addProvider( new LootTables( generator ) );
-        generator.addProvider( new Tags( generator, event.getExistingFileHelper() ) );
+        ExistingFileHelper existingFiles = event.getExistingFileHelper();
+
+        generator.addProvider( new RecipeGenerator( generator ) );
+        generator.addProvider( new LootTableGenerator( generator ) );
+        generator.addProvider( new BlockModelProvider( generator, existingFiles ) );
+
+        BlockTagsGenerator blockTags = new BlockTagsGenerator( generator, existingFiles );
+        generator.addProvider( blockTags );
+        generator.addProvider( new ItemTagsGenerator( generator, blockTags, existingFiles ) );
     }
 }

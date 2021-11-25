@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.computer.apis;
@@ -18,13 +18,18 @@ import net.minecraft.command.Commands;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.RegistryKey;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
 /**
  * @cc.module commands
+ * @cc.since 1.7
  */
 public class CommandAPI implements ILuaAPI
 {
@@ -48,18 +53,18 @@ public class CommandAPI implements ILuaAPI
 
     private Object[] doCommand( String command )
     {
-        MinecraftServer server = computer.getWorld().getServer();
+        MinecraftServer server = computer.getLevel().getServer();
         if( server == null || !server.isCommandBlockEnabled() )
         {
             return new Object[] { false, createOutput( "Command blocks disabled by server" ) };
         }
 
-        Commands commandManager = server.getCommandManager();
+        Commands commandManager = server.getCommands();
         TileCommandComputer.CommandReceiver receiver = computer.getReceiver();
         try
         {
             receiver.clearOutput();
-            int result = commandManager.handleCommand( computer.getSource(), command );
+            int result = commandManager.performCommand( computer.getSource(), command );
             return new Object[] { result > 0, receiver.copyOutput(), result };
         }
         catch( Throwable t )
@@ -75,8 +80,8 @@ public class CommandAPI implements ILuaAPI
         BlockState state = world.getBlockState( pos );
         Map<String, Object> table = BlockData.fill( new HashMap<>(), state );
 
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.write( new CompoundNBT() ) ) );
+        TileEntity tile = world.getBlockEntity( pos );
+        if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.save( new CompoundNBT() ) ) );
 
         return table;
     }
@@ -90,10 +95,12 @@ public class CommandAPI implements ILuaAPI
      * @cc.treturn { string... } The output of this command, as a list of lines.
      * @cc.treturn number|nil The number of "affected" objects, or `nil` if the command failed. The definition of this
      * varies from command to command.
+     * @cc.changed 1.71 Added return value with command output.
+     * @cc.changed 1.85.0 Added return value with the number of affected objects.
      * @cc.usage Set the block above the command computer to stone.
-     * <pre>
+     * <pre>{@code
      * commands.exec("setblock ~ ~1 ~ minecraft:stone")
-     * </pre>
+     * }</pre>
      */
     @LuaFunction( mainThread = true )
     public final Object[] exec( String command )
@@ -117,9 +124,9 @@ public class CommandAPI implements ILuaAPI
      * @return The "task id". When this command has been executed, it will queue a `task_complete` event with a matching id.
      * @throws LuaException (hidden) If the task cannot be created.
      * @cc.usage Asynchronously sets the block above the computer to stone.
-     * <pre>
-     * commands.execAsync("~ ~1 ~ minecraft:stone")
-     * </pre>
+     * <pre>{@code
+     * commands.execAsync("setblock ~ ~1 ~ minecraft:stone")
+     * }</pre>
      * @cc.see parallel One may also use the parallel API to run multiple commands at once.
      */
     @LuaFunction
@@ -139,10 +146,10 @@ public class CommandAPI implements ILuaAPI
     @LuaFunction( mainThread = true )
     public final List<String> list( IArguments args ) throws LuaException
     {
-        MinecraftServer server = computer.getWorld().getServer();
+        MinecraftServer server = computer.getLevel().getServer();
 
         if( server == null ) return Collections.emptyList();
-        CommandNode<CommandSource> node = server.getCommandManager().getDispatcher().getRoot();
+        CommandNode<CommandSource> node = server.getCommands().getDispatcher().getRoot();
         for( int j = 0; j < args.count(); j++ )
         {
             String name = args.getString( j );
@@ -171,7 +178,7 @@ public class CommandAPI implements ILuaAPI
     public final Object[] getBlockPosition()
     {
         // This is probably safe to do on the Lua thread. Probably.
-        BlockPos pos = computer.getPos();
+        BlockPos pos = computer.getBlockPos();
         return new Object[] { pos.getX(), pos.getY(), pos.getZ() };
     }
 
@@ -184,21 +191,24 @@ public class CommandAPI implements ILuaAPI
      * Blocks are traversed by ascending y level, followed by z and x - the returned
      * table may be indexed using `x + z*width + y*depth*depth`.
      *
-     * @param minX The start x coordinate of the range to query.
-     * @param minY The start y coordinate of the range to query.
-     * @param minZ The start z coordinate of the range to query.
-     * @param maxX The end x coordinate of the range to query.
-     * @param maxY The end y coordinate of the range to query.
-     * @param maxZ The end z coordinate of the range to query.
+     * @param minX      The start x coordinate of the range to query.
+     * @param minY      The start y coordinate of the range to query.
+     * @param minZ      The start z coordinate of the range to query.
+     * @param maxX      The end x coordinate of the range to query.
+     * @param maxY      The end y coordinate of the range to query.
+     * @param maxZ      The end z coordinate of the range to query.
+     * @param dimension The dimension to query (e.g. "minecraft:overworld"). Defaults to the current dimension.
      * @return A list of information about each block.
      * @throws LuaException If the coordinates are not within the world.
      * @throws LuaException If trying to get information about more than 4096 blocks.
+     * @cc.since 1.76
+     * @cc.changed 1.99 Added {@code dimension} argument.
      */
     @LuaFunction( mainThread = true )
-    public final List<Map<?, ?>> getBlockInfos( int minX, int minY, int minZ, int maxX, int maxY, int maxZ ) throws LuaException
+    public final List<Map<?, ?>> getBlockInfos( int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Optional<String> dimension ) throws LuaException
     {
         // Get the details of the block
-        World world = computer.getWorld();
+        World world = getLevel( dimension );
         BlockPos min = new BlockPos(
             Math.min( minX, maxX ),
             Math.min( minY, maxY ),
@@ -209,7 +219,7 @@ public class CommandAPI implements ILuaAPI
             Math.max( minY, maxY ),
             Math.max( minZ, maxZ )
         );
-        if( !World.isValid( min ) || !World.isValid( max ) )
+        if( !World.isInWorldBounds( min ) || !World.isInWorldBounds( max ) )
         {
             throw new LuaException( "Co-ordinates out of range" );
         }
@@ -240,25 +250,38 @@ public class CommandAPI implements ILuaAPI
      * with @{turtle.inspect}). If there is a tile entity for that block, its NBT
      * will also be returned.
      *
-     * @param x The x position of the block to query.
-     * @param y The y position of the block to query.
-     * @param z The z position of the block to query.
+     * @param x         The x position of the block to query.
+     * @param y         The y position of the block to query.
+     * @param z         The z position of the block to query.
+     * @param dimension The dimension to query (e.g. "minecraft:overworld"). Defaults to the current dimension.
      * @return The given block's information.
      * @throws LuaException If the coordinates are not within the world, or are not currently loaded.
+     * @cc.changed 1.76 Added block state info to return value
+     * @cc.changed 1.99 Added {@code dimension} argument.
      */
     @LuaFunction( mainThread = true )
-    public final Map<?, ?> getBlockInfo( int x, int y, int z ) throws LuaException
+    public final Map<?, ?> getBlockInfo( int x, int y, int z, Optional<String> dimension ) throws LuaException
     {
-        // Get the details of the block
-        World world = computer.getWorld();
+        World world = getLevel( dimension );
         BlockPos position = new BlockPos( x, y, z );
-        if( World.isValid( position ) )
-        {
-            return getBlockInfo( world, position );
-        }
-        else
-        {
-            throw new LuaException( "Co-ordinates out of range" );
-        }
+        if( !World.isInWorldBounds( position ) ) throw new LuaException( "Co-ordinates out of range" );
+        return getBlockInfo( world, position );
+    }
+
+    @Nonnull
+    private World getLevel( @Nonnull Optional<String> id ) throws LuaException
+    {
+        World currentWorld = computer.getLevel();
+        if( currentWorld == null ) throw new LuaException( "No world exists" );
+
+        if( !id.isPresent() ) return currentWorld;
+
+        ResourceLocation dimensionId = ResourceLocation.tryParse( id.get() );
+        if( dimensionId == null ) throw new LuaException( "Invalid dimension name" );
+
+        World world = currentWorld.getServer().getLevel( RegistryKey.create( Registry.DIMENSION_REGISTRY, dimensionId ) );
+        if( world == null ) throw new LuaException( "Unknown dimension" );
+
+        return world;
     }
 }

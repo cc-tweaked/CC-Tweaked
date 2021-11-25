@@ -16,22 +16,7 @@ end
 
 if _VERSION == "Lua 5.1" then
     -- If we're on Lua 5.1, install parts of the Lua 5.2/5.3 API so that programs can be written against it
-    local type = type
     local nativeload = load
-    local nativeloadstring = loadstring
-    local nativesetfenv = setfenv
-
-    -- Historically load/loadstring would handle the chunk name as if it has
-    -- been prefixed with "=". We emulate that behaviour here.
-    local function prefix(chunkname)
-        if type(chunkname) ~= "string" then return chunkname end
-        local head = chunkname:sub(1, 1)
-        if head == "=" or head == "@" then
-            return chunkname
-        else
-            return "=" .. chunkname
-        end
-    end
 
     function load(x, name, mode, env)
         expect(1, x, "function", "string")
@@ -40,29 +25,11 @@ if _VERSION == "Lua 5.1" then
         expect(4, env, "table", "nil")
 
         local ok, p1, p2 = pcall(function()
-            if type(x) == "string" then
-                local result, err = nativeloadstring(x, name)
-                if result then
-                    if env then
-                        env._ENV = env
-                        nativesetfenv(result, env)
-                    end
-                    return result
-                else
-                    return nil, err
-                end
-            else
-                local result, err = nativeload(x, name)
-                if result then
-                    if env then
-                        env._ENV = env
-                        nativesetfenv(result, env)
-                    end
-                    return result
-                else
-                    return nil, err
-                end
+            local result, err = nativeload(x, name, mode, env)
+            if result and env then
+                env._ENV = env
             end
+            return result, err
         end)
         if ok then
             return p1, p2
@@ -81,7 +48,7 @@ if _VERSION == "Lua 5.1" then
         math.log10 = nil
         table.maxn = nil
     else
-        loadstring = function(string, chunkname) return nativeloadstring(string, prefix(chunkname)) end
+        loadstring = function(string, chunkname) return nativeload(string, chunkname) end
 
         -- Inject a stub for the old bit library
         _G.bit = {
@@ -338,8 +305,8 @@ function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
             redraw()
 
         elseif sEvent == "key" then
-            if param == keys.enter then
-                -- Enter
+            if param == keys.enter or param == keys.numPadEnter then
+                -- Enter/Numpad Enter
                 if nCompletion then
                     clear()
                     uncomplete()
@@ -523,6 +490,16 @@ function os.run(_tEnv, _sPath, ...)
 
     local tEnv = _tEnv
     setmetatable(tEnv, { __index = _G })
+
+    if settings.get("bios.strict_globals", false) then
+        -- load will attempt to set _ENV on this environment, which
+        -- throws an error with this protection enabled. Thus we set it here first.
+        tEnv._ENV = tEnv
+        getmetatable(tEnv).__newindex = function(_, name)
+          error("Attempt to create global " .. tostring(name), 2)
+        end
+    end
+
     local fnFile, err = loadfile(_sPath, nil, tEnv)
     if fnFile then
         local ok, err = pcall(fnFile, ...)
@@ -704,6 +681,7 @@ if http then
     local nativeCheckURL = http.checkURL
     http.checkURLAsync = nativeCheckURL
     http.checkURL = function(_url)
+        expect(1, _url, "string")
         local ok, err = nativeCheckURL(_url)
         if not ok then return ok, err end
 
@@ -952,6 +930,11 @@ settings.define("lua.function_args", {
 settings.define("lua.function_source", {
     default = false,
     description = "Show where a function was defined when printing functions.",
+    type = "boolean",
+})
+settings.define("bios.strict_globals", {
+    default = false,
+    description = "Prevents assigning variables into a program's environment. Make sure you use the local keyword or assign to _G explicitly.",
     type = "boolean",
 })
 

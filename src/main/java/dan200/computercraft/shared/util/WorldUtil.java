@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.util;
@@ -29,7 +29,7 @@ import java.util.Map;
 public final class WorldUtil
 {
     @SuppressWarnings( "Guava" )
-    private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && x.isAlive() && x.canBeCollidedWith();
+    private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && x.isAlive() && x.isPickable();
 
     private static final Map<World, Entity> entityCache = new MapMaker().weakKeys().weakValues().makeMap();
 
@@ -43,21 +43,21 @@ public final class WorldUtil
         {
             @Nonnull
             @Override
-            public EntitySize getSize( @Nonnull Pose pose )
+            public EntitySize getDimensions( @Nonnull Pose pose )
             {
                 return EntitySize.fixed( 0, 0 );
             }
         };
 
-        entity.noClip = true;
-        entity.recalculateSize();
+        entity.noPhysics = true;
+        entity.refreshDimensions();
         entityCache.put( world, entity );
         return entity;
     }
 
     public static boolean isLiquidBlock( World world, BlockPos pos )
     {
-        if( !World.isValid( pos ) ) return false;
+        if( !World.isInWorldBounds( pos ) ) return false;
         return world.getBlockState( pos ).getMaterial().isLiquid();
     }
 
@@ -65,7 +65,7 @@ public final class WorldUtil
     {
         if( shape.isEmpty() ) return false;
         // AxisAlignedBB.contains, but without strict inequalities.
-        AxisAlignedBB bb = shape.getBoundingBox();
+        AxisAlignedBB bb = shape.bounds();
         return vec.x >= bb.minX && vec.x <= bb.maxX && vec.y >= bb.minY && vec.y <= bb.maxY && vec.z >= bb.minZ && vec.z <= bb.maxZ;
     }
 
@@ -75,12 +75,12 @@ public final class WorldUtil
 
         // Raycast for blocks
         Entity collisionEntity = getEntity( world );
-        collisionEntity.setPosition( vecStart.x, vecStart.y, vecStart.z );
+        collisionEntity.setPos( vecStart.x, vecStart.y, vecStart.z );
         RayTraceContext context = new RayTraceContext( vecStart, vecEnd, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, collisionEntity );
-        RayTraceResult result = world.rayTraceBlocks( context );
+        RayTraceResult result = world.clip( context );
         if( result != null && result.getType() == RayTraceResult.Type.BLOCK )
         {
-            distance = vecStart.distanceTo( result.getHitVec() );
+            distance = vecStart.distanceTo( result.getLocation() );
             vecEnd = vecStart.add( vecDir.x * distance, vecDir.y * distance, vecDir.z * distance );
         }
 
@@ -99,7 +99,7 @@ public final class WorldUtil
 
         Entity closest = null;
         double closestDist = 99.0;
-        List<Entity> list = world.getEntitiesWithinAABB( Entity.class, bigBox, CAN_COLLIDE );
+        List<Entity> list = world.getEntitiesOfClass( Entity.class, bigBox, CAN_COLLIDE );
         for( Entity entity : list )
         {
             AxisAlignedBB littleBox = entity.getBoundingBox();
@@ -110,7 +110,7 @@ public final class WorldUtil
                 continue;
             }
 
-            Vector3d littleBoxResult = littleBox.rayTrace( vecStart, vecEnd ).orElse( null );
+            Vector3d littleBoxResult = littleBox.clip( vecStart, vecEnd ).orElse( null );
             if( littleBoxResult != null )
             {
                 double dist = vecStart.distanceTo( littleBoxResult );
@@ -145,7 +145,7 @@ public final class WorldUtil
     public static Vector3d getRayEnd( PlayerEntity player )
     {
         double reach = player.getAttribute( ForgeMod.REACH_DISTANCE.get() ).getValue();
-        Vector3d look = player.getLookVec();
+        Vector3d look = player.getLookAngle();
         return getRayStart( player ).add( look.x * reach, look.y * reach, look.z * reach );
     }
 
@@ -161,9 +161,9 @@ public final class WorldUtil
         double zDir;
         if( direction != null )
         {
-            xDir = direction.getXOffset();
-            yDir = direction.getYOffset();
-            zDir = direction.getZOffset();
+            xDir = direction.getStepX();
+            yDir = direction.getStepY();
+            zDir = direction.getStepZ();
         }
         else
         {
@@ -186,12 +186,12 @@ public final class WorldUtil
     public static void dropItemStack( @Nonnull ItemStack stack, World world, Vector3d pos, double xDir, double yDir, double zDir )
     {
         ItemEntity item = new ItemEntity( world, pos.x, pos.y, pos.z, stack.copy() );
-        item.setMotion(
+        item.setDeltaMovement(
             xDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1,
             yDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1,
             zDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1
         );
-        item.setDefaultPickupDelay();
-        world.addEntity( item );
+        item.setDefaultPickUpDelay();
+        world.addFreshEntity( item );
     }
 }

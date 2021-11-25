@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.computer.items;
@@ -35,7 +35,7 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     }
 
     @Override
-    public void addInformation( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag options )
+    public void appendHoverText( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag options )
     {
         if( options.isAdvanced() || getLabel( stack ) == null )
         {
@@ -43,7 +43,7 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
             if( id >= 0 )
             {
                 list.add( new TranslationTextComponent( "gui.computercraft.tooltip.computer_id", id )
-                    .mergeStyle( TextFormatting.GRAY ) );
+                    .withStyle( TextFormatting.GRAY ) );
             }
         }
     }
@@ -67,11 +67,11 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     {
         if( label != null )
         {
-            stack.setDisplayName( new StringTextComponent( label ) );
+            stack.setHoverName( new StringTextComponent( label ) );
         }
         else
         {
-            stack.clearCustomName();
+            stack.resetHoverName();
         }
         return true;
     }

@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis;
@@ -30,15 +30,15 @@ import dan200.computercraft.core.computer.ComputerSide;
  *
  * @cc.usage Toggle the redstone signal above the computer every 0.5 seconds.
  *
- * <pre>
+ * <pre>{@code
  * while true do
  *   redstone.setOutput("top", not redstone.getOutput("top"))
  *   sleep(0.5)
  * end
- * </pre>
+ * }</pre>
  * @cc.usage Mimic a redstone comparator in [subtraction mode][comparator].
  *
- * <pre>
+ * <pre>{@code
  * while true do
  *   local rear = rs.getAnalogueInput("back")
  *   local sides = math.max(rs.getAnalogueInput("left"), rs.getAnalogueInput("right"))
@@ -46,7 +46,7 @@ import dan200.computercraft.core.computer.ComputerSide;
  *
  *   os.pullEvent("redstone") -- Wait for a change to inputs.
  * end
- * </pre>
+ * }</pre>
  *
  * [comparator]: https://minecraft.gamepedia.com/Redstone_Comparator#Subtract_signal_strength "Redstone Comparator on
  * the Minecraft wiki."
@@ -72,6 +72,7 @@ public class RedstoneAPI implements ILuaAPI
      * "back".
      *
      * @return A table of valid sides.
+     * @cc.since 1.2
      */
     @LuaFunction
     public final String[] getSides()
@@ -122,6 +123,7 @@ public class RedstoneAPI implements ILuaAPI
      * @param side  The side to set.
      * @param value The signal strength between 0 and 15.
      * @throws LuaException If {@code value} is not betwene 0 and 15.
+     * @cc.since 1.51
      */
     @LuaFunction( { "setAnalogOutput", "setAnalogueOutput" } )
     public final void setAnalogOutput( ComputerSide side, int value ) throws LuaException
@@ -135,6 +137,7 @@ public class RedstoneAPI implements ILuaAPI
      *
      * @param side The side to get.
      * @return The output signal strength, between 0 and 15.
+     * @cc.since 1.51
      * @see #setAnalogOutput
      */
     @LuaFunction( { "getAnalogOutput", "getAnalogueOutput" } )
@@ -148,6 +151,7 @@ public class RedstoneAPI implements ILuaAPI
      *
      * @param side The side to get.
      * @return The input signal strength, between 0 and 15.
+     * @cc.since 1.51
      */
     @LuaFunction( { "getAnalogInput", "getAnalogueInput" } )
     public final int getAnalogInput( ComputerSide side )
@@ -191,7 +195,7 @@ public class RedstoneAPI implements ILuaAPI
     @LuaFunction
     public final int getBundledInput( ComputerSide side )
     {
-        return environment.getBundledOutput( side );
+        return environment.getBundledInput( side );
     }
 
     /**
@@ -201,9 +205,9 @@ public class RedstoneAPI implements ILuaAPI
      * @param mask The mask to test.
      * @return If the colours are on.
      * @cc.usage Check if @{colors.white} and @{colors.black} are on above the computer.
-     * <pre>
+     * <pre>{@code
      * print(redstone.testBundledInput("top", colors.combine(colors.white, colors.black)))
-     * </pre>
+     * }</pre>
      * @see #getBundledInput
      */
     @LuaFunction

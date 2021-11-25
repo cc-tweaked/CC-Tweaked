@@ -1,11 +1,12 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.integration.jei;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.IUpgradeBase;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
@@ -16,7 +17,6 @@ import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
-import dan200.computercraft.shared.util.InventoryUtil;
 import mezz.jei.api.constants.VanillaRecipeCategoryUid;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.api.recipe.advanced.IRecipeManagerPlugin;
@@ -32,8 +32,8 @@ import net.minecraft.util.ResourceLocation;
 import javax.annotation.Nonnull;
 import java.util.*;
 
-import static net.minecraft.item.crafting.Ingredient.fromStacks;
-import static net.minecraft.util.NonNullList.from;
+import static net.minecraft.item.crafting.Ingredient.of;
+import static net.minecraft.util.NonNullList.of;
 
 class RecipeResolver implements IRecipeManagerPlugin
 {
@@ -83,7 +83,10 @@ class RecipeResolver implements IRecipeManagerPlugin
         for( UpgradeInfo upgrade : upgrades )
         {
             ItemStack craftingStack = upgrade.stack;
-            if( !craftingStack.isEmpty() && InventoryUtil.areItemsSimilar( stack, craftingStack ) ) return true;
+            if( !craftingStack.isEmpty() && craftingStack.getItem() == stack.getItem() && upgrade.upgrade.isItemSuitable( stack ) )
+            {
+                return true;
+            }
         }
 
         return false;
@@ -155,18 +158,18 @@ class RecipeResolver implements IRecipeManagerPlugin
             if( left != null && right != null ) return Collections.emptyList();
 
             List<Shaped> recipes = new ArrayList<>();
-            Ingredient ingredient = fromStacks( stack );
+            Ingredient ingredient = of( stack );
             for( UpgradeInfo upgrade : turtleUpgrades )
             {
                 // The turtle is facing towards us, so upgrades on the left are actually crafted on the right.
                 if( left == null )
                 {
-                    recipes.add( horizontal( from( Ingredient.EMPTY, ingredient, upgrade.ingredient ), turtleWith( stack, upgrade.turtle, right ) ) );
+                    recipes.add( horizontal( of( Ingredient.EMPTY, ingredient, upgrade.ingredient ), turtleWith( stack, upgrade.turtle, right ) ) );
                 }
 
                 if( right == null )
                 {
-                    recipes.add( horizontal( from( Ingredient.EMPTY, upgrade.ingredient, ingredient ), turtleWith( stack, left, upgrade.turtle ) ) );
+                    recipes.add( horizontal( of( Ingredient.EMPTY, upgrade.ingredient, ingredient ), turtleWith( stack, left, upgrade.turtle ) ) );
                 }
             }
 
@@ -179,10 +182,10 @@ class RecipeResolver implements IRecipeManagerPlugin
             if( back != null ) return Collections.emptyList();
 
             List<Shaped> recipes = new ArrayList<>();
-            Ingredient ingredient = fromStacks( stack );
+            Ingredient ingredient = of( stack );
             for( UpgradeInfo upgrade : pocketUpgrades )
             {
-                recipes.add( vertical( from( Ingredient.EMPTY, ingredient, upgrade.ingredient ), pocketWith( stack, upgrade.pocket ) ) );
+                recipes.add( vertical( of( Ingredient.EMPTY, ingredient, upgrade.ingredient ), pocketWith( stack, upgrade.pocket ) ) );
             }
 
             return recipes;
@@ -194,11 +197,10 @@ class RecipeResolver implements IRecipeManagerPlugin
 
             List<Shaped> recipes = null;
             boolean multiple = false;
-            Ingredient ingredient = fromStacks( stack );
             for( UpgradeInfo upgrade : upgrades )
             {
                 ItemStack craftingStack = upgrade.stack;
-                if( craftingStack.isEmpty() || !InventoryUtil.areItemsSimilar( stack, craftingStack ) )
+                if( craftingStack.isEmpty() || craftingStack.getItem() != stack.getItem() || !upgrade.upgrade.isItemSuitable( stack ) )
                 {
                     continue;
                 }
@@ -238,7 +240,7 @@ class RecipeResolver implements IRecipeManagerPlugin
             if( left != null )
             {
                 recipes.add( horizontal(
-                    from( Ingredient.EMPTY, fromStacks( turtleWith( stack, null, right ) ), fromStacks( left.getCraftingItem() ) ),
+                    of( Ingredient.EMPTY, of( turtleWith( stack, null, right ) ), of( left.getCraftingItem() ) ),
                     stack
                 ) );
             }
@@ -246,7 +248,7 @@ class RecipeResolver implements IRecipeManagerPlugin
             if( right != null )
             {
                 recipes.add( horizontal(
-                    from( Ingredient.EMPTY, fromStacks( right.getCraftingItem() ), fromStacks( turtleWith( stack, left, null ) ) ),
+                    of( Ingredient.EMPTY, of( right.getCraftingItem() ), of( turtleWith( stack, left, null ) ) ),
                     stack
                 ) );
             }
@@ -261,7 +263,7 @@ class RecipeResolver implements IRecipeManagerPlugin
             if( back != null )
             {
                 recipes.add( vertical(
-                    from( Ingredient.EMPTY, fromStacks( back.getCraftingItem() ), fromStacks( pocketWith( stack, null ) ) ),
+                    of( Ingredient.EMPTY, of( back.getCraftingItem() ), of( pocketWith( stack, null ) ) ),
                     stack
                 ) );
             }
@@ -319,30 +321,9 @@ class RecipeResolver implements IRecipeManagerPlugin
 
         @Nonnull
         @Override
-        public ResourceLocation getId()
-        {
-            return null;
-        }
-
-        @Nonnull
-        @Override
         public IRecipeSerializer<?> getSerializer()
         {
             throw new IllegalStateException( "Should not serialise the JEI recipe" );
-        }
-    }
-
-    private static final class Upgrade<T>
-    {
-        final T upgrade;
-        final ItemStack stack;
-        final Ingredient ingredient;
-
-        private Upgrade( T upgrade, ItemStack stack )
-        {
-            this.upgrade = upgrade;
-            this.stack = stack;
-            ingredient = fromStacks( stack );
         }
     }
 
@@ -352,22 +333,23 @@ class RecipeResolver implements IRecipeManagerPlugin
         final Ingredient ingredient;
         final ITurtleUpgrade turtle;
         final IPocketUpgrade pocket;
+        final IUpgradeBase upgrade;
         ArrayList<Shaped> recipes;
 
         UpgradeInfo( ItemStack stack, ITurtleUpgrade turtle )
         {
             this.stack = stack;
-            ingredient = fromStacks( stack );
-            this.turtle = turtle;
+            ingredient = of( stack );
+            upgrade = this.turtle = turtle;
             pocket = null;
         }
 
         UpgradeInfo( ItemStack stack, IPocketUpgrade pocket )
         {
             this.stack = stack;
-            ingredient = fromStacks( stack );
+            ingredient = of( stack );
             turtle = null;
-            this.pocket = pocket;
+            upgrade = this.pocket = pocket;
         }
 
         List<Shaped> getRecipes()
@@ -381,7 +363,7 @@ class RecipeResolver implements IRecipeManagerPlugin
                 if( turtle != null && TurtleUpgrades.suitableForFamily( family, turtle ) )
                 {
                     recipes.add( horizontal(
-                        from( Ingredient.EMPTY, ingredient, fromStacks( TurtleItemFactory.create( -1, null, -1, family, null, null, 0, null ) ) ),
+                        of( Ingredient.EMPTY, ingredient, of( TurtleItemFactory.create( -1, null, -1, family, null, null, 0, null ) ) ),
                         TurtleItemFactory.create( -1, null, -1, family, null, turtle, 0, null )
                     ) );
                 }
@@ -389,7 +371,7 @@ class RecipeResolver implements IRecipeManagerPlugin
                 if( pocket != null )
                 {
                     recipes.add( vertical(
-                        from( Ingredient.EMPTY, ingredient, fromStacks( PocketComputerItemFactory.create( -1, null, -1, family, null ) ) ),
+                        of( Ingredient.EMPTY, ingredient, of( PocketComputerItemFactory.create( -1, null, -1, family, null ) ) ),
                         PocketComputerItemFactory.create( -1, null, -1, family, pocket )
                     ) );
                 }

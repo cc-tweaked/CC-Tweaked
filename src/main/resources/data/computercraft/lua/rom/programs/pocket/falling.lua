@@ -546,7 +546,7 @@ local function playGame()
   msgBox("Game Over!")
   while true do
     local _, k = os.pullEvent("key")
-    if k == keys.space or k == keys.enter then
+    if k == keys.space or k == keys.enter or k == keys.numPadEnter then
       break
     end
   end
@@ -627,7 +627,7 @@ local function runMenu()
       elseif key == keys.down or key == keys.s then
         selected = selected % 2 + 1
         drawMenu()
-      elseif key == keys.enter or key == keys.space then
+      elseif key == keys.enter or key == keys.numPadEnter or key == keys.space then
         break --begin play!
       end
     end

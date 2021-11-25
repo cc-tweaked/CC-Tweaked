@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.filesystem;
@@ -32,57 +32,57 @@ public class FileMount implements IWritableMount
     private class WritableCountingChannel implements WritableByteChannel
     {
 
-        private final WritableByteChannel m_inner;
-        long m_ignoredBytesLeft;
+        private final WritableByteChannel inner;
+        long ignoredBytesLeft;
 
         WritableCountingChannel( WritableByteChannel inner, long bytesToIgnore )
         {
-            m_inner = inner;
-            m_ignoredBytesLeft = bytesToIgnore;
+            this.inner = inner;
+            ignoredBytesLeft = bytesToIgnore;
         }
 
         @Override
         public int write( @Nonnull ByteBuffer b ) throws IOException
         {
             count( b.remaining() );
-            return m_inner.write( b );
+            return inner.write( b );
         }
 
         void count( long n ) throws IOException
         {
-            m_ignoredBytesLeft -= n;
-            if( m_ignoredBytesLeft < 0 )
+            ignoredBytesLeft -= n;
+            if( ignoredBytesLeft < 0 )
             {
-                long newBytes = -m_ignoredBytesLeft;
-                m_ignoredBytesLeft = 0;
+                long newBytes = -ignoredBytesLeft;
+                ignoredBytesLeft = 0;
 
-                long bytesLeft = m_capacity - m_usedSpace;
+                long bytesLeft = capacity - usedSpace;
                 if( newBytes > bytesLeft ) throw new IOException( "Out of space" );
-                m_usedSpace += newBytes;
+                usedSpace += newBytes;
             }
         }
 
         @Override
         public boolean isOpen()
         {
-            return m_inner.isOpen();
+            return inner.isOpen();
         }
 
         @Override
         public void close() throws IOException
         {
-            m_inner.close();
+            inner.close();
         }
     }
 
     private class SeekableCountingChannel extends WritableCountingChannel implements SeekableByteChannel
     {
-        private final SeekableByteChannel m_inner;
+        private final SeekableByteChannel inner;
 
         SeekableCountingChannel( SeekableByteChannel inner, long bytesToIgnore )
         {
             super( inner, bytesToIgnore );
-            m_inner = inner;
+            this.inner = inner;
         }
 
         @Override
@@ -94,17 +94,17 @@ public class FileMount implements IWritableMount
                 throw new IllegalArgumentException( "Cannot seek before the beginning of the stream" );
             }
 
-            long delta = newPosition - m_inner.position();
+            long delta = newPosition - inner.position();
             if( delta < 0 )
             {
-                m_ignoredBytesLeft -= delta;
+                ignoredBytesLeft -= delta;
             }
             else
             {
                 count( delta );
             }
 
-            return m_inner.position( newPosition );
+            return inner.position( newPosition );
         }
 
         @Override
@@ -116,32 +116,32 @@ public class FileMount implements IWritableMount
         @Override
         public int read( ByteBuffer dst ) throws ClosedChannelException
         {
-            if( !m_inner.isOpen() ) throw new ClosedChannelException();
+            if( !inner.isOpen() ) throw new ClosedChannelException();
             throw new NonReadableChannelException();
         }
 
         @Override
         public long position() throws IOException
         {
-            return m_inner.position();
+            return inner.position();
         }
 
         @Override
         public long size() throws IOException
         {
-            return m_inner.size();
+            return inner.size();
         }
     }
 
-    private File m_rootPath;
-    private long m_capacity;
-    private long m_usedSpace;
+    private final File rootPath;
+    private final long capacity;
+    private long usedSpace;
 
     public FileMount( File rootPath, long capacity )
     {
-        m_rootPath = rootPath;
-        m_capacity = capacity + MINIMUM_FILE_SIZE;
-        m_usedSpace = created() ? measureUsedSpace( m_rootPath ) : MINIMUM_FILE_SIZE;
+        this.rootPath = rootPath;
+        this.capacity = capacity + MINIMUM_FILE_SIZE;
+        usedSpace = created() ? measureUsedSpace( this.rootPath ) : MINIMUM_FILE_SIZE;
     }
 
     // IMount implementation
@@ -253,7 +253,7 @@ public class FileMount implements IWritableMount
 
         if( file.mkdirs() )
         {
-            m_usedSpace += dirsToCreate * MINIMUM_FILE_SIZE;
+            usedSpace += dirsToCreate * MINIMUM_FILE_SIZE;
         }
         else
         {
@@ -290,7 +290,7 @@ public class FileMount implements IWritableMount
         boolean success = file.delete();
         if( success )
         {
-            m_usedSpace -= Math.max( MINIMUM_FILE_SIZE, fileSize );
+            usedSpace -= Math.max( MINIMUM_FILE_SIZE, fileSize );
         }
         else
         {
@@ -308,13 +308,13 @@ public class FileMount implements IWritableMount
 
         if( file.exists() )
         {
-            m_usedSpace -= Math.max( file.length(), MINIMUM_FILE_SIZE );
+            usedSpace -= Math.max( file.length(), MINIMUM_FILE_SIZE );
         }
         else if( getRemainingSpace() < MINIMUM_FILE_SIZE )
         {
             throw new FileOperationException( path, "Out of space" );
         }
-        m_usedSpace += MINIMUM_FILE_SIZE;
+        usedSpace += MINIMUM_FILE_SIZE;
 
         return new SeekableCountingChannel( Files.newByteChannel( file.toPath(), WRITE_OPTIONS ), MINIMUM_FILE_SIZE );
     }
@@ -342,31 +342,31 @@ public class FileMount implements IWritableMount
     @Override
     public long getRemainingSpace()
     {
-        return Math.max( m_capacity - m_usedSpace, 0 );
+        return Math.max( capacity - usedSpace, 0 );
     }
 
     @Nonnull
     @Override
     public OptionalLong getCapacity()
     {
-        return OptionalLong.of( m_capacity - MINIMUM_FILE_SIZE );
+        return OptionalLong.of( capacity - MINIMUM_FILE_SIZE );
     }
 
     private File getRealPath( String path )
     {
-        return new File( m_rootPath, path );
+        return new File( rootPath, path );
     }
 
     private boolean created()
     {
-        return m_rootPath.exists();
+        return rootPath.exists();
     }
 
     private void create() throws IOException
     {
-        if( !m_rootPath.exists() )
+        if( !rootPath.exists() )
         {
-            boolean success = m_rootPath.mkdirs();
+            boolean success = rootPath.mkdirs();
             if( !success )
             {
                 throw new IOException( "Access denied" );

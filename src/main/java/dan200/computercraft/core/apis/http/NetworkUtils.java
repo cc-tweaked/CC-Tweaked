@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis.http;
@@ -11,19 +11,26 @@ import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.shared.util.ThreadUtils;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ConnectTimeoutException;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.handler.codec.DecoderException;
+import io.netty.handler.codec.TooLongFrameException;
+import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.timeout.ReadTimeoutException;
+import io.netty.handler.traffic.AbstractTrafficShapingHandler;
+import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 
+import javax.annotation.Nonnull;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.TrustManagerFactory;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.security.KeyStore;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -31,10 +38,8 @@ import java.util.concurrent.TimeUnit;
  */
 public final class NetworkUtils
 {
-    public static final ExecutorService EXECUTOR = new ThreadPoolExecutor(
-        4, Integer.MAX_VALUE,
-        60L, TimeUnit.SECONDS,
-        new SynchronousQueue<>(),
+    public static final ScheduledThreadPoolExecutor EXECUTOR = new ScheduledThreadPoolExecutor(
+        4,
         ThreadUtils.builder( "Network" )
             .setPriority( Thread.MIN_PRIORITY + (Thread.NORM_PRIORITY - Thread.MIN_PRIORITY) / 2 )
             .build()
@@ -44,6 +49,15 @@ public final class NetworkUtils
         .setPriority( Thread.MIN_PRIORITY + (Thread.NORM_PRIORITY - Thread.MIN_PRIORITY) / 2 )
         .build()
     );
+
+    public static final AbstractTrafficShapingHandler SHAPING_HANDLER = new GlobalTrafficShapingHandler(
+        EXECUTOR, ComputerCraft.httpUploadBandwidth, ComputerCraft.httpDownloadBandwidth
+    );
+
+    static
+    {
+        EXECUTOR.setKeepAliveTime( 60, TimeUnit.SECONDS );
+    }
 
     private NetworkUtils()
     {
@@ -98,6 +112,16 @@ public final class NetworkUtils
                 throw new HTTPRequestException( "Cannot create a secure connection" );
             }
         }
+    }
+
+    public static void reloadConfig()
+    {
+        SHAPING_HANDLER.configure( ComputerCraft.httpUploadBandwidth, ComputerCraft.httpDownloadBandwidth );
+    }
+
+    public static void reset()
+    {
+        SHAPING_HANDLER.trafficCounter().resetCumulativeTime();
     }
 
     /**
@@ -160,5 +184,30 @@ public final class NetworkUtils
         byte[] bytes = new byte[buffer.readableBytes()];
         buffer.readBytes( bytes );
         return bytes;
+    }
+
+    @Nonnull
+    public static String toFriendlyError( @Nonnull Throwable cause )
+    {
+        if( cause instanceof WebSocketHandshakeException || cause instanceof HTTPRequestException )
+        {
+            return cause.getMessage();
+        }
+        else if( cause instanceof TooLongFrameException )
+        {
+            return "Message is too large";
+        }
+        else if( cause instanceof ReadTimeoutException || cause instanceof ConnectTimeoutException )
+        {
+            return "Timed out";
+        }
+        else if( cause instanceof SSLHandshakeException || (cause instanceof DecoderException && cause.getCause() instanceof SSLHandshakeException) )
+        {
+            return "Could not create a secure connection";
+        }
+        else
+        {
+            return "Could not connect";
+        }
     }
 }

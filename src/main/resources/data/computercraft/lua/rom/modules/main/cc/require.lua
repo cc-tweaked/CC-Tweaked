@@ -6,12 +6,17 @@
 -- custom shell or when running programs yourself.
 --
 -- @module cc.require
+-- @since 1.88.0
 -- @usage Construct the package and require function, and insert them into a
 -- custom environment.
 --
---     local env = setmetatable({}, { __index = _ENV })
 --     local r = require "cc.require"
+--     local env = setmetatable({}, { __index = _ENV })
 --     env.require, env.package = r.make(env, "/")
+--
+--     -- Now we have our own require function, separate to the original.
+--     local r2 = env.require "cc.require"
+--     print(r, r2)
 
 local expect = require and require("cc.expect") or dofile("rom/modules/main/cc/expect.lua")
 local expect = expect.expect

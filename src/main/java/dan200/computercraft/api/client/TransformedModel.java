@@ -1,6 +1,6 @@
 /*
  * This file is part of the public ComputerCraft API - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. This API may be redistributed unmodified and in full only.
+ * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
 package dan200.computercraft.api.client;
@@ -32,7 +32,7 @@ public final class TransformedModel
     public TransformedModel( @Nonnull IBakedModel model )
     {
         this.model = Objects.requireNonNull( model );
-        this.matrix = TransformationMatrix.identity();
+        matrix = TransformationMatrix.identity();
     }
 
     public static TransformedModel of( @Nonnull ModelResourceLocation location )
@@ -43,7 +43,7 @@ public final class TransformedModel
 
     public static TransformedModel of( @Nonnull ItemStack item, @Nonnull TransformationMatrix transform )
     {
-        IBakedModel model = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getItemModel( item );
+        IBakedModel model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel( item );
         return new TransformedModel( model, transform );
     }
 

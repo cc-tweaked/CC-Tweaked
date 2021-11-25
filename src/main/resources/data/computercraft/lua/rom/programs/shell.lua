@@ -56,6 +56,7 @@ end
 -- @tparam string command The program to execute.
 -- @tparam string ... Arguments to this program.
 -- @treturn boolean Whether the program exited successfully.
+-- @since 1.88.0
 -- @usage Run `paint my-image` from within your program:
 --
 --     shell.execute("paint", "my-image")
@@ -131,6 +132,8 @@ end
 --
 --     shell.run("paint", "my-image")
 -- @see shell.execute Run a program directly without parsing the arguments.
+-- @changed 1.80pr1 Programs now get their own environment instead of sharing the same one.
+-- @changed 1.83.0 `arg` is now added to the environment.
 function shell.run(...)
     local tWords = tokenise(...)
     local sCommand = tWords[1]
@@ -193,6 +196,7 @@ end
 -- for from the @{shell.dir|current directory}, rather than the computer's root.
 --
 -- @tparam string path The new program path.
+-- @since 1.2
 function shell.setPath(path)
     expect(1, path, "string")
     sPath = path
@@ -235,6 +239,7 @@ end
 -- @tparam string command The name of the program
 -- @treturn string|nil The absolute path to the program, or @{nil} if it could
 -- not be found.
+-- @since 1.2
 -- @usage Locate the `hello` program.
 --
 --      shell.resolveProgram("hello")
@@ -283,6 +288,7 @@ end
 -- start with `.`.
 -- @treturn { string } A list of available programs.
 -- @usage textutils.tabulate(shell.programs())
+-- @since 1.2
 function shell.programs(include_hidden)
     expect(1, include_hidden, "boolean", "nil")
 
@@ -383,10 +389,11 @@ end
 --
 -- @tparam string sLine The input to complete.
 -- @treturn { string }|nil The list of possible completions.
--- @see read For more information about completion.
+-- @see _G.read For more information about completion.
 -- @see shell.completeProgram
 -- @see shell.setCompletionFunction
 -- @see shell.getCompletionInfo
+-- @since 1.74
 function shell.complete(sLine)
     expect(1, sLine, "string")
     if #sLine > 0 then
@@ -461,7 +468,8 @@ end
 -- The completion function.
 -- @see cc.shell.completion Various utilities to help with writing completion functions.
 -- @see shell.complete
--- @see read For more information about completion.
+-- @see _G.read For more information about completion.
+-- @since 1.74
 function shell.setCompletionFunction(program, complete)
     expect(1, program, "string")
     expect(2, complete, "function")
@@ -484,6 +492,7 @@ end
 --- Returns the path to the currently running program.
 --
 -- @treturn string The absolute path to the running program.
+-- @since 1.3
 function shell.getRunningProgram()
     if #tProgramStack > 0 then
         return tProgramStack[#tProgramStack]
@@ -495,6 +504,7 @@ end
 --
 -- @tparam string command The name of the alias to add.
 -- @tparam string program The name or path to the program.
+-- @since 1.2
 -- @usage Alias `vim` to the `edit` program
 --
 --     shell.setAlias("vim", "edit")
@@ -543,6 +553,7 @@ if multishell then
     -- @tparam string ... The command line to run.
     -- @see shell.run
     -- @see multishell.launch
+    -- @since 1.6
     -- @usage Launch the Lua interpreter and switch to it.
     --
     --     local id = shell.openTab("lua")
@@ -566,6 +577,7 @@ if multishell then
     --
     -- @tparam number id The tab to switch to.
     -- @see multishell.setFocus
+    -- @since 1.6
     function shell.switchTab(id)
         expect(1, id, "number")
         multishell.setFocus(id)

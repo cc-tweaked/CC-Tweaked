@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.client.render;
@@ -30,8 +30,7 @@ import org.lwjgl.opengl.GL11;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
-import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
-import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
+import static dan200.computercraft.client.render.ComputerBorderRenderer.*;
 
 /**
  * Emulates map rendering for pocket computers.
@@ -39,8 +38,6 @@ import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
 public final class ItemPocketRenderer extends ItemMapLikeRenderer
 {
-    private static final int LIGHT_HEIGHT = 8;
-
     private static final ItemPocketRenderer INSTANCE = new ItemPocketRenderer();
 
     private ItemPocketRenderer()
@@ -83,9 +80,9 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
         // Setup various transformations. Note that these are partially adapted from the corresponding method
         // in ItemRenderer
-        transform.push();
-        transform.rotate( Vector3f.YP.rotationDegrees( 180f ) );
-        transform.rotate( Vector3f.ZP.rotationDegrees( 180f ) );
+        transform.pushPose();
+        transform.mulPose( Vector3f.YP.rotationDegrees( 180f ) );
+        transform.mulPose( Vector3f.ZP.rotationDegrees( 180f ) );
         transform.scale( 0.5f, 0.5f, 0.5f );
 
         float scale = 0.75f / Math.max( width + BORDER * 2, height + BORDER * 2 + LIGHT_HEIGHT );
@@ -97,7 +94,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         ComputerFamily family = item.getFamily();
         int frameColour = item.getColour( stack );
 
-        Matrix4f matrix = transform.getLast().getMatrix();
+        Matrix4f matrix = transform.last().pose();
         renderFrame( matrix, family, frameColour, width, height );
 
         // Render the light
@@ -114,26 +111,26 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
             FixedWidthFontRenderer.drawEmptyTerminal( matrix, 0, 0, width, height );
         }
 
-        transform.pop();
+        transform.popPose();
     }
 
     private static void renderFrame( Matrix4f transform, ComputerFamily family, int colour, int width, int height )
     {
         RenderSystem.enableBlend();
         Minecraft.getInstance().getTextureManager()
-            .bindTexture( colour != -1 ? ComputerBorderRenderer.BACKGROUND_COLOUR : ComputerBorderRenderer.getTexture( family ) );
+            .bind( colour != -1 ? ComputerBorderRenderer.BACKGROUND_COLOUR : ComputerBorderRenderer.getTexture( family ) );
 
         float r = ((colour >>> 16) & 0xFF) / 255.0f;
         float g = ((colour >>> 8) & 0xFF) / 255.0f;
         float b = (colour & 0xFF) / 255.0f;
 
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
+        BufferBuilder buffer = tessellator.getBuilder();
         buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR_TEX );
 
-        ComputerBorderRenderer.render( transform, buffer, 0, 0, 0, width, height, LIGHT_HEIGHT, r, g, b );
+        ComputerBorderRenderer.render( transform, buffer, 0, 0, 0, width, height, true, r, g, b );
 
-        tessellator.draw();
+        tessellator.end();
     }
 
     private static void renderLight( Matrix4f transform, int colour, int width, int height )
@@ -145,14 +142,14 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         float b = (colour & 0xFF) / 255.0f;
 
         Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
+        BufferBuilder buffer = tessellator.getBuilder();
         buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR );
-        buffer.pos( transform, width - LIGHT_HEIGHT * 2, height + LIGHT_HEIGHT + BORDER / 2.0f, 0 ).color( r, g, b, 1.0f ).endVertex();
-        buffer.pos( transform, width, height + LIGHT_HEIGHT + BORDER / 2.0f, 0 ).color( r, g, b, 1.0f ).endVertex();
-        buffer.pos( transform, width, height + BORDER / 2.0f, 0 ).color( r, g, b, 1.0f ).endVertex();
-        buffer.pos( transform, width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, 0 ).color( r, g, b, 1.0f ).endVertex();
+        buffer.vertex( transform, width - LIGHT_HEIGHT * 2, height + LIGHT_HEIGHT + BORDER / 2.0f, 0 ).color( r, g, b, 1.0f ).endVertex();
+        buffer.vertex( transform, width, height + LIGHT_HEIGHT + BORDER / 2.0f, 0 ).color( r, g, b, 1.0f ).endVertex();
+        buffer.vertex( transform, width, height + BORDER / 2.0f, 0 ).color( r, g, b, 1.0f ).endVertex();
+        buffer.vertex( transform, width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, 0 ).color( r, g, b, 1.0f ).endVertex();
 
-        tessellator.draw();
+        tessellator.end();
         RenderSystem.enableTexture();
     }
 }

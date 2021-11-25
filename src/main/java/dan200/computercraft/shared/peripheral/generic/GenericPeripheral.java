@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.generic;
 
 import dan200.computercraft.api.lua.IArguments;
@@ -26,11 +25,11 @@ class GenericPeripheral implements IDynamicPeripheral
     private final TileEntity tile;
     private final List<SaturatedMethod> methods;
 
-    GenericPeripheral( TileEntity tile, List<SaturatedMethod> methods )
+    GenericPeripheral( TileEntity tile, String name, List<SaturatedMethod> methods )
     {
         ResourceLocation type = tile.getType().getRegistryName();
         this.tile = tile;
-        this.type = type == null ? "unknown" : type.toString();
+        this.type = name != null ? name : (type != null ? type.toString() : "unknown");
         this.methods = methods;
     }
 

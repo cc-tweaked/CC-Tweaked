@@ -1,30 +1,37 @@
---- Provides a "pretty printer", for rendering data structures in an
--- aesthetically pleasing manner.
---
--- In order to display something using @{cc.pretty}, you build up a series of
--- @{Doc|documents}. These behave a little bit like strings; you can concatenate
--- them together and then print them to the screen.
---
--- However, documents also allow you to control how they should be printed. There
--- are several functions (such as @{nest} and @{group}) which allow you to control
--- the "layout" of the document. When you come to display the document, the 'best'
--- (most compact) layout is used.
---
--- @module cc.pretty
--- @usage Print a table to the terminal
---     local pretty = require "cc.pretty"
---     pretty.write(pretty.pretty({ 1, 2, 3 }))
---
--- @usage Build a custom document and display it
---     local pretty = require "cc.pretty"
---     pretty.write(pretty.group(pretty.text("hello") .. pretty.space_line .. pretty.text("world")))
+--[[- Provides a "pretty printer", for rendering data structures in an
+aesthetically pleasing manner.
+
+In order to display something using @{cc.pretty}, you build up a series of
+@{Doc|documents}. These behave a little bit like strings; you can concatenate
+them together and then print them to the screen.
+
+However, documents also allow you to control how they should be printed. There
+are several functions (such as @{nest} and @{group}) which allow you to control
+the "layout" of the document. When you come to display the document, the 'best'
+(most compact) layout is used.
+
+The structure of this module is based on [A Prettier Printer][prettier].
+
+[prettier]: https://homepages.inf.ed.ac.uk/wadler/papers/prettier/prettier.pdf "A Prettier Printer"
+
+@module cc.pretty
+@since 1.87.0
+@usage Print a table to the terminal
+
+    local pretty = require "cc.pretty"
+    pretty.print(pretty.pretty({ 1, 2, 3 }))
+
+@usage Build a custom document and display it
+
+    local pretty = require "cc.pretty"
+    pretty.print(pretty.group(pretty.text("hello") .. pretty.space_line .. pretty.text("world")))
+]]
 
 local expect = require "cc.expect"
 local expect, field = expect.expect, expect.field
 
 local type, getmetatable, setmetatable, colours, str_write, tostring = type, getmetatable, setmetatable, colours, write, tostring
-local debug_info = type(debug) == "table" and type(debug.getinfo) == "function" and debug.getinfo
-local debug_local = type(debug) == "table" and type(debug.getlocal) == "function" and debug.getlocal
+local debug_info, debug_local = debug.getinfo, debug.getlocal
 
 --- @{table.insert} alternative, but with the length stored inline.
 local function append(out, value)
@@ -40,17 +47,19 @@ end
 -- @type Doc
 local Doc = { }
 
+local function mk_doc(tbl) return setmetatable(tbl, Doc) end
+
 --- An empty document.
-local empty = setmetatable({ tag = "nil" }, Doc)
+local empty = mk_doc({ tag = "nil" })
 
 --- A document with a single space in it.
-local space = setmetatable({ tag = "text", text = " " }, Doc)
+local space = mk_doc({ tag = "text", text = " " })
 
 --- A line break. When collapsed with @{group}, this will be replaced with @{empty}.
-local line = setmetatable({ tag = "line", flat = empty }, Doc)
+local line = mk_doc({ tag = "line", flat = empty })
 
 --- A line break. When collapsed with @{group}, this will be replaced with @{space}.
-local space_line = setmetatable({ tag = "line", flat = space }, Doc)
+local space_line = mk_doc({ tag = "line", flat = space })
 
 local text_cache = { [""] = empty, [" "] = space, ["\n"] = space_line }
 
@@ -67,6 +76,10 @@ end
 -- @tparam[opt] number colour The colour this text should be printed with. If not given, we default to the current
 -- colour.
 -- @treturn Doc The document with the provided text.
+-- @usage Write some blue text.
+--
+--     local pretty = require "cc.pretty"
+--     pretty.print(pretty.text("Hello!", colours.blue))
 local function text(text, colour)
     expect(1, text, "string")
     expect(2, colour, "number", "nil")
@@ -101,8 +114,11 @@ end
 --
 -- @tparam Doc|string ... The documents to concatenate.
 -- @treturn Doc The concatenated documents.
--- @usage pretty.concat(doc1, " - ", doc2)
--- @usage doc1 .. " - " .. doc2
+-- @usage
+--     local pretty = require "cc.pretty"
+--     local doc1, doc2 = pretty.text("doc1"), pretty.text("doc2")
+--     print(pretty.concat(doc1, " - ", doc2))
+--     print(doc1 .. " - " .. doc2) -- Also supports ..
 local function concat(...)
     local args = table.pack(...)
     for i = 1, args.n do
@@ -135,7 +151,9 @@ Doc.__concat = concat --- @local
 -- @tparam number depth The number of spaces with which the document should be indented.
 -- @tparam Doc    doc   The document to indent.
 -- @treturn Doc The nested document.
--- @usage pretty.nest(2, pretty.text("foo\nbar"))
+-- @usage
+--     local pretty = require "cc.pretty"
+--     print(pretty.nest(2, pretty.text("foo\nbar")))
 local function nest(depth, doc)
     expect(1, depth, "number")
     if getmetatable(doc) ~= Doc then expect(2, doc, "document") end
@@ -169,6 +187,12 @@ end
 --
 -- @tparam Doc doc The document to group.
 -- @treturn Doc The grouped document.
+-- @usage Uses group to show things being displayed on one or multiple lines.
+--
+--     local pretty = require "cc.pretty"
+--     local doc = pretty.group("Hello" .. pretty.space_line .. "World")
+--     print(pretty.render(doc, 5)) -- On multiple lines
+--     print(pretty.render(doc, 20)) -- Collapsed onto one.
 local function group(doc)
     if getmetatable(doc) ~= Doc then expect(1, doc, "document") end
 
@@ -390,18 +414,24 @@ local function pretty_impl(obj, options, tracking)
         local doc = setmetatable({ tag = "concat", n = 1, space_line }, Doc)
 
         local length, keys, keysn = #obj, {}, 1
-        for k in pairs(obj) do keys[keysn], keysn = k, keysn + 1 end
+        for k in pairs(obj) do
+            if type(k) ~= "number" or k % 1 ~= 0 or k < 1 or k > length then
+                keys[keysn], keysn = k, keysn + 1
+            end
+        end
         table.sort(keys, key_compare)
 
-        for i = 1, keysn - 1 do
+        for i = 1, length do
             if i > 1 then append(doc, comma) append(doc, space_line) end
+            append(doc, pretty_impl(obj[i], options, tracking))
+        end
+
+        for i = 1, keysn - 1 do
+            if i > 1 or length >= 1 then append(doc, comma) append(doc, space_line) end
 
             local k = keys[i]
             local v = obj[k]
-            local ty = type(k)
-            if ty == "number" and k % 1 == 0 and k >= 1 and k <= length then
-                append(doc, pretty_impl(v, options, tracking))
-            elseif ty == "string" and not keywords[k] and k:match("^[%a_][%a%d_]*$") then
+            if type(k) == "string" and not keywords[k] and k:match("^[%a_][%a%d_]*$") then
                 append(doc, text(k .. " = "))
                 append(doc, pretty_impl(v, options, tracking))
             else
@@ -428,7 +458,9 @@ end
 --  - `function_source`: Show where the function was defined, instead of
 --    `function: xxxxxxxx` (`false` by default).
 -- @treturn Doc The object formatted as a document.
+-- @changed 1.88.0 Added `options` argument.
 -- @usage Display a table on the screen
+--
 --     local pretty = require "cc.pretty"
 --     pretty.print(pretty.pretty({ 1, 2, 3 }))
 local function pretty(obj, options)

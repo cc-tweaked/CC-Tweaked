@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.network.client;
@@ -49,7 +49,7 @@ public class PlayRecordClientMessage implements NetworkMessage
         pos = buf.readBlockPos();
         if( buf.readBoolean() )
         {
-            name = buf.readString( Short.MAX_VALUE );
+            name = buf.readUtf( Short.MAX_VALUE );
             soundEvent = buf.readRegistryIdSafe( SoundEvent.class );
         }
         else
@@ -70,7 +70,7 @@ public class PlayRecordClientMessage implements NetworkMessage
         else
         {
             buf.writeBoolean( true );
-            buf.writeString( name );
+            buf.writeUtf( name );
             buf.writeRegistryId( soundEvent );
         }
     }
@@ -80,7 +80,7 @@ public class PlayRecordClientMessage implements NetworkMessage
     public void handle( NetworkEvent.Context context )
     {
         Minecraft mc = Minecraft.getInstance();
-        mc.worldRenderer.playRecord( soundEvent, pos, null );
-        if( name != null ) mc.ingameGUI.func_238451_a_( new StringTextComponent( name ) );
+        mc.levelRenderer.playRecord( soundEvent, pos, null );
+        if( name != null ) mc.gui.setNowPlaying( new StringTextComponent( name ) );
     }
 }

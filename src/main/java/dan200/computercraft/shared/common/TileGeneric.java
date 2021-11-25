@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.common;
@@ -16,6 +16,7 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
 
@@ -32,10 +33,10 @@ public abstract class TileGeneric extends TileEntity
 
     public final void updateBlock()
     {
-        markDirty();
-        BlockPos pos = getPos();
+        setChanged();
+        BlockPos pos = getBlockPos();
         BlockState state = getBlockState();
-        getWorld().notifyBlockUpdate( pos, state, state, 3 );
+        getLevel().sendBlockUpdated( pos, state, state, Constants.BlockFlags.DEFAULT );
     }
 
     @Nonnull
@@ -63,13 +64,13 @@ public abstract class TileGeneric extends TileEntity
 
     public boolean isUsable( PlayerEntity player, boolean ignoreRange )
     {
-        if( player == null || !player.isAlive() || getWorld().getTileEntity( getPos() ) != this ) return false;
+        if( player == null || !player.isAlive() || getLevel().getBlockEntity( getBlockPos() ) != this ) return false;
         if( ignoreRange ) return true;
 
         double range = getInteractRange( player );
-        BlockPos pos = getPos();
-        return player.getEntityWorld() == getWorld() &&
-            player.getDistanceSq( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
+        BlockPos pos = getBlockPos();
+        return player.getCommandSenderWorld() == getLevel() &&
+            player.distanceToSqr( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
     }
 
     protected void writeDescription( @Nonnull CompoundNBT nbt )
@@ -86,13 +87,13 @@ public abstract class TileGeneric extends TileEntity
     {
         CompoundNBT nbt = new CompoundNBT();
         writeDescription( nbt );
-        return new SUpdateTileEntityPacket( pos, 0, nbt );
+        return new SUpdateTileEntityPacket( worldPosition, 0, nbt );
     }
 
     @Override
     public final void onDataPacket( NetworkManager net, SUpdateTileEntityPacket packet )
     {
-        if( packet.getTileEntityType() == 0 ) readDescription( packet.getNbtCompound() );
+        if( packet.getType() == 0 ) readDescription( packet.getTag() );
     }
 
     @Nonnull

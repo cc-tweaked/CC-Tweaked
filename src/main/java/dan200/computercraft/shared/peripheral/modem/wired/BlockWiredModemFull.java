@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.modem.wired;
@@ -20,14 +20,14 @@ public class BlockWiredModemFull extends BlockGeneric
     public BlockWiredModemFull( Properties settings )
     {
         super( settings, Registry.ModTiles.WIRED_MODEM_FULL );
-        setDefaultState( getStateContainer().getBaseState()
-            .with( MODEM_ON, false )
-            .with( PERIPHERAL_ON, false )
+        registerDefaultState( getStateDefinition().any()
+            .setValue( MODEM_ON, false )
+            .setValue( PERIPHERAL_ON, false )
         );
     }
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, BlockState> builder )
+    protected void createBlockStateDefinition( StateContainer.Builder<Block, BlockState> builder )
     {
         builder.add( MODEM_ON, PERIPHERAL_ON );
     }

@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared;
@@ -8,13 +8,18 @@ package dan200.computercraft.shared;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.util.InventoryUtil;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenCustomHashMap;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Util;
+import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModLoadingContext;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public final class TurtleUpgrades
@@ -29,16 +34,17 @@ public final class TurtleUpgrades
         Wrapper( ITurtleUpgrade upgrade )
         {
             this.upgrade = upgrade;
-            this.id = upgrade.getUpgradeID().toString();
-            this.modId = ModLoadingContext.get().getActiveNamespace();
-            this.enabled = true;
+            id = upgrade.getUpgradeID().toString();
+            ModContainer mc = ModLoadingContext.get().getActiveContainer();
+            modId = mc != null && mc.getModId() != null ? mc.getModId() : ComputerCraft.MOD_ID;
+            enabled = true;
         }
     }
 
     private static ITurtleUpgrade[] vanilla;
 
     private static final Map<String, ITurtleUpgrade> upgrades = new HashMap<>();
-    private static final IdentityHashMap<ITurtleUpgrade, Wrapper> wrappers = new IdentityHashMap<>();
+    private static final Map<ITurtleUpgrade, Wrapper> wrappers = new Object2ObjectLinkedOpenCustomHashMap<>( Util.identityStrategy() );
     private static boolean needsRebuild;
 
     private TurtleUpgrades() {}
@@ -83,7 +89,7 @@ public final class TurtleUpgrades
             if( !wrapper.enabled ) continue;
 
             ItemStack craftingStack = wrapper.upgrade.getCraftingItem();
-            if( !craftingStack.isEmpty() && InventoryUtil.areItemsSimilar( stack, craftingStack ) )
+            if( !craftingStack.isEmpty() && craftingStack.getItem() == stack.getItem() && wrapper.upgrade.isItemSuitable( stack ) )
             {
                 return wrapper.upgrade;
             }

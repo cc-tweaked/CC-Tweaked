@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.client.gui;
@@ -24,22 +24,14 @@ public class GuiPrinter extends ContainerScreen<ContainerPrinter>
         super( container, player, title );
     }
 
-    /*@Override
-    protected void drawGuiContainerForegroundLayer( int mouseX, int mouseY )
-    {
-        String title = getTitle().getFormattedText();
-        font.drawString( title, (xSize - font.getStringWidth( title )) / 2.0f, 6, 0x404040 );
-        font.drawString( I18n.format( "container.inventory" ), 8, ySize - 96 + 2, 0x404040 );
-    }*/
-
     @Override
-    protected void drawGuiContainerBackgroundLayer( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
+    protected void renderBg( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
         RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        minecraft.getTextureManager().bindTexture( BACKGROUND );
-        blit( transform, guiLeft, guiTop, 0, 0, xSize, ySize );
+        minecraft.getTextureManager().bind( BACKGROUND );
+        blit( transform, leftPos, topPos, 0, 0, imageWidth, imageHeight );
 
-        if( getContainer().isPrinting() ) blit( transform, guiLeft + 34, guiTop + 21, 176, 0, 25, 45 );
+        if( getMenu().isPrinting() ) blit( transform, leftPos + 34, topPos + 21, 176, 0, 25, 45 );
     }
 
     @Override
@@ -47,6 +39,6 @@ public class GuiPrinter extends ContainerScreen<ContainerPrinter>
     {
         renderBackground( stack );
         super.render( stack, mouseX, mouseY, partialTicks );
-        renderHoveredTooltip( stack, mouseX, mouseY );
+        renderTooltip( stack, mouseX, mouseY );
     }
 }

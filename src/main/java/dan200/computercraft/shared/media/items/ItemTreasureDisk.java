@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.media.items;
@@ -41,12 +41,12 @@ public class ItemTreasureDisk extends Item implements IMedia
     }
 
     @Override
-    public void fillItemGroup( @Nonnull ItemGroup group, @Nonnull NonNullList<ItemStack> stacks )
+    public void fillItemCategory( @Nonnull ItemGroup group, @Nonnull NonNullList<ItemStack> stacks )
     {
     }
 
     @Override
-    public void addInformation( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag tooltipOptions )
+    public void appendHoverText( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, @Nonnull ITooltipFlag tooltipOptions )
     {
         String label = getTitle( stack );
         if( !label.isEmpty() ) list.add( new StringTextComponent( label ) );
@@ -68,6 +68,8 @@ public class ItemTreasureDisk extends Item implements IMedia
     public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )
     {
         IMount rootTreasure = getTreasureMount();
+        if( rootTreasure == null ) return null;
+
         String subPath = getSubPath( stack );
         try
         {
@@ -121,7 +123,7 @@ public class ItemTreasureDisk extends Item implements IMedia
     private static String getTitle( @Nonnull ItemStack stack )
     {
         CompoundNBT nbt = stack.getTag();
-        return nbt != null && nbt.contains( NBT_TITLE ) ? nbt.getString( NBT_TITLE ) : "'alongtimeago' by dan200";
+        return nbt != null && nbt.contains( NBT_TITLE ) ? nbt.getString( NBT_TITLE ) : "'missingno' by how did you get this anyway?";
     }
 
     @Nonnull

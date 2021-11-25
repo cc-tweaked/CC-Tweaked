@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.monitor;
@@ -20,6 +20,7 @@ import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.RegistryObject;
 
 import javax.annotation.Nonnull;
@@ -32,20 +33,20 @@ public class BlockMonitor extends BlockGeneric
 
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.create( "state", MonitorEdgeState.class );
+    public static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.create( "state", MonitorEdgeState.class );
 
     public BlockMonitor( Properties settings, RegistryObject<? extends TileEntityType<? extends TileMonitor>> type )
     {
         super( settings, type );
         // TODO: Test underwater - do we need isSolid at all?
-        setDefaultState( getStateContainer().getBaseState()
-            .with( ORIENTATION, Direction.NORTH )
-            .with( FACING, Direction.NORTH )
-            .with( STATE, MonitorEdgeState.NONE ) );
+        registerDefaultState( getStateDefinition().any()
+            .setValue( ORIENTATION, Direction.NORTH )
+            .setValue( FACING, Direction.NORTH )
+            .setValue( STATE, MonitorEdgeState.NONE ) );
     }
 
     @Override
-    protected void fillStateContainer( StateContainer.Builder<Block, BlockState> builder )
+    protected void createBlockStateDefinition( StateContainer.Builder<Block, BlockState> builder )
     {
         builder.add( ORIENTATION, FACING, STATE );
     }
@@ -54,7 +55,7 @@ public class BlockMonitor extends BlockGeneric
     @Nullable
     public BlockState getStateForPlacement( BlockItemUseContext context )
     {
-        float pitch = context.getPlayer() == null ? 0 : context.getPlayer().rotationPitch;
+        float pitch = context.getPlayer() == null ? 0 : context.getPlayer().xRot;
         Direction orientation;
         if( pitch > 66.5f )
         {
@@ -71,22 +72,27 @@ public class BlockMonitor extends BlockGeneric
             orientation = Direction.NORTH;
         }
 
-        return getDefaultState()
-            .with( FACING, context.getPlacementHorizontalFacing().getOpposite() )
-            .with( ORIENTATION, orientation );
+        return defaultBlockState()
+            .setValue( FACING, context.getHorizontalDirection().getOpposite() )
+            .setValue( ORIENTATION, orientation );
     }
 
     @Override
-    public void onBlockPlacedBy( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState blockState, @Nullable LivingEntity livingEntity, @Nonnull ItemStack itemStack )
+    public void setPlacedBy( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState blockState, @Nullable LivingEntity livingEntity, @Nonnull ItemStack itemStack )
     {
-        super.onBlockPlacedBy( world, pos, blockState, livingEntity, itemStack );
+        super.setPlacedBy( world, pos, blockState, livingEntity, itemStack );
 
-        TileEntity entity = world.getTileEntity( pos );
-        if( entity instanceof TileMonitor && !world.isRemote )
+        TileEntity entity = world.getBlockEntity( pos );
+        if( entity instanceof TileMonitor && !world.isClientSide )
         {
             TileMonitor monitor = (TileMonitor) entity;
-            monitor.contractNeighbours();
-            monitor.contract();
+            // Defer the block update if we're being placed by another TE. See #691
+            if( livingEntity == null || livingEntity instanceof FakePlayer )
+            {
+                monitor.updateNeighborsDeferred();
+                return;
+            }
+
             monitor.expand();
         }
     }

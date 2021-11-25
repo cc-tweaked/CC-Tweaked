@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.modem.wired;
@@ -34,7 +34,7 @@ public final class WiredModemLocalPeripheral
     private static final String NBT_PERIPHERAL_TYPE = "PeripheralType";
     private static final String NBT_PERIPHERAL_ID = "PeripheralId";
 
-    private int id;
+    private int id = -1;
     private String type;
 
     private IPeripheral peripheral;
@@ -141,7 +141,7 @@ public final class WiredModemLocalPeripheral
     @Nullable
     private IPeripheral getPeripheralFrom( World world, BlockPos pos, Direction direction )
     {
-        BlockPos offset = pos.offset( direction );
+        BlockPos offset = pos.relative( direction );
 
         Block block = world.getBlockState( offset ).getBlock();
         if( block == Registry.ModBlocks.WIRED_MODEM_FULL.get() || block == Registry.ModBlocks.CABLE.get() ) return null;

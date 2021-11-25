@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.pocket.peripherals;
@@ -47,7 +47,7 @@ public class PocketModem extends AbstractPocketUpgrade
 
         PocketModemPeripheral modem = (PocketModemPeripheral) peripheral;
 
-        if( entity != null ) modem.setLocation( entity.getEntityWorld(), entity.getEyePosition( 1 ) );
+        if( entity != null ) modem.setLocation( entity.getCommandSenderWorld(), entity.getEyePosition( 1 ) );
 
         ModemState state = modem.getModemState();
         if( state.pollChanged() ) access.setLight( state.isOpen() ? 0xBA0000 : -1 );

@@ -1,21 +1,17 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis.http.websocket;
 
-import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.options.Options;
 import dan200.computercraft.core.tracking.TrackingField;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ConnectTimeoutException;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.TooLongFrameException;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.*;
-import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.util.CharsetUtil;
 
 import static dan200.computercraft.core.apis.http.websocket.Websocket.MESSAGE_EVENT;
@@ -97,24 +93,7 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object>
     {
         ctx.close();
 
-        String message;
-        if( cause instanceof WebSocketHandshakeException || cause instanceof HTTPRequestException )
-        {
-            message = cause.getMessage();
-        }
-        else if( cause instanceof TooLongFrameException )
-        {
-            message = "Message is too large";
-        }
-        else if( cause instanceof ReadTimeoutException || cause instanceof ConnectTimeoutException )
-        {
-            message = "Timed out";
-        }
-        else
-        {
-            message = "Could not connect";
-        }
-
+        String message = NetworkUtils.toFriendlyError( cause );
         if( handshaker.isHandshakeComplete() )
         {
             websocket.close( -1, message );

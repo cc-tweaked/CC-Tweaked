@@ -204,6 +204,7 @@ black = 0x8000
 --
 -- @tparam number ... The colors to combine.
 -- @treturn number The union of the color sets given in `...`
+-- @since 1.2
 -- @usage
 -- ```lua
 -- colors.combine(colors.white, colors.magenta, colours.lightBlue)
@@ -229,6 +230,7 @@ end
 -- @tparam number colors The color from which to subtract.
 -- @tparam number ... The colors to subtract.
 -- @treturn number The resulting color.
+-- @since 1.2
 -- @usage
 -- ```lua
 -- colours.subtract(colours.lime, colours.orange, colours.white)
@@ -251,6 +253,7 @@ end
 -- @tparam number colors A color, or color set
 -- @tparam number color A color or set of colors that `colors` should contain.
 -- @treturn boolean If `colors` contains all colors within `color`.
+-- @since 1.2
 -- @usage
 -- ```lua
 -- colors.test(colors.combine(colors.white, colors.magenta, colours.lightBlue), colors.lightBlue)
@@ -270,9 +273,10 @@ end
 -- @treturn number The combined hexadecimal colour.
 -- @usage
 -- ```lua
--- colors.rgb(0.7, 0.2, 0.6)
+-- colors.packRGB(0.7, 0.2, 0.6)
 -- -- => 0xb23399
 -- ```
+-- @since 1.81.0
 function packRGB(r, g, b)
     expect(1, r, "number")
     expect(2, g, "number")
@@ -291,10 +295,11 @@ end
 -- @treturn number The blue channel, will be between 0 and 1.
 -- @usage
 -- ```lua
--- colors.rgb(0xb23399)
+-- colors.unpackRGB(0xb23399)
 -- -- => 0.7, 0.2, 0.6
 -- ```
 -- @see colors.packRGB
+-- @since 1.81.0
 function unpackRGB(rgb)
     expect(1, rgb, "number")
     return
@@ -317,14 +322,16 @@ end
 -- @deprecated Use @{packRGB} or @{unpackRGB} directly.
 -- @usage
 -- ```lua
--- colors.rgb(0xb23399)
+-- colors.rgb8(0xb23399)
 -- -- => 0.7, 0.2, 0.6
 -- ```
 -- @usage
 -- ```lua
--- colors.rgb(0.7, 0.2, 0.6)
+-- colors.rgb8(0.7, 0.2, 0.6)
 -- -- => 0xb23399
 -- ```
+-- @since 1.80pr1
+-- @changed 1.81.0 Deprecated in favor of colors.(un)packRGB.
 function rgb8(r, g, b)
     if g == nil and b == nil then
         return unpackRGB(r)
@@ -345,6 +352,7 @@ end
 --
 -- @tparam number color The color to convert.
 -- @treturn string The blit hex code of the color.
+-- @since 1.94.0
 function toBlit(color)
     expect(1, color, "number")
     return color_hex_lookup[color] or

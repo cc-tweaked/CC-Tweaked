@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.filesystem;
@@ -17,11 +17,11 @@ import java.util.function.Function;
 
 public class FileSystemWrapperMount implements IFileSystem
 {
-    private final FileSystem m_filesystem;
+    private final FileSystem filesystem;
 
     public FileSystemWrapperMount( FileSystem filesystem )
     {
-        this.m_filesystem = filesystem;
+        this.filesystem = filesystem;
     }
 
     @Override
@@ -29,7 +29,7 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            m_filesystem.makeDir( path );
+            filesystem.makeDir( path );
         }
         catch( FileSystemException e )
         {
@@ -42,7 +42,7 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            m_filesystem.delete( path );
+            filesystem.delete( path );
         }
         catch( FileSystemException e )
         {
@@ -57,7 +57,7 @@ public class FileSystemWrapperMount implements IFileSystem
         try
         {
             // FIXME: Think of a better way of implementing this, so closing this will close on the computer.
-            return m_filesystem.openForRead( path, Function.identity() ).get();
+            return filesystem.openForRead( path, Function.identity() ).get();
         }
         catch( FileSystemException e )
         {
@@ -71,7 +71,7 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            return m_filesystem.openForWrite( path, false, Function.identity() ).get();
+            return filesystem.openForWrite( path, false, Function.identity() ).get();
         }
         catch( FileSystemException e )
         {
@@ -85,7 +85,7 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            return m_filesystem.openForWrite( path, true, Function.identity() ).get();
+            return filesystem.openForWrite( path, true, Function.identity() ).get();
         }
         catch( FileSystemException e )
         {
@@ -98,7 +98,7 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            return m_filesystem.getFreeSpace( "/" );
+            return filesystem.getFreeSpace( "/" );
         }
         catch( FileSystemException e )
         {
@@ -111,7 +111,7 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            return m_filesystem.exists( path );
+            return filesystem.exists( path );
         }
         catch( FileSystemException e )
         {
@@ -124,7 +124,7 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            return m_filesystem.isDir( path );
+            return filesystem.isDir( path );
         }
         catch( FileSystemException e )
         {
@@ -137,7 +137,7 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            Collections.addAll( contents, m_filesystem.list( path ) );
+            Collections.addAll( contents, filesystem.list( path ) );
         }
         catch( FileSystemException e )
         {
@@ -150,7 +150,7 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            return m_filesystem.getSize( path );
+            return filesystem.getSize( path );
         }
         catch( FileSystemException e )
         {
@@ -161,7 +161,7 @@ public class FileSystemWrapperMount implements IFileSystem
     @Override
     public String combine( String path, String child )
     {
-        return m_filesystem.combine( path, child );
+        return filesystem.combine( path, child );
     }
 
     @Override
@@ -169,7 +169,7 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            m_filesystem.copy( from, to );
+            filesystem.copy( from, to );
         }
         catch( FileSystemException e )
         {
@@ -182,7 +182,7 @@ public class FileSystemWrapperMount implements IFileSystem
     {
         try
         {
-            m_filesystem.move( from, to );
+            filesystem.move( from, to );
         }
         catch( FileSystemException e )
         {

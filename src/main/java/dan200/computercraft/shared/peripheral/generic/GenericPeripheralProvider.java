@@ -1,12 +1,12 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.generic;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.PeripheralType;
 import dan200.computercraft.core.asm.NamedMethod;
 import dan200.computercraft.core.asm.PeripheralMethod;
 import net.minecraft.tileentity.TileEntity;
@@ -15,55 +15,86 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class GenericPeripheralProvider
 {
-    private static final Capability<?>[] CAPABILITIES = new Capability<?>[] {
-        CapabilityItemHandler.ITEM_HANDLER_CAPABILITY,
-        CapabilityEnergy.ENERGY,
-        CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY,
-    };
+    private static final ArrayList<Capability<?>> capabilities = new ArrayList<>();
 
-    @Nonnull
-    public static LazyOptional<IPeripheral> getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
+    public static synchronized void addCapability( Capability<?> capability )
     {
-        TileEntity tile = world.getTileEntity( pos );
-        if( tile == null ) return LazyOptional.empty();
+        Objects.requireNonNull( capability, "Capability cannot be null" );
+        if( !capabilities.contains( capability ) ) capabilities.add( capability );
+    }
 
-        ArrayList<SaturatedMethod> saturated = new ArrayList<>( 0 );
-        LazyOptional<IPeripheral> peripheral = LazyOptional.of( () -> new GenericPeripheral( tile, saturated ) );
+    @Nullable
+    public static IPeripheral getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side, NonNullConsumer<LazyOptional<IPeripheral>> invalidate )
+    {
+        TileEntity tile = world.getBlockEntity( pos );
+        if( tile == null ) return null;
+
+        GenericPeripheralBuilder saturated = new GenericPeripheralBuilder();
 
         List<NamedMethod<PeripheralMethod>> tileMethods = PeripheralMethod.GENERATOR.getMethods( tile.getClass() );
-        if( !tileMethods.isEmpty() ) addSaturated( saturated, tile, tileMethods );
+        if( !tileMethods.isEmpty() ) saturated.addMethods( tile, tileMethods );
 
-        for( Capability<?> capability : CAPABILITIES )
+        for( Capability<?> capability : capabilities )
         {
             LazyOptional<?> wrapper = tile.getCapability( capability );
             wrapper.ifPresent( contents -> {
                 List<NamedMethod<PeripheralMethod>> capabilityMethods = PeripheralMethod.GENERATOR.getMethods( contents.getClass() );
                 if( capabilityMethods.isEmpty() ) return;
 
-                addSaturated( saturated, contents, capabilityMethods );
-                wrapper.addListener( x -> peripheral.invalidate() );
+                saturated.addMethods( contents, capabilityMethods );
+                wrapper.addListener( cast( invalidate ) );
             } );
         }
 
-        return saturated.isEmpty() ? LazyOptional.empty() : peripheral;
+        return saturated.toPeripheral( tile );
     }
 
-    private static void addSaturated( ArrayList<SaturatedMethod> saturated, Object target, List<NamedMethod<PeripheralMethod>> methods )
+    private static class GenericPeripheralBuilder
     {
-        saturated.ensureCapacity( saturated.size() + methods.size() );
-        for( NamedMethod<PeripheralMethod> method : methods )
+        String name;
+        final ArrayList<SaturatedMethod> methods = new ArrayList<>( 0 );
+
+        IPeripheral toPeripheral( TileEntity tile )
         {
-            saturated.add( new SaturatedMethod( target, method ) );
+            if( methods.isEmpty() ) return null;
+
+            methods.trimToSize();
+            return new GenericPeripheral( tile, name, methods );
         }
+
+        void addMethods( Object target, List<NamedMethod<PeripheralMethod>> methods )
+        {
+            ArrayList<SaturatedMethod> saturatedMethods = this.methods;
+            saturatedMethods.ensureCapacity( saturatedMethods.size() + methods.size() );
+            for( NamedMethod<PeripheralMethod> method : methods )
+            {
+                saturatedMethods.add( new SaturatedMethod( target, method ) );
+
+                // If we have a peripheral type, use it. Always pick the smallest one, so it's consistent (assuming mods
+                // don't change).
+                PeripheralType type = method.getGenericType();
+                if( type != null && type.getPrimaryType() != null )
+                {
+                    String name = type.getPrimaryType();
+                    if( this.name == null || this.name.compareTo( name ) > 0 ) this.name = name;
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
+    private static <T> NonNullConsumer<T> cast( NonNullConsumer<?> consumer )
+    {
+        return (NonNullConsumer) consumer;
     }
 }

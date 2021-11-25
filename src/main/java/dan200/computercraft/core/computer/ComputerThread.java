@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.computer;
@@ -506,6 +506,8 @@ public final class ComputerThread
                 catch( Exception | LinkageError | VirtualMachineError e )
                 {
                     ComputerCraft.log.error( "Error running task on computer #" + executor.getComputer().getID(), e );
+                    // Tear down the computer immediately. There's no guarantee it's well behaved from now on.
+                    executor.fastFail();
                 }
                 finally
                 {

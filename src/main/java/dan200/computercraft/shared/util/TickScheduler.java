@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.util;
@@ -40,8 +40,8 @@ public final class TickScheduler
 
     public static void schedule( TileGeneric tile )
     {
-        World world = tile.getWorld();
-        if( world != null && !world.isRemote ) toTick.add( tile );
+        World world = tile.getLevel();
+        if( world != null && !world.isClientSide ) toTick.add( tile );
     }
 
     @SubscribeEvent
@@ -55,12 +55,12 @@ public final class TickScheduler
             TileEntity tile = iterator.next();
             iterator.remove();
 
-            World world = tile.getWorld();
-            BlockPos pos = tile.getPos();
+            World world = tile.getLevel();
+            BlockPos pos = tile.getBlockPos();
 
-            if( world != null && pos != null && world.isAreaLoaded( pos, 0 ) && world.getTileEntity( pos ) == tile )
+            if( world != null && pos != null && world.isAreaLoaded( pos, 0 ) && world.getBlockEntity( pos ) == tile )
             {
-                world.getPendingBlockTicks().scheduleTick( pos, tile.getBlockState().getBlock(), 0 );
+                world.getBlockTicks().scheduleTick( pos, tile.getBlockState().getBlock(), 0 );
             }
         }
     }

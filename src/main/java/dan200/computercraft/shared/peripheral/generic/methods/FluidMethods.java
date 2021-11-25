@@ -1,17 +1,16 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.generic.methods;
 
-import com.google.auto.service.AutoService;
+import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.asm.GenericSource;
 import dan200.computercraft.shared.peripheral.generic.data.FluidData;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.util.ResourceLocation;
@@ -21,7 +20,6 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.versions.forge.ForgeVersion;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,16 +29,33 @@ import java.util.Optional;
 
 import static dan200.computercraft.shared.peripheral.generic.methods.ArgumentHelpers.getRegistryEntry;
 
-@AutoService( GenericSource.class )
+/**
+ * Methods for interacting with tanks and other fluid storage blocks.
+ *
+ * @cc.module fluid_storage
+ */
 public class FluidMethods implements GenericSource
 {
     @Nonnull
     @Override
     public ResourceLocation id()
     {
-        return new ResourceLocation( ForgeVersion.MOD_ID, "fluid" );
+        return new ResourceLocation( ComputerCraft.MOD_ID, "fluid" );
     }
 
+    /**
+     * Get all "tanks" in this fluid storage.
+     *
+     * Each tank either contains some amount of fluid or is empty. Tanks with fluids inside will return some basic
+     * information about the fluid, including its name and amount.
+     *
+     * The returned table is sparse, and so empty tanks will be `nil` - it is recommended to loop over using `pairs`
+     * rather than `ipairs`.
+     *
+     * @param fluids The current fluid handler.
+     * @return All tanks.
+     * @cc.treturn { (table|nil)... } All tanks in this fluid storage.
+     */
     @LuaFunction( mainThread = true )
     public static Map<Integer, Map<String, ?>> tanks( IFluidHandler fluids )
     {
@@ -55,6 +70,22 @@ public class FluidMethods implements GenericSource
         return result;
     }
 
+    /**
+     * Move a fluid from one fluid container to another connected one.
+     *
+     * This allows you to pull fluid in the current fluid container to another container <em>on the same wired
+     * network</em>. Both containers must attached to wired modems which are connected via a cable.
+     *
+     * @param from      Container to move fluid from.
+     * @param computer  The current computer.
+     * @param toName    The name of the peripheral/container to push to. This is the string given to @{peripheral.wrap},
+     *                  and displayed by the wired modem.
+     * @param limit     The maximum amount of fluid to move.
+     * @param fluidName The fluid to move. If not given, an arbitrary fluid will be chosen.
+     * @return The amount of moved fluid.
+     * @throws LuaException If the peripheral to transfer to doesn't exist or isn't an fluid container.
+     * @cc.see peripheral.getName Allows you to get the name of a @{peripheral.wrap|wrapped} peripheral.
+     */
     @LuaFunction( mainThread = true )
     public static int pushFluid(
         IFluidHandler from, IComputerAccess computer,
@@ -80,6 +111,22 @@ public class FluidMethods implements GenericSource
             : moveFluid( from, new FluidStack( fluid, actualLimit ), to );
     }
 
+    /**
+     * Move a fluid from a connected fluid container into this oneone.
+     *
+     * This allows you to pull fluid in the current fluid container from another container <em>on the same wired
+     * network</em>. Both containers must attached to wired modems which are connected via a cable.
+     *
+     * @param to        Container to move fluid to.
+     * @param computer  The current computer.
+     * @param fromName  The name of the peripheral/container to push to. This is the string given to @{peripheral.wrap},
+     *                  and displayed by the wired modem.
+     * @param limit     The maximum amount of fluid to move.
+     * @param fluidName The fluid to move. If not given, an arbitrary fluid will be chosen.
+     * @return The amount of moved fluid.
+     * @throws LuaException If the peripheral to transfer to doesn't exist or isn't an fluid container.
+     * @cc.see peripheral.getName Allows you to get the name of a @{peripheral.wrap|wrapped} peripheral.
+     */
     @LuaFunction( mainThread = true )
     public static int pullFluid(
         IFluidHandler to, IComputerAccess computer,

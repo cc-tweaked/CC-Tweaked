@@ -1,0 +1,15 @@
+{
+    "problemMatcher": [
+        {
+            "owner": "junit",
+            "pattern": [
+                {
+                    "regexp": "^## ([\\w./-]+):(\\d+): (.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "message": 3
+                }
+            ]
+        }
+    ]
+}

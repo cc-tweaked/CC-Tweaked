@@ -1,0 +1,163 @@
+{
+    size: [3, 3, 3],
+    entities: [],
+    blocks: [
+        {
+            pos: [0, 0, 0],
+            state: 0
+        },
+        {
+            pos: [1, 0, 0],
+            state: 0
+        },
+        {
+            pos: [2, 0, 0],
+            state: 0
+        },
+        {
+            pos: [0, 0, 1],
+            state: 0
+        },
+        {
+            pos: [1, 0, 1],
+            state: 0
+        },
+        {
+            pos: [2, 0, 1],
+            state: 0
+        },
+        {
+            pos: [0, 0, 2],
+            state: 0
+        },
+        {
+            pos: [1, 0, 2],
+            state: 0
+        },
+        {
+            pos: [2, 0, 2],
+            state: 0
+        },
+        {
+            nbt: {
+                Owner: {
+                    UpperId: 4039158846114182220L,
+                    LowerId: -6876936588741668278L,
+                    Name: "Dev"
+                },
+                Fuel: 0,
+                Label: "turtle_test.cleaned_with_cauldrons",
+                Slot: 0,
+                Items: [
+                    {
+                        Slot: 0b,
+                        id: "computercraft:turtle_normal",
+                        Count: 1b,
+                        tag: {
+                            display: {
+                                Name: '{"text":"Clean turtle"}'
+                            },
+                            Color: 13388876,
+                            ComputerId: 0
+                        }
+                    }
+                ],
+                id: "computercraft:turtle_normal",
+                ComputerId: 0,
+                On: 1b
+            },
+            pos: [1, 1, 0],
+            state: 1
+        },
+        {
+            pos: [0, 1, 0],
+            state: 2
+        },
+        {
+            pos: [2, 1, 0],
+            state: 2
+        },
+        {
+            pos: [0, 2, 0],
+            state: 2
+        },
+        {
+            pos: [1, 2, 0],
+            state: 2
+        },
+        {
+            pos: [2, 2, 0],
+            state: 2
+        },
+        {
+            pos: [0, 1, 1],
+            state: 2
+        },
+        {
+            pos: [1, 1, 1],
+            state: 3
+        },
+        {
+            pos: [2, 1, 1],
+            state: 2
+        },
+        {
+            pos: [0, 2, 1],
+            state: 2
+        },
+        {
+            pos: [1, 2, 1],
+            state: 2
+        },
+        {
+            pos: [2, 2, 1],
+            state: 2
+        },
+        {
+            pos: [0, 1, 2],
+            state: 2
+        },
+        {
+            pos: [1, 1, 2],
+            state: 2
+        },
+        {
+            pos: [2, 1, 2],
+            state: 2
+        },
+        {
+            pos: [0, 2, 2],
+            state: 2
+        },
+        {
+            pos: [1, 2, 2],
+            state: 2
+        },
+        {
+            pos: [2, 2, 2],
+            state: 2
+        }
+    ],
+    palette: [
+        {
+            Name: "minecraft:polished_andesite"
+        },
+        {
+            Properties: {
+                waterlogged: "false",
+                facing: "south"
+            },
+            Name: "computercraft:turtle_normal"
+        },
+        {
+            Name: "minecraft:air"
+        },
+        {
+            Properties: {
+                level: "3"
+            },
+            Name: "minecraft:cauldron"
+        }
+    ],
+    DataVersion: 2230
+}

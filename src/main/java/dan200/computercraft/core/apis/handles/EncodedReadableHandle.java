@@ -1,16 +1,16 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis.handles;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.core.filesystem.TrackingCloseable;
 
 import javax.annotation.Nonnull;
 import java.io.BufferedReader;
-import java.io.Closeable;
 import java.io.IOException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -32,7 +32,7 @@ public class EncodedReadableHandle extends HandleGeneric
 
     private final BufferedReader reader;
 
-    public EncodedReadableHandle( @Nonnull BufferedReader reader, @Nonnull Closeable closable )
+    public EncodedReadableHandle( @Nonnull BufferedReader reader, @Nonnull TrackingCloseable closable )
     {
         super( closable );
         this.reader = reader;
@@ -40,7 +40,7 @@ public class EncodedReadableHandle extends HandleGeneric
 
     public EncodedReadableHandle( @Nonnull BufferedReader reader )
     {
-        this( reader, reader );
+        this( reader, new TrackingCloseable.Impl( reader ) );
     }
 
     /**
@@ -50,6 +50,7 @@ public class EncodedReadableHandle extends HandleGeneric
      * @return The read string.
      * @throws LuaException If the file has been closed.
      * @cc.treturn string|nil The read line or {@code nil} if at the end of the file.
+     * @cc.changed 1.81.0 Added option to return trailing newline.
      */
     @LuaFunction
     public final Object[] readLine( Optional<Boolean> withTrailingArg ) throws LuaException
@@ -116,6 +117,7 @@ public class EncodedReadableHandle extends HandleGeneric
      * @throws LuaException When trying to read a negative number of characters.
      * @throws LuaException If the file has been closed.
      * @cc.treturn string|nil The read characters, or {@code nil} if at the of the file.
+     * @cc.since 1.80pr1.4
      */
     @LuaFunction
     public final Object[] read( Optional<Integer> countA ) throws LuaException

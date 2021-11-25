@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+- name: ComputerCraft Discord
+  url: https://discord.computercraft.cc
+  about: Get help on the ComputerCraft Discord.
+- name: GitHub Discussions
+  url: https://github.com/cc-tweaked/CC-Tweaked/discussions
+  about: Or ask questions on GitHub Discussions.

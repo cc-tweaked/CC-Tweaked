@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.turtle.upgrades;
@@ -63,17 +63,10 @@ public class TurtleModem extends AbstractTurtleUpgrade
 
     private final boolean advanced;
 
-    @OnlyIn( Dist.CLIENT )
-    private ModelResourceLocation m_leftOffModel;
-
-    @OnlyIn( Dist.CLIENT )
-    private ModelResourceLocation m_rightOffModel;
-
-    @OnlyIn( Dist.CLIENT )
-    private ModelResourceLocation m_leftOnModel;
-
-    @OnlyIn( Dist.CLIENT )
-    private ModelResourceLocation m_rightOnModel;
+    private final ModelResourceLocation leftOffModel;
+    private final ModelResourceLocation rightOffModel;
+    private final ModelResourceLocation leftOnModel;
+    private final ModelResourceLocation rightOnModel;
 
     public TurtleModem( boolean advanced, ResourceLocation id )
     {
@@ -84,6 +77,21 @@ public class TurtleModem extends AbstractTurtleUpgrade
                 : Registry.ModBlocks.WIRELESS_MODEM_NORMAL
         );
         this.advanced = advanced;
+
+        if( advanced )
+        {
+            leftOffModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_off_left", "inventory" );
+            rightOffModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_off_right", "inventory" );
+            leftOnModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_on_left", "inventory" );
+            rightOnModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_on_right", "inventory" );
+        }
+        else
+        {
+            leftOffModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_off_left", "inventory" );
+            rightOffModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_off_right", "inventory" );
+            leftOnModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_on_left", "inventory" );
+            rightOnModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_on_right", "inventory" );
+        }
     }
 
     @Override
@@ -99,35 +107,11 @@ public class TurtleModem extends AbstractTurtleUpgrade
         return TurtleCommandResult.failure();
     }
 
-    @OnlyIn( Dist.CLIENT )
-    private void loadModelLocations()
-    {
-        if( m_leftOffModel == null )
-        {
-            if( advanced )
-            {
-                m_leftOffModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_off_left", "inventory" );
-                m_rightOffModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_off_right", "inventory" );
-                m_leftOnModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_on_left", "inventory" );
-                m_rightOnModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_on_right", "inventory" );
-            }
-            else
-            {
-                m_leftOffModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_off_left", "inventory" );
-                m_rightOffModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_off_right", "inventory" );
-                m_leftOnModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_on_left", "inventory" );
-                m_rightOnModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_on_right", "inventory" );
-            }
-        }
-    }
-
     @Nonnull
     @Override
     @OnlyIn( Dist.CLIENT )
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
-        loadModelLocations();
-
         boolean active = false;
         if( turtle != null )
         {
@@ -136,15 +120,15 @@ public class TurtleModem extends AbstractTurtleUpgrade
         }
 
         return side == TurtleSide.LEFT
-            ? TransformedModel.of( active ? m_leftOnModel : m_leftOffModel )
-            : TransformedModel.of( active ? m_rightOnModel : m_rightOffModel );
+            ? TransformedModel.of( active ? leftOnModel : leftOffModel )
+            : TransformedModel.of( active ? rightOnModel : rightOffModel );
     }
 
     @Override
     public void update( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         // Advance the modem
-        if( !turtle.getWorld().isRemote )
+        if( !turtle.getWorld().isClientSide )
         {
             IPeripheral peripheral = turtle.getPeripheral( side );
             if( peripheral instanceof Peripheral )

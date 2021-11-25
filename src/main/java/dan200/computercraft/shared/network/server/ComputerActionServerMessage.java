@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.network.server;
@@ -8,12 +8,13 @@ package dan200.computercraft.shared.network.server;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
 public class ComputerActionServerMessage extends ComputerServerMessage
 {
-    private Action action;
+    private final Action action;
 
     public ComputerActionServerMessage( int instanceId, Action action )
     {
@@ -21,26 +22,21 @@ public class ComputerActionServerMessage extends ComputerServerMessage
         this.action = action;
     }
 
-    public ComputerActionServerMessage()
+    public ComputerActionServerMessage( @Nonnull PacketBuffer buf )
     {
+        super( buf );
+        action = buf.readEnum( Action.class );
     }
 
     @Override
     public void toBytes( @Nonnull PacketBuffer buf )
     {
         super.toBytes( buf );
-        buf.writeEnumValue( action );
+        buf.writeEnum( action );
     }
 
     @Override
-    public void fromBytes( @Nonnull PacketBuffer buf )
-    {
-        super.fromBytes( buf );
-        action = buf.readEnumValue( Action.class );
-    }
-
-    @Override
-    protected void handle( @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
+    protected void handle( NetworkEvent.Context context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
         switch( action )
         {

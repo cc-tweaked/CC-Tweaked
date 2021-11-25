@@ -1,2 +1,15 @@
 # Ignore changes in generated files
 src/generated/resources/data/** linguist-generated
+src/testMod/server-files/structures linguist-generated
+
+* text=auto
+
+*.gradle eol=lf diff=java
+*.java   eol=lf diff=java
+*.kt     eol=lf diff=java
+*.lua    eol=lf
+*.md     eol=lf diff=markdown
+*.txt    eol=lf
+
+*.png binary
+*.jar binary

@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis.http.websocket;
@@ -22,12 +22,12 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
-import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
 import io.netty.handler.ssl.SslContext;
 
 import java.lang.ref.WeakReference;
@@ -145,20 +145,22 @@ public class Websocket extends Resource<Websocket>
                     protected void initChannel( SocketChannel ch )
                     {
                         ChannelPipeline p = ch.pipeline();
+                        p.addLast( NetworkUtils.SHAPING_HANDLER );
                         if( sslContext != null )
                         {
                             p.addLast( sslContext.newHandler( ch.alloc(), uri.getHost(), socketAddress.getPort() ) );
                         }
 
+                        String subprotocol = headers.get( HttpHeaderNames.SEC_WEBSOCKET_PROTOCOL );
                         WebSocketClientHandshaker handshaker = WebSocketClientHandshakerFactory.newHandshaker(
-                            uri, WebSocketVersion.V13, null, true, headers,
+                            uri, WebSocketVersion.V13, subprotocol, true, headers,
                             options.websocketMessage <= 0 ? MAX_MESSAGE_SIZE : options.websocketMessage
                         );
 
                         p.addLast(
                             new HttpClientCodec(),
                             new HttpObjectAggregator( 8192 ),
-                            WebSocketClientCompressionHandler.INSTANCE,
+                            WebsocketCompressionHandler.INSTANCE,
                             new WebsocketHandler( Websocket.this, handshaker, options )
                         );
                     }
@@ -166,7 +168,7 @@ public class Websocket extends Resource<Websocket>
                 .remoteAddress( socketAddress )
                 .connect()
                 .addListener( c -> {
-                    if( !c.isSuccess() ) failure( c.cause().getMessage() );
+                    if( !c.isSuccess() ) failure( NetworkUtils.toFriendlyError( c.cause() ) );
                 } );
 
             // Do an additional check for cancellation
@@ -178,7 +180,7 @@ public class Websocket extends Resource<Websocket>
         }
         catch( Exception e )
         {
-            failure( "Could not connect" );
+            failure( NetworkUtils.toFriendlyError( e ) );
             if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error in websocket", e );
         }
     }

@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis;
@@ -46,6 +46,7 @@ public class TermAPI extends TermMethods implements ILuaAPI
      * @cc.treturn number The red channel, will be between 0 and 1.
      * @cc.treturn number The green channel, will be between 0 and 1.
      * @cc.treturn number The blue channel, will be between 0 and 1.
+     * @cc.since 1.81.0
      * @see TermMethods#setPaletteColour(IArguments) To change the palette colour.
      */
     @LuaFunction( { "nativePaletteColour", "nativePaletteColor" } )

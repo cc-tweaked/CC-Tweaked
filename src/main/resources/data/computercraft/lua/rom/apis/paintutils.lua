@@ -2,6 +2,7 @@
 -- image files. You can use the `colors` API for easier color manipulation.
 --
 -- @module paintutils
+-- @since 1.45
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
@@ -47,6 +48,7 @@ end
 -- @tparam string image The string containing the raw-image data.
 -- @treturn table The parsed image data, suitable for use with
 -- @{paintutils.drawImage}.
+-- @since 1.80pr1
 function parseImage(image)
     expect(1, image, "string")
     local tImage = {}
@@ -64,6 +66,10 @@ end
 --
 -- @treturn table|nil The parsed image data, suitable for use with
 -- @{paintutils.drawImage}, or `nil` if the file does not exist.
+-- @usage Load an image and draw it.
+--
+--     local image = paintutils.loadImage("test-image.nfp")
+--     paintutils.drawImage(image, term.getCursorPos())
 function loadImage(path)
     expect(1, path, "string")
 
@@ -107,6 +113,7 @@ end
 -- @tparam number endY The end y position of the line.
 -- @tparam[opt] number colour The @{colors|color} of this pixel. This will be
 -- the current background colour if not specified.
+-- @usage paintutils.drawLine(2, 3, 30, 7, colors.red)
 function drawLine(startX, startY, endX, endY, colour)
     expect(1, startX, "number")
     expect(2, startY, "number")
@@ -127,7 +134,17 @@ function drawLine(startX, startY, endX, endY, colour)
         return
     end
 
-    local minX, maxX, minY, maxY = sortCoords(startX, startY, endX, endY)
+    local minX = math.min(startX, endX)
+    local maxX, minY, maxY
+    if minX == startX then
+        minY = startY
+        maxX = endX
+        maxY = endY
+    else
+        minY = endY
+        maxX = startX
+        maxY = startY
+    end
 
     -- TODO: clip to screen rectangle?
 
@@ -170,6 +187,7 @@ end
 -- @tparam number endY The end y position of the line.
 -- @tparam[opt] number colour The @{colors|color} of this pixel. This will be
 -- the current background colour if not specified.
+-- @usage paintutils.drawBox(2, 3, 30, 7, colors.red)
 function drawBox(startX, startY, endX, endY, nColour)
     expect(1, startX, "number")
     expect(2, startY, "number")
@@ -222,6 +240,7 @@ end
 -- @tparam number endY The end y position of the line.
 -- @tparam[opt] number colour The @{colors|color} of this pixel. This will be
 -- the current background colour if not specified.
+-- @usage paintutils.drawFilledBox(2, 3, 30, 7, colors.red)
 function drawFilledBox(startX, startY, endX, endY, nColour)
     expect(1, startX, "number")
     expect(2, startY, "number")
@@ -259,7 +278,7 @@ end
 --
 -- @tparam table image The parsed image data.
 -- @tparam number xPos The x position to start drawing at.
--- @tparam number xPos The y position to start drawing at.
+-- @tparam number yPos The y position to start drawing at.
 function drawImage(image, xPos, yPos)
     expect(1, image, "table")
     expect(2, xPos, "number")

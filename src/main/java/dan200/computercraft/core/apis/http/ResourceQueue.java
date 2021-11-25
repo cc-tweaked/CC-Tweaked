@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis.http;
@@ -38,8 +38,10 @@ public class ResourceQueue<T extends Resource<T>> extends ResourceGroup<T>
     public synchronized boolean queue( Supplier<T> resource )
     {
         if( !active ) return false;
+        if( super.queue( resource ) ) return true;
+        if( pending.size() > DEFAULT_LIMIT ) return false;
 
-        if( !super.queue( resource ) ) pending.add( resource );
+        pending.add( resource );
         return true;
     }
 

@@ -1,0 +1,660 @@
+{
+    size: [5, 5, 5],
+    entities: [
+        {
+            nbt: {
+                Brain: {
+                    memories: {}
+                },
+                HurtByTimestamp: 0,
+                Attributes: [
+                    {
+                        Base: 0.699999988079071d,
+                        Name: "minecraft:generic.movement_speed"
+                    }
+                ],
+                Invulnerable: 0b,
+                FallFlying: 0b,
+                ShowArms: 0b,
+                PortalCooldown: 0,
+                AbsorptionAmount: 0.0f,
+                FallDistance: 0.0f,
+                DisabledSlots: 0,
+                CanUpdate: 1b,
+                DeathTime: 0s,
+                Pose: {},
+                id: "minecraft:armor_stand",
+                Invisible: 1b,
+                UUID: [I; -1516632699, -1770765897, -1362337958, -475677268],
+                Motion: [0.0d, 0.0d, 0.0d],
+                Small: 0b,
+                Health: 20.0f,
+                Air: 300s,
+                OnGround: 0b,
+                Marker: 1b,
+                Rotation: [0.15043798f, 15.347454f],
+                HandItems: [
+                    {},
+                    {}
+                ],
+                CustomName: '{"text":"monitor_test.looks_acceptable_dark"}',
+                Pos: [64.3927139373022d, 6.0d, 59.30000001192093d],
+                Fire: -1s,
+                ArmorItems: [
+                    {},
+                    {},
+                    {},
+                    {}
+                ],
+                NoBasePlate: 0b,
+                HurtTime: 0s
+            },
+            blockPos: [2, 1, 1],
+            pos: [2.3927139373022044d, 1.0d, 1.300000011920929d]
+        }
+    ],
+    blocks: [
+        {
+            pos: [0, 0, 0],
+            state: 0
+        },
+        {
+            pos: [0, 0, 1],
+            state: 0
+        },
+        {
+            pos: [0, 0, 2],
+            state: 0
+        },
+        {
+            pos: [0, 0, 3],
+            state: 0
+        },
+        {
+            pos: [0, 0, 4],
+            state: 0
+        },
+        {
+            pos: [1, 0, 0],
+            state: 0
+        },
+        {
+            pos: [1, 0, 1],
+            state: 0
+        },
+        {
+            pos: [1, 0, 2],
+            state: 0
+        },
+        {
+            pos: [1, 0, 3],
+            state: 0
+        },
+        {
+            pos: [1, 0, 4],
+            state: 0
+        },
+        {
+            pos: [2, 0, 0],
+            state: 0
+        },
+        {
+            pos: [2, 0, 1],
+            state: 0
+        },
+        {
+            pos: [2, 0, 2],
+            state: 0
+        },
+        {
+            pos: [2, 0, 3],
+            state: 0
+        },
+        {
+            pos: [2, 0, 4],
+            state: 0
+        },
+        {
+            pos: [3, 0, 0],
+            state: 0
+        },
+        {
+            pos: [3, 0, 1],
+            state: 0
+        },
+        {
+            pos: [3, 0, 2],
+            state: 0
+        },
+        {
+            pos: [3, 0, 3],
+            state: 0
+        },
+        {
+            pos: [3, 0, 4],
+            state: 0
+        },
+        {
+            pos: [4, 0, 0],
+            state: 0
+        },
+        {
+            pos: [4, 0, 1],
+            state: 0
+        },
+        {
+            pos: [4, 0, 2],
+            state: 0
+        },
+        {
+            pos: [4, 0, 3],
+            state: 0
+        },
+        {
+            pos: [4, 0, 4],
+            state: 0
+        },
+        {
+            pos: [0, 1, 0],
+            state: 1
+        },
+        {
+            pos: [0, 1, 1],
+            state: 1
+        },
+        {
+            pos: [0, 1, 2],
+            state: 1
+        },
+        {
+            pos: [0, 1, 3],
+            state: 1
+        },
+        {
+            pos: [0, 1, 4],
+            state: 1
+        },
+        {
+            pos: [1, 1, 0],
+            state: 1
+        },
+        {
+            pos: [1, 1, 4],
+            state: 1
+        },
+        {
+            pos: [2, 1, 0],
+            state: 1
+        },
+        {
+            pos: [2, 1, 4],
+            state: 1
+        },
+        {
+            pos: [3, 1, 0],
+            state: 1
+        },
+        {
+            pos: [3, 1, 4],
+            state: 1
+        },
+        {
+            pos: [4, 1, 0],
+            state: 1
+        },
+        {
+            pos: [4, 1, 1],
+            state: 1
+        },
+        {
+            pos: [4, 1, 2],
+            state: 1
+        },
+        {
+            pos: [4, 1, 3],
+            state: 1
+        },
+        {
+            pos: [4, 1, 4],
+            state: 1
+        },
+        {
+            pos: [0, 2, 0],
+            state: 1
+        },
+        {
+            pos: [0, 2, 1],
+            state: 1
+        },
+        {
+            pos: [0, 2, 2],
+            state: 1
+        },
+        {
+            pos: [0, 2, 3],
+            state: 1
+        },
+        {
+            pos: [0, 2, 4],
+            state: 1
+        },
+        {
+            pos: [1, 2, 0],
+            state: 1
+        },
+        {
+            pos: [1, 2, 4],
+            state: 1
+        },
+        {
+            pos: [2, 2, 0],
+            state: 1
+        },
+        {
+            pos: [2, 2, 4],
+            state: 1
+        },
+        {
+            pos: [3, 2, 0],
+            state: 1
+        },
+        {
+            pos: [3, 2, 4],
+            state: 1
+        },
+        {
+            pos: [4, 2, 0],
+            state: 1
+        },
+        {
+            pos: [4, 2, 1],
+            state: 1
+        },
+        {
+            pos: [4, 2, 2],
+            state: 1
+        },
+        {
+            pos: [4, 2, 3],
+            state: 1
+        },
+        {
+            pos: [4, 2, 4],
+            state: 1
+        },
+        {
+            pos: [0, 3, 0],
+            state: 1
+        },
+        {
+            pos: [0, 3, 1],
+            state: 1
+        },
+        {
+            pos: [0, 3, 2],
+            state: 1
+        },
+        {
+            pos: [0, 3, 3],
+            state: 1
+        },
+        {
+            pos: [0, 3, 4],
+            state: 1
+        },
+        {
+            pos: [1, 3, 0],
+            state: 1
+        },
+        {
+            pos: [1, 3, 4],
+            state: 1
+        },
+        {
+            pos: [2, 3, 0],
+            state: 1
+        },
+        {
+            pos: [2, 3, 4],
+            state: 1
+        },
+        {
+            pos: [3, 3, 0],
+            state: 1
+        },
+        {
+            pos: [3, 3, 4],
+            state: 1
+        },
+        {
+            pos: [4, 3, 0],
+            state: 1
+        },
+        {
+            pos: [4, 3, 1],
+            state: 1
+        },
+        {
+            pos: [4, 3, 2],
+            state: 1
+        },
+        {
+            pos: [4, 3, 3],
+            state: 1
+        },
+        {
+            pos: [4, 3, 4],
+            state: 1
+        },
+        {
+            pos: [0, 4, 0],
+            state: 1
+        },
+        {
+            pos: [0, 4, 1],
+            state: 1
+        },
+        {
+            pos: [0, 4, 2],
+            state: 1
+        },
+        {
+            pos: [0, 4, 3],
+            state: 1
+        },
+        {
+            pos: [0, 4, 4],
+            state: 1
+        },
+        {
+            pos: [1, 4, 0],
+            state: 1
+        },
+        {
+            pos: [1, 4, 1],
+            state: 1
+        },
+        {
+            pos: [1, 4, 2],
+            state: 1
+        },
+        {
+            pos: [1, 4, 3],
+            state: 1
+        },
+        {
+            pos: [1, 4, 4],
+            state: 1
+        },
+        {
+            pos: [2, 4, 0],
+            state: 1
+        },
+        {
+            pos: [2, 4, 1],
+            state: 1
+        },
+        {
+            pos: [2, 4, 2],
+            state: 1
+        },
+        {
+            pos: [2, 4, 3],
+            state: 1
+        },
+        {
+            pos: [2, 4, 4],
+            state: 1
+        },
+        {
+            pos: [3, 4, 0],
+            state: 1
+        },
+        {
+            pos: [3, 4, 1],
+            state: 1
+        },
+        {
+            pos: [3, 4, 2],
+            state: 1
+        },
+        {
+            pos: [3, 4, 3],
+            state: 1
+        },
+        {
+            pos: [3, 4, 4],
+            state: 1
+        },
+        {
+            pos: [4, 4, 0],
+            state: 1
+        },
+        {
+            pos: [4, 4, 1],
+            state: 1
+        },
+        {
+            pos: [4, 4, 2],
+            state: 1
+        },
+        {
+            pos: [4, 4, 3],
+            state: 1
+        },
+        {
+            pos: [4, 4, 4],
+            state: 1
+        },
+        {
+            pos: [1, 1, 1],
+            state: 2
+        },
+        {
+            pos: [1, 1, 2],
+            state: 2
+        },
+        {
+            pos: [2, 1, 1],
+            state: 2
+        },
+        {
+            pos: [2, 1, 2],
+            state: 2
+        },
+        {
+            pos: [3, 1, 1],
+            state: 2
+        },
+        {
+            pos: [3, 1, 2],
+            state: 2
+        },
+        {
+            pos: [1, 2, 1],
+            state: 2
+        },
+        {
+            pos: [1, 2, 2],
+            state: 2
+        },
+        {
+            pos: [2, 2, 1],
+            state: 2
+        },
+        {
+            pos: [2, 2, 2],
+            state: 2
+        },
+        {
+            pos: [3, 2, 1],
+            state: 2
+        },
+        {
+            pos: [3, 2, 2],
+            state: 2
+        },
+        {
+            pos: [1, 3, 1],
+            state: 2
+        },
+        {
+            pos: [1, 3, 2],
+            state: 2
+        },
+        {
+            pos: [1, 3, 3],
+            state: 2
+        },
+        {
+            pos: [2, 3, 1],
+            state: 2
+        },
+        {
+            pos: [2, 3, 2],
+            state: 2
+        },
+        {
+            pos: [2, 3, 3],
+            state: 2
+        },
+        {
+            pos: [3, 3, 1],
+            state: 2
+        },
+        {
+            pos: [3, 3, 2],
+            state: 2
+        },
+        {
+            pos: [3, 3, 3],
+            state: 2
+        },
+        {
+            nbt: {
+                XIndex: 2,
+                Height: 2,
+                id: "computercraft:monitor_advanced",
+                Width: 3,
+                YIndex: 0
+            },
+            pos: [1, 1, 3],
+            state: 3
+        },
+        {
+            nbt: {
+                XIndex: 1,
+                Height: 2,
+                id: "computercraft:monitor_advanced",
+                Width: 3,
+                YIndex: 0
+            },
+            pos: [2, 1, 3],
+            state: 4
+        },
+        {
+            nbt: {
+                XIndex: 0,
+                Height: 2,
+                id: "computercraft:monitor_advanced",
+                Width: 3,
+                YIndex: 0
+            },
+            pos: [3, 1, 3],
+            state: 5
+        },
+        {
+            nbt: {
+                XIndex: 2,
+                Height: 2,
+                id: "computercraft:monitor_advanced",
+                Width: 3,
+                YIndex: 1
+            },
+            pos: [1, 2, 3],
+            state: 6
+        },
+        {
+            nbt: {
+                XIndex: 1,
+                Height: 2,
+                id: "computercraft:monitor_advanced",
+                Width: 3,
+                YIndex: 1
+            },
+            pos: [2, 2, 3],
+            state: 7
+        },
+        {
+            nbt: {
+                XIndex: 0,
+                Height: 2,
+                id: "computercraft:monitor_advanced",
+                Width: 3,
+                YIndex: 1
+            },
+            pos: [3, 2, 3],
+            state: 8
+        }
+    ],
+    palette: [
+        {
+            Name: "minecraft:polished_andesite"
+        },
+        {
+            Name: "minecraft:white_concrete"
+        },
+        {
+            Name: "minecraft:air"
+        },
+        {
+            Properties: {
+                orientation: "north",
+                facing: "north",
+                state: "lu"
+            },
+            Name: "computercraft:monitor_advanced"
+        },
+        {
+            Properties: {
+                orientation: "north",
+                facing: "north",
+                state: "lru"
+            },
+            Name: "computercraft:monitor_advanced"
+        },
+        {
+            Properties: {
+                orientation: "north",
+                facing: "north",
+                state: "ru"
+            },
+            Name: "computercraft:monitor_advanced"
+        },
+        {
+            Properties: {
+                orientation: "north",
+                facing: "north",
+                state: "ld"
+            },
+            Name: "computercraft:monitor_advanced"
+        },
+        {
+            Properties: {
+                orientation: "north",
+                facing: "north",
+                state: "lrd"
+            },
+            Name: "computercraft:monitor_advanced"
+        },
+        {
+            Properties: {
+                orientation: "north",
+                facing: "north",
+                state: "rd"
+            },
+            Name: "computercraft:monitor_advanced"
+        }
+    ],
+    DataVersion: 2586
+}

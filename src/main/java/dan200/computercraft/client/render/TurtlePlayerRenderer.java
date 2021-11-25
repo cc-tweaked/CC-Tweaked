@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -24,7 +23,7 @@ public class TurtlePlayerRenderer extends EntityRenderer<TurtlePlayer>
 
     @Nonnull
     @Override
-    public ResourceLocation getEntityTexture( @Nonnull TurtlePlayer entity )
+    public ResourceLocation getTextureLocation( @Nonnull TurtlePlayer entity )
     {
         return ComputerBorderRenderer.BACKGROUND_NORMAL;
     }

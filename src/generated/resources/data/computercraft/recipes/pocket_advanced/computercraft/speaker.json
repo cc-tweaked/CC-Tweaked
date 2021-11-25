@@ -6,14 +6,15 @@
     "P"
   ],
   "key": {
-    "#": {
+    "P": {
       "item": "computercraft:pocket_computer_advanced"
     },
-    "P": {
+    "#": {
       "item": "computercraft:speaker"
     }
   },
   "result": {
-    "item": "computercraft:pocket_computer_advanced"
+    "item": "computercraft:pocket_computer_advanced",
+    "nbt": "{Upgrade:\"computercraft:speaker\"}"
   }
 }

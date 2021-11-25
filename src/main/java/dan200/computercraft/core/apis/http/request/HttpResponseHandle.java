@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis.http.request;
@@ -46,6 +46,7 @@ public class HttpResponseHandle implements ObjectSource
      * @return The response code and message.
      * @cc.treturn number The response code (i.e. 200)
      * @cc.treturn string The response message (i.e. "OK")
+     * @cc.changed 1.80pr1.13 Added response message return value.
      */
     @LuaFunction
     public final Object[] getResponseCode()
@@ -58,10 +59,10 @@ public class HttpResponseHandle implements ObjectSource
      * If multiple headers are sent with the same name, they will be combined with a comma.
      *
      * @return The response's headers.
-     * @cc.usage Make a request to [example.computercraft.cc](https://example.computercraft.cc), and print the
+     * @cc.usage Make a request to [example.tweaked.cc](https://example.tweaked.cc), and print the
      * returned headers.
      * <pre>{@code
-     * local request = http.get("https://example.computercraft.cc")
+     * local request = http.get("https://example.tweaked.cc")
      * print(textutils.serialize(request.getResponseHeaders()))
      * -- => {
      * --  [ "Content-Type" ] = "text/plain; charset=utf8",

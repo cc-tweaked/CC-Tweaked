@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.speaker;
@@ -10,17 +10,23 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.network.client.SpeakerMoveClientMessage;
+import dan200.computercraft.shared.network.client.SpeakerPlayClientMessage;
 import net.minecraft.network.play.server.SPlaySoundPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.state.properties.NoteBlockInstrument;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.ResourceLocationException;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static dan200.computercraft.api.lua.LuaValues.checkFinite;
@@ -29,26 +35,51 @@ import static dan200.computercraft.api.lua.LuaValues.checkFinite;
  * Speakers allow playing notes and other sounds.
  *
  * @cc.module speaker
+ * @cc.since 1.80pr1
  */
 public abstract class SpeakerPeripheral implements IPeripheral
 {
-    private long m_clock = 0;
-    private long m_lastPlayTime = 0;
-    private final AtomicInteger m_notesThisTick = new AtomicInteger();
+    private static final int MIN_TICKS_BETWEEN_SOUNDS = 1;
+
+    private long clock = 0;
+    private long lastPlayTime = 0;
+    private final AtomicInteger notesThisTick = new AtomicInteger();
+
+    private long lastPositionTime;
+    private Vector3d lastPosition;
 
     public void update()
     {
-        m_clock++;
-        m_notesThisTick.set( 0 );
+        clock++;
+        notesThisTick.set( 0 );
+
+        // Push position updates to any speakers which have ever played a note,
+        // have moved by a non-trivial amount and haven't had a position update
+        // in the last second.
+        if( lastPlayTime > 0 && (clock - lastPositionTime) >= 20 )
+        {
+            Vector3d position = getPosition();
+            if( lastPosition == null || lastPosition.distanceToSqr( position ) >= 0.1 )
+            {
+                lastPosition = position;
+                lastPositionTime = clock;
+                NetworkHandler.sendToAllTracking(
+                    new SpeakerMoveClientMessage( getSource(), position ),
+                    getWorld().getChunkAt( new BlockPos( position ) )
+                );
+            }
+        }
     }
 
     public abstract World getWorld();
 
     public abstract Vector3d getPosition();
 
+    protected abstract UUID getSource();
+
     public boolean madeSound( long ticks )
     {
-        return m_clock - m_lastPlayTime <= ticks;
+        return clock - lastPlayTime <= ticks;
     }
 
     @Nonnull
@@ -117,7 +148,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
         NoteBlockInstrument instrument = null;
         for( NoteBlockInstrument testInstrument : NoteBlockInstrument.values() )
         {
-            if( testInstrument.getString().equalsIgnoreCase( name ) )
+            if( testInstrument.getSerializedName().equalsIgnoreCase( name ) )
             {
                 instrument = testInstrument;
                 break;
@@ -128,37 +159,49 @@ public abstract class SpeakerPeripheral implements IPeripheral
         if( instrument == null ) throw new LuaException( "Invalid instrument, \"" + name + "\"!" );
 
         // If the resource location for note block notes changes, this method call will need to be updated
-        boolean success = playSound( context, instrument.getSound().getRegistryName(), volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true );
-        if( success ) m_notesThisTick.incrementAndGet();
+        boolean success = playSound( context, instrument.getSoundEvent().getRegistryName(), volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ), true );
+        if( success ) notesThisTick.incrementAndGet();
         return success;
     }
 
     private synchronized boolean playSound( ILuaContext context, ResourceLocation name, float volume, float pitch, boolean isNote ) throws LuaException
     {
-        if( m_clock - m_lastPlayTime < TileSpeaker.MIN_TICKS_BETWEEN_SOUNDS &&
-            (!isNote || m_clock - m_lastPlayTime != 0 || m_notesThisTick.get() >= ComputerCraft.maxNotesPerTick) )
+        if( clock - lastPlayTime < MIN_TICKS_BETWEEN_SOUNDS )
         {
-            // Rate limiting occurs when we've already played a sound within the last tick, or we've
-            // played more notes than allowable within the current tick.
-            return false;
+            // Rate limiting occurs when we've already played a sound within the last tick.
+            if( !isNote ) return false;
+            // Or we've played more notes than allowable within the current tick.
+            if( clock - lastPlayTime != 0 || notesThisTick.get() >= ComputerCraft.maxNotesPerTick ) return false;
         }
 
         World world = getWorld();
         Vector3d pos = getPosition();
 
+        float actualVolume = MathHelper.clamp( volume, 0.0f, 3.0f );
+        float range = actualVolume * 16;
+
         context.issueMainThreadTask( () -> {
             MinecraftServer server = world.getServer();
             if( server == null ) return null;
 
-            float adjVolume = Math.min( volume, 3.0f );
-            server.getPlayerList().sendToAllNearExcept(
-                null, pos.x, pos.y, pos.z, adjVolume > 1.0f ? 16 * adjVolume : 16.0, world.getDimensionKey(),
-                new SPlaySoundPacket( name, SoundCategory.RECORDS, pos, adjVolume, pitch )
-            );
+            if( isNote )
+            {
+                server.getPlayerList().broadcast(
+                    null, pos.x, pos.y, pos.z, range, world.dimension(),
+                    new SPlaySoundPacket( name, SoundCategory.RECORDS, pos, actualVolume, pitch )
+                );
+            }
+            else
+            {
+                NetworkHandler.sendToAllAround(
+                    new SpeakerPlayClientMessage( getSource(), pos, name, actualVolume, pitch ),
+                    world, pos, range
+                );
+            }
             return null;
         } );
 
-        m_lastPlayTime = m_clock;
+        lastPlayTime = clock;
         return true;
     }
 }

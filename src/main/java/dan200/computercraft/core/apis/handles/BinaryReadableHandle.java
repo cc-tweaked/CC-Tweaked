@@ -1,15 +1,15 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis.handles;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.core.filesystem.TrackingCloseable;
 
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
@@ -32,14 +32,14 @@ public class BinaryReadableHandle extends HandleGeneric
     final SeekableByteChannel seekable;
     private final ByteBuffer single = ByteBuffer.allocate( 1 );
 
-    BinaryReadableHandle( ReadableByteChannel reader, SeekableByteChannel seekable, Closeable closeable )
+    BinaryReadableHandle( ReadableByteChannel reader, SeekableByteChannel seekable, TrackingCloseable closeable )
     {
         super( closeable );
         this.reader = reader;
         this.seekable = seekable;
     }
 
-    public static BinaryReadableHandle of( ReadableByteChannel channel, Closeable closeable )
+    public static BinaryReadableHandle of( ReadableByteChannel channel, TrackingCloseable closeable )
     {
         SeekableByteChannel seekable = asSeekable( channel );
         return seekable == null ? new BinaryReadableHandle( channel, null, closeable ) : new Seekable( seekable, closeable );
@@ -47,7 +47,7 @@ public class BinaryReadableHandle extends HandleGeneric
 
     public static BinaryReadableHandle of( ReadableByteChannel channel )
     {
-        return of( channel, channel );
+        return of( channel, new TrackingCloseable.Impl( channel ) );
     }
 
     /**
@@ -61,6 +61,7 @@ public class BinaryReadableHandle extends HandleGeneric
      * @cc.treturn [1] nil If we are at the end of the file.
      * @cc.treturn [2] number The value of the byte read. This is returned when the {@code count} is absent.
      * @cc.treturn [3] string The bytes read as a string. This is returned when the {@code count} is given.
+     * @cc.changed 1.80pr1 Now accepts an integer argument to read multiple bytes, returning a string instead of a number.
      */
     @LuaFunction
     public final Object[] read( Optional<Integer> countArg ) throws LuaException
@@ -145,6 +146,7 @@ public class BinaryReadableHandle extends HandleGeneric
      * @return The file, or {@code null} if at the end of it.
      * @throws LuaException If the file has been closed.
      * @cc.treturn string|nil The remaining contents of the file, or {@code nil} if we are at the end.
+     * @cc.since 1.80pr1
      */
     @LuaFunction
     public final Object[] readAll() throws LuaException
@@ -182,6 +184,8 @@ public class BinaryReadableHandle extends HandleGeneric
      * @return The read string.
      * @throws LuaException If the file has been closed.
      * @cc.treturn string|nil The read line or {@code nil} if at the end of the file.
+     * @cc.since 1.80pr1.9
+     * @cc.changed 1.81.0 `\r` is now stripped.
      */
     @LuaFunction
     public final Object[] readLine( Optional<Boolean> withTrailingArg ) throws LuaException
@@ -237,7 +241,7 @@ public class BinaryReadableHandle extends HandleGeneric
 
     public static class Seekable extends BinaryReadableHandle
     {
-        Seekable( SeekableByteChannel seekable, Closeable closeable )
+        Seekable( SeekableByteChannel seekable, TrackingCloseable closeable )
         {
             super( seekable, seekable, closeable );
         }
@@ -259,6 +263,7 @@ public class BinaryReadableHandle extends HandleGeneric
          * @cc.treturn [1] number The new position.
          * @cc.treturn [2] nil If seeking failed.
          * @cc.treturn string The reason seeking failed.
+         * @cc.since 1.80pr1.9
          */
         @LuaFunction
         public final Object[] seek( Optional<String> whence, Optional<Long> offset ) throws LuaException

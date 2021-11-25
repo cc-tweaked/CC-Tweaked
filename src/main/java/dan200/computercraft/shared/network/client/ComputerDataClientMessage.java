@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.network.client;
@@ -18,8 +18,8 @@ import javax.annotation.Nonnull;
  */
 public class ComputerDataClientMessage extends ComputerClientMessage
 {
-    private ComputerState state;
-    private CompoundNBT userData;
+    private final ComputerState state;
+    private final CompoundNBT userData;
 
     public ComputerDataClientMessage( ServerComputer computer )
     {
@@ -28,24 +28,19 @@ public class ComputerDataClientMessage extends ComputerClientMessage
         userData = computer.getUserData();
     }
 
-    public ComputerDataClientMessage()
+    public ComputerDataClientMessage( @Nonnull PacketBuffer buf )
     {
+        super( buf );
+        state = buf.readEnum( ComputerState.class );
+        userData = buf.readNbt();
     }
 
     @Override
     public void toBytes( @Nonnull PacketBuffer buf )
     {
         super.toBytes( buf );
-        buf.writeEnumValue( state );
-        buf.writeCompoundTag( userData );
-    }
-
-    @Override
-    public void fromBytes( @Nonnull PacketBuffer buf )
-    {
-        super.fromBytes( buf );
-        state = buf.readEnumValue( ComputerState.class );
-        userData = buf.readCompoundTag();
+        buf.writeEnum( state );
+        buf.writeNbt( userData );
     }
 
     @Override

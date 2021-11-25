@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.client.render;
@@ -33,8 +33,8 @@ public abstract class ItemMapLikeRenderer
     {
         PlayerEntity player = Minecraft.getInstance().player;
 
-        transform.push();
-        if( hand == Hand.MAIN_HAND && player.getHeldItemOffhand().isEmpty() )
+        transform.pushPose();
+        if( hand == Hand.MAIN_HAND && player.getOffhandItem().isEmpty() )
         {
             renderItemFirstPersonCenter( transform, render, lightTexture, pitch, equipProgress, swingProgress, stack );
         }
@@ -42,11 +42,11 @@ public abstract class ItemMapLikeRenderer
         {
             renderItemFirstPersonSide(
                 transform, render, lightTexture,
-                hand == Hand.MAIN_HAND ? player.getPrimaryHand() : player.getPrimaryHand().opposite(),
+                hand == Hand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite(),
                 equipProgress, swingProgress, stack
             );
         }
-        transform.pop();
+        transform.popPose();
     }
 
     /**
@@ -70,15 +70,15 @@ public abstract class ItemMapLikeRenderer
         // If the player is not invisible then render a single arm
         if( !minecraft.player.isInvisible() )
         {
-            transform.push();
-            transform.rotate( Vector3f.ZP.rotationDegrees( offset * 10f ) );
-            minecraft.getFirstPersonRenderer().renderArmFirstPerson( transform, render, combinedLight, equipProgress, swingProgress, side );
-            transform.pop();
+            transform.pushPose();
+            transform.mulPose( Vector3f.ZP.rotationDegrees( offset * 10f ) );
+            minecraft.getItemInHandRenderer().renderPlayerArm( transform, render, combinedLight, equipProgress, swingProgress, side );
+            transform.popPose();
         }
 
         // Setup the appropriate transformations. This is just copied from the
         // corresponding method in ItemRenderer.
-        transform.push();
+        transform.pushPose();
         transform.translate( offset * 0.51f, -0.08f + equipProgress * -1.2f, -0.75f );
         float f1 = MathHelper.sqrt( swingProgress );
         float f2 = MathHelper.sin( f1 * (float) Math.PI );
@@ -86,12 +86,12 @@ public abstract class ItemMapLikeRenderer
         float f4 = 0.4f * MathHelper.sin( f1 * ((float) Math.PI * 2f) );
         float f5 = -0.3f * MathHelper.sin( swingProgress * (float) Math.PI );
         transform.translate( offset * f3, f4 - 0.3f * f2, f5 );
-        transform.rotate( Vector3f.XP.rotationDegrees( f2 * -45f ) );
-        transform.rotate( Vector3f.YP.rotationDegrees( offset * f2 * -30f ) );
+        transform.mulPose( Vector3f.XP.rotationDegrees( f2 * -45f ) );
+        transform.mulPose( Vector3f.YP.rotationDegrees( offset * f2 * -30f ) );
 
         renderItem( transform, render, stack );
 
-        transform.pop();
+        transform.popPose();
     }
 
     /**
@@ -109,7 +109,7 @@ public abstract class ItemMapLikeRenderer
     private void renderItemFirstPersonCenter( MatrixStack transform, IRenderTypeBuffer render, int combinedLight, float pitch, float equipProgress, float swingProgress, ItemStack stack )
     {
         Minecraft minecraft = Minecraft.getInstance();
-        FirstPersonRenderer renderer = minecraft.getFirstPersonRenderer();
+        FirstPersonRenderer renderer = minecraft.getItemInHandRenderer();
 
         // Setup the appropriate transformations. This is just copied from the
         // corresponding method in ItemRenderer.
@@ -118,20 +118,20 @@ public abstract class ItemMapLikeRenderer
         float tZ = -0.4f * MathHelper.sin( swingRt * (float) Math.PI );
         transform.translate( 0, -tX / 2, tZ );
 
-        float pitchAngle = renderer.getMapAngleFromPitch( pitch );
+        float pitchAngle = renderer.calculateMapTilt( pitch );
         transform.translate( 0, 0.04F + equipProgress * -1.2f + pitchAngle * -0.5f, -0.72f );
-        transform.rotate( Vector3f.XP.rotationDegrees( pitchAngle * -85.0f ) );
+        transform.mulPose( Vector3f.XP.rotationDegrees( pitchAngle * -85.0f ) );
         if( !minecraft.player.isInvisible() )
         {
-            transform.push();
-            transform.rotate( Vector3f.YP.rotationDegrees( 90.0F ) );
-            renderer.renderArm( transform, render, combinedLight, HandSide.RIGHT );
-            renderer.renderArm( transform, render, combinedLight, HandSide.LEFT );
-            transform.pop();
+            transform.pushPose();
+            transform.mulPose( Vector3f.YP.rotationDegrees( 90.0F ) );
+            renderer.renderMapHand( transform, render, combinedLight, HandSide.RIGHT );
+            renderer.renderMapHand( transform, render, combinedLight, HandSide.LEFT );
+            transform.popPose();
         }
 
         float rX = MathHelper.sin( swingRt * (float) Math.PI );
-        transform.rotate( Vector3f.XP.rotationDegrees( rX * 20.0F ) );
+        transform.mulPose( Vector3f.XP.rotationDegrees( rX * 20.0F ) );
         transform.scale( 2.0F, 2.0F, 2.0F );
 
         renderItem( transform, render, stack );

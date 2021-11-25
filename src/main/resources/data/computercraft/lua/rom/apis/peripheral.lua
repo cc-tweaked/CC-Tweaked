@@ -11,6 +11,8 @@
 -- Peripheral functions are called *methods*, a term borrowed from Java.
 --
 -- @module peripheral
+-- @since 1.3
+-- @changed 1.51 Add support for wired modems.
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
@@ -24,6 +26,7 @@ local sides = rs.getSides()
 -- Modem, then it'll be reported according to its name on the wired network.
 --
 -- @treturn { string... } A list of the names of all attached peripherals.
+-- @since 1.51
 function getNames()
     local results = {}
     for n = 1, #sides do
@@ -69,6 +72,7 @@ end
 -- @tparam string|table peripheral The name of the peripheral to find, or a
 -- wrapped peripheral instance.
 -- @treturn string|nil The peripheral's type, or `nil` if it is not present.
+-- @changed 1.88.0 Accepts a wrapped peripheral as an argument.
 function getType(peripheral)
     expect(1, peripheral, "string", "table")
     if type(peripheral) == "string" then -- Peripheral name passed
@@ -118,6 +122,7 @@ end
 --
 -- @tparam table peripheral The peripheral to get the name of.
 -- @treturn string The name of the given peripheral.
+-- @since 1.88.0
 function getName(peripheral)
     expect(1, peripheral, "table")
     local mt = getmetatable(peripheral)
@@ -161,7 +166,9 @@ end
 -- @tparam string name The name of the peripheral to wrap.
 -- @treturn table|nil The table containing the peripheral's methods, or `nil` if
 -- there is no peripheral present with the given name.
--- @usage peripheral.wrap("top").open(1)
+-- @usage Open the modem on the top of this computer.
+--
+--     peripheral.wrap("top").open(1)
 function wrap(name)
     expect(1, name, "string")
 
@@ -183,16 +190,32 @@ function wrap(name)
     return result
 end
 
---- Find all peripherals of a specific type, and return the
--- @{peripheral.wrap|wrapped} peripherals.
---
--- @tparam string ty The type of peripheral to look for.
--- @tparam[opt] function(name:string, wrapped:table):boolean filter A
--- filter function, which takes the peripheral's name and wrapped table
--- and returns if it should be included in the result.
--- @treturn table... 0 or more wrapped peripherals matching the given filters.
--- @usage local monitors = { peripheral.find("monitor") }
--- @usage peripheral.find("modem", rednet.open)
+--[[- Find all peripherals of a specific type, and return the
+@{peripheral.wrap|wrapped} peripherals.
+
+@tparam string ty The type of peripheral to look for.
+@tparam[opt] function(name:string, wrapped:table):boolean filter A
+filter function, which takes the peripheral's name and wrapped table
+and returns if it should be included in the result.
+@treturn table... 0 or more wrapped peripherals matching the given filters.
+@usage Find all monitors and store them in a table, writing "Hello" on each one.
+
+    local monitors = { peripheral.find("monitor") }
+    for _, monitor in pairs(monitors) do
+      monitor.write("Hello")
+    end
+
+@usage Find all wireless modems connected to this computer.
+
+    local modems = { peripheral.find("modem", function(name, modem)
+        return modem.isWireless() -- Check this modem is wireless.
+    end) }
+
+@usage This abuses the `filter` argument to call @{rednet.open} on every modem.
+
+    peripheral.find("modem", rednet.open)
+@since 1.6
+]]
 function find(ty, filter)
     expect(1, ty, "string")
     expect(2, filter, "function", "nil")

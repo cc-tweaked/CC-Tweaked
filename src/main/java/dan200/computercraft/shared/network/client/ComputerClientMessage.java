@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.network.client;
@@ -17,15 +17,16 @@ import javax.annotation.Nonnull;
  */
 public abstract class ComputerClientMessage implements NetworkMessage
 {
-    private int instanceId;
+    private final int instanceId;
 
     public ComputerClientMessage( int instanceId )
     {
         this.instanceId = instanceId;
     }
 
-    public ComputerClientMessage()
+    public ComputerClientMessage( @Nonnull PacketBuffer buf )
     {
+        instanceId = buf.readVarInt();
     }
 
     public int getInstanceId()
@@ -37,12 +38,6 @@ public abstract class ComputerClientMessage implements NetworkMessage
     public void toBytes( @Nonnull PacketBuffer buf )
     {
         buf.writeVarInt( instanceId );
-    }
-
-    @Override
-    public void fromBytes( @Nonnull PacketBuffer buf )
-    {
-        instanceId = buf.readVarInt();
     }
 
     public ClientComputer getComputer()

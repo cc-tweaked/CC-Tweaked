@@ -1,7 +1,22 @@
+local helpers = require "test_helpers"
+
 describe("The textutils library", function()
     describe("textutils.slowWrite", function()
         it("validates arguments", function()
             expect.error(textutils.slowWrite, nil, false):eq("bad argument #2 (expected number, got boolean)")
+        end)
+
+        it("wraps text correctly", function()
+            local count = 0
+            stub(_G, "sleep", function() count = count + 1 end)
+            local w = helpers.with_window(20, 3, function()
+                textutils.slowWrite("This is a long string which one would hope wraps.")
+            end)
+
+            expect(w.getLine(1)):eq "This is a long      "
+            expect(w.getLine(2)):eq "string which one    "
+            expect(w.getLine(3)):eq "would hope wraps.   "
+            expect(count):eq(51)
         end)
     end)
 
@@ -33,11 +48,12 @@ describe("The textutils library", function()
             term.redirect(window.create(term.current(), 1, 1, 5, 5, false))
 
             textutils.tabulate()
-            textutils.tabulate({ "test" })
+            textutils.tabulate({ "test", 1 })
             textutils.tabulate(colors.white)
 
             expect.error(textutils.tabulate, nil):eq("bad argument #1 (expected number or table, got nil)")
             expect.error(textutils.tabulate, { "test" }, nil):eq("bad argument #2 (expected number or table, got nil)")
+            expect.error(textutils.tabulate, { false }):eq("bad argument #1.1 (expected string, got boolean)")
         end)
     end)
 
@@ -58,6 +74,45 @@ describe("The textutils library", function()
         it("is immutable", function()
             expect.error(function() textutils.empty_json_array[1] = true end)
                 :str_match("^[^:]+:%d+: attempt to mutate textutils.empty_json_array$")
+        end)
+    end)
+
+    describe("textutils.serialise", function()
+        it("serialises basic tables", function()
+            expect(textutils.serialise({ 1, 2, 3, a = 1, b = {} }))
+                :eq("{\n  1,\n  2,\n  3,\n  a = 1,\n  b = {},\n}")
+
+            expect(textutils.serialise({ 0 / 0, 1 / 0, -1 / 0 }))
+                :eq("{\n  0/0,\n  1/0,\n  -1/0,\n}")
+        end)
+
+        it("fails on recursive/repeated tables", function()
+            local rep = {}
+            expect.error(textutils.serialise, { rep, rep }):eq("Cannot serialize table with repeated entries")
+
+            local rep2 = { 1 }
+            expect.error(textutils.serialise, { rep2, rep2 }):eq("Cannot serialize table with repeated entries")
+
+            local recurse = {}
+            recurse[1] = recurse
+            expect.error(textutils.serialise, recurse):eq("Cannot serialize table with recursive entries")
+        end)
+
+        it("can allow repeated tables", function()
+            local rep = {}
+            expect(textutils.serialise({ rep, rep }, { allow_repetitions = true })):eq("{\n  {},\n  {},\n}")
+
+            local rep2 = { 1 }
+            expect(textutils.serialise({ rep2, rep2 }, { allow_repetitions = true })):eq("{\n  {\n    1,\n  },\n  {\n    1,\n  },\n}")
+
+            local recurse = {}
+            recurse[1] = recurse
+            expect.error(textutils.serialise, recurse, { allow_repetitions = true }):eq("Cannot serialize table with recursive entries")
+        end)
+
+        it("can emit in a compact form", function()
+            expect(textutils.serialise({ 1, 2, 3, a = 1, [false] = {} }, { compact = true }))
+                :eq("{1,2,3,a=1,[false]={},}")
         end)
     end)
 
@@ -99,6 +154,12 @@ describe("The textutils library", function()
             expect(textutils.serializeJSON(string.char(0x1D))):eq('"\\u001D"')
             expect(textutils.serializeJSON(string.char(0x81))):eq('"\\u0081"')
             expect(textutils.serializeJSON(string.char(0xFF))):eq('"\\u00FF"')
+        end)
+
+        it("serializes arrays until the last index with content", function()
+            expect(textutils.serializeJSON({ 5, "test", nil, nil, 7 })):eq('[5,"test",null,null,7]')
+            expect(textutils.serializeJSON({ 5, "test", nil, nil, textutils.json_null })):eq('[5,"test",null,null,null]')
+            expect(textutils.serializeJSON({ nil, nil, nil, nil, "text" })):eq('[null,null,null,null,"text"]')
         end)
     end)
 

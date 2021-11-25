@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.util;
@@ -20,6 +20,6 @@ public final class RecordUtil
     public static void playRecord( SoundEvent record, String recordInfo, World world, BlockPos pos )
     {
         NetworkMessage packet = record != null ? new PlayRecordClientMessage( pos, record, recordInfo ) : new PlayRecordClientMessage( pos );
-        NetworkHandler.sendToAllAround( packet, world, Vector3d.copyCentered( pos ), 64 );
+        NetworkHandler.sendToAllAround( packet, world, Vector3d.atCenterOf( pos ), 64 );
     }
 }

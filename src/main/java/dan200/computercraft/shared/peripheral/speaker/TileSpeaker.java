@@ -1,12 +1,14 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.TileGeneric;
+import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntityType;
@@ -19,15 +21,15 @@ import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
 public class TileSpeaker extends TileGeneric implements ITickableTileEntity
 {
-    public static final int MIN_TICKS_BETWEEN_SOUNDS = 1;
-
     private final SpeakerPeripheral peripheral;
     private LazyOptional<IPeripheral> peripheralCap;
+    private final UUID source = UUID.randomUUID();
 
     public TileSpeaker( TileEntityType<TileSpeaker> type )
     {
@@ -39,6 +41,16 @@ public class TileSpeaker extends TileGeneric implements ITickableTileEntity
     public void tick()
     {
         peripheral.update();
+    }
+
+    @Override
+    public void setRemoved()
+    {
+        super.setRemoved();
+        if( level != null && !level.isClientSide )
+        {
+            NetworkHandler.sendToAllPlayers( new SpeakerStopClientMessage( source ) );
+        }
     }
 
     @Nonnull
@@ -73,14 +85,20 @@ public class TileSpeaker extends TileGeneric implements ITickableTileEntity
         @Override
         public World getWorld()
         {
-            return speaker.getWorld();
+            return speaker.getLevel();
         }
 
         @Override
         public Vector3d getPosition()
         {
-            BlockPos pos = speaker.getPos();
+            BlockPos pos = speaker.getBlockPos();
             return new Vector3d( pos.getX(), pos.getY(), pos.getZ() );
+        }
+
+        @Override
+        protected UUID getSource()
+        {
+            return speaker.source;
         }
 
         @Override

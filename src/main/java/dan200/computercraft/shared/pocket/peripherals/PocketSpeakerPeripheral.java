@@ -1,16 +1,16 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.pocket.peripherals;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral;
+import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
-public class PocketSpeakerPeripheral extends SpeakerPeripheral
+public class PocketSpeakerPeripheral extends UpgradeSpeakerPeripheral
 {
     private World world = null;
     private Vector3d position = Vector3d.ZERO;

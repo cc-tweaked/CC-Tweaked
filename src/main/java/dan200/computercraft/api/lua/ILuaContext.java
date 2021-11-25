@@ -1,6 +1,6 @@
 /*
  * This file is part of the public ComputerCraft API - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. This API may be redistributed unmodified and in full only.
+ * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
 package dan200.computercraft.api.lua;
@@ -27,4 +27,21 @@ public interface ILuaContext
      * @see LuaFunction#mainThread() To run functions on the main thread and return their results synchronously.
      */
     long issueMainThreadTask( @Nonnull ILuaTask task ) throws LuaException;
+
+    /**
+     * Queue a task to be executed on the main server thread at the beginning of next tick, waiting for it to complete.
+     * This should be used when you need to interact with the world in a thread-safe manner.
+     *
+     * Note that the return values of your task are handled as events, meaning more complex objects such as maps or
+     * {@link IDynamicLuaObject} will not preserve their identities.
+     *
+     * @param task The task to execute on the main thread.
+     * @return The objects returned by {@code task}.
+     * @throws LuaException If the task could not be queued, or if the task threw an exception.
+     */
+    @Nonnull
+    default MethodResult executeMainThreadTask( @Nonnull ILuaTask task ) throws LuaException
+    {
+        return TaskCallback.make( this, task );
+    }
 }

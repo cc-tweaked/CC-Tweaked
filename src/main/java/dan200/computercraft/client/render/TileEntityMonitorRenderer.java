@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.client.render;
@@ -61,7 +61,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
 
         if( originTerminal == null ) return;
         TileMonitor origin = originTerminal.getOrigin();
-        BlockPos monitorPos = monitor.getPos();
+        BlockPos monitorPos = monitor.getBlockPos();
 
         // Ensure each monitor terminal is rendered only once. We allow rendering a specific tile
         // multiple times in a single frame to ensure compatibility with shaders which may run a
@@ -75,24 +75,24 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
         originTerminal.lastRenderFrame = renderFrame;
         originTerminal.lastRenderPos = monitorPos;
 
-        BlockPos originPos = origin.getPos();
+        BlockPos originPos = origin.getBlockPos();
 
         // Determine orientation
         Direction dir = origin.getDirection();
         Direction front = origin.getFront();
-        float yaw = dir.getHorizontalAngle();
+        float yaw = dir.toYRot();
         float pitch = DirectionUtil.toPitchAngle( front );
 
         // Setup initial transform
-        transform.push();
+        transform.pushPose();
         transform.translate(
             originPos.getX() - monitorPos.getX() + 0.5,
             originPos.getY() - monitorPos.getY() + 0.5,
             originPos.getZ() - monitorPos.getZ() + 0.5
         );
 
-        transform.rotate( Vector3f.YN.rotationDegrees( yaw ) );
-        transform.rotate( Vector3f.XP.rotationDegrees( pitch ) );
+        transform.mulPose( Vector3f.YN.rotationDegrees( yaw ) );
+        transform.mulPose( Vector3f.XP.rotationDegrees( pitch ) );
         transform.translate(
             -0.5 + TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN,
             origin.getHeight() - 0.5 - (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN) + 0,
@@ -110,10 +110,10 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
             int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
             double xScale = xSize / pixelWidth;
             double yScale = ySize / pixelHeight;
-            transform.push();
+            transform.pushPose();
             transform.scale( (float) xScale, (float) -yScale, 1.0f );
 
-            Matrix4f matrix = transform.getLast().getMatrix();
+            Matrix4f matrix = transform.last().pose();
 
             // Sneaky hack here: we get a buffer now in order to flush existing ones and set up the appropriate
             // render state. I've no clue how well this'll work in future versions of Minecraft, but it does the trick
@@ -127,28 +127,28 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
             // reasonable.
             FixedWidthFontRenderer.drawCursor( matrix, buffer, 0, 0, terminal, !originTerminal.isColour() );
 
-            transform.pop();
+            transform.popPose();
         }
         else
         {
             FixedWidthFontRenderer.drawEmptyTerminal(
-                transform.getLast().getMatrix(), renderer,
+                transform.last().pose(), renderer,
                 -MARGIN, MARGIN,
                 (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
             );
         }
 
         FixedWidthFontRenderer.drawBlocker(
-            transform.getLast().getMatrix(), renderer,
-            (float) -TileMonitor.RENDER_MARGIN, (float) TileMonitor.RENDER_MARGIN,
-            (float) (xSize + 2 * TileMonitor.RENDER_MARGIN), (float) -(ySize + TileMonitor.RENDER_MARGIN * 2)
+            transform.last().pose(), renderer,
+            -MARGIN, MARGIN,
+            (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
         );
 
         // Force a flush of the blocker. WorldRenderer.updateCameraAndRender will "finish" all the built-in
         // buffers before calling renderer.finish, which means the blocker isn't actually rendered at that point!
-        renderer.getBuffer( RenderType.getSolid() );
+        renderer.getBuffer( RenderType.solid() );
 
-        transform.pop();
+        transform.popPose();
     }
 
     private static void renderTerminal( Matrix4f matrix, ClientMonitor monitor, float xMargin, float yMargin )
@@ -173,7 +173,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                     int size = width * height * 3;
                     if( tboContents == null || tboContents.capacity() < size )
                     {
-                        tboContents = GLAllocation.createDirectByteBuffer( size );
+                        tboContents = GLAllocation.createByteBuffer( size );
                     }
 
                     ByteBuffer monitorBuffer = tboContents;
@@ -190,28 +190,28 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                     }
                     monitorBuffer.flip();
 
-                    GlStateManager.bindBuffer( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer );
-                    GlStateManager.bufferData( GL31.GL_TEXTURE_BUFFER, monitorBuffer, GL20.GL_STATIC_DRAW );
-                    GlStateManager.bindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
+                    GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer );
+                    GlStateManager._glBufferData( GL31.GL_TEXTURE_BUFFER, monitorBuffer, GL20.GL_STATIC_DRAW );
+                    GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
                 }
 
                 // Nobody knows what they're doing!
-                GlStateManager.activeTexture( MonitorTextureBufferShader.TEXTURE_INDEX );
+                GlStateManager._activeTexture( MonitorTextureBufferShader.TEXTURE_INDEX );
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, monitor.tboTexture );
-                GlStateManager.activeTexture( GL13.GL_TEXTURE0 );
+                GlStateManager._activeTexture( GL13.GL_TEXTURE0 );
 
                 MonitorTextureBufferShader.setupUniform( matrix, width, height, terminal.getPalette(), !monitor.isColour() );
 
                 Tessellator tessellator = Tessellator.getInstance();
-                BufferBuilder buffer = tessellator.getBuffer();
+                BufferBuilder buffer = tessellator.getBuilder();
                 buffer.begin( GL11.GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION );
-                buffer.pos( -xMargin, -yMargin, 0 ).endVertex();
-                buffer.pos( -xMargin, pixelHeight + yMargin, 0 ).endVertex();
-                buffer.pos( pixelWidth + xMargin, -yMargin, 0 ).endVertex();
-                buffer.pos( pixelWidth + xMargin, pixelHeight + yMargin, 0 ).endVertex();
-                tessellator.draw();
+                buffer.vertex( -xMargin, -yMargin, 0 ).endVertex();
+                buffer.vertex( -xMargin, pixelHeight + yMargin, 0 ).endVertex();
+                buffer.vertex( pixelWidth + xMargin, -yMargin, 0 ).endVertex();
+                buffer.vertex( pixelWidth + xMargin, pixelHeight + yMargin, 0 ).endVertex();
+                tessellator.end();
 
-                GlStateManager.useProgram( 0 );
+                GlStateManager._glUseProgram( 0 );
                 break;
             }
 
@@ -221,22 +221,22 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                 if( redraw )
                 {
                     Tessellator tessellator = Tessellator.getInstance();
-                    BufferBuilder builder = tessellator.getBuffer();
-                    builder.begin( FixedWidthFontRenderer.TYPE.getDrawMode(), FixedWidthFontRenderer.TYPE.getVertexFormat() );
+                    BufferBuilder builder = tessellator.getBuilder();
+                    builder.begin( FixedWidthFontRenderer.TYPE.mode(), FixedWidthFontRenderer.TYPE.format() );
                     FixedWidthFontRenderer.drawTerminalWithoutCursor(
                         IDENTITY, builder, 0, 0,
                         terminal, !monitor.isColour(), yMargin, yMargin, xMargin, xMargin
                     );
 
-                    builder.finishDrawing();
+                    builder.end();
                     vbo.upload( builder );
                 }
 
-                vbo.bindBuffer();
-                FixedWidthFontRenderer.TYPE.getVertexFormat().setupBufferState( 0L );
-                vbo.draw( matrix, FixedWidthFontRenderer.TYPE.getDrawMode() );
-                VertexBuffer.unbindBuffer();
-                FixedWidthFontRenderer.TYPE.getVertexFormat().clearBufferState();
+                vbo.bind();
+                FixedWidthFontRenderer.TYPE.format().setupBufferState( 0L );
+                vbo.draw( matrix, FixedWidthFontRenderer.TYPE.mode() );
+                VertexBuffer.unbind();
+                FixedWidthFontRenderer.TYPE.format().clearBufferState();
                 break;
             }
         }

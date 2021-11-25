@@ -1,6 +1,6 @@
 /*
  * This file is part of the public ComputerCraft API - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. This API may be redistributed unmodified and in full only.
+ * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
 package dan200.computercraft.api.lua;
@@ -19,14 +19,14 @@ public class LuaException extends Exception
     public LuaException( @Nullable String message )
     {
         super( message );
-        this.hasLevel = false;
-        this.level = 1;
+        hasLevel = false;
+        level = 1;
     }
 
     public LuaException( @Nullable String message, int level )
     {
         super( message );
-        this.hasLevel = true;
+        hasLevel = true;
         this.level = level;
     }
 

@@ -16,35 +16,55 @@ jobs:
         java-version: 8
 
     - name: Cache gradle dependencies
-      uses: actions/cache@v1
+      uses: actions/cache@v2
       with:
         path: ~/.gradle/caches
         key: ${{ runner.os }}-gradle-${{ hashFiles('gradle.properties') }}
         restore-keys: |
           ${{ runner.os }}-gradle-
 
+    - name: Disable Gradle daemon
+      run: |
+        mkdir -p ~/.gradle
+        echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
+
     - name: Build with Gradle
-      run: ./gradlew build --no-daemon || ./gradlew build --no-daemon
+      run: |
+        ./gradlew assemble || ./gradlew assemble
+        ./gradlew downloadAssets || ./gradlew downloadAssets
+        xvfb-run ./gradlew build
 
     - name: Upload Jar
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: CC-Tweaked
         path: build/libs
 
+    - name: Upload Screnshots
+      uses: actions/upload-artifact@v2
+      with:
+        name: Screenshots
+        path: test-files/client/screenshots
+        if-no-files-found: ignore
+        retention-days: 5
+      if: failure()
+
     - name: Upload Coverage
-      run: bash <(curl -s https://codecov.io/bash)
-      continue-on-error: true
+      uses: codecov/codecov-action@v2
 
-    - name: Generate Java documentation stubs
-      run: ./gradlew luaJavadoc --no-daemon
+    - name: Parse test reports
+      run: ./tools/parse-reports.py
+      if: ${{ failure() }}
 
-    - name: Lint Lua code
+    - name: Cache pre-commit
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pre-commit
+        key: ${{ runner.os }}-pre-commit-${{ hashFiles('config/pre-commit/config.yml') }}
+        restore-keys: |
+          ${{ runner.os }}-pre-commit-
+
+    - name: Run linters
       run: |
-        test -d bin || mkdir bin
-        test -f bin/illuaminate || wget -q -Obin/illuaminate https://squiddev.cc/illuaminate/linux-x86-64/illuaminate
-        chmod +x bin/illuaminate
-        bin/illuaminate lint
-
-    - name: Check whitespace
-      run: python3 tools/check-lines.py
+        pip install pre-commit
+        pre-commit run --config config/pre-commit/config.yml --show-diff-on-failure --all --color=always

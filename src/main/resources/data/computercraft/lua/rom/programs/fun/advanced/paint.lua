@@ -233,14 +233,32 @@ local function drawCanvasPixel(x, y)
     end
 end
 
+local color_hex_lookup = {}
+for i = 0, 15 do
+    color_hex_lookup[2 ^ i] = string.format("%x", i)
+end
+
 --[[
     Converts each colour in a single line of the canvas and draws it
     returns: nil
 ]]
 local function drawCanvasLine(y)
+    local text, fg, bg = "", "", ""
     for x = 1, w - 2 do
-        drawCanvasPixel(x, y)
+        local pixel = getCanvasPixel(x, y)
+        if pixel then
+            text = text .. " "
+            fg = fg .. "0"
+            bg = bg .. color_hex_lookup[pixel or canvasColour]
+        else
+            text = text .. "\127"
+            fg = fg .. color_hex_lookup[colours.grey]
+            bg = bg .. color_hex_lookup[canvasColour]
+        end
     end
+
+    term.setCursorPos(1, y)
+    term.blit(text, fg, bg)
 end
 
 --[[
@@ -272,6 +290,7 @@ local menu_choices = {
         return false
     end,
     Exit = function()
+        sleep(0) -- Super janky, but consumes stray "char" events from pressing Ctrl then E separately.
         return true
     end,
 }
@@ -332,7 +351,7 @@ local function accessMenu()
                     selection = #mChoices
                 end
 
-            elseif key == keys.enter then
+            elseif key == keys.enter or key == keys.numPadEnter then
                 -- Select an option
                 return menu_choices[mChoices[selection]]()
             elseif key == keys.leftCtrl or keys == keys.rightCtrl then

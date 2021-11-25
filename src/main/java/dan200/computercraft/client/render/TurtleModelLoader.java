@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.client.render;
@@ -43,7 +43,7 @@ public final class TurtleModelLoader implements IModelLoader<TurtleModelLoader.T
     @Override
     public TurtleModel read( @Nonnull JsonDeserializationContext deserializationContext, @Nonnull JsonObject modelContents )
     {
-        ResourceLocation model = new ResourceLocation( JSONUtils.getString( modelContents, "model" ) );
+        ResourceLocation model = new ResourceLocation( JSONUtils.getAsString( modelContents, "model" ) );
         return new TurtleModel( model );
     }
 
@@ -60,8 +60,8 @@ public final class TurtleModelLoader implements IModelLoader<TurtleModelLoader.T
         public Collection<RenderMaterial> getTextures( IModelConfiguration owner, Function<ResourceLocation, IUnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors )
         {
             Set<RenderMaterial> materials = new HashSet<>();
-            materials.addAll( modelGetter.apply( family ).getTextures( modelGetter, missingTextureErrors ) );
-            materials.addAll( modelGetter.apply( COLOUR_TURTLE_MODEL ).getTextures( modelGetter, missingTextureErrors ) );
+            materials.addAll( modelGetter.apply( family ).getMaterials( modelGetter, missingTextureErrors ) );
+            materials.addAll( modelGetter.apply( COLOUR_TURTLE_MODEL ).getMaterials( modelGetter, missingTextureErrors ) );
             return materials;
         }
 

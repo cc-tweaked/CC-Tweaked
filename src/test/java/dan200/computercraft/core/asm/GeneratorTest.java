@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.core.asm;
 
 import dan200.computercraft.api.lua.*;
@@ -12,6 +11,7 @@ import dan200.computercraft.core.computer.ComputerSide;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -124,7 +124,7 @@ public class GeneratorTest
     {
         @LuaFunction
         public final void go()
-        { }
+        {}
     }
 
     public static class Basic2 extends Basic
@@ -139,14 +139,14 @@ public class GeneratorTest
     {
         @LuaFunction
         public final void go()
-        { }
+        {}
     }
 
     public static class NonInstance
     {
         @LuaFunction
         public static void go()
-        { }
+        {}
     }
 
     public static class IllegalThrows
@@ -162,42 +162,42 @@ public class GeneratorTest
     {
         @LuaFunction( { "go1", "go2" } )
         public final void go()
-        { }
+        {}
     }
 
     public static class ArgKinds
     {
         @LuaFunction
         public final void objectArg( Object arg )
-        { }
+        {}
 
         @LuaFunction
         public final void intArg( int arg )
-        { }
+        {}
 
         @LuaFunction
         public final void optIntArg( Optional<Integer> arg )
-        { }
+        {}
 
         @LuaFunction
         public final void context( ILuaContext arg )
-        { }
+        {}
 
         @LuaFunction
         public final void arguments( IArguments arg )
-        { }
+        {}
 
         @LuaFunction
         public final void unknown( IComputerAccess arg )
-        { }
+        {}
 
         @LuaFunction
         public final void illegalMap( Map<String, Integer> arg )
-        { }
+        {}
 
         @LuaFunction
         public final void optIllegalMap( Optional<Map<String, Integer>> arg )
-        { }
+        {}
     }
 
     public static class EnumMethods
@@ -219,7 +219,7 @@ public class GeneratorTest
     {
         @LuaFunction( mainThread = true )
         public final void go()
-        { }
+        {}
     }
 
     private static <T> T find( Collection<NamedMethod<T>> methods, String name )
@@ -249,5 +249,12 @@ public class GeneratorTest
         return contramap( is( method ), "name", NamedMethod::getName );
     }
 
-    private static final ILuaContext CONTEXT = task -> 0;
+    private static final ILuaContext CONTEXT = new ILuaContext()
+    {
+        @Override
+        public long issueMainThreadTask( @Nonnull ILuaTask task )
+        {
+            return 0;
+        }
+    };
 }

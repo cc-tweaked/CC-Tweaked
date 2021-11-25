@@ -1,9 +1,8 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.data;
 
 import com.google.common.collect.Multimap;
@@ -41,17 +40,17 @@ public abstract class LootTableProvider implements IDataProvider
     }
 
     @Override
-    public void act( @Nonnull DirectoryCache cache )
+    public void run( @Nonnull DirectoryCache cache )
     {
         Map<ResourceLocation, LootTable> tables = new HashMap<>();
-        ValidationTracker validation = new ValidationTracker( LootParameterSets.GENERIC, x -> null, tables::get );
+        ValidationTracker validation = new ValidationTracker( LootParameterSets.ALL_PARAMS, x -> null, tables::get );
 
         registerLoot( ( id, table ) -> {
-            if( tables.containsKey( id ) ) validation.addProblem( "Duplicate loot tables for " + id );
+            if( tables.containsKey( id ) ) validation.reportProblem( "Duplicate loot tables for " + id );
             tables.put( id, table );
         } );
 
-        tables.forEach( ( key, value ) -> LootTableManager.validateLootTable( validation, key, value ) );
+        tables.forEach( ( key, value ) -> LootTableManager.validate( validation, key, value ) );
 
         Multimap<String, String> problems = validation.getProblems();
         if( !problems.isEmpty() )
@@ -65,7 +64,7 @@ public abstract class LootTableProvider implements IDataProvider
             Path path = getPath( key );
             try
             {
-                IDataProvider.save( GSON, cache, LootTableManager.toJson( value ), path );
+                IDataProvider.save( GSON, cache, LootTableManager.serialize( value ), path );
             }
             catch( IOException e )
             {

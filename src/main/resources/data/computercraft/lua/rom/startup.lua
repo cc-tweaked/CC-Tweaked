@@ -49,6 +49,7 @@ end
 
 shell.setCompletionFunction("rom/programs/alias.lua", completion.build(nil, completion.program))
 shell.setCompletionFunction("rom/programs/cd.lua", completion.build(completion.dir))
+shell.setCompletionFunction("rom/programs/clear.lua", completion.build({ completion.choice, { "screen", "palette", "all" } }))
 shell.setCompletionFunction("rom/programs/copy.lua", completion.build(
     { completion.dirOrFile, true },
     completion.dirOrFile
@@ -66,10 +67,33 @@ shell.setCompletionFunction("rom/programs/label.lua", completion.build(
 ))
 shell.setCompletionFunction("rom/programs/list.lua", completion.build(completion.dir))
 shell.setCompletionFunction("rom/programs/mkdir.lua", completion.build({ completion.dir, many = true }))
+
+local complete_monitor_extra = { "scale" }
 shell.setCompletionFunction("rom/programs/monitor.lua", completion.build(
-    { completion.peripheral, true },
-    completion.program
+    function(shell, text, previous)
+        local choices = completion.peripheral(shell, text, previous, true)
+        for _, option in pairs(completion.choice(shell, text, previous, complete_monitor_extra, true)) do
+            choices[#choices + 1] = option
+        end
+        return choices
+    end,
+    function(shell, text, previous)
+        if previous[2] == "scale" then
+            return completion.peripheral(shell, text, previous, true)
+        else
+            return completion.programWithArgs(shell, text, previous, 3)
+        end
+    end,
+    {
+        function(shell, text, previous)
+            if previous[2] ~= "scale" then
+                return completion.programWithArgs(shell, text, previous, 3)
+            end
+        end,
+        many = true,
+    }
 ))
+
 shell.setCompletionFunction("rom/programs/move.lua", completion.build(
     { completion.dirOrFile, true },
     completion.dirOrFile
@@ -82,11 +106,11 @@ shell.setCompletionFunction("rom/programs/rename.lua", completion.build(
     { completion.dirOrFile, true },
     completion.dirOrFile
 ))
-shell.setCompletionFunction("rom/programs/shell.lua", completion.build(completion.program))
+shell.setCompletionFunction("rom/programs/shell.lua", completion.build({ completion.programWithArgs, 2, many = true }))
 shell.setCompletionFunction("rom/programs/type.lua", completion.build(completion.dirOrFile))
 shell.setCompletionFunction("rom/programs/set.lua", completion.build({ completion.setting, true }))
-shell.setCompletionFunction("rom/programs/advanced/bg.lua", completion.build(completion.program))
-shell.setCompletionFunction("rom/programs/advanced/fg.lua", completion.build(completion.program))
+shell.setCompletionFunction("rom/programs/advanced/bg.lua", completion.build({ completion.programWithArgs, 2, many = true }))
+shell.setCompletionFunction("rom/programs/advanced/fg.lua", completion.build({ completion.programWithArgs, 2, many = true }))
 shell.setCompletionFunction("rom/programs/fun/dj.lua", completion.build(
     { completion.choice, { "play", "play ", "stop " } },
     completion.peripheral

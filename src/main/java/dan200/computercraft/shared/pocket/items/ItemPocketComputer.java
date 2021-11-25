@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.pocket.items;
@@ -22,7 +22,7 @@ import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.pocket.apis.PocketAPI;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
-import dan200.computercraft.shared.pocket.inventory.ContainerPocketComputer;
+import dan200.computercraft.shared.pocket.inventory.PocketComputerMenuProvider;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -40,8 +40,6 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -68,16 +66,16 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     {
         ItemStack result = new ItemStack( this );
         if( id >= 0 ) result.getOrCreateTag().putInt( NBT_ID, id );
-        if( label != null ) result.setDisplayName( new StringTextComponent( label ) );
+        if( label != null ) result.setHoverName( new StringTextComponent( label ) );
         if( upgrade != null ) result.getOrCreateTag().putString( NBT_UPGRADE, upgrade.getUpgradeID().toString() );
         if( colour != -1 ) result.getOrCreateTag().putInt( NBT_COLOUR, colour );
         return result;
     }
 
     @Override
-    public void fillItemGroup( @Nonnull ItemGroup group, @Nonnull NonNullList<ItemStack> stacks )
+    public void fillItemCategory( @Nonnull ItemGroup group, @Nonnull NonNullList<ItemStack> stacks )
     {
-        if( !isInGroup( group ) ) return;
+        if( !allowdedIn( group ) ) return;
         stacks.add( create( -1, null, -1, null ) );
         for( IPocketUpgrade upgrade : PocketUpgrades.getVanillaUpgrades() )
         {
@@ -88,7 +86,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     @Override
     public void inventoryTick( @Nonnull ItemStack stack, World world, @Nonnull Entity entity, int slotNum, boolean selected )
     {
-        if( !world.isRemote )
+        if( !world.isClientSide )
         {
             // Server side
             IInventory inventory = entity instanceof PlayerEntity ? ((PlayerEntity) entity).inventory : null;
@@ -107,7 +105,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
                 if( id != getComputerID( stack ) )
                 {
                     setComputerID( stack, id );
-                    if( inventory != null ) inventory.markDirty();
+                    if( inventory != null ) inventory.setChanged();
                 }
 
                 // Sync label
@@ -115,7 +113,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
                 if( !Objects.equal( label, getLabel( stack ) ) )
                 {
                     setLabel( stack, label );
-                    if( inventory != null ) inventory.markDirty();
+                    if( inventory != null ) inventory.setChanged();
                 }
 
                 // Update pocket upgrade
@@ -134,10 +132,10 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     @Nonnull
     @Override
-    public ActionResult<ItemStack> onItemRightClick( World world, PlayerEntity player, @Nonnull Hand hand )
+    public ActionResult<ItemStack> use( World world, PlayerEntity player, @Nonnull Hand hand )
     {
-        ItemStack stack = player.getHeldItem( hand );
-        if( !world.isRemote )
+        ItemStack stack = player.getItemInHand( hand );
+        if( !world.isClientSide )
         {
             PocketServerComputer computer = createServerComputer( world, player.inventory, player, stack );
 
@@ -156,7 +154,8 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
             if( !stop && computer != null )
             {
-                new ComputerContainerData( computer ).open( player, new ContainerPocketComputer.Factory( computer, stack, this, hand ) );
+                boolean isTypingOnly = hand == Hand.OFF_HAND;
+                new ComputerContainerData( computer ).open( player, new PocketComputerMenuProvider( computer, stack, this, hand, isTypingOnly ) );
             }
         }
         return new ActionResult<>( ActionResultType.SUCCESS, stack );
@@ -164,9 +163,9 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     @Nonnull
     @Override
-    public ITextComponent getDisplayName( @Nonnull ItemStack stack )
+    public ITextComponent getName( @Nonnull ItemStack stack )
     {
-        String baseString = getTranslationKey( stack );
+        String baseString = getDescriptionId( stack );
         IPocketUpgrade upgrade = getUpgrade( stack );
         if( upgrade != null )
         {
@@ -176,13 +175,13 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         }
         else
         {
-            return super.getDisplayName( stack );
+            return super.getName( stack );
         }
     }
 
 
     @Override
-    public void addInformation( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, ITooltipFlag flag )
+    public void appendHoverText( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<ITextComponent> list, ITooltipFlag flag )
     {
         if( flag.isAdvanced() || getLabel( stack ) == null )
         {
@@ -190,7 +189,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
             if( id >= 0 )
             {
                 list.add( new TranslationTextComponent( "gui.computercraft.tooltip.computer_id", id )
-                    .mergeStyle( TextFormatting.GRAY ) );
+                    .withStyle( TextFormatting.GRAY ) );
             }
         }
     }
@@ -213,7 +212,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     public PocketServerComputer createServerComputer( final World world, IInventory inventory, Entity entity, @Nonnull ItemStack stack )
     {
-        if( world.isRemote ) return null;
+        if( world.isClientSide ) return null;
 
         PocketServerComputer computer;
         int instanceID = getInstanceID( stack );
@@ -249,7 +248,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
             computer.updateValues( entity, stack, getUpgrade( stack ) );
             computer.addAPI( new PocketAPI( computer ) );
             ComputerCraft.serverComputerRegistry.add( instanceID, computer );
-            if( inventory != null ) inventory.markDirty();
+            if( inventory != null ) inventory.setChanged();
         }
         computer.setWorld( world );
         return computer;
@@ -257,6 +256,9 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     public static ServerComputer getServerComputer( @Nonnull ItemStack stack )
     {
+        int session = getSessionID( stack );
+        if( session != ComputerCraft.serverComputerRegistry.getSessionID() ) return null;
+
         int instanceID = getInstanceID( stack );
         return instanceID >= 0 ? ComputerCraft.serverComputerRegistry.get( instanceID ) : null;
     }
@@ -316,11 +318,11 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     {
         if( label != null )
         {
-            stack.setDisplayName( new StringTextComponent( label ) );
+            stack.setHoverName( new StringTextComponent( label ) );
         }
         else
         {
-            stack.clearCustomName();
+            stack.resetHoverName();
         }
         return true;
     }
@@ -358,14 +360,12 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         stack.getOrCreateTag().putInt( NBT_SESSION, sessionID );
     }
 
-    @OnlyIn( Dist.CLIENT )
     public static ComputerState getState( @Nonnull ItemStack stack )
     {
         ClientComputer computer = getClientComputer( stack );
         return computer == null ? ComputerState.OFF : computer.getState();
     }
 
-    @OnlyIn( Dist.CLIENT )
     public static int getLightState( @Nonnull ItemStack stack )
     {
         ClientComputer computer = getClientComputer( stack );
@@ -406,6 +406,6 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     public static CompoundNBT getUpgradeInfo( @Nonnull ItemStack stack )
     {
-        return stack.getOrCreateChildTag( NBT_UPGRADE_INFO );
+        return stack.getOrCreateTagElement( NBT_UPGRADE_INFO );
     }
 }

@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.turtle.core;
@@ -17,11 +17,11 @@ import javax.annotation.Nonnull;
 
 public class TurtleDetectCommand implements ITurtleCommand
 {
-    private final InteractDirection m_direction;
+    private final InteractDirection direction;
 
     public TurtleDetectCommand( InteractDirection direction )
     {
-        m_direction = direction;
+        this.direction = direction;
     }
 
     @Nonnull
@@ -29,14 +29,14 @@ public class TurtleDetectCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         // Get world direction from direction
-        Direction direction = m_direction.toWorldDir( turtle );
+        Direction direction = this.direction.toWorldDir( turtle );
 
         // Check if thing in front is air or not
         World world = turtle.getWorld();
         BlockPos oldPosition = turtle.getPosition();
-        BlockPos newPosition = oldPosition.offset( direction );
+        BlockPos newPosition = oldPosition.relative( direction );
 
-        return !WorldUtil.isLiquidBlock( world, newPosition ) && !world.isAirBlock( newPosition )
+        return !WorldUtil.isLiquidBlock( world, newPosition ) && !world.isEmptyBlock( newPosition )
             ? TurtleCommandResult.success()
             : TurtleCommandResult.failure();
     }

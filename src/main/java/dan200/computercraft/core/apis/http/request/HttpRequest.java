@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis.http.request;
@@ -19,13 +19,10 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.ConnectTimeoutException;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.TooLongFrameException;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 
 import java.net.InetSocketAddress;
@@ -170,6 +167,7 @@ public class HttpRequest extends Resource<HttpRequest>
                         }
 
                         ChannelPipeline p = ch.pipeline();
+                        p.addLast( NetworkUtils.SHAPING_HANDLER );
                         if( sslContext != null )
                         {
                             p.addLast( sslContext.newHandler( ch.alloc(), uri.getHost(), socketAddress.getPort() ) );
@@ -190,7 +188,7 @@ public class HttpRequest extends Resource<HttpRequest>
                 .remoteAddress( socketAddress )
                 .connect()
                 .addListener( c -> {
-                    if( !c.isSuccess() ) failure( c.cause() );
+                    if( !c.isSuccess() ) failure( NetworkUtils.toFriendlyError( c.cause() ) );
                 } );
 
             // Do an additional check for cancellation
@@ -202,7 +200,7 @@ public class HttpRequest extends Resource<HttpRequest>
         }
         catch( Exception e )
         {
-            failure( "Could not connect" );
+            failure( NetworkUtils.toFriendlyError( e ) );
             if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error in HTTP request", e );
         }
     }
@@ -210,29 +208,6 @@ public class HttpRequest extends Resource<HttpRequest>
     void failure( String message )
     {
         if( tryClose() ) environment.queueEvent( FAILURE_EVENT, address, message );
-    }
-
-    void failure( Throwable cause )
-    {
-        String message;
-        if( cause instanceof HTTPRequestException )
-        {
-            message = cause.getMessage();
-        }
-        else if( cause instanceof TooLongFrameException )
-        {
-            message = "Response is too large";
-        }
-        else if( cause instanceof ReadTimeoutException || cause instanceof ConnectTimeoutException )
-        {
-            message = "Timed out";
-        }
-        else
-        {
-            message = "Could not connect";
-        }
-
-        failure( message );
     }
 
     void failure( String message, HttpResponseHandle object )

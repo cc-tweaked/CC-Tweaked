@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.client.gui;
@@ -25,11 +25,11 @@ public class GuiDiskDrive extends ContainerScreen<ContainerDiskDrive>
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
+    protected void renderBg( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
     {
         RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        minecraft.getTextureManager().bindTexture( BACKGROUND );
-        blit( transform, guiLeft, guiTop, 0, 0, xSize, ySize );
+        minecraft.getTextureManager().bind( BACKGROUND );
+        blit( transform, leftPos, topPos, 0, 0, imageWidth, imageHeight );
     }
 
     @Override
@@ -37,6 +37,6 @@ public class GuiDiskDrive extends ContainerScreen<ContainerDiskDrive>
     {
         renderBackground( transform );
         super.render( transform, mouseX, mouseY, partialTicks );
-        renderHoveredTooltip( transform, mouseX, mouseY );
+        renderTooltip( transform, mouseX, mouseY );
     }
 }

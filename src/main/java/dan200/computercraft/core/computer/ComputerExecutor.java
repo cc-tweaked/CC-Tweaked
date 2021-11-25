@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.computer;
@@ -252,13 +252,27 @@ final class ComputerExecutor
      */
     void abort()
     {
+        immediateFail( StateCommand.ABORT );
+    }
+
+    /**
+     * Abort this whole computer due to an internal error. This will immediately destroy the Lua machine,
+     * and then schedule a shutdown.
+     */
+    void fastFail()
+    {
+        immediateFail( StateCommand.ERROR );
+    }
+
+    private void immediateFail( StateCommand command )
+    {
         ILuaMachine machine = this.machine;
         if( machine != null ) machine.close();
 
         synchronized( queueLock )
         {
             if( closed ) return;
-            command = StateCommand.ABORT;
+            this.command = command;
             if( isOn ) enqueue();
         }
     }
@@ -596,6 +610,12 @@ final class ComputerExecutor
                     displayFailure( "Error running computer", TimeoutState.ABORT_MESSAGE );
                     shutdown();
                     break;
+
+                case ERROR:
+                    if( !isOn ) return;
+                    displayFailure( "Error running computer", "An internal error occurred, see logs." );
+                    shutdown();
+                    break;
             }
         }
         else if( event != null )
@@ -644,6 +664,7 @@ final class ComputerExecutor
         SHUTDOWN,
         REBOOT,
         ABORT,
+        ERROR,
     }
 
     private static final class Event

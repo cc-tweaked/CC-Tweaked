@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.command.text;
@@ -21,12 +21,12 @@ public final class ChatHelpers
 
     public static IFormattableTextComponent coloured( String text, TextFormatting colour )
     {
-        return new StringTextComponent( text == null ? "" : text ).mergeStyle( colour );
+        return new StringTextComponent( text == null ? "" : text ).withStyle( colour );
     }
 
     public static <T extends IFormattableTextComponent> T coloured( T component, TextFormatting colour )
     {
-        component.mergeStyle( colour );
+        component.withStyle( colour );
         return component;
     }
 
@@ -68,19 +68,33 @@ public final class ChatHelpers
             : coloured( translate( "commands.computercraft.generic.no" ), TextFormatting.RED );
     }
 
-    public static IFormattableTextComponent link( IFormattableTextComponent component, String command, ITextComponent toolTip )
+    public static ITextComponent link( IFormattableTextComponent component, String command, ITextComponent toolTip )
+    {
+        return link( component, new ClickEvent( ClickEvent.Action.RUN_COMMAND, command ), toolTip );
+    }
+
+    public static ITextComponent link( ITextComponent component, ClickEvent click, ITextComponent toolTip )
     {
         Style style = component.getStyle();
 
-        if( style.getColor() == null ) style = style.setFormatting( TextFormatting.YELLOW );
-        style = style.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, command ) );
-        style = style.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, toolTip ) );
+        if( style.getColor() == null ) style = style.withColor( TextFormatting.YELLOW );
+        style = style.withClickEvent( click );
+        style = style.withHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, toolTip ) );
 
-        return component.setStyle( style );
+        return component.copy().withStyle( style );
     }
 
     public static IFormattableTextComponent header( String text )
     {
         return coloured( text, HEADER );
+    }
+
+    public static IFormattableTextComponent copy( String text )
+    {
+        StringTextComponent name = new StringTextComponent( text );
+        Style style = name.getStyle()
+            .withClickEvent( new ClickEvent( ClickEvent.Action.COPY_TO_CLIPBOARD, text ) )
+            .withHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new TranslationTextComponent( "gui.computercraft.tooltip.copy" ) ) );
+        return name.withStyle( style );
     }
 }

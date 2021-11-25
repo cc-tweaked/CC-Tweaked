@@ -1,0 +1,93 @@
+/* Some misc styles */
+
+.big-image {
+    display: block;
+    margin: 0 auto;
+    max-height: 400px;
+}
+
+/* Pretty tables, mostly inherited from table.definition-list */
+table.pretty-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table.pretty-table td, table.pretty-table th {
+    border: 1px solid #cccccc;
+    padding: 2px 4px;
+}
+
+table.pretty-table th {
+    background-color: var(--background-2);
+}
+
+pre.highlight.highlight-lua {
+    position: relative;
+    background: var(--background-2);
+    padding: 2px;
+}
+
+.example-run {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #058e05;
+    color: #fff;
+    padding: 2px 5px;
+}
+
+.example-window {
+    position: fixed;
+    z-index: 200;
+    top: 0px;
+    top: 0px;;
+}
+
+/* Behold, the most cursed CSS! copy-cat's resizing algorithm is a weird, in
+   that it basically does "wrapper height - 40px" to determine the effective
+   size. But the footer is actually 1em+6px high, so we need to do very weird
+   things.
+
+   Yes, it should probably be fixed on the copy-cat side.
+ */
+.computer-container {
+    width: 620px;
+    height: calc(350px + 40px);
+    margin-top: calc((1em + 6px - 40px) / 2);
+}
+
+.example-window-hidden {
+    display: none;
+}
+
+.titlebar {
+    display: flex;
+    background: #dede6c;
+    height: 30px;
+}
+
+.titlebar-drag {
+    flex-grow: 1;
+    cursor: grab;
+}
+
+.titlebar-close {
+    background: none;
+    padding: 0px 5px;
+    border: none;
+    border-radius: 0px;
+    margin: 0px;
+    font-size: 15px;
+}
+
+.titlebar-close:hover { background: #cc4c4c; }
+
+@media (max-width: 700px) {
+    .computer-container {
+        width: 314px;
+        height: calc(179px + 40px);
+    }
+
+    .titlebar { height: 20px; }
+    .titlebar-close { font-size: 7px; }
+}

@@ -1,13 +1,14 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.turtle.upgrades;
 
+import dan200.computercraft.api.turtle.TurtleCommandResult;
+import dan200.computercraft.shared.ComputerCraftTags;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -32,16 +33,14 @@ public class TurtleSword extends TurtleTool
     }
 
     @Override
-    protected boolean canBreakBlock( BlockState state, World world, BlockPos pos, TurtlePlayer player )
+    protected TurtleCommandResult checkBlockBreakable( BlockState state, World world, BlockPos pos, TurtlePlayer player )
     {
-        if( !super.canBreakBlock( state, world, pos, player ) ) return false;
+        TurtleCommandResult result = super.checkBlockBreakable( state, world, pos, player );
+        if( !result.isSuccess() ) return result;
 
-        Material material = state.getMaterial();
-        return material == Material.PLANTS ||
-            material == Material.LEAVES ||
-            material == Material.TALL_PLANTS ||
-            material == Material.WOOL ||
-            material == Material.WEB;
+        return state.is( ComputerCraftTags.Blocks.TURTLE_SWORD_BREAKABLE )
+            || isTriviallyBreakable( world, pos, state )
+            ? result : INEFFECTIVE;
     }
 
     @Override

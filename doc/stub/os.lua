@@ -2,17 +2,18 @@
 
 --[[- Loads the given API into the global environment.
 
-**Warning** This function is deprecated. Use of this function will pollute the
-global table, use @{require} instead.
-
 This function loads and executes the file at the given path, and all global
 variables and functions exported by it will by available through the use of
 `myAPI.<function name>`, where `myAPI` is the base name of the API file.
 
 @tparam string path The path of the API to load.
 @treturn boolean Whether or not the API was successfully loaded.
+@since 1.2
 
-@deprecated Use @{require}.
+@deprecated When possible it's best to avoid using this function. It pollutes
+the global table and can mask errors.
+
+@{require} should be used to load libraries instead.
 ]]
 function loadAPI(path) end
 
@@ -21,7 +22,8 @@ function loadAPI(path) end
 -- This effectively removes the specified table from `_G`.
 --
 -- @tparam string name The name of the API to unload.
--- @deprecated Use @{require}.
+-- @since 1.2
+-- @deprecated See @{os.loadAPI} for why.
 function unloadAPI(name) end
 
 --[[- Pause execution of the current thread and waits for any events matching
@@ -58,6 +60,7 @@ event, printing the error "Terminated".
     end
 
 @see os.pullEventRaw To pull the terminate event.
+@changed 1.3 Added filter argument.
 ]]
 function pullEvent(filter) end
 
@@ -85,6 +88,9 @@ the `terminate` event yourself - the program will not stop execution when
 function pullEventRaw(filter) end
 
 --- Pauses execution for the specified number of seconds, alias of @{_G.sleep}.
+--
+-- @tparam number time The number of seconds to sleep for, rounded up to the
+-- nearest multiple of 0.05.
 function sleep(time) end
 
 --- Get the current CraftOS version (for example, `CraftOS 1.8`).
@@ -93,6 +99,7 @@ function sleep(time) end
 -- should return `CraftOS 1.8`.
 --
 -- @treturn string The current CraftOS version.
+-- @usage os.version()
 function version() end
 
 --[[- Run the program at the given path with the specified environment and
@@ -113,7 +120,7 @@ such as @{loadfile}.
 @treturn boolean Whether or not the program ran successfully.
 @usage Run the default shell from within your program:
 
-    os.run({}, "/rom/programs/shell")
+    os.run({}, "/rom/programs/shell.lua")
 
 @see shell.run
 @see loadfile

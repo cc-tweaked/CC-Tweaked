@@ -1,9 +1,10 @@
 --- A collection of helper methods for working with input completion, such
--- as that require by @{read}.
+-- as that require by @{_G.read}.
 --
 -- @module cc.completion
 -- @see cc.shell.completion For additional helpers to use with
 -- @{shell.setCompletionFunction}.
+-- @since 1.85.0
 
 local expect = require "cc.expect".expect
 
@@ -29,10 +30,11 @@ end
 -- @tparam { string... } choices The list of choices to complete from.
 -- @tparam[opt] boolean add_space Whether to add a space after the completed item.
 -- @treturn { string... } A list of suffixes of matching strings.
--- @usage Call @{read}, completing the names of various animals.
+-- @usage Call @{_G.read}, completing the names of various animals.
 --
+--     local completion = require "cc.completion"
 --     local animals = { "dog", "cat", "lion", "unicorn" }
---     read(nil, nil, function(text) return choice(text, animals) end)
+--     read(nil, nil, function(text) return completion.choice(text, animals) end)
 local function choice(text, choices, add_space)
     expect(1, text, "string")
     expect(2, choices, "table")
@@ -45,7 +47,9 @@ end
 -- @tparam string text The input string to complete.
 -- @tparam[opt] boolean add_space Whether to add a space after the completed name.
 -- @treturn { string... } A list of suffixes of matching peripherals.
--- @usage read(nil, nil, peripheral)
+-- @usage
+--     local completion = require "cc.completion"
+--     read(nil, nil, completion.peripheral)
 local function peripheral_(text, add_space)
     expect(1, text, "string")
     expect(2, add_space, "boolean", "nil")
@@ -59,7 +63,9 @@ local sides = redstone.getSides()
 -- @tparam string text The input string to complete.
 -- @tparam[opt] boolean add_space Whether to add a space after the completed side.
 -- @treturn { string... } A list of suffixes of matching sides.
--- @usage read(nil, nil, side)
+-- @usage
+--     local completion = require "cc.completion"
+--     read(nil, nil, completion.side)
 local function side(text, add_space)
     expect(1, text, "string")
     expect(2, add_space, "boolean", "nil")
@@ -71,7 +77,9 @@ end
 -- @tparam string text The input string to complete.
 -- @tparam[opt] boolean add_space Whether to add a space after the completed settings.
 -- @treturn { string... } A list of suffixes of matching settings.
--- @usage read(nil, nil, setting)
+-- @usage
+--     local completion = require "cc.completion"
+--     read(nil, nil, completion.setting)
 local function setting(text, add_space)
     expect(1, text, "string")
     expect(2, add_space, "boolean", "nil")
@@ -85,7 +93,9 @@ local command_list
 -- @tparam string text The input string to complete.
 -- @tparam[opt] boolean add_space Whether to add a space after the completed command.
 -- @treturn { string... } A list of suffixes of matching commands.
--- @usage read(nil, nil, command)
+-- @usage
+--     local completion = require "cc.completion"
+--     read(nil, nil, completion.command)
 local function command(text, add_space)
     expect(1, text, "string")
     expect(2, add_space, "boolean", "nil")

@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.pocket.apis;
@@ -25,13 +25,13 @@ import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
  * This API is only available on pocket computers. As such, you may use its presence to determine what kind of computer
  * you are using:
  *
- * <pre>
+ * <pre>{@code
  * if pocket then
  *   print("On a pocket computer")
  * else
  *   print("On something else")
  * end
- * </pre>
+ * }</pre>
  *
  * @cc.module pocket
  */
@@ -70,10 +70,10 @@ public class PocketAPI implements ILuaAPI
 
         // Attempt to find the upgrade, starting in the main segment, and then looking in the opposite
         // one. We start from the position the item is currently in and loop round to the start.
-        IPocketUpgrade newUpgrade = findUpgrade( inventory.mainInventory, inventory.currentItem, previousUpgrade );
+        IPocketUpgrade newUpgrade = findUpgrade( inventory.items, inventory.selected, previousUpgrade );
         if( newUpgrade == null )
         {
-            newUpgrade = findUpgrade( inventory.offHandInventory, 0, previousUpgrade );
+            newUpgrade = findUpgrade( inventory.offhand, 0, previousUpgrade );
         }
         if( newUpgrade == null ) return new Object[] { false, "Cannot find a valid upgrade" };
 
@@ -83,10 +83,10 @@ public class PocketAPI implements ILuaAPI
             ItemStack stack = previousUpgrade.getCraftingItem();
             if( !stack.isEmpty() )
             {
-                stack = InventoryUtil.storeItems( stack, new PlayerMainInvWrapper( inventory ), inventory.currentItem );
+                stack = InventoryUtil.storeItems( stack, new PlayerMainInvWrapper( inventory ), inventory.selected );
                 if( !stack.isEmpty() )
                 {
-                    WorldUtil.dropItemStack( stack, player.getEntityWorld(), player.getPositionVec() );
+                    WorldUtil.dropItemStack( stack, player.getCommandSenderWorld(), player.position() );
                 }
             }
         }
@@ -120,10 +120,10 @@ public class PocketAPI implements ILuaAPI
         ItemStack stack = previousUpgrade.getCraftingItem();
         if( !stack.isEmpty() )
         {
-            stack = InventoryUtil.storeItems( stack, new PlayerMainInvWrapper( inventory ), inventory.currentItem );
+            stack = InventoryUtil.storeItems( stack, new PlayerMainInvWrapper( inventory ), inventory.selected );
             if( stack.isEmpty() )
             {
-                WorldUtil.dropItemStack( stack, player.getEntityWorld(), player.getPositionVec() );
+                WorldUtil.dropItemStack( stack, player.getCommandSenderWorld(), player.position() );
             }
         }
 

@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis.http;
@@ -18,6 +18,9 @@ import java.util.function.Supplier;
  */
 public class ResourceGroup<T extends Resource<T>>
 {
+    public static final int DEFAULT_LIMIT = 512;
+    public static final IntSupplier DEFAULT = () -> DEFAULT_LIMIT;
+
     private static final IntSupplier ZERO = () -> 0;
 
     final IntSupplier limit;

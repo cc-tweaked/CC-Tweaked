@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.monitor;
@@ -28,11 +28,11 @@ import javax.annotation.Nullable;
  * @cc.module monitor
  * @cc.usage Write "Hello, world!" to an adjacent monitor:
  *
- * <pre>
+ * <pre>{@code
  * local monitor = peripheral.find("monitor")
  * monitor.setCursorPos(1, 1)
  * monitor.write("Hello, world!")
- * </pre>
+ * }</pre>
  */
 public class MonitorPeripheral extends TermMethods implements IPeripheral
 {
@@ -71,6 +71,7 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral
      *
      * @return The monitor's current scale.
      * @throws LuaException If the monitor cannot be found.
+     * @cc.since 1.81.0
      */
     @LuaFunction
     public final double getTextScale() throws LuaException

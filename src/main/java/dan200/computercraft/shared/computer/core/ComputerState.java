@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.computer.core;
@@ -11,20 +11,22 @@ import javax.annotation.Nonnull;
 
 public enum ComputerState implements IStringSerializable
 {
-    OFF( "off" ),
-    ON( "on" ),
-    BLINKING( "blinking" );
+    OFF( "off", "" ),
+    ON( "on", "_on" ),
+    BLINKING( "blinking", "_blink" );
 
     private final String name;
+    private final String texture;
 
-    ComputerState( String name )
+    ComputerState( String name, String texture )
     {
         this.name = name;
+        this.texture = texture;
     }
 
     @Nonnull
     @Override
-    public String getString()
+    public String getSerializedName()
     {
         return name;
     }
@@ -33,5 +35,11 @@ public enum ComputerState implements IStringSerializable
     public String toString()
     {
         return name;
+    }
+
+    @Nonnull
+    public String getTexture()
+    {
+        return texture;
     }
 }

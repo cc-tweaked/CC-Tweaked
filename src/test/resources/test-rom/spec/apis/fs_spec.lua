@@ -39,15 +39,19 @@ describe("The fs library", function()
         end)
     end)
 
-    describe("fs.list", function()
-        it("fails on files", function()
-            expect.error(fs.list, "rom/startup.lua"):eq("/rom/startup.lua: Not a directory")
-            expect.error(fs.list, "startup.lua"):eq("/startup.lua: Not a directory")
+    describe("fs.combine", function()
+        it("removes . and ..", function()
+            expect(fs.combine("./a/b")):eq("a/b")
+            expect(fs.combine("a/b", "../c")):eq("a/c")
+            expect(fs.combine("a", "../c")):eq("c")
+            expect(fs.combine("a", "../../c")):eq("../c")
         end)
 
-        it("fails on non-existent nodes", function()
-            expect.error(fs.list, "rom/x"):eq("/rom/x: Not a directory")
-            expect.error(fs.list, "x"):eq("/x: Not a directory")
+        it("combines empty paths", function()
+            expect(fs.combine("a")):eq("a")
+            expect(fs.combine("a", "")):eq("a")
+            expect(fs.combine("", "a")):eq("a")
+            expect(fs.combine("a", "", "b", "c")):eq("a/b/c")
         end)
     end)
 
@@ -190,7 +194,7 @@ describe("The fs library", function()
         end)
 
         it("returns information about read-only mounts", function()
-            expect(fs.attributes("rom")):matches { isDir = true, size = 0 }
+            expect(fs.attributes("rom")):matches { isDir = true, size = 0, isReadOnly = true }
         end)
 
         it("returns information about files", function()
@@ -202,7 +206,7 @@ describe("The fs library", function()
             h.close()
 
             local attributes = fs.attributes("tmp/basic-file")
-            expect(attributes):matches { isDir = false, size = 25 }
+            expect(attributes):matches { isDir = false, size = 25, isReadOnly = false }
 
             if attributes.created - now >= 1000 then
                 fail(("Expected created time (%d) to be within 1000ms of now (%d"):format(attributes.created, now))

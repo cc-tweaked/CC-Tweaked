@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.pocket.peripherals;
@@ -39,7 +39,7 @@ public class PocketSpeaker extends AbstractPocketUpgrade
         Entity entity = access.getEntity();
         if( entity != null )
         {
-            speaker.setLocation( entity.getEntityWorld(), entity.getEyePosition( 1 ) );
+            speaker.setLocation( entity.getCommandSenderWorld(), entity.getEyePosition( 1 ) );
         }
 
         speaker.update();

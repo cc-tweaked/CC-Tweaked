@@ -21,7 +21,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "computercraft:computer"
+            "tag": "computercraft:wired_modem"
           }
         ]
       }

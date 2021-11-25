@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.util;
@@ -47,7 +47,7 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
 
     @Nonnull
     @Override
-    public ItemStack getCraftingResult( @Nonnull CraftingInventory inventory )
+    public ItemStack assemble( @Nonnull CraftingInventory inventory )
     {
         return ItemStack.EMPTY;
     }
@@ -62,10 +62,10 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
     public static final IRecipeSerializer<ImpostorShapelessRecipe> SERIALIZER = new BasicRecipeSerializer<ImpostorShapelessRecipe>()
     {
         @Override
-        public ImpostorShapelessRecipe read( @Nonnull ResourceLocation id, @Nonnull JsonObject json )
+        public ImpostorShapelessRecipe fromJson( @Nonnull ResourceLocation id, @Nonnull JsonObject json )
         {
-            String s = JSONUtils.getString( json, "group", "" );
-            NonNullList<Ingredient> ingredients = readIngredients( JSONUtils.getJsonArray( json, "ingredients" ) );
+            String s = JSONUtils.getAsString( json, "group", "" );
+            NonNullList<Ingredient> ingredients = readIngredients( JSONUtils.getAsJsonArray( json, "ingredients" ) );
 
             if( ingredients.isEmpty() ) throw new JsonParseException( "No ingredients for shapeless recipe" );
             if( ingredients.size() > 9 )
@@ -73,7 +73,7 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
                 throw new JsonParseException( "Too many ingredients for shapeless recipe the max is 9" );
             }
 
-            ItemStack itemstack = CraftingHelper.getItemStack( JSONUtils.getJsonObject( json, "result" ), true );
+            ItemStack itemstack = CraftingHelper.getItemStack( JSONUtils.getAsJsonObject( json, "result" ), true );
             return new ImpostorShapelessRecipe( id, s, itemstack, ingredients );
         }
 
@@ -82,34 +82,34 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
             NonNullList<Ingredient> items = NonNullList.create();
             for( int i = 0; i < arrays.size(); ++i )
             {
-                Ingredient ingredient = Ingredient.deserialize( arrays.get( i ) );
-                if( !ingredient.hasNoMatchingItems() ) items.add( ingredient );
+                Ingredient ingredient = Ingredient.fromJson( arrays.get( i ) );
+                if( !ingredient.isEmpty() ) items.add( ingredient );
             }
 
             return items;
         }
 
         @Override
-        public ImpostorShapelessRecipe read( @Nonnull ResourceLocation id, PacketBuffer buffer )
+        public ImpostorShapelessRecipe fromNetwork( @Nonnull ResourceLocation id, PacketBuffer buffer )
         {
-            String s = buffer.readString( 32767 );
+            String s = buffer.readUtf( 32767 );
             int i = buffer.readVarInt();
             NonNullList<Ingredient> items = NonNullList.withSize( i, Ingredient.EMPTY );
 
-            for( int j = 0; j < items.size(); j++ ) items.set( j, Ingredient.read( buffer ) );
-            ItemStack result = buffer.readItemStack();
+            for( int j = 0; j < items.size(); j++ ) items.set( j, Ingredient.fromNetwork( buffer ) );
+            ItemStack result = buffer.readItem();
 
             return new ImpostorShapelessRecipe( id, s, result, items );
         }
 
         @Override
-        public void write( @Nonnull PacketBuffer buffer, @Nonnull ImpostorShapelessRecipe recipe )
+        public void toNetwork( @Nonnull PacketBuffer buffer, @Nonnull ImpostorShapelessRecipe recipe )
         {
-            buffer.writeString( recipe.getGroup() );
+            buffer.writeUtf( recipe.getGroup() );
             buffer.writeVarInt( recipe.getIngredients().size() );
 
-            for( Ingredient ingredient : recipe.getIngredients() ) ingredient.write( buffer );
-            buffer.writeItemStack( recipe.getRecipeOutput() );
+            for( Ingredient ingredient : recipe.getIngredients() ) ingredient.toNetwork( buffer );
+            buffer.writeItem( recipe.getResultItem() );
         }
     };
 }

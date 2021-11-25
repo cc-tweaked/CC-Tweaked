@@ -10,6 +10,7 @@
 -- like a disk.
 --
 -- @module disk
+-- @since 1.2
 
 local function isDrive(name)
     if type(name) ~= "string" then
@@ -22,7 +23,7 @@ end
 --
 -- @tparam string name The name of the disk drive.
 -- @treturn boolean If something is in the disk drive.
--- @usage disk.isPresent(false)
+-- @usage disk.isPresent("top")
 function isPresent(name)
     if isDrive(name) then
         return peripheral.call(name, "isDiskPresent")
@@ -163,6 +164,7 @@ end
 --
 -- @tparam string name The name of the disk drive.
 -- @treturn string|nil The disk ID, or `nil` if the drive does not contain a floppy disk.
+-- @since 1.4
 function getID(name)
     if isDrive(name) then
         return peripheral.call(name, "getDiskID")

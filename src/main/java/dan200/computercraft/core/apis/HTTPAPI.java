@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis;
@@ -14,6 +14,7 @@ import dan200.computercraft.core.apis.http.*;
 import dan200.computercraft.core.apis.http.request.HttpRequest;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 
@@ -34,15 +35,15 @@ import static dan200.computercraft.core.apis.TableHelper.*;
  */
 public class HTTPAPI implements ILuaAPI
 {
-    private final IAPIEnvironment m_apiEnvironment;
+    private final IAPIEnvironment apiEnvironment;
 
-    private final ResourceGroup<CheckUrl> checkUrls = new ResourceGroup<>();
+    private final ResourceGroup<CheckUrl> checkUrls = new ResourceGroup<>( ResourceGroup.DEFAULT );
     private final ResourceGroup<HttpRequest> requests = new ResourceQueue<>( () -> ComputerCraft.httpMaxRequests );
     private final ResourceGroup<Websocket> websockets = new ResourceGroup<>( () -> ComputerCraft.httpMaxWebsockets );
 
     public HTTPAPI( IAPIEnvironment environment )
     {
-        m_apiEnvironment = environment;
+        apiEnvironment = environment;
     }
 
     @Override
@@ -123,10 +124,13 @@ public class HTTPAPI implements ILuaAPI
         try
         {
             URI uri = HttpRequest.checkUri( address );
-            HttpRequest request = new HttpRequest( requests, m_apiEnvironment, address, postString, headers, binary, redirect );
+            HttpRequest request = new HttpRequest( requests, apiEnvironment, address, postString, headers, binary, redirect );
 
             // Make the request
-            request.queue( r -> r.request( uri, httpMethod ) );
+            if( !request.queue( r -> r.request( uri, httpMethod ) ) )
+            {
+                throw new LuaException( "Too many ongoing HTTP requests" );
+            }
 
             return new Object[] { true };
         }
@@ -137,12 +141,15 @@ public class HTTPAPI implements ILuaAPI
     }
 
     @LuaFunction
-    public final Object[] checkURL( String address )
+    public final Object[] checkURL( String address ) throws LuaException
     {
         try
         {
             URI uri = HttpRequest.checkUri( address );
-            new CheckUrl( checkUrls, m_apiEnvironment, address, uri ).queue( CheckUrl::run );
+            if( !new CheckUrl( checkUrls, apiEnvironment, address, uri ).queue( CheckUrl::run ) )
+            {
+                throw new LuaException( "Too many ongoing checkUrl calls" );
+            }
 
             return new Object[] { true };
         }
@@ -165,7 +172,7 @@ public class HTTPAPI implements ILuaAPI
         try
         {
             URI uri = Websocket.checkUri( address );
-            if( !new Websocket( websockets, m_apiEnvironment, uri, address, headers ).queue( Websocket::connect ) )
+            if( !new Websocket( websockets, apiEnvironment, uri, address, headers ).queue( Websocket::connect ) )
             {
                 throw new LuaException( "Too many websockets already open" );
             }
@@ -179,7 +186,7 @@ public class HTTPAPI implements ILuaAPI
     }
 
     @Nonnull
-    private static HttpHeaders getHeaders( @Nonnull Map<?, ?> headerTable ) throws LuaException
+    private HttpHeaders getHeaders( @Nonnull Map<?, ?> headerTable ) throws LuaException
     {
         HttpHeaders headers = new DefaultHttpHeaders();
         for( Map.Entry<?, ?> entry : headerTable.entrySet() )
@@ -196,6 +203,11 @@ public class HTTPAPI implements ILuaAPI
                     throw new LuaException( e.getMessage() );
                 }
             }
+        }
+
+        if( !headers.contains( HttpHeaderNames.USER_AGENT ) )
+        {
+            headers.set( HttpHeaderNames.USER_AGENT, apiEnvironment.getComputerEnvironment().getUserAgent() );
         }
         return headers;
     }

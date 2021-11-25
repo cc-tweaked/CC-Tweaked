@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared;
@@ -21,7 +21,7 @@ public final class TurtlePermissions
     public static boolean isBlockEnterable( World world, BlockPos pos, PlayerEntity player )
     {
         MinecraftServer server = world.getServer();
-        return server == null || world.isRemote || (world instanceof ServerWorld && !server.isBlockProtected( (ServerWorld) world, pos, player ));
+        return server == null || world.isClientSide || (world instanceof ServerWorld && !server.isUnderSpawnProtection( (ServerWorld) world, pos, player ));
     }
 
     public static boolean isBlockEditable( World world, BlockPos pos, PlayerEntity player )

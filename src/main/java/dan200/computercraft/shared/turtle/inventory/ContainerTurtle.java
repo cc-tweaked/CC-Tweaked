@@ -1,10 +1,11 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.turtle.inventory;
 
+import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
@@ -27,8 +28,10 @@ import java.util.function.Predicate;
 
 public class ContainerTurtle extends ContainerComputerBase
 {
+    public static final int BORDER = 8;
     public static final int PLAYER_START_Y = 134;
-    public static final int TURTLE_START_X = 175;
+    public static final int TURTLE_START_X = ComputerSidebar.WIDTH + 175;
+    public static final int PLAYER_START_X = ComputerSidebar.WIDTH + BORDER;
 
     private final IIntArray properties;
 
@@ -40,7 +43,7 @@ public class ContainerTurtle extends ContainerComputerBase
         super( Registry.ModContainers.TURTLE.get(), id, canUse, computer, family );
         this.properties = properties;
 
-        trackIntArray( properties );
+        addDataSlots( properties );
 
         // Turtle inventory
         for( int y = 0; y < 4; y++ )
@@ -56,21 +59,21 @@ public class ContainerTurtle extends ContainerComputerBase
         {
             for( int x = 0; x < 9; x++ )
             {
-                addSlot( new Slot( playerInventory, x + y * 9 + 9, 8 + x * 18, PLAYER_START_Y + 1 + y * 18 ) );
+                addSlot( new Slot( playerInventory, x + y * 9 + 9, PLAYER_START_X + x * 18, PLAYER_START_Y + 1 + y * 18 ) );
             }
         }
 
         // Player hotbar
         for( int x = 0; x < 9; x++ )
         {
-            addSlot( new Slot( playerInventory, x, 8 + x * 18, PLAYER_START_Y + 3 * 18 + 5 ) );
+            addSlot( new Slot( playerInventory, x, PLAYER_START_X + x * 18, PLAYER_START_Y + 3 * 18 + 5 ) );
         }
     }
 
     public ContainerTurtle( int id, PlayerInventory player, TurtleBrain turtle )
     {
         this(
-            id, p -> turtle.getOwner().isUsableByPlayer( p ), turtle.getOwner().createServerComputer(), turtle.getFamily(),
+            id, p -> turtle.getOwner().stillValid( p ), turtle.getOwner().createServerComputer(), turtle.getFamily(),
             player, turtle.getInventory(), (SingleIntArray) turtle::getSelectedSlot
         );
     }
@@ -91,24 +94,24 @@ public class ContainerTurtle extends ContainerComputerBase
     @Nonnull
     private ItemStack tryItemMerge( PlayerEntity player, int slotNum, int firstSlot, int lastSlot, boolean reverse )
     {
-        Slot slot = inventorySlots.get( slotNum );
+        Slot slot = slots.get( slotNum );
         ItemStack originalStack = ItemStack.EMPTY;
-        if( slot != null && slot.getHasStack() )
+        if( slot != null && slot.hasItem() )
         {
-            ItemStack clickedStack = slot.getStack();
+            ItemStack clickedStack = slot.getItem();
             originalStack = clickedStack.copy();
-            if( !mergeItemStack( clickedStack, firstSlot, lastSlot, reverse ) )
+            if( !moveItemStackTo( clickedStack, firstSlot, lastSlot, reverse ) )
             {
                 return ItemStack.EMPTY;
             }
 
             if( clickedStack.isEmpty() )
             {
-                slot.putStack( ItemStack.EMPTY );
+                slot.set( ItemStack.EMPTY );
             }
             else
             {
-                slot.onSlotChanged();
+                slot.setChanged();
             }
 
             if( clickedStack.getCount() != originalStack.getCount() )
@@ -125,7 +128,7 @@ public class ContainerTurtle extends ContainerComputerBase
 
     @Nonnull
     @Override
-    public ItemStack transferStackInSlot( @Nonnull PlayerEntity player, int slotNum )
+    public ItemStack quickMoveStack( @Nonnull PlayerEntity player, int slotNum )
     {
         if( slotNum >= 0 && slotNum < 16 )
         {

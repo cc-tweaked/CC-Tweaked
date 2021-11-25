@@ -12,6 +12,8 @@ describe("The http library", function()
         end)
 
         it("rejects local domains", function()
+            -- Note, this is tested more thoroughly in AddressRuleTest. We've just got this here
+            -- to ensure the general control flow works.
             expect({ http.checkURL("http://localhost") }):same({ false, "Domain not permitted" })
             expect({ http.checkURL("http://127.0.0.1") }):same({ false, "Domain not permitted" })
         end)

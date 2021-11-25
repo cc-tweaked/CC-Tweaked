@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis.http.request;
@@ -21,10 +21,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 
 import java.io.Closeable;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -81,10 +79,6 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
         if( !request.headers().contains( HttpHeaderNames.ACCEPT_CHARSET ) )
         {
             request.headers().set( HttpHeaderNames.ACCEPT_CHARSET, "UTF-8" );
-        }
-        if( !request.headers().contains( HttpHeaderNames.USER_AGENT ) )
-        {
-            request.headers().set( HttpHeaderNames.USER_AGENT, this.request.environment().getComputerEnvironment().getUserAgent() );
         }
         request.headers().set( HttpHeaderNames.HOST, uri.getPort() < 0 ? uri.getHost() : uri.getHost() + ":" + uri.getPort() );
         request.headers().set( HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE );
@@ -189,7 +183,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     public void exceptionCaught( ChannelHandlerContext ctx, Throwable cause )
     {
         if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error handling HTTP response", cause );
-        request.failure( cause );
+        request.failure( NetworkUtils.toFriendlyError( cause ) );
     }
 
     private void sendResponse()
@@ -244,9 +238,9 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
         try
         {
-            return uri.resolve( new URI( URLDecoder.decode( location, "UTF-8" ) ) );
+            return uri.resolve( new URI( location ) );
         }
-        catch( UnsupportedEncodingException | IllegalArgumentException | URISyntaxException e )
+        catch( IllegalArgumentException | URISyntaxException e )
         {
             return null;
         }

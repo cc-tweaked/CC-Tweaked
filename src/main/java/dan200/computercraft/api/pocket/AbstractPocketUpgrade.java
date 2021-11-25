@@ -1,6 +1,6 @@
 /*
  * This file is part of the public ComputerCraft API - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2020. This API may be redistributed unmodified and in full only.
+ * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
 package dan200.computercraft.api.pocket;
@@ -35,7 +35,7 @@ public abstract class AbstractPocketUpgrade implements IPocketUpgrade
 
     protected AbstractPocketUpgrade( ResourceLocation id, NonNullSupplier<ItemStack> item )
     {
-        this( id, Util.makeTranslationKey( "upgrade", id ) + ".adjective", item );
+        this( id, Util.makeDescriptionId( "upgrade", id ) + ".adjective", item );
     }
 
     protected AbstractPocketUpgrade( ResourceLocation id, String adjective, ItemStack stack )
