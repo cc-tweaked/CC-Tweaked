@@ -475,6 +475,13 @@ local function pretty(obj, options)
 end
 
 --- A shortcut for pretty.print(pretty.pretty(obj, options), ribbon_frac)
+-- @param obj The object to pretty-print.
+-- @tparam[opt] { function_args = boolean, function_source = boolean } options
+-- @tparam[opt] number  ribbon_frac The maximum fraction of the width that we should write in.
+-- Controls how various properties are displayed.
+--  - `function_args`: Show the arguments to a function if known (`false` by default).
+--  - `function_source`: Show where the function was defined, instead of
+--    `function: xxxxxxxx` (`false` by default).
 -- @see pretty
 -- @see print
 local function prettyPrint(obj, options, ribbon_frac)    
