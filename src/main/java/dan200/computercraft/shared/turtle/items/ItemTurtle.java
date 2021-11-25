@@ -69,7 +69,6 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
 
         list.add( create( -1, null, -1, null, null, 0, null ) );
         TurtleUpgrades.getVanillaUpgrades()
-            .filter( x -> TurtleUpgrades.suitableForFamily( family, x ) )
             .map( x -> create( -1, null, -1, null, x, 0, null ) )
             .forEach( list::add );
     }
@@ -116,14 +115,14 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
         ITurtleUpgrade left = getUpgrade( stack, TurtleSide.LEFT );
         if( left != null )
         {
-            String mod = TurtleUpgrades.getOwner( left );
+            String mod = TurtleUpgrades.instance().getOwner( left );
             if( mod != null && !mod.equals( ComputerCraft.MOD_ID ) ) return mod;
         }
 
         ITurtleUpgrade right = getUpgrade( stack, TurtleSide.RIGHT );
         if( right != null )
         {
-            String mod = TurtleUpgrades.getOwner( right );
+            String mod = TurtleUpgrades.instance().getOwner( right );
             if( mod != null && !mod.equals( ComputerCraft.MOD_ID ) ) return mod;
         }
 
@@ -148,7 +147,7 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
         if( tag == null ) return null;
 
         String key = side == TurtleSide.LEFT ? NBT_LEFT_UPGRADE : NBT_RIGHT_UPGRADE;
-        return tag.contains( key ) ? TurtleUpgrades.get( tag.getString( key ) ) : null;
+        return tag.contains( key ) ? TurtleUpgrades.instance().get( tag.getString( key ) ) : null;
     }
 
     @Override

@@ -6,9 +6,9 @@
 package dan200.computercraft.data;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.PocketUpgrades;
+import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
+import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
 import dan200.computercraft.shared.Registry;
-import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -42,11 +42,17 @@ import java.util.function.Consumer;
 import static dan200.computercraft.shared.ComputerCraftTags.Items.COMPUTER;
 import static dan200.computercraft.shared.ComputerCraftTags.Items.WIRED_MODEM;
 
-public class RecipeGenerator extends RecipeProvider
+class RecipeGenerator extends RecipeProvider
 {
-    public RecipeGenerator( DataGenerator generator )
+    private final TurtleUpgradeDataProvider turtleUpgrades;
+    private final PocketUpgradeDataProvider pocketUpgrades;
+
+    RecipeGenerator( DataGenerator generator, TurtleUpgradeDataProvider turtleUpgrades, PocketUpgradeDataProvider pocketUpgrades )
     {
         super( generator );
+
+        this.turtleUpgrades = turtleUpgrades;
+        this.pocketUpgrades = pocketUpgrades;
     }
 
     @Override
@@ -101,7 +107,8 @@ public class RecipeGenerator extends RecipeProvider
 
             String nameId = family.name().toLowerCase( Locale.ROOT );
 
-            TurtleUpgrades.getVanillaUpgrades().forEach( upgrade -> {
+            for( var upgrade : turtleUpgrades.getGeneratedUpgrades() )
+            {
                 ItemStack result = TurtleItemFactory.create( -1, null, -1, family, null, upgrade, -1, null );
                 ShapedRecipeBuilder
                     .shaped( result.getItem() )
@@ -117,7 +124,7 @@ public class RecipeGenerator extends RecipeProvider
                             nameId, upgrade.getUpgradeID().getNamespace(), upgrade.getUpgradeID().getPath()
                         ) )
                     );
-            } );
+            }
         }
     }
 
@@ -135,7 +142,8 @@ public class RecipeGenerator extends RecipeProvider
 
             String nameId = family.name().toLowerCase( Locale.ROOT );
 
-            PocketUpgrades.getVanillaUpgrades().forEach( upgrade -> {
+            for( var upgrade : pocketUpgrades.getGeneratedUpgrades() )
+            {
                 ItemStack result = PocketComputerItemFactory.create( -1, null, -1, family, upgrade );
                 ShapedRecipeBuilder
                     .shaped( result.getItem() )
@@ -152,7 +160,7 @@ public class RecipeGenerator extends RecipeProvider
                             nameId, upgrade.getUpgradeID().getNamespace(), upgrade.getUpgradeID().getPath()
                         ) )
                     );
-            } );
+            }
         }
     }
 

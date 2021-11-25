@@ -11,19 +11,9 @@ import net.minecraft.world.item.ItemStack;
 
 public class TurtleAxe extends TurtleTool
 {
-    public TurtleAxe( ResourceLocation id, String adjective, Item item )
+    public TurtleAxe( ResourceLocation id, String adjective, Item craftItem, ItemStack toolItem )
     {
-        super( id, adjective, item );
-    }
-
-    public TurtleAxe( ResourceLocation id, Item item )
-    {
-        super( id, item );
-    }
-
-    public TurtleAxe( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )
-    {
-        super( id, craftItem, toolItem );
+        super( id, adjective, craftItem, toolItem );
     }
 
     @Override

@@ -15,6 +15,8 @@ import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.network.client.UpgradesLoadedMessage;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -24,10 +26,7 @@ import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootTableReference;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.LootTableLoadEvent;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.*;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -145,5 +144,21 @@ public final class CommonHooks
     public static void onAddReloadListeners( AddReloadListenerEvent event )
     {
         event.addListener( ResourceMount.RELOAD_LISTENER );
+        event.addListener( TurtleUpgrades.instance() );
+        event.addListener( PocketUpgrades.instance() );
+    }
+
+    @SubscribeEvent
+    public static void onDatapackSync( OnDatapackSyncEvent event )
+    {
+        var packet = new UpgradesLoadedMessage();
+        if( event.getPlayer() == null )
+        {
+            NetworkHandler.sendToAllPlayers( packet );
+        }
+        else
+        {
+            NetworkHandler.sendToPlayer( event.getPlayer(), packet );
+        }
     }
 }

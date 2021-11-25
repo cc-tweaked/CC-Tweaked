@@ -20,6 +20,8 @@ import java.util.UUID;
  */
 public abstract class UpgradeSpeakerPeripheral extends SpeakerPeripheral
 {
+    public static final String ADJECTIVE = "upgrade.computercraft.speaker.adjective";
+
     private final UUID source = UUID.randomUUID();
 
     @Override

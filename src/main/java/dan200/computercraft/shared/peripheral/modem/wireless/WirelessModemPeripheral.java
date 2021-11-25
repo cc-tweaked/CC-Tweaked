@@ -14,6 +14,9 @@ import net.minecraft.world.phys.Vec3;
 
 public abstract class WirelessModemPeripheral extends ModemPeripheral
 {
+    public static final String NORMAL_ADJECTIVE = "upgrade.computercraft.wireless_modem_normal.adjective";
+    public static final String ADVANCED_ADJECTIVE = "upgrade.computercraft.wireless_modem_advanced.adjective";
+
     private final boolean advanced;
 
     public WirelessModemPeripheral( ModemState state, boolean advanced )

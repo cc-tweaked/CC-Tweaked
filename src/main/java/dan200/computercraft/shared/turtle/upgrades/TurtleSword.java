@@ -17,19 +17,9 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class TurtleSword extends TurtleTool
 {
-    public TurtleSword( ResourceLocation id, String adjective, Item item )
+    public TurtleSword( ResourceLocation id, String adjective, Item craftItem, ItemStack toolItem )
     {
-        super( id, adjective, item );
-    }
-
-    public TurtleSword( ResourceLocation id, Item item )
-    {
-        super( id, item );
-    }
-
-    public TurtleSword( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )
-    {
-        super( id, craftItem, toolItem );
+        super( id, adjective, craftItem, toolItem );
     }
 
     @Override

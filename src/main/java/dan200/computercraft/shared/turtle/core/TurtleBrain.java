@@ -160,8 +160,8 @@ public class TurtleBrain implements ITurtleAccess
         overlay = nbt.contains( NBT_OVERLAY ) ? new ResourceLocation( nbt.getString( NBT_OVERLAY ) ) : null;
 
         // Read upgrades
-        setUpgradeDirect( TurtleSide.LEFT, nbt.contains( NBT_LEFT_UPGRADE ) ? TurtleUpgrades.get( nbt.getString( NBT_LEFT_UPGRADE ) ) : null );
-        setUpgradeDirect( TurtleSide.RIGHT, nbt.contains( NBT_RIGHT_UPGRADE ) ? TurtleUpgrades.get( nbt.getString( NBT_RIGHT_UPGRADE ) ) : null );
+        setUpgradeDirect( TurtleSide.LEFT, nbt.contains( NBT_LEFT_UPGRADE ) ? TurtleUpgrades.instance().get( nbt.getString( NBT_LEFT_UPGRADE ) ) : null );
+        setUpgradeDirect( TurtleSide.RIGHT, nbt.contains( NBT_RIGHT_UPGRADE ) ? TurtleUpgrades.instance().get( nbt.getString( NBT_RIGHT_UPGRADE ) ) : null );
 
         // NBT
         upgradeNBTData.clear();

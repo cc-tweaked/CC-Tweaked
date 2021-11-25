@@ -695,7 +695,7 @@ public class TurtleAPI implements ILuaAPI
      * @cc.usage <pre>{@code
      * local has_block, data = turtle.inspect()
      * if has_block then
-     *   print(textutils.serialize(data))
+     *   print(textutils.serialise(data))
      *   -- {
      *   --   name = "minecraft:oak_log",
      *   --   state = { axis = "x" },
@@ -753,7 +753,7 @@ public class TurtleAPI implements ILuaAPI
      * @cc.usage Print the current slot, assuming it contains 13 dirt.
      *
      * <pre>{@code
-     * print(textutils.serialize(turtle.getItemDetail()))
+     * print(textutils.serialise(turtle.getItemDetail()))
      * -- => {
      * --  name = "minecraft:dirt",
      * --  count = 13,

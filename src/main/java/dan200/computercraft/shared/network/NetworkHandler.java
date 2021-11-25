@@ -61,6 +61,7 @@ public final class NetworkHandler
         registerMainThread( 17, NetworkDirection.PLAY_TO_CLIENT, SpeakerStopClientMessage.class, SpeakerStopClientMessage::new );
         registerMainThread( 18, NetworkDirection.PLAY_TO_CLIENT, SpeakerMoveClientMessage.class, SpeakerMoveClientMessage::new );
         registerMainThread( 19, NetworkDirection.PLAY_TO_CLIENT, UploadResultMessage.class, UploadResultMessage::new );
+        registerMainThread( 20, NetworkDirection.PLAY_TO_CLIENT, UpgradesLoadedMessage.class, UpgradesLoadedMessage::new );
     }
 
     public static void sendToPlayer( Player player, NetworkMessage packet )

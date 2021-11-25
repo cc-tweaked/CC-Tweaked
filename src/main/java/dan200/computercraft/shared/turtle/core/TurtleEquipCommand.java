@@ -36,11 +36,8 @@ public class TurtleEquipCommand implements ITurtleCommand
         if( !selectedStack.isEmpty() )
         {
             newUpgradeStack = selectedStack.copy();
-            newUpgrade = TurtleUpgrades.get( newUpgradeStack );
-            if( newUpgrade == null || !TurtleUpgrades.suitableForFamily( ((TurtleBrain) turtle).getFamily(), newUpgrade ) )
-            {
-                return TurtleCommandResult.failure( "Not a valid upgrade" );
-            }
+            newUpgrade = TurtleUpgrades.instance().get( newUpgradeStack );
+            if( newUpgrade == null ) return TurtleCommandResult.failure( "Not a valid upgrade" );
         }
         else
         {

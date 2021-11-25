@@ -24,19 +24,9 @@ import javax.annotation.Nonnull;
 
 public class TurtleHoe extends TurtleTool
 {
-    public TurtleHoe( ResourceLocation id, String adjective, Item item )
+    public TurtleHoe( ResourceLocation id, String adjective, Item craftItem, ItemStack toolItem )
     {
-        super( id, adjective, item );
-    }
-
-    public TurtleHoe( ResourceLocation id, Item item )
-    {
-        super( id, item );
-    }
-
-    public TurtleHoe( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )
-    {
-        super( id, craftItem, toolItem );
+        super( id, adjective, craftItem, toolItem );
     }
 
     @Override

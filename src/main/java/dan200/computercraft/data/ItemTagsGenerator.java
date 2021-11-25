@@ -15,9 +15,9 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 
 import static dan200.computercraft.shared.ComputerCraftTags.Items.*;
 
-public class ItemTagsGenerator extends ItemTagsProvider
+class ItemTagsGenerator extends ItemTagsProvider
 {
-    public ItemTagsGenerator( DataGenerator generator, BlockTagsGenerator blockTags, ExistingFileHelper helper )
+    ItemTagsGenerator( DataGenerator generator, BlockTagsGenerator blockTags, ExistingFileHelper helper )
     {
         super( generator, blockTags, ComputerCraft.MOD_ID, helper );
     }

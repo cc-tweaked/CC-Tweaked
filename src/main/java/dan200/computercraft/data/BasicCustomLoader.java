@@ -14,7 +14,7 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-public class BasicCustomLoader<T extends ModelBuilder<T>> extends CustomLoaderBuilder<T>
+class BasicCustomLoader<T extends ModelBuilder<T>> extends CustomLoaderBuilder<T>
 {
     private final Consumer<JsonObject> extra;
 

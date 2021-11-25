@@ -10,6 +10,8 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
+import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.shared.command.arguments.ArgumentSerializers;
 import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.ContainerHeldItem;
@@ -74,7 +76,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -95,6 +100,7 @@ import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryBuilder;
 
 import java.util.function.BiFunction;
 
@@ -251,49 +257,41 @@ public final class Registry
             () -> new ItemBlockCable.WiredModem( ModBlocks.CABLE.get(), properties() ) );
     }
 
-    @SubscribeEvent
-    public static void registerItems( RegistryEvent.Register<Item> event )
+    public static class ModTurtleSerialisers
     {
-        registerTurtleUpgrades();
-        registerPocketUpgrades();
+        static final DeferredRegister<TurtleUpgradeSerialiser<?>> SERIALISERS = DeferredRegister.create( TurtleUpgradeSerialiser.TYPE, ComputerCraft.MOD_ID );
+
+        public static final RegistryObject<TurtleUpgradeSerialiser<TurtleSpeaker>> SPEAKER =
+            SERIALISERS.register( "speaker", () -> TurtleUpgradeSerialiser.simpleWithCustomItem( TurtleSpeaker::new ) );
+        public static final RegistryObject<TurtleUpgradeSerialiser<TurtleCraftingTable>> WORKBENCH =
+            SERIALISERS.register( "workbench", () -> TurtleUpgradeSerialiser.simpleWithCustomItem( TurtleCraftingTable::new ) );
+        public static final RegistryObject<TurtleUpgradeSerialiser<TurtleModem>> WIRELESS_MODEM_NORMAL =
+            SERIALISERS.register( "wireless_modem_normal", () -> TurtleUpgradeSerialiser.simpleWithCustomItem( ( id, item ) -> new TurtleModem( id, item, false ) ) );
+        public static final RegistryObject<TurtleUpgradeSerialiser<TurtleModem>> WIRELESS_MODEM_ADVANCED =
+            SERIALISERS.register( "wireless_modem_advanced", () -> TurtleUpgradeSerialiser.simpleWithCustomItem( ( id, item ) -> new TurtleModem( id, item, true ) ) );
+
+        public static final RegistryObject<TurtleUpgradeSerialiser<TurtleTool>> TOOL =
+            SERIALISERS.register( "tool", TurtleToolSerialiser.make( TurtleTool::new ) );
+        public static final RegistryObject<TurtleUpgradeSerialiser<TurtleAxe>> AXE =
+            SERIALISERS.register( "axe", TurtleToolSerialiser.make( TurtleAxe::new ) );
+        public static final RegistryObject<TurtleUpgradeSerialiser<TurtleHoe>> HOE =
+            SERIALISERS.register( "hoe", TurtleToolSerialiser.make( TurtleHoe::new ) );
+        public static final RegistryObject<TurtleUpgradeSerialiser<TurtleShovel>> SHOVEL =
+            SERIALISERS.register( "shovel", TurtleToolSerialiser.make( TurtleShovel::new ) );
+        public static final RegistryObject<TurtleUpgradeSerialiser<TurtleSword>> SWORD =
+            SERIALISERS.register( "sword", TurtleToolSerialiser.make( TurtleSword::new ) );
     }
 
-    private static void registerTurtleUpgrades()
+    public static class ModPocketUpgradeSerialisers
     {
-        // Upgrades
-        ComputerCraft.TurtleUpgrades.wirelessModemNormal = new TurtleModem( false, new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_normal" ) );
-        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.wirelessModemNormal );
+        static final DeferredRegister<PocketUpgradeSerialiser<?>> SERIALISERS = DeferredRegister.create( PocketUpgradeSerialiser.TYPE, ComputerCraft.MOD_ID );
 
-        ComputerCraft.TurtleUpgrades.wirelessModemAdvanced = new TurtleModem( true, new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_advanced" ) );
-        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.wirelessModemAdvanced );
-
-        ComputerCraft.TurtleUpgrades.speaker = new TurtleSpeaker( new ResourceLocation( ComputerCraft.MOD_ID, "speaker" ) );
-        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.speaker );
-
-        ComputerCraft.TurtleUpgrades.craftingTable = new TurtleCraftingTable( new ResourceLocation( "minecraft", "crafting_table" ) );
-        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.craftingTable );
-
-        ComputerCraft.TurtleUpgrades.diamondSword = new TurtleSword( new ResourceLocation( "minecraft", "diamond_sword" ), Items.DIAMOND_SWORD );
-        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.diamondSword );
-
-        ComputerCraft.TurtleUpgrades.diamondShovel = new TurtleShovel( new ResourceLocation( "minecraft", "diamond_shovel" ), Items.DIAMOND_SHOVEL );
-        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.diamondShovel );
-
-        ComputerCraft.TurtleUpgrades.diamondPickaxe = new TurtleTool( new ResourceLocation( "minecraft", "diamond_pickaxe" ), Items.DIAMOND_PICKAXE );
-        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.diamondPickaxe );
-
-        ComputerCraft.TurtleUpgrades.diamondAxe = new TurtleAxe( new ResourceLocation( "minecraft", "diamond_axe" ), Items.DIAMOND_AXE );
-        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.diamondAxe );
-
-        ComputerCraft.TurtleUpgrades.diamondHoe = new TurtleHoe( new ResourceLocation( "minecraft", "diamond_hoe" ), Items.DIAMOND_HOE );
-        ComputerCraftAPI.registerTurtleUpgrade( ComputerCraft.TurtleUpgrades.diamondHoe );
-    }
-
-    private static void registerPocketUpgrades()
-    {
-        ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.wirelessModemNormal = new PocketModem( false ) );
-        ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.wirelessModemAdvanced = new PocketModem( true ) );
-        ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.speaker = new PocketSpeaker() );
+        public static final RegistryObject<PocketUpgradeSerialiser<PocketSpeaker>> SPEAKER =
+            SERIALISERS.register( "speaker", () -> PocketUpgradeSerialiser.simpleWithCustomItem( PocketSpeaker::new ) );
+        public static final RegistryObject<PocketUpgradeSerialiser<PocketModem>> WIRELESS_MODEM_NORMAL =
+            SERIALISERS.register( "wireless_modem_normal", () -> PocketUpgradeSerialiser.simpleWithCustomItem( ( id, item ) -> new PocketModem( id, item, false ) ) );
+        public static final RegistryObject<PocketUpgradeSerialiser<PocketModem>> WIRELESS_MODEM_ADVANCED =
+            SERIALISERS.register( "wireless_modem_advanced", () -> PocketUpgradeSerialiser.simpleWithCustomItem( ( id, item ) -> new PocketModem( id, item, true ) ) );
     }
 
     public static class ModEntities
@@ -335,6 +333,20 @@ public final class Registry
 
         public static final RegistryObject<MenuType<ContainerViewComputer>> VIEW_COMPUTER = CONTAINERS.register( "view_computer",
             () -> ContainerData.toType( ViewComputerContainerData::new, ContainerViewComputer::new ) );
+    }
+
+    @SubscribeEvent
+    public static void registerRegistries( RegistryEvent.NewRegistry event )
+    {
+        new RegistryBuilder<TurtleUpgradeSerialiser<?>>()
+            .setName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_upgrade_serialiser" ) )
+            .setType( TurtleUpgradeSerialiser.TYPE )
+            .disableSaving().disableSync().create();
+
+        new RegistryBuilder<PocketUpgradeSerialiser<?>>()
+            .setName( new ResourceLocation( ComputerCraft.MOD_ID, "pocket_upgrade_serialiser" ) )
+            .setType( PocketUpgradeSerialiser.TYPE )
+            .disableSaving().disableSync().create();
     }
 
     @SubscribeEvent
@@ -423,6 +435,8 @@ public final class Registry
         ModBlocks.BLOCKS.register( bus );
         ModBlockEntities.TILES.register( bus );
         ModItems.ITEMS.register( bus );
+        ModTurtleSerialisers.SERIALISERS.register( bus );
+        ModPocketUpgradeSerialisers.SERIALISERS.register( bus );
         ModEntities.ENTITIES.register( bus );
         ModContainers.CONTAINERS.register( bus );
     }

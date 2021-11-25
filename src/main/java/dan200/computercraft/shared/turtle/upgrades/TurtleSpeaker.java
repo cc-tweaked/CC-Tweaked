@@ -11,11 +11,11 @@ import dan200.computercraft.api.turtle.AbstractTurtleUpgrade;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
-import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -57,9 +57,9 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
         }
     }
 
-    public TurtleSpeaker( ResourceLocation id )
+    public TurtleSpeaker( ResourceLocation id, ItemStack item )
     {
-        super( id, TurtleUpgradeType.PERIPHERAL, Registry.ModBlocks.SPEAKER );
+        super( id, TurtleUpgradeType.PERIPHERAL, UpgradeSpeakerPeripheral.ADJECTIVE, item );
     }
 
     @Override

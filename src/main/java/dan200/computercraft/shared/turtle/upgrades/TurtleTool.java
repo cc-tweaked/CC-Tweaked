@@ -53,21 +53,9 @@ public class TurtleTool extends AbstractTurtleUpgrade
 
     protected final ItemStack item;
 
-    public TurtleTool( ResourceLocation id, String adjective, Item item )
+    public TurtleTool( ResourceLocation id, String adjective, Item craftItem, ItemStack toolItem )
     {
-        super( id, TurtleUpgradeType.TOOL, adjective, item );
-        this.item = new ItemStack( item );
-    }
-
-    public TurtleTool( ResourceLocation id, Item item )
-    {
-        super( id, TurtleUpgradeType.TOOL, item );
-        this.item = new ItemStack( item );
-    }
-
-    public TurtleTool( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )
-    {
-        super( id, TurtleUpgradeType.TOOL, craftItem );
+        super( id, TurtleUpgradeType.TOOL, adjective, new ItemStack( craftItem ) );
         item = toolItem;
     }
 
