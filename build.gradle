@@ -223,9 +223,6 @@ jar.finalizedBy('reobfJar')
 }
 
 processResources {
-    inputs.property "version", mod_version
-    inputs.property "mcversion", mc_version
-
     def hash = 'none'
     Set<String> contributors = []
     try {
@@ -242,18 +239,14 @@ processResources {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 
     from(sourceSets.main.resources.srcDirs) {
-        include 'META-INF/mods.toml'
         include 'data/computercraft/lua/rom/help/credits.txt'
 
         expand(
-            'version': mod_version,
-            'mcversion': mc_version,
             'gitcontributors': contributors.sort(false, String.CASE_INSENSITIVE_ORDER).join('\n')
         )
     }
 
     from(sourceSets.main.resources.srcDirs) {
-        exclude 'META-INF/mods.toml'
         exclude 'data/computercraft/lua/rom/help/credits.txt'
     }
 }
