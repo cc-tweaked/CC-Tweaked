@@ -2,7 +2,7 @@
 
 [![Current build status](https://github.com/cc-tweaked/cc-restitched/workflows/Build/badge.svg)](https://github.com/cc-tweaked/cc-restitched/actions "Current build status")
 [![Download CC: Restitched  on CurseForge](https://camo.githubusercontent.com/07622e6662ef5ead080c4840ef6514a34e079d63015f7e51c977a55b1881dfb9/687474703a2f2f63662e776179326d7563686e6f6973652e65752f7469746c652f63632d726573746974636865642e737667)](https://www.curseforge.com/minecraft/mc-mods/cc-restitched "Download CC:  Restitched on CurseForge")
-[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-908a85?logo=gitpod)](https://gitpod.io/#https://github.com/cc-tweaked/cc-restitched/tree/1.17)
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-908a85?logo=gitpod)](https://gitpod.io/#https://github.com/cc-tweaked/cc-restitched/tree/1.17.1)
 
 # CC: R Version VS CC: T Version
 CC: R Strives to maintain perfect pairity with CC: T, however in some cases this is not possible, so CC: R might have a "newer" version than what CC: T has, these newer versions will be primarily bugfixes and the like because [Fabric](https://fabricmc.net/) is "weird" when porting a Forge mod.
