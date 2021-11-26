@@ -8,18 +8,19 @@ package dan200.computercraft.shared.pocket.peripherals;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.AbstractPocketUpgrade;
 import dan200.computercraft.api.pocket.IPocketAccess;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class PocketSpeaker extends AbstractPocketUpgrade
 {
-    public PocketSpeaker()
+    public PocketSpeaker( ResourceLocation id, ItemStack item )
     {
-        super( new ResourceLocation( "computercraft", "speaker" ), Registry.ModBlocks.SPEAKER );
+        super( id, UpgradeSpeakerPeripheral.ADJECTIVE, item );
     }
 
     @Nullable

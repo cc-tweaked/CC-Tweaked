@@ -28,13 +28,13 @@ import java.util.function.BiConsumer;
 /**
  * An alternative to {@link net.minecraft.data.loot.LootTableProvider}, with a more flexible interface.
  */
-public abstract class LootTableProvider implements DataProvider
+abstract class LootTableProvider implements DataProvider
 {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     private final DataGenerator generator;
 
-    public LootTableProvider( DataGenerator generator )
+    LootTableProvider( DataGenerator generator )
     {
         this.generator = generator;
     }

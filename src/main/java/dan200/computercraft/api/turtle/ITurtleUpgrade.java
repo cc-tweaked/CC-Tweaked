@@ -5,10 +5,9 @@
  */
 package dan200.computercraft.api.turtle;
 
-import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.IUpgradeBase;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.upgrades.IUpgradeBase;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -21,10 +20,17 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * The primary interface for defining an update for Turtles. A turtle update
- * can either be a new tool, or a new peripheral.
+ * The primary interface for defining an update for Turtles. A turtle update can either be a new tool, or a new
+ * peripheral.
  *
- * @see ComputerCraftAPI#registerTurtleUpgrade(ITurtleUpgrade)
+ * Turtle upgrades are defined in two stages. First, one creates a {@link ITurtleUpgrade} subclass and corresponding
+ * {@link TurtleUpgradeSerialiser} instance, which are then registered in a Forge registry.
+ *
+ * You then write a JSON file in your mod's {@literal data/} folder. This is then parsed when the world is loaded, and
+ * the upgrade registered internally. See the documentation in {@link TurtleUpgradeSerialiser} for details on this process
+ * and where files should be located.
+ *
+ * @see TurtleUpgradeSerialiser For how to register a turtle upgrade.
  */
 public interface ITurtleUpgrade extends IUpgradeBase
 {

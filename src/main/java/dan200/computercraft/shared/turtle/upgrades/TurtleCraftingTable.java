@@ -13,7 +13,7 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -24,9 +24,9 @@ public class TurtleCraftingTable extends AbstractTurtleUpgrade
     private static final ModelResourceLocation leftModel = new ModelResourceLocation( "computercraft:turtle_crafting_table_left", "inventory" );
     private static final ModelResourceLocation rightModel = new ModelResourceLocation( "computercraft:turtle_crafting_table_right", "inventory" );
 
-    public TurtleCraftingTable( ResourceLocation id )
+    public TurtleCraftingTable( ResourceLocation id, ItemStack stack )
     {
-        super( id, TurtleUpgradeType.PERIPHERAL, Blocks.CRAFTING_TABLE );
+        super( id, TurtleUpgradeType.PERIPHERAL, "upgrade.minecraft.crafting_table.adjective", stack );
     }
 
     @Override

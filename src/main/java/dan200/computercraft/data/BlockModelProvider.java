@@ -25,13 +25,13 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 import javax.annotation.Nonnull;
 import java.util.Objects;
 
-public class BlockModelProvider extends BlockStateProvider
+class BlockModelProvider extends BlockStateProvider
 {
     private ModelFile monitorBase;
     private ModelFile turtleBase;
     private ModelFile modemBase;
 
-    public BlockModelProvider( DataGenerator generator, ExistingFileHelper existingFileHelper )
+    BlockModelProvider( DataGenerator generator, ExistingFileHelper existingFileHelper )
     {
         super( generator, ComputerCraft.MOD_ID, existingFileHelper );
     }

@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.integration.jei;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.IUpgradeBase;
+import dan200.computercraft.api.upgrades.IUpgradeBase;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
@@ -52,16 +52,17 @@ class RecipeResolver implements IRecipeManagerPlugin
         if( initialised ) return;
         initialised = true;
 
-        TurtleUpgrades.getUpgrades().forEach( upgrade -> {
+        for( ITurtleUpgrade upgrade : TurtleUpgrades.instance().getUpgrades() )
+        {
             ItemStack stack = upgrade.getCraftingItem();
             if( stack.isEmpty() ) return;
 
             UpgradeInfo info = new UpgradeInfo( stack, upgrade );
             upgradeItemLookup.computeIfAbsent( stack.getItem(), k -> new ArrayList<>( 1 ) ).add( info );
             turtleUpgrades.add( info );
-        } );
+        };
 
-        for( IPocketUpgrade upgrade : PocketUpgrades.getUpgrades() )
+        for( IPocketUpgrade upgrade : PocketUpgrades.instance().getUpgrades() )
         {
             ItemStack stack = upgrade.getCraftingItem();
             if( stack.isEmpty() ) continue;
@@ -356,7 +357,7 @@ class RecipeResolver implements IRecipeManagerPlugin
             recipes = this.recipes = new ArrayList<>( 4 );
             for( ComputerFamily family : MAIN_FAMILIES )
             {
-                if( turtle != null && TurtleUpgrades.suitableForFamily( family, turtle ) )
+                if( turtle != null )
                 {
                     recipes.add( horizontal(
                         of( Ingredient.EMPTY, ingredient, of( TurtleItemFactory.create( -1, null, -1, family, null, null, 0, null ) ) ),

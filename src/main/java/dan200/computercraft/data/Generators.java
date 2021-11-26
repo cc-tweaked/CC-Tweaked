@@ -23,7 +23,12 @@ public class Generators
         DataGenerator generator = event.getGenerator();
         ExistingFileHelper existingFiles = event.getExistingFileHelper();
 
-        generator.addProvider( new RecipeGenerator( generator ) );
+        var turtleUpgrades = new TurtleUpgradeGenerator( generator );
+        var pocketUpgrades = new PocketUpgradeGenerator( generator );
+        generator.addProvider( turtleUpgrades );
+        generator.addProvider( pocketUpgrades );
+
+        generator.addProvider( new RecipeGenerator( generator, turtleUpgrades, pocketUpgrades ) );
         generator.addProvider( new LootTableGenerator( generator ) );
         generator.addProvider( new BlockModelProvider( generator, existingFiles ) );
 

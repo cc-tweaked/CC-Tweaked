@@ -17,9 +17,7 @@ import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
-import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -38,17 +36,12 @@ import javax.annotation.Nullable;
  */
 public final class ComputerCraftAPI
 {
+    public static final String MOD_ID = "computercraft";
+
     @Nonnull
     public static String getInstalledVersion()
     {
         return getInstance().getInstalledVersion();
-    }
-
-    @Nonnull
-    @Deprecated
-    public static String getAPIVersion()
-    {
-        return getInstalledVersion();
     }
 
     /**
@@ -152,19 +145,6 @@ public final class ComputerCraftAPI
     }
 
     /**
-     * Registers a new turtle turtle for use in ComputerCraft. After calling this,
-     * users should be able to craft Turtles with your new turtle. It is recommended to call
-     * this during the load() method of your mod.
-     *
-     * @param upgrade The turtle upgrade to register.
-     * @see ITurtleUpgrade
-     */
-    public static void registerTurtleUpgrade( @Nonnull ITurtleUpgrade upgrade )
-    {
-        getInstance().registerTurtleUpgrade( upgrade );
-    }
-
-    /**
      * Registers a bundled redstone provider to provide bundled redstone output for blocks.
      *
      * @param provider The bundled redstone provider to register.
@@ -199,11 +179,6 @@ public final class ComputerCraftAPI
     public static void registerMediaProvider( @Nonnull IMediaProvider provider )
     {
         getInstance().registerMediaProvider( provider );
-    }
-
-    public static void registerPocketUpgrade( @Nonnull IPocketUpgrade upgrade )
-    {
-        getInstance().registerPocketUpgrade( upgrade );
     }
 
     /**
@@ -286,15 +261,11 @@ public final class ComputerCraftAPI
 
         void registerGenericCapability( @Nonnull Capability<?> capability );
 
-        void registerTurtleUpgrade( @Nonnull ITurtleUpgrade upgrade );
-
         void registerBundledRedstoneProvider( @Nonnull IBundledRedstoneProvider provider );
 
         int getBundledRedstoneOutput( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side );
 
         void registerMediaProvider( @Nonnull IMediaProvider provider );
-
-        void registerPocketUpgrade( @Nonnull IPocketUpgrade upgrade );
 
         @Nonnull
         IPacketNetwork getWirelessNetwork();

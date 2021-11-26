@@ -76,18 +76,21 @@ public class JEIComputerCraft implements IModPlugin
         List<ItemStack> upgradeItems = new ArrayList<>();
         for( ComputerFamily family : MAIN_FAMILIES )
         {
-            TurtleUpgrades.getUpgrades()
-                .filter( x -> TurtleUpgrades.suitableForFamily( family, x ) )
-                .map( x -> TurtleItemFactory.create( -1, null, -1, family, null, x, 0, null ) )
-                .forEach( upgradeItems::add );
+            for( ITurtleUpgrade upgrade : TurtleUpgrades.instance().getUpgrades() )
+            {
+                upgradeItems.add( TurtleItemFactory.create( -1, null, -1, family, null, upgrade, 0, null ) );
+            }
 
-            for( IPocketUpgrade upgrade : PocketUpgrades.getUpgrades() )
+            for( IPocketUpgrade upgrade : PocketUpgrades.instance().getUpgrades() )
             {
                 upgradeItems.add( PocketComputerItemFactory.create( -1, null, -1, family, upgrade ) );
             }
         }
 
-        runtime.getIngredientManager().addIngredientsAtRuntime( VanillaTypes.ITEM, upgradeItems );
+        if( !upgradeItems.isEmpty() )
+        {
+            runtime.getIngredientManager().addIngredientsAtRuntime( VanillaTypes.ITEM, upgradeItems );
+        }
 
         // Hide all upgrade recipes
         IRecipeCategory<?> category = registry.getRecipeCategory( VanillaRecipeCategoryUid.CRAFTING, false );

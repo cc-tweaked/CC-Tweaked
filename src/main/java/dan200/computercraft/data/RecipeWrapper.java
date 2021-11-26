@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 /**
  * Adapter for recipes which overrides the serializer and adds custom item NBT.
  */
-public final class RecipeWrapper implements FinishedRecipe
+final class RecipeWrapper implements FinishedRecipe
 {
     private final FinishedRecipe recipe;
     private final CompoundTag resultData;

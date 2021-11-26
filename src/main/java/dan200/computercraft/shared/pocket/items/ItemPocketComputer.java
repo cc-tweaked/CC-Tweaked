@@ -77,10 +77,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     {
         if( !allowdedIn( group ) ) return;
         stacks.add( create( -1, null, -1, null ) );
-        for( IPocketUpgrade upgrade : PocketUpgrades.getVanillaUpgrades() )
-        {
-            stacks.add( create( -1, null, -1, upgrade ) );
-        }
+        PocketUpgrades.getVanillaUpgrades().map( x -> create( -1, null, -1, x ) ).forEach( stacks::add );
     }
 
     @Override
@@ -203,7 +200,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         {
             // If we're a non-vanilla, non-CC upgrade then return whichever mod this upgrade
             // belongs to.
-            String mod = PocketUpgrades.getOwner( upgrade );
+            String mod = PocketUpgrades.instance().getOwner( upgrade );
             if( mod != null && !mod.equals( ComputerCraft.MOD_ID ) ) return mod;
         }
 
@@ -384,8 +381,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     {
         CompoundTag compound = stack.getTag();
         return compound != null && compound.contains( NBT_UPGRADE )
-            ? PocketUpgrades.get( compound.getString( NBT_UPGRADE ) ) : null;
-
+            ? PocketUpgrades.instance().get( compound.getString( NBT_UPGRADE ) ) : null;
     }
 
     public static void setUpgrade( @Nonnull ItemStack stack, IPocketUpgrade upgrade )

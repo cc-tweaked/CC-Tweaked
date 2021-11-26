@@ -1,0 +1,5 @@
+{
+  "type": "computercraft:tool",
+  "item": "minecraft:diamond_shovel",
+  "breakable": "computercraft:turtle_shovel_harvestable"
+}

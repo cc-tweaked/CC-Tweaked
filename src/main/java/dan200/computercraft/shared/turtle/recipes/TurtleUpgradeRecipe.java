@@ -152,19 +152,8 @@ public final class TurtleUpgradeRecipe extends CustomRecipe
         {
             if( !items[i].isEmpty() )
             {
-                ITurtleUpgrade itemUpgrade = TurtleUpgrades.get( items[i] );
-                if( itemUpgrade == null )
-                {
-                    return ItemStack.EMPTY;
-                }
-                if( upgrades[i] != null )
-                {
-                    return ItemStack.EMPTY;
-                }
-                if( !TurtleUpgrades.suitableForFamily( family, itemUpgrade ) )
-                {
-                    return ItemStack.EMPTY;
-                }
+                ITurtleUpgrade itemUpgrade = TurtleUpgrades.instance().get( items[i] );
+                if( itemUpgrade == null || upgrades[i] != null ) return ItemStack.EMPTY;
                 upgrades[i] = itemUpgrade;
             }
         }

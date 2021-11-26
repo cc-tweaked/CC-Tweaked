@@ -5,18 +5,24 @@
  */
 package dan200.computercraft.api.pocket;
 
-import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.IUpgradeBase;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.upgrades.IUpgradeBase;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Additional peripherals for pocket computers.
+ * A peripheral which can be equipped to the back side of a pocket computer.
  *
- * @see ComputerCraftAPI#registerPocketUpgrade(IPocketUpgrade)
+ * Pocket upgrades are defined in two stages. First, on creates a {@link IPocketUpgrade} subclass and corresponding
+ * {@link PocketUpgradeSerialiser} instance, which are then registered in a Forge registry.
+ *
+ * You then write a JSON file in your mod's {@literal data/} folder. This is then parsed when the world is loaded, and
+ * the upgrade registered internally. See the documentation in {@link PocketUpgradeSerialiser} for details on this process
+ * and where files should be located.
+ *
+ * @see PocketUpgradeSerialiser For how to register a pocket computer upgrade.
  */
 public interface IPocketUpgrade extends IUpgradeBase
 {

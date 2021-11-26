@@ -6,18 +6,18 @@
 package dan200.computercraft.data;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.ComputerCraftTags.Blocks;
+import dan200.computercraft.api.ComputerCraftTags.Blocks;
 import dan200.computercraft.shared.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.tags.ItemTags;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
-import static dan200.computercraft.shared.ComputerCraftTags.Items.*;
+import static dan200.computercraft.api.ComputerCraftTags.Items.*;
 
-public class ItemTagsGenerator extends ItemTagsProvider
+class ItemTagsGenerator extends ItemTagsProvider
 {
-    public ItemTagsGenerator( DataGenerator generator, BlockTagsGenerator blockTags, ExistingFileHelper helper )
+    ItemTagsGenerator( DataGenerator generator, BlockTagsGenerator blockTags, ExistingFileHelper helper )
     {
         super( generator, blockTags, ComputerCraft.MOD_ID, helper );
     }

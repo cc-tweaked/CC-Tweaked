@@ -13,11 +13,11 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
-import static dan200.computercraft.shared.ComputerCraftTags.Blocks.*;
+import static dan200.computercraft.api.ComputerCraftTags.Blocks.*;
 
-public class BlockTagsGenerator extends BlockTagsProvider
+class BlockTagsGenerator extends BlockTagsProvider
 {
-    public BlockTagsGenerator( DataGenerator generator, ExistingFileHelper helper )
+    BlockTagsGenerator( DataGenerator generator, ExistingFileHelper helper )
     {
         super( generator, ComputerCraft.MOD_ID, helper );
     }

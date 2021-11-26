@@ -30,9 +30,9 @@ import net.minecraftforge.fmllegacy.RegistryObject;
 
 import java.util.function.BiConsumer;
 
-public class LootTableGenerator extends LootTableProvider
+class LootTableGenerator extends LootTableProvider
 {
-    public LootTableGenerator( DataGenerator generator )
+    LootTableGenerator( DataGenerator generator )
     {
         super( generator );
     }

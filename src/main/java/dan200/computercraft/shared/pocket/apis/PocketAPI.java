@@ -135,7 +135,7 @@ public class PocketAPI implements ILuaAPI
             ItemStack invStack = inv.get( (i + start) % inv.size() );
             if( !invStack.isEmpty() )
             {
-                IPocketUpgrade newUpgrade = PocketUpgrades.get( invStack );
+                IPocketUpgrade newUpgrade = PocketUpgrades.instance().get( invStack );
 
                 if( newUpgrade != null && newUpgrade != previous )
                 {

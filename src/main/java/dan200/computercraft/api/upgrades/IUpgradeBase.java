@@ -3,10 +3,11 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-package dan200.computercraft.api;
+package dan200.computercraft.api.upgrades;
 
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -82,5 +83,19 @@ public interface IUpgradeBase
         if( shareTag == null ) return craftingShareTag.isEmpty();
         if( craftingShareTag == null ) return shareTag.isEmpty();
         return shareTag.equals( craftingShareTag );
+    }
+
+    /**
+     * Get a suitable default unlocalised adjective for an upgrade ID. This converts "modid:some_upgrade" to
+     * "upgrade.modid.some_upgrade.adjective".
+     *
+     * @param id The upgrade ID.
+     * @return The  generated adjective.
+     * @see #getUnlocalisedAdjective()
+     */
+    @Nonnull
+    static String getDefaultAdjective( @Nonnull ResourceLocation id )
+    {
+        return Util.makeDescriptionId( "upgrade", id ) + ".adjective";
     }
 }

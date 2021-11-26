@@ -86,7 +86,7 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe
 
                 if( x == computerX && y == computerY - 1 )
                 {
-                    upgrade = PocketUpgrades.get( item );
+                    upgrade = PocketUpgrades.instance().get( item );
                     if( upgrade == null ) return ItemStack.EMPTY;
                 }
                 else if( !item.isEmpty() )
