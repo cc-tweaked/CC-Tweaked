@@ -12,12 +12,11 @@ import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.util.Identifier;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import java.util.List;
 
 class GenericPeripheral implements IDynamicPeripheral
@@ -28,7 +27,7 @@ class GenericPeripheral implements IDynamicPeripheral
 
     GenericPeripheral( BlockEntity tile, List<SaturatedMethod> methods )
     {
-        Identifier type = BlockEntityType.getId( tile.getType() );
+        ResourceLocation type = BlockEntityType.getKey( tile.getType() );
         this.tile = tile;
         this.type = type == null ? "unknown" : type.toString();
         this.methods = methods;

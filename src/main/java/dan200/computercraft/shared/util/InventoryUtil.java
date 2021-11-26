@@ -6,22 +6,22 @@
 
 package dan200.computercraft.shared.util;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ChestBlock;
-import net.minecraft.block.InventoryProvider;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.ChestBlockEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.Container;
+import net.minecraft.world.WorldlyContainerHolder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public final class InventoryUtil
 {
@@ -30,12 +30,12 @@ public final class InventoryUtil
 
     public static boolean areItemsStackable( @Nonnull ItemStack a, @Nonnull ItemStack b )
     {
-        return a == b || (a.getItem() == b.getItem() && ItemStack.areNbtEqual( a, b ));
+        return a == b || (a.getItem() == b.getItem() && ItemStack.tagMatches( a, b ));
     }
 
     // Methods for finding inventories:
 
-    public static Inventory getInventory( World world, BlockPos pos, Direction side )
+    public static Container getInventory( Level world, BlockPos pos, Direction side )
     {
         // Look for tile with inventory
         int y = pos.getY();
@@ -44,16 +44,16 @@ public final class InventoryUtil
             // Check if block is InventoryProvider
             BlockState blockState = world.getBlockState( pos );
             Block block = blockState.getBlock();
-            if( block instanceof InventoryProvider )
+            if( block instanceof WorldlyContainerHolder )
             {
-                return ((InventoryProvider) block).getInventory( blockState, world, pos );
+                return ((WorldlyContainerHolder) block).getContainer( blockState, world, pos );
             }
             // Check if block is BlockEntity w/ Inventory
             if( blockState.hasBlockEntity() )
             {
                 BlockEntity tileEntity = world.getBlockEntity( pos );
 
-                Inventory inventory = getInventory( tileEntity );
+                Container inventory = getInventory( tileEntity );
                 if( inventory != null )
                 {
                     return inventory;
@@ -62,36 +62,36 @@ public final class InventoryUtil
         }
 
         // Look for entity with inventory
-        Vec3d vecStart = new Vec3d( pos.getX() + 0.5 + 0.6 * side.getOffsetX(),
-            pos.getY() + 0.5 + 0.6 * side.getOffsetY(),
-            pos.getZ() + 0.5 + 0.6 * side.getOffsetZ() );
+        Vec3 vecStart = new Vec3( pos.getX() + 0.5 + 0.6 * side.getStepX(),
+            pos.getY() + 0.5 + 0.6 * side.getStepY(),
+            pos.getZ() + 0.5 + 0.6 * side.getStepZ() );
         Direction dir = side.getOpposite();
-        Vec3d vecDir = new Vec3d( dir.getOffsetX(), dir.getOffsetY(), dir.getOffsetZ() );
-        Pair<Entity, Vec3d> hit = WorldUtil.rayTraceEntities( world, vecStart, vecDir, 1.1 );
+        Vec3 vecDir = new Vec3( dir.getStepX(), dir.getStepY(), dir.getStepZ() );
+        Pair<Entity, Vec3> hit = WorldUtil.rayTraceEntities( world, vecStart, vecDir, 1.1 );
         if( hit != null )
         {
             Entity entity = hit.getKey();
-            if( entity instanceof Inventory )
+            if( entity instanceof Container )
             {
-                return (Inventory) entity;
+                return (Container) entity;
             }
         }
         return null;
     }
 
-    public static Inventory getInventory( BlockEntity tileEntity )
+    public static Container getInventory( BlockEntity tileEntity )
     {
-        World world = tileEntity.getWorld();
-        BlockPos pos = tileEntity.getPos();
+        Level world = tileEntity.getLevel();
+        BlockPos pos = tileEntity.getBlockPos();
         BlockState blockState = world.getBlockState( pos );
         Block block = blockState.getBlock();
 
-        if( tileEntity instanceof Inventory )
+        if( tileEntity instanceof Container )
         {
-            Inventory inventory = (Inventory) tileEntity;
+            Container inventory = (Container) tileEntity;
             if( inventory instanceof ChestBlockEntity && block instanceof ChestBlock )
             {
-                return ChestBlock.getInventory( (ChestBlock) block, blockState, world, pos, true );
+                return ChestBlock.getContainer( (ChestBlock) block, blockState, world, pos, true );
             }
             return inventory;
         }
@@ -131,7 +131,7 @@ public final class InventoryUtil
 
     public static boolean areItemsEqual( @Nonnull ItemStack a, @Nonnull ItemStack b )
     {
-        return a == b || ItemStack.areEqual( a, b );
+        return a == b || ItemStack.matches( a, b );
     }
 
     @Nonnull
@@ -173,11 +173,11 @@ public final class InventoryUtil
             {
                 // If we've extracted for this first time, then limit the count to the maximum stack size.
                 partialStack = extracted;
-                count = Math.min( count, extracted.getMaxCount() );
+                count = Math.min( count, extracted.getMaxStackSize() );
             }
             else
             {
-                partialStack.increment( extracted.getCount() );
+                partialStack.grow( extracted.getCount() );
             }
         }
 

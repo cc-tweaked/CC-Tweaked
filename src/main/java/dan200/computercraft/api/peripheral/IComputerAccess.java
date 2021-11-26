@@ -13,10 +13,9 @@ import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.ILuaTask;
 import dan200.computercraft.api.lua.MethodResult;
-import net.minecraft.world.World;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import net.minecraft.world.level.Level;
 import java.util.Map;
 
 /**
@@ -33,7 +32,7 @@ public interface IComputerAccess
      * @return The location on the computer's file system where you the mount mounted, or {@code null} if there was already a file in the desired location.
      * Store this value if you wish to unmount the mount later.
      * @throws NotAttachedException If the peripheral has been detached.
-     * @see ComputerCraftAPI#createSaveDirMount(World, String, long)
+     * @see ComputerCraftAPI#createSaveDirMount(Level, String, long)
      * @see ComputerCraftAPI#createResourceMount(String, String)
      * @see #mount(String, IMount, String)
      * @see #mountWritable(String, IWritableMount)
@@ -55,7 +54,7 @@ public interface IComputerAccess
      * @return The location on the computer's file system where you the mount mounted, or {@code null} if there was already a file in the desired location.
      * Store this value if you wish to unmount the mount later.
      * @throws NotAttachedException If the peripheral has been detached.
-     * @see ComputerCraftAPI#createSaveDirMount(World, String, long)
+     * @see ComputerCraftAPI#createSaveDirMount(Level, String, long)
      * @see ComputerCraftAPI#createResourceMount(String, String)
      * @see #mount(String, IMount)
      * @see #mountWritable(String, IWritableMount)
@@ -84,7 +83,7 @@ public interface IComputerAccess
      * @return The location on the computer's file system where you the mount mounted, or null if there was already a file in the desired location. Store
      * this value if you wish to unmount the mount later.
      * @throws NotAttachedException If the peripheral has been detached.
-     * @see ComputerCraftAPI#createSaveDirMount(World, String, long)
+     * @see ComputerCraftAPI#createSaveDirMount(Level, String, long)
      * @see ComputerCraftAPI#createResourceMount(String, String)
      * @see #mount(String, IMount)
      * @see #unmount(String)
@@ -105,7 +104,7 @@ public interface IComputerAccess
      * @return The location on the computer's file system where you the mount mounted, or null if there was already a file in the desired location. Store
      * this value if you wish to unmount the mount later.
      * @throws NotAttachedException If the peripheral has been detached.
-     * @see ComputerCraftAPI#createSaveDirMount(World, String, long)
+     * @see ComputerCraftAPI#createSaveDirMount(Level, String, long)
      * @see ComputerCraftAPI#createResourceMount(String, String)
      * @see #mount(String, IMount)
      * @see #unmount(String)

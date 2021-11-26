@@ -8,9 +8,8 @@ package dan200.computercraft.shared.network.server;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
-
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import javax.annotation.Nonnull;
 
 public class ContinueUploadMessage extends ComputerServerMessage
@@ -23,14 +22,14 @@ public class ContinueUploadMessage extends ComputerServerMessage
         this.overwrite = overwrite;
     }
 
-    public ContinueUploadMessage( @Nonnull PacketByteBuf buf )
+    public ContinueUploadMessage( @Nonnull FriendlyByteBuf buf )
     {
         super( buf );
         overwrite = buf.readBoolean();
     }
 
     @Override
-    public void toBytes( @Nonnull PacketByteBuf buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         super.toBytes( buf );
         buf.writeBoolean( overwrite );
@@ -39,7 +38,7 @@ public class ContinueUploadMessage extends ComputerServerMessage
     @Override
     protected void handle( PacketContext context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
-        ServerPlayerEntity player = (ServerPlayerEntity) context.getPlayer();
+        ServerPlayer player = (ServerPlayer) context.getPlayer();
         if( player != null ) container.confirmUpload( player, overwrite );
     }
 }

@@ -24,13 +24,12 @@ import dan200.computercraft.shared.network.client.ComputerDataClientMessage;
 import dan200.computercraft.shared.network.client.ComputerDeletedClientMessage;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
 import me.shedaniel.cloth.api.utils.v1.GameInstanceUtils;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.screen.ScreenHandler;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.level.Level;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStream;
@@ -40,15 +39,15 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     private final int instanceID;
     private final ComputerFamily family;
     private final Computer computer;
-    private World world;
+    private Level world;
     private BlockPos position;
-    private NbtCompound userData;
+    private CompoundTag userData;
     private boolean changed;
 
     private boolean changedLastFrame;
     private int ticksSincePing;
 
-    public ServerComputer( World world, int computerID, String label, int instanceID, ComputerFamily family, int terminalWidth, int terminalHeight )
+    public ServerComputer( Level world, int computerID, String label, int instanceID, ComputerFamily family, int terminalWidth, int terminalHeight )
     {
         super( family != ComputerFamily.NORMAL, terminalWidth, terminalHeight );
         this.instanceID = instanceID;
@@ -71,12 +70,12 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return family;
     }
 
-    public World getWorld()
+    public Level getWorld()
     {
         return world;
     }
 
-    public void setWorld( World world )
+    public void setWorld( Level world )
     {
         this.world = world;
     }
@@ -128,11 +127,11 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         computer.unload();
     }
 
-    public NbtCompound getUserData()
+    public CompoundTag getUserData()
     {
         if( userData == null )
         {
-            userData = new NbtCompound();
+            userData = new CompoundTag();
         }
         return userData;
     }
@@ -162,8 +161,8 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
                 // Send terminal state to clients who are currently interacting with the computer.
 
                 NetworkMessage packet = null;
-                for( PlayerEntity player : server.getPlayerManager()
-                    .getPlayerList() )
+                for( Player player : server.getPlayerList()
+                    .getPlayers() )
                 {
                     if( isInteracting( player ) )
                     {
@@ -188,7 +187,7 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return new ComputerDataClientMessage( this );
     }
 
-    protected boolean isInteracting( PlayerEntity player )
+    protected boolean isInteracting( Player player )
     {
         return getContainer( player ) != null;
     }
@@ -199,14 +198,14 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     }
 
     @Nullable
-    public IContainerComputer getContainer( PlayerEntity player )
+    public IContainerComputer getContainer( Player player )
     {
         if( player == null )
         {
             return null;
         }
 
-        ScreenHandler container = player.currentScreenHandler;
+        AbstractContainerMenu container = player.containerMenu;
         if( !(container instanceof IContainerComputer) )
         {
             return null;
@@ -264,13 +263,13 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return computer.isOn() && computer.isBlinking();
     }
 
-    public void sendComputerState( PlayerEntity player )
+    public void sendComputerState( Player player )
     {
         // Send state to client
         NetworkHandler.sendToPlayer( player, createComputerPacket() );
     }
 
-    public void sendTerminalState( PlayerEntity player )
+    public void sendTerminalState( Player player )
     {
         // Send terminal state to client
         NetworkHandler.sendToPlayer( player, createTerminalPacket() );
@@ -352,13 +351,13 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     @Override
     public int getDay()
     {
-        return (int) ((world.getTimeOfDay() + 6000) / 24000) + 1;
+        return (int) ((world.getDayTime() + 6000) / 24000) + 1;
     }
 
     @Override
     public double getTimeOfDay()
     {
-        return (world.getTimeOfDay() + 6000) % 24000 / 1000.0;
+        return (world.getDayTime() + 6000) % 24000 / 1000.0;
     }
 
     @Override

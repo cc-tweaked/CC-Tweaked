@@ -6,7 +6,7 @@
 
 package dan200.computercraft.shared.peripheral.monitor;
 
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
 
 public class XYPair
 {

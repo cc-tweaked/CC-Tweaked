@@ -16,11 +16,10 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import net.minecraft.command.argument.serialize.ArgumentSerializer;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.command.ServerCommandSource;
-
 import javax.annotation.Nonnull;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.synchronization.ArgumentSerializer;
+import net.minecraft.network.FriendlyByteBuf;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -54,13 +53,13 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
         return SOME;
     }
 
-    public static Collection<ServerComputer> getComputersArgument( CommandContext<ServerCommandSource> context, String name ) throws CommandSyntaxException
+    public static Collection<ServerComputer> getComputersArgument( CommandContext<CommandSourceStack> context, String name ) throws CommandSyntaxException
     {
         return context.getArgument( name, ComputersSupplier.class )
             .unwrap( context.getSource() );
     }
 
-    public static Set<ServerComputer> unwrap( ServerCommandSource source, Collection<ComputersSupplier> suppliers ) throws CommandSyntaxException
+    public static Set<ServerComputer> unwrap( CommandSourceStack source, Collection<ComputersSupplier> suppliers ) throws CommandSyntaxException
     {
         Set<ServerComputer> computers = new HashSet<>();
         for( ComputersSupplier supplier : suppliers )
@@ -188,21 +187,21 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
     @FunctionalInterface
     public interface ComputersSupplier
     {
-        Collection<ServerComputer> unwrap( ServerCommandSource source ) throws CommandSyntaxException;
+        Collection<ServerComputer> unwrap( CommandSourceStack source ) throws CommandSyntaxException;
     }
 
     public static class Serializer implements ArgumentSerializer<ComputersArgumentType>
     {
 
         @Override
-        public void toPacket( @Nonnull ComputersArgumentType arg, @Nonnull PacketByteBuf buf )
+        public void toPacket( @Nonnull ComputersArgumentType arg, @Nonnull FriendlyByteBuf buf )
         {
             buf.writeBoolean( arg.requireSome );
         }
 
         @Nonnull
         @Override
-        public ComputersArgumentType fromPacket( @Nonnull PacketByteBuf buf )
+        public ComputersArgumentType deserializeFromNetwork( @Nonnull FriendlyByteBuf buf )
         {
             return buf.readBoolean() ? SOME : MANY;
         }

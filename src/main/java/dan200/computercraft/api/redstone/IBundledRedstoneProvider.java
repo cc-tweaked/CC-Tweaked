@@ -6,11 +6,10 @@
 
 package dan200.computercraft.api.redstone;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
-
 import javax.annotation.Nonnull;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 
 /**
  * This interface is used to provide bundled redstone output for blocks.
@@ -29,5 +28,5 @@ public interface IBundledRedstoneProvider
      * @return A number in the range 0-65535 to indicate this block is providing output, or -1 if you do not wish to handle this block.
      * @see dan200.computercraft.api.ComputerCraftAPI#registerBundledRedstoneProvider(IBundledRedstoneProvider)
      */
-    int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side );
+    int getBundledRedstoneOutput( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side );
 }

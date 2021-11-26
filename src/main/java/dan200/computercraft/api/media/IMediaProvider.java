@@ -6,10 +6,9 @@
 
 package dan200.computercraft.api.media;
 
-import net.minecraft.item.ItemStack;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * This interface is used to provide {@link IMedia} implementations for {@link ItemStack}.

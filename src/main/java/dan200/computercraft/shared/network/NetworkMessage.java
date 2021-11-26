@@ -7,8 +7,7 @@
 package dan200.computercraft.shared.network;
 
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.network.PacketByteBuf;
-
+import net.minecraft.network.FriendlyByteBuf;
 import javax.annotation.Nonnull;
 
 /**
@@ -23,7 +22,7 @@ public interface NetworkMessage
      *
      * @param buf The buffer to write data to.
      */
-    void toBytes( @Nonnull PacketByteBuf buf );
+    void toBytes( @Nonnull FriendlyByteBuf buf );
 
     /**
      * Handle this {@link NetworkMessage}.

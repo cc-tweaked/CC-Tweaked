@@ -5,10 +5,9 @@
  */
 package dan200.computercraft.core.computer;
 
-import net.minecraft.util.math.Direction;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import net.minecraft.core.Direction;
 
 /**
  * A side on a computer. Unlike {@link Direction}, this is relative to the direction the computer is

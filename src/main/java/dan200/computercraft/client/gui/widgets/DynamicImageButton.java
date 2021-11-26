@@ -6,37 +6,36 @@
 package dan200.computercraft.client.gui.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-
+import com.mojang.blaze3d.vertex.PoseStack;
 import javax.annotation.Nonnull;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.resources.ResourceLocation;
 import java.util.List;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 /**
- * Version of {@link net.minecraft.client.gui.widget.TexturedButtonWidget} which allows changing some properties
+ * Version of {@link net.minecraft.client.gui.components.ImageButton} which allows changing some properties
  * dynamically.
  */
-public class DynamicImageButton extends ButtonWidget
+public class DynamicImageButton extends Button
 {
     private final Screen screen;
-    private final Identifier texture;
+    private final ResourceLocation texture;
     private final IntSupplier xTexStart;
     private final int yTexStart;
     private final int yDiffTex;
     private final int textureWidth;
     private final int textureHeight;
-    private final Supplier<List<Text>> tooltip;
+    private final Supplier<List<Component>> tooltip;
 
     public DynamicImageButton(
         Screen screen, int x, int y, int width, int height, int xTexStart, int yTexStart, int yDiffTex,
-        Identifier texture, int textureWidth, int textureHeight,
-        PressAction onPress, List<Text> tooltip
+        ResourceLocation texture, int textureWidth, int textureHeight,
+        OnPress onPress, List<Component> tooltip
     )
     {
         this(
@@ -49,11 +48,11 @@ public class DynamicImageButton extends ButtonWidget
 
     public DynamicImageButton(
         Screen screen, int x, int y, int width, int height, IntSupplier xTexStart, int yTexStart, int yDiffTex,
-        Identifier texture, int textureWidth, int textureHeight,
-        PressAction onPress, Supplier<List<Text>> tooltip
+        ResourceLocation texture, int textureWidth, int textureHeight,
+        OnPress onPress, Supplier<List<Component>> tooltip
     )
     {
-        super( x, y, width, height, LiteralText.EMPTY, onPress );
+        super( x, y, width, height, TextComponent.EMPTY, onPress );
         this.screen = screen;
         this.textureWidth = textureWidth;
         this.textureHeight = textureHeight;
@@ -65,7 +64,7 @@ public class DynamicImageButton extends ButtonWidget
     }
 
     @Override
-    public void renderButton( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
+    public void renderButton( @Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks )
     {
         RenderSystem.setShaderTexture( 0, texture );
         RenderSystem.disableDepthTest();
@@ -73,7 +72,7 @@ public class DynamicImageButton extends ButtonWidget
         int yTex = yTexStart;
         if( isHovered() ) yTex += yDiffTex;
 
-        drawTexture( stack, x, y, xTexStart.getAsInt(), yTex, width, height, textureWidth, textureHeight );
+        blit( stack, x, y, xTexStart.getAsInt(), yTex, width, height, textureWidth, textureHeight );
         RenderSystem.enableDepthTest();
 
         if( isHovered() ) renderToolTip( stack, mouseX, mouseY );
@@ -81,20 +80,20 @@ public class DynamicImageButton extends ButtonWidget
 
     @Nonnull
     @Override
-    public Text getMessage()
+    public Component getMessage()
     {
-        List<Text> tooltip = this.tooltip.get();
-        return tooltip.isEmpty() ? LiteralText.EMPTY : tooltip.get( 0 );
+        List<Component> tooltip = this.tooltip.get();
+        return tooltip.isEmpty() ? TextComponent.EMPTY : tooltip.get( 0 );
     }
 
     // @Override
-    public void renderToolTip( @Nonnull MatrixStack stack, int mouseX, int mouseY )
+    public void renderToolTip( @Nonnull PoseStack stack, int mouseX, int mouseY )
     {
-        List<Text> tooltip = this.tooltip.get();
+        List<Component> tooltip = this.tooltip.get();
 
         if( !tooltip.isEmpty() )
         {
-            screen.renderTooltip( stack, tooltip, mouseX, mouseY );
+            screen.renderComponentTooltip( stack, tooltip, mouseX, mouseY );
         }
     }
 }

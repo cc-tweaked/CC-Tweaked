@@ -12,13 +12,12 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.shared.peripheral.generic.data.BlockData;
-import net.minecraft.block.BlockState;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
-
 import javax.annotation.Nonnull;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,9 +38,9 @@ public class TurtleInspectCommand implements ITurtleCommand
         Direction direction = this.direction.toWorldDir( turtle );
 
         // Check if thing in front is air or not
-        World world = turtle.getWorld();
+        Level world = turtle.getWorld();
         BlockPos oldPosition = turtle.getPosition();
-        BlockPos newPosition = oldPosition.offset( direction );
+        BlockPos newPosition = oldPosition.relative( direction );
 
         BlockState state = world.getBlockState( newPosition );
         if( state.isAir() )
@@ -72,6 +71,6 @@ public class TurtleInspectCommand implements ITurtleCommand
         {
             return value;
         }
-        return property.name( value );
+        return property.getName( value );
     }
 }

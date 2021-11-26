@@ -6,8 +6,8 @@
 package dan200.computercraft.fabric.mixin;
 
 import dan200.computercraft.shared.util.DropConsumer;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,9 +16,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 /**
  * Captures item stacks spawned into the world.
  *
- * @see ServerWorld#spawnEntity(Entity)
+ * @see ServerLevel#addFreshEntity(Entity)
  */
-@Mixin( ServerWorld.class )
+@Mixin( ServerLevel.class )
 public class MixinServerWorld
 {
     @Inject( method = "spawnEntity", at = @At( "HEAD" ), cancellable = true )

@@ -8,35 +8,34 @@ package dan200.computercraft.shared.peripheral.printer;
 
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.util.SingleIntArray;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ArrayPropertyDelegate;
-import net.minecraft.screen.PropertyDelegate;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.slot.Slot;
-
 import javax.annotation.Nonnull;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.SimpleContainerData;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
-public class ContainerPrinter extends ScreenHandler
+public class ContainerPrinter extends AbstractContainerMenu
 {
-    private final Inventory inventory;
-    private final PropertyDelegate properties;
+    private final Container inventory;
+    private final ContainerData properties;
 
-    public ContainerPrinter( int id, PlayerInventory player )
+    public ContainerPrinter( int id, Inventory player )
     {
-        this( id, player, new SimpleInventory( TilePrinter.SLOTS ), new ArrayPropertyDelegate( 1 ) );
+        this( id, player, new SimpleContainer( TilePrinter.SLOTS ), new SimpleContainerData( 1 ) );
     }
 
-    private ContainerPrinter( int id, PlayerInventory player, Inventory inventory, PropertyDelegate properties )
+    private ContainerPrinter( int id, Inventory player, Container inventory, ContainerData properties )
     {
         super( ComputerCraftRegistry.ModContainers.PRINTER, id );
         this.properties = properties;
         this.inventory = inventory;
 
-        addProperties( properties );
+        addDataSlots( properties );
 
         // Ink slot
         addSlot( new Slot( inventory, 0, 13, 35 ) );
@@ -69,7 +68,7 @@ public class ContainerPrinter extends ScreenHandler
         }
     }
 
-    public ContainerPrinter( int id, PlayerInventory player, TilePrinter printer )
+    public ContainerPrinter( int id, Inventory player, TilePrinter printer )
     {
         this( id, player, printer, (SingleIntArray) () -> printer.isPrinting() ? 1 : 0 );
     }
@@ -81,19 +80,19 @@ public class ContainerPrinter extends ScreenHandler
 
     @Nonnull
     @Override
-    public ItemStack transferSlot( @Nonnull PlayerEntity player, int index )
+    public ItemStack quickMoveStack( @Nonnull Player player, int index )
     {
         Slot slot = slots.get( index );
-        if( slot == null || !slot.hasStack() )
+        if( slot == null || !slot.hasItem() )
         {
             return ItemStack.EMPTY;
         }
-        ItemStack stack = slot.getStack();
+        ItemStack stack = slot.getItem();
         ItemStack result = stack.copy();
         if( index < 13 )
         {
             // Transfer from printer to inventory
-            if( !insertItem( stack, 13, 49, true ) )
+            if( !moveItemStackTo( stack, 13, 49, true ) )
             {
                 return ItemStack.EMPTY;
             }
@@ -103,14 +102,14 @@ public class ContainerPrinter extends ScreenHandler
             // Transfer from inventory to printer
             if( TilePrinter.isInk( stack ) )
             {
-                if( !insertItem( stack, 0, 1, false ) )
+                if( !moveItemStackTo( stack, 0, 1, false ) )
                 {
                     return ItemStack.EMPTY;
                 }
             }
             else //if is paper
             {
-                if( !insertItem( stack, 1, 13, false ) )
+                if( !moveItemStackTo( stack, 1, 13, false ) )
                 {
                     return ItemStack.EMPTY;
                 }
@@ -119,11 +118,11 @@ public class ContainerPrinter extends ScreenHandler
 
         if( stack.isEmpty() )
         {
-            slot.setStack( ItemStack.EMPTY );
+            slot.set( ItemStack.EMPTY );
         }
         else
         {
-            slot.markDirty();
+            slot.setChanged();
         }
 
         if( stack.getCount() == result.getCount() )
@@ -131,13 +130,13 @@ public class ContainerPrinter extends ScreenHandler
             return ItemStack.EMPTY;
         }
 
-        slot.onTakeItem( player, stack );
+        slot.onTake( player, stack );
         return result;
     }
 
     @Override
-    public boolean canUse( @Nonnull PlayerEntity player )
+    public boolean stillValid( @Nonnull Player player )
     {
-        return inventory.canPlayerUse( player );
+        return inventory.stillValid( player );
     }
 }

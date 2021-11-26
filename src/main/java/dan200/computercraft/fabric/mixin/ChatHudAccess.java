@@ -5,16 +5,16 @@
  */
 package dan200.computercraft.fabric.mixin;
 
-import net.minecraft.client.gui.hud.ChatHud;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin( ChatHud.class )
+@Mixin( ChatComponent.class )
 public interface ChatHudAccess
 {
     @Invoker
-    void callAddMessage( Text text, int messageId );
+    void callAddMessage( Component text, int messageId );
 
     @Invoker
     void callRemoveMessage( int messageId );

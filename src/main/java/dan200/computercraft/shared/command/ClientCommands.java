@@ -6,9 +6,8 @@
 package dan200.computercraft.shared.command;
 
 import dan200.computercraft.shared.util.IDAssigner;
-import net.minecraft.util.Util;
-
 import java.io.File;
+import net.minecraft.Util;
 
 /**
  * Basic client-side commands.
@@ -42,7 +41,7 @@ public final class ClientCommands
             File file = new File( IDAssigner.getDir(), "computer/" + id );
             if( !file.isDirectory() ) return true;
 
-            Util.getOperatingSystem().open( file );
+            Util.getPlatform().openFile( file );
             return true;
         }
         return false;

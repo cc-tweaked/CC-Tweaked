@@ -10,24 +10,67 @@ import dan200.computercraft.api.turtle.FakePlayer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.NetworkSide;
-import net.minecraft.network.NetworkState;
-import net.minecraft.network.Packet;
-import net.minecraft.network.listener.PacketListener;
+import net.minecraft.network.Connection;
+import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.network.PacketListener;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.packet.c2s.play.*;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.text.Text;
-
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket;
+import net.minecraft.network.protocol.game.ServerboundBlockEntityTagQuery;
+import net.minecraft.network.protocol.game.ServerboundChangeDifficultyPacket;
+import net.minecraft.network.protocol.game.ServerboundChatPacket;
+import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
+import net.minecraft.network.protocol.game.ServerboundClientInformationPacket;
+import net.minecraft.network.protocol.game.ServerboundCommandSuggestionPacket;
+import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket;
+import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
+import net.minecraft.network.protocol.game.ServerboundContainerClosePacket;
+import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
+import net.minecraft.network.protocol.game.ServerboundEditBookPacket;
+import net.minecraft.network.protocol.game.ServerboundEntityTagQuery;
+import net.minecraft.network.protocol.game.ServerboundInteractPacket;
+import net.minecraft.network.protocol.game.ServerboundJigsawGeneratePacket;
+import net.minecraft.network.protocol.game.ServerboundKeepAlivePacket;
+import net.minecraft.network.protocol.game.ServerboundLockDifficultyPacket;
+import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
+import net.minecraft.network.protocol.game.ServerboundMoveVehiclePacket;
+import net.minecraft.network.protocol.game.ServerboundPaddleBoatPacket;
+import net.minecraft.network.protocol.game.ServerboundPickItemPacket;
+import net.minecraft.network.protocol.game.ServerboundPlaceRecipePacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerAbilitiesPacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerInputPacket;
+import net.minecraft.network.protocol.game.ServerboundRecipeBookChangeSettingsPacket;
+import net.minecraft.network.protocol.game.ServerboundRecipeBookSeenRecipePacket;
+import net.minecraft.network.protocol.game.ServerboundRenameItemPacket;
+import net.minecraft.network.protocol.game.ServerboundResourcePackPacket;
+import net.minecraft.network.protocol.game.ServerboundSeenAdvancementsPacket;
+import net.minecraft.network.protocol.game.ServerboundSelectTradePacket;
+import net.minecraft.network.protocol.game.ServerboundSetBeaconPacket;
+import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
+import net.minecraft.network.protocol.game.ServerboundSetCommandBlockPacket;
+import net.minecraft.network.protocol.game.ServerboundSetCommandMinecartPacket;
+import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
+import net.minecraft.network.protocol.game.ServerboundSetJigsawBlockPacket;
+import net.minecraft.network.protocol.game.ServerboundSetStructureBlockPacket;
+import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
+import net.minecraft.network.protocol.game.ServerboundSwingPacket;
+import net.minecraft.network.protocol.game.ServerboundTeleportToEntityPacket;
+import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
+import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.crypto.Cipher;
 
-public class FakeNetHandler extends ServerPlayNetworkHandler
+public class FakeNetHandler extends ServerGamePacketListenerImpl
 {
     public FakeNetHandler( @Nonnull FakePlayer player )
     {
-        super( player.getServerWorld()
+        super( player.getLevel()
             .getServer(), new FakeNetworkManager(), player );
     }
 
@@ -37,208 +80,208 @@ public class FakeNetHandler extends ServerPlayNetworkHandler
     }
 
     @Override
-    public void disconnect( @Nonnull Text reason )
+    public void disconnect( @Nonnull Component reason )
     {
     }
 
     @Override
-    public void onPlayerInput( @Nonnull PlayerInputC2SPacket packet )
+    public void handlePlayerInput( @Nonnull ServerboundPlayerInputPacket packet )
     {
     }
 
     @Override
-    public void onVehicleMove( @Nonnull VehicleMoveC2SPacket packet )
+    public void handleMoveVehicle( @Nonnull ServerboundMoveVehiclePacket packet )
     {
     }
 
     @Override
-    public void onTeleportConfirm( @Nonnull TeleportConfirmC2SPacket packet )
+    public void handleAcceptTeleportPacket( @Nonnull ServerboundAcceptTeleportationPacket packet )
     {
     }
 
     @Override
-    public void onAdvancementTab( @Nonnull AdvancementTabC2SPacket packet )
+    public void handleSeenAdvancements( @Nonnull ServerboundSeenAdvancementsPacket packet )
     {
     }
 
     @Override
-    public void onRequestCommandCompletions( @Nonnull RequestCommandCompletionsC2SPacket packet )
+    public void handleCustomCommandSuggestions( @Nonnull ServerboundCommandSuggestionPacket packet )
     {
     }
 
     @Override
-    public void onUpdateCommandBlock( @Nonnull UpdateCommandBlockC2SPacket packet )
+    public void handleSetCommandBlock( @Nonnull ServerboundSetCommandBlockPacket packet )
     {
     }
 
     @Override
-    public void onUpdateCommandBlockMinecart( @Nonnull UpdateCommandBlockMinecartC2SPacket packet )
+    public void handleSetCommandMinecart( @Nonnull ServerboundSetCommandMinecartPacket packet )
     {
     }
 
     @Override
-    public void onPickFromInventory( @Nonnull PickFromInventoryC2SPacket packet )
+    public void handlePickItem( @Nonnull ServerboundPickItemPacket packet )
     {
     }
 
     @Override
-    public void onRenameItem( @Nonnull RenameItemC2SPacket packet )
+    public void handleRenameItem( @Nonnull ServerboundRenameItemPacket packet )
     {
     }
 
     @Override
-    public void onUpdateBeacon( @Nonnull UpdateBeaconC2SPacket packet )
+    public void handleSetBeaconPacket( @Nonnull ServerboundSetBeaconPacket packet )
     {
     }
 
     @Override
-    public void onStructureBlockUpdate( @Nonnull UpdateStructureBlockC2SPacket packet )
+    public void handleSetStructureBlock( @Nonnull ServerboundSetStructureBlockPacket packet )
     {
     }
 
     @Override
-    public void onJigsawUpdate( @Nonnull UpdateJigsawC2SPacket packet )
+    public void handleSetJigsawBlock( @Nonnull ServerboundSetJigsawBlockPacket packet )
     {
     }
 
     @Override
-    public void onJigsawGenerating( JigsawGeneratingC2SPacket packet )
+    public void handleJigsawGenerate( ServerboundJigsawGeneratePacket packet )
     {
     }
 
     @Override
-    public void onMerchantTradeSelect( SelectMerchantTradeC2SPacket packet )
+    public void handleSelectTrade( ServerboundSelectTradePacket packet )
     {
     }
 
     @Override
-    public void onBookUpdate( @Nonnull BookUpdateC2SPacket packet )
+    public void handleEditBook( @Nonnull ServerboundEditBookPacket packet )
     {
     }
 
     @Override
-    public void onRecipeBookData( RecipeBookDataC2SPacket packet )
+    public void handleRecipeBookSeenRecipePacket( ServerboundRecipeBookSeenRecipePacket packet )
     {
     }
 
     @Override
-    public void onRecipeCategoryOptions( RecipeCategoryOptionsC2SPacket packet )
+    public void handleRecipeBookChangeSettingsPacket( ServerboundRecipeBookChangeSettingsPacket packet )
     {
-        super.onRecipeCategoryOptions( packet );
+        super.handleRecipeBookChangeSettingsPacket( packet );
     }
 
     @Override
-    public void onQueryEntityNbt( @Nonnull QueryEntityNbtC2SPacket packet )
-    {
-    }
-
-    @Override
-    public void onQueryBlockNbt( @Nonnull QueryBlockNbtC2SPacket packet )
+    public void handleEntityTagQuery( @Nonnull ServerboundEntityTagQuery packet )
     {
     }
 
     @Override
-    public void onPlayerMove( @Nonnull PlayerMoveC2SPacket packet )
+    public void handleBlockEntityTagQuery( @Nonnull ServerboundBlockEntityTagQuery packet )
     {
     }
 
     @Override
-    public void onPlayerAction( @Nonnull PlayerActionC2SPacket packet )
+    public void handleMovePlayer( @Nonnull ServerboundMovePlayerPacket packet )
     {
     }
 
     @Override
-    public void onPlayerInteractBlock( @Nonnull PlayerInteractBlockC2SPacket packet )
+    public void handlePlayerAction( @Nonnull ServerboundPlayerActionPacket packet )
     {
     }
 
     @Override
-    public void onPlayerInteractItem( @Nonnull PlayerInteractItemC2SPacket packet )
+    public void handleUseItemOn( @Nonnull ServerboundUseItemOnPacket packet )
     {
     }
 
     @Override
-    public void onSpectatorTeleport( @Nonnull SpectatorTeleportC2SPacket packet )
+    public void handleUseItem( @Nonnull ServerboundUseItemPacket packet )
     {
     }
 
     @Override
-    public void onResourcePackStatus( @Nonnull ResourcePackStatusC2SPacket packet )
+    public void handleTeleportToEntityPacket( @Nonnull ServerboundTeleportToEntityPacket packet )
     {
     }
 
     @Override
-    public void onBoatPaddleState( @Nonnull BoatPaddleStateC2SPacket packet )
+    public void handleResourcePackResponse( @Nonnull ServerboundResourcePackPacket packet )
     {
     }
 
     @Override
-    public void onDisconnected( @Nonnull Text reason )
+    public void handlePaddleBoat( @Nonnull ServerboundPaddleBoatPacket packet )
     {
     }
 
     @Override
-    public void sendPacket( @Nonnull Packet<?> packet )
+    public void onDisconnect( @Nonnull Component reason )
     {
     }
 
     @Override
-    public void sendPacket( @Nonnull Packet<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> whenSent )
+    public void send( @Nonnull Packet<?> packet )
     {
     }
 
     @Override
-    public void onUpdateSelectedSlot( @Nonnull UpdateSelectedSlotC2SPacket packet )
+    public void send( @Nonnull Packet<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> whenSent )
     {
     }
 
     @Override
-    public void onGameMessage( @Nonnull ChatMessageC2SPacket packet )
+    public void handleSetCarriedItem( @Nonnull ServerboundSetCarriedItemPacket packet )
     {
     }
 
     @Override
-    public void onHandSwing( @Nonnull HandSwingC2SPacket packet )
+    public void handleChat( @Nonnull ServerboundChatPacket packet )
     {
     }
 
     @Override
-    public void onClientCommand( @Nonnull ClientCommandC2SPacket packet )
+    public void handleAnimate( @Nonnull ServerboundSwingPacket packet )
     {
     }
 
     @Override
-    public void onPlayerInteractEntity( @Nonnull PlayerInteractEntityC2SPacket packet )
+    public void handlePlayerCommand( @Nonnull ServerboundPlayerCommandPacket packet )
     {
     }
 
     @Override
-    public void onClientStatus( @Nonnull ClientStatusC2SPacket packet )
+    public void handleInteract( @Nonnull ServerboundInteractPacket packet )
     {
     }
 
     @Override
-    public void onCloseHandledScreen( CloseHandledScreenC2SPacket packet )
+    public void handleClientCommand( @Nonnull ServerboundClientCommandPacket packet )
     {
     }
 
     @Override
-    public void onClickSlot( ClickSlotC2SPacket packet )
+    public void handleContainerClose( ServerboundContainerClosePacket packet )
     {
     }
 
     @Override
-    public void onCraftRequest( @Nonnull CraftRequestC2SPacket packet )
+    public void handleContainerClick( ServerboundContainerClickPacket packet )
     {
     }
 
     @Override
-    public void onButtonClick( @Nonnull ButtonClickC2SPacket packet )
+    public void handlePlaceRecipe( @Nonnull ServerboundPlaceRecipePacket packet )
     {
     }
 
     @Override
-    public void onCreativeInventoryAction( @Nonnull CreativeInventoryActionC2SPacket packet )
+    public void handleContainerButtonClick( @Nonnull ServerboundContainerButtonClickPacket packet )
+    {
+    }
+
+    @Override
+    public void handleSetCreativeModeSlot( @Nonnull ServerboundSetCreativeModeSlotPacket packet )
     {
     }
 
@@ -248,48 +291,48 @@ public class FakeNetHandler extends ServerPlayNetworkHandler
     //    }
 
     @Override
-    public void onSignUpdate( @Nonnull UpdateSignC2SPacket packet )
+    public void handleSignUpdate( @Nonnull ServerboundSignUpdatePacket packet )
     {
     }
 
     @Override
-    public void onKeepAlive( @Nonnull KeepAliveC2SPacket packet )
+    public void handleKeepAlive( @Nonnull ServerboundKeepAlivePacket packet )
     {
     }
 
     @Override
-    public void onPlayerAbilities( @Nonnull UpdatePlayerAbilitiesC2SPacket packet )
+    public void handlePlayerAbilities( @Nonnull ServerboundPlayerAbilitiesPacket packet )
     {
     }
 
     @Override
-    public void onClientSettings( @Nonnull ClientSettingsC2SPacket packet )
+    public void handleClientInformation( @Nonnull ServerboundClientInformationPacket packet )
     {
     }
 
     @Override
-    public void onCustomPayload( @Nonnull CustomPayloadC2SPacket packet )
+    public void handleCustomPayload( @Nonnull ServerboundCustomPayloadPacket packet )
     {
     }
 
     @Override
-    public void onUpdateDifficulty( @Nonnull UpdateDifficultyC2SPacket packet )
+    public void handleChangeDifficulty( @Nonnull ServerboundChangeDifficultyPacket packet )
     {
     }
 
     @Override
-    public void onUpdateDifficultyLock( @Nonnull UpdateDifficultyLockC2SPacket packet )
+    public void handleLockDifficulty( @Nonnull ServerboundLockDifficultyPacket packet )
     {
     }
 
-    private static class FakeNetworkManager extends ClientConnection
+    private static class FakeNetworkManager extends Connection
     {
         private PacketListener handler;
-        private Text closeReason;
+        private Component closeReason;
 
         FakeNetworkManager()
         {
-            super( NetworkSide.CLIENTBOUND );
+            super( PacketFlow.CLIENTBOUND );
         }
 
         @Override
@@ -298,7 +341,7 @@ public class FakeNetHandler extends ServerPlayNetworkHandler
         }
 
         @Override
-        public void setState( @Nonnull NetworkState state )
+        public void setProtocol( @Nonnull ConnectionProtocol state )
         {
         }
 
@@ -318,7 +361,7 @@ public class FakeNetHandler extends ServerPlayNetworkHandler
         }
 
         @Override
-        public void setPacketListener( @Nonnull PacketListener handler )
+        public void setListener( @Nonnull PacketListener handler )
         {
             this.handler = handler;
         }
@@ -339,13 +382,13 @@ public class FakeNetHandler extends ServerPlayNetworkHandler
         }
 
         @Override
-        public void disconnect( @Nonnull Text message )
+        public void disconnect( @Nonnull Component message )
         {
             closeReason = message;
         }
 
         @Override
-        public void setupEncryption( Cipher cipher, Cipher cipher2 )
+        public void setEncryptionKey( Cipher cipher, Cipher cipher2 )
         {
         }
 
@@ -358,13 +401,13 @@ public class FakeNetHandler extends ServerPlayNetworkHandler
 
         @Nullable
         @Override
-        public Text getDisconnectReason()
+        public Component getDisconnectedReason()
         {
             return closeReason;
         }
 
         @Override
-        public void disableAutoRead()
+        public void setReadOnly()
         {
         }
     }

@@ -10,9 +10,8 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.math.Vec3d;
-
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
@@ -26,27 +25,27 @@ import java.util.UUID;
 public class SpeakerMoveClientMessage implements NetworkMessage
 {
     private final UUID source;
-    private final Vec3d pos;
+    private final Vec3 pos;
 
-    public SpeakerMoveClientMessage( UUID source, Vec3d pos )
+    public SpeakerMoveClientMessage( UUID source, Vec3 pos )
     {
         this.source = source;
         this.pos = pos;
     }
 
-    public SpeakerMoveClientMessage( PacketByteBuf buf )
+    public SpeakerMoveClientMessage( FriendlyByteBuf buf )
     {
-        source = buf.readUuid();
-        pos = new Vec3d( buf.readDouble(), buf.readDouble(), buf.readDouble() );
+        source = buf.readUUID();
+        pos = new Vec3( buf.readDouble(), buf.readDouble(), buf.readDouble() );
     }
 
     @Override
-    public void toBytes( @Nonnull PacketByteBuf buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
-        buf.writeUuid( source );
-        buf.writeDouble( pos.getX() );
-        buf.writeDouble( pos.getY() );
-        buf.writeDouble( pos.getZ() );
+        buf.writeUUID( source );
+        buf.writeDouble( pos.x() );
+        buf.writeDouble( pos.y() );
+        buf.writeDouble( pos.z() );
     }
 
     @Override

@@ -29,9 +29,9 @@ repositories {
     }
 }
 
-loom {
-    accessWidenerPath = file("src/main/resources/cc.accesswidener")
-}
+//loom {
+//    accessWidenerPath = file("src/main/resources/cc.accesswidener")
+//}
 
 configurations {
     implementation.extendsFrom shade
@@ -41,7 +41,8 @@ dependencies {
     checkstyle 'com.puppycrawl.tools:checkstyle:8.45.1'
 
     minecraft "com.mojang:minecraft:${mc_version}"
-    mappings "net.fabricmc:yarn:${mc_version}+build.${mappings_version}:v2"
+    //mappings "net.fabricmc:yarn:${mc_version}+build.${mappings_version}:v2"
+    mappings(minecraft.officialMojangMappings())
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 

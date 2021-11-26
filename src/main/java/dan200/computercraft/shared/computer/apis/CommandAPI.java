@@ -13,18 +13,17 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.util.NBTUtil;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
-
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import java.util.*;
 
 /**
@@ -66,19 +65,19 @@ public class CommandAPI implements ILuaAPI
 
     private Object[] doCommand( String command )
     {
-        MinecraftServer server = computer.getWorld()
+        MinecraftServer server = computer.getLevel()
             .getServer();
-        if( server == null || !server.areCommandBlocksEnabled() )
+        if( server == null || !server.isCommandBlockEnabled() )
         {
             return new Object[] { false, createOutput( "Command blocks disabled by server" ) };
         }
 
-        CommandManager commandManager = server.getCommandManager();
+        Commands commandManager = server.getCommands();
         TileCommandComputer.CommandReceiver receiver = computer.getReceiver();
         try
         {
             receiver.clearOutput();
-            int result = commandManager.execute( computer.getSource(), command );
+            int result = commandManager.performCommand( computer.getSource(), command );
             return new Object[] { result > 0, receiver.copyOutput(), result };
         }
         catch( Throwable t )
@@ -132,14 +131,14 @@ public class CommandAPI implements ILuaAPI
     @LuaFunction( mainThread = true )
     public final List<String> list( IArguments args ) throws LuaException
     {
-        MinecraftServer server = computer.getWorld()
+        MinecraftServer server = computer.getLevel()
             .getServer();
 
         if( server == null )
         {
             return Collections.emptyList();
         }
-        CommandNode<ServerCommandSource> node = server.getCommandManager()
+        CommandNode<CommandSourceStack> node = server.getCommands()
             .getDispatcher()
             .getRoot();
         for( int j = 0; j < args.count(); j++ )
@@ -176,7 +175,7 @@ public class CommandAPI implements ILuaAPI
     public final Object[] getBlockPosition()
     {
         // This is probably safe to do on the Lua thread. Probably.
-        BlockPos pos = computer.getPos();
+        BlockPos pos = computer.getBlockPos();
         return new Object[] { pos.getX(), pos.getY(), pos.getZ() };
     }
 
@@ -201,10 +200,10 @@ public class CommandAPI implements ILuaAPI
     public final List<Map<?, ?>> getBlockInfos( int minX, int minY, int minZ, int maxX, int maxY, int maxZ ) throws LuaException
     {
         // Get the details of the block
-        World world = computer.getWorld();
+        Level world = computer.getLevel();
         BlockPos min = new BlockPos( Math.min( minX, maxX ), Math.min( minY, maxY ), Math.min( minZ, maxZ ) );
         BlockPos max = new BlockPos( Math.max( minX, maxX ), Math.max( minY, maxY ), Math.max( minZ, maxZ ) );
-        if( !world.isInBuildLimit( min ) || !world.isInBuildLimit( max ) )
+        if( !world.isInWorldBounds( min ) || !world.isInWorldBounds( max ) )
         {
             throw new LuaException( "Co-ordinates out of range" );
         }
@@ -231,18 +230,18 @@ public class CommandAPI implements ILuaAPI
         return results;
     }
 
-    private static Map<?, ?> getBlockInfo( World world, BlockPos pos )
+    private static Map<?, ?> getBlockInfo( Level world, BlockPos pos )
     {
         // Get the details of the block
         BlockState state = world.getBlockState( pos );
         Block block = state.getBlock();
 
         Map<Object, Object> table = new HashMap<>();
-        table.put( "name", Registry.BLOCK.getId( block ).toString() );
-        table.put( "world", world.getRegistryKey() );
+        table.put( "name", Registry.BLOCK.getKey( block ).toString() );
+        table.put( "world", world.dimension() );
 
         Map<Object, Object> stateTable = new HashMap<>();
-        for( ImmutableMap.Entry<Property<?>, Comparable<?>> entry : state.getEntries().entrySet() )
+        for( ImmutableMap.Entry<Property<?>, Comparable<?>> entry : state.getValues().entrySet() )
         {
             Property<?> property = entry.getKey();
             stateTable.put( property.getName(), getPropertyValue( property, entry.getValue() ) );
@@ -252,7 +251,7 @@ public class CommandAPI implements ILuaAPI
         BlockEntity tile = world.getBlockEntity( pos );
         if( tile != null )
         {
-            table.put( "nbt", NBTUtil.toLua( tile.writeNbt( new NbtCompound() ) ) );
+            table.put( "nbt", NBTUtil.toLua( tile.save( new CompoundTag() ) ) );
         }
 
         return table;
@@ -268,7 +267,7 @@ public class CommandAPI implements ILuaAPI
         {
             return value;
         }
-        return property.name( value );
+        return property.getName( value );
     }
 
     /**
@@ -287,9 +286,9 @@ public class CommandAPI implements ILuaAPI
     public final Map<?, ?> getBlockInfo( int x, int y, int z ) throws LuaException
     {
         // Get the details of the block
-        World world = computer.getWorld();
+        Level world = computer.getLevel();
         BlockPos position = new BlockPos( x, y, z );
-        if( world.isInBuildLimit( position ) )
+        if( world.isInWorldBounds( position ) )
         {
             return getBlockInfo( world, position );
         }

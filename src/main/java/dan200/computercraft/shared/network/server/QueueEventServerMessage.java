@@ -10,9 +10,8 @@ import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -34,20 +33,20 @@ public class QueueEventServerMessage extends ComputerServerMessage
         this.args = args;
     }
 
-    public QueueEventServerMessage( @Nonnull PacketByteBuf buf )
+    public QueueEventServerMessage( @Nonnull FriendlyByteBuf buf )
     {
         super( buf );
-        event = buf.readString( Short.MAX_VALUE );
+        event = buf.readUtf( Short.MAX_VALUE );
 
-        NbtCompound args = buf.readNbt();
+        CompoundTag args = buf.readNbt();
         this.args = args == null ? null : NBTUtil.decodeObjects( args );
     }
 
     @Override
-    public void toBytes( @Nonnull PacketByteBuf buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         super.toBytes( buf );
-        buf.writeString( event );
+        buf.writeUtf( event );
         buf.writeNbt( args == null ? null : NBTUtil.encodeObjects( args ) );
     }
 

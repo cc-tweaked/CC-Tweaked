@@ -7,24 +7,23 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.shared.ComputerCraftRegistry;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Util;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
-
 import javax.annotation.Nonnull;
+import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.Registry;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.*;
 
@@ -32,28 +31,28 @@ public abstract class ItemBlockCable extends BlockItem
 {
     private String translationKey;
 
-    public ItemBlockCable( BlockCable block, Settings settings )
+    public ItemBlockCable( BlockCable block, Properties settings )
     {
         super( block, settings );
     }
 
-    boolean placeAtCorrected( World world, BlockPos pos, BlockState state )
+    boolean placeAtCorrected( Level world, BlockPos pos, BlockState state )
     {
         return placeAt( world, pos, correctConnections( world, pos, state ), null );
     }
 
-    boolean placeAt( World world, BlockPos pos, BlockState state, PlayerEntity player )
+    boolean placeAt( Level world, BlockPos pos, BlockState state, Player player )
     {
         // TODO: Check entity collision.
-        if( !state.canPlaceAt( world, pos ) )
+        if( !state.canSurvive( world, pos ) )
         {
             return false;
         }
 
-        world.setBlockState( pos, state, 3 );
-        BlockSoundGroup soundType = state.getBlock()
-            .getSoundGroup( state );
-        world.playSound( null, pos, soundType.getPlaceSound(), SoundCategory.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
+        world.setBlock( pos, state, 3 );
+        SoundType soundType = state.getBlock()
+            .getSoundType( state );
+        world.playSound( null, pos, soundType.getPlaceSound(), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F );
 
         BlockEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileCable cable )
@@ -67,19 +66,19 @@ public abstract class ItemBlockCable extends BlockItem
 
     @Nonnull
     @Override
-    public String getTranslationKey()
+    public String getDescriptionId()
     {
         if( translationKey == null )
         {
-            translationKey = Util.createTranslationKey( "block", Registry.ITEM.getId( this ) );
+            translationKey = Util.makeDescriptionId( "block", Registry.ITEM.getKey( this ) );
         }
         return translationKey;
     }
 
     @Override
-    public void appendStacks( @Nonnull ItemGroup group, @Nonnull DefaultedList<ItemStack> list )
+    public void fillItemCategory( @Nonnull CreativeModeTab group, @Nonnull NonNullList<ItemStack> list )
     {
-        if( isIn( group ) )
+        if( allowdedIn( group ) )
         {
             list.add( new ItemStack( this ) );
         }
@@ -87,36 +86,36 @@ public abstract class ItemBlockCable extends BlockItem
 
     public static class WiredModem extends ItemBlockCable
     {
-        public WiredModem( BlockCable block, Settings settings )
+        public WiredModem( BlockCable block, Properties settings )
         {
             super( block, settings );
         }
 
         @Nonnull
         @Override
-        public ActionResult place( ItemPlacementContext context )
+        public InteractionResult place( BlockPlaceContext context )
         {
-            ItemStack stack = context.getStack();
+            ItemStack stack = context.getItemInHand();
             if( stack.isEmpty() )
             {
-                return ActionResult.FAIL;
+                return InteractionResult.FAIL;
             }
 
-            World world = context.getWorld();
-            BlockPos pos = context.getBlockPos();
+            Level world = context.getLevel();
+            BlockPos pos = context.getClickedPos();
             BlockState existingState = world.getBlockState( pos );
 
             // Try to add a modem to a cable
-            if( existingState.getBlock() == ComputerCraftRegistry.ModBlocks.CABLE && existingState.get( MODEM ) == CableModemVariant.None )
+            if( existingState.getBlock() == ComputerCraftRegistry.ModBlocks.CABLE && existingState.getValue( MODEM ) == CableModemVariant.None )
             {
-                Direction side = context.getSide()
+                Direction side = context.getClickedFace()
                     .getOpposite();
-                BlockState newState = existingState.with( MODEM, CableModemVariant.from( side ) )
-                    .with( CONNECTIONS.get( side ), existingState.get( CABLE ) );
+                BlockState newState = existingState.setValue( MODEM, CableModemVariant.from( side ) )
+                    .setValue( CONNECTIONS.get( side ), existingState.getValue( CABLE ) );
                 if( placeAt( world, pos, newState, context.getPlayer() ) )
                 {
-                    stack.decrement( 1 );
-                    return ActionResult.SUCCESS;
+                    stack.shrink( 1 );
+                    return InteractionResult.SUCCESS;
                 }
             }
 
@@ -126,48 +125,48 @@ public abstract class ItemBlockCable extends BlockItem
 
     public static class Cable extends ItemBlockCable
     {
-        public Cable( BlockCable block, Settings settings )
+        public Cable( BlockCable block, Properties settings )
         {
             super( block, settings );
         }
 
         @Nonnull
         @Override
-        public ActionResult place( ItemPlacementContext context )
+        public InteractionResult place( BlockPlaceContext context )
         {
-            ItemStack stack = context.getStack();
+            ItemStack stack = context.getItemInHand();
             if( stack.isEmpty() )
             {
-                return ActionResult.FAIL;
+                return InteractionResult.FAIL;
             }
 
-            World world = context.getWorld();
-            BlockPos pos = context.getBlockPos();
+            Level world = context.getLevel();
+            BlockPos pos = context.getClickedPos();
 
             // Try to add a cable to a modem inside the block we're clicking on.
-            BlockPos insidePos = pos.offset( context.getSide()
+            BlockPos insidePos = pos.relative( context.getClickedFace()
                 .getOpposite() );
             BlockState insideState = world.getBlockState( insidePos );
-            if( insideState.getBlock() == ComputerCraftRegistry.ModBlocks.CABLE && !insideState.get( BlockCable.CABLE ) && placeAtCorrected( world,
+            if( insideState.getBlock() == ComputerCraftRegistry.ModBlocks.CABLE && !insideState.getValue( BlockCable.CABLE ) && placeAtCorrected( world,
                 insidePos,
-                insideState.with(
+                insideState.setValue(
                     BlockCable.CABLE,
                     true ) ) )
             {
-                stack.decrement( 1 );
-                return ActionResult.SUCCESS;
+                stack.shrink( 1 );
+                return InteractionResult.SUCCESS;
             }
 
             // Try to add a cable to a modem adjacent to this block
             BlockState existingState = world.getBlockState( pos );
-            if( existingState.getBlock() == ComputerCraftRegistry.ModBlocks.CABLE && !existingState.get( BlockCable.CABLE ) && placeAtCorrected( world,
+            if( existingState.getBlock() == ComputerCraftRegistry.ModBlocks.CABLE && !existingState.getValue( BlockCable.CABLE ) && placeAtCorrected( world,
                 pos,
-                existingState.with(
+                existingState.setValue(
                     BlockCable.CABLE,
                     true ) ) )
             {
-                stack.decrement( 1 );
-                return ActionResult.SUCCESS;
+                stack.shrink( 1 );
+                return InteractionResult.SUCCESS;
             }
 
             return super.place( context );

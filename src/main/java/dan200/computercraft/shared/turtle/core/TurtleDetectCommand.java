@@ -10,11 +10,10 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
-
 import javax.annotation.Nonnull;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 
 public class TurtleDetectCommand implements ITurtleCommand
 {
@@ -33,10 +32,10 @@ public class TurtleDetectCommand implements ITurtleCommand
         Direction direction = this.direction.toWorldDir( turtle );
 
         // Check if thing in front is air or not
-        World world = turtle.getWorld();
+        Level world = turtle.getWorld();
         BlockPos oldPosition = turtle.getPosition();
-        BlockPos newPosition = oldPosition.offset( direction );
+        BlockPos newPosition = oldPosition.relative( direction );
 
-        return !WorldUtil.isLiquidBlock( world, newPosition ) && !world.isAir( newPosition ) ? TurtleCommandResult.success() : TurtleCommandResult.failure();
+        return !WorldUtil.isLiquidBlock( world, newPosition ) && !world.isEmptyBlock( newPosition ) ? TurtleCommandResult.success() : TurtleCommandResult.failure();
     }
 }

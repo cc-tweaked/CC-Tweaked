@@ -8,9 +8,8 @@ package dan200.computercraft.shared.common;
 
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.network.client.TerminalState;
-import net.minecraft.nbt.NbtCompound;
-
 import java.util.concurrent.atomic.AtomicBoolean;
+import net.minecraft.nbt.CompoundTag;
 
 public class ServerTerminal implements ITerminal
 {
@@ -85,12 +84,12 @@ public class ServerTerminal implements ITerminal
         return new TerminalState( colour, terminal );
     }
 
-    public void writeDescription( NbtCompound nbt )
+    public void writeDescription( CompoundTag nbt )
     {
         nbt.putBoolean( "colour", colour );
         if( terminal != null )
         {
-            NbtCompound terminal = new NbtCompound();
+            CompoundTag terminal = new CompoundTag();
             terminal.putInt( "term_width", this.terminal.getWidth() );
             terminal.putInt( "term_height", this.terminal.getHeight() );
             this.terminal.writeToNBT( terminal );

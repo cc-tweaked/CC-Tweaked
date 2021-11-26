@@ -6,25 +6,24 @@
 
 package dan200.computercraft.shared.data;
 
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.loot.condition.LootCondition;
-import net.minecraft.loot.condition.LootConditionType;
-import net.minecraft.loot.context.LootContext;
-import net.minecraft.loot.context.LootContextParameter;
-import net.minecraft.loot.context.LootContextParameters;
-import net.minecraft.util.Nameable;
-
 import javax.annotation.Nonnull;
+import net.minecraft.world.Nameable;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import java.util.Collections;
 import java.util.Set;
 
 /**
  * A loot condition which checks if the tile entity has a name.
  */
-public final class BlockNamedEntityLootCondition implements LootCondition
+public final class BlockNamedEntityLootCondition implements LootItemCondition
 {
     public static final BlockNamedEntityLootCondition INSTANCE = new BlockNamedEntityLootCondition();
-    public static final LootConditionType TYPE = ConstantLootConditionSerializer.type( INSTANCE );
+    public static final LootItemConditionType TYPE = ConstantLootConditionSerializer.type( INSTANCE );
     public static final Builder BUILDER = () -> INSTANCE;
 
     private BlockNamedEntityLootCondition()
@@ -34,20 +33,20 @@ public final class BlockNamedEntityLootCondition implements LootCondition
     @Override
     public boolean test( LootContext lootContext )
     {
-        BlockEntity tile = lootContext.get( LootContextParameters.BLOCK_ENTITY );
+        BlockEntity tile = lootContext.getParamOrNull( LootContextParams.BLOCK_ENTITY );
         return tile instanceof Nameable && ((Nameable) tile).hasCustomName();
     }
 
     @Nonnull
     @Override
-    public Set<LootContextParameter<?>> getRequiredParameters()
+    public Set<LootContextParam<?>> getReferencedContextParams()
     {
-        return Collections.singleton( LootContextParameters.BLOCK_ENTITY );
+        return Collections.singleton( LootContextParams.BLOCK_ENTITY );
     }
 
     @Override
     @Nonnull
-    public LootConditionType getType()
+    public LootItemConditionType getType()
     {
         return TYPE;
     }

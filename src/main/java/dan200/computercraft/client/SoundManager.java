@@ -5,25 +5,24 @@
  */
 package dan200.computercraft.client;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.AbstractSoundInstance;
-import net.minecraft.client.sound.SoundInstance;
-import net.minecraft.client.sound.TickableSoundInstance;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.sounds.AbstractSoundInstance;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.client.resources.sounds.TickableSoundInstance;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.Vec3;
 
 public class SoundManager
 {
     private static final Map<UUID, MoveableSound> sounds = new HashMap<>();
 
-    public static void playSound( UUID source, Vec3d position, Identifier event, float volume, float pitch )
+    public static void playSound( UUID source, Vec3 position, ResourceLocation event, float volume, float pitch )
     {
-        var soundManager = MinecraftClient.getInstance().getSoundManager();
+        var soundManager = Minecraft.getInstance().getSoundManager();
 
         MoveableSound oldSound = sounds.get( source );
         if( oldSound != null ) soundManager.stop( oldSound );
@@ -38,10 +37,10 @@ public class SoundManager
         SoundInstance sound = sounds.remove( source );
         if( sound == null ) return;
 
-        MinecraftClient.getInstance().getSoundManager().stop( sound );
+        Minecraft.getInstance().getSoundManager().stop( sound );
     }
 
-    public static void moveSound( UUID source, Vec3d position )
+    public static void moveSound( UUID source, Vec3 position )
     {
         MoveableSound sound = sounds.get( source );
         if( sound != null ) sound.setPosition( position );
@@ -54,24 +53,24 @@ public class SoundManager
 
     private static class MoveableSound extends AbstractSoundInstance implements TickableSoundInstance
     {
-        protected MoveableSound( Identifier sound, Vec3d position, float volume, float pitch )
+        protected MoveableSound( ResourceLocation sound, Vec3 position, float volume, float pitch )
         {
-            super( sound, SoundCategory.RECORDS );
+            super( sound, SoundSource.RECORDS );
             setPosition( position );
             this.volume = volume;
             this.pitch = pitch;
-            attenuationType = SoundInstance.AttenuationType.LINEAR;
+            attenuation = SoundInstance.Attenuation.LINEAR;
         }
 
-        void setPosition( Vec3d position )
+        void setPosition( Vec3 position )
         {
-            x = (float) position.getX();
-            y = (float) position.getY();
-            z = (float) position.getZ();
+            x = (float) position.x();
+            y = (float) position.y();
+            z = (float) position.z();
         }
 
         @Override
-        public boolean isDone()
+        public boolean isStopped()
         {
             return false;
         }

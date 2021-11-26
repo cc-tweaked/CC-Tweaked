@@ -17,21 +17,20 @@ import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.TickScheduler;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-
 import javax.annotation.Nonnull;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
 import static dan200.computercraft.shared.peripheral.modem.wired.BlockWiredModemFull.MODEM_ON;
@@ -54,7 +53,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         super( type, pos, state );
         for( int i = 0; i < peripherals.length; i++ )
         {
-            Direction facing = Direction.byId( i );
+            Direction facing = Direction.from3DDataValue( i );
             peripherals[i] = new WiredModemLocalPeripheral();
         }
     }
@@ -79,7 +78,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 
     private void doRemove()
     {
-        if( world == null || !world.isClient )
+        if( level == null || !level.isClientSide )
         {
             node.remove();
             connectionsFormed = false;
@@ -88,11 +87,11 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 
     @Nonnull
     @Override
-    public ActionResult onActivate( PlayerEntity player, Hand hand, BlockHitResult hit )
+    public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
     {
-        if( getWorld().isClient )
+        if( getLevel().isClientSide )
         {
-            return ActionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
         // On server, we interacted if a peripheral was found
@@ -106,7 +105,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
             sendPeripheralChanges( player, "chat.computercraft.wired_modem.peripheral_connected", periphNames );
         }
 
-        return ActionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -118,11 +117,11 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     @Override
     public void onNeighbourTileEntityChange( @Nonnull BlockPos neighbour )
     {
-        if( !world.isClient && peripheralAccessAllowed )
+        if( !level.isClientSide && peripheralAccessAllowed )
         {
             for( Direction facing : DirectionUtil.FACINGS )
             {
-                if( getPos().offset( facing )
+                if( getBlockPos().relative( facing )
                     .equals( neighbour ) )
                 {
                     refreshPeripheral( facing );
@@ -134,7 +133,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     @Override
     public void blockTick()
     {
-        if( getWorld().isClient )
+        if( getLevel().isClientSide )
         {
             return;
         }
@@ -153,7 +152,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
             {
                 for( Direction facing : DirectionUtil.FACINGS )
                 {
-                    peripherals[facing.ordinal()].attach( world, getPos(), facing );
+                    peripherals[facing.ordinal()].attach( level, getBlockPos(), facing );
                 }
                 updateConnectedPeripherals();
             }
@@ -162,17 +161,17 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 
     private void connectionsChanged()
     {
-        if( getWorld().isClient )
+        if( getLevel().isClientSide )
         {
             return;
         }
 
-        World world = getWorld();
-        BlockPos current = getPos();
+        Level world = getLevel();
+        BlockPos current = getBlockPos();
         for( Direction facing : DirectionUtil.FACINGS )
         {
-            BlockPos offset = current.offset( facing );
-            if( !world.isChunkLoaded( offset ) )
+            BlockPos offset = current.relative( facing );
+            if( !world.hasChunkAt( offset ) )
             {
                 continue;
             }
@@ -190,7 +189,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
     private void refreshPeripheral( @Nonnull Direction facing )
     {
         WiredModemLocalPeripheral peripheral = peripherals[facing.ordinal()];
-        if( world != null && !isRemoved() && peripheral.attach( world, getPos(), facing ) )
+        if( level != null && !isRemoved() && peripheral.attach( level, getBlockPos(), facing ) )
         {
             updateConnectedPeripherals();
         }
@@ -226,16 +225,16 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 
     private void updateBlockState()
     {
-        BlockState state = getCachedState();
+        BlockState state = getBlockState();
         boolean modemOn = modemState.isOpen(), peripheralOn = peripheralAccessAllowed;
-        if( state.get( MODEM_ON ) == modemOn && state.get( PERIPHERAL_ON ) == peripheralOn )
+        if( state.getValue( MODEM_ON ) == modemOn && state.getValue( PERIPHERAL_ON ) == peripheralOn )
         {
             return;
         }
 
-        getWorld().setBlockState( getPos(),
-            state.with( MODEM_ON, modemOn )
-                .with( PERIPHERAL_ON, peripheralOn ) );
+        getLevel().setBlockAndUpdate( getBlockPos(),
+            state.setValue( MODEM_ON, modemOn )
+                .setValue( PERIPHERAL_ON, peripheralOn ) );
     }
 
     private Set<String> getConnectedPeripheralNames()
@@ -265,7 +264,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
             for( Direction facing : DirectionUtil.FACINGS )
             {
                 WiredModemLocalPeripheral peripheral = peripherals[facing.ordinal()];
-                peripheral.attach( world, getPos(), facing );
+                peripheral.attach( level, getBlockPos(), facing );
                 hasAny |= peripheral.hasPeripheral();
             }
 
@@ -291,7 +290,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         updateBlockState();
     }
 
-    private static void sendPeripheralChanges( PlayerEntity player, String kind, Collection<String> peripherals )
+    private static void sendPeripheralChanges( Player player, String kind, Collection<String> peripherals )
     {
         if( peripherals.isEmpty() )
         {
@@ -301,7 +300,7 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         List<String> names = new ArrayList<>( peripherals );
         names.sort( Comparator.naturalOrder() );
 
-        LiteralText base = new LiteralText( "" );
+        TextComponent base = new TextComponent( "" );
         for( int i = 0; i < names.size(); i++ )
         {
             if( i > 0 )
@@ -311,13 +310,13 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
             base.append( ChatHelpers.copy( names.get( i ) ) );
         }
 
-        player.sendMessage( new TranslatableText( kind, base ), false );
+        player.displayClientMessage( new TranslatableComponent( kind, base ), false );
     }
 
     @Override
-    public void readNbt( @Nonnull NbtCompound nbt )
+    public void load( @Nonnull CompoundTag nbt )
     {
-        super.readNbt( nbt );
+        super.load( nbt );
         peripheralAccessAllowed = nbt.getBoolean( NBT_PERIPHERAL_ENABLED );
         for( int i = 0; i < peripherals.length; i++ )
         {
@@ -327,27 +326,27 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 
     @Nonnull
     @Override
-    public NbtCompound writeNbt( NbtCompound nbt )
+    public CompoundTag save( CompoundTag nbt )
     {
         nbt.putBoolean( NBT_PERIPHERAL_ENABLED, peripheralAccessAllowed );
         for( int i = 0; i < peripherals.length; i++ )
         {
             peripherals[i].write( nbt, Integer.toString( i ) );
         }
-        return super.writeNbt( nbt );
+        return super.save( nbt );
     }
 
     @Override
-    public void markRemoved()
+    public void setRemoved()
     {
-        super.markRemoved();
+        super.setRemoved();
         doRemove();
     }
 
     @Override
-    public void cancelRemoval()
+    public void clearRemoved()
     {
-        super.cancelRemoval();
+        super.clearRemoved();
         TickScheduler.schedule( this );
     }
 
@@ -378,10 +377,10 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 
             @Nonnull
             @Override
-            public Vec3d getPosition()
+            public Vec3 getPosition()
             {
-                BlockPos pos = getPos().offset( side );
-                return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+                BlockPos pos = getBlockPos().relative( side );
+                return new Vec3( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
             }
 
             @Nonnull
@@ -430,17 +429,17 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
 
         @Nonnull
         @Override
-        public World getWorld()
+        public Level getWorld()
         {
-            return entity.getWorld();
+            return entity.getLevel();
         }
 
         @Nonnull
         @Override
-        public Vec3d getPosition()
+        public Vec3 getPosition()
         {
-            BlockPos pos = entity.getPos();
-            return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+            BlockPos pos = entity.getBlockPos();
+            return new Vec3( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
     }
 }

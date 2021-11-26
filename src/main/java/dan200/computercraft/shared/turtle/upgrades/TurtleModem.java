@@ -14,29 +14,28 @@ import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.util.ModelIdentifier;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nonnull;
 
 public class TurtleModem extends AbstractTurtleUpgrade
 {
     private final boolean advanced;
     @Environment( EnvType.CLIENT )
-    private ModelIdentifier leftOffModel;
+    private ModelResourceLocation leftOffModel;
     @Environment( EnvType.CLIENT )
-    private ModelIdentifier rightOffModel;
+    private ModelResourceLocation rightOffModel;
     @Environment( EnvType.CLIENT )
-    private ModelIdentifier leftOnModel;
+    private ModelResourceLocation leftOnModel;
     @Environment( EnvType.CLIENT )
-    private ModelIdentifier rightOnModel;
+    private ModelResourceLocation rightOnModel;
 
-    public TurtleModem( boolean advanced, Identifier id )
+    public TurtleModem( boolean advanced, ResourceLocation id )
     {
         super( id,
             TurtleUpgradeType.PERIPHERAL,
@@ -67,7 +66,7 @@ public class TurtleModem extends AbstractTurtleUpgrade
         boolean active = false;
         if( turtle != null )
         {
-            NbtCompound turtleNBT = turtle.getUpgradeNBTData( side );
+            CompoundTag turtleNBT = turtle.getUpgradeNBTData( side );
             active = turtleNBT.contains( "active" ) && turtleNBT.getBoolean( "active" );
         }
 
@@ -81,17 +80,17 @@ public class TurtleModem extends AbstractTurtleUpgrade
         {
             if( advanced )
             {
-                leftOffModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_off_left", "inventory" );
-                rightOffModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_off_right", "inventory" );
-                leftOnModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_on_left", "inventory" );
-                rightOnModel = new ModelIdentifier( "computercraft:turtle_modem_advanced_on_right", "inventory" );
+                leftOffModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_off_left", "inventory" );
+                rightOffModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_off_right", "inventory" );
+                leftOnModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_on_left", "inventory" );
+                rightOnModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_on_right", "inventory" );
             }
             else
             {
-                leftOffModel = new ModelIdentifier( "computercraft:turtle_modem_normal_off_left", "inventory" );
-                rightOffModel = new ModelIdentifier( "computercraft:turtle_modem_normal_off_right", "inventory" );
-                leftOnModel = new ModelIdentifier( "computercraft:turtle_modem_normal_on_left", "inventory" );
-                rightOnModel = new ModelIdentifier( "computercraft:turtle_modem_normal_on_right", "inventory" );
+                leftOffModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_off_left", "inventory" );
+                rightOffModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_off_right", "inventory" );
+                leftOnModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_on_left", "inventory" );
+                rightOnModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_on_right", "inventory" );
             }
         }
     }
@@ -100,7 +99,7 @@ public class TurtleModem extends AbstractTurtleUpgrade
     public void update( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         // Advance the modem
-        if( !turtle.getWorld().isClient )
+        if( !turtle.getWorld().isClientSide )
         {
             IPeripheral peripheral = turtle.getPeripheral( side );
             if( peripheral instanceof Peripheral )
@@ -128,17 +127,17 @@ public class TurtleModem extends AbstractTurtleUpgrade
 
         @Nonnull
         @Override
-        public World getWorld()
+        public Level getWorld()
         {
             return turtle.getWorld();
         }
 
         @Nonnull
         @Override
-        public Vec3d getPosition()
+        public Vec3 getPosition()
         {
             BlockPos turtlePos = turtle.getPosition();
-            return new Vec3d( turtlePos.getX(), turtlePos.getY(), turtlePos.getZ() );
+            return new Vec3( turtlePos.getX(), turtlePos.getY(), turtlePos.getZ() );
         }
 
         @Override

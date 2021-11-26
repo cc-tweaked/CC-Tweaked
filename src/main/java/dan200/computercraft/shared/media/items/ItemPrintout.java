@@ -9,19 +9,18 @@ package dan200.computercraft.shared.media.items;
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.network.container.HeldItemContainerData;
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.world.World;
-
 import javax.annotation.Nonnull;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import java.util.List;
 
 public class ItemPrintout extends Item
@@ -35,7 +34,7 @@ public class ItemPrintout extends Item
     private static final String NBT_LINE_COLOUR = "Color";
     private final Type type;
 
-    public ItemPrintout( Settings settings, Type type )
+    public ItemPrintout( Properties settings, Type type )
     {
         super( settings );
         this.type = type;
@@ -55,12 +54,12 @@ public class ItemPrintout extends Item
         // Build NBT
         if( title != null )
         {
-            stack.getOrCreateNbt()
+            stack.getOrCreateTag()
                 .putString( NBT_TITLE, title );
         }
         if( text != null )
         {
-            NbtCompound tag = stack.getOrCreateNbt();
+            CompoundTag tag = stack.getOrCreateTag();
             tag.putInt( NBT_PAGES, text.length / LINES_PER_PAGE );
             for( int i = 0; i < text.length; i++ )
             {
@@ -72,7 +71,7 @@ public class ItemPrintout extends Item
         }
         if( colours != null )
         {
-            NbtCompound tag = stack.getOrCreateNbt();
+            CompoundTag tag = stack.getOrCreateTag();
             for( int i = 0; i < colours.length; i++ )
             {
                 if( colours[i] != null )
@@ -105,7 +104,7 @@ public class ItemPrintout extends Item
 
     private static String[] getLines( @Nonnull ItemStack stack, String prefix )
     {
-        NbtCompound nbt = stack.getNbt();
+        CompoundTag nbt = stack.getTag();
         int numLines = getPageCount( stack ) * LINES_PER_PAGE;
         String[] lines = new String[numLines];
         for( int i = 0; i < lines.length; i++ )
@@ -117,7 +116,7 @@ public class ItemPrintout extends Item
 
     public static int getPageCount( @Nonnull ItemStack stack )
     {
-        NbtCompound nbt = stack.getNbt();
+        CompoundTag nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_PAGES ) ? nbt.getInt( NBT_PAGES ) : 1;
     }
 
@@ -128,31 +127,31 @@ public class ItemPrintout extends Item
 
     @Nonnull
     @Override
-    public TypedActionResult<ItemStack> use( World world, @Nonnull PlayerEntity player, @Nonnull Hand hand )
+    public InteractionResultHolder<ItemStack> use( Level world, @Nonnull Player player, @Nonnull InteractionHand hand )
     {
-        if( !world.isClient )
+        if( !world.isClientSide )
         {
             new HeldItemContainerData( hand ).open( player,
                 new ContainerHeldItem.Factory( ComputerCraftRegistry.ModContainers.PRINTOUT,
-                    player.getStackInHand( hand ),
+                    player.getItemInHand( hand ),
                     hand ) );
         }
-        return new TypedActionResult<>( ActionResult.SUCCESS, player.getStackInHand( hand ) );
+        return new InteractionResultHolder<>( InteractionResult.SUCCESS, player.getItemInHand( hand ) );
     }
 
     @Override
-    public void appendTooltip( @Nonnull ItemStack stack, World world, @Nonnull List<Text> list, @Nonnull TooltipContext options )
+    public void appendHoverText( @Nonnull ItemStack stack, Level world, @Nonnull List<Component> list, @Nonnull TooltipFlag options )
     {
         String title = getTitle( stack );
         if( title != null && !title.isEmpty() )
         {
-            list.add( new LiteralText( title ) );
+            list.add( new TextComponent( title ) );
         }
     }
 
     public static String getTitle( @Nonnull ItemStack stack )
     {
-        NbtCompound nbt = stack.getNbt();
+        CompoundTag nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_TITLE ) ? nbt.getString( NBT_TITLE ) : null;
     }
 

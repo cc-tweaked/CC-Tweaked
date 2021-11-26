@@ -6,19 +6,19 @@
 
 package dan200.computercraft.shared.util;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
 public final class RedstoneUtil
 {
-    public static void propagateRedstoneOutput( World world, BlockPos pos, Direction side )
+    public static void propagateRedstoneOutput( Level world, BlockPos pos, Direction side )
     {
         // Propagate ordinary output. See BlockRedstoneDiode.notifyNeighbors
         BlockState block = world.getBlockState( pos );
-        BlockPos neighbourPos = pos.offset( side );
-        world.updateNeighbor( neighbourPos, block.getBlock(), pos );
-        world.updateNeighborsExcept( neighbourPos, block.getBlock(), side.getOpposite() );
+        BlockPos neighbourPos = pos.relative( side );
+        world.neighborChanged( neighbourPos, block.getBlock(), pos );
+        world.updateNeighborsAtExceptFromFacing( neighbourPos, block.getBlock(), side.getOpposite() );
     }
 }

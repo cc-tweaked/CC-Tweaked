@@ -12,9 +12,8 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.api.turtle.event.TurtleRefuelEvent;
-import net.minecraft.item.ItemStack;
-
 import javax.annotation.Nonnull;
+import net.minecraft.world.item.ItemStack;
 
 public class TurtleRefuelCommand implements ITurtleCommand
 {
@@ -31,7 +30,7 @@ public class TurtleRefuelCommand implements ITurtleCommand
     {
         int slot = turtle.getSelectedSlot();
         ItemStack stack = turtle.getInventory()
-            .getStack( slot );
+            .getItem( slot );
         if( stack.isEmpty() )
         {
             return TurtleCommandResult.failure( "No items to combust" );

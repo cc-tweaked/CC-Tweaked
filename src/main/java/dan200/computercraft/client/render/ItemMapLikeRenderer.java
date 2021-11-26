@@ -6,32 +6,32 @@
 
 package dan200.computercraft.client.render;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import dan200.computercraft.fabric.mixin.HeldItemRendererAccess;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.item.HeldItemRenderer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Arm;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemInHandRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 @Environment( EnvType.CLIENT )
 public abstract class ItemMapLikeRenderer
 {
     public void renderItemFirstPerson(
-        MatrixStack transform, VertexConsumerProvider render, int lightTexture, Hand hand, float pitch, float equipProgress,
+        PoseStack transform, MultiBufferSource render, int lightTexture, InteractionHand hand, float pitch, float equipProgress,
         float swingProgress, ItemStack stack
     )
     {
-        PlayerEntity player = MinecraftClient.getInstance().player;
+        Player player = Minecraft.getInstance().player;
 
-        transform.push();
-        if( hand == Hand.MAIN_HAND && player.getOffHandStack().isEmpty() )
+        transform.pushPose();
+        if( hand == InteractionHand.MAIN_HAND && player.getOffhandItem().isEmpty() )
         {
             renderItemFirstPersonCenter( transform, render, lightTexture, pitch, equipProgress, swingProgress, stack );
         }
@@ -40,12 +40,12 @@ public abstract class ItemMapLikeRenderer
             renderItemFirstPersonSide( transform,
                 render,
                 lightTexture,
-                hand == Hand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite(),
+                hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite(),
                 equipProgress,
                 swingProgress,
                 stack );
         }
-        transform.pop();
+        transform.popPose();
     }
 
     /**
@@ -59,34 +59,34 @@ public abstract class ItemMapLikeRenderer
      * @param swingProgress The swing progress of this item
      * @param stack         The stack to render
      */
-    private void renderItemFirstPersonCenter( MatrixStack transform, VertexConsumerProvider render, int combinedLight, float pitch, float equipProgress,
+    private void renderItemFirstPersonCenter( PoseStack transform, MultiBufferSource render, int combinedLight, float pitch, float equipProgress,
                                               float swingProgress, ItemStack stack )
     {
-        MinecraftClient minecraft = MinecraftClient.getInstance();
-        HeldItemRenderer renderer = minecraft.getHeldItemRenderer();
+        Minecraft minecraft = Minecraft.getInstance();
+        ItemInHandRenderer renderer = minecraft.getItemInHandRenderer();
 
         // Setup the appropriate transformations. This is just copied from the
         // corresponding method in ItemRenderer.
-        float swingRt = MathHelper.sqrt( swingProgress );
-        float tX = -0.2f * MathHelper.sin( swingProgress * (float) Math.PI );
-        float tZ = -0.4f * MathHelper.sin( swingRt * (float) Math.PI );
+        float swingRt = Mth.sqrt( swingProgress );
+        float tX = -0.2f * Mth.sin( swingProgress * (float) Math.PI );
+        float tZ = -0.4f * Mth.sin( swingRt * (float) Math.PI );
         transform.translate( 0, -tX / 2, tZ );
 
         HeldItemRendererAccess access = (HeldItemRendererAccess) renderer;
         float pitchAngle = access.callGetMapAngle( pitch );
         transform.translate( 0, 0.04F + equipProgress * -1.2f + pitchAngle * -0.5f, -0.72f );
-        transform.multiply( Vec3f.POSITIVE_X.getDegreesQuaternion( pitchAngle * -85.0f ) );
+        transform.mulPose( Vector3f.XP.rotationDegrees( pitchAngle * -85.0f ) );
         if( !minecraft.player.isInvisible() )
         {
-            transform.push();
-            transform.multiply( Vec3f.POSITIVE_Y.getDegreesQuaternion( 90.0F ) );
-            access.callRenderArm( transform, render, combinedLight, Arm.RIGHT );
-            access.callRenderArm( transform, render, combinedLight, Arm.LEFT );
-            transform.pop();
+            transform.pushPose();
+            transform.mulPose( Vector3f.YP.rotationDegrees( 90.0F ) );
+            access.callRenderArm( transform, render, combinedLight, HumanoidArm.RIGHT );
+            access.callRenderArm( transform, render, combinedLight, HumanoidArm.LEFT );
+            transform.popPose();
         }
 
-        float rX = MathHelper.sin( swingRt * (float) Math.PI );
-        transform.multiply( Vec3f.POSITIVE_X.getDegreesQuaternion( rX * 20.0F ) );
+        float rX = Mth.sin( swingRt * (float) Math.PI );
+        transform.mulPose( Vector3f.XP.rotationDegrees( rX * 20.0F ) );
         transform.scale( 2.0F, 2.0F, 2.0F );
 
         renderItem( transform, render, stack, combinedLight );
@@ -103,39 +103,39 @@ public abstract class ItemMapLikeRenderer
      * @param swingProgress The swing progress of this item
      * @param stack         The stack to render
      */
-    private void renderItemFirstPersonSide( MatrixStack transform, VertexConsumerProvider render, int combinedLight, Arm side, float equipProgress,
+    private void renderItemFirstPersonSide( PoseStack transform, MultiBufferSource render, int combinedLight, HumanoidArm side, float equipProgress,
                                             float swingProgress, ItemStack stack )
     {
-        MinecraftClient minecraft = MinecraftClient.getInstance();
-        float offset = side == Arm.RIGHT ? 1f : -1f;
+        Minecraft minecraft = Minecraft.getInstance();
+        float offset = side == HumanoidArm.RIGHT ? 1f : -1f;
         transform.translate( offset * 0.125f, -0.125f, 0f );
 
         // If the player is not invisible then render a single arm
         if( !minecraft.player.isInvisible() )
         {
-            transform.push();
-            transform.multiply( Vec3f.POSITIVE_Z.getDegreesQuaternion( offset * 10f ) );
-            ((HeldItemRendererAccess) minecraft.getHeldItemRenderer())
+            transform.pushPose();
+            transform.mulPose( Vector3f.ZP.rotationDegrees( offset * 10f ) );
+            ((HeldItemRendererAccess) minecraft.getItemInHandRenderer())
                 .callRenderArmHoldingItem( transform, render, combinedLight, equipProgress, swingProgress, side );
-            transform.pop();
+            transform.popPose();
         }
 
         // Setup the appropriate transformations. This is just copied from the
         // corresponding method in ItemRenderer.
-        transform.push();
+        transform.pushPose();
         transform.translate( offset * 0.51f, -0.08f + equipProgress * -1.2f, -0.75f );
-        float f1 = MathHelper.sqrt( swingProgress );
-        float f2 = MathHelper.sin( f1 * (float) Math.PI );
+        float f1 = Mth.sqrt( swingProgress );
+        float f2 = Mth.sin( f1 * (float) Math.PI );
         float f3 = -0.5f * f2;
-        float f4 = 0.4f * MathHelper.sin( f1 * ((float) Math.PI * 2f) );
-        float f5 = -0.3f * MathHelper.sin( swingProgress * (float) Math.PI );
+        float f4 = 0.4f * Mth.sin( f1 * ((float) Math.PI * 2f) );
+        float f5 = -0.3f * Mth.sin( swingProgress * (float) Math.PI );
         transform.translate( offset * f3, f4 - 0.3f * f2, f5 );
-        transform.multiply( Vec3f.POSITIVE_X.getDegreesQuaternion( f2 * -45f ) );
-        transform.multiply( Vec3f.POSITIVE_Y.getDegreesQuaternion( offset * f2 * -30f ) );
+        transform.mulPose( Vector3f.XP.rotationDegrees( f2 * -45f ) );
+        transform.mulPose( Vector3f.YP.rotationDegrees( offset * f2 * -30f ) );
 
         renderItem( transform, render, stack, combinedLight );
 
-        transform.pop();
+        transform.popPose();
     }
 
     /**
@@ -146,5 +146,5 @@ public abstract class ItemMapLikeRenderer
      * @param stack     The stack to render
      * @param light     TODO rebase
      */
-    protected abstract void renderItem( MatrixStack transform, VertexConsumerProvider render, ItemStack stack, int light );
+    protected abstract void renderItem( PoseStack transform, MultiBufferSource render, ItemStack stack, int light );
 }

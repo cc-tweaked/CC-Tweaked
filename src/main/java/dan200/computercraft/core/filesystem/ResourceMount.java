@@ -13,15 +13,14 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.shared.util.IoUtil;
-import net.minecraft.resource.ReloadableResourceManager;
-import net.minecraft.resource.Resource;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.SynchronousResourceReloader;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import net.minecraft.ResourceLocationException;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,7 +60,7 @@ public final class ResourceMount implements IMount
     /**
      * Maintain a cache of currently loaded resource mounts. This cache is invalidated when currentManager changes.
      */
-    private static final Map<ReloadableResourceManager, Map<Identifier, ResourceMount>> MOUNT_CACHE = new WeakHashMap<>( 2 );
+    private static final Map<ReloadableResourceManager, Map<ResourceLocation, ResourceMount>> MOUNT_CACHE = new WeakHashMap<>( 2 );
 
     private final String namespace;
     private final String subPath;
@@ -72,7 +71,7 @@ public final class ResourceMount implements IMount
 
     public static ResourceMount get( String namespace, String subPath, ReloadableResourceManager manager )
     {
-        Map<Identifier, ResourceMount> cache;
+        Map<ResourceLocation, ResourceMount> cache;
 
         synchronized( MOUNT_CACHE )
         {
@@ -80,7 +79,7 @@ public final class ResourceMount implements IMount
             if( cache == null ) MOUNT_CACHE.put( manager, cache = CACHE_TEMPLATE.makeMap() );
         }
 
-        Identifier path = new Identifier( namespace, subPath );
+        ResourceLocation path = new ResourceLocation( namespace, subPath );
         synchronized( cache )
         {
             ResourceMount mount = cache.get( path );
@@ -104,8 +103,8 @@ public final class ResourceMount implements IMount
         boolean hasAny = false;
         String existingNamespace = null;
 
-        FileEntry newRoot = new FileEntry( new Identifier( namespace, subPath ) );
-        for( Identifier file : manager.findResources( subPath, s -> true ) )
+        FileEntry newRoot = new FileEntry( new ResourceLocation( namespace, subPath ) );
+        for( ResourceLocation file : manager.listResources( subPath, s -> true ) )
         {
             existingNamespace = file.getNamespace();
 
@@ -160,12 +159,12 @@ public final class ResourceMount implements IMount
             FileEntry nextEntry = lastEntry.children.get( part );
             if( nextEntry == null )
             {
-                Identifier childPath;
+                ResourceLocation childPath;
                 try
                 {
-                    childPath = new Identifier( namespace, subPath + "/" + path );
+                    childPath = new ResourceLocation( namespace, subPath + "/" + path );
                 }
-                catch( InvalidIdentifierException e )
+                catch( ResourceLocationException e )
                 {
                     ComputerCraft.log.warn( "Cannot create resource location for {} ({})", part, e.getMessage() );
                     return;
@@ -271,11 +270,11 @@ public final class ResourceMount implements IMount
 
     private static class FileEntry
     {
-        final Identifier identifier;
+        final ResourceLocation identifier;
         Map<String, FileEntry> children;
         long size = -1;
 
-        FileEntry( Identifier identifier )
+        FileEntry( ResourceLocation identifier )
         {
             this.identifier = identifier;
         }
@@ -297,7 +296,7 @@ public final class ResourceMount implements IMount
      * While people should really be keeping a permanent reference to this, some people construct it every
      * method call, so let's make this as small as possible.
      */
-    static class Listener implements SynchronousResourceReloader
+    static class Listener implements ResourceManagerReloadListener
     {
         private static final Listener INSTANCE = new Listener();
 
@@ -305,14 +304,14 @@ public final class ResourceMount implements IMount
         private final Set<ReloadableResourceManager> managers = Collections.newSetFromMap( new WeakHashMap<>() );
 
         @Override
-        public void reload( @Nonnull ResourceManager manager )
+        public void onResourceManagerReload( @Nonnull ResourceManager manager )
         {
             for( ResourceMount mount : mounts ) mount.load();
         }
 
         synchronized void add( ReloadableResourceManager manager, ResourceMount mount )
         {
-            if( managers.add( manager ) ) manager.registerReloader( this );
+            if( managers.add( manager ) ) manager.registerReloadListener( this );
             mounts.add( mount );
         }
     }

@@ -9,13 +9,12 @@ package dan200.computercraft.shared.data;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
-import net.minecraft.loot.condition.LootCondition;
-import net.minecraft.loot.condition.LootConditionType;
-import net.minecraft.util.JsonSerializer;
-
 import javax.annotation.Nonnull;
+import net.minecraft.world.level.storage.loot.Serializer;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
-public final class ConstantLootConditionSerializer<T extends LootCondition> implements JsonSerializer<T>
+public final class ConstantLootConditionSerializer<T extends LootItemCondition> implements Serializer<T>
 {
     private final T instance;
 
@@ -24,9 +23,9 @@ public final class ConstantLootConditionSerializer<T extends LootCondition> impl
         this.instance = instance;
     }
 
-    public static <T extends LootCondition> LootConditionType type( T condition )
+    public static <T extends LootItemCondition> LootItemConditionType type( T condition )
     {
-        return new LootConditionType( new ConstantLootConditionSerializer<>( condition ) );
+        return new LootItemConditionType( new ConstantLootConditionSerializer<>( condition ) );
     }
 
     @Override
@@ -36,7 +35,7 @@ public final class ConstantLootConditionSerializer<T extends LootCondition> impl
 
     @Nonnull
     @Override
-    public T fromJson( @Nonnull JsonObject json, @Nonnull JsonDeserializationContext context )
+    public T deserialize( @Nonnull JsonObject json, @Nonnull JsonDeserializationContext context )
     {
         return instance;
     }

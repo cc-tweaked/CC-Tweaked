@@ -36,14 +36,14 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.CommandBlockBlockEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.MusicDiscItem;
-import net.minecraft.loot.condition.LootConditionType;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.RecordItem;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.CommandBlockEntity;
+import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
 public final class ComputerCraftProxyCommon
 {
@@ -70,8 +70,8 @@ public final class ComputerCraftProxyCommon
 
         ComputerCraftAPI.registerPeripheralProvider( ( world, pos, side ) -> {
             BlockEntity tile = world.getBlockEntity( pos );
-            return ComputerCraft.enableCommandBlock && tile instanceof CommandBlockBlockEntity ?
-                new CommandBlockPeripheral( (CommandBlockBlockEntity) tile ) : null;
+            return ComputerCraft.enableCommandBlock && tile instanceof CommandBlockEntity ?
+                new CommandBlockPeripheral( (CommandBlockEntity) tile ) : null;
         } );
 
         // Register bundled power providers
@@ -84,7 +84,7 @@ public final class ComputerCraftProxyCommon
             {
                 return (IMedia) item;
             }
-            if( item instanceof MusicDiscItem )
+            if( item instanceof RecordItem )
             {
                 return RecordMedia.INSTANCE;
             }
@@ -146,8 +146,8 @@ public final class ComputerCraftProxyCommon
         registerCondition( "has_id", HasComputerIdLootCondition.TYPE );
     }
 
-    private static void registerCondition( String name, LootConditionType serializer )
+    private static void registerCondition( String name, LootItemConditionType serializer )
     {
-        Registry.register( Registry.LOOT_CONDITION_TYPE, new Identifier( ComputerCraft.MOD_ID, name ), serializer );
+        Registry.register( Registry.LOOT_CONDITION_TYPE, new ResourceLocation( ComputerCraft.MOD_ID, name ), serializer );
     }
 }

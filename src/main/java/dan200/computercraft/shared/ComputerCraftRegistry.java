@@ -51,24 +51,28 @@ import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityT
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
 import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.Items;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
 import java.util.function.BiFunction;
 
-import static net.minecraft.util.registry.Registry.BLOCK_ENTITY_TYPE;
+import static net.minecraft.core.Registry.BLOCK_ENTITY_TYPE;
 
 public final class ComputerCraftRegistry
 {
@@ -122,10 +126,10 @@ public final class ComputerCraftRegistry
         {
             //return FabricBlockSettings.copyOf(Blocks.GLASS)
             //                        .strength(2);
-            return AbstractBlock.Settings.of( Material.GLASS )
+            return BlockBehaviour.Properties.of( Material.GLASS )
                 .strength( 2F )
-                .sounds( BlockSoundGroup.STONE )
-                .nonOpaque();
+                .sound( SoundType.STONE )
+                .noOcclusion();
         }
 
         private static Block.Settings turtleProperties()
@@ -144,7 +148,7 @@ public final class ComputerCraftRegistry
 
         public static <T extends Block> T register( String id, T value )
         {
-            return Registry.register( Registry.BLOCK, new Identifier( MOD_ID, id ), value );
+            return Registry.register( Registry.BLOCK, new ResourceLocation( MOD_ID, id ), value );
         }
     }
 
@@ -194,7 +198,7 @@ public final class ComputerCraftRegistry
         {
             BlockEntityType<T> blockEntityType = FabricBlockEntityTypeBuilder.create( factory::apply, block ).build();
             return Registry.register( BLOCK_ENTITY_TYPE,
-                new Identifier( MOD_ID, id ),
+                new ResourceLocation( MOD_ID, id ),
                 blockEntityType
             );
         }
@@ -202,22 +206,22 @@ public final class ComputerCraftRegistry
 
     public static final class ModItems
     {
-        private static final ItemGroup mainItemGroup = ComputerCraft.MAIN_GROUP;
+        private static final CreativeModeTab mainItemGroup = ComputerCraft.MAIN_GROUP;
         public static final ItemComputer COMPUTER_NORMAL = ofBlock( ModBlocks.COMPUTER_NORMAL, ItemComputer::new );
         public static final ItemComputer COMPUTER_ADVANCED = ofBlock( ModBlocks.COMPUTER_ADVANCED, ItemComputer::new );
         public static final ItemComputer COMPUTER_COMMAND = ofBlock( ModBlocks.COMPUTER_COMMAND, ItemComputer::new );
         public static final ItemPocketComputer POCKET_COMPUTER_NORMAL = register( "pocket_computer_normal",
-            new ItemPocketComputer( properties().maxCount( 1 ), ComputerFamily.NORMAL ) );
+            new ItemPocketComputer( properties().stacksTo( 1 ), ComputerFamily.NORMAL ) );
         public static final ItemPocketComputer POCKET_COMPUTER_ADVANCED = register( "pocket_computer_advanced",
-            new ItemPocketComputer( properties().maxCount( 1 ),
+            new ItemPocketComputer( properties().stacksTo( 1 ),
                 ComputerFamily.ADVANCED ) );
         public static final ItemTurtle TURTLE_NORMAL = ofBlock( ModBlocks.TURTLE_NORMAL, ItemTurtle::new );
         public static final ItemTurtle TURTLE_ADVANCED = ofBlock( ModBlocks.TURTLE_ADVANCED, ItemTurtle::new );
-        public static final ItemDisk DISK = register( "disk", new ItemDisk( properties().maxCount( 1 ) ) );
-        public static final ItemTreasureDisk TREASURE_DISK = register( "treasure_disk", new ItemTreasureDisk( properties().maxCount( 1 ) ) );
-        public static final ItemPrintout PRINTED_PAGE = register( "printed_page", new ItemPrintout( properties().maxCount( 1 ), ItemPrintout.Type.PAGE ) );
-        public static final ItemPrintout PRINTED_PAGES = register( "printed_pages", new ItemPrintout( properties().maxCount( 1 ), ItemPrintout.Type.PAGES ) );
-        public static final ItemPrintout PRINTED_BOOK = register( "printed_book", new ItemPrintout( properties().maxCount( 1 ), ItemPrintout.Type.BOOK ) );
+        public static final ItemDisk DISK = register( "disk", new ItemDisk( properties().stacksTo( 1 ) ) );
+        public static final ItemTreasureDisk TREASURE_DISK = register( "treasure_disk", new ItemTreasureDisk( properties().stacksTo( 1 ) ) );
+        public static final ItemPrintout PRINTED_PAGE = register( "printed_page", new ItemPrintout( properties().stacksTo( 1 ), ItemPrintout.Type.PAGE ) );
+        public static final ItemPrintout PRINTED_PAGES = register( "printed_pages", new ItemPrintout( properties().stacksTo( 1 ), ItemPrintout.Type.PAGES ) );
+        public static final ItemPrintout PRINTED_BOOK = register( "printed_book", new ItemPrintout( properties().stacksTo( 1 ), ItemPrintout.Type.BOOK ) );
         public static final BlockItem SPEAKER = ofBlock( ModBlocks.SPEAKER, BlockItem::new );
         public static final BlockItem DISK_DRIVE = ofBlock( ModBlocks.DISK_DRIVE, BlockItem::new );
         public static final BlockItem PRINTER = ofBlock( ModBlocks.PRINTER, BlockItem::new );
@@ -229,29 +233,29 @@ public final class ComputerCraftRegistry
         public static final ItemBlockCable.Cable CABLE = register( "cable", new ItemBlockCable.Cable( ModBlocks.CABLE, properties() ) );
         public static final ItemBlockCable.WiredModem WIRED_MODEM = register( "wired_modem", new ItemBlockCable.WiredModem( ModBlocks.CABLE, properties() ) );
 
-        private static <B extends Block, I extends Item> I ofBlock( B parent, BiFunction<B, Item.Settings, I> supplier )
+        private static <B extends Block, I extends Item> I ofBlock( B parent, BiFunction<B, Item.Properties, I> supplier )
         {
-            return Registry.register( Registry.ITEM, Registry.BLOCK.getId( parent ), supplier.apply( parent, properties() ) );
+            return Registry.register( Registry.ITEM, Registry.BLOCK.getKey( parent ), supplier.apply( parent, properties() ) );
         }
 
-        private static Item.Settings properties()
+        private static Item.Properties properties()
         {
-            return new Item.Settings().group( mainItemGroup );
+            return new Item.Properties().tab( mainItemGroup );
         }
 
         private static <T extends Item> T register( String id, T item )
         {
-            return Registry.register( Registry.ITEM, new Identifier( MOD_ID, id ), item );
+            return Registry.register( Registry.ITEM, new ResourceLocation( MOD_ID, id ), item );
         }
     }
 
     public static class ModEntities
     {
         public static final EntityType<TurtlePlayer> TURTLE_PLAYER = Registry.register( Registry.ENTITY_TYPE,
-            new Identifier( MOD_ID, "turtle_player" ),
-            EntityType.Builder.<TurtlePlayer>create( SpawnGroup.MISC ).disableSaving()
-                .disableSummon()
-                .setDimensions(
+            new ResourceLocation( MOD_ID, "turtle_player" ),
+            EntityType.Builder.<TurtlePlayer>createNothing( MobCategory.MISC ).noSave()
+                .noSummon()
+                .sized(
                     0,
                     0 )
                 .build(
@@ -260,36 +264,36 @@ public final class ComputerCraftRegistry
 
     public static class ModContainers
     {
-        public static final ScreenHandlerType<ContainerComputerBase> COMPUTER = ContainerData.toType( new Identifier( MOD_ID, "computer" ), ModContainers.COMPUTER, ComputerContainerData::new, ComputerMenuWithoutInventory::new );
-        public static final ScreenHandlerType<ContainerComputerBase> POCKET_COMPUTER = ContainerData.toType( new Identifier( MOD_ID, "pocket_computer" ), ModContainers.POCKET_COMPUTER, ComputerContainerData::new, ComputerMenuWithoutInventory::new );
-        public static final ScreenHandlerType<ContainerComputerBase> POCKET_COMPUTER_NO_TERM = ContainerData.toType( new Identifier( MOD_ID, "pocket_computer_no_term" ), ModContainers.POCKET_COMPUTER_NO_TERM, ComputerContainerData::new, ComputerMenuWithoutInventory::new );
-        public static final ScreenHandlerType<ContainerTurtle> TURTLE = ContainerData.toType( new Identifier( MOD_ID, "turtle" ), ComputerContainerData::new, ContainerTurtle::new );
-        public static final ScreenHandlerType<ContainerDiskDrive> DISK_DRIVE = registerSimple( "disk_drive", ContainerDiskDrive::new );
-        public static final ScreenHandlerType<ContainerPrinter> PRINTER = registerSimple( "printer", ContainerPrinter::new );
-        public static final ScreenHandlerType<ContainerHeldItem> PRINTOUT = ContainerData.toType( new Identifier( MOD_ID, "printout" ), HeldItemContainerData::new, ContainerHeldItem::createPrintout );
-        public static final ScreenHandlerType<ContainerViewComputer> VIEW_COMPUTER = ContainerData.toType( new Identifier( MOD_ID, "view_computer" ), ViewComputerContainerData::new, ContainerViewComputer::new );
+        public static final MenuType<ContainerComputerBase> COMPUTER = ContainerData.toType( new ResourceLocation( MOD_ID, "computer" ), ModContainers.COMPUTER, ComputerContainerData::new, ComputerMenuWithoutInventory::new );
+        public static final MenuType<ContainerComputerBase> POCKET_COMPUTER = ContainerData.toType( new ResourceLocation( MOD_ID, "pocket_computer" ), ModContainers.POCKET_COMPUTER, ComputerContainerData::new, ComputerMenuWithoutInventory::new );
+        public static final MenuType<ContainerComputerBase> POCKET_COMPUTER_NO_TERM = ContainerData.toType( new ResourceLocation( MOD_ID, "pocket_computer_no_term" ), ModContainers.POCKET_COMPUTER_NO_TERM, ComputerContainerData::new, ComputerMenuWithoutInventory::new );
+        public static final MenuType<ContainerTurtle> TURTLE = ContainerData.toType( new ResourceLocation( MOD_ID, "turtle" ), ComputerContainerData::new, ContainerTurtle::new );
+        public static final MenuType<ContainerDiskDrive> DISK_DRIVE = registerSimple( "disk_drive", ContainerDiskDrive::new );
+        public static final MenuType<ContainerPrinter> PRINTER = registerSimple( "printer", ContainerPrinter::new );
+        public static final MenuType<ContainerHeldItem> PRINTOUT = ContainerData.toType( new ResourceLocation( MOD_ID, "printout" ), HeldItemContainerData::new, ContainerHeldItem::createPrintout );
+        public static final MenuType<ContainerViewComputer> VIEW_COMPUTER = ContainerData.toType( new ResourceLocation( MOD_ID, "view_computer" ), ViewComputerContainerData::new, ContainerViewComputer::new );
 
-        private static <T extends ScreenHandler> ScreenHandlerType<T> registerSimple( String id,
+        private static <T extends AbstractContainerMenu> MenuType<T> registerSimple( String id,
                                                                                       ScreenHandlerRegistry.SimpleClientHandlerFactory<T> function )
         {
-            return ScreenHandlerRegistry.registerSimple( new Identifier( MOD_ID, id ), function );
+            return ScreenHandlerRegistry.registerSimple( new ResourceLocation( MOD_ID, id ), function );
         }
     }
 
     public static final class TurtleUpgrades
     {
-        public static TurtleModem wirelessModemNormal = new TurtleModem( false, new Identifier( ComputerCraft.MOD_ID, "wireless_modem_normal" ) );
-        public static TurtleModem wirelessModemAdvanced = new TurtleModem( true, new Identifier( ComputerCraft.MOD_ID, "wireless_modem_advanced" ) );
-        public static TurtleSpeaker speaker = new TurtleSpeaker( new Identifier( ComputerCraft.MOD_ID, "speaker" ) );
+        public static TurtleModem wirelessModemNormal = new TurtleModem( false, new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_normal" ) );
+        public static TurtleModem wirelessModemAdvanced = new TurtleModem( true, new ResourceLocation( ComputerCraft.MOD_ID, "wireless_modem_advanced" ) );
+        public static TurtleSpeaker speaker = new TurtleSpeaker( new ResourceLocation( ComputerCraft.MOD_ID, "speaker" ) );
 
-        public static TurtleCraftingTable craftingTable = new TurtleCraftingTable( new Identifier( "minecraft", "crafting_table" ) );
-        public static TurtleSword diamondSword = new TurtleSword( new Identifier( "minecraft", "diamond_sword" ), Items.DIAMOND_SWORD );
-        public static TurtleShovel diamondShovel = new TurtleShovel( new Identifier( "minecraft", "diamond_shovel" ), Items.DIAMOND_SHOVEL );
-        public static TurtleTool diamondPickaxe = new TurtleTool( new Identifier( "minecraft", "diamond_pickaxe" ), Items.DIAMOND_PICKAXE );
-        public static TurtleAxe diamondAxe = new TurtleAxe( new Identifier( "minecraft", "diamond_axe" ), Items.DIAMOND_AXE );
-        public static TurtleHoe diamondHoe = new TurtleHoe( new Identifier( "minecraft", "diamond_hoe" ), Items.DIAMOND_HOE );
+        public static TurtleCraftingTable craftingTable = new TurtleCraftingTable( new ResourceLocation( "minecraft", "crafting_table" ) );
+        public static TurtleSword diamondSword = new TurtleSword( new ResourceLocation( "minecraft", "diamond_sword" ), Items.DIAMOND_SWORD );
+        public static TurtleShovel diamondShovel = new TurtleShovel( new ResourceLocation( "minecraft", "diamond_shovel" ), Items.DIAMOND_SHOVEL );
+        public static TurtleTool diamondPickaxe = new TurtleTool( new ResourceLocation( "minecraft", "diamond_pickaxe" ), Items.DIAMOND_PICKAXE );
+        public static TurtleAxe diamondAxe = new TurtleAxe( new ResourceLocation( "minecraft", "diamond_axe" ), Items.DIAMOND_AXE );
+        public static TurtleHoe diamondHoe = new TurtleHoe( new ResourceLocation( "minecraft", "diamond_hoe" ), Items.DIAMOND_HOE );
 
-        public static TurtleTool netheritePickaxe = new TurtleTool( new Identifier( "minecraft", "netherite_pickaxe" ), Items.NETHERITE_PICKAXE );
+        public static TurtleTool netheritePickaxe = new TurtleTool( new ResourceLocation( "minecraft", "netherite_pickaxe" ), Items.NETHERITE_PICKAXE );
 
         public static void registerTurtleUpgrades()
         {

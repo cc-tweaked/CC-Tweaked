@@ -5,31 +5,30 @@
  */
 package dan200.computercraft.client.render;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
-
 import javax.annotation.Nonnull;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 
 public class TurtlePlayerRenderer extends EntityRenderer<TurtlePlayer>
 { //FIXME Make sure this isn't an issue. Context was EntityRenderDispatcher.
-    public TurtlePlayerRenderer( EntityRendererFactory.Context context )
+    public TurtlePlayerRenderer( EntityRendererProvider.Context context )
     {
         super( context );
     }
 
     @Override
-    public void render( @Nonnull TurtlePlayer entityIn, float entityYaw, float partialTicks, @Nonnull MatrixStack transform,
-                        @Nonnull VertexConsumerProvider buffer, int packedLightIn )
+    public void render( @Nonnull TurtlePlayer entityIn, float entityYaw, float partialTicks, @Nonnull PoseStack transform,
+                        @Nonnull MultiBufferSource buffer, int packedLightIn )
     {
     }
 
     @Nonnull
     @Override
-    public Identifier getTexture( @Nonnull TurtlePlayer entity )
+    public ResourceLocation getTexture( @Nonnull TurtlePlayer entity )
     {
         return ComputerBorderRenderer.BACKGROUND_NORMAL;
     }

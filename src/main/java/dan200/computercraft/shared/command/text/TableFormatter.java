@@ -6,20 +6,20 @@
 
 package dan200.computercraft.shared.command.text;
 
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 import static dan200.computercraft.shared.command.text.ChatHelpers.coloured;
 import static dan200.computercraft.shared.command.text.ChatHelpers.translate;
 
 public interface TableFormatter
 {
-    Text SEPARATOR = coloured( "| ", Formatting.GRAY );
-    Text HEADER = coloured( "=", Formatting.GRAY );
+    Component SEPARATOR = coloured( "| ", ChatFormatting.GRAY );
+    Component HEADER = coloured( "=", ChatFormatting.GRAY );
 
     default int display( TableBuilder table )
     {
@@ -32,7 +32,7 @@ public interface TableFormatter
         int columns = table.getColumns();
         int[] maxWidths = new int[columns];
 
-        Text[] headers = table.getHeaders();
+        Component[] headers = table.getHeaders();
         if( headers != null )
         {
             for( int i = 0; i < columns; i++ )
@@ -41,7 +41,7 @@ public interface TableFormatter
             }
         }
 
-        for( Text[] row : table.getRows() )
+        for( Component[] row : table.getRows() )
         {
             for( int i = 0; i < row.length; i++ )
             {
@@ -71,11 +71,11 @@ public interface TableFormatter
 
         if( headers != null )
         {
-            LiteralText line = new LiteralText( "" );
+            TextComponent line = new TextComponent( "" );
             for( int i = 0; i < columns - 1; i++ )
             {
                 line.append( headers[i] );
-                Text padding = getPadding( headers[i], maxWidths[i] );
+                Component padding = getPadding( headers[i], maxWidths[i] );
                 if( padding != null )
                 {
                     line.append( padding );
@@ -90,16 +90,16 @@ public interface TableFormatter
             // it a tad prettier.
             int rowCharWidth = getWidth( HEADER );
             int rowWidth = totalWidth / rowCharWidth + (totalWidth % rowCharWidth == 0 ? 0 : 1);
-            writeLine( rowId++, coloured( StringUtils.repeat( HEADER.getString(), rowWidth ), Formatting.GRAY ) );
+            writeLine( rowId++, coloured( StringUtils.repeat( HEADER.getString(), rowWidth ), ChatFormatting.GRAY ) );
         }
 
-        for( Text[] row : table.getRows() )
+        for( Component[] row : table.getRows() )
         {
-            LiteralText line = new LiteralText( "" );
+            TextComponent line = new TextComponent( "" );
             for( int i = 0; i < columns - 1; i++ )
             {
                 line.append( row[i] );
-                Text padding = getPadding( row[i], maxWidths[i] );
+                Component padding = getPadding( row[i], maxWidths[i] );
                 if( padding != null )
                 {
                     line.append( padding );
@@ -112,13 +112,13 @@ public interface TableFormatter
 
         if( table.getAdditional() > 0 )
         {
-            writeLine( rowId++, coloured( translate( "commands.computercraft.generic.additional_rows", table.getAdditional() ), Formatting.AQUA ) );
+            writeLine( rowId++, coloured( translate( "commands.computercraft.generic.additional_rows", table.getAdditional() ), ChatFormatting.AQUA ) );
         }
 
         return rowId - table.getId();
     }
 
-    int getWidth( Text component );
+    int getWidth( Component component );
 
     /**
      * Get the minimum padding between each column.
@@ -135,7 +135,7 @@ public interface TableFormatter
      * @return The padding for this component, or {@code null} if none is needed.
      */
     @Nullable
-    Text getPadding( Text component, int width );
+    Component getPadding( Component component, int width );
 
-    void writeLine( int id, Text component );
+    void writeLine( int id, Component component );
 }

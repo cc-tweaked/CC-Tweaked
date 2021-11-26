@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.fabric.mixin;
 
+import com.mojang.math.Matrix4f;
 import dan200.computercraft.fabric.mixininterface.IMatrix4f;
-import net.minecraft.util.math.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 

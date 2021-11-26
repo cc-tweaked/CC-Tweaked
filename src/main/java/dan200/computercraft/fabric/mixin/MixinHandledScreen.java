@@ -6,20 +6,20 @@
 package dan200.computercraft.fabric.mixin;
 
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin( HandledScreen.class )
-public class MixinHandledScreen<T extends ScreenHandler> extends Screen
+@Mixin( AbstractContainerScreen.class )
+public class MixinHandledScreen<T extends AbstractContainerMenu> extends Screen
 {
-    protected MixinHandledScreen( Text title )
+    protected MixinHandledScreen( Component title )
     {
         super( title );
     }
@@ -27,7 +27,7 @@ public class MixinHandledScreen<T extends ScreenHandler> extends Screen
     @Inject( method = "mouseReleased", at = @At ( "HEAD" ) )
     public void mouseReleased( double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir )
     {
-        for ( Element child : this.children() )
+        for ( GuiEventListener child : this.children() )
         {
             if ( child instanceof WidgetTerminal )
             {

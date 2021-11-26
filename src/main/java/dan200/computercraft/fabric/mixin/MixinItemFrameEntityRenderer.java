@@ -5,22 +5,22 @@
  */
 package dan200.computercraft.fabric.mixin;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.client.render.ItemPrintoutRenderer;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.ItemFrameEntityRenderer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.ItemFrameEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.ItemFrameRenderer;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin( ItemFrameEntityRenderer.class )
+@Mixin( ItemFrameRenderer.class )
 @Environment( EnvType.CLIENT )
 public class MixinItemFrameEntityRenderer
 {
@@ -34,17 +34,17 @@ public class MixinItemFrameEntityRenderer
         ),
         cancellable = true )
     private void renderItem(
-        ItemFrameEntity itemFrameEntity, float f, float g, MatrixStack matrixStack,
-        VertexConsumerProvider vertexConsumerProvider, int itemFrameEntityLight, CallbackInfo info
+        ItemFrame itemFrameEntity, float f, float g, PoseStack matrixStack,
+        MultiBufferSource vertexConsumerProvider, int itemFrameEntityLight, CallbackInfo info
     )
     {
-        ItemStack stack = itemFrameEntity.getHeldItemStack();
+        ItemStack stack = itemFrameEntity.getItem();
         if( stack.getItem() instanceof ItemPrintout )
         {
             int light = itemFrameEntity.getType() == EntityType.GLOW_ITEM_FRAME ? 0xf000d2 : itemFrameEntityLight; // See getLightVal.
             ItemPrintoutRenderer.INSTANCE.renderInFrame( matrixStack, vertexConsumerProvider, stack, light );
             // TODO: need to find how to make if statement instead return, like it doing Forge
-            matrixStack.pop();
+            matrixStack.popPose();
             info.cancel();
         }
     }

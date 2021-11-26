@@ -8,13 +8,12 @@ package dan200.computercraft.shared.util;
 
 import com.google.common.collect.MapMaker;
 import dan200.computercraft.shared.common.TileGeneric;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
  * We use this when modems and other peripherals change a block in a different thread.
@@ -30,8 +29,8 @@ public final class TickScheduler
 
     public static void schedule( TileGeneric tile )
     {
-        World world = tile.getWorld();
-        if( world != null && !world.isClient )
+        Level world = tile.getLevel();
+        if( world != null && !world.isClientSide )
         {
             toTick.add( tile );
         }
@@ -45,14 +44,14 @@ public final class TickScheduler
             BlockEntity tile = iterator.next();
             iterator.remove();
 
-            World world = tile.getWorld();
-            BlockPos pos = tile.getPos();
+            Level world = tile.getLevel();
+            BlockPos pos = tile.getBlockPos();
 
-            if( world != null && pos != null && world.isChunkLoaded( pos ) && world.getBlockEntity( pos ) == tile )
+            if( world != null && pos != null && world.hasChunkAt( pos ) && world.getBlockEntity( pos ) == tile )
             {
-                world.getBlockTickScheduler()
-                    .schedule( pos,
-                        tile.getCachedState()
+                world.getBlockTicks()
+                    .scheduleTick( pos,
+                        tile.getBlockState()
                             .getBlock(),
                         0 );
             }

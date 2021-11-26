@@ -9,24 +9,23 @@ package dan200.computercraft.shared.command.text;
 import dan200.computercraft.shared.command.CommandUtils;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.ChatTableClientMessage;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TableBuilder
 {
     private final int id;
-    private final Text[] headers;
-    private final ArrayList<Text[]> rows = new ArrayList<>();
+    private final Component[] headers;
+    private final ArrayList<Component[]> rows = new ArrayList<>();
     private int columns = -1;
     private int additional;
 
-    public TableBuilder( int id, @Nonnull Text... headers )
+    public TableBuilder( int id, @Nonnull Component... headers )
     {
         if( id < 0 )
         {
@@ -54,7 +53,7 @@ public class TableBuilder
             throw new IllegalArgumentException( "ID must be positive" );
         }
         this.id = id;
-        this.headers = new Text[headers.length];
+        this.headers = new Component[headers.length];
         columns = headers.length;
 
         for( int i = 0; i < headers.length; i++ )
@@ -63,7 +62,7 @@ public class TableBuilder
         }
     }
 
-    public void row( @Nonnull Text... row )
+    public void row( @Nonnull Component... row )
     {
         if( columns == -1 )
         {
@@ -101,13 +100,13 @@ public class TableBuilder
     }
 
     @Nullable
-    public Text[] getHeaders()
+    public Component[] getHeaders()
     {
         return headers;
     }
 
     @Nonnull
-    public List<Text[]> getRows()
+    public List<Component[]> getRows()
     {
         return rows;
     }
@@ -122,12 +121,12 @@ public class TableBuilder
         this.additional = additional;
     }
 
-    public void display( ServerCommandSource source )
+    public void display( CommandSourceStack source )
     {
         if( CommandUtils.isPlayer( source ) )
         {
             trim( 18 );
-            NetworkHandler.sendToPlayer( (ServerPlayerEntity) source.getEntity(), new ChatTableClientMessage( this ) );
+            NetworkHandler.sendToPlayer( (ServerPlayer) source.getEntity(), new ChatTableClientMessage( this ) );
         }
         else
         {

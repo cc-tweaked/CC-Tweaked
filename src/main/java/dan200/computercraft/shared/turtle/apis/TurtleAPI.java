@@ -19,11 +19,10 @@ import dan200.computercraft.core.asm.TaskCallback;
 import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.turtle.core.*;
-import net.minecraft.item.ItemStack;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * The turtle API allows you to control your turtle.
@@ -331,7 +330,7 @@ public class TurtleAPI implements ILuaAPI
     {
         int actualSlot = checkSlot( slot ).orElse( turtle.getSelectedSlot() );
         return turtle.getInventory()
-            .getStack( actualSlot )
+            .getItem( actualSlot )
             .getCount();
     }
 
@@ -354,8 +353,8 @@ public class TurtleAPI implements ILuaAPI
     {
         int actualSlot = checkSlot( slot ).orElse( turtle.getSelectedSlot() );
         ItemStack stack = turtle.getInventory()
-            .getStack( actualSlot );
-        return stack.isEmpty() ? 64 : Math.min( stack.getMaxCount(), 64 ) - stack.getCount();
+            .getItem( actualSlot );
+        return stack.isEmpty() ? 64 : Math.min( stack.getMaxStackSize(), 64 ) - stack.getCount();
     }
 
     /**
@@ -763,7 +762,7 @@ public class TurtleAPI implements ILuaAPI
     private Object[] getItemDetail( int slot, boolean detailed )
     {
         ItemStack stack = turtle.getInventory()
-            .getStack( slot );
+            .getItem( slot );
         if( stack.isEmpty() )
         {
             return new Object[] { null };

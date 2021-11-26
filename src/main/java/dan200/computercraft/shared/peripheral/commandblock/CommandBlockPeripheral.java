@@ -10,10 +10,9 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.computer.apis.CommandAPI;
-import net.minecraft.block.entity.CommandBlockBlockEntity;
-import net.minecraft.util.Identifier;
-
 import javax.annotation.Nonnull;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.entity.CommandBlockEntity;
 
 /**
  * This peripheral allows you to interact with command blocks.
@@ -26,11 +25,11 @@ import javax.annotation.Nonnull;
  */
 public class CommandBlockPeripheral implements IPeripheral
 {
-    private static final Identifier CAP_ID = new Identifier( ComputerCraft.MOD_ID, "command_block" );
+    private static final ResourceLocation CAP_ID = new ResourceLocation( ComputerCraft.MOD_ID, "command_block" );
 
-    private final CommandBlockBlockEntity commandBlock;
+    private final CommandBlockEntity commandBlock;
 
-    public CommandBlockPeripheral( CommandBlockBlockEntity commandBlock )
+    public CommandBlockPeripheral( CommandBlockEntity commandBlock )
     {
         this.commandBlock = commandBlock;
     }
@@ -63,7 +62,7 @@ public class CommandBlockPeripheral implements IPeripheral
     @LuaFunction( mainThread = true )
     public final String getCommand()
     {
-        return commandBlock.getCommandExecutor()
+        return commandBlock.getCommandBlock()
             .getCommand();
     }
 
@@ -75,10 +74,10 @@ public class CommandBlockPeripheral implements IPeripheral
     @LuaFunction( mainThread = true )
     public final void setCommand( String command )
     {
-        commandBlock.getCommandExecutor()
+        commandBlock.getCommandBlock()
             .setCommand( command );
-        commandBlock.getCommandExecutor()
-            .markDirty();
+        commandBlock.getCommandBlock()
+            .onUpdated();
     }
 
     /**
@@ -91,9 +90,9 @@ public class CommandBlockPeripheral implements IPeripheral
     @LuaFunction( mainThread = true )
     public final Object[] runCommand()
     {
-        commandBlock.getCommandExecutor()
-            .execute( commandBlock.getWorld() );
-        int result = commandBlock.getCommandExecutor()
+        commandBlock.getCommandBlock()
+            .performCommand( commandBlock.getLevel() );
+        int result = commandBlock.getCommandBlock()
             .getSuccessCount();
         return result > 0 ? new Object[] { true } : new Object[] { false, "Command failed" };
     }

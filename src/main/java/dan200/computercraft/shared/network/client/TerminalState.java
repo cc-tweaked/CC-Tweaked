@@ -11,9 +11,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
-import net.minecraft.network.PacketByteBuf;
-
 import javax.annotation.Nullable;
+import net.minecraft.network.FriendlyByteBuf;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -62,11 +61,11 @@ public class TerminalState
             height = terminal.getHeight();
 
             ByteBuf buf = buffer = Unpooled.buffer();
-            terminal.write( new PacketByteBuf( buf ) );
+            terminal.write( new FriendlyByteBuf( buf ) );
         }
     }
 
-    public TerminalState( PacketByteBuf buf )
+    public TerminalState( FriendlyByteBuf buf )
     {
         colour = buf.readBoolean();
         compress = buf.readBoolean();
@@ -124,7 +123,7 @@ public class TerminalState
         }
     }
 
-    public void write( PacketByteBuf buf )
+    public void write( FriendlyByteBuf buf )
     {
         buf.writeBoolean( colour );
         buf.writeBoolean( compress );
@@ -191,6 +190,6 @@ public class TerminalState
         {
             throw new NullPointerException( "buffer" );
         }
-        terminal.read( new PacketByteBuf( buffer ) );
+        terminal.read( new FriendlyByteBuf( buffer ) );
     }
 }

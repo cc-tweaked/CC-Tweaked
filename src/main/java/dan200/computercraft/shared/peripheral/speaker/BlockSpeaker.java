@@ -8,59 +8,58 @@ package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.DirectionProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
-
 import javax.annotation.Nullable;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 
 public class BlockSpeaker extends BlockGeneric
 {
-    private static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
+    private static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    public BlockSpeaker( Settings settings )
+    public BlockSpeaker( Properties settings )
     {
         super( settings, ComputerCraftRegistry.ModTiles.SPEAKER );
-        setDefaultState( getStateManager().getDefaultState()
-            .with( FACING, Direction.NORTH ) );
+        registerDefaultState( getStateDefinition().any()
+            .setValue( FACING, Direction.NORTH ) );
     }
 
     @Nullable
     @Override
-    public BlockState getPlacementState( ItemPlacementContext placement )
+    public BlockState getStateForPlacement( BlockPlaceContext placement )
     {
-        return getDefaultState().with( FACING,
-            placement.getPlayerFacing()
+        return defaultBlockState().setValue( FACING,
+            placement.getHorizontalDirection()
                 .getOpposite() );
     }
 
     @Override
-    protected void appendProperties( StateManager.Builder<Block, BlockState> properties )
+    protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> properties )
     {
         properties.add( FACING );
     }
 
     @Nullable
     @Override
-    public BlockEntity createBlockEntity( BlockPos pos, BlockState state )
+    public BlockEntity newBlockEntity( BlockPos pos, BlockState state )
     {
         return new TileSpeaker( ComputerCraftRegistry.ModTiles.SPEAKER, pos, state );
     }
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker( World world, BlockState state, BlockEntityType<T> type )
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker( Level world, BlockState state, BlockEntityType<T> type )
     {
-        return world.isClient ? null : BlockSpeaker.checkType( type, ComputerCraftRegistry.ModTiles.SPEAKER, TileSpeaker::tick );
+        return world.isClientSide ? null : BlockSpeaker.createTickerHelper( type, ComputerCraftRegistry.ModTiles.SPEAKER, TileSpeaker::tick );
     }
 
 }

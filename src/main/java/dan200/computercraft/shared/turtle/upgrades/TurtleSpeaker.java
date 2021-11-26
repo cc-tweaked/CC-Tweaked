@@ -15,22 +15,21 @@ import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.util.ModelIdentifier;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nonnull;
 
 public class TurtleSpeaker extends AbstractTurtleUpgrade
 {
     @Environment( EnvType.CLIENT )
-    private ModelIdentifier leftModel;
+    private ModelResourceLocation leftModel;
     @Environment( EnvType.CLIENT )
-    private ModelIdentifier rightModel;
+    private ModelResourceLocation rightModel;
 
-    public TurtleSpeaker( Identifier id )
+    public TurtleSpeaker( ResourceLocation id )
     {
         super( id, TurtleUpgradeType.PERIPHERAL, ComputerCraftRegistry.ModBlocks.SPEAKER );
     }
@@ -55,8 +54,8 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
     {
         if( leftModel == null )
         {
-            leftModel = new ModelIdentifier( "computercraft:turtle_speaker_upgrade_left", "inventory" );
-            rightModel = new ModelIdentifier( "computercraft:turtle_speaker_upgrade_right", "inventory" );
+            leftModel = new ModelResourceLocation( "computercraft:turtle_speaker_upgrade_left", "inventory" );
+            rightModel = new ModelResourceLocation( "computercraft:turtle_speaker_upgrade_right", "inventory" );
         }
     }
 
@@ -81,16 +80,16 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
         }
 
         @Override
-        public World getWorld()
+        public Level getWorld()
         {
             return turtle.getWorld();
         }
 
         @Override
-        public Vec3d getPosition()
+        public Vec3 getPosition()
         {
             BlockPos pos = turtle.getPosition();
-            return new Vec3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+            return new Vec3( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
         }
 
         @Override

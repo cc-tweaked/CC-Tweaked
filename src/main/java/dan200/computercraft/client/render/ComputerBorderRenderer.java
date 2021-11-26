@@ -5,23 +5,22 @@
  */
 package dan200.computercraft.client.render;
 
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix4f;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Matrix4f;
-
 import javax.annotation.Nonnull;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 
 public class ComputerBorderRenderer
 {
-    public static final Identifier BACKGROUND_NORMAL = new Identifier( ComputerCraft.MOD_ID, "textures/gui/corners_normal.png" );
-    public static final Identifier BACKGROUND_ADVANCED = new Identifier( ComputerCraft.MOD_ID, "textures/gui/corners_advanced.png" );
-    public static final Identifier BACKGROUND_COMMAND = new Identifier( ComputerCraft.MOD_ID, "textures/gui/corners_command.png" );
-    public static final Identifier BACKGROUND_COLOUR = new Identifier( ComputerCraft.MOD_ID, "textures/gui/corners_colour.png" );
+    public static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_normal.png" );
+    public static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_advanced.png" );
+    public static final ResourceLocation BACKGROUND_COMMAND = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_command.png" );
+    public static final ResourceLocation BACKGROUND_COLOUR = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_colour.png" );
     /**
      * The margin between the terminal and its border.
      */
@@ -45,7 +44,7 @@ public class ComputerBorderRenderer
 
     static
     {
-        IDENTITY.loadIdentity();
+        IDENTITY.setIdentity();
     }
 
     private final Matrix4f transform;
@@ -68,7 +67,7 @@ public class ComputerBorderRenderer
 
 
     @Nonnull
-    public static Identifier getTexture( @Nonnull ComputerFamily family )
+    public static ResourceLocation getTexture( @Nonnull ComputerFamily family )
     {
         switch( family )
         {
@@ -82,11 +81,11 @@ public class ComputerBorderRenderer
         }
     }
 
-    public static void render( Identifier location, int x, int y, int z, int light, int width, int height )
+    public static void render( ResourceLocation location, int x, int y, int z, int light, int width, int height )
     {
-        VertexConsumerProvider.Immediate source = VertexConsumerProvider.immediate( Tessellator.getInstance().getBuffer() );
-        render( IDENTITY, source.getBuffer( RenderLayer.getText( location ) ), x, y, z, light, width, height, false, 1, 1, 1 );
-        source.draw();
+        MultiBufferSource.BufferSource source = MultiBufferSource.immediate( Tesselator.getInstance().getBuilder() );
+        render( IDENTITY, source.getBuffer( RenderType.text( location ) ), x, y, z, light, width, height, false, 1, 1, 1 );
+        source.endBatch();
     }
 
 
@@ -144,23 +143,23 @@ public class ComputerBorderRenderer
     {
         builder.vertex( transform, x, y + height, z )
             .color( r, g, b, 1.0f )
-            .texture( u * TEX_SCALE, (v + textureHeight) * TEX_SCALE )
-            .light( light )
-            .next();
+            .uv( u * TEX_SCALE, (v + textureHeight) * TEX_SCALE )
+            .uv2( light )
+            .endVertex();
         builder.vertex( transform, x + width, y + height, z )
             .color( r, g, b, 1.0f )
-            .texture( (u + textureWidth) * TEX_SCALE, (v + textureHeight) * TEX_SCALE )
-            .light( light )
-            .next();
+            .uv( (u + textureWidth) * TEX_SCALE, (v + textureHeight) * TEX_SCALE )
+            .uv2( light )
+            .endVertex();
         builder.vertex( transform, x + width, y, z )
             .color( r, g, b, 1.0f )
-            .texture( (u + textureWidth) * TEX_SCALE, v * TEX_SCALE )
-            .light( light )
-            .next();
+            .uv( (u + textureWidth) * TEX_SCALE, v * TEX_SCALE )
+            .uv2( light )
+            .endVertex();
         builder.vertex( transform, x, y, z )
             .color( r, g, b, 1.0f )
-            .texture( u * TEX_SCALE, v * TEX_SCALE )
-            .light( light )
-            .next();
+            .uv( u * TEX_SCALE, v * TEX_SCALE )
+            .uv2( light )
+            .endVertex();
     }
 }

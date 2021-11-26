@@ -12,14 +12,13 @@ import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.util.TickScheduler;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-
 import javax.annotation.Nonnull;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 
 public class TileWirelessModem extends TileGeneric implements IPeripheralTile
 {
@@ -37,21 +36,21 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    public void cancelRemoval()
+    public void clearRemoved()
     {
-        super.cancelRemoval();
+        super.clearRemoved();
         TickScheduler.schedule( this );
     }
 
     @Override
-    public void setCachedState( BlockState state )
+    public void setBlockState( BlockState state )
     {
-        super.setCachedState( state );
+        super.setBlockState( state );
         if( state != null ) return;
         hasModemDirection = false;
-        world.getBlockTickScheduler()
-            .schedule( getPos(),
-                getCachedState().getBlock(), 0 );
+        level.getBlockTicks()
+            .scheduleTick( getBlockPos(),
+                getBlockState().getBlock(), 0 );
     }
 
     @Override
@@ -87,17 +86,17 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
         }
 
         hasModemDirection = true;
-        modemDirection = getCachedState().get( BlockWirelessModem.FACING );
+        modemDirection = getBlockState().getValue( BlockWirelessModem.FACING );
     }
 
     private void updateBlockState()
     {
         boolean on = modem.getModemState()
             .isOpen();
-        BlockState state = getCachedState();
-        if( state.get( BlockWirelessModem.ON ) != on )
+        BlockState state = getBlockState();
+        if( state.getValue( BlockWirelessModem.ON ) != on )
         {
-            getWorld().setBlockState( getPos(), state.with( BlockWirelessModem.ON, on ) );
+            getLevel().setBlockAndUpdate( getBlockPos(), state.setValue( BlockWirelessModem.ON, on ) );
         }
     }
 
@@ -121,18 +120,18 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
 
         @Nonnull
         @Override
-        public World getWorld()
+        public Level getWorld()
         {
-            return entity.getWorld();
+            return entity.getLevel();
         }
 
         @Nonnull
         @Override
-        public Vec3d getPosition()
+        public Vec3 getPosition()
         {
-            BlockPos pos = entity.getPos()
-                .offset( entity.modemDirection );
-            return new Vec3d( pos.getX(), pos.getY(), pos.getZ() );
+            BlockPos pos = entity.getBlockPos()
+                .relative( entity.modemDirection );
+            return new Vec3( pos.getX(), pos.getY(), pos.getZ() );
         }
 
         @Nonnull

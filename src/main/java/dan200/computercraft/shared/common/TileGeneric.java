@@ -7,16 +7,15 @@
 package dan200.computercraft.shared.common;
 
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import javax.annotation.Nonnull;
 
 public abstract class TileGeneric extends BlockEntity implements BlockEntityClientSerializable
@@ -36,16 +35,16 @@ public abstract class TileGeneric extends BlockEntity implements BlockEntityClie
 
     public final void updateBlock()
     {
-        markDirty();
-        BlockPos pos = getPos();
-        BlockState state = getCachedState();
-        getWorld().updateListeners( pos, state, state, 3 );
+        setChanged();
+        BlockPos pos = getBlockPos();
+        BlockState state = getBlockState();
+        getLevel().sendBlockUpdated( pos, state, state, 3 );
     }
 
     @Nonnull
-    public ActionResult onActivate( PlayerEntity player, Hand hand, BlockHitResult hit )
+    public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
     {
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 
     public void onNeighbourChange( @Nonnull BlockPos neighbour )
@@ -60,9 +59,9 @@ public abstract class TileGeneric extends BlockEntity implements BlockEntityClie
     {
     }
 
-    public boolean isUsable( PlayerEntity player, boolean ignoreRange )
+    public boolean isUsable( Player player, boolean ignoreRange )
     {
-        if( player == null || !player.isAlive() || getWorld().getBlockEntity( getPos() ) != this )
+        if( player == null || !player.isAlive() || getLevel().getBlockEntity( getBlockPos() ) != this )
         {
             return false;
         }
@@ -72,33 +71,33 @@ public abstract class TileGeneric extends BlockEntity implements BlockEntityClie
         }
 
         double range = getInteractRange( player );
-        BlockPos pos = getPos();
-        return player.getEntityWorld() == getWorld() && player.squaredDistanceTo( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
+        BlockPos pos = getBlockPos();
+        return player.getCommandSenderWorld() == getLevel() && player.distanceToSqr( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
     }
 
-    protected double getInteractRange( PlayerEntity player )
+    protected double getInteractRange( Player player )
     {
         return 8.0;
     }
 
     @Override
-    public void fromClientTag( NbtCompound compoundTag )
+    public void fromClientTag( CompoundTag compoundTag )
     {
         readDescription( compoundTag );
     }
 
-    protected void readDescription( @Nonnull NbtCompound nbt )
+    protected void readDescription( @Nonnull CompoundTag nbt )
     {
     }
 
     @Override
-    public NbtCompound toClientTag( NbtCompound compoundTag )
+    public CompoundTag toClientTag( CompoundTag compoundTag )
     {
         writeDescription( compoundTag );
         return compoundTag;
     }
 
-    protected void writeDescription( @Nonnull NbtCompound nbt )
+    protected void writeDescription( @Nonnull CompoundTag nbt )
     {
     }
 }

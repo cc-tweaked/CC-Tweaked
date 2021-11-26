@@ -6,7 +6,7 @@
 
 package dan200.computercraft.shared.util;
 
-import net.minecraft.util.DyeColor;
+import net.minecraft.world.item.DyeColor;
 
 /**
  * A reimplementation of the colour system in {@link ArmorDyeRecipe}, but bundled together as an object.

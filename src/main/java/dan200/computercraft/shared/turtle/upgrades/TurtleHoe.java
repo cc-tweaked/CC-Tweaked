@@ -12,30 +12,29 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleVerb;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
-
 import javax.annotation.Nonnull;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
 
 public class TurtleHoe extends TurtleTool
 {
-    public TurtleHoe( Identifier id, String adjective, Item item )
+    public TurtleHoe( ResourceLocation id, String adjective, Item item )
     {
         super( id, adjective, item );
     }
 
-    public TurtleHoe( Identifier id, Item item )
+    public TurtleHoe( ResourceLocation id, Item item )
     {
         super( id, item );
     }
 
-    public TurtleHoe( Identifier id, ItemStack craftItem, ItemStack toolItem )
+    public TurtleHoe( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )
     {
         super( id, craftItem, toolItem );
     }
@@ -57,7 +56,7 @@ public class TurtleHoe extends TurtleTool
     }
 
     @Override
-    protected boolean canBreakBlock( BlockState state, World world, BlockPos pos, TurtlePlayer player )
+    protected boolean canBreakBlock( BlockState state, Level world, BlockPos pos, TurtlePlayer player )
     {
         if( !super.canBreakBlock( state, world, pos, player ) )
         {
@@ -65,6 +64,6 @@ public class TurtleHoe extends TurtleTool
         }
 
         Material material = state.getMaterial();
-        return material == Material.PLANT || material == Material.CACTUS || material == Material.GOURD || material == Material.LEAVES || material == Material.UNDERWATER_PLANT || material == Material.REPLACEABLE_PLANT;
+        return material == Material.PLANT || material == Material.CACTUS || material == Material.VEGETABLE || material == Material.LEAVES || material == Material.WATER_PLANT || material == Material.REPLACEABLE_PLANT;
     }
 }

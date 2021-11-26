@@ -11,41 +11,40 @@ import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.SpecialCraftingRecipe;
-import net.minecraft.recipe.SpecialRecipeSerializer;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
-
 import javax.annotation.Nonnull;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
+import net.minecraft.world.level.Level;
 
-public final class PocketComputerUpgradeRecipe extends SpecialCraftingRecipe
+public final class PocketComputerUpgradeRecipe extends CustomRecipe
 {
-    public static final RecipeSerializer<PocketComputerUpgradeRecipe> SERIALIZER = new SpecialRecipeSerializer<>( PocketComputerUpgradeRecipe::new );
+    public static final RecipeSerializer<PocketComputerUpgradeRecipe> SERIALIZER = new SimpleRecipeSerializer<>( PocketComputerUpgradeRecipe::new );
 
-    private PocketComputerUpgradeRecipe( Identifier identifier )
+    private PocketComputerUpgradeRecipe( ResourceLocation identifier )
     {
         super( identifier );
     }
 
     @Nonnull
     @Override
-    public ItemStack getOutput()
+    public ItemStack getResultItem()
     {
         return PocketComputerItemFactory.create( -1, null, -1, ComputerFamily.NORMAL, null );
     }
 
     @Override
-    public boolean matches( @Nonnull CraftingInventory inventory, @Nonnull World world )
+    public boolean matches( @Nonnull CraftingContainer inventory, @Nonnull Level world )
     {
         return !craft( inventory ).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack craft( @Nonnull CraftingInventory inventory )
+    public ItemStack craft( @Nonnull CraftingContainer inventory )
     {
         // Scan the grid for a pocket computer
         ItemStack computer = ItemStack.EMPTY;
@@ -56,7 +55,7 @@ public final class PocketComputerUpgradeRecipe extends SpecialCraftingRecipe
         {
             for( int x = 0; x < inventory.getWidth(); x++ )
             {
-                ItemStack item = inventory.getStack( x + y * inventory.getWidth() );
+                ItemStack item = inventory.getItem( x + y * inventory.getWidth() );
                 if( !item.isEmpty() && item.getItem() instanceof ItemPocketComputer )
                 {
                     computer = item;
@@ -84,7 +83,7 @@ public final class PocketComputerUpgradeRecipe extends SpecialCraftingRecipe
         {
             for( int x = 0; x < inventory.getWidth(); x++ )
             {
-                ItemStack item = inventory.getStack( x + y * inventory.getWidth() );
+                ItemStack item = inventory.getItem( x + y * inventory.getWidth() );
                 if( x == computerX && y == computerY )
                 {
                     continue;
@@ -119,7 +118,7 @@ public final class PocketComputerUpgradeRecipe extends SpecialCraftingRecipe
     }
 
     @Override
-    public boolean fits( int x, int y )
+    public boolean canCraftInDimensions( int x, int y )
     {
         return x >= 2 && y >= 2;
     }

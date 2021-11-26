@@ -6,9 +6,6 @@
 package dan200.computercraft.fabric.mixin;
 
 import dan200.computercraft.shared.common.TileGeneric;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,6 +13,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import javax.annotation.Nullable;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import java.util.Collection;
 
 /**
@@ -23,7 +23,7 @@ import java.util.Collection;
  *
  * Forge does this, this is just a bodge to get Fabric in line with that behaviour.
  */
-@Mixin( World.class )
+@Mixin( Level.class )
 public class MixinWorld
 {
     @Shadow
@@ -38,7 +38,7 @@ public class MixinWorld
     @Inject( method = "addBlockEntity", at = @At( "HEAD" ) )
     public void addBlockEntity( @Nullable BlockEntity entity, CallbackInfo info )
     {
-        if( entity != null && !entity.isRemoved() && this.isInBuildLimit( entity.getPos() ) && iteratingTickingBlockEntities )
+        if( entity != null && !entity.isRemoved() && this.isInBuildLimit( entity.getBlockPos() ) && iteratingTickingBlockEntities )
         {
             setWorld( entity, this );
         }
@@ -46,9 +46,9 @@ public class MixinWorld
 
     private static void setWorld( BlockEntity entity, Object world )
     {
-        if( entity.getWorld() != world && entity instanceof TileGeneric )
+        if( entity.getLevel() != world && entity instanceof TileGeneric )
         {
-            entity.setWorld( (World) world );
+            entity.setLevel( (Level) world );
         }
     }
 

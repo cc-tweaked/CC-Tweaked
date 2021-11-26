@@ -8,11 +8,10 @@ package dan200.computercraft.shared.turtle;
 import com.google.common.eventbus.Subscribe;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
 import dan200.computercraft.fabric.mixin.SignBlockEntityAccess;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.SignBlockEntity;
-
 import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
 
 public class SignInspectHandler
 {
@@ -26,7 +25,7 @@ public class SignInspectHandler
             Map<Integer, String> textTable = new HashMap<>();
             for( int k = 0; k < 4; k++ )
             {
-                textTable.put( k + 1, ((SignBlockEntityAccess) sbe).getTexts()[k].asString() );
+                textTable.put( k + 1, ((SignBlockEntityAccess) sbe).getTexts()[k].getContents() );
             }
             event.getData().put( "text", textTable );
         }

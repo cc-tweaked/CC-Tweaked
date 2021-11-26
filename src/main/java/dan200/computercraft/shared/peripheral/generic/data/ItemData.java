@@ -7,21 +7,20 @@ package dan200.computercraft.shared.peripheral.generic.data;
 
 import com.google.gson.JsonParseException;
 import dan200.computercraft.shared.util.NBTUtil;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.item.EnchantedBookItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.tag.ServerTagManagerHolder;
-import net.minecraft.tag.TagGroup;
-import net.minecraft.text.Text;
-import net.minecraft.util.registry.Registry;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.tags.SerializationTags;
+import net.minecraft.tags.TagCollection;
+import net.minecraft.world.item.EnchantedBookItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,7 +42,7 @@ public class ItemData
     public static <T extends Map<? super String, Object>> T fillBasic( @Nonnull T data, @Nonnull ItemStack stack )
     {
         fillBasicSafe( data, stack );
-        String hash = NBTUtil.getNBTHash( stack.getNbt() );
+        String hash = NBTUtil.getNBTHash( stack.getTag() );
         if( hash != null ) data.put( "nbt", hash );
 
         return data;
@@ -56,39 +55,39 @@ public class ItemData
 
         fillBasic( data, stack );
 
-        data.put( "displayName", stack.getName().getString() );
-        data.put( "maxCount", stack.getMaxCount() );
+        data.put( "displayName", stack.getHoverName().getString() );
+        data.put( "maxCount", stack.getMaxStackSize() );
 
-        if( stack.isDamageable() )
+        if( stack.isDamageableItem() )
         {
-            data.put( "damage", stack.getDamage() );
+            data.put( "damage", stack.getDamageValue() );
             data.put( "maxDamage", stack.getMaxDamage() );
         }
 
         if( stack.isDamaged() )
         {
-            data.put( "durability", (double) stack.getDamage() / stack.getMaxDamage() );
+            data.put( "durability", (double) stack.getDamageValue() / stack.getMaxDamage() );
         }
 
         // requireNonNull is safe because we got the Identifiers out of the TagGroup to start with. Would be nicer
         // to stream the tags directly but TagGroup isn't a collection :(
-        TagGroup<Item> itemTags = ServerTagManagerHolder.getTagManager().getOrCreateTagGroup( Registry.ITEM_KEY );
-        data.put( "tags", DataHelpers.getTags( itemTags.getTagIds().stream()
+        TagCollection<Item> itemTags = SerializationTags.getInstance().getOrEmpty( Registry.ITEM_REGISTRY );
+        data.put( "tags", DataHelpers.getTags( itemTags.getAvailableTags().stream()
             .filter( id -> Objects.requireNonNull( itemTags.getTag( id ) ).contains( stack.getItem() ) )
             .collect( Collectors.toList() )
         ) ); // chaos x2
 
-        NbtCompound tag = stack.getNbt();
+        CompoundTag tag = stack.getTag();
         if( tag != null && tag.contains( "display", NBTUtil.TAG_COMPOUND ) )
         {
-            NbtCompound displayTag = tag.getCompound( "display" );
+            CompoundTag displayTag = tag.getCompound( "display" );
             if( displayTag.contains( "Lore", NBTUtil.TAG_LIST ) )
             {
-                NbtList loreTag = displayTag.getList( "Lore", NBTUtil.TAG_STRING );
+                ListTag loreTag = displayTag.getList( "Lore", NBTUtil.TAG_STRING );
                 data.put( "lore", loreTag.stream()
                     .map( ItemData::parseTextComponent )
                     .filter( Objects::nonNull )
-                    .map( Text::getString )
+                    .map( Component::getString )
                     .collect( Collectors.toList() ) );
             }
         }
@@ -113,11 +112,11 @@ public class ItemData
 
 
     @Nullable
-    private static Text parseTextComponent( @Nonnull NbtElement x )
+    private static Component parseTextComponent( @Nonnull Tag x )
     {
         try
         {
-            return Text.Serializer.fromJson( x.toString() );
+            return Component.Serializer.fromJson( x.toString() );
         }
         catch( JsonParseException e )
         {
@@ -139,17 +138,17 @@ public class ItemData
 
         if( stack.getItem() instanceof EnchantedBookItem && (hideFlags & 32) == 0 )
         {
-            addEnchantments( EnchantedBookItem.getEnchantmentNbt( stack ), enchants );
+            addEnchantments( EnchantedBookItem.getEnchantments( stack ), enchants );
         }
 
-        if( stack.hasEnchantments() && (hideFlags & 1) == 0 )
+        if( stack.isEnchanted() && (hideFlags & 1) == 0 )
         {
             /*
              * Mimic the EnchantmentHelper.getEnchantments(ItemStack stack) behavior without special case for Enchanted book.
              * I'll do that to have the same data than ones displayed in tooltip.
              * @see EnchantmentHelper.getEnchantments(ItemStack stack)
              */
-            addEnchantments( stack.getEnchantments(), enchants );
+            addEnchantments( stack.getEnchantmentTags(), enchants );
         }
 
         return enchants;
@@ -162,21 +161,21 @@ public class ItemData
      * @param enchants    The enchantment map to add it to.
      * @see EnchantmentHelper
      */
-    private static void addEnchantments( @Nonnull NbtList rawEnchants, @Nonnull ArrayList<Map<String, Object>> enchants )
+    private static void addEnchantments( @Nonnull ListTag rawEnchants, @Nonnull ArrayList<Map<String, Object>> enchants )
     {
         if( rawEnchants.isEmpty() ) return;
 
         enchants.ensureCapacity( enchants.size() + rawEnchants.size() );
 
 
-        for( Map.Entry<Enchantment, Integer> entry : EnchantmentHelper.fromNbt( rawEnchants ).entrySet() )
+        for( Map.Entry<Enchantment, Integer> entry : EnchantmentHelper.deserializeEnchantments( rawEnchants ).entrySet() )
         {
             Enchantment enchantment = entry.getKey();
             Integer level = entry.getValue();
             HashMap<String, Object> enchant = new HashMap<>( 3 );
             enchant.put( "name", DataHelpers.getId( enchantment ) );
             enchant.put( "level", level );
-            enchant.put( "displayName", enchantment.getName( level ).getString() );
+            enchant.put( "displayName", enchantment.getFullname( level ).getString() );
             enchants.add( enchant );
         }
     }

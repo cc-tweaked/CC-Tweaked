@@ -14,16 +14,15 @@ import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.api.turtle.event.TurtleInventoryEvent;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.ItemStorage;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
-
 import javax.annotation.Nonnull;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import java.util.List;
 
 public class TurtleSuckCommand implements ITurtleCommand
@@ -52,12 +51,12 @@ public class TurtleSuckCommand implements ITurtleCommand
         Direction direction = this.direction.toWorldDir( turtle );
 
         // Get inventory for thing in front
-        World world = turtle.getWorld();
+        Level world = turtle.getWorld();
         BlockPos turtlePosition = turtle.getPosition();
-        BlockPos blockPosition = turtlePosition.offset( direction );
+        BlockPos blockPosition = turtlePosition.relative( direction );
         Direction side = direction.getOpposite();
 
-        Inventory inventory = InventoryUtil.getInventory( world, blockPosition, side );
+        Container inventory = InventoryUtil.getInventory( world, blockPosition, side );
 
         // Fire the event, exiting if it is cancelled.
         TurtlePlayer player = TurtlePlaceCommand.createPlayer( turtle, turtlePosition, direction );
@@ -98,13 +97,13 @@ public class TurtleSuckCommand implements ITurtleCommand
         else
         {
             // Suck up loose items off the ground
-            Box aabb = new Box( blockPosition.getX(),
+            AABB aabb = new AABB( blockPosition.getX(),
                 blockPosition.getY(),
                 blockPosition.getZ(),
                 blockPosition.getX() + 1.0,
                 blockPosition.getY() + 1.0,
                 blockPosition.getZ() + 1.0 );
-            List<ItemEntity> list = world.getEntitiesByClass( ItemEntity.class, aabb, EntityPredicates.VALID_ENTITY );
+            List<ItemEntity> list = world.getEntitiesOfClass( ItemEntity.class, aabb, EntitySelector.ENTITY_STILL_ALIVE );
             if( list.isEmpty() )
             {
                 return TurtleCommandResult.failure( "No items to take" );
@@ -113,7 +112,7 @@ public class TurtleSuckCommand implements ITurtleCommand
             for( ItemEntity entity : list )
             {
                 // Suck up the item
-                ItemStack stack = entity.getStack()
+                ItemStack stack = entity.getItem()
                     .copy();
 
                 ItemStack storeStack;
@@ -139,20 +138,20 @@ public class TurtleSuckCommand implements ITurtleCommand
                     }
                     else if( remainder.isEmpty() )
                     {
-                        entity.setStack( leaveStack );
+                        entity.setItem( leaveStack );
                     }
                     else if( leaveStack.isEmpty() )
                     {
-                        entity.setStack( remainder );
+                        entity.setItem( remainder );
                     }
                     else
                     {
-                        leaveStack.increment( remainder.getCount() );
-                        entity.setStack( leaveStack );
+                        leaveStack.grow( remainder.getCount() );
+                        entity.setItem( leaveStack );
                     }
 
                     // Play fx
-                    world.syncGlobalEvent( 1000, turtlePosition, 0 ); // BLOCK_DISPENSER_DISPENSE
+                    world.globalLevelEvent( 1000, turtlePosition, 0 ); // BLOCK_DISPENSER_DISPENSE
                     turtle.playAnimation( TurtleAnimation.WAIT );
                     return TurtleCommandResult.success();
                 }

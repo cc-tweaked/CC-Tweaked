@@ -7,13 +7,12 @@
 package dan200.computercraft.api.media;
 
 import dan200.computercraft.api.filesystem.IMount;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.world.World;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 /**
  * Represents an item that can be placed in a disk drive and used by a Computer.
@@ -77,11 +76,11 @@ public interface IMedia
      * dan200.computercraft.api.filesystem.IWritableMount}, it will mounted using mountWritable()
      * @see IMount
      * @see dan200.computercraft.api.filesystem.IWritableMount
-     * @see dan200.computercraft.api.ComputerCraftAPI#createSaveDirMount(World, String, long)
+     * @see dan200.computercraft.api.ComputerCraftAPI#createSaveDirMount(Level, String, long)
      * @see dan200.computercraft.api.ComputerCraftAPI#createResourceMount(String, String)
      */
     @Nullable
-    default IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )
+    default IMount createDataMount( @Nonnull ItemStack stack, @Nonnull Level world )
     {
         return null;
     }

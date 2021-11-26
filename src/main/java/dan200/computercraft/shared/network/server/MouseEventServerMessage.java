@@ -10,8 +10,7 @@ import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.InputState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.network.PacketByteBuf;
-
+import net.minecraft.network.FriendlyByteBuf;
 import javax.annotation.Nonnull;
 
 public class MouseEventServerMessage extends ComputerServerMessage
@@ -35,7 +34,7 @@ public class MouseEventServerMessage extends ComputerServerMessage
         this.y = y;
     }
 
-    public MouseEventServerMessage( @Nonnull PacketByteBuf buf )
+    public MouseEventServerMessage( @Nonnull FriendlyByteBuf buf )
     {
         super( buf );
         type = buf.readByte();
@@ -45,7 +44,7 @@ public class MouseEventServerMessage extends ComputerServerMessage
     }
 
     @Override
-    public void toBytes( @Nonnull PacketByteBuf buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         super.toBytes( buf );
         buf.writeByte( type );

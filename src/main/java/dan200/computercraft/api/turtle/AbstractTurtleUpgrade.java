@@ -7,13 +7,12 @@
 package dan200.computercraft.api.turtle;
 
 import dan200.computercraft.shared.util.NonNullSupplier;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
-
 import javax.annotation.Nonnull;
+import net.minecraft.Util;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 import java.util.function.Supplier;
 
 /**
@@ -23,12 +22,12 @@ import java.util.function.Supplier;
  */
 public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
 {
-    private final Identifier id;
+    private final ResourceLocation id;
     private final TurtleUpgradeType type;
     private final String adjective;
     private final NonNullSupplier<ItemStack> stack;
 
-    protected AbstractTurtleUpgrade( Identifier id, TurtleUpgradeType type, String adjective, NonNullSupplier<ItemStack> stack )
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, NonNullSupplier<ItemStack> stack )
     {
         this.id = id;
         this.type = type;
@@ -36,44 +35,44 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
         this.stack = stack;
     }
 
-    protected AbstractTurtleUpgrade( Identifier id, TurtleUpgradeType type, NonNullSupplier<ItemStack> stack )
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, NonNullSupplier<ItemStack> stack )
     {
-        this( id, type, Util.createTranslationKey( "upgrade", id ) + ".adjective", stack );
+        this( id, type, Util.makeDescriptionId( "upgrade", id ) + ".adjective", stack );
     }
 
-    protected AbstractTurtleUpgrade( Identifier id, TurtleUpgradeType type, String adjective, ItemStack stack )
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, ItemStack stack )
     {
         this( id, type, adjective, () -> stack );
     }
 
-    protected AbstractTurtleUpgrade( Identifier id, TurtleUpgradeType type, ItemStack stack )
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, ItemStack stack )
     {
         this( id, type, () -> stack );
     }
 
-    protected AbstractTurtleUpgrade( Identifier id, TurtleUpgradeType type, String adjective, ItemConvertible item )
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, ItemLike item )
     {
         this( id, type, adjective, new CachedStack( () -> item ) );
     }
 
-    protected AbstractTurtleUpgrade( Identifier id, TurtleUpgradeType type, ItemConvertible item )
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, ItemLike item )
     {
         this( id, type, new CachedStack( () -> item ) );
     }
 
-    protected AbstractTurtleUpgrade( Identifier id, TurtleUpgradeType type, String adjective, Supplier<? extends ItemConvertible> item )
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, Supplier<? extends ItemLike> item )
     {
         this( id, type, adjective, new CachedStack( item ) );
     }
 
-    protected AbstractTurtleUpgrade( Identifier id, TurtleUpgradeType type, Supplier<? extends ItemConvertible> item )
+    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, Supplier<? extends ItemLike> item )
     {
         this( id, type, new CachedStack( item ) );
     }
 
     @Nonnull
     @Override
-    public final Identifier getUpgradeID()
+    public final ResourceLocation getUpgradeID()
     {
         return id;
     }
@@ -106,11 +105,11 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
      */
     private static final class CachedStack implements NonNullSupplier<ItemStack>
     {
-        private final Supplier<? extends ItemConvertible> provider;
+        private final Supplier<? extends ItemLike> provider;
         private Item item;
         private ItemStack stack;
 
-        CachedStack( Supplier<? extends ItemConvertible> provider )
+        CachedStack( Supplier<? extends ItemLike> provider )
         {
             this.provider = provider;
         }

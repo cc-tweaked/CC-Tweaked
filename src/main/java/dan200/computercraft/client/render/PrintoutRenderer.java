@@ -9,12 +9,13 @@ package dan200.computercraft.client.render;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Palette;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.util.math.Matrix4f;
+import net.minecraft.client.renderer.MultiBufferSource;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.shared.media.items.ItemPrintout.LINES_PER_PAGE;
+
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix4f;
 
 public final class PrintoutRenderer
 {
@@ -48,7 +49,7 @@ public final class PrintoutRenderer
 
     private PrintoutRenderer() {}
 
-    public static void drawText( Matrix4f transform, VertexConsumerProvider renderer, int x, int y, int start, int light, TextBuffer[] text, TextBuffer[] colours )
+    public static void drawText( Matrix4f transform, MultiBufferSource renderer, int x, int y, int start, int light, TextBuffer[] text, TextBuffer[] colours )
     {
         VertexConsumer buffer = renderer.getBuffer( RenderTypes.PRINTOUT_TEXT );
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; line++ )
@@ -68,7 +69,7 @@ public final class PrintoutRenderer
         }
     }
 
-    public static void drawText( Matrix4f transform, VertexConsumerProvider renderer, int x, int y, int start, int light, String[] text, String[] colours )
+    public static void drawText( Matrix4f transform, MultiBufferSource renderer, int x, int y, int start, int light, String[] text, String[] colours )
     {
         VertexConsumer buffer = renderer.getBuffer( RenderTypes.PRINTOUT_TEXT );
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; line++ )
@@ -88,7 +89,7 @@ public final class PrintoutRenderer
         }
     }
 
-    public static void drawBorder( Matrix4f transform, VertexConsumerProvider renderer, float x, float y, float z, int page, int pages, boolean isBook, int light )
+    public static void drawBorder( Matrix4f transform, MultiBufferSource renderer, float x, float y, float z, int page, int pages, boolean isBook, int light )
     {
         int leftPages = page;
         int rightPages = pages - page - 1;
@@ -173,6 +174,6 @@ public final class PrintoutRenderer
 
     private static void vertex( VertexConsumer buffer, Matrix4f matrix, float x, float y, float z, float u, float v, int light )
     {
-        buffer.vertex( matrix, x, y, z ).color( 255, 255, 255, 255 ).texture( u, v ).light( light ).next();
+        buffer.vertex( matrix, x, y, z ).color( 255, 255, 255, 255 ).uv( u, v ).uv2( light ).endVertex();
     }
 }

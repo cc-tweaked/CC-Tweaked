@@ -7,10 +7,9 @@
 package dan200.computercraft.api.turtle.event;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import net.minecraft.item.ItemStack;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import net.minecraft.world.item.ItemStack;
 import java.util.Objects;
 
 /**

@@ -7,26 +7,25 @@
 package dan200.computercraft.shared.peripheral.diskdrive;
 
 import dan200.computercraft.shared.ComputerCraftRegistry;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.slot.Slot;
-
 import javax.annotation.Nonnull;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
-public class ContainerDiskDrive extends ScreenHandler
+public class ContainerDiskDrive extends AbstractContainerMenu
 {
-    private final Inventory inventory;
+    private final Container inventory;
 
-    public ContainerDiskDrive( int id, PlayerInventory player )
+    public ContainerDiskDrive( int id, Inventory player )
     {
-        this( id, player, new SimpleInventory( 1 ) );
+        this( id, player, new SimpleContainer( 1 ) );
     }
 
-    public ContainerDiskDrive( int id, PlayerInventory player, Inventory inventory )
+    public ContainerDiskDrive( int id, Inventory player, Container inventory )
     {
         super( ComputerCraftRegistry.ModContainers.DISK_DRIVE, id );
 
@@ -50,21 +49,21 @@ public class ContainerDiskDrive extends ScreenHandler
 
     @Nonnull
     @Override
-    public ItemStack transferSlot( @Nonnull PlayerEntity player, int slotIndex )
+    public ItemStack quickMoveStack( @Nonnull Player player, int slotIndex )
     {
         Slot slot = slots.get( slotIndex );
-        if( slot == null || !slot.hasStack() )
+        if( slot == null || !slot.hasItem() )
         {
             return ItemStack.EMPTY;
         }
 
-        ItemStack existing = slot.getStack()
+        ItemStack existing = slot.getItem()
             .copy();
         ItemStack result = existing.copy();
         if( slotIndex == 0 )
         {
             // Insert into player inventory
-            if( !insertItem( existing, 1, 37, true ) )
+            if( !moveItemStackTo( existing, 1, 37, true ) )
             {
                 return ItemStack.EMPTY;
             }
@@ -72,7 +71,7 @@ public class ContainerDiskDrive extends ScreenHandler
         else
         {
             // Insert into drive inventory
-            if( !insertItem( existing, 0, 1, false ) )
+            if( !moveItemStackTo( existing, 0, 1, false ) )
             {
                 return ItemStack.EMPTY;
             }
@@ -80,11 +79,11 @@ public class ContainerDiskDrive extends ScreenHandler
 
         if( existing.isEmpty() )
         {
-            slot.setStack( ItemStack.EMPTY );
+            slot.set( ItemStack.EMPTY );
         }
         else
         {
-            slot.markDirty();
+            slot.setChanged();
         }
 
         if( existing.getCount() == result.getCount() )
@@ -92,13 +91,13 @@ public class ContainerDiskDrive extends ScreenHandler
             return ItemStack.EMPTY;
         }
 
-        slot.onTakeItem( player, existing );
+        slot.onTake( player, existing );
         return result;
     }
 
     @Override
-    public boolean canUse( @Nonnull PlayerEntity player )
+    public boolean stillValid( @Nonnull Player player )
     {
-        return inventory.canPlayerUse( player );
+        return inventory.stillValid( player );
     }
 }

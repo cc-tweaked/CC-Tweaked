@@ -8,9 +8,8 @@ package dan200.computercraft.shared.network.container;
 
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import net.minecraft.network.PacketByteBuf;
-
 import javax.annotation.Nonnull;
+import net.minecraft.network.FriendlyByteBuf;
 
 /**
  * View an arbitrary computer on the client.
@@ -37,7 +36,7 @@ public class ViewComputerContainerData extends ComputerContainerData
         }
     }
 
-    public ViewComputerContainerData( PacketByteBuf buffer )
+    public ViewComputerContainerData( FriendlyByteBuf buffer )
     {
         super( buffer );
         width = buffer.readVarInt();
@@ -45,7 +44,7 @@ public class ViewComputerContainerData extends ComputerContainerData
     }
 
     @Override
-    public void toBytes( @Nonnull PacketByteBuf buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         super.toBytes( buf );
         buf.writeVarInt( width );

@@ -6,10 +6,9 @@
 package dan200.computercraft.shared.peripheral.generic.data;
 
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.block.BlockState;
-import net.minecraft.state.property.Property;
-
 import javax.annotation.Nonnull;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +20,7 @@ public class BlockData
         data.put( "name", DataHelpers.getId( state.getBlock() ) );
 
         Map<Object, Object> stateTable = new HashMap<>();
-        for( ImmutableMap.Entry<Property<?>, ? extends Comparable<?>> entry : state.getEntries().entrySet() )
+        for( ImmutableMap.Entry<Property<?>, ? extends Comparable<?>> entry : state.getValues().entrySet() )
         {
             Property<?> property = entry.getKey();
             stateTable.put( property.getName(), getPropertyValue( property, entry.getValue() ) );
@@ -35,6 +34,6 @@ public class BlockData
     private static Object getPropertyValue( Property property, Comparable value )
     {
         if( value instanceof String || value instanceof Number || value instanceof Boolean ) return value;
-        return property.name( value );
+        return property.getName( value );
     }
 }

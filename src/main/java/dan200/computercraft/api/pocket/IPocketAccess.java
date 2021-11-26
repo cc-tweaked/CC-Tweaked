@@ -7,12 +7,11 @@
 package dan200.computercraft.api.pocket;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.Identifier;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import java.util.Map;
 
 /**
@@ -73,7 +72,7 @@ public interface IPocketAccess
      * @see #updateUpgradeNBTData()
      */
     @Nonnull
-    NbtCompound getUpgradeNBTData();
+    CompoundTag getUpgradeNBTData();
 
     /**
      * Mark the upgrade-specific NBT as dirty.
@@ -93,5 +92,5 @@ public interface IPocketAccess
      * @return A collection of all upgrade names.
      */
     @Nonnull
-    Map<Identifier, IPeripheral> getUpgrades();
+    Map<ResourceLocation, IPeripheral> getUpgrades();
 }

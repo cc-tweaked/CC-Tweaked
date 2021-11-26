@@ -9,10 +9,9 @@ package dan200.computercraft.api.pocket;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.IUpgradeBase;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.world.World;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import net.minecraft.world.level.Level;
 
 /**
  * Additional peripherals for pocket computers.
@@ -55,7 +54,7 @@ public interface IPocketUpgrade extends IUpgradeBase
      * requiring the player to be sneaking - otherwise they will be unable to access the GUI.
      * @see #createPeripheral(IPocketAccess)
      */
-    default boolean onRightClick( @Nonnull World world, @Nonnull IPocketAccess access, @Nullable IPeripheral peripheral )
+    default boolean onRightClick( @Nonnull Level world, @Nonnull IPocketAccess access, @Nullable IPeripheral peripheral )
     {
         return false;
     }

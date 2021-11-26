@@ -14,11 +14,10 @@ import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.ItemStorage;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-
 import javax.annotation.Nonnull;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 
 public class TurtleEquipCommand implements ITurtleCommand
 {
@@ -36,8 +35,8 @@ public class TurtleEquipCommand implements ITurtleCommand
         // Determine the upgrade to equipLeft
         ITurtleUpgrade newUpgrade;
         ItemStack newUpgradeStack;
-        Inventory inventory = turtle.getInventory();
-        ItemStack selectedStack = inventory.getStack( turtle.getSelectedSlot() );
+        Container inventory = turtle.getInventory();
+        ItemStack selectedStack = inventory.getItem( turtle.getSelectedSlot() );
         if( !selectedStack.isEmpty() )
         {
             newUpgradeStack = selectedStack.copy();

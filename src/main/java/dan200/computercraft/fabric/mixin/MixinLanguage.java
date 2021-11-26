@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonParseException;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.util.Language;
+import net.minecraft.locale.Language;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

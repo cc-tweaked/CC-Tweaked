@@ -9,17 +9,22 @@ package dan200.computercraft.client.render;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.util.math.*;
-import net.minecraft.world.World;
-
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import java.util.EnumSet;
-import static net.minecraft.util.math.Direction.*;
+import static net.minecraft.core.Direction.*;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Matrix4f;
 
 /**
  * Overrides monitor highlighting to only render the outline of the <em>whole</em> monitor, rather than the current block. This means you do not get an
@@ -32,15 +37,15 @@ public final class MonitorHighlightRenderer
     {
     }
 
-    public static boolean drawHighlight( MatrixStack matrixStack, VertexConsumer vertexConsumer, Entity entity, double d, double e, double f, BlockPos pos, BlockState blockState )
+    public static boolean drawHighlight( PoseStack matrixStack, VertexConsumer vertexConsumer, Entity entity, double d, double e, double f, BlockPos pos, BlockState blockState )
     {
         // Preserve normal behaviour when crouching.
-        if( entity.isInSneakingPose() )
+        if( entity.isCrouching() )
         {
             return false;
         }
 
-        World world = entity.getEntityWorld();
+        Level world = entity.getCommandSenderWorld();
 
         BlockEntity tile = world.getBlockEntity( pos );
         if( !(tile instanceof TileMonitor monitor) )
@@ -71,15 +76,15 @@ public final class MonitorHighlightRenderer
             faces.remove( monitor.getDown() );
         }
 
-        Vec3d cameraPos = MinecraftClient.getInstance().gameRenderer.getCamera()
-            .getPos();
-        matrixStack.push();
-        matrixStack.translate( pos.getX() - cameraPos.getX(), pos.getY() - cameraPos.getY(), pos.getZ() - cameraPos.getZ() );
+        Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera()
+            .getPosition();
+        matrixStack.pushPose();
+        matrixStack.translate( pos.getX() - cameraPos.x(), pos.getY() - cameraPos.y(), pos.getZ() - cameraPos.z() );
 
         // I wish I could think of a better way to do this
-        Matrix4f transform = matrixStack.peek()
-            .getModel();
-        Matrix3f normal = matrixStack.peek().getNormal();
+        Matrix4f transform = matrixStack.last()
+            .pose();
+        Matrix3f normal = matrixStack.last().normal();
         if( faces.contains( NORTH ) || faces.contains( WEST ) )
         {
             line( vertexConsumer, transform, normal, 0, 0, 0, UP );
@@ -129,7 +134,7 @@ public final class MonitorHighlightRenderer
             line( vertexConsumer, transform, normal, 1, 1, 0, SOUTH );
         }
 
-        matrixStack.pop();
+        matrixStack.popPose();
 
         return true;
     }
@@ -138,11 +143,11 @@ public final class MonitorHighlightRenderer
     {
         buffer.vertex( transform, x, y, z )
             .color( 0, 0, 0, 0.4f )
-            .normal( normal, direction.getOffsetX(), direction.getOffsetY(), direction.getOffsetZ() )
-            .next();
-        buffer.vertex( transform, x + direction.getOffsetX(), y + direction.getOffsetY(), z + direction.getOffsetZ() )
+            .normal( normal, direction.getStepX(), direction.getStepY(), direction.getStepZ() )
+            .endVertex();
+        buffer.vertex( transform, x + direction.getStepX(), y + direction.getStepY(), z + direction.getStepZ() )
             .color( 0, 0, 0, 0.4f )
-            .normal( normal, direction.getOffsetX(), direction.getOffsetY(), direction.getOffsetZ() )
-            .next();
+            .normal( normal, direction.getStepX(), direction.getStepY(), direction.getStepZ() )
+            .endVertex();
     }
 }

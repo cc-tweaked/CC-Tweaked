@@ -10,45 +10,44 @@ import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.items.ComputerItemFactory;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.DirectionProperty;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 public class BlockComputer extends BlockComputerBase<TileComputer>
 {
-    public static final EnumProperty<ComputerState> STATE = EnumProperty.of( "state", ComputerState.class );
-    public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
+    public static final EnumProperty<ComputerState> STATE = EnumProperty.create( "state", ComputerState.class );
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    public BlockComputer( Settings settings, ComputerFamily family, BlockEntityType<? extends TileComputer> type )
+    public BlockComputer( Properties settings, ComputerFamily family, BlockEntityType<? extends TileComputer> type )
     {
         super( settings, family, type );
-        setDefaultState( getDefaultState().with( FACING, Direction.NORTH )
-            .with( STATE, ComputerState.OFF ) );
+        registerDefaultState( defaultBlockState().setValue( FACING, Direction.NORTH )
+            .setValue( STATE, ComputerState.OFF ) );
     }
 
     @Nullable
     @Override
-    public BlockState getPlacementState( ItemPlacementContext placement )
+    public BlockState getStateForPlacement( BlockPlaceContext placement )
     {
-        return getDefaultState().with( FACING,
-            placement.getPlayerFacing()
+        return defaultBlockState().setValue( FACING,
+            placement.getHorizontalDirection()
                 .getOpposite() );
     }
 
     @Override
-    protected void appendProperties( StateManager.Builder<Block, BlockState> builder )
+    protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> builder )
     {
         builder.add( FACING, STATE );
     }
@@ -72,7 +71,7 @@ public class BlockComputer extends BlockComputerBase<TileComputer>
 
     @Nullable
     @Override
-    public BlockEntity createBlockEntity( BlockPos pos, BlockState state )
+    public BlockEntity newBlockEntity( BlockPos pos, BlockState state )
     {
         return new TileComputer( getFamily(), getTypeByFamily( getFamily() ), pos, state );
     }

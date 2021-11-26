@@ -10,9 +10,8 @@ import dan200.computercraft.api.turtle.FakePlayer;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import net.minecraft.entity.Entity;
-
 import javax.annotation.Nonnull;
+import net.minecraft.world.entity.Entity;
 import java.util.Objects;
 
 /**

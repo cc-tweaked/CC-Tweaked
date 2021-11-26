@@ -8,12 +8,11 @@ package dan200.computercraft.shared.network.client;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.math.BlockPos;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import javax.annotation.Nonnull;
 
 public class MonitorClientMessage implements NetworkMessage
@@ -27,14 +26,14 @@ public class MonitorClientMessage implements NetworkMessage
         this.state = state;
     }
 
-    public MonitorClientMessage( @Nonnull PacketByteBuf buf )
+    public MonitorClientMessage( @Nonnull FriendlyByteBuf buf )
     {
         pos = buf.readBlockPos();
         state = new TerminalState( buf );
     }
 
     @Override
-    public void toBytes( @Nonnull PacketByteBuf buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         buf.writeBlockPos( pos );
         state.write( buf );
@@ -43,13 +42,13 @@ public class MonitorClientMessage implements NetworkMessage
     @Override
     public void handle( PacketContext context )
     {
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        if( player == null || player.world == null )
+        LocalPlayer player = Minecraft.getInstance().player;
+        if( player == null || player.level == null )
         {
             return;
         }
 
-        BlockEntity te = player.world.getBlockEntity( pos );
+        BlockEntity te = player.level.getBlockEntity( pos );
         if( !(te instanceof TileMonitor) )
         {
             return;

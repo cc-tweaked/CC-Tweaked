@@ -10,11 +10,10 @@ import dan200.computercraft.client.gui.OptionScreen;
 import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.text.Text;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import javax.annotation.Nonnull;
 
 public class UploadResultMessage implements NetworkMessage
@@ -23,33 +22,33 @@ public class UploadResultMessage implements NetworkMessage
     public static final UploadResultMessage OUT_OF_SPACE = new UploadResultMessage( UploadResult.ERROR, UploadResult.OUT_OF_SPACE_MSG );
 
     private final UploadResult result;
-    private final Text message;
+    private final Component message;
 
-    public UploadResultMessage( UploadResult result, Text message )
+    public UploadResultMessage( UploadResult result, Component message )
     {
         this.result = result;
         this.message = message;
     }
 
-    public UploadResultMessage( @Nonnull PacketByteBuf buf )
+    public UploadResultMessage( @Nonnull FriendlyByteBuf buf )
     {
-        result = buf.readEnumConstant( UploadResult.class );
-        message = buf.readText();
+        result = buf.readEnum( UploadResult.class );
+        message = buf.readComponent();
     }
 
     @Override
-    public void toBytes( @Nonnull PacketByteBuf buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
-        buf.writeEnumConstant( result );
-        buf.writeText( message );
+        buf.writeEnum( result );
+        buf.writeComponent( message );
     }
 
     @Override
     public void handle( PacketContext context )
     {
-        MinecraftClient minecraft = MinecraftClient.getInstance();
+        Minecraft minecraft = Minecraft.getInstance();
 
-        Screen screen = OptionScreen.unwrap( minecraft.currentScreen );
+        Screen screen = OptionScreen.unwrap( minecraft.screen );
         if( screen instanceof ComputerScreenBase<?> )
         {
             ((ComputerScreenBase<?>) screen).uploadResult( result, message );

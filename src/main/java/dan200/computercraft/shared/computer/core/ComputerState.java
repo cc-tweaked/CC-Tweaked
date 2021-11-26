@@ -6,11 +6,10 @@
 
 package dan200.computercraft.shared.computer.core;
 
-import net.minecraft.util.StringIdentifiable;
-
 import javax.annotation.Nonnull;
+import net.minecraft.util.StringRepresentable;
 
-public enum ComputerState implements StringIdentifiable
+public enum ComputerState implements StringRepresentable
 {
     OFF( "off", "" ), ON( "on", "_on" ), BLINKING( "blinking", "_blink" );
 
@@ -25,7 +24,7 @@ public enum ComputerState implements StringIdentifiable
 
     @Nonnull
     @Override
-    public String asString()
+    public String getSerializedName()
     {
         return name;
     }

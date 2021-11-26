@@ -13,9 +13,8 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.turtle.upgrades.TurtleInventoryCrafting;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.item.ItemStack;
-
 import javax.annotation.Nonnull;
+import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 public class TurtleCraftCommand implements ITurtleCommand

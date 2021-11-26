@@ -6,35 +6,35 @@
 package dan200.computercraft.fabric.mixin;
 
 import dan200.computercraft.shared.ComputerCraftRegistry;
-import net.minecraft.advancement.criterion.Criteria;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.network.ServerPlayerInteractionManager;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerPlayerGameMode;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin( ServerPlayerInteractionManager.class )
+@Mixin( ServerPlayerGameMode.class )
 public class MixinServerPlayerInteractionManager
 {
     @Inject( at = @At( value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;copy()Lnet/minecraft/item/ItemStack;", ordinal = 0 ), method = "interactBlock(Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/Hand;Lnet/minecraft/util/hit/BlockHitResult;)Lnet/minecraft/util/ActionResult;", cancellable = true )
-    private void interact( ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir )
+    private void interact( ServerPlayer player, Level world, ItemStack stack, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir )
     {
         BlockPos pos = hitResult.getBlockPos();
         BlockState state = world.getBlockState( pos );
-        if( player.getMainHandStack().getItem() == ComputerCraftRegistry.ModItems.DISK && state.getBlock() == ComputerCraftRegistry.ModBlocks.DISK_DRIVE )
+        if( player.getMainHandItem().getItem() == ComputerCraftRegistry.ModItems.DISK && state.getBlock() == ComputerCraftRegistry.ModBlocks.DISK_DRIVE )
         {
-            ActionResult actionResult = state.onUse( world, player, hand, hitResult );
-            if( actionResult.isAccepted() )
+            InteractionResult actionResult = state.use( world, player, hand, hitResult );
+            if( actionResult.consumesAction() )
             {
-                Criteria.ITEM_USED_ON_BLOCK.trigger( player, pos, stack );
+                CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger( player, pos, stack );
                 cir.setReturnValue( actionResult );
             }
         }
