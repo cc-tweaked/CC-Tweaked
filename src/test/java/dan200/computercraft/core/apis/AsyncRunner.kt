@@ -15,8 +15,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
-import kotlin.time.seconds
 
 
 abstract class NullApiEnvironment : IAPIEnvironment {
@@ -52,7 +52,7 @@ class AsyncRunner : NullApiEnvironment() {
 
     override fun queueEvent(event: String?, vararg args: Any?) {
         ComputerCraft.log.debug("Queue event $event ${args.contentToString()}")
-        if (!eventStream.offer(arrayOf(event, *args))) {
+        if (!eventStream.trySend(arrayOf(event, *args)).isSuccess) {
             throw IllegalStateException("Queue is full")
         }
     }
