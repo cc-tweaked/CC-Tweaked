@@ -11,6 +11,7 @@ import dan200.computercraft.api.upgrades.UpgradeDataProvider;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.Tag;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
@@ -36,6 +37,14 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
         super( generator, "Turtle Upgrades", "computercraft/turtle_upgrades", TurtleUpgradeSerialiser.TYPE );
     }
 
+    /**
+     * Create a new turtle tool upgrade, such as a pickaxe or shovel.
+     *
+     * @param id   The ID of this tool.
+     * @param item The item used for tool actions. Note, this doesn't inherit all properties of the tool, you may need
+     *             to specify {@link ToolBuilder#damageMultiplier(float)} and {@link ToolBuilder#breakable(Tag.Named)}.
+     * @return A tool builder,
+     */
     @Nonnull
     public final ToolBuilder tool( @Nonnull ResourceLocation id, @Nonnull Item item )
     {
@@ -92,6 +101,13 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
             return this;
         }
 
+        /**
+         * The amount of damage a swing of this tool will do. This is multiplied by {@link Attributes#ATTACK_DAMAGE} to
+         * get the final damage.
+         *
+         * @param damageMultiplier The damage multiplier.
+         * @return The tool builder, for futher use.
+         */
         public ToolBuilder damageMultiplier( float damageMultiplier )
         {
             this.damageMultiplier = damageMultiplier;
