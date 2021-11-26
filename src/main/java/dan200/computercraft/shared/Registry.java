@@ -270,16 +270,7 @@ public final class Registry
         public static final RegistryObject<TurtleUpgradeSerialiser<TurtleModem>> WIRELESS_MODEM_ADVANCED =
             SERIALISERS.register( "wireless_modem_advanced", () -> TurtleUpgradeSerialiser.simpleWithCustomItem( ( id, item ) -> new TurtleModem( id, item, true ) ) );
 
-        public static final RegistryObject<TurtleUpgradeSerialiser<TurtleTool>> TOOL =
-            SERIALISERS.register( "tool", TurtleToolSerialiser.make( TurtleTool::new ) );
-        public static final RegistryObject<TurtleUpgradeSerialiser<TurtleAxe>> AXE =
-            SERIALISERS.register( "axe", TurtleToolSerialiser.make( TurtleAxe::new ) );
-        public static final RegistryObject<TurtleUpgradeSerialiser<TurtleHoe>> HOE =
-            SERIALISERS.register( "hoe", TurtleToolSerialiser.make( TurtleHoe::new ) );
-        public static final RegistryObject<TurtleUpgradeSerialiser<TurtleShovel>> SHOVEL =
-            SERIALISERS.register( "shovel", TurtleToolSerialiser.make( TurtleShovel::new ) );
-        public static final RegistryObject<TurtleUpgradeSerialiser<TurtleSword>> SWORD =
-            SERIALISERS.register( "sword", TurtleToolSerialiser.make( TurtleSword::new ) );
+        public static final RegistryObject<TurtleUpgradeSerialiser<TurtleTool>> TOOL = SERIALISERS.register( "tool", () -> TurtleToolSerialiser.INSTANCE );
     }
 
     public static class ModPocketUpgradeSerialisers

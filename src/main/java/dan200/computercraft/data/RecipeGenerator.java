@@ -39,8 +39,8 @@ import javax.annotation.Nonnull;
 import java.util.Locale;
 import java.util.function.Consumer;
 
-import static dan200.computercraft.shared.ComputerCraftTags.Items.COMPUTER;
-import static dan200.computercraft.shared.ComputerCraftTags.Items.WIRED_MODEM;
+import static dan200.computercraft.api.ComputerCraftTags.Items.COMPUTER;
+import static dan200.computercraft.api.ComputerCraftTags.Items.WIRED_MODEM;
 
 class RecipeGenerator extends RecipeProvider
 {

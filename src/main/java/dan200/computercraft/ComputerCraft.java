@@ -12,9 +12,6 @@ import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.computer.core.ClientComputerRegistry;
 import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
-import dan200.computercraft.shared.pocket.peripherals.PocketModem;
-import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
-import dan200.computercraft.shared.turtle.upgrades.*;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -78,27 +75,6 @@ public final class ComputerCraft
 
     public static int monitorWidth = 8;
     public static int monitorHeight = 6;
-
-    public static final class TurtleUpgrades
-    {
-        public static TurtleModem wirelessModemNormal;
-        public static TurtleModem wirelessModemAdvanced;
-        public static TurtleSpeaker speaker;
-
-        public static TurtleCraftingTable craftingTable;
-        public static TurtleSword diamondSword;
-        public static TurtleShovel diamondShovel;
-        public static TurtleTool diamondPickaxe;
-        public static TurtleAxe diamondAxe;
-        public static TurtleHoe diamondHoe;
-    }
-
-    public static final class PocketUpgrades
-    {
-        public static PocketModem wirelessModemNormal;
-        public static PocketModem wirelessModemAdvanced;
-        public static PocketSpeaker speaker;
-    }
 
     // Registries
     public static final ClientComputerRegistry clientComputerRegistry = new ClientComputerRegistry();

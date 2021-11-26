@@ -6,6 +6,7 @@
 package dan200.computercraft.data;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftTags.Blocks;
 import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import net.minecraft.data.DataGenerator;
@@ -33,11 +34,11 @@ class TurtleUpgradeGenerator extends TurtleUpgradeDataProvider
         simpleWithCustomItem( id( "wireless_modem_normal" ), ModTurtleSerialisers.WIRELESS_MODEM_NORMAL.get(), ModItems.WIRELESS_MODEM_NORMAL.get() ).add( addUpgrade );
         simpleWithCustomItem( id( "wireless_modem_advanced" ), ModTurtleSerialisers.WIRELESS_MODEM_ADVANCED.get(), ModItems.WIRELESS_MODEM_ADVANCED.get() ).add( addUpgrade );
 
-        tool( ToolType.AXE, vanilla( "diamond_axe" ), Items.DIAMOND_AXE ).add( addUpgrade );
-        tool( ToolType.GENERIC, vanilla( "diamond_pickaxe" ), Items.DIAMOND_PICKAXE ).add( addUpgrade );
-        tool( ToolType.HOE, vanilla( "diamond_hoe" ), Items.DIAMOND_HOE ).add( addUpgrade );
-        tool( ToolType.SHOVEL, vanilla( "diamond_shovel" ), Items.DIAMOND_SHOVEL ).add( addUpgrade );
-        tool( ToolType.SWORD, vanilla( "diamond_sword" ), Items.DIAMOND_SWORD ).add( addUpgrade );
+        tool( vanilla( "diamond_axe" ), Items.DIAMOND_AXE ).damageMultiplier( 6.0f ).add( addUpgrade );
+        tool( vanilla( "diamond_pickaxe" ), Items.DIAMOND_PICKAXE ).add( addUpgrade );
+        tool( vanilla( "diamond_hoe" ), Items.DIAMOND_HOE ).breakable( Blocks.TURTLE_HOE_BREAKABLE ).add( addUpgrade );
+        tool( vanilla( "diamond_shovel" ), Items.DIAMOND_SHOVEL ).breakable( Blocks.TURTLE_SHOVEL_BREAKABLE ).add( addUpgrade );
+        tool( vanilla( "diamond_sword" ), Items.DIAMOND_SWORD ).breakable( Blocks.TURTLE_SWORD_BREAKABLE ).damageMultiplier( 9.0f ).add( addUpgrade );
     }
 
     @Nonnull

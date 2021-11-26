@@ -6,62 +6,79 @@
 package dan200.computercraft.shared.turtle.upgrades;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.api.upgrades.IUpgradeBase;
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.SerializationTags;
+import net.minecraft.tags.Tag;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
-import java.util.function.Supplier;
 
-public class TurtleToolSerialiser<T extends TurtleTool> extends TurtleUpgradeSerialiser.Base<T>
+public final class TurtleToolSerialiser extends TurtleUpgradeSerialiser.Base<TurtleTool>
 {
-    private final Factory<T> factory;
+    public static final TurtleToolSerialiser INSTANCE = new TurtleToolSerialiser();
 
-    public TurtleToolSerialiser( Factory<T> factory )
-    {
-        this.factory = factory;
-    }
-
-    public static <T extends TurtleTool> Supplier<TurtleUpgradeSerialiser<T>> make( Factory<T> factory )
-    {
-        return () -> new TurtleToolSerialiser<>( factory );
-    }
+    private TurtleToolSerialiser() {}
 
     @Nonnull
     @Override
-    public T fromJson( @Nonnull ResourceLocation id, @Nonnull JsonObject object )
+    public TurtleTool fromJson( @Nonnull ResourceLocation id, @Nonnull JsonObject object )
     {
         var adjective = GsonHelper.getAsString( object, "adjective", IUpgradeBase.getDefaultAdjective( id ) );
         var toolItem = GsonHelper.getAsItem( object, "item" );
         var craftingItem = GsonHelper.getAsItem( object, "craftingItem", toolItem );
-        return factory.create( id, adjective, craftingItem, new ItemStack( toolItem ) );
+        var damageMultiplier = GsonHelper.getAsFloat( object, "damageMultiplier", 3.0f );
+
+        ResourceLocation breakableName = null;
+        Tag<Block> breakable = null;
+        if( object.has( "breakable" ) )
+        {
+            breakableName = new ResourceLocation( GsonHelper.getAsString( object, "breakable" ) );
+            breakable = SerializationTags.getInstance().getTagOrThrow(
+                Registry.BLOCK_REGISTRY, breakableName,
+                tagId -> new JsonSyntaxException( "Unknown item tag '" + tagId + "'" )
+            );
+        }
+
+        return new TurtleTool( id, adjective, craftingItem, new ItemStack( toolItem ), damageMultiplier, breakableName, breakable );
     }
 
     @Nonnull
     @Override
-    public T fromNetwork( @Nonnull ResourceLocation id, @Nonnull FriendlyByteBuf buffer )
+    public TurtleTool fromNetwork( @Nonnull ResourceLocation id, @Nonnull FriendlyByteBuf buffer )
     {
         var adjective = buffer.readUtf();
         var craftingItem = buffer.readRegistryIdUnsafe( ForgeRegistries.ITEMS );
         var toolItem = buffer.readItem();
-        return factory.create( id, adjective, craftingItem, toolItem );
+        // damageMultiplier and breakable aren't used by the client, but we need to construct the upgrade exactly
+        // as otherwise syncing on an SP world will overwrite the (shared) upgrade registry with an invalid upgrade!
+        var damageMultiplier = buffer.readFloat();
+
+        ResourceLocation breakableName = null;
+        Tag<Block> breakable = null;
+        if( buffer.readBoolean() )
+        {
+            breakableName = buffer.readResourceLocation();
+            breakable = SerializationTags.getInstance().getOrEmpty( Registry.BLOCK_REGISTRY ).getTagOrEmpty( breakableName );
+        }
+        return new TurtleTool( id, adjective, craftingItem, toolItem, damageMultiplier, breakableName, breakable );
     }
 
     @Override
-    public void toNetwork( @Nonnull FriendlyByteBuf buffer, @Nonnull T upgrade )
+    public void toNetwork( @Nonnull FriendlyByteBuf buffer, @Nonnull TurtleTool upgrade )
     {
         buffer.writeUtf( upgrade.getUnlocalisedAdjective() );
         buffer.writeRegistryIdUnsafe( ForgeRegistries.ITEMS, upgrade.getCraftingItem().getItem() );
         buffer.writeItem( upgrade.item );
-    }
-
-    public interface Factory<T extends TurtleTool>
-    {
-        T create( ResourceLocation id, String adjective, Item craftItem, ItemStack toolItem );
+        buffer.writeFloat( upgrade.damageMulitiplier );
+        buffer.writeBoolean( upgrade.breakableName != null );
+        if( upgrade.breakableName != null ) buffer.writeResourceLocation( upgrade.breakableName );
     }
 }

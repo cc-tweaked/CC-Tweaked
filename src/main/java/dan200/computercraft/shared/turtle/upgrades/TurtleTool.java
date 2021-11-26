@@ -8,11 +8,12 @@ package dan200.computercraft.shared.turtle.upgrades;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Transformation;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.*;
-import dan200.computercraft.shared.ComputerCraftTags;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
+import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.InventoryUtil;
@@ -20,8 +21,8 @@ import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -39,24 +40,37 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.function.Function;
+
+import static net.minecraft.nbt.Tag.TAG_COMPOUND;
+import static net.minecraft.nbt.Tag.TAG_LIST;
 
 public class TurtleTool extends AbstractTurtleUpgrade
 {
-    protected static final TurtleCommandResult UNBREAKABLE = TurtleCommandResult.failure( "Unbreakable block detected" );
+    protected static final TurtleCommandResult UNBREAKABLE = TurtleCommandResult.failure( "Cannot break unbreakable block" );
     protected static final TurtleCommandResult INEFFECTIVE = TurtleCommandResult.failure( "Cannot break block with this tool" );
 
-    protected final ItemStack item;
+    final ItemStack item;
+    final float damageMulitiplier;
+    @Nullable
+    final ResourceLocation breakableName;
+    @Nullable
+    final Tag<Block> breakable;
 
-    public TurtleTool( ResourceLocation id, String adjective, Item craftItem, ItemStack toolItem )
+    public TurtleTool( ResourceLocation id, String adjective, Item craftItem, ItemStack toolItem, float damageMulitiplier, @Nullable ResourceLocation breakableName, @Nullable Tag<Block> breakable )
     {
         super( id, TurtleUpgradeType.TOOL, adjective, new ItemStack( craftItem ) );
         item = toolItem;
+        this.damageMulitiplier = damageMulitiplier;
+        this.breakableName = breakableName;
+        this.breakable = breakable;
     }
 
     @Override
@@ -68,8 +82,8 @@ public class TurtleTool extends AbstractTurtleUpgrade
         // Check we've not got anything vaguely interesting on the item. We allow other mods to add their
         // own NBT, with the understanding such details will be lost to the mist of time.
         if( stack.isDamaged() || stack.isEnchanted() || stack.hasCustomHoverName() ) return false;
-        if( tag.contains( "AttributeModifiers", Tag.TAG_LIST ) &&
-            !tag.getList( "AttributeModifiers", Tag.TAG_COMPOUND ).isEmpty() )
+        if( tag.contains( "AttributeModifiers", TAG_LIST ) &&
+            !tag.getList( "AttributeModifiers", TAG_COMPOUND ).isEmpty() )
         {
             return false;
         }
@@ -92,9 +106,9 @@ public class TurtleTool extends AbstractTurtleUpgrade
         switch( verb )
         {
             case ATTACK:
-                return attack( turtle, direction, side );
+                return attack( turtle, direction );
             case DIG:
-                return dig( turtle, direction, side );
+                return dig( turtle, direction );
             default:
                 return TurtleCommandResult.failure( "Unsupported action" );
         }
@@ -103,19 +117,18 @@ public class TurtleTool extends AbstractTurtleUpgrade
     protected TurtleCommandResult checkBlockBreakable( BlockState state, Level world, BlockPos pos, TurtlePlayer player )
     {
         Block block = state.getBlock();
-        return !state.isAir()
-            && block != Blocks.BEDROCK
-            && state.getDestroyProgress( player, world, pos ) > 0
-            && block.canEntityDestroy( state, world, pos, player )
-            ? TurtleCommandResult.success() : UNBREAKABLE;
+        if( state.isAir() || block == Blocks.BEDROCK
+            || state.getDestroyProgress( player, world, pos ) <= 0
+            || !block.canEntityDestroy( state, world, pos, player ) )
+        {
+            return UNBREAKABLE;
+        }
+
+        return breakable == null || breakable.contains( state.getBlock() ) || isTriviallyBreakable( world, pos, state )
+            ? TurtleCommandResult.success() : INEFFECTIVE;
     }
 
-    protected float getDamageMultiplier()
-    {
-        return 3.0f;
-    }
-
-    private TurtleCommandResult attack( ITurtleAccess turtle, Direction direction, TurtleSide side )
+    private TurtleCommandResult attack( ITurtleAccess turtle, Direction direction )
     {
         // Create a fake player, and orient it appropriately
         Level world = turtle.getLevel();
@@ -150,9 +163,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
             boolean attacked = false;
             if( !hitEntity.skipAttackInteraction( turtlePlayer ) )
             {
-                float damage = (float) turtlePlayer.getAttributeValue( Attributes.ATTACK_DAMAGE );
-                damage *= getDamageMultiplier();
-                ComputerCraft.log.info( "Dealing {} damage", damage );
+                float damage = (float) turtlePlayer.getAttributeValue( Attributes.ATTACK_DAMAGE ) * damageMulitiplier;
                 if( damage > 0.0f )
                 {
                     DamageSource source = DamageSource.playerAttack( turtlePlayer );
@@ -184,8 +195,17 @@ public class TurtleTool extends AbstractTurtleUpgrade
         return TurtleCommandResult.failure( "Nothing to attack here" );
     }
 
-    private TurtleCommandResult dig( ITurtleAccess turtle, Direction direction, TurtleSide side )
+    private TurtleCommandResult dig( ITurtleAccess turtle, Direction direction )
     {
+        // TODO: HOE_TILL really, if it's ever implemented
+        if( item.canPerformAction( ToolActions.SHOVEL_FLATTEN ) || item.canPerformAction( ToolActions.HOE_DIG ) )
+        {
+            if( TurtlePlaceCommand.deployCopiedItem( item.copy(), turtle, direction, null, null ) )
+            {
+                return TurtleCommandResult.success();
+            }
+        }
+
         // Get ready to dig
         Level world = turtle.getLevel();
         BlockPos turtlePosition = turtle.getPosition();
