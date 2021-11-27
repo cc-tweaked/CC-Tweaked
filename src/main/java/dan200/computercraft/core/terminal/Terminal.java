@@ -7,9 +7,10 @@ package dan200.computercraft.core.terminal;
 
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
-import javax.annotation.Nonnull;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+
+import javax.annotation.Nonnull;
 
 public class Terminal
 {

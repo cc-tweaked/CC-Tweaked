@@ -10,9 +10,10 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.computer.apis.CommandAPI;
-import javax.annotation.Nonnull;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
+
+import javax.annotation.Nonnull;
 
 /**
  * This peripheral allows you to interact with command blocks.

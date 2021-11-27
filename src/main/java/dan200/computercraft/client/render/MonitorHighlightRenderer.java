@@ -6,25 +6,25 @@
 
 package dan200.computercraft.client.render;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Matrix4f;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.math.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import java.util.EnumSet;
-import static net.minecraft.core.Direction.*;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
+import java.util.EnumSet;
+
+import static net.minecraft.core.Direction.*;
 
 /**
  * Overrides monitor highlighting to only render the outline of the <em>whole</em> monitor, rather than the current block. This means you do not get an

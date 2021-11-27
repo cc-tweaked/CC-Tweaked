@@ -13,12 +13,13 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.CommandNode;
 import dan200.computercraft.shared.command.arguments.RepeatArgumentType;
+import net.minecraft.commands.CommandSourceStack;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import net.minecraft.commands.CommandSourceStack;
 
 import static dan200.computercraft.shared.command.Exceptions.ARGUMENT_EXPECTED;
 import static dan200.computercraft.shared.command.builder.HelpingArgumentBuilder.literal;

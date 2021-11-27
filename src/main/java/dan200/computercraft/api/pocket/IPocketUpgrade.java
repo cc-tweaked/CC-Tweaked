@@ -9,9 +9,10 @@ package dan200.computercraft.api.pocket;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.IUpgradeBase;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import net.minecraft.world.level.Level;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import net.minecraft.world.level.Level;
 
 /**
  * Additional peripherals for pocket computers.

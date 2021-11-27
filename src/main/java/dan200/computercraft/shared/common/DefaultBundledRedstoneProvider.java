@@ -7,11 +7,12 @@
 package dan200.computercraft.shared.common;
 
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
-import javax.annotation.Nonnull;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+
+import javax.annotation.Nonnull;
 
 public class DefaultBundledRedstoneProvider implements IBundledRedstoneProvider
 {

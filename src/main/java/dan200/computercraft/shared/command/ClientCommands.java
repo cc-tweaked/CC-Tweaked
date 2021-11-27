@@ -6,8 +6,9 @@
 package dan200.computercraft.shared.command;
 
 import dan200.computercraft.shared.util.IDAssigner;
-import java.io.File;
 import net.minecraft.Util;
+
+import java.io.File;
 
 /**
  * Basic client-side commands.

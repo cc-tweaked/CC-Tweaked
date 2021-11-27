@@ -22,8 +22,6 @@ import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.util.*;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -43,18 +41,21 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collections;
 
 public class TileTurtle extends TileComputerBase
-        implements ITurtleTile, DefaultInventory
+    implements ITurtleTile, DefaultInventory
 {
     public static final int INVENTORY_SIZE = 16;
     public static final int INVENTORY_WIDTH = 4;
     public static final int INVENTORY_HEIGHT = 4;
     private final NonNullList<ItemStack> inventory = NonNullList
-            .withSize( INVENTORY_SIZE, ItemStack.EMPTY );
+        .withSize( INVENTORY_SIZE, ItemStack.EMPTY );
     private final NonNullList<ItemStack> previousInventory = NonNullList
-            .withSize( INVENTORY_SIZE, ItemStack.EMPTY );
+        .withSize( INVENTORY_SIZE, ItemStack.EMPTY );
     private boolean inventoryChanged = false;
     private TurtleBrain brain = new TurtleBrain( this );
     private MoveState moveState = MoveState.NOT_MOVED;
@@ -134,7 +135,7 @@ public class TileTurtle extends TileComputerBase
     public ItemStack getItem( int slot )
     {
         return slot >= 0 && slot < INVENTORY_SIZE ? inventory.get( slot )
-                : ItemStack.EMPTY;
+            : ItemStack.EMPTY;
     }
 
     @Nonnull
@@ -176,7 +177,7 @@ public class TileTurtle extends TileComputerBase
     public void setItem( int i, @Nonnull ItemStack stack )
     {
         if( i >= 0 && i < INVENTORY_SIZE
-                && !InventoryUtil.areItemsEqual( stack, inventory.get( i ) ) )
+            && !InventoryUtil.areItemsEqual( stack, inventory.get( i ) ) )
         {
             inventory.set( i, stack );
             onInventoryDefinitelyChanged();
@@ -227,7 +228,7 @@ public class TileTurtle extends TileComputerBase
                 return InteractionResult.SUCCESS;
             }
             else if( currentItem.getItem() == Items.WATER_BUCKET
-                    && brain.getColour() != -1 )
+                && brain.getColour() != -1 )
             {
                 // Water to remove turtle colour
                 if( !getLevel().isClientSide )
@@ -238,7 +239,7 @@ public class TileTurtle extends TileComputerBase
                         if( !player.isCreative() )
                         {
                             player.setItemInHand( hand,
-                                    new ItemStack( Items.BUCKET ) );
+                                new ItemStack( Items.BUCKET ) );
                             player.getInventory().setChanged();
                         }
                     }
@@ -270,7 +271,7 @@ public class TileTurtle extends TileComputerBase
     }
 
     @Override
-    public void serverTick( )
+    public void serverTick()
     {
         super.serverTick();
         brain.update();
@@ -297,7 +298,7 @@ public class TileTurtle extends TileComputerBase
 
     @Override
     protected void updateBlockState( ComputerState newState )
-    { }
+    {}
 
     @Nonnull
     @Override
@@ -367,8 +368,8 @@ public class TileTurtle extends TileComputerBase
     protected ServerComputer createComputer( int instanceID, int id )
     {
         ServerComputer computer = new ServerComputer( getLevel(), id, label, instanceID,
-                getFamily(), ComputerCraft.turtleTermWidth,
-                ComputerCraft.turtleTermHeight );
+            getFamily(), ComputerCraft.turtleTermWidth,
+            ComputerCraft.turtleTermHeight );
         computer.setPosition( getBlockPos() );
         computer.addAPI( new TurtleAPI( computer.getAPIEnvironment(), getAccess() ) );
         brain.setupComputer( computer );
@@ -415,7 +416,7 @@ public class TileTurtle extends TileComputerBase
     private boolean hasPeripheralUpgradeOnSide( ComputerSide side )
     {
         ITurtleUpgrade upgrade;
-        switch ( side )
+        switch( side )
         {
             case RIGHT:
                 upgrade = getUpgrade( TurtleSide.RIGHT );
@@ -558,7 +559,7 @@ public class TileTurtle extends TileComputerBase
     @Nullable
     @Override
     public AbstractContainerMenu createMenu( int id, @Nonnull Inventory inventory,
-            @Nonnull Player player )
+                                             @Nonnull Player player )
     {
         return new ContainerTurtle( id, inventory, brain );
     }

@@ -13,13 +13,14 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
-import javax.annotation.Nonnull;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
+
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -165,10 +166,10 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
         // Set up a /... help command
         LiteralArgumentBuilder<CommandSourceStack> helpNode =
             LiteralArgumentBuilder.<CommandSourceStack>literal( "help" ).requires( x -> getArguments().stream()
-                .anyMatch(
-                    y -> y.getRequirement()
-                        .test(
-                            x ) ) )
+                    .anyMatch(
+                        y -> y.getRequirement()
+                            .test(
+                                x ) ) )
                 .executes( helpCommand );
 
         // Add all normal command children to this and the help node

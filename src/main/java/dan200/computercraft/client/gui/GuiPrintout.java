@@ -12,14 +12,14 @@ import com.mojang.math.Matrix4f;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import org.lwjgl.glfw.GLFW;
-
-import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import org.lwjgl.glfw.GLFW;
+
+import javax.annotation.Nonnull;
 
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
 import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;

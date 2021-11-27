@@ -8,8 +8,9 @@ package dan200.computercraft.api.filesystem;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import javax.annotation.Nonnull;
 import net.minecraft.world.level.Level;
+
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.channels.WritableByteChannel;

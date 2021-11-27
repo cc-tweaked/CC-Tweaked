@@ -6,8 +6,6 @@
 
 package dan200.computercraft.shared.common;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -21,6 +19,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Random;
 
 public abstract class BlockGeneric extends BaseEntityBlock
@@ -47,7 +48,7 @@ public abstract class BlockGeneric extends BaseEntityBlock
     @Override
     @Deprecated
     public final void neighborChanged( @Nonnull BlockState state, Level world, @Nonnull BlockPos pos, @Nonnull Block neighbourBlock,
-                                      @Nonnull BlockPos neighbourPos, boolean isMoving )
+                                       @Nonnull BlockPos neighbourPos, boolean isMoving )
     {
         BlockEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileGeneric )
@@ -78,7 +79,7 @@ public abstract class BlockGeneric extends BaseEntityBlock
     @Override
     @Deprecated
     public final InteractionResult use( @Nonnull BlockState state, Level world, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand,
-                                     @Nonnull BlockHitResult hit )
+                                        @Nonnull BlockHitResult hit )
     {
         BlockEntity tile = world.getBlockEntity( pos );
         return tile instanceof TileGeneric ? ((TileGeneric) tile).onActivate( player, hand, hit ) : InteractionResult.PASS;
@@ -99,7 +100,7 @@ public abstract class BlockGeneric extends BaseEntityBlock
     @Override
     public BlockEntity newBlockEntity( BlockPos pos, BlockState state )
     {
-        if ( this.type != null )
+        if( this.type != null )
         {
             return type.create( pos, state );
         }

@@ -9,10 +9,11 @@ package dan200.computercraft.shared;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
-import javax.annotation.Nonnull;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Objects;
 

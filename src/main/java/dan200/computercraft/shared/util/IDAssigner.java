@@ -10,10 +10,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.fabric.mixin.WorldSavePathAccess;
+import dan200.computercraft.fabric.mixin.LevelResourceAccess;
 import me.shedaniel.cloth.api.utils.v1.GameInstanceUtils;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
+
 import java.io.File;
 import java.io.Reader;
 import java.io.Writer;
@@ -27,7 +28,7 @@ import java.util.Map;
 
 public final class IDAssigner
 {
-    private static final LevelResource FOLDER = WorldSavePathAccess.createWorldSavePath( ComputerCraft.MOD_ID );
+    private static final LevelResource FOLDER = LevelResourceAccess.create( ComputerCraft.MOD_ID );
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting()
         .create();
     private static final Type ID_TOKEN = new TypeToken<Map<String, Integer>>()

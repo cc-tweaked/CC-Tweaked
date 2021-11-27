@@ -9,8 +9,9 @@ package dan200.computercraft.shared.network.client;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.network.NetworkMessage;
-import javax.annotation.Nonnull;
 import net.minecraft.network.FriendlyByteBuf;
+
+import javax.annotation.Nonnull;
 
 /**
  * A packet, which performs an action on a {@link ClientComputer}.

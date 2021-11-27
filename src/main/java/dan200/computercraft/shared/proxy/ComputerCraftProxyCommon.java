@@ -126,7 +126,10 @@ public final class ComputerCraftProxyCommon
         } );
 
         PlayerBlockBreakEvents.BEFORE.register( ( world, player, pos, state, blockEntity ) -> {
-            if ( state.getBlock() instanceof BlockCable blockCable ) return blockCable.removedByPlayer( state, world, pos, player, false, null );
+            if( state.getBlock() instanceof BlockCable blockCable )
+            {
+                return blockCable.removedByPlayer( state, world, pos, player, false, null );
+            }
             return true;
         } );
 

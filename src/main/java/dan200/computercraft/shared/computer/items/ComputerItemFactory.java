@@ -9,8 +9,9 @@ package dan200.computercraft.shared.computer.items;
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import javax.annotation.Nonnull;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
 
 public final class ComputerItemFactory
 {

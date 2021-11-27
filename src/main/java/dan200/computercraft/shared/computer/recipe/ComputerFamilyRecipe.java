@@ -9,7 +9,6 @@ package dan200.computercraft.shared.computer.recipe;
 import com.google.gson.JsonObject;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.util.RecipeUtil;
-import javax.annotation.Nonnull;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -17,6 +16,8 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+
+import javax.annotation.Nonnull;
 
 public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
 {
@@ -72,7 +73,7 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
         }
 
         @Override
-        public void write( @Nonnull FriendlyByteBuf buf, @Nonnull T recipe )
+        public void toNetwork( @Nonnull FriendlyByteBuf buf, @Nonnull T recipe )
         {
             buf.writeVarInt( recipe.getWidth() );
             buf.writeVarInt( recipe.getHeight() );

@@ -11,12 +11,9 @@ import dan200.computercraft.ComputerCraft;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.Material;
-import net.minecraft.client.resources.model.ModelBakery;
-import net.minecraft.client.resources.model.ModelState;
-import net.minecraft.client.resources.model.UnbakedModel;
+import net.minecraft.client.resources.model.*;
 import net.minecraft.resources.ResourceLocation;
+
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Collection;
@@ -73,7 +70,7 @@ public final class TurtleModelLoader
 
         @Override
         public Collection<Material> getMaterials( Function<ResourceLocation, UnbakedModel> modelGetter,
-                                                                    Set<Pair<String, String>> missingTextureErrors )
+                                                  Set<Pair<String, String>> missingTextureErrors )
         {
             return getDependencies()
                 .stream()

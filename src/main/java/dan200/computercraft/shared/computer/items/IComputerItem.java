@@ -7,9 +7,10 @@
 package dan200.computercraft.shared.computer.items;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import javax.annotation.Nonnull;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
 
 public interface IComputerItem
 {

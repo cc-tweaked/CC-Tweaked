@@ -6,8 +6,9 @@
 
 package dan200.computercraft.shared.computer.core;
 
-import javax.annotation.Nonnull;
 import net.minecraft.util.StringRepresentable;
+
+import javax.annotation.Nonnull;
 
 public enum ComputerState implements StringRepresentable
 {

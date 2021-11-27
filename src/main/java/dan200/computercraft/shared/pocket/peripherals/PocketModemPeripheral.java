@@ -9,9 +9,10 @@ package dan200.computercraft.shared.pocket.peripherals;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
-import javax.annotation.Nonnull;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+
+import javax.annotation.Nonnull;
 
 public class PocketModemPeripheral extends WirelessModemPeripheral
 {

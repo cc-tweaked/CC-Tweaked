@@ -11,7 +11,6 @@ import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
-import javax.annotation.Nonnull;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
@@ -19,6 +18,8 @@ import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.Level;
+
+import javax.annotation.Nonnull;
 
 public final class PocketComputerUpgradeRecipe extends CustomRecipe
 {
@@ -39,12 +40,12 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe
     @Override
     public boolean matches( @Nonnull CraftingContainer inventory, @Nonnull Level world )
     {
-        return !craft( inventory ).isEmpty();
+        return !assemble( inventory ).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack craft( @Nonnull CraftingContainer inventory )
+    public ItemStack assemble( @Nonnull CraftingContainer inventory )
     {
         // Scan the grid for a pocket computer
         ItemStack computer = ItemStack.EMPTY;

@@ -1,14 +1,13 @@
 plugins {
     id 'fabric-loom' version '0.9-SNAPSHOT'
     id 'maven-publish'
-    id "checkstyle"
+    //id "checkstyle"
     id "com.github.hierynomus.license" version "0.16.1"
 }
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(16)
-        vendor = JvmVendorSpec.ADOPTOPENJDK
     }
 }
 
@@ -29,16 +28,16 @@ repositories {
     }
 }
 
-//loom {
-//    accessWidenerPath = file("src/main/resources/cc.accesswidener")
-//}
+loom {
+    accessWidenerPath = file("src/main/resources/cc.accesswidener")
+}
 
 configurations {
     implementation.extendsFrom shade
 }
 
 dependencies {
-    checkstyle 'com.puppycrawl.tools:checkstyle:8.45.1'
+    //checkstyle 'com.puppycrawl.tools:checkstyle:8.45.1'
 
     minecraft "com.mojang:minecraft:${mc_version}"
     //mappings "net.fabricmc:yarn:${mc_version}+build.${mappings_version}:v2"

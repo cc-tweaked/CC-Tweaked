@@ -9,8 +9,9 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.core.asm.LuaMethod;
-import javax.annotation.Nonnull;
 import net.minecraft.resources.ResourceLocation;
+
+import javax.annotation.Nonnull;
 
 /**
  * A generic source of {@link LuaMethod} functions.

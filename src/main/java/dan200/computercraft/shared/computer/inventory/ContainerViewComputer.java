@@ -12,9 +12,10 @@ import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.container.ViewComputerContainerData;
-import javax.annotation.Nonnull;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+
+import javax.annotation.Nonnull;
 
 public class ContainerViewComputer extends ComputerMenuWithoutInventory
 {

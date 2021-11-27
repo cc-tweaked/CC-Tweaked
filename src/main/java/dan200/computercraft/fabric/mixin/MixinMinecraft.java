@@ -16,22 +16,22 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin( Minecraft.class )
-public abstract class MixinMinecraftClient
+public abstract class MixinMinecraft
 {
-    @Inject( method = "render", at = @At( "HEAD" ) )
+    @Inject( method = "runTick", at = @At( "HEAD" ) )
     private void onRender( CallbackInfo info )
     {
         FrameInfo.onRenderFrame();
     }
 
-    @Inject( method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At( "RETURN" ) )
+    @Inject( method = "clearLevel(Lnet/minecraft/client/gui/screens/Screen;)V", at = @At( "RETURN" ) )
     private void disconnectAfter( Screen screen, CallbackInfo info )
     {
         ClientUnloadWorldEvent.EVENT.invoker().onClientUnloadWorld();
     }
 
-    @Inject( method = "joinWorld", at = @At( "RETURN" ) )
-    private void joinWorldAfter( ClientLevel world, CallbackInfo info )
+    @Inject( method = "setLevel", at = @At( "RETURN" ) )
+    private void setLevel( ClientLevel world, CallbackInfo info )
     {
         ClientUnloadWorldEvent.EVENT.invoker().onClientUnloadWorld();
     }

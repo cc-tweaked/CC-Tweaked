@@ -32,6 +32,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
+
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -153,7 +154,7 @@ public final class NetworkHandler
     {
         for( Player player : chunk.getLevel().players() )
         {
-            if ( chunk.getLevel().dimension().location() == player.getCommandSenderWorld().dimension().location() && player.chunkPosition().equals( chunk.getPos() ) )
+            if( chunk.getLevel().dimension().location() == player.getCommandSenderWorld().dimension().location() && player.chunkPosition().equals( chunk.getPos() ) )
             {
                 ((ServerPlayer) player).connection.send( new ClientboundCustomPayloadPacket( ID, encode( packet ) ) );
             }

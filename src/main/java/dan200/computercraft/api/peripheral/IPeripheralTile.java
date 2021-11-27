@@ -5,11 +5,12 @@
  */
 package dan200.computercraft.api.peripheral;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * A {@link net.minecraft.world.level.block.entity.BlockEntity} which may act as a peripheral.

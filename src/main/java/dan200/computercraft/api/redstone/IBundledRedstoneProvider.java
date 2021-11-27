@@ -6,10 +6,11 @@
 
 package dan200.computercraft.api.redstone;
 
-import javax.annotation.Nonnull;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+
+import javax.annotation.Nonnull;
 
 /**
  * This interface is used to provide bundled redstone output for blocks.

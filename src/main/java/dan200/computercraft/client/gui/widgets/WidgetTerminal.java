@@ -6,6 +6,8 @@
 
 package dan200.computercraft.client.gui.widgets;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ClientComputer;
@@ -22,9 +24,6 @@ import java.util.BitSet;
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
-
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
 
 public class WidgetTerminal extends AbstractWidget
 {

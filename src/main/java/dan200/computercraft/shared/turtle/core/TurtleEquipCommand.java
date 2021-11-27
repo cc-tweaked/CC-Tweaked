@@ -14,10 +14,11 @@ import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.ItemStorage;
 import dan200.computercraft.shared.util.WorldUtil;
-import javax.annotation.Nonnull;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
 
 public class TurtleEquipCommand implements ITurtleCommand
 {

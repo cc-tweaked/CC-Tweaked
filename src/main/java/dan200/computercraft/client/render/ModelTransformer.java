@@ -5,14 +5,15 @@
  */
 package dan200.computercraft.client.render;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector4f;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+
 import java.util.List;
 
 /**

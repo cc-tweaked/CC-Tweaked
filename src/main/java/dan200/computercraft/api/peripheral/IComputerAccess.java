@@ -13,9 +13,10 @@ import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.ILuaTask;
 import dan200.computercraft.api.lua.MethodResult;
+import net.minecraft.world.level.Level;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import net.minecraft.world.level.Level;
 import java.util.Map;
 
 /**

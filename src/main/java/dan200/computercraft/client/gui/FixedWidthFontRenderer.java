@@ -6,23 +6,23 @@
 
 package dan200.computercraft.client.gui;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Transformation;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
 
-import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Transformation;
+import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
 
 public final class FixedWidthFontRenderer
 {

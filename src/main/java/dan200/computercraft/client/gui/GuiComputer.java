@@ -6,6 +6,7 @@
 
 package dan200.computercraft.client.gui;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
@@ -13,14 +14,13 @@ import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
-import javax.annotation.Nonnull;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
+import javax.annotation.Nonnull;
+
 import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.getTexture;
-
-import com.mojang.blaze3d.vertex.PoseStack;
 
 public final class GuiComputer<T extends ContainerComputerBase> extends ComputerScreenBase<T>
 {
@@ -59,6 +59,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Computer
             leftPos + ComputerSidebar.WIDTH + BORDER, topPos + BORDER, termWidth, termHeight
         );
     }
+
     @Override
     public void renderBg( @Nonnull PoseStack stack, float partialTicks, int mouseX, int mouseY )
     {

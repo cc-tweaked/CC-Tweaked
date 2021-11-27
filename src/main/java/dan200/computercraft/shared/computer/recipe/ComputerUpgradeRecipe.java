@@ -8,12 +8,13 @@ package dan200.computercraft.shared.computer.recipe;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.IComputerItem;
-import javax.annotation.Nonnull;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+
+import javax.annotation.Nonnull;
 
 public class ComputerUpgradeRecipe extends ComputerFamilyRecipe
 {

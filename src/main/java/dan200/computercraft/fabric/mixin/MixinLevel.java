@@ -6,6 +6,8 @@
 package dan200.computercraft.fabric.mixin;
 
 import dan200.computercraft.shared.common.TileGeneric;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,9 +15,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import javax.annotation.Nullable;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import java.util.Collection;
 
 /**
@@ -24,21 +23,15 @@ import java.util.Collection;
  * Forge does this, this is just a bodge to get Fabric in line with that behaviour.
  */
 @Mixin( Level.class )
-public class MixinWorld
+public class MixinLevel
 {
     @Shadow
-    private boolean iteratingTickingBlockEntities;
+    protected boolean tickingBlockEntities;
 
-    @Shadow
-    public boolean isInBuildLimit( BlockPos pos )
+    @Inject( method = "setBlockEntity", at = @At( "HEAD" ) )
+    public void setBlockEntity( @Nullable BlockEntity entity, CallbackInfo info )
     {
-        return false;
-    }
-
-    @Inject( method = "addBlockEntity", at = @At( "HEAD" ) )
-    public void addBlockEntity( @Nullable BlockEntity entity, CallbackInfo info )
-    {
-        if( entity != null && !entity.isRemoved() && this.isInBuildLimit( entity.getBlockPos() ) && iteratingTickingBlockEntities )
+        if( entity != null && !entity.isRemoved() && entity.getLevel().isInWorldBounds( entity.getBlockPos() ) && tickingBlockEntities )
         {
             setWorld( entity, this );
         }
@@ -48,14 +41,14 @@ public class MixinWorld
     {
         if( entity.getLevel() != world && entity instanceof TileGeneric )
         {
-            entity.setLevel( (Level) world );
+            entity.setLevel( (Level) world ); //TODO why?
         }
     }
 
     //    @Inject( method = "addBlockEntities", at = @At( "HEAD" ) )
     public void addBlockEntities( Collection<BlockEntity> entities, CallbackInfo info )
     {
-        if( iteratingTickingBlockEntities )
+        if( tickingBlockEntities )
         {
             for( BlockEntity entity : entities )
             {

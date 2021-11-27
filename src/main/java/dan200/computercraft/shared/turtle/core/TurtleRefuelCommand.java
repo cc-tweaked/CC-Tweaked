@@ -12,8 +12,9 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.api.turtle.event.TurtleRefuelEvent;
-import javax.annotation.Nonnull;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
 
 public class TurtleRefuelCommand implements ITurtleCommand
 {

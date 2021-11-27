@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.computer.recipe;
 
 import dan200.computercraft.shared.computer.items.IComputerItem;
-import javax.annotation.Nonnull;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -15,6 +14,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
+
+import javax.annotation.Nonnull;
 
 /**
  * Represents a recipe which converts a computer from one form into another.

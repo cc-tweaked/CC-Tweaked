@@ -17,13 +17,13 @@ import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.server.ContinueUploadMessage;
 import dan200.computercraft.shared.network.server.UploadFileMessage;
-import org.lwjgl.glfw.GLFW;
-
-import javax.annotation.Nonnull;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Inventory;
+import org.lwjgl.glfw.GLFW;
+
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;

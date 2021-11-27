@@ -14,7 +14,6 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
-import net.minecraft.block.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -40,6 +39,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -72,7 +72,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Simple
     @Override
     @Deprecated
     public BlockState updateShape( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState,
-                                                 @Nonnull LevelAccessor world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
+                                   @Nonnull LevelAccessor world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
     {
         updateWaterloggedPostPlacement( state, world, pos );
         return state;
@@ -184,7 +184,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Simple
 
     public BlockEntityType<? extends TileTurtle> getTypeByFamily( ComputerFamily family )
     {
-        if ( family == ComputerFamily.ADVANCED )
+        if( family == ComputerFamily.ADVANCED )
         {
             return ComputerCraftRegistry.ModTiles.TURTLE_ADVANCED;
         }

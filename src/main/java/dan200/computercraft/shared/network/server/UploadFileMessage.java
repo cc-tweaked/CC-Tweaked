@@ -15,6 +15,7 @@ import io.netty.handler.codec.DecoderException;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+
 import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;

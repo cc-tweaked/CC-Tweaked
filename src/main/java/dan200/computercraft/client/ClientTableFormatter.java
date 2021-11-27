@@ -6,20 +6,20 @@
 
 package dan200.computercraft.client;
 
-import dan200.computercraft.fabric.mixin.ChatHudAccess;
+import dan200.computercraft.fabric.mixin.ChatComponentAccess;
 import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.command.text.TableFormatter;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import org.apache.commons.lang3.StringUtils;
-
-import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.annotation.Nullable;
 
 public class ClientTableFormatter implements TableFormatter
 {
@@ -73,7 +73,7 @@ public class ClientTableFormatter implements TableFormatter
         // int maxWidth = MathHelper.floor( chat.getChatWidth() / chat.getScale() );
         // List<ITextProperties> list = RenderComponentsUtil.func_238505_a_( component, maxWidth, mc.fontRenderer );
         // if( !list.isEmpty() ) chat.printChatMessageWithOptionalDeletion( list.get( 0 ), id );
-        ((ChatHudAccess) chat).callAddMessage( component, id );
+        ((ChatComponentAccess) chat).callAddMessage( component, id );
     }
 
     @Override
@@ -88,7 +88,7 @@ public class ClientTableFormatter implements TableFormatter
 
         for( int i = height; i < lastHeight; i++ )
         {
-            ((ChatHudAccess) chat).callRemoveMessage( i + table.getId() );
+            ((ChatComponentAccess) chat).callRemoveById( i + table.getId() );
         }
         return height;
     }

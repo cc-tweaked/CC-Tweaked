@@ -11,6 +11,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.network.FriendlyByteBuf;
+
 import javax.annotation.Nonnull;
 import java.util.UUID;
 

@@ -12,10 +12,11 @@ import dan200.computercraft.api.turtle.event.TurtleRefuelEvent;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.ItemStorage;
 import dan200.computercraft.shared.util.WorldUtil;
-import javax.annotation.Nonnull;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
+
+import javax.annotation.Nonnull;
 
 public final class FurnaceRefuelHandler implements TurtleRefuelEvent.Handler
 {

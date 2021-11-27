@@ -10,14 +10,15 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dan200.computercraft.api.turtle.FakePlayer;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 public final class CommandUtils
 {

@@ -13,14 +13,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin( ItemInHandRenderer.class )
-public interface HeldItemRendererAccess
+public interface ItemInHandRendererAccess
 {
     @Invoker
-    float callGetMapAngle( float tickDelta );
+    float callCalculateMapTilt( float tickDelta );
 
     @Invoker
-    void callRenderArm( PoseStack matrices, MultiBufferSource vertexConsumers, int light, HumanoidArm arm );
+    void callRenderMapHand( PoseStack matrices, MultiBufferSource vertexConsumers, int light, HumanoidArm arm );
 
     @Invoker
-    void callRenderArmHoldingItem( PoseStack matrices, MultiBufferSource vertexConsumers, int light, float equipProgress, float swingProgress, HumanoidArm arm );
+    void callRenderPlayerArm( PoseStack matrices, MultiBufferSource vertexConsumers, int light, float equipProgress, float swingProgress, HumanoidArm arm );
 }

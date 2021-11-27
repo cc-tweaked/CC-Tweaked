@@ -7,10 +7,11 @@ package dan200.computercraft.api;
 
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
-import javax.annotation.Nonnull;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
 
 /**
  * Common functionality between {@link ITurtleUpgrade} and {@link IPocketUpgrade}.

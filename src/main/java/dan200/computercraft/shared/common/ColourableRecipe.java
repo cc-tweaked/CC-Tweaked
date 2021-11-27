@@ -8,7 +8,6 @@ package dan200.computercraft.shared.common;
 
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
-import javax.annotation.Nonnull;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.DyeColor;
@@ -17,6 +16,8 @@ import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.Level;
+
+import javax.annotation.Nonnull;
 
 public final class ColourableRecipe extends CustomRecipe
 {
@@ -63,7 +64,7 @@ public final class ColourableRecipe extends CustomRecipe
 
     @Nonnull
     @Override
-    public ItemStack craft( @Nonnull CraftingContainer inv )
+    public ItemStack assemble( @Nonnull CraftingContainer inv )
     {
         ItemStack colourable = ItemStack.EMPTY;
 

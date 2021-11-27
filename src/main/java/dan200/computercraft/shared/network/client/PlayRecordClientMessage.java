@@ -16,6 +16,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.sounds.SoundEvent;
+
 import javax.annotation.Nonnull;
 
 /**

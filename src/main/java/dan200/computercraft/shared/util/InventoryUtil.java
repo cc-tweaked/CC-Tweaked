@@ -6,9 +6,6 @@
 
 package dan200.computercraft.shared.util;
 
-import org.apache.commons.lang3.tuple.Pair;
-
-import javax.annotation.Nonnull;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Container;
@@ -22,6 +19,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.tuple.Pair;
+
+import javax.annotation.Nonnull;
 
 public final class InventoryUtil
 {

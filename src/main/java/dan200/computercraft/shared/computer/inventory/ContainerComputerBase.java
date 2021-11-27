@@ -17,14 +17,15 @@ import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.UploadResultMessage;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 import java.util.*;
@@ -53,7 +54,7 @@ public abstract class ContainerComputerBase extends AbstractContainerMenu implem
     }
 
     public ContainerComputerBase( MenuType<? extends ContainerComputerBase> type, int id, Predicate<Player> canUse, IComputer computer,
-                                     ComputerFamily family )
+                                  ComputerFamily family )
     {
         super( type, id );
         this.canUse = canUse;

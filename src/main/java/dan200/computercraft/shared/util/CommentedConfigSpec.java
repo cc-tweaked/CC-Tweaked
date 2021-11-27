@@ -32,7 +32,7 @@ public class CommentedConfigSpec extends ConfigSpec
     @Override
     public int correct( Config config )
     {
-        return correct( config, ( action, path, incorrectValue, correctedValue ) -> { } );
+        return correct( config, ( action, path, incorrectValue, correctedValue ) -> {} );
     }
 
     @Override

@@ -14,16 +14,11 @@ import dan200.computercraft.shared.util.WorldUtil;
 import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.*;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -36,6 +31,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.EnumMap;
@@ -55,7 +51,7 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock, 
     private static final BooleanProperty DOWN = BooleanProperty.create( "down" );
 
     static final EnumMap<Direction, BooleanProperty> CONNECTIONS = new EnumMap<>( new ImmutableMap.Builder<Direction, BooleanProperty>().put( Direction.DOWN,
-        DOWN )
+            DOWN )
         .put( Direction.UP,
             UP )
         .put( Direction.NORTH,
@@ -94,7 +90,7 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock, 
     @Override
     @Deprecated
     public BlockState updateShape( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState,
-                                                 @Nonnull LevelAccessor world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
+                                   @Nonnull LevelAccessor world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
     {
         updateWaterloggedPostPlacement( state, world, pos );
         // Should never happen, but handle the case where we've no modem or cable.

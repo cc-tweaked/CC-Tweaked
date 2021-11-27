@@ -13,7 +13,6 @@ import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.ItemComputerBase;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
-import javax.annotation.Nonnull;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -22,6 +21,8 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
 
 import static dan200.computercraft.shared.turtle.core.TurtleBrain.*;
 

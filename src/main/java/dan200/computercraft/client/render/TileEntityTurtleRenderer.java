@@ -17,7 +17,6 @@ import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
-import javax.annotation.Nonnull;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -34,6 +33,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Random;
 
@@ -147,7 +148,7 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
     }
 
     private void renderUpgrade( @Nonnull PoseStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, TileTurtle turtle,
-                                      TurtleSide side, float f )
+                                TurtleSide side, float f )
     {
         ITurtleUpgrade upgrade = turtle.getUpgrade( side );
         if( upgrade == null )
@@ -170,7 +171,7 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
     }
 
     private void renderModel( @Nonnull PoseStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight,
-                                    ModelResourceLocation modelLocation, int[] tints )
+                              ModelResourceLocation modelLocation, int[] tints )
     {
         ModelManager modelManager = Minecraft.getInstance()
             .getItemRenderer()
@@ -180,7 +181,7 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
     }
 
     private void renderModel( @Nonnull PoseStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, BakedModel model,
-                                    int[] tints )
+                              int[] tints )
     {
         random.setSeed( 0 );
         renderQuads( transform, renderer, lightmapCoord, overlayLight, model.getQuads( null, null, random ), tints );

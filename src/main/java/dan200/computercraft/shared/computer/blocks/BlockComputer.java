@@ -10,8 +10,6 @@ import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.items.ComputerItemFactory;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -24,6 +22,9 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class BlockComputer extends BlockComputerBase<TileComputer>
 {
@@ -61,12 +62,12 @@ public class BlockComputer extends BlockComputerBase<TileComputer>
 
     public BlockEntityType<? extends TileComputer> getTypeByFamily( ComputerFamily family )
     {
-        return switch ( family )
-        {
-            case COMMAND -> ComputerCraftRegistry.ModTiles.COMPUTER_COMMAND;
-            case ADVANCED -> ComputerCraftRegistry.ModTiles.COMPUTER_ADVANCED;
-            default -> ComputerCraftRegistry.ModTiles.COMPUTER_NORMAL;
-        };
+        return switch( family )
+            {
+                case COMMAND -> ComputerCraftRegistry.ModTiles.COMPUTER_COMMAND;
+                case ADVANCED -> ComputerCraftRegistry.ModTiles.COMPUTER_ADVANCED;
+                default -> ComputerCraftRegistry.ModTiles.COMPUTER_NORMAL;
+            };
     }
 
     @Nullable

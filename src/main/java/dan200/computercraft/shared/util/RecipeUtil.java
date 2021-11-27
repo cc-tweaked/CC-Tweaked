@@ -11,19 +11,21 @@ import com.google.common.collect.Sets;
 import com.google.gson.*;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import java.util.Map;
-import java.util.Set;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
+import java.util.Map;
+import java.util.Set;
+
 // TODO: Replace some things with Forge??
 
 public final class RecipeUtil
 {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+
     private RecipeUtil() {}
 
     public static ShapedTemplate getTemplate( JsonObject json )
@@ -114,7 +116,7 @@ public final class RecipeUtil
     public static void setNbt( ItemStack itemStack, JsonObject result )
     {
         JsonElement nbtElement = result.get( "nbt" );
-        if ( nbtElement != null )
+        if( nbtElement != null )
         {
             try
             {

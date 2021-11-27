@@ -9,10 +9,11 @@ package dan200.computercraft.shared.data;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
-import javax.annotation.Nonnull;
 import net.minecraft.world.level.storage.loot.Serializer;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
+
+import javax.annotation.Nonnull;
 
 public final class ConstantLootConditionSerializer<T extends LootItemCondition> implements Serializer<T>
 {
@@ -29,7 +30,7 @@ public final class ConstantLootConditionSerializer<T extends LootItemCondition> 
     }
 
     @Override
-    public void toJson( @Nonnull JsonObject json, @Nonnull T object, @Nonnull JsonSerializationContext context )
+    public void serialize( @Nonnull JsonObject json, @Nonnull T object, @Nonnull JsonSerializationContext context )
     {
     }
 

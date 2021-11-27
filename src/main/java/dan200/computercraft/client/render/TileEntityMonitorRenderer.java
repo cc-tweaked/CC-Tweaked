@@ -8,11 +8,7 @@ package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Transformation;
 import com.mojang.math.Vector3f;
@@ -26,14 +22,12 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.DirectionUtil;
-import net.minecraft.client.render.*;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.math.*;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
@@ -41,8 +35,8 @@ import org.lwjgl.opengl.GL31;
 import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.*;
 import static com.mojang.blaze3d.platform.MemoryTracker.create;
+import static dan200.computercraft.client.gui.FixedWidthFontRenderer.*;
 
 public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonitor>
 {
@@ -58,6 +52,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
     {
         // super( context );
     }
+
     @Override
     public void render( @Nonnull TileMonitor monitor, float partialTicks, @Nonnull PoseStack transform, @Nonnull MultiBufferSource renderer,
                         int lightmapCoord, int overlayLight )

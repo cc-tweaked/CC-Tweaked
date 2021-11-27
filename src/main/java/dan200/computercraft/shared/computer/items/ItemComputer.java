@@ -8,9 +8,10 @@ package dan200.computercraft.shared.computer.items;
 
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import javax.annotation.Nonnull;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
 
 public class ItemComputer extends ItemComputerBase
 {

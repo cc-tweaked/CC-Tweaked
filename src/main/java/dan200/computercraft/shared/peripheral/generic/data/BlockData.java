@@ -6,9 +6,10 @@
 package dan200.computercraft.shared.peripheral.generic.data;
 
 import com.google.common.collect.ImmutableMap;
-import javax.annotation.Nonnull;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
+
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 

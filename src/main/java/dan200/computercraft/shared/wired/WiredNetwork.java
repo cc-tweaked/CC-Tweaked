@@ -11,9 +11,10 @@ import dan200.computercraft.api.network.Packet;
 import dan200.computercraft.api.network.wired.IWiredNetwork;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import javax.annotation.Nonnull;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;

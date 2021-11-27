@@ -14,13 +14,14 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.ItemStorage;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -289,7 +290,7 @@ public class InventoryMethods implements GenericSource
                 return ItemStorage.wrap( inventory );
             }
         }
-        else if ( object instanceof Container )
+        else if( object instanceof Container )
         {
             return ItemStorage.wrap( (Container) object );
         }

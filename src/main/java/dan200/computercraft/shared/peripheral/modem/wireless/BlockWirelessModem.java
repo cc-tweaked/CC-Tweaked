@@ -10,8 +10,6 @@ import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -30,6 +28,9 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static dan200.computercraft.shared.util.WaterloggableHelpers.*;
 
@@ -54,7 +55,7 @@ public class BlockWirelessModem extends BlockGeneric implements SimpleWaterlogge
     @Override
     @Deprecated
     public BlockState updateShape( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState,
-                                                 @Nonnull LevelAccessor world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
+                                   @Nonnull LevelAccessor world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
     {
         updateWaterloggedPostPlacement( state, world, pos );
         return side == state.getValue( FACING ) && !state.canSurvive( world, pos ) ? state.getFluidState()
@@ -90,8 +91,8 @@ public class BlockWirelessModem extends BlockGeneric implements SimpleWaterlogge
     public BlockState getStateForPlacement( BlockPlaceContext placement )
     {
         return defaultBlockState().setValue( FACING,
-            placement.getClickedFace()
-                .getOpposite() )
+                placement.getClickedFace()
+                    .getOpposite() )
             .setValue( WATERLOGGED, getWaterloggedStateForPlacement( placement ) );
     }
 
@@ -103,11 +104,11 @@ public class BlockWirelessModem extends BlockGeneric implements SimpleWaterlogge
 
     public BlockEntityType<? extends TileWirelessModem> getTypeByFamily( ComputerFamily family )
     {
-        return switch ( family )
-        {
-            case ADVANCED -> ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_ADVANCED;
-            default -> ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_NORMAL;
-        };
+        return switch( family )
+            {
+                case ADVANCED -> ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_ADVANCED;
+                default -> ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_NORMAL;
+            };
     }
 
     @Nullable

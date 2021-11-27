@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.shared.ComputerCraftRegistry;
-import javax.annotation.Nonnull;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,6 +23,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+
+import javax.annotation.Nonnull;
 
 import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.*;
 

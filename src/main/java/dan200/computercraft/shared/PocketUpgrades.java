@@ -11,6 +11,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.Util;
 import net.minecraft.world.item.ItemStack;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;

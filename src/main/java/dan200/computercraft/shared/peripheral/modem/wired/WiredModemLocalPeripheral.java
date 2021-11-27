@@ -11,13 +11,14 @@ import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.util.NBTUtil;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Map;
 

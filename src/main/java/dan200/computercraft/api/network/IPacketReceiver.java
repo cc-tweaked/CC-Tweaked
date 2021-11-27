@@ -6,9 +6,10 @@
 
 package dan200.computercraft.api.network;
 
-import javax.annotation.Nonnull;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+
+import javax.annotation.Nonnull;
 
 /**
  * An object on an {@link IPacketNetwork}, capable of receiving packets.

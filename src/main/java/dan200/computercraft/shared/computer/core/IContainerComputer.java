@@ -8,9 +8,10 @@ package dan200.computercraft.shared.computer.core;
 
 import dan200.computercraft.shared.computer.upload.FileSlice;
 import dan200.computercraft.shared.computer.upload.FileUpload;
+import net.minecraft.server.level.ServerPlayer;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import net.minecraft.server.level.ServerPlayer;
 import java.util.List;
 import java.util.UUID;
 

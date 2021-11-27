@@ -7,8 +7,6 @@ package dan200.computercraft.shared.peripheral.generic.data;
 
 import com.google.gson.JsonParseException;
 import dan200.computercraft.shared.util.NBTUtil;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -21,6 +19,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 

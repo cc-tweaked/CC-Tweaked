@@ -6,11 +6,12 @@
 
 package dan200.computercraft.shared.util;
 
-import javax.annotation.Nullable;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nullable;
 
 public final class ColourUtils
 {

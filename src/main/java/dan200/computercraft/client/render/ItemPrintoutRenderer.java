@@ -6,6 +6,9 @@
 
 package dan200.computercraft.client.render;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.item.ItemStack;
@@ -15,10 +18,6 @@ import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
 import static dan200.computercraft.shared.media.items.ItemPrintout.LINES_PER_PAGE;
 import static dan200.computercraft.shared.media.items.ItemPrintout.LINE_MAX_LENGTH;
-
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
 
 /**
  * Emulates map and item-frame rendering for printouts.

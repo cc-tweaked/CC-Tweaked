@@ -5,13 +5,14 @@
  */
 package dan200.computercraft.shared.peripheral.generic.data;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +20,7 @@ import java.util.Map;
 public final class DataHelpers
 {
     private DataHelpers()
-    { }
+    {}
 
     @Nonnull
     public static Map<String, Boolean> getTags( @Nonnull Collection<ResourceLocation> tags )

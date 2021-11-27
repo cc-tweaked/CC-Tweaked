@@ -22,27 +22,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin( LevelRenderer.class )
 @Environment( EnvType.CLIENT )
-public class MixinWorldRenderer
+public class MixinLevelRenderer
 {
-    @Inject( method = "drawBlockOutline", cancellable = true, at = @At( "HEAD" ) )
-    public void drawBlockOutline( PoseStack matrixStack, VertexConsumer vertexConsumer, Entity entity, double d, double e, double f, BlockPos blockPos,
+    @Inject( method = "renderHitOutline", cancellable = true, at = @At( "HEAD" ) )
+    public void renderHitOutline( PoseStack matrixStack, VertexConsumer vertexConsumer, Entity entity, double d, double e, double f, BlockPos blockPos,
                                   BlockState blockState, CallbackInfo info )
     {
-        if( CableHighlightRenderer.drawHighlight( matrixStack,
-            vertexConsumer,
-            entity,
-            d,
-            e,
-            f,
-            blockPos,
-            blockState ) || MonitorHighlightRenderer.drawHighlight( matrixStack,
-            vertexConsumer,
-            entity,
-            d,
-            e,
-            f,
-            blockPos,
-            blockState ) )
+        if( CableHighlightRenderer.drawHighlight( matrixStack, vertexConsumer, entity, d, e, f, blockPos, blockState )
+            || MonitorHighlightRenderer.drawHighlight( matrixStack, vertexConsumer, entity, d, e, f, blockPos, blockState ) )
         {
             info.cancel();
         }

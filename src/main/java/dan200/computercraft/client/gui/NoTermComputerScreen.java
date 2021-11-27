@@ -10,9 +10,6 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
-import org.lwjgl.glfw.GLFW;
-
-import javax.annotation.Nonnull;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
@@ -20,6 +17,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
+import org.lwjgl.glfw.GLFW;
+
+import javax.annotation.Nonnull;
 import java.util.List;
 
 public class NoTermComputerScreen<T extends ContainerComputerBase> extends Screen implements MenuAccess<T>

@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.data;
 
-import javax.annotation.Nonnull;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -14,6 +13,8 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
+
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Set;
 

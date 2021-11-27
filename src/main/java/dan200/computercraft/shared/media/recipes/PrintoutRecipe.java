@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.media.recipes;
 
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import javax.annotation.Nonnull;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
@@ -17,6 +16,8 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.Level;
+
+import javax.annotation.Nonnull;
 
 public final class PrintoutRecipe extends CustomRecipe
 {
@@ -40,12 +41,12 @@ public final class PrintoutRecipe extends CustomRecipe
     @Override
     public boolean matches( @Nonnull CraftingContainer inventory, @Nonnull Level world )
     {
-        return !craft( inventory ).isEmpty();
+        return !assemble( inventory ).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack craft( @Nonnull CraftingContainer inventory )
+    public ItemStack assemble( @Nonnull CraftingContainer inventory )
     {
         // See if we match the recipe, and extract the input disk ID and dye colour
         int numPages = 0;

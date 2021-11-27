@@ -10,7 +10,6 @@ import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
-import javax.annotation.Nonnull;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.DyeColor;
@@ -21,6 +20,8 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.Level;
+
+import javax.annotation.Nonnull;
 
 public class DiskRecipe extends CustomRecipe
 {
@@ -74,7 +75,7 @@ public class DiskRecipe extends CustomRecipe
 
     @Nonnull
     @Override
-    public ItemStack craft( @Nonnull CraftingContainer inv )
+    public ItemStack assemble( @Nonnull CraftingContainer inv )
     {
         ColourTracker tracker = new ColourTracker();
 

@@ -50,7 +50,6 @@ import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
-import net.minecraft.block.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
@@ -70,6 +69,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
+
 import java.util.function.BiFunction;
 
 import static net.minecraft.core.Registry.BLOCK_ENTITY_TYPE;
@@ -122,7 +122,7 @@ public final class ComputerCraftRegistry
             new BlockWiredModemFull( modemProperties(), ComputerCraftRegistry.ModTiles.WIRED_MODEM_FULL ) );
         public static final BlockCable CABLE = register( "cable", new BlockCable( modemProperties() ) );
 
-        private static Block.Settings properties()
+        private static BlockBehaviour.Properties properties()
         {
             //return FabricBlockSettings.copyOf(Blocks.GLASS)
             //                        .strength(2);
@@ -132,13 +132,13 @@ public final class ComputerCraftRegistry
                 .noOcclusion();
         }
 
-        private static Block.Settings turtleProperties()
+        private static BlockBehaviour.Properties turtleProperties()
         {
             return FabricBlockSettings.copyOf( Blocks.STONE )
                 .strength( 2.5f );
         }
 
-        private static Block.Settings modemProperties()
+        private static BlockBehaviour.Properties modemProperties()
         {
             return FabricBlockSettings.copyOf( Blocks.STONE )
                 .breakByHand( true )
@@ -274,7 +274,7 @@ public final class ComputerCraftRegistry
         public static final MenuType<ContainerViewComputer> VIEW_COMPUTER = ContainerData.toType( new ResourceLocation( MOD_ID, "view_computer" ), ViewComputerContainerData::new, ContainerViewComputer::new );
 
         private static <T extends AbstractContainerMenu> MenuType<T> registerSimple( String id,
-                                                                                      ScreenHandlerRegistry.SimpleClientHandlerFactory<T> function )
+                                                                                     ScreenHandlerRegistry.SimpleClientHandlerFactory<T> function )
         {
             return ScreenHandlerRegistry.registerSimple( new ResourceLocation( MOD_ID, id ), function );
         }

@@ -22,13 +22,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin( ItemFrameRenderer.class )
 @Environment( EnvType.CLIENT )
-public class MixinItemFrameEntityRenderer
+public class MixinItemFrameRenderer
 {
     @Inject(
         method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/util/math/MatrixStack;multiply(Lnet/minecraft/util/math/Quaternion;)V",
+            target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lcom/mojang/math/Quaternion;)V",
             ordinal = 2,
             shift = At.Shift.AFTER
         ),

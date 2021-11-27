@@ -13,8 +13,6 @@ import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.items.IComputerItem;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -32,6 +30,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class BlockComputerBase<T extends TileComputerBase> extends BlockGeneric implements IBundledRedstoneBlock
 {
@@ -126,7 +127,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     @Override
     public void playerDestroy( @Nonnull Level world, Player player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity tile,
-                            @Nonnull ItemStack tool )
+                               @Nonnull ItemStack tool )
     {
         // Don't drop blocks here - see onBlockHarvested.
         player.awardStat( Stats.BLOCK_MINED.get( this ) );
@@ -217,7 +218,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker( Level world, BlockState state, BlockEntityType<T> type )
     {
         return world.isClientSide ? null : ( world1, pos, state1, tile ) -> {
-            if ( tile instanceof TileComputerBase computer )
+            if( tile instanceof TileComputerBase computer )
             {
                 computer.serverTick();
             }

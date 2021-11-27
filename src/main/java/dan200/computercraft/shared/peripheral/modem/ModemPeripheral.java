@@ -14,9 +14,10 @@ import dan200.computercraft.api.network.IPacketSender;
 import dan200.computercraft.api.network.Packet;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import javax.annotation.Nonnull;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+
+import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.Set;
 

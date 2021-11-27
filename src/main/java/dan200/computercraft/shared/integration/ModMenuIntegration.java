@@ -42,7 +42,7 @@ public class ModMenuIntegration implements ModMenuApi
 
             client.addEntry( entryBuilder.startEnumSelector( new TextComponent( "Monitor Renderer" ), MonitorRenderer.class, ComputerCraft.monitorRenderer )
                 .setDefaultValue( MonitorRenderer.BEST )
-                .setSaveConsumer( renderer -> { Config.clientConfig.set( "monitor_renderer", renderer ); } )
+                .setSaveConsumer( renderer -> {Config.clientConfig.set( "monitor_renderer", renderer );} )
                 .setTooltip( Component.nullToEmpty( Config.clientConfig.getComment( "monitor_renderer" ) ) )
                 .build() );
 

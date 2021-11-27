@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
+
 import javax.annotation.Nonnull;
 import java.util.function.Function;
 
@@ -30,6 +31,7 @@ public interface ContainerData
                 playerInventory,
                 reader.apply( packetByteBuf ) ) );
     }
+
     static <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> toType( ResourceLocation identifier, MenuType<C> type, Function<FriendlyByteBuf, T> reader,
                                                                                           FixedFactory<C, T> factory )
     {
@@ -43,7 +45,7 @@ public interface ContainerData
 
     default void open( Player player, MenuProvider owner )
     {
-        if ( player.level.isClientSide ) return;
+        if( player.level.isClientSide ) return;
         player.openMenu( owner );
     }
 

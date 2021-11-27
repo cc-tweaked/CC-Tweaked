@@ -11,6 +11,7 @@ import dan200.computercraft.shared.computer.core.InputState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.network.FriendlyByteBuf;
+
 import javax.annotation.Nonnull;
 
 public class KeyEventServerMessage extends ComputerServerMessage

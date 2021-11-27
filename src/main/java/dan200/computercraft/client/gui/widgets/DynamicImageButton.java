@@ -7,12 +7,13 @@ package dan200.computercraft.client.gui.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import javax.annotation.Nonnull;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
+
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;

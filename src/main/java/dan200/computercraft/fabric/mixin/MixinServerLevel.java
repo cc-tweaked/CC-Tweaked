@@ -19,10 +19,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * @see ServerLevel#addFreshEntity(Entity)
  */
 @Mixin( ServerLevel.class )
-public class MixinServerWorld
+public class MixinServerLevel
 {
-    @Inject( method = "spawnEntity", at = @At( "HEAD" ), cancellable = true )
-    public void spawnEntity( Entity entity, CallbackInfoReturnable<Boolean> callbackInfo )
+    @Inject( method = "addEntity", at = @At( "HEAD" ), cancellable = true )
+    public void addEntity( Entity entity, CallbackInfoReturnable<Boolean> callbackInfo )
     {
         if( DropConsumer.onEntitySpawn( entity ) )
         {

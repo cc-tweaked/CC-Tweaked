@@ -7,9 +7,10 @@
 package dan200.computercraft.shared.network.container;
 
 import dan200.computercraft.shared.common.ContainerHeldItem;
-import javax.annotation.Nonnull;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.InteractionHand;
+
+import javax.annotation.Nonnull;
 
 /**
  * Opens a printout GUI based on the currently held item.

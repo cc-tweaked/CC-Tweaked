@@ -5,14 +5,17 @@
  */
 package dan200.computercraft.fabric.mixin;
 
+import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.block.entity.SignBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin( SignBlockEntity.class )
-public interface SignBlockEntityAccess
+@Mixin( ChatComponent.class )
+public interface ChatComponentAccess
 {
-    @Accessor
-    Component[] getTexts();
+    @Invoker
+    void callAddMessage( Component text, int messageId );
+
+    @Invoker
+    void callRemoveById( int messageId );
 }

@@ -19,10 +19,11 @@ import dan200.computercraft.core.asm.TaskCallback;
 import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.turtle.core.*;
+import net.minecraft.world.item.ItemStack;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import net.minecraft.world.item.ItemStack;
 
 /**
  * The turtle API allows you to control your turtle.

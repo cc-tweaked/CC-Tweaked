@@ -7,11 +7,12 @@
 package dan200.computercraft.api.pocket;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Map;
 
 /**

@@ -13,6 +13,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.Direction;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 

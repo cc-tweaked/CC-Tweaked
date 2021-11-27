@@ -5,11 +5,12 @@
  */
 package dan200.computercraft.shared.util;
 
-import javax.annotation.Nonnull;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Container;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
 
 /**
  * The most cutesy alternative of {@code IItemHandler} the world has ever seen.

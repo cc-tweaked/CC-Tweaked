@@ -12,8 +12,6 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.core.filesystem.SubMount;
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.util.Colour;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -23,6 +21,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
 

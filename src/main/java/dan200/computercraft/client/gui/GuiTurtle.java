@@ -14,10 +14,11 @@ import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
-import javax.annotation.Nonnull;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+
+import javax.annotation.Nonnull;
 
 import static dan200.computercraft.shared.turtle.inventory.ContainerTurtle.BORDER;
 

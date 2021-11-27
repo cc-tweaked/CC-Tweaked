@@ -10,7 +10,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
-import net.minecraft.network.*;
+import net.minecraft.network.Connection;
+import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -36,6 +37,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.phys.Vec3;
+
 import javax.annotation.Nullable;
 import javax.crypto.Cipher;
 import java.util.Collection;

@@ -6,6 +6,9 @@
 
 package dan200.computercraft.api.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Transformation;
+import com.mojang.math.Vector3f;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -13,10 +16,8 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.item.ItemStack;
+
 import javax.annotation.Nonnull;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Transformation;
-import com.mojang.math.Vector3f;
 import java.util.Objects;
 
 /**

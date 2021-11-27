@@ -14,6 +14,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+
 import javax.annotation.Nonnull;
 
 public class ChatTableClientMessage implements NetworkMessage

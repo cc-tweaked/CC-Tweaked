@@ -6,10 +6,11 @@
 
 package dan200.computercraft.shared.peripheral.modem.wired;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public enum CableModemVariant implements StringRepresentable
 {

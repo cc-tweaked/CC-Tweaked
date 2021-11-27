@@ -6,10 +6,11 @@
 
 package dan200.computercraft.shared.peripheral.modem;
 
-import javax.annotation.Nonnull;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import javax.annotation.Nonnull;
 
 public final class ModemShapes
 {

@@ -9,8 +9,6 @@ package dan200.computercraft.shared.peripheral.monitor;
 import dan200.computercraft.api.turtle.FakePlayer;
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,6 +23,9 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class BlockMonitor extends BlockGeneric
 {
@@ -69,14 +70,14 @@ public class BlockMonitor extends BlockGeneric
         }
 
         return defaultBlockState().setValue( FACING,
-            context.getHorizontalDirection()
-                .getOpposite() )
+                context.getHorizontalDirection()
+                    .getOpposite() )
             .setValue( ORIENTATION, orientation );
     }
 
     @Override
     public void setPlacedBy( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState blockState, @Nullable LivingEntity livingEntity,
-                          @Nonnull ItemStack itemStack )
+                             @Nonnull ItemStack itemStack )
     {
         super.setPlacedBy( world, pos, blockState, livingEntity, itemStack );
 

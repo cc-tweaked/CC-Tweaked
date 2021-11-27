@@ -15,12 +15,13 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import javax.annotation.Nonnull;
 import net.minecraft.commands.synchronization.ArgumentSerializer;
 import net.minecraft.commands.synchronization.ArgumentTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -137,7 +138,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
     public static class Serializer implements ArgumentSerializer<RepeatArgumentType<?, ?>>
     {
         @Override
-        public void toPacket( @Nonnull RepeatArgumentType<?, ?> arg, @Nonnull FriendlyByteBuf buf )
+        public void serializeToNetwork( @Nonnull RepeatArgumentType<?, ?> arg, @Nonnull FriendlyByteBuf buf )
         {
             buf.writeBoolean( arg.flatten );
             ArgumentTypes.serialize( buf, arg.child );
@@ -160,7 +161,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
         }
 
         @Override
-        public void toJson( @Nonnull RepeatArgumentType<?, ?> arg, @Nonnull JsonObject json )
+        public void serializeToJson( @Nonnull RepeatArgumentType<?, ?> arg, @Nonnull JsonObject json )
         {
             json.addProperty( "flatten", arg.flatten );
             json.addProperty( "child", "<<cannot serialize>>" ); // TODO: Potentially serialize this using reflection.

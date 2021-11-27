@@ -5,17 +5,16 @@
  */
 package dan200.computercraft.fabric.mixin;
 
-import net.minecraft.client.gui.components.ChatComponent;
-import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.storage.LevelResource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin( ChatComponent.class )
-public interface ChatHudAccess
+@Mixin( LevelResource.class )
+public interface LevelResourceAccess
 {
-    @Invoker
-    void callAddMessage( Component text, int messageId );
-
-    @Invoker
-    void callRemoveMessage( int messageId );
+    @Invoker( "<init>" )
+    static LevelResource create( String relativePath )
+    {
+        throw new UnsupportedOperationException();
+    }
 }

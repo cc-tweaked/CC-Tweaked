@@ -6,8 +6,6 @@
 package dan200.computercraft.fabric.mixin;
 
 import dan200.computercraft.shared.util.DropConsumer;
-import java.util.function.Supplier;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -18,18 +16,21 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+import java.util.function.Supplier;
+
 /**
  * Captures block drops.
  *
- * @see Block#popResource(Level, BlockPos, ItemStack)
+ * @see Block#popResource(Level, Supplier, ItemStack)
  */
 @Mixin( Block.class )
 public class MixinBlock
 {
-    @Inject( method = "dropStack(Lnet/minecraft/world/World;Ljava/util/function/Supplier;Lnet/minecraft/item/ItemStack;)V",
+    @Inject(
+        method = "popResource(Lnet/minecraft/world/level/Level;Ljava/util/function/Supplier;Lnet/minecraft/world/item/ItemStack;)V",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/entity/ItemEntity;setToDefaultPickupDelay()V"
+            target = "Lnet/minecraft/world/entity/item/ItemEntity;setDefaultPickUpDelay()V"
         ),
         locals = LocalCapture.CAPTURE_FAILSOFT,
         cancellable = true )

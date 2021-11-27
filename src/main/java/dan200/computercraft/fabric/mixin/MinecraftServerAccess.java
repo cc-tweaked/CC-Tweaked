@@ -6,13 +6,13 @@
 package dan200.computercraft.fabric.mixin;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.ServerResources;
+import net.minecraft.server.packs.resources.ResourceManager;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin( MinecraftServer.class )
 public interface MinecraftServerAccess
 {
-    @Accessor
-    ServerResources getServerResourceManager();
+    @Invoker
+    ResourceManager callGetResourceManager();
 }

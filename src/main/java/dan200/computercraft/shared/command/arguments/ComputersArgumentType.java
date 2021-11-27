@@ -16,10 +16,11 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import javax.annotation.Nonnull;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.synchronization.ArgumentSerializer;
 import net.minecraft.network.FriendlyByteBuf;
+
+import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -194,7 +195,7 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
     {
 
         @Override
-        public void toPacket( @Nonnull ComputersArgumentType arg, @Nonnull FriendlyByteBuf buf )
+        public void serializeToNetwork( @Nonnull ComputersArgumentType arg, @Nonnull FriendlyByteBuf buf )
         {
             buf.writeBoolean( arg.requireSome );
         }
@@ -207,7 +208,7 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
         }
 
         @Override
-        public void toJson( @Nonnull ComputersArgumentType arg, @Nonnull JsonObject json )
+        public void serializeToJson( @Nonnull ComputersArgumentType arg, @Nonnull JsonObject json )
         {
             json.addProperty( "requireSome", arg.requireSome );
         }

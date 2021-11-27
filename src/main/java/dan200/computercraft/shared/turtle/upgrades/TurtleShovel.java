@@ -12,7 +12,6 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleVerb;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
-import javax.annotation.Nonnull;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -21,6 +20,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
+
+import javax.annotation.Nonnull;
 
 public class TurtleShovel extends TurtleTool
 {

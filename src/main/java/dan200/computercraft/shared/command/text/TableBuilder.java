@@ -9,11 +9,12 @@ package dan200.computercraft.shared.command.text;
 import dan200.computercraft.shared.command.CommandUtils;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.ChatTableClientMessage;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 

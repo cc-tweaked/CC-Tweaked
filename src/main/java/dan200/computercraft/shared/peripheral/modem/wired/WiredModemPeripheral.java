@@ -22,9 +22,10 @@ import dan200.computercraft.core.apis.PeripheralAPI;
 import dan200.computercraft.core.asm.PeripheralMethod;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
+import net.minecraft.world.level.Level;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import net.minecraft.world.level.Level;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

@@ -6,8 +6,9 @@
 
 package dan200.computercraft.shared.peripheral.diskdrive;
 
-import javax.annotation.Nonnull;
 import net.minecraft.util.StringRepresentable;
+
+import javax.annotation.Nonnull;
 
 public enum DiskDriveState implements StringRepresentable
 {

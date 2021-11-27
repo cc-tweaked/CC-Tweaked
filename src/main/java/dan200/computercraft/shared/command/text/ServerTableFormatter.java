@@ -6,12 +6,12 @@
 
 package dan200.computercraft.shared.command.text;
 
-import org.apache.commons.lang3.StringUtils;
-
-import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.annotation.Nullable;
 
 public class ServerTableFormatter implements TableFormatter
 {

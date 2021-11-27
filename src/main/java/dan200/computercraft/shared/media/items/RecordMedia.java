@@ -6,12 +6,13 @@
 package dan200.computercraft.shared.media.items;
 
 import dan200.computercraft.api.media.IMedia;
-import javax.annotation.Nonnull;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.RecordItem;
+
+import javax.annotation.Nonnull;
 
 /**
  * An implementation of IMedia for ItemRecords.

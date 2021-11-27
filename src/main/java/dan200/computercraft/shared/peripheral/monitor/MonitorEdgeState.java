@@ -6,8 +6,9 @@
 
 package dan200.computercraft.shared.peripheral.monitor;
 
-import javax.annotation.Nonnull;
 import net.minecraft.util.StringRepresentable;
+
+import javax.annotation.Nonnull;
 
 import static dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState.Flags.*;
 

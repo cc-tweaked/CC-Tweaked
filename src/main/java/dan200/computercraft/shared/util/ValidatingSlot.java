@@ -6,10 +6,11 @@
 
 package dan200.computercraft.shared.util;
 
-import javax.annotation.Nonnull;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
 
 public class ValidatingSlot extends Slot
 {

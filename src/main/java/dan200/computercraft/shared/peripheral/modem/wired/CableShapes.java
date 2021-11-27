@@ -9,11 +9,12 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
 import dan200.computercraft.shared.util.DirectionUtil;
-import java.util.EnumMap;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import java.util.EnumMap;
 
 import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.*;
 
@@ -25,13 +26,13 @@ public final class CableShapes
     private static final VoxelShape SHAPE_CABLE_CORE = Shapes.box( MIN, MIN, MIN, MAX, MAX, MAX );
     private static final EnumMap<Direction, VoxelShape> SHAPE_CABLE_ARM =
         new EnumMap<>( new ImmutableMap.Builder<Direction, VoxelShape>().put( Direction.DOWN,
-            Shapes.box(
-                MIN,
-                0,
-                MIN,
-                MAX,
-                MIN,
-                MAX ) )
+                Shapes.box(
+                    MIN,
+                    0,
+                    MIN,
+                    MAX,
+                    MIN,
+                    MAX ) )
             .put( Direction.UP,
                 Shapes.box(
                     MIN,

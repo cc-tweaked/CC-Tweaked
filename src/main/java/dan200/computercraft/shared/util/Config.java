@@ -16,12 +16,13 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRuleConfig;
-import dan200.computercraft.fabric.mixin.WorldSavePathAccess;
+import dan200.computercraft.fabric.mixin.LevelResourceAccess;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import net.fabricmc.loader.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -40,7 +41,7 @@ public final class Config
     public static CommentedFileConfig serverConfig;
     public static CommentedFileConfig clientConfig;
 
-    private static final LevelResource serverDir = WorldSavePathAccess.createWorldSavePath( "serverconfig" );
+    private static final LevelResource serverDir = LevelResourceAccess.create( "serverconfig" );
     private static final String serverFileName = "computercraft-server.toml";
 
     private static Path serverPath = null;

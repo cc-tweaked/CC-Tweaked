@@ -8,8 +8,9 @@ package dan200.computercraft.shared.network.container;
 
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import javax.annotation.Nonnull;
 import net.minecraft.network.FriendlyByteBuf;
+
+import javax.annotation.Nonnull;
 
 /**
  * View an arbitrary computer on the client.

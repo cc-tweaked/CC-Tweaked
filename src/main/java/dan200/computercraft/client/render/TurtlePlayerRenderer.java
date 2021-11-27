@@ -7,11 +7,12 @@ package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
-import javax.annotation.Nonnull;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
+
+import javax.annotation.Nonnull;
 
 public class TurtlePlayerRenderer extends EntityRenderer<TurtlePlayer>
 { //FIXME Make sure this isn't an issue. Context was EntityRenderDispatcher.
@@ -28,7 +29,7 @@ public class TurtlePlayerRenderer extends EntityRenderer<TurtlePlayer>
 
     @Nonnull
     @Override
-    public ResourceLocation getTexture( @Nonnull TurtlePlayer entity )
+    public ResourceLocation getTextureLocation( @Nonnull TurtlePlayer entity )
     {
         return ComputerBorderRenderer.BACKGROUND_NORMAL;
     }

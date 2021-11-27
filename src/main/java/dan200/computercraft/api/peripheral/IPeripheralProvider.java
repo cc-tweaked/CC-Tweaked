@@ -6,11 +6,12 @@
 
 package dan200.computercraft.api.peripheral;
 
-import javax.annotation.Nonnull;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import javax.annotation.Nonnull;
 import java.util.Optional;
 
 /**

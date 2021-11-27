@@ -40,6 +40,7 @@ import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
@@ -61,7 +62,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
         MinecraftServer server = GameInstanceUtils.getServer();
         if( server != null )
         {
-            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess) server).getServerResourceManager().getResourceManager();
+            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess) server).callGetResourceManager();
             try
             {
                 return manager.getResource( new ResourceLocation( domain, subPath ) )
@@ -116,7 +117,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
         MinecraftServer server = GameInstanceUtils.getServer();
         if( server != null )
         {
-            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess) server).getServerResourceManager().getResourceManager();
+            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess) server).callGetResourceManager();
             ResourceMount mount = ResourceMount.get( domain, subPath, manager );
             return mount.exists( "" ) ? mount : null;
         }

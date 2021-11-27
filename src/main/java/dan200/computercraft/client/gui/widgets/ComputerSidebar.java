@@ -10,13 +10,14 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.computer.core.ClientComputer;
-import java.util.Arrays;
-import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.Arrays;
+import java.util.function.Consumer;
 
 /**
  * Registers buttons to interact with a computer.

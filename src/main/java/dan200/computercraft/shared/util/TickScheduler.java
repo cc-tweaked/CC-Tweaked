@@ -8,12 +8,13 @@ package dan200.computercraft.shared.util;
 
 import com.google.common.collect.MapMaker;
 import dan200.computercraft.shared.common.TileGeneric;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * We use this when modems and other peripherals change a block in a different thread.

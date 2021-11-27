@@ -7,12 +7,13 @@
 package dan200.computercraft.api.pocket;
 
 import dan200.computercraft.shared.util.NonNullSupplier;
-import javax.annotation.Nonnull;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
+
+import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
 /**

@@ -11,10 +11,11 @@ import dan200.computercraft.api.pocket.AbstractPocketUpgrade;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class PocketModem extends AbstractPocketUpgrade
 {

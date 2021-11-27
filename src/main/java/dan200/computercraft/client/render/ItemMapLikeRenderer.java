@@ -8,7 +8,7 @@ package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
-import dan200.computercraft.fabric.mixin.HeldItemRendererAccess;
+import dan200.computercraft.fabric.mixin.ItemInHandRendererAccess;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -72,16 +72,16 @@ public abstract class ItemMapLikeRenderer
         float tZ = -0.4f * Mth.sin( swingRt * (float) Math.PI );
         transform.translate( 0, -tX / 2, tZ );
 
-        HeldItemRendererAccess access = (HeldItemRendererAccess) renderer;
-        float pitchAngle = access.callGetMapAngle( pitch );
+        ItemInHandRendererAccess access = (ItemInHandRendererAccess) renderer;
+        float pitchAngle = access.callCalculateMapTilt( pitch );
         transform.translate( 0, 0.04F + equipProgress * -1.2f + pitchAngle * -0.5f, -0.72f );
         transform.mulPose( Vector3f.XP.rotationDegrees( pitchAngle * -85.0f ) );
         if( !minecraft.player.isInvisible() )
         {
             transform.pushPose();
             transform.mulPose( Vector3f.YP.rotationDegrees( 90.0F ) );
-            access.callRenderArm( transform, render, combinedLight, HumanoidArm.RIGHT );
-            access.callRenderArm( transform, render, combinedLight, HumanoidArm.LEFT );
+            access.callRenderMapHand( transform, render, combinedLight, HumanoidArm.RIGHT );
+            access.callRenderMapHand( transform, render, combinedLight, HumanoidArm.LEFT );
             transform.popPose();
         }
 
@@ -115,8 +115,8 @@ public abstract class ItemMapLikeRenderer
         {
             transform.pushPose();
             transform.mulPose( Vector3f.ZP.rotationDegrees( offset * 10f ) );
-            ((HeldItemRendererAccess) minecraft.getItemInHandRenderer())
-                .callRenderArmHoldingItem( transform, render, combinedLight, equipProgress, swingProgress, side );
+            ((ItemInHandRendererAccess) minecraft.getItemInHandRenderer())
+                .callRenderPlayerArm( transform, render, combinedLight, equipProgress, swingProgress, side );
             transform.popPose();
         }
 

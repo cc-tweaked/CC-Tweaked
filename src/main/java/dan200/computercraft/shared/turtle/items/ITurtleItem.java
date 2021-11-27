@@ -10,10 +10,11 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.items.IComputerItem;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface ITurtleItem extends IComputerItem, IColouredItem
 {

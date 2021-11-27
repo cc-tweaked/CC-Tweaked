@@ -9,13 +9,13 @@ import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.shared.util.Palette;
+import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.server.packs.resources.ResourceProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL13;
 
 import javax.annotation.Nullable;
-import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.server.packs.resources.ResourceProvider;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 
