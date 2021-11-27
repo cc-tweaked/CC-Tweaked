@@ -50,7 +50,7 @@ We also have a second resourcepack made by [3prm3](https://github.com/3prm3), it
 Any contribution is welcome, be that using the mod, reporting bugs or contributing code. In order to start helping develop CC: R there are a few rules;
 1) Follow the [Fabric](https://fabricmc.net/) programming guidelines as close as possible. This means you have to use [`loom`](https://fabricmc.net/wiki/tutorial:mappings) mappings, if you use anything else, your code will be rejected.
 2) You cannot intentionally implement bugs and security vulnerabilities.
-3) Unless the code is taken directly from CC: Tweaked, `lua` code is offlimits from alteration.
+3) Unless the code is taken directly from CC: Tweaked, `lua` code is offlimits from alteration. New lua code changes should target the [CC:T repo](https://github.com/cc-tweaked/CC-Tweaked).
 
 ## Bleeding Edge Builds
 Bleeding edge builds can be found [here](https://github.com/cc-tweaked/cc-restitched/actions) at Github Actions.
