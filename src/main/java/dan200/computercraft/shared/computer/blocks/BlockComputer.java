@@ -63,11 +63,11 @@ public class BlockComputer extends BlockComputerBase<TileComputer>
     public BlockEntityType<? extends TileComputer> getTypeByFamily( ComputerFamily family )
     {
         return switch( family )
-            {
-                case COMMAND -> ComputerCraftRegistry.ModTiles.COMPUTER_COMMAND;
-                case ADVANCED -> ComputerCraftRegistry.ModTiles.COMPUTER_ADVANCED;
-                default -> ComputerCraftRegistry.ModTiles.COMPUTER_NORMAL;
-            };
+        {
+            case COMMAND -> ComputerCraftRegistry.ModTiles.COMPUTER_COMMAND;
+            case ADVANCED -> ComputerCraftRegistry.ModTiles.COMPUTER_ADVANCED;
+            default -> ComputerCraftRegistry.ModTiles.COMPUTER_NORMAL;
+        };
     }
 
     @Nullable

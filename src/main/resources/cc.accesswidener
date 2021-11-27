@@ -1,8 +1,4 @@
 accessWidener v1 named
 
 accessible class net/minecraft/client/renderer/RenderType$CompositeState
-accessible class net/minecraft/client/renderer/RenderType$CompositeStateBuilder
 accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;IZZLnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
-
-accessible class net/minecraft/client/render/RenderPhase$Shader
-accessible class net/minecraft/client/render/RenderPhase$Texture

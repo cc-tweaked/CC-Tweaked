@@ -105,10 +105,10 @@ public class BlockWirelessModem extends BlockGeneric implements SimpleWaterlogge
     public BlockEntityType<? extends TileWirelessModem> getTypeByFamily( ComputerFamily family )
     {
         return switch( family )
-            {
-                case ADVANCED -> ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_ADVANCED;
-                default -> ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_NORMAL;
-            };
+        {
+            case ADVANCED -> ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_ADVANCED;
+            default -> ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_NORMAL;
+        };
     }
 
     @Nullable

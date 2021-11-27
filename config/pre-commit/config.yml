@@ -2,7 +2,7 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v3.2.0
+  rev: v4.0.1
   hooks:
   - id: trailing-whitespace
   - id: end-of-file-fixer
@@ -16,7 +16,7 @@ repos:
     exclude: "tsconfig\\.json$"
 
 - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
-  rev: 2.3.5
+  rev: 2.3.54
   hooks:
   - id: editorconfig-checker
     args: ['-disable-indentation']
@@ -36,6 +36,13 @@ repos:
     files: ".*\\.java$"
     language: system
     entry: ./gradlew licenseFormat
+    pass_filenames: false
+    require_serial: true
+  - id: illuaminate
+    name: Check Lua code
+    files: ".*\\.(lua|java|md)"
+    language: script
+    entry: config/pre-commit/illuaminate-lint.sh
     pass_filenames: false
     require_serial: true
 
