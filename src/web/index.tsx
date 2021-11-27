@@ -4,15 +4,15 @@ import type { ComponentChild } from "preact";
 import settingsFile from "./mount/.settings";
 import startupFile from "./mount/startup.lua";
 import exprTemplate from "./mount/expr_template.lua";
-import exampleImage from "./mount/example.nfp";
+import exampleNfp from "./mount/example.nfp";
+import exampleNft from "./mount/example.nft";
 
 const defaultFiles: { [filename: string]: string } = {
     ".settings": settingsFile,
     "startup.lua": startupFile,
 
-    // TODO: Ideally this'd be in data/image.nfp or something, but copy-cat's
-    // dir bootstrapping doesn't cope with that right now.
-    "test-image.nfp": exampleImage
+    "data/example.nfp": exampleNfp,
+    "data/example.nft": exampleNft,
 };
 
 const clamp = (value: number, min: number, max: number): number => {
