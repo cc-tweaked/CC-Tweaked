@@ -60,7 +60,7 @@ public class SoundManager
             setPosition( position );
             this.volume = volume;
             this.pitch = pitch;
-            attenuation = SoundInstance.Attenuation.LINEAR;
+            attenuation = Attenuation.LINEAR;
         }
 
         void setPosition( Vec3 position )
