@@ -265,6 +265,8 @@ function create(parent, nX, nY, nWidth, nHeight, bStartVisible)
         if #sTextColor ~= #sText or #sBackgroundColor ~= #sText then
             error("Arguments must be the same length", 2)
         end
+        sTextColor = sTextColor:lower()
+        sBackgroundColor = sBackgroundColor:lower()
         internalBlit(sText, sTextColor, sBackgroundColor)
     end
 

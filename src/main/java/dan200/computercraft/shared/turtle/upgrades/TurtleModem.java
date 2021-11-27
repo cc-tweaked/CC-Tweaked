@@ -100,7 +100,7 @@ public class TurtleModem extends AbstractTurtleUpgrade
     public void update( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
         // Advance the modem
-        if( !turtle.getWorld().isClientSide )
+        if( !turtle.getLevel().isClientSide )
         {
             IPeripheral peripheral = turtle.getPeripheral( side );
             if( peripheral instanceof Peripheral )
@@ -128,9 +128,9 @@ public class TurtleModem extends AbstractTurtleUpgrade
 
         @Nonnull
         @Override
-        public Level getWorld()
+        public Level getLevel()
         {
-            return turtle.getWorld();
+            return turtle.getLevel();
         }
 
         @Nonnull

@@ -43,17 +43,13 @@ public final class TransformedModel
 
     public static TransformedModel of( @Nonnull ModelResourceLocation location )
     {
-        ModelManager modelManager = Minecraft.getInstance()
-            .getModelManager();
+        ModelManager modelManager = Minecraft.getInstance().getModelManager();
         return new TransformedModel( modelManager.getModel( location ) );
     }
 
     public static TransformedModel of( @Nonnull ItemStack item, @Nonnull Transformation transform )
     {
-        BakedModel model = Minecraft.getInstance()
-            .getItemRenderer()
-            .getItemModelShaper()
-            .getItemModel( item );
+        BakedModel model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel( item );
         return new TransformedModel( model, transform );
     }
 

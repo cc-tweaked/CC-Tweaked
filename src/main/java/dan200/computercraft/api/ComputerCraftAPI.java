@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api;
 
 import dan200.computercraft.api.filesystem.IMount;
@@ -32,19 +31,11 @@ import javax.annotation.Nullable;
 /**
  * The static entry point to the ComputerCraft API.
  *
- * Members in this class must be called after mod_ComputerCraft has been initialised, but may be called before it is fully loaded.
+ * Members in this class must be called after mod_ComputerCraft has been initialised, but may be called before it is
+ * fully loaded.
  */
 public final class ComputerCraftAPI
 {
-    private static IComputerCraftAPI instance;
-
-    @Nonnull
-    @Deprecated
-    public static String getAPIVersion()
-    {
-        return getInstalledVersion();
-    }
-
     @Nonnull
     public static String getInstalledVersion()
     {
@@ -52,23 +43,10 @@ public final class ComputerCraftAPI
     }
 
     @Nonnull
-    private static IComputerCraftAPI getInstance()
+    @Deprecated
+    public static String getAPIVersion()
     {
-        if( instance != null )
-        {
-            return instance;
-        }
-
-        try
-        {
-            return instance = (IComputerCraftAPI) Class.forName( "dan200.computercraft.ComputerCraftAPIImpl" )
-                .getField( "INSTANCE" )
-                .get( null );
-        }
-        catch( ReflectiveOperationException e )
-        {
-            throw new IllegalStateException( "Cannot find ComputerCraft API", e );
-        }
+        return getInstalledVersion();
     }
 
     /**
@@ -80,7 +58,8 @@ public final class ComputerCraftAPI
      * @param parentSubPath The folder path within the save directory where the new directory should be created. eg: "computercraft/disk"
      * @return The numerical value of the name of the new folder, or -1 if the folder could not be created for some reason.
      *
-     * eg: if createUniqueNumberedSaveDir( world, "computer/disk" ) was called returns 42, then "computer/disk/42" is now available for writing.
+     * eg: if createUniqueNumberedSaveDir( world, "computer/disk" ) was called returns 42, then "computer/disk/42" is now
+     * available for writing.
      * @see #createSaveDirMount(Level, String, long)
      */
     public static int createUniqueNumberedSaveDir( @Nonnull Level world, @Nonnull String parentSubPath )
@@ -91,15 +70,15 @@ public final class ComputerCraftAPI
     /**
      * Creates a file system mount that maps to a subfolder of the save directory for a given world, and returns it.
      *
-     * Use in conjunction with IComputerAccess.mount() or IComputerAccess.mountWritable() to mount a folder from the users save directory onto a computers
-     * file system.
+     * Use in conjunction with IComputerAccess.mount() or IComputerAccess.mountWritable() to mount a folder from the
+     * users save directory onto a computers file system.
      *
      * @param world    The world for which the save dir can be found. This should be the server side world object.
-     * @param subPath  The folder path within the save directory that the mount should map to. eg: "computer/disk/42". Use createUniqueNumberedSaveDir()
-     *                 to create a new numbered folder to use.
+     * @param subPath  The folder path within the save directory that the mount should map to. eg: "computer/disk/42".
+     *                 Use createUniqueNumberedSaveDir() to create a new numbered folder to use.
      * @param capacity The amount of data that can be stored in the directory before it fills up, in bytes.
-     * @return The mount, or null if it could be created for some reason. Use IComputerAccess.mount() or IComputerAccess.mountWritable() to mount this on a
-     * Computers' file system.
+     * @return The mount, or null if it could be created for some reason. Use IComputerAccess.mount() or IComputerAccess.mountWritable()
+     * to mount this on a Computers' file system.
      * @see #createUniqueNumberedSaveDir(Level, String)
      * @see IComputerAccess#mount(String, IMount)
      * @see IComputerAccess#mountWritable(String, IWritableMount)
@@ -115,8 +94,8 @@ public final class ComputerCraftAPI
     /**
      * Creates a file system mount to a resource folder, and returns it.
      *
-     * Use in conjunction with {@link IComputerAccess#mount} or {@link IComputerAccess#mountWritable} to mount a resource folder onto a computer's file
-     * system.
+     * Use in conjunction with {@link IComputerAccess#mount} or {@link IComputerAccess#mountWritable} to mount a
+     * resource folder onto a computer's file system.
      *
      * The files in this mount will be a combination of files in all mod jar, and data packs that contain
      * resources with the same domain and path. For instance, ComputerCraft's resources are stored in
@@ -137,7 +116,7 @@ public final class ComputerCraftAPI
     }
 
     /**
-     * Registers a peripheral provider to convert blocks into {@link IPeripheral} implementations.
+     * rers a peripheral provider to convert blocks into {@link IPeripheral} implementations.
      *
      * @param provider The peripheral provider to register.
      * @see IPeripheral
@@ -160,8 +139,9 @@ public final class ComputerCraftAPI
     }
 
     /**
-     * Registers a new turtle turtle for use in ComputerCraft. After calling this, users should be able to craft Turtles with your new turtle. It is
-     * recommended to call this during the load() method of your mod.
+     * Registers a new turtle turtle for use in ComputerCraft. After calling this,
+     * users should be able to craft Turtles with your new turtle. It is recommended to call
+     * this during the load() method of your mod.
      *
      * @param upgrade The turtle upgrade to register.
      * @see ITurtleUpgrade
@@ -188,8 +168,8 @@ public final class ComputerCraftAPI
      * @param world The world this block is in.
      * @param pos   The position this block is at.
      * @param side  The side to extract the bundled redstone output from.
-     * @return If there is a block capable of emitting bundled redstone at the location, it's signal (0-65535) will be returned. If there is no block
-     * capable of emitting bundled redstone at the location, -1 will be returned.
+     * @return If there is a block capable of emitting bundled redstone at the location, it's signal (0-65535) will be returned.
+     * If there is no block capable of emitting bundled redstone at the location, -1 will be returned.
      * @see IBundledRedstoneProvider
      */
     public static int getBundledRedstoneOutput( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side )
@@ -254,6 +234,24 @@ public final class ComputerCraftAPI
     public static IWiredElement getWiredElementAt( @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         return getInstance().getWiredElementAt( world, pos, side );
+    }
+
+    private static IComputerCraftAPI instance;
+
+    @Nonnull
+    private static IComputerCraftAPI getInstance()
+    {
+        if( instance != null ) return instance;
+
+        try
+        {
+            return instance = (IComputerCraftAPI) Class.forName( "dan200.computercraft.ComputerCraftAPIImpl" )
+                .getField( "INSTANCE" ).get( null );
+        }
+        catch( ReflectiveOperationException e )
+        {
+            throw new IllegalStateException( "Cannot find ComputerCraft API", e );
+        }
     }
 
     public interface IComputerCraftAPI

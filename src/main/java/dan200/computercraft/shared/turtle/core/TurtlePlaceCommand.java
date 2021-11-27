@@ -11,8 +11,6 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
-import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
-import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.DropConsumer;
@@ -82,12 +80,6 @@ public class TurtlePlaceCommand implements ITurtleCommand
         BlockPos playerPosition = turtle.getPosition()
             .relative( direction );
         TurtlePlayer turtlePlayer = createPlayer( turtle, playerPosition, direction );
-
-        TurtleBlockEvent.Place place = new TurtleBlockEvent.Place( turtle, turtlePlayer, turtle.getWorld(), coordinates, stack );
-        if( TurtleEvent.post( place ) )
-        {
-            return TurtleCommandResult.failure( place.getFailureMessage() );
-        }
 
         // Do the deploying
         String[] errorMessage = new String[1];
@@ -221,7 +213,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
                                              Object[] extraArguments, String[] outErrorMessage )
     {
         // See if there is an entity present
-        final Level world = turtle.getWorld();
+        final Level world = turtle.getLevel();
         final BlockPos position = turtle.getPosition();
         Vec3 turtlePos = turtlePlayer.position();
         Vec3 rayDir = turtlePlayer.getViewVector( 1.0f );
@@ -324,7 +316,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Do the deploying (put everything in the players inventory)
         boolean placed = false;
-        BlockEntity existingTile = turtle.getWorld()
+        BlockEntity existingTile = turtle.getLevel()
             .getBlockEntity( position );
 
         if( stackCopy.useOn( context ).consumesAction() )
@@ -335,7 +327,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         if( !placed && (item instanceof BucketItem || item instanceof BoatItem || item instanceof WaterLilyBlockItem || item instanceof BottleItem) )
         {
-            InteractionResultHolder<ItemStack> result = stackCopy.use( turtle.getWorld(), turtlePlayer, InteractionHand.MAIN_HAND );
+            InteractionResultHolder<ItemStack> result = stackCopy.use( turtle.getLevel(), turtlePlayer, InteractionHand.MAIN_HAND );
             if( result.getResult()
                 .consumesAction() && !ItemStack.matches( stack, result.getObject() ) )
             {
@@ -349,7 +341,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         {
             if( extraArguments != null && extraArguments.length >= 1 && extraArguments[0] instanceof String )
             {
-                Level world = turtle.getWorld();
+                Level world = turtle.getLevel();
                 BlockEntity tile = world.getBlockEntity( position );
                 if( tile == null || tile == existingTile )
                 {
@@ -404,7 +396,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
     private static boolean canDeployOnBlock( @Nonnull BlockPlaceContext context, ITurtleAccess turtle, TurtlePlayer player, BlockPos position,
                                              Direction side, boolean allowReplaceable, String[] outErrorMessage )
     {
-        Level world = turtle.getWorld();
+        Level world = turtle.getLevel();
         if( !world.isInWorldBounds( position ) || world.isEmptyBlock( position ) || (context.getItemInHand()
             .getItem() instanceof BlockItem && WorldUtil.isLiquidBlock( world,
             position )) )

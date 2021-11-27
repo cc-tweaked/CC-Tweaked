@@ -32,7 +32,7 @@ public class PocketModemPeripheral extends WirelessModemPeripheral
 
     @Nonnull
     @Override
-    public Level getWorld()
+    public Level getLevel()
     {
         return world;
     }

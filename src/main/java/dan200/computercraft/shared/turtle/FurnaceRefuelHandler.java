@@ -51,7 +51,7 @@ public final class FurnaceRefuelHandler implements TurtleRefuelEvent.Handler
             if( !remainder.isEmpty() )
             {
                 WorldUtil.dropItemStack( remainder,
-                    turtle.getWorld(),
+                    turtle.getLevel(),
                     turtle.getPosition(),
                     turtle.getDirection()
                         .getOpposite() );

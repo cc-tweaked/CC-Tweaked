@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.media;
 
 import dan200.computercraft.api.filesystem.IMount;
@@ -18,7 +17,8 @@ import javax.annotation.Nullable;
 /**
  * Represents an item that can be placed in a disk drive and used by a Computer.
  *
- * Implement this interface on your {@link Item} class to allow it to be used in the drive. Alternatively, register a {@link IMediaProvider}.
+ * Implement this interface on your {@link Item} class to allow it to be used in the drive. Alternatively, register
+ * a {@link IMediaProvider}.
  */
 public interface IMedia
 {
@@ -44,7 +44,8 @@ public interface IMedia
     }
 
     /**
-     * If this disk represents an item with audio (like a record), get the readable name of the audio track. ie: "Jonathan Coulton - Still Alive"
+     * If this disk represents an item with audio (like a record), get the readable name of the audio track. ie:
+     * "Jonathan Coulton - Still Alive"
      *
      * @param stack The {@link ItemStack} to modify.
      * @return The name, or null if this item does not represent an item with audio.
@@ -68,13 +69,13 @@ public interface IMedia
     }
 
     /**
-     * If this disk represents an item with data (like a floppy disk), get a mount representing it's contents. This will be mounted onto the filesystem of
-     * the computer while the media is in the disk drive.
+     * If this disk represents an item with data (like a floppy disk), get a mount representing it's contents. This will
+     * be mounted onto the filesystem of the computer while the media is in the disk drive.
      *
      * @param stack The {@link ItemStack} to modify.
      * @param world The world in which the item and disk drive reside.
-     * @return The mount, or null if this item does not represent an item with data. If the mount returned also implements {@link
-     * dan200.computercraft.api.filesystem.IWritableMount}, it will mounted using mountWritable()
+     * @return The mount, or null if this item does not represent an item with data. If the mount returned also
+     * implements {@link dan200.computercraft.api.filesystem.IWritableMount}, it will mounted using mountWritable()
      * @see IMount
      * @see dan200.computercraft.api.filesystem.IWritableMount
      * @see dan200.computercraft.api.ComputerCraftAPI#createSaveDirMount(Level, String, long)

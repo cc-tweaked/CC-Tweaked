@@ -33,7 +33,7 @@ public class TurtleCraftCommand implements ITurtleCommand
     {
         // Craft the item
         TurtleInventoryCrafting crafting = new TurtleInventoryCrafting( turtle );
-        List<ItemStack> results = crafting.doCrafting( turtle.getWorld(), limit );
+        List<ItemStack> results = crafting.doCrafting( turtle.getLevel(), limit );
         if( results == null )
         {
             return TurtleCommandResult.failure( "No matching recipes" );
@@ -45,7 +45,7 @@ public class TurtleCraftCommand implements ITurtleCommand
             ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
             if( !remainder.isEmpty() )
             {
-                WorldUtil.dropItemStack( remainder, turtle.getWorld(), turtle.getPosition(), turtle.getDirection() );
+                WorldUtil.dropItemStack( remainder, turtle.getLevel(), turtle.getPosition(), turtle.getDirection() );
             }
         }
 

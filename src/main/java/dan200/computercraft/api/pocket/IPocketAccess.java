@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.pocket;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -33,7 +32,8 @@ public interface IPocketAccess
     /**
      * Get the colour of this pocket computer as a RGB number.
      *
-     * @return The colour this pocket computer is. This will be a RGB colour between {@code 0x000000} and {@code 0xFFFFFF} or -1 if it has no colour.
+     * @return The colour this pocket computer is. This will be a RGB colour between {@code 0x000000} and
+     * {@code 0xFFFFFF} or -1 if it has no colour.
      * @see #setColour(int)
      */
     int getColour();
@@ -41,8 +41,8 @@ public interface IPocketAccess
     /**
      * Set the colour of the pocket computer to a RGB number.
      *
-     * @param colour The colour this pocket computer should be changed to. This should be a RGB colour between {@code 0x000000} and {@code 0xFFFFFF} or
-     *               -1 to reset to the default colour.
+     * @param colour The colour this pocket computer should be changed to. This should be a RGB colour between
+     *               {@code 0x000000} and {@code 0xFFFFFF} or -1 to reset to the default colour.
      * @see #getColour()
      */
     void setColour( int colour );
@@ -50,7 +50,8 @@ public interface IPocketAccess
     /**
      * Get the colour of this pocket computer's light as a RGB number.
      *
-     * @return The colour this light is. This will be a RGB colour between {@code 0x000000} and {@code 0xFFFFFF} or -1 if it has no colour.
+     * @return The colour this light is. This will be a RGB colour between {@code 0x000000} and {@code 0xFFFFFF} or
+     * -1 if it has no colour.
      * @see #setLight(int)
      */
     int getLight();
@@ -58,8 +59,8 @@ public interface IPocketAccess
     /**
      * Set the colour of the pocket computer's light to a RGB number.
      *
-     * @param colour The colour this modem's light will be changed to. This should be a RGB colour between {@code 0x000000} and {@code 0xFFFFFF} or -1
-     *               to reset to the default colour.
+     * @param colour The colour this modem's light will be changed to. This should be a RGB colour between
+     *               {@code 0x000000} and {@code 0xFFFFFF} or -1 to reset to the default colour.
      * @see #getLight()
      */
     void setLight( int colour );

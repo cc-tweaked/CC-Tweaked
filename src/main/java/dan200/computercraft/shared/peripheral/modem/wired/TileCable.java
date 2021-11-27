@@ -419,7 +419,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
     {
         @Nonnull
         @Override
-        public Level getWorld()
+        public Level getLevel()
         {
             return TileCable.this.getLevel();
         }

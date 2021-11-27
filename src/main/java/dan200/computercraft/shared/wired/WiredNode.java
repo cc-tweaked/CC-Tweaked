@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.wired;
 
 import dan200.computercraft.api.network.IPacketReceiver;
@@ -20,11 +19,13 @@ import java.util.concurrent.locks.Lock;
 
 public final class WiredNode implements IWiredNode
 {
-    final IWiredElement element;
-    final HashSet<WiredNode> neighbours = new HashSet<>();
-    Map<String, IPeripheral> peripherals = Collections.emptyMap();
-    volatile WiredNetwork network;
     private Set<IPacketReceiver> receivers;
+
+    final IWiredElement element;
+    Map<String, IPeripheral> peripherals = Collections.emptyMap();
+
+    final HashSet<WiredNode> neighbours = new HashSet<>();
+    volatile WiredNetwork network;
 
     public WiredNode( IWiredElement element )
     {
@@ -35,19 +36,37 @@ public final class WiredNode implements IWiredNode
     @Override
     public synchronized void addReceiver( @Nonnull IPacketReceiver receiver )
     {
-        if( receivers == null )
-        {
-            receivers = new HashSet<>();
-        }
+        if( receivers == null ) receivers = new HashSet<>();
         receivers.add( receiver );
     }
 
     @Override
     public synchronized void removeReceiver( @Nonnull IPacketReceiver receiver )
     {
-        if( receivers != null )
+        if( receivers != null ) receivers.remove( receiver );
+    }
+
+    synchronized void tryTransmit( Packet packet, double packetDistance, boolean packetInterdimensional, double range, boolean interdimensional )
+    {
+        if( receivers == null ) return;
+
+        for( IPacketReceiver receiver : receivers )
         {
-            receivers.remove( receiver );
+            if( !packetInterdimensional )
+            {
+                double receiveRange = Math.max( range, receiver.getRange() ); // Ensure range is symmetrical
+                if( interdimensional || receiver.isInterdimensional() || packetDistance < receiveRange )
+                {
+                    receiver.receiveSameDimension( packet, packetDistance + element.getPosition().distanceTo( receiver.getPosition() ) );
+                }
+            }
+            else
+            {
+                if( interdimensional || receiver.isInterdimensional() )
+                {
+                    receiver.receiveDifferentDimension( packet );
+                }
+            }
         }
     }
 
@@ -61,7 +80,7 @@ public final class WiredNode implements IWiredNode
     public void transmitSameDimension( @Nonnull Packet packet, double range )
     {
         Objects.requireNonNull( packet, "packet cannot be null" );
-        if( !(packet.getSender() instanceof IWiredSender) || ((IWiredSender) packet.getSender()).getNode() != this )
+        if( !(packet.sender() instanceof IWiredSender) || ((IWiredSender) packet.sender()).getNode() != this )
         {
             throw new IllegalArgumentException( "Sender is not in the network" );
         }
@@ -73,8 +92,7 @@ public final class WiredNode implements IWiredNode
         }
         finally
         {
-            network.lock.readLock()
-                .unlock();
+            network.lock.readLock().unlock();
         }
     }
 
@@ -82,7 +100,7 @@ public final class WiredNode implements IWiredNode
     public void transmitInterdimensional( @Nonnull Packet packet )
     {
         Objects.requireNonNull( packet, "packet cannot be null" );
-        if( !(packet.getSender() instanceof IWiredSender) || ((IWiredSender) packet.getSender()).getNode() != this )
+        if( !(packet.sender() instanceof IWiredSender) || ((IWiredSender) packet.sender()).getNode() != this )
         {
             throw new IllegalArgumentException( "Sender is not in the network" );
         }
@@ -94,54 +112,7 @@ public final class WiredNode implements IWiredNode
         }
         finally
         {
-            network.lock.readLock()
-                .unlock();
-        }
-    }
-
-    private void acquireReadLock()
-    {
-        WiredNetwork currentNetwork = network;
-        while( true )
-        {
-            Lock lock = currentNetwork.lock.readLock();
-            lock.lock();
-            if( currentNetwork == network )
-            {
-                return;
-            }
-
-
-            lock.unlock();
-        }
-    }
-
-    synchronized void tryTransmit( Packet packet, double packetDistance, boolean packetInterdimensional, double range, boolean interdimensional )
-    {
-        if( receivers == null )
-        {
-            return;
-        }
-
-        for( IPacketReceiver receiver : receivers )
-        {
-            if( !packetInterdimensional )
-            {
-                double receiveRange = Math.max( range, receiver.getRange() ); // Ensure range is symmetrical
-                if( interdimensional || receiver.isInterdimensional() || packetDistance < receiveRange )
-                {
-                    receiver.receiveSameDimension( packet,
-                        packetDistance + element.getPosition()
-                            .distanceTo( receiver.getPosition() ) );
-                }
-            }
-            else
-            {
-                if( interdimensional || receiver.isInterdimensional() )
-                {
-                    receiver.receiveDifferentDimension( packet );
-                }
-            }
+            network.lock.readLock().unlock();
         }
     }
 
@@ -162,7 +133,20 @@ public final class WiredNode implements IWiredNode
     @Override
     public String toString()
     {
-        return "WiredNode{@" + element.getPosition() + " (" + element.getClass()
-            .getSimpleName() + ")}";
+        return "WiredNode{@" + element.getPosition() + " (" + element.getClass().getSimpleName() + ")}";
+    }
+
+    private void acquireReadLock()
+    {
+        WiredNetwork currentNetwork = network;
+        while( true )
+        {
+            Lock lock = currentNetwork.lock.readLock();
+            lock.lock();
+            if( currentNetwork == network ) return;
+
+
+            lock.unlock();
+        }
     }
 }

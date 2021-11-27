@@ -6,7 +6,6 @@
 
 package dan200.computercraft;
 
-import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.shared.ComputerCraftRegistry.ModBlocks;
@@ -40,7 +39,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -91,7 +89,6 @@ public final class ComputerCraft implements ModInitializer
     public static int advancedTurtleFuelLimit = 100000;
     public static boolean turtlesObeyBlockProtection = true;
     public static boolean turtlesCanPush = true;
-    public static EnumSet<TurtleAction> turtleDisabledActions = EnumSet.noneOf( TurtleAction.class );
 
     public static int computerTermWidth = 51;
     public static int computerTermHeight = 19;

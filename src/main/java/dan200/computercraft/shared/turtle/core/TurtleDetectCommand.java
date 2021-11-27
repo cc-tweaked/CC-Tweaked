@@ -33,7 +33,7 @@ public class TurtleDetectCommand implements ITurtleCommand
         Direction direction = this.direction.toWorldDir( turtle );
 
         // Check if thing in front is air or not
-        Level world = turtle.getWorld();
+        Level world = turtle.getLevel();
         BlockPos oldPosition = turtle.getPosition();
         BlockPos newPosition = oldPosition.relative( direction );
 

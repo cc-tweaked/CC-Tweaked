@@ -121,7 +121,7 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
 
         @Nonnull
         @Override
-        public Level getWorld()
+        public Level getLevel()
         {
             return entity.getLevel();
         }

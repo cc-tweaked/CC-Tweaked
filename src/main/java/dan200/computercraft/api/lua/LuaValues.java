@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.lua;
 
 import javax.annotation.Nonnull;
@@ -38,8 +37,41 @@ public final class LuaValues
             chars[i] = c < 256 ? (byte) c : 63;
         }
 
-        return ByteBuffer.wrap( chars )
-            .asReadOnlyBuffer();
+        return ByteBuffer.wrap( chars ).asReadOnlyBuffer();
+    }
+
+    /**
+     * Returns a more detailed representation of this number's type. If this is finite, it will just return "number",
+     * otherwise it returns whether it is infinite or NaN.
+     *
+     * @param value The value to extract the type for.
+     * @return This value's numeric type.
+     */
+    @Nonnull
+    public static String getNumericType( double value )
+    {
+        if( Double.isNaN( value ) ) return "nan";
+        if( value == Double.POSITIVE_INFINITY ) return "inf";
+        if( value == Double.NEGATIVE_INFINITY ) return "-inf";
+        return "number";
+    }
+
+    /**
+     * Get a string representation of the given value's type.
+     *
+     * @param value The value whose type we are trying to compute.
+     * @return A string representation of the given value's type, in a similar format to that provided by Lua's
+     * {@code type} function.
+     */
+    @Nonnull
+    public static String getType( @Nullable Object value )
+    {
+        if( value == null ) return "nil";
+        if( value instanceof String ) return "string";
+        if( value instanceof Boolean ) return "boolean";
+        if( value instanceof Number ) return "number";
+        if( value instanceof Map ) return "table";
+        return "userdata";
     }
 
     /**
@@ -71,38 +103,6 @@ public final class LuaValues
     }
 
     /**
-     * Get a string representation of the given value's type.
-     *
-     * @param value The value whose type we are trying to compute.
-     * @return A string representation of the given value's type, in a similar format to that provided by Lua's {@code type} function.
-     */
-    @Nonnull
-    public static String getType( @Nullable Object value )
-    {
-        if( value == null )
-        {
-            return "nil";
-        }
-        if( value instanceof String )
-        {
-            return "string";
-        }
-        if( value instanceof Boolean )
-        {
-            return "boolean";
-        }
-        if( value instanceof Number )
-        {
-            return "number";
-        }
-        if( value instanceof Map )
-        {
-            return "table";
-        }
-        return "userdata";
-    }
-
-    /**
      * Ensure a numeric argument is finite (i.e. not infinite or {@link Double#NaN}.
      *
      * @param index The argument index to check.
@@ -126,36 +126,8 @@ public final class LuaValues
      */
     public static double checkFinite( int index, double value ) throws LuaException
     {
-        if( !Double.isFinite( value ) )
-        {
-            throw badArgument( index, "number", getNumericType( value ) );
-        }
+        if( !Double.isFinite( value ) ) throw badArgument( index, "number", getNumericType( value ) );
         return value;
-    }
-
-    /**
-     * Returns a more detailed representation of this number's type. If this is finite, it will just return "number", otherwise it returns whether it is
-     * infinite or NaN.
-     *
-     * @param value The value to extract the type for.
-     * @return This value's numeric type.
-     */
-    @Nonnull
-    public static String getNumericType( double value )
-    {
-        if( Double.isNaN( value ) )
-        {
-            return "nan";
-        }
-        if( value == Double.POSITIVE_INFINITY )
-        {
-            return "inf";
-        }
-        if( value == Double.NEGATIVE_INFINITY )
-        {
-            return "-inf";
-        }
-        return "number";
     }
 
     /**
@@ -172,11 +144,7 @@ public final class LuaValues
     {
         for( T possibility : klass.getEnumConstants() )
         {
-            if( possibility.name()
-                .equalsIgnoreCase( value ) )
-            {
-                return possibility;
-            }
+            if( possibility.name().equalsIgnoreCase( value ) ) return possibility;
         }
 
         throw new LuaException( "bad argument #" + (index + 1) + " (unknown option " + value + ")" );

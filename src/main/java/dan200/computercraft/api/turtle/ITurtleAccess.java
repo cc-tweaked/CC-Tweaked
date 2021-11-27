@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.turtle;
 
 import com.mojang.authlib.GameProfile;
@@ -24,7 +23,8 @@ import javax.annotation.Nullable;
 /**
  * The interface passed to turtle by turtles, providing methods that they can call.
  *
- * This should not be implemented by your classes. Do not interact with turtles except via this interface and {@link ITurtleUpgrade}.
+ * This should not be implemented by your classes. Do not interact with turtles except via this interface and
+ * {@link ITurtleUpgrade}.
  */
 public interface ITurtleAccess
 {
@@ -34,7 +34,7 @@ public interface ITurtleAccess
      * @return the world in which the turtle resides.
      */
     @Nonnull
-    Level getWorld();
+    Level getLevel();
 
     /**
      * Returns a vector containing the integer co-ordinates at which the turtle resides.
@@ -47,18 +47,20 @@ public interface ITurtleAccess
     /**
      * Attempt to move this turtle to a new position.
      *
-     * This will preserve the turtle's internal state, such as it's inventory, computer and upgrades. It should be used before playing a movement animation
-     * using {@link #playAnimation(TurtleAnimation)}.
+     * This will preserve the turtle's internal state, such as it's inventory, computer and upgrades. It should
+     * be used before playing a movement animation using {@link #playAnimation(TurtleAnimation)}.
      *
      * @param world The new world to move it to
      * @param pos   The new position to move it to.
-     * @return Whether the movement was successful. It may fail if the block was not loaded or the block placement was cancelled.
+     * @return Whether the movement was successful. It may fail if the block was not loaded or the block placement
+     * was cancelled.
      * @throws UnsupportedOperationException When attempting to teleport on the client side.
      */
     boolean teleportTo( @Nonnull Level world, @Nonnull BlockPos pos );
 
     /**
-     * Returns a vector containing the floating point co-ordinates at which the turtle is rendered. This will shift when the turtle is moving.
+     * Returns a vector containing the floating point co-ordinates at which the turtle is rendered.
+     * This will shift when the turtle is moving.
      *
      * @param f The subframe fraction.
      * @return A vector containing the floating point co-ordinates at which the turtle resides.
@@ -86,8 +88,8 @@ public interface ITurtleAccess
     Direction getDirection();
 
     /**
-     * Set the direction the turtle is facing. Note that this will not play a rotation animation, you will also need to call {@link
-     * #playAnimation(TurtleAnimation)} to do so.
+     * Set the direction the turtle is facing. Note that this will not play a rotation animation, you will also need to
+     * call {@link #playAnimation(TurtleAnimation)} to do so.
      *
      * @param dir The new direction to set. This should be on either the x or z axis (so north, south, east or west).
      * @see #getDirection()
@@ -106,7 +108,8 @@ public interface ITurtleAccess
     /**
      * Set the currently selected slot in the turtle's inventory.
      *
-     * @param slot The slot to set. This must be greater or equal to 0 and less than the inventory size. Otherwise no action will be taken.
+     * @param slot The slot to set. This must be greater or equal to 0 and less than the inventory size. Otherwise no
+     *             action will be taken.
      * @throws UnsupportedOperationException When attempting to change the slot on the client side.
      * @see #getInventory()
      * @see #getSelectedSlot()
@@ -114,21 +117,22 @@ public interface ITurtleAccess
     void setSelectedSlot( int slot );
 
     /**
-     * Get the colour of this turtle as a RGB number.
-     *
-     * @return The colour this turtle is. This will be a RGB colour between {@code 0x000000} and {@code 0xFFFFFF} or -1 if it has no colour.
-     * @see #setColour(int)
-     */
-    int getColour();
-
-    /**
      * Set the colour of the turtle to a RGB number.
      *
-     * @param colour The colour this turtle should be changed to. This should be a RGB colour between {@code 0x000000} and {@code 0xFFFFFF} or -1 to
-     *               reset to the default colour.
+     * @param colour The colour this turtle should be changed to. This should be a RGB colour between {@code 0x000000}
+     *               and {@code 0xFFFFFF} or -1 to reset to the default colour.
      * @see #getColour()
      */
     void setColour( int colour );
+
+    /**
+     * Get the colour of this turtle as a RGB number.
+     *
+     * @return The colour this turtle is. This will be a RGB colour between {@code 0x000000} and {@code 0xFFFFFF} or
+     * -1 if it has no colour.
+     * @see #setColour(int)
+     */
+    int getColour();
 
     /**
      * Get the player who owns this turtle, namely whoever placed it.
@@ -137,6 +141,32 @@ public interface ITurtleAccess
      */
     @Nullable
     GameProfile getOwningPlayer();
+
+    /**
+     * Get the inventory of this turtle.
+     *
+     * Note: this inventory should only be accessed and modified on the server thread.
+     *
+     * @return This turtle's inventory
+     * @see #getItemHandler()
+     */
+    @Nonnull
+    Container getInventory();
+
+    /**
+     * Get the inventory of this turtle as an {@link ItemStorage}.
+     *
+     * Note: this inventory should only be accessed and modified on the server thread.
+     *
+     * @return This turtle's inventory
+     * @see #getInventory()
+     * @see ItemStorage
+     */
+    @Nonnull
+    default ItemStorage getItemHandler()
+    {
+        return ItemStorage.wrap( getInventory() );
+    }
 
     /**
      * Determine whether this turtle will require fuel when performing actions.
@@ -157,7 +187,8 @@ public interface ITurtleAccess
     int getFuelLevel();
 
     /**
-     * Set the fuel level to a new value. It is generally preferred to use {@link #consumeFuel(int)}} or {@link #addFuel(int)} instead.
+     * Set the fuel level to a new value. It is generally preferred to use {@link #consumeFuel(int)}} or {@link #addFuel(int)}
+     * instead.
      *
      * @param fuel The new amount of fuel. This must be between 0 and the fuel limit.
      * @see #getFuelLevel()
@@ -178,8 +209,8 @@ public interface ITurtleAccess
      * Removes some fuel from the turtles fuel supply. Negative numbers can be passed in to INCREASE the fuel level of the turtle.
      *
      * @param fuel The amount of fuel to consume.
-     * @return Whether the turtle was able to consume the amount of fuel specified. Will return false if you supply a number greater than the current fuel
-     * level of the turtle. No fuel will be consumed if {@code false} is returned.
+     * @return Whether the turtle was able to consume the amount of fuel specified. Will return false if you supply a number
+     * greater than the current fuel level of the turtle. No fuel will be consumed if {@code false} is returned.
      * @throws UnsupportedOperationException When attempting to consume fuel on the client side.
      */
     boolean consumeFuel( int fuel );
@@ -193,13 +224,15 @@ public interface ITurtleAccess
     void addFuel( int fuel );
 
     /**
-     * Adds a custom command to the turtles command queue. Unlike peripheral methods, these custom commands will be executed on the main thread, so are
-     * guaranteed to be able to access Minecraft objects safely, and will be queued up with the turtles standard movement and tool commands. An issued
-     * command will return an unique integer, which will be supplied as a parameter to a "turtle_response" event issued to the turtle after the command has
-     * completed. Look at the lua source code for "rom/apis/turtle" for how to build a lua wrapper around this functionality.
+     * Adds a custom command to the turtles command queue. Unlike peripheral methods, these custom commands will be executed
+     * on the main thread, so are guaranteed to be able to access Minecraft objects safely, and will be queued up
+     * with the turtles standard movement and tool commands. An issued command will return an unique integer, which will
+     * be supplied as a parameter to a "turtle_response" event issued to the turtle after the command has completed. Look at the
+     * lua source code for "rom/apis/turtle" for how to build a lua wrapper around this functionality.
      *
      * @param command An object which will execute the custom command when its point in the queue is reached
-     * @return The objects the command returned when executed. you should probably return these to the player unchanged if called from a peripheral method.
+     * @return The objects the command returned when executed. you should probably return these to the player
+     * unchanged if called from a peripheral method.
      * @throws UnsupportedOperationException When attempting to execute a command on the client side.
      * @see ITurtleCommand
      * @see MethodResult#pullEvent(String, ILuaCallback)
@@ -208,7 +241,8 @@ public interface ITurtleAccess
     MethodResult executeCommand( @Nonnull ITurtleCommand command );
 
     /**
-     * Start playing a specific animation. This will prevent other turtle commands from executing until it is finished.
+     * Start playing a specific animation. This will prevent other turtle commands from executing until
+     * it is finished.
      *
      * @param animation The animation to play.
      * @throws UnsupportedOperationException When attempting to execute play an animation on the client side.
@@ -247,8 +281,8 @@ public interface ITurtleAccess
     /**
      * Get an upgrade-specific NBT compound, which can be used to store arbitrary data.
      *
-     * This will be persisted across turtle restarts and chunk loads, as well as being synced to the client. You must call {@link
-     * #updateUpgradeNBTData(TurtleSide)} after modifying it.
+     * This will be persisted across turtle restarts and chunk loads, as well as being synced to the client. You must
+     * call {@link #updateUpgradeNBTData(TurtleSide)} after modifying it.
      *
      * @param side The side to get the upgrade data for.
      * @return The upgrade-specific data.
@@ -258,25 +292,11 @@ public interface ITurtleAccess
     CompoundTag getUpgradeNBTData( @Nullable TurtleSide side );
 
     /**
-     * Mark the upgrade-specific data as dirty on a specific side. This is required for the data to be synced to the client and persisted.
+     * Mark the upgrade-specific data as dirty on a specific side. This is required for the data to be synced to the
+     * client and persisted.
      *
      * @param side The side to mark dirty.
      * @see #updateUpgradeNBTData(TurtleSide)
      */
     void updateUpgradeNBTData( @Nonnull TurtleSide side );
-
-    default ItemStorage getItemHandler()
-    {
-        return ItemStorage.wrap( getInventory() );
-    }
-
-    /**
-     * Get the inventory of this turtle.
-     *
-     * Note: this inventory should only be accessed and modified on the server thread.
-     *
-     * @return This turtle's inventory
-     */
-    @Nonnull
-    Container getInventory();
 }

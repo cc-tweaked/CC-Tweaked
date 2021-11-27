@@ -41,7 +41,7 @@ public class TurtleCompareCommand implements ITurtleCommand
             .getItem( turtle.getSelectedSlot() );
 
         // Get stack representing thing in front
-        Level world = turtle.getWorld();
+        Level world = turtle.getLevel();
         BlockPos oldPosition = turtle.getPosition();
         BlockPos newPosition = oldPosition.relative( direction );
 

@@ -48,7 +48,7 @@ public final class TurtlePlayer extends FakePlayer
 
     private static TurtlePlayer create( ITurtleAccess turtle )
     {
-        ServerLevel world = (ServerLevel) turtle.getWorld();
+        ServerLevel world = (ServerLevel) turtle.getLevel();
         GameProfile profile = turtle.getOwningPlayer();
 
         TurtlePlayer player = new TurtlePlayer( world, getProfile( profile ) );
@@ -96,7 +96,7 @@ public final class TurtlePlayer extends FakePlayer
 
         TurtleBrain brain = (TurtleBrain) access;
         TurtlePlayer player = brain.cachedPlayer;
-        if( player == null || player.getGameProfile() != getProfile( access.getOwningPlayer() ) || player.getCommandSenderWorld() != access.getWorld() )
+        if( player == null || player.getGameProfile() != getProfile( access.getOwningPlayer() ) || player.getCommandSenderWorld() != access.getLevel() )
         {
             player = brain.cachedPlayer = create( brain );
         }
@@ -133,7 +133,7 @@ public final class TurtlePlayer extends FakePlayer
                 ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
                 if( !remainder.isEmpty() )
                 {
-                    WorldUtil.dropItemStack( remainder, turtle.getWorld(), dropPosition, dropDirection );
+                    WorldUtil.dropItemStack( remainder, turtle.getLevel(), dropPosition, dropDirection );
                 }
                 getInventory().setItem( i, ItemStack.EMPTY );
             }

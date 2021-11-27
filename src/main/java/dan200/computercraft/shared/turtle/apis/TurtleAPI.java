@@ -11,9 +11,6 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.turtle.event.TurtleActionEvent;
-import dan200.computercraft.api.turtle.event.TurtleEvent;
-import dan200.computercraft.api.turtle.event.TurtleInspectItemEvent;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.asm.TaskCallback;
 import dan200.computercraft.core.tracking.TrackingField;
@@ -773,12 +770,6 @@ public class TurtleAPI implements ILuaAPI
         Map<String, Object> table = detailed
             ? ItemData.fill( new HashMap<>(), stack )
             : ItemData.fillBasicSafe( new HashMap<>(), stack );
-
-        TurtleActionEvent event = new TurtleInspectItemEvent( turtle, stack, table, detailed );
-        if( TurtleEvent.post( event ) )
-        {
-            return new Object[] { false, event.getFailureMessage() };
-        }
 
         return new Object[] { table };
     }

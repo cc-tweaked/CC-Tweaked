@@ -32,7 +32,7 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral
         }
         else
         {
-            Level world = getWorld();
+            Level world = getLevel();
             if( world != null )
             {
                 Vec3 position = getPosition();

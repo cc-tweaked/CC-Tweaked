@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.lua;
 
 import dan200.computercraft.api.peripheral.IComputerAccess;
@@ -16,8 +15,8 @@ import java.util.Optional;
 /**
  * Used to mark a Java function which is callable from Lua.
  *
- * Methods annotated with {@link LuaFunction} must be public final instance methods. They can have any number of parameters, but they must be of the
- * following types:
+ * Methods annotated with {@link LuaFunction} must be public final instance methods. They can have any number of
+ * parameters, but they must be of the following types:
  *
  * <ul>
  *   <li>{@link ILuaContext} (and {@link IComputerAccess} if on a {@link IPeripheral})</li>
@@ -49,7 +48,8 @@ public @interface LuaFunction
     String[] value() default {};
 
     /**
-     * Run this function on the main server thread. This should be specified for any method which interacts with Minecraft in a thread-unsafe manner.
+     * Run this function on the main server thread. This should be specified for any method which interacts with
+     * Minecraft in a thread-unsafe manner.
      *
      * @return Whether this functi
      * @see ILuaContext#issueMainThreadTask(ILuaTask)

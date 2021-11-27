@@ -160,7 +160,7 @@ public class TurtleBrain implements ITurtleAccess
 
     public void update()
     {
-        Level world = getWorld();
+        Level world = getLevel();
         if( !world.isClientSide )
         {
             // Advance movement
@@ -187,7 +187,7 @@ public class TurtleBrain implements ITurtleAccess
 
     @Nonnull
     @Override
-    public Level getWorld()
+    public Level getLevel()
     {
         return owner.getLevel();
     }
@@ -202,13 +202,13 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public boolean teleportTo( @Nonnull Level world, @Nonnull BlockPos pos )
     {
-        if( world.isClientSide || getWorld().isClientSide )
+        if( world.isClientSide || getLevel().isClientSide )
         {
             throw new UnsupportedOperationException( "Cannot teleport on the client" );
         }
 
         // Cache info about the old turtle (so we don't access this after we delete ourselves)
-        Level oldWorld = getWorld();
+        Level oldWorld = getLevel();
         TileTurtle oldOwner = owner;
         BlockPos oldPos = owner.getBlockPos();
         BlockState oldBlock = owner.getBlockState();
@@ -341,7 +341,7 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public void setSelectedSlot( int slot )
     {
-        if( getWorld().isClientSide )
+        if( getLevel().isClientSide )
         {
             throw new UnsupportedOperationException( "Cannot set the slot on the client" );
         }
@@ -419,7 +419,7 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public boolean consumeFuel( int fuel )
     {
-        if( getWorld().isClientSide )
+        if( getLevel().isClientSide )
         {
             throw new UnsupportedOperationException( "Cannot consume fuel on the client" );
         }
@@ -441,7 +441,7 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public void addFuel( int fuel )
     {
-        if( getWorld().isClientSide )
+        if( getLevel().isClientSide )
         {
             throw new UnsupportedOperationException( "Cannot add fuel on the client" );
         }
@@ -454,7 +454,7 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public MethodResult executeCommand( @Nonnull ITurtleCommand command )
     {
-        if( getWorld().isClientSide )
+        if( getLevel().isClientSide )
         {
             throw new UnsupportedOperationException( "Cannot run commands on the client" );
         }
@@ -474,7 +474,7 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public void playAnimation( @Nonnull TurtleAnimation animation )
     {
-        if( getWorld().isClientSide )
+        if( getLevel().isClientSide )
         {
             throw new UnsupportedOperationException( "Cannot play animations on the client" );
         }
@@ -646,7 +646,7 @@ public class TurtleBrain implements ITurtleAccess
     {
         if( animation != TurtleAnimation.NONE )
         {
-            Level world = getWorld();
+            Level world = getLevel();
 
             if( ComputerCraft.turtlesCanPush )
             {

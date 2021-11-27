@@ -10,8 +10,6 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
-import dan200.computercraft.api.turtle.event.TurtleEvent;
-import dan200.computercraft.api.turtle.event.TurtleInventoryEvent;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.ItemStorage;
 import dan200.computercraft.shared.util.WorldUtil;
@@ -56,21 +54,12 @@ public class TurtleDropCommand implements ITurtleCommand
         }
 
         // Get inventory for thing in front
-        Level world = turtle.getWorld();
+        Level world = turtle.getLevel();
         BlockPos oldPosition = turtle.getPosition();
         BlockPos newPosition = oldPosition.relative( direction );
         Direction side = direction.getOpposite();
 
         Container inventory = InventoryUtil.getInventory( world, newPosition, side );
-
-        // Fire the event, restoring the inventory and exiting if it is cancelled.
-        TurtlePlayer player = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );
-        TurtleInventoryEvent.Drop event = new TurtleInventoryEvent.Drop( turtle, player, world, newPosition, inventory, stack );
-        if( TurtleEvent.post( event ) )
-        {
-            InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
-            return TurtleCommandResult.failure( event.getFailureMessage() );
-        }
 
         if( inventory != null )
         {

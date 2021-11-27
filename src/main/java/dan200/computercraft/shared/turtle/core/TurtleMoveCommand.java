@@ -11,8 +11,6 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
-import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
-import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
@@ -45,7 +43,7 @@ public class TurtleMoveCommand implements ITurtleCommand
         Direction direction = this.direction.toWorldDir( turtle );
 
         // Check if we can move
-        Level oldWorld = turtle.getWorld();
+        Level oldWorld = turtle.getLevel();
         BlockPos oldPosition = turtle.getPosition();
         BlockPos newPosition = oldPosition.relative( direction );
 
@@ -86,12 +84,6 @@ public class TurtleMoveCommand implements ITurtleCommand
                     return TurtleCommandResult.failure( "Movement obstructed" );
                 }
             }
-        }
-
-        TurtleBlockEvent.Move moveEvent = new TurtleBlockEvent.Move( turtle, turtlePlayer, oldWorld, newPosition );
-        if( TurtleEvent.post( moveEvent ) )
-        {
-            return TurtleCommandResult.failure( moveEvent.getFailureMessage() );
         }
 
         // Check fuel level

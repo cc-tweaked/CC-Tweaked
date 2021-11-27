@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.lua;
 
 import javax.annotation.Nonnull;
@@ -18,7 +17,8 @@ public interface ILuaCallback
     /**
      * Resume this coroutine.
      *
-     * @param args The result of resuming this coroutine. These will have the same form as described in {@link LuaFunction}.
+     * @param args The result of resuming this coroutine. These will have the same form as described in
+     *             {@link LuaFunction}.
      * @return The result of this continuation. Either the result to return to the callee, or another yield.
      * @throws LuaException On an error.
      */

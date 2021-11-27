@@ -83,7 +83,7 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
         @Override
         public Level getWorld()
         {
-            return turtle.getWorld();
+            return turtle.getLevel();
         }
 
         @Override

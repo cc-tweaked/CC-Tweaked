@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.network.wired;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -19,8 +18,8 @@ import java.util.Map;
 public interface IWiredNetworkChange
 {
     /**
-     * A set of peripherals which have been removed. Note that there may be entries with the same name in the added and removed set, but with a different
-     * peripheral.
+     * A set of peripherals which have been removed. Note that there may be entries with the same name
+     * in the added and removed set, but with a different peripheral.
      *
      * @return The set of removed peripherals.
      */
@@ -28,8 +27,8 @@ public interface IWiredNetworkChange
     Map<String, IPeripheral> peripheralsRemoved();
 
     /**
-     * A set of peripherals which have been added. Note that there may be entries with the same name in the added and removed set, but with a different
-     * peripheral.
+     * A set of peripherals which have been added. Note that there may be entries with the same name
+     * in the added and removed set, but with a different peripheral.
      *
      * @return The set of added peripherals.
      */

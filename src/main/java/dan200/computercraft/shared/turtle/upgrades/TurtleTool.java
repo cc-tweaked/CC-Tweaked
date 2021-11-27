@@ -11,9 +11,6 @@ import com.mojang.math.Transformation;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.*;
-import dan200.computercraft.api.turtle.event.TurtleAttackEvent;
-import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
-import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.fabric.mixininterface.IMatrix4f;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
@@ -114,7 +111,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
     private TurtleCommandResult attack( ITurtleAccess turtle, Direction direction, TurtleSide side )
     {
         // Create a fake player, and orient it appropriately
-        Level world = turtle.getWorld();
+        Level world = turtle.getLevel();
         BlockPos position = turtle.getPosition();
         BlockEntity turtleBlock = turtle instanceof TurtleBrain ? ((TurtleBrain) turtle).getOwner() : world.getBlockEntity( position );
         if( turtleBlock == null ) return TurtleCommandResult.failure( "Turtle has vanished from existence." );
@@ -142,12 +139,6 @@ public class TurtleTool extends AbstractTurtleUpgrade
                     null ) == InteractionResult.FAIL || !hitEntity.isAttackable() )
             {
                 return TurtleCommandResult.failure( "Nothing to attack here" );
-            }
-
-            TurtleAttackEvent attackEvent = new TurtleAttackEvent( turtle, turtlePlayer, hitEntity, this, side );
-            if( TurtleEvent.post( attackEvent ) )
-            {
-                return TurtleCommandResult.failure( attackEvent.getFailureMessage() );
             }
 
             // Start claiming entity drops
@@ -199,7 +190,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
     private TurtleCommandResult dig( ITurtleAccess turtle, Direction direction, TurtleSide side )
     {
         // Get ready to dig
-        Level world = turtle.getWorld();
+        Level world = turtle.getLevel();
         BlockPos turtlePosition = turtle.getPosition();
         BlockEntity turtleBlock = turtle instanceof TurtleBrain ? ((TurtleBrain) turtle).getOwner() : world.getBlockEntity( turtlePosition );
         if( turtleBlock == null ) return TurtleCommandResult.failure( "Turtle has vanished from existence." );
@@ -229,13 +220,6 @@ public class TurtleTool extends AbstractTurtleUpgrade
         if( !canBreakBlock( state, world, blockPosition, turtlePlayer ) )
         {
             return TurtleCommandResult.failure( "Unbreakable block detected" );
-        }
-
-        // Fire the dig event, checking whether it was cancelled.
-        TurtleBlockEvent.Dig digEvent = new TurtleBlockEvent.Dig( turtle, turtlePlayer, world, blockPosition, state, this, side );
-        if( TurtleEvent.post( digEvent ) )
-        {
-            return TurtleCommandResult.failure( digEvent.getFailureMessage() );
         }
 
         if( !PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak( world, turtlePlayer, blockPosition, state, null ) )
@@ -291,7 +275,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         for( ItemStack remainder : extra )
         {
             WorldUtil.dropItemStack( remainder,
-                turtle.getWorld(),
+                turtle.getLevel(),
                 turtle.getPosition(),
                 direction );
         }

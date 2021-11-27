@@ -3,17 +3,16 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.lua;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 
 /**
- * Represents a Lua object which is stored as a global variable on computer startup. This must either provide {@link LuaFunction} annotated functions or
- * implement {@link IDynamicLuaObject}.
+ * Represents a Lua object which is stored as a global variable on computer startup. This must either provide
+ * {@link LuaFunction} annotated functions or implement {@link IDynamicLuaObject}.
  *
- * Before implementing this interface, consider alternative methods of providing methods. It is generally preferred to use peripherals to provide
- * functionality to users.
+ * Before implementing this interface, consider alternative methods of providing methods. It is generally preferred
+ * to use peripherals to provide functionality to users.
  *
  * @see ILuaAPIFactory
  * @see ComputerCraftAPI#registerAPIFactory(ILuaAPIFactory)

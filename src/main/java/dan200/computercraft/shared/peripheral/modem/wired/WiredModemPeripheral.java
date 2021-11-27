@@ -122,9 +122,9 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
 
     @Nonnull
     @Override
-    public Level getWorld()
+    public Level getLevel()
     {
-        return modem.getWorld();
+        return modem.getLevel();
     }
 
     /**
