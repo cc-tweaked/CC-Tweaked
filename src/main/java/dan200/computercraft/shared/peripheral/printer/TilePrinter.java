@@ -313,7 +313,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     {
         Item item = stack.getItem();
         return item == Items.PAPER
-            || (item instanceof ItemPrintout && ((ItemPrintout) item).getType() == ItemPrintout.Type.PAGE);
+            || (item instanceof ItemPrintout printout && printout.getType() == ItemPrintout.Type.PAGE);
     }
 
     private boolean canInputPage()

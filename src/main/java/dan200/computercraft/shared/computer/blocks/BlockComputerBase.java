@@ -59,7 +59,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
         super.onPlace( state, world, pos, oldState, isMoving );
 
         BlockEntity tile = world.getBlockEntity( pos );
-        if( tile instanceof TileComputerBase ) ((TileComputerBase) tile).updateInput();
+        if( tile instanceof TileComputerBase computer ) computer.updateInput();
     }
 
     @Override

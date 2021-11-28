@@ -58,13 +58,13 @@ public class BlockPrinter extends BlockGeneric
     @Override
     public void playerDestroy( @Nonnull Level world, @Nonnull Player player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack )
     {
-        if( te instanceof Nameable && ((Nameable) te).hasCustomName() )
+        if( te instanceof Nameable nameable && nameable.hasCustomName() )
         {
             player.awardStat( Stats.BLOCK_MINED.get( this ) );
             player.causeFoodExhaustion( 0.005F );
 
             ItemStack result = new ItemStack( this );
-            result.setHoverName( ((Nameable) te).getCustomName() );
+            result.setHoverName( nameable.getCustomName() );
             popResource( world, pos, result );
         }
         else
@@ -76,10 +76,9 @@ public class BlockPrinter extends BlockGeneric
     @Override
     public void setPlacedBy( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, ItemStack stack )
     {
-        if( stack.hasCustomHoverName() )
+        if( stack.hasCustomHoverName() && world.getBlockEntity( pos ) instanceof TilePrinter printer )
         {
-            BlockEntity tileentity = world.getBlockEntity( pos );
-            if( tileentity instanceof TilePrinter ) ((TilePrinter) tileentity).customName = stack.getHoverName();
+            printer.customName = stack.getHoverName();
         }
     }
 }

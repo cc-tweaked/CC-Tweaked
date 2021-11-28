@@ -210,7 +210,7 @@ public class DiskDrivePeripheral implements IPeripheral
     @Override
     public boolean equals( IPeripheral other )
     {
-        return this == other || other instanceof DiskDrivePeripheral && ((DiskDrivePeripheral) other).diskDrive == diskDrive;
+        return this == other || other instanceof DiskDrivePeripheral drive && drive.diskDrive == diskDrive;
     }
 
     @Nonnull

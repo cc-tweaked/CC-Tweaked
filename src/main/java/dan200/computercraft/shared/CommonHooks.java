@@ -87,7 +87,7 @@ public final class CommonHooks
     public static void onServerStarting( FMLServerStartingEvent event )
     {
         MinecraftServer server = event.getServer();
-        if( server instanceof DedicatedServer && ((DedicatedServer) server).getProperties().enableJmxMonitoring )
+        if( server instanceof DedicatedServer dediServer && dediServer.getProperties().enableJmxMonitoring )
         {
             ComputerMBean.register();
         }

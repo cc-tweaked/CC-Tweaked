@@ -62,12 +62,9 @@ public final class PrintoutRecipe extends CustomRecipe
                 ItemStack stack = inventory.getItem( x + y * inventory.getWidth() );
                 if( !stack.isEmpty() )
                 {
-                    if( stack.getItem() instanceof ItemPrintout && ((ItemPrintout) stack.getItem()).getType() != ItemPrintout.Type.BOOK )
+                    if( stack.getItem() instanceof ItemPrintout printout && printout.getType() != ItemPrintout.Type.BOOK )
                     {
-                        if( printouts == null )
-                        {
-                            printouts = new ItemStack[9];
-                        }
+                        if( printouts == null ) printouts = new ItemStack[9];
                         printouts[numPrintouts] = stack;
                         numPages += ItemPrintout.getPageCount( stack );
                         numPrintouts++;

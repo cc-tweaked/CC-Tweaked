@@ -34,7 +34,7 @@ public final class HasComputerIdLootCondition implements LootItemCondition
     public boolean test( LootContext lootContext )
     {
         BlockEntity tile = lootContext.getParamOrNull( LootContextParams.BLOCK_ENTITY );
-        return tile instanceof IComputerTile && ((IComputerTile) tile).getComputerID() >= 0;
+        return tile instanceof IComputerTile computer && computer.getComputerID() >= 0;
     }
 
     @Nonnull

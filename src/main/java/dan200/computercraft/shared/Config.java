@@ -384,7 +384,7 @@ public final class Config
     {
         // Ensure file configs are reloaded. Forge should probably do this, so worth checking in the future.
         CommentedConfig config = event.getConfig().getConfigData();
-        if( config instanceof CommentedFileConfig ) ((CommentedFileConfig) config).load();
+        if( config instanceof CommentedFileConfig loadable ) loadable.load();
 
         sync();
     }

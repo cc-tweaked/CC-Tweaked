@@ -44,7 +44,7 @@ public abstract class BlockGeneric extends BaseEntityBlock
         BlockEntity tile = world.getBlockEntity( pos );
         super.onRemove( block, world, pos, replace, bool );
         world.removeBlockEntity( pos );
-        if( tile instanceof TileGeneric ) ((TileGeneric) tile).destroy();
+        if( tile instanceof TileGeneric generic ) generic.destroy();
     }
 
     @Nonnull
@@ -53,7 +53,7 @@ public abstract class BlockGeneric extends BaseEntityBlock
     public final InteractionResult use( @Nonnull BlockState state, Level world, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult hit )
     {
         BlockEntity tile = world.getBlockEntity( pos );
-        return tile instanceof TileGeneric ? ((TileGeneric) tile).onActivate( player, hand, hit ) : InteractionResult.PASS;
+        return tile instanceof TileGeneric generic ? generic.onActivate( player, hand, hit ) : InteractionResult.PASS;
     }
 
     @Override
@@ -61,14 +61,14 @@ public abstract class BlockGeneric extends BaseEntityBlock
     public final void neighborChanged( @Nonnull BlockState state, Level world, @Nonnull BlockPos pos, @Nonnull Block neighbourBlock, @Nonnull BlockPos neighbourPos, boolean isMoving )
     {
         BlockEntity tile = world.getBlockEntity( pos );
-        if( tile instanceof TileGeneric ) ((TileGeneric) tile).onNeighbourChange( neighbourPos );
+        if( tile instanceof TileGeneric generic ) generic.onNeighbourChange( neighbourPos );
     }
 
     @Override
     public final void onNeighborChange( BlockState state, LevelReader world, BlockPos pos, BlockPos neighbour )
     {
         BlockEntity tile = world.getBlockEntity( pos );
-        if( tile instanceof TileGeneric ) ((TileGeneric) tile).onNeighbourTileEntityChange( neighbour );
+        if( tile instanceof TileGeneric generic ) generic.onNeighbourTileEntityChange( neighbour );
     }
 
     @Override
@@ -76,7 +76,7 @@ public abstract class BlockGeneric extends BaseEntityBlock
     public void tick( @Nonnull BlockState state, ServerLevel world, @Nonnull BlockPos pos, @Nonnull Random rand )
     {
         BlockEntity te = world.getBlockEntity( pos );
-        if( te instanceof TileGeneric ) ((TileGeneric) te).blockTick();
+        if( te instanceof TileGeneric generic ) generic.blockTick();
     }
 
     @Nullable

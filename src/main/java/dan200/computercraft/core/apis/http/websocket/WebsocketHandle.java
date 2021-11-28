@@ -153,7 +153,7 @@ public class WebsocketHandle implements Closeable
                 return MethodResult.of();
             }
             else if( event.length >= 2 && timeoutId != -1 && Objects.equal( event[0], TIMER_EVENT )
-                && event[1] instanceof Number && ((Number) event[1]).intValue() == timeoutId )
+                && event[1] instanceof Number id && id.intValue() == timeoutId )
             {
                 // If we received a matching timer event then abort.
                 return MethodResult.of();

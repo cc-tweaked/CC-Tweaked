@@ -209,7 +209,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
 
     private void continueUpload()
     {
-        if( minecraft.screen instanceof OptionScreen ) ((OptionScreen) minecraft.screen).disable();
+        if( minecraft.screen instanceof OptionScreen screen ) screen.disable();
         NetworkHandler.sendToServer( new ContinueUploadMessage( computer.getInstanceID(), true ) );
     }
 

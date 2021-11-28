@@ -115,7 +115,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public void updateUpgradeNBTData()
     {
-        if( entity instanceof Player ) ((Player) entity).getInventory().setChanged();
+        if( entity instanceof Player player ) player.getInventory().setChanged();
     }
 
     @Override

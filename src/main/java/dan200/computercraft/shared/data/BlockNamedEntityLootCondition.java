@@ -34,7 +34,7 @@ public final class BlockNamedEntityLootCondition implements LootItemCondition
     public boolean test( LootContext lootContext )
     {
         BlockEntity tile = lootContext.getParamOrNull( LootContextParams.BLOCK_ENTITY );
-        return tile instanceof Nameable && ((Nameable) tile).hasCustomName();
+        return tile instanceof Nameable nameable && nameable.hasCustomName();
     }
 
     @Nonnull
