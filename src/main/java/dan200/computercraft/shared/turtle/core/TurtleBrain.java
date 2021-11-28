@@ -333,16 +333,17 @@ public class TurtleBrain implements ITurtleAccess
                         TileTurtle newTurtle = (TileTurtle) newTile;
                         newTurtle.setLevelAndPosition( world, pos );
                         newTurtle.transferStateFrom( oldOwner );
-                        newTurtle.createServerComputer().setWorld( world );
-                        newTurtle.createServerComputer().setPosition( pos );
+
+                        ServerComputer computer = newTurtle.createServerComputer();
+                        computer.setWorld( world );
+                        computer.setPosition( pos );
 
                         // Remove the old turtle
                         oldWorld.removeBlock( oldPos, false );
 
                         // Make sure everybody knows about it
-                        newTurtle.updateBlock();
-                        newTurtle.updateInput();
                         newTurtle.updateOutput();
+                        newTurtle.updateInputsImmediately();
                         return true;
                     }
                 }
@@ -614,16 +615,16 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public void setUpgrade( @Nonnull TurtleSide side, ITurtleUpgrade upgrade )
     {
-        if( !setUpgradeDirect( side, upgrade ) ) return;
+        if( !setUpgradeDirect( side, upgrade ) || owner.getLevel() == null ) return;
 
         // This is a separate function to avoid updating the block when reading the NBT. We don't need to do this as
         // either the block is newly placed (and so won't have changed) or is being updated with /data, which calls
         // updateBlock for us.
-        if( owner.getLevel() != null )
-        {
-            owner.updateBlock();
-            owner.updateInput();
-        }
+        owner.updateBlock();
+
+        // Recompute peripherals in case an upgrade being removed has exposed a new peripheral.
+        // TODO: Only update peripherals, or even only two sides?
+        owner.updateInputsImmediately();
     }
 
     private boolean setUpgradeDirect( @Nonnull TurtleSide side, ITurtleUpgrade upgrade )
@@ -645,7 +646,7 @@ public class TurtleBrain implements ITurtleAccess
         if( upgrade != null ) upgrades.put( side, upgrade );
 
         // Notify clients and create peripherals
-        if( owner.getLevel() != null )
+        if( owner.getLevel() != null && !owner.getLevel().isClientSide )
         {
             updatePeripherals( owner.createServerComputer() );
         }

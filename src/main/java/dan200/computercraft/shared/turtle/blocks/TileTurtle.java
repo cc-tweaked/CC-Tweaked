@@ -322,8 +322,10 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     {
         if( dir.getAxis() == Direction.Axis.Y ) dir = Direction.NORTH;
         level.setBlockAndUpdate( worldPosition, getBlockState().setValue( BlockTurtle.FACING, dir ) );
+
         updateOutput();
-        updateInput();
+        updateInputsImmediately();
+
         onTileEntityChange();
     }
 
