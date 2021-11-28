@@ -13,6 +13,7 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.peripheral.generic.data.FluidData;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
@@ -155,6 +156,8 @@ public class FluidMethods implements GenericSource
     @Nullable
     private static IFluidHandler extractHandler( @Nullable Object object )
     {
+        if( (object instanceof TileEntity) && ((TileEntity) object).isRemoved() ) return null;
+
         if( object instanceof ICapabilityProvider )
         {
             LazyOptional<IFluidHandler> cap = ((ICapabilityProvider) object).getCapability( CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY );

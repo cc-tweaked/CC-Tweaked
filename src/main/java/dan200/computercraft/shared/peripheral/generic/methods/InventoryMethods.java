@@ -14,6 +14,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
@@ -257,6 +258,8 @@ public class InventoryMethods implements GenericSource
     @Nullable
     private static IItemHandler extractHandler( @Nullable Object object )
     {
+        if( (object instanceof TileEntity) && ((TileEntity) object).isRemoved() ) return null;
+
         if( object instanceof ICapabilityProvider )
         {
             LazyOptional<IItemHandler> cap = ((ICapabilityProvider) object).getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY );
