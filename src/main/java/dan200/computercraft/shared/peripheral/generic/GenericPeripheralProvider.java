@@ -9,6 +9,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralType;
 import dan200.computercraft.core.asm.NamedMethod;
 import dan200.computercraft.core.asm.PeripheralMethod;
+import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -34,7 +35,7 @@ public class GenericPeripheralProvider
     }
 
     @Nullable
-    public static IPeripheral getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side, NonNullConsumer<LazyOptional<IPeripheral>> invalidate )
+    public static IPeripheral getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side, NonNullConsumer<Object> invalidate )
     {
         TileEntity tile = world.getBlockEntity( pos );
         if( tile == null ) return null;
@@ -52,7 +53,7 @@ public class GenericPeripheralProvider
                 if( capabilityMethods.isEmpty() ) return;
 
                 saturated.addMethods( contents, capabilityMethods );
-                wrapper.addListener( cast( invalidate ) );
+                CapabilityUtil.addListener( wrapper, invalidate );
             } );
         }
 
@@ -90,11 +91,5 @@ public class GenericPeripheralProvider
                 }
             }
         }
-    }
-
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
-    private static <T> NonNullConsumer<T> cast( NonNullConsumer<?> consumer )
-    {
-        return (NonNullConsumer) consumer;
     }
 }

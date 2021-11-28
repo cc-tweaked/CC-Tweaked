@@ -39,7 +39,6 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
@@ -58,7 +57,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     private boolean on = false;
     boolean startOn = false;
     private boolean fresh = false;
-    private final NonNullConsumer<LazyOptional<IPeripheral>>[] invalidate;
+    private final NonNullConsumer<Object>[] invalidate;
 
     private final ComputerFamily family;
 
@@ -69,7 +68,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
         // We cache these so we can guarantee we only ever register one listener for adjacent capabilities.
         @SuppressWarnings( { "unchecked", "rawtypes" } )
-        NonNullConsumer<LazyOptional<IPeripheral>>[] invalidate = this.invalidate = new NonNullConsumer[6];
+        NonNullConsumer<Object>[] invalidate = this.invalidate = new NonNullConsumer[6];
         for( Direction direction : Direction.values() )
         {
             invalidate[direction.ordinal()] = o -> updateInput( direction );

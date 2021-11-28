@@ -15,7 +15,6 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
@@ -38,7 +37,7 @@ public final class WiredModemLocalPeripheral
     private String type;
 
     private IPeripheral peripheral;
-    private final NonNullConsumer<LazyOptional<IPeripheral>> invalidate;
+    private final NonNullConsumer<Object> invalidate;
 
     public WiredModemLocalPeripheral( @Nonnull Runnable invalidate )
     {
