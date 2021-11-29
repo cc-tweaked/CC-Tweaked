@@ -10,6 +10,8 @@ import net.minecraftforge.common.capabilities.Capability;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * The interface that defines a peripheral.
@@ -30,6 +32,18 @@ public interface IPeripheral
      */
     @Nonnull
     String getType();
+
+    /**
+     * Return additional types/traits associated with this object.
+     *
+     * @return A collection of additional object traits.
+     * @see PeripheralType#getAdditionalTypes()
+     */
+    @Nonnull
+    default Set<String> getAdditionalTypes()
+    {
+        return Collections.emptySet();
+    }
 
     /**
      * Is called when when a computer is attaching to the peripheral.

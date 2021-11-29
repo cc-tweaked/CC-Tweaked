@@ -20,9 +20,7 @@ import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class GenericPeripheralProvider
 {
@@ -62,15 +60,16 @@ public class GenericPeripheralProvider
 
     private static class GenericPeripheralBuilder
     {
-        String name;
-        final ArrayList<SaturatedMethod> methods = new ArrayList<>( 0 );
+        private String name;
+        private final Set<String> additionalTypes = new HashSet<>( 0 );
+        private final ArrayList<SaturatedMethod> methods = new ArrayList<>( 0 );
 
         IPeripheral toPeripheral( TileEntity tile )
         {
             if( methods.isEmpty() ) return null;
 
             methods.trimToSize();
-            return new GenericPeripheral( tile, name, methods );
+            return new GenericPeripheral( tile, name, additionalTypes, methods );
         }
 
         void addMethods( Object target, List<NamedMethod<PeripheralMethod>> methods )
@@ -89,6 +88,7 @@ public class GenericPeripheralProvider
                     String name = type.getPrimaryType();
                     if( this.name == null || this.name.compareTo( name ) > 0 ) this.name = name;
                 }
+                if( type != null ) additionalTypes.addAll( type.getAdditionalTypes() );
             }
         }
     }

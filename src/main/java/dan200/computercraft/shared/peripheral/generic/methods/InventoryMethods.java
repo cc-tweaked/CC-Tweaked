@@ -6,11 +6,12 @@
 package dan200.computercraft.shared.peripheral.generic.methods;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -36,8 +37,15 @@ import static dan200.computercraft.shared.peripheral.generic.methods.ArgumentHel
  *
  * @cc.module inventory
  */
-public class InventoryMethods implements GenericSource
+public class InventoryMethods implements GenericPeripheral
 {
+    @Nonnull
+    @Override
+    public PeripheralType getType()
+    {
+        return PeripheralType.ofAdditional( "inventory" );
+    }
+
     @Nonnull
     @Override
     public ResourceLocation id()

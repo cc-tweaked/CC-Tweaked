@@ -6,8 +6,9 @@
 package dan200.computercraft.shared.peripheral.generic.methods;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.peripheral.GenericPeripheral;
+import dan200.computercraft.api.peripheral.PeripheralType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.energy.IEnergyStorage;
 
@@ -25,8 +26,15 @@ import javax.annotation.Nonnull;
  *
  * @cc.module energy_storage
  */
-public class EnergyMethods implements GenericSource
+public class EnergyMethods implements GenericPeripheral
 {
+    @Nonnull
+    @Override
+    public PeripheralType getType()
+    {
+        return PeripheralType.ofAdditional( "energy_storage" );
+    }
+
     @Nonnull
     @Override
     public ResourceLocation id()
