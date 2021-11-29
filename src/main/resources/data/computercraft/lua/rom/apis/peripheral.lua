@@ -79,6 +79,8 @@ speaker.playNote("harp")
 ```
 
 @module peripheral
+@see event!peripheral This event is fired whenever a new peripheral is attached.
+@see event!peripheral_detach This event is fired whenever a peripheral is detached.
 @since 1.3
 @changed 1.51 Add support for wired modems.
 @changed 1.99 Peripherals can have multiple types.
@@ -201,7 +203,7 @@ function hasType(peripheral, peripheral_type)
         if not mt or mt.__name ~= "peripheral" or type(mt.types) ~= "table" then
             error("bad argument #1 (table is not a peripheral)", 2)
         end
-        return mt.types[type] ~= nil
+        return mt.types[peripheral_type] ~= nil
     end
 end
 
@@ -286,7 +288,9 @@ function wrap(name)
         return nil
     end
 
+    -- We store our types array as a list (for getType) and a lookup table (for hasType).
     local types = { peripheral.getType(name) }
+    for i = 1, #types do types[types[i]] = true end
     local result = setmetatable({}, {
         __name = "peripheral",
         name = name,
