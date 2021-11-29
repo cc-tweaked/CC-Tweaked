@@ -18,18 +18,21 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Set;
 
 class GenericPeripheral implements IDynamicPeripheral
 {
     private final String type;
+    private final Set<String> additionalTypes;
     private final BlockEntity tile;
     private final List<SaturatedMethod> methods;
 
-    GenericPeripheral( BlockEntity tile, String name, List<SaturatedMethod> methods )
+    GenericPeripheral( BlockEntity tile, String name, Set<String> additionalTypes, List<SaturatedMethod> methods )
     {
         ResourceLocation type = tile.getType().getRegistryName();
         this.tile = tile;
         this.type = name != null ? name : (type != null ? type.toString() : "unknown");
+        this.additionalTypes = additionalTypes;
         this.methods = methods;
     }
 
@@ -54,6 +57,13 @@ class GenericPeripheral implements IDynamicPeripheral
     public String getType()
     {
         return type;
+    }
+
+    @Nonnull
+    @Override
+    public Set<String> getAdditionalTypes()
+    {
+        return additionalTypes;
     }
 
     @Nullable

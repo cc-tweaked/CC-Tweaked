@@ -108,13 +108,15 @@ public class TileWiredModemFull extends TileGeneric
 
     private final NonNullConsumer<LazyOptional<IWiredElement>> connectedNodeChanged = x -> connectionsChanged();
 
+    private int invalidSides = 0;
+
     public TileWiredModemFull( BlockEntityType<TileWiredModemFull> type, BlockPos pos, BlockState state )
     {
         super( type, pos, state );
         for( int i = 0; i < peripherals.length; i++ )
         {
             Direction facing = Direction.from3DDataValue( i );
-            peripherals[i] = new WiredModemLocalPeripheral( () -> refreshPeripheral( facing ) );
+            peripherals[i] = new WiredModemLocalPeripheral( () -> queueRefreshPeripheral( facing ) );
         }
     }
 
@@ -173,13 +175,20 @@ public class TileWiredModemFull extends TileGeneric
         {
             for( Direction facing : DirectionUtil.FACINGS )
             {
-                if( getBlockPos().relative( facing ).equals( neighbour ) ) refreshPeripheral( facing );
+                if( getBlockPos().relative( facing ).equals( neighbour ) ) queueRefreshPeripheral( facing );
             }
         }
     }
 
+    private void queueRefreshPeripheral( @Nonnull Direction facing )
+    {
+        if( invalidSides == 0 ) TickScheduler.schedule( this );
+        invalidSides |= 1 << facing.ordinal();
+    }
+
     private void refreshPeripheral( @Nonnull Direction facing )
     {
+        invalidSides &= ~(1 << facing.ordinal());
         WiredModemLocalPeripheral peripheral = peripherals[facing.ordinal()];
         if( level != null && !isRemoved() && peripheral.attach( level, getBlockPos(), facing ) )
         {
@@ -261,6 +270,14 @@ public class TileWiredModemFull extends TileGeneric
     public void blockTick()
     {
         if( getLevel().isClientSide ) return;
+
+        if( invalidSides != 0 )
+        {
+            for( Direction direction : DirectionUtil.FACINGS )
+            {
+                if( (invalidSides & (1 << direction.ordinal())) != 0 ) refreshPeripheral( direction );
+            }
+        }
 
         if( modemState.pollChanged() ) updateBlockState();
 

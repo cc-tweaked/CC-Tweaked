@@ -6,13 +6,15 @@
 package dan200.computercraft.shared.peripheral.generic.methods;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.generic.data.FluidData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
@@ -34,8 +36,15 @@ import static dan200.computercraft.shared.peripheral.generic.methods.ArgumentHel
  *
  * @cc.module fluid_storage
  */
-public class FluidMethods implements GenericSource
+public class FluidMethods implements GenericPeripheral
 {
+    @Nonnull
+    @Override
+    public PeripheralType getType()
+    {
+        return PeripheralType.ofAdditional( "fluid_storage" );
+    }
+
     @Nonnull
     @Override
     public ResourceLocation id()
@@ -155,13 +164,15 @@ public class FluidMethods implements GenericSource
     @Nullable
     private static IFluidHandler extractHandler( @Nullable Object object )
     {
-        if( object instanceof ICapabilityProvider )
+        if( object instanceof BlockEntity blockEntity && blockEntity.isRemoved() ) return null;
+
+        if( object instanceof ICapabilityProvider provider )
         {
-            LazyOptional<IFluidHandler> cap = ((ICapabilityProvider) object).getCapability( CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY );
+            LazyOptional<IFluidHandler> cap = provider.getCapability( CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY );
             if( cap.isPresent() ) return cap.orElseThrow( NullPointerException::new );
         }
 
-        if( object instanceof IFluidHandler ) return (IFluidHandler) object;
+        if( object instanceof IFluidHandler handler ) return handler;
         return null;
     }
 

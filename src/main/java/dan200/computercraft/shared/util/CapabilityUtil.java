@@ -35,12 +35,20 @@ public final class CapabilityUtil
         }
     }
 
+    public static <T> void addListener( LazyOptional<T> p, NonNullConsumer<? super LazyOptional<T>> invalidate )
+    {
+        // We can make this safe with invalidate::accept, but then we're allocating it's just kind of absurd.
+        @SuppressWarnings( "unchecked" )
+        NonNullConsumer<LazyOptional<T>> safeInvalidate = (NonNullConsumer<LazyOptional<T>>) invalidate;
+        p.addListener( safeInvalidate );
+    }
+
     @Nullable
-    public static <T> T unwrap( LazyOptional<T> p, NonNullConsumer<LazyOptional<T>> invalidate )
+    public static <T> T unwrap( LazyOptional<T> p, NonNullConsumer<? super LazyOptional<T>> invalidate )
     {
         if( !p.isPresent() ) return null;
 
-        p.addListener( invalidate );
+        addListener( p, invalidate );
         return p.orElseThrow( NullPointerException::new );
     }
 

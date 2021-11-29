@@ -9,6 +9,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralType;
 import dan200.computercraft.core.asm.NamedMethod;
 import dan200.computercraft.core.asm.PeripheralMethod;
+import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -19,9 +20,7 @@ import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class GenericPeripheralProvider
 {
@@ -34,7 +33,7 @@ public class GenericPeripheralProvider
     }
 
     @Nullable
-    public static IPeripheral getPeripheral( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side, NonNullConsumer<LazyOptional<IPeripheral>> invalidate )
+    public static IPeripheral getPeripheral( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side, NonNullConsumer<Object> invalidate )
     {
         BlockEntity tile = world.getBlockEntity( pos );
         if( tile == null ) return null;
@@ -52,7 +51,7 @@ public class GenericPeripheralProvider
                 if( capabilityMethods.isEmpty() ) return;
 
                 saturated.addMethods( contents, capabilityMethods );
-                wrapper.addListener( cast( invalidate ) );
+                CapabilityUtil.addListener( wrapper, invalidate );
             } );
         }
 
@@ -61,15 +60,16 @@ public class GenericPeripheralProvider
 
     private static class GenericPeripheralBuilder
     {
-        String name;
-        final ArrayList<SaturatedMethod> methods = new ArrayList<>( 0 );
+        private String name;
+        private final Set<String> additionalTypes = new HashSet<>( 0 );
+        private final ArrayList<SaturatedMethod> methods = new ArrayList<>( 0 );
 
         IPeripheral toPeripheral( BlockEntity tile )
         {
             if( methods.isEmpty() ) return null;
 
             methods.trimToSize();
-            return new GenericPeripheral( tile, name, methods );
+            return new GenericPeripheral( tile, name, additionalTypes, methods );
         }
 
         void addMethods( Object target, List<NamedMethod<PeripheralMethod>> methods )
@@ -88,13 +88,8 @@ public class GenericPeripheralProvider
                     String name = type.getPrimaryType();
                     if( this.name == null || this.name.compareTo( name ) > 0 ) this.name = name;
                 }
+                if( type != null ) additionalTypes.addAll( type.getAdditionalTypes() );
             }
         }
-    }
-
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
-    private static <T> NonNullConsumer<T> cast( NonNullConsumer<?> consumer )
-    {
-        return (NonNullConsumer) consumer;
     }
 }

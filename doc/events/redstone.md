@@ -2,7 +2,7 @@
 module: [kind=event] redstone
 ---
 
-The @{redstone} event is fired whenever any redstone inputs on the computer change.
+The @{event!redstone} event is fired whenever any redstone inputs on the computer change.
 
 ## Example
 Prints a message when a redstone input changes:

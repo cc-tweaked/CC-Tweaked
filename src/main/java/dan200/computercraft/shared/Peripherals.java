@@ -38,13 +38,13 @@ public final class Peripherals
     }
 
     @Nullable
-    public static IPeripheral getPeripheral( Level world, BlockPos pos, Direction side, NonNullConsumer<LazyOptional<IPeripheral>> invalidate )
+    public static IPeripheral getPeripheral( Level world, BlockPos pos, Direction side, NonNullConsumer<Object> invalidate )
     {
         return world.isInWorldBounds( pos ) && !world.isClientSide ? getPeripheralAt( world, pos, side, invalidate ) : null;
     }
 
     @Nullable
-    private static IPeripheral getPeripheralAt( Level world, BlockPos pos, Direction side, NonNullConsumer<LazyOptional<IPeripheral>> invalidate )
+    private static IPeripheral getPeripheralAt( Level world, BlockPos pos, Direction side, NonNullConsumer<? super Object> invalidate )
     {
         BlockEntity block = world.getBlockEntity( pos );
         if( block != null )

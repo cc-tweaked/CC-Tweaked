@@ -15,7 +15,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
@@ -38,7 +37,7 @@ public final class WiredModemLocalPeripheral
     private String type;
 
     private IPeripheral peripheral;
-    private final NonNullConsumer<LazyOptional<IPeripheral>> invalidate;
+    private final NonNullConsumer<Object> invalidate;
 
     public WiredModemLocalPeripheral( @Nonnull Runnable invalidate )
     {

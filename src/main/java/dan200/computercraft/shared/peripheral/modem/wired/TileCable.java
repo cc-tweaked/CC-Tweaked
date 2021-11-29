@@ -77,8 +77,9 @@ public class TileCable extends TileGeneric
         }
     }
 
+    private boolean invalidPeripheral;
     private boolean peripheralAccessAllowed;
-    private final WiredModemLocalPeripheral peripheral = new WiredModemLocalPeripheral( this::refreshPeripheral );
+    private final WiredModemLocalPeripheral peripheral = new WiredModemLocalPeripheral( this::queueRefreshPeripheral );
 
     private boolean destroyed = false;
 
@@ -234,12 +235,20 @@ public class TileCable extends TileGeneric
         if( !level.isClientSide && peripheralAccessAllowed )
         {
             Direction facing = getDirection();
-            if( getBlockPos().relative( facing ).equals( neighbour ) ) refreshPeripheral();
+            if( getBlockPos().relative( facing ).equals( neighbour ) ) queueRefreshPeripheral();
         }
+    }
+
+    private void queueRefreshPeripheral()
+    {
+        if( invalidPeripheral ) return;
+        invalidPeripheral = true;
+        TickScheduler.schedule( this );
     }
 
     private void refreshPeripheral()
     {
+        invalidPeripheral = false;
         if( level != null && !isRemoved() && peripheral.attach( level, getBlockPos(), getDirection() ) )
         {
             updateConnectedPeripherals();
@@ -309,6 +318,8 @@ public class TileCable extends TileGeneric
     public void blockTick()
     {
         if( getLevel().isClientSide ) return;
+
+        if( invalidPeripheral ) refreshPeripheral();
 
         if( modem.getModemState().pollChanged() ) updateBlockState();
 
