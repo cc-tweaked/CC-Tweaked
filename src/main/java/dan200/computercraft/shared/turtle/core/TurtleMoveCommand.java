@@ -137,7 +137,7 @@ public class TurtleMoveCommand implements ITurtleCommand
             return TurtleCommandResult.failure( "Cannot enter protected area" );
         }
 
-        if( !world.isAreaLoaded( position, 0 ) ) return TurtleCommandResult.failure( "Cannot leave loaded world" );
+        if( !world.isLoaded( position ) ) return TurtleCommandResult.failure( "Cannot leave loaded world" );
         if( !world.getWorldBorder().isWithinBounds( position ) )
         {
             return TurtleCommandResult.failure( "Cannot pass the world border" );

@@ -255,7 +255,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
 
         // Destroy the block
         boolean canHarvest = state.canHarvestBlock( world, blockPosition, turtlePlayer );
-        boolean canBreak = state.removedByPlayer( world, blockPosition, turtlePlayer, canHarvest, fluidState );
+        boolean canBreak = state.onDestroyedByPlayer( world, blockPosition, turtlePlayer, canHarvest, fluidState );
         if( canBreak ) state.getBlock().destroy( world, blockPosition, state );
         if( canHarvest && canBreak )
         {

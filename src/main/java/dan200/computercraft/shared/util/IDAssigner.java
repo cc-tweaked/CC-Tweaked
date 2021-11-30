@@ -11,7 +11,7 @@ import com.google.gson.reflect.TypeToken;
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
-import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.io.File;
 import java.io.Reader;

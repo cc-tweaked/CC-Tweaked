@@ -41,9 +41,9 @@ public final class MonitorHighlightRenderer
     public static void drawHighlight( DrawSelectionEvent.HighlightBlock event )
     {
         // Preserve normal behaviour when crouching.
-        if( event.getInfo().getEntity().isCrouching() ) return;
+        if( event.getCamera().getEntity().isCrouching() ) return;
 
-        Level world = event.getInfo().getEntity().getCommandSenderWorld();
+        Level world = event.getCamera().getEntity().getCommandSenderWorld();
         BlockPos pos = event.getTarget().getBlockPos();
 
         BlockEntity tile = world.getBlockEntity( pos );
@@ -60,13 +60,13 @@ public final class MonitorHighlightRenderer
         if( monitor.getYIndex() != 0 ) faces.remove( monitor.getDown().getOpposite() );
         if( monitor.getYIndex() != monitor.getHeight() - 1 ) faces.remove( monitor.getDown() );
 
-        PoseStack transformStack = event.getMatrix();
-        Vec3 cameraPos = event.getInfo().getPosition();
+        PoseStack transformStack = event.getPoseStack();
+        Vec3 cameraPos = event.getCamera().getPosition();
         transformStack.pushPose();
         transformStack.translate( pos.getX() - cameraPos.x(), pos.getY() - cameraPos.y(), pos.getZ() - cameraPos.z() );
 
         // I wish I could think of a better way to do this
-        VertexConsumer buffer = event.getBuffers().getBuffer( RenderType.lines() );
+        VertexConsumer buffer = event.getMultiBufferSource().getBuffer( RenderType.lines() );
         Matrix4f transform = transformStack.last().pose();
         Matrix3f normal = transformStack.last().normal();
         if( faces.contains( NORTH ) || faces.contains( WEST ) ) line( buffer, transform, normal, 0, 0, 0, UP );

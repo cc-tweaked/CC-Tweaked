@@ -261,7 +261,7 @@ public class TileMonitor extends TileGeneric
     @Override
     public final ClientboundBlockEntityDataPacket getUpdatePacket()
     {
-        return new ClientboundBlockEntityDataPacket( worldPosition, 0, getUpdateTag() );
+        return ClientboundBlockEntityDataPacket.create( this );
     }
 
     @Nonnull
@@ -398,7 +398,7 @@ public class TileMonitor extends TileGeneric
         BlockPos pos = toWorldPos( x, y );
 
         Level world = getLevel();
-        if( world == null || !world.isAreaLoaded( pos, 0 ) ) return MonitorState.UNLOADED;
+        if( world == null || !world.isLoaded( pos ) ) return MonitorState.UNLOADED;
 
         BlockEntity tile = world.getBlockEntity( pos );
         if( !(tile instanceof TileMonitor monitor) ) return MonitorState.MISSING;

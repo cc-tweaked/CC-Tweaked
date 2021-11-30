@@ -12,16 +12,16 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraftforge.common.extensions.IForgeContainerType;
-import net.minecraftforge.fmllegacy.network.IContainerFactory;
-import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraftforge.common.extensions.IForgeMenuType;
+import net.minecraftforge.network.IContainerFactory;
+import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * An extension over the basic {@link IForgeContainerType}/{@link NetworkHooks#openGui(ServerPlayer, MenuProvider, Consumer)}
+ * An extension over the basic {@link IForgeMenuType}/{@link NetworkHooks#openGui(ServerPlayer, MenuProvider, Consumer)}
  * hooks, with a more convenient way of reading and writing data.
  */
 public interface ContainerData
@@ -35,7 +35,7 @@ public interface ContainerData
 
     static <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> toType( Function<FriendlyByteBuf, T> reader, Factory<C, T> factory )
     {
-        return IForgeContainerType.create( ( id, player, data ) -> factory.create( id, player, reader.apply( data ) ) );
+        return IForgeMenuType.create( ( id, player, data ) -> factory.create( id, player, reader.apply( data ) ) );
     }
 
     static <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> toType( Function<FriendlyByteBuf, T> reader, FixedFactory<C, T> factory )
@@ -60,7 +60,7 @@ public interface ContainerData
 
         private FixedPointContainerFactory( Function<FriendlyByteBuf, T> reader, FixedFactory<C, T> factory )
         {
-            MenuType<C> type = this.type = IForgeContainerType.create( this );
+            MenuType<C> type = this.type = IForgeMenuType.create( this );
             impl = ( id, player, data ) -> factory.create( type, id, player, reader.apply( data ) );
         }
 

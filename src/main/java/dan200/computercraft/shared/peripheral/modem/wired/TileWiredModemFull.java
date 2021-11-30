@@ -306,7 +306,7 @@ public class TileWiredModemFull extends TileGeneric
         for( Direction facing : DirectionUtil.FACINGS )
         {
             BlockPos offset = current.relative( facing );
-            if( !world.isAreaLoaded( offset, 0 ) ) continue;
+            if( !world.isLoaded( offset ) ) continue;
 
             LazyOptional<IWiredElement> element = ComputerCraftAPI.getWiredElementAt( world, offset, facing.getOpposite() );
             if( !element.isPresent() ) continue;

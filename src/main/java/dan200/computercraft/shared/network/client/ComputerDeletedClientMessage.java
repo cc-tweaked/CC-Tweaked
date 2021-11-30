@@ -7,7 +7,7 @@ package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 public class ComputerDeletedClientMessage extends ComputerClientMessage
 {

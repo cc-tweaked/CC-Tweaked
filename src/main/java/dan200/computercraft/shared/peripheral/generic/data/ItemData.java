@@ -60,9 +60,9 @@ public class ItemData
             data.put( "maxDamage", stack.getMaxDamage() );
         }
 
-        if( stack.getItem().showDurabilityBar( stack ) )
+        if( stack.getItem().isBarVisible( stack ) )
         {
-            data.put( "durability", stack.getItem().getDurabilityForDisplay( stack ) );
+            data.put( "durability", stack.getItem().getBarWidth( stack ) / 13.0 );
         }
 
         data.put( "tags", DataHelpers.getTags( stack.getItem().getTags() ) );

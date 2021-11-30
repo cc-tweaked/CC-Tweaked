@@ -45,7 +45,7 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
 
         event.setCanceled( true );
         INSTANCE.renderItemFirstPerson(
-            event.getMatrixStack(), event.getBuffers(), event.getLight(),
+            event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(),
             event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack()
         );
     }
@@ -63,11 +63,11 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
     @SubscribeEvent
     public static void onRenderInFrame( RenderItemInFrameEvent event )
     {
-        ItemStack stack = event.getItem();
+        ItemStack stack = event.getItemStack();
         if( !(stack.getItem() instanceof ItemPrintout) ) return;
         event.setCanceled( true );
 
-        PoseStack transform = event.getMatrix();
+        PoseStack transform = event.getPoseStack();
 
         // Move a little bit forward to ensure we're not clipping with the frame
         transform.translate( 0.0f, 0.0f, -0.001f );
@@ -75,8 +75,8 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
         transform.scale( 0.95f, 0.95f, -0.95f );
         transform.translate( -0.5f, -0.5f, 0.0f );
 
-        int light = event.getEntityItemFrame().getType() == EntityType.GLOW_ITEM_FRAME ? 0xf000d2 : event.getLight(); // See getLightVal.
-        drawPrintout( transform, event.getBuffers(), stack, light );
+        int light = event.getItemFrameEntity().getType() == EntityType.GLOW_ITEM_FRAME ? 0xf000d2 : event.getPackedLight(); // See getLightVal.
+        drawPrintout( transform, event.getMultiBufferSource(), stack, light );
     }
 
     private static void drawPrintout( PoseStack transform, MultiBufferSource render, ItemStack stack, int light )

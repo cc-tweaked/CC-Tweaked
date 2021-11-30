@@ -48,7 +48,7 @@ public final class WaterloggableHelpers
     {
         if( state.getValue( WATERLOGGED ) )
         {
-            world.getLiquidTicks().scheduleTick( pos, Fluids.WATER, Fluids.WATER.getTickDelay( world ) );
+            world.scheduleTick( pos, Fluids.WATER, Fluids.WATER.getTickDelay( world ) );
         }
     }
 

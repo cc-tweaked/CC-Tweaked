@@ -5,7 +5,7 @@ buildscript {
         maven { url = 'https://maven.parchmentmc.org' }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.24'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.+'
         classpath 'org.parchmentmc:librarian:1.+'
     }
 }
@@ -29,7 +29,7 @@ version = mod_version
 group = "org.squiddev"
 archivesBaseName = "cc-tweaked-${mc_version}"
 
-def javaVersion = JavaLanguageVersion.of(16)
+def javaVersion = JavaLanguageVersion.of(17)
 java {
     toolchain {
         languageVersion = javaVersion
@@ -47,6 +47,7 @@ tasks.withType(JavaExec).configureEach {
 
 sourceSets {
     main.java {
+        exclude 'dan200/computercraft/shared/integration/jei/**'
         exclude 'dan200/computercraft/shared/integration/morered/**'
     }
     main.resources {
@@ -122,7 +123,8 @@ minecraft {
         }
     }
 
-    mappings channel: 'parchment', version: "${mapping_version}-${mc_version}"
+    // mappings channel: 'parchment', version: "${mapping_version}-${mc_version}"
+    mappings channel: 'official', version: mc_version
 
     accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
     accessTransformer file('src/testMod/resources/META-INF/accesstransformer.cfg')
@@ -151,10 +153,8 @@ dependencies {
 
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
 
-    compileOnly fg.deobf("mezz.jei:jei-1.17.1:8.0.0.14:api")
-    // compileOnly fg.deobf("commoble.morered:morered-1.16.5:2.1.1.0")
-
-    runtimeOnly fg.deobf("mezz.jei:jei-1.17.1:8.0.0.14")
+    // compileOnly fg.deobf("mezz.jei:jei-1.17.1:8.0.0.14:api")
+    // runtimeOnly fg.deobf("mezz.jei:jei-1.17.1:8.0.0.14")
 
     shade 'org.squiddev:Cobalt:0.5.2-SNAPSHOT'
 
@@ -430,7 +430,8 @@ task setupServer(type: Copy) {
     if (name != "Client" || project.findProperty('cc.tweaked.clientTests') == 'true') {
         // Don't run client tests unless explicitly opted into them. They're a bit of a faff
         // to run and pretty flakey.
-        check.dependsOn("jacocoTest${name}Report")
+        // check.dependsOn("jacocoTest${name}Report")
+        // TODO: Fix this! Doesn't load due to jetbrains annotations appearing twice
     }
 }
 

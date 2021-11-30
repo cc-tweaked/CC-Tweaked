@@ -98,7 +98,7 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock
     }
 
     @Override
-    public boolean removedByPlayer( BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid )
+    public boolean onDestroyedByPlayer( BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid )
     {
         if( state.getValue( CABLE ) && state.getValue( MODEM ).getFacing() != null )
         {
@@ -140,12 +140,12 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock
             }
         }
 
-        return super.removedByPlayer( state, world, pos, player, willHarvest, fluid );
+        return super.onDestroyedByPlayer( state, world, pos, player, willHarvest, fluid );
     }
 
     @Nonnull
     @Override
-    public ItemStack getPickBlock( BlockState state, HitResult hit, BlockGetter world, BlockPos pos, Player player )
+    public ItemStack getCloneItemStack( BlockState state, HitResult hit, BlockGetter world, BlockPos pos, Player player )
     {
         Direction modem = state.getValue( MODEM ).getFacing();
         boolean cable = state.getValue( CABLE );

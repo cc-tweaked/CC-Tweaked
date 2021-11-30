@@ -12,11 +12,11 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
 
@@ -36,7 +36,7 @@ public abstract class TileGeneric extends BlockEntity
         setChanged();
         BlockPos pos = getBlockPos();
         BlockState state = getBlockState();
-        getLevel().sendBlockUpdated( pos, state, state, Constants.BlockFlags.DEFAULT );
+        getLevel().sendBlockUpdated( pos, state, state, Block.UPDATE_ALL );
     }
 
     @Nonnull
@@ -76,7 +76,8 @@ public abstract class TileGeneric extends BlockEntity
     @Override
     public final void onDataPacket( Connection net, ClientboundBlockEntityDataPacket packet )
     {
-        if( packet.getType() == 0 ) handleUpdateTag( packet.getTag() );
+        var tag = packet.getTag();
+        if( tag != null ) handleUpdateTag( tag );
     }
 
     @Override

@@ -17,7 +17,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.fmllegacy.hooks.BasicEventHooks;
+import net.minecraftforge.event.ForgeEventFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -91,7 +91,7 @@ public class TurtleInventoryCrafting extends CraftingContainer
             results.add( result );
 
             result.onCraftedBy( world, player, result.getCount() );
-            BasicEventHooks.firePlayerCraftingEvent( player, result, this );
+            ForgeEventFactory.firePlayerCraftingEvent( player, result, this );
 
             ForgeHooks.setCraftingPlayer( player );
             NonNullList<ItemStack> remainders = recipe.getRemainingItems( this );

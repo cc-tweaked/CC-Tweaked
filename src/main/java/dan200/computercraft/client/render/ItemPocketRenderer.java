@@ -48,7 +48,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
         event.setCanceled( true );
         INSTANCE.renderItemFirstPerson(
-            event.getMatrixStack(), event.getBuffers(), event.getLight(),
+            event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(),
             event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack()
         );
     }

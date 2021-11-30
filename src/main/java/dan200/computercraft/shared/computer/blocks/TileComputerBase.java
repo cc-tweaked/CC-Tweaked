@@ -388,7 +388,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public final ClientboundBlockEntityDataPacket getUpdatePacket()
     {
-        return new ClientboundBlockEntityDataPacket( worldPosition, 0, getUpdateTag() );
+        return ClientboundBlockEntityDataPacket.create( this );
     }
 
     @Nonnull

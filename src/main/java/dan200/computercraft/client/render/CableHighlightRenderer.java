@@ -45,8 +45,8 @@ public final class CableHighlightRenderer
     {
         BlockHitResult hit = event.getTarget();
         BlockPos pos = hit.getBlockPos();
-        Level world = event.getInfo().getEntity().getCommandSenderWorld();
-        Camera info = event.getInfo();
+        Level world = event.getCamera().getEntity().getCommandSenderWorld();
+        Camera info = event.getCamera();
 
         BlockState state = world.getBlockState( pos );
 
@@ -67,9 +67,9 @@ public final class CableHighlightRenderer
         double yOffset = pos.getY() - cameraPos.y();
         double zOffset = pos.getZ() - cameraPos.z();
 
-        VertexConsumer buffer = event.getBuffers().getBuffer( RenderType.lines() );
-        Matrix4f matrix4f = event.getMatrix().last().pose();
-        Matrix3f normal = event.getMatrix().last().normal();
+        VertexConsumer buffer = event.getMultiBufferSource().getBuffer( RenderType.lines() );
+        Matrix4f matrix4f = event.getPoseStack().last().pose();
+        Matrix3f normal = event.getPoseStack().last().normal();
         // TODO: Can we just accesstransformer out LevelRenderer.renderShape?
         shape.forAllEdges( ( x1, y1, z1, x2, y2, z2 ) -> {
             float xDelta = (float) (x2 - x1);

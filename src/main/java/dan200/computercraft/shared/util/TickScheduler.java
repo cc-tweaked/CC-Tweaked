@@ -10,7 +10,8 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.common.TileGeneric;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.TickList;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -21,7 +22,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * A thread-safe version of {@link TickList#scheduleTick(BlockPos, Object, int)}.
+ * A thread-safe version of {@link LevelAccessor#scheduleTick(BlockPos, Block, int)}.
  *
  * We use this when modems and other peripherals change a block in a different thread.
  */
@@ -58,9 +59,9 @@ public final class TickScheduler
             Level world = tile.getLevel();
             BlockPos pos = tile.getBlockPos();
 
-            if( world != null && pos != null && world.isAreaLoaded( pos, 0 ) && world.getBlockEntity( pos ) == tile )
+            if( world != null && pos != null && world.isLoaded( pos ) && world.getBlockEntity( pos ) == tile )
             {
-                world.getBlockTicks().scheduleTick( pos, tile.getBlockState().getBlock(), 0 );
+                world.scheduleTick( pos, tile.getBlockState().getBlock(), 0 );
             }
         }
     }

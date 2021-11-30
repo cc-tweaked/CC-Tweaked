@@ -28,11 +28,11 @@ import net.minecraft.world.level.storage.loot.entries.LootTableReference;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraftforge.event.*;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fmlserverevents.FMLServerStartedEvent;
-import net.minecraftforge.fmlserverevents.FMLServerStartingEvent;
-import net.minecraftforge.fmlserverevents.FMLServerStoppedEvent;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -84,7 +84,7 @@ public final class CommonHooks
     }
 
     @SubscribeEvent
-    public static void onServerStarting( FMLServerStartingEvent event )
+    public static void onServerStarting( ServerStartingEvent event )
     {
         MinecraftServer server = event.getServer();
         if( server instanceof DedicatedServer dediServer && dediServer.getProperties().enableJmxMonitoring )
@@ -94,7 +94,7 @@ public final class CommonHooks
     }
 
     @SubscribeEvent
-    public static void onServerStarted( FMLServerStartedEvent event )
+    public static void onServerStarted( ServerStartedEvent event )
     {
         ComputerCraft.serverComputerRegistry.reset();
         WirelessNetwork.resetNetworks();
@@ -104,7 +104,7 @@ public final class CommonHooks
     }
 
     @SubscribeEvent
-    public static void onServerStopped( FMLServerStoppedEvent event )
+    public static void onServerStopped( ServerStoppedEvent event )
     {
         ComputerCraft.serverComputerRegistry.reset();
         WirelessNetwork.resetNetworks();

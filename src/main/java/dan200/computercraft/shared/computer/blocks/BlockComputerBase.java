@@ -32,7 +32,7 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fmllegacy.RegistryObject;
+import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -119,7 +119,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     @Nonnull
     @Override
-    public ItemStack getPickBlock( BlockState state, HitResult target, BlockGetter world, BlockPos pos, Player player )
+    public ItemStack getCloneItemStack( BlockState state, HitResult target, BlockGetter world, BlockPos pos, Player player )
     {
         BlockEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileComputerBase )
@@ -128,7 +128,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
             if( !result.isEmpty() ) return result;
         }
 
-        return super.getPickBlock( state, target, world, pos, player );
+        return super.getCloneItemStack( state, target, world, pos, player );
     }
 
     @Override
