@@ -24,6 +24,7 @@ import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ActionResultType;
@@ -387,18 +388,27 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     // Networking stuff
 
+    @Nonnull
     @Override
-    protected void writeDescription( @Nonnull CompoundNBT nbt )
+    public final SUpdateTileEntityPacket getUpdatePacket()
     {
-        super.writeDescription( nbt );
+        return new SUpdateTileEntityPacket( worldPosition, 0, getUpdateTag() );
+    }
+
+    @Nonnull
+    @Override
+    public CompoundNBT getUpdateTag()
+    {
+        // We need this for pick block on the client side.
+        CompoundNBT nbt = super.getUpdateTag();
         if( label != null ) nbt.putString( NBT_LABEL, label );
         if( computerID >= 0 ) nbt.putInt( NBT_ID, computerID );
+        return nbt;
     }
 
     @Override
-    protected void readDescription( @Nonnull CompoundNBT nbt )
+    public void handleUpdateTag( @Nonnull CompoundNBT nbt )
     {
-        super.readDescription( nbt );
         label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
         computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
     }

@@ -17,6 +17,7 @@ import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ActionResultType;
@@ -236,7 +237,6 @@ public class TileMonitor extends TileGeneric
         {
             // Otherwise fetch the origin and attempt to get its monitor
             // Note this may load chunks, but we don't really have a choice here.
-            BlockPos pos = getBlockPos();
             TileEntity te = level.getBlockEntity( toWorldPos( 0, 0 ) );
             if( !(te instanceof TileMonitor) ) return null;
 
@@ -249,7 +249,6 @@ public class TileMonitor extends TileGeneric
     {
         if( clientMonitor != null ) return clientMonitor;
 
-        BlockPos pos = getBlockPos();
         TileEntity te = level.getBlockEntity( toWorldPos( 0, 0 ) );
         if( !(te instanceof TileMonitor) ) return null;
 
@@ -258,20 +257,29 @@ public class TileMonitor extends TileGeneric
 
     // Networking stuff
 
+    @Nonnull
     @Override
-    protected void writeDescription( @Nonnull CompoundNBT nbt )
+    public final SUpdateTileEntityPacket getUpdatePacket()
     {
-        super.writeDescription( nbt );
+        return new SUpdateTileEntityPacket( worldPosition, 0, getUpdateTag() );
+    }
+
+    @Nonnull
+    @Override
+    public final CompoundNBT getUpdateTag()
+    {
+        CompoundNBT nbt = super.getUpdateTag();
         nbt.putInt( NBT_X, xIndex );
         nbt.putInt( NBT_Y, yIndex );
         nbt.putInt( NBT_WIDTH, width );
         nbt.putInt( NBT_HEIGHT, height );
+        return nbt;
     }
 
     @Override
-    protected final void readDescription( @Nonnull CompoundNBT nbt )
+    public final void handleUpdateTag( @Nonnull CompoundNBT nbt )
     {
-        super.readDescription( nbt );
+        super.handleUpdateTag( nbt );
 
         int oldXIndex = xIndex;
         int oldYIndex = yIndex;

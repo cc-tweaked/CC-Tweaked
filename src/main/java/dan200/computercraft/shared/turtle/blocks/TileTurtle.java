@@ -495,17 +495,19 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
     // Networking stuff
 
+    @Nonnull
     @Override
-    protected void writeDescription( @Nonnull CompoundNBT nbt )
+    public CompoundNBT getUpdateTag()
     {
-        super.writeDescription( nbt );
+        CompoundNBT nbt = super.getUpdateTag();
         brain.writeDescription( nbt );
+        return nbt;
     }
 
     @Override
-    protected void readDescription( @Nonnull CompoundNBT nbt )
+    public void handleUpdateTag( @Nonnull CompoundNBT nbt )
     {
-        super.readDescription( nbt );
+        super.handleUpdateTag( nbt );
         brain.readDescription( nbt );
     }
 
