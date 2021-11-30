@@ -24,6 +24,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -383,18 +384,27 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     // Networking stuff
 
+    @Nonnull
     @Override
-    protected void writeDescription( @Nonnull CompoundTag nbt )
+    public final ClientboundBlockEntityDataPacket getUpdatePacket()
     {
-        super.writeDescription( nbt );
+        return new ClientboundBlockEntityDataPacket( worldPosition, 0, getUpdateTag() );
+    }
+
+    @Nonnull
+    @Override
+    public CompoundTag getUpdateTag()
+    {
+        // We need this for pick block on the client side.
+        CompoundTag nbt = super.getUpdateTag();
         if( label != null ) nbt.putString( NBT_LABEL, label );
         if( computerID >= 0 ) nbt.putInt( NBT_ID, computerID );
+        return nbt;
     }
 
     @Override
-    protected void readDescription( @Nonnull CompoundTag nbt )
+    public void handleUpdateTag( @Nonnull CompoundTag nbt )
     {
-        super.readDescription( nbt );
         label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
         computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
     }

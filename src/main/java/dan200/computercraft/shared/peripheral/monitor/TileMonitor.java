@@ -17,6 +17,7 @@ import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -236,7 +237,6 @@ public class TileMonitor extends TileGeneric
         {
             // Otherwise fetch the origin and attempt to get its monitor
             // Note this may load chunks, but we don't really have a choice here.
-            BlockPos pos = getBlockPos();
             BlockEntity te = level.getBlockEntity( toWorldPos( 0, 0 ) );
             if( !(te instanceof TileMonitor) ) return null;
 
@@ -249,7 +249,6 @@ public class TileMonitor extends TileGeneric
     {
         if( clientMonitor != null ) return clientMonitor;
 
-        BlockPos pos = getBlockPos();
         BlockEntity te = level.getBlockEntity( toWorldPos( 0, 0 ) );
         if( !(te instanceof TileMonitor) ) return null;
 
@@ -258,20 +257,29 @@ public class TileMonitor extends TileGeneric
 
     // Networking stuff
 
+    @Nonnull
     @Override
-    protected void writeDescription( @Nonnull CompoundTag nbt )
+    public final ClientboundBlockEntityDataPacket getUpdatePacket()
     {
-        super.writeDescription( nbt );
+        return new ClientboundBlockEntityDataPacket( worldPosition, 0, getUpdateTag() );
+    }
+
+    @Nonnull
+    @Override
+    public final CompoundTag getUpdateTag()
+    {
+        CompoundTag nbt = super.getUpdateTag();
         nbt.putInt( NBT_X, xIndex );
         nbt.putInt( NBT_Y, yIndex );
         nbt.putInt( NBT_WIDTH, width );
         nbt.putInt( NBT_HEIGHT, height );
+        return nbt;
     }
 
     @Override
-    protected final void readDescription( @Nonnull CompoundTag nbt )
+    public final void handleUpdateTag( @Nonnull CompoundTag nbt )
     {
-        super.readDescription( nbt );
+        super.handleUpdateTag( nbt );
 
         int oldXIndex = xIndex;
         int oldYIndex = yIndex;

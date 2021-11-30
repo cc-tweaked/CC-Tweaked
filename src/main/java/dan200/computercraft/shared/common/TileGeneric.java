@@ -73,42 +73,14 @@ public abstract class TileGeneric extends BlockEntity
             player.distanceToSqr( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
     }
 
-    protected void writeDescription( @Nonnull CompoundTag nbt )
-    {
-    }
-
-    protected void readDescription( @Nonnull CompoundTag nbt )
-    {
-    }
-
-    @Nonnull
-    @Override
-    public final ClientboundBlockEntityDataPacket getUpdatePacket()
-    {
-        CompoundTag nbt = new CompoundTag();
-        writeDescription( nbt );
-        return new ClientboundBlockEntityDataPacket( worldPosition, 0, nbt );
-    }
-
     @Override
     public final void onDataPacket( Connection net, ClientboundBlockEntityDataPacket packet )
     {
-        if( packet.getType() == 0 ) readDescription( packet.getTag() );
-    }
-
-    @Nonnull
-    @Override
-    public CompoundTag getUpdateTag()
-    {
-        CompoundTag tag = super.getUpdateTag();
-        writeDescription( tag );
-        return tag;
+        if( packet.getType() == 0 ) handleUpdateTag( packet.getTag() );
     }
 
     @Override
     public void handleUpdateTag( @Nonnull CompoundTag tag )
     {
-        super.handleUpdateTag( tag );
-        readDescription( tag );
     }
 }
