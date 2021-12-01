@@ -7,7 +7,7 @@ plugins {
     id 'fabric-loom' version '0.10-SNAPSHOT'
 }
 
-def javaVersion = JavaLanguageVersion.of(16)
+def javaVersion = JavaLanguageVersion.of(17)
 java {
     toolchain {
         languageVersion = javaVersion
@@ -83,8 +83,8 @@ dependencies {
     include 'com.electronwill.night-config:toml:3.6.3'
     include "me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}"
 
-    modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:6.0.254-alpha"
-    modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:6.0.254-alpha"
+    //modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-api-fabric:6.0.254-alpha"
+    //modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:6.0.254-alpha"
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'

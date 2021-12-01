@@ -49,9 +49,7 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
         super.setBlockState( state );
         if( state != null ) return;
         hasModemDirection = false;
-        level.getBlockTicks()
-            .scheduleTick( getBlockPos(),
-                getBlockState().getBlock(), 0 );
+        level.scheduleTick( getBlockPos(), getBlockState().getBlock(), 0 );
     }
 
     @Override

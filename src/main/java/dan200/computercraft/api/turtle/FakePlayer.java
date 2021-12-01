@@ -253,7 +253,7 @@ public class FakePlayer extends ServerPlayer
     }
 
     @Override
-    public void trackChunk( ChunkPos chunkPos, Packet<?> packet, Packet<?> packet2 )
+    public void trackChunk( ChunkPos chunkPos, Packet<?> packet )
     {
     }
 

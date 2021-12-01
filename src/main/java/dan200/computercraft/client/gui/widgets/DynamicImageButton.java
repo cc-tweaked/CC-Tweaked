@@ -71,12 +71,12 @@ public class DynamicImageButton extends Button
         RenderSystem.disableDepthTest();
 
         int yTex = yTexStart;
-        if( isHovered() ) yTex += yDiffTex;
+        if( isHoveredOrFocused() ) yTex += yDiffTex;
 
         blit( stack, x, y, xTexStart.getAsInt(), yTex, width, height, textureWidth, textureHeight );
         RenderSystem.enableDepthTest();
 
-        if( isHovered() ) renderToolTip( stack, mouseX, mouseY );
+        if( isHoveredOrFocused() ) renderToolTip( stack, mouseX, mouseY );
     }
 
     @Nonnull

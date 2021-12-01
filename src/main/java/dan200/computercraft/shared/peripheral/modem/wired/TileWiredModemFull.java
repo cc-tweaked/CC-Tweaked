@@ -325,16 +325,16 @@ public class TileWiredModemFull extends TileGeneric implements IPeripheralTile
         }
     }
 
-    @Nonnull
     @Override
-    public CompoundTag save( CompoundTag nbt )
+    public void saveAdditional( CompoundTag nbt )
     {
         nbt.putBoolean( NBT_PERIPHERAL_ENABLED, peripheralAccessAllowed );
         for( int i = 0; i < peripherals.length; i++ )
         {
             peripherals[i].write( nbt, Integer.toString( i ) );
         }
-        return super.save( nbt );
+
+        super.saveAdditional( nbt );
     }
 
     @Override

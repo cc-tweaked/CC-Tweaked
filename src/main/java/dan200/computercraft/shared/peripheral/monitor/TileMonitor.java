@@ -305,15 +305,15 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
     // Networking stuff
 
-    @Nonnull
     @Override
-    public CompoundTag save( CompoundTag nbt )
+    public void saveAdditional( CompoundTag nbt )
     {
         nbt.putInt( NBT_X, xIndex );
         nbt.putInt( NBT_Y, yIndex );
         nbt.putInt( NBT_WIDTH, width );
         nbt.putInt( NBT_HEIGHT, height );
-        return super.save( nbt );
+
+        super.saveAdditional( nbt );
     }
 
     //    @Override //TODO: make BlockEntityRenderer work with this, i guess.

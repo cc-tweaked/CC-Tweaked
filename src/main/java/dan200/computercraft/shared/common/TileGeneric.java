@@ -6,9 +6,11 @@
 
 package dan200.computercraft.shared.common;
 
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -16,10 +18,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public abstract class TileGeneric extends BlockEntity implements BlockEntityClientSerializable
+public abstract class TileGeneric extends BlockEntity
 {
     public TileGeneric( BlockEntityType<? extends TileGeneric> type, BlockPos pos, BlockState state )
     {
@@ -60,6 +63,11 @@ public abstract class TileGeneric extends BlockEntity implements BlockEntityClie
     {
     }
 
+    protected double getInteractRange( Player player )
+    {
+        return 8.0;
+    }
+
     public boolean isUsable( Player player, boolean ignoreRange )
     {
         if( player == null || !player.isAlive() || getLevel().getBlockEntity( getBlockPos() ) != this )
@@ -76,26 +84,23 @@ public abstract class TileGeneric extends BlockEntity implements BlockEntityClie
         return player.getCommandSenderWorld() == getLevel() && player.distanceToSqr( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
     }
 
-    protected double getInteractRange( Player player )
+    @Override
+    public CompoundTag getUpdateTag()
     {
-        return 8.0;
+        CompoundTag nbt = new CompoundTag();
+        writeDescription( nbt );
+        return nbt;
     }
 
+    @Nullable
     @Override
-    public void fromClientTag( CompoundTag compoundTag )
+    public Packet<ClientGamePacketListener> getUpdatePacket()
     {
-        readDescription( compoundTag );
+        return ClientboundBlockEntityDataPacket.create( this );
     }
 
     protected void readDescription( @Nonnull CompoundTag nbt )
     {
-    }
-
-    @Override
-    public CompoundTag toClientTag( CompoundTag compoundTag )
-    {
-        writeDescription( compoundTag );
-        return compoundTag;
     }
 
     protected void writeDescription( @Nonnull CompoundTag nbt )

@@ -50,11 +50,7 @@ public final class TickScheduler
 
             if( world != null && pos != null && world.hasChunkAt( pos ) && world.getBlockEntity( pos ) == tile )
             {
-                world.getBlockTicks()
-                    .scheduleTick( pos,
-                        tile.getBlockState()
-                            .getBlock(),
-                        0 );
+                world.scheduleTick( pos, tile.getBlockState().getBlock(), 0 );
             }
         }
     }
