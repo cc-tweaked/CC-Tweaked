@@ -188,16 +188,15 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     protected abstract void updateBlockState( ComputerState newState );
 
-    @Nonnull
     @Override
-    public CompoundTag save( @Nonnull CompoundTag nbt )
+    public void saveAdditional( @Nonnull CompoundTag nbt )
     {
         // Save ID, label and power state
         if( computerID >= 0 ) nbt.putInt( NBT_ID, computerID );
         if( label != null ) nbt.putString( NBT_LABEL, label );
         nbt.putBoolean( NBT_ON, on );
 
-        return super.save( nbt );
+        super.saveAdditional( nbt );
     }
 
     @Override

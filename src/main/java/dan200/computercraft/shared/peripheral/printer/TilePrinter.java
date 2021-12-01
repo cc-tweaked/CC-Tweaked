@@ -113,9 +113,8 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         ContainerHelper.loadAllItems( nbt, inventory );
     }
 
-    @Nonnull
     @Override
-    public CompoundTag save( @Nonnull CompoundTag nbt )
+    public void saveAdditional( @Nonnull CompoundTag nbt )
     {
         if( customName != null ) nbt.putString( NBT_NAME, Component.Serializer.toJson( customName ) );
 
@@ -130,7 +129,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         // Write inventory
         ContainerHelper.saveAllItems( nbt, inventory );
 
-        return super.save( nbt );
+        super.saveAdditional( nbt );
     }
 
     boolean isPrinting()

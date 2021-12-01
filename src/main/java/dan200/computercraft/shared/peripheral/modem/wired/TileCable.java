@@ -292,13 +292,12 @@ public class TileCable extends TileGeneric
         peripheral.read( nbt, "" );
     }
 
-    @Nonnull
     @Override
-    public CompoundTag save( CompoundTag nbt )
+    public void saveAdditional( CompoundTag nbt )
     {
         nbt.putBoolean( NBT_PERIPHERAL_ENABLED, peripheralAccessAllowed );
         peripheral.write( nbt, "" );
-        return super.save( nbt );
+        super.saveAdditional( nbt );
     }
 
     private void updateBlockState()

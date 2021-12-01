@@ -289,9 +289,8 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         brain.readFromNBT( nbt );
     }
 
-    @Nonnull
     @Override
-    public CompoundTag save( @Nonnull CompoundTag nbt )
+    public void saveAdditional( @Nonnull CompoundTag nbt )
     {
         // Write inventory
         ListTag nbttaglist = new ListTag();
@@ -310,7 +309,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         // Write brain
         nbt = brain.writeToNBT( nbt );
 
-        return super.save( nbt );
+        super.saveAdditional( nbt );
     }
 
     @Override

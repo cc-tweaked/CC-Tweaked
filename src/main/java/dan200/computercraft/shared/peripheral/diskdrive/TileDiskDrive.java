@@ -137,9 +137,8 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         }
     }
 
-    @Nonnull
     @Override
-    public CompoundTag save( @Nonnull CompoundTag nbt )
+    public void saveAdditional( @Nonnull CompoundTag nbt )
     {
         if( customName != null ) nbt.putString( NBT_NAME, Component.Serializer.toJson( customName ) );
 
@@ -149,7 +148,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
             diskStack.save( item );
             nbt.put( NBT_ITEM, item );
         }
-        return super.save( nbt );
+        super.saveAdditional( nbt );
     }
 
     void serverTick()
