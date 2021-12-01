@@ -166,7 +166,9 @@ dependencies {
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2'
 
     testModImplementation sourceSets.main.output
-    testModExtra 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21'
+    testModExtra('org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0') {
+        exclude group: "org.jetbrains", module: "annotations"
+    }
 
     cctJavadoc 'cc.tweaked:cct-javadoc:1.4.2'
 }
@@ -430,8 +432,7 @@ task setupServer(type: Copy) {
     if (name != "Client" || project.findProperty('cc.tweaked.clientTests') == 'true') {
         // Don't run client tests unless explicitly opted into them. They're a bit of a faff
         // to run and pretty flakey.
-        // check.dependsOn("jacocoTest${name}Report")
-        // TODO: Fix this! Doesn't load due to jetbrains annotations appearing twice
+        check.dependsOn("jacocoTest${name}Report")
     }
 }
 
