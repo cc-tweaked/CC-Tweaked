@@ -13,6 +13,7 @@ import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.IHasContainer;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.text.ITextComponent;
@@ -43,9 +44,12 @@ public class NoTermComputerScreen<T extends ContainerComputerBase> extends Scree
     @Override
     protected void init()
     {
-        this.passEvents = true; // to allow gui click events pass through mouseHelper protection (see MouseHelper.OnPres:105 code string)
+        passEvents = true; // Pass mouse vents through to the game's mouse handler.
+        // First ensure we're still grabbing the mouse, so the user can look around. Then reset bits of state that
+        // grabbing unsets.
         minecraft.mouseHandler.grabMouse();
         minecraft.screen = this;
+        KeyBinding.releaseAll();
 
         super.init();
         minecraft.keyboardHandler.setSendRepeatsToGui( true );
