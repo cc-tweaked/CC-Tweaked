@@ -3,14 +3,13 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
-import dan200.computercraft.shared.ComputerCraftRegistry;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
 import dan200.computercraft.shared.util.WorldUtil;
@@ -33,35 +32,34 @@ public final class CableHighlightRenderer
     {
     }
 
-    public static boolean drawHighlight( PoseStack stack, VertexConsumer consumer, Entity entity, double d, double e, double f, BlockPos pos,
-                                         BlockState state )
+    /*
+     * Draw an outline for a specific part of a cable "Multipart".
+     *
+     * @see net.minecraft.client.renderer.LevelRenderer#renderHitOutline
+     */
+    public static boolean drawHighlight( PoseStack stack, VertexConsumer buffer, Entity entity, double d, double e, double f, BlockPos pos, BlockState state )
     {
+        HitResult hitResult = Minecraft.getInstance().hitResult;
         Camera info = Minecraft.getInstance().gameRenderer.getMainCamera();
 
         // We only care about instances with both cable and modem.
-        if( state.getBlock() != ComputerCraftRegistry.ModBlocks.CABLE || state.getValue( BlockCable.MODEM )
-            .getFacing() == null || !state.getValue( BlockCable.CABLE ) )
+        if( state.getBlock() != Registry.ModBlocks.CABLE || state.getValue( BlockCable.MODEM ).getFacing() == null || !state.getValue( BlockCable.CABLE ) )
         {
             return false;
         }
 
-        HitResult hitResult = Minecraft.getInstance().hitResult;
-
         Vec3 hitPos = hitResult != null ? hitResult.getLocation() : new Vec3( d, e, f );
 
-        VoxelShape shape = WorldUtil.isVecInside( CableShapes.getModemShape( state ),
-            hitPos.subtract( pos.getX(),
-                pos.getY(),
-                pos.getZ() ) ) ? CableShapes.getModemShape( state ) : CableShapes.getCableShape(
-            state );
+        VoxelShape shape = WorldUtil.isVecInside( CableShapes.getModemShape( state ), hitPos.subtract( pos.getX(), pos.getY(), pos.getZ() ) )
+            ? CableShapes.getModemShape( state )
+            : CableShapes.getCableShape( state );
 
         Vec3 cameraPos = info.getPosition();
-
         double xOffset = pos.getX() - cameraPos.x();
         double yOffset = pos.getY() - cameraPos.y();
         double zOffset = pos.getZ() - cameraPos.z();
-        Matrix4f matrix4f = stack.last()
-            .pose();
+
+        Matrix4f matrix4f = stack.last().pose();
         Matrix3f normal = stack.last().normal();
         shape.forAllEdges( ( x1, y1, z1, x2, y2, z2 ) -> {
             float xDelta = (float) (x2 - x1);
@@ -72,11 +70,13 @@ public final class CableHighlightRenderer
             yDelta = yDelta / len;
             zDelta = zDelta / len;
 
-            consumer.vertex( matrix4f, (float) (x1 + xOffset), (float) (y1 + yOffset), (float) (z1 + zOffset) )
+            buffer
+                .vertex( matrix4f, (float) (x1 + xOffset), (float) (y1 + yOffset), (float) (z1 + zOffset) )
                 .color( 0, 0, 0, 0.4f )
                 .normal( normal, xDelta, yDelta, zDelta )
                 .endVertex();
-            consumer.vertex( matrix4f, (float) (x2 + xOffset), (float) (y2 + yOffset), (float) (z2 + zOffset) )
+            buffer
+                .vertex( matrix4f, (float) (x2 + xOffset), (float) (y2 + yOffset), (float) (z2 + zOffset) )
                 .color( 0, 0, 0, 0.4f )
                 .normal( normal, xDelta, yDelta, zDelta )
                 .endVertex();

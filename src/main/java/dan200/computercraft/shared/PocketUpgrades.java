@@ -15,6 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.stream.Stream;
 
 public final class PocketUpgrades
 {
@@ -72,17 +73,18 @@ public final class PocketUpgrades
         return upgradeOwners.get( upgrade );
     }
 
-    public static Iterable<IPocketUpgrade> getVanillaUpgrades()
-    {
-        List<IPocketUpgrade> vanilla = new ArrayList<>();
-        vanilla.add( ComputerCraftRegistry.PocketUpgrades.wirelessModemNormal );
-        vanilla.add( ComputerCraftRegistry.PocketUpgrades.wirelessModemAdvanced );
-        vanilla.add( ComputerCraftRegistry.PocketUpgrades.speaker );
-        return vanilla;
-    }
-
     public static Iterable<IPocketUpgrade> getUpgrades()
     {
         return Collections.unmodifiableCollection( upgrades.values() );
+    }
+
+    public static Stream<IPocketUpgrade> getVanillaUpgrades()
+    {
+        List<IPocketUpgrade> vanilla = Arrays.asList(
+            Registry.PocketUpgrades.wirelessModemNormal,
+            Registry.PocketUpgrades.wirelessModemAdvanced,
+            Registry.PocketUpgrades.speaker
+        );
+        return vanilla.stream();
     }
 }

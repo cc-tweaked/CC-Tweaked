@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.recipes;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -20,18 +19,7 @@ import javax.annotation.Nonnull;
 
 public final class TurtleRecipe extends ComputerFamilyRecipe
 {
-    public static final RecipeSerializer<TurtleRecipe> SERIALIZER =
-        new ComputerFamilyRecipe.Serializer<TurtleRecipe>()
-        {
-            @Override
-            protected TurtleRecipe create( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
-            {
-                return new TurtleRecipe( identifier, group, width, height, ingredients, result, family );
-            }
-        };
-
-    private TurtleRecipe( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result,
-                          ComputerFamily family )
+    private TurtleRecipe( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
     {
         super( identifier, group, width, height, ingredients, result, family );
     }
@@ -52,4 +40,13 @@ public final class TurtleRecipe extends ComputerFamilyRecipe
 
         return TurtleItemFactory.create( computerID, label, -1, getFamily(), null, null, 0, null );
     }
+
+    public static final RecipeSerializer<TurtleRecipe> SERIALIZER = new Serializer<>()
+    {
+        @Override
+        protected TurtleRecipe create( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
+        {
+            return new TurtleRecipe( identifier, group, width, height, ingredients, result, family );
+        }
+    };
 }

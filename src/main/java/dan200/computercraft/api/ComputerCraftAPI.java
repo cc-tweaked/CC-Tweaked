@@ -36,17 +36,12 @@ import javax.annotation.Nullable;
  */
 public final class ComputerCraftAPI
 {
+    public static final String MOD_ID = "computercraft";
+
     @Nonnull
     public static String getInstalledVersion()
     {
         return getInstance().getInstalledVersion();
-    }
-
-    @Nonnull
-    @Deprecated
-    public static String getAPIVersion()
-    {
-        return getInstalledVersion();
     }
 
     /**
@@ -139,9 +134,9 @@ public final class ComputerCraftAPI
     }
 
     /**
-     * Registers a new turtle turtle for use in ComputerCraft. After calling this,
-     * users should be able to craft Turtles with your new turtle. It is recommended to call
-     * this during the load() method of your mod.
+     * Registers a new turtle upgrade for use in ComputerCraft. After calling this,
+     * users should be able to craft Turtles with your upgrade's ItemStack. It is
+     * recommended to call this during the load() method of your mod.
      *
      * @param upgrade The turtle upgrade to register.
      * @see ITurtleUpgrade
@@ -149,6 +144,19 @@ public final class ComputerCraftAPI
     public static void registerTurtleUpgrade( @Nonnull ITurtleUpgrade upgrade )
     {
         getInstance().registerTurtleUpgrade( upgrade );
+    }
+
+    /**
+     * Registers a new pocket upgrade for use in ComputerCraft. After calling this,
+     * users should be able to craft pocket computers with your upgrade's ItemStack. It is
+     * recommended to call this during the load() method of your mod.
+     *
+     * @param upgrade The pocket upgrade to register.
+     * @see IPocketUpgrade
+     */
+    public static void registerPocketUpgrade( @Nonnull IPocketUpgrade upgrade )
+    {
+        getInstance().registerPocketUpgrade( upgrade );
     }
 
     /**
@@ -186,11 +194,6 @@ public final class ComputerCraftAPI
     public static void registerMediaProvider( @Nonnull IMediaProvider provider )
     {
         getInstance().registerMediaProvider( provider );
-    }
-
-    public static void registerPocketUpgrade( @Nonnull IPocketUpgrade upgrade )
-    {
-        getInstance().registerPocketUpgrade( upgrade );
     }
 
     /**
@@ -273,14 +276,13 @@ public final class ComputerCraftAPI
 
         void registerTurtleUpgrade( @Nonnull ITurtleUpgrade upgrade );
 
+        void registerPocketUpgrade( @Nonnull IPocketUpgrade upgrade );
+
         void registerBundledRedstoneProvider( @Nonnull IBundledRedstoneProvider provider );
 
         int getBundledRedstoneOutput( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side );
 
         void registerMediaProvider( @Nonnull IMediaProvider provider );
-
-        void registerPocketUpgrade( @Nonnull IPocketUpgrade upgrade );
-
         @Nonnull
         IPacketNetwork getWirelessNetwork();
 

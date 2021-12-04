@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.media.recipes;
 
 import dan200.computercraft.shared.media.items.ItemPrintout;
@@ -21,7 +20,6 @@ import javax.annotation.Nonnull;
 
 public final class PrintoutRecipe extends CustomRecipe
 {
-    public static final RecipeSerializer<?> SERIALIZER = new SimpleRecipeSerializer<>( PrintoutRecipe::new );
     private final Ingredient paper = Ingredient.of( Items.PAPER );
     private final Ingredient leather = Ingredient.of( Items.LEATHER );
     private final Ingredient string = Ingredient.of( Items.STRING );
@@ -29,6 +27,12 @@ public final class PrintoutRecipe extends CustomRecipe
     private PrintoutRecipe( ResourceLocation id )
     {
         super( id );
+    }
+
+    @Override
+    public boolean canCraftInDimensions( int x, int y )
+    {
+        return x >= 3 && y >= 3;
     }
 
     @Nonnull
@@ -62,12 +66,9 @@ public final class PrintoutRecipe extends CustomRecipe
                 ItemStack stack = inventory.getItem( x + y * inventory.getWidth() );
                 if( !stack.isEmpty() )
                 {
-                    if( stack.getItem() instanceof ItemPrintout && ((ItemPrintout) stack.getItem()).getType() != ItemPrintout.Type.BOOK )
+                    if( stack.getItem() instanceof ItemPrintout printout && printout.getType() != ItemPrintout.Type.BOOK )
                     {
-                        if( printouts == null )
-                        {
-                            printouts = new ItemStack[9];
-                        }
+                        if( printouts == null ) printouts = new ItemStack[9];
                         printouts[numPrintouts] = stack;
                         numPages += ItemPrintout.getPageCount( stack );
                         numPrintouts++;
@@ -152,16 +153,12 @@ public final class PrintoutRecipe extends CustomRecipe
         return ItemStack.EMPTY;
     }
 
-    @Override
-    public boolean canCraftInDimensions( int x, int y )
-    {
-        return x >= 3 && y >= 3;
-    }
-
     @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
+
+    public static final SimpleRecipeSerializer<?> SERIALIZER = new SimpleRecipeSerializer<>( PrintoutRecipe::new );
 }

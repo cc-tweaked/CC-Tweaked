@@ -26,6 +26,7 @@ import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -82,15 +83,15 @@ public final class CommandComputerCraft
                     BlockPos pos = new BlockPos( source.getPosition() );
 
                     computers.sort( ( a, b ) -> {
-                        if( a.getWorld() == b.getWorld() && a.getWorld() == world )
+                        if( a.getLevel() == b.getLevel() && a.getLevel() == world )
                         {
                             return Double.compare( a.getPosition().distSqr( pos ), b.getPosition().distSqr( pos ) );
                         }
-                        else if( a.getWorld() == world )
+                        else if( a.getLevel() == world )
                         {
                             return -1;
                         }
-                        else if( b.getWorld() == world )
+                        else if( b.getLevel() == world )
                         {
                             return 1;
                         }
@@ -171,15 +172,14 @@ public final class CommandComputerCraft
                 .arg( "computer", oneComputer() )
                 .executes( context -> {
                     ServerComputer computer = getComputerArgument( context, "computer" );
-                    Level world = computer.getWorld();
+                    Level world = computer.getLevel();
                     BlockPos pos = computer.getPosition();
 
                     if( world == null || pos == null ) throw TP_NOT_THERE.create();
 
                     Entity entity = context.getSource().getEntityOrException();
-                    if( !(entity instanceof ServerPlayer) ) throw TP_NOT_PLAYER.create();
+                    if( !(entity instanceof ServerPlayer player) ) throw TP_NOT_PLAYER.create();
 
-                    ServerPlayer player = (ServerPlayer) entity;
                     if( player.getCommandSenderWorld() == world )
                     {
                         player.connection.teleport(
@@ -236,7 +236,7 @@ public final class CommandComputerCraft
 
                         @Nonnull
                         @Override
-                        public MutableComponent getDisplayName()
+                        public Component getDisplayName()
                         {
                             return new TranslatableComponent( "gui.computercraft.view_computer" );
                         }
@@ -292,7 +292,7 @@ public final class CommandComputerCraft
         );
     }
 
-    private static MutableComponent linkComputer( CommandSourceStack source, ServerComputer serverComputer, int computerId )
+    private static Component linkComputer( CommandSourceStack source, ServerComputer serverComputer, int computerId )
     {
         MutableComponent out = new TextComponent( "" );
 
@@ -333,14 +333,14 @@ public final class CommandComputerCraft
 
         if( UserLevel.OWNER.test( source ) && isPlayer( source ) )
         {
-            MutableComponent linkPath = linkStorage( computerId );
+            Component linkPath = linkStorage( computerId );
             if( linkPath != null ) out.append( " " ).append( linkPath );
         }
 
         return out;
     }
 
-    private static MutableComponent linkPosition( CommandSourceStack context, ServerComputer computer )
+    private static Component linkPosition( CommandSourceStack context, ServerComputer computer )
     {
         if( UserLevel.OP.test( context ) )
         {
@@ -356,7 +356,7 @@ public final class CommandComputerCraft
         }
     }
 
-    private static MutableComponent linkStorage( int id )
+    private static Component linkStorage( int id )
     {
         File file = new File( IDAssigner.getDir(), "computer/" + id );
         if( !file.isDirectory() ) return null;
@@ -398,7 +398,7 @@ public final class CommandComputerCraft
 
         timings.sort( Comparator.<ComputerTracker, Long>comparing( x -> x.get( sortField ) ).reversed() );
 
-        MutableComponent[] headers = new MutableComponent[1 + fields.size()];
+        Component[] headers = new Component[1 + fields.size()];
         headers[0] = translate( "commands.computercraft.track.dump.computer" );
         for( int i = 0; i < fields.size(); i++ ) headers[i + 1] = translate( fields.get( i ).translationKey() );
         TableBuilder table = new TableBuilder( TRACK_ID, headers );
@@ -408,9 +408,9 @@ public final class CommandComputerCraft
             Computer computer = entry.getComputer();
             ServerComputer serverComputer = computer == null ? null : lookup.get( computer );
 
-            MutableComponent computerComponent = linkComputer( source, serverComputer, entry.getComputerId() );
+            Component computerComponent = linkComputer( source, serverComputer, entry.getComputerId() );
 
-            MutableComponent[] row = new MutableComponent[1 + fields.size()];
+            Component[] row = new Component[1 + fields.size()];
             row[0] = computerComponent;
             for( int i = 0; i < fields.size(); i++ ) row[i + 1] = text( entry.getFormatted( fields.get( i ) ) );
             table.row( row );

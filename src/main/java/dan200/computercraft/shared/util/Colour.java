@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.util;
 
 public enum Colour
@@ -26,6 +25,22 @@ public enum Colour
     WHITE( 0xf0f0f0 );
 
     public static final Colour[] VALUES = values();
+
+    public static Colour fromInt( int colour )
+    {
+        return colour >= 0 && colour < 16 ? Colour.VALUES[colour] : null;
+    }
+
+    public static Colour fromHex( int colour )
+    {
+        for( Colour entry : VALUES )
+        {
+            if( entry.getHex() == colour ) return entry;
+        }
+
+        return null;
+    }
+
     private final int hex;
     private final float[] rgb;
 
@@ -39,29 +54,6 @@ public enum Colour
         };
     }
 
-    public static Colour fromInt( int colour )
-    {
-        return colour >= 0 && colour < 16 ? Colour.VALUES[colour] : null;
-    }
-
-    public static Colour fromHex( int colour )
-    {
-        for( Colour entry : VALUES )
-        {
-            if( entry.getHex() == colour )
-            {
-                return entry;
-            }
-        }
-
-        return null;
-    }
-
-    public int getHex()
-    {
-        return hex;
-    }
-
     public Colour getNext()
     {
         return VALUES[(ordinal() + 1) % 16];
@@ -70,6 +62,11 @@ public enum Colour
     public Colour getPrevious()
     {
         return VALUES[(ordinal() + 15) % 16];
+    }
+
+    public int getHex()
+    {
+        return hex;
     }
 
     public float[] getRGB()

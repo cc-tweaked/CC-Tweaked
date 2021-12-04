@@ -3,11 +3,10 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.computer.inventory;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.ComputerCraftRegistry;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -24,13 +23,13 @@ public class ContainerViewComputer extends ComputerMenuWithoutInventory
 
     public ContainerViewComputer( int id, Inventory player, ServerComputer computer )
     {
-        super( ComputerCraftRegistry.ModContainers.VIEW_COMPUTER, id, player, p -> canInteractWith( computer, p ), computer, computer.getFamily() );
+        super( Registry.ModContainers.VIEW_COMPUTER, id, player, p -> canInteractWith( computer, p ), computer, computer.getFamily() );
         width = height = 0;
     }
 
     public ContainerViewComputer( int id, Inventory player, ViewComputerContainerData data )
     {
-        super( ComputerCraftRegistry.ModContainers.VIEW_COMPUTER, id, player, data );
+        super( Registry.ModContainers.VIEW_COMPUTER, id, player, data );
         width = data.getWidth();
         height = data.getHeight();
     }
@@ -44,7 +43,12 @@ public class ContainerViewComputer extends ComputerMenuWithoutInventory
         }
 
         // If we're a command computer then ensure we're in creative
-        return computer.getFamily() != ComputerFamily.COMMAND || TileCommandComputer.isUsable( player );
+        if( computer.getFamily() == ComputerFamily.COMMAND && !TileCommandComputer.isUsable( player ) )
+        {
+            return false;
+        }
+
+        return true;
     }
 
     public int getWidth()

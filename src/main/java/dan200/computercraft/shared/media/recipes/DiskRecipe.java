@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.media.recipes;
 
 import dan200.computercraft.shared.media.items.ItemDisk;
@@ -25,9 +24,7 @@ import javax.annotation.Nonnull;
 
 public class DiskRecipe extends CustomRecipe
 {
-    public static final RecipeSerializer<DiskRecipe> SERIALIZER = new SimpleRecipeSerializer<>( DiskRecipe::new );
     private final Ingredient paper = Ingredient.of( Items.PAPER );
-    // TODO: Ingredient.fromTag( Tags.Items.DUSTS_REDSTONE );
     private final Ingredient redstone = Ingredient.of( Items.REDSTONE );
 
     public DiskRecipe( ResourceLocation id )
@@ -49,18 +46,12 @@ public class DiskRecipe extends CustomRecipe
             {
                 if( paper.test( stack ) )
                 {
-                    if( paperFound )
-                    {
-                        return false;
-                    }
+                    if( paperFound ) return false;
                     paperFound = true;
                 }
                 else if( redstone.test( stack ) )
                 {
-                    if( redstoneFound )
-                    {
-                        return false;
-                    }
+                    if( redstoneFound ) return false;
                     redstoneFound = true;
                 }
                 else if( ColourUtils.getStackColour( stack ) == null )
@@ -83,10 +74,7 @@ public class DiskRecipe extends CustomRecipe
         {
             ItemStack stack = inv.getItem( i );
 
-            if( stack.isEmpty() )
-            {
-                continue;
-            }
+            if( stack.isEmpty() ) continue;
 
             if( !paper.test( stack ) && !redstone.test( stack ) )
             {
@@ -106,15 +94,17 @@ public class DiskRecipe extends CustomRecipe
 
     @Nonnull
     @Override
+    public ItemStack getResultItem()
+    {
+        return ItemDisk.createFromIDAndColour( -1, null, Colour.BLUE.getHex() );
+    }
+
+    @Nonnull
+    @Override
     public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
 
-    @Nonnull
-    @Override
-    public ItemStack getResultItem()
-    {
-        return ItemDisk.createFromIDAndColour( -1, null, Colour.BLUE.getHex() );
-    }
+    public static final SimpleRecipeSerializer<DiskRecipe> SERIALIZER = new SimpleRecipeSerializer<>( DiskRecipe::new );
 }

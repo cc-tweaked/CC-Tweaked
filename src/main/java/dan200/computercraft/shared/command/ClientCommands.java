@@ -6,7 +6,9 @@
 package dan200.computercraft.shared.command;
 
 import dan200.computercraft.shared.util.IDAssigner;
+import me.shedaniel.cloth.api.utils.v1.GameInstanceUtils;
 import net.minecraft.Util;
+import net.minecraft.server.MinecraftServer;
 
 import java.io.File;
 
@@ -28,6 +30,9 @@ public final class ClientCommands
         // Emulate the command on the client side
         if( message.startsWith( OPEN_COMPUTER ) )
         {
+            MinecraftServer server = GameInstanceUtils.getServer();
+            if( server == null || server.isDedicatedServer() ) return false;
+
             String idStr = message.substring( OPEN_COMPUTER.length() ).trim();
             int id;
             try
@@ -36,7 +41,7 @@ public final class ClientCommands
             }
             catch( NumberFormatException ignore )
             {
-                return true;
+                return false;
             }
 
             File file = new File( IDAssigner.getDir(), "computer/" + id );

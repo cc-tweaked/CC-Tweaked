@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.core;
 
 import com.google.common.base.Objects;
@@ -19,11 +18,15 @@ import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
-import dan200.computercraft.shared.util.*;
+import dan200.computercraft.shared.util.Colour;
+import dan200.computercraft.shared.util.Holiday;
+import dan200.computercraft.shared.util.HolidayUtil;
+import dan200.computercraft.shared.util.InventoryDelegate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.Container;
@@ -59,32 +62,34 @@ public class TurtleBrain implements ITurtleAccess
     private static final String NBT_SLOT = "Slot";
 
     private static final int ANIM_DURATION = 8;
+
+    private TileTurtle owner;
+    private ComputerProxy proxy;
+    private GameProfile owningPlayer;
+
+    private final Container inventory = (InventoryDelegate) () -> owner;
+
     private final Queue<TurtleCommandQueueEntry> commandQueue = new ArrayDeque<>();
+    private int commandsIssued = 0;
+
     private final Map<TurtleSide, ITurtleUpgrade> upgrades = new EnumMap<>( TurtleSide.class );
     private final Map<TurtleSide, IPeripheral> peripherals = new EnumMap<>( TurtleSide.class );
     private final Map<TurtleSide, CompoundTag> upgradeNBTData = new EnumMap<>( TurtleSide.class );
-    TurtlePlayer cachedPlayer;
-    private TileTurtle owner;
-    private final Container inventory = (InventoryDelegate) () -> owner;
-    private ComputerProxy proxy;
-    private GameProfile owningPlayer;
-    private int commandsIssued = 0;
+
     private int selectedSlot = 0;
     private int fuelLevel = 0;
     private int colourHex = -1;
     private ResourceLocation overlay = null;
+
     private TurtleAnimation animation = TurtleAnimation.NONE;
     private int animationProgress = 0;
     private int lastAnimationProgress = 0;
 
+    TurtlePlayer cachedPlayer;
+
     public TurtleBrain( TileTurtle turtle )
     {
         owner = turtle;
-    }
-
-    public TileTurtle getOwner()
-    {
-        return owner;
     }
 
     public void setOwner( TileTurtle owner )
@@ -92,12 +97,14 @@ public class TurtleBrain implements ITurtleAccess
         this.owner = owner;
     }
 
+    public TileTurtle getOwner()
+    {
+        return owner;
+    }
+
     public ComputerProxy getProxy()
     {
-        if( proxy == null )
-        {
-            proxy = new ComputerProxy( () -> owner );
-        }
+        if( proxy == null ) proxy = new ComputerProxy( () -> owner );
         return proxy;
     }
 
@@ -109,53 +116,6 @@ public class TurtleBrain implements ITurtleAccess
     public void setupComputer( ServerComputer computer )
     {
         updatePeripherals( computer );
-    }
-
-    private void updatePeripherals( ServerComputer serverComputer )
-    {
-        if( serverComputer == null )
-        {
-            return;
-        }
-
-        // Update peripherals
-        for( TurtleSide side : TurtleSide.values() )
-        {
-            ITurtleUpgrade upgrade = getUpgrade( side );
-            IPeripheral peripheral = null;
-            if( upgrade != null && upgrade.getType()
-                .isPeripheral() )
-            {
-                peripheral = upgrade.createPeripheral( this, side );
-            }
-
-            IPeripheral existing = peripherals.get( side );
-            if( existing == peripheral || (existing != null && peripheral != null && existing.equals( peripheral )) )
-            {
-                // If the peripheral is the same, just use that.
-                peripheral = existing;
-            }
-            else
-            {
-                // Otherwise update our map
-                peripherals.put( side, peripheral );
-            }
-
-            // Always update the computer: it may not be the same computer as before!
-            serverComputer.setPeripheral( toDirection( side ), peripheral );
-        }
-    }
-
-    private static ComputerSide toDirection( TurtleSide side )
-    {
-        switch( side )
-        {
-            case LEFT:
-                return ComputerSide.LEFT;
-            case RIGHT:
-            default:
-                return ComputerSide.RIGHT;
-        }
     }
 
     public void update()
@@ -179,10 +139,131 @@ public class TurtleBrain implements ITurtleAccess
         {
             for( Map.Entry<TurtleSide, ITurtleUpgrade> entry : upgrades.entrySet() )
             {
-                entry.getValue()
-                    .update( this, entry.getKey() );
+                entry.getValue().update( this, entry.getKey() );
             }
         }
+    }
+
+    /**
+     * Read common data for saving and client synchronisation.
+     *
+     * @param nbt The tag to read from
+     */
+    private void readCommon( CompoundTag nbt )
+    {
+        // Read fields
+        colourHex = nbt.contains( NBT_COLOUR ) ? nbt.getInt( NBT_COLOUR ) : -1;
+        fuelLevel = nbt.contains( NBT_FUEL ) ? nbt.getInt( NBT_FUEL ) : 0;
+        overlay = nbt.contains( NBT_OVERLAY ) ? new ResourceLocation( nbt.getString( NBT_OVERLAY ) ) : null;
+
+        // Read upgrades
+        setUpgradeDirect( TurtleSide.LEFT, nbt.contains( NBT_LEFT_UPGRADE ) ? TurtleUpgrades.get( nbt.getString( NBT_LEFT_UPGRADE ) ) : null );
+        setUpgradeDirect( TurtleSide.RIGHT, nbt.contains( NBT_RIGHT_UPGRADE ) ? TurtleUpgrades.get( nbt.getString( NBT_RIGHT_UPGRADE ) ) : null );
+
+        // NBT
+        upgradeNBTData.clear();
+        if( nbt.contains( NBT_LEFT_UPGRADE_DATA ) )
+        {
+            upgradeNBTData.put( TurtleSide.LEFT, nbt.getCompound( NBT_LEFT_UPGRADE_DATA ).copy() );
+        }
+        if( nbt.contains( NBT_RIGHT_UPGRADE_DATA ) )
+        {
+            upgradeNBTData.put( TurtleSide.RIGHT, nbt.getCompound( NBT_RIGHT_UPGRADE_DATA ).copy() );
+        }
+    }
+
+    private void writeCommon( CompoundTag nbt )
+    {
+        nbt.putInt( NBT_FUEL, fuelLevel );
+        if( colourHex != -1 ) nbt.putInt( NBT_COLOUR, colourHex );
+        if( overlay != null ) nbt.putString( NBT_OVERLAY, overlay.toString() );
+
+        // Write upgrades
+        String leftUpgradeId = getUpgradeId( getUpgrade( TurtleSide.LEFT ) );
+        if( leftUpgradeId != null ) nbt.putString( NBT_LEFT_UPGRADE, leftUpgradeId );
+        String rightUpgradeId = getUpgradeId( getUpgrade( TurtleSide.RIGHT ) );
+        if( rightUpgradeId != null ) nbt.putString( NBT_RIGHT_UPGRADE, rightUpgradeId );
+
+        // Write upgrade NBT
+        if( upgradeNBTData.containsKey( TurtleSide.LEFT ) )
+        {
+            nbt.put( NBT_LEFT_UPGRADE_DATA, getUpgradeNBTData( TurtleSide.LEFT ).copy() );
+        }
+        if( upgradeNBTData.containsKey( TurtleSide.RIGHT ) )
+        {
+            nbt.put( NBT_RIGHT_UPGRADE_DATA, getUpgradeNBTData( TurtleSide.RIGHT ).copy() );
+        }
+    }
+
+    public void readFromNBT( CompoundTag nbt )
+    {
+        readCommon( nbt );
+
+        // Read state
+        selectedSlot = nbt.getInt( NBT_SLOT );
+
+        // Read owner
+        if( nbt.contains( "Owner", Tag.TAG_COMPOUND ) )
+        {
+            CompoundTag owner = nbt.getCompound( "Owner" );
+            owningPlayer = new GameProfile(
+                new UUID( owner.getLong( "UpperId" ), owner.getLong( "LowerId" ) ),
+                owner.getString( "Name" )
+            );
+        }
+        else
+        {
+            owningPlayer = null;
+        }
+    }
+
+    public CompoundTag writeToNBT( CompoundTag nbt )
+    {
+        writeCommon( nbt );
+
+        // Write state
+        nbt.putInt( NBT_SLOT, selectedSlot );
+
+        // Write owner
+        if( owningPlayer != null )
+        {
+            CompoundTag owner = new CompoundTag();
+            nbt.put( "Owner", owner );
+
+            owner.putLong( "UpperId", owningPlayer.getId().getMostSignificantBits() );
+            owner.putLong( "LowerId", owningPlayer.getId().getLeastSignificantBits() );
+            owner.putString( "Name", owningPlayer.getName() );
+        }
+
+        return nbt;
+    }
+
+    private static String getUpgradeId( ITurtleUpgrade upgrade )
+    {
+        return upgrade != null ? upgrade.getUpgradeID().toString() : null;
+    }
+
+    public void readDescription( CompoundTag nbt )
+    {
+        readCommon( nbt );
+
+        // Animation
+        TurtleAnimation anim = TurtleAnimation.values()[nbt.getInt( "Animation" )];
+        if( anim != animation &&
+            anim != TurtleAnimation.WAIT &&
+            anim != TurtleAnimation.SHORT_WAIT &&
+            anim != TurtleAnimation.NONE )
+        {
+            animation = anim;
+            animationProgress = 0;
+            lastAnimationProgress = 0;
+        }
+    }
+
+    public void writeDescription( CompoundTag nbt )
+    {
+        writeCommon( nbt );
+        nbt.putInt( "Animation", animation.ordinal() );
     }
 
     @Nonnull
@@ -220,20 +301,12 @@ public class TurtleBrain implements ITurtleAccess
         }
 
         // Ensure the chunk is loaded
-        if( !world.hasChunkAt( pos ) )
-        {
-            return false;
-        }
+        if( !world.isLoaded( pos ) ) return false;
 
         // Ensure we're inside the world border
-        if( !world.getWorldBorder()
-            .isWithinBounds( pos ) )
-        {
-            return false;
-        }
+        if( !world.getWorldBorder().isWithinBounds( pos ) ) return false;
 
-        FluidState existingFluid = world.getBlockState( pos )
-            .getFluidState();
+        FluidState existingFluid = world.getBlockState( pos ).getFluidState();
         BlockState newState = oldBlock
             // We only mark this as waterlogged when travelling into a source block. This prevents us from spreading
             // fluid by creating a new source when moving into a block, causing the next block to be almost full and
@@ -247,8 +320,7 @@ public class TurtleBrain implements ITurtleAccess
             // Create a new turtle
             if( world.setBlock( pos, newState, 0 ) )
             {
-                Block block = world.getBlockState( pos )
-                    .getBlock();
+                Block block = world.getBlockState( pos ).getBlock();
                 if( block == oldBlock.getBlock() )
                 {
                     BlockEntity newTile = world.getBlockEntity( pos );
@@ -257,18 +329,17 @@ public class TurtleBrain implements ITurtleAccess
                         // Copy the old turtle state into the new turtle
                         newTurtle.setLevel( world );
                         newTurtle.transferStateFrom( oldOwner );
-                        newTurtle.createServerComputer()
-                            .setWorld( world );
-                        newTurtle.createServerComputer()
-                            .setPosition( pos );
+
+                        ServerComputer computer = newTurtle.createServerComputer();
+                        computer.setLevel( world );
+                        computer.setPosition( pos );
 
                         // Remove the old turtle
                         oldWorld.removeBlock( oldPos, false );
 
                         // Make sure everybody knows about it
-                        newTurtle.updateBlock();
-                        newTurtle.updateInput();
                         newTurtle.updateOutput();
+                        newTurtle.updateInputsImmediately();
                         return true;
                     }
                 }
@@ -292,7 +363,11 @@ public class TurtleBrain implements ITurtleAccess
     {
         Vec3 offset = getRenderOffset( f );
         BlockPos pos = owner.getBlockPos();
-        return new Vec3( pos.getX() + 0.5 + offset.x, pos.getY() + 0.5 + offset.y, pos.getZ() + 0.5 + offset.z );
+        return new Vec3(
+            pos.getX() + 0.5 + offset.x,
+            pos.getY() + 0.5 + offset.y,
+            pos.getZ() + 0.5 + offset.z
+        );
     }
 
     @Override
@@ -302,19 +377,23 @@ public class TurtleBrain implements ITurtleAccess
         switch( animation )
         {
             case TURN_LEFT:
+            {
                 yaw += 90.0f * (1.0f - getAnimationFraction( f ));
                 if( yaw >= 360.0f )
                 {
                     yaw -= 360.0f;
                 }
                 break;
+            }
             case TURN_RIGHT:
+            {
                 yaw += -90.0f * (1.0f - getAnimationFraction( f ));
                 if( yaw < 0.0f )
                 {
                     yaw += 360.0f;
                 }
                 break;
+            }
         }
         return yaw;
     }
@@ -341,10 +420,7 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public void setSelectedSlot( int slot )
     {
-        if( getLevel().isClientSide )
-        {
-            throw new UnsupportedOperationException( "Cannot set the slot on the client" );
-        }
+        if( getLevel().isClientSide ) throw new UnsupportedOperationException( "Cannot set the slot on the client" );
 
         if( slot >= 0 && slot < owner.getContainerSize() )
         {
@@ -353,35 +429,11 @@ public class TurtleBrain implements ITurtleAccess
         }
     }
 
+    @Nonnull
     @Override
-    public int getColour()
+    public Container getInventory()
     {
-        return colourHex;
-    }
-
-    @Override
-    public void setColour( int colour )
-    {
-        if( colour >= 0 && colour <= 0xFFFFFF )
-        {
-            if( colourHex != colour )
-            {
-                colourHex = colour;
-                owner.updateBlock();
-            }
-        }
-        else if( colourHex != -1 )
-        {
-            colourHex = -1;
-            owner.updateBlock();
-        }
-    }
-
-    @Nullable
-    @Override
-    public GameProfile getOwningPlayer()
-    {
-        return owningPlayer;
+        return inventory;
     }
 
     @Override
@@ -419,15 +471,9 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public boolean consumeFuel( int fuel )
     {
-        if( getLevel().isClientSide )
-        {
-            throw new UnsupportedOperationException( "Cannot consume fuel on the client" );
-        }
+        if( getLevel().isClientSide ) throw new UnsupportedOperationException( "Cannot consume fuel on the client" );
 
-        if( !isFuelNeeded() )
-        {
-            return true;
-        }
+        if( !isFuelNeeded() ) return true;
 
         int consumption = Math.max( fuel, 0 );
         if( getFuelLevel() >= consumption )
@@ -441,10 +487,7 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public void addFuel( int fuel )
     {
-        if( getLevel().isClientSide )
-        {
-            throw new UnsupportedOperationException( "Cannot add fuel on the client" );
-        }
+        if( getLevel().isClientSide ) throw new UnsupportedOperationException( "Cannot add fuel on the client" );
 
         int addition = Math.max( fuel, 0 );
         setFuelLevel( getFuelLevel() + addition );
@@ -454,30 +497,18 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public MethodResult executeCommand( @Nonnull ITurtleCommand command )
     {
-        if( getLevel().isClientSide )
-        {
-            throw new UnsupportedOperationException( "Cannot run commands on the client" );
-        }
+        if( getLevel().isClientSide ) throw new UnsupportedOperationException( "Cannot run commands on the client" );
         if( commandQueue.size() > 16 ) return MethodResult.of( false, "Too many ongoing turtle commands" );
 
-        // Issue command
-        int commandID = issueCommand( command );
-        return new CommandCallback( commandID ).pull;
-    }
-
-    private int issueCommand( ITurtleCommand command )
-    {
         commandQueue.offer( new TurtleCommandQueueEntry( ++commandsIssued, command ) );
-        return commandsIssued;
+        int commandID = commandsIssued;
+        return new CommandCallback( commandID ).pull;
     }
 
     @Override
     public void playAnimation( @Nonnull TurtleAnimation animation )
     {
-        if( getLevel().isClientSide )
-        {
-            throw new UnsupportedOperationException( "Cannot play animations on the client" );
-        }
+        if( getLevel().isClientSide ) throw new UnsupportedOperationException( "Cannot play animations on the client" );
 
         this.animation = animation;
         if( this.animation == TurtleAnimation.SHORT_WAIT )
@@ -493,6 +524,77 @@ public class TurtleBrain implements ITurtleAccess
         owner.updateBlock();
     }
 
+    public ResourceLocation getOverlay()
+    {
+        return overlay;
+    }
+
+    public void setOverlay( ResourceLocation overlay )
+    {
+        if( !Objects.equal( this.overlay, overlay ) )
+        {
+            this.overlay = overlay;
+            owner.updateBlock();
+        }
+    }
+
+    public DyeColor getDyeColour()
+    {
+        if( colourHex == -1 ) return null;
+        Colour colour = Colour.fromHex( colourHex );
+        return colour == null ? null : DyeColor.byId( 15 - colour.ordinal() );
+    }
+
+    public void setDyeColour( DyeColor dyeColour )
+    {
+        int newColour = -1;
+        if( dyeColour != null )
+        {
+            newColour = Colour.values()[15 - dyeColour.getId()].getHex();
+        }
+        if( colourHex != newColour )
+        {
+            colourHex = newColour;
+            owner.updateBlock();
+        }
+    }
+
+    @Override
+    public void setColour( int colour )
+    {
+        if( colour >= 0 && colour <= 0xFFFFFF )
+        {
+            if( colourHex != colour )
+            {
+                colourHex = colour;
+                owner.updateBlock();
+            }
+        }
+        else if( colourHex != -1 )
+        {
+            colourHex = -1;
+            owner.updateBlock();
+        }
+    }
+
+    @Override
+    public int getColour()
+    {
+        return colourHex;
+    }
+
+    public void setOwningPlayer( GameProfile profile )
+    {
+        owningPlayer = profile;
+    }
+
+    @Nullable
+    @Override
+    public GameProfile getOwningPlayer()
+    {
+        return owningPlayer;
+    }
+
     @Override
     public ITurtleUpgrade getUpgrade( @Nonnull TurtleSide side )
     {
@@ -502,37 +604,43 @@ public class TurtleBrain implements ITurtleAccess
     @Override
     public void setUpgrade( @Nonnull TurtleSide side, ITurtleUpgrade upgrade )
     {
+        if( !setUpgradeDirect( side, upgrade ) || owner.getLevel() == null ) return;
+
+        // This is a separate function to avoid updating the block when reading the NBT. We don't need to do this as
+        // either the block is newly placed (and so won't have changed) or is being updated with /data, which calls
+        // updateBlock for us.
+        owner.updateBlock();
+
+        // Recompute peripherals in case an upgrade being removed has exposed a new peripheral.
+        // TODO: Only update peripherals, or even only two sides?
+        owner.updateInputsImmediately();
+    }
+
+    private boolean setUpgradeDirect( @Nonnull TurtleSide side, ITurtleUpgrade upgrade )
+    {
         // Remove old upgrade
         if( upgrades.containsKey( side ) )
         {
-            if( upgrades.get( side ) == upgrade )
-            {
-                return;
-            }
+            if( upgrades.get( side ) == upgrade ) return false;
             upgrades.remove( side );
         }
         else
         {
-            if( upgrade == null )
-            {
-                return;
-            }
+            if( upgrade == null ) return false;
         }
 
         upgradeNBTData.remove( side );
 
         // Set new upgrade
-        if( upgrade != null )
-        {
-            upgrades.put( side, upgrade );
-        }
+        if( upgrade != null ) upgrades.put( side, upgrade );
 
         // Notify clients and create peripherals
-        if( owner.getLevel() != null )
+        if( owner.getLevel() != null && !owner.getLevel().isClientSide )
         {
             updatePeripherals( owner.createServerComputer() );
-            owner.updateBlock();
         }
+
+        return true;
     }
 
     @Override
@@ -546,10 +654,7 @@ public class TurtleBrain implements ITurtleAccess
     public CompoundTag getUpgradeNBTData( TurtleSide side )
     {
         CompoundTag nbt = upgradeNBTData.get( side );
-        if( nbt == null )
-        {
-            upgradeNBTData.put( side, nbt = new CompoundTag() );
-        }
+        if( nbt == null ) upgradeNBTData.put( side, nbt = new CompoundTag() );
         return nbt;
     }
 
@@ -559,40 +664,110 @@ public class TurtleBrain implements ITurtleAccess
         owner.updateBlock();
     }
 
-    @Nonnull
-    @Override
-    public Container getInventory()
+    public Vec3 getRenderOffset( float f )
     {
-        return inventory;
+        switch( animation )
+        {
+            case MOVE_FORWARD:
+            case MOVE_BACK:
+            case MOVE_UP:
+            case MOVE_DOWN:
+            {
+                // Get direction
+                Direction dir;
+                switch( animation )
+                {
+                    case MOVE_FORWARD:
+                    default:
+                        dir = getDirection();
+                        break;
+                    case MOVE_BACK:
+                        dir = getDirection().getOpposite();
+                        break;
+                    case MOVE_UP:
+                        dir = Direction.UP;
+                        break;
+                    case MOVE_DOWN:
+                        dir = Direction.DOWN;
+                        break;
+                }
+
+                double distance = -1.0 + getAnimationFraction( f );
+                return new Vec3(
+                    distance * dir.getStepX(),
+                    distance * dir.getStepY(),
+                    distance * dir.getStepZ()
+                );
+            }
+            default:
+            {
+                return Vec3.ZERO;
+            }
+        }
     }
 
-    public void setOwningPlayer( GameProfile profile )
+    public float getToolRenderAngle( TurtleSide side, float f )
     {
-        owningPlayer = profile;
+        return (side == TurtleSide.LEFT && animation == TurtleAnimation.SWING_LEFT_TOOL) ||
+            (side == TurtleSide.RIGHT && animation == TurtleAnimation.SWING_RIGHT_TOOL)
+            ? 45.0f * (float) Math.sin( getAnimationFraction( f ) * Math.PI )
+            : 0.0f;
+    }
+
+    private static ComputerSide toDirection( TurtleSide side )
+    {
+        switch( side )
+        {
+            case LEFT:
+                return ComputerSide.LEFT;
+            case RIGHT:
+            default:
+                return ComputerSide.RIGHT;
+        }
+    }
+
+    private void updatePeripherals( ServerComputer serverComputer )
+    {
+        if( serverComputer == null ) return;
+
+        // Update peripherals
+        for( TurtleSide side : TurtleSide.values() )
+        {
+            ITurtleUpgrade upgrade = getUpgrade( side );
+            IPeripheral peripheral = null;
+            if( upgrade != null && upgrade.getType().isPeripheral() )
+            {
+                peripheral = upgrade.createPeripheral( this, side );
+            }
+
+            IPeripheral existing = peripherals.get( side );
+            if( existing == peripheral || (existing != null && peripheral != null && existing.equals( peripheral )) )
+            {
+                // If the peripheral is the same, just use that.
+                peripheral = existing;
+            }
+            else
+            {
+                // Otherwise update our map
+                peripherals.put( side, peripheral );
+            }
+
+            // Always update the computer: it may not be the same computer as before!
+            serverComputer.setPeripheral( toDirection( side ), peripheral );
+        }
     }
 
     private void updateCommands()
     {
-        if( animation != TurtleAnimation.NONE || commandQueue.isEmpty() )
-        {
-            return;
-        }
+        if( animation != TurtleAnimation.NONE || commandQueue.isEmpty() ) return;
 
         // If we've got a computer, ensure that we're allowed to perform work.
         ServerComputer computer = owner.getServerComputer();
-        if( computer != null && !computer.getComputer()
-            .getMainThreadMonitor()
-            .canWork() )
-        {
-            return;
-        }
+        if( computer != null && !computer.getComputer().getMainThreadMonitor().canWork() ) return;
 
         // Pull a new command
         TurtleCommandQueueEntry nextCommand = commandQueue.poll();
-        if( nextCommand == null )
-        {
-            return;
-        }
+        if( nextCommand == null ) return;
 
         // Execute the command
         long start = System.nanoTime();
@@ -600,18 +775,10 @@ public class TurtleBrain implements ITurtleAccess
         long end = System.nanoTime();
 
         // Dispatch the callback
-        if( computer == null )
-        {
-            return;
-        }
-        computer.getComputer()
-            .getMainThreadMonitor()
-            .trackWork( end - start, TimeUnit.NANOSECONDS );
+        if( computer == null ) return;
+        computer.getComputer().getMainThreadMonitor().trackWork( end - start, TimeUnit.NANOSECONDS );
         int callbackID = nextCommand.callbackID;
-        if( callbackID < 0 )
-        {
-            return;
-        }
+        if( callbackID < 0 ) return;
 
         if( result != null && result.isSuccess() )
         {
@@ -627,17 +794,14 @@ public class TurtleBrain implements ITurtleAccess
             else
             {
                 computer.queueEvent( "turtle_response", new Object[] {
-                    callbackID,
-                    true,
+                    callbackID, true,
                 } );
             }
         }
         else
         {
             computer.queueEvent( "turtle_response", new Object[] {
-                callbackID,
-                false,
-                result != null ? result.getErrorMessage() : null,
+                callbackID, false, result != null ? result.getErrorMessage() : null,
             } );
         }
     }
@@ -651,7 +815,10 @@ public class TurtleBrain implements ITurtleAccess
             if( ComputerCraft.turtlesCanPush )
             {
                 // Advance entity pushing
-                if( animation == TurtleAnimation.MOVE_FORWARD || animation == TurtleAnimation.MOVE_BACK || animation == TurtleAnimation.MOVE_UP || animation == TurtleAnimation.MOVE_DOWN )
+                if( animation == TurtleAnimation.MOVE_FORWARD ||
+                    animation == TurtleAnimation.MOVE_BACK ||
+                    animation == TurtleAnimation.MOVE_UP ||
+                    animation == TurtleAnimation.MOVE_DOWN )
                 {
                     BlockPos pos = getPosition();
                     Direction moveDir;
@@ -737,13 +904,12 @@ public class TurtleBrain implements ITurtleAccess
                         double x = position.x + world.random.nextGaussian() * 0.1;
                         double y = position.y + 0.5 + world.random.nextGaussian() * 0.1;
                         double z = position.z + world.random.nextGaussian() * 0.1;
-                        world.addParticle( ParticleTypes.HEART,
-                            x,
-                            y,
-                            z,
+                        world.addParticle(
+                            ParticleTypes.HEART, x, y, z,
                             world.random.nextGaussian() * 0.02,
                             world.random.nextGaussian() * 0.02,
-                            world.random.nextGaussian() * 0.02 );
+                            world.random.nextGaussian() * 0.02
+                        );
                     }
                 }
             }
@@ -759,226 +925,11 @@ public class TurtleBrain implements ITurtleAccess
         }
     }
 
-    public Vec3 getRenderOffset( float f )
-    {
-        switch( animation )
-        {
-            case MOVE_FORWARD:
-            case MOVE_BACK:
-            case MOVE_UP:
-            case MOVE_DOWN:
-                // Get direction
-                Direction dir;
-                switch( animation )
-                {
-                    case MOVE_FORWARD:
-                    default:
-                        dir = getDirection();
-                        break;
-                    case MOVE_BACK:
-                        dir = getDirection().getOpposite();
-                        break;
-                    case MOVE_UP:
-                        dir = Direction.UP;
-                        break;
-                    case MOVE_DOWN:
-                        dir = Direction.DOWN;
-                        break;
-                }
-
-                double distance = -1.0 + getAnimationFraction( f );
-                return new Vec3( distance * dir.getStepX(), distance * dir.getStepY(), distance * dir.getStepZ() );
-            default:
-                return Vec3.ZERO;
-        }
-    }
-
     private float getAnimationFraction( float f )
     {
         float next = (float) animationProgress / ANIM_DURATION;
         float previous = (float) lastAnimationProgress / ANIM_DURATION;
         return previous + (next - previous) * f;
-    }
-
-    public void readFromNBT( CompoundTag nbt )
-    {
-        readCommon( nbt );
-
-        // Read state
-        selectedSlot = nbt.getInt( NBT_SLOT );
-
-        // Read owner
-        if( nbt.contains( "Owner", NBTUtil.TAG_COMPOUND ) )
-        {
-            CompoundTag owner = nbt.getCompound( "Owner" );
-            owningPlayer = new GameProfile( new UUID( owner.getLong( "UpperId" ), owner.getLong( "LowerId" ) ), owner.getString( "Name" ) );
-        }
-        else
-        {
-            owningPlayer = null;
-        }
-    }
-
-    /**
-     * Read common data for saving and client synchronisation.
-     *
-     * @param nbt The tag to read from
-     */
-    private void readCommon( CompoundTag nbt )
-    {
-        // Read fields
-        colourHex = nbt.contains( NBT_COLOUR ) ? nbt.getInt( NBT_COLOUR ) : -1;
-        fuelLevel = nbt.contains( NBT_FUEL ) ? nbt.getInt( NBT_FUEL ) : 0;
-        overlay = nbt.contains( NBT_OVERLAY ) ? new ResourceLocation( nbt.getString( NBT_OVERLAY ) ) : null;
-
-        // Read upgrades
-        setUpgrade( TurtleSide.LEFT, nbt.contains( NBT_LEFT_UPGRADE ) ? TurtleUpgrades.get( nbt.getString( NBT_LEFT_UPGRADE ) ) : null );
-        setUpgrade( TurtleSide.RIGHT, nbt.contains( NBT_RIGHT_UPGRADE ) ? TurtleUpgrades.get( nbt.getString( NBT_RIGHT_UPGRADE ) ) : null );
-
-        // NBT
-        upgradeNBTData.clear();
-        if( nbt.contains( NBT_LEFT_UPGRADE_DATA ) )
-        {
-            upgradeNBTData.put( TurtleSide.LEFT,
-                nbt.getCompound( NBT_LEFT_UPGRADE_DATA )
-                    .copy() );
-        }
-        if( nbt.contains( NBT_RIGHT_UPGRADE_DATA ) )
-        {
-            upgradeNBTData.put( TurtleSide.RIGHT,
-                nbt.getCompound( NBT_RIGHT_UPGRADE_DATA )
-                    .copy() );
-        }
-    }
-
-    public CompoundTag writeToNBT( CompoundTag nbt )
-    {
-        writeCommon( nbt );
-
-        // Write state
-        nbt.putInt( NBT_SLOT, selectedSlot );
-
-        // Write owner
-        if( owningPlayer != null )
-        {
-            CompoundTag owner = new CompoundTag();
-            nbt.put( "Owner", owner );
-
-            owner.putLong( "UpperId", owningPlayer.getId()
-                .getMostSignificantBits() );
-            owner.putLong( "LowerId", owningPlayer.getId()
-                .getLeastSignificantBits() );
-            owner.putString( "Name", owningPlayer.getName() );
-        }
-
-        return nbt;
-    }
-
-    private void writeCommon( CompoundTag nbt )
-    {
-        nbt.putInt( NBT_FUEL, fuelLevel );
-        if( colourHex != -1 )
-        {
-            nbt.putInt( NBT_COLOUR, colourHex );
-        }
-        if( overlay != null )
-        {
-            nbt.putString( NBT_OVERLAY, overlay.toString() );
-        }
-
-        // Write upgrades
-        String leftUpgradeId = getUpgradeId( getUpgrade( TurtleSide.LEFT ) );
-        if( leftUpgradeId != null )
-        {
-            nbt.putString( NBT_LEFT_UPGRADE, leftUpgradeId );
-        }
-        String rightUpgradeId = getUpgradeId( getUpgrade( TurtleSide.RIGHT ) );
-        if( rightUpgradeId != null )
-        {
-            nbt.putString( NBT_RIGHT_UPGRADE, rightUpgradeId );
-        }
-
-        // Write upgrade NBT
-        if( upgradeNBTData.containsKey( TurtleSide.LEFT ) )
-        {
-            nbt.put( NBT_LEFT_UPGRADE_DATA,
-                getUpgradeNBTData( TurtleSide.LEFT ).copy() );
-        }
-        if( upgradeNBTData.containsKey( TurtleSide.RIGHT ) )
-        {
-            nbt.put( NBT_RIGHT_UPGRADE_DATA,
-                getUpgradeNBTData( TurtleSide.RIGHT ).copy() );
-        }
-    }
-
-    private static String getUpgradeId( ITurtleUpgrade upgrade )
-    {
-        return upgrade != null ? upgrade.getUpgradeID()
-            .toString() : null;
-    }
-
-    public void readDescription( CompoundTag nbt )
-    {
-        readCommon( nbt );
-
-        // Animation
-        TurtleAnimation anim = TurtleAnimation.values()[nbt.getInt( "Animation" )];
-        if( anim != animation && anim != TurtleAnimation.WAIT && anim != TurtleAnimation.SHORT_WAIT && anim != TurtleAnimation.NONE )
-        {
-            animation = anim;
-            animationProgress = 0;
-            lastAnimationProgress = 0;
-        }
-    }
-
-    public void writeDescription( CompoundTag nbt )
-    {
-        writeCommon( nbt );
-        nbt.putInt( "Animation", animation.ordinal() );
-    }
-
-    public ResourceLocation getOverlay()
-    {
-        return overlay;
-    }
-
-    public void setOverlay( ResourceLocation overlay )
-    {
-        if( !Objects.equal( this.overlay, overlay ) )
-        {
-            this.overlay = overlay;
-            owner.updateBlock();
-        }
-    }
-
-    public DyeColor getDyeColour()
-    {
-        if( colourHex == -1 )
-        {
-            return null;
-        }
-        Colour colour = Colour.fromHex( colourHex );
-        return colour == null ? null : DyeColor.byId( 15 - colour.ordinal() );
-    }
-
-    public void setDyeColour( DyeColor dyeColour )
-    {
-        int newColour = -1;
-        if( dyeColour != null )
-        {
-            newColour = Colour.values()[15 - dyeColour.getId()].getHex();
-        }
-        if( colourHex != newColour )
-        {
-            colourHex = newColour;
-            owner.updateBlock();
-        }
-    }
-
-    public float getToolRenderAngle( TurtleSide side, float f )
-    {
-        return (side == TurtleSide.LEFT && animation == TurtleAnimation.SWING_LEFT_TOOL) || (side == TurtleSide.RIGHT && animation == TurtleAnimation.SWING_RIGHT_TOOL) ? 45.0f * (float) Math.sin(
-            getAnimationFraction( f ) * Math.PI ) : 0.0f;
     }
 
     private static final class CommandCallback implements ILuaCallback

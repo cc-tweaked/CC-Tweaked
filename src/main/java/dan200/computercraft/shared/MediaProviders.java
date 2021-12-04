@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
@@ -30,10 +29,7 @@ public final class MediaProviders
 
     public static IMedia get( @Nonnull ItemStack stack )
     {
-        if( stack.isEmpty() )
-        {
-            return null;
-        }
+        if( stack.isEmpty() ) return null;
 
         // Try the handlers in order:
         for( IMediaProvider mediaProvider : providers )
@@ -41,10 +37,7 @@ public final class MediaProviders
             try
             {
                 IMedia media = mediaProvider.getMedia( stack );
-                if( media != null )
-                {
-                    return media;
-                }
+                if( media != null ) return media;
             }
             catch( Exception e )
             {

@@ -19,7 +19,7 @@ The structure of this module is based on [A Prettier Printer][prettier].
 @usage Print a table to the terminal
 
     local pretty = require "cc.pretty"
-    pretty.print(pretty.pretty({ 1, 2, 3 }))
+    pretty.pretty_print({ 1, 2, 3 })
 
 @usage Build a custom document and display it
 
@@ -463,6 +463,7 @@ end
 --
 --     local pretty = require "cc.pretty"
 --     pretty.print(pretty.pretty({ 1, 2, 3 }))
+-- @see pretty_print for a shorthand to prettify and print an object.
 local function pretty(obj, options)
     expect(2, options, "table", "nil")
     options = options or {}
@@ -472,6 +473,33 @@ local function pretty(obj, options)
         function_args = field(options, "function_args", "boolean", "nil") or false,
     }
     return pretty_impl(obj, actual_options, {})
+end
+
+--[[- A shortcut for calling @{pretty} and @{print} together.
+
+@param obj The object to pretty-print.
+@tparam[opt] { function_args = boolean, function_source = boolean } options
+Controls how various properties are displayed.
+ - `function_args`: Show the arguments to a function if known (`false` by default).
+ - `function_source`: Show where the function was defined, instead of
+   `function: xxxxxxxx` (`false` by default).
+@tparam[opt] number  ribbon_frac The maximum fraction of the width that we should write in.
+
+@usage Display a table on the screen.
+
+    local pretty = require "cc.pretty"
+    pretty.pretty_print({ 1, 2, 3 })
+
+@see pretty
+@see print
+@since 1.99
+]]
+local function pretty_print(obj, options, ribbon_frac)
+    expect(2, options, "table", "nil")
+    options = options or {}
+    expect(3, ribbon_frac, "number", "nil")
+
+    return print(pretty(obj, options), ribbon_frac)
 end
 
 return {
@@ -489,4 +517,6 @@ return {
     render = render,
 
     pretty = pretty,
+
+    pretty_print = pretty_print,
 }

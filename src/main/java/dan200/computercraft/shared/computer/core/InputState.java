@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.computer.core;
 
 import it.unimi.dsi.fastutil.ints.IntIterator;
@@ -11,7 +10,8 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 
 /**
- * An {@link InputHandler} which keeps track of the current key and mouse state, and releases them when the container is closed.
+ * An {@link InputHandler} which keeps track of the current key and mouse state, and releases them when the container
+ * is closed.
  */
 public class InputState implements InputHandler
 {
@@ -31,10 +31,7 @@ public class InputState implements InputHandler
     public void queueEvent( String event, Object[] arguments )
     {
         IComputer computer = owner.getComputer();
-        if( computer != null )
-        {
-            computer.queueEvent( event, arguments );
-        }
+        if( computer != null ) computer.queueEvent( event, arguments );
     }
 
     @Override
@@ -42,10 +39,7 @@ public class InputState implements InputHandler
     {
         keysDown.add( key );
         IComputer computer = owner.getComputer();
-        if( computer != null )
-        {
-            computer.keyDown( key, repeat );
-        }
+        if( computer != null ) computer.keyDown( key, repeat );
     }
 
     @Override
@@ -53,10 +47,7 @@ public class InputState implements InputHandler
     {
         keysDown.remove( key );
         IComputer computer = owner.getComputer();
-        if( computer != null )
-        {
-            computer.keyUp( key );
-        }
+        if( computer != null ) computer.keyUp( key );
     }
 
     @Override
@@ -67,10 +58,7 @@ public class InputState implements InputHandler
         lastMouseDown = button;
 
         IComputer computer = owner.getComputer();
-        if( computer != null )
-        {
-            computer.mouseClick( button, x, y );
-        }
+        if( computer != null ) computer.mouseClick( button, x, y );
     }
 
     @Override
@@ -81,10 +69,7 @@ public class InputState implements InputHandler
         lastMouseDown = -1;
 
         IComputer computer = owner.getComputer();
-        if( computer != null )
-        {
-            computer.mouseUp( button, x, y );
-        }
+        if( computer != null ) computer.mouseUp( button, x, y );
     }
 
     @Override
@@ -95,10 +80,7 @@ public class InputState implements InputHandler
         lastMouseDown = button;
 
         IComputer computer = owner.getComputer();
-        if( computer != null )
-        {
-            computer.mouseDrag( button, x, y );
-        }
+        if( computer != null ) computer.mouseDrag( button, x, y );
     }
 
     @Override
@@ -108,10 +90,7 @@ public class InputState implements InputHandler
         lastMouseY = y;
 
         IComputer computer = owner.getComputer();
-        if( computer != null )
-        {
-            computer.mouseScroll( direction, x, y );
-        }
+        if( computer != null ) computer.mouseScroll( direction, x, y );
     }
 
     public void close()
@@ -120,15 +99,9 @@ public class InputState implements InputHandler
         if( computer != null )
         {
             IntIterator keys = keysDown.iterator();
-            while( keys.hasNext() )
-            {
-                computer.keyUp( keys.nextInt() );
-            }
+            while( keys.hasNext() ) computer.keyUp( keys.nextInt() );
 
-            if( lastMouseDown != -1 )
-            {
-                computer.mouseUp( lastMouseDown, lastMouseX, lastMouseY );
-            }
+            if( lastMouseDown != -1 ) computer.mouseUp( lastMouseDown, lastMouseX, lastMouseY );
         }
 
         keysDown.clear();

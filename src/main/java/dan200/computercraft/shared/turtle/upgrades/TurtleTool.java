@@ -3,12 +3,12 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.upgrades;
 
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Transformation;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.fabric.mixininterface.IMatrix4f;
@@ -35,42 +35,44 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 import java.util.function.Function;
+
+import static net.minecraft.nbt.Tag.TAG_COMPOUND;
+import static net.minecraft.nbt.Tag.TAG_LIST;
 
 public class TurtleTool extends AbstractTurtleUpgrade
 {
-    protected final ItemStack item;
+    protected static final TurtleCommandResult UNBREAKABLE = TurtleCommandResult.failure( "Cannot break unbreakable block" );
+    protected static final TurtleCommandResult INEFFECTIVE = TurtleCommandResult.failure( "Cannot break block with this tool" );
 
-    private static final int TAG_LIST = 9;
-    private static final int TAG_COMPOUND = 10;
+    final ItemStack item;
+    final float damageMulitiplier;
 
-    public TurtleTool( ResourceLocation id, String adjective, Item item )
+    public TurtleTool( ResourceLocation id, Item item, float damageMulitiplier )
     {
-        super( id, TurtleUpgradeType.TOOL, adjective, item );
+        super( id, TurtleUpgradeType.TOOL, new ItemStack( item ) );
         this.item = new ItemStack( item );
+        this.damageMulitiplier = damageMulitiplier;
     }
 
-    public TurtleTool( ResourceLocation id, Item item )
-    {
-        super( id, TurtleUpgradeType.TOOL, item );
-        this.item = new ItemStack( item );
-    }
-
-    public TurtleTool( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )
-    {
-        super( id, TurtleUpgradeType.TOOL, craftItem );
-        item = toolItem;
-    }
+    //    public TurtleTool( ResourceLocation id, String adjective, Item craftItem, ItemStack toolItem, float damageMulitiplier )
+    //    {
+    //        super( id, TurtleUpgradeType.TOOL, adjective, new ItemStack( craftItem ) );
+    //        item = toolItem;
+    //        this.damageMulitiplier = damageMulitiplier;
+    //    }
 
     @Override
     public boolean isItemSuitable( @Nonnull ItemStack stack )
@@ -81,23 +83,13 @@ public class TurtleTool extends AbstractTurtleUpgrade
         // Check we've not got anything vaguely interesting on the item. We allow other mods to add their
         // own NBT, with the understanding such details will be lost to the mist of time.
         if( stack.isDamaged() || stack.isEnchanted() || stack.hasCustomHoverName() ) return false;
-        return !tag.contains( "AttributeModifiers", TAG_LIST ) ||
-            tag.getList( "AttributeModifiers", TAG_COMPOUND ).isEmpty();
-    }
-
-    @Nonnull
-    @Override
-    public TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull Direction direction )
-    {
-        switch( verb )
+        if( tag.contains( "AttributeModifiers", TAG_LIST ) &&
+            !tag.getList( "AttributeModifiers", TAG_COMPOUND ).isEmpty() )
         {
-            case ATTACK:
-                return attack( turtle, direction, side );
-            case DIG:
-                return dig( turtle, direction, side );
-            default:
-                return TurtleCommandResult.failure( "Unsupported action" );
+            return false;
         }
+
+        return true;
     }
 
     @Nonnull
@@ -108,15 +100,42 @@ public class TurtleTool extends AbstractTurtleUpgrade
         return TransformedModel.of( getCraftingItem(), side == TurtleSide.LEFT ? Transforms.leftTransform : Transforms.rightTransform );
     }
 
-    private TurtleCommandResult attack( ITurtleAccess turtle, Direction direction, TurtleSide side )
+    @Nonnull
+    @Override
+    public TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull Direction direction )
+    {
+        switch( verb )
+        {
+            case ATTACK:
+                return attack( turtle, direction );
+            case DIG:
+                return dig( turtle, direction );
+            default:
+                return TurtleCommandResult.failure( "Unsupported action" );
+        }
+    }
+
+    protected TurtleCommandResult checkBlockBreakable( BlockState state, Level world, BlockPos pos, TurtlePlayer player )
+    {
+        Block block = state.getBlock();
+        if( state.isAir() || block == Blocks.BEDROCK
+            || state.getDestroyProgress( player, world, pos ) <= 0 )
+        {
+            return UNBREAKABLE;
+        }
+
+        return isTriviallyBreakable( world, pos, state ) ? TurtleCommandResult.success() : INEFFECTIVE;
+    }
+
+    private TurtleCommandResult attack( ITurtleAccess turtle, Direction direction )
     {
         // Create a fake player, and orient it appropriately
         Level world = turtle.getLevel();
         BlockPos position = turtle.getPosition();
-        BlockEntity turtleBlock = turtle instanceof TurtleBrain ? ((TurtleBrain) turtle).getOwner() : world.getBlockEntity( position );
-        if( turtleBlock == null ) return TurtleCommandResult.failure( "Turtle has vanished from existence." );
+        BlockEntity turtleTile = turtle instanceof TurtleBrain ? ((TurtleBrain) turtle).getOwner() : world.getBlockEntity( position );
+        if( turtleTile == null ) return TurtleCommandResult.failure( "Turtle has vanished from existence." );
 
-        final TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, position, direction );
+        final TurtlePlayer turtlePlayer = TurtlePlayer.getWithPosition( turtle, position, direction );
 
         // See if there is an entity present
         Vec3 turtlePos = turtlePlayer.position();
@@ -124,32 +143,27 @@ public class TurtleTool extends AbstractTurtleUpgrade
         Pair<Entity, Vec3> hit = WorldUtil.rayTraceEntities( world, turtlePos, rayDir, 1.5 );
         if( hit != null )
         {
-            // Load up the turtle's inventoryf
+            // Load up the turtle's inventory
             ItemStack stackCopy = item.copy();
             turtlePlayer.loadInventory( stackCopy );
 
             Entity hitEntity = hit.getKey();
 
             // Fire several events to ensure we have permissions.
-            if( AttackEntityCallback.EVENT.invoker()
-                .interact( turtlePlayer,
-                    world,
-                    InteractionHand.MAIN_HAND,
-                    hitEntity,
-                    null ) == InteractionResult.FAIL || !hitEntity.isAttackable() )
+            if( AttackEntityCallback.EVENT.invoker().interact( turtlePlayer, world, InteractionHand.MAIN_HAND, hitEntity, null ) == InteractionResult.FAIL
+                || !hitEntity.isAttackable() )
             {
                 return TurtleCommandResult.failure( "Nothing to attack here" );
             }
 
             // Start claiming entity drops
-            DropConsumer.set( hitEntity, turtleDropConsumer( turtleBlock, turtle ) );
+            DropConsumer.set( hitEntity, turtleDropConsumer( turtleTile, turtle ) );
 
             // Attack the entity
             boolean attacked = false;
             if( !hitEntity.skipAttackInteraction( turtlePlayer ) )
             {
-                float damage = (float) turtlePlayer.getAttributeValue( Attributes.ATTACK_DAMAGE );
-                damage *= getDamageMultiplier();
+                float damage = (float) turtlePlayer.getAttributeValue( Attributes.ATTACK_DAMAGE ) * damageMulitiplier;
                 if( damage > 0.0f )
                 {
                     DamageSource source = DamageSource.playerAttack( turtlePlayer );
@@ -157,29 +171,23 @@ public class TurtleTool extends AbstractTurtleUpgrade
                     {
                         // Special case for armor stands: attack twice to guarantee destroy
                         hitEntity.hurt( source, damage );
-                        if( hitEntity.isAlive() )
-                        {
-                            hitEntity.hurt( source, damage );
-                        }
+                        if( hitEntity.isAlive() ) hitEntity.hurt( source, damage );
                         attacked = true;
                     }
                     else
                     {
-                        if( hitEntity.hurt( source, damage ) )
-                        {
-                            attacked = true;
-                        }
+                        if( hitEntity.hurt( source, damage ) ) attacked = true;
                     }
                 }
             }
 
             // Stop claiming drops
-            stopConsuming( turtleBlock, turtle );
+            stopConsuming( turtleTile, turtle );
 
             // Put everything we collected into the turtles inventory, then return
             if( attacked )
             {
-                turtlePlayer.unloadInventory( turtle );
+                turtlePlayer.getInventory().clearContent();
                 return TurtleCommandResult.success();
             }
         }
@@ -187,29 +195,43 @@ public class TurtleTool extends AbstractTurtleUpgrade
         return TurtleCommandResult.failure( "Nothing to attack here" );
     }
 
-    private TurtleCommandResult dig( ITurtleAccess turtle, Direction direction, TurtleSide side )
+    private TurtleCommandResult dig( ITurtleAccess turtle, Direction direction )
     {
+        // TODO: HOE_TILL really, if it's ever implemented
+        if( item.getItem() == Items.DIAMOND_SHOVEL || item.getItem() == Items.DIAMOND_HOE )
+        {
+            if( TurtlePlaceCommand.deployCopiedItem( item.copy(), turtle, direction, null, null ) )
+            {
+                return TurtleCommandResult.success();
+            }
+        }
+
         // Get ready to dig
         Level world = turtle.getLevel();
         BlockPos turtlePosition = turtle.getPosition();
-        BlockEntity turtleBlock = turtle instanceof TurtleBrain ? ((TurtleBrain) turtle).getOwner() : world.getBlockEntity( turtlePosition );
-        if( turtleBlock == null ) return TurtleCommandResult.failure( "Turtle has vanished from existence." );
-
+        BlockEntity turtleTile = turtle instanceof TurtleBrain ? ((TurtleBrain) turtle).getOwner() : world.getBlockEntity( turtlePosition );
+        if( turtleTile == null ) return TurtleCommandResult.failure( "Turtle has vanished from existence." );
 
         BlockPos blockPosition = turtlePosition.relative( direction );
-
         if( world.isEmptyBlock( blockPosition ) || WorldUtil.isLiquidBlock( world, blockPosition ) )
         {
             return TurtleCommandResult.failure( "Nothing to dig here" );
         }
 
         BlockState state = world.getBlockState( blockPosition );
+        FluidState fluidState = world.getFluidState( blockPosition );
 
-        TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, turtlePosition, direction );
+        TurtlePlayer turtlePlayer = TurtlePlayer.getWithPosition( turtle, turtlePosition, direction );
         turtlePlayer.loadInventory( item.copy() );
 
         if( ComputerCraft.turtlesObeyBlockProtection )
         {
+            // Check spawn protection
+            if( !PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak( world, turtlePlayer, blockPosition, state, null ) )
+            {
+                return TurtleCommandResult.failure( "Cannot break protected block" );
+            }
+
             if( !TurtlePermissions.isBlockEditable( world, blockPosition, turtlePlayer ) )
             {
                 return TurtleCommandResult.failure( "Cannot break protected block" );
@@ -217,18 +239,11 @@ public class TurtleTool extends AbstractTurtleUpgrade
         }
 
         // Check if we can break the block
-        if( !canBreakBlock( state, world, blockPosition, turtlePlayer ) )
-        {
-            return TurtleCommandResult.failure( "Unbreakable block detected" );
-        }
-
-        if( !PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak( world, turtlePlayer, blockPosition, state, null ) )
-        {
-            return TurtleCommandResult.failure( "Break cancelled" );
-        }
+        TurtleCommandResult breakable = checkBlockBreakable( state, world, blockPosition, turtlePlayer );
+        if( !breakable.isSuccess() ) return breakable;
 
         // Consume the items the block drops
-        DropConsumer.set( world, blockPosition, turtleDropConsumer( turtleBlock, turtle ) );
+        DropConsumer.set( world, blockPosition, turtleDropConsumer( turtleTile, turtle ) );
 
         BlockEntity tile = world.getBlockEntity( blockPosition );
 
@@ -239,52 +254,28 @@ public class TurtleTool extends AbstractTurtleUpgrade
         world.levelEvent( 2001, blockPosition, Block.getId( state ) );
 
         // Destroy the block
-        state.getBlock()
-            .playerWillDestroy( world, blockPosition, state, turtlePlayer );
-        if( world.removeBlock( blockPosition, false ) )
+        state.getBlock().destroy( world, blockPosition, state );
+        boolean canHarvest = turtlePlayer.hasCorrectToolForDrops( state );
+        if( canHarvest )
         {
-            state.getBlock()
-                .destroy( world, blockPosition, state );
-            if( turtlePlayer.hasCorrectToolForDrops( state ) )
-            {
-                state.getBlock()
-                    .playerDestroy( world, turtlePlayer, blockPosition, state, tile, turtlePlayer.getMainHandItem() );
-            }
+            state.getBlock().playerDestroy( world, turtlePlayer, blockPosition, state, tile, turtlePlayer.getMainHandItem() );
         }
 
-        stopConsuming( turtleBlock, turtle );
+        stopConsuming( turtleTile, turtle );
 
         return TurtleCommandResult.success();
 
     }
 
-    private static Function<ItemStack, ItemStack> turtleDropConsumer( BlockEntity turtleBlock, ITurtleAccess turtle )
+    private static Function<ItemStack, ItemStack> turtleDropConsumer( BlockEntity tile, ITurtleAccess turtle )
     {
-        return drop -> turtleBlock.isRemoved() ? drop : InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() );
+        return drop -> tile.isRemoved() ? drop : InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() );
     }
 
-    protected float getDamageMultiplier()
+    private static void stopConsuming( BlockEntity tile, ITurtleAccess turtle )
     {
-        return 3.0f;
-    }
-
-    private static void stopConsuming( BlockEntity turtleBlock, ITurtleAccess turtle )
-    {
-        Direction direction = turtleBlock.isRemoved() ? null : turtle.getDirection().getOpposite();
-        List<ItemStack> extra = DropConsumer.clear();
-        for( ItemStack remainder : extra )
-        {
-            WorldUtil.dropItemStack( remainder,
-                turtle.getLevel(),
-                turtle.getPosition(),
-                direction );
-        }
-    }
-
-    protected boolean canBreakBlock( BlockState state, Level world, BlockPos pos, TurtlePlayer player )
-    {
-        Block block = state.getBlock();
-        return !state.isAir() && block != Blocks.BEDROCK && state.getDestroyProgress( player, world, pos ) > 0;
+        Direction direction = tile.isRemoved() ? null : turtle.getDirection().getOpposite();
+        DropConsumer.clearAndDrop( turtle.getLevel(), turtle.getPosition(), direction );
     }
 
     private static class Transforms
@@ -303,5 +294,12 @@ public class TurtleTool extends AbstractTurtleUpgrade
             } );
             return new Transformation( matrix );
         }
+    }
+
+    protected boolean isTriviallyBreakable( BlockGetter reader, BlockPos pos, BlockState state )
+    {
+        return state.is( ComputerCraftTags.Blocks.TURTLE_ALWAYS_BREAKABLE )
+            // Allow breaking any "instabreak" block.
+            || state.getDestroySpeed( reader, pos ) == 0;
     }
 }

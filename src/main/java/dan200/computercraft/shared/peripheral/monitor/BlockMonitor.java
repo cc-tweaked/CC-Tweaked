@@ -3,11 +3,9 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.api.turtle.FakePlayer;
-import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,26 +24,31 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public class BlockMonitor extends BlockGeneric
 {
-    public static final DirectionProperty ORIENTATION = DirectionProperty.create( "orientation", Direction.UP, Direction.DOWN, Direction.NORTH );
+    public static final DirectionProperty ORIENTATION = DirectionProperty.create( "orientation",
+        Direction.UP, Direction.DOWN, Direction.NORTH );
 
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.create( "state", MonitorEdgeState.class );
+    public static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.create( "state", MonitorEdgeState.class );
 
-    public boolean advanced;
-
-    public BlockMonitor( Properties settings, BlockEntityType<? extends TileMonitor> type, boolean advanced )
+    public BlockMonitor( Properties settings, Supplier<BlockEntityType<? extends TileMonitor>> type )
     {
         super( settings, type );
-        this.advanced = advanced;
         // TODO: Test underwater - do we need isSolid at all?
         registerDefaultState( getStateDefinition().any()
             .setValue( ORIENTATION, Direction.NORTH )
             .setValue( FACING, Direction.NORTH )
             .setValue( STATE, MonitorEdgeState.NONE ) );
+    }
+
+    @Override
+    protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> builder )
+    {
+        builder.add( ORIENTATION, FACING, STATE );
     }
 
     @Override
@@ -69,15 +72,13 @@ public class BlockMonitor extends BlockGeneric
             orientation = Direction.NORTH;
         }
 
-        return defaultBlockState().setValue( FACING,
-                context.getHorizontalDirection()
-                    .getOpposite() )
+        return defaultBlockState()
+            .setValue( FACING, context.getHorizontalDirection().getOpposite() )
             .setValue( ORIENTATION, orientation );
     }
 
     @Override
-    public void setPlacedBy( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState blockState, @Nullable LivingEntity livingEntity,
-                             @Nonnull ItemStack itemStack )
+    public void setPlacedBy( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState blockState, @Nullable LivingEntity livingEntity, @Nonnull ItemStack itemStack )
     {
         super.setPlacedBy( world, pos, blockState, livingEntity, itemStack );
 
@@ -91,20 +92,7 @@ public class BlockMonitor extends BlockGeneric
                 return;
             }
 
-            monitor.updateNeighbors();
+            monitor.expand();
         }
-    }
-
-    @Override
-    protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> builder )
-    {
-        builder.add( ORIENTATION, FACING, STATE );
-    }
-
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity( BlockPos pos, BlockState state )
-    {
-        return new TileMonitor( advanced ? ComputerCraftRegistry.ModTiles.MONITOR_ADVANCED : ComputerCraftRegistry.ModTiles.MONITOR_NORMAL, advanced, pos, state );
     }
 }

@@ -15,16 +15,10 @@ import net.minecraft.resources.ResourceLocation;
 import javax.annotation.Nonnull;
 
 public class TurtlePlayerRenderer extends EntityRenderer<TurtlePlayer>
-{ //FIXME Make sure this isn't an issue. Context was EntityRenderDispatcher.
-    public TurtlePlayerRenderer( EntityRendererProvider.Context context )
+{
+    public TurtlePlayerRenderer( EntityRendererProvider.Context renderManager )
     {
-        super( context );
-    }
-
-    @Override
-    public void render( @Nonnull TurtlePlayer entityIn, float entityYaw, float partialTicks, @Nonnull PoseStack transform,
-                        @Nonnull MultiBufferSource buffer, int packedLightIn )
-    {
+        super( renderManager );
     }
 
     @Nonnull
@@ -32,5 +26,10 @@ public class TurtlePlayerRenderer extends EntityRenderer<TurtlePlayer>
     public ResourceLocation getTextureLocation( @Nonnull TurtlePlayer entity )
     {
         return ComputerBorderRenderer.BACKGROUND_NORMAL;
+    }
+
+    @Override
+    public void render( @Nonnull TurtlePlayer entityIn, float entityYaw, float partialTicks, @Nonnull PoseStack transform, @Nonnull MultiBufferSource buffer, int packedLightIn )
+    {
     }
 }

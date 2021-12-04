@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
@@ -37,8 +36,7 @@ public class TurtleCompareCommand implements ITurtleCommand
         Direction direction = this.direction.toWorldDir( turtle );
 
         // Get currently selected stack
-        ItemStack selectedStack = turtle.getInventory()
-            .getItem( turtle.getSelectedSlot() );
+        ItemStack selectedStack = turtle.getInventory().getItem( turtle.getSelectedSlot() );
 
         // Get stack representing thing in front
         Level world = turtle.getLevel();
@@ -79,6 +77,8 @@ public class TurtleCompareCommand implements ITurtleCommand
         }
 
         // Compare them
-        return selectedStack.getItem() == lookAtStack.getItem() ? TurtleCommandResult.success() : TurtleCommandResult.failure();
+        return selectedStack.getItem() == lookAtStack.getItem()
+            ? TurtleCommandResult.success()
+            : TurtleCommandResult.failure();
     }
 }

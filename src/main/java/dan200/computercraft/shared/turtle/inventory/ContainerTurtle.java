@@ -3,11 +3,10 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.inventory;
 
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
-import dan200.computercraft.shared.ComputerCraftRegistry;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
@@ -15,7 +14,6 @@ import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.util.SingleIntArray;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -37,23 +35,12 @@ public class ContainerTurtle extends ContainerComputerBase
 
     private final ContainerData properties;
 
-    public ContainerTurtle( int id, Inventory player, TurtleBrain turtle )
+    private ContainerTurtle(
+        int id, Predicate<Player> canUse, IComputer computer, ComputerFamily family,
+        Inventory playerInventory, Container inventory, ContainerData properties
+    )
     {
-        this( id,
-            p -> turtle.getOwner()
-                .stillValid( p ),
-            turtle.getOwner()
-                .createServerComputer(),
-            turtle.getFamily(),
-            player,
-            turtle.getInventory(),
-            (SingleIntArray) turtle::getSelectedSlot );
-    }
-
-    private ContainerTurtle( int id, Predicate<Player> canUse, IComputer computer, ComputerFamily family, Inventory playerInventory,
-                             Container inventory, ContainerData properties )
-    {
-        super( ComputerCraftRegistry.ModContainers.TURTLE, id, canUse, computer, family );
+        super( Registry.ModContainers.TURTLE, id, canUse, computer, family );
         this.properties = properties;
 
         addDataSlots( properties );
@@ -83,40 +70,25 @@ public class ContainerTurtle extends ContainerComputerBase
         }
     }
 
-    public ContainerTurtle( int id, Inventory player, FriendlyByteBuf packetByteBuf )
+    public ContainerTurtle( int id, Inventory player, TurtleBrain turtle )
     {
-        this( id, player, new ComputerContainerData( packetByteBuf ) );
+        this(
+            id, p -> turtle.getOwner().stillValid( p ), turtle.getOwner().createServerComputer(), turtle.getFamily(),
+            player, turtle.getInventory(), (SingleIntArray) turtle::getSelectedSlot
+        );
     }
 
     public ContainerTurtle( int id, Inventory player, ComputerContainerData data )
     {
-        this( id,
-            x -> true,
-            getComputer( player, data ),
-            data.getFamily(),
-            player,
-            new SimpleContainer( TileTurtle.INVENTORY_SIZE ),
-            new SimpleContainerData( 1 ) );
+        this(
+            id, x -> true, getComputer( player, data ), data.getFamily(),
+            player, new SimpleContainer( TileTurtle.INVENTORY_SIZE ), new SimpleContainerData( 1 )
+        );
     }
 
     public int getSelectedSlot()
     {
         return properties.get( 0 );
-    }
-
-    @Nonnull
-    @Override
-    public ItemStack quickMoveStack( @Nonnull Player player, int slotNum )
-    {
-        if( slotNum >= 0 && slotNum < 16 )
-        {
-            return tryItemMerge( player, slotNum, 16, 52, true );
-        }
-        else if( slotNum >= 16 )
-        {
-            return tryItemMerge( player, slotNum, 0, 16, false );
-        }
-        return ItemStack.EMPTY;
     }
 
     @Nonnull
@@ -152,5 +124,20 @@ public class ContainerTurtle extends ContainerComputerBase
             }
         }
         return originalStack;
+    }
+
+    @Nonnull
+    @Override
+    public ItemStack quickMoveStack( @Nonnull Player player, int slotNum )
+    {
+        if( slotNum >= 0 && slotNum < 16 )
+        {
+            return tryItemMerge( player, slotNum, 16, 52, true );
+        }
+        else if( slotNum >= 16 )
+        {
+            return tryItemMerge( player, slotNum, 0, 16, false );
+        }
+        return ItemStack.EMPTY;
     }
 }

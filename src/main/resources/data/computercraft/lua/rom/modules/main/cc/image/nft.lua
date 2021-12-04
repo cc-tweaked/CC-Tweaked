@@ -9,8 +9,8 @@
 -- @usage Load an image from `example.nft` and draw it.
 --
 --     local nft = require "cc.image.nft"
---     local image = assert(nft.load("example.nft"))
---     nft.draw(image)
+--     local image = assert(nft.load("data/example.nft"))
+--     nft.draw(image, term.getCursorPos())
 
 local expect = require "cc.expect".expect
 
@@ -41,6 +41,7 @@ local function parse(image)
             end
 
             line = line + 1
+            foreground, background = "0", "f"
         else
             local next = image:find("[\n\30\31]", i) or #image + 1
             local seg_len = next - i

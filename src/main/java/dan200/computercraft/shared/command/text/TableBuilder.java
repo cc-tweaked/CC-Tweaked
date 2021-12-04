@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.command.text;
 
 import dan200.computercraft.shared.command.CommandUtils;
@@ -21,17 +20,14 @@ import java.util.List;
 public class TableBuilder
 {
     private final int id;
+    private int columns = -1;
     private final Component[] headers;
     private final ArrayList<Component[]> rows = new ArrayList<>();
-    private int columns = -1;
     private int additional;
 
     public TableBuilder( int id, @Nonnull Component... headers )
     {
-        if( id < 0 )
-        {
-            throw new IllegalArgumentException( "ID must be positive" );
-        }
+        if( id < 0 ) throw new IllegalArgumentException( "ID must be positive" );
         this.id = id;
         this.headers = headers;
         columns = headers.length;
@@ -39,47 +35,33 @@ public class TableBuilder
 
     public TableBuilder( int id )
     {
-        if( id < 0 )
-        {
-            throw new IllegalArgumentException( "ID must be positive" );
-        }
+        if( id < 0 ) throw new IllegalArgumentException( "ID must be positive" );
         this.id = id;
         headers = null;
     }
 
     public TableBuilder( int id, @Nonnull String... headers )
     {
-        if( id < 0 )
-        {
-            throw new IllegalArgumentException( "ID must be positive" );
-        }
+        if( id < 0 ) throw new IllegalArgumentException( "ID must be positive" );
         this.id = id;
         this.headers = new Component[headers.length];
         columns = headers.length;
 
-        for( int i = 0; i < headers.length; i++ )
-        {
-            this.headers[i] = ChatHelpers.header( headers[i] );
-        }
+        for( int i = 0; i < headers.length; i++ ) this.headers[i] = ChatHelpers.header( headers[i] );
     }
 
     public void row( @Nonnull Component... row )
     {
-        if( columns == -1 )
-        {
-            columns = row.length;
-        }
-        if( row.length != columns )
-        {
-            throw new IllegalArgumentException( "Row is the incorrect length" );
-        }
+        if( columns == -1 ) columns = row.length;
+        if( row.length != columns ) throw new IllegalArgumentException( "Row is the incorrect length" );
         rows.add( row );
     }
 
     /**
      * Get the unique identifier for this table type.
      *
-     * When showing a table within Minecraft, previous instances of this table with the same ID will be removed from chat.
+     * When showing a table within Minecraft, previous instances of this table with
+     * the same ID will be removed from chat.
      *
      * @return This table's type.
      */
@@ -91,7 +73,8 @@ public class TableBuilder
     /**
      * Get the number of columns for this table.
      *
-     * This will be the same as {@link #getHeaders()}'s length if it is is non-{@code null}, otherwise the length of the first column.
+     * This will be the same as {@link #getHeaders()}'s length if it is is non-{@code null},
+     * otherwise the length of the first column.
      *
      * @return The number of columns.
      */
@@ -122,6 +105,20 @@ public class TableBuilder
         this.additional = additional;
     }
 
+    /**
+     * Trim this table to a given height.
+     *
+     * @param height The desired height.
+     */
+    public void trim( int height )
+    {
+        if( rows.size() > height )
+        {
+            additional += rows.size() - height - 1;
+            rows.subList( height - 1, rows.size() ).clear();
+        }
+    }
+
     public void display( CommandSourceStack source )
     {
         if( CommandUtils.isPlayer( source ) )
@@ -133,21 +130,6 @@ public class TableBuilder
         {
             trim( 100 );
             new ServerTableFormatter( source ).display( this );
-        }
-    }
-
-    /**
-     * Trim this table to a given height.
-     *
-     * @param height The desired height.
-     */
-    public void trim( int height )
-    {
-        if( rows.size() > height )
-        {
-            additional += rows.size() - height - 1;
-            rows.subList( height - 1, rows.size() )
-                .clear();
         }
     }
 }

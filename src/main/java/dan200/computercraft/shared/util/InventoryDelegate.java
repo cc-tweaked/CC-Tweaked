@@ -3,13 +3,13 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.util;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nonnull;
 import java.util.Set;
@@ -17,19 +17,19 @@ import java.util.Set;
 /**
  * Provides a delegate over inventories.
  *
- * This may be used both on {@link net.minecraft.tileentity.TileEntity}s to redirect the inventory to another tile, and by other interfaces to have
- * inventories which change their backing store.
+ * This may be used both on {@link BlockEntity}s to redirect the inventory to another tile,
+ * and by other interfaces to have inventories which change their backing store.
  */
 @FunctionalInterface
 public interface InventoryDelegate extends Container
 {
+    Container getInventory();
+
     @Override
     default int getContainerSize()
     {
         return getInventory().getContainerSize();
     }
-
-    Container getInventory();
 
     @Override
     default boolean isEmpty()
@@ -101,6 +101,12 @@ public interface InventoryDelegate extends Container
     }
 
     @Override
+    default void clearContent()
+    {
+        getInventory().clearContent();
+    }
+
+    @Override
     default int countItem( @Nonnull Item stack )
     {
         return getInventory().countItem( stack );
@@ -110,11 +116,5 @@ public interface InventoryDelegate extends Container
     default boolean hasAnyOf( @Nonnull Set<Item> set )
     {
         return getInventory().hasAnyOf( set );
-    }
-
-    @Override
-    default void clearContent()
-    {
-        getInventory().clearContent();
     }
 }

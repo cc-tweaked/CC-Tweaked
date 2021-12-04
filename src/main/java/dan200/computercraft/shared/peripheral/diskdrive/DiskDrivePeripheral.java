@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.diskdrive;
 
 import dan200.computercraft.api.lua.LuaException;
@@ -21,14 +20,15 @@ import javax.annotation.Nullable;
 import java.util.Optional;
 
 /**
- * Disk drives are a peripheral which allow you to read and write to floppy disks and other "mountable media" (such as computers or turtles). They also
- * allow you to {@link #playAudio play records}.
+ * Disk drives are a peripheral which allow you to read and write to floppy disks and other "mountable media" (such as
+ * computers or turtles). They also allow you to {@link #playAudio play records}.
  *
- * When a disk drive attaches some mount (such as a floppy disk or computer), it attaches a folder called {@code disk}, {@code disk2}, etc... to the root
- * directory of the computer. This folder can be used to interact with the files on that disk.
+ * When a disk drive attaches some mount (such as a floppy disk or computer), it attaches a folder called {@code disk},
+ * {@code disk2}, etc... to the root directory of the computer. This folder can be used to interact with the files on
+ * that disk.
  *
- * When a disk is inserted, a {@code disk} event is fired, with the side peripheral is on. Likewise, when the disk is detached, a {@code disk_eject} event
- * is fired.
+ * When a disk is inserted, a {@code disk} event is fired, with the side peripheral is on. Likewise, when the disk is
+ * detached, a {@code disk_eject} event is fired.
  *
  * @cc.module drive
  */
@@ -48,31 +48,6 @@ public class DiskDrivePeripheral implements IPeripheral
         return "drive";
     }
 
-    @Override
-    public void attach( @Nonnull IComputerAccess computer )
-    {
-        diskDrive.mount( computer );
-    }
-
-    @Override
-    public void detach( @Nonnull IComputerAccess computer )
-    {
-        diskDrive.unmount( computer );
-    }
-
-    @Nonnull
-    @Override
-    public Object getTarget()
-    {
-        return diskDrive;
-    }
-
-    @Override
-    public boolean equals( IPeripheral other )
-    {
-        return this == other || other instanceof DiskDrivePeripheral && ((DiskDrivePeripheral) other).diskDrive == diskDrive;
-    }
-
     /**
      * Returns whether a disk is currently inserted in the drive.
      *
@@ -81,8 +56,7 @@ public class DiskDrivePeripheral implements IPeripheral
     @LuaFunction
     public final boolean isDiskPresent()
     {
-        return !diskDrive.getDiskStack()
-            .isEmpty();
+        return !diskDrive.getDiskStack().isEmpty();
     }
 
     /**
@@ -104,7 +78,8 @@ public class DiskDrivePeripheral implements IPeripheral
      *
      * If no label or {@code nil} is passed, the label will be cleared.
      *
-     * If the inserted disk's label can't be changed (for example, a record), an error will be thrown.
+     * If the inserted disk's label can't be changed (for example, a record),
+     * an error will be thrown.
      *
      * @param labelA The new label of the disk, or {@code nil} to clear.
      * @throws LuaException If the disk's label can't be changed.
@@ -115,10 +90,7 @@ public class DiskDrivePeripheral implements IPeripheral
         String label = labelA.orElse( null );
         ItemStack stack = diskDrive.getDiskStack();
         IMedia media = MediaProviders.get( stack );
-        if( media == null )
-        {
-            return;
-        }
+        if( media == null ) return;
 
         if( !media.setLabel( stack, StringUtil.normaliseLabel( label ) ) )
         {
@@ -214,11 +186,37 @@ public class DiskDrivePeripheral implements IPeripheral
      *
      * @return The ID of the disk in the drive, or {@code nil} if no disk with an ID is inserted.
      * @cc.treturn number The The ID of the disk in the drive, or {@code nil} if no disk with an ID is inserted.
+     * @cc.since 1.4
      */
     @LuaFunction
     public final Object[] getDiskID()
     {
         ItemStack disk = diskDrive.getDiskStack();
         return disk.getItem() instanceof ItemDisk ? new Object[] { ItemDisk.getDiskID( disk ) } : null;
+    }
+
+    @Override
+    public void attach( @Nonnull IComputerAccess computer )
+    {
+        diskDrive.mount( computer );
+    }
+
+    @Override
+    public void detach( @Nonnull IComputerAccess computer )
+    {
+        diskDrive.unmount( computer );
+    }
+
+    @Override
+    public boolean equals( IPeripheral other )
+    {
+        return this == other || other instanceof DiskDrivePeripheral drive && drive.diskDrive == diskDrive;
+    }
+
+    @Nonnull
+    @Override
+    public Object getTarget()
+    {
+        return diskDrive;
     }
 }

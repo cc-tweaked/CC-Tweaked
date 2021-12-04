@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -20,93 +19,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class TileWirelessModem extends TileGeneric implements IPeripheralTile
 {
-    private final boolean advanced;
-    private final ModemPeripheral modem;
-    private boolean hasModemDirection = false;
-    private Direction modemDirection = Direction.DOWN;
-    private boolean destroyed = false;
-
-    public TileWirelessModem( BlockEntityType<? extends TileWirelessModem> type, boolean advanced, BlockPos pos, BlockState state )
-    {
-        super( type, pos, state );
-        this.advanced = advanced;
-        modem = new Peripheral( this );
-    }
-
-    @Override
-    public void clearRemoved()
-    {
-        super.clearRemoved();
-        TickScheduler.schedule( this );
-    }
-
-    @Override
-    public void setBlockState( BlockState state )
-    {
-        super.setBlockState( state );
-        if( state != null ) return;
-        hasModemDirection = false;
-        level.scheduleTick( getBlockPos(), getBlockState().getBlock(), 0 );
-    }
-
-    @Override
-    public void destroy()
-    {
-        if( !destroyed )
-        {
-            modem.destroy();
-            destroyed = true;
-        }
-    }
-
-    @Override
-    public void blockTick()
-    {
-        Direction currentDirection = modemDirection;
-        refreshDirection();
-        // Invalidate the capability if the direction has changed. I'm not 100% happy with this implementation
-        //  - ideally we'd do it within refreshDirection or updateContainingBlockInfo, but this seems the _safest_
-        //  place.
-        if( modem.getModemState()
-            .pollChanged() )
-        {
-            updateBlockState();
-        }
-    }
-
-    private void refreshDirection()
-    {
-        if( hasModemDirection )
-        {
-            return;
-        }
-
-        hasModemDirection = true;
-        modemDirection = getBlockState().getValue( BlockWirelessModem.FACING );
-    }
-
-    private void updateBlockState()
-    {
-        boolean on = modem.getModemState()
-            .isOpen();
-        BlockState state = getBlockState();
-        if( state.getValue( BlockWirelessModem.ON ) != on )
-        {
-            getLevel().setBlockAndUpdate( getBlockPos(), state.setValue( BlockWirelessModem.ON, on ) );
-        }
-    }
-
-    @Nonnull
-    @Override
-    public IPeripheral getPeripheral( Direction side )
-    {
-        refreshDirection();
-        return side == modemDirection ? modem : null;
-    }
-
     private static class Peripheral extends WirelessModemPeripheral
     {
         private final TileWirelessModem entity;
@@ -128,9 +44,14 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
         @Override
         public Vec3 getPosition()
         {
-            BlockPos pos = entity.getBlockPos()
-                .relative( entity.modemDirection );
+            BlockPos pos = entity.getBlockPos().relative( entity.getDirection() );
             return new Vec3( pos.getX(), pos.getY(), pos.getZ() );
+        }
+
+        @Override
+        public boolean equals( IPeripheral other )
+        {
+            return this == other || (other instanceof Peripheral && entity == ((Peripheral) other).entity);
         }
 
         @Nonnull
@@ -139,11 +60,64 @@ public class TileWirelessModem extends TileGeneric implements IPeripheralTile
         {
             return entity;
         }
+    }
 
-        @Override
-        public boolean equals( IPeripheral other )
+    private final boolean advanced;
+
+    private final ModemPeripheral modem;
+    private boolean destroyed = false;
+
+    public TileWirelessModem( BlockEntityType<? extends TileWirelessModem> type, BlockPos pos, BlockState state, boolean advanced )
+    {
+        super( type, pos, state );
+        this.advanced = advanced;
+        modem = new Peripheral( this );
+    }
+
+    @Override
+    public void clearRemoved()
+    {
+        super.clearRemoved(); // TODO: Replace with onLoad
+        TickScheduler.schedule( this );
+    }
+
+    @Override
+    public void destroy()
+    {
+        if( !destroyed )
         {
-            return this == other || (other instanceof Peripheral && entity == ((Peripheral) other).entity);
+            modem.destroy();
+            destroyed = true;
         }
+    }
+
+    @Override
+    public void blockTick()
+    {
+        if( modem.getModemState().pollChanged() ) updateBlockState();
+    }
+
+    @Nonnull
+    private Direction getDirection()
+    {
+        return getBlockState().getValue( BlockWirelessModem.FACING );
+    }
+
+    private void updateBlockState()
+    {
+        boolean on = modem.getModemState().isOpen();
+        BlockState state = getBlockState();
+        if( state.getValue( BlockWirelessModem.ON ) != on )
+        {
+            getLevel().setBlockAndUpdate( getBlockPos(), state.setValue( BlockWirelessModem.ON, on ) );
+        }
+    }
+
+    @Nullable
+    @Override
+    public IPeripheral getPeripheral( Direction side )
+    {
+        if( side != null && getDirection() != side ) return null;
+        return modem;
     }
 }

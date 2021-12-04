@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.computer.recipe;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -18,19 +17,7 @@ import javax.annotation.Nonnull;
 
 public class ComputerUpgradeRecipe extends ComputerFamilyRecipe
 {
-    public static final RecipeSerializer<ComputerUpgradeRecipe> SERIALIZER =
-        new ComputerFamilyRecipe.Serializer<ComputerUpgradeRecipe>()
-        {
-            @Override
-            protected ComputerUpgradeRecipe create( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients,
-                                                    ItemStack result, ComputerFamily family )
-            {
-                return new ComputerUpgradeRecipe( identifier, group, width, height, ingredients, result, family );
-            }
-        };
-
-    public ComputerUpgradeRecipe( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result,
-                                  ComputerFamily family )
+    public ComputerUpgradeRecipe( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
     {
         super( identifier, group, width, height, ingredients, result, family );
     }
@@ -48,4 +35,13 @@ public class ComputerUpgradeRecipe extends ComputerFamilyRecipe
     {
         return SERIALIZER;
     }
+
+    public static final RecipeSerializer<ComputerUpgradeRecipe> SERIALIZER = new Serializer<>()
+    {
+        @Override
+        protected ComputerUpgradeRecipe create( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
+        {
+            return new ComputerUpgradeRecipe( identifier, group, width, height, ingredients, result, family );
+        }
+    };
 }

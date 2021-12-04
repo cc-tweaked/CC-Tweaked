@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.common;
 
 import net.minecraft.core.BlockPos;
@@ -23,66 +22,45 @@ import net.minecraft.world.phys.BlockHitResult;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
+import java.util.function.Supplier;
 
 public abstract class BlockGeneric extends BaseEntityBlock
 {
-    private final BlockEntityType<? extends TileGeneric> type;
+    private final Supplier<? extends BlockEntityType<? extends TileGeneric>> type;
 
-    public BlockGeneric( Properties settings, BlockEntityType<? extends TileGeneric> type )
+    public BlockGeneric( Properties settings, Supplier<? extends BlockEntityType<? extends TileGeneric>> type )
     {
         super( settings );
         this.type = type;
-    }
-
-    public BlockEntityType<? extends TileGeneric> getType()
-    {
-        return type;
-    }
-
-    @Override
-    public RenderShape getRenderShape( BlockState state )
-    {
-        return RenderShape.MODEL;
-    }
-
-    @Override
-    @Deprecated
-    public final void neighborChanged( @Nonnull BlockState state, Level world, @Nonnull BlockPos pos, @Nonnull Block neighbourBlock,
-                                       @Nonnull BlockPos neighbourPos, boolean isMoving )
-    {
-        BlockEntity tile = world.getBlockEntity( pos );
-        if( tile instanceof TileGeneric )
-        {
-            ((TileGeneric) tile).onNeighbourChange( neighbourPos );
-        }
     }
 
     @Override
     @Deprecated
     public final void onRemove( @Nonnull BlockState block, @Nonnull Level world, @Nonnull BlockPos pos, BlockState replace, boolean bool )
     {
-        if( block.getBlock() == replace.getBlock() )
-        {
-            return;
-        }
+        if( block.getBlock() == replace.getBlock() ) return;
 
         BlockEntity tile = world.getBlockEntity( pos );
         super.onRemove( block, world, pos, replace, bool );
         world.removeBlockEntity( pos );
-        if( tile instanceof TileGeneric )
-        {
-            ((TileGeneric) tile).destroy();
-        }
+        if( tile instanceof TileGeneric generic ) generic.destroy();
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public final InteractionResult use( @Nonnull BlockState state, Level world, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand,
-                                        @Nonnull BlockHitResult hit )
+    public final InteractionResult use( @Nonnull BlockState state, Level world, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult hit )
     {
         BlockEntity tile = world.getBlockEntity( pos );
-        return tile instanceof TileGeneric ? ((TileGeneric) tile).onActivate( player, hand, hit ) : InteractionResult.PASS;
+        return tile instanceof TileGeneric generic ? generic.onActivate( player, hand, hit ) : InteractionResult.PASS;
+    }
+
+    @Override
+    @Deprecated
+    public final void neighborChanged( @Nonnull BlockState state, Level world, @Nonnull BlockPos pos, @Nonnull Block neighbourBlock, @Nonnull BlockPos neighbourPos, boolean isMoving )
+    {
+        BlockEntity tile = world.getBlockEntity( pos );
+        if( tile instanceof TileGeneric generic ) generic.onNeighbourChange( neighbourPos );
     }
 
     @Override
@@ -90,20 +68,21 @@ public abstract class BlockGeneric extends BaseEntityBlock
     public void tick( @Nonnull BlockState state, ServerLevel world, @Nonnull BlockPos pos, @Nonnull Random rand )
     {
         BlockEntity te = world.getBlockEntity( pos );
-        if( te instanceof TileGeneric )
-        {
-            ((TileGeneric) te).blockTick();
-        }
+        if( te instanceof TileGeneric generic ) generic.blockTick();
     }
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity( BlockPos pos, BlockState state )
+    public BlockEntity newBlockEntity( @Nonnull BlockPos pos, @Nonnull BlockState state )
     {
-        if( this.type != null )
-        {
-            return type.create( pos, state );
-        }
-        return null;
+        return type.get().create( pos, state );
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public RenderShape getRenderShape( @Nonnull BlockState state )
+    {
+        return RenderShape.MODEL;
     }
 }

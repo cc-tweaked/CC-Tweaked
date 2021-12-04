@@ -3,11 +3,10 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.client;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.ComputerCraftRegistry;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
@@ -34,6 +33,7 @@ import java.util.function.Consumer;
 public final class ClientRegistry
 {
     private static final String[] EXTRA_MODELS = new String[] {
+        // Turtle upgrades
         "turtle_modem_normal_off_left",
         "turtle_modem_normal_on_left",
         "turtle_modem_normal_off_right",
@@ -49,6 +49,7 @@ public final class ClientRegistry
         "turtle_speaker_upgrade_left",
         "turtle_speaker_upgrade_right",
 
+        // Turtle block renderer
         "turtle_colour",
         "turtle_elf_overlay",
     };
@@ -85,10 +86,10 @@ public final class ClientRegistry
     {
         ColorProviderRegistry.ITEM.register( ( stack, layer ) -> {
             return layer == 1 ? ((ItemDisk) stack.getItem()).getColour( stack ) : 0xFFFFFF;
-        }, ComputerCraftRegistry.ModItems.DISK );
+        }, Registry.ModItems.DISK );
 
         ColorProviderRegistry.ITEM.register( ( stack, layer ) -> layer == 1 ? ItemTreasureDisk.getColour( stack ) : 0xFFFFFF,
-            ComputerCraftRegistry.ModItems.TREASURE_DISK );
+            Registry.ModItems.TREASURE_DISK );
 
         ColorProviderRegistry.ITEM.register( ( stack, layer ) -> {
             switch( layer )
@@ -102,12 +103,12 @@ public final class ClientRegistry
                     int light = ItemPocketComputer.getLightState( stack );
                     return light == -1 ? Colour.BLACK.getHex() : light;
             }
-        }, ComputerCraftRegistry.ModItems.POCKET_COMPUTER_NORMAL, ComputerCraftRegistry.ModItems.POCKET_COMPUTER_ADVANCED );
+        }, Registry.ModItems.POCKET_COMPUTER_NORMAL, Registry.ModItems.POCKET_COMPUTER_ADVANCED );
 
         // Setup turtle colours
         ColorProviderRegistry.ITEM.register( ( stack, tintIndex ) -> tintIndex == 0 ? ((IColouredItem) stack.getItem()).getColour( stack ) : 0xFFFFFF,
-            ComputerCraftRegistry.ModBlocks.TURTLE_NORMAL,
-            ComputerCraftRegistry.ModBlocks.TURTLE_ADVANCED );
+            Registry.ModBlocks.TURTLE_NORMAL,
+            Registry.ModBlocks.TURTLE_ADVANCED );
     }
 
     private static BakedModel bake( ModelBakery loader, UnbakedModel model, ResourceLocation identifier )

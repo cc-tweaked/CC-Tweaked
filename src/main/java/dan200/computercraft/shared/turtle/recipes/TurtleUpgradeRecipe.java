@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.recipes;
 
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
@@ -24,11 +23,15 @@ import javax.annotation.Nonnull;
 
 public final class TurtleUpgradeRecipe extends CustomRecipe
 {
-    public static final RecipeSerializer<TurtleUpgradeRecipe> SERIALIZER = new SimpleRecipeSerializer<>( TurtleUpgradeRecipe::new );
-
     private TurtleUpgradeRecipe( ResourceLocation id )
     {
         super( id );
+    }
+
+    @Override
+    public boolean canCraftInDimensions( int x, int y )
+    {
+        return x >= 3 && y >= 1;
     }
 
     @Nonnull
@@ -150,18 +153,7 @@ public final class TurtleUpgradeRecipe extends CustomRecipe
             if( !items[i].isEmpty() )
             {
                 ITurtleUpgrade itemUpgrade = TurtleUpgrades.get( items[i] );
-                if( itemUpgrade == null )
-                {
-                    return ItemStack.EMPTY;
-                }
-                if( upgrades[i] != null )
-                {
-                    return ItemStack.EMPTY;
-                }
-                if( !TurtleUpgrades.suitableForFamily( family, itemUpgrade ) )
-                {
-                    return ItemStack.EMPTY;
-                }
+                if( itemUpgrade == null || upgrades[i] != null ) return ItemStack.EMPTY;
                 upgrades[i] = itemUpgrade;
             }
         }
@@ -175,16 +167,12 @@ public final class TurtleUpgradeRecipe extends CustomRecipe
         return TurtleItemFactory.create( computerID, label, colour, family, upgrades[0], upgrades[1], fuelLevel, overlay );
     }
 
-    @Override
-    public boolean canCraftInDimensions( int x, int y )
-    {
-        return x >= 3 && y >= 1;
-    }
-
     @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
+
+    public static final SimpleRecipeSerializer<TurtleUpgradeRecipe> SERIALIZER = new SimpleRecipeSerializer<>( TurtleUpgradeRecipe::new );
 }

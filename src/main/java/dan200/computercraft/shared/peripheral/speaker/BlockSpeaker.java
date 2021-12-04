@@ -3,15 +3,14 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.speaker;
 
-import dan200.computercraft.shared.ComputerCraftRegistry;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.BlockGeneric;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -21,26 +20,20 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlockSpeaker extends BlockGeneric
 {
     private static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
+    private static final BlockEntityTicker<TileSpeaker> serverTicker = ( level, pos, state, drive ) -> drive.serverTick();
+
     public BlockSpeaker( Properties settings )
     {
-        super( settings, ComputerCraftRegistry.ModTiles.SPEAKER );
+        super( settings, () -> Registry.ModBlockEntities.SPEAKER );
         registerDefaultState( getStateDefinition().any()
             .setValue( FACING, Direction.NORTH ) );
-    }
-
-    @Nullable
-    @Override
-    public BlockState getStateForPlacement( BlockPlaceContext placement )
-    {
-        return defaultBlockState().setValue( FACING,
-            placement.getHorizontalDirection()
-                .getOpposite() );
     }
 
     @Override
@@ -51,16 +44,15 @@ public class BlockSpeaker extends BlockGeneric
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity( BlockPos pos, BlockState state )
+    public BlockState getStateForPlacement( BlockPlaceContext placement )
     {
-        return new TileSpeaker( ComputerCraftRegistry.ModTiles.SPEAKER, pos, state );
+        return defaultBlockState().setValue( FACING, placement.getHorizontalDirection().getOpposite() );
     }
 
-    @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker( Level world, BlockState state, BlockEntityType<T> type )
+    @Nullable
+    public <U extends BlockEntity> BlockEntityTicker<U> getTicker( @Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<U> type )
     {
-        return world.isClientSide ? null : BlockSpeaker.createTickerHelper( type, ComputerCraftRegistry.ModTiles.SPEAKER, TileSpeaker::tick );
+        return level.isClientSide ? null : BaseEntityBlock.createTickerHelper( type, Registry.ModBlockEntities.SPEAKER, serverTicker );
     }
-
 }

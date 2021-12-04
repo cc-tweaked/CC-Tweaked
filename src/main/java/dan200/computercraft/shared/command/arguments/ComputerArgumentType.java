@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.command.arguments;
 
 import com.mojang.brigadier.StringReader;
@@ -25,10 +24,6 @@ public final class ComputerArgumentType implements ArgumentType<ComputerArgument
 {
     private static final ComputerArgumentType INSTANCE = new ComputerArgumentType();
 
-    private ComputerArgumentType()
-    {
-    }
-
     public static ComputerArgumentType oneComputer()
     {
         return INSTANCE;
@@ -36,27 +31,24 @@ public final class ComputerArgumentType implements ArgumentType<ComputerArgument
 
     public static ServerComputer getComputerArgument( CommandContext<CommandSourceStack> context, String name ) throws CommandSyntaxException
     {
-        return context.getArgument( name, ComputerSupplier.class )
-            .unwrap( context.getSource() );
+        return context.getArgument( name, ComputerSupplier.class ).unwrap( context.getSource() );
+    }
+
+    private ComputerArgumentType()
+    {
     }
 
     @Override
     public ComputerSupplier parse( StringReader reader ) throws CommandSyntaxException
     {
         int start = reader.getCursor();
-        ComputersSupplier supplier = ComputersArgumentType.someComputers()
-            .parse( reader );
-        String selector = reader.getString()
-            .substring( start, reader.getCursor() );
+        ComputersSupplier supplier = ComputersArgumentType.someComputers().parse( reader );
+        String selector = reader.getString().substring( start, reader.getCursor() );
 
         return s -> {
             Collection<ServerComputer> computers = supplier.unwrap( s );
 
-            if( computers.size() == 1 )
-            {
-                return computers.iterator()
-                    .next();
-            }
+            if( computers.size() == 1 ) return computers.iterator().next();
 
             StringBuilder builder = new StringBuilder();
             boolean first = true;
@@ -84,15 +76,13 @@ public final class ComputerArgumentType implements ArgumentType<ComputerArgument
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions( CommandContext<S> context, SuggestionsBuilder builder )
     {
-        return ComputersArgumentType.someComputers()
-            .listSuggestions( context, builder );
+        return ComputersArgumentType.someComputers().listSuggestions( context, builder );
     }
 
     @Override
     public Collection<String> getExamples()
     {
-        return ComputersArgumentType.someComputers()
-            .getExamples();
+        return ComputersArgumentType.someComputers().getExamples();
     }
 
     @FunctionalInterface

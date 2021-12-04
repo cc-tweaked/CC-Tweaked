@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.api.lua.LuaException;
@@ -39,11 +38,12 @@ public class CraftingTablePeripheral implements IPeripheral
         return "workbench";
     }
 
-    @Nonnull
-    @Override
-    public Object getTarget()
+    @LuaFunction
+    public final MethodResult craft( Optional<Integer> count ) throws LuaException
     {
-        return turtle;
+        int limit = count.orElse( 64 );
+        if( limit < 0 || limit > 64 ) throw new LuaException( "Crafting count " + limit + " out of range" );
+        return turtle.executeCommand( new TurtleCraftCommand( limit ) );
     }
 
     @Override
@@ -52,14 +52,10 @@ public class CraftingTablePeripheral implements IPeripheral
         return other instanceof CraftingTablePeripheral;
     }
 
-    @LuaFunction
-    public final MethodResult craft( Optional<Integer> count ) throws LuaException
+    @Nonnull
+    @Override
+    public Object getTarget()
     {
-        int limit = count.orElse( 64 );
-        if( limit < 0 || limit > 64 )
-        {
-            throw new LuaException( "Crafting count " + limit + " out of range" );
-        }
-        return turtle.executeCommand( new TurtleCraftCommand( limit ) );
+        return turtle;
     }
 }

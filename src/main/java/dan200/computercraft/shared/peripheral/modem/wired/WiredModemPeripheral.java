@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.collect.ImmutableMap;
@@ -22,6 +21,7 @@ import dan200.computercraft.core.apis.PeripheralAPI;
 import dan200.computercraft.core.asm.PeripheralMethod;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
+import dan200.computercraft.shared.util.LuaUtil;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
@@ -42,12 +42,6 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         this.modem = modem;
     }
 
-    @Override
-    public double getRange()
-    {
-        return 256.0;
-    }
-
     //region IPacketSender implementation
     @Override
     public boolean isInterdimensional()
@@ -56,68 +50,15 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     }
 
     @Override
+    public double getRange()
+    {
+        return 256.0;
+    }
+
+    @Override
     protected IPacketNetwork getNetwork()
     {
         return modem.getNode();
-    }
-
-    @Override
-    public void attach( @Nonnull IComputerAccess computer )
-    {
-        super.attach( computer );
-
-        ConcurrentMap<String, RemotePeripheralWrapper> wrappers;
-        synchronized( peripheralWrappers )
-        {
-            wrappers = peripheralWrappers.get( computer );
-            if( wrappers == null )
-            {
-                peripheralWrappers.put( computer, wrappers = new ConcurrentHashMap<>() );
-            }
-        }
-
-        synchronized( modem.getRemotePeripherals() )
-        {
-            for( Map.Entry<String, IPeripheral> entry : modem.getRemotePeripherals()
-                .entrySet() )
-            {
-                attachPeripheralImpl( computer, wrappers, entry.getKey(), entry.getValue() );
-            }
-        }
-    }
-
-    @Override
-    public void detach( @Nonnull IComputerAccess computer )
-    {
-        Map<String, RemotePeripheralWrapper> wrappers;
-        synchronized( peripheralWrappers )
-        {
-            wrappers = peripheralWrappers.remove( computer );
-        }
-        if( wrappers != null )
-        {
-            for( RemotePeripheralWrapper wrapper : wrappers.values() )
-            {
-                wrapper.detach();
-            }
-            wrappers.clear();
-        }
-
-        super.detach( computer );
-    }
-    //endregion
-
-    //region Peripheral methods
-
-    private void attachPeripheralImpl( IComputerAccess computer, ConcurrentMap<String, RemotePeripheralWrapper> peripherals, String periphName,
-                                       IPeripheral peripheral )
-    {
-        if( !peripherals.containsKey( periphName ) && !periphName.equals( getLocalPeripheral().getConnectedName() ) )
-        {
-            RemotePeripheralWrapper wrapper = new RemotePeripheralWrapper( modem, peripheral, computer, periphName );
-            peripherals.put( periphName, wrapper );
-            wrapper.attach();
-        }
     }
 
     @Nonnull
@@ -127,10 +68,17 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         return modem.getLevel();
     }
 
+    @Nonnull
+    protected abstract WiredModemLocalPeripheral getLocalPeripheral();
+    //endregion
+
+    //region Peripheral methods
+
     /**
      * List all remote peripherals on the wired network.
      *
-     * If this computer is attached to the network, it _will not_ be included in this list.
+     * If this computer is attached to the network, it _will not_ be included in
+     * this list.
      *
      * <blockquote><strong>Important:</strong> This function only appears on wired modems. Check {@link #isWireless}
      * returns false before calling it.</blockquote>
@@ -142,14 +90,6 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     public final Collection<String> getNamesRemote( IComputerAccess computer )
     {
         return getWrappers( computer ).keySet();
-    }
-
-    private ConcurrentMap<String, RemotePeripheralWrapper> getWrappers( IComputerAccess computer )
-    {
-        synchronized( peripheralWrappers )
-        {
-            return peripheralWrappers.get( computer );
-        }
     }
 
     /**
@@ -169,12 +109,6 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         return getWrapper( computer, name ) != null;
     }
 
-    private RemotePeripheralWrapper getWrapper( IComputerAccess computer, String remoteName )
-    {
-        ConcurrentMap<String, RemotePeripheralWrapper> wrappers = getWrappers( computer );
-        return wrappers == null ? null : wrappers.get( remoteName );
-    }
-
     /**
      * Get the type of a peripheral is available on this wired network.
      *
@@ -185,13 +119,35 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
      * @param name     The peripheral's name.
      * @return The peripheral's name.
      * @cc.treturn string|nil The peripheral's type, or {@code nil} if it is not present.
+     * @cc.changed 1.99 Peripherals can have multiple types - this function returns multiple values.
      * @see PeripheralAPI#getType
      */
     @LuaFunction
     public final Object[] getTypeRemote( IComputerAccess computer, String name )
     {
         RemotePeripheralWrapper wrapper = getWrapper( computer, name );
-        return wrapper != null ? new Object[] { wrapper.getType() } : null;
+        return wrapper == null ? null : LuaUtil.consArray( wrapper.getType(), wrapper.getAdditionalTypes() );
+    }
+
+    /**
+     * Check a peripheral is of a particular type.
+     *
+     * <blockquote><strong>Important:</strong> This function only appears on wired modems. Check {@link #isWireless}
+     * returns false before calling it.</blockquote>
+     *
+     * @param computer The calling computer.
+     * @param name     The peripheral's name.
+     * @param type     The type to check.
+     * @return The peripheral's name.
+     * @cc.treturn boolean|nil If a peripheral has a particular type, or {@literal nil} if it is not present.
+     * @cc.since 1.99
+     * @see PeripheralAPI#getType
+     */
+    @LuaFunction
+    public final Object[] hasTypeRemote( IComputerAccess computer, String name, String type )
+    {
+        RemotePeripheralWrapper wrapper = getWrapper( computer, name );
+        return wrapper == null ? null : new Object[] { wrapper.getType().equals( type ) || wrapper.getAdditionalTypes().contains( getType() ) };
     }
 
     /**
@@ -210,10 +166,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     public final Object[] getMethodsRemote( IComputerAccess computer, String name )
     {
         RemotePeripheralWrapper wrapper = getWrapper( computer, name );
-        if( wrapper == null )
-        {
-            return null;
-        }
+        if( wrapper == null ) return null;
 
         return new Object[] { wrapper.getMethodNames() };
     }
@@ -241,17 +194,14 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         String remoteName = arguments.getString( 0 );
         String methodName = arguments.getString( 1 );
         RemotePeripheralWrapper wrapper = getWrapper( computer, remoteName );
-        if( wrapper == null )
-        {
-            throw new LuaException( "No peripheral: " + remoteName );
-        }
+        if( wrapper == null ) throw new LuaException( "No peripheral: " + remoteName );
 
         return wrapper.callMethod( context, methodName, arguments.drop( 2 ) );
     }
-    //endregion
 
     /**
-     * Returns the network name of the current computer, if the modem is on. This may be used by other computers on the network to wrap this computer as a
+     * Returns the network name of the current computer, if the modem is on. This
+     * may be used by other computers on the network to wrap this computer as a
      * peripheral.
      *
      * <blockquote><strong>Important:</strong> This function only appears on wired modems. Check {@link #isWireless}
@@ -259,6 +209,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
      *
      * @return The current computer's name.
      * @cc.treturn string|nil The current computer's name on the wired network.
+     * @cc.since 1.80pr1.7
      */
     @LuaFunction
     public final Object[] getNameLocal()
@@ -267,19 +218,54 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         return local == null ? null : new Object[] { local };
     }
 
-    @Nonnull
-    protected abstract WiredModemLocalPeripheral getLocalPeripheral();
+    @Override
+    public void attach( @Nonnull IComputerAccess computer )
+    {
+        super.attach( computer );
+
+        ConcurrentMap<String, RemotePeripheralWrapper> wrappers;
+        synchronized( peripheralWrappers )
+        {
+            wrappers = peripheralWrappers.get( computer );
+            if( wrappers == null ) peripheralWrappers.put( computer, wrappers = new ConcurrentHashMap<>() );
+        }
+
+        synchronized( modem.getRemotePeripherals() )
+        {
+            for( Map.Entry<String, IPeripheral> entry : modem.getRemotePeripherals().entrySet() )
+            {
+                attachPeripheralImpl( computer, wrappers, entry.getKey(), entry.getValue() );
+            }
+        }
+    }
+
+    @Override
+    public void detach( @Nonnull IComputerAccess computer )
+    {
+        Map<String, RemotePeripheralWrapper> wrappers;
+        synchronized( peripheralWrappers )
+        {
+            wrappers = peripheralWrappers.remove( computer );
+        }
+        if( wrappers != null )
+        {
+            for( RemotePeripheralWrapper wrapper : wrappers.values() ) wrapper.detach();
+            wrappers.clear();
+        }
+
+        super.detach( computer );
+    }
 
     @Override
     public boolean equals( IPeripheral other )
     {
-        if( other instanceof WiredModemPeripheral )
+        if( other instanceof WiredModemPeripheral otherModem )
         {
-            WiredModemPeripheral otherModem = (WiredModemPeripheral) other;
             return otherModem.modem == modem;
         }
         return false;
     }
+    //endregion
 
     @Nonnull
     @Override
@@ -306,13 +292,34 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
             for( ConcurrentMap<String, RemotePeripheralWrapper> wrappers : peripheralWrappers.values() )
             {
                 RemotePeripheralWrapper wrapper = wrappers.remove( name );
-                if( wrapper != null )
-                {
-                    wrapper.detach();
-                }
+                if( wrapper != null ) wrapper.detach();
             }
 
         }
+    }
+
+    private void attachPeripheralImpl( IComputerAccess computer, ConcurrentMap<String, RemotePeripheralWrapper> peripherals, String periphName, IPeripheral peripheral )
+    {
+        if( !peripherals.containsKey( periphName ) && !periphName.equals( getLocalPeripheral().getConnectedName() ) )
+        {
+            RemotePeripheralWrapper wrapper = new RemotePeripheralWrapper( modem, peripheral, computer, periphName );
+            peripherals.put( periphName, wrapper );
+            wrapper.attach();
+        }
+    }
+
+    private ConcurrentMap<String, RemotePeripheralWrapper> getWrappers( IComputerAccess computer )
+    {
+        synchronized( peripheralWrappers )
+        {
+            return peripheralWrappers.get( computer );
+        }
+    }
+
+    private RemotePeripheralWrapper getWrapper( IComputerAccess computer, String remoteName )
+    {
+        ConcurrentMap<String, RemotePeripheralWrapper> wrappers = getWrappers( computer );
+        return wrappers == null ? null : wrappers.get( remoteName );
     }
 
     private static class RemotePeripheralWrapper implements IComputerAccess
@@ -323,6 +330,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         private final String name;
 
         private final String type;
+        private final Set<String> additionalTypes;
         private final Map<String, PeripheralMethod> methodMap;
 
         private volatile boolean attached;
@@ -336,6 +344,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
             this.name = name;
 
             type = Objects.requireNonNull( peripheral.getType(), "Peripheral type cannot be null" );
+            additionalTypes = peripheral.getAdditionalTypes();
             methodMap = PeripheralAPI.getMethods( peripheral );
         }
 
@@ -369,6 +378,11 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
             return type;
         }
 
+        public Set<String> getAdditionalTypes()
+        {
+            return additionalTypes;
+        }
+
         public Collection<String> getMethodNames()
         {
             return methodMap.keySet();
@@ -377,10 +391,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         public MethodResult callMethod( ILuaContext context, String methodName, IArguments arguments ) throws LuaException
         {
             PeripheralMethod method = methodMap.get( methodName );
-            if( method == null )
-            {
-                throw new LuaException( "No such method " + methodName );
-            }
+            if( method == null ) throw new LuaException( "No such method " + methodName );
             return method.apply( peripheral, context, this, arguments );
         }
 
@@ -402,14 +413,6 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
             String mounted = computer.mount( desiredLocation, mount, driveName );
             mounts.add( mounted );
             return mounted;
-        }
-
-        @Nonnull
-        @Override
-        public String getAttachmentName()
-        {
-            if( !attached ) throw new NotAttachedException();
-            return name;
         }
 
         @Override
@@ -454,6 +457,22 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
 
         @Nonnull
         @Override
+        public IWorkMonitor getMainThreadMonitor()
+        {
+            if( !attached ) throw new NotAttachedException();
+            return computer.getMainThreadMonitor();
+        }
+
+        @Nonnull
+        @Override
+        public String getAttachmentName()
+        {
+            if( !attached ) throw new NotAttachedException();
+            return name;
+        }
+
+        @Nonnull
+        @Override
         public Map<String, IPeripheral> getAvailablePeripherals()
         {
             if( !attached ) throw new NotAttachedException();
@@ -470,17 +489,8 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
             if( !attached ) throw new NotAttachedException();
             synchronized( element.getRemotePeripherals() )
             {
-                return element.getRemotePeripherals()
-                    .get( name );
+                return element.getRemotePeripherals().get( name );
             }
-        }
-
-        @Nonnull
-        @Override
-        public IWorkMonitor getMainThreadMonitor()
-        {
-            if( !attached ) throw new NotAttachedException();
-            return computer.getMainThreadMonitor();
         }
     }
 }

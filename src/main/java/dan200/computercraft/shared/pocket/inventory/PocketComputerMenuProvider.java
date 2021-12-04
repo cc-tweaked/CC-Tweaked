@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.pocket.inventory;
 
-import dan200.computercraft.shared.ComputerCraftRegistry;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInventory;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
@@ -53,7 +53,7 @@ public class PocketComputerMenuProvider implements MenuProvider, ExtendedScreenH
     public AbstractContainerMenu createMenu( int id, @Nonnull Inventory inventory, @Nonnull Player entity )
     {
         return new ComputerMenuWithoutInventory(
-            isTypingOnly ? ComputerCraftRegistry.ModContainers.POCKET_COMPUTER_NO_TERM : ComputerCraftRegistry.ModContainers.POCKET_COMPUTER, id, inventory,
+            isTypingOnly ? Registry.ModContainers.POCKET_COMPUTER_NO_TERM : Registry.ModContainers.POCKET_COMPUTER, id, inventory,
             p -> {
                 ItemStack stack = p.getItemInHand( hand );
                 return stack.getItem() == item && ItemPocketComputer.getServerComputer( stack ) == computer;

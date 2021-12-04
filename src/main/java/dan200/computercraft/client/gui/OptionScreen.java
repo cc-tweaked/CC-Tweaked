@@ -49,9 +49,9 @@ public final class OptionScreen extends Screen
         this.originalScreen = originalScreen;
     }
 
-    public static void show( Minecraft client, Component title, Component message, List<AbstractWidget> buttons, Runnable exit )
+    public static void show( Minecraft minecraft, Component title, Component message, List<AbstractWidget> buttons, Runnable exit )
     {
-        client.setScreen( new OptionScreen( title, message, buttons, exit, unwrap( client.screen ) ) );
+        minecraft.setScreen( new OptionScreen( title, message, buttons, exit, unwrap( minecraft.screen ) ) );
     }
 
     public static Screen unwrap( Screen screen )

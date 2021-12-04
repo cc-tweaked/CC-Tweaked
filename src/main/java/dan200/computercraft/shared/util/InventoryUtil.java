@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.util;
 
 import net.minecraft.core.BlockPos;
@@ -28,6 +27,11 @@ public final class InventoryUtil
     private InventoryUtil() {}
     // Methods for comparing things:
 
+    public static boolean areItemsEqual( @Nonnull ItemStack a, @Nonnull ItemStack b )
+    {
+        return a == b || ItemStack.matches( a, b );
+    }
+
     public static boolean areItemsStackable( @Nonnull ItemStack a, @Nonnull ItemStack b )
     {
         return a == b || (a.getItem() == b.getItem() && ItemStack.tagMatches( a, b ));
@@ -44,9 +48,9 @@ public final class InventoryUtil
             // Check if block is InventoryProvider
             BlockState blockState = world.getBlockState( pos );
             Block block = blockState.getBlock();
-            if( block instanceof WorldlyContainerHolder )
+            if( block instanceof WorldlyContainerHolder containerHolder )
             {
-                return ((WorldlyContainerHolder) block).getContainer( blockState, world, pos );
+                return containerHolder.getContainer( blockState, world, pos );
             }
             // Check if block is BlockEntity w/ Inventory
             if( blockState.hasBlockEntity() )
@@ -62,11 +66,15 @@ public final class InventoryUtil
         }
 
         // Look for entity with inventory
-        Vec3 vecStart = new Vec3( pos.getX() + 0.5 + 0.6 * side.getStepX(),
+        Vec3 vecStart = new Vec3(
+            pos.getX() + 0.5 + 0.6 * side.getStepX(),
             pos.getY() + 0.5 + 0.6 * side.getStepY(),
-            pos.getZ() + 0.5 + 0.6 * side.getStepZ() );
+            pos.getZ() + 0.5 + 0.6 * side.getStepZ()
+        );
         Direction dir = side.getOpposite();
-        Vec3 vecDir = new Vec3( dir.getStepX(), dir.getStepY(), dir.getStepZ() );
+        Vec3 vecDir = new Vec3(
+            dir.getStepX(), dir.getStepY(), dir.getStepZ()
+        );
         Pair<Entity, Vec3> hit = WorldUtil.rayTraceEntities( world, vecStart, vecDir, 1.1 );
         if( hit != null )
         {
@@ -99,45 +107,34 @@ public final class InventoryUtil
         return null;
     }
 
+    // Methods for placing into inventories:
+
     @Nonnull
     public static ItemStack storeItems( @Nonnull ItemStack itemstack, ItemStorage inventory, int begin )
     {
         return storeItems( itemstack, inventory, 0, inventory.size(), begin );
     }
 
-    // Methods for placing into inventories:
+    @Nonnull
+    public static ItemStack storeItems( @Nonnull ItemStack itemstack, ItemStorage inventory )
+    {
+        return storeItems( itemstack, inventory, 0, inventory.size(), 0 );
+    }
 
     @Nonnull
     public static ItemStack storeItems( @Nonnull ItemStack stack, ItemStorage inventory, int start, int range, int begin )
     {
-        if( stack.isEmpty() )
-        {
-            return ItemStack.EMPTY;
-        }
+        if( stack.isEmpty() ) return ItemStack.EMPTY;
 
         // Inspect the slots in order and try to find empty or stackable slots
         ItemStack remainder = stack.copy();
         for( int i = 0; i < range; i++ )
         {
             int slot = start + (i + begin - start) % range;
-            if( remainder.isEmpty() )
-            {
-                break;
-            }
+            if( remainder.isEmpty() ) break;
             remainder = inventory.store( slot, remainder, false );
         }
         return areItemsEqual( stack, remainder ) ? stack : remainder;
-    }
-
-    public static boolean areItemsEqual( @Nonnull ItemStack a, @Nonnull ItemStack b )
-    {
-        return a == b || ItemStack.matches( a, b );
-    }
-
-    @Nonnull
-    public static ItemStack storeItems( @Nonnull ItemStack itemstack, ItemStorage inventory )
-    {
-        return storeItems( itemstack, inventory, 0, inventory.size(), 0 );
     }
 
     // Methods for taking out of inventories
@@ -149,17 +146,22 @@ public final class InventoryUtil
     }
 
     @Nonnull
+    public static ItemStack takeItems( int count, ItemStorage inventory )
+    {
+        return takeItems( count, inventory, 0, inventory.size(), 0 );
+    }
+
+    @Nonnull
     public static ItemStack takeItems( int count, ItemStorage inventory, int start, int range, int begin )
     {
+        // Combine multiple stacks from inventory into one if necessary
         ItemStack partialStack = ItemStack.EMPTY;
         for( int i = 0; i < range; i++ )
         {
             int slot = start + (i + begin - start) % range;
 
-            if( count <= 0 )
-            {
-                break;
-            }
+            // If we've extracted all items, return
+            if( count <= 0 ) break;
 
             // If this doesn't slot, abort.
             ItemStack extracted = inventory.take( slot, count, partialStack, false );
@@ -179,14 +181,9 @@ public final class InventoryUtil
             {
                 partialStack.grow( extracted.getCount() );
             }
+
         }
 
         return partialStack;
-    }
-
-    @Nonnull
-    public static ItemStack takeItems( int count, ItemStorage inventory )
-    {
-        return takeItems( count, inventory, 0, inventory.size(), 0 );
     }
 }

@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.command.arguments;
 
 import com.google.gson.JsonObject;
@@ -36,13 +35,9 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
     private static final ComputersArgumentType MANY = new ComputersArgumentType( false );
     private static final ComputersArgumentType SOME = new ComputersArgumentType( true );
 
-    private static final List<String> EXAMPLES = Arrays.asList( "0", "#0", "@Label", "~Advanced" );
-    private final boolean requireSome;
-
-    private ComputersArgumentType( boolean requireSome )
-    {
-        this.requireSome = requireSome;
-    }
+    private static final List<String> EXAMPLES = Arrays.asList(
+        "0", "#0", "@Label", "~Advanced"
+    );
 
     public static ComputersArgumentType manyComputers()
     {
@@ -56,18 +51,14 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
 
     public static Collection<ServerComputer> getComputersArgument( CommandContext<CommandSourceStack> context, String name ) throws CommandSyntaxException
     {
-        return context.getArgument( name, ComputersSupplier.class )
-            .unwrap( context.getSource() );
+        return context.getArgument( name, ComputersSupplier.class ).unwrap( context.getSource() );
     }
 
-    public static Set<ServerComputer> unwrap( CommandSourceStack source, Collection<ComputersSupplier> suppliers ) throws CommandSyntaxException
+    private final boolean requireSome;
+
+    private ComputersArgumentType( boolean requireSome )
     {
-        Set<ServerComputer> computers = new HashSet<>();
-        for( ComputersSupplier supplier : suppliers )
-        {
-            computers.addAll( supplier.unwrap( source ) );
-        }
-        return computers;
+        this.requireSome = requireSome;
     }
 
     @Override
@@ -86,9 +77,7 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
         {
             reader.skip();
             String family = reader.readUnquotedString();
-            computers = getComputers( x -> x.getFamily()
-                .name()
-                .equalsIgnoreCase( family ) );
+            computers = getComputers( x -> x.getFamily().name().equalsIgnoreCase( family ) );
         }
         else if( kind == '#' )
         {
@@ -107,14 +96,10 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
 
         if( requireSome )
         {
-            String selector = reader.getString()
-                .substring( start, reader.getCursor() );
+            String selector = reader.getString().substring( start, reader.getCursor() );
             return source -> {
                 Collection<ServerComputer> matched = computers.unwrap( source );
-                if( matched.isEmpty() )
-                {
-                    throw COMPUTER_ARG_NONE.create( selector );
-                }
+                if( matched.isEmpty() ) throw COMPUTER_ARG_NONE.create( selector );
                 return matched;
             };
         }
@@ -169,8 +154,7 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
         for( ServerComputer computer : ComputerCraft.serverComputerRegistry.getComputers() )
         {
             String converted = renderer.apply( computer );
-            if( converted != null && converted.toLowerCase( Locale.ROOT )
-                .startsWith( remaining ) )
+            if( converted != null && converted.toLowerCase( Locale.ROOT ).startsWith( remaining ) )
             {
                 builder.suggest( converted );
             }
@@ -179,16 +163,12 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
 
     private static ComputersSupplier getComputers( Predicate<ServerComputer> predicate )
     {
-        return s -> Collections.unmodifiableList( ComputerCraft.serverComputerRegistry.getComputers()
+        return s -> Collections.unmodifiableList( ComputerCraft.serverComputerRegistry
+            .getComputers()
             .stream()
             .filter( predicate )
-            .collect( Collectors.toList() ) );
-    }
-
-    @FunctionalInterface
-    public interface ComputersSupplier
-    {
-        Collection<ServerComputer> unwrap( CommandSourceStack source ) throws CommandSyntaxException;
+            .collect( Collectors.toList() )
+        );
     }
 
     public static class Serializer implements ArgumentSerializer<ComputersArgumentType>
@@ -212,5 +192,18 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
         {
             json.addProperty( "requireSome", arg.requireSome );
         }
+    }
+
+    @FunctionalInterface
+    public interface ComputersSupplier
+    {
+        Collection<ServerComputer> unwrap( CommandSourceStack source ) throws CommandSyntaxException;
+    }
+
+    public static Set<ServerComputer> unwrap( CommandSourceStack source, Collection<ComputersSupplier> suppliers ) throws CommandSyntaxException
+    {
+        Set<ServerComputer> computers = new HashSet<>();
+        for( ComputersSupplier supplier : suppliers ) computers.addAll( supplier.unwrap( source ) );
+        return computers;
     }
 }

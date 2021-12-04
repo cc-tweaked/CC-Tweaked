@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.api.lua.LuaFunction;
@@ -16,8 +15,8 @@ import javax.annotation.Nullable;
 /**
  * A computer or turtle wrapped as a peripheral.
  *
- * This allows for basic interaction with adjacent computers. Computers wrapped as peripherals will have the type {@code computer} while turtles will be
- * {@code turtle}.
+ * This allows for basic interaction with adjacent computers. Computers wrapped as peripherals will have the type
+ * {@code computer} while turtles will be {@code turtle}.
  *
  * @cc.module computer
  */
@@ -37,19 +36,6 @@ public class ComputerPeripheral implements IPeripheral
     public String getType()
     {
         return type;
-    }
-
-    @Nonnull
-    @Override
-    public Object getTarget()
-    {
-        return computer.getTile();
-    }
-
-    @Override
-    public boolean equals( IPeripheral other )
-    {
-        return other instanceof ComputerPeripheral && computer == ((ComputerPeripheral) other).computer;
     }
 
     /**
@@ -113,5 +99,18 @@ public class ComputerPeripheral implements IPeripheral
     public final String getLabel()
     {
         return computer.getLabel();
+    }
+
+    @Override
+    public boolean equals( IPeripheral other )
+    {
+        return other instanceof ComputerPeripheral && computer == ((ComputerPeripheral) other).computer;
+    }
+
+    @Nonnull
+    @Override
+    public Object getTarget()
+    {
+        return computer.getTile();
     }
 }

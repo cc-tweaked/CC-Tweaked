@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.shared.computer.core.IComputer;
@@ -14,13 +13,18 @@ import java.util.function.Supplier;
 /**
  * A proxy object for computer objects, delegating to {@link IComputer} or {@link TileComputer} where appropriate.
  */
-public class ComputerProxy
+public final class ComputerProxy
 {
     private final Supplier<TileComputerBase> get;
 
     public ComputerProxy( Supplier<TileComputerBase> get )
     {
         this.get = get;
+    }
+
+    TileComputerBase getTile()
+    {
+        return get.get();
     }
 
     public void turnOn()
@@ -35,11 +39,6 @@ public class ComputerProxy
         {
             computer.turnOn();
         }
-    }
-
-    protected TileComputerBase getTile()
-    {
-        return get.get();
     }
 
     public void shutdown()

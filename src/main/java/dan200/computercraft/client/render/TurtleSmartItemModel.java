@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.client.render;
 
-import com.google.common.base.Objects;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Transformation;
 import dan200.computercraft.api.client.TransformedModel;
@@ -50,59 +49,18 @@ public class TurtleSmartItemModel implements BakedModel
         stack.translate( 0, 0, 1 );
 
         identity = Transformation.identity();
-        flip = new Transformation( stack.last()
-            .pose() );
+        flip = new Transformation( stack.last().pose() );
     }
 
-    private static class TurtleModelCombination
+    private static record TurtleModelCombination(
+        boolean colour,
+        ITurtleUpgrade leftUpgrade,
+        ITurtleUpgrade rightUpgrade,
+        ResourceLocation overlay,
+        boolean christmas,
+        boolean flip
+    )
     {
-        final boolean colour;
-        final ITurtleUpgrade leftUpgrade;
-        final ITurtleUpgrade rightUpgrade;
-        final ResourceLocation overlay;
-        final boolean christmas;
-        final boolean flip;
-
-        TurtleModelCombination( boolean colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, ResourceLocation overlay, boolean christmas,
-                                boolean flip )
-        {
-            this.colour = colour;
-            this.leftUpgrade = leftUpgrade;
-            this.rightUpgrade = rightUpgrade;
-            this.overlay = overlay;
-            this.christmas = christmas;
-            this.flip = flip;
-        }
-
-        @Override
-        public boolean equals( Object other )
-        {
-            if( other == this )
-            {
-                return true;
-            }
-            if( !(other instanceof TurtleModelCombination otherCombo) )
-            {
-                return false;
-            }
-
-            return otherCombo.colour == colour && otherCombo.leftUpgrade == leftUpgrade && otherCombo.rightUpgrade == rightUpgrade && Objects.equal(
-                otherCombo.overlay, overlay ) && otherCombo.christmas == christmas && otherCombo.flip == flip;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = 0;
-            result = prime * result + (colour ? 1 : 0);
-            result = prime * result + (leftUpgrade != null ? leftUpgrade.hashCode() : 0);
-            result = prime * result + (rightUpgrade != null ? rightUpgrade.hashCode() : 0);
-            result = prime * result + (overlay != null ? overlay.hashCode() : 0);
-            result = prime * result + (christmas ? 1 : 0);
-            result = prime * result + (flip ? 1 : 0);
-            return result;
-        }
     }
 
     private final BakedModel familyModel;
@@ -121,7 +79,7 @@ public class TurtleSmartItemModel implements BakedModel
         {
             @Nonnull
             @Override
-            public BakedModel resolve( BakedModel originalModel, ItemStack stack, @Nullable ClientLevel world, @Nullable LivingEntity entity, int seed )
+            public BakedModel resolve( @Nonnull BakedModel originalModel, @Nonnull ItemStack stack, @Nullable ClientLevel world, @Nullable LivingEntity entity, int random )
             {
                 ItemTurtle turtle = (ItemTurtle) stack.getItem();
                 int colour = turtle.getColour( stack );
@@ -134,21 +92,23 @@ public class TurtleSmartItemModel implements BakedModel
                 TurtleModelCombination combo = new TurtleModelCombination( colour != -1, leftUpgrade, rightUpgrade, overlay, christmas, flip );
 
                 BakedModel model = cachedModels.get( combo );
-                if( model == null )
-                {
-                    cachedModels.put( combo, model = buildModel( combo ) );
-                }
+                if( model == null ) cachedModels.put( combo, model = buildModel( combo ) );
                 return model;
             }
         };
     }
 
+    @Nonnull
+    @Override
+    public ItemOverrides getOverrides()
+    {
+        return overrides;
+    }
+
     private BakedModel buildModel( TurtleModelCombination combo )
     {
         Minecraft mc = Minecraft.getInstance();
-        ModelManager modelManager = mc.getItemRenderer()
-            .getItemModelShaper()
-            .getModelManager();
+        ModelManager modelManager = mc.getItemRenderer().getItemModelShaper().getModelManager();
         ModelResourceLocation overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.overlay, combo.christmas );
 
         BakedModel baseModel = combo.colour ? colourModel : familyModel;
@@ -180,29 +140,23 @@ public class TurtleSmartItemModel implements BakedModel
     }
 
     @Override
-    public boolean usesBlockLight()
-    {
-        return familyModel.usesBlockLight();
-    }
-
-    @Override
     public boolean isCustomRenderer()
     {
         return familyModel.isCustomRenderer();
     }
 
     @Override
-    @Deprecated
-    public TextureAtlasSprite getParticleIcon()
+    public boolean usesBlockLight()
     {
-        return familyModel.getParticleIcon();
+        return familyModel.usesBlockLight();
     }
 
     @Nonnull
     @Override
-    public ItemOverrides getOverrides()
+    @Deprecated
+    public TextureAtlasSprite getParticleIcon()
     {
-        return overrides;
+        return familyModel.getParticleIcon();
     }
 
     @Nonnull

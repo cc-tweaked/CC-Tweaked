@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.common;
 
 import dan200.computercraft.shared.util.ColourTracker;
@@ -21,8 +20,6 @@ import javax.annotation.Nonnull;
 
 public final class ColourableRecipe extends CustomRecipe
 {
-    public static final RecipeSerializer<?> SERIALIZER = new SimpleRecipeSerializer<>( ColourableRecipe::new );
-
     private ColourableRecipe( ResourceLocation id )
     {
         super( id );
@@ -36,17 +33,11 @@ public final class ColourableRecipe extends CustomRecipe
         for( int i = 0; i < inv.getContainerSize(); i++ )
         {
             ItemStack stack = inv.getItem( i );
-            if( stack.isEmpty() )
-            {
-                continue;
-            }
+            if( stack.isEmpty() ) continue;
 
             if( stack.getItem() instanceof IColouredItem )
             {
-                if( hasColourable )
-                {
-                    return false;
-                }
+                if( hasColourable ) return false;
                 hasColourable = true;
             }
             else if( ColourUtils.getStackColour( stack ) != null )
@@ -74,9 +65,11 @@ public final class ColourableRecipe extends CustomRecipe
         {
             ItemStack stack = inv.getItem( i );
 
-            if( stack.isEmpty() )
+            if( stack.isEmpty() ) continue;
+
+            if( stack.getItem() instanceof IColouredItem )
             {
-                continue;
+                colourable = stack;
             }
             else
             {
@@ -104,4 +97,6 @@ public final class ColourableRecipe extends CustomRecipe
     {
         return SERIALIZER;
     }
+
+    public static final SimpleRecipeSerializer<?> SERIALIZER = new SimpleRecipeSerializer<>( ColourableRecipe::new );
 }

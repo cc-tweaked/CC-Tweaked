@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
@@ -34,10 +33,7 @@ public class TurtleCraftCommand implements ITurtleCommand
         // Craft the item
         TurtleInventoryCrafting crafting = new TurtleInventoryCrafting( turtle );
         List<ItemStack> results = crafting.doCrafting( turtle.getLevel(), limit );
-        if( results == null )
-        {
-            return TurtleCommandResult.failure( "No matching recipes" );
-        }
+        if( results == null ) return TurtleCommandResult.failure( "No matching recipes" );
 
         // Store or drop any remainders
         for( ItemStack stack : results )
@@ -49,10 +45,7 @@ public class TurtleCraftCommand implements ITurtleCommand
             }
         }
 
-        if( !results.isEmpty() )
-        {
-            turtle.playAnimation( TurtleAnimation.WAIT );
-        }
+        if( !results.isEmpty() ) turtle.playAnimation( TurtleAnimation.WAIT );
         return TurtleCommandResult.success();
     }
 }

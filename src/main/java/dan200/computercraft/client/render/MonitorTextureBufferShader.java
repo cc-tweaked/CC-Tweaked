@@ -29,13 +29,13 @@ public class MonitorTextureBufferShader extends ShaderInstance
     private final Uniform width;
     private final Uniform height;
 
-    public MonitorTextureBufferShader( ResourceProvider factory, String name, VertexFormat format ) throws IOException
+    public MonitorTextureBufferShader( ResourceProvider provider, String name, VertexFormat format ) throws IOException
     {
-        super( factory, name, format );
+        super( provider, name, format );
 
         width = getUniformChecked( "Width" );
         height = getUniformChecked( "Height" );
-        palette = new Uniform( "Palette", Uniform.UT_FLOAT3 /* UT_FLOAT3 */, 16 * 3, this );
+        palette = new Uniform( "Palette", Uniform.UT_FLOAT3, 16 * 3, this );
         updateUniformLocation( palette );
 
         Uniform tbo = getUniformChecked( "Tbo" );

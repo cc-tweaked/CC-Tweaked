@@ -42,6 +42,8 @@ public interface ItemStorage
     @Nonnull
     ItemStack getStack( int slot );
 
+    void setStack( int slot, ItemStack stack );
+
     @Nonnull
     ItemStack take( int slot, int limit, @Nonnull ItemStack filter, boolean simulate );
 
@@ -73,6 +75,12 @@ public interface ItemStorage
         public ItemStack getStack( int slot )
         {
             return inventory.getItem( slot );
+        }
+
+        @Override
+        public void setStack( int slot, ItemStack stack )
+        {
+            setAndDirty( slot, stack );
         }
 
         @Override
@@ -270,6 +278,16 @@ public interface ItemStorage
                 return ItemStack.EMPTY;
             }
             return parent.getStack( slot - start );
+        }
+
+        @Override
+        public void setStack( int slot, ItemStack stack )
+        {
+            if( slot < start || slot >= start + size )
+            {
+                return;
+            }
+            parent.setStack( slot - start, stack );
         }
 
         @Nonnull

@@ -15,7 +15,7 @@ import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.client.render.TurtleModelLoader;
 import dan200.computercraft.client.render.TurtlePlayerRenderer;
 import dan200.computercraft.fabric.events.ClientUnloadWorldEvent;
-import dan200.computercraft.shared.ComputerCraftRegistry;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.common.TileGeneric;
@@ -73,17 +73,17 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
         registerContainers();
 
         // While turtles themselves are not transparent, their upgrades may be.
-        BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.TURTLE_NORMAL, RenderType.translucent() );
-        BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.TURTLE_ADVANCED, RenderType.translucent() );
+        BlockRenderLayerMap.INSTANCE.putBlock( Registry.ModBlocks.TURTLE_NORMAL, RenderType.translucent() );
+        BlockRenderLayerMap.INSTANCE.putBlock( Registry.ModBlocks.TURTLE_ADVANCED, RenderType.translucent() );
         // Monitors' textures have transparent fronts and so count as cutouts.
-        BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.MONITOR_NORMAL, RenderType.cutout() );
-        BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.MONITOR_ADVANCED, RenderType.cutout() );
+        BlockRenderLayerMap.INSTANCE.putBlock( Registry.ModBlocks.MONITOR_NORMAL, RenderType.cutout() );
+        BlockRenderLayerMap.INSTANCE.putBlock( Registry.ModBlocks.MONITOR_ADVANCED, RenderType.cutout() );
 
         // Setup TESRs
-        BlockEntityRendererRegistry.register( ComputerCraftRegistry.ModTiles.MONITOR_NORMAL, TileEntityMonitorRenderer::new );
-        BlockEntityRendererRegistry.register( ComputerCraftRegistry.ModTiles.MONITOR_ADVANCED, TileEntityMonitorRenderer::new );
-        BlockEntityRendererRegistry.register( ComputerCraftRegistry.ModTiles.TURTLE_NORMAL, TileEntityTurtleRenderer::new );
-        BlockEntityRendererRegistry.register( ComputerCraftRegistry.ModTiles.TURTLE_ADVANCED, TileEntityTurtleRenderer::new );
+        BlockEntityRendererRegistry.register( Registry.ModBlockEntities.MONITOR_NORMAL, TileEntityMonitorRenderer::new );
+        BlockEntityRendererRegistry.register( Registry.ModBlockEntities.MONITOR_ADVANCED, TileEntityMonitorRenderer::new );
+        BlockEntityRendererRegistry.register( Registry.ModBlockEntities.TURTLE_NORMAL, TileEntityTurtleRenderer::new );
+        BlockEntityRendererRegistry.register( Registry.ModBlockEntities.TURTLE_ADVANCED, TileEntityTurtleRenderer::new );
 
         ClientSpriteRegistryCallback.event( InventoryMenu.BLOCK_ATLAS )
             .register( ClientRegistry::onTextureStitchEvent );
@@ -92,17 +92,17 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
             TurtleModelLoader.INSTANCE.loadModel(
                 name ) : null );
 
-        EntityRendererRegistry.register( ComputerCraftRegistry.ModEntities.TURTLE_PLAYER, TurtlePlayerRenderer::new );
+        EntityRendererRegistry.register( Registry.ModEntities.TURTLE_PLAYER, TurtlePlayerRenderer::new );
 
         registerItemProperty( "state",
             ( stack, world, player, integer ) -> ItemPocketComputer.getState( stack )
                 .ordinal(),
-            () -> ComputerCraftRegistry.ModItems.POCKET_COMPUTER_NORMAL,
-            () -> ComputerCraftRegistry.ModItems.POCKET_COMPUTER_ADVANCED );
+            () -> Registry.ModItems.POCKET_COMPUTER_NORMAL,
+            () -> Registry.ModItems.POCKET_COMPUTER_ADVANCED );
         registerItemProperty( "state",
             ( stack, world, player, integer ) -> IColouredItem.getColourBasic( stack ) != -1 ? 1 : 0,
-            () -> ComputerCraftRegistry.ModItems.POCKET_COMPUTER_NORMAL,
-            () -> ComputerCraftRegistry.ModItems.POCKET_COMPUTER_ADVANCED );
+            () -> Registry.ModItems.POCKET_COMPUTER_NORMAL,
+            () -> Registry.ModItems.POCKET_COMPUTER_ADVANCED );
         ClientRegistry.onItemColours();
 
         initEvents();
@@ -111,18 +111,18 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
     // My IDE doesn't think so, but we do actually need these generics.
     private static void registerContainers()
     {
-        ScreenRegistry.<ContainerComputerBase, GuiComputer<ContainerComputerBase>>register( ComputerCraftRegistry.ModContainers.COMPUTER, GuiComputer::create );
-        ScreenRegistry.<ContainerComputerBase, GuiComputer<ContainerComputerBase>>register( ComputerCraftRegistry.ModContainers.POCKET_COMPUTER,
+        ScreenRegistry.<ContainerComputerBase, GuiComputer<ContainerComputerBase>>register( Registry.ModContainers.COMPUTER, GuiComputer::create );
+        ScreenRegistry.<ContainerComputerBase, GuiComputer<ContainerComputerBase>>register( Registry.ModContainers.POCKET_COMPUTER,
             GuiComputer::createPocket );
-        ScreenRegistry.<ContainerComputerBase, NoTermComputerScreen<ContainerComputerBase>>register( ComputerCraftRegistry.ModContainers.POCKET_COMPUTER_NO_TERM,
+        ScreenRegistry.<ContainerComputerBase, NoTermComputerScreen<ContainerComputerBase>>register( Registry.ModContainers.POCKET_COMPUTER_NO_TERM,
             NoTermComputerScreen::new );
-        ScreenRegistry.<ContainerTurtle, GuiTurtle>register( ComputerCraftRegistry.ModContainers.TURTLE, GuiTurtle::new );
+        ScreenRegistry.<ContainerTurtle, GuiTurtle>register( Registry.ModContainers.TURTLE, GuiTurtle::new );
 
-        ScreenRegistry.<ContainerPrinter, GuiPrinter>register( ComputerCraftRegistry.ModContainers.PRINTER, GuiPrinter::new );
-        ScreenRegistry.<ContainerDiskDrive, GuiDiskDrive>register( ComputerCraftRegistry.ModContainers.DISK_DRIVE, GuiDiskDrive::new );
-        ScreenRegistry.<ContainerHeldItem, GuiPrintout>register( ComputerCraftRegistry.ModContainers.PRINTOUT, GuiPrintout::new );
+        ScreenRegistry.<ContainerPrinter, GuiPrinter>register( Registry.ModContainers.PRINTER, GuiPrinter::new );
+        ScreenRegistry.<ContainerDiskDrive, GuiDiskDrive>register( Registry.ModContainers.DISK_DRIVE, GuiDiskDrive::new );
+        ScreenRegistry.<ContainerHeldItem, GuiPrintout>register( Registry.ModContainers.PRINTOUT, GuiPrintout::new );
 
-        ScreenRegistry.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>register( ComputerCraftRegistry.ModContainers.VIEW_COMPUTER,
+        ScreenRegistry.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>register( Registry.ModContainers.VIEW_COMPUTER,
             GuiComputer::createView );
     }
 

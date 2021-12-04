@@ -3,13 +3,14 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.util;
 
 import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.crafting.ArmorDyeRecipe;
 
 /**
- * A reimplementation of the colour system in {@link ArmorDyeRecipe}, but bundled together as an object.
+ * A reimplementation of the colour system in {@link ArmorDyeRecipe}, but
+ * bundled together as an object.
  */
 public class ColourTracker
 {
@@ -19,11 +20,6 @@ public class ColourTracker
     private int totalB;
     private int count;
 
-    public void addColour( float r, float g, float b )
-    {
-        addColour( (int) (r * 255), (int) (g * 255), (int) (b * 255) );
-    }
-
     public void addColour( int r, int g, int b )
     {
         total += Math.max( r, Math.max( g, b ) );
@@ -31,6 +27,11 @@ public class ColourTracker
         totalG += g;
         totalB += b;
         count++;
+    }
+
+    public void addColour( float r, float g, float b )
+    {
+        addColour( (int) (r * 255), (int) (g * 255), (int) (b * 255) );
     }
 
     public void addColour( DyeColor dye )

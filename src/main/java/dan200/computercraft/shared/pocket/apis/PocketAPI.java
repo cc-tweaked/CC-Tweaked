@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.pocket.apis;
 
 import dan200.computercraft.api.lua.ILuaAPI;
@@ -23,15 +22,16 @@ import net.minecraft.world.item.ItemStack;
 /**
  * Control the current pocket computer, adding or removing upgrades.
  *
- * This API is only available on pocket computers. As such, you may use its presence to determine what kind of computer you are using:
+ * This API is only available on pocket computers. As such, you may use its presence to determine what kind of computer
+ * you are using:
  *
- * <pre>
+ * <pre>{@code
  * if pocket then
  *   print("On a pocket computer")
  * else
  *   print("On something else")
  * end
- * </pre>
+ * }</pre>
  *
  * @cc.module pocket
  */
@@ -63,11 +63,7 @@ public class PocketAPI implements ILuaAPI
     public final Object[] equipBack()
     {
         Entity entity = computer.getEntity();
-        if( !(entity instanceof Player) )
-        {
-            return new Object[] { false, "Cannot find player" };
-        }
-        Player player = (Player) entity;
+        if( !(entity instanceof Player player) ) return new Object[] { false, "Cannot find player" };
         Inventory inventory = player.getInventory();
         IPocketUpgrade previousUpgrade = computer.getUpgrade();
 
@@ -78,10 +74,7 @@ public class PocketAPI implements ILuaAPI
         {
             newUpgrade = findUpgrade( inventory.offhand, 0, previousUpgrade );
         }
-        if( newUpgrade == null )
-        {
-            return new Object[] { false, "Cannot find a valid upgrade" };
-        }
+        if( newUpgrade == null ) return new Object[] { false, "Cannot find a valid upgrade" };
 
         // Remove the current upgrade
         if( previousUpgrade != null )
@@ -99,6 +92,38 @@ public class PocketAPI implements ILuaAPI
 
         // Set the new upgrade
         computer.setUpgrade( newUpgrade );
+
+        return new Object[] { true };
+    }
+
+    /**
+     * Remove the pocket computer's current upgrade.
+     *
+     * @return The result of unequipping.
+     * @cc.treturn boolean If the upgrade was unequipped.
+     * @cc.treturn string|nil The reason an upgrade was not unequipped.
+     */
+    @LuaFunction( mainThread = true )
+    public final Object[] unequipBack()
+    {
+        Entity entity = computer.getEntity();
+        if( !(entity instanceof Player player) ) return new Object[] { false, "Cannot find player" };
+        Inventory inventory = player.getInventory();
+        IPocketUpgrade previousUpgrade = computer.getUpgrade();
+
+        if( previousUpgrade == null ) return new Object[] { false, "Nothing to unequip" };
+
+        computer.setUpgrade( null );
+
+        ItemStack stack = previousUpgrade.getCraftingItem();
+        if( !stack.isEmpty() )
+        {
+            stack = InventoryUtil.storeItems( stack, ItemStorage.wrap( inventory ), inventory.selected );
+            if( stack.isEmpty() )
+            {
+                WorldUtil.dropItemStack( stack, player.getCommandSenderWorld(), player.position() );
+            }
+        }
 
         return new Object[] { true };
     }
@@ -125,44 +150,5 @@ public class PocketAPI implements ILuaAPI
         }
 
         return null;
-    }
-
-    /**
-     * Remove the pocket computer's current upgrade.
-     *
-     * @return The result of unequipping.
-     * @cc.treturn boolean If the upgrade was unequipped.
-     * @cc.treturn string|nil The reason an upgrade was not unequipped.
-     */
-    @LuaFunction( mainThread = true )
-    public final Object[] unequipBack()
-    {
-        Entity entity = computer.getEntity();
-        if( !(entity instanceof Player) )
-        {
-            return new Object[] { false, "Cannot find player" };
-        }
-        Player player = (Player) entity;
-        Inventory inventory = player.getInventory();
-        IPocketUpgrade previousUpgrade = computer.getUpgrade();
-
-        if( previousUpgrade == null )
-        {
-            return new Object[] { false, "Nothing to unequip" };
-        }
-
-        computer.setUpgrade( null );
-
-        ItemStack stack = previousUpgrade.getCraftingItem();
-        if( !stack.isEmpty() )
-        {
-            stack = InventoryUtil.storeItems( stack, ItemStorage.wrap( inventory ), inventory.selected );
-            if( stack.isEmpty() )
-            {
-                WorldUtil.dropItemStack( stack, player.getCommandSenderWorld(), player.position() );
-            }
-        }
-
-        return new Object[] { true };
     }
 }

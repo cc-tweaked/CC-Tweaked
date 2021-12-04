@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.computer.recipe;
 
 import com.google.gson.JsonObject;
@@ -23,8 +22,7 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
 {
     private final ComputerFamily family;
 
-    public ComputerFamilyRecipe( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result,
-                                 ComputerFamily family )
+    public ComputerFamilyRecipe( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
     {
         super( identifier, group, width, height, ingredients, result );
         this.family = family;
@@ -37,6 +35,8 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
 
     public abstract static class Serializer<T extends ComputerFamilyRecipe> implements RecipeSerializer<T>
     {
+        protected abstract T create( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family );
+
         @Nonnull
         @Override
         public T fromJson( @Nonnull ResourceLocation identifier, @Nonnull JsonObject json )
@@ -50,9 +50,6 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
             return create( identifier, group, template.width, template.height, template.ingredients, result, family );
         }
 
-        protected abstract T create( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result,
-                                     ComputerFamily family );
-
         @Nonnull
         @Override
         public T fromNetwork( @Nonnull ResourceLocation identifier, @Nonnull FriendlyByteBuf buf )
@@ -62,10 +59,7 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
             String group = buf.readUtf( Short.MAX_VALUE );
 
             NonNullList<Ingredient> ingredients = NonNullList.withSize( width * height, Ingredient.EMPTY );
-            for( int i = 0; i < ingredients.size(); i++ )
-            {
-                ingredients.set( i, Ingredient.fromNetwork( buf ) );
-            }
+            for( int i = 0; i < ingredients.size(); i++ ) ingredients.set( i, Ingredient.fromNetwork( buf ) );
 
             ItemStack result = buf.readItem();
             ComputerFamily family = buf.readEnum( ComputerFamily.class );
@@ -78,10 +72,7 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
             buf.writeVarInt( recipe.getWidth() );
             buf.writeVarInt( recipe.getHeight() );
             buf.writeUtf( recipe.getGroup() );
-            for( Ingredient ingredient : recipe.getIngredients() )
-            {
-                ingredient.toNetwork( buf );
-            }
+            for( Ingredient ingredient : recipe.getIngredients() ) ingredient.toNetwork( buf );
             buf.writeItem( recipe.getResultItem() );
             buf.writeEnum( recipe.getFamily() );
         }

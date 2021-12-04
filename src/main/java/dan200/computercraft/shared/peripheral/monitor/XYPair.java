@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.monitor;
 
 import net.minecraft.core.Direction;
@@ -17,6 +16,11 @@ public class XYPair
     {
         this.x = x;
         this.y = y;
+    }
+
+    public XYPair add( float x, float y )
+    {
+        return new XYPair( this.x + x, this.y + y );
     }
 
     public static XYPair of( float xPos, float yPos, float zPos, Direction facing, Direction orientation )
@@ -65,10 +69,5 @@ public class XYPair
         }
 
         return new XYPair( xPos, zPos );
-    }
-
-    public XYPair add( float x, float y )
-    {
-        return new XYPair( this.x + x, this.y + y );
     }
 }

@@ -3,12 +3,11 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft;
 
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
-import dan200.computercraft.shared.ComputerCraftRegistry.ModBlocks;
+import dan200.computercraft.shared.Registry.ModBlocks;
 import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.computer.core.ClientComputerRegistry;
 import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
@@ -37,24 +36,20 @@ import net.minecraft.world.item.ItemStack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static dan200.computercraft.shared.ComputerCraftRegistry.init;
+import static dan200.computercraft.shared.Registry.init;
 
 public final class ComputerCraft implements ModInitializer
 {
     public static final String MOD_ID = "computercraft";
 
-    // Configuration fields
     public static int computerSpaceLimit = 1000 * 1000;
     public static int floppySpaceLimit = 125 * 1000;
     public static int maximumFilesOpen = 128;
     public static boolean disableLua51Features = false;
     public static String defaultComputerSettings = "";
-    public static boolean debugEnable = true;
     public static boolean logComputerErrors = true;
     public static boolean commandRequireCreative = true;
 
@@ -64,10 +59,11 @@ public final class ComputerCraft implements ModInitializer
 
     public static boolean httpEnabled = true;
     public static boolean httpWebsocketEnabled = true;
-    public static List<AddressRule> httpRules = Collections.unmodifiableList( Arrays.asList(
+    public static List<AddressRule> httpRules = List.of(
         AddressRule.parse( "$private", null, Action.DENY.toPartial() ),
         AddressRule.parse( "*", null, Action.ALLOW.toPartial() )
-    ) );
+    );
+
     public static int httpMaxRequests = 16;
     public static int httpMaxWebsockets = 4;
     public static int httpDownloadBandwidth = 32 * 1024 * 1024;
@@ -80,7 +76,6 @@ public final class ComputerCraft implements ModInitializer
     public static int modemHighAltitudeRangeDuringStorm = 384;
     public static int maxNotesPerTick = 8;
     public static MonitorRenderer monitorRenderer = MonitorRenderer.BEST;
-    public static double monitorDistanceSq = 4096;
     public static int monitorDistance = 65;
     public static long monitorBandwidth = 1_000_000;
 
@@ -98,6 +93,7 @@ public final class ComputerCraft implements ModInitializer
 
     public static int pocketTermWidth = 26;
     public static int pocketTermHeight = 20;
+
     public static int monitorWidth = 8;
     public static int monitorHeight = 6;
 

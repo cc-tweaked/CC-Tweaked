@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.computer.core;
 
 import java.util.Collection;
@@ -13,21 +12,13 @@ import java.util.Random;
 
 public class ComputerRegistry<T extends IComputer>
 {
-    private final Map<Integer, T> computers;
+    private final Map<Integer, T> computers = new HashMap<>();
     private int nextUnusedInstanceID;
     private int sessionID;
 
     protected ComputerRegistry()
     {
-        computers = new HashMap<>();
         reset();
-    }
-
-    public void reset()
-    {
-        computers.clear();
-        nextUnusedInstanceID = 0;
-        sessionID = new Random().nextInt();
     }
 
     public int getSessionID()
@@ -75,5 +66,12 @@ public class ComputerRegistry<T extends IComputer>
     public void remove( int instanceID )
     {
         computers.remove( instanceID );
+    }
+
+    public void reset()
+    {
+        computers.clear();
+        nextUnusedInstanceID = 0;
+        sessionID = new Random().nextInt();
     }
 }

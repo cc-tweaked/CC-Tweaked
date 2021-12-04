@@ -3,10 +3,9 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.computer.items;
 
-import dan200.computercraft.shared.ComputerCraftRegistry;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.world.item.ItemStack;
@@ -29,11 +28,11 @@ public final class ComputerItemFactory
         switch( family )
         {
             case NORMAL:
-                return ComputerCraftRegistry.ModItems.COMPUTER_NORMAL.create( id, label );
+                return Registry.ModItems.COMPUTER_NORMAL.create( id, label );
             case ADVANCED:
-                return ComputerCraftRegistry.ModItems.COMPUTER_ADVANCED.create( id, label );
+                return Registry.ModItems.COMPUTER_ADVANCED.create( id, label );
             case COMMAND:
-                return ComputerCraftRegistry.ModItems.COMPUTER_COMMAND.create( id, label );
+                return Registry.ModItems.COMPUTER_COMMAND.create( id, label );
             default:
                 return ItemStack.EMPTY;
         }

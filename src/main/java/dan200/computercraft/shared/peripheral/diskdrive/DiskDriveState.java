@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.diskdrive;
 
 import net.minecraft.util.StringRepresentable;
@@ -12,7 +11,9 @@ import javax.annotation.Nonnull;
 
 public enum DiskDriveState implements StringRepresentable
 {
-    EMPTY( "empty" ), FULL( "full" ), INVALID( "invalid" );
+    EMPTY( "empty" ),
+    FULL( "full" ),
+    INVALID( "invalid" );
 
     private final String name;
 

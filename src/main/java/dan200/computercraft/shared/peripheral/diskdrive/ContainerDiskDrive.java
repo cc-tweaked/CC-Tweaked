@@ -3,10 +3,9 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.diskdrive;
 
-import dan200.computercraft.shared.ComputerCraftRegistry;
+import dan200.computercraft.shared.Registry;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -21,14 +20,9 @@ public class ContainerDiskDrive extends AbstractContainerMenu
 {
     private final Container inventory;
 
-    public ContainerDiskDrive( int id, Inventory player )
-    {
-        this( id, player, new SimpleContainer( 1 ) );
-    }
-
     public ContainerDiskDrive( int id, Inventory player, Container inventory )
     {
-        super( ComputerCraftRegistry.ModContainers.DISK_DRIVE, id );
+        super( Registry.ModContainers.DISK_DRIVE, id );
 
         this.inventory = inventory;
 
@@ -48,34 +42,35 @@ public class ContainerDiskDrive extends AbstractContainerMenu
         }
     }
 
+    public ContainerDiskDrive( int id, Inventory player )
+    {
+        this( id, player, new SimpleContainer( 1 ) );
+    }
+
+    @Override
+    public boolean stillValid( @Nonnull Player player )
+    {
+        return inventory.stillValid( player );
+    }
+
     @Nonnull
     @Override
     public ItemStack quickMoveStack( @Nonnull Player player, int slotIndex )
     {
         Slot slot = slots.get( slotIndex );
-        if( slot == null || !slot.hasItem() )
-        {
-            return ItemStack.EMPTY;
-        }
+        if( slot == null || !slot.hasItem() ) return ItemStack.EMPTY;
 
-        ItemStack existing = slot.getItem()
-            .copy();
+        ItemStack existing = slot.getItem().copy();
         ItemStack result = existing.copy();
         if( slotIndex == 0 )
         {
             // Insert into player inventory
-            if( !moveItemStackTo( existing, 1, 37, true ) )
-            {
-                return ItemStack.EMPTY;
-            }
+            if( !moveItemStackTo( existing, 1, 37, true ) ) return ItemStack.EMPTY;
         }
         else
         {
             // Insert into drive inventory
-            if( !moveItemStackTo( existing, 0, 1, false ) )
-            {
-                return ItemStack.EMPTY;
-            }
+            if( !moveItemStackTo( existing, 0, 1, false ) ) return ItemStack.EMPTY;
         }
 
         if( existing.isEmpty() )
@@ -87,18 +82,9 @@ public class ContainerDiskDrive extends AbstractContainerMenu
             slot.setChanged();
         }
 
-        if( existing.getCount() == result.getCount() )
-        {
-            return ItemStack.EMPTY;
-        }
+        if( existing.getCount() == result.getCount() ) return ItemStack.EMPTY;
 
         slot.onTake( player, existing );
         return result;
-    }
-
-    @Override
-    public boolean stillValid( @Nonnull Player player )
-    {
-        return inventory.stillValid( player );
     }
 }

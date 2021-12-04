@@ -3,16 +3,16 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.pocket.peripherals;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.AbstractPocketUpgrade;
 import dan200.computercraft.api.pocket.IPocketAccess;
-import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
+import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -21,10 +21,9 @@ public class PocketModem extends AbstractPocketUpgrade
 {
     private final boolean advanced;
 
-    public PocketModem( boolean advanced )
+    public PocketModem( ResourceLocation id, ItemStack stack, boolean advanced )
     {
-        super( new ResourceLocation( "computercraft", advanced ? "wireless_modem_advanced" : "wireless_modem_normal" ),
-            advanced ? ComputerCraftRegistry.ModBlocks.WIRELESS_MODEM_ADVANCED : ComputerCraftRegistry.ModBlocks.WIRELESS_MODEM_NORMAL );
+        super( id, advanced ? WirelessModemPeripheral.ADVANCED_ADJECTIVE : WirelessModemPeripheral.NORMAL_ADJECTIVE, stack );
         this.advanced = advanced;
     }
 
@@ -38,24 +37,13 @@ public class PocketModem extends AbstractPocketUpgrade
     @Override
     public void update( @Nonnull IPocketAccess access, @Nullable IPeripheral peripheral )
     {
-        if( !(peripheral instanceof PocketModemPeripheral) )
-        {
-            return;
-        }
+        if( !(peripheral instanceof PocketModemPeripheral modem) ) return;
 
         Entity entity = access.getEntity();
 
-        PocketModemPeripheral modem = (PocketModemPeripheral) peripheral;
-
-        if( entity != null )
-        {
-            modem.setLocation( entity.getCommandSenderWorld(), entity.getEyePosition( 1 ) );
-        }
+        if( entity != null ) modem.setLocation( entity.getCommandSenderWorld(), entity.getEyePosition( 1 ) );
 
         ModemState state = modem.getModemState();
-        if( state.pollChanged() )
-        {
-            access.setLight( state.isOpen() ? 0xBA0000 : -1 );
-        }
+        if( state.pollChanged() ) access.setLight( state.isOpen() ? 0xBA0000 : -1 );
     }
 }

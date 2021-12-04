@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.monitor;
 
 import net.minecraft.util.StringRepresentable;
@@ -34,6 +33,15 @@ public enum MonitorEdgeState implements StringRepresentable
     LRU( "lru", LEFT | RIGHT | UP ),
     LRUD( "lrud", LEFT | RIGHT | UP | DOWN );
 
+    private final String name;
+    private final int flags;
+
+    MonitorEdgeState( String name, int flags )
+    {
+        this.name = name;
+        this.flags = flags;
+    }
+
     private static final MonitorEdgeState[] BY_FLAG = new MonitorEdgeState[16];
 
     static
@@ -44,18 +52,15 @@ public enum MonitorEdgeState implements StringRepresentable
         }
     }
 
-    private final String name;
-    private final int flags;
-
-    MonitorEdgeState( String name, int flags )
-    {
-        this.name = name;
-        this.flags = flags;
-    }
-
     public static MonitorEdgeState fromConnections( boolean up, boolean down, boolean left, boolean right )
     {
         return BY_FLAG[(up ? UP : 0) | (down ? DOWN : 0) | (left ? LEFT : 0) | (right ? RIGHT : 0)];
+    }
+
+    @Override
+    public String toString()
+    {
+        return getSerializedName();
     }
 
     @Nonnull

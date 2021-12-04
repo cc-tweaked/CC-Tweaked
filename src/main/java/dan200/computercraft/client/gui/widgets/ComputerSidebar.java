@@ -8,7 +8,6 @@ package dan200.computercraft.client.gui.widgets;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
-import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -55,10 +54,10 @@ public final class ComputerSidebar
             TEXTURE, TEX_SIZE, TEX_SIZE, b -> toggleComputer( computer ),
             () -> computer.isOn() ? Arrays.asList(
                 new TranslatableComponent( "gui.computercraft.tooltip.turn_off" ),
-                ChatHelpers.coloured( new TranslatableComponent( "gui.computercraft.tooltip.turn_off.key" ), ChatFormatting.GRAY )
+                new TranslatableComponent( "gui.computercraft.tooltip.turn_off.key" ).withStyle( ChatFormatting.GRAY )
             ) : Arrays.asList(
                 new TranslatableComponent( "gui.computercraft.tooltip.turn_on" ),
-                ChatHelpers.coloured( new TranslatableComponent( "gui.computercraft.tooltip.turn_off.key" ), ChatFormatting.GRAY )
+                new TranslatableComponent( "gui.computercraft.tooltip.turn_off.key" ).withStyle( ChatFormatting.GRAY )
             )
         ) );
 
@@ -69,7 +68,7 @@ public final class ComputerSidebar
             TEXTURE, TEX_SIZE, TEX_SIZE, b -> computer.queueEvent( "terminate" ),
             Arrays.asList(
                 new TranslatableComponent( "gui.computercraft.tooltip.terminate" ),
-                ChatHelpers.coloured( new TranslatableComponent( "gui.computercraft.tooltip.terminate.key" ), ChatFormatting.GRAY )
+                new TranslatableComponent( "gui.computercraft.tooltip.terminate.key" ).withStyle( ChatFormatting.GRAY )
             )
         ) );
     }

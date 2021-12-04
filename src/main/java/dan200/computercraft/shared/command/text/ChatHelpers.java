@@ -20,14 +20,12 @@ public final class ChatHelpers
 
     public static MutableComponent coloured( String text, ChatFormatting colour )
     {
-        MutableComponent component = new TextComponent( text == null ? "" : text );
-        component.setStyle( component.getStyle().withColor( colour ) );
-        return component;
+        return new TextComponent( text == null ? "" : text ).withStyle( colour );
     }
 
     public static <T extends MutableComponent> T coloured( T component, ChatFormatting colour )
     {
-        component.setStyle( component.getStyle().withColor( colour ) );
+        component.withStyle( colour );
         return component;
     }
 
@@ -46,10 +44,10 @@ public final class ChatHelpers
         return new TranslatableComponent( text == null ? "" : text, args );
     }
 
-    public static MutableComponent list( MutableComponent... children )
+    public static MutableComponent list( Component... children )
     {
         MutableComponent component = new TextComponent( "" );
-        for( MutableComponent child : children )
+        for( Component child : children )
         {
             component.append( child );
         }
@@ -69,12 +67,12 @@ public final class ChatHelpers
             : coloured( translate( "commands.computercraft.generic.no" ), ChatFormatting.RED );
     }
 
-    public static MutableComponent link( MutableComponent component, String command, MutableComponent toolTip )
+    public static Component link( MutableComponent component, String command, Component toolTip )
     {
         return link( component, new ClickEvent( ClickEvent.Action.RUN_COMMAND, command ), toolTip );
     }
 
-    public static MutableComponent link( MutableComponent component, ClickEvent click, MutableComponent toolTip )
+    public static Component link( Component component, ClickEvent click, Component toolTip )
     {
         Style style = component.getStyle();
 
@@ -82,9 +80,7 @@ public final class ChatHelpers
         style = style.withClickEvent( click );
         style = style.withHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, toolTip ) );
 
-        component.setStyle( style );
-
-        return component;
+        return component.copy().withStyle( style );
     }
 
     public static MutableComponent header( String text )
@@ -95,9 +91,9 @@ public final class ChatHelpers
     public static MutableComponent copy( String text )
     {
         TextComponent name = new TextComponent( text );
-        name.setStyle( name.getStyle()
+        Style style = name.getStyle()
             .withClickEvent( new ClickEvent( ClickEvent.Action.COPY_TO_CLIPBOARD, text ) )
-            .withHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new TranslatableComponent( "gui.computercraft.tooltip.copy" ) ) ) );
-        return name;
+            .withHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new TranslatableComponent( "gui.computercraft.tooltip.copy" ) ) );
+        return name.withStyle( style );
     }
 }

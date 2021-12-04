@@ -82,10 +82,6 @@ public final class Config
                     "autocompletion" );
             serverSpec.define( "default_computer_settings", ComputerCraft.defaultComputerSettings );
 
-            serverSpec.comment( "debug_enabled",
-                "Enable Lua's debug library. This is sandboxed to each computer, so is generally safe to be used by players." );
-            serverSpec.define( "debug_enabled", ComputerCraft.debugEnable );
-
             serverSpec.comment( "log_computer_errors",
                 "Log exceptions thrown by peripherals and other Lua objects.\n" +
                     "This makes it easier for mod authors to debug problems, but may result in log spam should people use buggy methods." );
@@ -337,7 +333,6 @@ public final class Config
             ComputerCraft.maximumFilesOpen = serverConfig.<Integer>get( "maximum_open_files" );
             ComputerCraft.disableLua51Features = serverConfig.<Boolean>get( "disable_lua51_features" );
             ComputerCraft.defaultComputerSettings = serverConfig.<String>get( "default_computer_settings" );
-            ComputerCraft.debugEnable = serverConfig.<Boolean>get( "debug_enabled" );
             ComputerCraft.logComputerErrors = serverConfig.<Boolean>get( "log_computer_errors" );
             ComputerCraft.commandRequireCreative = serverConfig.<Boolean>get( "command_require_creative" );
 
@@ -383,8 +378,7 @@ public final class Config
         if( clientConfig != null )
         {
             ComputerCraft.monitorRenderer = clientConfig.getEnum( "monitor_renderer", MonitorRenderer.class );
-            int distance = clientConfig.get( "monitor_distance" );
-            ComputerCraft.monitorDistanceSq = distance * distance;
+            ComputerCraft.monitorDistance = clientConfig.get( "monitor_distance" );
         }
     }
 

@@ -35,10 +35,7 @@ public final class RecordMedia implements IMedia
     public String getAudioTitle( @Nonnull ItemStack stack )
     {
         Item item = stack.getItem();
-        if( !(item instanceof RecordItem) )
-        {
-            return null;
-        }
+        if( !(item instanceof RecordItem) ) return null;
 
         return new TranslatableComponent( item.getDescriptionId() + ".desc" ).getString();
     }
@@ -47,10 +44,8 @@ public final class RecordMedia implements IMedia
     public SoundEvent getAudio( @Nonnull ItemStack stack )
     {
         Item item = stack.getItem();
-        if( !(item instanceof RecordItem) )
-        {
-            return null;
-        }
+        if( !(item instanceof RecordItem) ) return null;
+
         return ((RecordItem) item).getSound();
     }
 }

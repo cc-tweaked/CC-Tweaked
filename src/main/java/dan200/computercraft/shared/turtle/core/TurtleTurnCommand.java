@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
@@ -29,17 +28,21 @@ public class TurtleTurnCommand implements ITurtleCommand
         switch( direction )
         {
             case LEFT:
-                turtle.setDirection( turtle.getDirection()
-                    .getCounterClockWise() );
+            {
+                turtle.setDirection( turtle.getDirection().getCounterClockWise() );
                 turtle.playAnimation( TurtleAnimation.TURN_LEFT );
                 return TurtleCommandResult.success();
+            }
             case RIGHT:
-                turtle.setDirection( turtle.getDirection()
-                    .getClockWise() );
+            {
+                turtle.setDirection( turtle.getDirection().getClockWise() );
                 turtle.playAnimation( TurtleAnimation.TURN_RIGHT );
                 return TurtleCommandResult.success();
+            }
             default:
+            {
                 return TurtleCommandResult.failure( "Unknown direction" );
+            }
         }
     }
 }

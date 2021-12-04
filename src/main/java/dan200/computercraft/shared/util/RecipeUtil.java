@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.util;
 
 import com.google.common.collect.Maps;
@@ -28,14 +27,26 @@ public final class RecipeUtil
 
     private RecipeUtil() {}
 
+    public static class ShapedTemplate
+    {
+        public final int width;
+        public final int height;
+        public final NonNullList<Ingredient> ingredients;
+
+        public ShapedTemplate( int width, int height, NonNullList<Ingredient> ingredients )
+        {
+            this.width = width;
+            this.height = height;
+            this.ingredients = ingredients;
+        }
+    }
+
     public static ShapedTemplate getTemplate( JsonObject json )
     {
         Map<Character, Ingredient> ingMap = Maps.newHashMap();
-        for( Map.Entry<String, JsonElement> entry : GsonHelper.getAsJsonObject( json, "key" )
-            .entrySet() )
+        for( Map.Entry<String, JsonElement> entry : GsonHelper.getAsJsonObject( json, "key" ).entrySet() )
         {
-            if( entry.getKey()
-                .length() != 1 )
+            if( entry.getKey().length() != 1 )
             {
                 throw new JsonSyntaxException( "Invalid key entry: '" + entry.getKey() + "' is an invalid symbol (must be 1 character only)." );
             }
@@ -44,8 +55,7 @@ public final class RecipeUtil
                 throw new JsonSyntaxException( "Invalid key entry: ' ' is a reserved symbol." );
             }
 
-            ingMap.put( entry.getKey()
-                .charAt( 0 ), Ingredient.fromJson( entry.getValue() ) );
+            ingMap.put( entry.getKey().charAt( 0 ), Ingredient.fromJson( entry.getValue() ) );
         }
 
         ingMap.put( ' ', Ingredient.EMPTY );
@@ -103,11 +113,7 @@ public final class RecipeUtil
         String familyName = GsonHelper.getAsString( json, name );
         for( ComputerFamily family : ComputerFamily.values() )
         {
-            if( family.name()
-                .equalsIgnoreCase( familyName ) )
-            {
-                return family;
-            }
+            if( family.name().equalsIgnoreCase( familyName ) ) return family;
         }
 
         throw new JsonSyntaxException( "Unknown computer family '" + familyName + "' for field " + name );
@@ -126,20 +132,6 @@ public final class RecipeUtil
             {
                 throw new JsonSyntaxException( "Invalid NBT entry: " + e.getMessage() );
             }
-        }
-    }
-
-    public static class ShapedTemplate
-    {
-        public final int width;
-        public final int height;
-        public final NonNullList<Ingredient> ingredients;
-
-        public ShapedTemplate( int width, int height, NonNullList<Ingredient> ingredients )
-        {
-            this.width = width;
-            this.height = height;
-            this.ingredients = ingredients;
         }
     }
 }

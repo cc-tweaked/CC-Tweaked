@@ -7,28 +7,11 @@ package dan200.computercraft.shared.turtle.upgrades;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 
 public class TurtleAxe extends TurtleTool
 {
-    public TurtleAxe( ResourceLocation id, String adjective, Item item )
+    public TurtleAxe( ResourceLocation id, Item item, float damageMulitiplier )
     {
-        super( id, adjective, item );
-    }
-
-    public TurtleAxe( ResourceLocation id, Item item )
-    {
-        super( id, item );
-    }
-
-    public TurtleAxe( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )
-    {
-        super( id, craftItem, toolItem );
-    }
-
-    @Override
-    protected float getDamageMultiplier()
-    {
-        return 6.0f;
+        super( id, item, damageMulitiplier );
     }
 }

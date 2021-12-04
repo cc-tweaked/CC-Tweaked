@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.util;
 
 import com.google.common.collect.MapMaker;
@@ -21,20 +20,20 @@ import java.util.Set;
  */
 public final class TickScheduler
 {
-    private static final Set<BlockEntity> toTick = Collections.newSetFromMap( new MapMaker().weakKeys()
-        .makeMap() );
-
     private TickScheduler()
     {
     }
 
+    private static final Set<BlockEntity> toTick = Collections.newSetFromMap(
+        new MapMaker()
+            .weakKeys()
+            .makeMap()
+    );
+
     public static void schedule( TileGeneric tile )
     {
         Level world = tile.getLevel();
-        if( world != null && !world.isClientSide )
-        {
-            toTick.add( tile );
-        }
+        if( world != null && !world.isClientSide ) toTick.add( tile );
     }
 
     public static void tick()
@@ -48,7 +47,7 @@ public final class TickScheduler
             Level world = tile.getLevel();
             BlockPos pos = tile.getBlockPos();
 
-            if( world != null && pos != null && world.hasChunkAt( pos ) && world.getBlockEntity( pos ) == tile )
+            if( world != null && pos != null && world.isLoaded( pos ) && world.getBlockEntity( pos ) == tile )
             {
                 world.scheduleTick( pos, tile.getBlockState().getBlock(), 0 );
             }

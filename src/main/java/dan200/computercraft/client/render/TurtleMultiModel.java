@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.client.render;
 
 import com.mojang.math.Transformation;
@@ -32,8 +31,7 @@ public class TurtleMultiModel implements BakedModel
     private List<BakedQuad> generalQuads = null;
     private final Map<Direction, List<BakedQuad>> faceQuads = new EnumMap<>( Direction.class );
 
-    public TurtleMultiModel( BakedModel baseModel, BakedModel overlayModel, Transformation generalTransform, TransformedModel leftUpgradeModel,
-                             TransformedModel rightUpgradeModel )
+    public TurtleMultiModel( BakedModel baseModel, BakedModel overlayModel, Transformation generalTransform, TransformedModel leftUpgradeModel, TransformedModel rightUpgradeModel )
     {
         // Get the models
         this.baseModel = baseModel;
@@ -45,22 +43,17 @@ public class TurtleMultiModel implements BakedModel
 
     @Nonnull
     @Override
+    @Deprecated
     public List<BakedQuad> getQuads( BlockState state, Direction side, @Nonnull Random rand )
     {
         if( side != null )
         {
-            if( !faceQuads.containsKey( side ) )
-            {
-                faceQuads.put( side, buildQuads( state, side, rand ) );
-            }
+            if( !faceQuads.containsKey( side ) ) faceQuads.put( side, buildQuads( state, side, rand ) );
             return faceQuads.get( side );
         }
         else
         {
-            if( generalQuads == null )
-            {
-                generalQuads = buildQuads( state, side, rand );
-            }
+            if( generalQuads == null ) generalQuads = buildQuads( state, side, rand );
             return generalQuads;
         }
     }
@@ -70,24 +63,20 @@ public class TurtleMultiModel implements BakedModel
         ArrayList<BakedQuad> quads = new ArrayList<>();
 
 
-        ModelTransformer.transformQuadsTo( quads, baseModel.getQuads( state, side, rand ), generalTransform.getMatrix() );
+        transformQuadsTo( quads, baseModel.getQuads( state, side, rand ), generalTransform );
         if( overlayModel != null )
         {
-            ModelTransformer.transformQuadsTo( quads, overlayModel.getQuads( state, side, rand ), generalTransform.getMatrix() );
+            transformQuadsTo( quads, overlayModel.getQuads( state, side, rand ), generalTransform );
         }
         if( leftUpgradeModel != null )
         {
             Transformation upgradeTransform = generalTransform.compose( leftUpgradeModel.getMatrix() );
-            ModelTransformer.transformQuadsTo( quads, leftUpgradeModel.getModel()
-                    .getQuads( state, side, rand ),
-                upgradeTransform.getMatrix() );
+            transformQuadsTo( quads, leftUpgradeModel.getModel().getQuads( state, side, rand ), upgradeTransform );
         }
         if( rightUpgradeModel != null )
         {
             Transformation upgradeTransform = generalTransform.compose( rightUpgradeModel.getMatrix() );
-            ModelTransformer.transformQuadsTo( quads, rightUpgradeModel.getModel()
-                    .getQuads( state, side, rand ),
-                upgradeTransform.getMatrix() );
+            transformQuadsTo( quads, rightUpgradeModel.getModel().getQuads( state, side, rand ), upgradeTransform );
         }
         quads.trimToSize();
         return quads;
@@ -106,15 +95,15 @@ public class TurtleMultiModel implements BakedModel
     }
 
     @Override
-    public boolean usesBlockLight()
-    {
-        return baseModel.usesBlockLight();
-    }
-
-    @Override
     public boolean isCustomRenderer()
     {
         return baseModel.isCustomRenderer();
+    }
+
+    @Override
+    public boolean usesBlockLight()
+    {
+        return baseModel.usesBlockLight();
     }
 
     @Nonnull
@@ -138,5 +127,10 @@ public class TurtleMultiModel implements BakedModel
     public ItemOverrides getOverrides()
     {
         return ItemOverrides.EMPTY;
+    }
+
+    private void transformQuadsTo( List<BakedQuad> output, List<BakedQuad> quads, Transformation transform )
+    {
+        ModelTransformer.transformQuadsTo( output, quads, transform.getMatrix() );
     }
 }

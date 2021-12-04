@@ -3,10 +3,9 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.common;
 
-import dan200.computercraft.shared.ComputerCraftRegistry;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.network.container.HeldItemContainerData;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.network.FriendlyByteBuf;
@@ -32,13 +31,12 @@ public class ContainerHeldItem extends AbstractContainerMenu
         super( type, id );
 
         this.hand = hand;
-        stack = player.getItemInHand( hand )
-            .copy();
+        stack = player.getItemInHand( hand ).copy();
     }
 
     public static ContainerHeldItem createPrintout( int id, Inventory inventory, HeldItemContainerData data )
     {
-        return new ContainerHeldItem( ComputerCraftRegistry.ModContainers.PRINTOUT, id, inventory.player, data.getHand() );
+        return new ContainerHeldItem( Registry.ModContainers.PRINTOUT, id, inventory.player, data.getHand() );
     }
 
     @Nonnull
@@ -50,10 +48,7 @@ public class ContainerHeldItem extends AbstractContainerMenu
     @Override
     public boolean stillValid( @Nonnull Player player )
     {
-        if( !player.isAlive() )
-        {
-            return false;
-        }
+        if( !player.isAlive() ) return false;
 
         ItemStack stack = player.getItemInHand( hand );
         return stack == this.stack || !stack.isEmpty() && !this.stack.isEmpty() && stack.getItem() == this.stack.getItem();

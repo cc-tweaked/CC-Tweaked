@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
@@ -34,18 +33,9 @@ public final class BundledRedstone
         return world.isInWorldBounds( pos ) ? DefaultBundledRedstoneProvider.getDefaultBundledRedstoneOutput( world, pos, side ) : -1;
     }
 
-    public static int getOutput( Level world, BlockPos pos, Direction side )
-    {
-        int signal = getUnmaskedOutput( world, pos, side );
-        return signal >= 0 ? signal : 0;
-    }
-
     private static int getUnmaskedOutput( Level world, BlockPos pos, Direction side )
     {
-        if( !world.isInWorldBounds( pos ) )
-        {
-            return -1;
-        }
+        if( !world.isInWorldBounds( pos ) ) return -1;
 
         // Try the providers in order:
         int combinedSignal = -1;
@@ -66,5 +56,11 @@ public final class BundledRedstone
         }
 
         return combinedSignal;
+    }
+
+    public static int getOutput( Level world, BlockPos pos, Direction side )
+    {
+        int signal = getUnmaskedOutput( world, pos, side );
+        return signal >= 0 ? signal : 0;
     }
 }

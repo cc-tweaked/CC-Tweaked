@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.modem;
 
 import dan200.computercraft.api.lua.LuaException;
@@ -16,8 +15,9 @@ public class ModemState
 {
     private final Runnable onChanged;
     private final AtomicBoolean changed = new AtomicBoolean( true );
-    private final IntSet channels = new IntOpenHashSet();
+
     private boolean open = false;
+    private final IntSet channels = new IntOpenHashSet();
 
     public ModemState()
     {
@@ -29,6 +29,13 @@ public class ModemState
         this.onChanged = onChanged;
     }
 
+    private void setOpen( boolean open )
+    {
+        if( this.open == open ) return;
+        this.open = open;
+        if( !changed.getAndSet( true ) && onChanged != null ) onChanged.run();
+    }
+
     public boolean pollChanged()
     {
         return changed.getAndSet( false );
@@ -37,19 +44,6 @@ public class ModemState
     public boolean isOpen()
     {
         return open;
-    }
-
-    private void setOpen( boolean open )
-    {
-        if( this.open == open )
-        {
-            return;
-        }
-        this.open = open;
-        if( !changed.getAndSet( true ) && onChanged != null )
-        {
-            onChanged.run();
-        }
     }
 
     public boolean isOpen( int channel )
@@ -66,10 +60,7 @@ public class ModemState
         {
             if( !channels.contains( channel ) )
             {
-                if( channels.size() >= 128 )
-                {
-                    throw new LuaException( "Too many open channels" );
-                }
+                if( channels.size() >= 128 ) throw new LuaException( "Too many open channels" );
                 channels.add( channel );
                 setOpen( true );
             }
@@ -81,10 +72,7 @@ public class ModemState
         synchronized( channels )
         {
             channels.remove( channel );
-            if( channels.isEmpty() )
-            {
-                setOpen( false );
-            }
+            if( channels.isEmpty() ) setOpen( false );
         }
     }
 

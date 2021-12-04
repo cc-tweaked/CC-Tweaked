@@ -36,7 +36,6 @@ import java.util.List;
 
 public abstract class ComputerScreenBase<T extends ContainerComputerBase> extends AbstractContainerScreen<T>
 {
-
     private static final Component OK = new TranslatableComponent( "gui.ok" );
     private static final Component CANCEL = new TranslatableComponent( "gui.cancel" );
     private static final Component OVERWRITE = new TranslatableComponent( "gui.computercraft.upload.overwrite_button" );
@@ -94,6 +93,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
         return super.keyPressed( key, scancode, modifiers );
     }
 
+
     @Override
     public final void render( @Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks )
     {
@@ -105,8 +105,10 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
     @Override
     public final boolean mouseDragged( double x, double y, int button, double deltaX, double deltaY )
     {
-        return getFocused() != null && getFocused().mouseDragged( x, y, button, deltaX, deltaY ) || super.mouseDragged( x, y, button, deltaX, deltaY );
+        return (getFocused() != null && getFocused().mouseDragged( x, y, button, deltaX, deltaY ))
+            || super.mouseDragged( x, y, button, deltaX, deltaY );
     }
+
 
     @Override
     protected void renderLabels( @Nonnull PoseStack transform, int mouseX, int mouseY )
@@ -207,7 +209,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
 
     private void continueUpload()
     {
-        if( minecraft.screen instanceof OptionScreen ) ((OptionScreen) minecraft.screen).disable();
+        if( minecraft.screen instanceof OptionScreen screen ) screen.disable();
         NetworkHandler.sendToServer( new ContinueUploadMessage( computer.getInstanceID(), true ) );
     }
 
@@ -224,5 +226,4 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
             () -> minecraft.setScreen( this )
         );
     }
-
 }

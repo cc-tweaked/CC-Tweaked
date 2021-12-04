@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.api.client.TransformedModel;
@@ -16,21 +15,18 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
 public class TurtleCraftingTable extends AbstractTurtleUpgrade
 {
-    @Environment( EnvType.CLIENT )
-    private ModelResourceLocation leftModel;
+    private static final ModelResourceLocation leftModel = new ModelResourceLocation( "computercraft:turtle_crafting_table_left", "inventory" );
+    private static final ModelResourceLocation rightModel = new ModelResourceLocation( "computercraft:turtle_crafting_table_right", "inventory" );
 
-    @Environment( EnvType.CLIENT )
-    private ModelResourceLocation rightModel;
-
-    public TurtleCraftingTable( ResourceLocation id )
+    public TurtleCraftingTable( ResourceLocation id, ItemStack stack )
     {
-        super( id, TurtleUpgradeType.PERIPHERAL, Blocks.CRAFTING_TABLE );
+        super( id, TurtleUpgradeType.PERIPHERAL, "upgrade.minecraft.crafting_table.adjective", stack );
     }
 
     @Override
@@ -44,17 +40,6 @@ public class TurtleCraftingTable extends AbstractTurtleUpgrade
     @Environment( EnvType.CLIENT )
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
-        loadModelLocations();
         return TransformedModel.of( side == TurtleSide.LEFT ? leftModel : rightModel );
-    }
-
-    @Environment( EnvType.CLIENT )
-    private void loadModelLocations()
-    {
-        if( leftModel == null )
-        {
-            leftModel = new ModelResourceLocation( "computercraft:turtle_crafting_table_left", "inventory" );
-            rightModel = new ModelResourceLocation( "computercraft:turtle_crafting_table_right", "inventory" );
-        }
     }
 }

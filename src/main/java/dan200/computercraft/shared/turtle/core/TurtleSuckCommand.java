@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
@@ -14,7 +13,6 @@ import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.ItemStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -55,23 +53,20 @@ public class TurtleSuckCommand implements ITurtleCommand
         BlockPos blockPosition = turtlePosition.relative( direction );
         Direction side = direction.getOpposite();
 
-        Container inventory = InventoryUtil.getInventory( world, blockPosition, side );
+        ItemStorage inventory = ItemStorage.wrap( InventoryUtil.getInventory( world, blockPosition, side ) );
 
         if( inventory != null )
         {
             // Take from inventory of thing in front
-            ItemStack stack = InventoryUtil.takeItems( quantity, ItemStorage.wrap( inventory ) );
-            if( stack.isEmpty() )
-            {
-                return TurtleCommandResult.failure( "No items to take" );
-            }
+            ItemStack stack = InventoryUtil.takeItems( quantity, inventory );
+            if( stack.isEmpty() ) return TurtleCommandResult.failure( "No items to take" );
 
             // Try to place into the turtle
             ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
             if( !remainder.isEmpty() )
             {
                 // Put the remainder back in the inventory
-                InventoryUtil.storeItems( remainder, ItemStorage.wrap( inventory ) );
+                InventoryUtil.storeItems( remainder, inventory );
             }
 
             // Return true if we consumed anything
@@ -88,23 +83,17 @@ public class TurtleSuckCommand implements ITurtleCommand
         else
         {
             // Suck up loose items off the ground
-            AABB aabb = new AABB( blockPosition.getX(),
-                blockPosition.getY(),
-                blockPosition.getZ(),
-                blockPosition.getX() + 1.0,
-                blockPosition.getY() + 1.0,
-                blockPosition.getZ() + 1.0 );
+            AABB aabb = new AABB(
+                blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(),
+                blockPosition.getX() + 1.0, blockPosition.getY() + 1.0, blockPosition.getZ() + 1.0
+            );
             List<ItemEntity> list = world.getEntitiesOfClass( ItemEntity.class, aabb, EntitySelector.ENTITY_STILL_ALIVE );
-            if( list.isEmpty() )
-            {
-                return TurtleCommandResult.failure( "No items to take" );
-            }
+            if( list.isEmpty() ) return TurtleCommandResult.failure( "No items to take" );
 
             for( ItemEntity entity : list )
             {
                 // Suck up the item
-                ItemStack stack = entity.getItem()
-                    .copy();
+                ItemStack stack = entity.getItem().copy();
 
                 ItemStack storeStack;
                 ItemStack leaveStack;

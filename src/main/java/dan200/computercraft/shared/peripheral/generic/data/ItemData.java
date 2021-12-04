@@ -7,15 +7,11 @@ package dan200.computercraft.shared.peripheral.generic.data;
 
 import com.google.gson.JsonParseException;
 import dan200.computercraft.shared.util.NBTUtil;
-import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.tags.SerializationTags;
-import net.minecraft.tags.TagCollection;
 import net.minecraft.world.item.EnchantedBookItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -45,7 +41,6 @@ public class ItemData
         fillBasicSafe( data, stack );
         String hash = NBTUtil.getNBTHash( stack.getTag() );
         if( hash != null ) data.put( "nbt", hash );
-
         return data;
     }
 
@@ -65,26 +60,20 @@ public class ItemData
             data.put( "maxDamage", stack.getMaxDamage() );
         }
 
-        if( stack.isDamaged() )
+        if( stack.getItem().isBarVisible( stack ) )
         {
-            data.put( "durability", (double) stack.getDamageValue() / stack.getMaxDamage() );
+            data.put( "durability", stack.getItem().getBarWidth( stack ) / 13.0 );
         }
 
-        // requireNonNull is safe because we got the Identifiers out of the TagGroup to start with. Would be nicer
-        // to stream the tags directly but TagGroup isn't a collection :(
-        TagCollection<Item> itemTags = SerializationTags.getInstance().getOrEmpty( Registry.ITEM_REGISTRY );
-        data.put( "tags", DataHelpers.getTags( itemTags.getAvailableTags().stream()
-            .filter( id -> Objects.requireNonNull( itemTags.getTag( id ) ).contains( stack.getItem() ) )
-            .collect( Collectors.toList() )
-        ) ); // chaos x2
+        data.put( "tags", DataHelpers.getTags( stack.getItem() ) );
 
         CompoundTag tag = stack.getTag();
-        if( tag != null && tag.contains( "display", NBTUtil.TAG_COMPOUND ) )
+        if( tag != null && tag.contains( "display", Tag.TAG_COMPOUND ) )
         {
             CompoundTag displayTag = tag.getCompound( "display" );
-            if( displayTag.contains( "Lore", NBTUtil.TAG_LIST ) )
+            if( displayTag.contains( "Lore", Tag.TAG_LIST ) )
             {
-                ListTag loreTag = displayTag.getList( "Lore", NBTUtil.TAG_STRING );
+                ListTag loreTag = displayTag.getList( "Lore", Tag.TAG_STRING );
                 data.put( "lore", loreTag.stream()
                     .map( ItemData::parseTextComponent )
                     .filter( Objects::nonNull )
@@ -111,13 +100,12 @@ public class ItemData
         return data;
     }
 
-
     @Nullable
     private static Component parseTextComponent( @Nonnull Tag x )
     {
         try
         {
-            return Component.Serializer.fromJson( x.toString() );
+            return Component.Serializer.fromJson( x.getAsString() );
         }
         catch( JsonParseException e )
         {
@@ -167,7 +155,6 @@ public class ItemData
         if( rawEnchants.isEmpty() ) return;
 
         enchants.ensureCapacity( enchants.size() + rawEnchants.size() );
-
 
         for( Map.Entry<Enchantment, Integer> entry : EnchantmentHelper.deserializeEnchantments( rawEnchants ).entrySet() )
         {

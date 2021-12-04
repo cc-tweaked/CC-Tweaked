@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.pocket.peripherals;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -23,7 +22,7 @@ public class PocketSpeakerPeripheral extends UpgradeSpeakerPeripheral
     }
 
     @Override
-    public Level getWorld()
+    public Level getLevel()
     {
         return world;
     }

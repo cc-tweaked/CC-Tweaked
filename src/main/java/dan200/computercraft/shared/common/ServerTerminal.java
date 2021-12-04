@@ -3,20 +3,18 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.common;
 
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.network.client.TerminalState;
-import net.minecraft.nbt.CompoundTag;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ServerTerminal implements ITerminal
 {
     private final boolean colour;
-    private final AtomicBoolean terminalChanged = new AtomicBoolean( false );
     private Terminal terminal;
+    private final AtomicBoolean terminalChanged = new AtomicBoolean( false );
     private boolean terminalChangedLastFrame = false;
 
     public ServerTerminal( boolean colour )
@@ -29,11 +27,6 @@ public class ServerTerminal implements ITerminal
     {
         this.colour = colour;
         terminal = new Terminal( terminalWidth, terminalHeight, this::markTerminalChanged );
-    }
-
-    protected void markTerminalChanged()
-    {
-        terminalChanged.set( true );
     }
 
     protected void resize( int width, int height )
@@ -56,6 +49,11 @@ public class ServerTerminal implements ITerminal
             terminal = null;
             markTerminalChanged();
         }
+    }
+
+    protected void markTerminalChanged()
+    {
+        terminalChanged.set( true );
     }
 
     public void update()
@@ -83,18 +81,5 @@ public class ServerTerminal implements ITerminal
     public TerminalState write()
     {
         return new TerminalState( colour, terminal );
-    }
-
-    public void writeDescription( CompoundTag nbt )
-    {
-        nbt.putBoolean( "colour", colour );
-        if( terminal != null )
-        {
-            CompoundTag terminal = new CompoundTag();
-            terminal.putInt( "term_width", this.terminal.getWidth() );
-            terminal.putInt( "term_height", this.terminal.getHeight() );
-            this.terminal.writeToNBT( terminal );
-            nbt.put( "terminal", terminal );
-        }
     }
 }

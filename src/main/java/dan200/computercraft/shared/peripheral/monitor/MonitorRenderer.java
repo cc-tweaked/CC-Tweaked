@@ -36,14 +36,10 @@ public enum MonitorRenderer
 
     /**
      * Render using VBOs.
+     *
+     * @see com.mojang.blaze3d.vertex.VertexBuffer
      */
     VBO;
-
-    private static boolean initialised = false;
-    private static boolean textureBuffer = false;
-    private static boolean shaderMod = false;
-    //TODO find out which shader mods do better with VBOs and add them here.
-    private static List<String> shaderModIds = Arrays.asList( "optifabric" );
 
     /**
      * Get the current renderer to use.
@@ -90,9 +86,18 @@ public enum MonitorRenderer
         return textureBuffer && !shaderMod ? TBO : VBO;
     }
 
+    private static boolean initialised = false;
+    private static boolean textureBuffer = false;
+    private static boolean shaderMod = false;
+    //TODO find out which shader mods do better with VBOs and add them here.
+    private static List<String> shaderModIds = Arrays.asList( "optifabric" );
+
     private static void checkCapabilities()
     {
+        if( initialised ) return;
+
         textureBuffer = GL.getCapabilities().OpenGL31;
+        initialised = true;
     }
 
     private static void checkForShaderMods()

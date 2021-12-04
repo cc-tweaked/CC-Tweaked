@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.pocket.core;
 
 import dan200.computercraft.ComputerCraft;
@@ -16,8 +15,8 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
-import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -50,19 +49,15 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     public Entity getEntity()
     {
         Entity entity = this.entity;
-        if( entity == null || stack == null || !entity.isAlive() )
-        {
-            return null;
-        }
+        if( entity == null || stack == null || !entity.isAlive() ) return null;
 
         if( entity instanceof Player )
         {
             Inventory inventory = ((Player) entity).getInventory();
             return inventory.items.contains( stack ) || inventory.offhand.contains( stack ) ? entity : null;
         }
-        else if( entity instanceof LivingEntity )
+        else if( entity instanceof LivingEntity living )
         {
-            LivingEntity living = (LivingEntity) entity;
             return living.getMainHandItem() == stack || living.getOffhandItem() == stack ? entity : null;
         }
         else
@@ -88,7 +83,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     public int getLight()
     {
         CompoundTag tag = getUserData();
-        return tag.contains( NBT_LIGHT, NBTUtil.TAG_ANY_NUMERIC ) ? tag.getInt( NBT_LIGHT ) : -1;
+        return tag.contains( NBT_LIGHT, Tag.TAG_ANY_NUMERIC ) ? tag.getInt( NBT_LIGHT ) : -1;
     }
 
     @Override
@@ -97,13 +92,13 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         CompoundTag tag = getUserData();
         if( colour >= 0 && colour <= 0xFFFFFF )
         {
-            if( !tag.contains( NBT_LIGHT, NBTUtil.TAG_ANY_NUMERIC ) || tag.getInt( NBT_LIGHT ) != colour )
+            if( !tag.contains( NBT_LIGHT, Tag.TAG_ANY_NUMERIC ) || tag.getInt( NBT_LIGHT ) != colour )
             {
                 tag.putInt( NBT_LIGHT, colour );
                 updateUserData();
             }
         }
-        else if( tag.contains( NBT_LIGHT, NBTUtil.TAG_ANY_NUMERIC ) )
+        else if( tag.contains( NBT_LIGHT, Tag.TAG_ANY_NUMERIC ) )
         {
             tag.remove( NBT_LIGHT );
             updateUserData();
@@ -120,10 +115,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public void updateUpgradeNBTData()
     {
-        if( entity instanceof Player )
-        {
-            ((Player) entity).getInventory().setChanged();
-        }
+        if( entity instanceof Player player ) player.getInventory().setChanged();
     }
 
     @Override
@@ -154,10 +146,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
      */
     public void setUpgrade( IPocketUpgrade upgrade )
     {
-        if( this.upgrade == upgrade )
-        {
-            return;
-        }
+        if( this.upgrade == upgrade ) return;
 
         synchronized( this )
         {
@@ -172,15 +161,12 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     {
         if( entity != null )
         {
-            setWorld( entity.getCommandSenderWorld() );
+            setLevel( entity.getCommandSenderWorld() );
             setPosition( entity.blockPosition() );
         }
 
         // If a new entity has picked it up then rebroadcast the terminal to them
-        if( entity != this.entity && entity instanceof ServerPlayer )
-        {
-            markTerminalChanged();
-        }
+        if( entity != this.entity && entity instanceof ServerPlayer ) markTerminalChanged();
 
         this.entity = entity;
         this.stack = stack;
@@ -197,10 +183,9 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     {
         super.broadcastState( force );
 
-        if( (hasTerminalChanged() || force) && entity instanceof ServerPlayer )
+        if( (hasTerminalChanged() || force) && entity instanceof ServerPlayer player )
         {
             // Broadcast the state to the current entity if they're not already interacting with it.
-            ServerPlayer player = (ServerPlayer) entity;
             if( player.connection != null && !isInteracting( player ) )
             {
                 NetworkHandler.sendToPlayer( player, createTerminalPacket() );

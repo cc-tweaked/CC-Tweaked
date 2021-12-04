@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.core.terminal.Terminal;
@@ -15,14 +14,39 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ServerMonitor extends ServerTerminal
 {
     private final TileMonitor origin;
+    private int textScale = 2;
     private final AtomicBoolean resized = new AtomicBoolean( false );
     private final AtomicBoolean changed = new AtomicBoolean( false );
-    private int textScale = 2;
 
     public ServerMonitor( boolean colour, TileMonitor origin )
     {
         super( colour );
         this.origin = origin;
+    }
+
+    public synchronized void rebuild()
+    {
+        Terminal oldTerm = getTerminal();
+        int oldWidth = oldTerm == null ? -1 : oldTerm.getWidth();
+        int oldHeight = oldTerm == null ? -1 : oldTerm.getHeight();
+
+        double textScale = this.textScale * 0.5;
+        int termWidth = (int) Math.max(
+            Math.round( (origin.getWidth() - 2.0 * (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN)) / (textScale * 6.0 * TileMonitor.RENDER_PIXEL_SCALE) ),
+            1.0
+        );
+        int termHeight = (int) Math.max(
+            Math.round( (origin.getHeight() - 2.0 * (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN)) / (textScale * 9.0 * TileMonitor.RENDER_PIXEL_SCALE) ),
+            1.0
+        );
+
+        resize( termWidth, termHeight );
+        if( oldWidth != termWidth || oldHeight != termHeight )
+        {
+            getTerminal().clear();
+            resized.set( true );
+            markChanged();
+        }
     }
 
     @Override
@@ -34,10 +58,7 @@ public class ServerMonitor extends ServerTerminal
 
     private void markChanged()
     {
-        if( !changed.getAndSet( true ) )
-        {
-            TickScheduler.schedule( origin );
-        }
+        if( !changed.getAndSet( true ) ) TickScheduler.schedule( origin );
     }
 
     protected void clearChanged()
@@ -52,35 +73,9 @@ public class ServerMonitor extends ServerTerminal
 
     public synchronized void setTextScale( int textScale )
     {
-        if( this.textScale == textScale )
-        {
-            return;
-        }
+        if( this.textScale == textScale ) return;
         this.textScale = textScale;
         rebuild();
-    }
-
-    public synchronized void rebuild()
-    {
-        Terminal oldTerm = getTerminal();
-        int oldWidth = oldTerm == null ? -1 : oldTerm.getWidth();
-        int oldHeight = oldTerm == null ? -1 : oldTerm.getHeight();
-
-        double textScale = this.textScale * 0.5;
-        int termWidth =
-            (int) Math.max( Math.round( (origin.getWidth() - 2.0 * (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN)) / (textScale * 6.0 * TileMonitor.RENDER_PIXEL_SCALE) ),
-                1.0 );
-        int termHeight =
-            (int) Math.max( Math.round( (origin.getHeight() - 2.0 * (TileMonitor.RENDER_BORDER + TileMonitor.RENDER_MARGIN)) / (textScale * 9.0 * TileMonitor.RENDER_PIXEL_SCALE) ),
-                1.0 );
-
-        resize( termWidth, termHeight );
-        if( oldWidth != termWidth || oldHeight != termHeight )
-        {
-            getTerminal().clear();
-            resized.set( true );
-            markChanged();
-        }
     }
 
     public boolean pollResized()

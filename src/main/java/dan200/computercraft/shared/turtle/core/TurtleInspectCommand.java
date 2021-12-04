@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
@@ -14,7 +13,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.Property;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -42,26 +40,11 @@ public class TurtleInspectCommand implements ITurtleCommand
         BlockPos newPosition = oldPosition.relative( direction );
 
         BlockState state = world.getBlockState( newPosition );
-        if( state.isAir() )
-        {
-            return TurtleCommandResult.failure( "No block to inspect" );
-        }
+        if( state.isAir() ) return TurtleCommandResult.failure( "No block to inspect" );
 
         Map<String, Object> table = BlockData.fill( new HashMap<>(), state );
 
         return TurtleCommandResult.success( new Object[] { table } );
-    }
 
-    @SuppressWarnings( {
-        "unchecked",
-        "rawtypes"
-    } )
-    private static Object getPropertyValue( Property property, Comparable value )
-    {
-        if( value instanceof String || value instanceof Number || value instanceof Boolean )
-        {
-            return value;
-        }
-        return property.getName( value );
     }
 }

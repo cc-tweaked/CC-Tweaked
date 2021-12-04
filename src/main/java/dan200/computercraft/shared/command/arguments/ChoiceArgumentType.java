@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.command.arguments;
 
 import com.mojang.brigadier.Message;
@@ -43,10 +42,7 @@ public abstract class ChoiceArgumentType<T> implements ArgumentType<T>
         for( T choice : choices )
         {
             String choiceName = this.name.apply( choice );
-            if( name.equals( choiceName ) )
-            {
-                return choice;
-            }
+            if( name.equals( choiceName ) ) return choice;
         }
 
         reader.setCursor( start );
@@ -56,16 +52,11 @@ public abstract class ChoiceArgumentType<T> implements ArgumentType<T>
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions( CommandContext<S> context, SuggestionsBuilder builder )
     {
-        String remaining = builder.getRemaining()
-            .toLowerCase( Locale.ROOT );
+        String remaining = builder.getRemaining().toLowerCase( Locale.ROOT );
         for( T choice : choices )
         {
             String name = this.name.apply( choice );
-            if( !name.toLowerCase( Locale.ROOT )
-                .startsWith( remaining ) )
-            {
-                continue;
-            }
+            if( !name.toLowerCase( Locale.ROOT ).startsWith( remaining ) ) continue;
             builder.suggest( name, tooltip.apply( choice ) );
         }
 
@@ -76,10 +67,7 @@ public abstract class ChoiceArgumentType<T> implements ArgumentType<T>
     public Collection<String> getExamples()
     {
         List<String> items = choices instanceof Collection<?> ? new ArrayList<>( ((Collection<T>) choices).size() ) : new ArrayList<>();
-        for( T choice : choices )
-        {
-            items.add( name.apply( choice ) );
-        }
+        for( T choice : choices ) items.add( name.apply( choice ) );
         items.sort( Comparator.naturalOrder() );
         return items;
     }

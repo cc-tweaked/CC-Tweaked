@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.wired;
 
 import dan200.computercraft.api.network.wired.IWiredNetworkChange;
@@ -25,6 +24,11 @@ public final class WiredNetworkChange implements IWiredNetworkChange
     {
         this.removed = removed;
         this.added = added;
+    }
+
+    public static WiredNetworkChange changed( Map<String, IPeripheral> removed, Map<String, IPeripheral> added )
+    {
+        return new WiredNetworkChange( Collections.unmodifiableMap( removed ), Collections.unmodifiableMap( added ) );
     }
 
     public static WiredNetworkChange added( Map<String, IPeripheral> added )
@@ -81,9 +85,11 @@ public final class WiredNetworkChange implements IWiredNetworkChange
         return changed( removed, added );
     }
 
-    public static WiredNetworkChange changed( Map<String, IPeripheral> removed, Map<String, IPeripheral> added )
+    @Nonnull
+    @Override
+    public Map<String, IPeripheral> peripheralsAdded()
     {
-        return new WiredNetworkChange( Collections.unmodifiableMap( removed ), Collections.unmodifiableMap( added ) );
+        return added;
     }
 
     @Nonnull
@@ -93,27 +99,17 @@ public final class WiredNetworkChange implements IWiredNetworkChange
         return removed;
     }
 
-    @Nonnull
-    @Override
-    public Map<String, IPeripheral> peripheralsAdded()
+    public boolean isEmpty()
     {
-        return added;
+        return added.isEmpty() && removed.isEmpty();
     }
 
     void broadcast( Iterable<WiredNode> nodes )
     {
         if( !isEmpty() )
         {
-            for( WiredNode node : nodes )
-            {
-                node.element.networkChanged( this );
-            }
+            for( WiredNode node : nodes ) node.element.networkChanged( this );
         }
-    }
-
-    public boolean isEmpty()
-    {
-        return added.isEmpty() && removed.isEmpty();
     }
 
     void broadcast( WiredNode node )

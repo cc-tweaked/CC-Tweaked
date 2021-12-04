@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
@@ -11,7 +10,9 @@ import net.minecraft.core.Direction;
 
 public enum InteractDirection
 {
-    FORWARD, UP, DOWN;
+    FORWARD,
+    UP,
+    DOWN;
 
     public Direction toWorldDir( ITurtleAccess turtle )
     {

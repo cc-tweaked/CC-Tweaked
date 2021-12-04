@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.client;
 
 import dan200.computercraft.fabric.mixin.ChatComponentAccess;
@@ -25,17 +24,19 @@ public class ClientTableFormatter implements TableFormatter
 {
     public static final ClientTableFormatter INSTANCE = new ClientTableFormatter();
 
-    private static Int2IntOpenHashMap lastHeights = new Int2IntOpenHashMap();
+    private static final Int2IntOpenHashMap lastHeights = new Int2IntOpenHashMap();
+
+    private static Font renderer()
+    {
+        return Minecraft.getInstance().font;
+    }
 
     @Override
     @Nullable
     public Component getPadding( Component component, int width )
     {
         int extraWidth = width - getWidth( component );
-        if( extraWidth <= 0 )
-        {
-            return null;
-        }
+        if( extraWidth <= 0 ) return null;
 
         Font renderer = renderer();
 
@@ -44,11 +45,6 @@ public class ClientTableFormatter implements TableFormatter
         int extra = extraWidth - (int) (spaces * spaceWidth);
 
         return ChatHelpers.coloured( StringUtils.repeat( ' ', spaces ) + StringUtils.repeat( (char) 712, extra ), ChatFormatting.GRAY );
-    }
-
-    private static Font renderer()
-    {
-        return Minecraft.getInstance().font;
     }
 
     @Override
@@ -71,7 +67,7 @@ public class ClientTableFormatter implements TableFormatter
 
         // TODO: Trim the text if it goes over the allowed length
         // int maxWidth = MathHelper.floor( chat.getChatWidth() / chat.getScale() );
-        // List<ITextProperties> list = RenderComponentsUtil.func_238505_a_( component, maxWidth, mc.fontRenderer );
+        // List<ITextProperties> list = RenderComponentsUtil.wrapComponents( component, maxWidth, mc.fontRenderer );
         // if( !list.isEmpty() ) chat.printChatMessageWithOptionalDeletion( list.get( 0 ), id );
         ((ChatComponentAccess) chat).callAddMessage( component, id );
     }
@@ -86,10 +82,7 @@ public class ClientTableFormatter implements TableFormatter
         int height = TableFormatter.super.display( table );
         lastHeights.put( table.getId(), height );
 
-        for( int i = height; i < lastHeight; i++ )
-        {
-            ((ChatComponentAccess) chat).callRemoveById( i + table.getId() );
-        }
+        for( int i = height; i < lastHeight; i++ ) ((ChatComponentAccess) chat).callRemoveById( i + table.getId() );
         return height;
     }
 }

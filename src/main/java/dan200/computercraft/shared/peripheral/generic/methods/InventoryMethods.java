@@ -6,17 +6,18 @@
 package dan200.computercraft.shared.peripheral.generic.methods;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.GenericSource;
+import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.ItemStorage;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
-import net.minecraft.world.Nameable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -33,8 +34,15 @@ import static dan200.computercraft.shared.peripheral.generic.methods.ArgumentHel
  *
  * @cc.module inventory
  */
-public class InventoryMethods implements GenericSource
+public class InventoryMethods implements GenericPeripheral
 {
+    @Nonnull
+    @Override
+    public PeripheralType getType()
+    {
+        return PeripheralType.ofAdditional( "inventory" );
+    }
+
     @Nonnull
     @Override
     public ResourceLocation id()
@@ -55,29 +63,13 @@ public class InventoryMethods implements GenericSource
     }
 
     /**
-     * Get the name of this inventory.
-     *
-     * @param inventory The current inventory.
-     * @return The name of this inventory, or {@code nil} if not present.
-     */
-    @LuaFunction( mainThread = true )
-    public static String name( Container inventory )
-    {
-        if( inventory instanceof Nameable )
-        {
-            Nameable i = (Nameable) inventory;
-            return i.hasCustomName() ? i.getName().getContents() : null;
-        }
-        return null;
-    }
-
-    /**
      * List all items in this inventory. This returns a table, with an entry for each slot.
      *
      * Each item in the inventory is represented by a table containing some basic information, much like
-     * {@link dan200.computercraft.shared.turtle.apis.TurtleAPI#getItemDetail} includes. More information can be fetched
-     * with {@link #getItemDetail}. The table contains the item `name`, the `count` and an a (potentially nil) hash of
-     * the item's `nbt.` This NBT data doesn't contain anything useful, but allows you to distinguish identical items.
+     * {@link dan200.computercraft.shared.turtle.apis.TurtleAPI#getItemDetail(ILuaContext, Optional, Optional)}
+     * includes. More information can be fetched with {@link #getItemDetail}. The table contains the item `name`, the
+     * `count` and an a (potentially nil) hash of the item's `nbt.` This NBT data doesn't contain anything useful, but
+     * allows you to distinguish identical items.
      *
      * The returned table is sparse, and so empty slots will be `nil` - it is recommended to loop over using `pairs`
      * rather than `ipairs`.
@@ -145,7 +137,6 @@ public class InventoryMethods implements GenericSource
     public static Map<String, ?> getItemDetail( Container inventory, int slot ) throws LuaException
     {
         ItemStorage itemStorage = extractHandler( inventory );
-
         assertBetween( slot, 1, itemStorage.size(), "Slot out of range (%s)" );
 
         ItemStack stack = itemStorage.getStack( slot - 1 );
@@ -282,17 +273,16 @@ public class InventoryMethods implements GenericSource
     @Nullable
     private static ItemStorage extractHandler( @Nullable Object object )
     {
-        if( object instanceof BlockEntity )
+        if( object instanceof BlockEntity blockEntity && blockEntity.isRemoved() ) return null;
+
+        if( object instanceof BlockEntity blockEntity )
         {
-            Container inventory = InventoryUtil.getInventory( (BlockEntity) object );
-            if( inventory != null )
-            {
-                return ItemStorage.wrap( inventory );
-            }
+            Container inventory = InventoryUtil.getInventory( blockEntity );
+            if( inventory != null ) return ItemStorage.wrap( inventory );
         }
-        else if( object instanceof Container )
+        else if( object instanceof Container container )
         {
-            return ItemStorage.wrap( (Container) object );
+            return ItemStorage.wrap( container );
         }
 
         return null;

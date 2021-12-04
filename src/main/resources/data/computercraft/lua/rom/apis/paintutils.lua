@@ -68,7 +68,7 @@ end
 -- @{paintutils.drawImage}, or `nil` if the file does not exist.
 -- @usage Load an image and draw it.
 --
---     local image = paintutils.loadImage("test-image.nfp")
+--     local image = paintutils.loadImage("data/example.nfp")
 --     paintutils.drawImage(image, term.getCursorPos())
 function loadImage(path)
     expect(1, path, "string")

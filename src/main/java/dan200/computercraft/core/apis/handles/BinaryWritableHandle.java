@@ -100,7 +100,7 @@ public class BinaryWritableHandle extends HandleGeneric
         try
         {
             // Technically this is not needed
-            if( writer instanceof FileChannel ) ((FileChannel) writer).force( false );
+            if( writer instanceof FileChannel channel ) channel.force( false );
         }
         catch( IOException ignored )
         {

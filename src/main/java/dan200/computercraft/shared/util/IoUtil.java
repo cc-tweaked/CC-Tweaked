@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.util;
 
 import javax.annotation.Nullable;
@@ -18,10 +17,7 @@ public final class IoUtil
     {
         try
         {
-            if( closeable != null )
-            {
-                closeable.close();
-            }
+            if( closeable != null ) closeable.close();
         }
         catch( IOException ignored )
         {

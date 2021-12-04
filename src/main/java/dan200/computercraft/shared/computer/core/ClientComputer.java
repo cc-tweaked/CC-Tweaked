@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.computer.core;
 
 import dan200.computercraft.shared.common.ClientTerminal;
@@ -18,7 +17,6 @@ public class ClientComputer extends ClientTerminal implements IComputer
     private boolean on = false;
     private boolean blinking = false;
     private CompoundTag userData = null;
-
 
     public ClientComputer( int instanceID )
     {
@@ -43,6 +41,18 @@ public class ClientComputer extends ClientTerminal implements IComputer
     public int getInstanceID()
     {
         return instanceID;
+    }
+
+    @Override
+    public boolean isOn()
+    {
+        return on;
+    }
+
+    @Override
+    public boolean isCursorDisplayed()
+    {
+        return on && blinking;
     }
 
     @Override
@@ -74,23 +84,9 @@ public class ClientComputer extends ClientTerminal implements IComputer
     }
 
     @Override
-    public boolean isOn()
-    {
-        return on;
-    }
-
-    @Override
-    public boolean isCursorDisplayed()
-    {
-        return on && blinking;
-    }
-
-    @Override
     public void keyDown( int key, boolean repeat )
     {
-        NetworkHandler.sendToServer( new KeyEventServerMessage( instanceID,
-            repeat ? KeyEventServerMessage.TYPE_REPEAT : KeyEventServerMessage.TYPE_DOWN,
-            key ) );
+        NetworkHandler.sendToServer( new KeyEventServerMessage( instanceID, repeat ? KeyEventServerMessage.TYPE_REPEAT : KeyEventServerMessage.TYPE_DOWN, key ) );
     }
 
     @Override

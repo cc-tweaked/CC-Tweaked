@@ -93,7 +93,7 @@ dependencies {
     testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1'
 
-    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.1'
+    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.2'
 }
 
 processResources {

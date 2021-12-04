@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.command.text;
 
 import net.minecraft.ChatFormatting;
@@ -21,12 +20,30 @@ public interface TableFormatter
     Component SEPARATOR = coloured( "| ", ChatFormatting.GRAY );
     Component HEADER = coloured( "=", ChatFormatting.GRAY );
 
+    /**
+     * Get additional padding for the component.
+     *
+     * @param component The component to pad
+     * @param width     The desired width for the component
+     * @return The padding for this component, or {@code null} if none is needed.
+     */
+    @Nullable
+    Component getPadding( Component component, int width );
+
+    /**
+     * Get the minimum padding between each column.
+     *
+     * @return The minimum padding.
+     */
+    int getColumnPadding();
+
+    int getWidth( Component component );
+
+    void writeLine( int id, Component component );
+
     default int display( TableBuilder table )
     {
-        if( table.getColumns() <= 0 )
-        {
-            return 0;
-        }
+        if( table.getColumns() <= 0 ) return 0;
 
         int rowId = table.getId();
         int columns = table.getColumns();
@@ -35,10 +52,7 @@ public interface TableFormatter
         Component[] headers = table.getHeaders();
         if( headers != null )
         {
-            for( int i = 0; i < columns; i++ )
-            {
-                maxWidths[i] = getWidth( headers[i] );
-            }
+            for( int i = 0; i < columns; i++ ) maxWidths[i] = getWidth( headers[i] );
         }
 
         for( Component[] row : table.getRows() )
@@ -46,28 +60,19 @@ public interface TableFormatter
             for( int i = 0; i < row.length; i++ )
             {
                 int width = getWidth( row[i] );
-                if( width > maxWidths[i] )
-                {
-                    maxWidths[i] = width;
-                }
+                if( width > maxWidths[i] ) maxWidths[i] = width;
             }
         }
 
         // Add a small amount of padding after each column
         {
             int padding = getColumnPadding();
-            for( int i = 0; i < maxWidths.length - 1; i++ )
-            {
-                maxWidths[i] += padding;
-            }
+            for( int i = 0; i < maxWidths.length - 1; i++ ) maxWidths[i] += padding;
         }
 
         // And compute the total width
         int totalWidth = (columns - 1) * getWidth( SEPARATOR );
-        for( int x : maxWidths )
-        {
-            totalWidth += x;
-        }
+        for( int x : maxWidths ) totalWidth += x;
 
         if( headers != null )
         {
@@ -76,10 +81,7 @@ public interface TableFormatter
             {
                 line.append( headers[i] );
                 Component padding = getPadding( headers[i], maxWidths[i] );
-                if( padding != null )
-                {
-                    line.append( padding );
-                }
+                if( padding != null ) line.append( padding );
                 line.append( SEPARATOR );
             }
             line.append( headers[columns - 1] );
@@ -100,10 +102,7 @@ public interface TableFormatter
             {
                 line.append( row[i] );
                 Component padding = getPadding( row[i], maxWidths[i] );
-                if( padding != null )
-                {
-                    line.append( padding );
-                }
+                if( padding != null ) line.append( padding );
                 line.append( SEPARATOR );
             }
             line.append( row[columns - 1] );
@@ -117,25 +116,4 @@ public interface TableFormatter
 
         return rowId - table.getId();
     }
-
-    int getWidth( Component component );
-
-    /**
-     * Get the minimum padding between each column.
-     *
-     * @return The minimum padding.
-     */
-    int getColumnPadding();
-
-    /**
-     * Get additional padding for the component.
-     *
-     * @param component The component to pad
-     * @param width     The desired width for the component
-     * @return The padding for this component, or {@code null} if none is needed.
-     */
-    @Nullable
-    Component getPadding( Component component, int width );
-
-    void writeLine( int id, Component component );
 }

@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.util;
 
 import javax.annotation.Nullable;
@@ -14,10 +13,7 @@ public final class StringUtil
 
     public static String normaliseLabel( String label )
     {
-        if( label == null )
-        {
-            return null;
-        }
+        if( label == null ) return null;
 
         int length = Math.min( 32, label.length() );
         StringBuilder builder = new StringBuilder( length );

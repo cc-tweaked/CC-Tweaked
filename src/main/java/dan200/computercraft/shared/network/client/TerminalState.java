@@ -24,8 +24,9 @@ import java.util.zip.GZIPOutputStream;
 /**
  * A snapshot of a terminal's state.
  *
- * This is somewhat memory inefficient (we build a buffer, only to write it elsewhere), however it means we get a complete and accurate description of a
- * terminal, which avoids a lot of complexities with resizing terminals, dirty states, etc...
+ * This is somewhat memory inefficient (we build a buffer, only to write it elsewhere), however it means we get a
+ * complete and accurate description of a terminal, which avoids a lot of complexities with resizing terminals, dirty
+ * states, etc...
  */
 public class TerminalState
 {
@@ -86,6 +87,64 @@ public class TerminalState
         }
     }
 
+    public void write( FriendlyByteBuf buf )
+    {
+        buf.writeBoolean( colour );
+        buf.writeBoolean( compress );
+
+        buf.writeBoolean( buffer != null );
+        if( buffer != null )
+        {
+            buf.writeVarInt( width );
+            buf.writeVarInt( height );
+
+            ByteBuf sendBuffer = getCompressed();
+            buf.writeVarInt( sendBuffer.readableBytes() );
+            buf.writeBytes( sendBuffer, sendBuffer.readerIndex(), sendBuffer.readableBytes() );
+        }
+    }
+
+    public boolean hasTerminal()
+    {
+        return buffer != null;
+    }
+
+    public int size()
+    {
+        return buffer == null ? 0 : buffer.readableBytes();
+    }
+
+    public void apply( Terminal terminal )
+    {
+        if( buffer == null ) throw new NullPointerException( "buffer" );
+        terminal.read( new FriendlyByteBuf( buffer ) );
+    }
+
+    private ByteBuf getCompressed()
+    {
+        if( buffer == null ) throw new NullPointerException( "buffer" );
+        if( !compress ) return buffer;
+        if( compressed != null ) return compressed;
+
+        ByteBuf compressed = Unpooled.buffer();
+        OutputStream stream = null;
+        try
+        {
+            stream = new GZIPOutputStream( new ByteBufOutputStream( compressed ) );
+            stream.write( buffer.array(), buffer.arrayOffset(), buffer.readableBytes() );
+        }
+        catch( IOException e )
+        {
+            throw new UncheckedIOException( e );
+        }
+        finally
+        {
+            IoUtil.closeQuietly( stream );
+        }
+
+        return this.compressed = compressed;
+    }
+
     private static ByteBuf readCompressed( ByteBuf buf, int length, boolean compress )
     {
         if( compress )
@@ -99,10 +158,7 @@ public class TerminalState
                 while( true )
                 {
                     int bytes = stream.read( swap );
-                    if( bytes == -1 )
-                    {
-                        break;
-                    }
+                    if( bytes == -1 ) break;
                     buffer.writeBytes( swap, 0, bytes );
                 }
             }
@@ -122,75 +178,5 @@ public class TerminalState
             buf.readBytes( buffer, length );
             return buffer;
         }
-    }
-
-    public void write( FriendlyByteBuf buf )
-    {
-        buf.writeBoolean( colour );
-        buf.writeBoolean( compress );
-
-        buf.writeBoolean( buffer != null );
-        if( buffer != null )
-        {
-            buf.writeVarInt( width );
-            buf.writeVarInt( height );
-
-            ByteBuf sendBuffer = getCompressed();
-            buf.writeVarInt( sendBuffer.readableBytes() );
-            buf.writeBytes( sendBuffer, sendBuffer.readerIndex(), sendBuffer.readableBytes() );
-        }
-    }
-
-    private ByteBuf getCompressed()
-    {
-        if( buffer == null )
-        {
-            throw new NullPointerException( "buffer" );
-        }
-        if( !compress )
-        {
-            return buffer;
-        }
-        if( compressed != null )
-        {
-            return compressed;
-        }
-
-        ByteBuf compressed = Unpooled.directBuffer();
-        OutputStream stream = null;
-        try
-        {
-            stream = new GZIPOutputStream( new ByteBufOutputStream( compressed ) );
-            stream.write( buffer.array(), buffer.arrayOffset(), buffer.readableBytes() );
-        }
-        catch( IOException e )
-        {
-            throw new UncheckedIOException( e );
-        }
-        finally
-        {
-            IoUtil.closeQuietly( stream );
-        }
-
-        return this.compressed = compressed;
-    }
-
-    public boolean hasTerminal()
-    {
-        return buffer != null;
-    }
-
-    public int size()
-    {
-        return buffer == null ? 0 : buffer.readableBytes();
-    }
-
-    public void apply( Terminal terminal )
-    {
-        if( buffer == null )
-        {
-            throw new NullPointerException( "buffer" );
-        }
-        terminal.read( new FriendlyByteBuf( buffer ) );
     }
 }

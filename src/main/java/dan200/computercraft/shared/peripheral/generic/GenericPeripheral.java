@@ -14,23 +14,26 @@ import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.core.Registry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Set;
 
 class GenericPeripheral implements IDynamicPeripheral
 {
     private final String type;
+    private final Set<String> additionalTypes;
     private final BlockEntity tile;
     private final List<SaturatedMethod> methods;
 
-    GenericPeripheral( BlockEntity tile, List<SaturatedMethod> methods )
+    GenericPeripheral( BlockEntity tile, String name, Set<String> additionalTypes, List<SaturatedMethod> methods )
     {
-        ResourceLocation type = BlockEntityType.getKey( tile.getType() );
+        ResourceLocation type = Registry.BLOCK_ENTITY_TYPE.getKey( tile.getType() );
         this.tile = tile;
-        this.type = type == null ? "unknown" : type.toString();
+        this.type = name != null ? name : (type != null ? type.toString() : "unknown");
+        this.additionalTypes = additionalTypes;
         this.methods = methods;
     }
 
@@ -57,6 +60,13 @@ class GenericPeripheral implements IDynamicPeripheral
         return type;
     }
 
+    @Nonnull
+    @Override
+    public Set<String> getAdditionalTypes()
+    {
+        return additionalTypes;
+    }
+
     @Nullable
     @Override
     public Object getTarget()
@@ -68,9 +78,8 @@ class GenericPeripheral implements IDynamicPeripheral
     public boolean equals( @Nullable IPeripheral other )
     {
         if( other == this ) return true;
-        if( !(other instanceof GenericPeripheral) ) return false;
+        if( !(other instanceof GenericPeripheral generic) ) return false;
 
-        GenericPeripheral generic = (GenericPeripheral) other;
         return tile == generic.tile && methods.equals( generic.methods );
     }
 }

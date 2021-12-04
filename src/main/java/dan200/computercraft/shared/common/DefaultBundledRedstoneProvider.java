@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.common;
 
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
@@ -24,11 +23,9 @@ public class DefaultBundledRedstoneProvider implements IBundledRedstoneProvider
 
     public static int getDefaultBundledRedstoneOutput( Level world, BlockPos pos, Direction side )
     {
-        Block block = world.getBlockState( pos )
-            .getBlock();
-        if( block instanceof IBundledRedstoneBlock )
+        Block block = world.getBlockState( pos ).getBlock();
+        if( block instanceof IBundledRedstoneBlock generic )
         {
-            IBundledRedstoneBlock generic = (IBundledRedstoneBlock) block;
             if( generic.getBundledRedstoneConnectivity( world, pos, side ) )
             {
                 return generic.getBundledRedstoneOutput( world, pos, side );

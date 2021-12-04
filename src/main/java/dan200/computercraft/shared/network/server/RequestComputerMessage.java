@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.ComputerCraft;
@@ -38,9 +37,6 @@ public class RequestComputerMessage implements NetworkMessage
     public void handle( PacketContext context )
     {
         ServerComputer computer = ComputerCraft.serverComputerRegistry.get( instance );
-        if( computer != null )
-        {
-            computer.sendComputerState( context.getPlayer() );
-        }
+        if( computer != null ) computer.sendComputerState( context.getPlayer() );
     }
 }

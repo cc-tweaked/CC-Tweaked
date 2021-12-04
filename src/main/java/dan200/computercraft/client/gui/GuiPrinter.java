@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -26,23 +25,20 @@ public class GuiPrinter extends AbstractContainerScreen<ContainerPrinter>
     }
 
     @Override
-    public void render( @Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks )
-    {
-        renderBackground( stack );
-        super.render( stack, mouseX, mouseY, partialTicks );
-        renderTooltip( stack, mouseX, mouseY );
-    }
-
-    @Override
     protected void renderBg( @Nonnull PoseStack transform, float partialTicks, int mouseX, int mouseY )
     {
         RenderSystem.setShaderColor( 1.0F, 1.0F, 1.0F, 1.0F );
         RenderSystem.setShaderTexture( 0, BACKGROUND );
         blit( transform, leftPos, topPos, 0, 0, imageWidth, imageHeight );
 
-        if( getMenu().isPrinting() )
-        {
-            blit( transform, leftPos + 34, topPos + 21, 176, 0, 25, 45 );
-        }
+        if( getMenu().isPrinting() ) blit( transform, leftPos + 34, topPos + 21, 176, 0, 25, 45 );
+    }
+
+    @Override
+    public void render( @Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks )
+    {
+        renderBackground( stack );
+        super.render( stack, mouseX, mouseY, partialTicks );
+        renderTooltip( stack, mouseX, mouseY );
     }
 }

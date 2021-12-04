@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft;
 
 import dan200.computercraft.api.ComputerCraftAPI.IComputerCraftAPI;
@@ -35,7 +34,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -59,36 +57,24 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
 
     public static InputStream getResourceFile( String domain, String subPath )
     {
-        MinecraftServer server = GameInstanceUtils.getServer();
-        if( server != null )
+        ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess) GameInstanceUtils.getServer()).callGetResourceManager();
+        try
         {
-            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess) server).callGetResourceManager();
-            try
-            {
-                return manager.getResource( new ResourceLocation( domain, subPath ) )
-                    .getInputStream();
-            }
-            catch( IOException ignored )
-            {
-                return null;
-            }
+            return manager.getResource( new ResourceLocation( domain, subPath ) ).getInputStream();
         }
-        return null;
+        catch( IOException ignored )
+        {
+            return null;
+        }
     }
 
     @Nonnull
     @Override
     public String getInstalledVersion()
     {
-        if( version != null )
-        {
-            return version;
-        }
-        return version = FabricLoader.getInstance()
-            .getModContainer( ComputerCraft.MOD_ID )
-            .map( x -> x.getMetadata()
-                .getVersion()
-                .toString() )
+        if( version != null ) return version;
+        return version = FabricLoader.getInstance().getModContainer( ComputerCraft.MOD_ID )
+            .map( x -> x.getMetadata().getVersion().toString() )
             .orElse( "unknown" );
     }
 
@@ -114,14 +100,9 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     @Override
     public IMount createResourceMount( @Nonnull String domain, @Nonnull String subPath )
     {
-        MinecraftServer server = GameInstanceUtils.getServer();
-        if( server != null )
-        {
-            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess) server).callGetResourceManager();
-            ResourceMount mount = ResourceMount.get( domain, subPath, manager );
-            return mount.exists( "" ) ? mount : null;
-        }
-        return null;
+        ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess) GameInstanceUtils.getServer()).callGetResourceManager();
+        ResourceMount mount = ResourceMount.get( domain, subPath, manager );
+        return mount.exists( "" ) ? mount : null;
     }
 
     @Override
@@ -131,9 +112,21 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     }
 
     @Override
+    public void registerGenericSource( @Nonnull GenericSource source )
+    {
+        GenericMethod.register( source );
+    }
+
+    @Override
     public void registerTurtleUpgrade( @Nonnull ITurtleUpgrade upgrade )
     {
         TurtleUpgrades.register( upgrade );
+    }
+
+    @Override
+    public void registerPocketUpgrade( @Nonnull IPocketUpgrade upgrade )
+    {
+        PocketUpgrades.register( upgrade );
     }
 
     @Override
@@ -152,18 +145,6 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     public void registerMediaProvider( @Nonnull IMediaProvider provider )
     {
         MediaProviders.register( provider );
-    }
-
-    @Override
-    public void registerPocketUpgrade( @Nonnull IPocketUpgrade upgrade )
-    {
-        PocketUpgrades.register( upgrade );
-    }
-
-    @Override
-    public void registerGenericSource( @Nonnull GenericSource source )
-    {
-        GenericMethod.register( source );
     }
 
     @Nonnull

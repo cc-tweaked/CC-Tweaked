@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.pocket.recipes;
 
 import dan200.computercraft.api.pocket.IPocketUpgrade;
@@ -23,11 +22,15 @@ import javax.annotation.Nonnull;
 
 public final class PocketComputerUpgradeRecipe extends CustomRecipe
 {
-    public static final RecipeSerializer<PocketComputerUpgradeRecipe> SERIALIZER = new SimpleRecipeSerializer<>( PocketComputerUpgradeRecipe::new );
-
     private PocketComputerUpgradeRecipe( ResourceLocation identifier )
     {
         super( identifier );
+    }
+
+    @Override
+    public boolean canCraftInDimensions( int x, int y )
+    {
+        return x >= 2 && y >= 2;
     }
 
     @Nonnull
@@ -67,16 +70,10 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe
             }
         }
 
-        if( computer.isEmpty() )
-        {
-            return ItemStack.EMPTY;
-        }
+        if( computer.isEmpty() ) return ItemStack.EMPTY;
 
         ItemPocketComputer itemComputer = (ItemPocketComputer) computer.getItem();
-        if( ItemPocketComputer.getUpgrade( computer ) != null )
-        {
-            return ItemStack.EMPTY;
-        }
+        if( ItemPocketComputer.getUpgrade( computer ) != null ) return ItemStack.EMPTY;
 
         // Check for upgrades around the item
         IPocketUpgrade upgrade = null;
@@ -85,18 +82,12 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe
             for( int x = 0; x < inventory.getWidth(); x++ )
             {
                 ItemStack item = inventory.getItem( x + y * inventory.getWidth() );
-                if( x == computerX && y == computerY )
-                {
-                    continue;
-                }
+                if( x == computerX && y == computerY ) continue;
 
                 if( x == computerX && y == computerY - 1 )
                 {
                     upgrade = PocketUpgrades.get( item );
-                    if( upgrade == null )
-                    {
-                        return ItemStack.EMPTY;
-                    }
+                    if( upgrade == null ) return ItemStack.EMPTY;
                 }
                 else if( !item.isEmpty() )
                 {
@@ -105,10 +96,7 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe
             }
         }
 
-        if( upgrade == null )
-        {
-            return ItemStack.EMPTY;
-        }
+        if( upgrade == null ) return ItemStack.EMPTY;
 
         // Construct the new stack
         ComputerFamily family = itemComputer.getFamily();
@@ -118,16 +106,12 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe
         return PocketComputerItemFactory.create( computerID, label, colour, family, upgrade );
     }
 
-    @Override
-    public boolean canCraftInDimensions( int x, int y )
-    {
-        return x >= 2 && y >= 2;
-    }
-
     @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer()
     {
         return SERIALIZER;
     }
+
+    public static final SimpleRecipeSerializer<PocketComputerUpgradeRecipe> SERIALIZER = new SimpleRecipeSerializer<>( PocketComputerUpgradeRecipe::new );
 }

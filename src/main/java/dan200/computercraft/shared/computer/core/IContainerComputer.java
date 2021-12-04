@@ -3,12 +3,12 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.computer.core;
 
 import dan200.computercraft.shared.computer.upload.FileSlice;
 import dan200.computercraft.shared.computer.upload.FileUpload;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * An instance of {@link Container} which provides a computer. You should implement this if you provide custom computers/GUIs to interact with them.
+ * An instance of {@link AbstractContainerMenu} which provides a computer. You should implement this
+ * if you provide custom computers/GUIs to interact with them.
  */
-//@FunctionalInterface
 public interface IContainerComputer
 {
     /**

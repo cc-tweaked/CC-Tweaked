@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.shared.computer.core.IContainerComputer;
@@ -55,6 +54,8 @@ public class ComputerActionServerMessage extends ComputerServerMessage
 
     public enum Action
     {
-        TURN_ON, SHUTDOWN, REBOOT
+        TURN_ON,
+        SHUTDOWN,
+        REBOOT
     }
 }

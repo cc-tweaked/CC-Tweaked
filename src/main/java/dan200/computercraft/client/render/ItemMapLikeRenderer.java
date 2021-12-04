@@ -3,30 +3,36 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 import dan200.computercraft.fabric.mixin.ItemInHandRendererAccess;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-@Environment( EnvType.CLIENT )
 public abstract class ItemMapLikeRenderer
 {
-    public void renderItemFirstPerson(
-        PoseStack transform, MultiBufferSource render, int lightTexture, InteractionHand hand, float pitch, float equipProgress,
-        float swingProgress, ItemStack stack
-    )
+    /**
+     * The main rendering method for the item.
+     *
+     * @param transform The matrix transformation stack
+     * @param render    The buffer to render to
+     * @param stack     The stack to render
+     * @param light     The packed lightmap coordinates.
+     * @see ItemInHandRenderer#renderItem(LivingEntity, ItemStack, ItemTransforms.TransformType, boolean, PoseStack, MultiBufferSource, int)
+     */
+    protected abstract void renderItem( PoseStack transform, MultiBufferSource render, ItemStack stack, int light );
+
+    public void renderItemFirstPerson( PoseStack transform, MultiBufferSource render, int lightTexture, InteractionHand hand, float pitch, float equipProgress, float swingProgress, ItemStack stack )
     {
         Player player = Minecraft.getInstance().player;
 
@@ -37,14 +43,57 @@ public abstract class ItemMapLikeRenderer
         }
         else
         {
-            renderItemFirstPersonSide( transform,
-                render,
-                lightTexture,
+            renderItemFirstPersonSide(
+                transform, render, lightTexture,
                 hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite(),
-                equipProgress,
-                swingProgress,
-                stack );
+                equipProgress, swingProgress, stack
+            );
         }
+        transform.popPose();
+    }
+
+    /**
+     * Renders the item to one side of the player.
+     *
+     * @param transform     The matrix transformation stack
+     * @param render        The buffer to render to
+     * @param combinedLight The current light level
+     * @param side          The side to render on
+     * @param equipProgress The equip progress of this item
+     * @param swingProgress The swing progress of this item
+     * @param stack         The stack to render
+     * @see ItemInHandRenderer#renderOneHandedMap(PoseStack, MultiBufferSource, int, float, HumanoidArm, float, ItemStack)
+     */
+    private void renderItemFirstPersonSide( PoseStack transform, MultiBufferSource render, int combinedLight, HumanoidArm side, float equipProgress, float swingProgress, ItemStack stack )
+    {
+        Minecraft minecraft = Minecraft.getInstance();
+        float offset = side == HumanoidArm.RIGHT ? 1f : -1f;
+        transform.translate( offset * 0.125f, -0.125f, 0f );
+
+        // If the player is not invisible then render a single arm
+        if( !minecraft.player.isInvisible() )
+        {
+            transform.pushPose();
+            transform.mulPose( Vector3f.ZP.rotationDegrees( offset * 10f ) );
+            ((ItemInHandRendererAccess) minecraft.getItemInHandRenderer()).callRenderPlayerArm( transform, render, combinedLight, equipProgress, swingProgress, side );
+            transform.popPose();
+        }
+
+        // Setup the appropriate transformations. This is just copied from the
+        // corresponding method in ItemRenderer.
+        transform.pushPose();
+        transform.translate( offset * 0.51f, -0.08f + equipProgress * -1.2f, -0.75f );
+        float f1 = Mth.sqrt( swingProgress );
+        float f2 = Mth.sin( f1 * (float) Math.PI );
+        float f3 = -0.5f * f2;
+        float f4 = 0.4f * Mth.sin( f1 * ((float) Math.PI * 2f) );
+        float f5 = -0.3f * Mth.sin( swingProgress * (float) Math.PI );
+        transform.translate( offset * f3, f4 - 0.3f * f2, f5 );
+        transform.mulPose( Vector3f.XP.rotationDegrees( f2 * -45f ) );
+        transform.mulPose( Vector3f.YP.rotationDegrees( offset * f2 * -30f ) );
+
+        renderItem( transform, render, stack, combinedLight );
+
         transform.popPose();
     }
 
@@ -58,9 +107,9 @@ public abstract class ItemMapLikeRenderer
      * @param equipProgress The equip progress of this item
      * @param swingProgress The swing progress of this item
      * @param stack         The stack to render
+     * @see ItemInHandRenderer#renderTwoHandedMap(PoseStack, MultiBufferSource, int, float, float, float)
      */
-    private void renderItemFirstPersonCenter( PoseStack transform, MultiBufferSource render, int combinedLight, float pitch, float equipProgress,
-                                              float swingProgress, ItemStack stack )
+    private void renderItemFirstPersonCenter( PoseStack transform, MultiBufferSource render, int combinedLight, float pitch, float equipProgress, float swingProgress, ItemStack stack )
     {
         Minecraft minecraft = Minecraft.getInstance();
         ItemInHandRenderer renderer = minecraft.getItemInHandRenderer();
@@ -91,60 +140,4 @@ public abstract class ItemMapLikeRenderer
 
         renderItem( transform, render, stack, combinedLight );
     }
-
-    /**
-     * Renders the item to one side of the player.
-     *
-     * @param transform     The matrix transformation stack
-     * @param render        The buffer to render to
-     * @param combinedLight The current light level
-     * @param side          The side to render on
-     * @param equipProgress The equip progress of this item
-     * @param swingProgress The swing progress of this item
-     * @param stack         The stack to render
-     */
-    private void renderItemFirstPersonSide( PoseStack transform, MultiBufferSource render, int combinedLight, HumanoidArm side, float equipProgress,
-                                            float swingProgress, ItemStack stack )
-    {
-        Minecraft minecraft = Minecraft.getInstance();
-        float offset = side == HumanoidArm.RIGHT ? 1f : -1f;
-        transform.translate( offset * 0.125f, -0.125f, 0f );
-
-        // If the player is not invisible then render a single arm
-        if( !minecraft.player.isInvisible() )
-        {
-            transform.pushPose();
-            transform.mulPose( Vector3f.ZP.rotationDegrees( offset * 10f ) );
-            ((ItemInHandRendererAccess) minecraft.getItemInHandRenderer())
-                .callRenderPlayerArm( transform, render, combinedLight, equipProgress, swingProgress, side );
-            transform.popPose();
-        }
-
-        // Setup the appropriate transformations. This is just copied from the
-        // corresponding method in ItemRenderer.
-        transform.pushPose();
-        transform.translate( offset * 0.51f, -0.08f + equipProgress * -1.2f, -0.75f );
-        float f1 = Mth.sqrt( swingProgress );
-        float f2 = Mth.sin( f1 * (float) Math.PI );
-        float f3 = -0.5f * f2;
-        float f4 = 0.4f * Mth.sin( f1 * ((float) Math.PI * 2f) );
-        float f5 = -0.3f * Mth.sin( swingProgress * (float) Math.PI );
-        transform.translate( offset * f3, f4 - 0.3f * f2, f5 );
-        transform.mulPose( Vector3f.XP.rotationDegrees( f2 * -45f ) );
-        transform.mulPose( Vector3f.YP.rotationDegrees( offset * f2 * -30f ) );
-
-        renderItem( transform, render, stack, combinedLight );
-
-        transform.popPose();
-    }
-
-    /**
-     * The main rendering method for the item.
-     *
-     * @param transform The matrix transformation stack
-     * @param render    The buffer to render to
-     * @param stack     The stack to render
-     * @param light     TODO rebase
-     */
-    protected abstract void renderItem( PoseStack transform, MultiBufferSource render, ItemStack stack, int light );
 }

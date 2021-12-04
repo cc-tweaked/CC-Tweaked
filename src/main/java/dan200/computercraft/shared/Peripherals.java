@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
@@ -47,10 +46,7 @@ public final class Peripherals
             try
             {
                 IPeripheral peripheral = peripheralProvider.getPeripheral( world, pos, side );
-                if( peripheral != null )
-                {
-                    return peripheral;
-                }
+                if( peripheral != null ) return peripheral;
             }
             catch( Exception e )
             {

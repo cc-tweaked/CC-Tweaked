@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
@@ -37,6 +36,8 @@ public class TurtleDetectCommand implements ITurtleCommand
         BlockPos oldPosition = turtle.getPosition();
         BlockPos newPosition = oldPosition.relative( direction );
 
-        return !WorldUtil.isLiquidBlock( world, newPosition ) && !world.isEmptyBlock( newPosition ) ? TurtleCommandResult.success() : TurtleCommandResult.failure();
+        return !WorldUtil.isLiquidBlock( world, newPosition ) && !world.isEmptyBlock( newPosition )
+            ? TurtleCommandResult.success()
+            : TurtleCommandResult.failure();
     }
 }

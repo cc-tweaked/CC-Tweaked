@@ -3,10 +3,9 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.printer;
 
-import dan200.computercraft.shared.ComputerCraftRegistry;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -30,38 +29,42 @@ import javax.annotation.Nullable;
 
 public class BlockPrinter extends BlockGeneric
 {
+    private static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     static final BooleanProperty TOP = BooleanProperty.create( "top" );
     static final BooleanProperty BOTTOM = BooleanProperty.create( "bottom" );
-    private static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     public BlockPrinter( Properties settings )
     {
-        super( settings, ComputerCraftRegistry.ModTiles.PRINTER );
+        super( settings, () -> Registry.ModBlockEntities.PRINTER );
         registerDefaultState( getStateDefinition().any()
             .setValue( FACING, Direction.NORTH )
             .setValue( TOP, false )
             .setValue( BOTTOM, false ) );
     }
 
+    @Override
+    protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> properties )
+    {
+        properties.add( FACING, TOP, BOTTOM );
+    }
+
     @Nullable
     @Override
     public BlockState getStateForPlacement( BlockPlaceContext placement )
     {
-        return defaultBlockState().setValue( FACING,
-            placement.getHorizontalDirection()
-                .getOpposite() );
+        return defaultBlockState().setValue( FACING, placement.getHorizontalDirection().getOpposite() );
     }
 
     @Override
     public void playerDestroy( @Nonnull Level world, @Nonnull Player player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack )
     {
-        if( te instanceof Nameable && ((Nameable) te).hasCustomName() )
+        if( te instanceof Nameable nameable && nameable.hasCustomName() )
         {
             player.awardStat( Stats.BLOCK_MINED.get( this ) );
             player.causeFoodExhaustion( 0.005F );
 
             ItemStack result = new ItemStack( this );
-            result.setHoverName( ((Nameable) te).getCustomName() );
+            result.setHoverName( nameable.getCustomName() );
             popResource( world, pos, result );
         }
         else
@@ -73,26 +76,9 @@ public class BlockPrinter extends BlockGeneric
     @Override
     public void setPlacedBy( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, ItemStack stack )
     {
-        if( stack.hasCustomHoverName() )
+        if( stack.hasCustomHoverName() && world.getBlockEntity( pos ) instanceof TilePrinter printer )
         {
-            BlockEntity tileentity = world.getBlockEntity( pos );
-            if( tileentity instanceof TilePrinter )
-            {
-                ((TilePrinter) tileentity).customName = stack.getHoverName();
-            }
+            printer.customName = stack.getHoverName();
         }
-    }
-
-    @Override
-    protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> properties )
-    {
-        properties.add( FACING, TOP, BOTTOM );
-    }
-
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity( BlockPos pos, BlockState state )
-    {
-        return new TilePrinter( ComputerCraftRegistry.ModTiles.PRINTER, pos, state );
     }
 }

@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.printer;
 
 import dan200.computercraft.api.lua.IArguments;
@@ -43,19 +42,6 @@ public class PrinterPeripheral implements IPeripheral
     // FIXME: None of our page modification functions actually mark the tile as dirty, so the page may not be
     //  persisted correctly.
 
-    @Nonnull
-    @Override
-    public Object getTarget()
-    {
-        return printer;
-    }
-
-    @Override
-    public boolean equals( IPeripheral other )
-    {
-        return other instanceof PrinterPeripheral && ((PrinterPeripheral) other).printer == printer;
-    }
-
     /**
      * Writes text to the current page.
      *
@@ -70,17 +56,6 @@ public class PrinterPeripheral implements IPeripheral
         Terminal page = getCurrentPage();
         page.write( text );
         page.setCursorPos( page.getCursorX() + text.length(), page.getCursorY() );
-    }
-
-    @Nonnull
-    private Terminal getCurrentPage() throws LuaException
-    {
-        Terminal currentPage = printer.getCurrentPage();
-        if( currentPage == null )
-        {
-            throw new LuaException( "Page not started" );
-        }
-        return currentPage;
     }
 
     /**
@@ -188,5 +163,26 @@ public class PrinterPeripheral implements IPeripheral
     public final int getPaperLevel()
     {
         return printer.getPaperLevel();
+    }
+
+    @Override
+    public boolean equals( IPeripheral other )
+    {
+        return this == other || (other instanceof PrinterPeripheral otherPrinter && otherPrinter.printer == printer);
+    }
+
+    @Nonnull
+    @Override
+    public Object getTarget()
+    {
+        return printer;
+    }
+
+    @Nonnull
+    private Terminal getCurrentPage() throws LuaException
+    {
+        Terminal currentPage = printer.getCurrentPage();
+        if( currentPage == null ) throw new LuaException( "Page not started" );
+        return currentPage;
     }
 }

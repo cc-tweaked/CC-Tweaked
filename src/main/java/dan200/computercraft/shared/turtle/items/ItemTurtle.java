@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.items;
 
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
@@ -14,13 +13,16 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.ItemComputerBase;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
 
 import javax.annotation.Nonnull;
 
@@ -33,65 +35,40 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
         super( block, settings );
     }
 
+    public ItemStack create( int id, String label, int colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, int fuelLevel, ResourceLocation overlay )
+    {
+        // Build the stack
+        ItemStack stack = new ItemStack( this );
+        if( label != null ) stack.setHoverName( new TextComponent( label ) );
+        if( id >= 0 ) stack.getOrCreateTag().putInt( NBT_ID, id );
+        IColouredItem.setColourBasic( stack, colour );
+        if( fuelLevel > 0 ) stack.getOrCreateTag().putInt( NBT_FUEL, fuelLevel );
+        if( overlay != null ) stack.getOrCreateTag().putString( NBT_OVERLAY, overlay.toString() );
+
+        if( leftUpgrade != null )
+        {
+            stack.getOrCreateTag().putString( NBT_LEFT_UPGRADE, leftUpgrade.getUpgradeID().toString() );
+        }
+
+        if( rightUpgrade != null )
+        {
+            stack.getOrCreateTag().putString( NBT_RIGHT_UPGRADE, rightUpgrade.getUpgradeID().toString() );
+        }
+
+        return stack;
+    }
+
     @Override
     public void fillItemCategory( @Nonnull CreativeModeTab group, @Nonnull NonNullList<ItemStack> list )
     {
-        if( !allowdedIn( group ) )
-        {
-            return;
-        }
+        if( !allowdedIn( group ) ) return;
 
         ComputerFamily family = getFamily();
 
         list.add( create( -1, null, -1, null, null, 0, null ) );
         TurtleUpgrades.getVanillaUpgrades()
-            .filter( x -> TurtleUpgrades.suitableForFamily( family, x ) )
             .map( x -> create( -1, null, -1, null, x, 0, null ) )
             .forEach( list::add );
-    }
-
-    public ItemStack create( int id, String label, int colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, int fuelLevel, ResourceLocation overlay )
-    {
-        // Build the stack
-        ItemStack stack = new ItemStack( this );
-        if( label != null )
-        {
-            stack.setHoverName( new TextComponent( label ) );
-        }
-        if( id >= 0 )
-        {
-            stack.getOrCreateTag()
-                .putInt( NBT_ID, id );
-        }
-        IColouredItem.setColourBasic( stack, colour );
-        if( fuelLevel > 0 )
-        {
-            stack.getOrCreateTag()
-                .putInt( NBT_FUEL, fuelLevel );
-        }
-        if( overlay != null )
-        {
-            stack.getOrCreateTag()
-                .putString( NBT_OVERLAY, overlay.toString() );
-        }
-
-        if( leftUpgrade != null )
-        {
-            stack.getOrCreateTag()
-                .putString( NBT_LEFT_UPGRADE,
-                    leftUpgrade.getUpgradeID()
-                        .toString() );
-        }
-
-        if( rightUpgrade != null )
-        {
-            stack.getOrCreateTag()
-                .putString( NBT_RIGHT_UPGRADE,
-                    rightUpgrade.getUpgradeID()
-                        .toString() );
-        }
-
-        return stack;
     }
 
     @Nonnull
@@ -105,15 +82,20 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
         {
             return new TranslatableComponent( baseString + ".upgraded_twice",
                 new TranslatableComponent( right.getUnlocalisedAdjective() ),
-                new TranslatableComponent( left.getUnlocalisedAdjective() ) );
+                new TranslatableComponent( left.getUnlocalisedAdjective() )
+            );
         }
         else if( left != null )
         {
-            return new TranslatableComponent( baseString + ".upgraded", new TranslatableComponent( left.getUnlocalisedAdjective() ) );
+            return new TranslatableComponent( baseString + ".upgraded",
+                new TranslatableComponent( left.getUnlocalisedAdjective() )
+            );
         }
         else if( right != null )
         {
-            return new TranslatableComponent( baseString + ".upgraded", new TranslatableComponent( right.getUnlocalisedAdjective() ) );
+            return new TranslatableComponent( baseString + ".upgraded",
+                new TranslatableComponent( right.getUnlocalisedAdjective() )
+            );
         }
         else
         {
@@ -146,23 +128,24 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     //    }
 
     @Override
-    public ITurtleUpgrade getUpgrade( @Nonnull ItemStack stack, @Nonnull TurtleSide side )
+    public ItemStack withFamily( @Nonnull ItemStack stack, @Nonnull ComputerFamily family )
     {
-        CompoundTag tag = stack.getTag();
-        if( tag == null )
-        {
-            return null;
-        }
-
-        String key = side == TurtleSide.LEFT ? NBT_LEFT_UPGRADE : NBT_RIGHT_UPGRADE;
-        return tag.contains( key ) ? TurtleUpgrades.get( tag.getString( key ) ) : null;
+        return TurtleItemFactory.create(
+            getComputerID( stack ), getLabel( stack ),
+            getColour( stack ), family,
+            getUpgrade( stack, TurtleSide.LEFT ), getUpgrade( stack, TurtleSide.RIGHT ),
+            getFuelLevel( stack ), getOverlay( stack )
+        );
     }
 
     @Override
-    public int getFuelLevel( @Nonnull ItemStack stack )
+    public ITurtleUpgrade getUpgrade( @Nonnull ItemStack stack, @Nonnull TurtleSide side )
     {
         CompoundTag tag = stack.getTag();
-        return tag != null && tag.contains( NBT_FUEL ) ? tag.getInt( NBT_FUEL ) : 0;
+        if( tag == null ) return null;
+
+        String key = side == TurtleSide.LEFT ? NBT_LEFT_UPGRADE : NBT_RIGHT_UPGRADE;
+        return tag.contains( key ) ? TurtleUpgrades.get( tag.getString( key ) ) : null;
     }
 
     @Override
@@ -173,10 +156,21 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem
     }
 
     @Override
-    public ItemStack withFamily( @Nonnull ItemStack stack, @Nonnull ComputerFamily family )
+    public int getFuelLevel( @Nonnull ItemStack stack )
     {
-        return TurtleItemFactory.create( getComputerID( stack ), getLabel( stack ), getColour( stack ),
-            family, getUpgrade( stack, TurtleSide.LEFT ),
-            getUpgrade( stack, TurtleSide.RIGHT ), getFuelLevel( stack ), getOverlay( stack ) );
+        CompoundTag tag = stack.getTag();
+        return tag != null && tag.contains( NBT_FUEL ) ? tag.getInt( NBT_FUEL ) : 0;
     }
+
+    public static final CauldronInteraction CAULDRON_INTERACTION = ( blockState, level, pos, player, hand, stack ) ->
+    {
+        if( IColouredItem.getColourBasic( stack ) == -1 ) return InteractionResult.PASS;
+        if( !level.isClientSide )
+        {
+            IColouredItem.setColourBasic( stack, -1 );
+            LayeredCauldronBlock.lowerFillLevel( blockState, level, pos );
+        }
+
+        return InteractionResult.sidedSuccess( level.isClientSide );
+    };
 }

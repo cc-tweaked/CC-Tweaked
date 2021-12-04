@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.computer.core;
 
 import java.util.Iterator;
@@ -36,18 +35,6 @@ public class ServerComputerRegistry extends ComputerRegistry<ServerComputer>
     }
 
     @Override
-    public void reset()
-    {
-        //System.out.println( "RESET SERVER COMPUTERS" );
-        for( ServerComputer computer : getComputers() )
-        {
-            computer.unload();
-        }
-        super.reset();
-        //System.out.println( getComputers().size() + " SERVER COMPUTERS" );
-    }
-
-    @Override
     public void add( int instanceID, ServerComputer computer )
     {
         //System.out.println( "ADD SERVER COMPUTER " + instanceID );
@@ -70,19 +57,25 @@ public class ServerComputerRegistry extends ComputerRegistry<ServerComputer>
         //System.out.println( getComputers().size() + " SERVER COMPUTERS" );
     }
 
+    @Override
+    public void reset()
+    {
+        //System.out.println( "RESET SERVER COMPUTERS" );
+        for( ServerComputer computer : getComputers() )
+        {
+            computer.unload();
+        }
+        super.reset();
+        //System.out.println( getComputers().size() + " SERVER COMPUTERS" );
+    }
+
     public ServerComputer lookup( int computerID )
     {
-        if( computerID < 0 )
-        {
-            return null;
-        }
+        if( computerID < 0 ) return null;
 
         for( ServerComputer computer : getComputers() )
         {
-            if( computer.getID() == computerID )
-            {
-                return computer;
-            }
+            if( computer.getID() == computerID ) return computer;
         }
         return null;
     }

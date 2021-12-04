@@ -98,17 +98,17 @@ public final class TurtleUpgrades
         {
             vanilla = new ITurtleUpgrade[] {
                 // ComputerCraft upgrades
-                ComputerCraftRegistry.TurtleUpgrades.wirelessModemNormal,
-                ComputerCraftRegistry.TurtleUpgrades.wirelessModemAdvanced,
-                ComputerCraftRegistry.TurtleUpgrades.speaker,
+                Registry.TurtleUpgrades.wirelessModemNormal,
+                Registry.TurtleUpgrades.wirelessModemAdvanced,
+                Registry.TurtleUpgrades.speaker,
 
                 // Vanilla Minecraft upgrades
-                ComputerCraftRegistry.TurtleUpgrades.diamondPickaxe,
-                ComputerCraftRegistry.TurtleUpgrades.diamondAxe,
-                ComputerCraftRegistry.TurtleUpgrades.diamondSword,
-                ComputerCraftRegistry.TurtleUpgrades.diamondShovel,
-                ComputerCraftRegistry.TurtleUpgrades.diamondHoe,
-                ComputerCraftRegistry.TurtleUpgrades.craftingTable,
+                Registry.TurtleUpgrades.diamondPickaxe,
+                Registry.TurtleUpgrades.diamondAxe,
+                Registry.TurtleUpgrades.diamondSword,
+                Registry.TurtleUpgrades.diamondShovel,
+                Registry.TurtleUpgrades.diamondHoe,
+                Registry.TurtleUpgrades.craftingTable,
             };
         }
 

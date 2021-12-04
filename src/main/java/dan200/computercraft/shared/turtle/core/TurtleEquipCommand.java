@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.*;
@@ -39,10 +38,7 @@ public class TurtleEquipCommand implements ITurtleCommand
         {
             newUpgradeStack = selectedStack.copy();
             newUpgrade = TurtleUpgrades.get( newUpgradeStack );
-            if( newUpgrade == null || !TurtleUpgrades.suitableForFamily( ((TurtleBrain) turtle).getFamily(), newUpgrade ) )
-            {
-                return TurtleCommandResult.failure( "Not a valid upgrade" );
-            }
+            if( newUpgrade == null ) return TurtleCommandResult.failure( "Not a valid upgrade" );
         }
         else
         {

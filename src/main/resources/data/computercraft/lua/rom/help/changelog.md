@@ -1,10 +1,131 @@
-# New features in CC: Restitched 1.96.1-rc1
+# New features in CC: Tweaked 1.99.0
 
-A Few bug fixes:
-* Fix crash with `getItemDetails(slot, true)` on servers
-* Fix Optifine Shaders
+* Pocket computers in their offhand will open without showing a terminal. You can look around and interact with the world, but your keyboard will be forwarded to the computer. (Wojbie, MagGen-hub).
+* Peripherals can now have multiple types. `peripheral.getType` now returns multiple values, and `peripheral.hasType` checks if a peripheral has a specific type.
+* Add several missing keys to the `keys` table. (ralphgod3)
+* Add feature introduction/changed version information to the documentation. (MCJack123)
+* Increase the file upload limit to 512KiB.
+* Rednet can now handle computer IDs larger than 65535. (Ale32bit)
+* Optimise deduplication of rednet messages (MCJack123)
+* Make `term.blit` colours case insensitive. (Ocawesome101)
+* Add a new `about` program for easier version identification. (MCJack123)
+* Optimise peripheral calls in `rednet.run`. (xAnavrins)
+* Add dimension parameter to `commands.getBlockInfo`.
+* Add `cc.pretty.pretty_print` helper function (Lupus590).
+* Add back JEI integration.
+* Turtle and pocket computer upgrades can now be added and modified with data packs.
+* Various translation updates (MORIMORI3017, Ale2Bit, mindy15963)
 
-# New features in CC: Restitched 1.96.0
+And several bug fixes:
+* Fix various computer commands failing when OP level was 4.
+* Various documentation fixes. (xXTurnerLP, MCJack123)
+* Fix `textutils.serialize` not serialising infinity and nan values. (Wojbie)
+* Wired modems now correctly clean up mounts when a peripheral is detached.
+* Fix incorrect turtle and pocket computer upgrade recipes in the recipe book.
+* Fix speakers not playing sounds added via resource packs which are not registered in-game.
+* Fix speaker upgrades sending packets after the server has stopped.
+* Monitor sizing has been rewritten, hopefully making it more stable.
+* Peripherals are now invalidated when the computer ticks, rather than when the peripheral changes.
+* Fix printouts and pocket computers rendering at fullbright when in item frames.
+* All mod blocks now have an effective tool (pickaxe).
+
+# New features in CC: Tweaked 1.98.2
+
+* Add JP translation (MORIMORI0317)
+* Migrate several recipes to data generators.
+
+Several bug fixes:
+* Fix volume speaker sounds are played at.
+* Fix several rendering issues when holding pocket computers and printouts in
+  hand.
+* Ensure wired modems and cables join the wired network on chunk load.
+* Fix stack overflow when using wired networks.
+
+# New features in CC: Tweaked 1.98.1
+
+Several bug fixes:
+* Fix monitors not correctly resizing when placed.
+* Update Russian translation (DrHesperus).
+
+# New features in CC: Tweaked 1.98.0
+* Add motd for file uploading.
+* Add config options to limit total bandwidth used by the HTTP API.
+
+And several bug fixes:
+* Fix `settings.define` not accepting a nil second argument (SkyTheCodeMaster).
+* Various documentation fixes (Angalexik, emiliskiskis, SkyTheCodeMaster).
+* Fix selected slot indicator not appearing in turtle interface.
+* Fix crash when printers are placed as part of world generation.
+* Fix crash when breaking a speaker on a multiplayer world.
+* Add a missing type check for `http.checkURL`.
+* Prevent `parallel.*` from hanging when no arguments are given.
+* Prevent issue in rednet when the message ID is NaN.
+* Fix `help` program crashing when terminal changes width.
+* Ensure monitors are well-formed when placed, preventing graphical glitches
+  when using Carry On or Quark.
+* Accept several more extensions in the websocket client.
+* Prevent `wget` crashing when given an invalid URL and no filename.
+* Correctly wrap string within `textutils.slowWrite`.
+
+# New features in CC: Tweaked 1.97.0
+
+* Update several translations (Anavrins, Jummit, Naheulf).
+* Add button to view a computer's folder to `/computercraft dump`.
+* Allow cleaning dyed turtles in a cauldron.
+* Add scale subcommand to `monitor` program (MCJack123).
+* Add option to make `textutils.serialize` not write an indent (magiczocker10).
+* Allow comparing vectors using `==` (fatboychummy).
+* Improve HTTP error messages for SSL failures.
+* Allow `craft` program to craft unlimited items (fatboychummy).
+* Impose some limits on various command queues.
+* Add buttons to shutdown and terminate to computer GUIs.
+* Add program subcompletion to several programs (Wojbie).
+* Update the `help` program to accept and (partially) highlight markdown files.
+* Remove config option for the debug API.
+* Allow setting the subprotocol header for websockets.
+* Add basic JMX monitoring on dedicated servers.
+* Add support for MoreRed bundled.
+* Allow uploading files by dropping them onto a computer.
+
+And several bug fixes:
+* Fix NPE when using a treasure disk when no treasure disks are available.
+* Prevent command computers discarding command ouput when certain game rules are off.
+* Fix turtles not updating peripherals when upgrades are unequipped (Ronan-H).
+* Fix computers not shutting down on fatal errors within the Lua VM.
+* Speakers now correctly stop playing when broken, and sound follows noisy turtles and pocket computers.
+* Update the `wget` to be more resiliant in the face of user-errors.
+* Fix exiting `paint` typing "e" in the shell.
+* Fix coloured pocket computers using the wrong texture.
+* Correctly render the transparent background on pocket/normal computers.
+* Don't apply CraftTweaker actions twice on single-player worlds.
+
+# New features in CC: Tweaked 1.97.0
+
+* Update several translations (Anavrins, Jummit, Naheulf).
+* Add button to view a computer's folder to `/computercraft dump`.
+* Allow cleaning dyed turtles in a cauldron.
+* Add scale subcommand to `monitor` program (MCJack123).
+* Add option to make `textutils.serialize` not write an indent (magiczocker10).
+* Allow comparing vectors using `==` (fatboychummy).
+* Improve HTTP error messages for SSL failures.
+* Allow `craft` program to craft unlimited items (fatboychummy).
+* Impose some limits on various command queues.
+* Add buttons to shutdown and terminate to computer GUIs.
+* Add program subcompletion to several programs (Wojbie).
+* Update the `help` program to accept and (partially) highlight markdown files.
+* Remove config option for the debug API.
+* Allow setting the subprotocol header for websockets.
+
+And several bug fixes:
+* Fix NPE when using a treasure disk when no treasure disks are available.
+* Prevent command computers discarding command ouput when certain game rules are off.
+* Fix turtles not updating peripherals when upgrades are unequipped (Ronan-H).
+* Fix computers not shutting down on fatal errors within the Lua VM.
+* Speakers now correctly stop playing when broken, and sound follows noisy turtles and pocket computers.
+* Update the `wget` to be more resiliant in the face of user-errors.
+* Fix exiting `paint` typing "e" in the shell.
+
+# New features in CC: Tweaked 1.96.0
 
 * Use lightGrey for folders within the "list" program.
 * Add getLimit to inventory peripherals.
@@ -22,32 +143,37 @@ And several bug fixes:
 * Allow turtles to use compostors.
 * Fix dupe bug when colouring turtles.
 
-# New features in CC: Restitched 1.95.3
+# New features in CC: Tweaked 1.95.3
 
 Several bug fixes:
 * Correctly serialise sparse arrays into JSON (livegamer999)
+* Fix hasAudio/playAudio failing on record discs.
 * Fix rs.getBundledInput returning the output instead (SkyTheCodeMaster)
 * Programs run via edit are now a little better behaved (Wojbie)
 * Add User-Agent to a websocket's headers.
 
-# New features in CC: Restitched 1.95.2
+# New features in CC: Tweaked 1.95.2
 
 * Add `isReadOnly` to `fs.attributes` (Lupus590)
 * Many more programs now support numpad enter (Wojbie)
 
 Several bug fixes:
 * Fix some commands failing to parse on dedicated servers.
+* Fix all disk recipes appearing to produce a white disk in JEI/recipe book.
 * Hopefully improve edit's behaviour with AltGr on some European keyboards.
 * Prevent files being usable after their mount was removed.
 * Fix the `id` program crashing on non-disk items (Wojbie).
+* Preserve registration order of turtle/pocket upgrades when displaying in JEI.
 
-# New features in CC: Restitched 1.95.1
+# New features in CC: Tweaked 1.95.1
 
 Several bug fixes:
 * Command computers now drop items again.
 * Restore crafting of disks with dyes.
+* Fix CraftTweaker integrations for damageable items.
+* Catch reflection errors in the generic peripheral system, resolving crashes with Botania.
 
-# New features in CC: Restitched 1.95.0
+# New features in CC: Tweaked 1.95.0
 
 * Optimise the paint program's initial render.
 * Several documentation improvments (Gibbo3771, MCJack123).
@@ -107,6 +233,10 @@ And several bug fixes:
 * Correctly handle tabs within textutils.unserailizeJSON.
 * Fix sheep not dropping items when sheared by turtles.
 
+# New features in CC: Tweaked 1.91.1
+
+* Fix crash when turtles interact with an entity.
+
 # New features in CC: Tweaked 1.91.0
 
 * [Generic peripherals] Expose NBT hashes of items to inventory methods.
@@ -152,8 +282,6 @@ And several bug fixes:
 * Fix `turtle.craft` failing when missing an argument.
 * Fix deadlock when mistakenly "watching" an unloaded chunk.
 * Fix full path of files being leaked in some errors.
-
-Type "help changelog" to see the full version history.
 
 # New features in CC: Tweaked 1.89.1
 

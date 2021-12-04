@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.computer.inventory;
 
 import dan200.computercraft.ComputerCraft;
@@ -28,7 +27,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringJoiner;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -44,38 +46,33 @@ public abstract class ContainerComputerBase extends AbstractContainerMenu implem
     private UUID toUploadId;
     private List<FileUpload> toUpload;
 
-    public ContainerComputerBase( MenuType<? extends ContainerComputerBase> type, int id, Inventory player, ComputerContainerData data )
-    {
-        this( type,
-            id,
-            x -> true,
-            getComputer( player, data ),
-            data.getFamily() );
-    }
-
-    public ContainerComputerBase( MenuType<? extends ContainerComputerBase> type, int id, Predicate<Player> canUse, IComputer computer,
-                                  ComputerFamily family )
+    public ContainerComputerBase( MenuType<? extends ContainerComputerBase> type, int id, Predicate<Player> canUse, IComputer computer, ComputerFamily family )
     {
         super( type, id );
         this.canUse = canUse;
-        this.computer = Objects.requireNonNull( computer );
+        this.computer = computer;
         this.family = family;
+    }
+
+    public ContainerComputerBase( MenuType<? extends ContainerComputerBase> type, int id, Inventory player, ComputerContainerData data )
+    {
+        this( type, id, x -> true, getComputer( player, data ), data.getFamily() );
     }
 
     protected static IComputer getComputer( Inventory player, ComputerContainerData data )
     {
         int id = data.getInstanceId();
-        if( !player.player.level.isClientSide )
-        {
-            return ComputerCraft.serverComputerRegistry.get( id );
-        }
+        if( !player.player.level.isClientSide ) return ComputerCraft.serverComputerRegistry.get( id );
 
         ClientComputer computer = ComputerCraft.clientComputerRegistry.get( id );
-        if( computer == null )
-        {
-            ComputerCraft.clientComputerRegistry.add( id, computer = new ClientComputer( id ) );
-        }
+        if( computer == null ) ComputerCraft.clientComputerRegistry.add( id, computer = new ClientComputer( id ) );
         return computer;
+    }
+
+    @Override
+    public boolean stillValid( @Nonnull Player player )
+    {
+        return canUse.test( player );
     }
 
     @Nonnull
@@ -96,19 +93,6 @@ public abstract class ContainerComputerBase extends AbstractContainerMenu implem
     public InputState getInput()
     {
         return input;
-    }
-
-    @Override
-    public void removed( @Nonnull Player player )
-    {
-        super.removed( player );
-        input.close();
-    }
-
-    @Override
-    public boolean stillValid( @Nonnull Player player )
-    {
-        return canUse.test( player );
     }
 
     @Override
@@ -213,7 +197,6 @@ public abstract class ContainerComputerBase extends AbstractContainerMenu implem
             {
                 try( FileSystemWrapper<WritableByteChannel> channel = fs.openForWrite( file.getName(), false, Function.identity() ) )
                 {
-                    file.getBytes().rewind();
                     channel.get().write( file.getBytes() );
                 }
             }
@@ -227,5 +210,12 @@ public abstract class ContainerComputerBase extends AbstractContainerMenu implem
             ComputerCraft.log.error( "Error uploading files", e );
             return new UploadResultMessage( UploadResult.ERROR, new TranslatableComponent( "gui.computercraft.upload.failed.generic", e.getMessage() ) );
         }
+    }
+
+    @Override
+    public void removed( @Nonnull Player player )
+    {
+        super.removed( player );
+        input.close();
     }
 }

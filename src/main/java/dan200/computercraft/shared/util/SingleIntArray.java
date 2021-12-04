@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.util;
 
 import net.minecraft.world.inventory.ContainerData;
@@ -11,13 +10,13 @@ import net.minecraft.world.inventory.ContainerData;
 @FunctionalInterface
 public interface SingleIntArray extends ContainerData
 {
+    int get();
+
     @Override
     default int get( int property )
     {
         return property == 0 ? get() : 0;
     }
-
-    int get();
 
     @Override
     default void set( int property, int value )

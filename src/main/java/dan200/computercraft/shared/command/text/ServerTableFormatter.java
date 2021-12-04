@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.command.text;
 
 import net.minecraft.commands.CommandSourceStack;
@@ -27,10 +26,7 @@ public class ServerTableFormatter implements TableFormatter
     public Component getPadding( Component component, int width )
     {
         int extraWidth = width - getWidth( component );
-        if( extraWidth <= 0 )
-        {
-            return null;
-        }
+        if( extraWidth <= 0 ) return null;
         return new TextComponent( StringUtils.repeat( ' ', extraWidth ) );
     }
 
@@ -43,8 +39,7 @@ public class ServerTableFormatter implements TableFormatter
     @Override
     public int getWidth( Component component )
     {
-        return component.getString()
-            .length();
+        return component.getString().length();
     }
 
     @Override

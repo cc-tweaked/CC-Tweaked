@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.network.NetworkMessage;
@@ -83,9 +82,6 @@ public class PlayRecordClientMessage implements NetworkMessage
     {
         Minecraft mc = Minecraft.getInstance();
         mc.levelRenderer.playStreamingMusic( soundEvent, pos );
-        if( name != null )
-        {
-            mc.gui.setNowPlaying( new TextComponent( name ) );
-        }
+        if( name != null ) mc.gui.setNowPlaying( new TextComponent( name ) );
     }
 }

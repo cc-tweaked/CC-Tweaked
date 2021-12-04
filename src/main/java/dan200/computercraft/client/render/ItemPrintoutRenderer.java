@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -30,6 +29,21 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
     {
     }
 
+    public boolean renderInFrame( PoseStack matrixStack, MultiBufferSource consumerProvider, ItemStack stack, int light )
+    {
+        if( !(stack.getItem() instanceof ItemPrintout) ) return false;
+
+        // Move a little bit forward to ensure we're not clipping with the frame
+        matrixStack.translate( 0.0f, 0.0f, -0.001f );
+        matrixStack.mulPose( Vector3f.ZP.rotationDegrees( 180f ) );
+        matrixStack.scale( 0.95f, 0.95f, -0.95f );
+        matrixStack.translate( -0.5f, -0.5f, 0.0f );
+
+        drawPrintout( matrixStack, consumerProvider, stack, light );
+
+        return true;
+    }
+
     @Override
     protected void renderItem( PoseStack transform, MultiBufferSource render, ItemStack stack, int light )
     {
@@ -49,10 +63,7 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
         double height = LINES_PER_PAGE * FONT_HEIGHT + Y_TEXT_MARGIN * 2;
 
         // Non-books will be left aligned
-        if( !book )
-        {
-            width += offsetAt( pages );
-        }
+        if( !book ) width += offsetAt( pages );
 
         double visualWidth = width, visualHeight = height;
 
@@ -70,27 +81,11 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
         transform.scale( scale, scale, scale );
         transform.translate( (max - width) / 2.0, (max - height) / 2.0, 0.0 );
 
-        Matrix4f matrix = transform.last()
-            .pose();
+        Matrix4f matrix = transform.last().pose();
         drawBorder( matrix, render, 0, 0, -0.01f, 0, pages, book, light );
-        drawText( matrix, render, X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, light, ItemPrintout.getText( stack ), ItemPrintout.getColours( stack ) );
-    }
-
-    public boolean renderInFrame( PoseStack matrixStack, MultiBufferSource consumerProvider, ItemStack stack, int light )
-    {
-        if( !(stack.getItem() instanceof ItemPrintout) )
-        {
-            return false;
-        }
-
-        // Move a little bit forward to ensure we're not clipping with the frame
-        matrixStack.translate( 0.0f, 0.0f, -0.001f );
-        matrixStack.mulPose( Vector3f.ZP.rotationDegrees( 180f ) );
-        matrixStack.scale( 0.95f, 0.95f, -0.95f );
-        matrixStack.translate( -0.5f, -0.5f, 0.0f );
-
-        drawPrintout( matrixStack, consumerProvider, stack, light );
-
-        return true;
+        drawText(
+            matrix, render, X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, light,
+            ItemPrintout.getText( stack ), ItemPrintout.getColours( stack )
+        );
     }
 }

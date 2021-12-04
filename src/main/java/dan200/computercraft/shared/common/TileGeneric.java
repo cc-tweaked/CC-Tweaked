@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.common;
 
 import net.minecraft.core.BlockPos;
@@ -14,6 +13,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -33,6 +33,7 @@ public abstract class TileGeneric extends BlockEntity
     {
     }
 
+    // This is called by fabric event hook in ComputerCraftProxyCommon
     public void onChunkUnloaded()
     {
     }
@@ -42,7 +43,7 @@ public abstract class TileGeneric extends BlockEntity
         setChanged();
         BlockPos pos = getBlockPos();
         BlockState state = getBlockState();
-        getLevel().sendBlockUpdated( pos, state, state, 3 );
+        getLevel().sendBlockUpdated( pos, state, state, Block.UPDATE_ALL );
     }
 
     @Nonnull
@@ -70,26 +71,19 @@ public abstract class TileGeneric extends BlockEntity
 
     public boolean isUsable( Player player, boolean ignoreRange )
     {
-        if( player == null || !player.isAlive() || getLevel().getBlockEntity( getBlockPos() ) != this )
-        {
-            return false;
-        }
-        if( ignoreRange )
-        {
-            return true;
-        }
+        if( player == null || !player.isAlive() || getLevel().getBlockEntity( getBlockPos() ) != this ) return false;
+        if( ignoreRange ) return true;
 
         double range = getInteractRange( player );
         BlockPos pos = getBlockPos();
-        return player.getCommandSenderWorld() == getLevel() && player.distanceToSqr( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
+        return player.getCommandSenderWorld() == getLevel() &&
+            player.distanceToSqr( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
     }
 
     @Override
     public CompoundTag getUpdateTag()
     {
-        CompoundTag nbt = new CompoundTag();
-        writeDescription( nbt );
-        return nbt;
+        return this.saveWithoutMetadata();
     }
 
     @Nullable

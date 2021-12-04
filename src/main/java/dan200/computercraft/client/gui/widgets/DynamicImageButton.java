@@ -7,6 +7,7 @@ package dan200.computercraft.client.gui.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dan200.computercraft.shared.util.NonNullSupplier;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -16,7 +17,6 @@ import net.minecraft.resources.ResourceLocation;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.IntSupplier;
-import java.util.function.Supplier;
 
 /**
  * Version of {@link net.minecraft.client.gui.components.ImageButton} which allows changing some properties
@@ -31,7 +31,7 @@ public class DynamicImageButton extends Button
     private final int yDiffTex;
     private final int textureWidth;
     private final int textureHeight;
-    private final Supplier<List<Component>> tooltip;
+    private final NonNullSupplier<List<Component>> tooltip;
 
     public DynamicImageButton(
         Screen screen, int x, int y, int width, int height, int xTexStart, int yTexStart, int yDiffTex,
@@ -50,7 +50,7 @@ public class DynamicImageButton extends Button
     public DynamicImageButton(
         Screen screen, int x, int y, int width, int height, IntSupplier xTexStart, int yTexStart, int yDiffTex,
         ResourceLocation texture, int textureWidth, int textureHeight,
-        OnPress onPress, Supplier<List<Component>> tooltip
+        OnPress onPress, NonNullSupplier<List<Component>> tooltip
     )
     {
         super( x, y, width, height, TextComponent.EMPTY, onPress );
@@ -76,7 +76,7 @@ public class DynamicImageButton extends Button
         blit( stack, x, y, xTexStart.getAsInt(), yTex, width, height, textureWidth, textureHeight );
         RenderSystem.enableDepthTest();
 
-        if( isHoveredOrFocused() ) renderToolTip( stack, mouseX, mouseY );
+        if( isHovered ) renderToolTip( stack, mouseX, mouseY );
     }
 
     @Nonnull
@@ -87,11 +87,10 @@ public class DynamicImageButton extends Button
         return tooltip.isEmpty() ? TextComponent.EMPTY : tooltip.get( 0 );
     }
 
-    // @Override
+    @Override
     public void renderToolTip( @Nonnull PoseStack stack, int mouseX, int mouseY )
     {
         List<Component> tooltip = this.tooltip.get();
-
         if( !tooltip.isEmpty() )
         {
             screen.renderComponentTooltip( stack, tooltip, mouseX, mouseY );

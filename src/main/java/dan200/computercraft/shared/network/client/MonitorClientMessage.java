@@ -44,16 +44,10 @@ public class MonitorClientMessage implements NetworkMessage
     public void handle( PacketContext context )
     {
         LocalPlayer player = Minecraft.getInstance().player;
-        if( player == null || player.level == null )
-        {
-            return;
-        }
+        if( player == null || player.level == null ) return;
 
         BlockEntity te = player.level.getBlockEntity( pos );
-        if( !(te instanceof TileMonitor) )
-        {
-            return;
-        }
+        if( !(te instanceof TileMonitor) ) return;
 
         ((TileMonitor) te).read( state );
     }

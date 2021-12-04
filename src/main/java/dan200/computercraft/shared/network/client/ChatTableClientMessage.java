@@ -3,14 +3,11 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.client.ClientTableFormatter;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.network.NetworkMessage;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -23,10 +20,7 @@ public class ChatTableClientMessage implements NetworkMessage
 
     public ChatTableClientMessage( TableBuilder table )
     {
-        if( table.getColumns() < 0 )
-        {
-            throw new IllegalStateException( "Cannot send an empty table" );
-        }
+        if( table.getColumns() < 0 ) throw new IllegalStateException( "Cannot send an empty table" );
         this.table = table;
     }
 
@@ -38,10 +32,7 @@ public class ChatTableClientMessage implements NetworkMessage
         if( buf.readBoolean() )
         {
             Component[] headers = new Component[columns];
-            for( int i = 0; i < columns; i++ )
-            {
-                headers[i] = buf.readComponent();
-            }
+            for( int i = 0; i < columns; i++ ) headers[i] = buf.readComponent();
             table = new TableBuilder( id, headers );
         }
         else
@@ -53,10 +44,7 @@ public class ChatTableClientMessage implements NetworkMessage
         for( int i = 0; i < rows; i++ )
         {
             Component[] row = new Component[columns];
-            for( int j = 0; j < columns; j++ )
-            {
-                row[j] = buf.readComponent();
-            }
+            for( int j = 0; j < columns; j++ ) row[j] = buf.readComponent();
             table.row( row );
         }
 
@@ -72,27 +60,19 @@ public class ChatTableClientMessage implements NetworkMessage
         buf.writeBoolean( table.getHeaders() != null );
         if( table.getHeaders() != null )
         {
-            for( Component header : table.getHeaders() )
-            {
-                buf.writeComponent( header );
-            }
+            for( Component header : table.getHeaders() ) buf.writeComponent( header );
         }
 
-        buf.writeVarInt( table.getRows()
-            .size() );
+        buf.writeVarInt( table.getRows().size() );
         for( Component[] row : table.getRows() )
         {
-            for( Component column : row )
-            {
-                buf.writeComponent( column );
-            }
+            for( Component column : row ) buf.writeComponent( column );
         }
 
         buf.writeVarInt( table.getAdditional() );
     }
 
     @Override
-    @Environment( EnvType.CLIENT )
     public void handle( PacketContext context )
     {
         ClientTableFormatter.INSTANCE.display( table );

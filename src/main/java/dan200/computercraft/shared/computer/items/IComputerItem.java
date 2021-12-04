@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.computer.items;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -24,8 +23,7 @@ public interface IComputerItem
 
     default String getLabel( @Nonnull ItemStack stack )
     {
-        return stack.hasCustomHoverName() ? stack.getHoverName()
-            .getString() : null;
+        return stack.hasCustomHoverName() ? stack.getHoverName().getString() : null;
     }
 
     ComputerFamily getFamily();

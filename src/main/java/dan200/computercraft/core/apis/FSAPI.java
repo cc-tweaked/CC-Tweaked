@@ -484,7 +484,7 @@ public class FSAPI implements ILuaAPI
      *
      * This string is formatted like a normal path string, but can include any
      * number of wildcards ({@code *}) to look for files matching anything.
-     * For example, {@code rom/* /command*} will look for any path starting with
+     * For example, <code>rom/&#42;/command*</code> will look for any path starting with
      * {@code command} inside any subdirectory of {@code /rom}.
      *
      * @param path The wildcard-qualified path to search for.

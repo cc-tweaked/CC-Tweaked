@@ -3,10 +3,8 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
@@ -17,9 +15,7 @@ import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -39,7 +35,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
     }
 
     @Override
-    protected void renderItem( PoseStack transform, MultiBufferSource render, ItemStack stack, int light )
+    protected void renderItem( PoseStack transform, MultiBufferSource renderer, ItemStack stack, int light )
     {
         ClientComputer computer = ItemPocketComputer.createClientComputer( stack );
         Terminal terminal = computer == null ? null : computer.getTerminal();
@@ -67,7 +63,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         transform.scale( 0.5f, 0.5f, 0.5f );
 
         float scale = 0.75f / Math.max( width + BORDER * 2, height + BORDER * 2 + LIGHT_HEIGHT );
-        transform.scale( scale, scale, 0 );
+        transform.scale( scale, scale, -1.0f );
         transform.translate( -0.5 * width, -0.5 * height, 0 );
 
         // Render the main frame
@@ -75,26 +71,21 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         ComputerFamily family = item.getFamily();
         int frameColour = item.getColour( stack );
 
-        Matrix4f matrix = transform.last()
-            .pose();
-        renderFrame( matrix, render, family, frameColour, light, width, height );
+        Matrix4f matrix = transform.last().pose();
+        renderFrame( matrix, renderer, family, frameColour, light, width, height );
 
         // Render the light
         int lightColour = ItemPocketComputer.getLightState( stack );
-        if( lightColour == -1 )
-        {
-            lightColour = Colour.BLACK.getHex();
-        }
-        renderLight( matrix, lightColour, width, height );
+        if( lightColour == -1 ) lightColour = Colour.BLACK.getHex();
+        renderLight( matrix, renderer, lightColour, width, height );
 
         if( computer != null && terminal != null )
         {
             FixedWidthFontRenderer.drawTerminal(
-                matrix, render.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ),
+                matrix, renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ),
                 MARGIN, MARGIN, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN
             );
-            FixedWidthFontRenderer.drawBlocker( transform.last().pose(), render, 0, 0, width, height );
-
+            FixedWidthFontRenderer.drawBlocker( transform.last().pose(), renderer, 0, 0, width, height );
         }
         else
         {
@@ -106,45 +97,26 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
     private static void renderFrame( Matrix4f transform, MultiBufferSource render, ComputerFamily family, int colour, int light, int width, int height )
     {
-        RenderSystem.enableBlend();
-        Minecraft.getInstance()
-            .getTextureManager()
-            .bindForSetup( colour != -1 ? ComputerBorderRenderer.BACKGROUND_COLOUR : ComputerBorderRenderer.getTexture( family ) );
-
         ResourceLocation texture = colour != -1 ? ComputerBorderRenderer.BACKGROUND_COLOUR : ComputerBorderRenderer.getTexture( family );
 
         float r = ((colour >>> 16) & 0xFF) / 255.0f;
         float g = ((colour >>> 8) & 0xFF) / 255.0f;
         float b = (colour & 0xFF) / 255.0f;
 
-        ComputerBorderRenderer.render( transform, render.getBuffer( RenderType.text( texture ) ), 0, 0, 0, light, width, height, true, r, g, b );
+        ComputerBorderRenderer.render( transform, render.getBuffer( ComputerBorderRenderer.getRenderType( texture ) ), 0, 0, 0, light, width, height, true, r, g, b );
     }
 
-    private static void renderLight( Matrix4f transform, int colour, int width, int height )
+    private static void renderLight( Matrix4f transform, MultiBufferSource render, int colour, int width, int height )
     {
-        RenderSystem.disableTexture();
-
         float r = ((colour >>> 16) & 0xFF) / 255.0f;
         float g = ((colour >>> 8) & 0xFF) / 255.0f;
         float b = (colour & 0xFF) / 255.0f;
+        float z = 0.001f;
 
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder buffer = tessellator.getBuilder();
-        buffer.begin( VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR );
-        buffer.vertex( transform, width - LIGHT_HEIGHT * 2, height + LIGHT_HEIGHT + BORDER / 2.0f, 0 )
-            .color( r, g, b, 1.0f )
-            .endVertex();
-        buffer.vertex( transform, width, height + LIGHT_HEIGHT + BORDER / 2.0f, 0 )
-            .color( r, g, b, 1.0f )
-            .endVertex();
-        buffer.vertex( transform, width, height + BORDER / 2.0f, 0 )
-            .color( r, g, b, 1.0f )
-            .endVertex();
-        buffer.vertex( transform, width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, 0 )
-            .color( r, g, b, 1.0f )
-            .endVertex();
-
-        tessellator.end();
-        RenderSystem.enableTexture();
+        VertexConsumer buffer = render.getBuffer( RenderTypes.POSITION_COLOR );
+        buffer.vertex( transform, width - LIGHT_HEIGHT * 2, height + LIGHT_HEIGHT + BORDER / 2.0f, z ).color( r, g, b, 1.0f ).endVertex();
+        buffer.vertex( transform, width, height + LIGHT_HEIGHT + BORDER / 2.0f, z ).color( r, g, b, 1.0f ).endVertex();
+        buffer.vertex( transform, width, height + BORDER / 2.0f, z ).color( r, g, b, 1.0f ).endVertex();
+        buffer.vertex( transform, width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, z ).color( r, g, b, 1.0f ).endVertex();
     }
 }

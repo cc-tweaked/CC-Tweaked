@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.computer.recipe;
 
 import dan200.computercraft.shared.computer.items.IComputerItem;
@@ -31,27 +30,16 @@ public abstract class ComputerConvertRecipe extends ShapedRecipe
     }
 
     @Nonnull
-    @Override
-    public String getGroup()
-    {
-        return group;
-    }
+    protected abstract ItemStack convert( @Nonnull IComputerItem item, @Nonnull ItemStack stack );
 
     @Override
     public boolean matches( @Nonnull CraftingContainer inventory, @Nonnull Level world )
     {
-        if( !super.matches( inventory, world ) )
-        {
-            return false;
-        }
+        if( !super.matches( inventory, world ) ) return false;
 
         for( int i = 0; i < inventory.getContainerSize(); i++ )
         {
-            if( inventory.getItem( i )
-                .getItem() instanceof IComputerItem )
-            {
-                return true;
-            }
+            if( inventory.getItem( i ).getItem() instanceof IComputerItem ) return true;
         }
 
         return false;
@@ -65,15 +53,16 @@ public abstract class ComputerConvertRecipe extends ShapedRecipe
         for( int i = 0; i < inventory.getContainerSize(); i++ )
         {
             ItemStack stack = inventory.getItem( i );
-            if( stack.getItem() instanceof IComputerItem )
-            {
-                return convert( (IComputerItem) stack.getItem(), stack );
-            }
+            if( stack.getItem() instanceof IComputerItem ) return convert( (IComputerItem) stack.getItem(), stack );
         }
 
         return ItemStack.EMPTY;
     }
 
     @Nonnull
-    protected abstract ItemStack convert( @Nonnull IComputerItem item, @Nonnull ItemStack stack );
+    @Override
+    public String getGroup()
+    {
+        return group;
+    }
 }

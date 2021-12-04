@@ -3,18 +3,20 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.shared.common.TileGeneric;
+import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -22,8 +24,6 @@ import java.util.UUID;
 
 public class TileSpeaker extends TileGeneric implements IPeripheralTile
 {
-    public static final int MIN_TICKS_BETWEEN_SOUNDS = 1;
-
     private final SpeakerPeripheral peripheral;
     private final UUID source = UUID.randomUUID();
 
@@ -33,14 +33,24 @@ public class TileSpeaker extends TileGeneric implements IPeripheralTile
         peripheral = new Peripheral( this );
     }
 
-    public static void tick( Level world, BlockPos pos, BlockState state, TileSpeaker tileSpeaker )
+    protected void serverTick()
     {
-        tileSpeaker.peripheral.update();
+        peripheral.update();
+    }
+
+    @Override
+    public void setRemoved()
+    {
+        super.setRemoved();
+        if( level != null && !level.isClientSide )
+        {
+            NetworkHandler.sendToAllPlayers( new SpeakerStopClientMessage( source ) );
+        }
     }
 
     @Nonnull
     @Override
-    public IPeripheral getPeripheral( Direction side )
+    public IPeripheral getPeripheral( @NotNull Direction side )
     {
         return peripheral;
     }
@@ -55,7 +65,7 @@ public class TileSpeaker extends TileGeneric implements IPeripheralTile
         }
 
         @Override
-        public Level getWorld()
+        public Level getLevel()
         {
             return speaker.getLevel();
         }

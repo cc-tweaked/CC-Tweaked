@@ -34,7 +34,7 @@ public final class PlayerCreativeLootCondition implements LootItemCondition
     public boolean test( LootContext lootContext )
     {
         Entity entity = lootContext.getParamOrNull( LootContextParams.THIS_ENTITY );
-        return entity instanceof Player && ((Player) entity).getAbilities().instabuild;
+        return entity instanceof Player player && player.getAbilities().instabuild;
     }
 
     @Nonnull

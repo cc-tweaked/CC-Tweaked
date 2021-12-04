@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.fabric.mixin;
 
-import dan200.computercraft.shared.ComputerCraftRegistry;
+import dan200.computercraft.shared.Registry;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -33,7 +33,7 @@ public class MixinServerPlayerGameMode
     {
         BlockPos pos = hitResult.getBlockPos();
         BlockState state = world.getBlockState( pos );
-        if( player.getMainHandItem().getItem() == ComputerCraftRegistry.ModItems.DISK && state.getBlock() == ComputerCraftRegistry.ModBlocks.DISK_DRIVE )
+        if( player.getMainHandItem().getItem() == Registry.ModItems.DISK && state.getBlock() == Registry.ModBlocks.DISK_DRIVE )
         {
             InteractionResult actionResult = state.use( world, player, hand, hitResult );
             if( actionResult.consumesAction() )

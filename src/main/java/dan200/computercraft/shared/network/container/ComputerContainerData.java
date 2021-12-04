@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.network.container;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -21,10 +20,10 @@ public class ComputerContainerData implements ContainerData
         family = computer.getFamily();
     }
 
-    public ComputerContainerData( FriendlyByteBuf byteBuf )
+    public ComputerContainerData( FriendlyByteBuf buf )
     {
-        id = byteBuf.readInt();
-        family = byteBuf.readEnum( ComputerFamily.class );
+        id = buf.readInt();
+        family = buf.readEnum( ComputerFamily.class );
     }
 
     @Override

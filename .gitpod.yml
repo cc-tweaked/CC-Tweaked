@@ -1,5 +1,5 @@
 image:
-  file: .gitpod.Dockerfile
+  file: config/gitpod/Dockerfile
 
 ports:
   - port: 25565
@@ -7,12 +7,14 @@ ports:
 
 vscode:
   extensions:
+    - eamodio.gitlens
+    - github.vscode-pull-request-github
     - ms-azuretools.vscode-docker
     - redhat.java
     - richardwillis.vscode-gradle
     - vscjava.vscode-java-debug
     - vscode.github
 
-
 tasks:
-  - init: ./gradlew
+  - name: Setup pre-commit hool
+    init: pre-commit install --config config/pre-commit/config.yml --allow-missing-config

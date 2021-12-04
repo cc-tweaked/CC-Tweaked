@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.generic.data;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -28,6 +29,20 @@ public final class DataHelpers
         Map<String, Boolean> result = new HashMap<>( tags.size() );
         for( ResourceLocation location : tags ) result.put( location.toString(), true );
         return result;
+    }
+
+    @Nonnull
+    static Map<String, Boolean> getTags( @Nonnull Block block )
+    {
+        Collection<ResourceLocation> tags = Minecraft.getInstance().getConnection().getTags().getOrEmpty( Registry.BLOCK_REGISTRY ).getMatchingTags( block );
+        return getTags( tags );
+    }
+
+    @Nonnull
+    static Map<String, Boolean> getTags( @Nonnull Item item )
+    {
+        Collection<ResourceLocation> tags = Minecraft.getInstance().getConnection().getTags().getOrEmpty( Registry.ITEM_REGISTRY ).getMatchingTags( item );
+        return getTags( tags );
     }
 
     @Nullable

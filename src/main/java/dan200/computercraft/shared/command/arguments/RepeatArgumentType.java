@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.command.arguments;
 
 import com.google.gson.JsonObject;
@@ -32,8 +31,8 @@ import java.util.function.BiConsumer;
 /**
  * Reads one argument multiple times.
  *
- * Note that this must be the last element in an argument chain: in order to improve the quality of error messages, we will always try to consume another
- * argument while there is input remaining.
+ * Note that this must be the last element in an argument chain: in order to improve the quality of error messages,
+ * we will always try to consume another argument while there is input remaining.
  *
  * One problem with how parsers function, is that they must consume some input: and thus we
  *
@@ -73,10 +72,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
         while( true )
         {
             reader.skipWhitespace();
-            if( !reader.canRead() )
-            {
-                break;
-            }
+            if( !reader.canRead() ) break;
 
             int startParse = reader.getCursor();
             appender.accept( out, child.parse( reader ) );
@@ -91,10 +87,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
         // Note that each child may return an empty list, we just require that some actual input
         // was consumed.
         // We should probably review that this is sensible in the future.
-        if( !hadSome )
-        {
-            throw some.createWithContext( reader );
-        }
+        if( !hadSome ) throw some.createWithContext( reader );
 
         return Collections.unmodifiableList( out );
     }
@@ -118,10 +111,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
 
             int cursor = reader.getCursor();
             reader.skipWhitespace();
-            if( cursor == reader.getCursor() )
-            {
-                break;
-            }
+            if( cursor == reader.getCursor() ) break;
             previous = reader.getCursor();
         }
 
@@ -147,10 +137,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
 
         @Nonnull
         @Override
-        @SuppressWarnings( {
-            "unchecked",
-            "rawtypes"
-        } )
+        @SuppressWarnings( { "unchecked", "rawtypes" } )
         public RepeatArgumentType<?, ?> deserializeFromNetwork( @Nonnull FriendlyByteBuf buf )
         {
             boolean isList = buf.readBoolean();
@@ -170,12 +157,8 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
 
         private static Component getMessage( RepeatArgumentType<?, ?> arg )
         {
-            Message message = arg.some.create()
-                .getRawMessage();
-            if( message instanceof Component )
-            {
-                return (Component) message;
-            }
+            Message message = arg.some.create().getRawMessage();
+            if( message instanceof Component ) return (Component) message;
             return new TextComponent( message.getString() );
         }
     }

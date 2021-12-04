@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.network;
 
 import dan200.computercraft.ComputerCraft;
@@ -16,7 +15,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import me.shedaniel.cloth.api.utils.v1.GameInstanceUtils;
 import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
@@ -86,24 +84,6 @@ public final class NetworkHandler
             .accept( context, buffer );
     }
 
-    /**
-     * /** Register packet, and a thread-unsafe handler for it.
-     *
-     * @param <T>     The type of the packet to send.
-     * @param type    The class of the type of packet to send.
-     * @param id      The identifier for this packet type
-     * @param decoder The factory for this type of packet.
-     */
-    private static <T extends NetworkMessage> void registerMainThread( int id, Class<T> type, Function<FriendlyByteBuf, T> decoder )
-    {
-        packetIds.put( type, id );
-        packetReaders.put( id, ( context, buf ) -> {
-            T result = decoder.apply( buf );
-            context.getTaskQueue()
-                .execute( () -> result.handle( context ) );
-        } );
-    }
-
     @SuppressWarnings( "unchecked" )
     private static <T> Class<T> getType( Supplier<T> supplier )
     {
@@ -127,17 +107,9 @@ public final class NetworkHandler
     public static void sendToAllPlayers( NetworkMessage packet )
     {
         MinecraftServer server = GameInstanceUtils.getServer();
-        server.getPlayerList()
-            .broadcastAll( new ClientboundCustomPayloadPacket( ID, encode( packet ) ) );
+        server.getPlayerList().broadcastAll( new ClientboundCustomPayloadPacket( ID, encode( packet ) ) );
     }
 
-    public static void sendToAllPlayers( MinecraftServer server, NetworkMessage packet )
-    {
-        server.getPlayerList()
-            .broadcastAll( new ClientboundCustomPayloadPacket( ID, encode( packet ) ) );
-    }
-
-    @Environment( EnvType.CLIENT )
     public static void sendToServer( NetworkMessage packet )
     {
         Minecraft.getInstance().player.connection.send( new ServerboundCustomPayloadPacket( ID, encode( packet ) ) );
@@ -145,9 +117,7 @@ public final class NetworkHandler
 
     public static void sendToAllAround( NetworkMessage packet, Level world, Vec3 pos, double range )
     {
-        world.getServer()
-            .getPlayerList()
-            .broadcast( null, pos.x, pos.y, pos.z, range, world.dimension(), new ClientboundCustomPayloadPacket( ID, encode( packet ) ) );
+        world.getServer().getPlayerList().broadcast( null, pos.x, pos.y, pos.z, range, world.dimension(), new ClientboundCustomPayloadPacket( ID, encode( packet ) ) );
     }
 
     public static void sendToAllTracking( NetworkMessage packet, LevelChunk chunk )
@@ -159,5 +129,22 @@ public final class NetworkHandler
                 ((ServerPlayer) player).connection.send( new ClientboundCustomPayloadPacket( ID, encode( packet ) ) );
             }
         }
+    }
+
+    /**
+     * Register packet, and a thread-unsafe handler for it.
+     *
+     * @param <T>       The type of the packet to send.
+     * @param type      The class of the type of packet to send.
+     * @param id        The identifier for this packet type.
+     * @param decoder   The factory for this type of packet.
+     */
+    private static <T extends NetworkMessage> void registerMainThread( int id, Class<T> type, Function<FriendlyByteBuf, T> decoder )
+    {
+        packetIds.put( type, id );
+        packetReaders.put( id, ( context, buf ) -> {
+            T result = decoder.apply( buf );
+            context.getTaskQueue().execute( () -> result.handle( context ) );
+        } );
     }
 }

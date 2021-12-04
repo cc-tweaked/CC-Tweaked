@@ -3,10 +3,9 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.printer;
 
-import dan200.computercraft.shared.ComputerCraftRegistry;
+import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.util.SingleIntArray;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -25,14 +24,9 @@ public class ContainerPrinter extends AbstractContainerMenu
     private final Container inventory;
     private final ContainerData properties;
 
-    public ContainerPrinter( int id, Inventory player )
-    {
-        this( id, player, new SimpleContainer( TilePrinter.SLOTS ), new SimpleContainerData( 1 ) );
-    }
-
     private ContainerPrinter( int id, Inventory player, Container inventory, ContainerData properties )
     {
-        super( ComputerCraftRegistry.ModContainers.PRINTER, id );
+        super( Registry.ModContainers.PRINTER, id );
         this.properties = properties;
         this.inventory = inventory;
 
@@ -42,16 +36,10 @@ public class ContainerPrinter extends AbstractContainerMenu
         addSlot( new Slot( inventory, 0, 13, 35 ) );
 
         // In-tray
-        for( int x = 0; x < 6; x++ )
-        {
-            addSlot( new Slot( inventory, x + 1, 61 + x * 18, 22 ) );
-        }
+        for( int x = 0; x < 6; x++ ) addSlot( new Slot( inventory, x + 1, 61 + x * 18, 22 ) );
 
         // Out-tray
-        for( int x = 0; x < 6; x++ )
-        {
-            addSlot( new Slot( inventory, x + 7, 61 + x * 18, 49 ) );
-        }
+        for( int x = 0; x < 6; x++ ) addSlot( new Slot( inventory, x + 7, 61 + x * 18, 49 ) );
 
         // Player inv
         for( int y = 0; y < 3; y++ )
@@ -69,9 +57,14 @@ public class ContainerPrinter extends AbstractContainerMenu
         }
     }
 
+    public ContainerPrinter( int id, Inventory player )
+    {
+        this( id, player, new SimpleContainer( TilePrinter.SLOTS ), new SimpleContainerData( 1 ) );
+    }
+
     public ContainerPrinter( int id, Inventory player, TilePrinter printer )
     {
-        this( id, player, printer, (SingleIntArray) () -> printer.isPrinting() ? 1 : 0 );
+        this( id, player, printer, (SingleIntArray) (() -> printer.isPrinting() ? 1 : 0) );
     }
 
     public boolean isPrinting()
@@ -79,41 +72,35 @@ public class ContainerPrinter extends AbstractContainerMenu
         return properties.get( 0 ) != 0;
     }
 
+    @Override
+    public boolean stillValid( @Nonnull Player player )
+    {
+        return inventory.stillValid( player );
+    }
+
     @Nonnull
     @Override
     public ItemStack quickMoveStack( @Nonnull Player player, int index )
     {
         Slot slot = slots.get( index );
-        if( slot == null || !slot.hasItem() )
-        {
-            return ItemStack.EMPTY;
-        }
+        if( slot == null || !slot.hasItem() ) return ItemStack.EMPTY;
         ItemStack stack = slot.getItem();
         ItemStack result = stack.copy();
         if( index < 13 )
         {
             // Transfer from printer to inventory
-            if( !moveItemStackTo( stack, 13, 49, true ) )
-            {
-                return ItemStack.EMPTY;
-            }
+            if( !moveItemStackTo( stack, 13, 49, true ) ) return ItemStack.EMPTY;
         }
         else
         {
             // Transfer from inventory to printer
             if( TilePrinter.isInk( stack ) )
             {
-                if( !moveItemStackTo( stack, 0, 1, false ) )
-                {
-                    return ItemStack.EMPTY;
-                }
+                if( !moveItemStackTo( stack, 0, 1, false ) ) return ItemStack.EMPTY;
             }
             else //if is paper
             {
-                if( !moveItemStackTo( stack, 1, 13, false ) )
-                {
-                    return ItemStack.EMPTY;
-                }
+                if( !moveItemStackTo( stack, 1, 13, false ) ) return ItemStack.EMPTY;
             }
         }
 
@@ -126,18 +113,9 @@ public class ContainerPrinter extends AbstractContainerMenu
             slot.setChanged();
         }
 
-        if( stack.getCount() == result.getCount() )
-        {
-            return ItemStack.EMPTY;
-        }
+        if( stack.getCount() == result.getCount() ) return ItemStack.EMPTY;
 
         slot.onTake( player, stack );
         return result;
-    }
-
-    @Override
-    public boolean stillValid( @Nonnull Player player )
-    {
-        return inventory.stillValid( player );
     }
 }

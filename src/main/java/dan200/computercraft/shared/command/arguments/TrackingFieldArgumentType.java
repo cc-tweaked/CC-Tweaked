@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.command.arguments;
 
 import dan200.computercraft.core.tracking.TrackingField;
@@ -17,8 +16,7 @@ public final class TrackingFieldArgumentType extends ChoiceArgumentType<Tracking
 
     private TrackingFieldArgumentType()
     {
-        super( TrackingField.fields()
-            .values(), TrackingField::id, x -> translate( x.translationKey() ), Exceptions.TRACKING_FIELD_ARG_NONE );
+        super( TrackingField.fields().values(), TrackingField::id, x -> translate( x.translationKey() ), Exceptions.TRACKING_FIELD_ARG_NONE );
     }
 
     public static TrackingFieldArgumentType trackingField()

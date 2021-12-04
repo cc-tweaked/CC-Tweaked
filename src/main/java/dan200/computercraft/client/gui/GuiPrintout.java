@@ -3,16 +3,15 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.math.Matrix4f;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -40,52 +39,70 @@ public class GuiPrintout extends AbstractContainerScreen<ContainerHeldItem>
 
         String[] text = ItemPrintout.getText( container.getStack() );
         this.text = new TextBuffer[text.length];
-        for( int i = 0; i < this.text.length; i++ )
-        {
-            this.text[i] = new TextBuffer( text[i] );
-        }
+        for( int i = 0; i < this.text.length; i++ ) this.text[i] = new TextBuffer( text[i] );
 
         String[] colours = ItemPrintout.getColours( container.getStack() );
         this.colours = new TextBuffer[colours.length];
-        for( int i = 0; i < this.colours.length; i++ )
-        {
-            this.colours[i] = new TextBuffer( colours[i] );
-        }
+        for( int i = 0; i < this.colours.length; i++ ) this.colours[i] = new TextBuffer( colours[i] );
 
         page = 0;
         pages = Math.max( this.text.length / ItemPrintout.LINES_PER_PAGE, 1 );
-        book = ((ItemPrintout) container.getStack()
-            .getItem()).getType() == ItemPrintout.Type.BOOK;
+        book = ((ItemPrintout) container.getStack().getItem()).getType() == ItemPrintout.Type.BOOK;
+    }
+
+    @Override
+    public boolean keyPressed( int key, int scancode, int modifiers )
+    {
+        if( super.keyPressed( key, scancode, modifiers ) ) return true;
+
+        if( key == GLFW.GLFW_KEY_RIGHT )
+        {
+            if( page < pages - 1 ) page++;
+            return true;
+        }
+
+        if( key == GLFW.GLFW_KEY_LEFT )
+        {
+            if( page > 0 ) page--;
+            return true;
+        }
+
+        return false;
     }
 
     @Override
     public boolean mouseScrolled( double x, double y, double delta )
     {
-        if( super.mouseScrolled( x, y, delta ) )
-        {
-            return true;
-        }
+        if( super.mouseScrolled( x, y, delta ) ) return true;
         if( delta < 0 )
         {
             // Scroll up goes to the next page
-            if( page < pages - 1 )
-            {
-                page++;
-            }
+            if( page < pages - 1 ) page++;
             return true;
         }
 
         if( delta > 0 )
         {
             // Scroll down goes to the previous page
-            if( page > 0 )
-            {
-                page--;
-            }
+            if( page > 0 ) page--;
             return true;
         }
 
         return false;
+    }
+
+    @Override
+    protected void renderBg( @Nonnull PoseStack transform, float partialTicks, int mouseX, int mouseY )
+    {
+        // Draw the printout
+        RenderSystem.setShaderColor( 1.0f, 1.0f, 1.0f, 1.0f );
+        RenderSystem.enableDepthTest();
+
+        MultiBufferSource.BufferSource renderer = MultiBufferSource.immediate( Tesselator.getInstance().getBuilder() );
+        Matrix4f matrix = transform.last().pose();
+        drawBorder( matrix, renderer, leftPos, topPos, getBlitOffset(), page, pages, book, FULL_BRIGHT_LIGHTMAP );
+        drawText( matrix, renderer, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, text, colours );
+        renderer.endBatch();
     }
 
     @Override
@@ -103,51 +120,5 @@ public class GuiPrintout extends AbstractContainerScreen<ContainerHeldItem>
     protected void renderLabels( @Nonnull PoseStack transform, int mouseX, int mouseY )
     {
         // Skip rendering labels.
-    }
-
-    @Override
-    protected void renderBg( @Nonnull PoseStack transform, float partialTicks, int mouseX, int mouseY )
-    {
-        // Draw the printout
-        RenderSystem.setShaderColor( 1.0f, 1.0f, 1.0f, 1.0f );
-        RenderSystem.enableDepthTest();
-
-        MultiBufferSource.BufferSource renderer = Minecraft.getInstance()
-            .renderBuffers()
-            .bufferSource();
-        Matrix4f matrix = transform.last()
-            .pose();
-        drawBorder( matrix, renderer, leftPos, topPos, getBlitOffset(), page, pages, book, FULL_BRIGHT_LIGHTMAP );
-        drawText( matrix, renderer, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, text, colours );
-        renderer.endBatch();
-    }
-
-    @Override
-    public boolean keyPressed( int key, int scancode, int modifiers )
-    {
-        if( super.keyPressed( key, scancode, modifiers ) )
-        {
-            return true;
-        }
-
-        if( key == GLFW.GLFW_KEY_RIGHT )
-        {
-            if( page < pages - 1 )
-            {
-                page++;
-            }
-            return true;
-        }
-
-        if( key == GLFW.GLFW_KEY_LEFT )
-        {
-            if( page > 0 )
-            {
-                page--;
-            }
-            return true;
-        }
-
-        return false;
     }
 }

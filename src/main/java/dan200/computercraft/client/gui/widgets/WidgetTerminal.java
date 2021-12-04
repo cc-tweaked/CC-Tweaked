@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.client.gui.widgets;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -65,15 +64,104 @@ public class WidgetTerminal extends AbstractWidget
         if( ch >= 32 && ch <= 126 || ch >= 160 && ch <= 255 ) // printable chars in byte range
         {
             // Queue the "char" event
-            queueEvent( "char", Character.toString( ch ) );
+            computer.queueEvent( "char", new Object[] { Character.toString( ch ) } );
         }
 
         return true;
     }
 
-    private boolean inTermRegion( double mouseX, double mouseY )
+    @Override
+    public boolean keyPressed( int key, int scancode, int modifiers )
     {
-        return active && visible && mouseX >= innerX && mouseY >= innerY && mouseX < innerX + innerWidth && mouseY < innerY + innerHeight;
+        if( key == GLFW.GLFW_KEY_ESCAPE ) return false;
+        if( (modifiers & GLFW.GLFW_MOD_CONTROL) != 0 )
+        {
+            switch( key )
+            {
+                case GLFW.GLFW_KEY_T:
+                    if( terminateTimer < 0 ) terminateTimer = 0;
+                    return true;
+                case GLFW.GLFW_KEY_S:
+                    if( shutdownTimer < 0 ) shutdownTimer = 0;
+                    return true;
+                case GLFW.GLFW_KEY_R:
+                    if( rebootTimer < 0 ) rebootTimer = 0;
+                    return true;
+
+                case GLFW.GLFW_KEY_V:
+                    // Ctrl+V for paste
+                    String clipboard = Minecraft.getInstance().keyboardHandler.getClipboard();
+                    if( clipboard != null )
+                    {
+                        // Clip to the first occurrence of \r or \n
+                        int newLineIndex1 = clipboard.indexOf( "\r" );
+                        int newLineIndex2 = clipboard.indexOf( "\n" );
+                        if( newLineIndex1 >= 0 && newLineIndex2 >= 0 )
+                        {
+                            clipboard = clipboard.substring( 0, Math.min( newLineIndex1, newLineIndex2 ) );
+                        }
+                        else if( newLineIndex1 >= 0 )
+                        {
+                            clipboard = clipboard.substring( 0, newLineIndex1 );
+                        }
+                        else if( newLineIndex2 >= 0 )
+                        {
+                            clipboard = clipboard.substring( 0, newLineIndex2 );
+                        }
+
+                        // Filter the string
+                        clipboard = SharedConstants.filterText( clipboard );
+                        if( !clipboard.isEmpty() )
+                        {
+                            // Clip to 512 characters and queue the event
+                            if( clipboard.length() > 512 ) clipboard = clipboard.substring( 0, 512 );
+                            computer.queueEvent( "paste", new Object[] { clipboard } );
+                        }
+
+                        return true;
+                    }
+            }
+        }
+
+        if( key >= 0 && terminateTimer < 0 && rebootTimer < 0 && shutdownTimer < 0 )
+        {
+            // Queue the "key" event and add to the down set
+            boolean repeat = keysDown.get( key );
+            keysDown.set( key );
+            computer.keyDown( key, repeat );
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean keyReleased( int key, int scancode, int modifiers )
+    {
+        // Queue the "key_up" event and remove from the down set
+        if( key >= 0 && keysDown.get( key ) )
+        {
+            keysDown.set( key, false );
+            computer.keyUp( key );
+        }
+
+        switch( key )
+        {
+            case GLFW.GLFW_KEY_T:
+                terminateTimer = -1;
+                break;
+            case GLFW.GLFW_KEY_R:
+                rebootTimer = -1;
+                break;
+            case GLFW.GLFW_KEY_S:
+                shutdownTimer = -1;
+                break;
+            case GLFW.GLFW_KEY_LEFT_CONTROL:
+            case GLFW.GLFW_KEY_RIGHT_CONTROL:
+                terminateTimer = rebootTimer = shutdownTimer = -1;
+                break;
+        }
+
+        return true;
     }
 
     @Override
@@ -175,113 +263,27 @@ public class WidgetTerminal extends AbstractWidget
         return true;
     }
 
-    @Override
-    public boolean keyPressed( int key, int scancode, int modifiers )
+    private boolean inTermRegion( double mouseX, double mouseY )
     {
-        if( key == GLFW.GLFW_KEY_ESCAPE )
-        {
-            return false;
-        }
-        if( (modifiers & GLFW.GLFW_MOD_CONTROL) != 0 )
-        {
-            switch( key )
-            {
-                case GLFW.GLFW_KEY_T:
-                    if( terminateTimer < 0 )
-                    {
-                        terminateTimer = 0;
-                    }
-                    return true;
-                case GLFW.GLFW_KEY_S:
-                    if( shutdownTimer < 0 )
-                    {
-                        shutdownTimer = 0;
-                    }
-                    return true;
-                case GLFW.GLFW_KEY_R:
-                    if( rebootTimer < 0 )
-                    {
-                        rebootTimer = 0;
-                    }
-                    return true;
-
-                case GLFW.GLFW_KEY_V:
-                    // Ctrl+V for paste
-                    String clipboard = Minecraft.getInstance().keyboardHandler.getClipboard();
-                    if( clipboard != null )
-                    {
-                        // Clip to the first occurrence of \r or \n
-                        int newLineIndex1 = clipboard.indexOf( "\r" );
-                        int newLineIndex2 = clipboard.indexOf( "\n" );
-                        if( newLineIndex1 >= 0 && newLineIndex2 >= 0 )
-                        {
-                            clipboard = clipboard.substring( 0, Math.min( newLineIndex1, newLineIndex2 ) );
-                        }
-                        else if( newLineIndex1 >= 0 )
-                        {
-                            clipboard = clipboard.substring( 0, newLineIndex1 );
-                        }
-                        else if( newLineIndex2 >= 0 )
-                        {
-                            clipboard = clipboard.substring( 0, newLineIndex2 );
-                        }
-
-                        // Filter the string
-                        clipboard = SharedConstants.filterText( clipboard );
-                        if( !clipboard.isEmpty() )
-                        {
-                            // Clip to 512 characters and queue the event
-                            if( clipboard.length() > 512 )
-                            {
-                                clipboard = clipboard.substring( 0, 512 );
-                            }
-                            queueEvent( "paste", clipboard );
-                        }
-
-                        return true;
-                    }
-            }
-        }
-
-        if( key >= 0 && terminateTimer < 0 && rebootTimer < 0 && shutdownTimer < 0 )
-        {
-            // Queue the "key" event and add to the down set
-            boolean repeat = keysDown.get( key );
-            keysDown.set( key );
-            computer.keyDown( key, repeat );
-        }
-
-        return true;
+        return active && visible && mouseX >= innerX && mouseY >= innerY && mouseX < innerX + innerWidth && mouseY < innerY + innerHeight;
     }
 
-    @Override
-    public boolean keyReleased( int key, int scancode, int modifiers )
+    public void update()
     {
-        // Queue the "key_up" event and remove from the down set
-        if( key >= 0 && keysDown.get( key ) )
+        if( terminateTimer >= 0 && terminateTimer < TERMINATE_TIME && (terminateTimer += 0.05f) > TERMINATE_TIME )
         {
-            keysDown.set( key, false );
-            computer.keyUp( key );
+            computer.queueEvent( "terminate" );
         }
 
-        switch( key )
+        if( shutdownTimer >= 0 && shutdownTimer < TERMINATE_TIME && (shutdownTimer += 0.05f) > TERMINATE_TIME )
         {
-            case GLFW.GLFW_KEY_T:
-                terminateTimer = -1;
-                break;
-            case GLFW.GLFW_KEY_R:
-                rebootTimer = -1;
-                break;
-            case GLFW.GLFW_KEY_S:
-                shutdownTimer = -1;
-                break;
-            case GLFW.GLFW_KEY_LEFT_CONTROL:
-            case GLFW.GLFW_KEY_RIGHT_CONTROL:
-                terminateTimer = rebootTimer = shutdownTimer = -1;
-                break;
+            computer.shutdown();
         }
 
-        return true;
+        if( rebootTimer >= 0 && rebootTimer < TERMINATE_TIME && (rebootTimer += 0.05f) > TERMINATE_TIME )
+        {
+            computer.reboot();
+        }
     }
 
     @Override
@@ -308,44 +310,6 @@ public class WidgetTerminal extends AbstractWidget
     }
 
     @Override
-    public boolean isMouseOver( double x, double y )
-    {
-        return true;
-    }
-
-    private void queueEvent( String event, Object... args )
-    {
-        computer.queueEvent( event, args );
-    }
-
-    public void update()
-    {
-        if( terminateTimer >= 0 && terminateTimer < TERMINATE_TIME && (terminateTimer += 0.05f) > TERMINATE_TIME )
-        {
-            queueEvent( "terminate" );
-        }
-
-        if( shutdownTimer >= 0 && shutdownTimer < TERMINATE_TIME && (shutdownTimer += 0.05f) > TERMINATE_TIME )
-        {
-            computer.shutdown();
-        }
-
-        if( rebootTimer >= 0 && rebootTimer < TERMINATE_TIME && (rebootTimer += 0.05f) > TERMINATE_TIME )
-        {
-            computer.reboot();
-        }
-    }
-
-    private void queueEvent( String event )
-    {
-        ClientComputer computer = this.computer;
-        if( computer != null )
-        {
-            computer.queueEvent( event );
-        }
-    }
-
-    @Override
     public void render( @Nonnull PoseStack transform, int mouseX, int mouseY, float partialTicks )
     {
         if( !visible ) return;
@@ -362,9 +326,9 @@ public class WidgetTerminal extends AbstractWidget
     }
 
     @Override
-    public void updateNarration( NarrationElementOutput builder )
+    public void updateNarration( @Nonnull NarrationElementOutput output )
     {
-
+        // I'm not sure what the right option is here.
     }
 
     public static int getWidth( int termWidth )

@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.util;
 
 import com.google.gson.Gson;
@@ -29,17 +28,33 @@ import java.util.Map;
 public final class IDAssigner
 {
     private static final LevelResource FOLDER = LevelResourceAccess.create( ComputerCraft.MOD_ID );
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting()
-        .create();
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Type ID_TOKEN = new TypeToken<Map<String, Integer>>()
     {
     }.getType();
+
+    private IDAssigner()
+    {
+    }
+
     private static Map<String, Integer> ids;
     private static WeakReference<MinecraftServer> server;
     private static Path idFile;
 
-    private IDAssigner()
+    public static File getDir()
     {
+        return GameInstanceUtils.getServer().getWorldPath( FOLDER ).toFile();
+    }
+
+    private static MinecraftServer getCachedServer()
+    {
+        if( server == null ) return null;
+
+        MinecraftServer currentServer = server.get();
+        if( currentServer == null ) return null;
+
+        if( currentServer != GameInstanceUtils.getServer() ) return null;
+        return currentServer;
     }
 
     public static synchronized int getNextId( String kind )
@@ -48,31 +63,28 @@ public final class IDAssigner
         if( currentServer == null )
         {
             // The server has changed, refetch our ID map
-            if( GameInstanceUtils.getServer() != null )
+            server = new WeakReference<>( GameInstanceUtils.getServer() );
+
+            File dir = getDir();
+            dir.mkdirs();
+
+            // Load our ID file from disk
+            idFile = new File( dir, "ids.json" ).toPath();
+            if( Files.isRegularFile( idFile ) )
             {
-                server = new WeakReference<>( GameInstanceUtils.getServer() );
-
-                File dir = getDir();
-                dir.mkdirs();
-
-                // Load our ID file from disk
-                idFile = new File( dir, "ids.json" ).toPath();
-                if( Files.isRegularFile( idFile ) )
+                try( Reader reader = Files.newBufferedReader( idFile, StandardCharsets.UTF_8 ) )
                 {
-                    try( Reader reader = Files.newBufferedReader( idFile, StandardCharsets.UTF_8 ) )
-                    {
-                        ids = GSON.fromJson( reader, ID_TOKEN );
-                    }
-                    catch( Exception e )
-                    {
-                        ComputerCraft.log.error( "Cannot load id file '" + idFile + "'", e );
-                        ids = new HashMap<>();
-                    }
+                    ids = GSON.fromJson( reader, ID_TOKEN );
                 }
-                else
+                catch( Exception e )
                 {
+                    ComputerCraft.log.error( "Cannot load id file '" + idFile + "'", e );
                     ids = new HashMap<>();
                 }
+            }
+            else
+            {
+                ids = new HashMap<>();
             }
         }
 
@@ -91,32 +103,5 @@ public final class IDAssigner
         }
 
         return next;
-    }
-
-    private static MinecraftServer getCachedServer()
-    {
-        if( server == null )
-        {
-            return null;
-        }
-
-        MinecraftServer currentServer = server.get();
-        if( currentServer == null )
-        {
-            return null;
-        }
-
-        if( currentServer != GameInstanceUtils.getServer() )
-        {
-            return null;
-        }
-        return currentServer;
-    }
-
-    public static File getDir()
-    {
-        return GameInstanceUtils.getServer()
-            .getWorldPath( FOLDER )
-            .toFile();
     }
 }

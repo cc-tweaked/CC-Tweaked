@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.computer.items;
 
 import dan200.computercraft.ComputerCraft;
@@ -43,7 +42,8 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
             int id = getComputerID( stack );
             if( id >= 0 )
             {
-                list.add( new TranslatableComponent( "gui.computercraft.tooltip.computer_id", id ).withStyle( ChatFormatting.GRAY ) );
+                list.add( new TranslatableComponent( "gui.computercraft.tooltip.computer_id", id )
+                    .withStyle( ChatFormatting.GRAY ) );
             }
         }
     }
