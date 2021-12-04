@@ -13,21 +13,12 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.LogicalSidedProvider;
 
 import javax.annotation.Nonnull;
-import java.util.UUID;
 
 /**
  * A speaker peripheral which is used on an upgrade, and so is only attached to one computer.
  */
 public abstract class UpgradeSpeakerPeripheral extends SpeakerPeripheral
 {
-    private final UUID source = UUID.randomUUID();
-
-    @Override
-    protected final UUID getSource()
-    {
-        return source;
-    }
-
     @Override
     public void detach( @Nonnull IComputerAccess computer )
     {
@@ -35,6 +26,6 @@ public abstract class UpgradeSpeakerPeripheral extends SpeakerPeripheral
         MinecraftServer server = LogicalSidedProvider.INSTANCE.get( LogicalSide.SERVER );
         if( server == null || server.isStopped() ) return;
 
-        NetworkHandler.sendToAllPlayers( new SpeakerStopClientMessage( source ) );
+        NetworkHandler.sendToAllPlayers( new SpeakerStopClientMessage( getSource() ) );
     }
 }

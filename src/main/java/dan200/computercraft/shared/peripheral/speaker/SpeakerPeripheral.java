@@ -9,8 +9,10 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.network.client.SpeakerAudioClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerMoveClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerPlayClientMessage;
 import net.minecraft.network.play.server.SPlaySoundPacket;
@@ -25,8 +27,10 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
-import java.util.UUID;
+import javax.annotation.Nullable;
+import java.nio.ByteBuffer;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static dan200.computercraft.api.lua.LuaValues.checkFinite;
@@ -39,7 +43,13 @@ import static dan200.computercraft.api.lua.LuaValues.checkFinite;
  */
 public abstract class SpeakerPeripheral implements IPeripheral
 {
+    public static final int SAMPLE_RATE = 48000;
+    public static final long SECOND = TimeUnit.SECONDS.toNanos( 1 );
+
     private static final int MIN_TICKS_BETWEEN_SOUNDS = 1;
+
+    private final UUID source = UUID.randomUUID();
+    private final Set<IComputerAccess> computers = Collections.newSetFromMap( new HashMap<>() );
 
     private long clock = 0;
     private long lastPlayTime = 0;
@@ -48,34 +58,66 @@ public abstract class SpeakerPeripheral implements IPeripheral
     private long lastPositionTime;
     private Vector3d lastPosition;
 
+    private long clientEndTime = System.nanoTime();
+    private float pendingVolume = 1.0f;
+    private ByteBuffer pendingAudio;
+
     public void update()
     {
         clock++;
         notesThisTick.set( 0 );
 
+        // If clients need to receive another batch of audio, send it and then notify computers our internal buffer is
+        // free again.
+        long now = System.nanoTime();
+        if( pendingAudio != null && now >= clientEndTime - 4 * SECOND )
+        {
+            Vector3d position = getPosition();
+            NetworkHandler.sendToAllTracking(
+                new SpeakerAudioClientMessage( getSource(), getPosition(), pendingVolume, pendingAudio ),
+                getWorld().getChunkAt( new BlockPos( position ) )
+            );
+            syncedPosition( position );
+
+            // Compute when we should consider sending the next packet.
+            clientEndTime = Math.max( now, clientEndTime ) + (pendingAudio.remaining() * SECOND * 8 / SAMPLE_RATE);
+            pendingAudio = null;
+
+            // And notify computers that we have space for more audio.
+            for( IComputerAccess computer : computers )
+            {
+                computer.queueEvent( "needs_audio", computer.getAttachmentName() );
+            }
+        }
+
         // Push position updates to any speakers which have ever played a note,
         // have moved by a non-trivial amount and haven't had a position update
         // in the last second.
-        if( lastPlayTime > 0 && (clock - lastPositionTime) >= 20 )
+        if( lastPosition != null && (clock - lastPositionTime) >= 20 )
         {
             Vector3d position = getPosition();
-            if( lastPosition == null || lastPosition.distanceToSqr( position ) >= 0.1 )
+            if( lastPosition.distanceToSqr( position ) >= 0.1 )
             {
-                lastPosition = position;
-                lastPositionTime = clock;
                 NetworkHandler.sendToAllTracking(
                     new SpeakerMoveClientMessage( getSource(), position ),
                     getWorld().getChunkAt( new BlockPos( position ) )
                 );
+                syncedPosition( position );
             }
         }
     }
 
+    @Nullable
     public abstract World getWorld();
 
+    @Nonnull
     public abstract Vector3d getPosition();
 
-    protected abstract UUID getSource();
+    @Nonnull
+    public UUID getSource()
+    {
+        return source;
+    }
 
     public boolean madeSound( long ticks )
     {
@@ -174,15 +216,20 @@ public abstract class SpeakerPeripheral implements IPeripheral
             if( clock - lastPlayTime != 0 || notesThisTick.get() >= ComputerCraft.maxNotesPerTick ) return false;
         }
 
-        World world = getWorld();
-        Vector3d pos = getPosition();
-
         float actualVolume = MathHelper.clamp( volume, 0.0f, 3.0f );
         float range = actualVolume * 16;
 
         context.issueMainThreadTask( () -> {
+            World world = getWorld();
+            if( world == null ) return null;
+
             MinecraftServer server = world.getServer();
             if( server == null ) return null;
+
+            // We're setting the position here, so
+            Vector3d pos = getPosition();
+
+            pendingAudio = null; // Playing this sound will cause the music to stop.
 
             if( isNote )
             {
@@ -198,10 +245,54 @@ public abstract class SpeakerPeripheral implements IPeripheral
                     world, pos, range
                 );
             }
+
+            syncedPosition( pos );
+
             return null;
         } );
 
         lastPlayTime = clock;
         return true;
+    }
+
+    /**
+     * Attempt to stream some audio data to the speaker.
+     *
+     * @param context The Lua context.
+     * @param audio   The audio data to play. This should be a string between 1 and 16Kib long, containing the DFPWM data to play.
+     * @param volume  The volume to play this audio at.
+     * @return If there was room to accept this audio data. If this returns {@literal false}, you should wait for a {@literal needs_audio}
+     * event and try again.
+     * @throws LuaException If the audio data is malformed.
+     */
+    @LuaFunction
+    public final synchronized boolean playAudio( ILuaContext context, ByteBuffer audio, Optional<Double> volume ) throws LuaException
+    {
+        // TODO: Use ArgumentHelpers instead?
+        if( audio.remaining() <= 0 ) throw new LuaException( "Cannot play empty audio" );
+        if( audio.remaining() > 1024 * 16 ) throw new LuaException( "Audio data is too large" );
+        if( pendingAudio != null ) return false;
+
+        pendingAudio = audio;
+        pendingVolume = MathHelper.clamp( volume.orElse( (double) pendingVolume ).floatValue(), 0.0f, 3.0f );
+        return true;
+    }
+
+    private void syncedPosition( Vector3d position )
+    {
+        lastPosition = position;
+        lastPositionTime = clock;
+    }
+
+    @Override
+    public void attach( @Nonnull IComputerAccess computer )
+    {
+        computers.add( computer );
+    }
+
+    @Override
+    public void detach( @Nonnull IComputerAccess computer )
+    {
+        computers.remove( computer );
     }
 }

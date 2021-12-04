@@ -6,6 +6,7 @@
 package dan200.computercraft.client;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.client.sound.SpeakerManager;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
@@ -22,7 +23,7 @@ public class ClientHooks
         if( event.getWorld().isClientSide() )
         {
             ClientMonitor.destroyAll();
-            SoundManager.reset();
+            SpeakerManager.reset();
         }
     }
 

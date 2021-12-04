@@ -8,13 +8,13 @@ package dan200.computercraft.shared.network.client;
 import dan200.computercraft.client.sound.SpeakerManager;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
+import java.nio.ByteBuffer;
 import java.util.UUID;
 
 /**
@@ -24,30 +24,29 @@ import java.util.UUID;
  *
  * @see dan200.computercraft.shared.peripheral.speaker.TileSpeaker
  */
-public class SpeakerPlayClientMessage implements NetworkMessage
+public class SpeakerAudioClientMessage implements NetworkMessage
 {
     private final UUID source;
     private final Vector3d pos;
-    private final ResourceLocation sound;
+    private final ByteBuffer content;
     private final float volume;
-    private final float pitch;
 
-    public SpeakerPlayClientMessage( UUID source, Vector3d pos, ResourceLocation event, float volume, float pitch )
+    public SpeakerAudioClientMessage( UUID source, Vector3d pos, float volume, ByteBuffer content )
     {
         this.source = source;
         this.pos = pos;
-        sound = event;
+        this.content = content;
         this.volume = volume;
-        this.pitch = pitch;
     }
 
-    public SpeakerPlayClientMessage( PacketBuffer buf )
+    public SpeakerAudioClientMessage( PacketBuffer buf )
     {
         source = buf.readUUID();
         pos = new Vector3d( buf.readDouble(), buf.readDouble(), buf.readDouble() );
-        sound = buf.readResourceLocation();
         volume = buf.readFloat();
-        pitch = buf.readFloat();
+
+        SpeakerManager.getSound( source ).pushAudio( buf );
+        content = null;
     }
 
     @Override
@@ -57,15 +56,14 @@ public class SpeakerPlayClientMessage implements NetworkMessage
         buf.writeDouble( pos.x() );
         buf.writeDouble( pos.y() );
         buf.writeDouble( pos.z() );
-        buf.writeResourceLocation( sound );
         buf.writeFloat( volume );
-        buf.writeFloat( pitch );
+        buf.writeBytes( content.duplicate() );
     }
 
     @Override
     @OnlyIn( Dist.CLIENT )
     public void handle( NetworkEvent.Context context )
     {
-        SpeakerManager.getSound( source ).playSound( pos, sound, volume, pitch );
+        SpeakerManager.getSound( source ).playAudio( pos, volume );
     }
 }
