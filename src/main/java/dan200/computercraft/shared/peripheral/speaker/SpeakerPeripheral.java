@@ -43,8 +43,18 @@ import static dan200.computercraft.api.lua.LuaValues.checkFinite;
  */
 public abstract class SpeakerPeripheral implements IPeripheral
 {
+    private static final long SECOND = TimeUnit.SECONDS.toNanos( 1 );
+
+    /**
+     * Number of samples/s in a dfpwm1a audio track.
+     */
     public static final int SAMPLE_RATE = 48000;
-    public static final long SECOND = TimeUnit.SECONDS.toNanos( 1 );
+
+    /**
+     * The minimum size of the client's audio buffer. Once we have less than this on the client, we should send another
+     * batch of audio.
+     */
+    public static final long CLIENT_BUFFER = (long) (SECOND * 1.5);
 
     private static final int MIN_TICKS_BETWEEN_SOUNDS = 1;
 
@@ -70,7 +80,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
         // If clients need to receive another batch of audio, send it and then notify computers our internal buffer is
         // free again.
         long now = System.nanoTime();
-        if( pendingAudio != null && now >= clientEndTime - 4 * SECOND )
+        if( pendingAudio != null && now >= clientEndTime - CLIENT_BUFFER )
         {
             Vector3d position = getPosition();
             NetworkHandler.sendToAllTracking(

@@ -17,7 +17,7 @@ import net.minecraft.util.math.vector.Vector3d;
  */
 public class SpeakerInstance
 {
-    public static final ResourceLocation DFPWM_STREAM = new ResourceLocation( ComputerCraft.MOD_ID, "speaker/dfpwm/fake_audio_should_not_be_played" );
+    public static final ResourceLocation DFPWM_STREAM = new ResourceLocation( ComputerCraft.MOD_ID, "speaker.dfpwm_fake_audio_should_not_be_played" );
 
     private DfpwmStream currentStream;
     private SpeakerSound sound;
@@ -46,10 +46,7 @@ public class SpeakerInstance
 
         if( sound == null && currentStream != null )
         {
-            ComputerCraft.log.info( "Playing sound!?" );
-            sound = new SpeakerSound( new ResourceLocation(
-                "minecraft:music_disc.pigstep"
-            ), currentStream, position, volume, 1.0f );
+            sound = new SpeakerSound( DFPWM_STREAM, currentStream, position, volume, 1.0f );
             soundManager.play( sound );
         }
     }

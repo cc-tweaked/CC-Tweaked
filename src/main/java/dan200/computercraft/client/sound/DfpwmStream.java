@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.client.sound;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.audio.IAudioStream;
@@ -112,7 +111,6 @@ class DfpwmStream implements IAudioStream
         }
 
         result.flip();
-        ComputerCraft.log.info( "Have {} packets left", buffers.size() );
         return result;
     }
 
