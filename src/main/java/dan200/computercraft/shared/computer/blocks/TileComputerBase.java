@@ -205,6 +205,13 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         on = startOn = nbt.getBoolean( NBT_ON );
     }
 
+    //    @Override
+    //    public void handleUpdateTag( @Nonnull CompoundTag nbt )
+    //    {
+    //        label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
+    //        computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
+    //    }
+
     protected boolean isPeripheralBlockedOnSide( ComputerSide localSide )
     {
         return false;
@@ -395,13 +402,6 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         if( computerID >= 0 ) nbt.putInt( NBT_ID, computerID );
         return nbt;
     }
-
-    //    @Override
-    //    public void handleUpdateTag( @Nonnull CompoundTag nbt )
-    //    {
-    //        label = nbt.contains( NBT_LABEL ) ? nbt.getString( NBT_LABEL ) : null;
-    //        computerID = nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
-    //    }
 
     protected void transferStateFrom( TileComputerBase copy )
     {

@@ -267,7 +267,15 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
         // Read state
         brain.readFromNBT( nbt );
+        brain.readDescription( nbt );
     }
+
+    //    @Override
+    //    public void handleUpdateTag( @Nonnull CompoundTag nbt )
+    //    {
+    //        super.handleUpdateTag( nbt );
+    //        brain.readDescription( nbt );
+    //    }
 
     @Override
     public void saveAdditional( @Nonnull CompoundTag nbt )
@@ -491,13 +499,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         brain.writeDescription( nbt );
         return nbt;
     }
-
-    //    @Override
-    //    public void handleUpdateTag( @Nonnull CompoundTag nbt )
-    //    {
-    //        super.handleUpdateTag( nbt );
-    //        brain.readDescription( nbt );
-    //    }
 
     // Privates
 
