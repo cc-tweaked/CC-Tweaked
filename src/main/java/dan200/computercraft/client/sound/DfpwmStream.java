@@ -67,14 +67,15 @@ class DfpwmStream implements IAudioStream
                     ? nextCharge
                     : nextCharge + charge + 1 >> 1;
 
-                // And low pass filter: outQ <- outQ + ((expectedOutput - outQ) x 100 / 256)
-                // Except not, because DFPWMA1a isn't actually documented.
+                // And low pass filter: outQ <- outQ + ((expectedOutput - outQ) x 140 / 256)
                 lowPassCharge += ((chargeWithAntijerk - lowPassCharge) * LPF_STRENGTH + 0x80) >> 8;
 
                 charge = nextCharge;
                 strength = nextStrength;
                 previousBit = currentBit;
 
+                // OpenAL expects signed data ([0, 255]) while we produce unsigned ([-128, 127]). Do some bit twiddling
+                // magic to convert.
                 output.put( (byte) ((lowPassCharge & 0xFF) ^ 0x80) );
 
                 inputByte >>= 1;

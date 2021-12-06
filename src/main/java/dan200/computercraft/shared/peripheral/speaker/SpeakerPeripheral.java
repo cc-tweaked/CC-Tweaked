@@ -96,7 +96,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
             // And notify computers that we have space for more audio.
             for( IComputerAccess computer : computers )
             {
-                computer.queueEvent( "needs_audio", computer.getAttachmentName() );
+                computer.queueEvent( "speaker_audio_empty", computer.getAttachmentName() );
             }
         }
 
