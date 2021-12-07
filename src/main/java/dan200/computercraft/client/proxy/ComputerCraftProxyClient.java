@@ -14,7 +14,7 @@ import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.client.render.TurtleModelLoader;
 import dan200.computercraft.client.render.TurtlePlayerRenderer;
-import dan200.computercraft.fabric.events.ClientUnloadWorldEvent;
+import dan200.computercraft.fabric.events.ComputerCraftCustomEvents;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.common.IColouredItem;
@@ -23,6 +23,7 @@ import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
+import dan200.computercraft.shared.peripheral.monitor.MonitorWatcher;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
@@ -60,7 +61,7 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
             }
         } );
 
-        ClientUnloadWorldEvent.EVENT.register( () -> ClientMonitor.destroyAll() );
+        ComputerCraftCustomEvents.CLIENT_UNLOAD_WORLD_EVENT.register( () -> ClientMonitor.destroyAll() );
 
         // Config
         ClientLifecycleEvents.CLIENT_STARTED.register( Config::clientStarted );
@@ -70,6 +71,7 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
     public void onInitializeClient()
     {
         FrameInfo.init();
+        MonitorWatcher.init();
         registerContainers();
 
         // While turtles themselves are not transparent, their upgrades may be.

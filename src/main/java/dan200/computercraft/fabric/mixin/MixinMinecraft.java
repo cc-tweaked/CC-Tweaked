@@ -6,7 +6,7 @@
 package dan200.computercraft.fabric.mixin;
 
 import dan200.computercraft.client.FrameInfo;
-import dan200.computercraft.fabric.events.ClientUnloadWorldEvent;
+import dan200.computercraft.fabric.events.ComputerCraftCustomEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -27,12 +27,12 @@ public abstract class MixinMinecraft
     @Inject( method = "clearLevel(Lnet/minecraft/client/gui/screens/Screen;)V", at = @At( "RETURN" ) )
     private void disconnectAfter( Screen screen, CallbackInfo info )
     {
-        ClientUnloadWorldEvent.EVENT.invoker().onClientUnloadWorld();
+        ComputerCraftCustomEvents.CLIENT_UNLOAD_WORLD_EVENT.invoker().onClientUnloadWorld();
     }
 
     @Inject( method = "setLevel", at = @At( "RETURN" ) )
     private void setLevel( ClientLevel world, CallbackInfo info )
     {
-        ClientUnloadWorldEvent.EVENT.invoker().onClientUnloadWorld();
+        ComputerCraftCustomEvents.CLIENT_UNLOAD_WORLD_EVENT.invoker().onClientUnloadWorld();
     }
 }

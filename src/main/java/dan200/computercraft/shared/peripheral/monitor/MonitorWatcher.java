@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.fabric.events.ComputerCraftCustomEvents;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.MonitorClientMessage;
 import dan200.computercraft.shared.network.client.TerminalState;
@@ -14,7 +15,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 import java.util.ArrayDeque;
@@ -31,11 +35,8 @@ public final class MonitorWatcher
 
     public static void init()
     {
-        ServerTickEvents.END_SERVER_TICK.register( server -> {
-            onTick( server );
-        } );
-
-
+        ServerTickEvents.END_SERVER_TICK.register( MonitorWatcher::onTick );
+        ComputerCraftCustomEvents.SERVER_PLAYER_LOADED_CHUNK_EVENT.register( MonitorWatcher::onWatch );
     }
 
     static void enqueue( TileMonitor monitor )
@@ -47,24 +48,23 @@ public final class MonitorWatcher
         watching.add( monitor );
     }
 
-    //    public static void onWatch( ChunkWatchEvent.Watch event )
-    //    {
-    //        ChunkPos chunkPos = event.getPos();
-    //        LevelChunk chunk = (LevelChunk) event.getWorld().getChunk( chunkPos.x, chunkPos.z, ChunkStatus.FULL, false );
-    //        if( chunk == null ) return;
-    //
-    //        for( BlockEntity te : chunk.getBlockEntities().values() )
-    //        {
-    //            // Find all origin monitors who are not already on the queue.
-    //            if( !(te instanceof TileMonitor monitor) ) continue;
-    //
-    //            ServerMonitor serverMonitor = getMonitor( monitor );
-    //            if( serverMonitor == null || monitor.enqueued ) continue;
-    //
-    //            // The chunk hasn't been sent to the client yet, so we can't send an update. Do it on tick end.
-    //            playerUpdates.add( new PlayerUpdate( event.getPlayer(), monitor ) );
-    //        }
-    //    }
+    public static void onWatch( ServerPlayer serverPlayer, ChunkPos chunkPos )
+    {
+        LevelChunk chunk = (LevelChunk) serverPlayer.getLevel().getChunk( chunkPos.x, chunkPos.z, ChunkStatus.FULL, false );
+        if( chunk == null ) return;
+
+        for( BlockEntity te : chunk.getBlockEntities().values() )
+        {
+            // Find all origin monitors who are not already on the queue.
+            if( !(te instanceof TileMonitor monitor) ) continue;
+
+            ServerMonitor serverMonitor = getMonitor( monitor );
+            if( serverMonitor == null || monitor.enqueued ) continue;
+
+            // The chunk hasn't been sent to the client yet, so we can't send an update. Do it on tick end.
+            playerUpdates.add( new PlayerUpdate( serverPlayer, monitor ) );
+        }
+    }
 
     public static void onTick( MinecraftServer server )
     {
