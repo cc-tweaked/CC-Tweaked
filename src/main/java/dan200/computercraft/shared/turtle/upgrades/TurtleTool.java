@@ -27,6 +27,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -47,6 +48,7 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.function.Function;
 
 import static net.minecraft.nbt.Tag.TAG_COMPOUND;
@@ -59,20 +61,16 @@ public class TurtleTool extends AbstractTurtleUpgrade
 
     final ItemStack item;
     final float damageMulitiplier;
+    @Nullable
+    final Tag<Block> breakable;
 
-    public TurtleTool( ResourceLocation id, Item item, float damageMulitiplier )
+    public TurtleTool( ResourceLocation id, Item item, float damageMulitiplier, @Nullable Tag<Block> breakable )
     {
         super( id, TurtleUpgradeType.TOOL, new ItemStack( item ) );
         this.item = new ItemStack( item );
         this.damageMulitiplier = damageMulitiplier;
+        this.breakable = breakable;
     }
-
-    //    public TurtleTool( ResourceLocation id, String adjective, Item craftItem, ItemStack toolItem, float damageMulitiplier )
-    //    {
-    //        super( id, TurtleUpgradeType.TOOL, adjective, new ItemStack( craftItem ) );
-    //        item = toolItem;
-    //        this.damageMulitiplier = damageMulitiplier;
-    //    }
 
     @Override
     public boolean isItemSuitable( @Nonnull ItemStack stack )
@@ -124,7 +122,8 @@ public class TurtleTool extends AbstractTurtleUpgrade
             return UNBREAKABLE;
         }
 
-        return isTriviallyBreakable( world, pos, state ) ? TurtleCommandResult.success() : INEFFECTIVE;
+        return breakable == null || breakable.contains( state.getBlock() ) || isTriviallyBreakable( world, pos, state )
+            ? TurtleCommandResult.success() : INEFFECTIVE;
     }
 
     private TurtleCommandResult attack( ITurtleAccess turtle, Direction direction )
@@ -247,16 +246,18 @@ public class TurtleTool extends AbstractTurtleUpgrade
 
         BlockEntity tile = world.getBlockEntity( blockPosition );
 
-        // Much of this logic comes from PlayerInteractionManager#tryHarvestBlock, so it's a good idea
+        // Much of this logic comes from MultiPlayerGameModer#destroyBlock, so it's a good idea
         // to consult there before making any changes.
 
         // Play the destruction sound and particles
         world.levelEvent( 2001, blockPosition, Block.getId( state ) );
 
         // Destroy the block
-        state.getBlock().destroy( world, blockPosition, state );
         boolean canHarvest = turtlePlayer.hasCorrectToolForDrops( state );
-        if( canHarvest )
+        state.getBlock().playerWillDestroy( world, blockPosition, state, turtlePlayer );
+        boolean canBreak = world.setBlock( blockPosition, fluidState.createLegacyBlock(), 11 );
+        if( canBreak ) state.getBlock().destroy( world, blockPosition, state );
+        if( canHarvest && canBreak )
         {
             state.getBlock().playerDestroy( world, turtlePlayer, blockPosition, state, tile, turtlePlayer.getMainHandItem() );
         }

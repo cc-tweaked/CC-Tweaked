@@ -7,6 +7,7 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
@@ -339,23 +340,23 @@ public final class Registry
         public static TurtleCraftingTable craftingTable =
             new TurtleCraftingTable( new ResourceLocation( "minecraft", "crafting_table" ), new ItemStack( Items.CRAFTING_TABLE ) );
 
-        public static TurtleSword diamondSword =
-            new TurtleSword( new ResourceLocation( "minecraft", "diamond_sword" ), Items.DIAMOND_SWORD, 9.0f );
+        public static TurtleTool diamondSword =
+            new TurtleTool( new ResourceLocation( "minecraft", "diamond_sword" ), Items.DIAMOND_SWORD, 9.0f, ComputerCraftTags.Blocks.TURTLE_SWORD_BREAKABLE );
 
-        public static TurtleShovel diamondShovel =
-            new TurtleShovel( new ResourceLocation( "minecraft", "diamond_shovel" ), Items.DIAMOND_SHOVEL, 1.0f );
+        public static TurtleTool diamondShovel =
+            new TurtleTool( new ResourceLocation( "minecraft", "diamond_shovel" ), Items.DIAMOND_SHOVEL, 1.0f, ComputerCraftTags.Blocks.TURTLE_SHOVEL_BREAKABLE );
 
         public static TurtleTool diamondPickaxe =
-            new TurtleTool( new ResourceLocation( "minecraft", "diamond_pickaxe" ), Items.DIAMOND_PICKAXE, 1.0f );
+            new TurtleTool( new ResourceLocation( "minecraft", "diamond_pickaxe" ), Items.DIAMOND_PICKAXE, 1.0f, null );
 
-        public static TurtleAxe diamondAxe =
-            new TurtleAxe( new ResourceLocation( "minecraft", "diamond_axe" ), Items.DIAMOND_AXE, 6.0f );
+        public static TurtleTool diamondAxe =
+            new TurtleTool( new ResourceLocation( "minecraft", "diamond_axe" ), Items.DIAMOND_AXE, 6.0f, null );
 
-        public static TurtleHoe diamondHoe =
-            new TurtleHoe( new ResourceLocation( "minecraft", "diamond_hoe" ), Items.DIAMOND_HOE, 1.0f );
+        public static TurtleTool diamondHoe =
+            new TurtleTool( new ResourceLocation( "minecraft", "diamond_hoe" ), Items.DIAMOND_HOE, 1.0f, ComputerCraftTags.Blocks.TURTLE_HOE_BREAKABLE );
 
         public static TurtleTool netheritePickaxe =
-            new TurtleTool( new ResourceLocation( "minecraft", "netherite_pickaxe" ), Items.NETHERITE_PICKAXE, 1.0f );
+            new TurtleTool( new ResourceLocation( "minecraft", "netherite_pickaxe" ), Items.NETHERITE_PICKAXE, 1.0f, null );
 
         public static void registerTurtleUpgrades()
         {
