@@ -69,6 +69,10 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
             }
             throw new LuaError( "Java Exception Thrown: " + t, 0 );
         }
+        finally
+        {
+            arguments.releaseImmediate();
+        }
 
         ILuaCallback callback = results.getCallback();
         Varargs ret = machine.toValues( results.getResult() );

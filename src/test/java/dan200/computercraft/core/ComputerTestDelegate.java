@@ -97,7 +97,7 @@ public class ComputerTestDelegate
 
         if( REPORT_PATH.delete() ) ComputerCraft.log.info( "Deleted previous coverage report." );
 
-        Terminal term = new Terminal( 80, 30 );
+        Terminal term = new Terminal( 80, 100 );
         IWritableMount mount = new FileMount( new File( "test-files/mount" ), 10_000_000 );
 
         // Remove any existing files
