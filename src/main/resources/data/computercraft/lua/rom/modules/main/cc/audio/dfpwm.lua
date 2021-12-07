@@ -4,22 +4,6 @@ Allows encoding and decoding "dfpwm" audio files.
 DFPWM (Dynamic Filter Pulse Width Modulation) is an audio codec designed by GreaseMonkey. It uses 1 bit per sample,
 which allows it to be (relatively) compact, while simple enough to encode and decode in real time.
 
-## A short introduction to digital audio
-When sound is recorded it comes in as an analogue signal, effectively the electrical version of a sound wave. However,
-this signal is continuous, and so can't be used directly by a computer. Instead, we measure (or *sample*) the amplitude
-of the wave many times a second and then *quantise* that amplitude, rounding it to the nearest representable value.
-
-This representation of sound - a long, uniformally sampled, list of amplitudes is referred to as [Pulse-code Modulation][PCM]
-(PCM). PCM can be thought of as the "standard" audio format and it's incredibly easy to work with. For instance, to
-mix two pieces of audio together, you can just take the average of every sample.
-
-However, it's also not a very efficient format. Compare the size of a WAV file (which uses PCM) to an equivalent MP3,
-it's often 5 times the size. Instead, we store audio in special formats (or *codecs*) and then convert them to PCM
-when we need to do processing on them.
-
-It's often inefficient to load a large sound file all in one go. Instead, we use a *stream* of audio, where chunks of
-data are read from disk, decoded, and then passed off to your audio processing functions.
-
 ## The @{cc.audio.dfpwm} module
 This module provides functions for converting between streams of DFPWM data and sampled amplitudes. DFPWM data is
 represented as string, as it is typically read from the @{fs.BinaryReadHandle|filesystem} or
@@ -37,7 +21,6 @@ DFPWM is not a popular file format and so standard audio processing tools will n
 Instead, you can convert audio files online using [music.madefor.cc] or with the [LionRay Wav Converter][LionRay] Java
 application.
 
-[PCM]: https://en.wikipedia.org/wiki/Pulse-code_modulation "Pulse-code Modulation - Wikipedia"
 [music.madefor.cc]: https://music.madefor.cc/ "DFPWM audio converter for Computronics and CC: Tweaked"
 [LionRay]: https://github.com/gamax92/LionRay/ "LionRay Wav Converter "
 
@@ -49,7 +32,6 @@ local dfpwm = require "cc.audio.dfpwm"
 local speaker = peripheral.find("speaker")
 
 local decoder = dfpwm.make_decoder()
-local encoder = dfpwm.make_encoder()
 
 for input in io.lines("my_audio_track.dfpwm", 16 * 1024 * 2) do
   local decoded = decoder(input)
@@ -61,8 +43,7 @@ for input in io.lines("my_audio_track.dfpwm", 16 * 1024 * 2) do
     output[(i + 1) / 2] = (value_1 + value_2) / 2
   end
 
-  local encoded = encoder(output)
-  while not speaker.playAudio(encoded) do os.pullEvent("speaker_audio_empty") end
+  while not speaker.playAudio(output) do os.pullEvent("speaker_audio_empty") end
 end
 ```
 ]]

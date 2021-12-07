@@ -1,8 +1,9 @@
 ; -*- mode: Lisp;-*-
 
 (sources
-  /doc/stub/
   /doc/events/
+  /doc/guides/
+  /doc/stub/
   /build/docs/luaJavadoc/
   /src/main/resources/*/computercraft/lua/bios.lua
   /src/main/resources/*/computercraft/lua/rom/
@@ -27,7 +28,8 @@
   (module-kinds
     (peripheral Peripherals)
     (generic_peripheral "Generic Peripherals")
-    (event Events))
+    (event Events)
+    (guide Guides))
 
   (library-path
     /doc/stub/
