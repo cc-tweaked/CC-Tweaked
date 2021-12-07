@@ -9,6 +9,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.lua.LuaTable;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.network.NetworkHandler;
@@ -70,6 +71,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
     private long clientEndTime = System.nanoTime();
     private float pendingVolume = 1.0f;
+    private DfpwmEncoder encoder;
     private ByteBuffer pendingAudio;
 
     public void update()
@@ -275,15 +277,18 @@ public abstract class SpeakerPeripheral implements IPeripheral
      * event and try again.
      * @throws LuaException If the audio data is malformed.
      */
-    @LuaFunction
-    public final synchronized boolean playAudio( ILuaContext context, ByteBuffer audio, Optional<Double> volume ) throws LuaException
+    @LuaFunction( unsafe = true )
+    public final synchronized boolean playAudio( ILuaContext context, LuaTable<?, ?> audio, Optional<Double> volume ) throws LuaException
     {
         // TODO: Use ArgumentHelpers instead?
-        if( audio.remaining() <= 0 ) throw new LuaException( "Cannot play empty audio" );
-        if( audio.remaining() > 1024 * 16 ) throw new LuaException( "Audio data is too large" );
+        int length = audio.length();
+        if( length <= 0 ) throw new LuaException( "Cannot play empty audio" );
+        if( length > 1024 * 16 * 8 ) throw new LuaException( "Audio data is too large" );
         if( pendingAudio != null ) return false;
 
-        pendingAudio = audio;
+        if( encoder == null || clientEndTime < System.nanoTime() ) encoder = new DfpwmEncoder();
+
+        pendingAudio = encoder.encode( audio, length );
         pendingVolume = MathHelper.clamp( volume.orElse( (double) pendingVolume ).floatValue(), 0.0f, 3.0f );
         return true;
     }
