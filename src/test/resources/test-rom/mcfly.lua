@@ -189,13 +189,18 @@ end
 local expect_mt = {}
 expect_mt.__index = expect_mt
 
+function expect_mt:_fail(message)
+    if self._extra then message = self._extra .. "\n" .. message end
+    fail(message)
+end
+
 --- Assert that this expectation has the provided value
 --
 -- @param value The value to require this expectation to be equal to
 -- @throws If the values are not equal
 function expect_mt:equals(value)
     if value ~= self.value then
-        fail(("Expected %s\n but got %s"):format(format(value), format(self.value)))
+        self:_fail(("Expected %s\n but got %s"):format(format(value), format(self.value)))
     end
 
     return self
@@ -209,7 +214,7 @@ expect_mt.eq = expect_mt.equals
 -- @throws If the values are equal
 function expect_mt:not_equals(value)
     if value == self.value then
-        fail(("Expected any value but %s"):format(format(value)))
+        self:_fail(("Expected any value but %s"):format(format(value)))
     end
 
     return self
@@ -224,7 +229,7 @@ expect_mt.ne = expect_mt.not_equals
 function expect_mt:type(exp_type)
     local actual_type = type(self.value)
     if exp_type ~= actual_type then
-        fail(("Expected value of type %s\nbut got %s"):format(exp_type, actual_type))
+        self:_fail(("Expected value of type %s\nbut got %s"):format(exp_type, actual_type))
     end
 
     return self
@@ -273,7 +278,7 @@ end
 -- @throws If they are not equivalent
 function expect_mt:same(value)
     if not matches({}, true, self.value, value) then
-        fail(("Expected %s\nbut got %s"):format(format(value), format(self.value)))
+        self:_fail(("Expected %s\nbut got %s"):format(format(value), format(self.value)))
     end
 
     return self
@@ -286,7 +291,7 @@ end
 -- @throws If this does not match the provided value
 function expect_mt:matches(value)
     if not matches({}, false, value, self.value) then
-        fail(("Expected %s\nto match %s"):format(format(self.value), format(value)))
+        self:_fail(("Expected %s\nto match %s"):format(format(self.value), format(value)))
     end
 
     return self
@@ -299,19 +304,19 @@ end
 -- @throws If this function was not called the expected number of times.
 function expect_mt:called(times)
     if getmetatable(self.value) ~= stub_mt or self.value.arguments == nil then
-        fail(("Expected stubbed function, got %s"):format(type(self.value)))
+        self:_fail(("Expected stubbed function, got %s"):format(type(self.value)))
     end
 
     local called = #self.value.arguments
 
     if times == nil then
         if called == 0 then
-            fail("Expected stub to be called\nbut it was not.")
+            self:_fail("Expected stub to be called\nbut it was not.")
         end
     else
         check('stub', 1, 'number', times)
         if called ~= times then
-            fail(("Expected stub to be called %d times\nbut was called %d times."):format(times, called))
+            self:_fail(("Expected stub to be called %d times\nbut was called %d times."):format(times, called))
         end
     end
 
@@ -320,7 +325,7 @@ end
 
 local function called_with_check(eq, self, ...)
     if getmetatable(self.value) ~= stub_mt or self.value.arguments == nil then
-        fail(("Expected stubbed function, got %s"):format(type(self.value)))
+        self:_fail(("Expected stubbed function, got %s"):format(type(self.value)))
     end
 
     local exp_args = table.pack(...)
@@ -331,14 +336,14 @@ local function called_with_check(eq, self, ...)
 
     local head = ("Expected stub to be called with %s\nbut was"):format(format(exp_args))
     if #actual_args == 0 then
-        fail(head .. " not called at all")
+        self:_fail(head .. " not called at all")
     elseif #actual_args == 1 then
-        fail(("%s called with %s."):format(head, format(actual_args[1])))
+        self:_fail(("%s called with %s."):format(head, format(actual_args[1])))
     else
         local lines = { head .. " called with:" }
         for i = 1, #actual_args do lines[i + 1] = " - " .. format(actual_args[i]) end
 
-        fail(table.concat(lines, "\n"))
+        self:_fail(table.concat(lines, "\n"))
     end
 end
 
@@ -363,12 +368,21 @@ end
 function expect_mt:str_match(pattern)
     local actual_type = type(self.value)
     if actual_type ~= "string" then
-        fail(("Expected value of type string\nbut got %s"):format(actual_type))
+        self:_fail(("Expected value of type string\nbut got %s"):format(actual_type))
     end
     if not self.value:find(pattern) then
-        fail(("Expected %q\n to match pattern %q"):format(self.value, pattern))
+        self:_fail(("Expected %q\n to match pattern %q"):format(self.value, pattern))
     end
 
+    return self
+end
+
+--- Add extra information to this error message.
+--
+-- @tparam string message Additional message to prepend in the case of failures.
+-- @return The current
+function expect_mt:describe(message)
+    self._extra = tostring(message)
     return self
 end
 
