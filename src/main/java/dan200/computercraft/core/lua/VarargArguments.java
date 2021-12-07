@@ -19,6 +19,7 @@ class VarargArguments implements IArguments
 {
     static final IArguments EMPTY = new VarargArguments( Constants.NONE );
 
+    boolean released;
     private final Varargs varargs;
     private Object[] cache;
 
@@ -97,5 +98,40 @@ class VarargArguments implements IArguments
 
         LuaString str = ((LuaBaseString) value).strvalue();
         return Optional.of( ByteBuffer.wrap( str.bytes, str.offset, str.length ).asReadOnlyBuffer() );
+    }
+
+    @Nonnull
+    @Override
+    public dan200.computercraft.api.lua.LuaTable<?, ?> getTableUnsafe( int index ) throws LuaException
+    {
+        if( released )
+        {
+            throw new IllegalStateException( "Cannot use getTableUnsafe after IArguments has been released" );
+        }
+
+        LuaValue value = varargs.arg( index + 1 );
+        if( !(value instanceof LuaTable) ) throw LuaValues.badArgument( index, "table", value.typeName() );
+        return new TableImpl( this, (LuaTable) value );
+    }
+
+    @Nonnull
+    @Override
+    public Optional<dan200.computercraft.api.lua.LuaTable<?, ?>> optTableUnsafe( int index ) throws LuaException
+    {
+        if( released )
+        {
+            throw new IllegalStateException( "Cannot use optTableUnsafe after IArguments has been released" );
+        }
+
+        LuaValue value = varargs.arg( index + 1 );
+        if( value.isNil() ) return Optional.empty();
+        if( !(value instanceof LuaTable) ) throw LuaValues.badArgument( index, "table", value.typeName() );
+        return Optional.of( new TableImpl( this, (LuaTable) value ) );
+    }
+
+    @Override
+    public void releaseImmediate()
+    {
+        released = true;
     }
 }
