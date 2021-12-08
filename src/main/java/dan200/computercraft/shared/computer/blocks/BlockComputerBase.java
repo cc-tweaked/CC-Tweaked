@@ -140,6 +140,8 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     @Override
     public void playerWillDestroy( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player )
     {
+        super.playerWillDestroy( world, pos, state, player );
+
         if( !(world instanceof ServerLevel serverWorld) ) return;
 
         // We drop the item here instead of doing it in the harvest method, as we should
