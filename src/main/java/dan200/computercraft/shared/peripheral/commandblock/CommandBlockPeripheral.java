@@ -29,7 +29,7 @@ import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 /**
  * This peripheral allows you to interact with command blocks.
  *
- * Command blocks are only wrapped as peripherals if the {@literal enable_command_block} option is true within the
+ * Command blocks are only wrapped as peripherals if the {@code enable_command_block} option is true within the
  * config.
  *
  * This API is <em>not</em> the same as the {@link CommandAPI} API, which is exposed on command computers.

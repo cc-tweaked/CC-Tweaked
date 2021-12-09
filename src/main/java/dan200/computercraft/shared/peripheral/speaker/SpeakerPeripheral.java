@@ -207,10 +207,9 @@ public abstract class SpeakerPeripheral implements IPeripheral
      * The speaker supports [all of Minecraft's noteblock instruments](https://minecraft.fandom.com/wiki/Note_Block#Instruments).
      * These are:
      *
-     * {@literal "harp"}, {@literal "basedrum"}, {@literal "snare"}, {@literal "hat"}, {@literal "bass"},
-     * {@literal "flute"}, {@literal "bell"}, {@literal "guitar"}, {@literal "chime"}, {@literal "xylophone"},
-     * {@literal "iron_xylophone"}, {@literal "cow_bell"}, {@literal "didgeridoo"}, {@literal "bit"},
-     * {@literal "banjo"} and {@literal "pling"}.
+     * {@code "harp"}, {@code "basedrum"}, {@code "snare"}, {@code "hat"}, {@code "bass"}, @code "flute"},
+     * {@code "bell"}, {@code "guitar"}, {@code "chime"}, {@code "xylophone"}, {@code "iron_xylophone"},
+     * {@code "cow_bell"}, {@code "didgeridoo"}, {@code "bit"}, {@code "banjo"} and {@code "pling"}.
      *
      * @param context     The Lua context
      * @param instrumentA The instrument to use to play this note.
@@ -250,7 +249,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
      * Plays a Minecraft sound through the speaker.
      *
      * This takes the [name of a Minecraft sound](https://minecraft.fandom.com/wiki/Sounds.json), such as
-     * {@literal "minecraft:block.note_block.harp"}, as well as an optional volume and pitch.
+     * {@code "minecraft:block.note_block.harp"}, as well as an optional volume and pitch.
      *
      * Only one sound can be played at once. This function will return {@literal false} if another sound was started
      * this tick, or if some {@link #playAudio audio} is still playing.
@@ -300,7 +299,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
      * and played back which are played back at 48kHz. If this buffer is full, this function will return
      * {@literal false}, and you should wait for a @{speaker_audio_empty} event and try again.
      *
-     * "@{speaker_audio}" provides a more complete guide in to using speakers
+     * {@literal @}{speaker_audio} provides a more complete guide in to using speakers
      *
      * @param context The Lua context.
      * @param audio   The audio data to play.
