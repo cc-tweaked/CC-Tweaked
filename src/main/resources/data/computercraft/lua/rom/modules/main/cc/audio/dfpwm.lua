@@ -1,38 +1,41 @@
 --[[-
-Allows encoding and decoding "dfpwm" audio files.
+Provides utilities for converting between streams of DFPWM audio data and a list of amplitudes.
 
-DFPWM (Dynamic Filter Pulse Width Modulation) is an audio codec designed by GreaseMonkey. It uses 1 bit per sample,
-which allows it to be (relatively) compact, while simple enough to encode and decode in real time.
+DFPWM (Dynamic Filter Pulse Width Modulation) is an audio codec designed by GreaseMonkey. It's a relatively compact
+format compared to raw PCM data, only using 1 bit per sample, but is simple enough to simple enough to encode and decode
+in real time.
 
-## The @{cc.audio.dfpwm} module
-This module provides functions for converting between streams of DFPWM data and sampled amplitudes. DFPWM data is
-represented as string, as it is typically read from the @{fs.BinaryReadHandle|filesystem} or
-@{http.Response|a web request}, while the amplitudes is a table of numbers between -128 and 127 inclusive.
+Typically DFPWM audio is read from @{fs.BinaryReadHandle|the filesystem} or a @{http.Response|a web request} as a
+string, and converted a format suitable for @{speaker.playAudio}.
 
-@{make_decoder} and @{make_encoder} construct a new decoder or encoder. These themselves are functions, which convert
-between the two kinds of data.
+## Encoding and decoding files
+This modules exposes two key functions, @{make_decoder} and @{make_encoder}, which construct a new decoder or encoder.
+The returned encoder/decoder is itself a function, which converts between the two kinds of data.
 
 These encoders and decoders have lots of hidden state, so you should be careful to use the same encoder or decoder for
 a specific audio stream. Typically you will want to create a decoder for each stream of audio you read, and an encoder
 for each one you write.
 
-## Creating DFPWM files
-DFPWM is not a popular file format and so standard audio processing tools will not have an option to export for it.
+## Converting audio to DFPWM
+DFPWM is not a popular file format and so standard audio processing tools will not have an option to export to it.
 Instead, you can convert audio files online using [music.madefor.cc] or with the [LionRay Wav Converter][LionRay] Java
 application.
 
 [music.madefor.cc]: https://music.madefor.cc/ "DFPWM audio converter for Computronics and CC: Tweaked"
 [LionRay]: https://github.com/gamax92/LionRay/ "LionRay Wav Converter "
 
-@usage Reads "my_audio_track.dfpwm" in blocks of 32KiB (the speaker can accept a maximum of 16KiB), decodes them and
-then doubles the speed of the audio. The resulting audio is then re-encoded and played through the @{speaker}.
+@see guide!speaker_audio Gives a more general introduction to audio processing and the speaker.
+@see speaker.playAudio To play the decoded audio data.
+@usage Reads "data/example.dfpwm" in chunks, decodes them and then doubles the speed of the audio. The resulting audio
+is then re-encoded and saved to "speedy.dfpwm". This processed audio can then be played with the `speaker` program.
 
 ```lua
-local dfpwm = require "cc.audio.dfpwm"
-local speaker = peripheral.find("speaker")
+local dfpwm = require("cc.audio.dfpwm")
 
+local encoder = dfpwm.make_encoder()
 local decoder = dfpwm.make_decoder()
 
+local out = fs.open("speedy.dfpwm", "wb")
 for input in io.lines("my_audio_track.dfpwm", 16 * 1024 * 2) do
   local decoded = decoder(input)
   local output = {}
@@ -43,8 +46,11 @@ for input in io.lines("my_audio_track.dfpwm", 16 * 1024 * 2) do
     output[(i + 1) / 2] = (value_1 + value_2) / 2
   end
 
-  while not speaker.playAudio(output) do os.pullEvent("speaker_audio_empty") end
+  out.write(encoder(output))
+
+  sleep(0) -- This program takes a while to run, so we need to make sure we yield.
 end
+out.close()
 ```
 ]]
 
@@ -88,7 +94,7 @@ Encoders have lots of internal state which tracks the state of the current strea
 streams, or use different encoders for the same stream, the resulting audio may not sound correct.
 :::
 
-@treturn function(data: { number... }):string The encoder function
+@treturn function(pcm: { number... }):string The encoder function
 @see encode A helper function for encoding an entire file of audio at once.
 ]]
 local function make_encoder()
@@ -102,7 +108,7 @@ local function make_encoder()
         for i = 1, #input, 8 do
             local this_byte = 0
             for j = 0, 7 do
-                local inp_charge = floor(input[i + j]) or 0
+                local inp_charge = floor(input[i + j] or 0)
                 if inp_charge > 127 or inp_charge < -128 then
                     error(("Amplitude at position %d was %d, but should be between -128 and 127"):format(i + j, inp_charge), 2)
                 end
@@ -126,13 +132,29 @@ end
 The returned decoder is itself a function. This function accepts a string and returns a table of amplitudes, each value
 between -128 and 127.
 
-:::caution Reusing encoders
+:::caution Reusing decoders
 Decoders have lots of internal state which tracks the state of the current stream. If you reuse an decoder for multiple
-streams, or use different encoders for the same stream, the resulting audio may not sound correct.
+streams, or use different decoders for the same stream, the resulting audio may not sound correct.
 :::
 
-@treturn function(data: string):{ number... } The encoder function
+@treturn function(dfpwm: string):{ number... } The encoder function
 @see decode A helper function for decoding an entire file of audio at once.
+
+@usage Reads "data/example.dfpwm" in blocks of 16KiB (the speaker can accept a maximum of 128K samples), decodes them
+and then plays them through the speaker.
+
+```lua
+local dfpwm = require "cc.audio.dfpwm"
+local speaker = peripheral.find("speaker")
+
+local decoder = dfpwm.make_decoder()
+for input in io.lines("data/example.dfpwm", 16 * 1024 * 2) do
+  local decoded = decoder(input)
+  while not speaker.playAudio(output) do
+    os.pullEvent("speaker_audio_empty")
+  end
+end
+```
 ]]
 local function make_decoder()
     local predictor = make_predictor()
@@ -172,7 +194,7 @@ end
 --[[- A convenience function for decoding a complete file of audio at once.
 
 This should only be used for short files. For larger files, one should read the file in chunks and process it using
-@{make_decoder}, as done in this module's example.
+@{make_decoder}.
 
 @tparam string input The DFPWM data to convert.
 @treturn { number... } The produced amplitude data.
@@ -198,9 +220,9 @@ local function encode(input)
 end
 
 return {
-    make_decoder = make_decoder,
-    decode = decode,
-
     make_encoder = make_encoder,
     encode = encode,
+
+    make_decoder = make_decoder,
+    decode = decode,
 }

@@ -7,19 +7,43 @@ package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaTable;
+import net.minecraft.util.math.MathHelper;
 
+import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
-class DfpwmEncoder
+import static dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral.SAMPLE_RATE;
+
+/**
+ * Internal state of the DFPWM decoder and the state of playback.
+ */
+class DfpwmState
 {
+    private static final long SECOND = TimeUnit.SECONDS.toNanos( 1 );
+
+    /**
+     * The minimum size of the client's audio buffer. Once we have less than this on the client, we should send another
+     * batch of audio.
+     */
+    private static final long CLIENT_BUFFER = (long) (SECOND * 1.5);
+
     private static final int PREC = 10;
 
     private int charge = 0; // q
     private int strength = 0; // s
     private boolean previousBit = false;
 
-    ByteBuffer encode( LuaTable<?, ?> table, int size ) throws LuaException
+    boolean unplayed;
+    private long clientEndTime = System.nanoTime();
+    float pendingVolume = 1.0f;
+    ByteBuffer pendingAudio;
+
+    synchronized boolean pushBuffer( LuaTable<?, ?> table, int size, @Nonnull Optional<Double> volume ) throws LuaException
     {
+        if( pendingAudio != null ) return false;
+
         int outSize = size / 8;
         ByteBuffer buffer = ByteBuffer.allocate( outSize );
 
@@ -60,6 +84,27 @@ class DfpwmEncoder
         }
 
         buffer.flip();
-        return buffer;
+
+        pendingAudio = buffer;
+        pendingVolume = MathHelper.clamp( volume.orElse( (double) pendingVolume ).floatValue(), 0.0f, 3.0f );
+        return true;
+    }
+
+    boolean shouldSendPending( long now )
+    {
+        return pendingAudio != null && now >= clientEndTime - CLIENT_BUFFER;
+    }
+
+    void sentPending( long now )
+    {
+        // Compute when we should consider sending the next packet.
+        clientEndTime = Math.max( now, clientEndTime ) + (pendingAudio.remaining() * SECOND * 8 / SAMPLE_RATE);
+        unplayed = false;
+        pendingAudio = null;
+    }
+
+    boolean isPlaying()
+    {
+        return unplayed || clientEndTime >= System.nanoTime();
     }
 }

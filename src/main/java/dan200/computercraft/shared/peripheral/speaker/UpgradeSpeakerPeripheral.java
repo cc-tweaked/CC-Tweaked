@@ -9,8 +9,7 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
 import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.LogicalSidedProvider;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import javax.annotation.Nonnull;
 
@@ -23,7 +22,7 @@ public abstract class UpgradeSpeakerPeripheral extends SpeakerPeripheral
     public void detach( @Nonnull IComputerAccess computer )
     {
         // We could be in the process of shutting down the server, so we can't send packets in this case.
-        MinecraftServer server = LogicalSidedProvider.INSTANCE.get( LogicalSide.SERVER );
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if( server == null || server.isStopped() ) return;
 
         NetworkHandler.sendToAllPlayers( new SpeakerStopClientMessage( getSource() ) );

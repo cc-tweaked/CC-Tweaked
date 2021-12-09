@@ -12,10 +12,11 @@ import org.junit.jupiter.api.Test;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
-class DfpwmEncoderTest
+class DfpwmStateTest
 {
     @Test
     public void testEncoder() throws LuaException
@@ -24,7 +25,9 @@ class DfpwmEncoderTest
         Map<Object, Object> inputTbl = new HashMap<>();
         for( int i = 0; i < input.length; i++ ) inputTbl.put( (double) (i + 1), input[i] );
 
-        ByteBuffer result = new DfpwmEncoder().encode( new ObjectLuaTable( inputTbl ), input.length );
+        DfpwmState state = new DfpwmState();
+        state.pushBuffer( new ObjectLuaTable( inputTbl ), input.length, Optional.empty() );
+        ByteBuffer result = state.pendingAudio;
         byte[] contents = new byte[result.remaining()];
         result.get( contents );
 
