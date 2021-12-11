@@ -140,13 +140,6 @@ public class TileMonitor extends TileGeneric
     @Override
     public void load( @Nonnull CompoundTag nbt )
     {
-        if( level != null && level.isClientSide )
-        {
-            // TODO: Remove once https://github.com/MinecraftForge/MinecraftForge/pull/8237 is merged.
-            handleUpdateTag( nbt );
-            return;
-        }
-
         super.load( nbt );
 
         xIndex = nbt.getInt( NBT_X );
