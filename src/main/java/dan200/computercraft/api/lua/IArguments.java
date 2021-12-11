@@ -184,6 +184,24 @@ public interface IArguments
     }
 
     /**
+     * Get an argument as a table in an unsafe manner.
+     *
+     * Classes implementing this interface may choose to implement a more optimised version which does not copy the
+     * table, instead returning a wrapper version, making it more efficient. However, the caller must guarantee that
+     * they do not access off the computer thread (and so should not be used with main-thread functions) or once the
+     * function call has finished (for instance, in callbacks).
+     *
+     * @param index The argument number.
+     * @return The argument's value.
+     * @throws LuaException If the value is not a table.
+     */
+    @Nonnull
+    default LuaTable<?, ?> getTableUnsafe( int index ) throws LuaException
+    {
+        return new ObjectLuaTable( getTable( index ) );
+    }
+
+    /**
      * Get an argument as a double.
      *
      * @param index The argument number.
@@ -315,6 +333,27 @@ public interface IArguments
     }
 
     /**
+     * Get an argument as a table in an unsafe manner.
+     *
+     * Classes implementing this interface may choose to implement a more optimised version which does not copy the
+     * table, instead returning a wrapper version, making it more efficient. However, the caller must guarantee that
+     * they do not access off the computer thread (and so should not be used with main-thread functions) or once the
+     * function call has finished (for instance, in callbacks).
+     *
+     * @param index The argument number.
+     * @return The argument's value, or {@link Optional#empty()} if not present.
+     * @throws LuaException If the value is not a table.
+     */
+    @Nonnull
+    default Optional<LuaTable<?, ?>> optTableUnsafe( int index ) throws LuaException
+    {
+        Object value = get( index );
+        if( value == null ) return Optional.empty();
+        if( !(value instanceof Map) ) throw LuaValues.badArgumentOf( index, "map", value );
+        return Optional.of( new ObjectLuaTable( (Map<?, ?>) value ) );
+    }
+
+    /**
      * Get an argument as a double.
      *
      * @param index The argument number.
@@ -403,5 +442,14 @@ public interface IArguments
     default Map<?, ?> optTable( int index, Map<Object, Object> def ) throws LuaException
     {
         return optTable( index ).orElse( def );
+    }
+
+    /**
+     * This is called when the current function finishes, before any main thread tasks have run.
+     *
+     * Called when the current function returns, and so some values are no longer guaranteed to be safe to access.
+     */
+    default void releaseImmediate()
+    {
     }
 }

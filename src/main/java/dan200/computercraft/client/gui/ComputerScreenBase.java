@@ -8,6 +8,7 @@ package dan200.computercraft.client.gui;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
+import dan200.computercraft.client.gui.widgets.DynamicImageButton;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -100,6 +101,16 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
         renderBackground( stack );
         super.render( stack, mouseX, mouseY, partialTicks );
         renderTooltip( stack, mouseX, mouseY );
+    }
+
+    @Override
+    public boolean mouseClicked( double x, double y, int button )
+    {
+        boolean changed = super.mouseClicked( x, y, button );
+        // Clicking the terminate/shutdown button steals focus, which means then pressing "enter" will click the button
+        // again. Restore the focus to the terminal in these cases.
+        if( getFocused() instanceof DynamicImageButton ) setFocused( terminal );
+        return changed;
     }
 
     @Override

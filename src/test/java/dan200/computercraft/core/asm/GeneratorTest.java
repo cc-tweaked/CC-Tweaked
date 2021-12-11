@@ -120,6 +120,13 @@ public class GeneratorTest
             contramap( notNullValue(), "callback", MethodResult::getCallback ) );
     }
 
+    @Test
+    public void testUnsafe()
+    {
+        List<NamedMethod<LuaMethod>> methods = LuaMethod.GENERATOR.getMethods( Unsafe.class );
+        assertThat( methods, contains( named( "withUnsafe" ) ) );
+    }
+
     public static class Basic
     {
         @LuaFunction
@@ -219,6 +226,21 @@ public class GeneratorTest
     {
         @LuaFunction( mainThread = true )
         public final void go()
+        {}
+    }
+
+    public static class Unsafe
+    {
+        @LuaFunction( unsafe = true )
+        public final void withUnsafe( LuaTable<?, ?> table )
+        {}
+
+        @LuaFunction
+        public final void withoutUnsafe( LuaTable<?, ?> table )
+        {}
+
+        @LuaFunction( unsafe = true, mainThread = true )
+        public final void invalid( LuaTable<?, ?> table )
         {}
     }
 
