@@ -98,7 +98,10 @@ public final class MethodResult
     {
         Objects.requireNonNull( callback, "callback cannot be null" );
         return new MethodResult( new Object[] { filter }, results -> {
-            if( results.length >= 1 && results[0].equals( "terminate" ) ) throw new LuaException( "Terminated", 0 );
+            if( results.length >= 1 && Objects.equals( results[0], "terminate" ) )
+            {
+                throw new LuaException( "Terminated", 0 );
+            }
             return callback.resume( results );
         } );
     }

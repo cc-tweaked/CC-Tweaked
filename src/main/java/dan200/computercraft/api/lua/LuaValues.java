@@ -103,6 +103,34 @@ public final class LuaValues
     }
 
     /**
+     * Construct a table item exception, from an expected and actual type.
+     *
+     * @param index    The index into the table, starting from 1.
+     * @param expected The expected type for this table item.
+     * @param actual   The provided type for this table item.
+     * @return The constructed exception, which should be thrown immediately.
+     */
+    @Nonnull
+    public static LuaException badTableItem( int index, @Nonnull String expected, @Nonnull String actual )
+    {
+        return new LuaException( "table item #" + index + " is not " + expected + " (got " + actual + ")" );
+    }
+
+    /**
+     * Construct a field exception, from an expected and actual type.
+     *
+     * @param key      The name of the field.
+     * @param expected The expected type for this table item.
+     * @param actual   The provided type for this table item.
+     * @return The constructed exception, which should be thrown immediately.
+     */
+    @Nonnull
+    public static LuaException badField( String key, @Nonnull String expected, @Nonnull String actual )
+    {
+        return new LuaException( "field " + key + " is not " + expected + " (got " + actual + ")" );
+    }
+
+    /**
      * Ensure a numeric argument is finite (i.e. not infinite or {@link Double#NaN}.
      *
      * @param index The argument index to check.

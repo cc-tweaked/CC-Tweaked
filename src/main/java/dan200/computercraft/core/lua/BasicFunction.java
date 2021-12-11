@@ -59,6 +59,10 @@ class BasicFunction extends VarArgFunction
             }
             throw new LuaError( "Java Exception Thrown: " + t, 0 );
         }
+        finally
+        {
+            arguments.releaseImmediate();
+        }
 
         if( results.getCallback() != null )
         {

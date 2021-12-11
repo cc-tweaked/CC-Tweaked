@@ -10,6 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
@@ -44,8 +45,11 @@ public class NoTermComputerScreen<T extends ContainerComputerBase> extends Scree
     protected void init()
     {
         passEvents = true; // Pass mouse vents through to the game's mouse handler.
+        // First ensure we're still grabbing the mouse, so the user can look around. Then reset bits of state that
+        // grabbing unsets.
         minecraft.mouseHandler.grabMouse();
         minecraft.screen = this;
+        KeyMapping.releaseAll();
 
         super.init();
         minecraft.keyboardHandler.setSendRepeatsToGui( true );

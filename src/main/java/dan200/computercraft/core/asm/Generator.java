@@ -130,8 +130,6 @@ public final class Generator<T>
 
     private void addMethod( List<NamedMethod<T>> methods, Method method, LuaFunction annotation, PeripheralType genericType, T instance )
     {
-        if( annotation.mainThread() ) instance = wrap.apply( instance );
-
         String[] names = annotation.value();
         boolean isSimple = method.getReturnType() != MethodResult.class && !annotation.mainThread();
         if( names.length == 0 )
@@ -183,6 +181,13 @@ public final class Generator<T>
             }
         }
 
+        LuaFunction annotation = method.getAnnotation( LuaFunction.class );
+        if( annotation.unsafe() && annotation.mainThread() )
+        {
+            ComputerCraft.log.error( "Lua Method {} cannot use unsafe and mainThread", name );
+            return Optional.empty();
+        }
+
         // We have some rather ugly handling of static methods in both here and the main generate function. Static methods
         // only come from generic sources, so this should be safe.
         Class<?> target = Modifier.isStatic( modifiers ) ? method.getParameterTypes()[0] : method.getDeclaringClass();
@@ -190,11 +195,13 @@ public final class Generator<T>
         try
         {
             String className = method.getDeclaringClass().getName() + "$cc$" + method.getName() + METHOD_ID.getAndIncrement();
-            byte[] bytes = generate( className, target, method );
+            byte[] bytes = generate( className, target, method, annotation.unsafe() );
             if( bytes == null ) return Optional.empty();
 
             Class<?> klass = DeclaringClassLoader.INSTANCE.define( className, bytes, method.getDeclaringClass().getProtectionDomain() );
-            return Optional.of( klass.asSubclass( base ).getDeclaredConstructor().newInstance() );
+
+            T instance = klass.asSubclass( base ).getDeclaredConstructor().newInstance();
+            return Optional.of( annotation.mainThread() ? wrap.apply( instance ) : instance );
         }
         catch( ReflectiveOperationException | ClassFormatError | RuntimeException e )
         {
@@ -205,7 +212,7 @@ public final class Generator<T>
     }
 
     @Nullable
-    private byte[] generate( String className, Class<?> target, Method method )
+    private byte[] generate( String className, Class<?> target, Method method, boolean unsafe )
     {
         String internalName = className.replace( ".", "/" );
 
@@ -238,7 +245,7 @@ public final class Generator<T>
             int argIndex = 0;
             for( java.lang.reflect.Type genericArg : method.getGenericParameterTypes() )
             {
-                Boolean loadedArg = loadArg( mw, target, method, genericArg, argIndex );
+                Boolean loadedArg = loadArg( mw, target, method, unsafe, genericArg, argIndex );
                 if( loadedArg == null ) return null;
                 if( loadedArg ) argIndex++;
             }
@@ -285,7 +292,7 @@ public final class Generator<T>
         return cw.toByteArray();
     }
 
-    private Boolean loadArg( MethodVisitor mw, Class<?> target, Method method, java.lang.reflect.Type genericArg, int argIndex )
+    private Boolean loadArg( MethodVisitor mw, Class<?> target, Method method, boolean unsafe, java.lang.reflect.Type genericArg, int argIndex )
     {
         if( genericArg == target )
         {
@@ -324,7 +331,7 @@ public final class Generator<T>
                 return true;
             }
 
-            String name = Reflect.getLuaName( Primitives.unwrap( klass ) );
+            String name = Reflect.getLuaName( Primitives.unwrap( klass ), unsafe );
             if( name != null )
             {
                 mw.visitVarInsn( ALOAD, 2 + context.size() );
@@ -344,7 +351,7 @@ public final class Generator<T>
             return true;
         }
 
-        String name = arg == Object.class ? "" : Reflect.getLuaName( arg );
+        String name = arg == Object.class ? "" : Reflect.getLuaName( arg, unsafe );
         if( name != null )
         {
             if( Reflect.getRawType( method, genericArg, false ) == null ) return null;
