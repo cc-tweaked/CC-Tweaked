@@ -33,7 +33,7 @@ class Branch:
 BRANCHES: List[Branch] = [
     Branch('mc-1.16.x'),
     Branch('mc-1.17.x', parent='mc-1.16.x', java="16"),
-    # Branch('mc-fabric-1.17.x', parent='mc-1.17.x', java="16"),
+    Branch('mc-1.18.x', parent='mc-1.17.x', java="17"),
 ]
 
 
@@ -96,6 +96,11 @@ def setup() -> None:
 
     with open("build.gradle", "w") as h:
         pass
+
+    log("Installing npm packages")
+    for branch in BRANCHES:
+        if not os.path.isdir(os.path.join(branch.name, "node_module")):
+            run_in(branch, "npm", "ci")
 
 
 def gen_runs() -> None:

@@ -1,4 +1,7 @@
+# Minecraft/loader versions
 /mc-*
+
+# Build output
 /.idea
 /.gradle
 /logs
