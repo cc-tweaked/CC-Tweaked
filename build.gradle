@@ -138,6 +138,7 @@ dependencies {
     checkstyle "com.puppycrawl.tools:checkstyle:8.25"
 
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
+    annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
     compileOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.0.104:api")
     compileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.5:7.1.0.313")
