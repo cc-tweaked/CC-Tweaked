@@ -6,6 +6,10 @@
 package dan200.computercraft.client.sound;
 
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.sound.PlayStreamingSourceEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import java.util.Map;
 import java.util.UUID;
@@ -14,9 +18,21 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Maps speakers source IDs to a {@link SpeakerInstance}.
  */
+@Mod.EventBusSubscriber( Dist.CLIENT )
 public class SpeakerManager
 {
     private static final Map<UUID, SpeakerInstance> sounds = new ConcurrentHashMap<>();
+
+    @SubscribeEvent
+    public static void playStreaming( PlayStreamingSourceEvent event )
+    {
+        if( !(event.getSound() instanceof SpeakerSound) ) return;
+        SpeakerSound sound = (SpeakerSound) event.getSound();
+        if( sound.stream == null ) return;
+
+        event.getSource().attachBufferStream( sound.stream );
+        event.getSource().play();
+    }
 
     public static SpeakerInstance getSound( UUID source )
     {

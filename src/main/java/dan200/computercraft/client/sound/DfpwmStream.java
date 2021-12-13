@@ -14,6 +14,7 @@ import javax.annotation.Nonnull;
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -24,7 +25,7 @@ class DfpwmStream implements IAudioStream
     private static final int PREC = 10;
     private static final int LPF_STRENGTH = 140;
 
-    private static final AudioFormat MONO_8 = new AudioFormat( SAMPLE_RATE, 8, 1, true, false );
+    private static final AudioFormat MONO_16 = new AudioFormat( SAMPLE_RATE, 16, 1, true, false );
 
     private final Queue<ByteBuffer> buffers = new ArrayDeque<>( 2 );
 
@@ -42,7 +43,7 @@ class DfpwmStream implements IAudioStream
     void push( @Nonnull ByteBuf input )
     {
         int readable = input.readableBytes();
-        ByteBuffer output = ByteBuffer.allocate( readable * 8 );
+        ByteBuffer output = ByteBuffer.allocate( readable * 16 ).order( ByteOrder.nativeOrder() );
 
         for( int i = 0; i < readable; i++ )
         {
@@ -74,9 +75,9 @@ class DfpwmStream implements IAudioStream
                 strength = nextStrength;
                 previousBit = currentBit;
 
-                // OpenAL expects signed data ([0, 255]) while we produce unsigned ([-128, 127]). Do some bit twiddling
-                // magic to convert.
-                output.put( (byte) ((lowPassCharge & 0xFF) ^ 0x80) );
+                // Ideally we'd generate an 8-bit audio buffer. However, as we're piggybacking on top of another
+                // audio stream (which uses 16 bit audio), we need to keep in the same format.
+                output.putShort( (short) ((byte) (lowPassCharge & 0xFF) << 8) );
 
                 inputByte >>= 1;
             }
@@ -93,7 +94,7 @@ class DfpwmStream implements IAudioStream
     @Override
     public AudioFormat getFormat()
     {
-        return MONO_8;
+        return MONO_16;
     }
 
     @Nonnull
