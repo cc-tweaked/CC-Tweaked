@@ -83,7 +83,10 @@ class DfpwmStream implements IAudioStream
         }
 
         output.flip();
-        buffers.add( output );
+        synchronized( this )
+        {
+            buffers.add( output );
+        }
     }
 
     @Nonnull
@@ -95,7 +98,7 @@ class DfpwmStream implements IAudioStream
 
     @Nonnull
     @Override
-    public ByteBuffer read( int capacity )
+    public synchronized ByteBuffer read( int capacity )
     {
         ByteBuffer result = BufferUtils.createByteBuffer( capacity );
         while( result.hasRemaining() )
@@ -104,7 +107,7 @@ class DfpwmStream implements IAudioStream
             if( head == null ) break;
 
             int toRead = Math.min( head.remaining(), result.remaining() );
-            result.put( head.array(), head.position(), toRead ); // TODO: In 1.16 convert this to a ByteBuffer override
+            result.put( head.array(), head.position(), toRead ); // TODO: In 1.17 convert this to a ByteBuffer override
             head.position( head.position() + toRead );
 
             if( head.hasRemaining() ) break;

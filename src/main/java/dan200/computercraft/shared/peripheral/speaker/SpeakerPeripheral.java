@@ -299,6 +299,13 @@ public abstract class SpeakerPeripheral implements IPeripheral
      * and played back which are played back at 48kHz. If this buffer is full, this function will return
      * {@literal false}, and you should wait for a @{speaker_audio_empty} event and try again.
      *
+     * :::note
+     * The speaker only buffers a single call to {@link #playAudio} at once. This means if you try to play a small
+     * number of samples, you'll have a lot of stutter. You should try to play as many samples in one call as possible
+     * (up to 128×1024), as this reduces the chances of audio stuttering or halting, especially when the server or
+     * computer is lagging.
+     * :::
+     *
      * {@literal @}{speaker_audio} provides a more complete guide in to using speakers
      *
      * @param context The Lua context.

@@ -23,13 +23,12 @@ CC: Tweaked's speakers also work with PCM audio. It plays back 48,000 samples a 
 between -128 and 127. This is more commonly referred to as 48kHz and an 8-bit resolution.
 
 Let's now look at a quick example. We're going to generate a [Sine Wave] at 220Hz, which sounds like a low monotonous
-hum. First we wrap our speaker, and then we fill our buffer with 128k samples - this is the maximum number of samples a
-speaker can accept in one go.
+hum. First we wrap our speaker, and then we fill our buffer with 128×1024 samples - this is the maximum number of
+samples a speaker can accept in one go.
 
 In order to fill this buffer, we need to do a little maths. We want to play 220 sine waves each second, where each sine
-wave completes a full oscillation in 2π "units". This means one seconds worth of audio is 220\*2\*π "units" long.  We
-then need to split this into 48k samples, basically meaning for each sample we move 220\*2\*π/48k "along" the sine
-curve.
+wave completes a full oscillation in 2π "units". This means one seconds worth of audio is 2×π×220 "units" long. We then
+need to split this into 48k samples, basically meaning for each sample we move 2×π×220/48k "along" the sine curve.
 
 ```lua {data-peripheral=speaker}
 local speaker = peripheral.find("speaker")
@@ -125,8 +124,8 @@ different.
 First, we require the dfpwm module and call @{cc.audio.dfpwm.make_decoder} to construct a new decoder. This decoder
 accepts blocks of DFPWM data and converts it to a list of 8-bit amplitudes, which we can then play with our speaker.
 
-As mentioned to above, @{speaker.playAudio} accepts at most 128\*1024 samples in one go. DFPMW uses a single bit for
-each sample, which means we want to process our audio in chunks of 16\*1024 bytes (16KiB). In order to do this, we use
+As mentioned to above, @{speaker.playAudio} accepts at most 128×1024 samples in one go. DFPMW uses a single bit for each
+sample, which means we want to process our audio in chunks of 16×1024 bytes (16KiB). In order to do this, we use
 @{io.lines}, which provides a nice way to loop over chunks of a file. You can of course just use @{fs.open} and
 @{fs.BinaryReadHandle.read} if you prefer.
 

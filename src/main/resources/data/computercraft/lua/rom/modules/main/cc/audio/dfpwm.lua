@@ -140,8 +140,8 @@ streams, or use different decoders for the same stream, the resulting audio may 
 @treturn function(dfpwm: string):{ number... } The encoder function
 @see decode A helper function for decoding an entire file of audio at once.
 
-@usage Reads "data/example.dfpwm" in blocks of 16KiB (the speaker can accept a maximum of 128K samples), decodes them
-and then plays them through the speaker.
+@usage Reads "data/example.dfpwm" in blocks of 16KiB (the speaker can accept a maximum of 128×1024 samples), decodes
+them and then plays them through the speaker.
 
 ```lua
 local dfpwm = require "cc.audio.dfpwm"
