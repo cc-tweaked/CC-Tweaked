@@ -5,6 +5,7 @@
     "refmap": "computercraft.mixins.refmap.json",
     "package": "dan200.computercraft.mixin",
     "client": [
+        "BlockRendererDispatcherMixin",
         "SoundEngineMixin"
     ],
     "injectors": {
