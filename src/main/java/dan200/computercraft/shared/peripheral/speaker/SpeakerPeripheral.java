@@ -296,8 +296,8 @@ public abstract class SpeakerPeripheral implements IPeripheral
      * Attempt to stream some audio data to the speaker.
      *
      * This accepts a list of audio samples as amplitudes between -128 and 127. These are stored in an internal buffer
-     * and played back which are played back at 48kHz. If this buffer is full, this function will return
-     * {@literal false}, and you should wait for a @{speaker_audio_empty} event and try again.
+     * and played back at 48kHz. If this buffer is full, this function will return {@literal false}. You should wait for
+     * a @{speaker_audio_empty} event before trying again.
      *
      * :::note
      * The speaker only buffers a single call to {@link #playAudio} at once. This means if you try to play a small

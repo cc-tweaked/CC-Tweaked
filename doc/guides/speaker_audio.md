@@ -5,26 +5,27 @@ see: cc.audio.dfpwm Provides utilities for encoding and decoding DFPWM files.
 ---
 
 # Playing audio with speakers
-CC: Tweaked's speaker peripheral provides a powerful way to play any audio you like: @{speaker.playAudio}. However, for
-those people unfamiliar with digital audio, it's not the most familiar thing to use. This guide provides an introduction
-to digital audio, demonstrates how to play music with CC: Tweaked's speakers, and then briefly discusses the more
-complex topic of audio processing.
+CC: Tweaked's speaker peripheral provides a powerful way to play any audio you like with the @{speaker.playAudio}
+method. However, for people unfamiliar with digital audio, it's not the most intuitive thing to use. This guide provides
+an introduction to digital audio, demonstrates how to play music with CC: Tweaked's speakers, and then briefly discusses
+the more complex topic of audio processing.
 
 ## A short introduction to digital audio
-When sound is recorded it comes in as an analogue signal, effectively the electrical version of a sound wave. However,
-this signal is continuous, and so can't be used directly by a computer. Instead, we measure (or *sample*) the amplitude
-of the wave many times a second and then *quantise* that amplitude, rounding it to the nearest representable value.
+When sound is recorded it is captured as an analogue signal, effectively the electrical version of a sound
+wave. However, this signal is continuous, and so can't be used directly by a computer. Instead, we measure (or *sample*)
+the amplitude of the wave many times a second and then *quantise* that amplitude, rounding it to the nearest
+representable value.
 
 This representation of sound - a long, uniformally sampled list of amplitudes is referred to as [Pulse-code
 Modulation][PCM] (PCM). PCM can be thought of as the "standard" audio format, as it's incredibly easy to work with. For
-instance, to mix two pieces of audio together, you can just take the average of every sample.
+instance, to mix two pieces of audio together, you can just samples from the two tracks together and take the average.
 
 CC: Tweaked's speakers also work with PCM audio. It plays back 48,000 samples a second, where each sample is an integer
 between -128 and 127. This is more commonly referred to as 48kHz and an 8-bit resolution.
 
 Let's now look at a quick example. We're going to generate a [Sine Wave] at 220Hz, which sounds like a low monotonous
-hum. First we wrap our speaker, and then we fill our buffer with 128×1024 samples - this is the maximum number of
-samples a speaker can accept in one go.
+hum. First we wrap our speaker peripheral, and then we fill a table (also referred to as a *buffer*) with 128×1024
+samples - this is the maximum number of samples a speaker can accept in one go.
 
 In order to fill this buffer, we need to do a little maths. We want to play 220 sine waves each second, where each sine
 wave completes a full oscillation in 2π "units". This means one seconds worth of audio is 2×π×220 "units" long. We then

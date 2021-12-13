@@ -10,16 +10,17 @@ see: speaker.playAudio To play audio using the speaker
 
 ## Example
 This uses @{io.lines} to read audio data in blocks of 16KiB from "example_song.dfpwm", and then attempts to play it
-using @{speaker.playAudio}. If the speaker's buffer is full, it waits for an event and tries gain.
+using @{speaker.playAudio}. If the speaker's buffer is full, it waits for an event and tries again.
 
 ```lua
+local dfpwm = require("cc.audio.dfpwm")
 local speaker = peripheral.find("speaker")
 
-for input in io.lines("example_song.dfpwm", 16 * 1024) do
-    local data = handle.read(16 * 1024)
-    if not data then break end -- We've reached the end of file
+local decoder = dfpwm.make_decoder()
+for chunk in io.lines("data/example.dfpwm", 16 * 1024) do
+    local buffer = decoder(chunk)
 
-    while not speaker.playAudio(data) do
+    while not speaker.playAudio(buffer) do
         os.pullEvent("speaker_audio_empty")
     end
 end
