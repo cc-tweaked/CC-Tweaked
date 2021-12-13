@@ -27,7 +27,7 @@ class DfpwmStateTest
 
         DfpwmState state = new DfpwmState();
         state.pushBuffer( new ObjectLuaTable( inputTbl ), input.length, Optional.empty() );
-        ByteBuffer result = state.pendingAudio;
+        ByteBuffer result = state.pullPending( 0 );
         byte[] contents = new byte[result.remaining()];
         result.get( contents );
 

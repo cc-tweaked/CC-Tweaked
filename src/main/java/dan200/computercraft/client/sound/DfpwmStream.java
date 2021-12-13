@@ -34,8 +34,6 @@ class DfpwmStream implements IAudioStream
     private int lowPassCharge;
     private boolean previousBit = false;
 
-    double time = 0;
-
     DfpwmStream()
     {
     }

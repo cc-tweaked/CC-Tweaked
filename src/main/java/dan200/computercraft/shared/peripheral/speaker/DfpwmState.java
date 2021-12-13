@@ -35,10 +35,10 @@ class DfpwmState
     private int strength = 0; // s
     private boolean previousBit = false;
 
-    boolean unplayed;
+    private boolean unplayed = true;
     private long clientEndTime = System.nanoTime();
-    float pendingVolume = 1.0f;
-    ByteBuffer pendingAudio;
+    private float pendingVolume = 1.0f;
+    private ByteBuffer pendingAudio;
 
     synchronized boolean pushBuffer( LuaTable<?, ?> table, int size, @Nonnull Optional<Double> volume ) throws LuaException
     {
@@ -95,16 +95,23 @@ class DfpwmState
         return pendingAudio != null && now >= clientEndTime - CLIENT_BUFFER;
     }
 
-    void sentPending( long now )
+    ByteBuffer pullPending( long now )
     {
-        // Compute when we should consider sending the next packet.
-        clientEndTime = Math.max( now, clientEndTime ) + (pendingAudio.remaining() * SECOND * 8 / SAMPLE_RATE);
-        unplayed = false;
+        ByteBuffer audio = pendingAudio;
         pendingAudio = null;
+        // Compute when we should consider sending the next packet.
+        clientEndTime = Math.max( now, clientEndTime ) + (audio.remaining() * SECOND * 8 / SAMPLE_RATE);
+        unplayed = false;
+        return audio;
     }
 
     boolean isPlaying()
     {
         return unplayed || clientEndTime >= System.nanoTime();
+    }
+
+    float getVolume()
+    {
+        return pendingVolume;
     }
 }
