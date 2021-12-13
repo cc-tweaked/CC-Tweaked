@@ -14,10 +14,6 @@ else
     print(#tModems .. " modems found.")
 end
 
-local function idAsChannel(id)
-    return (id or os.getComputerID()) % rednet.MAX_ID_CHANNELS
-end
-
 local function open(nChannel)
     for n = 1, #tModems do
         local sModem = tModems[n]
@@ -53,11 +49,16 @@ local ok, error = pcall(function()
                         tReceivedMessages[tMessage.nMessageID] = true
                         tReceivedMessageTimeouts[os.startTimer(30)] = tMessage.nMessageID
 
+                        local recipient_channel = tMessage.nRecipient
+                        if tMessage.nRecipient ~= rednet.CHANNEL_BROADCAST then
+                            recipient_channel = recipient_channel % rednet.MAX_ID_CHANNELS
+                        end
+
                         -- Send on all other open modems, to the target and to other repeaters
                         for n = 1, #tModems do
                             local sOtherModem = tModems[n]
                             peripheral.call(sOtherModem, "transmit", rednet.CHANNEL_REPEAT, nReplyChannel, tMessage)
-                            peripheral.call(sOtherModem, "transmit", idAsChannel(tMessage.nRecipient), nReplyChannel, tMessage)
+                            peripheral.call(sOtherModem, "transmit", recipient_channel, nReplyChannel, tMessage)
                         end
 
                         -- Log the event
