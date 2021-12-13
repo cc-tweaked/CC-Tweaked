@@ -43,6 +43,7 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
             return turtle.getWorld();
         }
 
+        @Nonnull
         @Override
         public Vector3d getPosition()
         {

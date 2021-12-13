@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.client.SoundManager;
+import dan200.computercraft.client.sound.SpeakerManager;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.vector.Vector3d;
@@ -53,6 +53,6 @@ public class SpeakerMoveClientMessage implements NetworkMessage
     @OnlyIn( Dist.CLIENT )
     public void handle( NetworkEvent.Context context )
     {
-        SoundManager.moveSound( source, pos );
+        SpeakerManager.moveSound( source, pos );
     }
 }

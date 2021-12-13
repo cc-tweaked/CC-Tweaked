@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.client.SoundManager;
+import dan200.computercraft.client.sound.SpeakerManager;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -46,6 +46,6 @@ public class SpeakerStopClientMessage implements NetworkMessage
     @OnlyIn( Dist.CLIENT )
     public void handle( NetworkEvent.Context context )
     {
-        SoundManager.stopSound( source );
+        SpeakerManager.stopSound( source );
     }
 }
