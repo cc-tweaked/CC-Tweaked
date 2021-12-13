@@ -6,6 +6,7 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.+'
+        classpath "org.spongepowered:mixingradle:0.7.+"
         classpath 'org.parchmentmc:librarian:1.+'
     }
 }
@@ -22,6 +23,7 @@ plugins {
 }
 
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: "org.spongepowered.mixin"
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
 version = mod_version
@@ -64,6 +66,8 @@ minecraft {
                     source sourceSets.main
                 }
             }
+
+            arg "-mixin.config=computercraft.mixins.json"
         }
 
         client {
@@ -109,6 +113,10 @@ minecraft {
     accessTransformer file('src/testMod/resources/META-INF/accesstransformer.cfg')
 }
 
+mixin {
+    add sourceSets.main, 'computercraft.mixins.refmap.json'
+}
+
 repositories {
     mavenCentral()
     maven {
@@ -130,6 +138,7 @@ dependencies {
     checkstyle "com.puppycrawl.tools:checkstyle:8.25"
 
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
+    annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
     compileOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.0.104:api")
     compileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.5:7.1.0.313")
@@ -149,7 +158,7 @@ dependencies {
 
     testModImplementation sourceSets.main.output
 
-    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.2'
+    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.4'
 }
 
 // Compile tasks
@@ -181,13 +190,16 @@ task luaJavadoc(type: Javadoc) {
 
 jar {
     manifest {
-        attributes(["Specification-Title"     : "computercraft",
-                    "Specification-Vendor"    : "SquidDev",
-                    "Specification-Version"   : "1",
-                    "Implementation-Title"    : "CC: Tweaked",
-                    "Implementation-Version"  : "${mod_version}",
-                    "Implementation-Vendor"   : "SquidDev",
-                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
+        attributes([
+            "Specification-Title"     : "computercraft",
+            "Specification-Vendor"    : "SquidDev",
+            "Specification-Version"   : "1",
+            "Implementation-Title"    : "CC: Tweaked",
+            "Implementation-Version"  : "${mod_version}",
+            "Implementation-Vendor"   : "SquidDev",
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+            "MixinConfigs"            : "computercraft.mixins.json",
+        ])
     }
 
     from configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
