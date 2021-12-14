@@ -6,6 +6,7 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.+'
+        classpath "org.spongepowered:mixingradle:0.7.+"
         classpath 'org.parchmentmc:librarian:1.+'
     }
 }
@@ -22,6 +23,7 @@ plugins {
 }
 
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: "org.spongepowered.mixin"
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
 version = mod_version
@@ -72,6 +74,8 @@ minecraft {
                     source sourceSets.main
                 }
             }
+
+            arg "-mixin.config=computercraft.mixins.json"
         }
 
         client {
@@ -129,6 +133,11 @@ minecraft {
     accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
     accessTransformer file('src/testMod/resources/META-INF/accesstransformer.cfg')
 }
+
+mixin {
+    add sourceSets.main, 'computercraft.mixins.refmap.json'
+}
+
 repositories {
     mavenCentral()
     maven {
@@ -152,6 +161,7 @@ dependencies {
     checkstyle "com.puppycrawl.tools:checkstyle:8.45"
 
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
+    annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
     // compileOnly fg.deobf("mezz.jei:jei-1.17.1:8.0.0.14:api")
     // runtimeOnly fg.deobf("mezz.jei:jei-1.17.1:8.0.0.14")
@@ -170,7 +180,7 @@ dependencies {
         exclude group: "org.jetbrains", module: "annotations"
     }
 
-    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.2'
+    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.4'
 }
 
 // Compile tasks
@@ -210,6 +220,8 @@ jar {
             "Implementation-Version"  : "${mod_version}",
             "Implementation-Vendor"   : "SquidDev",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ,
+            "MixinConfigs"            : "computercraft.mixins.json",
         ])
     }
 

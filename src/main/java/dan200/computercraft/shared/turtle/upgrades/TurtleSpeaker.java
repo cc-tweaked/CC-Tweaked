@@ -43,6 +43,7 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
             return turtle.getLevel();
         }
 
+        @Nonnull
         @Override
         public Vec3 getPosition()
         {

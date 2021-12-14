@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.client.SoundManager;
+import dan200.computercraft.client.sound.SpeakerManager;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -66,6 +66,6 @@ public class SpeakerPlayClientMessage implements NetworkMessage
     @OnlyIn( Dist.CLIENT )
     public void handle( NetworkEvent.Context context )
     {
-        SoundManager.playSound( source, pos, sound, volume, pitch );
+        SpeakerManager.getSound( source ).playSound( pos, sound, volume, pitch );
     }
 }

@@ -21,7 +21,6 @@ import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.UUID;
 
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
@@ -29,7 +28,6 @@ public class TileSpeaker extends TileGeneric
 {
     private final SpeakerPeripheral peripheral;
     private LazyOptional<IPeripheral> peripheralCap;
-    private final UUID source = UUID.randomUUID();
 
     public TileSpeaker( BlockEntityType<TileSpeaker> type, BlockPos pos, BlockState state )
     {
@@ -48,7 +46,7 @@ public class TileSpeaker extends TileGeneric
         super.setRemoved();
         if( level != null && !level.isClientSide )
         {
-            NetworkHandler.sendToAllPlayers( new SpeakerStopClientMessage( source ) );
+            NetworkHandler.sendToAllPlayers( new SpeakerStopClientMessage( peripheral.getSource() ) );
         }
     }
 
@@ -87,17 +85,12 @@ public class TileSpeaker extends TileGeneric
             return speaker.getLevel();
         }
 
+        @Nonnull
         @Override
         public Vec3 getPosition()
         {
             BlockPos pos = speaker.getBlockPos();
             return new Vec3( pos.getX(), pos.getY(), pos.getZ() );
-        }
-
-        @Override
-        protected UUID getSource()
-        {
-            return speaker.source;
         }
 
         @Override

@@ -63,7 +63,7 @@ public final class PeripheralType
      * Create a new non-empty peripheral type with additional traits.
      *
      * @param type            The name of the type.
-     * @param additionalTypes Additional types, or "traits" of this peripheral. For instance, {@literal "inventory"}.
+     * @param additionalTypes Additional types, or "traits" of this peripheral. For instance, {@code "inventory"}.
      * @return The constructed peripheral type.
      */
     public static PeripheralType ofType( @Nonnull String type, Collection<String> additionalTypes )
@@ -76,7 +76,7 @@ public final class PeripheralType
      * Create a new non-empty peripheral type with additional traits.
      *
      * @param type            The name of the type.
-     * @param additionalTypes Additional types, or "traits" of this peripheral. For instance, {@literal "inventory"}.
+     * @param additionalTypes Additional types, or "traits" of this peripheral. For instance, {@code "inventory"}.
      * @return The constructed peripheral type.
      */
     public static PeripheralType ofType( @Nonnull String type, @Nonnull String... additionalTypes )
@@ -88,7 +88,7 @@ public final class PeripheralType
     /**
      * Create a new peripheral type with no primary type but additional traits.
      *
-     * @param additionalTypes Additional types, or "traits" of this peripheral. For instance, {@literal "inventory"}.
+     * @param additionalTypes Additional types, or "traits" of this peripheral. For instance, {@code "inventory"}.
      * @return The constructed peripheral type.
      */
     public static PeripheralType ofAdditional( Collection<String> additionalTypes )
@@ -99,7 +99,7 @@ public final class PeripheralType
     /**
      * Create a new peripheral type with no primary type but additional traits.
      *
-     * @param additionalTypes Additional types, or "traits" of this peripheral. For instance, {@literal "inventory"}.
+     * @param additionalTypes Additional types, or "traits" of this peripheral. For instance, {@code "inventory"}.
      * @return The constructed peripheral type.
      */
     public static PeripheralType ofAdditional( @Nonnull String... additionalTypes )
@@ -108,7 +108,7 @@ public final class PeripheralType
     }
 
     /**
-     * Get the name of this peripheral type. This may be {@literal null}.
+     * Get the name of this peripheral type. This may be {@code null}.
      *
      * @return The type of this peripheral.
      */

@@ -42,6 +42,6 @@ public class PocketSpeaker extends AbstractPocketUpgrade
         }
 
         speaker.update();
-        access.setLight( speaker.madeSound( 20 ) ? 0x3320fc : -1 );
+        access.setLight( speaker.madeSound() ? 0x3320fc : -1 );
     }
 }
