@@ -99,7 +99,7 @@ def setup() -> None:
 
     log("Installing npm packages")
     for branch in BRANCHES:
-        if not os.path.isdir(os.path.join(branch.name, "node_module")):
+        if not os.path.isdir(os.path.join(branch.name, "node_modules")):
             run_in(branch, "npm", "ci")
 
 
