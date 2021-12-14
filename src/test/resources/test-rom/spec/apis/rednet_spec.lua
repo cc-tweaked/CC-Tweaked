@@ -88,6 +88,7 @@ describe("The rednet library", function()
         local fake_computer = require "support.fake_computer"
         local debugx = require "support.debug_ext"
 
+        local function dawdle() while true do coroutine.yield() end end
         local function computer_with_rednet(id, fn, options)
             local computer = fake_computer.make_computer(id, function(env)
                 local fns = { env.rednet.run }
@@ -103,6 +104,10 @@ describe("The rednet library", function()
                         end
                         return fn(env.rednet, env)
                     end
+                end
+
+                if options and options.host then
+                    env.rednet.host("some_protocol", "host_" .. id)
                 end
 
                 return parallel.waitForAny(table.unpack(fns))
@@ -203,8 +208,8 @@ describe("The rednet library", function()
                 env.sleep(10)
 
                 -- Ensure our pending message store is empty. Bit ugly to prod internals, but there's no other way.
-                expect(debugx.getupvalue(rednet.run, "tReceivedMessages")):same({})
-                expect(debugx.getupvalue(rednet.run, "nClearTimer")):eq(nil)
+                expect(debugx.getupvalue(rednet.run, "received_messages")):same({})
+                expect(debugx.getupvalue(rednet.run, "prune_received_timer")):eq(nil)
             end, { open = true })
 
             local computer_3, modem_3 = computer_with_rednet(3, nil, { open = true, rep = true })
@@ -221,6 +226,23 @@ describe("The rednet library", function()
             fake_computer.run_all(computers, { computer_1 })
             fake_computer.advance_all(computers, 10)
             fake_computer.run_all(computers, { computer_1, computer_2 })
+        end)
+
+        it("handles lookups between computers with massive IDs", function()
+            local id_1, id_3 = 24283947, 93428798
+            local computer_1, modem_1 = computer_with_rednet(id_1, function(rednet)
+                local ids = { rednet.lookup("some_protocol") }
+                expect(ids):same { id_3 }
+            end, { open = true })
+            local computer_2, modem_2 = computer_with_rednet(2, nil, { open = true, rep = true })
+            local computer_3, modem_3 = computer_with_rednet(id_3, dawdle, { open = true, host = true })
+            fake_computer.add_modem_edge(modem_1, modem_2)
+            fake_computer.add_modem_edge(modem_2, modem_3)
+
+            local computers = { computer_1, computer_2, computer_3 }
+            fake_computer.run_all(computers, false)
+            fake_computer.advance_all(computers, 3)
+            fake_computer.run_all(computers, { computer_1 })
         end)
     end)
 end)

@@ -10,6 +10,8 @@ import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nonnull;
+
 public class PocketSpeakerPeripheral extends UpgradeSpeakerPeripheral
 {
     private Level world = null;
@@ -27,6 +29,7 @@ public class PocketSpeakerPeripheral extends UpgradeSpeakerPeripheral
         return world;
     }
 
+    @Nonnull
     @Override
     public Vec3 getPosition()
     {

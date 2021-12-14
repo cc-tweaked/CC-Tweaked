@@ -29,9 +29,9 @@ CHANNEL_REPEAT = 65533
 -- greater or equal to this limit wrap around to 0.
 MAX_ID_CHANNELS = 65500
 
-local tReceivedMessages = {}
-local tHostnames = {}
-local nClearTimer
+local received_messages = {}
+local hostnames = {}
+local prune_received_timer
 
 local function id_as_channel(id)
     return (id or os.getComputerID()) % MAX_ID_CHANNELS
@@ -115,10 +115,10 @@ be @{rednet.open|opened} before sending is possible.
 Assuming the target was in range and also had a correctly opened modem, it
 may then use @{rednet.receive} to collect the message.
 
-@tparam number nRecipient The ID of the receiving computer.
+@tparam number recipient The ID of the receiving computer.
 @param message The message to send. This should not contain coroutines or
 functions, as they will be converted to @{nil}.
-@tparam[opt] string sProtocol The "protocol" to send this message under. When
+@tparam[opt] string protocol The "protocol" to send this message under. When
 using @{rednet.receive} one can filter to only receive messages sent under a
 particular protocol.
 @treturn boolean If this message was successfully sent (i.e. if rednet is
@@ -131,41 +131,41 @@ actually _received_.
 
     rednet.send(2, "Hello from rednet!")
 ]]
-function send(nRecipient, message, sProtocol)
-    expect(1, nRecipient, "number")
-    expect(3, sProtocol, "string", "nil")
+function send(recipient, message, protocol)
+    expect(1, recipient, "number")
+    expect(3, protocol, "string", "nil")
     -- Generate a (probably) unique message ID
     -- We could do other things to guarantee uniqueness, but we really don't need to
     -- Store it to ensure we don't get our own messages back
-    local nMessageID = math.random(1, 2147483647)
-    tReceivedMessages[nMessageID] = os.clock() + 9.5
-    if not nClearTimer then nClearTimer = os.startTimer(10) end
+    local message_id = math.random(1, 2147483647)
+    received_messages[message_id] = os.clock() + 9.5
+    if not prune_received_timer then prune_received_timer = os.startTimer(10) end
 
     -- Create the message
-    local nReplyChannel = id_as_channel()
-    local tMessage = {
-        nMessageID = nMessageID,
-        nRecipient = nRecipient,
+    local reply_channel = id_as_channel()
+    local message_wrapper = {
+        nMessageID = message_id,
+        nRecipient = recipient,
         nSender = os.getComputerID(),
         message = message,
-        sProtocol = sProtocol,
+        sProtocol = protocol,
     }
 
     local sent = false
-    if nRecipient == os.getComputerID() then
+    if recipient == os.getComputerID() then
         -- Loopback to ourselves
-        os.queueEvent("rednet_message", os.getComputerID(), message, sProtocol)
+        os.queueEvent("rednet_message", os.getComputerID(), message_wrapper, protocol)
         sent = true
     else
         -- Send on all open modems, to the target and to repeaters
-        if nRecipient ~= CHANNEL_BROADCAST then
-            nRecipient = id_as_channel(nRecipient)
+        if recipient ~= CHANNEL_BROADCAST then
+            recipient = id_as_channel(recipient)
         end
 
-        for _, sModem in ipairs(peripheral.getNames()) do
-            if isOpen(sModem) then
-                peripheral.call(sModem, "transmit", nRecipient, nReplyChannel, tMessage)
-                peripheral.call(sModem, "transmit", CHANNEL_REPEAT, nReplyChannel, tMessage)
+        for _, modem in ipairs(peripheral.getNames()) do
+            if isOpen(modem) then
+                peripheral.call(modem, "transmit", recipient, reply_channel, message_wrapper)
+                peripheral.call(modem, "transmit", CHANNEL_REPEAT, reply_channel, message_wrapper)
                 sent = true
             end
         end
@@ -179,23 +179,23 @@ end
 --
 -- @param message The message to send. This should not contain coroutines or
 -- functions, as they will be converted to @{nil}.
--- @tparam[opt] string sProtocol The "protocol" to send this message under. When
+-- @tparam[opt] string protocol The "protocol" to send this message under. When
 -- using @{rednet.receive} one can filter to only receive messages sent under a
 -- particular protocol.
 -- @see rednet.receive
 -- @changed 1.6 Added protocol parameter.
-function broadcast(message, sProtocol)
-    expect(2, sProtocol, "string", "nil")
-    send(CHANNEL_BROADCAST, message, sProtocol)
+function broadcast(message, protocol)
+    expect(2, protocol, "string", "nil")
+    send(CHANNEL_BROADCAST, message, protocol)
 end
 
 --[[- Wait for a rednet message to be received, or until `nTimeout` seconds have
 elapsed.
 
-@tparam[opt] string sProtocolFilter The protocol the received message must be
+@tparam[opt] string protocol_filter The protocol the received message must be
 sent with. If specified, any messages not sent under this protocol will be
 discarded.
-@tparam[opt] number nTimeout The number of seconds to wait if no message is
+@tparam[opt] number timeout The number of seconds to wait if no message is
 received.
 @treturn[1] number The computer which sent this message
 @return[1] The received message
@@ -227,34 +227,34 @@ received.
 
     print(message)
 ]]
-function receive(sProtocolFilter, nTimeout)
+function receive(protocol_filter, timeout)
     -- The parameters used to be ( nTimeout ), detect this case for backwards compatibility
-    if type(sProtocolFilter) == "number" and nTimeout == nil then
-        sProtocolFilter, nTimeout = nil, sProtocolFilter
+    if type(protocol_filter) == "number" and timeout == nil then
+        protocol_filter, timeout = nil, protocol_filter
     end
-    expect(1, sProtocolFilter, "string", "nil")
-    expect(2, nTimeout, "number", "nil")
+    expect(1, protocol_filter, "string", "nil")
+    expect(2, timeout, "number", "nil")
 
     -- Start the timer
     local timer = nil
-    local sFilter = nil
-    if nTimeout then
-        timer = os.startTimer(nTimeout)
-        sFilter = nil
+    local event_filter = nil
+    if timeout then
+        timer = os.startTimer(timeout)
+        event_filter = nil
     else
-        sFilter = "rednet_message"
+        event_filter = "rednet_message"
     end
 
     -- Wait for events
     while true do
-        local sEvent, p1, p2, p3 = os.pullEvent(sFilter)
-        if sEvent == "rednet_message" then
+        local event, p1, p2, p3 = os.pullEvent(event_filter)
+        if event == "rednet_message" then
             -- Return the first matching rednet_message
-            local nSenderID, message, sProtocol = p1, p2, p3
-            if sProtocolFilter == nil or sProtocol == sProtocolFilter then
-                return nSenderID, message, sProtocol
+            local sender_id, message, protocol = p1, p2, p3
+            if protocol_filter == nil or protocol == protocol_filter then
+                return sender_id, message, protocol
             end
-        elseif sEvent == "timer" then
+        elseif event == "timer" then
             -- Return nil if we timeout
             if p1 == timer then
                 return nil
@@ -276,34 +276,34 @@ end
 -- "registering" themselves before doing so (eg while offline or part of a
 -- different network).
 --
--- @tparam string sProtocol The protocol this computer provides.
--- @tparam string sHostname The name this protocol exposes for the given protocol.
+-- @tparam string protocol The protocol this computer provides.
+-- @tparam string hostname The name this protocol exposes for the given protocol.
 -- @throws If trying to register a hostname which is reserved, or currently in use.
 -- @see rednet.unhost
 -- @see rednet.lookup
 -- @since 1.6
-function host(sProtocol, sHostname)
-    expect(1, sProtocol, "string")
-    expect(2, sHostname, "string")
-    if sHostname == "localhost" then
+function host(protocol, hostname)
+    expect(1, protocol, "string")
+    expect(2, hostname, "string")
+    if hostname == "localhost" then
         error("Reserved hostname", 2)
     end
-    if tHostnames[sProtocol] ~= sHostname then
-        if lookup(sProtocol, sHostname) ~= nil then
+    if hostnames[protocol] ~= hostname then
+        if lookup(protocol, hostname) ~= nil then
             error("Hostname in use", 2)
         end
-        tHostnames[sProtocol] = sHostname
+        hostnames[protocol] = hostname
     end
 end
 
 --- Stop @{rednet.host|hosting} a specific protocol, meaning it will no longer
 -- respond to @{rednet.lookup} requests.
 --
--- @tparam string sProtocol The protocol to unregister your self from.
+-- @tparam string protocol The protocol to unregister your self from.
 -- @since 1.6
-function unhost(sProtocol)
-    expect(1, sProtocol, "string")
-    tHostnames[sProtocol] = nil
+function unhost(protocol)
+    expect(1, protocol, "string")
+    hostnames[protocol] = nil
 end
 
 --- Search the local rednet network for systems @{rednet.host|hosting} the
@@ -313,36 +313,36 @@ end
 -- If a hostname is specified, only one ID will be returned (assuming an exact
 -- match is found).
 --
--- @tparam string sProtocol The protocol to search for.
--- @tparam[opt] string sHostname The hostname to search for.
+-- @tparam string protocol The protocol to search for.
+-- @tparam[opt] string hostname The hostname to search for.
 --
 -- @treturn[1] { number }|nil A list of computer IDs hosting the given
 -- protocol, or @{nil} if none exist.
 -- @treturn[2] number|nil The computer ID with the provided hostname and protocol,
 -- or @{nil} if none exists.
 -- @since 1.6
-function lookup(sProtocol, sHostname)
-    expect(1, sProtocol, "string")
-    expect(2, sHostname, "string", "nil")
+function lookup(protocol, hostname)
+    expect(1, protocol, "string")
+    expect(2, hostname, "string", "nil")
 
     -- Build list of host IDs
-    local tResults = nil
-    if sHostname == nil then
-        tResults = {}
+    local results = nil
+    if hostname == nil then
+        results = {}
     end
 
     -- Check localhost first
-    if tHostnames[sProtocol] then
-        if sHostname == nil then
-            table.insert(tResults, os.getComputerID())
-        elseif sHostname == "localhost" or sHostname == tHostnames[sProtocol] then
+    if hostnames[protocol] then
+        if hostname == nil then
+            table.insert(results, os.getComputerID())
+        elseif hostname == "localhost" or hostname == hostnames[protocol] then
             return os.getComputerID()
         end
     end
 
     if not isOpen() then
-        if tResults then
-            return table.unpack(tResults)
+        if results then
+            return table.unpack(results)
         end
         return nil
     end
@@ -350,8 +350,8 @@ function lookup(sProtocol, sHostname)
     -- Broadcast a lookup packet
     broadcast({
         sType = "lookup",
-        sProtocol = sProtocol,
-        sHostname = sHostname,
+        sProtocol = protocol,
+        sHostname = hostname,
     }, "dns")
 
     -- Start a timer
@@ -362,30 +362,28 @@ function lookup(sProtocol, sHostname)
         local event, p1, p2, p3 = os.pullEvent()
         if event == "rednet_message" then
             -- Got a rednet message, check if it's the response to our request
-            local nSenderID, tMessage, sMessageProtocol = p1, p2, p3
-            if sMessageProtocol == "dns" and type(tMessage) == "table" and tMessage.sType == "lookup response" then
-                if tMessage.sProtocol == sProtocol then
-                    if sHostname == nil then
-                        table.insert(tResults, nSenderID)
-                    elseif tMessage.sHostname == sHostname then
-                        return nSenderID
+            local sender_id, message, message_protocol = p1, p2, p3
+            if message_protocol == "dns" and type(message) == "table" and message.sType == "lookup response" then
+                if message.sProtocol == protocol then
+                    if hostname == nil then
+                        table.insert(results, sender_id)
+                    elseif message.sHostname == hostname then
+                        return sender_id
                     end
                 end
             end
-        else
+        elseif event == "timer" and p1 == timer then
             -- Got a timer event, check it's the end of our timeout
-            if p1 == timer then
-                break
-            end
+            break
         end
     end
-    if tResults then
-        return table.unpack(tResults)
+    if results then
+        return table.unpack(results)
     end
     return nil
 end
 
-local bRunning = false
+local started = false
 
 --- Listen for modem messages and converts them into rednet messages, which may
 -- then be @{receive|received}.
@@ -393,51 +391,51 @@ local bRunning = false
 -- This is automatically started in the background on computer startup, and
 -- should not be called manually.
 function run()
-    if bRunning then
+    if started then
         error("rednet is already running", 2)
     end
-    bRunning = true
+    started = true
 
-    while bRunning do
-        local sEvent, p1, p2, p3, p4 = os.pullEventRaw()
-        if sEvent == "modem_message" then
+    while true do
+        local event, p1, p2, p3, p4 = os.pullEventRaw()
+        if event == "modem_message" then
             -- Got a modem message, process it and add it to the rednet event queue
-            local sModem, nChannel, nReplyChannel, tMessage = p1, p2, p3, p4
-            if nChannel == id_as_channel() or nChannel == CHANNEL_BROADCAST then
-                if type(tMessage) == "table" and type(tMessage.nMessageID) == "number"
-                    and tMessage.nMessageID == tMessage.nMessageID and not tReceivedMessages[tMessage.nMessageID]
-                    and ((tMessage.nRecipient and tMessage.nRecipient == os.getComputerID()) or nChannel == CHANNEL_BROADCAST)
-                    and isOpen(sModem)
+            local modem, channel, reply_channel, message = p1, p2, p3, p4
+            if channel == id_as_channel() or channel == CHANNEL_BROADCAST then
+                if type(message) == "table" and type(message.nMessageID) == "number"
+                    and message.nMessageID == message.nMessageID and not received_messages[message.nMessageID]
+                    and ((message.nRecipient and message.nRecipient == os.getComputerID()) or channel == CHANNEL_BROADCAST)
+                    and isOpen(modem)
                 then
-                    tReceivedMessages[tMessage.nMessageID] = os.clock() + 9.5
-                    if not nClearTimer then nClearTimer = os.startTimer(10) end
-                    os.queueEvent("rednet_message", tMessage.nSender or nReplyChannel, tMessage.message, tMessage.sProtocol)
+                    received_messages[message.nMessageID] = os.clock() + 9.5
+                    if not prune_received_timer then prune_received_timer = os.startTimer(10) end
+                    os.queueEvent("rednet_message", message.nSender or reply_channel, message.message, message.sProtocol)
                 end
             end
 
-        elseif sEvent == "rednet_message" then
+        elseif event == "rednet_message" then
             -- Got a rednet message (queued from above), respond to dns lookup
-            local nSenderID, tMessage, sProtocol = p1, p2, p3
-            if sProtocol == "dns" and type(tMessage) == "table" and tMessage.sType == "lookup" then
-                local sHostname = tHostnames[tMessage.sProtocol]
-                if sHostname ~= nil and (tMessage.sHostname == nil or tMessage.sHostname == sHostname) then
-                    rednet.send(nSenderID, {
+            local sender, message, protocol = p1, p2, p3
+            if protocol == "dns" and type(message) == "table" and message.sType == "lookup" then
+                local hostname = hostnames[message.sProtocol]
+                if hostname ~= nil and (message.sHostname == nil or message.sHostname == hostname) then
+                    send(sender, {
                         sType = "lookup response",
-                        sHostname = sHostname,
-                        sProtocol = tMessage.sProtocol,
+                        sHostname = hostname,
+                        sProtocol = message.sProtocol,
                     }, "dns")
                 end
             end
 
-        elseif sEvent == "timer" and p1 == nClearTimer then
-            -- Got a timer event, use it to clear the event queue
-            nClearTimer = nil
-            local nNow, bHasMore = os.clock(), nil
-            for nMessageID, nDeadline in pairs(tReceivedMessages) do
-                if nDeadline <= nNow then tReceivedMessages[nMessageID] = nil
-                else bHasMore = true end
+        elseif event == "timer" and p1 == prune_received_timer then
+            -- Got a timer event, use it to prune the set of received messages
+            prune_received_timer = nil
+            local now, has_more = os.clock(), nil
+            for message_id, deadline in pairs(received_messages) do
+                if deadline <= now then received_messages[message_id] = nil
+                else has_more = true end
             end
-            nClearTimer = bHasMore and os.startTimer(10)
+            prune_received_timer = has_more and os.startTimer(10)
         end
     end
 end

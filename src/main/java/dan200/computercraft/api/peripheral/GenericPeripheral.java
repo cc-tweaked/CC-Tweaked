@@ -23,7 +23,7 @@ public interface GenericPeripheral extends GenericSource
      * Get the type of the exposed peripheral.
      *
      * Unlike normal {@link IPeripheral}s, {@link GenericPeripheral} do not have to have a type. By default, the
-     * resulting peripheral uses the resource name of the wrapped {@link BlockEntity} (for instance {@literal minecraft:chest}).
+     * resulting peripheral uses the resource name of the wrapped {@link BlockEntity} (for instance {@code minecraft:chest}).
      *
      * However, in some cases it may be more appropriate to specify a more readable name. Overriding this method allows
      * you to do so.
