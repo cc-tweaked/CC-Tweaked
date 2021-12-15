@@ -25,8 +25,10 @@ import javax.annotation.Nonnull;
 
 public class TurtleSpeaker extends AbstractTurtleUpgrade
 {
-    private static final ModelResourceLocation leftModel = new ModelResourceLocation( "computercraft:turtle_speaker_upgrade_left", "inventory" );
-    private static final ModelResourceLocation rightModel = new ModelResourceLocation( "computercraft:turtle_speaker_upgrade_right", "inventory" );
+    @Environment( EnvType.CLIENT )
+    private ModelResourceLocation leftModel;
+    @Environment( EnvType.CLIENT )
+    private ModelResourceLocation rightModel;
 
     private static class Peripheral extends UpgradeSpeakerPeripheral
     {
@@ -73,7 +75,18 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
     @Environment( EnvType.CLIENT )
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
+        loadModelLocations();
         return TransformedModel.of( side == TurtleSide.LEFT ? leftModel : rightModel );
+    }
+
+    @Environment( EnvType.CLIENT )
+    private void loadModelLocations()
+    {
+        if( leftModel == null )
+        {
+            leftModel = new ModelResourceLocation( "computercraft:turtle_speaker_upgrade_left", "inventory" );
+            rightModel = new ModelResourceLocation( "computercraft:turtle_speaker_upgrade_right", "inventory" );
+        }
     }
 
     @Override

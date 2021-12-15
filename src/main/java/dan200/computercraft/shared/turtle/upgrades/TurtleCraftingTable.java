@@ -21,8 +21,10 @@ import javax.annotation.Nonnull;
 
 public class TurtleCraftingTable extends AbstractTurtleUpgrade
 {
-    private static final ModelResourceLocation leftModel = new ModelResourceLocation( "computercraft:turtle_crafting_table_left", "inventory" );
-    private static final ModelResourceLocation rightModel = new ModelResourceLocation( "computercraft:turtle_crafting_table_right", "inventory" );
+    @Environment( EnvType.CLIENT )
+    private ModelResourceLocation leftModel;
+    @Environment( EnvType.CLIENT )
+    private ModelResourceLocation rightModel;
 
     public TurtleCraftingTable( ResourceLocation id, ItemStack stack )
     {
@@ -40,6 +42,17 @@ public class TurtleCraftingTable extends AbstractTurtleUpgrade
     @Environment( EnvType.CLIENT )
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
+        loadModelLocations();
         return TransformedModel.of( side == TurtleSide.LEFT ? leftModel : rightModel );
+    }
+
+    @Environment( EnvType.CLIENT )
+    private void loadModelLocations()
+    {
+        if( leftModel == null )
+        {
+            leftModel = new ModelResourceLocation( "computercraft:turtle_crafting_table_left", "inventory" );
+            rightModel = new ModelResourceLocation( "computercraft:turtle_crafting_table_right", "inventory" );
+        }
     }
 }
