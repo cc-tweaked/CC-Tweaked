@@ -94,9 +94,12 @@ class Expander
         if( !isPositive )
         {
             BlockEntity otherOrigin = level.getBlockEntity( otherMonitor.toWorldPos( 0, 0 ) );
-            if( otherOrigin == null || !origin.isCompatible( (TileMonitor) otherOrigin ) ) return false;
+            if( !(otherOrigin instanceof TileMonitor originMonitor) || !origin.isCompatible( originMonitor ) )
+            {
+                return false;
+            }
 
-            origin = (TileMonitor) otherOrigin;
+            origin = originMonitor;
         }
 
         this.width = width;

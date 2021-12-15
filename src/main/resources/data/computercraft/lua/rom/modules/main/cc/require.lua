@@ -31,22 +31,37 @@ local function preload(package)
     end
 end
 
-local function from_file(package, env, dir)
+local function from_file(package, env)
     return function(name)
-        local fname = string.gsub(name, "%.", "/")
+        local sPath, sError = package.searchpath(name, package.path)
+        if not sPath then
+            return nil, sError
+        end
+        local fnFile, sError = loadfile(sPath, nil, env)
+        if fnFile then
+            return fnFile, sPath
+        else
+            return nil, sError
+        end
+    end
+end
+
+local function make_searchpath(dir)
+    return function(name, path, sep, rep)
+        expect(1, name, "string")
+        expect(2, path, "string")
+        sep = expect(3, sep, "string", "nil") or "."
+        rep = expect(4, rep, "string", "nil") or "/"
+
+        local fname = string.gsub(name, sep:gsub("%.", "%%%."), rep)
         local sError = ""
-        for pattern in string.gmatch(package.path, "[^;]+") do
+        for pattern in string.gmatch(path, "[^;]+") do
             local sPath = string.gsub(pattern, "%?", fname)
             if sPath:sub(1, 1) ~= "/" then
                 sPath = fs.combine(dir, sPath)
             end
             if fs.exists(sPath) and not fs.isDir(sPath) then
-                local fnFile, sError = loadfile(sPath, nil, env)
-                if fnFile then
-                    return fnFile, sPath
-                else
-                    return nil, sError
-                end
+                return sPath
             else
                 if #sError > 0 then
                     sError = sError .. "\n  "
@@ -118,7 +133,8 @@ local function make_package(env, dir)
     end
     package.config = "/\n;\n?\n!\n-"
     package.preload = {}
-    package.loaders = { preload(package), from_file(package, env, dir) }
+    package.loaders = { preload(package), from_file(package, env) }
+    package.searchpath = make_searchpath(dir)
 
     return make_require(package), package
 end
