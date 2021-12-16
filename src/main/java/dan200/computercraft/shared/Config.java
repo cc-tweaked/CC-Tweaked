@@ -136,7 +136,7 @@ public final class Config
 
             disableGotoStatement = builder
                 .comment( "Set this to true to disable Lua 5.2's goto statement. " +
-                    "This blocks users from using possible poor coding practices." )
+                    "This will always treat the word 'goto' as a name for compatibility." )
                 .define( "disable_goto_statement", ComputerCraft.disableGotoStatement );
         }
 
