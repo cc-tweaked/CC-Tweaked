@@ -5,9 +5,10 @@
  */
 package dan200.computercraft.shared.peripheral.generic.data;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
@@ -34,14 +35,15 @@ public final class DataHelpers
     @Nonnull
     static Map<String, Boolean> getTags( @Nonnull Block block )
     {
-        Collection<ResourceLocation> tags = Minecraft.getInstance().getConnection().getTags().getOrEmpty( Registry.BLOCK_REGISTRY ).getMatchingTags( block );
+        Collection<ResourceLocation> tags = BlockTags.getAllTags().getMatchingTags( block );
         return getTags( tags );
     }
 
+    //TODO fix this
     @Nonnull
     static Map<String, Boolean> getTags( @Nonnull Item item )
     {
-        Collection<ResourceLocation> tags = Minecraft.getInstance().getConnection().getTags().getOrEmpty( Registry.ITEM_REGISTRY ).getMatchingTags( item );
+        Collection<ResourceLocation> tags = ItemTags.getAllTags().getMatchingTags( item );
         return getTags( tags );
     }
 
