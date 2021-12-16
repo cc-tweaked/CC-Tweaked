@@ -39,7 +39,6 @@ public final class DataHelpers
         return getTags( tags );
     }
 
-    //TODO fix this
     @Nonnull
     static Map<String, Boolean> getTags( @Nonnull Item item )
     {
