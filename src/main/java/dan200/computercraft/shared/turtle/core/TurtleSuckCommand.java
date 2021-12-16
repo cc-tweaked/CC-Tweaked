@@ -13,6 +13,7 @@ import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.ItemStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -53,10 +54,12 @@ public class TurtleSuckCommand implements ITurtleCommand
         BlockPos blockPosition = turtlePosition.relative( direction );
         Direction side = direction.getOpposite();
 
-        ItemStorage inventory = ItemStorage.wrap( InventoryUtil.getInventory( world, blockPosition, side ) );
+        Container inventoryContainer = InventoryUtil.getInventory( world, blockPosition, side );
 
-        if( inventory != null )
+        if( inventoryContainer != null )
         {
+            ItemStorage inventory = ItemStorage.wrap( inventoryContainer );
+
             // Take from inventory of thing in front
             ItemStack stack = InventoryUtil.takeItems( quantity, inventory );
             if( stack.isEmpty() ) return TurtleCommandResult.failure( "No items to take" );
