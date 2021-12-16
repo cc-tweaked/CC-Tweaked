@@ -7,18 +7,18 @@ package dan200.computercraft.core.filesystem;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.MapMaker;
 import com.google.common.io.ByteStreams;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.shared.util.IoUtil;
-import net.minecraft.resource.ReloadableResourceManager;
-import net.minecraft.resource.Resource;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.SynchronousResourceReloader;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
+import net.minecraft.ResourceLocationException;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,7 +27,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public final class ResourceMount implements IMount
@@ -56,56 +58,43 @@ public final class ResourceMount implements IMount
         .<FileEntry, byte[]>weigher( ( k, v ) -> v.length )
         .build();
 
-    private static final MapMaker CACHE_TEMPLATE = new MapMaker().weakValues().concurrencyLevel( 1 );
-
     /**
      * Maintain a cache of currently loaded resource mounts. This cache is invalidated when currentManager changes.
      */
-    private static final Map<ReloadableResourceManager, Map<Identifier, ResourceMount>> MOUNT_CACHE = new WeakHashMap<>( 2 );
+    private static final Map<ResourceLocation, ResourceMount> MOUNT_CACHE = new HashMap<>( 2 );
 
     private final String namespace;
     private final String subPath;
-    private final ReloadableResourceManager manager;
+    private ResourceManager manager;
 
     @Nullable
     private FileEntry root;
 
-    public static ResourceMount get( String namespace, String subPath, ReloadableResourceManager manager )
+    public static ResourceMount get( String namespace, String subPath, ResourceManager manager )
     {
-        Map<Identifier, ResourceMount> cache;
-
+        ResourceLocation path = new ResourceLocation( namespace, subPath );
         synchronized( MOUNT_CACHE )
         {
-            cache = MOUNT_CACHE.get( manager );
-            if( cache == null ) MOUNT_CACHE.put( manager, cache = CACHE_TEMPLATE.makeMap() );
-        }
-
-        Identifier path = new Identifier( namespace, subPath );
-        synchronized( cache )
-        {
-            ResourceMount mount = cache.get( path );
-            if( mount == null ) cache.put( path, mount = new ResourceMount( namespace, subPath, manager ) );
+            ResourceMount mount = MOUNT_CACHE.get( path );
+            if( mount == null ) MOUNT_CACHE.put( path, mount = new ResourceMount( namespace, subPath, manager ) );
             return mount;
         }
     }
 
-    private ResourceMount( String namespace, String subPath, ReloadableResourceManager manager )
+    private ResourceMount( String namespace, String subPath, ResourceManager manager )
     {
         this.namespace = namespace;
         this.subPath = subPath;
-        this.manager = manager;
-
-        Listener.INSTANCE.add( manager, this );
-        if( root == null ) load();
+        load( manager );
     }
 
-    private void load()
+    private void load( ResourceManager manager )
     {
         boolean hasAny = false;
         String existingNamespace = null;
 
-        FileEntry newRoot = new FileEntry( new Identifier( namespace, subPath ) );
-        for( Identifier file : manager.findResources( subPath, s -> true ) )
+        FileEntry newRoot = new FileEntry( new ResourceLocation( namespace, subPath ) );
+        for( ResourceLocation file : manager.listResources( subPath, s -> true ) )
         {
             existingNamespace = file.getNamespace();
 
@@ -117,6 +106,7 @@ public final class ResourceMount implements IMount
             hasAny = true;
         }
 
+        this.manager = manager;
         root = hasAny ? newRoot : null;
 
         if( !hasAny )
@@ -160,12 +150,12 @@ public final class ResourceMount implements IMount
             FileEntry nextEntry = lastEntry.children.get( part );
             if( nextEntry == null )
             {
-                Identifier childPath;
+                ResourceLocation childPath;
                 try
                 {
-                    childPath = new Identifier( namespace, subPath + "/" + path );
+                    childPath = new ResourceLocation( namespace, subPath + "/" + path );
                 }
-                catch( InvalidIdentifierException e )
+                catch( ResourceLocationException e )
                 {
                     ComputerCraft.log.warn( "Cannot create resource location for {} ({})", part, e.getMessage() );
                     return;
@@ -271,11 +261,11 @@ public final class ResourceMount implements IMount
 
     private static class FileEntry
     {
-        final Identifier identifier;
+        final ResourceLocation identifier;
         Map<String, FileEntry> children;
         long size = -1;
 
-        FileEntry( Identifier identifier )
+        FileEntry( ResourceLocation identifier )
         {
             this.identifier = identifier;
         }
@@ -292,28 +282,30 @@ public final class ResourceMount implements IMount
     }
 
     /**
-     * A {@link ResourceReloader} which reloads any associated mounts.
-     *
-     * While people should really be keeping a permanent reference to this, some people construct it every
-     * method call, so let's make this as small as possible.
+     * A {@link PreparableReloadListener} which reloads any associated mounts and correctly updates the resource manager
+     * they point to.
      */
-    static class Listener implements SynchronousResourceReloader
+    public static final SimplePreparableReloadListener<Void> RELOAD_LISTENER = new SimplePreparableReloadListener<>()
     {
-        private static final Listener INSTANCE = new Listener();
-
-        private final Set<ResourceMount> mounts = Collections.newSetFromMap( new WeakHashMap<>() );
-        private final Set<ReloadableResourceManager> managers = Collections.newSetFromMap( new WeakHashMap<>() );
+        @Nonnull
+        @Override
+        protected Void prepare( @Nonnull ResourceManager manager, @Nonnull ProfilerFiller profiler )
+        {
+            profiler.push( "Reloading ComputerCraft mounts" );
+            try
+            {
+                for( ResourceMount mount : MOUNT_CACHE.values() ) mount.load( manager );
+            }
+            finally
+            {
+                profiler.pop();
+            }
+            return null;
+        }
 
         @Override
-        public void reload( @Nonnull ResourceManager manager )
+        protected void apply( @Nonnull Void result, @Nonnull ResourceManager manager, @Nonnull ProfilerFiller profiler )
         {
-            for( ResourceMount mount : mounts ) mount.load();
         }
-
-        synchronized void add( ReloadableResourceManager manager, ResourceMount mount )
-        {
-            if( managers.add( manager ) ) manager.registerReloader( this );
-            mounts.add( mount );
-        }
-    }
+    };
 }

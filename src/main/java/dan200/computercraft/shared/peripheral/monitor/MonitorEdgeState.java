@@ -6,13 +6,13 @@
 
 package dan200.computercraft.shared.peripheral.monitor;
 
-import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.StringRepresentable;
 
 import javax.annotation.Nonnull;
 
 import static dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState.Flags.*;
 
-public enum MonitorEdgeState implements StringIdentifiable
+public enum MonitorEdgeState implements StringRepresentable
 {
     NONE( "none", 0 ),
 
@@ -60,7 +60,7 @@ public enum MonitorEdgeState implements StringIdentifiable
 
     @Nonnull
     @Override
-    public String asString()
+    public String getSerializedName()
     {
         return name;
     }

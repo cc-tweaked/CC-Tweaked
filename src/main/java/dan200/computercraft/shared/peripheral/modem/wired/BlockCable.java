@@ -12,25 +12,25 @@ import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ShapeContext;
-import net.minecraft.block.Waterloggable;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.*;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,20 +38,20 @@ import java.util.EnumMap;
 
 import static dan200.computercraft.shared.util.WaterloggableHelpers.*;
 
-public class BlockCable extends BlockGeneric implements Waterloggable, BlockPickInteractionAware
+public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock, BlockPickInteractionAware
 {
-    public static final EnumProperty<CableModemVariant> MODEM = EnumProperty.of( "modem", CableModemVariant.class );
-    public static final BooleanProperty CABLE = BooleanProperty.of( "cable" );
+    public static final EnumProperty<CableModemVariant> MODEM = EnumProperty.create( "modem", CableModemVariant.class );
+    public static final BooleanProperty CABLE = BooleanProperty.create( "cable" );
 
-    private static final BooleanProperty NORTH = BooleanProperty.of( "north" );
-    private static final BooleanProperty SOUTH = BooleanProperty.of( "south" );
-    private static final BooleanProperty EAST = BooleanProperty.of( "east" );
-    private static final BooleanProperty WEST = BooleanProperty.of( "west" );
-    private static final BooleanProperty UP = BooleanProperty.of( "up" );
-    private static final BooleanProperty DOWN = BooleanProperty.of( "down" );
+    private static final BooleanProperty NORTH = BooleanProperty.create( "north" );
+    private static final BooleanProperty SOUTH = BooleanProperty.create( "south" );
+    private static final BooleanProperty EAST = BooleanProperty.create( "east" );
+    private static final BooleanProperty WEST = BooleanProperty.create( "west" );
+    private static final BooleanProperty UP = BooleanProperty.create( "up" );
+    private static final BooleanProperty DOWN = BooleanProperty.create( "down" );
 
     static final EnumMap<Direction, BooleanProperty> CONNECTIONS = new EnumMap<>( new ImmutableMap.Builder<Direction, BooleanProperty>().put( Direction.DOWN,
-        DOWN )
+            DOWN )
         .put( Direction.UP,
             UP )
         .put( Direction.NORTH,
@@ -64,56 +64,56 @@ public class BlockCable extends BlockGeneric implements Waterloggable, BlockPick
             EAST )
         .build() );
 
-    public BlockCable( Settings settings )
+    public BlockCable( Properties settings )
     {
         super( settings, ComputerCraftRegistry.ModTiles.CABLE );
 
-        setDefaultState( getStateManager().getDefaultState()
-            .with( MODEM, CableModemVariant.None )
-            .with( CABLE, false )
-            .with( NORTH, false )
-            .with( SOUTH, false )
-            .with( EAST, false )
-            .with( WEST, false )
-            .with( UP, false )
-            .with( DOWN, false )
-            .with( WATERLOGGED, false ) );
+        registerDefaultState( getStateDefinition().any()
+            .setValue( MODEM, CableModemVariant.None )
+            .setValue( CABLE, false )
+            .setValue( NORTH, false )
+            .setValue( SOUTH, false )
+            .setValue( EAST, false )
+            .setValue( WEST, false )
+            .setValue( UP, false )
+            .setValue( DOWN, false )
+            .setValue( WATERLOGGED, false ) );
     }
 
     public static boolean canConnectIn( BlockState state, Direction direction )
     {
-        return state.get( BlockCable.CABLE ) && state.get( BlockCable.MODEM )
+        return state.getValue( BlockCable.CABLE ) && state.getValue( BlockCable.MODEM )
             .getFacing() != direction;
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public BlockState getStateForNeighborUpdate( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState,
-                                                 @Nonnull WorldAccess world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
+    public BlockState updateShape( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState,
+                                   @Nonnull LevelAccessor world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
     {
         updateWaterloggedPostPlacement( state, world, pos );
         // Should never happen, but handle the case where we've no modem or cable.
-        if( !state.get( CABLE ) && state.get( MODEM ) == CableModemVariant.None )
+        if( !state.getValue( CABLE ) && state.getValue( MODEM ) == CableModemVariant.None )
         {
-            return getFluidState( state ).getBlockState();
+            return getFluidState( state ).createLegacyBlock();
         }
 
-        return state.with( CONNECTIONS.get( side ), doesConnectVisually( state, world, pos, side ) );
+        return state.setValue( CONNECTIONS.get( side ), doesConnectVisually( state, world, pos, side ) );
     }
 
-    public static boolean doesConnectVisually( BlockState state, BlockView world, BlockPos pos, Direction direction )
+    public static boolean doesConnectVisually( BlockState state, BlockGetter world, BlockPos pos, Direction direction )
     {
-        if( !state.get( CABLE ) )
+        if( !state.getValue( CABLE ) )
         {
             return false;
         }
-        if( state.get( MODEM )
+        if( state.getValue( MODEM )
             .getFacing() == direction )
         {
             return true;
         }
-        return ComputerCraftAPI.getWiredElementAt( world, pos.offset( direction ), direction.getOpposite() ) != null;
+        return ComputerCraftAPI.getWiredElementAt( world, pos.relative( direction ), direction.getOpposite() ) != null;
     }
 
     @Nonnull
@@ -124,41 +124,41 @@ public class BlockCable extends BlockGeneric implements Waterloggable, BlockPick
         return getWaterloggedFluidState( state );
     }
 
-    public boolean removedByPlayer( BlockState state, World world, BlockPos pos, PlayerEntity player, boolean willHarvest, FluidState fluid )
+    public boolean removedByPlayer( BlockState state, Level world, BlockPos pos, Player player, boolean willHarvest, FluidState fluid )
     {
-        if( state.get( CABLE ) && state.get( MODEM ).getFacing() != null )
+        if( state.getValue( CABLE ) && state.getValue( MODEM ).getFacing() != null )
         {
-            BlockHitResult hit = world.raycast( new RaycastContext(
+            BlockHitResult hit = world.clip( new ClipContext(
                 WorldUtil.getRayStart( player ), WorldUtil.getRayEnd( player ),
-                RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, player
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player
             ) );
             if( hit.getType() == HitResult.Type.BLOCK )
             {
                 BlockEntity tile = world.getBlockEntity( pos );
-                if( tile instanceof TileCable cable && tile.hasWorld() )
+                if( tile instanceof TileCable cable && tile.hasLevel() )
                 {
 
                     ItemStack item;
                     BlockState newState;
 
-                    if( WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getPos().subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
+                    if( WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getLocation().subtract( pos.getX(), pos.getY(), pos.getZ() ) ) )
                     {
-                        newState = state.with( MODEM, CableModemVariant.None );
+                        newState = state.setValue( MODEM, CableModemVariant.None );
                         item = new ItemStack( ComputerCraftRegistry.ModItems.WIRED_MODEM );
                     }
                     else
                     {
-                        newState = state.with( CABLE, false );
+                        newState = state.setValue( CABLE, false );
                         item = new ItemStack( ComputerCraftRegistry.ModItems.CABLE );
                     }
 
-                    world.setBlockState( pos, correctConnections( world, pos, newState ), 3 );
+                    world.setBlock( pos, correctConnections( world, pos, newState ), 3 );
 
                     cable.modemChanged();
                     cable.connectionsChanged();
-                    if( !world.isClient && !player.getAbilities().creativeMode )
+                    if( !world.isClientSide && !player.getAbilities().instabuild )
                     {
-                        Block.dropStack( world, pos, item );
+                        Block.popResource( world, pos, item );
                     }
 
                     return false;
@@ -170,66 +170,66 @@ public class BlockCable extends BlockGeneric implements Waterloggable, BlockPick
     }
 
     @Override
-    public ItemStack getPickedStack( BlockState state, BlockView world, BlockPos pos, @Nullable PlayerEntity player, HitResult hit )
+    public ItemStack getPickedStack( BlockState state, BlockGetter world, BlockPos pos, @Nullable Player player, HitResult hit )
     {
-        Direction modem = state.get( MODEM ).getFacing();
-        boolean cable = state.get( CABLE );
+        Direction modem = state.getValue( MODEM ).getFacing();
+        boolean cable = state.getValue( CABLE );
 
         // If we've only got one, just use that.
         if( !cable ) return new ItemStack( ComputerCraftRegistry.ModItems.WIRED_MODEM );
         if( modem == null ) return new ItemStack( ComputerCraftRegistry.ModItems.CABLE );
 
         // We've a modem and cable, so try to work out which one we're interacting with
-        return hit != null && WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getPos().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
+        return hit != null && WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getLocation().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
             ? new ItemStack( ComputerCraftRegistry.ModItems.WIRED_MODEM )
             : new ItemStack( ComputerCraftRegistry.ModItems.CABLE );
     }
 
     @Override
     @Deprecated
-    public boolean canPlaceAt( BlockState state, @Nonnull WorldView world, @Nonnull BlockPos pos )
+    public boolean canSurvive( BlockState state, @Nonnull LevelReader world, @Nonnull BlockPos pos )
     {
-        Direction facing = state.get( MODEM )
+        Direction facing = state.getValue( MODEM )
             .getFacing();
         if( facing == null )
         {
             return true;
         }
 
-        return sideCoversSmallSquare( world, pos.offset( facing ), facing.getOpposite() );
+        return canSupportCenter( world, pos.relative( facing ), facing.getOpposite() );
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public VoxelShape getOutlineShape( @Nonnull BlockState state, @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull ShapeContext context )
+    public VoxelShape getShape( @Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull CollisionContext context )
     {
         return CableShapes.getShape( state );
     }
 
     @Nullable
     @Override
-    public BlockState getPlacementState( @Nonnull ItemPlacementContext context )
+    public BlockState getStateForPlacement( @Nonnull BlockPlaceContext context )
     {
-        BlockState state = getDefaultState().with( WATERLOGGED, getWaterloggedStateForPlacement( context ) );
+        BlockState state = defaultBlockState().setValue( WATERLOGGED, getWaterloggedStateForPlacement( context ) );
 
-        if( context.getStack()
+        if( context.getItemInHand()
             .getItem() instanceof ItemBlockCable.Cable )
         {
-            World world = context.getWorld();
-            BlockPos pos = context.getBlockPos();
-            return correctConnections( world, pos, state.with( CABLE, true ) );
+            Level world = context.getLevel();
+            BlockPos pos = context.getClickedPos();
+            return correctConnections( world, pos, state.setValue( CABLE, true ) );
         }
         else
         {
-            return state.with( MODEM,
-                CableModemVariant.from( context.getSide()
+            return state.setValue( MODEM,
+                CableModemVariant.from( context.getClickedFace()
                     .getOpposite() ) );
         }
     }
 
     @Override
-    public void onPlaced( World world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, @Nonnull ItemStack stack )
+    public void setPlacedBy( Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, @Nonnull ItemStack stack )
     {
         BlockEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileCable cable )
@@ -240,40 +240,40 @@ public class BlockCable extends BlockGeneric implements Waterloggable, BlockPick
             }
         }
 
-        super.onPlaced( world, pos, state, placer, stack );
+        super.setPlacedBy( world, pos, state, placer, stack );
     }
 
     @Override
-    protected void appendProperties( StateManager.Builder<Block, BlockState> builder )
+    protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> builder )
     {
         builder.add( MODEM, CABLE, NORTH, SOUTH, EAST, WEST, UP, DOWN, WATERLOGGED );
     }
 
-    public static BlockState correctConnections( World world, BlockPos pos, BlockState state )
+    public static BlockState correctConnections( Level world, BlockPos pos, BlockState state )
     {
-        if( state.get( CABLE ) )
+        if( state.getValue( CABLE ) )
         {
-            return state.with( NORTH, doesConnectVisually( state, world, pos, Direction.NORTH ) )
-                .with( SOUTH, doesConnectVisually( state, world, pos, Direction.SOUTH ) )
-                .with( EAST, doesConnectVisually( state, world, pos, Direction.EAST ) )
-                .with( WEST, doesConnectVisually( state, world, pos, Direction.WEST ) )
-                .with( UP, doesConnectVisually( state, world, pos, Direction.UP ) )
-                .with( DOWN, doesConnectVisually( state, world, pos, Direction.DOWN ) );
+            return state.setValue( NORTH, doesConnectVisually( state, world, pos, Direction.NORTH ) )
+                .setValue( SOUTH, doesConnectVisually( state, world, pos, Direction.SOUTH ) )
+                .setValue( EAST, doesConnectVisually( state, world, pos, Direction.EAST ) )
+                .setValue( WEST, doesConnectVisually( state, world, pos, Direction.WEST ) )
+                .setValue( UP, doesConnectVisually( state, world, pos, Direction.UP ) )
+                .setValue( DOWN, doesConnectVisually( state, world, pos, Direction.DOWN ) );
         }
         else
         {
-            return state.with( NORTH, false )
-                .with( SOUTH, false )
-                .with( EAST, false )
-                .with( WEST, false )
-                .with( UP, false )
-                .with( DOWN, false );
+            return state.setValue( NORTH, false )
+                .setValue( SOUTH, false )
+                .setValue( EAST, false )
+                .setValue( WEST, false )
+                .setValue( UP, false )
+                .setValue( DOWN, false );
         }
     }
 
     @Nullable
     @Override
-    public BlockEntity createBlockEntity( BlockPos pos, BlockState state )
+    public BlockEntity newBlockEntity( BlockPos pos, BlockState state )
     {
         return new TileCable( ComputerCraftRegistry.ModTiles.CABLE, pos, state );
     }

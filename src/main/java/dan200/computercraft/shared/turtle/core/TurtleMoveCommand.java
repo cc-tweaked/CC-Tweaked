@@ -11,25 +11,23 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
-import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
-import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 
 public class TurtleMoveCommand implements ITurtleCommand
 {
-    private static final Box EMPTY_BOX = new Box( 0, 0, 0, 0, 0, 0 );
+    private static final AABB EMPTY_BOX = new AABB( 0, 0, 0, 0, 0, 0 );
     private final MoveDirection direction;
 
     public TurtleMoveCommand( MoveDirection direction )
@@ -45,9 +43,9 @@ public class TurtleMoveCommand implements ITurtleCommand
         Direction direction = this.direction.toWorldDir( turtle );
 
         // Check if we can move
-        World oldWorld = turtle.getWorld();
+        Level oldWorld = turtle.getLevel();
         BlockPos oldPosition = turtle.getPosition();
-        BlockPos newPosition = oldPosition.offset( direction );
+        BlockPos newPosition = oldPosition.relative( direction );
 
         TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );
         TurtleCommandResult canEnterResult = canEnter( turtlePlayer, oldWorld, newPosition );
@@ -58,7 +56,7 @@ public class TurtleMoveCommand implements ITurtleCommand
 
         // Check existing block is air or replaceable
         BlockState state = oldWorld.getBlockState( newPosition );
-        if( !oldWorld.isAir( newPosition ) && !WorldUtil.isLiquidBlock( oldWorld, newPosition ) && !state.getMaterial()
+        if( !oldWorld.isEmptyBlock( newPosition ) && !WorldUtil.isLiquidBlock( oldWorld, newPosition ) && !state.getMaterial()
             .isReplaceable() )
         {
             return TurtleCommandResult.failure( "Movement obstructed" );
@@ -66,9 +64,9 @@ public class TurtleMoveCommand implements ITurtleCommand
 
         // Check there isn't anything in the way
         VoxelShape collision = state.getCollisionShape( oldWorld, oldPosition )
-            .offset( newPosition.getX(), newPosition.getY(), newPosition.getZ() );
+            .move( newPosition.getX(), newPosition.getY(), newPosition.getZ() );
 
-        if( !oldWorld.intersectsEntities( null, collision ) )
+        if( !oldWorld.isUnobstructed( null, collision ) )
         {
             if( !ComputerCraft.turtlesCanPush || this.direction == MoveDirection.UP || this.direction == MoveDirection.DOWN )
             {
@@ -76,22 +74,16 @@ public class TurtleMoveCommand implements ITurtleCommand
             }
 
             // Check there is space for all the pushable entities to be pushed
-            List<Entity> list = oldWorld.getEntitiesByClass( Entity.class, getBox( collision ), x -> x != null && x.isAlive() && x.inanimate );
+            List<Entity> list = oldWorld.getEntitiesOfClass( Entity.class, getBox( collision ), x -> x != null && x.isAlive() && x.blocksBuilding );
             for( Entity entity : list )
             {
-                Box pushedBB = entity.getBoundingBox()
-                    .offset( direction.getOffsetX(), direction.getOffsetY(), direction.getOffsetZ() );
-                if( !oldWorld.intersectsEntities( null, VoxelShapes.cuboid( pushedBB ) ) )
+                AABB pushedBB = entity.getBoundingBox()
+                    .move( direction.getStepX(), direction.getStepY(), direction.getStepZ() );
+                if( !oldWorld.isUnobstructed( null, Shapes.create( pushedBB ) ) )
                 {
                     return TurtleCommandResult.failure( "Movement obstructed" );
                 }
             }
-        }
-
-        TurtleBlockEvent.Move moveEvent = new TurtleBlockEvent.Move( turtle, turtlePlayer, oldWorld, newPosition );
-        if( TurtleEvent.post( moveEvent ) )
-        {
-            return TurtleCommandResult.failure( moveEvent.getFailureMessage() );
         }
 
         // Check fuel level
@@ -129,13 +121,13 @@ public class TurtleMoveCommand implements ITurtleCommand
         return TurtleCommandResult.success();
     }
 
-    private static TurtleCommandResult canEnter( TurtlePlayer turtlePlayer, World world, BlockPos position )
+    private static TurtleCommandResult canEnter( TurtlePlayer turtlePlayer, Level world, BlockPos position )
     {
-        if( world.isOutOfHeightLimit( position ) )
+        if( world.isOutsideBuildHeight( position ) )
         {
             return TurtleCommandResult.failure( position.getY() < 0 ? "Too low to move" : "Too high to move" );
         }
-        if( !world.isInBuildLimit( position ) )
+        if( !world.isInWorldBounds( position ) )
         {
             return TurtleCommandResult.failure( "Cannot leave the world" );
         }
@@ -146,12 +138,12 @@ public class TurtleMoveCommand implements ITurtleCommand
             return TurtleCommandResult.failure( "Cannot enter protected area" );
         }
 
-        if( !world.isChunkLoaded( position ) )
+        if( !world.hasChunkAt( position ) )
         {
             return TurtleCommandResult.failure( "Cannot leave loaded world" );
         }
         if( !world.getWorldBorder()
-            .contains( position ) )
+            .isWithinBounds( position ) )
         {
             return TurtleCommandResult.failure( "Cannot pass the world border" );
         }
@@ -159,8 +151,8 @@ public class TurtleMoveCommand implements ITurtleCommand
         return TurtleCommandResult.success();
     }
 
-    private static Box getBox( VoxelShape shape )
+    private static AABB getBox( VoxelShape shape )
     {
-        return shape.isEmpty() ? EMPTY_BOX : shape.getBoundingBox();
+        return shape.isEmpty() ? EMPTY_BOX : shape.bounds();
     }
 }

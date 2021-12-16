@@ -14,16 +14,16 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.SpeakerMoveClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerPlayClientMessage;
-import net.minecraft.block.enums.Instrument;
-import net.minecraft.network.packet.s2c.play.PlaySoundIdS2CPacket;
+import net.minecraft.ResourceLocationException;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
@@ -46,7 +46,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
     private long lastPlayTime = 0;
 
     private long lastPositionTime;
-    private Vec3d lastPosition;
+    private Vec3 lastPosition;
 
     public void update()
     {
@@ -58,14 +58,14 @@ public abstract class SpeakerPeripheral implements IPeripheral
         // in the last second.
         if( lastPlayTime > 0 && (clock - lastPositionTime) >= 20 )
         {
-            Vec3d position = getPosition();
+            Vec3 position = getPosition();
             if( lastPosition == null || lastPosition.distanceTo( position ) >= 0.1 )
             {
                 lastPosition = position;
                 lastPositionTime = clock;
                 NetworkHandler.sendToAllTracking(
                     new SpeakerMoveClientMessage( getSource(), position ),
-                    getWorld().getWorldChunk( new BlockPos( position ) )
+                    getWorld().getChunkAt( new BlockPos( position ) )
                 );
             }
         }
@@ -104,12 +104,12 @@ public abstract class SpeakerPeripheral implements IPeripheral
         float volume = (float) checkFinite( 1, volumeA.orElse( 1.0 ) );
         float pitch = (float) checkFinite( 2, pitchA.orElse( 1.0 ) );
 
-        Identifier identifier;
+        ResourceLocation identifier;
         try
         {
-            identifier = new Identifier( name );
+            identifier = new ResourceLocation( name );
         }
-        catch( InvalidIdentifierException e )
+        catch( ResourceLocationException e )
         {
             throw new LuaException( "Malformed sound name '" + name + "' " );
         }
@@ -117,7 +117,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
         return playSound( context, identifier, volume, pitch, false );
     }
 
-    private synchronized boolean playSound( ILuaContext context, Identifier name, float volume, float pitch, boolean isNote ) throws LuaException
+    private synchronized boolean playSound( ILuaContext context, ResourceLocation name, float volume, float pitch, boolean isNote ) throws LuaException
     {
         if( clock - lastPlayTime < MIN_TICKS_BETWEEN_SOUNDS )
         {
@@ -127,10 +127,10 @@ public abstract class SpeakerPeripheral implements IPeripheral
             if( clock - lastPlayTime != 0 || notesThisTick.get() >= ComputerCraft.maxNotesPerTick ) return false;
         }
 
-        World world = getWorld();
-        Vec3d pos = getPosition();
+        Level world = getWorld();
+        Vec3 pos = getPosition();
 
-        float actualVolume = MathHelper.clamp( volume, 0.0f, 3.0f );
+        float actualVolume = Mth.clamp( volume, 0.0f, 3.0f );
         float range = actualVolume * 16;
 
         context.issueMainThreadTask( () -> {
@@ -142,9 +142,9 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
             if( isNote )
             {
-                server.getPlayerManager().sendToAround(
-                    null, pos.x, pos.y, pos.z, range, world.getRegistryKey(),
-                    new PlaySoundIdS2CPacket( name, SoundCategory.RECORDS, pos, actualVolume, pitch )
+                server.getPlayerList().broadcast(
+                    null, pos.x, pos.y, pos.z, range, world.dimension(),
+                    new ClientboundCustomSoundPacket( name, SoundSource.RECORDS, pos, actualVolume, pitch )
                 );
             }
             else
@@ -161,9 +161,9 @@ public abstract class SpeakerPeripheral implements IPeripheral
         return true;
     }
 
-    public abstract World getWorld();
+    public abstract Level getWorld();
 
-    public abstract Vec3d getPosition();
+    public abstract Vec3 getPosition();
 
     /**
      * Plays a note block note through the speaker.
@@ -186,10 +186,10 @@ public abstract class SpeakerPeripheral implements IPeripheral
         float volume = (float) checkFinite( 1, volumeA.orElse( 1.0 ) );
         float pitch = (float) checkFinite( 2, pitchA.orElse( 1.0 ) );
 
-        Instrument instrument = null;
-        for( Instrument testInstrument : Instrument.values() )
+        NoteBlockInstrument instrument = null;
+        for( NoteBlockInstrument testInstrument : NoteBlockInstrument.values() )
         {
-            if( testInstrument.asString()
+            if( testInstrument.getSerializedName()
                 .equalsIgnoreCase( name ) )
             {
                 instrument = testInstrument;
@@ -205,7 +205,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
         // If the resource location for note block notes changes, this method call will need to be updated
         boolean success = playSound( context,
-            instrument.getSound().getId(),
+            instrument.getSoundEvent().getLocation(),
             volume,
             (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ),
             true );

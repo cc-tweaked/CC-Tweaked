@@ -9,7 +9,7 @@ package dan200.computercraft.shared.network.server;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 
 import javax.annotation.Nonnull;
 
@@ -23,17 +23,17 @@ public class ComputerActionServerMessage extends ComputerServerMessage
         this.action = action;
     }
 
-    public ComputerActionServerMessage( @Nonnull PacketByteBuf buf )
+    public ComputerActionServerMessage( @Nonnull FriendlyByteBuf buf )
     {
         super( buf );
-        action = buf.readEnumConstant( Action.class );
+        action = buf.readEnum( Action.class );
     }
 
     @Override
-    public void toBytes( @Nonnull PacketByteBuf buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         super.toBytes( buf );
-        buf.writeEnumConstant( action );
+        buf.writeEnum( action );
     }
 
     @Override

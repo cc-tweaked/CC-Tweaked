@@ -10,7 +10,7 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.util.InventoryUtil;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
@@ -28,9 +28,9 @@ public class TurtleCompareToCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         ItemStack selectedStack = turtle.getInventory()
-            .getStack( turtle.getSelectedSlot() );
+            .getItem( turtle.getSelectedSlot() );
         ItemStack stack = turtle.getInventory()
-            .getStack( slot );
+            .getItem( slot );
         if( InventoryUtil.areItemsStackable( selectedStack, stack ) )
         {
             return TurtleCommandResult.success();

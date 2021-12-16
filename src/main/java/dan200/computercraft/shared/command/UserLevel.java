@@ -5,17 +5,17 @@
  */
 package dan200.computercraft.shared.command;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.function.Predicate;
 
 /**
  * The level a user must be at in order to execute a command.
  */
-public enum UserLevel implements Predicate<ServerCommandSource>
+public enum UserLevel implements Predicate<CommandSourceStack>
 {
     /**
      * Only can be used by the owner of the server: namely the server console or the player in SSP.
@@ -53,20 +53,20 @@ public enum UserLevel implements Predicate<ServerCommandSource>
     }
 
     @Override
-    public boolean test( ServerCommandSource source )
+    public boolean test( CommandSourceStack source )
     {
         if( this == ANYONE ) return true;
         if( this == OWNER ) return isOwner( source );
         if( this == OWNER_OP && isOwner( source ) ) return true;
-        return source.hasPermissionLevel( toLevel() );
+        return source.hasPermission( toLevel() );
     }
 
-    private static boolean isOwner( ServerCommandSource source )
+    private static boolean isOwner( CommandSourceStack source )
     {
         MinecraftServer server = source.getServer();
         Entity sender = source.getEntity();
-        return server.isDedicated()
-            ? source.getEntity() == null && source.hasPermissionLevel( 4 ) && source.getName().equals( "Server" )
-            : sender instanceof PlayerEntity && ((PlayerEntity) sender).getGameProfile().getName().equalsIgnoreCase( server.getServerModName() );
+        return server.isDedicatedServer()
+            ? source.getEntity() == null && source.hasPermission( 4 ) && source.getTextName().equals( "Server" )
+            : sender instanceof Player && ((Player) sender).getGameProfile().getName().equalsIgnoreCase( server.getServerModName() );
     }
 }

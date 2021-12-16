@@ -3,11 +3,10 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.network;
 
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 
@@ -22,7 +21,7 @@ public interface IPacketReceiver
      * @return The receivers's world.
      */
     @Nonnull
-    World getWorld();
+    Level getLevel();
 
     /**
      * Get the position in the world at which this receiver exists.
@@ -30,13 +29,14 @@ public interface IPacketReceiver
      * @return The receiver's position.
      */
     @Nonnull
-    Vec3d getPosition();
+    Vec3 getPosition();
 
     /**
      * Get the maximum distance this receiver can send and receive messages.
      *
-     * When determining whether a receiver can receive a message, the largest distance of the packet and receiver is used - ensuring it is within range. If
-     * the packet or receiver is inter-dimensional, then the packet will always be received.
+     * When determining whether a receiver can receive a message, the largest distance of the packet and receiver is
+     * used - ensuring it is within range. If the packet or receiver is inter-dimensional, then the packet will always
+     * be received.
      *
      * @return The maximum distance this device can send and receive messages.
      * @see #isInterdimensional()
@@ -60,8 +60,8 @@ public interface IPacketReceiver
     /**
      * Receive a network packet from the same dimension.
      *
-     * @param packet   The packet to receive. Generally you should check that you are listening on the given channel and, if so, queue the appropriate
-     *                 modem event.
+     * @param packet   The packet to receive. Generally you should check that you are listening on the given channel and,
+     *                 if so, queue the appropriate modem event.
      * @param distance The distance this packet has travelled from the source.
      * @see Packet
      * @see #getRange()
@@ -73,8 +73,8 @@ public interface IPacketReceiver
     /**
      * Receive a network packet from a different dimension.
      *
-     * @param packet The packet to receive. Generally you should check that you are listening on the given channel and, if so, queue the appropriate
-     *               modem event.
+     * @param packet The packet to receive. Generally you should check that you are listening on the given channel and,
+     *               if so, queue the appropriate modem event.
      * @see Packet
      * @see IPacketNetwork#transmitInterdimensional(Packet)
      * @see IPacketNetwork#transmitSameDimension(Packet, double)

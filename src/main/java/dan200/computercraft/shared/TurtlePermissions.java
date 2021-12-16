@@ -5,21 +5,21 @@
  */
 package dan200.computercraft.shared;
 
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 public final class TurtlePermissions
 {
-    public static boolean isBlockEnterable( World world, BlockPos pos, PlayerEntity player )
+    public static boolean isBlockEnterable( Level world, BlockPos pos, Player player )
     {
         MinecraftServer server = world.getServer();
-        return server == null || world.isClient || world instanceof ServerWorld && !server.isSpawnProtected( (ServerWorld) world, pos, player );
+        return server == null || world.isClientSide || (world instanceof ServerLevel && !server.isUnderSpawnProtection( (ServerLevel) world, pos, player ));
     }
 
-    public static boolean isBlockEditable( World world, BlockPos pos, PlayerEntity player )
+    public static boolean isBlockEditable( Level world, BlockPos pos, Player player )
     {
         return isBlockEnterable( world, pos, player );
     }

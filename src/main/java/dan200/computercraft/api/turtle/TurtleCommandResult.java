@@ -3,8 +3,9 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.turtle;
+
+import net.minecraft.core.Direction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,16 +20,6 @@ public final class TurtleCommandResult
 {
     private static final TurtleCommandResult EMPTY_SUCCESS = new TurtleCommandResult( true, null, null );
     private static final TurtleCommandResult EMPTY_FAILURE = new TurtleCommandResult( false, null, null );
-    private final boolean success;
-    private final String errorMessage;
-    private final Object[] results;
-
-    private TurtleCommandResult( boolean success, String errorMessage, Object[] results )
-    {
-        this.success = success;
-        this.errorMessage = errorMessage;
-        this.results = results;
-    }
 
     /**
      * Create a successful command result with no result.
@@ -50,10 +41,7 @@ public final class TurtleCommandResult
     @Nonnull
     public static TurtleCommandResult success( @Nullable Object[] results )
     {
-        if( results == null || results.length == 0 )
-        {
-            return EMPTY_SUCCESS;
-        }
+        if( results == null || results.length == 0 ) return EMPTY_SUCCESS;
         return new TurtleCommandResult( true, null, results );
     }
 
@@ -77,11 +65,19 @@ public final class TurtleCommandResult
     @Nonnull
     public static TurtleCommandResult failure( @Nullable String errorMessage )
     {
-        if( errorMessage == null )
-        {
-            return EMPTY_FAILURE;
-        }
+        if( errorMessage == null ) return EMPTY_FAILURE;
         return new TurtleCommandResult( false, errorMessage, null );
+    }
+
+    private final boolean success;
+    private final String errorMessage;
+    private final Object[] results;
+
+    private TurtleCommandResult( boolean success, String errorMessage, Object[] results )
+    {
+        this.success = success;
+        this.errorMessage = errorMessage;
+        this.results = results;
     }
 
     /**

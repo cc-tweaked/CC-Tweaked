@@ -5,34 +5,34 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.slot.Slot;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
 public class InvisibleSlot extends Slot
 {
-    public InvisibleSlot( Inventory container, int slot )
+    public InvisibleSlot( Container container, int slot )
     {
         super( container, slot, 0, 0 );
     }
 
     @Override
-    public boolean canInsert( @Nonnull ItemStack stack )
+    public boolean mayPlace( @Nonnull ItemStack stack )
     {
         return false;
     }
 
     @Override
-    public boolean canTakeItems( @Nonnull PlayerEntity player )
+    public boolean mayPickup( @Nonnull Player player )
     {
         return false;
     }
 
     @Override
-    public boolean isEnabled()
+    public boolean isActive()
     {
         return false;
     }

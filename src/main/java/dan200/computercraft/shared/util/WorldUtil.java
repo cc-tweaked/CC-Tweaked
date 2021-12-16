@@ -8,17 +8,18 @@ package dan200.computercraft.shared.util;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.MapMaker;
-import net.minecraft.entity.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.RaycastContext;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -28,15 +29,15 @@ import java.util.Map;
 public final class WorldUtil
 {
     @SuppressWarnings( "Guava" )
-    private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && x.isAlive() && x.collides();
+    private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && x.isAlive() && x.isPickable();
 
-    private static final Map<World, Entity> entityCache = new MapMaker().weakKeys()
+    private static final Map<Level, Entity> entityCache = new MapMaker().weakKeys()
         .weakValues()
         .makeMap();
 
-    public static boolean isLiquidBlock( World world, BlockPos pos )
+    public static boolean isLiquidBlock( Level world, BlockPos pos )
     {
-        if( !world.isInBuildLimit( pos ) )
+        if( !world.isInWorldBounds( pos ) )
         {
             return false;
         }
@@ -45,33 +46,33 @@ public final class WorldUtil
             .isLiquid();
     }
 
-    public static boolean isVecInside( VoxelShape shape, Vec3d vec )
+    public static boolean isVecInside( VoxelShape shape, Vec3 vec )
     {
         if( shape.isEmpty() )
         {
             return false;
         }
         // AxisAlignedBB.contains, but without strict inequalities.
-        Box bb = shape.getBoundingBox();
+        AABB bb = shape.bounds();
         return vec.x >= bb.minX && vec.x <= bb.maxX && vec.y >= bb.minY && vec.y <= bb.maxY && vec.z >= bb.minZ && vec.z <= bb.maxZ;
     }
 
-    public static Pair<Entity, Vec3d> rayTraceEntities( World world, Vec3d vecStart, Vec3d vecDir, double distance )
+    public static Pair<Entity, Vec3> rayTraceEntities( Level world, Vec3 vecStart, Vec3 vecDir, double distance )
     {
-        Vec3d vecEnd = vecStart.add( vecDir.x * distance, vecDir.y * distance, vecDir.z * distance );
+        Vec3 vecEnd = vecStart.add( vecDir.x * distance, vecDir.y * distance, vecDir.z * distance );
 
         // Raycast for blocks
         Entity collisionEntity = getEntity( world );
-        collisionEntity.setPosition( vecStart.x, vecStart.y, vecStart.z );
-        RaycastContext context = new RaycastContext( vecStart,
+        collisionEntity.setPos( vecStart.x, vecStart.y, vecStart.z );
+        ClipContext context = new ClipContext( vecStart,
             vecEnd,
-            RaycastContext.ShapeType.COLLIDER,
-            RaycastContext.FluidHandling.NONE,
+            ClipContext.Block.COLLIDER,
+            ClipContext.Fluid.NONE,
             collisionEntity );
-        HitResult result = world.raycast( context );
+        HitResult result = world.clip( context );
         if( result != null && result.getType() == HitResult.Type.BLOCK )
         {
-            distance = vecStart.distanceTo( result.getPos() );
+            distance = vecStart.distanceTo( result.getLocation() );
             vecEnd = vecStart.add( vecDir.x * distance, vecDir.y * distance, vecDir.z * distance );
         }
 
@@ -79,7 +80,7 @@ public final class WorldUtil
         float xStretch = Math.abs( vecDir.x ) > 0.25f ? 0.0f : 1.0f;
         float yStretch = Math.abs( vecDir.y ) > 0.25f ? 0.0f : 1.0f;
         float zStretch = Math.abs( vecDir.z ) > 0.25f ? 0.0f : 1.0f;
-        Box bigBox = new Box( Math.min( vecStart.x, vecEnd.x ) - 0.375f * xStretch,
+        AABB bigBox = new AABB( Math.min( vecStart.x, vecEnd.x ) - 0.375f * xStretch,
             Math.min( vecStart.y, vecEnd.y ) - 0.375f * yStretch,
             Math.min( vecStart.z, vecEnd.z ) - 0.375f * zStretch,
             Math.max( vecStart.x, vecEnd.x ) + 0.375f * xStretch,
@@ -88,10 +89,10 @@ public final class WorldUtil
 
         Entity closest = null;
         double closestDist = 99.0;
-        List<Entity> list = world.getEntitiesByClass( Entity.class, bigBox, CAN_COLLIDE );
+        List<Entity> list = world.getEntitiesOfClass( Entity.class, bigBox, CAN_COLLIDE );
         for( Entity entity : list )
         {
-            Box littleBox = entity.getBoundingBox();
+            AABB littleBox = entity.getBoundingBox();
             if( littleBox.contains( vecStart ) )
             {
                 closest = entity;
@@ -99,7 +100,7 @@ public final class WorldUtil
                 continue;
             }
 
-            Vec3d littleBoxResult = littleBox.raycast( vecStart, vecEnd )
+            Vec3 littleBoxResult = littleBox.clip( vecStart, vecEnd )
                 .orElse( null );
             if( littleBoxResult != null )
             {
@@ -121,13 +122,13 @@ public final class WorldUtil
         }
         if( closest != null && closestDist <= distance )
         {
-            Vec3d closestPos = vecStart.add( vecDir.x * closestDist, vecDir.y * closestDist, vecDir.z * closestDist );
+            Vec3 closestPos = vecStart.add( vecDir.x * closestDist, vecDir.y * closestDist, vecDir.z * closestDist );
             return Pair.of( closest, closestPos );
         }
         return null;
     }
 
-    private static synchronized Entity getEntity( World world )
+    private static synchronized Entity getEntity( Level world )
     {
         // TODO: It'd be nice if we could avoid this. Maybe always use the turtle player (if it's available).
         Entity entity = entityCache.get( world );
@@ -140,45 +141,45 @@ public final class WorldUtil
         {
             @Nonnull
             @Override
-            public EntityDimensions getDimensions( @Nonnull EntityPose pose )
+            public EntityDimensions getDimensions( @Nonnull Pose pose )
             {
                 return EntityDimensions.fixed( 0, 0 );
             }
         };
 
-        entity.noClip = true;
-        entity.calculateDimensions();
+        entity.noPhysics = true;
+        entity.refreshDimensions();
         entityCache.put( world, entity );
         return entity;
     }
 
-    public static Vec3d getRayEnd( PlayerEntity player )
+    public static Vec3 getRayEnd( Player player )
     {
         double reach = 5;
-        Vec3d look = player.getRotationVector();
+        Vec3 look = player.getLookAngle();
         return getRayStart( player ).add( look.x * reach, look.y * reach, look.z * reach );
     }
 
-    public static Vec3d getRayStart( LivingEntity entity )
+    public static Vec3 getRayStart( LivingEntity entity )
     {
-        return entity.getCameraPosVec( 1 );
+        return entity.getEyePosition( 1 );
     }
 
-    public static void dropItemStack( @Nonnull ItemStack stack, World world, BlockPos pos )
+    public static void dropItemStack( @Nonnull ItemStack stack, Level world, BlockPos pos )
     {
         dropItemStack( stack, world, pos, null );
     }
 
-    public static void dropItemStack( @Nonnull ItemStack stack, World world, BlockPos pos, Direction direction )
+    public static void dropItemStack( @Nonnull ItemStack stack, Level world, BlockPos pos, Direction direction )
     {
         double xDir;
         double yDir;
         double zDir;
         if( direction != null )
         {
-            xDir = direction.getOffsetX();
-            yDir = direction.getOffsetY();
-            zDir = direction.getOffsetZ();
+            xDir = direction.getStepX();
+            yDir = direction.getStepY();
+            zDir = direction.getStepZ();
         }
         else
         {
@@ -190,23 +191,23 @@ public final class WorldUtil
         double xPos = pos.getX() + 0.5 + xDir * 0.4;
         double yPos = pos.getY() + 0.5 + yDir * 0.4;
         double zPos = pos.getZ() + 0.5 + zDir * 0.4;
-        dropItemStack( stack, world, new Vec3d( xPos, yPos, zPos ), xDir, yDir, zDir );
+        dropItemStack( stack, world, new Vec3( xPos, yPos, zPos ), xDir, yDir, zDir );
     }
 
-    public static void dropItemStack( @Nonnull ItemStack stack, World world, Vec3d pos, double xDir, double yDir, double zDir )
+    public static void dropItemStack( @Nonnull ItemStack stack, Level world, Vec3 pos, double xDir, double yDir, double zDir )
     {
         ItemEntity item = new ItemEntity( world, pos.x, pos.y, pos.z, stack.copy() );
-        item.setVelocity( xDir * 0.7 + world.getRandom()
+        item.setDeltaMovement( xDir * 0.7 + world.getRandom()
                 .nextFloat() * 0.2 - 0.1,
             yDir * 0.7 + world.getRandom()
                 .nextFloat() * 0.2 - 0.1,
             zDir * 0.7 + world.getRandom()
                 .nextFloat() * 0.2 - 0.1 );
-        item.setToDefaultPickupDelay();
-        world.spawnEntity( item );
+        item.setDefaultPickUpDelay();
+        world.addFreshEntity( item );
     }
 
-    public static void dropItemStack( @Nonnull ItemStack stack, World world, Vec3d pos )
+    public static void dropItemStack( @Nonnull ItemStack stack, Level world, Vec3 pos )
     {
         dropItemStack( stack, world, pos, 0.0, 0.0, 0.0 );
     }

@@ -32,14 +32,14 @@ import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.wired.WiredNode;
 import me.shedaniel.cloth.api.utils.v1.GameInstanceUtils;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.resource.ReloadableResourceManager;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -62,10 +62,10 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
         MinecraftServer server = GameInstanceUtils.getServer();
         if( server != null )
         {
-            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess) server).getServerResourceManager().getResourceManager();
+            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess) server).callGetResourceManager();
             try
             {
-                return manager.getResource( new Identifier( domain, subPath ) )
+                return manager.getResource( new ResourceLocation( domain, subPath ) )
                     .getInputStream();
             }
             catch( IOException ignored )
@@ -93,13 +93,13 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     }
 
     @Override
-    public int createUniqueNumberedSaveDir( @Nonnull World world, @Nonnull String parentSubPath )
+    public int createUniqueNumberedSaveDir( @Nonnull Level world, @Nonnull String parentSubPath )
     {
         return IDAssigner.getNextId( parentSubPath );
     }
 
     @Override
-    public IWritableMount createSaveDirMount( @Nonnull World world, @Nonnull String subPath, long capacity )
+    public IWritableMount createSaveDirMount( @Nonnull Level world, @Nonnull String subPath, long capacity )
     {
         try
         {
@@ -117,7 +117,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
         MinecraftServer server = GameInstanceUtils.getServer();
         if( server != null )
         {
-            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess) server).getServerResourceManager().getResourceManager();
+            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess) server).callGetResourceManager();
             ResourceMount mount = ResourceMount.get( domain, subPath, manager );
             return mount.exists( "" ) ? mount : null;
         }
@@ -143,7 +143,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     }
 
     @Override
-    public int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side )
+    public int getBundledRedstoneOutput( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         return BundledRedstone.getDefaultOutput( world, pos, side );
     }
@@ -188,7 +188,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
 
     @Nullable
     @Override
-    public IWiredElement getWiredElementAt( @Nonnull BlockView world, @Nonnull BlockPos pos, @Nonnull Direction side )
+    public IWiredElement getWiredElementAt( @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         BlockEntity tile = world.getBlockEntity( pos );
         if( tile instanceof TileCable )

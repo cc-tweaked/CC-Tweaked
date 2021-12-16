@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.turtle;
 
 import dan200.computercraft.api.ComputerCraftAPI;
@@ -12,13 +11,14 @@ import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * The primary interface for defining an update for Turtles. A turtle update can either be a new tool, or a new peripheral.
+ * The primary interface for defining an update for Turtles. A turtle update
+ * can either be a new tool, or a new peripheral.
  *
  * @see ComputerCraftAPI#registerTurtleUpgrade(ITurtleUpgrade)
  */
@@ -36,12 +36,14 @@ public interface ITurtleUpgrade extends IUpgradeBase
     /**
      * Will only be called for peripheral upgrades. Creates a peripheral for a turtle being placed using this upgrade.
      *
-     * The peripheral created will be stored for the lifetime of the upgrade and will be passed as an argument to {@link #update(ITurtleAccess,
-     * TurtleSide)}. It will be attached, detached and have methods called in the same manner as a Computer peripheral.
+     * The peripheral created will be stored for the lifetime of the upgrade and will be passed as an argument to
+     * {@link #update(ITurtleAccess, TurtleSide)}. It will be attached, detached and have methods called in the same
+     * manner as a Computer peripheral.
      *
      * @param turtle Access to the turtle that the peripheral is being created for.
      * @param side   Which side of the turtle (left or right) that the upgrade resides on.
-     * @return The newly created peripheral. You may return {@code null} if this upgrade is a Tool and this method is not expected to be called.
+     * @return The newly created peripheral. You may return {@code null} if this upgrade is a Tool
+     * and this method is not expected to be called.
      */
     @Nullable
     default IPeripheral createPeripheral( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side )
@@ -50,16 +52,19 @@ public interface ITurtleUpgrade extends IUpgradeBase
     }
 
     /**
-     * Will only be called for Tool turtle. Called when turtle.dig() or turtle.attack() is called by the turtle, and the tool is required to do some work.
+     * Will only be called for Tool turtle. Called when turtle.dig() or turtle.attack() is called
+     * by the turtle, and the tool is required to do some work.
      *
      * @param turtle    Access to the turtle that the tool resides on.
      * @param side      Which side of the turtle (left or right) the tool resides on.
      * @param verb      Which action (dig or attack) the turtle is being called on to perform.
-     * @param direction Which world direction the action should be performed in, relative to the turtles position. This will either be up, down, or the
-     *                  direction the turtle is facing, depending on whether dig, digUp or digDown was called.
-     * @return Whether the turtle was able to perform the action, and hence whether the {@code turtle.dig()} or {@code turtle.attack()} lua method should
-     * return true. If true is returned, the tool will perform a swinging animation. You may return {@code null} if this turtle is a Peripheral  and
-     * this method is not expected to be called.
+     * @param direction Which world direction the action should be performed in, relative to the turtles
+     *                  position. This will either be up, down, or the direction the turtle is facing, depending on
+     *                  whether dig, digUp or digDown was called.
+     * @return Whether the turtle was able to perform the action, and hence whether the {@code turtle.dig()}
+     * or {@code turtle.attack()} lua method should return true. If true is returned, the tool will perform
+     * a swinging animation. You may return {@code null} if this turtle is a Peripheral  and this method is not expected
+     * to be called.
      */
     @Nonnull
     default TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull Direction direction )
@@ -69,6 +74,10 @@ public interface ITurtleUpgrade extends IUpgradeBase
 
     /**
      * Called to obtain the model to be used when rendering a turtle peripheral.
+     *
+     * This can be obtained from {@link net.minecraft.client.renderer.ItemModelShaper#getItemModel(ItemStack)},
+     * {@link net.minecraft.client.resources.model.ModelManager#getModel(ModelResourceLocation)} or any other
+     * source.
      *
      * @param turtle Access to the turtle that the upgrade resides on. This will be null when getting item models!
      * @param side   Which side of the turtle (left or right) the upgrade resides on.

@@ -6,21 +6,21 @@
 package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.MultilineText;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.MultiLineLabel;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 
 public final class OptionScreen extends Screen
 {
-    private static final Identifier BACKGROUND = new Identifier( "computercraft", "textures/gui/blank_screen.png" );
+    private static final ResourceLocation BACKGROUND = new ResourceLocation( "computercraft", "textures/gui/blank_screen.png" );
 
     public static final int BUTTON_WIDTH = 100;
     public static final int BUTTON_HEIGHT = 20;
@@ -33,14 +33,14 @@ public final class OptionScreen extends Screen
     private int innerWidth;
     private int innerHeight;
 
-    private MultilineText messageRenderer;
-    private final Text message;
-    private final List<ClickableWidget> buttons;
+    private MultiLineLabel messageRenderer;
+    private final Component message;
+    private final List<AbstractWidget> buttons;
     private final Runnable exit;
 
     private final Screen originalScreen;
 
-    private OptionScreen( Text title, Text message, List<ClickableWidget> buttons, Runnable exit, Screen originalScreen )
+    private OptionScreen( Component title, Component message, List<AbstractWidget> buttons, Runnable exit, Screen originalScreen )
     {
         super( title );
         this.message = message;
@@ -49,9 +49,9 @@ public final class OptionScreen extends Screen
         this.originalScreen = originalScreen;
     }
 
-    public static void show( MinecraftClient client, Text title, Text message, List<ClickableWidget> buttons, Runnable exit )
+    public static void show( Minecraft client, Component title, Component message, List<AbstractWidget> buttons, Runnable exit )
     {
-        client.setScreen( new OptionScreen( title, message, buttons, exit, unwrap( client.currentScreen ) ) );
+        client.setScreen( new OptionScreen( title, message, buttons, exit, unwrap( client.screen ) ) );
     }
 
     public static Screen unwrap( Screen screen )
@@ -67,40 +67,40 @@ public final class OptionScreen extends Screen
         int buttonWidth = BUTTON_WIDTH * buttons.size() + PADDING * (buttons.size() - 1);
         int innerWidth = this.innerWidth = Math.max( 256, buttonWidth + PADDING * 2 );
 
-        messageRenderer = MultilineText.create( textRenderer, message, innerWidth - PADDING * 2 );
+        messageRenderer = MultiLineLabel.create( font, message, innerWidth - PADDING * 2 );
 
-        int textHeight = messageRenderer.count() * FONT_HEIGHT + PADDING * 2;
+        int textHeight = messageRenderer.getLineCount() * FONT_HEIGHT + PADDING * 2;
         innerHeight = textHeight + (buttons.isEmpty() ? 0 : buttons.get( 0 ).getHeight()) + PADDING;
 
         x = (width - innerWidth) / 2;
         y = (height - innerHeight) / 2;
 
         int x = (width - buttonWidth) / 2;
-        for( ClickableWidget button : buttons )
+        for( AbstractWidget button : buttons )
         {
             button.x = x;
             button.y = y + textHeight;
-            addDrawableChild( button );
+            addRenderableWidget( button );
 
             x += BUTTON_WIDTH + PADDING;
         }
     }
 
     @Override
-    public void render( @Nonnull MatrixStack transform, int mouseX, int mouseY, float partialTicks )
+    public void render( @Nonnull PoseStack transform, int mouseX, int mouseY, float partialTicks )
     {
         renderBackground( transform );
 
         // Render the actual texture.
         RenderSystem.setShaderTexture( 0, BACKGROUND );
-        drawTexture( transform, x, y, 0, 0, innerWidth, PADDING );
-        drawTexture( transform,
+        blit( transform, x, y, 0, 0, innerWidth, PADDING );
+        blit( transform,
             x, y + PADDING, 0, PADDING, innerWidth, innerHeight - PADDING * 2,
             innerWidth, PADDING
         );
-        drawTexture( transform, x, y + innerHeight - PADDING, 0, 256 - PADDING, innerWidth, PADDING );
+        blit( transform, x, y + innerHeight - PADDING, 0, 256 - PADDING, innerWidth, PADDING );
 
-        messageRenderer.draw( transform, x + PADDING, y + PADDING, FONT_HEIGHT, 0x404040 );
+        messageRenderer.renderLeftAlignedNoShadow( transform, x + PADDING, y + PADDING, FONT_HEIGHT, 0x404040 );
         super.render( transform, mouseX, mouseY, partialTicks );
     }
 
@@ -110,14 +110,14 @@ public final class OptionScreen extends Screen
         exit.run();
     }
 
-    public static ClickableWidget newButton( Text component, ButtonWidget.PressAction clicked )
+    public static AbstractWidget newButton( Component component, Button.OnPress clicked )
     {
-        return new ButtonWidget( 0, 0, BUTTON_WIDTH, BUTTON_HEIGHT, component, clicked );
+        return new Button( 0, 0, BUTTON_WIDTH, BUTTON_HEIGHT, component, clicked );
     }
 
     public void disable()
     {
-        for( ClickableWidget widget : buttons ) widget.active = false;
+        for( AbstractWidget widget : buttons ) widget.active = false;
     }
 
     @Nonnull

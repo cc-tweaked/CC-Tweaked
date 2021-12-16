@@ -9,10 +9,10 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
 import dan200.computercraft.shared.util.DirectionUtil;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.EnumMap;
 
@@ -23,18 +23,18 @@ public final class CableShapes
     private static final double MIN = 0.375;
     private static final double MAX = 1 - MIN;
 
-    private static final VoxelShape SHAPE_CABLE_CORE = VoxelShapes.cuboid( MIN, MIN, MIN, MAX, MAX, MAX );
+    private static final VoxelShape SHAPE_CABLE_CORE = Shapes.box( MIN, MIN, MIN, MAX, MAX, MAX );
     private static final EnumMap<Direction, VoxelShape> SHAPE_CABLE_ARM =
         new EnumMap<>( new ImmutableMap.Builder<Direction, VoxelShape>().put( Direction.DOWN,
-            VoxelShapes.cuboid(
-                MIN,
-                0,
-                MIN,
-                MAX,
-                MIN,
-                MAX ) )
+                Shapes.box(
+                    MIN,
+                    0,
+                    MIN,
+                    MAX,
+                    MIN,
+                    MAX ) )
             .put( Direction.UP,
-                VoxelShapes.cuboid(
+                Shapes.box(
                     MIN,
                     MAX,
                     MIN,
@@ -42,7 +42,7 @@ public final class CableShapes
                     1,
                     MAX ) )
             .put( Direction.NORTH,
-                VoxelShapes.cuboid(
+                Shapes.box(
                     MIN,
                     MIN,
                     0,
@@ -50,7 +50,7 @@ public final class CableShapes
                     MAX,
                     MIN ) )
             .put( Direction.SOUTH,
-                VoxelShapes.cuboid(
+                Shapes.box(
                     MIN,
                     MIN,
                     MAX,
@@ -58,7 +58,7 @@ public final class CableShapes
                     MAX,
                     1 ) )
             .put( Direction.WEST,
-                VoxelShapes.cuboid(
+                Shapes.box(
                     0,
                     MIN,
                     MIN,
@@ -66,7 +66,7 @@ public final class CableShapes
                     MAX,
                     MAX ) )
             .put( Direction.EAST,
-                VoxelShapes.cuboid(
+                Shapes.box(
                     MAX,
                     MIN,
                     MIN,
@@ -84,9 +84,9 @@ public final class CableShapes
 
     public static VoxelShape getCableShape( BlockState state )
     {
-        if( !state.get( CABLE ) )
+        if( !state.getValue( CABLE ) )
         {
-            return VoxelShapes.empty();
+            return Shapes.empty();
         }
         return getCableShape( getCableIndex( state ) );
     }
@@ -104,7 +104,7 @@ public final class CableShapes
         {
             if( (index & (1 << facing.ordinal())) != 0 )
             {
-                shape = VoxelShapes.union( shape, SHAPE_CABLE_ARM.get( facing ) );
+                shape = Shapes.or( shape, SHAPE_CABLE_ARM.get( facing ) );
             }
         }
 
@@ -116,7 +116,7 @@ public final class CableShapes
         int index = 0;
         for( Direction facing : DirectionUtil.FACINGS )
         {
-            if( state.get( CONNECTIONS.get( facing ) ) )
+            if( state.getValue( CONNECTIONS.get( facing ) ) )
             {
                 index |= 1 << facing.ordinal();
             }
@@ -127,9 +127,9 @@ public final class CableShapes
 
     public static VoxelShape getShape( BlockState state )
     {
-        Direction facing = state.get( MODEM )
+        Direction facing = state.getValue( MODEM )
             .getFacing();
-        if( !state.get( CABLE ) )
+        if( !state.getValue( CABLE ) )
         {
             return getModemShape( state );
         }
@@ -146,15 +146,15 @@ public final class CableShapes
         shape = getCableShape( cableIndex );
         if( facing != null )
         {
-            shape = VoxelShapes.union( shape, ModemShapes.getBounds( facing ) );
+            shape = Shapes.or( shape, ModemShapes.getBounds( facing ) );
         }
         return SHAPES[index] = shape;
     }
 
     public static VoxelShape getModemShape( BlockState state )
     {
-        Direction facing = state.get( MODEM )
+        Direction facing = state.getValue( MODEM )
             .getFacing();
-        return facing == null ? VoxelShapes.empty() : ModemShapes.getBounds( facing );
+        return facing == null ? Shapes.empty() : ModemShapes.getBounds( facing );
     }
 }

@@ -3,21 +3,17 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.peripheral;
 
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
+import javax.annotation.Nullable;
 
 /**
  * This interface is used to create peripheral implementations for blocks.
- *
- * If you have a {@link BlockEntity} which acts as a peripheral, you may alternatively expose the {@link IPeripheral} capability.
  *
  * @see dan200.computercraft.api.ComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)
  */
@@ -30,9 +26,9 @@ public interface IPeripheralProvider
      * @param world The world the block is in.
      * @param pos   The position the block is at.
      * @param side  The side to get the peripheral from.
-     * @return A peripheral, or {@link Optional#empty()} if there is not a peripheral here you'd like to handle.
+     * @return A peripheral or {@literal null} if there is not a peripheral here you'd like to handle.
      * @see dan200.computercraft.api.ComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)
      */
-    @Nonnull
-    IPeripheral getPeripheral( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side );
+    @Nullable
+    IPeripheral getPeripheral( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side );
 }

@@ -9,9 +9,9 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.util.InvisibleSlot;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.MenuType;
 
 import java.util.function.Predicate;
 
@@ -22,19 +22,19 @@ import java.util.function.Predicate;
  */
 public class ComputerMenuWithoutInventory extends ContainerComputerBase
 {
-    public ComputerMenuWithoutInventory( ScreenHandlerType<? extends ContainerComputerBase> type, int id, PlayerInventory player, Predicate<PlayerEntity> canUse, IComputer computer, ComputerFamily family )
+    public ComputerMenuWithoutInventory( MenuType<? extends ContainerComputerBase> type, int id, Inventory player, Predicate<Player> canUse, IComputer computer, ComputerFamily family )
     {
         super( type, id, canUse, computer, family );
         addSlots( player );
     }
 
-    public ComputerMenuWithoutInventory( ScreenHandlerType<? extends ContainerComputerBase> type, int id, PlayerInventory player, ComputerContainerData data )
+    public ComputerMenuWithoutInventory( MenuType<? extends ContainerComputerBase> type, int id, Inventory player, ComputerContainerData data )
     {
         super( type, id, player, data );
         addSlots( player );
     }
 
-    private void addSlots( PlayerInventory player )
+    private void addSlots( Inventory player )
     {
         for( int i = 0; i < 9; i++ ) addSlot( new InvisibleSlot( player, i ) );
     }

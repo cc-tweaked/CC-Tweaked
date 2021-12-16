@@ -6,17 +6,17 @@
 
 package dan200.computercraft.client.render;
 
+import com.mojang.math.Transformation;
 import dan200.computercraft.api.client.TransformedModel;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.BakedQuad;
-import net.minecraft.client.render.model.json.ModelOverrideList;
-import net.minecraft.client.render.model.json.ModelTransformation;
-import net.minecraft.client.texture.Sprite;
-import net.minecraft.util.math.AffineTransformation;
-import net.minecraft.util.math.Direction;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -26,13 +26,13 @@ public class TurtleMultiModel implements BakedModel
 {
     private final BakedModel baseModel;
     private final BakedModel overlayModel;
-    private final AffineTransformation generalTransform;
+    private final Transformation generalTransform;
     private final TransformedModel leftUpgradeModel;
     private final TransformedModel rightUpgradeModel;
     private List<BakedQuad> generalQuads = null;
     private final Map<Direction, List<BakedQuad>> faceQuads = new EnumMap<>( Direction.class );
 
-    public TurtleMultiModel( BakedModel baseModel, BakedModel overlayModel, AffineTransformation generalTransform, TransformedModel leftUpgradeModel,
+    public TurtleMultiModel( BakedModel baseModel, BakedModel overlayModel, Transformation generalTransform, TransformedModel leftUpgradeModel,
                              TransformedModel rightUpgradeModel )
     {
         // Get the models
@@ -77,14 +77,14 @@ public class TurtleMultiModel implements BakedModel
         }
         if( leftUpgradeModel != null )
         {
-            AffineTransformation upgradeTransform = generalTransform.multiply( leftUpgradeModel.getMatrix() );
+            Transformation upgradeTransform = generalTransform.compose( leftUpgradeModel.getMatrix() );
             ModelTransformer.transformQuadsTo( quads, leftUpgradeModel.getModel()
                     .getQuads( state, side, rand ),
                 upgradeTransform.getMatrix() );
         }
         if( rightUpgradeModel != null )
         {
-            AffineTransformation upgradeTransform = generalTransform.multiply( rightUpgradeModel.getMatrix() );
+            Transformation upgradeTransform = generalTransform.compose( rightUpgradeModel.getMatrix() );
             ModelTransformer.transformQuadsTo( quads, rightUpgradeModel.getModel()
                     .getQuads( state, side, rand ),
                 upgradeTransform.getMatrix() );
@@ -100,43 +100,43 @@ public class TurtleMultiModel implements BakedModel
     }
 
     @Override
-    public boolean hasDepth()
+    public boolean isGui3d()
     {
-        return baseModel.hasDepth();
+        return baseModel.isGui3d();
     }
 
     @Override
-    public boolean isSideLit()
+    public boolean usesBlockLight()
     {
-        return baseModel.isSideLit();
+        return baseModel.usesBlockLight();
     }
 
     @Override
-    public boolean isBuiltin()
+    public boolean isCustomRenderer()
     {
-        return baseModel.isBuiltin();
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public Sprite getParticleSprite()
-    {
-        return baseModel.getParticleSprite();
+        return baseModel.isCustomRenderer();
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public ModelTransformation getTransformation()
+    public TextureAtlasSprite getParticleIcon()
     {
-        return baseModel.getTransformation();
+        return baseModel.getParticleIcon();
     }
 
     @Nonnull
     @Override
-    public ModelOverrideList getOverrides()
+    @Deprecated
+    public ItemTransforms getTransforms()
     {
-        return ModelOverrideList.EMPTY;
+        return baseModel.getTransforms();
+    }
+
+    @Nonnull
+    @Override
+    public ItemOverrides getOverrides()
+    {
+        return ItemOverrides.EMPTY;
     }
 }

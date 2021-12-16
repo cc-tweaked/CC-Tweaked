@@ -11,11 +11,11 @@ import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.util.NBTUtil;
-import net.minecraft.block.Block;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -45,7 +45,7 @@ public final class WiredModemLocalPeripheral
      * @param direction The direction so search in
      * @return Whether the peripheral changed.
      */
-    public boolean attach( @Nonnull World world, @Nonnull BlockPos origin, @Nonnull Direction direction )
+    public boolean attach( @Nonnull Level world, @Nonnull BlockPos origin, @Nonnull Direction direction )
     {
         IPeripheral oldPeripheral = peripheral;
         IPeripheral peripheral = this.peripheral = getPeripheralFrom( world, origin, direction );
@@ -75,9 +75,9 @@ public final class WiredModemLocalPeripheral
     }
 
     @Nullable
-    private IPeripheral getPeripheralFrom( World world, BlockPos pos, Direction direction )
+    private IPeripheral getPeripheralFrom( Level world, BlockPos pos, Direction direction )
     {
-        BlockPos offset = pos.offset( direction );
+        BlockPos offset = pos.relative( direction );
 
         Block block = world.getBlockState( offset )
             .getBlock();
@@ -135,7 +135,7 @@ public final class WiredModemLocalPeripheral
         return peripheral == null ? Collections.emptyMap() : Collections.singletonMap( type + "_" + id, peripheral );
     }
 
-    public void write( @Nonnull NbtCompound tag, @Nonnull String suffix )
+    public void write( @Nonnull CompoundTag tag, @Nonnull String suffix )
     {
         if( id >= 0 )
         {
@@ -147,7 +147,7 @@ public final class WiredModemLocalPeripheral
         }
     }
 
-    public void read( @Nonnull NbtCompound tag, @Nonnull String suffix )
+    public void read( @Nonnull CompoundTag tag, @Nonnull String suffix )
     {
         id = tag.contains( NBT_PERIPHERAL_ID + suffix, NBTUtil.TAG_ANY_NUMERIC ) ? tag.getInt( NBT_PERIPHERAL_ID + suffix ) : -1;
 

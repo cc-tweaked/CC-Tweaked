@@ -15,33 +15,29 @@ import dan200.computercraft.shared.util.ColourUtils;
 import dan200.computercraft.shared.util.DefaultSidedInventory;
 import dan200.computercraft.shared.util.ItemStorage;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventories;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Nameable;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.*;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public final class TilePrinter extends TileGeneric implements DefaultSidedInventory, IPeripheralTile, Nameable, NamedScreenHandlerFactory
+public final class TilePrinter extends TileGeneric implements DefaultSidedInventory, IPeripheralTile, Nameable, MenuProvider
 {
     static final int SLOTS = 13;
     private static final String NBT_NAME = "CustomName";
@@ -64,10 +60,10 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         6,
     };
     private static final int[] SIDE_SLOTS = new int[] { 0 };
-    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize( SLOTS, ItemStack.EMPTY );
+    private final NonNullList<ItemStack> inventory = NonNullList.withSize( SLOTS, ItemStack.EMPTY );
     private final ItemStorage itemHandlerAll = ItemStorage.wrap( this );
     private final Terminal page = new Terminal( ItemPrintout.LINE_MAX_LENGTH, ItemPrintout.LINES_PER_PAGE );
-    Text customName;
+    Component customName;
     private String pageTitle = "";
     private boolean printing = false;
 
@@ -84,18 +80,18 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     @Nonnull
     @Override
-    public ActionResult onActivate( PlayerEntity player, Hand hand, BlockHitResult hit )
+    public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
     {
-        if( player.isInSneakingPose() )
+        if( player.isCrouching() )
         {
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         }
 
-        if( !getWorld().isClient )
+        if( !getLevel().isClientSide )
         {
-            player.openHandledScreen( this );
+            player.openMenu( this );
         }
-        return ActionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     private void ejectContents()
@@ -106,11 +102,11 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
             if( !stack.isEmpty() )
             {
                 // Remove the stack from the inventory
-                setStack( i, ItemStack.EMPTY );
+                setItem( i, ItemStack.EMPTY );
 
                 // Spawn the item in the world
-                WorldUtil.dropItemStack( stack, getWorld(),
-                    Vec3d.of( getPos() )
+                WorldUtil.dropItemStack( stack, getLevel(),
+                    Vec3.atLowerCornerOf( getBlockPos() )
                         .add( 0.5, 0.75, 0.5 ) );
             }
         }
@@ -149,28 +145,28 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     private void updateBlockState( boolean top, boolean bottom )
     {
-        if( removed )
+        if( remove )
         {
             return;
         }
 
-        BlockState state = getCachedState();
-        if( state.get( BlockPrinter.TOP ) == top & state.get( BlockPrinter.BOTTOM ) == bottom )
+        BlockState state = getBlockState();
+        if( state.getValue( BlockPrinter.TOP ) == top & state.getValue( BlockPrinter.BOTTOM ) == bottom )
         {
             return;
         }
 
-        getWorld().setBlockState( getPos(),
-            state.with( BlockPrinter.TOP, top )
-                .with( BlockPrinter.BOTTOM, bottom ) );
+        getLevel().setBlockAndUpdate( getBlockPos(),
+            state.setValue( BlockPrinter.TOP, top )
+                .setValue( BlockPrinter.BOTTOM, bottom ) );
     }
 
     @Override
-    public void readNbt( @Nonnull NbtCompound nbt )
+    public void load( @Nonnull CompoundTag nbt )
     {
-        super.readNbt( nbt );
+        super.load( nbt );
 
-        customName = nbt.contains( NBT_NAME ) ? Text.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
+        customName = nbt.contains( NBT_NAME ) ? Component.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
 
         // Read page
         synchronized( page )
@@ -181,16 +177,16 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         }
 
         // Read inventory
-        Inventories.readNbt( nbt, inventory );
+        ContainerHelper.loadAllItems( nbt, inventory );
     }
 
     @Nonnull
     @Override
-    public NbtCompound writeNbt( @Nonnull NbtCompound nbt )
+    public CompoundTag save( @Nonnull CompoundTag nbt )
     {
         if( customName != null )
         {
-            nbt.putString( NBT_NAME, Text.Serializer.toJson( customName ) );
+            nbt.putString( NBT_NAME, Component.Serializer.toJson( customName ) );
         }
 
         // Write page
@@ -202,9 +198,9 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         }
 
         // Write inventory
-        Inventories.writeNbt( nbt, inventory );
+        ContainerHelper.saveAllItems( nbt, inventory );
 
-        return super.writeNbt( nbt );
+        return super.save( nbt );
     }
 
     boolean isPrinting()
@@ -214,7 +210,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     // IInventory implementation
     @Override
-    public int size()
+    public int getContainerSize()
     {
         return inventory.size();
     }
@@ -234,14 +230,14 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     @Nonnull
     @Override
-    public ItemStack getStack( int slot )
+    public ItemStack getItem( int slot )
     {
         return inventory.get( slot );
     }
 
     @Nonnull
     @Override
-    public ItemStack removeStack( int slot, int count )
+    public ItemStack removeItem( int slot, int count )
     {
         ItemStack stack = inventory.get( slot );
         if( stack.isEmpty() )
@@ -251,7 +247,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
         if( stack.getCount() <= count )
         {
-            setStack( slot, ItemStack.EMPTY );
+            setItem( slot, ItemStack.EMPTY );
             return stack;
         }
 
@@ -262,17 +258,17 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
             inventory.set( slot, ItemStack.EMPTY );
             updateBlockState();
         }
-        markDirty();
+        setChanged();
         return part;
     }
 
     @Nonnull
     @Override
-    public ItemStack removeStack( int slot )
+    public ItemStack removeItemNoUpdate( int slot )
     {
         ItemStack result = inventory.get( slot );
         inventory.set( slot, ItemStack.EMPTY );
-        markDirty();
+        setChanged();
         updateBlockState();
         return result;
     }
@@ -280,32 +276,32 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     // ISidedInventory implementation
 
     @Override
-    public void setStack( int slot, @Nonnull ItemStack stack )
+    public void setItem( int slot, @Nonnull ItemStack stack )
     {
         inventory.set( slot, stack );
-        markDirty();
+        setChanged();
         updateBlockState();
     }
 
     @Override
-    public boolean canPlayerUse( @Nonnull PlayerEntity playerEntity )
+    public boolean stillValid( @Nonnull Player playerEntity )
     {
         return isUsable( playerEntity, false );
     }
 
     @Override
-    public void clear()
+    public void clearContent()
     {
         for( int i = 0; i < inventory.size(); i++ )
         {
             inventory.set( i, ItemStack.EMPTY );
         }
-        markDirty();
+        setChanged();
         updateBlockState();
     }
 
     @Override
-    public boolean isValid( int slot, @Nonnull ItemStack stack )
+    public boolean canPlaceItem( int slot, @Nonnull ItemStack stack )
     {
         if( slot == 0 )
         {
@@ -328,7 +324,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     @Nonnull
     @Override
-    public int[] getAvailableSlots( @Nonnull Direction side )
+    public int[] getSlotsForFace( @Nonnull Direction side )
     {
         switch( side )
         {
@@ -400,7 +396,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
             if( inventory.get( slot )
                 .isEmpty() )
             {
-                setStack( slot, stack );
+                setItem( slot, stack );
                 printing = false;
                 return true;
             }
@@ -480,21 +476,21 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
             page.setCursorPos( 0, 0 );
 
             // Decrement ink
-            inkStack.decrement( 1 );
+            inkStack.shrink( 1 );
             if( inkStack.isEmpty() )
             {
                 inventory.set( 0, ItemStack.EMPTY );
             }
 
             // Decrement paper
-            paperStack.decrement( 1 );
+            paperStack.shrink( 1 );
             if( paperStack.isEmpty() )
             {
                 inventory.set( i, ItemStack.EMPTY );
                 updateBlockState();
             }
 
-            markDirty();
+            setChanged();
             printing = true;
             return true;
         }
@@ -503,10 +499,10 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     @Nonnull
     @Override
-    public Text getName()
+    public Component getName()
     {
-        return customName != null ? customName : new TranslatableText( getCachedState().getBlock()
-            .getTranslationKey() );
+        return customName != null ? customName : new TranslatableComponent( getBlockState().getBlock()
+            .getDescriptionId() );
     }
 
     @Override
@@ -516,21 +512,21 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     }
 
     @Override
-    public Text getDisplayName()
+    public Component getDisplayName()
     {
         return Nameable.super.getDisplayName();
     }
 
     @Nullable
     @Override
-    public Text getCustomName()
+    public Component getCustomName()
     {
         return customName;
     }
 
     @Nonnull
     @Override
-    public ScreenHandler createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
+    public AbstractContainerMenu createMenu( int id, @Nonnull Inventory inventory, @Nonnull Player player )
     {
         return new ContainerPrinter( id, inventory, this );
     }

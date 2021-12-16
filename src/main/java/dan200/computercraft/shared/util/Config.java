@@ -13,19 +13,21 @@ import com.electronwill.nightconfig.core.file.FileNotFoundAction;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.turtle.event.TurtleAction;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRuleConfig;
-import dan200.computercraft.fabric.mixin.WorldSavePathAccess;
+import dan200.computercraft.fabric.mixin.LevelResourceAccess;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import net.fabricmc.loader.FabricLoader;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.WorldSavePath;
+import net.minecraft.world.level.storage.LevelResource;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -41,7 +43,7 @@ public final class Config
     public static CommentedFileConfig serverConfig;
     public static CommentedFileConfig clientConfig;
 
-    private static final WorldSavePath serverDir = WorldSavePathAccess.createWorldSavePath( "serverconfig" );
+    private static final LevelResource serverDir = LevelResourceAccess.create( "serverconfig" );
     private static final String serverFileName = "computercraft-server.toml";
 
     private static Path serverPath = null;
@@ -208,10 +210,6 @@ public final class Config
             serverSpec.comment( "turtle.can_push",
                 "If set to true, Turtles will push entities out of the way instead of stopping if there is space to do so" );
             serverSpec.define( "turtle.can_push", ComputerCraft.turtlesCanPush );
-
-            serverSpec.comment( "turtle.disabled_actions",
-                "A list of turtle actions which are disabled." );
-            serverSpec.defineList( "turtle.disabled_actions", Collections.emptyList(), x -> x instanceof String && getAction( (String) x ) != null );
         }
 
         { // Terminal sizes
@@ -283,7 +281,7 @@ public final class Config
 
     public static void serverStarting( MinecraftServer server )
     {
-        serverPath = server.getSavePath( serverDir ).resolve( serverFileName );
+        serverPath = server.getWorldPath( serverDir ).resolve( serverFileName );
 
         try( CommentedFileConfig config = buildFileConfig( serverPath ) )
         {
@@ -301,7 +299,7 @@ public final class Config
         serverPath = null;
     }
 
-    public static void clientStarted( MinecraftClient client )
+    public static void clientStarted( Minecraft client )
     {
         try( CommentedFileConfig config = buildFileConfig( clientPath ) )
         {
@@ -372,12 +370,6 @@ public final class Config
             ComputerCraft.turtlesObeyBlockProtection = serverConfig.<Boolean>get( "turtle.obey_block_protection" );
             ComputerCraft.turtlesCanPush = serverConfig.<Boolean>get( "turtle.can_push" );
 
-            ComputerCraft.turtleDisabledActions.clear();
-            for( String value : serverConfig.<List<String>>get( "turtle.disabled_actions" ) )
-            {
-                ComputerCraft.turtleDisabledActions.add( getAction( value ) );
-            }
-
             // Terminal Size
             ComputerCraft.computerTermWidth = serverConfig.<Integer>get( "term_sizes.computer.width" );
             ComputerCraft.computerTermHeight = serverConfig.<Integer>get( "term_sizes.computer.height" );
@@ -397,16 +389,4 @@ public final class Config
     }
 
     private static final Converter<String, String> converter = CaseFormat.LOWER_CAMEL.converterTo( CaseFormat.UPPER_UNDERSCORE );
-
-    private static TurtleAction getAction( String value )
-    {
-        try
-        {
-            return TurtleAction.valueOf( converter.convert( value ) );
-        }
-        catch( IllegalArgumentException e )
-        {
-            return null;
-        }
-    }
 }

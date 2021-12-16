@@ -11,8 +11,8 @@ import dan200.computercraft.api.pocket.AbstractPocketUpgrade;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -23,7 +23,7 @@ public class PocketModem extends AbstractPocketUpgrade
 
     public PocketModem( boolean advanced )
     {
-        super( new Identifier( "computercraft", advanced ? "wireless_modem_advanced" : "wireless_modem_normal" ),
+        super( new ResourceLocation( "computercraft", advanced ? "wireless_modem_advanced" : "wireless_modem_normal" ),
             advanced ? ComputerCraftRegistry.ModBlocks.WIRELESS_MODEM_ADVANCED : ComputerCraftRegistry.ModBlocks.WIRELESS_MODEM_NORMAL );
         this.advanced = advanced;
     }
@@ -49,7 +49,7 @@ public class PocketModem extends AbstractPocketUpgrade
 
         if( entity != null )
         {
-            modem.setLocation( entity.getEntityWorld(), entity.getCameraPosVec( 1 ) );
+            modem.setLocation( entity.getCommandSenderWorld(), entity.getEyePosition( 1 ) );
         }
 
         ModemState state = modem.getModemState();

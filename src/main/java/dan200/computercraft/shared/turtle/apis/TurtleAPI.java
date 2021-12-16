@@ -11,15 +11,13 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.api.turtle.event.TurtleActionEvent;
-import dan200.computercraft.api.turtle.event.TurtleEvent;
-import dan200.computercraft.api.turtle.event.TurtleInspectItemEvent;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.asm.TaskCallback;
 import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
+import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.turtle.core.*;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -331,7 +329,7 @@ public class TurtleAPI implements ILuaAPI
     {
         int actualSlot = checkSlot( slot ).orElse( turtle.getSelectedSlot() );
         return turtle.getInventory()
-            .getStack( actualSlot )
+            .getItem( actualSlot )
             .getCount();
     }
 
@@ -354,8 +352,8 @@ public class TurtleAPI implements ILuaAPI
     {
         int actualSlot = checkSlot( slot ).orElse( turtle.getSelectedSlot() );
         ItemStack stack = turtle.getInventory()
-            .getStack( actualSlot );
-        return stack.isEmpty() ? 64 : Math.min( stack.getMaxCount(), 64 ) - stack.getCount();
+            .getItem( actualSlot );
+        return stack.isEmpty() ? 64 : Math.min( stack.getMaxStackSize(), 64 ) - stack.getCount();
     }
 
     /**
@@ -763,7 +761,7 @@ public class TurtleAPI implements ILuaAPI
     private Object[] getItemDetail( int slot, boolean detailed )
     {
         ItemStack stack = turtle.getInventory()
-            .getStack( slot );
+            .getItem( slot );
         if( stack.isEmpty() )
         {
             return new Object[] { null };
@@ -772,12 +770,6 @@ public class TurtleAPI implements ILuaAPI
         Map<String, Object> table = detailed
             ? ItemData.fill( new HashMap<>(), stack )
             : ItemData.fillBasicSafe( new HashMap<>(), stack );
-
-        TurtleActionEvent event = new TurtleInspectItemEvent( turtle, stack, table, detailed );
-        if( TurtleEvent.post( event ) )
-        {
-            return new Object[] { false, event.getFailureMessage() };
-        }
 
         return new Object[] { table };
     }

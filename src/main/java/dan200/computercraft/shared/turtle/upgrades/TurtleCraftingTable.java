@@ -14,21 +14,21 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.Blocks;
-import net.minecraft.client.util.ModelIdentifier;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Blocks;
 
 import javax.annotation.Nonnull;
 
 public class TurtleCraftingTable extends AbstractTurtleUpgrade
 {
     @Environment( EnvType.CLIENT )
-    private ModelIdentifier leftModel;
+    private ModelResourceLocation leftModel;
 
     @Environment( EnvType.CLIENT )
-    private ModelIdentifier rightModel;
+    private ModelResourceLocation rightModel;
 
-    public TurtleCraftingTable( Identifier id )
+    public TurtleCraftingTable( ResourceLocation id )
     {
         super( id, TurtleUpgradeType.PERIPHERAL, Blocks.CRAFTING_TABLE );
     }
@@ -53,8 +53,8 @@ public class TurtleCraftingTable extends AbstractTurtleUpgrade
     {
         if( leftModel == null )
         {
-            leftModel = new ModelIdentifier( "computercraft:turtle_crafting_table_left", "inventory" );
-            rightModel = new ModelIdentifier( "computercraft:turtle_crafting_table_right", "inventory" );
+            leftModel = new ModelResourceLocation( "computercraft:turtle_crafting_table_left", "inventory" );
+            rightModel = new ModelResourceLocation( "computercraft:turtle_crafting_table_right", "inventory" );
         }
     }
 }

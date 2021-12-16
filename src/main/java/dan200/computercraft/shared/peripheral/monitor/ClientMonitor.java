@@ -8,11 +8,11 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.VertexBuffer;
 import dan200.computercraft.shared.common.ClientTerminal;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gl.VertexBuffer;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;

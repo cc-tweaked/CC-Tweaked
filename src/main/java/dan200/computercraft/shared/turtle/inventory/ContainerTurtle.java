@@ -15,15 +15,15 @@ import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.util.SingleIntArray;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.screen.ArrayPropertyDelegate;
-import net.minecraft.screen.PropertyDelegate;
-import net.minecraft.screen.slot.Slot;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.SimpleContainerData;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.function.Predicate;
@@ -35,13 +35,13 @@ public class ContainerTurtle extends ContainerComputerBase
     public static final int TURTLE_START_X = ComputerSidebar.WIDTH + 175;
     public static final int PLAYER_START_X = ComputerSidebar.WIDTH + BORDER;
 
-    private final PropertyDelegate properties;
+    private final ContainerData properties;
 
-    public ContainerTurtle( int id, PlayerInventory player, TurtleBrain turtle )
+    public ContainerTurtle( int id, Inventory player, TurtleBrain turtle )
     {
         this( id,
             p -> turtle.getOwner()
-                .canPlayerUse( p ),
+                .stillValid( p ),
             turtle.getOwner()
                 .createServerComputer(),
             turtle.getFamily(),
@@ -50,13 +50,13 @@ public class ContainerTurtle extends ContainerComputerBase
             (SingleIntArray) turtle::getSelectedSlot );
     }
 
-    private ContainerTurtle( int id, Predicate<PlayerEntity> canUse, IComputer computer, ComputerFamily family, PlayerInventory playerInventory,
-                             Inventory inventory, PropertyDelegate properties )
+    private ContainerTurtle( int id, Predicate<Player> canUse, IComputer computer, ComputerFamily family, Inventory playerInventory,
+                             Container inventory, ContainerData properties )
     {
         super( ComputerCraftRegistry.ModContainers.TURTLE, id, canUse, computer, family );
         this.properties = properties;
 
-        addProperties( properties );
+        addDataSlots( properties );
 
         // Turtle inventory
         for( int y = 0; y < 4; y++ )
@@ -83,20 +83,20 @@ public class ContainerTurtle extends ContainerComputerBase
         }
     }
 
-    public ContainerTurtle( int id, PlayerInventory player, PacketByteBuf packetByteBuf )
+    public ContainerTurtle( int id, Inventory player, FriendlyByteBuf packetByteBuf )
     {
         this( id, player, new ComputerContainerData( packetByteBuf ) );
     }
 
-    public ContainerTurtle( int id, PlayerInventory player, ComputerContainerData data )
+    public ContainerTurtle( int id, Inventory player, ComputerContainerData data )
     {
         this( id,
             x -> true,
             getComputer( player, data ),
             data.getFamily(),
             player,
-            new SimpleInventory( TileTurtle.INVENTORY_SIZE ),
-            new ArrayPropertyDelegate( 1 ) );
+            new SimpleContainer( TileTurtle.INVENTORY_SIZE ),
+            new SimpleContainerData( 1 ) );
     }
 
     public int getSelectedSlot()
@@ -106,7 +106,7 @@ public class ContainerTurtle extends ContainerComputerBase
 
     @Nonnull
     @Override
-    public ItemStack transferSlot( @Nonnull PlayerEntity player, int slotNum )
+    public ItemStack quickMoveStack( @Nonnull Player player, int slotNum )
     {
         if( slotNum >= 0 && slotNum < 16 )
         {
@@ -120,31 +120,31 @@ public class ContainerTurtle extends ContainerComputerBase
     }
 
     @Nonnull
-    private ItemStack tryItemMerge( PlayerEntity player, int slotNum, int firstSlot, int lastSlot, boolean reverse )
+    private ItemStack tryItemMerge( Player player, int slotNum, int firstSlot, int lastSlot, boolean reverse )
     {
         Slot slot = slots.get( slotNum );
         ItemStack originalStack = ItemStack.EMPTY;
-        if( slot != null && slot.hasStack() )
+        if( slot != null && slot.hasItem() )
         {
-            ItemStack clickedStack = slot.getStack();
+            ItemStack clickedStack = slot.getItem();
             originalStack = clickedStack.copy();
-            if( !insertItem( clickedStack, firstSlot, lastSlot, reverse ) )
+            if( !moveItemStackTo( clickedStack, firstSlot, lastSlot, reverse ) )
             {
                 return ItemStack.EMPTY;
             }
 
             if( clickedStack.isEmpty() )
             {
-                slot.setStack( ItemStack.EMPTY );
+                slot.set( ItemStack.EMPTY );
             }
             else
             {
-                slot.markDirty();
+                slot.setChanged();
             }
 
             if( clickedStack.getCount() != originalStack.getCount() )
             {
-                slot.onTakeItem( player, clickedStack );
+                slot.onTake( player, clickedStack );
             }
             else
             {

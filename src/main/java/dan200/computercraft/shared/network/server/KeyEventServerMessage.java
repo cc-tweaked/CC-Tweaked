@@ -10,7 +10,7 @@ import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.InputState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 
 import javax.annotation.Nonnull;
 
@@ -30,7 +30,7 @@ public class KeyEventServerMessage extends ComputerServerMessage
         this.key = key;
     }
 
-    public KeyEventServerMessage( @Nonnull PacketByteBuf buf )
+    public KeyEventServerMessage( @Nonnull FriendlyByteBuf buf )
     {
         super( buf );
         type = buf.readByte();
@@ -38,7 +38,7 @@ public class KeyEventServerMessage extends ComputerServerMessage
     }
 
     @Override
-    public void toBytes( @Nonnull PacketByteBuf buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         super.toBytes( buf );
         buf.writeByte( type );

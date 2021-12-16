@@ -12,14 +12,14 @@ import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.computer.blocks.BlockComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,21 +29,21 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
 {
     private final ComputerFamily family;
 
-    public ItemComputerBase( BlockComputerBase<?> block, Settings settings )
+    public ItemComputerBase( BlockComputerBase<?> block, Properties settings )
     {
         super( block, settings );
         family = block.getFamily();
     }
 
     @Override
-    public void appendTooltip( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<Text> list, @Nonnull TooltipContext options )
+    public void appendHoverText( @Nonnull ItemStack stack, @Nullable Level world, @Nonnull List<Component> list, @Nonnull TooltipFlag options )
     {
         if( options.isAdvanced() || getLabel( stack ) == null )
         {
             int id = getComputerID( stack );
             if( id >= 0 )
             {
-                list.add( new TranslatableText( "gui.computercraft.tooltip.computer_id", id ).formatted( Formatting.GRAY ) );
+                list.add( new TranslatableComponent( "gui.computercraft.tooltip.computer_id", id ).withStyle( ChatFormatting.GRAY ) );
             }
         }
     }
@@ -67,17 +67,17 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     {
         if( label != null )
         {
-            stack.setCustomName( new LiteralText( label ) );
+            stack.setHoverName( new TextComponent( label ) );
         }
         else
         {
-            stack.removeCustomName();
+            stack.resetHoverName();
         }
         return true;
     }
 
     @Override
-    public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )
+    public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull Level world )
     {
         ComputerFamily family = getFamily();
         if( family != ComputerFamily.COMMAND )

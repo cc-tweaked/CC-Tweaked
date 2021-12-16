@@ -11,7 +11,7 @@ import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 
 import javax.annotation.Nonnull;
 
@@ -29,13 +29,13 @@ public abstract class ComputerServerMessage implements NetworkMessage
         this.instanceId = instanceId;
     }
 
-    public ComputerServerMessage( @Nonnull PacketByteBuf buf )
+    public ComputerServerMessage( @Nonnull FriendlyByteBuf buf )
     {
         instanceId = buf.readVarInt();
     }
 
     @Override
-    public void toBytes( @Nonnull PacketByteBuf buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         buf.writeVarInt( instanceId );
     }

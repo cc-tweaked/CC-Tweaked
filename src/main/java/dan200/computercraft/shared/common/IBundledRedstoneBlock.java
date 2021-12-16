@@ -3,16 +3,15 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.common;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 
 public interface IBundledRedstoneBlock
 {
-    boolean getBundledRedstoneConnectivity( World world, BlockPos pos, Direction side );
+    boolean getBundledRedstoneConnectivity( Level world, BlockPos pos, Direction side );
 
-    int getBundledRedstoneOutput( World world, BlockPos pos, Direction side );
+    int getBundledRedstoneOutput( Level world, BlockPos pos, Direction side );
 }

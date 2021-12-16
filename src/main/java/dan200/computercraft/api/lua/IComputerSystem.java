@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.lua;
 
 import dan200.computercraft.api.filesystem.IFileSystem;
@@ -12,7 +11,8 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import javax.annotation.Nullable;
 
 /**
- * An interface passed to {@link ILuaAPIFactory} in order to provide additional information about a computer.
+ * An interface passed to {@link ILuaAPIFactory} in order to provide additional information
+ * about a computer.
  */
 public interface IComputerSystem extends IComputerAccess
 {

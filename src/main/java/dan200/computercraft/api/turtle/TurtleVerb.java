@@ -3,11 +3,13 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.turtle;
 
+import net.minecraft.core.Direction;
+
 /**
- * An enum representing the different actions that an {@link ITurtleUpgrade} of type Tool may be called on to perform by a turtle.
+ * An enum representing the different actions that an {@link ITurtleUpgrade} of type Tool may be called on to perform by
+ * a turtle.
  *
  * @see ITurtleUpgrade#getType()
  * @see ITurtleUpgrade#useTool(ITurtleAccess, TurtleSide, TurtleVerb, Direction)

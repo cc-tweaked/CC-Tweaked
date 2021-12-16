@@ -6,10 +6,10 @@
 
 package dan200.computercraft.shared.util;
 
-import net.minecraft.item.DyeItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.DyeColor;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 
@@ -21,6 +21,6 @@ public final class ColourUtils
     public static DyeColor getStackColour( ItemStack stack )
     {
         Item item = stack.getItem();
-        return item instanceof DyeItem ? ((DyeItem) item).getColor() : null;
+        return item instanceof DyeItem ? ((DyeItem) item).getDyeColor() : null;
     }
 }

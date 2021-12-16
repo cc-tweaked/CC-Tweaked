@@ -7,6 +7,9 @@
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
@@ -14,13 +17,11 @@ import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.*;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
@@ -38,7 +39,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
     }
 
     @Override
-    protected void renderItem( MatrixStack transform, VertexConsumerProvider render, ItemStack stack, int light )
+    protected void renderItem( PoseStack transform, MultiBufferSource render, ItemStack stack, int light )
     {
         ClientComputer computer = ItemPocketComputer.createClientComputer( stack );
         Terminal terminal = computer == null ? null : computer.getTerminal();
@@ -60,9 +61,9 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
         // Setup various transformations. Note that these are partially adapted from the corresponding method
         // in ItemRenderer
-        transform.push();
-        transform.multiply( Vec3f.POSITIVE_Y.getDegreesQuaternion( 180f ) );
-        transform.multiply( Vec3f.POSITIVE_Z.getDegreesQuaternion( 180f ) );
+        transform.pushPose();
+        transform.mulPose( Vector3f.YP.rotationDegrees( 180f ) );
+        transform.mulPose( Vector3f.ZP.rotationDegrees( 180f ) );
         transform.scale( 0.5f, 0.5f, 0.5f );
 
         float scale = 0.75f / Math.max( width + BORDER * 2, height + BORDER * 2 + LIGHT_HEIGHT );
@@ -74,8 +75,8 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         ComputerFamily family = item.getFamily();
         int frameColour = item.getColour( stack );
 
-        Matrix4f matrix = transform.peek()
-            .getModel();
+        Matrix4f matrix = transform.last()
+            .pose();
         renderFrame( matrix, render, family, frameColour, light, width, height );
 
         // Render the light
@@ -92,7 +93,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
                 matrix, render.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ),
                 MARGIN, MARGIN, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN
             );
-            FixedWidthFontRenderer.drawBlocker( transform.peek().getModel(), render, 0, 0, width, height );
+            FixedWidthFontRenderer.drawBlocker( transform.last().pose(), render, 0, 0, width, height );
 
         }
         else
@@ -100,23 +101,23 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
             FixedWidthFontRenderer.drawEmptyTerminal( matrix, 0, 0, width, height );
         }
 
-        transform.pop();
+        transform.popPose();
     }
 
-    private static void renderFrame( Matrix4f transform, VertexConsumerProvider render, ComputerFamily family, int colour, int light, int width, int height )
+    private static void renderFrame( Matrix4f transform, MultiBufferSource render, ComputerFamily family, int colour, int light, int width, int height )
     {
         RenderSystem.enableBlend();
-        MinecraftClient.getInstance()
+        Minecraft.getInstance()
             .getTextureManager()
-            .bindTexture( colour != -1 ? ComputerBorderRenderer.BACKGROUND_COLOUR : ComputerBorderRenderer.getTexture( family ) );
+            .bindForSetup( colour != -1 ? ComputerBorderRenderer.BACKGROUND_COLOUR : ComputerBorderRenderer.getTexture( family ) );
 
-        Identifier texture = colour != -1 ? ComputerBorderRenderer.BACKGROUND_COLOUR : ComputerBorderRenderer.getTexture( family );
+        ResourceLocation texture = colour != -1 ? ComputerBorderRenderer.BACKGROUND_COLOUR : ComputerBorderRenderer.getTexture( family );
 
         float r = ((colour >>> 16) & 0xFF) / 255.0f;
         float g = ((colour >>> 8) & 0xFF) / 255.0f;
         float b = (colour & 0xFF) / 255.0f;
 
-        ComputerBorderRenderer.render( transform, render.getBuffer( RenderLayer.getText( texture ) ), 0, 0, 0, light, width, height, true, r, g, b );
+        ComputerBorderRenderer.render( transform, render.getBuffer( RenderType.text( texture ) ), 0, 0, 0, light, width, height, true, r, g, b );
     }
 
     private static void renderLight( Matrix4f transform, int colour, int width, int height )
@@ -127,23 +128,23 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         float g = ((colour >>> 8) & 0xFF) / 255.0f;
         float b = (colour & 0xFF) / 255.0f;
 
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
-        buffer.begin( VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR );
+        Tesselator tessellator = Tesselator.getInstance();
+        BufferBuilder buffer = tessellator.getBuilder();
+        buffer.begin( VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR );
         buffer.vertex( transform, width - LIGHT_HEIGHT * 2, height + LIGHT_HEIGHT + BORDER / 2.0f, 0 )
             .color( r, g, b, 1.0f )
-            .next();
+            .endVertex();
         buffer.vertex( transform, width, height + LIGHT_HEIGHT + BORDER / 2.0f, 0 )
             .color( r, g, b, 1.0f )
-            .next();
+            .endVertex();
         buffer.vertex( transform, width, height + BORDER / 2.0f, 0 )
             .color( r, g, b, 1.0f )
-            .next();
+            .endVertex();
         buffer.vertex( transform, width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, 0 )
             .color( r, g, b, 1.0f )
-            .next();
+            .endVertex();
 
-        tessellator.draw();
+        tessellator.end();
         RenderSystem.enableTexture();
     }
 }

@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.turtle.event;
 
 import com.google.common.eventbus.EventBus;
@@ -13,12 +12,10 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 
 /**
- * A base class for all events concerning a turtle. This will only ever constructed and fired on the server side, so sever specific methods on {@link
- * ITurtleAccess} are safe to use.
+ * A base class for all events concerning a turtle. This will only ever constructed and fired on the server side,
+ * so sever specific methods on {@link ITurtleAccess} are safe to use.
  *
  * You should generally not need to subscribe to this event, preferring one of the more specific classes.
- *
- * @see TurtleActionEvent
  */
 public abstract class TurtleEvent
 {
@@ -32,12 +29,6 @@ public abstract class TurtleEvent
         this.turtle = turtle;
     }
 
-    public static boolean post( TurtleActionEvent event )
-    {
-        EVENT_BUS.post( event );
-        return event.isCancelled();
-    }
-
     /**
      * Get the turtle which is performing this action.
      *
@@ -48,5 +39,4 @@ public abstract class TurtleEvent
     {
         return turtle;
     }
-
 }

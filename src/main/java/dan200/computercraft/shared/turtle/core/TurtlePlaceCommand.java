@@ -11,28 +11,28 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
-import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
-import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.SignBlockEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.*;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
@@ -53,7 +53,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
     {
         // Create a fake player, and orient it appropriately
         BlockPos playerPosition = turtle.getPosition()
-            .offset( direction );
+            .relative( direction );
         TurtlePlayer turtlePlayer = createPlayer( turtle, playerPosition, direction );
 
         return deploy( stack, turtle, turtlePlayer, direction, extraArguments, outErrorMessage );
@@ -65,7 +65,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
     {
         // Get thing to place
         ItemStack stack = turtle.getInventory()
-            .getStack( turtle.getSelectedSlot() );
+            .getItem( turtle.getSelectedSlot() );
         if( stack.isEmpty() )
         {
             return TurtleCommandResult.failure( "No items to place" );
@@ -74,18 +74,12 @@ public class TurtlePlaceCommand implements ITurtleCommand
         // Remember old block
         Direction direction = this.direction.toWorldDir( turtle );
         BlockPos coordinates = turtle.getPosition()
-            .offset( direction );
+            .relative( direction );
 
         // Create a fake player, and orient it appropriately
         BlockPos playerPosition = turtle.getPosition()
-            .offset( direction );
+            .relative( direction );
         TurtlePlayer turtlePlayer = createPlayer( turtle, playerPosition, direction );
-
-        TurtleBlockEvent.Place place = new TurtleBlockEvent.Place( turtle, turtlePlayer, turtle.getWorld(), coordinates, stack );
-        if( TurtleEvent.post( place ) )
-        {
-            return TurtleCommandResult.failure( place.getFailureMessage() );
-        }
 
         // Do the deploying
         String[] errorMessage = new String[1];
@@ -94,9 +88,9 @@ public class TurtlePlaceCommand implements ITurtleCommand
         {
             // Put the remaining items back
             turtle.getInventory()
-                .setStack( turtle.getSelectedSlot(), remainder );
+                .setItem( turtle.getSelectedSlot(), remainder );
             turtle.getInventory()
-                .markDirty();
+                .setChanged();
 
             // Animate and return success
             turtle.playAnimation( TurtleAnimation.WAIT );
@@ -138,7 +132,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Deploy on the block immediately in front
         BlockPos position = turtle.getPosition();
-        BlockPos newPosition = position.offset( direction );
+        BlockPos newPosition = position.relative( direction );
         remainder = deployOnBlock( stack, turtle, turtlePlayer, newPosition, direction.getOpposite(), extraArguments, true, outErrorMessage );
         if( remainder != stack )
         {
@@ -149,7 +143,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         remainder = deployOnBlock( stack,
             turtle,
             turtlePlayer,
-            newPosition.offset( direction ),
+            newPosition.relative( direction ),
             direction.getOpposite(),
             extraArguments,
             false,
@@ -162,7 +156,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         if( direction.getAxis() != Direction.Axis.Y )
         {
             // Deploy down on the block in front
-            remainder = deployOnBlock( stack, turtle, turtlePlayer, newPosition.down(), Direction.UP, extraArguments, false, outErrorMessage );
+            remainder = deployOnBlock( stack, turtle, turtlePlayer, newPosition.below(), Direction.UP, extraArguments, false, outErrorMessage );
             if( remainder != stack )
             {
                 return remainder;
@@ -186,32 +180,32 @@ public class TurtlePlaceCommand implements ITurtleCommand
         if( turtle.getPosition()
             .equals( position ) )
         {
-            posX += 0.48 * direction.getOffsetX();
-            posY += 0.48 * direction.getOffsetY();
-            posZ += 0.48 * direction.getOffsetZ();
+            posX += 0.48 * direction.getStepX();
+            posY += 0.48 * direction.getStepY();
+            posZ += 0.48 * direction.getStepZ();
         }
 
         if( direction.getAxis() != Direction.Axis.Y )
         {
-            turtlePlayer.setYaw( direction.asRotation() );
-            turtlePlayer.setPitch( 0.0f );
+            turtlePlayer.setYRot( direction.toYRot() );
+            turtlePlayer.setXRot( 0.0f );
         }
         else
         {
-            turtlePlayer.setYaw( turtle.getDirection()
-                .asRotation() );
-            turtlePlayer.setPitch( DirectionUtil.toPitchAngle( direction ) );
+            turtlePlayer.setYRot( turtle.getDirection()
+                .toYRot() );
+            turtlePlayer.setXRot( DirectionUtil.toPitchAngle( direction ) );
         }
 
-        turtlePlayer.setPos( posX, posY, posZ );
-        turtlePlayer.prevX = posX;
-        turtlePlayer.prevY = posY;
-        turtlePlayer.prevZ = posZ;
-        turtlePlayer.prevPitch = turtlePlayer.getPitch();
-        turtlePlayer.prevYaw = turtlePlayer.getYaw();
+        turtlePlayer.setPosRaw( posX, posY, posZ );
+        turtlePlayer.xo = posX;
+        turtlePlayer.yo = posY;
+        turtlePlayer.zo = posZ;
+        turtlePlayer.xRotO = turtlePlayer.getXRot();
+        turtlePlayer.yRotO = turtlePlayer.getYRot();
 
-        turtlePlayer.headYaw = turtlePlayer.getYaw();
-        turtlePlayer.prevHeadYaw = turtlePlayer.headYaw;
+        turtlePlayer.yHeadRot = turtlePlayer.getYRot();
+        turtlePlayer.yHeadRotO = turtlePlayer.yHeadRot;
     }
 
     @Nonnull
@@ -219,11 +213,11 @@ public class TurtlePlaceCommand implements ITurtleCommand
                                              Object[] extraArguments, String[] outErrorMessage )
     {
         // See if there is an entity present
-        final World world = turtle.getWorld();
+        final Level world = turtle.getLevel();
         final BlockPos position = turtle.getPosition();
-        Vec3d turtlePos = turtlePlayer.getPos();
-        Vec3d rayDir = turtlePlayer.getRotationVec( 1.0f );
-        Pair<Entity, Vec3d> hit = WorldUtil.rayTraceEntities( world, turtlePos, rayDir, 1.5 );
+        Vec3 turtlePos = turtlePlayer.position();
+        Vec3 rayDir = turtlePlayer.getViewVector( 1.0f );
+        Pair<Entity, Vec3> hit = WorldUtil.rayTraceEntities( world, turtlePos, rayDir, 1.5 );
         if( hit == null )
         {
             return stack;
@@ -235,27 +229,27 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Start claiming entity drops
         Entity hitEntity = hit.getKey();
-        Vec3d hitPos = hit.getValue();
+        Vec3 hitPos = hit.getValue();
         DropConsumer.set( hitEntity, drop -> InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() ) );
 
         // Place on the entity
         boolean placed = false;
-        ActionResult cancelResult = hitEntity.interactAt( turtlePlayer, hitPos, Hand.MAIN_HAND );
+        InteractionResult cancelResult = hitEntity.interactAt( turtlePlayer, hitPos, InteractionHand.MAIN_HAND );
 
-        if( cancelResult != null && cancelResult.isAccepted() )
+        if( cancelResult != null && cancelResult.consumesAction() )
         {
             placed = true;
         }
         else
         {
-            cancelResult = hitEntity.interact( turtlePlayer, Hand.MAIN_HAND );
-            if( cancelResult != null && cancelResult.isAccepted() )
+            cancelResult = hitEntity.interact( turtlePlayer, InteractionHand.MAIN_HAND );
+            if( cancelResult != null && cancelResult.consumesAction() )
             {
                 placed = true;
             }
             else if( hitEntity instanceof LivingEntity )
             {
-                placed = stackCopy.useOnEntity( turtlePlayer, (LivingEntity) hitEntity, Hand.MAIN_HAND ).isAccepted();
+                placed = stackCopy.interactLivingEntity( turtlePlayer, (LivingEntity) hitEntity, InteractionHand.MAIN_HAND ).consumesAction();
                 if( placed ) turtlePlayer.loadInventory( stackCopy );
             }
         }
@@ -273,7 +267,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Put everything we collected into the turtles inventory, then return
         ItemStack remainder = turtlePlayer.unloadInventory( turtle );
-        if( !placed && ItemStack.areEqual( stack, remainder ) )
+        if( !placed && ItemStack.matches( stack, remainder ) )
         {
             return stack;
         }
@@ -293,26 +287,26 @@ public class TurtlePlaceCommand implements ITurtleCommand
     {
         // Re-orient the fake player
         Direction playerDir = side.getOpposite();
-        BlockPos playerPosition = position.offset( side );
+        BlockPos playerPosition = position.relative( side );
         orientPlayer( turtle, turtlePlayer, playerPosition, playerDir );
 
         ItemStack stackCopy = stack.copy();
         turtlePlayer.loadInventory( stackCopy );
 
         // Calculate where the turtle would hit the block
-        float hitX = 0.5f + side.getOffsetX() * 0.5f;
-        float hitY = 0.5f + side.getOffsetY() * 0.5f;
-        float hitZ = 0.5f + side.getOffsetZ() * 0.5f;
+        float hitX = 0.5f + side.getStepX() * 0.5f;
+        float hitY = 0.5f + side.getStepY() * 0.5f;
+        float hitZ = 0.5f + side.getStepZ() * 0.5f;
         if( Math.abs( hitY - 0.5f ) < 0.01f )
         {
             hitY = 0.45f;
         }
 
         // Check if there's something suitable to place onto
-        BlockHitResult hit = new BlockHitResult( new Vec3d( hitX, hitY, hitZ ), side, position, false );
-        ItemUsageContext context = new ItemUsageContext( turtlePlayer, Hand.MAIN_HAND, hit );
-        ItemPlacementContext placementContext = new ItemPlacementContext( context );
-        if( !canDeployOnBlock( new ItemPlacementContext( context ), turtle, turtlePlayer, position, side, allowReplace, outErrorMessage ) )
+        BlockHitResult hit = new BlockHitResult( new Vec3( hitX, hitY, hitZ ), side, position, false );
+        UseOnContext context = new UseOnContext( turtlePlayer, InteractionHand.MAIN_HAND, hit );
+        BlockPlaceContext placementContext = new BlockPlaceContext( context );
+        if( !canDeployOnBlock( new BlockPlaceContext( context ), turtle, turtlePlayer, position, side, allowReplace, outErrorMessage ) )
         {
             return stack;
         }
@@ -322,23 +316,23 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         // Do the deploying (put everything in the players inventory)
         boolean placed = false;
-        BlockEntity existingTile = turtle.getWorld()
+        BlockEntity existingTile = turtle.getLevel()
             .getBlockEntity( position );
 
-        if( stackCopy.useOnBlock( context ).isAccepted() )
+        if( stackCopy.useOn( context ).consumesAction() )
         {
             placed = true;
             turtlePlayer.loadInventory( stackCopy );
         }
 
-        if( !placed && (item instanceof BucketItem || item instanceof BoatItem || item instanceof LilyPadItem || item instanceof GlassBottleItem) )
+        if( !placed && (item instanceof BucketItem || item instanceof BoatItem || item instanceof WaterLilyBlockItem || item instanceof BottleItem) )
         {
-            TypedActionResult<ItemStack> result = stackCopy.use( turtle.getWorld(), turtlePlayer, Hand.MAIN_HAND );
+            InteractionResultHolder<ItemStack> result = stackCopy.use( turtle.getLevel(), turtlePlayer, InteractionHand.MAIN_HAND );
             if( result.getResult()
-                .isAccepted() && !ItemStack.areEqual( stack, result.getValue() ) )
+                .consumesAction() && !ItemStack.matches( stack, result.getObject() ) )
             {
                 placed = true;
-                turtlePlayer.loadInventory( result.getValue() );
+                turtlePlayer.loadInventory( result.getObject() );
             }
         }
 
@@ -347,11 +341,11 @@ public class TurtlePlaceCommand implements ITurtleCommand
         {
             if( extraArguments != null && extraArguments.length >= 1 && extraArguments[0] instanceof String )
             {
-                World world = turtle.getWorld();
+                Level world = turtle.getLevel();
                 BlockEntity tile = world.getBlockEntity( position );
                 if( tile == null || tile == existingTile )
                 {
-                    tile = world.getBlockEntity( position.offset( side ) );
+                    tile = world.getBlockEntity( position.relative( side ) );
                 }
                 if( tile instanceof SignBlockEntity )
                 {
@@ -365,27 +359,27 @@ public class TurtlePlaceCommand implements ITurtleCommand
                         {
                             if( split[i - firstLine].length() > 15 )
                             {
-                                signTile.setTextOnRow( i, new LiteralText( split[i - firstLine].substring( 0, 15 ) ) );
+                                signTile.setMessage( i, new TextComponent( split[i - firstLine].substring( 0, 15 ) ) );
                             }
                             else
                             {
-                                signTile.setTextOnRow( i, new LiteralText( split[i - firstLine] ) );
+                                signTile.setMessage( i, new TextComponent( split[i - firstLine] ) );
                             }
                         }
                         else
                         {
-                            signTile.setTextOnRow( i, new LiteralText( "" ) );
+                            signTile.setMessage( i, new TextComponent( "" ) );
                         }
                     }
-                    signTile.markDirty();
-                    world.updateListeners( tile.getPos(), tile.getCachedState(), tile.getCachedState(), 3 );
+                    signTile.setChanged();
+                    world.sendBlockUpdated( tile.getBlockPos(), tile.getBlockState(), tile.getBlockState(), 3 );
                 }
             }
         }
 
         // Put everything we collected into the turtles inventory, then return
         ItemStack remainder = turtlePlayer.unloadInventory( turtle );
-        if( !placed && ItemStack.areEqual( stack, remainder ) )
+        if( !placed && ItemStack.matches( stack, remainder ) )
         {
             return stack;
         }
@@ -399,11 +393,11 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
     }
 
-    private static boolean canDeployOnBlock( @Nonnull ItemPlacementContext context, ITurtleAccess turtle, TurtlePlayer player, BlockPos position,
+    private static boolean canDeployOnBlock( @Nonnull BlockPlaceContext context, ITurtleAccess turtle, TurtlePlayer player, BlockPos position,
                                              Direction side, boolean allowReplaceable, String[] outErrorMessage )
     {
-        World world = turtle.getWorld();
-        if( !world.isInBuildLimit( position ) || world.isAir( position ) || (context.getStack()
+        Level world = turtle.getLevel();
+        if( !world.isInWorldBounds( position ) || world.isEmptyBlock( position ) || (context.getItemInHand()
             .getItem() instanceof BlockItem && WorldUtil.isLiquidBlock( world,
             position )) )
         {
@@ -412,7 +406,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         BlockState state = world.getBlockState( position );
 
-        boolean replaceable = state.canReplace( context );
+        boolean replaceable = state.canBeReplaced( context );
         if( !allowReplaceable && replaceable )
         {
             return false;
@@ -422,7 +416,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
         {
             // Check spawn protection
             boolean editable = replaceable ? TurtlePermissions.isBlockEditable( world, position, player ) : TurtlePermissions.isBlockEditable( world,
-                position.offset(
+                position.relative(
                     side ),
                 player );
             if( !editable )

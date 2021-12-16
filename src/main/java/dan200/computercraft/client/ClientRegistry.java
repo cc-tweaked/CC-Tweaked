@@ -15,15 +15,11 @@ import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.ModelLoader;
-import net.minecraft.client.render.model.ModelRotation;
-import net.minecraft.client.render.model.UnbakedModel;
-import net.minecraft.client.texture.SpriteAtlasTexture;
-import net.minecraft.client.util.ModelIdentifier;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.resources.model.*;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 
 import java.util.HashSet;
 import java.util.function.Consumer;
@@ -68,20 +64,20 @@ public final class ClientRegistry
 
     private ClientRegistry() {}
 
-    public static void onTextureStitchEvent( SpriteAtlasTexture atlasTexture, ClientSpriteRegistryCallback.Registry registry )
+    public static void onTextureStitchEvent( TextureAtlas atlasTexture, ClientSpriteRegistryCallback.Registry registry )
     {
         for( String extra : EXTRA_TEXTURES )
         {
-            registry.register( new Identifier( ComputerCraft.MOD_ID, extra ) );
+            registry.register( new ResourceLocation( ComputerCraft.MOD_ID, extra ) );
         }
     }
 
     @SuppressWarnings( "NewExpressionSideOnly" )
-    public static void onModelBakeEvent( ResourceManager manager, Consumer<Identifier> out )
+    public static void onModelBakeEvent( ResourceManager manager, Consumer<ResourceLocation> out )
     {
         for( String model : EXTRA_MODELS )
         {
-            out.accept( new ModelIdentifier( new Identifier( ComputerCraft.MOD_ID, model ), "inventory" ) );
+            out.accept( new ModelResourceLocation( new ResourceLocation( ComputerCraft.MOD_ID, model ), "inventory" ) );
         }
     }
 
@@ -114,14 +110,14 @@ public final class ClientRegistry
             ComputerCraftRegistry.ModBlocks.TURTLE_ADVANCED );
     }
 
-    private static BakedModel bake( ModelLoader loader, UnbakedModel model, Identifier identifier )
+    private static BakedModel bake( ModelBakery loader, UnbakedModel model, ResourceLocation identifier )
     {
-        model.getTextureDependencies( loader::getOrLoadModel, new HashSet<>() );
+        model.getMaterials( loader::getModel, new HashSet<>() );
         return model.bake( loader,
-            spriteIdentifier -> MinecraftClient.getInstance()
-                .getSpriteAtlas( spriteIdentifier.getAtlasId() )
-                .apply( spriteIdentifier.getTextureId() ),
-            ModelRotation.X0_Y0,
+            spriteIdentifier -> Minecraft.getInstance()
+                .getTextureAtlas( spriteIdentifier.atlasLocation() )
+                .apply( spriteIdentifier.texture() ),
+            BlockModelRotation.X0_Y0,
             identifier );
     }
 }

@@ -12,30 +12,30 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleVerb;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Material;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
 
 import javax.annotation.Nonnull;
 
 public class TurtleShovel extends TurtleTool
 {
-    public TurtleShovel( Identifier id, String adjective, Item item )
+    public TurtleShovel( ResourceLocation id, String adjective, Item item )
     {
         super( id, adjective, item );
     }
 
-    public TurtleShovel( Identifier id, Item item )
+    public TurtleShovel( ResourceLocation id, Item item )
     {
         super( id, item );
     }
 
-    public TurtleShovel( Identifier id, ItemStack craftItem, ItemStack toolItem )
+    public TurtleShovel( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )
     {
         super( id, craftItem, toolItem );
     }
@@ -57,7 +57,7 @@ public class TurtleShovel extends TurtleTool
     }
 
     @Override
-    protected boolean canBreakBlock( BlockState state, World world, BlockPos pos, TurtlePlayer player )
+    protected boolean canBreakBlock( BlockState state, Level world, BlockPos pos, TurtlePlayer player )
     {
         if( !super.canBreakBlock( state, world, pos, player ) )
         {
@@ -65,6 +65,6 @@ public class TurtleShovel extends TurtleTool
         }
 
         Material material = state.getMaterial();
-        return material == Material.SOIL || material == Material.AGGREGATE || material == Material.SNOW_LAYER || material == Material.ORGANIC_PRODUCT || material == Material.SNOW_BLOCK || material == Material.PLANT || material == Material.CACTUS || material == Material.GOURD || material == Material.LEAVES || material == Material.REPLACEABLE_PLANT;
+        return material == Material.DIRT || material == Material.SAND || material == Material.TOP_SNOW || material == Material.CLAY || material == Material.SNOW || material == Material.PLANT || material == Material.CACTUS || material == Material.VEGETABLE || material == Material.LEAVES || material == Material.REPLACEABLE_PLANT;
     }
 }

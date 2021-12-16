@@ -3,27 +3,26 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.blocks;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.blocks.IComputerTile;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 
 public interface ITurtleTile extends IComputerTile
 {
     int getColour();
 
-    Identifier getOverlay();
+    ResourceLocation getOverlay();
 
     ITurtleUpgrade getUpgrade( TurtleSide side );
 
     ITurtleAccess getAccess();
 
-    Vec3d getRenderOffset( float f );
+    Vec3 getRenderOffset( float f );
 
     float getRenderYaw( float f );
 

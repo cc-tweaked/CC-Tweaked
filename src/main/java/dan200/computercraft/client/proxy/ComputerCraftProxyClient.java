@@ -39,11 +39,11 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
-import net.minecraft.client.item.UnclampedModelPredicateProvider;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.item.Item;
-import net.minecraft.screen.PlayerScreenHandler;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.Item;
 
 import java.util.function.Supplier;
 
@@ -73,11 +73,11 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
         registerContainers();
 
         // While turtles themselves are not transparent, their upgrades may be.
-        BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.TURTLE_NORMAL, RenderLayer.getTranslucent() );
-        BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.TURTLE_ADVANCED, RenderLayer.getTranslucent() );
+        BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.TURTLE_NORMAL, RenderType.translucent() );
+        BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.TURTLE_ADVANCED, RenderType.translucent() );
         // Monitors' textures have transparent fronts and so count as cutouts.
-        BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.MONITOR_NORMAL, RenderLayer.getCutout() );
-        BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.MONITOR_ADVANCED, RenderLayer.getCutout() );
+        BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.MONITOR_NORMAL, RenderType.cutout() );
+        BlockRenderLayerMap.INSTANCE.putBlock( ComputerCraftRegistry.ModBlocks.MONITOR_ADVANCED, RenderType.cutout() );
 
         // Setup TESRs
         BlockEntityRendererRegistry.register( ComputerCraftRegistry.ModTiles.MONITOR_NORMAL, TileEntityMonitorRenderer::new );
@@ -85,7 +85,7 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
         BlockEntityRendererRegistry.register( ComputerCraftRegistry.ModTiles.TURTLE_NORMAL, TileEntityTurtleRenderer::new );
         BlockEntityRendererRegistry.register( ComputerCraftRegistry.ModTiles.TURTLE_ADVANCED, TileEntityTurtleRenderer::new );
 
-        ClientSpriteRegistryCallback.event( PlayerScreenHandler.BLOCK_ATLAS_TEXTURE )
+        ClientSpriteRegistryCallback.event( InventoryMenu.BLOCK_ATLAS )
             .register( ClientRegistry::onTextureStitchEvent );
         ModelLoadingRegistry.INSTANCE.registerModelProvider( ClientRegistry::onModelBakeEvent );
         ModelLoadingRegistry.INSTANCE.registerResourceProvider( loader -> ( name, context ) -> TurtleModelLoader.INSTANCE.accepts( name ) ?
@@ -127,9 +127,9 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
     }
 
     @SafeVarargs
-    private static void registerItemProperty( String name, UnclampedModelPredicateProvider getter, Supplier<? extends Item>... items )
+    private static void registerItemProperty( String name, ClampedItemPropertyFunction getter, Supplier<? extends Item>... items )
     {
-        Identifier id = new Identifier( ComputerCraft.MOD_ID, name );
+        ResourceLocation id = new ResourceLocation( ComputerCraft.MOD_ID, name );
         for( Supplier<? extends Item> item : items )
         {
             FabricModelPredicateProviderRegistry.register( item.get(), id, getter );

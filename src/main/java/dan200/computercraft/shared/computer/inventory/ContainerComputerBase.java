@@ -17,12 +17,12 @@ import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.UploadResultMessage;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerType;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,11 +32,11 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public abstract class ContainerComputerBase extends ScreenHandler implements IContainerComputer
+public abstract class ContainerComputerBase extends AbstractContainerMenu implements IContainerComputer
 {
     private static final String LIST_PREFIX = "\n \u2022 ";
 
-    private final Predicate<PlayerEntity> canUse;
+    private final Predicate<Player> canUse;
     private final IComputer computer;
     private final ComputerFamily family;
     private final InputState input = new InputState( this );
@@ -44,7 +44,7 @@ public abstract class ContainerComputerBase extends ScreenHandler implements ICo
     private UUID toUploadId;
     private List<FileUpload> toUpload;
 
-    public ContainerComputerBase( ScreenHandlerType<? extends ContainerComputerBase> type, int id, PlayerInventory player, ComputerContainerData data )
+    public ContainerComputerBase( MenuType<? extends ContainerComputerBase> type, int id, Inventory player, ComputerContainerData data )
     {
         this( type,
             id,
@@ -53,8 +53,8 @@ public abstract class ContainerComputerBase extends ScreenHandler implements ICo
             data.getFamily() );
     }
 
-    public ContainerComputerBase( ScreenHandlerType<? extends ContainerComputerBase> type, int id, Predicate<PlayerEntity> canUse, IComputer computer,
-                                     ComputerFamily family )
+    public ContainerComputerBase( MenuType<? extends ContainerComputerBase> type, int id, Predicate<Player> canUse, IComputer computer,
+                                  ComputerFamily family )
     {
         super( type, id );
         this.canUse = canUse;
@@ -62,10 +62,10 @@ public abstract class ContainerComputerBase extends ScreenHandler implements ICo
         this.family = family;
     }
 
-    protected static IComputer getComputer( PlayerInventory player, ComputerContainerData data )
+    protected static IComputer getComputer( Inventory player, ComputerContainerData data )
     {
         int id = data.getInstanceId();
-        if( !player.player.world.isClient )
+        if( !player.player.level.isClientSide )
         {
             return ComputerCraft.serverComputerRegistry.get( id );
         }
@@ -99,14 +99,14 @@ public abstract class ContainerComputerBase extends ScreenHandler implements ICo
     }
 
     @Override
-    public void close( @Nonnull PlayerEntity player )
+    public void removed( @Nonnull Player player )
     {
-        super.close( player );
+        super.removed( player );
         input.close();
     }
 
     @Override
-    public boolean canUse( @Nonnull PlayerEntity player )
+    public boolean stillValid( @Nonnull Player player )
     {
         return canUse.test( player );
     }
@@ -131,7 +131,7 @@ public abstract class ContainerComputerBase extends ScreenHandler implements ICo
     }
 
     @Override
-    public void finishUpload( @Nonnull ServerPlayerEntity uploader, @Nonnull UUID uploadId )
+    public void finishUpload( @Nonnull ServerPlayer uploader, @Nonnull UUID uploadId )
     {
         if( toUploadId == null || toUpload == null || toUpload.isEmpty() || !toUploadId.equals( uploadId ) )
         {
@@ -144,7 +144,7 @@ public abstract class ContainerComputerBase extends ScreenHandler implements ICo
     }
 
     @Override
-    public void confirmUpload( @Nonnull ServerPlayerEntity uploader, boolean overwrite )
+    public void confirmUpload( @Nonnull ServerPlayer uploader, boolean overwrite )
     {
         if( toUploadId == null || toUpload == null || toUpload.isEmpty() )
         {
@@ -170,7 +170,7 @@ public abstract class ContainerComputerBase extends ScreenHandler implements ICo
             if( !upload.checksumMatches() )
             {
                 ComputerCraft.log.warn( "Checksum failed to match for {}.", upload.getName() );
-                return new UploadResultMessage( UploadResult.ERROR, new TranslatableText( "gui.computercraft.upload.failed.corrupted" ) );
+                return new UploadResultMessage( UploadResult.ERROR, new TranslatableComponent( "gui.computercraft.upload.failed.corrupted" ) );
             }
         }
 
@@ -186,7 +186,7 @@ public abstract class ContainerComputerBase extends ScreenHandler implements ICo
                 {
                     return new UploadResultMessage(
                         UploadResult.ERROR,
-                        new TranslatableText( "gui.computercraft.upload.failed.overwrite_dir", upload.getName() )
+                        new TranslatableComponent( "gui.computercraft.upload.failed.overwrite_dir", upload.getName() )
                     );
                 }
 
@@ -200,7 +200,7 @@ public abstract class ContainerComputerBase extends ScreenHandler implements ICo
                 toUpload = files;
                 return new UploadResultMessage(
                     UploadResult.CONFIRM_OVERWRITE,
-                    new TranslatableText( "gui.computercraft.upload.overwrite.detail", joiner.toString() )
+                    new TranslatableComponent( "gui.computercraft.upload.overwrite.detail", joiner.toString() )
                 );
             }
 
@@ -219,13 +219,13 @@ public abstract class ContainerComputerBase extends ScreenHandler implements ICo
             }
 
             return new UploadResultMessage(
-                UploadResult.SUCCESS, new TranslatableText( "gui.computercraft.upload.success.msg", files.size() )
+                UploadResult.SUCCESS, new TranslatableComponent( "gui.computercraft.upload.success.msg", files.size() )
             );
         }
         catch( FileSystemException | IOException e )
         {
             ComputerCraft.log.error( "Error uploading files", e );
-            return new UploadResultMessage( UploadResult.ERROR, new TranslatableText( "gui.computercraft.upload.failed.generic", e.getMessage() ) );
+            return new UploadResultMessage( UploadResult.ERROR, new TranslatableComponent( "gui.computercraft.upload.failed.generic", e.getMessage() ) );
         }
     }
 }

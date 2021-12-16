@@ -46,6 +46,7 @@ public class HttpResponseHandle implements ObjectSource
      * @return The response code and message.
      * @cc.treturn number The response code (i.e. 200)
      * @cc.treturn string The response message (i.e. "OK")
+     * @cc.changed 1.80pr1.13 Added response message return value.
      */
     @LuaFunction
     public final Object[] getResponseCode()

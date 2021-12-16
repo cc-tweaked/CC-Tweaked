@@ -55,6 +55,7 @@ public class BinaryWritableHandle extends HandleGeneric
      * @throws LuaException If the file has been closed.
      * @cc.tparam [1] number The byte to write.
      * @cc.tparam [2] string The string to write.
+     * @cc.changed 1.80pr1 Now accepts a string to write multiple bytes.
      */
     @LuaFunction
     public final void write( IArguments arguments ) throws LuaException
@@ -130,6 +131,7 @@ public class BinaryWritableHandle extends HandleGeneric
          * @cc.treturn [1] number The new position.
          * @cc.treturn [2] nil If seeking failed.
          * @cc.treturn string The reason seeking failed.
+         * @cc.since 1.80pr1.9
          */
         @LuaFunction
         public final Object[] seek( Optional<String> whence, Optional<Long> offset ) throws LuaException

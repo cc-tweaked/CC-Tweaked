@@ -5,16 +5,16 @@
  */
 package dan200.computercraft.client.gui.widgets;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
 import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.computer.core.ClientComputer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
@@ -24,7 +24,7 @@ import java.util.function.Consumer;
  */
 public final class ComputerSidebar
 {
-    private static final Identifier TEXTURE = new Identifier( ComputerCraft.MOD_ID, "textures/gui/buttons.png" );
+    private static final ResourceLocation TEXTURE = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/buttons.png" );
 
     private static final int TEX_SIZE = 64;
 
@@ -45,7 +45,7 @@ public final class ComputerSidebar
     {
     }
 
-    public static void addButtons( Screen screen, ClientComputer computer, Consumer<ClickableWidget> add, int x, int y )
+    public static void addButtons( Screen screen, ClientComputer computer, Consumer<AbstractWidget> add, int x, int y )
     {
         x += CORNERS_BORDER + 1;
         y += CORNERS_BORDER + ICON_MARGIN;
@@ -54,11 +54,11 @@ public final class ComputerSidebar
             screen, x, y, ICON_WIDTH, ICON_HEIGHT, () -> computer.isOn() ? 15 : 1, 1, ICON_TEX_Y_DIFF,
             TEXTURE, TEX_SIZE, TEX_SIZE, b -> toggleComputer( computer ),
             () -> computer.isOn() ? Arrays.asList(
-                new TranslatableText( "gui.computercraft.tooltip.turn_off" ),
-                ChatHelpers.coloured( new TranslatableText( "gui.computercraft.tooltip.turn_off.key" ), Formatting.GRAY )
+                new TranslatableComponent( "gui.computercraft.tooltip.turn_off" ),
+                ChatHelpers.coloured( new TranslatableComponent( "gui.computercraft.tooltip.turn_off.key" ), ChatFormatting.GRAY )
             ) : Arrays.asList(
-                new TranslatableText( "gui.computercraft.tooltip.turn_on" ),
-                ChatHelpers.coloured( new TranslatableText( "gui.computercraft.tooltip.turn_off.key" ), Formatting.GRAY )
+                new TranslatableComponent( "gui.computercraft.tooltip.turn_on" ),
+                ChatHelpers.coloured( new TranslatableComponent( "gui.computercraft.tooltip.turn_off.key" ), ChatFormatting.GRAY )
             )
         ) );
 
@@ -68,26 +68,26 @@ public final class ComputerSidebar
             screen, x, y, ICON_WIDTH, ICON_HEIGHT, 29, 1, ICON_TEX_Y_DIFF,
             TEXTURE, TEX_SIZE, TEX_SIZE, b -> computer.queueEvent( "terminate" ),
             Arrays.asList(
-                new TranslatableText( "gui.computercraft.tooltip.terminate" ),
-                ChatHelpers.coloured( new TranslatableText( "gui.computercraft.tooltip.terminate.key" ), Formatting.GRAY )
+                new TranslatableComponent( "gui.computercraft.tooltip.terminate" ),
+                ChatHelpers.coloured( new TranslatableComponent( "gui.computercraft.tooltip.terminate.key" ), ChatFormatting.GRAY )
             )
         ) );
     }
 
-    public static void renderBackground( MatrixStack transform, int x, int y )
+    public static void renderBackground( PoseStack transform, int x, int y )
     {
-        Screen.drawTexture( transform,
+        Screen.blit( transform,
             x, y, 0, 102, WIDTH, FULL_BORDER,
             ComputerBorderRenderer.TEX_SIZE, ComputerBorderRenderer.TEX_SIZE
         );
 
-        Screen.drawTexture( transform,
+        Screen.blit( transform,
             x, y + FULL_BORDER, WIDTH, HEIGHT - FULL_BORDER * 2,
             0, 107, WIDTH, 4,
             ComputerBorderRenderer.TEX_SIZE, ComputerBorderRenderer.TEX_SIZE
         );
 
-        Screen.drawTexture( transform,
+        Screen.blit( transform,
             x, y + HEIGHT - FULL_BORDER, 0, 111, WIDTH, FULL_BORDER,
             ComputerBorderRenderer.TEX_SIZE, ComputerBorderRenderer.TEX_SIZE
         );

@@ -7,16 +7,16 @@
 package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.Matrix4f;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
 import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
 
-public class GuiPrintout extends HandledScreen<ContainerHeldItem>
+public class GuiPrintout extends AbstractContainerScreen<ContainerHeldItem>
 {
     private final boolean book;
     private final int pages;
@@ -32,11 +32,11 @@ public class GuiPrintout extends HandledScreen<ContainerHeldItem>
     private final TextBuffer[] colours;
     private int page;
 
-    public GuiPrintout( ContainerHeldItem container, PlayerInventory player, Text title )
+    public GuiPrintout( ContainerHeldItem container, Inventory player, Component title )
     {
         super( container, player, title );
 
-        backgroundHeight = Y_SIZE;
+        imageHeight = Y_SIZE;
 
         String[] text = ItemPrintout.getText( container.getStack() );
         this.text = new TextBuffer[text.length];
@@ -89,37 +89,37 @@ public class GuiPrintout extends HandledScreen<ContainerHeldItem>
     }
 
     @Override
-    public void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
+    public void render( @Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks )
     {
         // We must take the background further back in order to not overlap with our printed pages.
-        setZOffset( getZOffset() - 1 );
+        setBlitOffset( getBlitOffset() - 1 );
         renderBackground( stack );
-        setZOffset( getZOffset() + 1 );
+        setBlitOffset( getBlitOffset() + 1 );
 
         super.render( stack, mouseX, mouseY, partialTicks );
     }
 
     @Override
-    protected void drawForeground( @Nonnull MatrixStack transform, int mouseX, int mouseY )
+    protected void renderLabels( @Nonnull PoseStack transform, int mouseX, int mouseY )
     {
         // Skip rendering labels.
     }
 
     @Override
-    protected void drawBackground( @Nonnull MatrixStack transform, float partialTicks, int mouseX, int mouseY )
+    protected void renderBg( @Nonnull PoseStack transform, float partialTicks, int mouseX, int mouseY )
     {
         // Draw the printout
         RenderSystem.setShaderColor( 1.0f, 1.0f, 1.0f, 1.0f );
         RenderSystem.enableDepthTest();
 
-        VertexConsumerProvider.Immediate renderer = MinecraftClient.getInstance()
-            .getBufferBuilders()
-            .getEntityVertexConsumers();
-        Matrix4f matrix = transform.peek()
-            .getModel();
-        drawBorder( matrix, renderer, x, y, getZOffset(), page, pages, book, FULL_BRIGHT_LIGHTMAP );
-        drawText( matrix, renderer, x + X_TEXT_MARGIN, y + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, text, colours );
-        renderer.draw();
+        MultiBufferSource.BufferSource renderer = Minecraft.getInstance()
+            .renderBuffers()
+            .bufferSource();
+        Matrix4f matrix = transform.last()
+            .pose();
+        drawBorder( matrix, renderer, leftPos, topPos, getBlitOffset(), page, pages, book, FULL_BRIGHT_LIGHTMAP );
+        drawText( matrix, renderer, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, text, colours );
+        renderer.endBatch();
     }
 
     @Override

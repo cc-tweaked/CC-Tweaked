@@ -3,26 +3,26 @@
     "package": "dan200.computercraft.fabric.mixin",
     "compatibilityLevel": "JAVA_16",
     "mixins": [
+        "LevelResourceAccess",
         "MinecraftServerAccess",
+
         "MixinBlock",
         "MixinEntity",
-        "MixinServerWorld",
-        "MixinWorld",
-        "SignBlockEntityAccess",
-        "WorldSavePathAccess",
-        "MixinServerPlayerInteractionManager",
-        "MixinMatrix4f"
+        "MixinLevel",
+        "MixinMatrix4f",
+        "MixinServerLevel",
+        "MixinServerPlayerGameMode"
     ],
     "client": [
-        "ChatHudAccess",
-        "HeldItemRendererAccess",
-        "MixinHeldItemRenderer",
-        "MixinItemFrameEntityRenderer",
-        "MixinMinecraftClient",
-        "MixinScreen",
+        "ChatComponentAccess",
+        "ItemInHandRendererAccess",
+
         "MixinGameRenderer",
-        "MixinWorldRenderer",
-        "MixinHandledScreen"
+        "MixinItemFrameRenderer",
+        "MixinItemInHandRenderer",
+        "MixinLevelRenderer",
+        "MixinMinecraft",
+        "MixinScreen"
     ],
     "server": [
         "MixinLanguage"

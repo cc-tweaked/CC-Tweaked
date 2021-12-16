@@ -14,21 +14,21 @@ import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.util.FakeNetHandler;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.block.entity.SignBlockEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.passive.HorseBaseEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -41,18 +41,18 @@ public final class TurtlePlayer extends FakePlayer
     private static final GameProfile DEFAULT_PROFILE = new GameProfile( UUID.fromString( "0d0c4ca0-4ff1-11e4-916c-0800200c9a66" ), "[ComputerCraft]" );
 
     // TODO [M3R1-01] Fix Turtle not giving player achievement for actions
-    private TurtlePlayer( ServerWorld world, GameProfile name )
+    private TurtlePlayer( ServerLevel world, GameProfile name )
     {
         super( world, name );
     }
 
     private static TurtlePlayer create( ITurtleAccess turtle )
     {
-        ServerWorld world = (ServerWorld) turtle.getWorld();
+        ServerLevel world = (ServerLevel) turtle.getLevel();
         GameProfile profile = turtle.getOwningPlayer();
 
         TurtlePlayer player = new TurtlePlayer( world, getProfile( profile ) );
-        player.networkHandler = new FakeNetHandler( player );
+        player.connection = new FakeNetHandler( player );
         player.setState( turtle );
 
         if( profile != null && profile.getId() != null )
@@ -60,8 +60,8 @@ public final class TurtlePlayer extends FakePlayer
             // Constructing a player overrides the "active player" variable in advancements. As fake players cannot
             // get advancements, this prevents a normal player who has placed a turtle from getting advancements.
             // We try to locate the "actual" player and restore them.
-            ServerPlayerEntity actualPlayer = world.getServer().getPlayerManager().getPlayer( player.getUuid() );
-            if( actualPlayer != null ) player.getAdvancementTracker().setOwner( actualPlayer );
+            ServerPlayer actualPlayer = world.getServer().getPlayerList().getPlayer( player.getUUID() );
+            if( actualPlayer != null ) player.getAdvancements().setPlayer( actualPlayer );
         }
 
         return player;
@@ -74,20 +74,20 @@ public final class TurtlePlayer extends FakePlayer
 
     private void setState( ITurtleAccess turtle )
     {
-        if( currentScreenHandler != playerScreenHandler )
+        if( containerMenu != inventoryMenu )
         {
-            ComputerCraft.log.warn( "Turtle has open container ({})", currentScreenHandler );
-            closeHandledScreen();
+            ComputerCraft.log.warn( "Turtle has open container ({})", containerMenu );
+            closeContainer();
         }
 
         BlockPos position = turtle.getPosition();
-        setPos( position.getX() + 0.5, position.getY() + 0.5, position.getZ() + 0.5 );
+        setPosRaw( position.getX() + 0.5, position.getY() + 0.5, position.getZ() + 0.5 );
 
-        setYaw( turtle.getDirection()
-            .asRotation() );
-        setPitch( 0.0f );
+        setYRot( turtle.getDirection()
+            .toYRot() );
+        setXRot( 0.0f );
 
-        getInventory().clear();
+        getInventory().clearContent();
     }
 
     public static TurtlePlayer get( ITurtleAccess access )
@@ -96,7 +96,7 @@ public final class TurtlePlayer extends FakePlayer
 
         TurtleBrain brain = (TurtleBrain) access;
         TurtlePlayer player = brain.cachedPlayer;
-        if( player == null || player.getGameProfile() != getProfile( access.getOwningPlayer() ) || player.getEntityWorld() != access.getWorld() )
+        if( player == null || player.getGameProfile() != getProfile( access.getOwningPlayer() ) || player.getCommandSenderWorld() != access.getLevel() )
         {
             player = brain.cachedPlayer = create( brain );
         }
@@ -111,34 +111,34 @@ public final class TurtlePlayer extends FakePlayer
     public void loadInventory( @Nonnull ItemStack currentStack )
     {
         // Load up the fake inventory
-        getInventory().selectedSlot = 0;
-        getInventory().setStack( 0, currentStack );
+        getInventory().selected = 0;
+        getInventory().setItem( 0, currentStack );
     }
 
     public ItemStack unloadInventory( ITurtleAccess turtle )
     {
         // Get the item we placed with
-        ItemStack results = getInventory().getStack( 0 );
-        getInventory().setStack( 0, ItemStack.EMPTY );
+        ItemStack results = getInventory().getItem( 0 );
+        getInventory().setItem( 0, ItemStack.EMPTY );
 
         // Store (or drop) anything else we found
         BlockPos dropPosition = turtle.getPosition();
         Direction dropDirection = turtle.getDirection()
             .getOpposite();
-        for( int i = 0; i < getInventory().size(); i++ )
+        for( int i = 0; i < getInventory().getContainerSize(); i++ )
         {
-            ItemStack stack = getInventory().getStack( i );
+            ItemStack stack = getInventory().getItem( i );
             if( !stack.isEmpty() )
             {
                 ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
                 if( !remainder.isEmpty() )
                 {
-                    WorldUtil.dropItemStack( remainder, turtle.getWorld(), dropPosition, dropDirection );
+                    WorldUtil.dropItemStack( remainder, turtle.getLevel(), dropPosition, dropDirection );
                 }
-                getInventory().setStack( i, ItemStack.EMPTY );
+                getInventory().setItem( i, ItemStack.EMPTY );
             }
         }
-        getInventory().markDirty();
+        getInventory().setChanged();
         return results;
     }
 
@@ -150,30 +150,30 @@ public final class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    public float getEyeHeight( @Nonnull EntityPose pose )
+    public float getEyeHeight( @Nonnull Pose pose )
     {
         return 0;
     }
 
     @Override
-    public Vec3d getPos()
+    public Vec3 position()
     {
-        return new Vec3d( getX(), getY(), getZ() );
+        return new Vec3( getX(), getY(), getZ() );
     }
 
     @Override
-    public float getActiveEyeHeight( @Nonnull EntityPose pose, @Nonnull EntityDimensions size )
+    public float getStandingEyeHeight( @Nonnull Pose pose, @Nonnull EntityDimensions size )
     {
         return 0;
     }
 
     @Override
-    public void enterCombat()
+    public void onEnterCombat()
     {
     }
 
     @Override
-    public void endCombat()
+    public void onLeaveCombat()
     {
     }
 
@@ -189,30 +189,30 @@ public final class TurtlePlayer extends FakePlayer
     }
 
     @Override
-    public void openEditSignScreen( @Nonnull SignBlockEntity signTile )
+    public void openTextEdit( @Nonnull SignBlockEntity signTile )
     {
     }
 
     //region Code which depends on the connection
     @Nonnull
     @Override
-    public OptionalInt openHandledScreen( @Nullable NamedScreenHandlerFactory prover )
+    public OptionalInt openMenu( @Nullable MenuProvider prover )
     {
         return OptionalInt.empty();
     }
 
     @Override
-    public void openHorseInventory( @Nonnull HorseBaseEntity horse, @Nonnull Inventory inventory )
+    public void openHorseInventory( @Nonnull AbstractHorse horse, @Nonnull Container inventory )
     {
     }
 
     @Override
-    public void closeHandledScreen()
+    public void closeContainer()
     {
     }
 
     @Override
-    protected void onStatusEffectRemoved( @Nonnull StatusEffectInstance effect )
+    protected void onEffectRemoved( @Nonnull MobEffectInstance effect )
     {
     }
     //endregion

@@ -5,14 +5,14 @@
  */
 package dan200.computercraft.client.render;
 
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector4f;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormatElement;
-import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.render.model.BakedQuad;
-import net.minecraft.util.math.Matrix4f;
-import net.minecraft.util.math.Vector4f;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public final class ModelTransformer
     static
     {
         identity = new Matrix4f();
-        identity.loadIdentity();
+        identity.setIdentity();
     }
 
     private ModelTransformer()
@@ -36,7 +36,7 @@ public final class ModelTransformer
 
     public static void transformQuadsTo( List<BakedQuad> output, List<BakedQuad> input, Matrix4f transform )
     {
-        transformQuadsTo( VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL, output, input, transform );
+        transformQuadsTo( DefaultVertexFormat.BLOCK, output, input, transform );
     }
 
     public static void transformQuadsTo( VertexFormat format, List<BakedQuad> output, List<BakedQuad> input, Matrix4f transform )
@@ -56,8 +56,8 @@ public final class ModelTransformer
 
     private static BakedQuad doTransformQuad( VertexFormat format, BakedQuad quad, Matrix4f transform )
     {
-        int[] vertexData = quad.getVertexData().clone();
-        BakedQuad copy = new BakedQuad( vertexData, -1, quad.getFace(), quad.getSprite(), true );
+        int[] vertexData = quad.getVertices().clone();
+        BakedQuad copy = new BakedQuad( vertexData, -1, quad.getDirection(), quad.getSprite(), true );
 
         int offsetBytes = 0;
         for( int v = 0; v < 4; ++v )
@@ -65,7 +65,7 @@ public final class ModelTransformer
             for( VertexFormatElement element : format.getElements() ) // For each vertex element
             {
                 int start = offsetBytes / Integer.BYTES;
-                if( element.getType() == VertexFormatElement.Type.POSITION && element.getDataType() == VertexFormatElement.DataType.FLOAT ) // When we find a position element
+                if( element.getUsage() == VertexFormatElement.Usage.POSITION && element.getType() == VertexFormatElement.Type.FLOAT ) // When we find a position element
                 {
                     Vector4f pos = new Vector4f( Float.intBitsToFloat( vertexData[start] ),
                         Float.intBitsToFloat( vertexData[start + 1] ),
@@ -76,11 +76,11 @@ public final class ModelTransformer
                     pos.transform( transform );
 
                     // Insert the position
-                    vertexData[start] = Float.floatToRawIntBits( pos.getX() );
-                    vertexData[start + 1] = Float.floatToRawIntBits( pos.getY() );
-                    vertexData[start + 2] = Float.floatToRawIntBits( pos.getZ() );
+                    vertexData[start] = Float.floatToRawIntBits( pos.x() );
+                    vertexData[start + 1] = Float.floatToRawIntBits( pos.y() );
+                    vertexData[start + 2] = Float.floatToRawIntBits( pos.z() );
                 }
-                offsetBytes += element.getByteLength();
+                offsetBytes += element.getByteSize();
             }
         }
         return copy;

@@ -6,21 +6,25 @@
 
 package dan200.computercraft.client.render;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Matrix4f;
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.*;
-import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 @Environment( EnvType.CLIENT )
 public final class CableHighlightRenderer
@@ -29,21 +33,21 @@ public final class CableHighlightRenderer
     {
     }
 
-    public static boolean drawHighlight( MatrixStack stack, VertexConsumer consumer, Entity entity, double d, double e, double f, BlockPos pos,
+    public static boolean drawHighlight( PoseStack stack, VertexConsumer consumer, Entity entity, double d, double e, double f, BlockPos pos,
                                          BlockState state )
     {
-        Camera info = MinecraftClient.getInstance().gameRenderer.getCamera();
+        Camera info = Minecraft.getInstance().gameRenderer.getMainCamera();
 
         // We only care about instances with both cable and modem.
-        if( state.getBlock() != ComputerCraftRegistry.ModBlocks.CABLE || state.get( BlockCable.MODEM )
-            .getFacing() == null || !state.get( BlockCable.CABLE ) )
+        if( state.getBlock() != ComputerCraftRegistry.ModBlocks.CABLE || state.getValue( BlockCable.MODEM )
+            .getFacing() == null || !state.getValue( BlockCable.CABLE ) )
         {
             return false;
         }
 
-        HitResult hitResult = MinecraftClient.getInstance().crosshairTarget;
+        HitResult hitResult = Minecraft.getInstance().hitResult;
 
-        Vec3d hitPos = hitResult != null ? hitResult.getPos() : new Vec3d( d, e, f );
+        Vec3 hitPos = hitResult != null ? hitResult.getLocation() : new Vec3( d, e, f );
 
         VoxelShape shape = WorldUtil.isVecInside( CableShapes.getModemShape( state ),
             hitPos.subtract( pos.getX(),
@@ -51,19 +55,19 @@ public final class CableHighlightRenderer
                 pos.getZ() ) ) ? CableShapes.getModemShape( state ) : CableShapes.getCableShape(
             state );
 
-        Vec3d cameraPos = info.getPos();
+        Vec3 cameraPos = info.getPosition();
 
-        double xOffset = pos.getX() - cameraPos.getX();
-        double yOffset = pos.getY() - cameraPos.getY();
-        double zOffset = pos.getZ() - cameraPos.getZ();
-        Matrix4f matrix4f = stack.peek()
-            .getModel();
-        Matrix3f normal = stack.peek().getNormal();
-        shape.forEachEdge( ( x1, y1, z1, x2, y2, z2 ) -> {
+        double xOffset = pos.getX() - cameraPos.x();
+        double yOffset = pos.getY() - cameraPos.y();
+        double zOffset = pos.getZ() - cameraPos.z();
+        Matrix4f matrix4f = stack.last()
+            .pose();
+        Matrix3f normal = stack.last().normal();
+        shape.forAllEdges( ( x1, y1, z1, x2, y2, z2 ) -> {
             float xDelta = (float) (x2 - x1);
             float yDelta = (float) (y2 - y1);
             float zDelta = (float) (z2 - z1);
-            float len = MathHelper.sqrt( xDelta * xDelta + yDelta * yDelta + zDelta * zDelta );
+            float len = Mth.sqrt( xDelta * xDelta + yDelta * yDelta + zDelta * zDelta );
             xDelta = xDelta / len;
             yDelta = yDelta / len;
             zDelta = zDelta / len;
@@ -71,11 +75,11 @@ public final class CableHighlightRenderer
             consumer.vertex( matrix4f, (float) (x1 + xOffset), (float) (y1 + yOffset), (float) (z1 + zOffset) )
                 .color( 0, 0, 0, 0.4f )
                 .normal( normal, xDelta, yDelta, zDelta )
-                .next();
+                .endVertex();
             consumer.vertex( matrix4f, (float) (x2 + xOffset), (float) (y2 + yOffset), (float) (z2 + zOffset) )
                 .color( 0, 0, 0, 0.4f )
                 .normal( normal, xDelta, yDelta, zDelta )
-                .next();
+                .endVertex();
         } );
 
         return true;

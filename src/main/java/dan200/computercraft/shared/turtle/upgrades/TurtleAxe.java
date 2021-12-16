@@ -3,26 +3,25 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.upgrades;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 public class TurtleAxe extends TurtleTool
 {
-    public TurtleAxe( Identifier id, String adjective, Item item )
+    public TurtleAxe( ResourceLocation id, String adjective, Item item )
     {
         super( id, adjective, item );
     }
 
-    public TurtleAxe( Identifier id, Item item )
+    public TurtleAxe( ResourceLocation id, Item item )
     {
         super( id, item );
     }
 
-    public TurtleAxe( Identifier id, ItemStack craftItem, ItemStack toolItem )
+    public TurtleAxe( ResourceLocation id, ItemStack craftItem, ItemStack toolItem )
     {
         super( id, craftItem, toolItem );
     }

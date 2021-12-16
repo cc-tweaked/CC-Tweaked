@@ -9,7 +9,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
-import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayDeque;

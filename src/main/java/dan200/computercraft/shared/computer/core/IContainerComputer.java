@@ -8,7 +8,7 @@ package dan200.computercraft.shared.computer.core;
 
 import dan200.computercraft.shared.computer.upload.FileSlice;
 import dan200.computercraft.shared.computer.upload.FileUpload;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -61,7 +61,7 @@ public interface IContainerComputer
      * @param uploader The player uploading files.
      * @param uploadId The unique ID of this upload.
      */
-    void finishUpload( @Nonnull ServerPlayerEntity uploader, @Nonnull UUID uploadId );
+    void finishUpload( @Nonnull ServerPlayer uploader, @Nonnull UUID uploadId );
 
     /**
      * Continue an upload.
@@ -69,5 +69,5 @@ public interface IContainerComputer
      * @param uploader  The player uploading files.
      * @param overwrite Whether the files should be overwritten or not.
      */
-    void confirmUpload( @Nonnull ServerPlayerEntity uploader, boolean overwrite );
+    void confirmUpload( @Nonnull ServerPlayer uploader, boolean overwrite );
 }

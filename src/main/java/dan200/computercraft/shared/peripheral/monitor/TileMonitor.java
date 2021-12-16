@@ -15,17 +15,17 @@ import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.network.client.TerminalState;
 import dan200.computercraft.shared.util.TickScheduler;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nonnull;
 import java.util.HashSet;
@@ -74,16 +74,16 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
             return;
         }
         destroyed = true;
-        if( !getWorld().isClient )
+        if( !getLevel().isClientSide )
         {
             contractNeighbours();
         }
     }
 
     @Override
-    public void markRemoved()
+    public void setRemoved()
     {
-        super.markRemoved();
+        super.setRemoved();
         if( clientMonitor != null && xIndex == 0 && yIndex == 0 )
         {
             clientMonitor.destroy();
@@ -103,23 +103,23 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
     @Nonnull
     @Override
-    public ActionResult onActivate( PlayerEntity player, Hand hand, BlockHitResult hit )
+    public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
     {
-        if( !player.isInSneakingPose() && getFront() == hit.getSide() )
+        if( !player.isCrouching() && getFront() == hit.getDirection() )
         {
-            if( !getWorld().isClient )
+            if( !getLevel().isClientSide )
             {
-                monitorTouched( (float) (hit.getPos().x - hit.getBlockPos()
+                monitorTouched( (float) (hit.getLocation().x - hit.getBlockPos()
                         .getX()),
-                    (float) (hit.getPos().y - hit.getBlockPos()
+                    (float) (hit.getLocation().y - hit.getBlockPos()
                         .getY()),
-                    (float) (hit.getPos().z - hit.getBlockPos()
+                    (float) (hit.getLocation().z - hit.getBlockPos()
                         .getZ()) );
             }
-            return ActionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 
     @Override
@@ -172,7 +172,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    protected final void readDescription( @Nonnull NbtCompound nbt )
+    protected final void readDescription( @Nonnull CompoundTag nbt )
     {
         super.readDescription( nbt );
 
@@ -215,7 +215,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     }
 
     @Override
-    protected void writeDescription( @Nonnull NbtCompound nbt )
+    protected void writeDescription( @Nonnull CompoundTag nbt )
     {
         super.writeDescription( nbt );
         nbt.putInt( NBT_X, xIndex );
@@ -231,18 +231,18 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
     private MonitorState getNeighbour( int x, int y )
     {
-        BlockPos pos = getPos();
+        BlockPos pos = getBlockPos();
         Direction right = getRight();
         Direction down = getDown();
         int xOffset = -xIndex + x;
         int yOffset = -yIndex + y;
-        return getSimilarMonitorAt( pos.offset( right, xOffset )
-            .offset( down, yOffset ) );
+        return getSimilarMonitorAt( pos.relative( right, xOffset )
+            .relative( down, yOffset ) );
     }
 
     public Direction getRight()
     {
-        return getDirection().rotateYCounterclockwise();
+        return getDirection().getCounterClockWise();
     }
 
     public Direction getDown()
@@ -257,13 +257,13 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
     private MonitorState getSimilarMonitorAt( BlockPos pos )
     {
-        if( pos.equals( getPos() ) )
+        if( pos.equals( getBlockPos() ) )
         {
             return MonitorState.present( this );
         }
 
-        World world = getWorld();
-        if( world == null || !world.isChunkLoaded( pos ) )
+        Level world = getLevel();
+        if( world == null || !world.hasChunkAt( pos ) )
         {
             return MonitorState.UNLOADED;
         }
@@ -283,19 +283,19 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     {
         // Ensure we're actually a monitor block. This _should_ always be the case, but sometimes there's
         // fun problems with the block being missing on the client.
-        BlockState state = getCachedState();
-        return state.contains( BlockMonitor.FACING ) ? state.get( BlockMonitor.FACING ) : Direction.NORTH;
+        BlockState state = getBlockState();
+        return state.hasProperty( BlockMonitor.FACING ) ? state.getValue( BlockMonitor.FACING ) : Direction.NORTH;
     }
 
     public Direction getOrientation()
     {
-        return getCachedState().get( BlockMonitor.ORIENTATION );
+        return getBlockState().getValue( BlockMonitor.ORIENTATION );
     }
 
     @Override
-    public void readNbt( @Nonnull NbtCompound nbt )
+    public void load( @Nonnull CompoundTag nbt )
     {
-        super.readNbt( nbt );
+        super.load( nbt );
 
         xIndex = nbt.getInt( NBT_X );
         yIndex = nbt.getInt( NBT_Y );
@@ -307,13 +307,13 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
     @Nonnull
     @Override
-    public NbtCompound writeNbt( NbtCompound nbt )
+    public CompoundTag save( CompoundTag nbt )
     {
         nbt.putInt( NBT_X, xIndex );
         nbt.putInt( NBT_Y, yIndex );
         nbt.putInt( NBT_WIDTH, width );
         nbt.putInt( NBT_HEIGHT, height );
-        return super.writeNbt( nbt );
+        return super.save( nbt );
     }
 
     //    @Override //TODO: make BlockEntityRenderer work with this, i guess.
@@ -325,9 +325,9 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     // Sizing and placement stuff
 
     @Override
-    public void cancelRemoval()
+    public void clearRemoved()
     {
-        super.cancelRemoval();
+        super.clearRemoved();
         needsValidating = true;
         TickScheduler.schedule( this );
     }
@@ -397,9 +397,9 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
         {
             // Otherwise fetch the origin and attempt to get its monitor
             // Note this may load chunks, but we don't really have a choice here.
-            BlockPos pos = getPos();
-            BlockEntity te = world.getBlockEntity( pos.offset( getRight(), -xIndex )
-                .offset( getDown(), -yIndex ) );
+            BlockPos pos = getBlockPos();
+            BlockEntity te = level.getBlockEntity( pos.relative( getRight(), -xIndex )
+                .relative( getDown(), -yIndex ) );
             if( !(te instanceof TileMonitor) )
             {
                 return null;
@@ -416,9 +416,9 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
             return clientMonitor;
         }
 
-        BlockPos pos = getPos();
-        BlockEntity te = world.getBlockEntity( pos.offset( getRight(), -xIndex )
-            .offset( getDown(), -yIndex ) );
+        BlockPos pos = getBlockPos();
+        BlockEntity te = level.getBlockEntity( pos.relative( getRight(), -xIndex )
+            .relative( getDown(), -yIndex ) );
         if( !(te instanceof TileMonitor) )
         {
             return null;
@@ -431,7 +431,7 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
     {
         if( xIndex != 0 || yIndex != 0 )
         {
-            ComputerCraft.log.warn( "Receiving monitor state for non-origin terminal at {}", getPos() );
+            ComputerCraft.log.warn( "Receiving monitor state for non-origin terminal at {}", getBlockPos() );
             return;
         }
 
@@ -444,8 +444,8 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
 
     private void updateBlockState()
     {
-        getWorld().setBlockState( getPos(),
-            getCachedState().with( BlockMonitor.STATE,
+        getLevel().setBlock( getBlockPos(),
+            getBlockState().setValue( BlockMonitor.STATE,
                 MonitorEdgeState.fromConnections( yIndex < height - 1,
                     yIndex > 0, xIndex > 0, xIndex < width - 1 ) ),
             2 );

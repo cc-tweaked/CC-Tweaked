@@ -3,13 +3,12 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.pocket;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.IUpgradeBase;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -24,8 +23,9 @@ public interface IPocketUpgrade extends IUpgradeBase
     /**
      * Creates a peripheral for the pocket computer.
      *
-     * The peripheral created will be stored for the lifetime of the upgrade, will be passed an argument to {@link #update(IPocketAccess, IPeripheral)} and
-     * will be attached, detached and have methods called in the same manner as an ordinary peripheral.
+     * The peripheral created will be stored for the lifetime of the upgrade, will be passed an argument to
+     * {@link #update(IPocketAccess, IPeripheral)} and will be attached, detached and have methods called in the same
+     * manner as an ordinary peripheral.
      *
      * @param access The access object for the pocket item stack.
      * @return The newly created peripheral.
@@ -51,11 +51,12 @@ public interface IPocketUpgrade extends IUpgradeBase
      * @param world      The world the computer is in.
      * @param access     The access object for the pocket item stack.
      * @param peripheral The peripheral for this upgrade.
-     * @return {@code true} to stop the GUI from opening, otherwise false. You should always provide some code path which returns {@code false}, such as
-     * requiring the player to be sneaking - otherwise they will be unable to access the GUI.
+     * @return {@code true} to stop the GUI from opening, otherwise false. You should always provide some code path
+     * which returns {@code false}, such as requiring the player to be sneaking - otherwise they will be unable to
+     * access the GUI.
      * @see #createPeripheral(IPocketAccess)
      */
-    default boolean onRightClick( @Nonnull World world, @Nonnull IPocketAccess access, @Nullable IPeripheral peripheral )
+    default boolean onRightClick( @Nonnull Level world, @Nonnull IPocketAccess access, @Nullable IPeripheral peripheral )
     {
         return false;
     }

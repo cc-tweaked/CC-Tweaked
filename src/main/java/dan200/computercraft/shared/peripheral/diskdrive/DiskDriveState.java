@@ -6,11 +6,11 @@
 
 package dan200.computercraft.shared.peripheral.diskdrive;
 
-import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.StringRepresentable;
 
 import javax.annotation.Nonnull;
 
-public enum DiskDriveState implements StringIdentifiable
+public enum DiskDriveState implements StringRepresentable
 {
     EMPTY( "empty" ), FULL( "full" ), INVALID( "invalid" );
 
@@ -23,7 +23,7 @@ public enum DiskDriveState implements StringIdentifiable
 
     @Override
     @Nonnull
-    public String asString()
+    public String getSerializedName()
     {
         return name;
     }

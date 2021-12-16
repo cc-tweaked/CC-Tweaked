@@ -9,30 +9,34 @@ import com.mojang.authlib.GameProfile;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import net.minecraft.block.entity.CommandBlockBlockEntity;
-import net.minecraft.block.entity.SignBlockEntity;
-import net.minecraft.command.argument.EntityAnchorArgumentType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.passive.HorseBaseEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.*;
-import net.minecraft.network.packet.c2s.play.RequestCommandCompletionsC2SPacket;
-import net.minecraft.network.packet.c2s.play.VehicleMoveC2SPacket;
-import net.minecraft.recipe.Recipe;
-import net.minecraft.screen.NamedScreenHandlerFactory;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.Text;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.village.TradeOfferList;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.network.Connection;
+import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.game.ServerboundCommandSuggestionPacket;
+import net.minecraft.network.protocol.game.ServerboundMoveVehiclePacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.trading.MerchantOffers;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.entity.CommandBlockEntity;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import javax.crypto.Cipher;
@@ -41,26 +45,26 @@ import java.util.OptionalInt;
 import java.util.UUID;
 
 /**
- * A wrapper for {@link ServerPlayerEntity} which denotes a "fake" player.
+ * A wrapper for {@link ServerPlayer} which denotes a "fake" player.
  *
  * Please note that this does not implement any of the traditional fake player behaviour. It simply exists to prevent me passing in normal players.
  */
-public class FakePlayer extends ServerPlayerEntity
+public class FakePlayer extends ServerPlayer
 {
-    public FakePlayer( ServerWorld world, GameProfile gameProfile )
+    public FakePlayer( ServerLevel world, GameProfile gameProfile )
     {
         super( world.getServer(), world, gameProfile );
-        networkHandler = new FakeNetHandler( this );
+        connection = new FakeNetHandler( this );
     }
 
     // region Direct networkHandler access
     @Override
-    public void enterCombat()
+    public void onEnterCombat()
     {
     }
 
     @Override
-    public void endCombat()
+    public void onLeaveCombat()
     {
     }
 
@@ -70,23 +74,23 @@ public class FakePlayer extends ServerPlayerEntity
     }
 
     @Override
-    public void playerTick()
+    public void doTick()
     {
     }
 
     @Override
-    public void onDeath( DamageSource damage )
+    public void die( DamageSource damage )
     {
     }
 
     @Override
-    public Entity moveToWorld( ServerWorld destination )
+    public Entity changeDimension( ServerLevel destination )
     {
         return this;
     }
 
     @Override
-    public void wakeUp( boolean bl, boolean updateSleepingPlayers )
+    public void stopSleepInBed( boolean bl, boolean updateSleepingPlayers )
     {
 
     }
@@ -103,33 +107,33 @@ public class FakePlayer extends ServerPlayerEntity
     }
 
     @Override
-    public void openEditSignScreen( SignBlockEntity tile )
+    public void openTextEdit( SignBlockEntity tile )
     {
     }
 
     @Override
-    public OptionalInt openHandledScreen( @Nullable NamedScreenHandlerFactory container )
+    public OptionalInt openMenu( @Nullable MenuProvider container )
     {
         return OptionalInt.empty();
     }
 
     @Override
-    public void sendTradeOffers( int id, TradeOfferList list, int level, int experience, boolean levelled, boolean refreshable )
+    public void sendMerchantOffers( int id, MerchantOffers list, int level, int experience, boolean levelled, boolean refreshable )
     {
     }
 
     @Override
-    public void openHorseInventory( HorseBaseEntity horse, Inventory inventory )
+    public void openHorseInventory( AbstractHorse horse, Container inventory )
     {
     }
 
     @Override
-    public void useBook( ItemStack stack, Hand hand )
+    public void openItemGui( ItemStack stack, InteractionHand hand )
     {
     }
 
     @Override
-    public void openCommandBlockScreen( CommandBlockBlockEntity block )
+    public void openCommandBlock( CommandBlockEntity block )
     {
     }
 
@@ -149,7 +153,7 @@ public class FakePlayer extends ServerPlayerEntity
     //    }
 
     @Override
-    public void closeHandledScreen()
+    public void closeContainer()
     {
     }
 
@@ -159,55 +163,55 @@ public class FakePlayer extends ServerPlayerEntity
     //    }
 
     @Override
-    public int unlockRecipes( Collection<Recipe<?>> recipes )
+    public int awardRecipes( Collection<Recipe<?>> recipes )
     {
         return 0;
     }
 
     // Indirect
     @Override
-    public int lockRecipes( Collection<Recipe<?>> recipes )
+    public int resetRecipes( Collection<Recipe<?>> recipes )
     {
         return 0;
     }
 
     @Override
-    public void sendMessage( Text textComponent, boolean status )
+    public void displayClientMessage( Component textComponent, boolean status )
     {
     }
 
     @Override
-    protected void consumeItem()
+    protected void completeUsingItem()
     {
     }
 
     @Override
-    public void lookAt( EntityAnchorArgumentType.EntityAnchor anchor, Vec3d vec3d )
+    public void lookAt( EntityAnchorArgument.Anchor anchor, Vec3 vec3d )
     {
     }
 
     @Override
-    public void lookAtEntity( EntityAnchorArgumentType.EntityAnchor self, Entity entity, EntityAnchorArgumentType.EntityAnchor target )
+    public void lookAt( EntityAnchorArgument.Anchor self, Entity entity, EntityAnchorArgument.Anchor target )
     {
     }
 
     @Override
-    protected void onStatusEffectApplied( StatusEffectInstance statusEffectInstance, @Nullable Entity source )
+    protected void onEffectAdded( MobEffectInstance statusEffectInstance, @Nullable Entity source )
     {
     }
 
     @Override
-    protected void onStatusEffectUpgraded( StatusEffectInstance statusEffectInstance, boolean particles, @Nullable Entity source )
+    protected void onEffectUpdated( MobEffectInstance statusEffectInstance, boolean particles, @Nullable Entity source )
     {
     }
 
     @Override
-    protected void onStatusEffectRemoved( StatusEffectInstance statusEffectInstance )
+    protected void onEffectRemoved( MobEffectInstance statusEffectInstance )
     {
     }
 
     @Override
-    public void requestTeleport( double x, double y, double z )
+    public void teleportTo( double x, double y, double z )
     {
     }
 
@@ -217,13 +221,13 @@ public class FakePlayer extends ServerPlayerEntity
     //    }
 
     @Override
-    public void sendMessage( Text message, MessageType type, UUID senderUuid )
+    public void sendMessage( Component message, ChatType type, UUID senderUuid )
     {
 
     }
 
     @Override
-    public String getIp()
+    public String getIpAddress()
     {
         return "[Fake Player]";
     }
@@ -239,63 +243,63 @@ public class FakePlayer extends ServerPlayerEntity
     //    }
 
     @Override
-    public void setCameraEntity( Entity entity )
+    public void setCamera( Entity entity )
     {
     }
 
     @Override
-    public void teleport( ServerWorld serverWorld, double x, double y, double z, float pitch, float yaw )
+    public void teleportTo( ServerLevel serverWorld, double x, double y, double z, float pitch, float yaw )
     {
     }
 
     @Override
-    public void sendInitialChunkPackets( ChunkPos chunkPos, Packet<?> packet, Packet<?> packet2 )
+    public void trackChunk( ChunkPos chunkPos, Packet<?> packet, Packet<?> packet2 )
     {
     }
 
     @Override
-    public void sendUnloadChunkPacket( ChunkPos chunkPos )
+    public void untrackChunk( ChunkPos chunkPos )
     {
     }
 
     @Override
-    public void playSound( SoundEvent soundEvent, SoundCategory soundCategory, float volume, float pitch )
+    public void playNotifySound( SoundEvent soundEvent, SoundSource soundCategory, float volume, float pitch )
     {
     }
 
-    private static class FakeNetHandler extends ServerPlayNetworkHandler
+    private static class FakeNetHandler extends ServerGamePacketListenerImpl
     {
-        FakeNetHandler( ServerPlayerEntity player )
+        FakeNetHandler( ServerPlayer player )
         {
             super( player.server, new FakeConnection(), player );
         }
 
         @Override
-        public void disconnect( Text message )
+        public void disconnect( Component message )
         {
         }
 
         @Override
-        public void onVehicleMove( VehicleMoveC2SPacket move )
+        public void handleMoveVehicle( ServerboundMoveVehiclePacket move )
         {
         }
 
         @Override
-        public void onRequestCommandCompletions( RequestCommandCompletionsC2SPacket packet )
+        public void handleCustomCommandSuggestions( ServerboundCommandSuggestionPacket packet )
         {
         }
 
         @Override
-        public void sendPacket( Packet<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> listener )
+        public void send( Packet<?> packet, @Nullable GenericFutureListener<? extends Future<? super Void>> listener )
         {
         }
     }
 
-    private static class FakeConnection extends ClientConnection
+    private static class FakeConnection extends Connection
     {
         FakeConnection()
         {
-            super( NetworkSide.CLIENTBOUND );
+            super( PacketFlow.CLIENTBOUND );
         }
 
         @Override
@@ -304,7 +308,7 @@ public class FakePlayer extends ServerPlayerEntity
         }
 
         @Override
-        public void setState( NetworkState state )
+        public void setProtocol( ConnectionProtocol state )
         {
         }
 
@@ -329,18 +333,18 @@ public class FakePlayer extends ServerPlayerEntity
         }
 
         @Override
-        public void disconnect( Text message )
+        public void disconnect( Component message )
         {
         }
 
         @Override
-        public void setupEncryption( Cipher cipher, Cipher cipher2 )
+        public void setEncryptionKey( Cipher cipher, Cipher cipher2 )
         {
-            super.setupEncryption( cipher, cipher2 );
+            super.setEncryptionKey( cipher, cipher2 );
         }
 
         @Override
-        public void disableAutoRead()
+        public void setReadOnly()
         {
         }
     }

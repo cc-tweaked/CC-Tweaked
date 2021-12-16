@@ -7,16 +7,13 @@
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.*;
-import dan200.computercraft.api.turtle.event.TurtleAction;
-import dan200.computercraft.api.turtle.event.TurtleActionEvent;
-import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.ItemStorage;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
@@ -36,8 +33,8 @@ public class TurtleEquipCommand implements ITurtleCommand
         // Determine the upgrade to equipLeft
         ITurtleUpgrade newUpgrade;
         ItemStack newUpgradeStack;
-        Inventory inventory = turtle.getInventory();
-        ItemStack selectedStack = inventory.getStack( turtle.getSelectedSlot() );
+        Container inventory = turtle.getInventory();
+        ItemStack selectedStack = inventory.getItem( turtle.getSelectedSlot() );
         if( !selectedStack.isEmpty() )
         {
             newUpgradeStack = selectedStack.copy();
@@ -66,12 +63,6 @@ public class TurtleEquipCommand implements ITurtleCommand
             oldUpgradeStack = null;
         }
 
-        TurtleActionEvent event = new TurtleActionEvent( turtle, TurtleAction.EQUIP );
-        if( TurtleEvent.post( event ) )
-        {
-            return TurtleCommandResult.failure( event.getFailureMessage() );
-        }
-
         // Do the swapping:
         if( newUpgradeStack != null )
         {
@@ -86,7 +77,7 @@ public class TurtleEquipCommand implements ITurtleCommand
             {
                 // If there's no room for the items, drop them
                 BlockPos position = turtle.getPosition();
-                WorldUtil.dropItemStack( remainder, turtle.getWorld(), position, turtle.getDirection() );
+                WorldUtil.dropItemStack( remainder, turtle.getLevel(), position, turtle.getDirection() );
             }
         }
         turtle.setUpgrade( side, newUpgrade );

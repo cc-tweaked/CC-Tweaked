@@ -14,11 +14,11 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.ItemStorage;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Nameable;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.Nameable;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -37,9 +37,9 @@ public class InventoryMethods implements GenericSource
 {
     @Nonnull
     @Override
-    public Identifier id()
+    public ResourceLocation id()
     {
-        return new Identifier( ComputerCraft.MOD_ID, "inventory" );
+        return new ResourceLocation( ComputerCraft.MOD_ID, "inventory" );
     }
 
     /**
@@ -49,7 +49,7 @@ public class InventoryMethods implements GenericSource
      * @return The number of slots in this inventory.
      */
     @LuaFunction( mainThread = true )
-    public static int size( Inventory inventory )
+    public static int size( Container inventory )
     {
         return extractHandler( inventory ).size();
     }
@@ -61,12 +61,12 @@ public class InventoryMethods implements GenericSource
      * @return The name of this inventory, or {@code nil} if not present.
      */
     @LuaFunction( mainThread = true )
-    public static String name( Inventory inventory )
+    public static String name( Container inventory )
     {
         if( inventory instanceof Nameable )
         {
             Nameable i = (Nameable) inventory;
-            return i.hasCustomName() ? i.getName().asString() : null;
+            return i.hasCustomName() ? i.getName().getContents() : null;
         }
         return null;
     }
@@ -95,7 +95,7 @@ public class InventoryMethods implements GenericSource
      * }</pre>
      */
     @LuaFunction( mainThread = true )
-    public static Map<Integer, Map<String, ?>> list( Inventory inventory )
+    public static Map<Integer, Map<String, ?>> list( Container inventory )
     {
         ItemStorage itemStorage = extractHandler( inventory );
 
@@ -142,7 +142,7 @@ public class InventoryMethods implements GenericSource
      */
     @Nullable
     @LuaFunction( mainThread = true )
-    public static Map<String, ?> getItemDetail( Inventory inventory, int slot ) throws LuaException
+    public static Map<String, ?> getItemDetail( Container inventory, int slot ) throws LuaException
     {
         ItemStorage itemStorage = extractHandler( inventory );
 
@@ -173,10 +173,10 @@ public class InventoryMethods implements GenericSource
      * }</pre>
      */
     @LuaFunction( mainThread = true )
-    public static int getItemLimit( Inventory inventory, int slot ) throws LuaException
+    public static int getItemLimit( Container inventory, int slot ) throws LuaException
     {
-        assertBetween( slot, 1, inventory.size(), "Slot out of range (%s)" );
-        return inventory.getMaxCountPerStack();
+        assertBetween( slot, 1, inventory.getContainerSize(), "Slot out of range (%s)" );
+        return inventory.getMaxStackSize();
     }
 
     /**
@@ -206,7 +206,7 @@ public class InventoryMethods implements GenericSource
      */
     @LuaFunction( mainThread = true )
     public static int pushItems(
-        Inventory from, IComputerAccess computer,
+        Container from, IComputerAccess computer,
         String toName, int fromSlot, Optional<Integer> limit, Optional<Integer> toSlot
     ) throws LuaException
     {
@@ -255,7 +255,7 @@ public class InventoryMethods implements GenericSource
      */
     @LuaFunction( mainThread = true )
     public static int pullItems(
-        Inventory to, IComputerAccess computer,
+        Container to, IComputerAccess computer,
         String fromName, int fromSlot, Optional<Integer> limit, Optional<Integer> toSlot
     ) throws LuaException
     {
@@ -284,15 +284,15 @@ public class InventoryMethods implements GenericSource
     {
         if( object instanceof BlockEntity )
         {
-            Inventory inventory = InventoryUtil.getInventory( (BlockEntity) object );
+            Container inventory = InventoryUtil.getInventory( (BlockEntity) object );
             if( inventory != null )
             {
                 return ItemStorage.wrap( inventory );
             }
         }
-        else if ( object instanceof Inventory )
+        else if( object instanceof Container )
         {
-            return ItemStorage.wrap( (Inventory) object );
+            return ItemStorage.wrap( (Container) object );
         }
 
         return null;

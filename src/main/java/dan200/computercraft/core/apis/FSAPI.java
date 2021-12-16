@@ -68,6 +68,13 @@ public class FSAPI implements ILuaAPI
      * @param path The path to list.
      * @return A table with a list of files in the directory.
      * @throws LuaException If the path doesn't exist.
+     * @cc.usage List all files under {@code /rom/}
+     * <pre>{@code
+     * local files = fs.list("/rom/")
+     * for i = 1, #files do
+     *   print(files[i])
+     * end
+     * }</pre>
      */
     @LuaFunction
     public final String[] list( String path ) throws LuaException
@@ -92,6 +99,12 @@ public class FSAPI implements ILuaAPI
      * @throws LuaException On argument errors.
      * @cc.tparam string path The first part of the path. For example, a parent directory path.
      * @cc.tparam string ... Additional parts of the path to combine.
+     * @cc.changed 1.95.0 Now supports multiple arguments.
+     * @cc.usage Combine several file paths together
+     * <pre>{@code
+     * fs.combine("/rom/programs", "../apis", "parallel.lua")
+     * -- => rom/apis/parallel.lua
+     * }</pre>
      */
     @LuaFunction
     public final String combine( IArguments arguments ) throws LuaException
@@ -114,6 +127,12 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The path to get the name from.
      * @return The final part of the path (the file name).
+     * @cc.since 1.2
+     * @cc.usage Get the file name of {@code rom/startup.lua}
+     * <pre>{@code
+     * fs.getName("rom/startup.lua")
+     * -- => startup.lua
+     * }</pre>
      */
     @LuaFunction
     public final String getName( String path )
@@ -126,6 +145,12 @@ public class FSAPI implements ILuaAPI
      *
      * @param path The path to get the directory from.
      * @return The path with the final part removed (the parent directory).
+     * @cc.since 1.63
+     * @cc.usage Get the directory name of {@code rom/startup.lua}
+     * <pre>{@code
+     * fs.getDir("rom/startup.lua")
+     * -- => rom
+     * }</pre>
      */
     @LuaFunction
     public final String getDir( String path )
@@ -139,6 +164,7 @@ public class FSAPI implements ILuaAPI
      * @param path The file to get the file size of.
      * @return The size of the file, in bytes.
      * @throws LuaException If the path doesn't exist.
+     * @cc.since 1.3
      */
     @LuaFunction
     public final long getSize( String path ) throws LuaException
@@ -304,10 +330,15 @@ public class FSAPI implements ILuaAPI
     /**
      * Opens a file for reading or writing at a path.
      *
-     * The mode parameter can be {@code r} to read, {@code w} to write (deleting
-     * all contents), or {@code a} to append (keeping contents). If {@code b} is
-     * added to the end, the file will be opened in binary mode; otherwise, it's
-     * opened in text mode.
+     * The {@code mode} string can be any of the following:
+     * <ul>
+     * <li><strong>"r"</strong>: Read mode</li>
+     * <li><strong>"w"</strong>: Write mode</li>
+     * <li><strong>"a"</strong>: Append mode</li>
+     * </ul>
+     *
+     * The mode may also have a "b" at the end, which opens the file in "binary
+     * mode". This allows you to read binary files, as well as seek within a file.
      *
      * @param path The path to the file to open.
      * @param mode The mode to open the file with.
@@ -316,6 +347,37 @@ public class FSAPI implements ILuaAPI
      * @cc.treturn [1] table A file handle object for the file.
      * @cc.treturn [2] nil If the file does not exist, or cannot be opened.
      * @cc.treturn string|nil A message explaining why the file cannot be opened.
+     * @cc.usage Read the contents of a file.
+     * <pre>{@code
+     * local file = fs.open("/rom/help/intro.txt", "r")
+     * local contents = file.readAll()
+     * file.close()
+     *
+     * print(contents)
+     * }</pre>
+     * @cc.usage Open a file and read all lines into a table. @{io.lines} offers an alternative way to do this.
+     * <pre>{@code
+     * local file = fs.open("/rom/motd.txt", "r")
+     * local lines = {}
+     * while true do
+     *   local line = file.readLine()
+     *
+     *   -- If line is nil then we've reached the end of the file and should stop
+     *   if not line then break end
+     *
+     *   lines[#lines + 1] = line
+     * end
+     *
+     * file.close()
+     *
+     * print(lines[math.random(#lines)]) -- Pick a random line and print it.
+     * }</pre>
+     * @cc.usage Open a file and write some text to it. You can run {@code edit out.txt} to see the written text.
+     * <pre>{@code
+     * local file = fs.open("out.txt", "w")
+     * file.write("Just testing some code")
+     * file.close() -- Remember to call close, otherwise changes may not be written!
+     * }</pre>
      */
     @LuaFunction
     public final Object[] open( String path, String mode ) throws LuaException
@@ -344,9 +406,11 @@ public class FSAPI implements ILuaAPI
                     return new Object[] { new EncodedWritableHandle( writer.get(), writer ) };
                 }
                 case "rb":
+                {
                     // Open the file for binary reading, then create a wrapper around the reader
                     FileSystemWrapper<ReadableByteChannel> reader = fileSystem.openForRead( path, Function.identity() );
                     return new Object[] { BinaryReadableHandle.of( reader.get(), reader ) };
+                }
                 case "wb":
                 {
                     // Open the file for binary writing, then create a wrapper around the writer
@@ -354,9 +418,11 @@ public class FSAPI implements ILuaAPI
                     return new Object[] { BinaryWritableHandle.of( writer.get(), writer ) };
                 }
                 case "ab":
+                {
                     // Open the file for binary appending, then create a wrapper around the reader
                     FileSystemWrapper<WritableByteChannel> writer = fileSystem.openForWrite( path, true, Function.identity() );
                     return new Object[] { BinaryWritableHandle.of( writer.get(), writer ) };
+                }
                 default:
                     throw new LuaException( "Unsupported mode" );
             }
@@ -396,6 +462,8 @@ public class FSAPI implements ILuaAPI
      * @return The amount of free space available, in bytes.
      * @throws LuaException If the path doesn't exist.
      * @cc.treturn number|"unlimited" The amount of free space available, in bytes, or "unlimited".
+     * @cc.since 1.4
+     * @see #getCapacity To get the capacity of this drive.
      */
     @LuaFunction
     public final Object getFreeSpace( String path ) throws LuaException
@@ -422,6 +490,7 @@ public class FSAPI implements ILuaAPI
      * @param path The wildcard-qualified path to search for.
      * @return A list of paths that match the search string.
      * @throws LuaException If the path doesn't exist.
+     * @cc.since 1.6
      */
     @LuaFunction
     public final String[] find( String path ) throws LuaException
@@ -438,17 +507,15 @@ public class FSAPI implements ILuaAPI
     }
 
     /**
-     * Returns true if a path is mounted to the parent filesystem.
-     *
-     * The root filesystem "/" is considered a mount, along with disk folders and the rom folder. Other programs
-     * (such as network shares) can extend this to make other mount types by correctly assigning their return value for
-     * getDrive.
+     * Returns the capacity of the drive the path is located on.
      *
      * @param path The path of the drive to get.
      * @return The drive's capacity.
      * @throws LuaException If the capacity cannot be determined.
      * @cc.treturn number|nil This drive's capacity. This will be nil for "read-only" drives, such as the ROM or
      * treasure disks.
+     * @cc.since 1.87.0
+     * @see #getFreeSpace To get the free space available on this drive.
      */
     @LuaFunction
     public final Object getCapacity( String path ) throws LuaException
@@ -477,6 +544,9 @@ public class FSAPI implements ILuaAPI
      * @return The resulting attributes.
      * @throws LuaException If the path does not exist.
      * @cc.treturn { size = number, isDir = boolean, isReadOnly = boolean, created = number, modified = number } The resulting attributes.
+     * @cc.since 1.87.0
+     * @cc.changed 1.91.0 Renamed `modification` field to `modified`.
+     * @cc.changed 1.95.2 Added `isReadOnly` to attributes.
      * @see #getSize If you only care about the file's size.
      * @see #isDir If you only care whether a path is a directory or not.
      */

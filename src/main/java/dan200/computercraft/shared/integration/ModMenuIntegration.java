@@ -15,8 +15,8 @@ import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 
 // A poor mod menu integration just for testing the monitor rendering changes we've been making :)
 
@@ -28,7 +28,7 @@ public class ModMenuIntegration implements ModMenuApi
     {
         return parent -> {
             ConfigBuilder builder = ConfigBuilder.create().setParentScreen( parent )
-                .setTitle( new LiteralText( "Computer Craft" ) )
+                .setTitle( new TextComponent( "Computer Craft" ) )
                 .setSavingRunnable( () -> {
                     Config.clientSpec.correct( Config.clientConfig );
                     Config.sync();
@@ -36,14 +36,14 @@ public class ModMenuIntegration implements ModMenuApi
                     ComputerCraft.log.info( "Monitor renderer: {}", ComputerCraft.monitorRenderer );
                 } );
 
-            ConfigCategory client = builder.getOrCreateCategory( new LiteralText( "Client" ) );
+            ConfigCategory client = builder.getOrCreateCategory( new TextComponent( "Client" ) );
 
             ConfigEntryBuilder entryBuilder = builder.entryBuilder();
 
-            client.addEntry( entryBuilder.startEnumSelector( new LiteralText( "Monitor Renderer" ), MonitorRenderer.class, ComputerCraft.monitorRenderer )
+            client.addEntry( entryBuilder.startEnumSelector( new TextComponent( "Monitor Renderer" ), MonitorRenderer.class, ComputerCraft.monitorRenderer )
                 .setDefaultValue( MonitorRenderer.BEST )
-                .setSaveConsumer( renderer -> { Config.clientConfig.set( "monitor_renderer", renderer ); } )
-                .setTooltip( Text.of( Config.clientConfig.getComment( "monitor_renderer" ) ) )
+                .setSaveConsumer( renderer -> Config.clientConfig.set( "monitor_renderer", renderer ) )
+                .setTooltip( Component.nullToEmpty( Config.clientConfig.getComment( "monitor_renderer" ) ) )
                 .build() );
 
             return builder.build();

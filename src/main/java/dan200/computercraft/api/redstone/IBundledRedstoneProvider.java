@@ -3,12 +3,11 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.redstone;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 
@@ -26,8 +25,9 @@ public interface IBundledRedstoneProvider
      * @param world The world this block is in.
      * @param pos   The position this block is at.
      * @param side  The side to extract the bundled redstone output from.
-     * @return A number in the range 0-65535 to indicate this block is providing output, or -1 if you do not wish to handle this block.
+     * @return A number in the range 0-65535 to indicate this block is providing output, or -1 if you do not wish to
+     * handle this block.
      * @see dan200.computercraft.api.ComputerCraftAPI#registerBundledRedstoneProvider(IBundledRedstoneProvider)
      */
-    int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side );
+    int getBundledRedstoneOutput( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side );
 }

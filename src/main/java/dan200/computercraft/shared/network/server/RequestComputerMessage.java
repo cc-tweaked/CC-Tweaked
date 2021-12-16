@@ -10,7 +10,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 
 import javax.annotation.Nonnull;
 
@@ -23,13 +23,13 @@ public class RequestComputerMessage implements NetworkMessage
         this.instance = instance;
     }
 
-    public RequestComputerMessage( @Nonnull PacketByteBuf buf )
+    public RequestComputerMessage( @Nonnull FriendlyByteBuf buf )
     {
         instance = buf.readVarInt();
     }
 
     @Override
-    public void toBytes( @Nonnull PacketByteBuf buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         buf.writeVarInt( instance );
     }

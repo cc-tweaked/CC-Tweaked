@@ -8,99 +8,99 @@ package dan200.computercraft.shared.peripheral.diskdrive;
 
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.stat.Stats;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.DirectionProperty;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.Nameable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.Nameable;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlockDiskDrive extends BlockGeneric
 {
-    static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
-    static final EnumProperty<DiskDriveState> STATE = EnumProperty.of( "state", DiskDriveState.class );
+    static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    static final EnumProperty<DiskDriveState> STATE = EnumProperty.create( "state", DiskDriveState.class );
 
-    public BlockDiskDrive( Settings settings )
+    public BlockDiskDrive( Properties settings )
     {
         super( settings, ComputerCraftRegistry.ModTiles.DISK_DRIVE );
-        setDefaultState( getStateManager().getDefaultState()
-            .with( FACING, Direction.NORTH )
-            .with( STATE, DiskDriveState.EMPTY ) );
+        registerDefaultState( getStateDefinition().any()
+            .setValue( FACING, Direction.NORTH )
+            .setValue( STATE, DiskDriveState.EMPTY ) );
     }
 
     @Nullable
     @Override
-    public BlockState getPlacementState( ItemPlacementContext placement )
+    public BlockState getStateForPlacement( BlockPlaceContext placement )
     {
-        return getDefaultState().with( FACING,
-            placement.getPlayerFacing()
+        return defaultBlockState().setValue( FACING,
+            placement.getHorizontalDirection()
                 .getOpposite() );
     }
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker( World world, BlockState state, BlockEntityType<T> type )
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker( Level world, BlockState state, BlockEntityType<T> type )
     {
-        return world.isClient ? null : BlockDiskDrive.checkType( type, ComputerCraftRegistry.ModTiles.DISK_DRIVE, TileDiskDrive::tick );
+        return world.isClientSide ? null : BlockDiskDrive.createTickerHelper( type, ComputerCraftRegistry.ModTiles.DISK_DRIVE, TileDiskDrive::tick );
     }
 
     @Override
-    public void afterBreak(
-        @Nonnull World world, @Nonnull PlayerEntity player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack
+    public void playerDestroy(
+        @Nonnull Level world, @Nonnull Player player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack
     )
     {
         if( te instanceof Nameable && ((Nameable) te).hasCustomName() )
         {
-            player.incrementStat( Stats.MINED.getOrCreateStat( this ) );
-            player.addExhaustion( 0.005F );
+            player.awardStat( Stats.BLOCK_MINED.get( this ) );
+            player.causeFoodExhaustion( 0.005F );
 
             ItemStack result = new ItemStack( this );
-            result.setCustomName( ((Nameable) te).getCustomName() );
-            dropStack( world, pos, result );
+            result.setHoverName( ((Nameable) te).getCustomName() );
+            popResource( world, pos, result );
         }
         else
         {
-            super.afterBreak( world, player, pos, state, te, stack );
+            super.playerDestroy( world, player, pos, state, te, stack );
         }
     }
 
     @Override
-    public void onPlaced( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, ItemStack stack )
+    public void setPlacedBy( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, ItemStack stack )
     {
-        if( stack.hasCustomName() )
+        if( stack.hasCustomHoverName() )
         {
             BlockEntity tileentity = world.getBlockEntity( pos );
             if( tileentity instanceof TileDiskDrive )
             {
-                ((TileDiskDrive) tileentity).customName = stack.getName();
+                ((TileDiskDrive) tileentity).customName = stack.getHoverName();
             }
         }
     }
 
     @Override
-    protected void appendProperties( StateManager.Builder<Block, BlockState> properties )
+    protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> properties )
     {
         properties.add( FACING, STATE );
     }
 
     @Nullable
     @Override
-    public BlockEntity createBlockEntity( BlockPos pos, BlockState state )
+    public BlockEntity newBlockEntity( BlockPos pos, BlockState state )
     {
         return new TileDiskDrive( ComputerCraftRegistry.ModTiles.DISK_DRIVE, pos, state );
     }

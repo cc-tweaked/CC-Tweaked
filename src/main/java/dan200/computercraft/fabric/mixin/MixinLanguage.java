@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonParseException;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.util.Language;
+import net.minecraft.locale.Language;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,7 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.function.BiConsumer;
 
 /**
@@ -38,7 +37,7 @@ public class MixinLanguage
     private static Logger LOGGER;
 
     @Shadow
-    public static void load( InputStream inputStream, BiConsumer<String, String> entryConsumer )
+    public static void loadFromJson( InputStream inputStream, BiConsumer<String, String> entryConsumer )
     {
     }
 
@@ -46,21 +45,20 @@ public class MixinLanguage
     {
         String path = "/assets/" + modId + "/lang/en_us.json";
 
-        try ( InputStream inputStream = Language.class.getResourceAsStream( path ) )
+        try( InputStream inputStream = Language.class.getResourceAsStream( path ) )
         {
-            if ( inputStream == null ) return;
-            load( inputStream, biConsumer );
+            if( inputStream == null ) return;
+            loadFromJson( inputStream, biConsumer );
         }
-        catch ( JsonParseException | IOException e )
+        catch( JsonParseException | IOException e )
         {
             LOGGER.error( "Couldn't read strings from " + path, e );
         }
     }
 
-    @Inject( method = "create", locals = LocalCapture.CAPTURE_FAILSOFT, at = @At( value = "INVOKE", remap = false, target = "Lcom/google/common/collect/ImmutableMap$Builder;build()Lcom/google/common/collect/ImmutableMap;" ) )
-    private static void create( CallbackInfoReturnable<Language> cir, ImmutableMap.Builder<String, String> builder )
+    @Inject( method = "loadDefault", locals = LocalCapture.CAPTURE_FAILSOFT, at = @At( value = "INVOKE", remap = false, target = "Lcom/google/common/collect/ImmutableMap$Builder;build()Lcom/google/common/collect/ImmutableMap;" ) )
+    private static void loadDefault( CallbackInfoReturnable<Language> cir, ImmutableMap.Builder<String, String> builder )
     {
-        final Map<String, String> originalTranslation = builder.build();
         /*  We must ensure that the keys are de-duplicated because we can't catch the error that might otherwise
          *  occur when the injected function calls build() on the ImmutableMap builder. So we use our own hash map and
          *  exclude "minecraft", as the injected function has already loaded those keys at this point.
@@ -71,9 +69,6 @@ public class MixinLanguage
             .filter( id -> !id.equals( "minecraft" ) ).forEach( id -> {
                 loadModLangFile( id, translations::put );
             } );
-
-        // This is needed to remove keys that exist in vanilla Minecraft (Consistency+ does this)
-        translations.keySet().removeIf( originalTranslation::containsKey );
 
         builder.putAll( translations );
     }

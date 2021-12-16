@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.client.gui;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
@@ -16,11 +17,10 @@ import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.server.ContinueUploadMessage;
 import dan200.computercraft.shared.network.server.UploadFileMessage;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.player.Inventory;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
@@ -34,12 +34,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class ComputerScreenBase<T extends ContainerComputerBase> extends HandledScreen<T>
+public abstract class ComputerScreenBase<T extends ContainerComputerBase> extends AbstractContainerScreen<T>
 {
 
-    private static final Text OK = new TranslatableText( "gui.ok" );
-    private static final Text CANCEL = new TranslatableText( "gui.cancel" );
-    private static final Text OVERWRITE = new TranslatableText( "gui.computercraft.upload.overwrite_button" );
+    private static final Component OK = new TranslatableComponent( "gui.ok" );
+    private static final Component CANCEL = new TranslatableComponent( "gui.cancel" );
+    private static final Component OVERWRITE = new TranslatableComponent( "gui.computercraft.upload.overwrite_button" );
 
     protected WidgetTerminal terminal;
     protected final ClientComputer computer;
@@ -47,7 +47,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
 
     protected final int sidebarYOffset;
 
-    public ComputerScreenBase( T container, PlayerInventory player, Text title, int sidebarYOffset )
+    public ComputerScreenBase( T container, Inventory player, Component title, int sidebarYOffset )
     {
         super( container, player, title );
         computer = (ClientComputer) container.getComputer();
@@ -61,10 +61,10 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
     protected final void init()
     {
         super.init();
-        client.keyboard.setRepeatEvents( true );
+        minecraft.keyboardHandler.setSendRepeatsToGui( true );
 
-        terminal = addDrawableChild( createTerminal() );
-        ComputerSidebar.addButtons( this, computer, this::addDrawableChild, x, y + sidebarYOffset );
+        terminal = addRenderableWidget( createTerminal() );
+        ComputerSidebar.addButtons( this, computer, this::addRenderableWidget, leftPos, topPos + sidebarYOffset );
         setFocused( terminal );
     }
 
@@ -72,13 +72,13 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
     public final void removed()
     {
         super.removed();
-        client.keyboard.setRepeatEvents( false );
+        minecraft.keyboardHandler.setSendRepeatsToGui( false );
     }
 
     @Override
-    public final void handledScreenTick()
+    public final void containerTick()
     {
-        super.handledScreenTick();
+        super.containerTick();
         terminal.update();
     }
 
@@ -95,11 +95,11 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
     }
 
     @Override
-    public final void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
+    public final void render( @Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks )
     {
         renderBackground( stack );
         super.render( stack, mouseX, mouseY, partialTicks );
-        drawMouseoverTooltip( stack, mouseX, mouseY );
+        renderTooltip( stack, mouseX, mouseY );
     }
 
     @Override
@@ -109,13 +109,13 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
     }
 
     @Override
-    protected void drawForeground( @Nonnull MatrixStack transform, int mouseX, int mouseY )
+    protected void renderLabels( @Nonnull PoseStack transform, int mouseX, int mouseY )
     {
         // Skip rendering labels.
     }
 
     @Override
-    public void filesDragged( @Nonnull List<Path> files )
+    public void onFilesDrop( @Nonnull List<Path> files )
     {
         if( files.isEmpty() ) return;
 
@@ -145,7 +145,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
                 String name = file.getFileName().toString();
                 if( name.length() > UploadFileMessage.MAX_FILE_NAME )
                 {
-                    alert( UploadResult.FAILED_TITLE, new TranslatableText( "gui.computercraft.upload.failed.name_too_long" ) );
+                    alert( UploadResult.FAILED_TITLE, new TranslatableComponent( "gui.computercraft.upload.failed.name_too_long" ) );
                     return;
                 }
 
@@ -156,7 +156,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
                 byte[] digest = FileUpload.getDigest( buffer );
                 if( digest == null )
                 {
-                    alert( UploadResult.FAILED_TITLE, new TranslatableText( "gui.computercraft.upload.failed.corrupted" ) );
+                    alert( UploadResult.FAILED_TITLE, new TranslatableComponent( "gui.computercraft.upload.failed.corrupted" ) );
                     return;
                 }
 
@@ -166,13 +166,13 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
             catch( IOException e )
             {
                 ComputerCraft.log.error( "Failed uploading files", e );
-                alert( UploadResult.FAILED_TITLE, new TranslatableText( "gui.computercraft.upload.failed.generic", "Cannot compute checksum" ) );
+                alert( UploadResult.FAILED_TITLE, new TranslatableComponent( "gui.computercraft.upload.failed.generic", "Cannot compute checksum" ) );
             }
         }
 
         if( toUpload.size() > UploadFileMessage.MAX_FILES )
         {
-            alert( UploadResult.FAILED_TITLE, new TranslatableText( "gui.computercraft.upload.failed.too_many_files" ) );
+            alert( UploadResult.FAILED_TITLE, new TranslatableComponent( "gui.computercraft.upload.failed.too_many_files" ) );
             return;
         }
 
@@ -182,7 +182,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
         }
     }
 
-    public void uploadResult( UploadResult result, Text message )
+    public void uploadResult( UploadResult result, Component message )
     {
         switch( result )
         {
@@ -194,7 +194,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
                 break;
             case CONFIRM_OVERWRITE:
                 OptionScreen.show(
-                    client, UploadResult.UPLOAD_OVERWRITE, message,
+                    minecraft, UploadResult.UPLOAD_OVERWRITE, message,
                     Arrays.asList(
                         OptionScreen.newButton( CANCEL, b -> cancelUpload() ),
                         OptionScreen.newButton( OVERWRITE, b -> continueUpload() )
@@ -207,21 +207,21 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
 
     private void continueUpload()
     {
-        if( client.currentScreen instanceof OptionScreen ) ((OptionScreen) client.currentScreen).disable();
+        if( minecraft.screen instanceof OptionScreen ) ((OptionScreen) minecraft.screen).disable();
         NetworkHandler.sendToServer( new ContinueUploadMessage( computer.getInstanceID(), true ) );
     }
 
     private void cancelUpload()
     {
-        client.setScreen( this );
+        minecraft.setScreen( this );
         NetworkHandler.sendToServer( new ContinueUploadMessage( computer.getInstanceID(), false ) );
     }
 
-    private void alert( Text title, Text message )
+    private void alert( Component title, Component message )
     {
-        OptionScreen.show( client, title, message,
-            Collections.singletonList( OptionScreen.newButton( OK, b -> client.setScreen( this ) ) ),
-            () -> client.setScreen( this )
+        OptionScreen.show( minecraft, title, message,
+            Collections.singletonList( OptionScreen.newButton( OK, b -> minecraft.setScreen( this ) ) ),
+            () -> minecraft.setScreen( this )
         );
     }
 

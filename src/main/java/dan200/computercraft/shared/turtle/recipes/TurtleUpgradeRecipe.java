@@ -12,41 +12,41 @@ import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.SpecialCraftingRecipe;
-import net.minecraft.recipe.SpecialRecipeSerializer;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 
-public final class TurtleUpgradeRecipe extends SpecialCraftingRecipe
+public final class TurtleUpgradeRecipe extends CustomRecipe
 {
-    public static final RecipeSerializer<TurtleUpgradeRecipe> SERIALIZER = new SpecialRecipeSerializer<>( TurtleUpgradeRecipe::new );
+    public static final RecipeSerializer<TurtleUpgradeRecipe> SERIALIZER = new SimpleRecipeSerializer<>( TurtleUpgradeRecipe::new );
 
-    private TurtleUpgradeRecipe( Identifier id )
+    private TurtleUpgradeRecipe( ResourceLocation id )
     {
         super( id );
     }
 
     @Nonnull
     @Override
-    public ItemStack getOutput()
+    public ItemStack getResultItem()
     {
         return TurtleItemFactory.create( -1, null, -1, ComputerFamily.NORMAL, null, null, 0, null );
     }
 
     @Override
-    public boolean matches( @Nonnull CraftingInventory inventory, @Nonnull World world )
+    public boolean matches( @Nonnull CraftingContainer inventory, @Nonnull Level world )
     {
-        return !craft( inventory ).isEmpty();
+        return !assemble( inventory ).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack craft( @Nonnull CraftingInventory inventory )
+    public ItemStack assemble( @Nonnull CraftingContainer inventory )
     {
         // Scan the grid for a row containing a turtle and 1 or 2 items
         ItemStack leftItem = ItemStack.EMPTY;
@@ -61,7 +61,7 @@ public final class TurtleUpgradeRecipe extends SpecialCraftingRecipe
                 boolean finishedRow = false;
                 for( int x = 0; x < inventory.getWidth(); x++ )
                 {
-                    ItemStack item = inventory.getStack( x + y * inventory.getWidth() );
+                    ItemStack item = inventory.getItem( x + y * inventory.getWidth() );
                     if( !item.isEmpty() )
                     {
                         if( finishedRow )
@@ -119,7 +119,7 @@ public final class TurtleUpgradeRecipe extends SpecialCraftingRecipe
                 // Turtle is already found, just check this row is empty
                 for( int x = 0; x < inventory.getWidth(); x++ )
                 {
-                    ItemStack item = inventory.getStack( x + y * inventory.getWidth() );
+                    ItemStack item = inventory.getItem( x + y * inventory.getWidth() );
                     if( !item.isEmpty() )
                     {
                         return ItemStack.EMPTY;
@@ -171,12 +171,12 @@ public final class TurtleUpgradeRecipe extends SpecialCraftingRecipe
         String label = itemTurtle.getLabel( turtle );
         int fuelLevel = itemTurtle.getFuelLevel( turtle );
         int colour = itemTurtle.getColour( turtle );
-        Identifier overlay = itemTurtle.getOverlay( turtle );
+        ResourceLocation overlay = itemTurtle.getOverlay( turtle );
         return TurtleItemFactory.create( computerID, label, colour, family, upgrades[0], upgrades[1], fuelLevel, overlay );
     }
 
     @Override
-    public boolean fits( int x, int y )
+    public boolean canCraftInDimensions( int x, int y )
     {
         return x >= 3 && y >= 1;
     }

@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import dan200.computercraft.api.network.IPacketNetwork;
@@ -20,14 +19,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WirelessNetwork implements IPacketNetwork
 {
     private static WirelessNetwork universalNetwork = null;
-    private final Set<IPacketReceiver> receivers = Collections.newSetFromMap( new ConcurrentHashMap<>() );
 
     public static WirelessNetwork getUniversal()
     {
-        if( universalNetwork == null )
-        {
-            universalNetwork = new WirelessNetwork();
-        }
+        if( universalNetwork == null ) universalNetwork = new WirelessNetwork();
         return universalNetwork;
     }
 
@@ -35,6 +30,8 @@ public class WirelessNetwork implements IPacketNetwork
     {
         universalNetwork = null;
     }
+
+    private final Set<IPacketReceiver> receivers = Collections.newSetFromMap( new ConcurrentHashMap<>() );
 
     @Override
     public void addReceiver( @Nonnull IPacketReceiver receiver )
@@ -51,39 +48,26 @@ public class WirelessNetwork implements IPacketNetwork
     }
 
     @Override
-    public boolean isWireless()
-    {
-        return true;
-    }
-
-    @Override
     public void transmitSameDimension( @Nonnull Packet packet, double range )
     {
         Objects.requireNonNull( packet, "packet cannot be null" );
-        for( IPacketReceiver device : receivers )
-        {
-            tryTransmit( device, packet, range, false );
-        }
+        for( IPacketReceiver device : receivers ) tryTransmit( device, packet, range, false );
     }
 
     @Override
     public void transmitInterdimensional( @Nonnull Packet packet )
     {
         Objects.requireNonNull( packet, "packet cannot be null" );
-        for( IPacketReceiver device : receivers )
-        {
-            tryTransmit( device, packet, 0, true );
-        }
+        for( IPacketReceiver device : receivers ) tryTransmit( device, packet, 0, true );
     }
 
     private static void tryTransmit( IPacketReceiver receiver, Packet packet, double range, boolean interdimensional )
     {
-        IPacketSender sender = packet.getSender();
-        if( receiver.getWorld() == sender.getWorld() )
+        IPacketSender sender = packet.sender();
+        if( receiver.getLevel() == sender.getLevel() )
         {
             double receiveRange = Math.max( range, receiver.getRange() ); // Ensure range is symmetrical
-            double distanceSq = receiver.getPosition()
-                .squaredDistanceTo( sender.getPosition() );
+            double distanceSq = receiver.getPosition().distanceToSqr( sender.getPosition() );
             if( interdimensional || receiver.isInterdimensional() || distanceSq <= receiveRange * receiveRange )
             {
                 receiver.receiveSameDimension( packet, Math.sqrt( distanceSq ) );
@@ -96,5 +80,11 @@ public class WirelessNetwork implements IPacketNetwork
                 receiver.receiveDifferentDimension( packet );
             }
         }
+    }
+
+    @Override
+    public boolean isWireless()
+    {
+        return true;
     }
 }

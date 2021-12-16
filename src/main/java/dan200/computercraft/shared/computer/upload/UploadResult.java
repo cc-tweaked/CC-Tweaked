@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.shared.computer.upload;
 
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public enum UploadResult
 {
@@ -14,12 +14,12 @@ public enum UploadResult
     ERROR,
     CONFIRM_OVERWRITE;
 
-    public static final Text SUCCESS_TITLE = new TranslatableText( "gui.computercraft.upload.success" );
+    public static final Component SUCCESS_TITLE = new TranslatableComponent( "gui.computercraft.upload.success" );
 
-    public static final Text FAILED_TITLE = new TranslatableText( "gui.computercraft.upload.failed" );
-    public static final Text COMPUTER_OFF_MSG = new TranslatableText( "gui.computercraft.upload.failed.computer_off" );
-    public static final Text OUT_OF_SPACE_MSG = new TranslatableText( "gui.computercraft.upload.failed.out_of_space" );
-    public static final Text TOO_MUCH_MSG = new TranslatableText( "gui.computercraft.upload.failed.too_much" );
+    public static final Component FAILED_TITLE = new TranslatableComponent( "gui.computercraft.upload.failed" );
+    public static final Component COMPUTER_OFF_MSG = new TranslatableComponent( "gui.computercraft.upload.failed.computer_off" );
+    public static final Component OUT_OF_SPACE_MSG = new TranslatableComponent( "gui.computercraft.upload.failed.out_of_space" );
+    public static final Component TOO_MUCH_MSG = new TranslatableComponent( "gui.computercraft.upload.failed.too_much" );
 
-    public static final Text UPLOAD_OVERWRITE = new TranslatableText( "gui.computercraft.upload.overwrite" );
+    public static final Component UPLOAD_OVERWRITE = new TranslatableComponent( "gui.computercraft.upload.overwrite" );
 }

@@ -15,6 +15,7 @@ import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.MethodResult;
+import dan200.computercraft.api.peripheral.PeripheralType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
@@ -108,7 +109,7 @@ public final class Generator<T>
             if( instance == null ) continue;
 
             if( methods == null ) methods = new ArrayList<>();
-            addMethod( methods, method, annotation, instance );
+            addMethod( methods, method, annotation, null, instance );
         }
 
         for( GenericMethod method : GenericMethod.all() )
@@ -119,7 +120,7 @@ public final class Generator<T>
             if( instance == null ) continue;
 
             if( methods == null ) methods = new ArrayList<>();
-            addMethod( methods, method.method, method.annotation, instance );
+            addMethod( methods, method.method, method.annotation, method.peripheralType, instance );
         }
 
         if( methods == null ) return Collections.emptyList();
@@ -127,7 +128,7 @@ public final class Generator<T>
         return Collections.unmodifiableList( methods );
     }
 
-    private void addMethod( List<NamedMethod<T>> methods, Method method, LuaFunction annotation, T instance )
+    private void addMethod( List<NamedMethod<T>> methods, Method method, LuaFunction annotation, PeripheralType genericType, T instance )
     {
         if( annotation.mainThread() ) instance = wrap.apply( instance );
 
@@ -135,13 +136,13 @@ public final class Generator<T>
         boolean isSimple = method.getReturnType() != MethodResult.class && !annotation.mainThread();
         if( names.length == 0 )
         {
-            methods.add( new NamedMethod<>( method.getName(), instance, isSimple ) );
+            methods.add( new NamedMethod<>( method.getName(), instance, isSimple, genericType ) );
         }
         else
         {
             for( String name : names )
             {
-                methods.add( new NamedMethod<>( name, instance, isSimple ) );
+                methods.add( new NamedMethod<>( name, instance, isSimple, genericType ) );
             }
         }
     }

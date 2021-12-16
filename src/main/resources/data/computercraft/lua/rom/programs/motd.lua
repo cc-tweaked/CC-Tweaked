@@ -5,6 +5,8 @@ elseif date.month == 12 and date.day == 24 then
     print("Merry X-mas!")
 elseif date.month == 10 and date.day == 31 then
     print("OOoooOOOoooo! Spooky!")
+elseif date.month == 4 and date.day == 28 then
+    print("Ed Balls")
 else
     local tMotd = {}
 

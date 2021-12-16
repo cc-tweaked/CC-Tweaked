@@ -10,12 +10,12 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.sounds.SoundEvent;
 
 import javax.annotation.Nonnull;
 
@@ -46,13 +46,13 @@ public class PlayRecordClientMessage implements NetworkMessage
         soundEvent = null;
     }
 
-    public PlayRecordClientMessage( PacketByteBuf buf )
+    public PlayRecordClientMessage( FriendlyByteBuf buf )
     {
         pos = buf.readBlockPos();
         if( buf.readBoolean() )
         {
-            name = buf.readString( Short.MAX_VALUE );
-            soundEvent = Registry.SOUND_EVENT.get( buf.readIdentifier() );
+            name = buf.readUtf( Short.MAX_VALUE );
+            soundEvent = Registry.SOUND_EVENT.get( buf.readResourceLocation() );
         }
         else
         {
@@ -62,7 +62,7 @@ public class PlayRecordClientMessage implements NetworkMessage
     }
 
     @Override
-    public void toBytes( @Nonnull PacketByteBuf buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         buf.writeBlockPos( pos );
         if( soundEvent == null )
@@ -72,8 +72,8 @@ public class PlayRecordClientMessage implements NetworkMessage
         else
         {
             buf.writeBoolean( true );
-            buf.writeString( name );
-            buf.writeIdentifier( soundEvent.getId() );
+            buf.writeUtf( name );
+            buf.writeResourceLocation( soundEvent.getLocation() );
         }
     }
 
@@ -81,11 +81,11 @@ public class PlayRecordClientMessage implements NetworkMessage
     @Environment( EnvType.CLIENT )
     public void handle( PacketContext context )
     {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        mc.worldRenderer.playSong( soundEvent, pos );
+        Minecraft mc = Minecraft.getInstance();
+        mc.levelRenderer.playStreamingMusic( soundEvent, pos );
         if( name != null )
         {
-            mc.inGameHud.setRecordPlayingOverlay( new LiteralText( name ) );
+            mc.gui.setNowPlaying( new TextComponent( name ) );
         }
     }
 }

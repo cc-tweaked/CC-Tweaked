@@ -13,8 +13,8 @@ import dan200.computercraft.shared.computer.upload.FileUpload;
 import dan200.computercraft.shared.network.NetworkHandler;
 import io.netty.handler.codec.DecoderException;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
@@ -47,10 +47,10 @@ public class UploadFileMessage extends ComputerServerMessage
         this.slices = slices;
     }
 
-    public UploadFileMessage( @Nonnull PacketByteBuf buf )
+    public UploadFileMessage( @Nonnull FriendlyByteBuf buf )
     {
         super( buf );
-        uuid = buf.readUuid();
+        uuid = buf.readUUID();
         int flag = this.flag = buf.readByte();
 
         int totalSize = 0;
@@ -62,7 +62,7 @@ public class UploadFileMessage extends ComputerServerMessage
             List<FileUpload> files = this.files = new ArrayList<>( nFiles );
             for( int i = 0; i < nFiles; i++ )
             {
-                String name = buf.readString( MAX_FILE_NAME );
+                String name = buf.readUtf( MAX_FILE_NAME );
                 int size = buf.readVarInt();
                 if( size > MAX_SIZE || (totalSize += size) >= MAX_SIZE )
                 {
@@ -99,10 +99,10 @@ public class UploadFileMessage extends ComputerServerMessage
     }
 
     @Override
-    public void toBytes( @Nonnull PacketByteBuf buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
         super.toBytes( buf );
-        buf.writeUuid( uuid );
+        buf.writeUUID( uuid );
         buf.writeByte( flag );
 
         if( (flag & FLAG_FIRST) != 0 )
@@ -110,7 +110,7 @@ public class UploadFileMessage extends ComputerServerMessage
             buf.writeVarInt( files.size() );
             for( FileUpload file : files )
             {
-                buf.writeString( file.getName(), MAX_FILE_NAME );
+                buf.writeUtf( file.getName(), MAX_FILE_NAME );
                 buf.writeVarInt( file.getLength() );
                 buf.writeBytes( file.getChecksum() );
             }
@@ -175,7 +175,7 @@ public class UploadFileMessage extends ComputerServerMessage
     @Override
     protected void handle( PacketContext context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
     {
-        ServerPlayerEntity player = (ServerPlayerEntity) context.getPlayer();
+        ServerPlayer player = (ServerPlayer) context.getPlayer();
         if( player != null )
         {
             if( (flag & FLAG_FIRST) != 0 ) container.startUpload( uuid, files );

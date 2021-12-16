@@ -9,14 +9,12 @@ package dan200.computercraft.shared.turtle.core;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
-import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
-import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.shared.peripheral.generic.data.BlockData;
-import net.minecraft.block.BlockState;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -39,9 +37,9 @@ public class TurtleInspectCommand implements ITurtleCommand
         Direction direction = this.direction.toWorldDir( turtle );
 
         // Check if thing in front is air or not
-        World world = turtle.getWorld();
+        Level world = turtle.getLevel();
         BlockPos oldPosition = turtle.getPosition();
-        BlockPos newPosition = oldPosition.offset( direction );
+        BlockPos newPosition = oldPosition.relative( direction );
 
         BlockState state = world.getBlockState( newPosition );
         if( state.isAir() )
@@ -50,14 +48,6 @@ public class TurtleInspectCommand implements ITurtleCommand
         }
 
         Map<String, Object> table = BlockData.fill( new HashMap<>(), state );
-
-        // Fire the event, exiting if it is cancelled
-        TurtlePlayer turtlePlayer = TurtlePlaceCommand.createPlayer( turtle, oldPosition, direction );
-        TurtleBlockEvent.Inspect event = new TurtleBlockEvent.Inspect( turtle, turtlePlayer, world, newPosition, state, table );
-        if( TurtleEvent.post( event ) )
-        {
-            return TurtleCommandResult.failure( event.getFailureMessage() );
-        }
 
         return TurtleCommandResult.success( new Object[] { table } );
     }
@@ -72,6 +62,6 @@ public class TurtleInspectCommand implements ITurtleCommand
         {
             return value;
         }
-        return property.name( value );
+        return property.getName( value );
     }
 }

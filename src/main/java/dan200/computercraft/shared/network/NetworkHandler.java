@@ -21,17 +21,17 @@ import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -39,10 +39,10 @@ import java.util.function.Supplier;
 
 public final class NetworkHandler
 {
-    private static final Int2ObjectMap<BiConsumer<PacketContext, PacketByteBuf>> packetReaders = new Int2ObjectOpenHashMap<>();
+    private static final Int2ObjectMap<BiConsumer<PacketContext, FriendlyByteBuf>> packetReaders = new Int2ObjectOpenHashMap<>();
     private static final Object2IntMap<Class<?>> packetIds = new Object2IntOpenHashMap<>();
 
-    private static final Identifier ID = new Identifier( ComputerCraft.MOD_ID, "main" );
+    private static final ResourceLocation ID = new ResourceLocation( ComputerCraft.MOD_ID, "main" );
 
     private NetworkHandler()
     {
@@ -79,7 +79,7 @@ public final class NetworkHandler
         registerMainThread( 19, UploadResultMessage.class, UploadResultMessage::new );
     }
 
-    private static void receive( PacketContext context, PacketByteBuf buffer )
+    private static void receive( PacketContext context, FriendlyByteBuf buffer )
     {
         int type = buffer.readByte();
         packetReaders.get( type )
@@ -94,7 +94,7 @@ public final class NetworkHandler
      * @param id      The identifier for this packet type
      * @param decoder The factory for this type of packet.
      */
-    private static <T extends NetworkMessage> void registerMainThread( int id, Class<T> type, Function<PacketByteBuf, T> decoder )
+    private static <T extends NetworkMessage> void registerMainThread( int id, Class<T> type, Function<FriendlyByteBuf, T> decoder )
     {
         packetIds.put( type, id );
         packetReaders.put( id, ( context, buf ) -> {
@@ -111,52 +111,52 @@ public final class NetworkHandler
             .getClass();
     }
 
-    private static PacketByteBuf encode( NetworkMessage message )
+    private static FriendlyByteBuf encode( NetworkMessage message )
     {
-        PacketByteBuf buf = new PacketByteBuf( Unpooled.buffer() );
+        FriendlyByteBuf buf = new FriendlyByteBuf( Unpooled.buffer() );
         buf.writeByte( packetIds.getInt( message.getClass() ) );
         message.toBytes( buf );
         return buf;
     }
 
-    public static void sendToPlayer( PlayerEntity player, NetworkMessage packet )
+    public static void sendToPlayer( Player player, NetworkMessage packet )
     {
-        ((ServerPlayerEntity) player).networkHandler.sendPacket( new CustomPayloadS2CPacket( ID, encode( packet ) ) );
+        ((ServerPlayer) player).connection.send( new ClientboundCustomPayloadPacket( ID, encode( packet ) ) );
     }
 
     public static void sendToAllPlayers( NetworkMessage packet )
     {
         MinecraftServer server = GameInstanceUtils.getServer();
-        server.getPlayerManager()
-            .sendToAll( new CustomPayloadS2CPacket( ID, encode( packet ) ) );
+        server.getPlayerList()
+            .broadcastAll( new ClientboundCustomPayloadPacket( ID, encode( packet ) ) );
     }
 
     public static void sendToAllPlayers( MinecraftServer server, NetworkMessage packet )
     {
-        server.getPlayerManager()
-            .sendToAll( new CustomPayloadS2CPacket( ID, encode( packet ) ) );
+        server.getPlayerList()
+            .broadcastAll( new ClientboundCustomPayloadPacket( ID, encode( packet ) ) );
     }
 
     @Environment( EnvType.CLIENT )
     public static void sendToServer( NetworkMessage packet )
     {
-        MinecraftClient.getInstance().player.networkHandler.sendPacket( new CustomPayloadC2SPacket( ID, encode( packet ) ) );
+        Minecraft.getInstance().player.connection.send( new ServerboundCustomPayloadPacket( ID, encode( packet ) ) );
     }
 
-    public static void sendToAllAround( NetworkMessage packet, World world, Vec3d pos, double range )
+    public static void sendToAllAround( NetworkMessage packet, Level world, Vec3 pos, double range )
     {
         world.getServer()
-            .getPlayerManager()
-            .sendToAround( null, pos.x, pos.y, pos.z, range, world.getRegistryKey(), new CustomPayloadS2CPacket( ID, encode( packet ) ) );
+            .getPlayerList()
+            .broadcast( null, pos.x, pos.y, pos.z, range, world.dimension(), new ClientboundCustomPayloadPacket( ID, encode( packet ) ) );
     }
 
-    public static void sendToAllTracking( NetworkMessage packet, WorldChunk chunk )
+    public static void sendToAllTracking( NetworkMessage packet, LevelChunk chunk )
     {
-        for( PlayerEntity player : chunk.getWorld().getPlayers() )
+        for( Player player : chunk.getLevel().players() )
         {
-            if ( chunk.getWorld().getRegistryKey().getValue() == player.getEntityWorld().getRegistryKey().getValue() && player.getChunkPos().equals( chunk.getPos() ) )
+            if( chunk.getLevel().dimension().location() == player.getCommandSenderWorld().dimension().location() && player.chunkPosition().equals( chunk.getPos() ) )
             {
-                ((ServerPlayerEntity) player).networkHandler.sendPacket( new CustomPayloadS2CPacket( ID, encode( packet ) ) );
+                ((ServerPlayer) player).connection.send( new ClientboundCustomPayloadPacket( ID, encode( packet ) ) );
             }
         }
     }

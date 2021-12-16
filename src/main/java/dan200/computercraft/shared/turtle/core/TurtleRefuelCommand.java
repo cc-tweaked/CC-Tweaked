@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
@@ -12,7 +11,7 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.api.turtle.event.TurtleRefuelEvent;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
@@ -30,27 +29,16 @@ public class TurtleRefuelCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         int slot = turtle.getSelectedSlot();
-        ItemStack stack = turtle.getInventory()
-            .getStack( slot );
-        if( stack.isEmpty() )
-        {
-            return TurtleCommandResult.failure( "No items to combust" );
-        }
+        ItemStack stack = turtle.getInventory().getItem( slot );
+        if( stack.isEmpty() ) return TurtleCommandResult.failure( "No items to combust" );
 
         TurtleRefuelEvent event = new TurtleRefuelEvent( turtle, stack );
-        if( TurtleEvent.post( event ) )
-        {
-            return TurtleCommandResult.failure( event.getFailureMessage() );
-        }
-        if( event.getHandler() == null )
-        {
-            return TurtleCommandResult.failure( "Items not combustible" );
-        }
+        TurtleEvent.EVENT_BUS.post( event );
+        if( event.getHandler() == null ) return TurtleCommandResult.failure( "Items not combustible" );
 
         if( limit != 0 )
         {
-            turtle.addFuel( event.getHandler()
-                .refuel( turtle, stack, slot, limit ) );
+            turtle.addFuel( event.getHandler().refuel( turtle, stack, slot, limit ) );
             turtle.playAnimation( TurtleAnimation.WAIT );
         }
 

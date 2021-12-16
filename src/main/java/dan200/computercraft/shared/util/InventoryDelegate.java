@@ -6,10 +6,10 @@
 
 package dan200.computercraft.shared.util;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.Set;
@@ -21,15 +21,15 @@ import java.util.Set;
  * inventories which change their backing store.
  */
 @FunctionalInterface
-public interface InventoryDelegate extends Inventory
+public interface InventoryDelegate extends Container
 {
     @Override
-    default int size()
+    default int getContainerSize()
     {
-        return getInventory().size();
+        return getInventory().getContainerSize();
     }
 
-    Inventory getInventory();
+    Container getInventory();
 
     @Override
     default boolean isEmpty()
@@ -39,82 +39,82 @@ public interface InventoryDelegate extends Inventory
 
     @Nonnull
     @Override
-    default ItemStack getStack( int slot )
+    default ItemStack getItem( int slot )
     {
-        return getInventory().getStack( slot );
+        return getInventory().getItem( slot );
     }
 
     @Nonnull
     @Override
-    default ItemStack removeStack( int slot, int count )
+    default ItemStack removeItem( int slot, int count )
     {
-        return getInventory().removeStack( slot, count );
+        return getInventory().removeItem( slot, count );
     }
 
     @Nonnull
     @Override
-    default ItemStack removeStack( int slot )
+    default ItemStack removeItemNoUpdate( int slot )
     {
-        return getInventory().removeStack( slot );
+        return getInventory().removeItemNoUpdate( slot );
     }
 
     @Override
-    default void setStack( int slot, @Nonnull ItemStack stack )
+    default void setItem( int slot, @Nonnull ItemStack stack )
     {
-        getInventory().setStack( slot, stack );
+        getInventory().setItem( slot, stack );
     }
 
     @Override
-    default int getMaxCountPerStack()
+    default int getMaxStackSize()
     {
-        return getInventory().getMaxCountPerStack();
+        return getInventory().getMaxStackSize();
     }
 
     @Override
-    default void markDirty()
+    default void setChanged()
     {
-        getInventory().markDirty();
+        getInventory().setChanged();
     }
 
     @Override
-    default boolean canPlayerUse( @Nonnull PlayerEntity player )
+    default boolean stillValid( @Nonnull Player player )
     {
-        return getInventory().canPlayerUse( player );
+        return getInventory().stillValid( player );
     }
 
     @Override
-    default void onOpen( @Nonnull PlayerEntity player )
+    default void startOpen( @Nonnull Player player )
     {
-        getInventory().onOpen( player );
+        getInventory().startOpen( player );
     }
 
     @Override
-    default void onClose( @Nonnull PlayerEntity player )
+    default void stopOpen( @Nonnull Player player )
     {
-        getInventory().onClose( player );
+        getInventory().stopOpen( player );
     }
 
     @Override
-    default boolean isValid( int slot, @Nonnull ItemStack stack )
+    default boolean canPlaceItem( int slot, @Nonnull ItemStack stack )
     {
-        return getInventory().isValid( slot, stack );
+        return getInventory().canPlaceItem( slot, stack );
     }
 
     @Override
-    default int count( @Nonnull Item stack )
+    default int countItem( @Nonnull Item stack )
     {
-        return getInventory().count( stack );
+        return getInventory().countItem( stack );
     }
 
     @Override
-    default boolean containsAny( @Nonnull Set<Item> set )
+    default boolean hasAnyOf( @Nonnull Set<Item> set )
     {
-        return getInventory().containsAny( set );
+        return getInventory().hasAnyOf( set );
     }
 
     @Override
-    default void clear()
+    default void clearContent()
     {
-        getInventory().clear();
+        getInventory().clearContent();
     }
 }

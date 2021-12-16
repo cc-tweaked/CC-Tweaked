@@ -10,9 +10,9 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.network.PacketContext;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
@@ -27,12 +27,12 @@ import java.util.UUID;
 public class SpeakerPlayClientMessage implements NetworkMessage
 {
     private final UUID source;
-    private final Vec3d pos;
-    private final Identifier sound;
+    private final Vec3 pos;
+    private final ResourceLocation sound;
     private final float volume;
     private final float pitch;
 
-    public SpeakerPlayClientMessage( UUID source, Vec3d pos, Identifier event, float volume, float pitch )
+    public SpeakerPlayClientMessage( UUID source, Vec3 pos, ResourceLocation event, float volume, float pitch )
     {
         this.source = source;
         this.pos = pos;
@@ -41,23 +41,23 @@ public class SpeakerPlayClientMessage implements NetworkMessage
         this.pitch = pitch;
     }
 
-    public SpeakerPlayClientMessage( PacketByteBuf buf )
+    public SpeakerPlayClientMessage( FriendlyByteBuf buf )
     {
-        source = buf.readUuid();
-        pos = new Vec3d( buf.readDouble(), buf.readDouble(), buf.readDouble() );
-        sound = buf.readIdentifier();
+        source = buf.readUUID();
+        pos = new Vec3( buf.readDouble(), buf.readDouble(), buf.readDouble() );
+        sound = buf.readResourceLocation();
         volume = buf.readFloat();
         pitch = buf.readFloat();
     }
 
     @Override
-    public void toBytes( @Nonnull PacketByteBuf buf )
+    public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
-        buf.writeUuid( source );
-        buf.writeDouble( pos.getX() );
-        buf.writeDouble( pos.getY() );
-        buf.writeDouble( pos.getZ() );
-        buf.writeIdentifier( sound );
+        buf.writeUUID( source );
+        buf.writeDouble( pos.x() );
+        buf.writeDouble( pos.y() );
+        buf.writeDouble( pos.z() );
+        buf.writeResourceLocation( sound );
         buf.writeFloat( volume );
         buf.writeFloat( pitch );
     }

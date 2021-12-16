@@ -3,7 +3,6 @@
  * Copyright Daniel Ratcliffe, 2011-2021. This API may be redistributed unmodified and in full only.
  * For help using the API, and posting your mods, visit the forums at computercraft.info.
  */
-
 package dan200.computercraft.api.network;
 
 import javax.annotation.Nonnull;
@@ -38,8 +37,8 @@ public interface IPacketNetwork
     boolean isWireless();
 
     /**
-     * Submit a packet for transmitting across the network. This will route the packet through the network, sending it to all receivers within range (or any
-     * interdimensional ones).
+     * Submit a packet for transmitting across the network. This will route the packet through the network, sending it
+     * to all receivers within range (or any interdimensional ones).
      *
      * @param packet The packet to send.
      * @param range  The maximum distance this packet will be sent.
@@ -49,8 +48,8 @@ public interface IPacketNetwork
     void transmitSameDimension( @Nonnull Packet packet, double range );
 
     /**
-     * Submit a packet for transmitting across the network. This will route the packet through the network, sending it to all receivers across all
-     * dimensions.
+     * Submit a packet for transmitting across the network. This will route the packet through the network, sending it
+     * to all receivers across all dimensions.
      *
      * @param packet The packet to send.
      * @see #transmitSameDimension(Packet, double)

@@ -3,12 +3,11 @@
  * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-
 package dan200.computercraft.shared.network.container;
 
 import dan200.computercraft.shared.common.ContainerHeldItem;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.util.Hand;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.InteractionHand;
 
 import javax.annotation.Nonnull;
 
@@ -20,26 +19,26 @@ import javax.annotation.Nonnull;
  */
 public class HeldItemContainerData implements ContainerData
 {
-    private final Hand hand;
+    private final InteractionHand hand;
 
-    public HeldItemContainerData( Hand hand )
+    public HeldItemContainerData( InteractionHand hand )
     {
         this.hand = hand;
     }
 
-    public HeldItemContainerData( PacketByteBuf buffer )
+    public HeldItemContainerData( FriendlyByteBuf buffer )
     {
-        hand = buffer.readEnumConstant( Hand.class );
+        hand = buffer.readEnum( InteractionHand.class );
     }
 
     @Override
-    public void toBytes( PacketByteBuf buf )
+    public void toBytes( FriendlyByteBuf buf )
     {
-        buf.writeEnumConstant( hand );
+        buf.writeEnum( hand );
     }
 
     @Nonnull
-    public Hand getHand()
+    public InteractionHand getHand()
     {
         return hand;
     }

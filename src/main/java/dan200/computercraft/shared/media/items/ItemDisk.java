@@ -13,17 +13,17 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.util.Colour;
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,28 +33,28 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
 {
     private static final String NBT_ID = "DiskId";
 
-    public ItemDisk( Settings settings )
+    public ItemDisk( Properties settings )
     {
         super( settings );
     }
 
     @Override
-    public void appendTooltip( @Nonnull ItemStack stack, @Nullable World world, @Nonnull List<Text> list, TooltipContext options )
+    public void appendHoverText( @Nonnull ItemStack stack, @Nullable Level world, @Nonnull List<Component> list, TooltipFlag options )
     {
         if( options.isAdvanced() )
         {
             int id = getDiskID( stack );
             if( id >= 0 )
             {
-                list.add( new TranslatableText( "gui.computercraft.tooltip.disk_id", id ).formatted( Formatting.GRAY ) );
+                list.add( new TranslatableComponent( "gui.computercraft.tooltip.disk_id", id ).withStyle( ChatFormatting.GRAY ) );
             }
         }
     }
 
     @Override
-    public void appendStacks( @Nonnull ItemGroup tabs, @Nonnull DefaultedList<ItemStack> list )
+    public void fillItemCategory( @Nonnull CreativeModeTab tabs, @Nonnull NonNullList<ItemStack> list )
     {
-        if( !isIn( tabs ) )
+        if( !allowdedIn( tabs ) )
         {
             return;
         }
@@ -78,21 +78,21 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     {
         if( id >= 0 )
         {
-            stack.getOrCreateNbt()
+            stack.getOrCreateTag()
                 .putInt( NBT_ID, id );
         }
     }
 
     public static int getDiskID( @Nonnull ItemStack stack )
     {
-        NbtCompound nbt = stack.getNbt();
+        CompoundTag nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_ID ) ? nbt.getInt( NBT_ID ) : -1;
     }
 
     @Override
     public String getLabel( @Nonnull ItemStack stack )
     {
-        return stack.hasCustomName() ? stack.getName()
+        return stack.hasCustomHoverName() ? stack.getHoverName()
             .getString() : null;
     }
 
@@ -101,17 +101,17 @@ public class ItemDisk extends Item implements IMedia, IColouredItem
     {
         if( label != null )
         {
-            stack.setCustomName( new LiteralText( label ) );
+            stack.setHoverName( new TextComponent( label ) );
         }
         else
         {
-            stack.removeCustomName();
+            stack.resetHoverName();
         }
         return true;
     }
 
     @Override
-    public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull World world )
+    public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull Level world )
     {
         int diskID = getDiskID( stack );
         if( diskID < 0 )
