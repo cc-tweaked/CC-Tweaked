@@ -15,7 +15,7 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketCl
 import static io.netty.handler.codec.http.websocketx.extensions.compression.PerMessageDeflateServerExtensionHandshaker.MAX_WINDOW_SIZE;
 
 /**
- * An alternative to {@link WebSocketClientCompressionHandler} which supports the {@literal client_no_context_takeover}
+ * An alternative to {@link WebSocketClientCompressionHandler} which supports the {@code client_no_context_takeover}
  * extension. Makes CC <em>slightly</em> more flexible.
  */
 @ChannelHandler.Sharable

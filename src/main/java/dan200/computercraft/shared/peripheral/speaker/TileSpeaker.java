@@ -16,7 +16,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -44,13 +43,13 @@ public class TileSpeaker extends TileGeneric implements IPeripheralTile
         super.setRemoved();
         if( level != null && !level.isClientSide )
         {
-            NetworkHandler.sendToAllPlayers( new SpeakerStopClientMessage( source ) );
+            NetworkHandler.sendToAllPlayers( new SpeakerStopClientMessage( peripheral.getSource() ) );
         }
     }
 
     @Nonnull
     @Override
-    public IPeripheral getPeripheral( @NotNull Direction side )
+    public IPeripheral getPeripheral( @Nonnull Direction side )
     {
         return peripheral;
     }
@@ -70,17 +69,12 @@ public class TileSpeaker extends TileGeneric implements IPeripheralTile
             return speaker.getLevel();
         }
 
+        @Nonnull
         @Override
         public Vec3 getPosition()
         {
             BlockPos pos = speaker.getBlockPos();
             return new Vec3( pos.getX(), pos.getY(), pos.getZ() );
-        }
-
-        @Override
-        protected UUID getSource()
-        {
-            return speaker.source;
         }
 
         @Override

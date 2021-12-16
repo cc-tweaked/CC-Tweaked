@@ -23,7 +23,9 @@
         "MixinItemInHandRenderer",
         "MixinLevelRenderer",
         "MixinMinecraft",
-        "MixinScreen"
+        "MixinScreen",
+        "MixinSoundEngine",
+        "BlockRenderDispatcherMixin"
     ],
     "server": [
         "MixinLanguage"

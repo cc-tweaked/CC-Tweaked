@@ -14,6 +14,7 @@ import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.client.render.TurtleModelLoader;
 import dan200.computercraft.client.render.TurtlePlayerRenderer;
+import dan200.computercraft.client.sound.SpeakerManager;
 import dan200.computercraft.fabric.events.ComputerCraftCustomEvents;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.ContainerHeldItem;
@@ -61,7 +62,10 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
             }
         } );
 
-        ComputerCraftCustomEvents.CLIENT_UNLOAD_WORLD_EVENT.register( () -> ClientMonitor.destroyAll() );
+        ComputerCraftCustomEvents.CLIENT_UNLOAD_WORLD_EVENT.register( () -> {
+            SpeakerManager.reset();
+            ClientMonitor.destroyAll();
+        } );
 
         // Config
         ClientLifecycleEvents.CLIENT_STARTED.register( Config::clientStarted );

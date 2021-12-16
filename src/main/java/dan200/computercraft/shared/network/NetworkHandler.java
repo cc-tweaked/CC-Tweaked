@@ -73,10 +73,11 @@ public final class NetworkHandler
         registerMainThread( 13, ComputerTerminalClientMessage.class, ComputerTerminalClientMessage::new );
         registerMainThread( 14, PlayRecordClientMessage.class, PlayRecordClientMessage::new );
         registerMainThread( 15, MonitorClientMessage.class, MonitorClientMessage::new );
-        registerMainThread( 16, SpeakerPlayClientMessage.class, SpeakerPlayClientMessage::new );
-        registerMainThread( 17, SpeakerStopClientMessage.class, SpeakerStopClientMessage::new );
-        registerMainThread( 18, SpeakerMoveClientMessage.class, SpeakerMoveClientMessage::new );
-        registerMainThread( 19, UploadResultMessage.class, UploadResultMessage::new );
+        registerMainThread( 16, SpeakerAudioClientMessage.class, SpeakerAudioClientMessage::new );
+        registerMainThread( 17, SpeakerMoveClientMessage.class, SpeakerMoveClientMessage::new );
+        registerMainThread( 18, SpeakerPlayClientMessage.class, SpeakerPlayClientMessage::new );
+        registerMainThread( 19, SpeakerStopClientMessage.class, SpeakerStopClientMessage::new );
+        registerMainThread( 20, UploadResultMessage.class, UploadResultMessage::new );
     }
 
     private static void receive( PacketContext context, FriendlyByteBuf buffer )

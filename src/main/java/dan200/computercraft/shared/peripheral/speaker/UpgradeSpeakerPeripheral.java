@@ -12,7 +12,6 @@ import me.shedaniel.cloth.api.utils.v1.GameInstanceUtils;
 import net.minecraft.server.MinecraftServer;
 
 import javax.annotation.Nonnull;
-import java.util.UUID;
 
 /**
  * A speaker peripheral which is used on an upgrade, and so is only attached to one computer.
@@ -21,14 +20,6 @@ public abstract class UpgradeSpeakerPeripheral extends SpeakerPeripheral
 {
     public static final String ADJECTIVE = "upgrade.computercraft.speaker.adjective";
 
-    private final UUID source = UUID.randomUUID();
-
-    @Override
-    protected final UUID getSource()
-    {
-        return source;
-    }
-
     @Override
     public void detach( @Nonnull IComputerAccess computer )
     {
@@ -36,6 +27,6 @@ public abstract class UpgradeSpeakerPeripheral extends SpeakerPeripheral
         MinecraftServer server = GameInstanceUtils.getServer();
         if( server == null || server.isStopped() ) return;
 
-        NetworkHandler.sendToAllPlayers( new SpeakerStopClientMessage( source ) );
+        NetworkHandler.sendToAllPlayers( new SpeakerStopClientMessage( getSource() ) );
     }
 }

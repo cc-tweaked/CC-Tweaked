@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.client.SoundManager;
+import dan200.computercraft.client.sound.SpeakerManager;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -46,6 +46,6 @@ public class SpeakerStopClientMessage implements NetworkMessage
     @Environment( EnvType.CLIENT )
     public void handle( PacketContext context )
     {
-        SoundManager.stopSound( source );
+        SpeakerManager.stopSound( source );
     }
 }

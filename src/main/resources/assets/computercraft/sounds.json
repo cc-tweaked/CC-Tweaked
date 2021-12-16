@@ -1,0 +1,10 @@
+{
+    "speaker.dfpwm_fake_audio_should_not_be_played": {
+        "sounds": [
+            {
+                "name": "computercraft:empty",
+                "stream": true
+            }
+        ]
+    }
+}

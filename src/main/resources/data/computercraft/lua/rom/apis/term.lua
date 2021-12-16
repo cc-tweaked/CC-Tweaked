@@ -59,7 +59,8 @@ end
 -- @treturn Redirect The current terminal redirect
 -- @since 1.6
 -- @usage
--- Create a new @{window} which draws to the current redirect target
+-- Create a new @{window} which draws to the current redirect target.
+--
 --     window.create(term.current(), 1, 1, 10, 10)
 term.current = function()
     return redirectTarget

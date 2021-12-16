@@ -115,6 +115,18 @@ shell.setCompletionFunction("rom/programs/fun/dj.lua", completion.build(
     { completion.choice, { "play", "play ", "stop " } },
     completion.peripheral
 ))
+shell.setCompletionFunction("rom/programs/fun/speaker.lua", completion.build(
+    { completion.choice, { "play ", "stop " } },
+    function(shell, text, previous)
+        if previous[2] == "play" then return completion.file(shell, text, previous, true)
+        elseif previous[2] == "stop" then return completion.peripheral(shell, text, previous, false)
+        end
+    end,
+    function(shell, text, previous)
+        if previous[2] == "play" then return completion.peripheral(shell, text, previous, false)
+        end
+    end
+))
 shell.setCompletionFunction("rom/programs/fun/advanced/paint.lua", completion.build(completion.file))
 shell.setCompletionFunction("rom/programs/http/pastebin.lua", completion.build(
     { completion.choice, { "put ", "get ", "run " } },
