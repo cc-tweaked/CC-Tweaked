@@ -6,7 +6,7 @@
 local expect
 
 do
-    local h = fs.open("rom/modules/main/cc/expect.lua", "rb")
+    local h = fs.open("rom/modules/main/cc/expect.lua", "r")
     local f, err = loadstring(h.readAll(), "@expect.lua")
     h.close()
 
