@@ -19,18 +19,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin( SoundEngine.class )
 public class MixinSoundEngine
 {
-    // Used to capture the SoundInstance argument passed to SoundEngine#Play. Not a thread-safe way to do it but
+    // Used to capture the SoundInstance argument passed to SoundEngine#play. Not a thread-safe way to do it but
     // this code is only called from the render thread as far as I can tell.
     @Unique
     private static SoundInstance onPlaySoundInstanceCapture;
 
     @Inject(
         method = "lambda$play$8",
-        at = @At( "TAIL" )
+        at = @At( "HEAD" ),
+        cancellable = true
     )
     private static void onStreamingSourcePlay( AudioStream audioStream, Channel channel, CallbackInfo ci )
     {
-        SpeakerManager.playStreaming( onPlaySoundInstanceCapture, channel );
+        if( SpeakerManager.playStreaming( onPlaySoundInstanceCapture, channel ) ) ci.cancel();
     }
 
     @Inject(

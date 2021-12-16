@@ -20,14 +20,16 @@ public class SpeakerManager
 {
     private static final Map<UUID, SpeakerInstance> sounds = new ConcurrentHashMap<>();
 
-    public static void playStreaming( SoundInstance soundInstance, Channel channel )
+    // A return value of true cancels the event
+    public static boolean playStreaming( SoundInstance soundInstance, Channel channel )
     {
-        if( !(soundInstance instanceof SpeakerSound) ) return;
+        if( !(soundInstance instanceof SpeakerSound) ) return false;
         SpeakerSound sound = (SpeakerSound) soundInstance;
-        if( sound.stream == null ) return;
+        if( sound.stream == null ) return false;
 
         channel.attachBufferStream( sound.stream );
         channel.play();
+        return true;
     }
 
     public static SpeakerInstance getSound( UUID source )
