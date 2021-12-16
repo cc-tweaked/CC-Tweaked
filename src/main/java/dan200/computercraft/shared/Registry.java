@@ -77,6 +77,16 @@ public final class Registry
 
     public static void init()
     {
+        // Touch each static class to force static initializers to run
+        // Maybe there's a better way to do this :/
+        Object[] o = {
+            ModBlockEntities.CABLE,
+            ModBlocks.CABLE,
+            ModItems.CABLE,
+            ModEntities.TURTLE_PLAYER,
+            ModContainers.COMPUTER,
+        };
+
         TurtleUpgrades.registerTurtleUpgrades();
         PocketUpgrades.registerPocketUpgrades();
 
