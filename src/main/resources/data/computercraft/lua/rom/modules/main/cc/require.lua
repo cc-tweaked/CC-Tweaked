@@ -135,6 +135,7 @@ local function make_package(env, dir)
     package.preload = {}
     package.loaders = { preload(package), from_file(package, env) }
     package.searchpath = make_searchpath(dir)
+    package.searchers = package.loaders
 
     return make_require(package), package
 end

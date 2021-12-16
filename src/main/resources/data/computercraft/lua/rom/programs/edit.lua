@@ -30,7 +30,7 @@ local tLines = {}
 local bRunning = true
 
 -- Colours
-local highlightColour, keywordColour, commentColour, textColour, bgColour, stringColour
+local highlightColour, keywordColour, commentColour, textColour, bgColour, stringColour, labelColour
 if term.isColour() then
     bgColour = colours.black
     textColour = colours.white
@@ -38,6 +38,7 @@ if term.isColour() then
     keywordColour = colours.yellow
     commentColour = colours.green
     stringColour = colours.red
+    labelColour = colours.orange
 else
     bgColour = colours.black
     textColour = colours.white
@@ -45,6 +46,7 @@ else
     keywordColour = colours.white
     commentColour = colours.white
     stringColour = colours.white
+    labelColour = colours.white
 end
 
 local runHandler = [[multishell.setTitle(multishell.getCurrent(), %q)
@@ -150,6 +152,7 @@ local tKeywords = {
     ["false"] = true,
     ["for"] = true,
     ["function"] = true,
+    ["goto"] = true,
     ["if"] = true,
     ["in"] = true,
     ["local"] = true,
@@ -189,6 +192,7 @@ local function writeHighlighted(sLine)
             tryWrite(sLine, "^\'\'", stringColour) or
             tryWrite(sLine, "^\'.-[^\\]\'", stringColour) or
             tryWrite(sLine, "^%[%[.-%]%]", stringColour) or
+            tryWrite(sLine, "^::.-::", labelColour) or
             tryWrite(sLine, "^[%w_]+", function(match)
                 if tKeywords[match] then
                     return keywordColour

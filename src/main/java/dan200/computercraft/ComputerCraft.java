@@ -38,6 +38,7 @@ public final class ComputerCraft
     public static String defaultComputerSettings = "";
     public static boolean logComputerErrors = true;
     public static boolean commandRequireCreative = true;
+    public static boolean disableGotoStatement = false;
 
     public static int computerThreads = 1;
     public static long maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos( 10 );
