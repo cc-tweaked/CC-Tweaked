@@ -489,7 +489,7 @@ task checkRelease {
 }
 check.dependsOn checkRelease
 
-def isStable = false
+def isStable = true
 
 curseforge {
     apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''
