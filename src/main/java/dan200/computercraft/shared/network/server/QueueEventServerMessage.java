@@ -7,8 +7,8 @@ package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.network.PacketContext;
 import dan200.computercraft.shared.util.NBTUtil;
-import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 

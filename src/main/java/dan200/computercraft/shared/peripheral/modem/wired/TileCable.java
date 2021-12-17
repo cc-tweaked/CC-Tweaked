@@ -316,7 +316,7 @@ public class TileCable extends TileGeneric implements IPeripheralTile
         for( Direction facing : DirectionUtil.FACINGS )
         {
             BlockPos offset = current.relative( facing );
-            if( !world.hasChunkAt( offset ) )
+            if( !world.isLoaded( offset ) )
             {
                 continue;
             }

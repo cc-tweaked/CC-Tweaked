@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.ComputerCraft;
-import net.fabricmc.fabric.api.network.PacketContext;
+import dan200.computercraft.shared.network.PacketContext;
 import net.minecraft.network.FriendlyByteBuf;
 
 public class ComputerDeletedClientMessage extends ComputerClientMessage

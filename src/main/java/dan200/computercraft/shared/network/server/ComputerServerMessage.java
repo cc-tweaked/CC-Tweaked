@@ -9,7 +9,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.NetworkMessage;
-import net.fabricmc.fabric.api.network.PacketContext;
+import dan200.computercraft.shared.network.PacketContext;
 import net.minecraft.network.FriendlyByteBuf;
 
 import javax.annotation.Nonnull;
