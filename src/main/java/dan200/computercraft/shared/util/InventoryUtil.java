@@ -42,27 +42,20 @@ public final class InventoryUtil
     public static Container getInventory( Level world, BlockPos pos, Direction side )
     {
         // Look for tile with inventory
-        int y = pos.getY();
-        if( y >= 0 && y < world.getHeight() )
+        BlockEntity tileEntity = world.getBlockEntity( pos );
+        if( tileEntity != null )
         {
-            // Check if block is InventoryProvider
-            BlockState blockState = world.getBlockState( pos );
-            Block block = blockState.getBlock();
-            if( block instanceof WorldlyContainerHolder containerHolder )
+            Container inventory = getInventory( tileEntity );
+            if( inventory != null )
             {
-                return containerHolder.getContainer( blockState, world, pos );
+                return inventory;
             }
-            // Check if block is BlockEntity w/ Inventory
-            if( blockState.hasBlockEntity() )
-            {
-                BlockEntity tileEntity = world.getBlockEntity( pos );
+        }
 
-                Container inventory = getInventory( tileEntity );
-                if( inventory != null )
-                {
-                    return inventory;
-                }
-            }
+        BlockState block = world.getBlockState( pos );
+        if( block.getBlock() instanceof WorldlyContainerHolder containerHolder )
+        {
+            return containerHolder.getContainer( block, world, pos );
         }
 
         // Look for entity with inventory
@@ -97,9 +90,9 @@ public final class InventoryUtil
         if( tileEntity instanceof Container )
         {
             Container inventory = (Container) tileEntity;
-            if( inventory instanceof ChestBlockEntity && block instanceof ChestBlock )
+            if( inventory instanceof ChestBlockEntity && block instanceof ChestBlock chestBlock )
             {
-                return ChestBlock.getContainer( (ChestBlock) block, blockState, world, pos, true );
+                return ChestBlock.getContainer( chestBlock, blockState, world, pos, true );
             }
             return inventory;
         }
