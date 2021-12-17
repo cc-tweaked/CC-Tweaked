@@ -9,7 +9,6 @@
         "MixinBlock",
         "MixinChunkMap",
         "MixinEntity",
-        "MixinLevel",
         "MixinMatrix4f",
         "MixinServerLevel",
         "MixinServerPlayerGameMode"
