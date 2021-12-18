@@ -173,7 +173,6 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
                     return;
                 }
 
-                buffer.rewind();
                 toUpload.add( new FileUpload( name, buffer, digest ) );
             }
             catch( IOException e )
