@@ -106,7 +106,8 @@ class DfpwmStream implements AudioStream
             if( head == null ) break;
 
             int toRead = Math.min( head.remaining(), result.remaining() );
-            result.put( head.array(), head.position(), toRead ); // TODO: In 1.17 convert this to a ByteBuffer override
+            result.put( result.position(), head, head.position(), toRead );
+            result.position( result.position() + toRead );
             head.position( head.position() + toRead );
 
             if( head.hasRemaining() ) break;

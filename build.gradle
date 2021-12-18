@@ -50,7 +50,6 @@ tasks.withType(JavaExec).configureEach {
 sourceSets {
     main.java {
         exclude 'dan200/computercraft/shared/integration/jei/**'
-        exclude 'dan200/computercraft/shared/integration/morered/**'
     }
     main.resources {
         srcDir 'src/generated/resources'
@@ -491,7 +490,7 @@ task checkRelease {
 }
 check.dependsOn checkRelease
 
-def isStable = false
+def isStable = true
 
 curseforge {
     apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''

@@ -53,11 +53,6 @@ public class FileSlice
             return;
         }
 
-        bytes.rewind();
-        file.position( offset );
-        file.put( bytes );
-        file.rewind();
-
-        if( bytes.remaining() != 0 ) throw new IllegalStateException( "Should have read the whole buffer" );
+        file.put( offset, bytes, bytes.position(), bytes.remaining() );
     }
 }
