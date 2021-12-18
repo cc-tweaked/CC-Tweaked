@@ -53,10 +53,6 @@ public class FileSlice
             return;
         }
 
-        ByteBuffer other = file.duplicate();
-        other.position( offset ); // TODO: In 1.17 we can use a separate put(idx, _) method.
-        other.put( bytes );
-
-        if( bytes.remaining() != 0 ) throw new IllegalStateException( "Should have read the whole buffer" );
+        file.put( offset, bytes, bytes.position(), bytes.remaining() );
     }
 }
