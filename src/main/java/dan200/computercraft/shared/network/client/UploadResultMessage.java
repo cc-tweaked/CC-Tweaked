@@ -9,7 +9,7 @@ import dan200.computercraft.client.gui.ComputerScreenBase;
 import dan200.computercraft.client.gui.OptionScreen;
 import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.NetworkMessage;
-import net.fabricmc.fabric.api.network.PacketContext;
+import dan200.computercraft.shared.network.PacketContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.FriendlyByteBuf;

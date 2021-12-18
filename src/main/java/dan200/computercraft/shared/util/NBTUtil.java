@@ -7,7 +7,6 @@ package dan200.computercraft.shared.util;
 
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.nbt.*;
-import org.apache.commons.codec.binary.Hex;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -177,13 +176,20 @@ public final class NBTUtil
             DataOutput output = new DataOutputStream( new DigestOutputStream( digest ) );
             NbtIo.write( tag, output );
             byte[] hash = digest.digest();
-            return new String( Hex.encodeHex( hash ) );
+            return encodeHex( hash );
         }
         catch( NoSuchAlgorithmException | IOException e )
         {
             ComputerCraft.log.error( "Cannot hash NBT", e );
             return null;
         }
+    }
+
+    private static String encodeHex( byte[] bytes )
+    {
+        StringBuilder result = new StringBuilder();
+        for ( byte b : bytes ) result.append( String.format( "%02x", b ) );
+        return result.toString();
     }
 
     private static final class DigestOutputStream extends OutputStream

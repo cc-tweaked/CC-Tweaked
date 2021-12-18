@@ -15,11 +15,12 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import me.shedaniel.cloth.api.utils.v1.GameInstanceUtils;
 import net.fabricmc.api.EnvType;
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
-import net.fabricmc.fabric.api.network.PacketContext;
-import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
@@ -27,6 +28,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -50,12 +52,8 @@ public final class NetworkHandler
 
     public static void setup()
     {
-        ServerSidePacketRegistry.INSTANCE.register( ID, NetworkHandler::receive );
-        if( FabricLoader.getInstance()
-            .getEnvironmentType() == EnvType.CLIENT )
-        {
-            ClientSidePacketRegistry.INSTANCE.register( ID, NetworkHandler::receive );
-        }
+        ServerPlayNetworking.registerGlobalReceiver( ID, NetworkHandler::receive );
+        if( FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT ) ClientHandler.setup();
 
         // Server messages
         registerMainThread( 0, ComputerActionServerMessage.class, ComputerActionServerMessage::new );
@@ -80,18 +78,16 @@ public final class NetworkHandler
         registerMainThread( 20, UploadResultMessage.class, UploadResultMessage::new );
     }
 
-    private static void receive( PacketContext context, FriendlyByteBuf buffer )
+    private static void receive( MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buffer, PacketSender sender )
     {
         int type = buffer.readByte();
-        packetReaders.get( type )
-            .accept( context, buffer );
+        packetReaders.get( type ).accept( new PacketContext( player, server ), buffer );
     }
 
     @SuppressWarnings( "unchecked" )
     private static <T> Class<T> getType( Supplier<T> supplier )
     {
-        return (Class<T>) supplier.get()
-            .getClass();
+        return (Class<T>) supplier.get().getClass();
     }
 
     private static FriendlyByteBuf encode( NetworkMessage message )
@@ -126,23 +122,37 @@ public final class NetworkHandler
     public static void sendToAllTracking( NetworkMessage packet, LevelChunk chunk )
     {
         Consumer<ServerPlayer> sender = p -> p.connection.send( new ClientboundCustomPayloadPacket( ID, encode( packet ) ) );
-        ((ServerChunkCache)chunk.getLevel().getChunkSource()).chunkMap.getPlayers( chunk.getPos(), false ).forEach( sender );
+        ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers( chunk.getPos(), false ).forEach( sender );
     }
 
     /**
      * Register packet, and a thread-unsafe handler for it.
      *
-     * @param <T>       The type of the packet to send.
-     * @param type      The class of the type of packet to send.
-     * @param id        The identifier for this packet type.
-     * @param decoder   The factory for this type of packet.
+     * @param <T>     The type of the packet to send.
+     * @param type    The class of the type of packet to send.
+     * @param id      The identifier for this packet type.
+     * @param decoder The factory for this type of packet.
      */
     private static <T extends NetworkMessage> void registerMainThread( int id, Class<T> type, Function<FriendlyByteBuf, T> decoder )
     {
         packetIds.put( type, id );
         packetReaders.put( id, ( context, buf ) -> {
             T result = decoder.apply( buf );
-            context.getTaskQueue().execute( () -> result.handle( context ) );
+            context.executor().execute( () -> result.handle( context ) );
         } );
+    }
+
+    private static class ClientHandler
+    {
+        static void setup()
+        {
+            ClientPlayNetworking.registerGlobalReceiver( ID, ClientHandler::receive );
+        }
+
+        static void receive( Minecraft client, ClientPacketListener handler, FriendlyByteBuf buffer, PacketSender responseSender )
+        {
+            int type = buffer.readByte();
+            packetReaders.get( type ).accept( new PacketContext( client.player, client ), buffer );
+        }
     }
 }

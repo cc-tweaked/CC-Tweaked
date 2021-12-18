@@ -6,8 +6,8 @@
 package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.network.NetworkMessage;
+import dan200.computercraft.shared.network.PacketContext;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
-import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;

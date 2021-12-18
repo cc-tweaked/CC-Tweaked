@@ -45,11 +45,13 @@ import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
-import dan200.computercraft.shared.turtle.upgrades.*;
+import dan200.computercraft.shared.turtle.upgrades.TurtleCraftingTable;
+import dan200.computercraft.shared.turtle.upgrades.TurtleModem;
+import dan200.computercraft.shared.turtle.upgrades.TurtleSpeaker;
+import dan200.computercraft.shared.turtle.upgrades.TurtleTool;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
-import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.resources.ResourceLocation;
@@ -107,14 +109,14 @@ public final class Registry
         public static final BlockMonitor MONITOR_ADVANCED =
             register( "monitor_advanced", new BlockMonitor( properties(), () -> ModBlockEntities.MONITOR_ADVANCED ) );
 
-        public static final BlockComputer COMPUTER_NORMAL =
-            register( "computer_normal", new BlockComputer( properties(), ComputerFamily.NORMAL, () -> ModBlockEntities.COMPUTER_NORMAL ) );
+        public static final BlockComputer<TileComputer> COMPUTER_NORMAL =
+            register( "computer_normal", new BlockComputer<>( properties(), ComputerFamily.NORMAL, () -> ModBlockEntities.COMPUTER_NORMAL ) );
 
-        public static final BlockComputer COMPUTER_ADVANCED =
-            register( "computer_advanced", new BlockComputer( properties(), ComputerFamily.ADVANCED, () -> ModBlockEntities.COMPUTER_ADVANCED ) );
+        public static final BlockComputer<TileComputer> COMPUTER_ADVANCED =
+            register( "computer_advanced", new BlockComputer<>( properties(), ComputerFamily.ADVANCED, () -> ModBlockEntities.COMPUTER_ADVANCED ) );
 
-        public static final BlockComputer COMPUTER_COMMAND =
-            register( "computer_command", new BlockComputer( FabricBlockSettings.copyOf( Blocks.STONE ).strength( -1, 6000000.0F ), ComputerFamily.COMMAND, () -> ModBlockEntities.COMPUTER_COMMAND ) );
+        public static final BlockComputer<TileCommandComputer> COMPUTER_COMMAND =
+            register( "computer_command", new BlockComputer<>( FabricBlockSettings.copyOf( Blocks.STONE ).strength( -1, 6000000.0F ), ComputerFamily.COMMAND, () -> ModBlockEntities.COMPUTER_COMMAND ) );
 
         public static final BlockTurtle TURTLE_NORMAL =
             register( "turtle_normal", new BlockTurtle( turtleProperties(), ComputerFamily.NORMAL, () -> ModBlockEntities.TURTLE_NORMAL ) );
@@ -155,7 +157,7 @@ public final class Registry
 
         private static BlockBehaviour.Properties modemProperties()
         {
-            return FabricBlockSettings.copyOf( Blocks.STONE ).breakByHand( true ).breakByTool( FabricToolTags.PICKAXES ).strength( 1.5f );
+            return FabricBlockSettings.copyOf( Blocks.STONE ).breakByHand( true ).strength( 1.5f );
         }
     }
 
@@ -301,7 +303,7 @@ public final class Registry
     {
         public static final EntityType<TurtlePlayer> TURTLE_PLAYER =
             net.minecraft.core.Registry.register( net.minecraft.core.Registry.ENTITY_TYPE, new ResourceLocation( MOD_ID, "turtle_player" ),
-            EntityType.Builder.<TurtlePlayer>createNothing( MobCategory.MISC ).noSave().noSummon().sized( 0, 0 ).build( ComputerCraft.MOD_ID + ":turtle_player" ) );
+                EntityType.Builder.<TurtlePlayer>createNothing( MobCategory.MISC ).noSave().noSummon().sized( 0, 0 ).build( ComputerCraft.MOD_ID + ":turtle_player" ) );
     }
 
     public static class ModContainers

@@ -17,7 +17,7 @@ import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRuleConfig;
 import dan200.computercraft.fabric.mixin.LevelResourceAccess;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
-import net.fabricmc.loader.FabricLoader;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
@@ -47,7 +47,7 @@ public final class Config
     private static final String serverFileName = "computercraft-server.toml";
 
     private static Path serverPath = null;
-    private static final Path clientPath = FabricLoader.INSTANCE.getConfigDir().resolve( "computercraft-client.toml" );
+    private static final Path clientPath = FabricLoader.getInstance().getConfigDir().resolve( "computercraft-client.toml" );
 
     private Config()
     {

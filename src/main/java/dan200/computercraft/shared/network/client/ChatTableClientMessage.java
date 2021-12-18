@@ -8,7 +8,7 @@ package dan200.computercraft.shared.network.client;
 import dan200.computercraft.client.ClientTableFormatter;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.network.NetworkMessage;
-import net.fabricmc.fabric.api.network.PacketContext;
+import dan200.computercraft.shared.network.PacketContext;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 

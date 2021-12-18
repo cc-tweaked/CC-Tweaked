@@ -61,16 +61,30 @@ public class TurtleModem extends AbstractTurtleUpgrade
         }
     }
 
+    @Environment( EnvType.CLIENT )
+    private class Models
+    {
+        private final ModelResourceLocation leftOffModel = advanced ?
+            new ModelResourceLocation( "computercraft:turtle_modem_advanced_off_left", "inventory" ) :
+            new ModelResourceLocation( "computercraft:turtle_modem_normal_off_left", "inventory" );
+
+        private final ModelResourceLocation rightOffModel = advanced ?
+            new ModelResourceLocation( "computercraft:turtle_modem_advanced_off_right", "inventory" ) :
+            new ModelResourceLocation( "computercraft:turtle_modem_normal_off_right", "inventory" );
+
+        private final ModelResourceLocation leftOnModel = advanced ?
+            new ModelResourceLocation( "computercraft:turtle_modem_advanced_on_left", "inventory" ) :
+            new ModelResourceLocation( "computercraft:turtle_modem_normal_on_left", "inventory" );
+
+        private final ModelResourceLocation rightOnModel = advanced ?
+            new ModelResourceLocation( "computercraft:turtle_modem_advanced_on_right", "inventory" ) :
+            new ModelResourceLocation( "computercraft:turtle_modem_normal_on_right", "inventory" );
+    }
+
     private final boolean advanced;
 
     @Environment( EnvType.CLIENT )
-    private ModelResourceLocation leftOffModel;
-    @Environment( EnvType.CLIENT )
-    private ModelResourceLocation rightOffModel;
-    @Environment( EnvType.CLIENT )
-    private ModelResourceLocation leftOnModel;
-    @Environment( EnvType.CLIENT )
-    private ModelResourceLocation rightOnModel;
+    private Models models;
 
     public TurtleModem( ResourceLocation id, ItemStack stack, boolean advanced )
     {
@@ -96,7 +110,7 @@ public class TurtleModem extends AbstractTurtleUpgrade
     @Environment( EnvType.CLIENT )
     public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
     {
-        loadModelLocations();
+        if( models == null ) models = new Models();
 
         boolean active = false;
         if( turtle != null )
@@ -106,32 +120,8 @@ public class TurtleModem extends AbstractTurtleUpgrade
         }
 
         return side == TurtleSide.LEFT
-            ? TransformedModel.of( active ? leftOnModel : leftOffModel )
-            : TransformedModel.of( active ? rightOnModel : rightOffModel );
-    }
-
-    // This exists separate from the constructor because we can't use the class ModelResourceLocation on the dedicated
-    // server.
-    @Environment( EnvType.CLIENT )
-    private void loadModelLocations()
-    {
-        if( leftOffModel == null )
-        {
-            if( advanced )
-            {
-                leftOffModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_off_left", "inventory" );
-                rightOffModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_off_right", "inventory" );
-                leftOnModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_on_left", "inventory" );
-                rightOnModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_on_right", "inventory" );
-            }
-            else
-            {
-                leftOffModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_off_left", "inventory" );
-                rightOffModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_off_right", "inventory" );
-                leftOnModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_on_left", "inventory" );
-                rightOnModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_on_right", "inventory" );
-            }
-        }
+            ? TransformedModel.of( active ? models.leftOnModel : models.leftOffModel )
+            : TransformedModel.of( active ? models.rightOnModel : models.rightOffModel );
     }
 
     @Override

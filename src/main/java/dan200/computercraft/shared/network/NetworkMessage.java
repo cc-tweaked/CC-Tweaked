@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.network;
 
-import net.fabricmc.fabric.api.network.PacketContext;
 import net.minecraft.network.FriendlyByteBuf;
 
 import javax.annotation.Nonnull;
