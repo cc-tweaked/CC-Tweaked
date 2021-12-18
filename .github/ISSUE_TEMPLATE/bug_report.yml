@@ -17,7 +17,7 @@ body:
   id: version
   attributes:
     label: Version
-    description: "What version of CC: Tweaked are you using?"
+    description: "What version of CC: Restitched are you using?"
     placeholder: "e.g. 1.96.0"
   validations:
     required: true
