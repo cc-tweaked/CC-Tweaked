@@ -48,9 +48,6 @@ tasks.withType(JavaExec).configureEach {
 }
 
 sourceSets {
-    main.java {
-        exclude 'dan200/computercraft/shared/integration/morered/**'
-    }
     main.resources {
         srcDir 'src/generated/resources'
     }
@@ -162,7 +159,6 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
     compileOnly fg.deobf("mezz.jei:jei-1.17.1:8.0.0.14:api")
-    // compileOnly fg.deobf("commoble.morered:morered-1.16.5:2.1.1.0")
 
     runtimeOnly fg.deobf("mezz.jei:jei-1.17.1:8.0.0.14")
 

@@ -400,9 +400,6 @@ public final class Registry
 
         CauldronInteraction.WATER.put( ModItems.TURTLE_NORMAL.get(), ItemTurtle.CAULDRON_INTERACTION );
         CauldronInteraction.WATER.put( ModItems.TURTLE_ADVANCED.get(), ItemTurtle.CAULDRON_INTERACTION );
-
-        // Mod integration code.
-        // TODO: if( ModList.get().isLoaded( MoreRedIntegration.MOD_ID ) ) MoreRedIntegration.initialise();
     }
 
     public static void registerLoot()
