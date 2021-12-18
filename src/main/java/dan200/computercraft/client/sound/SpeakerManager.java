@@ -8,6 +8,7 @@ package dan200.computercraft.client.sound;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.sound.PlayStreamingSourceEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -32,6 +33,15 @@ public class SpeakerManager
 
         event.getSource().attachBufferStream( sound.stream );
         event.getSource().play();
+    }
+
+    @SubscribeEvent
+    public static void onTick( TickEvent.ClientTickEvent event )
+    {
+        for( SpeakerInstance speaker : sounds.values() )
+        {
+            speaker.update();
+        }
     }
 
     public static SpeakerInstance getSound( UUID source )
