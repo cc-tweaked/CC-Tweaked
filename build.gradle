@@ -48,9 +48,6 @@ tasks.withType(JavaExec).configureEach {
 }
 
 sourceSets {
-    main.java {
-        exclude 'dan200/computercraft/shared/integration/jei/**'
-    }
     main.resources {
         srcDir 'src/generated/resources'
     }
@@ -162,8 +159,8 @@ dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
-    // compileOnly fg.deobf("mezz.jei:jei-1.17.1:8.0.0.14:api")
-    // runtimeOnly fg.deobf("mezz.jei:jei-1.17.1:8.0.0.14")
+    compileOnly fg.deobf("mezz.jei:jei-1.18.1:9.1.0.47:api")
+    runtimeOnly fg.deobf("mezz.jei:jei-1.18.1:9.1.0.47")
 
     shade 'org.squiddev:Cobalt:0.5.2-SNAPSHOT'
 
