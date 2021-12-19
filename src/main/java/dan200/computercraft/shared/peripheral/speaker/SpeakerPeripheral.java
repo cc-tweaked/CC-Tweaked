@@ -343,7 +343,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
         // TODO: Use ArgumentHelpers instead?
         int length = audio.length();
         if( length <= 0 ) throw new LuaException( "Cannot play empty audio" );
-        if( length > 1024 * 16 * 8 ) throw new LuaException( "Audio data is too large" );
+        if( length > 128 * 1024 ) throw new LuaException( "Audio data is too large" );
 
         DfpwmState state;
         synchronized( lock )

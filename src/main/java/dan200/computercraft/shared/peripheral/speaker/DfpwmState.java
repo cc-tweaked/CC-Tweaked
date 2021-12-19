@@ -28,7 +28,7 @@ class DfpwmState
      * The minimum size of the client's audio buffer. Once we have less than this on the client, we should send another
      * batch of audio.
      */
-    private static final long CLIENT_BUFFER = (long) (SECOND * 1.5);
+    private static final long CLIENT_BUFFER = (long) (SECOND * 0.5);
 
     private static final int PREC = 10;
 

@@ -32,6 +32,9 @@ public class SpeakerManager
 
         event.getSource().attachBufferStream( sound.stream );
         event.getSource().play();
+
+        sound.source = event.getSource();
+        sound.executor = event.getManager().executor;
     }
 
     public static SpeakerInstance getSound( UUID source )

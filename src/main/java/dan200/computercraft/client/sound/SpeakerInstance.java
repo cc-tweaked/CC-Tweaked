@@ -28,8 +28,20 @@ public class SpeakerInstance
 
     public synchronized void pushAudio( ByteBuf buffer )
     {
-        if( currentStream == null ) currentStream = new DfpwmStream();
+        SpeakerSound sound = this.sound;
+
+        DfpwmStream stream = currentStream;
+        if( stream == null ) stream = currentStream = new DfpwmStream();
+        boolean exhausted = stream.isEmpty();
         currentStream.push( buffer );
+
+        // If we've got nothing left in the buffer, enqueue an additional one just in case.
+        if( exhausted && sound != null && sound.stream == stream && sound.source != null )
+        {
+            sound.executor.execute( () -> {
+                if( !sound.source.stopped() ) sound.source.pumpBuffers( 1 );
+            } );
+        }
     }
 
     public void playAudio( Vector3d position, float volume )

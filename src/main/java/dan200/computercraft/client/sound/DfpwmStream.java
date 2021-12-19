@@ -114,12 +114,19 @@ class DfpwmStream implements IAudioStream
         }
 
         result.flip();
-        return result;
+
+        // This is naughty, but ensures we're not enqueuing empty buffers when the stream is exhausted.
+        return result.remaining() == 0 ? null : result;
     }
 
     @Override
     public void close() throws IOException
     {
         buffers.clear();
+    }
+
+    public boolean isEmpty()
+    {
+        return buffers.isEmpty();
     }
 }
