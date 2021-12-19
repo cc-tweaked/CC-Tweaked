@@ -17,6 +17,7 @@ import dan200.computercraft.shared.network.client.SpeakerAudioClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerMoveClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerPlayClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
+import dan200.computercraft.shared.util.PauseAwareTimer;
 import net.minecraft.network.play.server.SPlaySoundPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.state.properties.NoteBlockInstrument;
@@ -119,7 +120,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
             return;
         }
 
-        long now = System.nanoTime();
+        long now = PauseAwareTimer.getTime();
         if( sound != null )
         {
             lastPlayTime = clock;
