@@ -73,10 +73,11 @@ public final class ColourableRecipe extends CustomRecipe
         for( int i = 0; i < inv.getContainerSize(); i++ )
         {
             ItemStack stack = inv.getItem( i );
+            if( stack.isEmpty() ) continue;
 
-            if( stack.isEmpty() )
+            if( stack.getItem() instanceof IColouredItem )
             {
-                continue;
+                colourable = stack;
             }
             else
             {
