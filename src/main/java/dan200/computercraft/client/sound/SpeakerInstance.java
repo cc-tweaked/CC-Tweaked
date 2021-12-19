@@ -50,9 +50,6 @@ public class SpeakerInstance
         AL10.alSourcei( source, AL10.AL_LOOPING, AL10.AL_FALSE );
 
         AL10.alSourceQueueBuffers( source, buffers );
-
-        //Trigger the source to play its sound
-        AL10.alSourcePlay( source );
     }
 
     public synchronized void pushAudio( ByteBuf buffer )
@@ -67,6 +64,10 @@ public class SpeakerInstance
         {
             AL10.alSource3f( source, AL10.AL_POSITION, (float)position.x + 0.5f, (float)position.y + 0.5f, (float)position.z + 0.5f );
             AL10.alSourcef( source, AL10.AL_GAIN, volume );
+            if( AL10.alGetSourcei( source, AL10.AL_SOURCE_STATE ) != AL10.AL_PLAYING )
+            {
+                AL10.alSourcePlay( source );
+            }
             playing = true;
         }
     }
@@ -88,38 +89,39 @@ public class SpeakerInstance
 
     void update()
     {
-        if( AL10.alGetSourcei( source, AL10.AL_SOURCE_STATE ) != AL10.AL_PLAYING )
+        if( playing )
         {
-            AL10.alSourcePlay( source );
-            return;
-        }
-        int buffersProcessed = AL10.alGetSourcei( source, AL10.AL_BUFFERS_PROCESSED );
-        while( buffersProcessed-- > 0 )
-        {
-            int buffer = AL10.alSourceUnqueueBuffers( source );
-            ShortBuffer stream;
-            if( playing && currentStream != null )
+            int buffersProcessed = AL10.alGetSourcei( source, AL10.AL_BUFFERS_PROCESSED );
+            while( buffersProcessed-- > 0 )
             {
-                ByteBuffer buf = currentStream.read( BUFFER_SIZE );
-                if( buf.limit() < BUFFER_SIZE )
+                int buffer = AL10.alSourceUnqueueBuffers( source );
+                ShortBuffer stream;
+                if( playing && currentStream != null )
                 {
-                    playing = false;
-                    currentStream = null;
+                    ByteBuffer buf = currentStream.read( BUFFER_SIZE );
+                    if( buf.limit() < BUFFER_SIZE )
+                    {
+                        currentStream = null;
+                    }
+                    stream = buf.asShortBuffer();
                 }
-                stream = buf.asShortBuffer();
+                else
+                {
+                    AL10.alSourceStop( source );
+                    playing = false;
+                    return;
+                }
+                AL10.alBufferData( buffer, AL10.AL_FORMAT_MONO16, stream, 48000 );
+                AL10.alSourceQueueBuffers( source, buffer );
             }
-            else
-            {
-                stream = BufferUtils.createShortBuffer( BUFFER_SIZE );
-            }
-            AL10.alBufferData( buffer, AL10.AL_FORMAT_MONO16, stream, 48000 );
-            AL10.alSourceQueueBuffers( source, buffer );
         }
     }
 
     void setPosition( Vector3d position )
     {
         if( sound != null ) sound.setPosition( position );
+        if( playing && currentStream != null )
+            AL10.alSource3f( source, AL10.AL_POSITION, (float)position.x + 0.5f, (float)position.y + 0.5f, (float)position.z + 0.5f );
     }
 
     void stop()
