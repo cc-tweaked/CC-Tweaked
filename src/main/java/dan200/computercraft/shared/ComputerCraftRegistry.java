@@ -95,31 +95,31 @@ public final class ComputerCraftRegistry
     public static final class ModBlocks
     {
         public static final BlockComputer COMPUTER_NORMAL = register( "computer_normal",
-            new BlockComputer( properties(), ComputerFamily.NORMAL, ComputerCraftRegistry.ModTiles.COMPUTER_NORMAL ) );
+            new BlockComputer( properties(), ComputerFamily.NORMAL, () -> ComputerCraftRegistry.ModTiles.COMPUTER_NORMAL ) );
         public static final BlockComputer COMPUTER_ADVANCED = register( "computer_advanced",
             new BlockComputer( properties(),
                 ComputerFamily.ADVANCED,
-                ComputerCraftRegistry.ModTiles.COMPUTER_ADVANCED ) );
+                () -> ComputerCraftRegistry.ModTiles.COMPUTER_ADVANCED ) );
         public static final BlockComputer COMPUTER_COMMAND = register( "computer_command",
             new BlockComputer( FabricBlockSettings.copyOf( Blocks.STONE )
                 .strength( -1, 6000000.0F ),
                 ComputerFamily.COMMAND,
-                ComputerCraftRegistry.ModTiles.COMPUTER_COMMAND ) );
+                () -> ComputerCraftRegistry.ModTiles.COMPUTER_COMMAND ) );
         public static final BlockTurtle TURTLE_NORMAL = register( "turtle_normal",
-            new BlockTurtle( turtleProperties(), ComputerFamily.NORMAL, ComputerCraftRegistry.ModTiles.TURTLE_NORMAL ) );
+            new BlockTurtle( turtleProperties(), ComputerFamily.NORMAL, () -> ModTiles.TURTLE_NORMAL ) );
         public static final BlockTurtle TURTLE_ADVANCED = register( "turtle_advanced",
-            new BlockTurtle( turtleProperties(), ComputerFamily.ADVANCED, ComputerCraftRegistry.ModTiles.TURTLE_ADVANCED ) );
+            new BlockTurtle( turtleProperties(), ComputerFamily.ADVANCED, () -> ModTiles.TURTLE_ADVANCED ) );
         public static final BlockSpeaker SPEAKER = register( "speaker", new BlockSpeaker( properties() ) );
         public static final BlockDiskDrive DISK_DRIVE = register( "disk_drive", new BlockDiskDrive( properties() ) );
         public static final BlockPrinter PRINTER = register( "printer", new BlockPrinter( properties() ) );
-        public static final BlockMonitor MONITOR_NORMAL = register( "monitor_normal", new BlockMonitor( properties(), ModTiles.MONITOR_NORMAL, false ) );
-        public static final BlockMonitor MONITOR_ADVANCED = register( "monitor_advanced", new BlockMonitor( properties(), ModTiles.MONITOR_ADVANCED, true ) );
+        public static final BlockMonitor MONITOR_NORMAL = register( "monitor_normal", new BlockMonitor( properties(), () -> ModTiles.MONITOR_NORMAL, false ) );
+        public static final BlockMonitor MONITOR_ADVANCED = register( "monitor_advanced", new BlockMonitor( properties(), () -> ModTiles.MONITOR_ADVANCED, true ) );
         public static final BlockWirelessModem WIRELESS_MODEM_NORMAL = register( "wireless_modem_normal",
-            new BlockWirelessModem( properties(), ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_NORMAL, ComputerFamily.NORMAL ) );
+            new BlockWirelessModem( properties(), () -> ModTiles.WIRELESS_MODEM_NORMAL, ComputerFamily.NORMAL ) );
         public static final BlockWirelessModem WIRELESS_MODEM_ADVANCED = register( "wireless_modem_advanced",
-            new BlockWirelessModem( properties(), ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_ADVANCED, ComputerFamily.ADVANCED ) );
+            new BlockWirelessModem( properties(), () -> ModTiles.WIRELESS_MODEM_ADVANCED, ComputerFamily.ADVANCED ) );
         public static final BlockWiredModemFull WIRED_MODEM_FULL = register( "wired_modem_full",
-            new BlockWiredModemFull( modemProperties(), ComputerCraftRegistry.ModTiles.WIRED_MODEM_FULL ) );
+            new BlockWiredModemFull( modemProperties(), () -> ModTiles.WIRED_MODEM_FULL ) );
         public static final BlockCable CABLE = register( "cable", new BlockCable( modemProperties() ) );
 
         private static BlockBehaviour.Properties properties()

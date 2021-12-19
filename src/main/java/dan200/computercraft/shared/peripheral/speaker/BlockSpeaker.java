@@ -8,7 +8,6 @@ package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
@@ -29,7 +28,7 @@ public class BlockSpeaker extends BlockGeneric
 
     public BlockSpeaker( Properties settings )
     {
-        super( settings, ComputerCraftRegistry.ModTiles.SPEAKER );
+        super( settings, () -> ComputerCraftRegistry.ModTiles.SPEAKER );
         registerDefaultState( getStateDefinition().any()
             .setValue( FACING, Direction.NORTH ) );
     }
@@ -47,13 +46,6 @@ public class BlockSpeaker extends BlockGeneric
     protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> properties )
     {
         properties.add( FACING );
-    }
-
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity( BlockPos pos, BlockState state )
-    {
-        return new TileSpeaker( ComputerCraftRegistry.ModTiles.SPEAKER, pos, state );
     }
 
     @Nullable

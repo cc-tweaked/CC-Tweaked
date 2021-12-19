@@ -33,6 +33,7 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public abstract class BlockComputerBase<T extends TileComputerBase> extends BlockGeneric implements IBundledRedstoneBlock
 {
@@ -40,10 +41,18 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     private final ComputerFamily family;
 
-    protected BlockComputerBase( Properties settings, ComputerFamily family, BlockEntityType<? extends T> type )
+    protected BlockComputerBase( Properties settings, ComputerFamily family, Supplier<BlockEntityType<? extends T>> type )
     {
         super( settings, type );
         this.family = family;
+    }
+
+    @Nonnull
+    @Override
+    @SuppressWarnings( "unchecked" )
+    public BlockEntityType<? extends T> getType()
+    {
+        return (BlockEntityType<? extends T>) super.getType();
     }
 
     @Override

@@ -36,7 +36,7 @@ public class BlockPrinter extends BlockGeneric
 
     public BlockPrinter( Properties settings )
     {
-        super( settings, ComputerCraftRegistry.ModTiles.PRINTER );
+        super( settings, () -> ComputerCraftRegistry.ModTiles.PRINTER );
         registerDefaultState( getStateDefinition().any()
             .setValue( FACING, Direction.NORTH )
             .setValue( TOP, false )
@@ -87,12 +87,5 @@ public class BlockPrinter extends BlockGeneric
     protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> properties )
     {
         properties.add( FACING, TOP, BOTTOM );
-    }
-
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity( BlockPos pos, BlockState state )
-    {
-        return new TilePrinter( ComputerCraftRegistry.ModTiles.PRINTER, pos, state );
     }
 }

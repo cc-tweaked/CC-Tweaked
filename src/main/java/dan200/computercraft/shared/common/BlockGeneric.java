@@ -23,20 +23,22 @@ import net.minecraft.world.phys.BlockHitResult;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Random;
+import java.util.function.Supplier;
 
 public abstract class BlockGeneric extends BaseEntityBlock
 {
-    private final BlockEntityType<? extends TileGeneric> type;
+    private final Supplier<? extends BlockEntityType<? extends TileGeneric>> type;
 
-    public BlockGeneric( Properties settings, BlockEntityType<? extends TileGeneric> type )
+    public BlockGeneric( Properties settings, @Nonnull Supplier<? extends BlockEntityType<? extends TileGeneric>> type )
     {
         super( settings );
         this.type = type;
     }
 
+    @Nonnull
     public BlockEntityType<? extends TileGeneric> getType()
     {
-        return type;
+        return type.get();
     }
 
     @Override
@@ -98,12 +100,8 @@ public abstract class BlockGeneric extends BaseEntityBlock
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity( BlockPos pos, BlockState state )
+    public final BlockEntity newBlockEntity( @Nonnull BlockPos pos, @Nonnull BlockState state )
     {
-        if( this.type != null )
-        {
-            return type.create( pos, state );
-        }
-        return null;
+        return type.get().create( pos, state );
     }
 }

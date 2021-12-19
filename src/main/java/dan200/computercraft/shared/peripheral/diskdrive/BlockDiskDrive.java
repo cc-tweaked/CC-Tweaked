@@ -37,7 +37,7 @@ public class BlockDiskDrive extends BlockGeneric
 
     public BlockDiskDrive( Properties settings )
     {
-        super( settings, ComputerCraftRegistry.ModTiles.DISK_DRIVE );
+        super( settings, () -> ComputerCraftRegistry.ModTiles.DISK_DRIVE );
         registerDefaultState( getStateDefinition().any()
             .setValue( FACING, Direction.NORTH )
             .setValue( STATE, DiskDriveState.EMPTY ) );
@@ -96,12 +96,5 @@ public class BlockDiskDrive extends BlockGeneric
     protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> properties )
     {
         properties.add( FACING, STATE );
-    }
-
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity( BlockPos pos, BlockState state )
-    {
-        return new TileDiskDrive( ComputerCraftRegistry.ModTiles.DISK_DRIVE, pos, state );
     }
 }

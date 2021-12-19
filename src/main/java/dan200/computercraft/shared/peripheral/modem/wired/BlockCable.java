@@ -66,7 +66,7 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock, 
 
     public BlockCable( Properties settings )
     {
-        super( settings, ComputerCraftRegistry.ModTiles.CABLE );
+        super( settings, () -> ComputerCraftRegistry.ModTiles.CABLE );
 
         registerDefaultState( getStateDefinition().any()
             .setValue( MODEM, CableModemVariant.None )
@@ -269,12 +269,5 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock, 
                 .setValue( UP, false )
                 .setValue( DOWN, false );
         }
-    }
-
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity( BlockPos pos, BlockState state )
-    {
-        return new TileCable( ComputerCraftRegistry.ModTiles.CABLE, pos, state );
     }
 }

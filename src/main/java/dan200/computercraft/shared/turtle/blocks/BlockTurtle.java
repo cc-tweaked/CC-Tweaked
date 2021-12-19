@@ -42,6 +42,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 import static dan200.computercraft.shared.util.WaterloggableHelpers.*;
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
@@ -52,7 +53,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Simple
 
     private static final VoxelShape DEFAULT_SHAPE = Shapes.box( 0.125, 0.125, 0.125, 0.875, 0.875, 0.875 );
 
-    public BlockTurtle( Properties settings, ComputerFamily family, BlockEntityType<? extends TileTurtle> type )
+    public BlockTurtle( Properties settings, ComputerFamily family, Supplier<BlockEntityType<? extends TileTurtle>> type )
     {
         super( settings, family, type );
         registerDefaultState( getStateDefinition().any()
@@ -193,15 +194,8 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Simple
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity( BlockPos pos, BlockState state )
-    {
-        return new TileTurtle( getTypeByFamily( getFamily() ), pos, state, getFamily() );
-    }
-
-    @Nullable
-    @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker( Level world, BlockState state, BlockEntityType<T> type )
     {
-        return world.isClientSide ? BlockTurtle.createTickerHelper( type, getTypeByFamily( getFamily() ), ( world1, pos, state1, computer ) -> computer.clientTick() ) : super.getTicker( world, state, type );
+        return world.isClientSide ? BlockTurtle.createTickerHelper( type, getType(), ( world1, pos, state1, computer ) -> computer.clientTick() ) : super.getTicker( world, state, type );
     }
 }

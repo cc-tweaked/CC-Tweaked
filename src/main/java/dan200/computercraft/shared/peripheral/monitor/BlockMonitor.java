@@ -7,7 +7,6 @@
 package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.api.turtle.FakePlayer;
-import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,6 +25,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 public class BlockMonitor extends BlockGeneric
 {
@@ -37,7 +37,7 @@ public class BlockMonitor extends BlockGeneric
 
     public boolean advanced;
 
-    public BlockMonitor( Properties settings, BlockEntityType<? extends TileMonitor> type, boolean advanced )
+    public BlockMonitor( Properties settings, Supplier<BlockEntityType<? extends TileMonitor>> type, boolean advanced )
     {
         super( settings, type );
         this.advanced = advanced;
@@ -99,12 +99,5 @@ public class BlockMonitor extends BlockGeneric
     protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> builder )
     {
         builder.add( ORIENTATION, FACING, STATE );
-    }
-
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity( BlockPos pos, BlockState state )
-    {
-        return new TileMonitor( advanced ? ComputerCraftRegistry.ModTiles.MONITOR_ADVANCED : ComputerCraftRegistry.ModTiles.MONITOR_NORMAL, advanced, pos, state );
     }
 }

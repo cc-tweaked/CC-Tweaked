@@ -6,7 +6,6 @@
 
 package dan200.computercraft.shared.peripheral.modem.wireless;
 
-import dan200.computercraft.shared.ComputerCraftRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
@@ -18,7 +17,6 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -31,6 +29,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 import static dan200.computercraft.shared.util.WaterloggableHelpers.*;
 
@@ -41,7 +40,7 @@ public class BlockWirelessModem extends BlockGeneric implements SimpleWaterlogge
 
     private final ComputerFamily family;
 
-    public BlockWirelessModem( Properties settings, BlockEntityType<? extends TileWirelessModem> type, ComputerFamily family )
+    public BlockWirelessModem( Properties settings, Supplier<BlockEntityType<? extends TileWirelessModem>> type, ComputerFamily family )
     {
         super( settings, type );
         this.family = family;
@@ -100,21 +99,5 @@ public class BlockWirelessModem extends BlockGeneric implements SimpleWaterlogge
     protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> builder )
     {
         builder.add( FACING, ON, WATERLOGGED );
-    }
-
-    public BlockEntityType<? extends TileWirelessModem> getTypeByFamily( ComputerFamily family )
-    {
-        return switch( family )
-        {
-            case ADVANCED -> ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_ADVANCED;
-            default -> ComputerCraftRegistry.ModTiles.WIRELESS_MODEM_NORMAL;
-        };
-    }
-
-    @Nullable
-    @Override
-    public BlockEntity newBlockEntity( BlockPos pos, BlockState state )
-    {
-        return new TileWirelessModem( getTypeByFamily( family ), family == ComputerFamily.ADVANCED, pos, state );
     }
 }
