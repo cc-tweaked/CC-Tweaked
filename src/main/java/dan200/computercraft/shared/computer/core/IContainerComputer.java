@@ -56,7 +56,7 @@ public interface IContainerComputer
     void continueUpload( @Nonnull UUID uploadId, @Nonnull List<FileSlice> slices );
 
     /**
-     * Finish off an upload. This either writes the uploaded files or
+     * Finish off an upload. This either writes the uploaded files or informs the user that files will be overwritten.
      *
      * @param uploader The player uploading files.
      * @param uploadId The unique ID of this upload.

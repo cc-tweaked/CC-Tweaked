@@ -21,8 +21,8 @@ import java.nio.ByteBuffer;
  */
 public class SpeakerInstance
 {
-    private static final int BUFFER_SIZE = 1024;
-    private static final int BUFFER_COUNT = 8;
+    private static final int BUFFER_SIZE = 512;
+    private static final int BUFFER_COUNT = 16;
 
     private DfpwmStream currentStream;
     private SpeakerSound sound;
@@ -100,13 +100,17 @@ public class SpeakerInstance
             ShortBuffer stream;
             if( playing && currentStream != null )
             {
-                ByteBuffer buf = currentStream.read( BUFFER_SIZE );
-                if( buf.limit() < BUFFER_SIZE )
+                ByteBuffer buf = currentStream.read( BUFFER_SIZE * 2 );
+                if( buf == null )
                 {
                     playing = false;
                     currentStream = null;
+                    stream = BufferUtils.createShortBuffer( BUFFER_SIZE );
                 }
-                stream = buf.asShortBuffer();
+                else
+                {
+                    stream = buf.asShortBuffer();
+                }
             }
             else
             {

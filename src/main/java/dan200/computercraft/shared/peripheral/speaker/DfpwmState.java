@@ -7,6 +7,7 @@ package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaTable;
+import dan200.computercraft.shared.util.PauseAwareTimer;
 import net.minecraft.util.math.MathHelper;
 
 import javax.annotation.Nonnull;
@@ -36,7 +37,7 @@ class DfpwmState
     private boolean previousBit = false;
 
     private boolean unplayed = true;
-    private long clientEndTime = System.nanoTime();
+    private long clientEndTime = PauseAwareTimer.getTime();
     private float pendingVolume = 1.0f;
     private ByteBuffer pendingAudio;
 
@@ -107,7 +108,7 @@ class DfpwmState
 
     boolean isPlaying()
     {
-        return unplayed || clientEndTime >= System.nanoTime();
+        return unplayed || clientEndTime >= PauseAwareTimer.getTime();
     }
 
     float getVolume()

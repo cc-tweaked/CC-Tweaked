@@ -17,6 +17,7 @@ import dan200.computercraft.shared.network.client.SpeakerAudioClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerMoveClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerPlayClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
+import dan200.computercraft.shared.util.PauseAwareTimer;
 import net.minecraft.network.play.server.SPlaySoundPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.state.properties.NoteBlockInstrument;
@@ -119,7 +120,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
             return;
         }
 
-        long now = System.nanoTime();
+        long now = PauseAwareTimer.getTime();
         if( sound != null )
         {
             lastPlayTime = clock;
@@ -342,7 +343,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
         // TODO: Use ArgumentHelpers instead?
         int length = audio.length();
         if( length <= 0 ) throw new LuaException( "Cannot play empty audio" );
-        if( length > 1024 * 16 * 8 ) throw new LuaException( "Audio data is too large" );
+        if( length > 128 * 1024 ) throw new LuaException( "Audio data is too large" );
 
         DfpwmState state;
         synchronized( lock )
