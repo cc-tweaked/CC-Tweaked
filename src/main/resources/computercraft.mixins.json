@@ -8,7 +8,6 @@
 
         "MixinBlock",
         "MixinEntity",
-        "MixinLevel",
         "MixinMatrix4f",
         "MixinServerLevel",
         "MixinServerPlayerGameMode"
