@@ -24,6 +24,7 @@ import dan200.computercraft.shared.util.HolidayUtil;
 import dan200.computercraft.shared.util.InventoryDelegate;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.fluid.FluidState;
@@ -34,7 +35,6 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -48,6 +48,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 import static dan200.computercraft.shared.common.IColouredItem.NBT_COLOUR;
 import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
@@ -64,6 +65,8 @@ public class TurtleBrain implements ITurtleAccess
     private static final String NBT_SLOT = "Slot";
 
     private static final int ANIM_DURATION = 8;
+
+    public static final Predicate<Entity> PUSHABLE_ENTITY = entity -> !entity.isSpectator() && entity.getPistonPushReaction() != PushReaction.IGNORE;
 
     private TileTurtle owner;
     private ComputerProxy proxy;
@@ -887,7 +890,7 @@ public class TurtleBrain implements ITurtleAccess
                     }
 
                     AxisAlignedBB aabb = new AxisAlignedBB( minX, minY, minZ, maxX, maxY, maxZ );
-                    List<Entity> list = world.getEntitiesOfClass( Entity.class, aabb, EntityPredicates.NO_SPECTATORS );
+                    List<Entity> list = world.getEntitiesOfClass( Entity.class, aabb, PUSHABLE_ENTITY );
                     if( !list.isEmpty() )
                     {
                         double pushStep = 1.0f / ANIM_DURATION;
