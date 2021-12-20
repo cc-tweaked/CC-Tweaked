@@ -119,7 +119,10 @@ public class SpeakerInstance
 
     void setPosition( Vector3d position )
     {
-        if( sound != null ) sound.setPosition( position );
+        if( sound != null )
+        {
+            sound.setPosition( position );
+        }
     }
 
     void stop()
