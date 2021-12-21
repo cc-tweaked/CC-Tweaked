@@ -26,12 +26,13 @@ const Click = (options: { run: () => void }) =>
 
 type WindowProps = {};
 
-type WindowState = {
-    visible: boolean,
-
-    example: string,
-    exampleIdx: number,
+type Example = {
+    files: { [file: string]: string },
 }
+
+type WindowState = {
+    exampleIdx: number,
+} & ({ visible: false, example: null } | { visible: true, example: Example })
 
 type Touch = { clientX: number, clientY: number };
 
@@ -41,12 +42,14 @@ class Window extends Component<WindowProps, WindowState> {
     private top: number = 0;
     private dragging?: { downX: number, downY: number, initialX: number, initialY: number };
 
+    private snippets: { [file: string]: string } = {};
+
     constructor(props: WindowProps, context: unknown) {
         super(props, context);
 
         this.state = {
             visible: false,
-            example: "",
+            example: null,
             exampleIdx: 0,
         }
     }
@@ -57,10 +60,16 @@ class Window extends Component<WindowProps, WindowState> {
             const element = elements[i] as HTMLElement;
 
             let example = element.innerText;
+
+            const snippet = element.getAttribute("data-snippet");
+            if (snippet) this.snippets[snippet] = example;
+
             if (element.getAttribute("data-lua-kind") == "expr") {
                 example = exprTemplate.replace("__expr__", example);
             }
-            render(<Click run={this.runExample(example)} />, element);
+
+            const mount = element.getAttribute("data-mount");
+            render(<Click run={this.runExample(example, mount)} />, element);
         }
     }
 
@@ -76,13 +85,13 @@ class Window extends Component<WindowProps, WindowState> {
             </div>
             <div class="computer-container">
                 <Computer key={exampleIdx} files={{
-                    "example.lua": example, ...defaultFiles
+                    ...example!.files, ...defaultFiles
                 }} />
             </div>
         </div> : <div class="example-window example-window-hidden" />;
     }
 
-    private runExample(example: string): () => void {
+    private runExample(example: string, mount: string | null): () => void {
         return () => {
             if (!this.positioned) {
                 this.positioned = true;
@@ -90,9 +99,17 @@ class Window extends Component<WindowProps, WindowState> {
                 this.top = 20;
             }
 
+            const files: { [file: string]: string } = { "example.lua": example };
+            if (mount !== null) {
+                for (const toMount of mount.split(",")) {
+                    const [name, path] = toMount.split(":", 2);
+                    files[path] = this.snippets[name] || "";
+                }
+            }
+
             this.setState(({ exampleIdx }: WindowState) => ({
                 visible: true,
-                example: example,
+                example: { files },
                 exampleIdx: exampleIdx + 1,
             }));
         }

@@ -5,9 +5,8 @@
  */
 package dan200.computercraft.api.lua;
 
-import org.jetbrains.annotations.Nullable;
-
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Map;
 
 import static dan200.computercraft.api.lua.LuaValues.*;

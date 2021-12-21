@@ -176,7 +176,7 @@ dependencies {
         exclude group: "org.jetbrains", module: "annotations"
     }
 
-    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.4'
+    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.5'
 }
 
 // Compile tasks

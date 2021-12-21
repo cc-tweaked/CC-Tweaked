@@ -36,7 +36,7 @@ local encoder = dfpwm.make_encoder()
 local decoder = dfpwm.make_decoder()
 
 local out = fs.open("speedy.dfpwm", "wb")
-for input in io.lines("my_audio_track.dfpwm", 16 * 1024 * 2) do
+for input in io.lines("data/example.dfpwm", 16 * 1024 * 2) do
   local decoded = decoder(input)
   local output = {}
 

@@ -17,7 +17,6 @@ import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
-import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.pocket.apis.PocketAPI;
@@ -34,6 +33,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -80,51 +80,63 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         PocketUpgrades.getVanillaUpgrades().map( x -> create( -1, null, -1, x ) ).forEach( stacks::add );
     }
 
+    private boolean tick( @Nonnull ItemStack stack, @Nonnull Level world, @Nonnull Entity entity, @Nonnull PocketServerComputer computer )
+    {
+        IPocketUpgrade upgrade = getUpgrade( stack );
+
+        computer.setLevel( world );
+        computer.updateValues( entity, stack, upgrade );
+
+        boolean changed = false;
+
+        // Sync ID
+        int id = computer.getID();
+        if( id != getComputerID( stack ) )
+        {
+            changed = true;
+            setComputerID( stack, id );
+        }
+
+        // Sync label
+        String label = computer.getLabel();
+        if( !Objects.equal( label, getLabel( stack ) ) )
+        {
+            changed = true;
+            setLabel( stack, label );
+        }
+
+        // Update pocket upgrade
+        if( upgrade != null ) upgrade.update( computer, computer.getPeripheral( ComputerSide.BACK ) );
+
+        return changed;
+    }
+
     @Override
     public void inventoryTick( @Nonnull ItemStack stack, Level world, @Nonnull Entity entity, int slotNum, boolean selected )
     {
         if( !world.isClientSide )
         {
-            // Server side
-            Container inventory = entity instanceof Player ? ((Player) entity).getInventory() : null;
-            PocketServerComputer computer = createServerComputer( world, inventory, entity, stack );
-            if( computer != null )
-            {
-                IPocketUpgrade upgrade = getUpgrade( stack );
+            Container inventory = entity instanceof Player player ? player.getInventory() : null;
+            PocketServerComputer computer = createServerComputer( world, entity, inventory, stack );
+            computer.keepAlive();
 
-                // Ping computer
-                computer.keepAlive();
-                computer.setLevel( world );
-                computer.updateValues( entity, stack, upgrade );
-
-                // Sync ID
-                int id = computer.getID();
-                if( id != getComputerID( stack ) )
-                {
-                    setComputerID( stack, id );
-                    if( inventory != null ) inventory.setChanged();
-                }
-
-                // Sync label
-                String label = computer.getLabel();
-                if( !Objects.equal( label, getLabel( stack ) ) )
-                {
-                    setLabel( stack, label );
-                    if( inventory != null ) inventory.setChanged();
-                }
-
-                // Update pocket upgrade
-                if( upgrade != null )
-                {
-                    upgrade.update( computer, computer.getPeripheral( ComputerSide.BACK ) );
-                }
-            }
+            boolean changed = tick( stack, world, entity, computer );
+            if( changed && inventory != null ) inventory.setChanged();
         }
         else
         {
-            // Client side
             createClientComputer( stack );
         }
+    }
+
+    @Override
+    public boolean onEntityItemUpdate( ItemStack stack, ItemEntity entity )
+    {
+        if( entity.level.isClientSide ) return false;
+
+        PocketServerComputer computer = getServerComputer( stack );
+        if( computer != null && tick( stack, entity.level, entity, computer ) ) entity.setItem( stack.copy() );
+        return false;
     }
 
     @Nonnull
@@ -134,22 +146,18 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         ItemStack stack = player.getItemInHand( hand );
         if( !world.isClientSide )
         {
-            PocketServerComputer computer = createServerComputer( world, player.getInventory(), player, stack );
+            PocketServerComputer computer = createServerComputer( world, player, player.getInventory(), stack );
+            computer.turnOn();
 
             boolean stop = false;
-            if( computer != null )
+            IPocketUpgrade upgrade = getUpgrade( stack );
+            if( upgrade != null )
             {
-                computer.turnOn();
-
-                IPocketUpgrade upgrade = getUpgrade( stack );
-                if( upgrade != null )
-                {
-                    computer.updateValues( player, stack, upgrade );
-                    stop = upgrade.onRightClick( world, computer, computer.getPeripheral( ComputerSide.BACK ) );
-                }
+                computer.updateValues( player, stack, upgrade );
+                stop = upgrade.onRightClick( world, computer, computer.getPeripheral( ComputerSide.BACK ) );
             }
 
-            if( !stop && computer != null )
+            if( !stop )
             {
                 boolean isTypingOnly = hand == InteractionHand.OFF_HAND;
                 new ComputerContainerData( computer ).open( player, new PocketComputerMenuProvider( computer, stack, this, hand, isTypingOnly ) );
@@ -207,17 +215,17 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         return super.getCreatorModId( stack );
     }
 
-    public PocketServerComputer createServerComputer( final Level world, Container inventory, Entity entity, @Nonnull ItemStack stack )
+    @Nonnull
+    public PocketServerComputer createServerComputer( Level world, Entity entity, @Nullable Container inventory, @Nonnull ItemStack stack )
     {
-        if( world.isClientSide ) return null;
+        if( world.isClientSide ) throw new IllegalStateException( "Cannot call createServerComputer on the client" );
 
         PocketServerComputer computer;
         int instanceID = getInstanceID( stack );
         int sessionID = getSessionID( stack );
         int correctSessionID = ComputerCraft.serverComputerRegistry.getSessionID();
 
-        if( instanceID >= 0 && sessionID == correctSessionID &&
-            ComputerCraft.serverComputerRegistry.contains( instanceID ) )
+        if( instanceID >= 0 && sessionID == correctSessionID && ComputerCraft.serverComputerRegistry.contains( instanceID ) )
         {
             computer = (PocketServerComputer) ComputerCraft.serverComputerRegistry.get( instanceID );
         }
@@ -235,13 +243,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
                 computerID = ComputerCraftAPI.createUniqueNumberedSaveDir( world, "computer" );
                 setComputerID( stack, computerID );
             }
-            computer = new PocketServerComputer(
-                world,
-                computerID,
-                getLabel( stack ),
-                instanceID,
-                getFamily()
-            );
+            computer = new PocketServerComputer( world, computerID, getLabel( stack ), instanceID, getFamily() );
             computer.updateValues( entity, stack, getUpgrade( stack ) );
             computer.addAPI( new PocketAPI( computer ) );
             ComputerCraft.serverComputerRegistry.add( instanceID, computer );
@@ -251,15 +253,17 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         return computer;
     }
 
-    public static ServerComputer getServerComputer( @Nonnull ItemStack stack )
+    @Nullable
+    public static PocketServerComputer getServerComputer( @Nonnull ItemStack stack )
     {
         int session = getSessionID( stack );
         if( session != ComputerCraft.serverComputerRegistry.getSessionID() ) return null;
 
         int instanceID = getInstanceID( stack );
-        return instanceID >= 0 ? ComputerCraft.serverComputerRegistry.get( instanceID ) : null;
+        return instanceID >= 0 ? (PocketServerComputer) ComputerCraft.serverComputerRegistry.get( instanceID ) : null;
     }
 
+    @Nullable
     public static ClientComputer createClientComputer( @Nonnull ItemStack stack )
     {
         int instanceID = getInstanceID( stack );
@@ -274,6 +278,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         return null;
     }
 
+    @Nullable
     private static ClientComputer getClientComputer( @Nonnull ItemStack stack )
     {
         int instanceID = getInstanceID( stack );
