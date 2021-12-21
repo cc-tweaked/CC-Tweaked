@@ -22,7 +22,7 @@ import dan200.computercraft.core.computer.ComputerSide;
  * as those from Project:Red. These allow you to send 16 separate on/off signals. Each channel corresponds to a
  * colour, with the first being @{colors.white} and the last @{colors.black}.
  *
- * Whenever a redstone input changes, a {@code redstone} event will be fired. This may be used instead of repeativly
+ * Whenever a redstone input changes, a @{event!redstone} event will be fired. This may be used instead of repeativly
  * polling.
  *
  * This module may also be referred to as {@code rs}. For example, one may call {@code rs.getSides()} instead of

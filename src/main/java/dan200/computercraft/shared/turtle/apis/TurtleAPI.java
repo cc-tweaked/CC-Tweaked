@@ -25,10 +25,9 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * The turtle API allows you to control your turtle.
+ * Doc stub. Exists in turtle.lua instead.
  *
  * @cc.module turtle
- * @cc.since 1.3
  */
 public class TurtleAPI implements ILuaAPI
 {
