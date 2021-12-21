@@ -66,7 +66,7 @@ type.
 What is a peripheral type though? This is a string which describes what a
 peripheral is, and so what functions are available on it. For instance, speakers
 are just called `"speaker"`, and monitors `"monitor"`. Some peripherals might
-have more than one type; a Minecraft chest is both a `"minecraft:chest"` and
+have more than one type - a Minecraft chest is both a `"minecraft:chest"` and
 `"inventory"`.
 
 You can get all the types a peripheral has with @{peripheral.getType}, and check
