@@ -143,7 +143,7 @@ streams, or use different decoders for the same stream, the resulting audio may 
 @usage Reads "data/example.dfpwm" in blocks of 16KiB (the speaker can accept a maximum of 128×1024 samples), decodes
 them and then plays them through the speaker.
 
-```lua
+```lua {data-peripheral=speaker}
 local dfpwm = require "cc.audio.dfpwm"
 local speaker = peripheral.find("speaker")
 
