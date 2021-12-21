@@ -148,9 +148,9 @@ local dfpwm = require "cc.audio.dfpwm"
 local speaker = peripheral.find("speaker")
 
 local decoder = dfpwm.make_decoder()
-for input in io.lines("data/example.dfpwm", 16 * 1024 * 2) do
+for input in io.lines("data/example.dfpwm", 16 * 1024) do
   local decoded = decoder(input)
-  while not speaker.playAudio(output) do
+  while not speaker.playAudio(decoded) do
     os.pullEvent("speaker_audio_empty")
   end
 end
