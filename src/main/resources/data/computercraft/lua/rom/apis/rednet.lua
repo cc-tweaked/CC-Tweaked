@@ -1,21 +1,48 @@
---- The Rednet API allows systems to communicate between each other without
--- using redstone. It serves as a wrapper for the modem API, offering ease of
--- functionality (particularly in regards to repeating signals) with some
--- expense of fine control.
---
--- In order to send and receive data, a modem (either wired, wireless, or ender)
--- is required. The data reaches any possible destinations immediately after
--- sending it, but is range limited.
---
--- Rednet also allows you to use a "protocol" - simple string names indicating
--- what messages are about. Receiving systems may filter messages according to
--- their protocols, thereby automatically ignoring incoming messages which don't
--- specify an identical string. It's also possible to @{rednet.lookup|lookup}
--- which systems in the area use certain protocols, hence making it easier to
--- determine where given messages should be sent in the first place.
---
--- @module rednet
--- @since 1.2
+--[[- The Rednet API allows computers to communicate between each other by using
+@{modem|modems}. It provides a layer of abstraction on top of the main @{modem}
+peripheral, making it slightly easier to use.
+
+## Basic usage
+In order to send a message between two computers, each computer must have a
+modem on one of its sides (or in the case of pocket computers and turtles, the
+modem must be equipped as an upgrade). The two computers should then call
+@{rednet.open}, which sets up the modems ready to send and receive messages.
+
+Once rednet is opened, you can send messages using @{rednet.send} and receive
+them using @{rednet.receive}. It's also possible to send a message to _every_
+rednet-using computer using @{rednet.broadcast}.
+
+:::caution Network security
+
+While rednet provides a friendly way to send messages to specific computers, it
+doesn't provide any guarantees about security. Other computers could be
+listening in to your messages, or even pretending to send messages from other computers!
+
+If you're playing on a multi-player server (or at least one where you don't
+trust other players), it's worth encrypting or signing your rednet messages.
+:::
+
+## Protocols and hostnames
+Several rednet messages accept "protocol"s - simple string names describing what
+a message is about. When sending messages using @{rednet.send} and
+@{rednet.broadcast}, you can optionally specify a protocol for the message. This
+same protocol can then be given to @{rednet.receive}, to ignore all messages not
+using this protocol.
+
+It's also possible to look-up computers based on protocols, providing a basic
+system for service discovery and [DNS]. A computer can advertise that it
+supports a particular protocol with @{rednet.host}, also providing a friendly
+"hostname". Other computers may then find all computers which support this
+protocol using @{rednet.lookup}.
+
+[DNS]: https://en.wikipedia.org/wiki/Domain_Name_System "Domain Name System"
+
+@module rednet
+@since 1.2
+@see rednet_message Queued when a rednet message is received.
+@see modem Rednet is built on top of the modem peripheral. Modems provide a more
+bare-bones but flexible interface.
+]]
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 
@@ -46,9 +73,17 @@ This will open the modem on two channels: one which has the same
 
 @tparam string modem The name of the modem to open.
 @throws If there is no such modem with the given name
-@usage Open a wireless modem on the back of the computer.
+@usage Open rednet on the back of the computer, allowing you to send and receive
+rednet messages using it.
 
     rednet.open("back")
+
+@usage Open rednet on all attached modems. This abuses the "filter" argument to
+@{peripheral.find}.
+
+    peripheral.find("modem", rednet.open)
+@see rednet.close
+@see rednet.isOpen
 ]]
 function open(modem)
     expect(1, modem, "string")
@@ -65,6 +100,7 @@ end
 -- @tparam[opt] string modem The side the modem exists on. If not given, all
 -- open modems will be closed.
 -- @throws If there is no such modem with the given name
+-- @see rednet.open
 function close(modem)
     expect(1, modem, "string", "nil")
     if modem then
@@ -90,6 +126,7 @@ end
 -- modems will be checked.
 -- @treturn boolean If the given modem is open.
 -- @since 1.31
+-- @see rednet.open
 function isOpen(modem)
     expect(1, modem, "string", "nil")
     if modem then
@@ -109,15 +146,17 @@ function isOpen(modem)
 end
 
 --[[- Allows a computer or turtle with an attached modem to send a message
-intended for a system with a specific ID. At least one such modem must first
+intended for a sycomputer with a specific ID. At least one such modem must first
 be @{rednet.open|opened} before sending is possible.
 
-Assuming the target was in range and also had a correctly opened modem, it
-may then use @{rednet.receive} to collect the message.
+Assuming the target was in range and also had a correctly opened modem, the
+target computer may then use @{rednet.receive} to collect the message.
 
 @tparam number recipient The ID of the receiving computer.
-@param message The message to send. This should not contain coroutines or
-functions, as they will be converted to @{nil}.
+@param message The message to send. Like with @{modem.transmit}, this can
+contain any primitive type (numbers, booleans and strings) as well as
+tables. Other types (like functions), as well as metatables, will not be
+transmitted.
 @tparam[opt] string protocol The "protocol" to send this message under. When
 using @{rednet.receive} one can filter to only receive messages sent under a
 particular protocol.
@@ -174,16 +213,19 @@ function send(recipient, message, protocol)
     return sent
 end
 
---- Broadcasts a string message over the predefined @{CHANNEL_BROADCAST}
--- channel. The message will be received by every device listening to rednet.
---
--- @param message The message to send. This should not contain coroutines or
--- functions, as they will be converted to @{nil}.
--- @tparam[opt] string protocol The "protocol" to send this message under. When
--- using @{rednet.receive} one can filter to only receive messages sent under a
--- particular protocol.
--- @see rednet.receive
--- @changed 1.6 Added protocol parameter.
+--[[- Broadcasts a string message over the predefined @{CHANNEL_BROADCAST}
+channel. The message will be received by every device listening to rednet.
+
+@param message The message to send. This should not contain coroutines or
+functions, as they will be converted to @{nil}.  @tparam[opt] string protocol
+The "protocol" to send this message under. When using @{rednet.receive} one can
+filter to only receive messages sent under a particular protocol.
+@see rednet.receive
+@changed 1.6 Added protocol parameter.
+@usage Broadcast the words "Hello, world!" to every computer using rednet.
+
+    rednet.broadcast("Hello, world!")
+]]
 function broadcast(message, protocol)
     expect(2, protocol, "string", "nil")
     send(CHANNEL_BROADCAST, message, protocol)
@@ -263,25 +305,25 @@ function receive(protocol_filter, timeout)
     end
 end
 
---- Register the system as "hosting" the desired protocol under the specified
--- name. If a rednet @{rednet.lookup|lookup} is performed for that protocol (and
--- maybe name) on the same network, the registered system will automatically
--- respond via a background process, hence providing the system performing the
--- lookup with its ID number.
---
--- Multiple computers may not register themselves on the same network as having
--- the same names against the same protocols, and the title `localhost` is
--- specifically reserved. They may, however, share names as long as their hosted
--- protocols are different, or if they only join a given network after
--- "registering" themselves before doing so (eg while offline or part of a
--- different network).
---
--- @tparam string protocol The protocol this computer provides.
--- @tparam string hostname The name this protocol exposes for the given protocol.
--- @throws If trying to register a hostname which is reserved, or currently in use.
--- @see rednet.unhost
--- @see rednet.lookup
--- @since 1.6
+--[[- Register the system as "hosting" the desired protocol under the specified
+name. If a rednet @{rednet.lookup|lookup} is performed for that protocol (and
+maybe name) on the same network, the registered system will automatically
+respond via a background process, hence providing the system performing the
+lookup with its ID number.
+
+Multiple computers may not register themselves on the same network as having the
+same names against the same protocols, and the title `localhost` is specifically
+reserved. They may, however, share names as long as their hosted protocols are
+different, or if they only join a given network after "registering" themselves
+before doing so (eg while offline or part of a different network).
+
+@tparam string protocol The protocol this computer provides.
+@tparam string hostname The name this protocol exposes for the given protocol.
+@throws If trying to register a hostname which is reserved, or currently in use.
+@see rednet.unhost
+@see rednet.lookup
+@since 1.6
+]]
 function host(protocol, hostname)
     expect(1, protocol, "string")
     expect(2, hostname, "string")
@@ -306,21 +348,38 @@ function unhost(protocol)
     hostnames[protocol] = nil
 end
 
---- Search the local rednet network for systems @{rednet.host|hosting} the
--- desired protocol and returns any computer IDs that respond as "registered"
--- against it.
---
--- If a hostname is specified, only one ID will be returned (assuming an exact
--- match is found).
---
--- @tparam string protocol The protocol to search for.
--- @tparam[opt] string hostname The hostname to search for.
---
--- @treturn[1] { number }|nil A list of computer IDs hosting the given
--- protocol, or @{nil} if none exist.
--- @treturn[2] number|nil The computer ID with the provided hostname and protocol,
--- or @{nil} if none exists.
--- @since 1.6
+--[[- Search the local rednet network for systems @{rednet.host|hosting} the
+desired protocol and returns any computer IDs that respond as "registered"
+against it.
+
+If a hostname is specified, only one ID will be returned (assuming an exact
+match is found).
+
+@tparam string protocol The protocol to search for.
+@tparam[opt] string hostname The hostname to search for.
+
+@treturn[1] number... A list of computer IDs hosting the given protocol.
+@treturn[2] number|nil The computer ID with the provided hostname and protocol,
+or @{nil} if none exists.
+@since 1.6
+@usage Find all computers which are hosting the `"chat"` protocol.
+
+    local computers = {rednet.lookup("chat")}
+    print(#computers .. " computers available to chat")
+    for _, computer in pairs(computers) do
+      print("Computer #" .. computer)
+    end
+
+@usage Find a computer hosting the `"chat"` protocol with a hostname of `"my_host"`.
+
+    local id = rednet.lookup("chat", "my_host")
+    if id then
+      print("Found my_host at computer #" .. id)
+    else
+      printError("Cannot find my_host")
+    end
+
+]]
 function lookup(protocol, hostname)
     expect(1, protocol, "string")
     expect(2, hostname, "string", "nil")

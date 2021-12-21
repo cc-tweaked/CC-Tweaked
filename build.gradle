@@ -174,7 +174,7 @@ dependencies {
     testModImplementation sourceSets.main.output
     testModExtra 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21'
 
-    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.4'
+    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.5'
 }
 
 // Compile tasks

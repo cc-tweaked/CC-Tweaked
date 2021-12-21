@@ -108,39 +108,48 @@ local function makePagedScroll(_term, _nFreeLines)
     end
 end
 
---- Prints a given string to the display.
---
--- If the action can be completed without scrolling, it acts much the same as
--- @{print}; otherwise, it will throw up a "Press any key to continue" prompt at
--- the bottom of the display. Each press will cause it to scroll down and write
--- a single line more before prompting again, if need be.
---
--- @tparam string _sText The text to print to the screen.
--- @tparam[opt] number _nFreeLines The number of lines which will be
--- automatically scrolled before the first prompt appears (meaning _nFreeLines +
--- 1 lines will be printed). This can be set to the terminal's height - 2 to
--- always try to fill the screen. Defaults to 0, meaning only one line is
--- displayed before prompting.
--- @treturn number The number of lines printed.
--- @usage
---     local width, height = term.getSize()
---     textutils.pagedPrint(("This is a rather verbose dose of repetition.\n"):rep(30), height - 2)
-function pagedPrint(_sText, _nFreeLines)
-    expect(2, _nFreeLines, "number", "nil")
+--[[- Prints a given string to the display.
+
+If the action can be completed without scrolling, it acts much the same as
+@{print}; otherwise, it will throw up a "Press any key to continue" prompt at
+the bottom of the display. Each press will cause it to scroll down and write a
+single line more before prompting again, if need be.
+
+@tparam string text The text to print to the screen.
+@tparam[opt] number free_lines The number of lines which will be
+automatically scrolled before the first prompt appears (meaning free_lines +
+1 lines will be printed). This can be set to the cursor's y position - 2 to
+always try to fill the screen. Defaults to 0, meaning only one line is
+displayed before prompting.
+@treturn number The number of lines printed.
+
+@usage Generates several lines of text and then prints it, paging once the
+bottom of the terminal is reached.
+
+    local lines = {}
+    for i = 1, 30 do lines[i] = ("This is line #%d"):format(i) end
+    local message = table.concat(lines, "\n")
+
+    local width, height = term.getCursorPos()
+    textutils.pagedPrint(message, height - 2)
+]]
+function pagedPrint(text, free_lines)
+    expect(2, free_lines, "number", "nil")
     -- Setup a redirector
     local oldTerm = term.current()
     local newTerm = {}
     for k, v in pairs(oldTerm) do
         newTerm[k] = v
     end
-    newTerm.scroll = makePagedScroll(oldTerm, _nFreeLines)
+
+    newTerm.scroll = makePagedScroll(oldTerm, free_lines)
     term.redirect(newTerm)
 
     -- Print the text
     local result
     local ok, err = pcall(function()
-        if _sText ~= nil then
-            result = print(_sText)
+        if text ~= nil then
+            result = print(text)
         else
             result = print()
         end
@@ -214,32 +223,45 @@ local function tabulateCommon(bPaged, ...)
     end
 end
 
---- Prints tables in a structured form.
---
--- This accepts multiple arguments, either a table or a number. When
--- encountering a table, this will be treated as a table row, with each column
--- width being auto-adjusted.
---
--- When encountering a number, this sets the text color of the subsequent rows to it.
---
--- @tparam {string...}|number ... The rows and text colors to display.
--- @usage textutils.tabulate(colors.orange, { "1", "2", "3" }, colors.lightBlue, { "A", "B", "C" })
--- @since 1.3
+--[[- Prints tables in a structured form.
+
+This accepts multiple arguments, either a table or a number. When
+encountering a table, this will be treated as a table row, with each column
+width being auto-adjusted.
+
+When encountering a number, this sets the text color of the subsequent rows to it.
+
+@tparam {string...}|number ... The rows and text colors to display.
+@since 1.3
+@usage
+
+    textutils.tabulate(
+      colors.orange, { "1", "2", "3" },
+      colors.lightBlue, { "A", "B", "C" }
+    )
+]]
 function tabulate(...)
     return tabulateCommon(false, ...)
 end
 
---- Prints tables in a structured form, stopping and prompting for input should
--- the result not fit on the terminal.
---
--- This functions identically to @{textutils.tabulate}, but will prompt for user
--- input should the whole output not fit on the display.
---
--- @tparam {string...}|number ... The rows and text colors to display.
--- @usage textutils.tabulate(colors.orange, { "1", "2", "3" }, colors.lightBlue, { "A", "B", "C" })
--- @see textutils.tabulate
--- @see textutils.pagedPrint
--- @since 1.3
+--[[- Prints tables in a structured form, stopping and prompting for input should
+the result not fit on the terminal.
+
+This functions identically to @{textutils.tabulate}, but will prompt for user
+input should the whole output not fit on the display.
+
+@tparam {string...}|number ... The rows and text colors to display.
+@see textutils.tabulate
+@see textutils.pagedPrint
+@since 1.3
+
+@usage Generates a long table, tabulates it, and prints it to the screen.
+
+    local rows = {}
+    for i = 1, 30 do rows[i] = {("Row #%d"):format(i), math.random(1, 400)} end
+
+    textutils.tabulate(colors.orange, {"Column", "Value"}, colors.lightBlue, table.unpack(rows))
+]]
 function pagedTabulate(...)
     return tabulateCommon(true, ...)
 end
@@ -692,11 +714,11 @@ saving in a file or pretty-printing.
 @throws If the object contains a value which cannot be
 serialised. This includes functions and tables which appear multiple
 times.
-@see cc.pretty.pretty An alternative way to display a table, often more suitable for
-pretty printing.
+@see cc.pretty.pretty_print An alternative way to display a table, often more
+suitable for pretty printing.
 @since 1.3
 @changed 1.97.0 Added `opts` argument.
-@usage Pretty print a basic table.
+@usage Serialise a basic table.
 
     textutils.serialise({ 1, 2, 3, a = 1, ["another key"] = { true } })
 

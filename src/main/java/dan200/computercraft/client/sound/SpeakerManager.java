@@ -26,12 +26,14 @@ public class SpeakerManager
     @SubscribeEvent
     public static void playStreaming( PlayStreamingSourceEvent event )
     {
-        if( !(event.getSound() instanceof SpeakerSound) ) return;
-        SpeakerSound sound = (SpeakerSound) event.getSound();
+        if( !(event.getSound() instanceof SpeakerSound sound) ) return;
         if( sound.stream == null ) return;
 
         event.getSource().attachBufferStream( sound.stream );
         event.getSource().play();
+
+        sound.channel = event.getSource();
+        sound.executor = event.getManager().executor;
     }
 
     public static SpeakerInstance getSound( UUID source )

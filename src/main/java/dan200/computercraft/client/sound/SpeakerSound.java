@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.client.sound;
 
+import com.mojang.blaze3d.audio.Channel;
 import net.minecraft.client.resources.sounds.AbstractSoundInstance;
 import net.minecraft.client.resources.sounds.TickableSoundInstance;
 import net.minecraft.client.sounds.AudioStream;
@@ -13,9 +14,12 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
+import java.util.concurrent.Executor;
 
 public class SpeakerSound extends AbstractSoundInstance implements TickableSoundInstance
 {
+    Channel channel;
+    Executor executor;
     DfpwmStream stream;
 
     SpeakerSound( ResourceLocation sound, DfpwmStream stream, Vec3 position, float volume, float pitch )
