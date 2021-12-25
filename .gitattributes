@@ -13,3 +13,4 @@ src/testMod/server-files/structures linguist-generated
 
 *.png binary
 *.jar binary
+*.dfpwm binary
