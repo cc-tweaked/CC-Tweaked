@@ -1,4 +1,4 @@
-import { render, h, Component, Computer } from "copycat/embed";
+import { render, h, Component, Computer, PeripheralKind } from "copycat/embed";
 import type { ComponentChild } from "preact";
 
 import settingsFile from "./mount/.settings";
@@ -6,6 +6,8 @@ import startupFile from "./mount/startup.lua";
 import exprTemplate from "./mount/expr_template.lua";
 import exampleNfp from "./mount/example.nfp";
 import exampleNft from "./mount/example.nft";
+import exampleAudioLicense from "./mount/example.dfpwm.LICENSE";
+import exampleAudioUrl from "./mount/example.dfpwm";
 
 const defaultFiles: { [filename: string]: string } = {
     ".settings": settingsFile,
@@ -21,13 +23,23 @@ const clamp = (value: number, min: number, max: number): number => {
     return value;
 }
 
+const download = async (url: string): Promise<Uint8Array> => {
+    const result = await fetch(url);
+    if (result.status != 200) throw new Error(`${url} responded with ${result.status} ${result.statusText}`);
+
+    return new Uint8Array(await result.arrayBuffer());
+};
+
+let dfpwmAudio: Promise<Uint8Array> | null = null;
+
 const Click = (options: { run: () => void }) =>
     <button type="button" class="example-run" onClick={options.run}>Run ᐅ</button>
 
 type WindowProps = {};
 
 type Example = {
-    files: { [file: string]: string },
+    files: { [file: string]: string | Uint8Array },
+    peripheral: PeripheralKind | null,
 }
 
 type WindowState = {
@@ -69,7 +81,8 @@ class Window extends Component<WindowProps, WindowState> {
             }
 
             const mount = element.getAttribute("data-mount");
-            render(<Click run={this.runExample(example, mount)} />, element);
+            const peripheral = element.getAttribute("data-peripheral");
+            render(<Click run={this.runExample(example, mount, peripheral)} />, element);
         }
     }
 
@@ -86,20 +99,20 @@ class Window extends Component<WindowProps, WindowState> {
             <div class="computer-container">
                 <Computer key={exampleIdx} files={{
                     ...example!.files, ...defaultFiles
-                }} />
+                }} peripherals={{ back: example!.peripheral }} />
             </div>
         </div> : <div class="example-window example-window-hidden" />;
     }
 
-    private runExample(example: string, mount: string | null): () => void {
-        return () => {
+    private runExample(example: string, mount: string | null, peripheral: string | null): () => void {
+        return async () => {
             if (!this.positioned) {
                 this.positioned = true;
                 this.left = 20;
                 this.top = 20;
             }
 
-            const files: { [file: string]: string } = { "example.lua": example };
+            const files: { [file: string]: string | Uint8Array } = { "example.lua": example };
             if (mount !== null) {
                 for (const toMount of mount.split(",")) {
                     const [name, path] = toMount.split(":", 2);
@@ -107,9 +120,23 @@ class Window extends Component<WindowProps, WindowState> {
                 }
             }
 
+            if (example.includes("data/example.dfpwm")) {
+                files["data/example.dfpwm.LICENSE"] = exampleAudioLicense;
+
+                try {
+                    if (dfpwmAudio === null) dfpwmAudio = download(exampleAudioUrl);
+                    files["data/example.dfpwm"] = await dfpwmAudio;
+                } catch (e) {
+                    console.error("Cannot download example dfpwm", e);
+                }
+            }
+
             this.setState(({ exampleIdx }: WindowState) => ({
                 visible: true,
-                example: { files },
+                example: {
+                    files,
+                    peripheral: peripheral as PeripheralKind | null,
+                },
                 exampleIdx: exampleIdx + 1,
             }));
         }

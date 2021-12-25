@@ -51,5 +51,6 @@ exclude: |
     src/generated|
     src/test/resources/test-rom/data/json-parsing/|
     src/testMod/server-files/|
-    config/idea/
+    config/idea/|
+    .*\.dfpwm
   )

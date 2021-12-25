@@ -145,7 +145,7 @@ adds the sample from one second ago to it.
 For this, we'll need to keep track of the last 48k samples - exactly one seconds worth of audio. We can do this using a
 [Ring Buffer], which helps makes things a little more efficient.
 
-```lua
+```lua {data-peripheral=speaker}
 local dfpwm = require("cc.audio.dfpwm")
 local speaker = peripheral.find("speaker")
 
@@ -157,14 +157,14 @@ for i = 1, samples_n do samples[i] = 0 end
 
 local decoder = dfpwm.make_decoder()
 for chunk in io.lines("data/example.dfpwm", 16 * 1024) do
-    local buffer = decoder(input)
+    local buffer = decoder(chunk)
 
     for i = 1, #buffer do
         local original_value = buffer[i]
 
         -- Replace this sample with its current amplitude plus the amplitude from one second ago.
         -- We scale both to ensure the resulting value is still between -128 and 127.
-        buffer[i] = original_value * 0.7 + samples[samples_i] * 0.3
+        buffer[i] = original_value * 0.6 + samples[samples_i] * 0.4
 
         -- Now store the current sample, and move the "head" of our ring buffer forward one place.
         samples[samples_i] = original_value
