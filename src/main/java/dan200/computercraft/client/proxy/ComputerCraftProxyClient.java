@@ -23,7 +23,6 @@ import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
-import dan200.computercraft.shared.peripheral.monitor.MonitorWatcher;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
@@ -76,7 +75,6 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
     public void onInitializeClient()
     {
         FrameInfo.init();
-        MonitorWatcher.init();
         registerContainers();
 
         // While turtles themselves are not transparent, their upgrades may be.

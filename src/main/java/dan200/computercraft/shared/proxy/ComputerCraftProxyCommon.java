@@ -27,6 +27,7 @@ import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeriphera
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
+import dan200.computercraft.shared.peripheral.monitor.MonitorWatcher;
 import dan200.computercraft.shared.turtle.FurnaceRefuelHandler;
 import dan200.computercraft.shared.util.Config;
 import dan200.computercraft.shared.util.TickScheduler;
@@ -51,6 +52,7 @@ public final class ComputerCraftProxyCommon
     public static void init()
     {
         NetworkHandler.setup();
+        MonitorWatcher.init();
 
         registerProviders();
         registerHandlers();

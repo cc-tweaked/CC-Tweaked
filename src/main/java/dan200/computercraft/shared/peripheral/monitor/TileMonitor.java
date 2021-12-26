@@ -145,48 +145,23 @@ public class TileMonitor extends TileGeneric implements IPeripheralTile
         width = nbt.getInt( NBT_WIDTH );
         height = nbt.getInt( NBT_HEIGHT );
 
-        if( oldXIndex != xIndex || oldYIndex != yIndex )
+        if( level != null && level.isClientSide )
         {
-            // If our index has changed then it's possible the origin monitor has changed. Thus
-            // we'll clear our cache. If we're the origin then we'll need to remove the glList as well.
-            if( oldXIndex == 0 && oldYIndex == 0 && clientMonitor != null ) clientMonitor.destroy();
-            clientMonitor = null;
-        }
+            if( oldXIndex != xIndex || oldYIndex != yIndex )
+            {
+                // If our index has changed then it's possible the origin monitor has changed. Thus
+                // we'll clear our cache. If we're the origin then we'll need to remove the glList as well.
+                if( oldXIndex == 0 && oldYIndex == 0 && clientMonitor != null ) clientMonitor.destroy();
+                clientMonitor = null;
+            }
 
-        if( xIndex == 0 && yIndex == 0 )
-        {
-            // If we're the origin terminal then create it.
-            if( clientMonitor == null ) clientMonitor = new ClientMonitor( advanced, this );
+            if( xIndex == 0 && yIndex == 0 )
+            {
+                // If we're the origin terminal then create it.
+                if( clientMonitor == null ) clientMonitor = new ClientMonitor( advanced, this );
+            }
         }
     }
-
-    //    @Override
-    //    public final void handleUpdateTag( @Nonnull CompoundTag nbt )
-    //    {
-    //        super.handleUpdateTag( nbt );
-    //
-    //        int oldXIndex = xIndex;
-    //        int oldYIndex = yIndex;
-    //
-    //        xIndex = nbt.getInt( NBT_X );
-    //        yIndex = nbt.getInt( NBT_Y );
-    //        width = nbt.getInt( NBT_WIDTH );
-    //        height = nbt.getInt( NBT_HEIGHT );
-    //
-    //        if( oldXIndex != xIndex || oldYIndex != yIndex )
-    //        {
-    //            // If our index has changed then it's possible the origin monitor has changed. Thus
-    //            // we'll clear our cache. If we're the origin then we'll need to remove the glList as well.
-    //            if( oldXIndex == 0 && oldYIndex == 0 && clientMonitor != null ) clientMonitor.destroy();
-    //            clientMonitor = null;
-    //        }
-    //
-    //        if( xIndex == 0 && yIndex == 0 )
-    //        {
-    //            // If we're the origin terminal then create it.
-    //            if( clientMonitor == null ) clientMonitor = new ClientMonitor( advanced, this );
-    //        }
-    //    }
 
     @Override
     public void blockTick()
