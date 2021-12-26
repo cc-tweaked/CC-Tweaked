@@ -24,7 +24,6 @@ import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
-import dan200.computercraft.shared.peripheral.monitor.MonitorWatcher;
 import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
@@ -43,11 +42,16 @@ import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
@@ -81,7 +85,6 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
     public void onInitializeClient()
     {
         FrameInfo.init();
-        MonitorWatcher.init();
         registerContainers();
 
         // While turtles themselves are not transparent, their upgrades may be.
@@ -111,7 +114,7 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
                 .ordinal(),
             () -> Registry.ModItems.POCKET_COMPUTER_NORMAL,
             () -> Registry.ModItems.POCKET_COMPUTER_ADVANCED );
-        registerItemProperty( "state",
+        registerItemProperty( "coloured",
             ( stack, world, player, integer ) -> IColouredItem.getColourBasic( stack ) != -1 ? 1 : 0,
             () -> Registry.ModItems.POCKET_COMPUTER_NORMAL,
             () -> Registry.ModItems.POCKET_COMPUTER_ADVANCED );
@@ -142,9 +145,25 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
     private static void registerItemProperty( String name, ClampedItemPropertyFunction getter, Supplier<? extends Item>... items )
     {
         ResourceLocation id = new ResourceLocation( ComputerCraft.MOD_ID, name );
+        // Terrible hack, but some of our properties return values greater than 1, so we don't want to clamp.
+        var unclampedGetter = new ClampedItemPropertyFunction()
+        {
+            @Override
+            @Deprecated
+            public float call( @NotNull ItemStack itemStack, @Nullable ClientLevel clientLevel, @Nullable LivingEntity livingEntity, int i )
+            {
+                return getter.unclampedCall( itemStack, clientLevel, livingEntity, i );
+            }
+
+            @Override
+            public float unclampedCall( ItemStack itemStack, @Nullable ClientLevel clientLevel, @Nullable LivingEntity livingEntity, int i )
+            {
+                return getter.unclampedCall( itemStack, clientLevel, livingEntity, i );
+            }
+        };
         for( Supplier<? extends Item> item : items )
         {
-            FabricModelPredicateProviderRegistry.register( item.get(), id, getter );
+            FabricModelPredicateProviderRegistry.register( item.get(), id, unclampedGetter );
         }
     }
 }

@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.fabric.mixin;
 
-import dan200.computercraft.shared.peripheral.monitor.MonitorWatcher;
+import dan200.computercraft.fabric.events.ComputerCraftCustomEvents;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
@@ -46,7 +46,7 @@ public class MixinChunkMap
     @Inject( method = "playerLoadedChunk", at = @At( value = "HEAD" ) )
     private void playerLoadedChunk( ServerPlayer serverPlayer, MutableObject<ClientboundLevelChunkWithLightPacket> mutableObject, LevelChunk levelChunk, CallbackInfo ci )
     {
-        MonitorWatcher.onWatch( serverPlayer, levelChunk.getPos() );
+        ComputerCraftCustomEvents.SERVER_PLAYER_LOADED_CHUNK_EVENT.invoker().onServerPlayerLoadedChunk( serverPlayer, levelChunk.getPos() );
     }
 
 }
