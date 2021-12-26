@@ -31,7 +31,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
@@ -39,6 +38,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -46,6 +46,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 import static dan200.computercraft.shared.common.IColouredItem.NBT_COLOUR;
 import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
@@ -62,6 +63,8 @@ public class TurtleBrain implements ITurtleAccess
     private static final String NBT_SLOT = "Slot";
 
     private static final int ANIM_DURATION = 8;
+
+    public static final Predicate<Entity> PUSHABLE_ENTITY = entity -> !entity.isSpectator() && entity.getPistonPushReaction() != PushReaction.IGNORE;
 
     private TileTurtle owner;
     private ComputerProxy proxy;
@@ -876,7 +879,7 @@ public class TurtleBrain implements ITurtleAccess
                     }
 
                     AABB aabb = new AABB( minX, minY, minZ, maxX, maxY, maxZ );
-                    List<Entity> list = world.getEntitiesOfClass( Entity.class, aabb, EntitySelector.NO_SPECTATORS );
+                    List<Entity> list = world.getEntitiesOfClass( Entity.class, aabb, PUSHABLE_ENTITY );
                     if( !list.isEmpty() )
                     {
                         double pushStep = 1.0f / ANIM_DURATION;

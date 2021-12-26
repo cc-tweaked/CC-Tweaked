@@ -7,6 +7,7 @@ package dan200.computercraft.shared.computer.items;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -24,6 +25,11 @@ public interface IComputerItem
     default String getLabel( @Nonnull ItemStack stack )
     {
         return stack.hasCustomHoverName() ? stack.getHoverName().getString() : null;
+    }
+
+    default boolean onEntityItemUpdate( ItemStack stack, ItemEntity entity )
+    {
+        return false;
     }
 
     ComputerFamily getFamily();

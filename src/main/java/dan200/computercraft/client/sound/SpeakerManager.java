@@ -7,6 +7,7 @@ package dan200.computercraft.client.sound;
 
 import com.mojang.blaze3d.audio.Channel;
 import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.client.sounds.SoundEngine;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Map;
@@ -21,14 +22,16 @@ public class SpeakerManager
     private static final Map<UUID, SpeakerInstance> sounds = new ConcurrentHashMap<>();
 
     // A return value of true cancels the event
-    public static boolean playStreaming( SoundInstance soundInstance, Channel channel )
+    public static boolean playStreaming( SoundEngine engine, SoundInstance soundInstance, Channel channel )
     {
-        if( !(soundInstance instanceof SpeakerSound) ) return false;
-        SpeakerSound sound = (SpeakerSound) soundInstance;
+        if( !(soundInstance instanceof SpeakerSound sound) ) return false;
         if( sound.stream == null ) return false;
 
         channel.attachBufferStream( sound.stream );
         channel.play();
+
+        sound.channel = channel;
+        sound.executor = engine.executor;
         return true;
     }
 

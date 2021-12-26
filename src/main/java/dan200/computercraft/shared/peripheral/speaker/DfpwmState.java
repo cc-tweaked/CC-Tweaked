@@ -7,6 +7,7 @@ package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaTable;
+import dan200.computercraft.shared.util.PauseAwareTimer;
 import net.minecraft.util.Mth;
 
 import javax.annotation.Nonnull;
@@ -27,7 +28,7 @@ class DfpwmState
      * The minimum size of the client's audio buffer. Once we have less than this on the client, we should send another
      * batch of audio.
      */
-    private static final long CLIENT_BUFFER = (long) (SECOND * 1.5);
+    private static final long CLIENT_BUFFER = (long) (SECOND * 0.5);
 
     private static final int PREC = 10;
 
@@ -36,7 +37,7 @@ class DfpwmState
     private boolean previousBit = false;
 
     private boolean unplayed = true;
-    private long clientEndTime = System.nanoTime();
+    private long clientEndTime = PauseAwareTimer.getTime();
     private float pendingVolume = 1.0f;
     private ByteBuffer pendingAudio;
 
@@ -107,7 +108,7 @@ class DfpwmState
 
     boolean isPlaying()
     {
-        return unplayed || clientEndTime >= System.nanoTime();
+        return unplayed || clientEndTime >= PauseAwareTimer.getTime();
     }
 
     float getVolume()

@@ -1,12 +1,13 @@
-New features in CC: Tweaked 1.99.1
+New features in CC: Tweaked 1.100.0
 
-* Add package.searchpath to the cc.require API. (MCJack123)
-* Provide a more efficient way for the Java API to consume Lua tables in certain restricted cases.
+* Speakers can now play arbitrary PCM audio.
+* Add support for encoding and decoding DFPWM streams, with the `cc.audio.dfpwm` module.
+* Wired modems now only render breaking progress for the part which is being broken.
+* Various documentation improvements.
 
 Several bug fixes:
-* Fix keys being "sticky" when opening the off-hand pocket computer GUI.
-* Correctly handle broken coroutine managers resuming Java code with a `nil` event.
-* Prevent computer buttons stealing focus from the terminal.
-* Fix a class cast exception when a monitor is malformed in ways I do not quite understand.
+* Fix the "repeat" program not repeating broadcast rednet messages.
+* Fix the drag-and-drop upload functionality writing empty files.
+* Prevent turtles from pushing non-pushable entities.
 
 Type "help changelog" to see the full version history.

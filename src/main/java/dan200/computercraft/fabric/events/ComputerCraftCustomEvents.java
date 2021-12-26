@@ -5,8 +5,11 @@
  */
 package dan200.computercraft.fabric.events;
 
+import com.mojang.blaze3d.audio.Channel;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.client.sounds.SoundEngine;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 
@@ -28,6 +31,15 @@ public final class ComputerCraftCustomEvents
             }
         } );
 
+    public static final Event<PlayStreamingAudio> PLAY_STREAMING_AUDIO_EVENT = EventFactory.createArrayBacked( PlayStreamingAudio.class,
+        callbacks -> ( engine, soundInstance, channel ) -> {
+            for( PlayStreamingAudio callback : callbacks )
+            {
+                if( callback.onPlayStreamingAudio( engine, soundInstance, channel ) ) return true;
+            }
+            return false;
+        } );
+
     @FunctionalInterface
     public interface ClientUnloadWorld
     {
@@ -38,5 +50,11 @@ public final class ComputerCraftCustomEvents
     public interface ServerPlayerLoadedChunk
     {
         void onServerPlayerLoadedChunk( ServerPlayer player, ChunkPos chunkPos );
+    }
+
+    @FunctionalInterface
+    public interface PlayStreamingAudio
+    {
+        boolean onPlayStreamingAudio( SoundEngine engine, SoundInstance soundInstance, Channel channel );
     }
 }

@@ -6,7 +6,7 @@
 package dan200.computercraft.fabric.mixin;
 
 import com.mojang.blaze3d.audio.Channel;
-import dan200.computercraft.client.sound.SpeakerManager;
+import dan200.computercraft.fabric.events.ComputerCraftCustomEvents;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.AudioStream;
 import net.minecraft.client.sounds.SoundEngine;
@@ -19,19 +19,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin( SoundEngine.class )
 public class MixinSoundEngine
 {
-    // Used to capture the SoundInstance argument passed to SoundEngine#play. Not a thread-safe way to do it but
-    // this code is only called from the render thread as far as I can tell.
-    @Unique
-    private static SoundInstance onPlaySoundInstanceCapture;
+    // Used to capture the SoundInstance argument passed to SoundEngine#play and the SoundEngine instance.
+    // Not a thread-safe way to do it but this code is only called from the render thread as far as I can tell.
+    @Unique private static SoundInstance soundInstanceCapture;
+    @Unique private static SoundEngine thisCapture;
 
     @Inject(
-        method = "lambda$play$8",
+        method = "lambda$play$8(Lnet/minecraft/client/sounds/AudioStream;Lcom/mojang/blaze3d/audio/Channel;)V",
         at = @At( "HEAD" ),
         cancellable = true
     )
     private static void onStreamingSourcePlay( AudioStream audioStream, Channel channel, CallbackInfo ci )
     {
-        if( SpeakerManager.playStreaming( onPlaySoundInstanceCapture, channel ) ) ci.cancel();
+        if( ComputerCraftCustomEvents.PLAY_STREAMING_AUDIO_EVENT.invoker().onPlayStreamingAudio( thisCapture, soundInstanceCapture, channel ) )
+        {
+            ci.cancel();
+        }
     }
 
     @Inject(
@@ -40,6 +43,7 @@ public class MixinSoundEngine
     )
     void onPlay( SoundInstance soundInstance, CallbackInfo ci )
     {
-        onPlaySoundInstanceCapture = soundInstance;
+        soundInstanceCapture = soundInstance;
+        thisCapture = (SoundEngine) (Object) this;
     }
 }

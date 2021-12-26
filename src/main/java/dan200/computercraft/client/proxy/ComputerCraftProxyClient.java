@@ -29,6 +29,7 @@ import dan200.computercraft.shared.peripheral.printer.ContainerPrinter;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.util.Config;
+import dan200.computercraft.shared.util.PauseAwareTimer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -40,6 +41,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
@@ -62,10 +64,14 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
             }
         } );
 
+        ServerTickEvents.START_SERVER_TICK.register( server -> PauseAwareTimer.tick() );
+
         ComputerCraftCustomEvents.CLIENT_UNLOAD_WORLD_EVENT.register( () -> {
             SpeakerManager.reset();
             ClientMonitor.destroyAll();
         } );
+
+        ComputerCraftCustomEvents.PLAY_STREAMING_AUDIO_EVENT.register( SpeakerManager::playStreaming );
 
         // Config
         ClientLifecycleEvents.CLIENT_STARTED.register( Config::clientStarted );

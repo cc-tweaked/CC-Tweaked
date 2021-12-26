@@ -224,8 +224,8 @@ end
 
 --- Display a document on the terminal.
 --
--- @tparam      Doc     doc         The document to render
--- @tparam[opt] number  ribbon_frac The maximum fraction of the width that we should write in.
+-- @tparam          Doc     doc         The document to render
+-- @tparam[opt=0.6] number  ribbon_frac The maximum fraction of the width that we should write in.
 local function write(doc, ribbon_frac)
     if getmetatable(doc) ~= Doc then expect(1, doc, "document") end
     expect(2, ribbon_frac, "number", "nil")
@@ -286,8 +286,8 @@ end
 
 --- Display a document on the terminal with a trailing new line.
 --
--- @tparam      Doc     doc         The document to render.
--- @tparam[opt] number  ribbon_frac The maximum fraction of the width that we should write in.
+-- @tparam          Doc     doc         The document to render.
+-- @tparam[opt=0.6] number  ribbon_frac The maximum fraction of the width that we should write in.
 local function print(doc, ribbon_frac)
     if getmetatable(doc) ~= Doc then expect(1, doc, "document") end
     expect(2, ribbon_frac, "number", "nil")
@@ -297,10 +297,10 @@ end
 
 --- Render a document, converting it into a string.
 --
--- @tparam      Doc     doc         The document to render.
--- @tparam[opt] number  width       The maximum width of this document. Note that long strings will not be wrapped to
--- fit this width - it is only used for finding the best layout.
--- @tparam[opt] number  ribbon_frac The maximum fraction of the width that we should write in.
+-- @tparam          Doc     doc         The document to render.
+-- @tparam[opt]     number width The maximum width of this document. Note that long strings will not be wrapped to fit
+-- this width - it is only used for finding the best layout.
+-- @tparam[opt=0.6] number  ribbon_frac The maximum fraction of the width that we should write in.
 -- @treturn string The rendered document as a string.
 local function render(doc, width, ribbon_frac)
     if getmetatable(doc) ~= Doc then expect(1, doc, "document") end
@@ -483,7 +483,7 @@ Controls how various properties are displayed.
  - `function_args`: Show the arguments to a function if known (`false` by default).
  - `function_source`: Show where the function was defined, instead of
    `function: xxxxxxxx` (`false` by default).
-@tparam[opt] number  ribbon_frac The maximum fraction of the width that we should write in.
+@tparam[opt=0.6] number ribbon_frac The maximum fraction of the width that we should write in.
 
 @usage Display a table on the screen.
 

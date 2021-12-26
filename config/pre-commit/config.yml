@@ -52,5 +52,6 @@ exclude: |
     src/test/resources/test-rom/data/json-parsing/|
     src/test/server-files/|
     config/idea/|
-    .vscode/
+    .vscode/|
+    .*\.dfpwm
   )

@@ -36,7 +36,7 @@ local encoder = dfpwm.make_encoder()
 local decoder = dfpwm.make_decoder()
 
 local out = fs.open("speedy.dfpwm", "wb")
-for input in io.lines("my_audio_track.dfpwm", 16 * 1024 * 2) do
+for input in io.lines("data/example.dfpwm", 16 * 1024 * 2) do
   local decoded = decoder(input)
   local output = {}
 
@@ -143,14 +143,14 @@ streams, or use different decoders for the same stream, the resulting audio may 
 @usage Reads "data/example.dfpwm" in blocks of 16KiB (the speaker can accept a maximum of 128×1024 samples), decodes
 them and then plays them through the speaker.
 
-```lua
+```lua {data-peripheral=speaker}
 local dfpwm = require "cc.audio.dfpwm"
 local speaker = peripheral.find("speaker")
 
 local decoder = dfpwm.make_decoder()
-for input in io.lines("data/example.dfpwm", 16 * 1024 * 2) do
+for input in io.lines("data/example.dfpwm", 16 * 1024) do
   local decoded = decoder(input)
-  while not speaker.playAudio(output) do
+  while not speaker.playAudio(decoded) do
     os.pullEvent("speaker_audio_empty")
   end
 end
