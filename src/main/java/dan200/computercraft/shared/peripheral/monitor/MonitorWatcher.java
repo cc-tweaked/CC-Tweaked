@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.fabric.events.ComputerCraftCustomEvents;
+import dan200.computercraft.fabric.events.CustomServerEvents;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.MonitorClientMessage;
 import dan200.computercraft.shared.network.client.TerminalState;
@@ -36,7 +36,7 @@ public final class MonitorWatcher
     public static void init()
     {
         ServerTickEvents.END_SERVER_TICK.register( MonitorWatcher::onTick );
-        ComputerCraftCustomEvents.SERVER_PLAYER_LOADED_CHUNK_EVENT.register( MonitorWatcher::onWatch );
+        CustomServerEvents.SERVER_PLAYER_LOADED_CHUNK_EVENT.register( MonitorWatcher::onWatch );
     }
 
     static void enqueue( TileMonitor monitor )

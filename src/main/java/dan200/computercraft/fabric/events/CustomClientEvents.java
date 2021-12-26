@@ -10,24 +10,14 @@ import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundEngine;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.ChunkPos;
 
-public final class ComputerCraftCustomEvents
+public class CustomClientEvents
 {
     public static final Event<ClientUnloadWorld> CLIENT_UNLOAD_WORLD_EVENT = EventFactory.createArrayBacked( ClientUnloadWorld.class,
         callbacks -> () -> {
             for( ClientUnloadWorld callback : callbacks )
             {
                 callback.onClientUnloadWorld();
-            }
-        } );
-
-    public static final Event<ServerPlayerLoadedChunk> SERVER_PLAYER_LOADED_CHUNK_EVENT = EventFactory.createArrayBacked( ServerPlayerLoadedChunk.class,
-        callbacks -> ( serverPlayer, chunkPos ) -> {
-            for( ServerPlayerLoadedChunk callback : callbacks )
-            {
-                callback.onServerPlayerLoadedChunk( serverPlayer, chunkPos );
             }
         } );
 
@@ -44,12 +34,6 @@ public final class ComputerCraftCustomEvents
     public interface ClientUnloadWorld
     {
         void onClientUnloadWorld();
-    }
-
-    @FunctionalInterface
-    public interface ServerPlayerLoadedChunk
-    {
-        void onServerPlayerLoadedChunk( ServerPlayer player, ChunkPos chunkPos );
     }
 
     @FunctionalInterface

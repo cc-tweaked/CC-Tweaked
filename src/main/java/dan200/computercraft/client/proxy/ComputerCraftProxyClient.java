@@ -15,7 +15,7 @@ import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.client.render.TurtleModelLoader;
 import dan200.computercraft.client.render.TurtlePlayerRenderer;
 import dan200.computercraft.client.sound.SpeakerManager;
-import dan200.computercraft.fabric.events.ComputerCraftCustomEvents;
+import dan200.computercraft.fabric.events.CustomClientEvents;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.common.IColouredItem;
@@ -70,12 +70,12 @@ public final class ComputerCraftProxyClient implements ClientModInitializer
 
         ServerTickEvents.START_SERVER_TICK.register( server -> PauseAwareTimer.tick() );
 
-        ComputerCraftCustomEvents.CLIENT_UNLOAD_WORLD_EVENT.register( () -> {
+        CustomClientEvents.CLIENT_UNLOAD_WORLD_EVENT.register( () -> {
             SpeakerManager.reset();
             ClientMonitor.destroyAll();
         } );
 
-        ComputerCraftCustomEvents.PLAY_STREAMING_AUDIO_EVENT.register( SpeakerManager::playStreaming );
+        CustomClientEvents.PLAY_STREAMING_AUDIO_EVENT.register( SpeakerManager::playStreaming );
 
         // Config
         ClientLifecycleEvents.CLIENT_STARTED.register( Config::clientStarted );

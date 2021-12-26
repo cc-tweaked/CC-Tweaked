@@ -6,7 +6,7 @@
 package dan200.computercraft.fabric.mixin;
 
 import com.mojang.blaze3d.audio.Channel;
-import dan200.computercraft.fabric.events.ComputerCraftCustomEvents;
+import dan200.computercraft.fabric.events.CustomClientEvents;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.AudioStream;
 import net.minecraft.client.sounds.SoundEngine;
@@ -31,7 +31,7 @@ public class MixinSoundEngine
     )
     private static void onStreamingSourcePlay( AudioStream audioStream, Channel channel, CallbackInfo ci )
     {
-        if( ComputerCraftCustomEvents.PLAY_STREAMING_AUDIO_EVENT.invoker().onPlayStreamingAudio( thisCapture, soundInstanceCapture, channel ) )
+        if( CustomClientEvents.PLAY_STREAMING_AUDIO_EVENT.invoker().onPlayStreamingAudio( thisCapture, soundInstanceCapture, channel ) )
         {
             ci.cancel();
         }
