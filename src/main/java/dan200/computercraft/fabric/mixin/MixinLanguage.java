@@ -42,12 +42,11 @@ public class MixinLanguage
     @Shadow
     @Final
     private static Logger LOGGER;
-    @Shadow
-    @Final
-    private static String DEFAULT;
+
+    private static final String DEFAULT = "en_us";
 
     @Shadow
-    private static void loadFromJson( InputStream inputStream, BiConsumer<String, String> entryConsumer )
+    public static void load( InputStream inputStream, BiConsumer<String, String> entryConsumer )
     {
     }
 
@@ -58,7 +57,7 @@ public class MixinLanguage
 
         try( InputStream inputStream = Files.newInputStream( path ) )
         {
-            loadFromJson( inputStream, biConsumer );
+            load( inputStream, biConsumer );
         }
         catch( JsonParseException | IOException e )
         {
