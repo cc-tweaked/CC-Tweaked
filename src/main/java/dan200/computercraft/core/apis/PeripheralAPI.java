@@ -39,14 +39,13 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         private final String type;
         private final Set<String> additionalTypes;
         private final Map<String, PeripheralMethod> methodMap;
-        private boolean attached;
+        private boolean attached = false;
 
         PeripheralWrapper( IPeripheral peripheral, String side )
         {
             super( environment );
             this.side = side;
             this.peripheral = peripheral;
-            attached = false;
 
             type = Objects.requireNonNull( peripheral.getType(), "Peripheral type cannot be null" );
             additionalTypes = peripheral.getAdditionalTypes();

@@ -53,7 +53,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
     public static final int SAMPLE_RATE = 48000;
 
     private final UUID source = UUID.randomUUID();
-    private final Set<IComputerAccess> computers = Collections.newSetFromMap( new HashMap<>() );
+    private final Set<IComputerAccess> computers = new HashSet<>();
 
     private long clock = 0;
     private long lastPositionTime;
@@ -141,9 +141,12 @@ public abstract class SpeakerPeripheral implements IPeripheral
             syncedPosition( pos );
 
             // And notify computers that we have space for more audio.
-            for( IComputerAccess computer : computers )
+            synchronized( computers )
             {
-                computer.queueEvent( "speaker_audio_empty", computer.getAttachmentName() );
+                for( IComputerAccess computer : computers )
+                {
+                    computer.queueEvent( "speaker_audio_empty", computer.getAttachmentName() );
+                }
             }
         }
 
@@ -379,13 +382,19 @@ public abstract class SpeakerPeripheral implements IPeripheral
     @Override
     public void attach( @Nonnull IComputerAccess computer )
     {
-        computers.add( computer );
+        synchronized( computers )
+        {
+            computers.add( computer );
+        }
     }
 
     @Override
     public void detach( @Nonnull IComputerAccess computer )
     {
-        computers.remove( computer );
+        synchronized( computers )
+        {
+            computers.remove( computer );
+        }
     }
 
     private static final class PendingSound

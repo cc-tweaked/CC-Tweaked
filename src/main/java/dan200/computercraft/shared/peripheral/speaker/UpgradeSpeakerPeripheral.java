@@ -21,6 +21,8 @@ public abstract class UpgradeSpeakerPeripheral extends SpeakerPeripheral
     @Override
     public void detach( @Nonnull IComputerAccess computer )
     {
+        super.detach( computer );
+
         // We could be in the process of shutting down the server, so we can't send packets in this case.
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if( server == null || server.isStopped() ) return;
