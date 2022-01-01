@@ -1,3 +1,9 @@
+# New features in CC: Tweaked 1.100.1
+
+Several bug fixes:
+* Fix `peripheral.hasType` not working with wired modems (Toad-Dev).
+* Fix crashes when noisy pocket computer are shutdown.
+
 # New features in CC: Tweaked 1.100.0
 
 * Speakers can now play arbitrary PCM audio.

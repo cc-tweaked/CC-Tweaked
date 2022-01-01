@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.core.apis;
@@ -39,14 +39,13 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         private final String type;
         private final Set<String> additionalTypes;
         private final Map<String, PeripheralMethod> methodMap;
-        private boolean attached;
+        private boolean attached = false;
 
         PeripheralWrapper( IPeripheral peripheral, String side )
         {
             super( environment );
             this.side = side;
             this.peripheral = peripheral;
-            attached = false;
 
             type = Objects.requireNonNull( peripheral.getType(), "Peripheral type cannot be null" );
             additionalTypes = peripheral.getAdditionalTypes();

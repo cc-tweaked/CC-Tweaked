@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.modem.wired;
@@ -151,7 +151,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     public final Object[] hasTypeRemote( IComputerAccess computer, String name, String type )
     {
         RemotePeripheralWrapper wrapper = getWrapper( computer, name );
-        return wrapper == null ? null : new Object[] { wrapper.getType().equals( type ) || wrapper.getAdditionalTypes().contains( getType() ) };
+        return wrapper == null ? null : new Object[] { wrapper.getType().equals( type ) || wrapper.getAdditionalTypes().contains( type ) };
     }
 
     /**

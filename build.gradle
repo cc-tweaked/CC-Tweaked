@@ -585,7 +585,7 @@ githubRelease {
             .takeWhile { it != 'Type "help changelog" to see the full version history.' }
             .join("\n").trim()
     }))
-    prerelease isStable
+    prerelease !isStable
 }
 
 def uploadTasks = ["publish", "curseforge", "publishModrinth", "githubRelease"]
