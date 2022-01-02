@@ -12,6 +12,7 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.core.computer.MainThread;
+import dan200.computercraft.core.filesystem.ResourceMount;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.command.CommandComputerCraft;
@@ -36,9 +37,11 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -140,6 +143,8 @@ public final class ComputerCraftProxyCommon
 
         TurtleEvent.EVENT_BUS.register( FurnaceRefuelHandler.INSTANCE );
         TurtleEvent.EVENT_BUS.register( new TurtlePermissions() );
+
+        ResourceManagerHelper.get( PackType.SERVER_DATA ).registerReloadListener( ResourceMount.RELOAD_LISTENER );
     }
 
     public static void registerLoot()
