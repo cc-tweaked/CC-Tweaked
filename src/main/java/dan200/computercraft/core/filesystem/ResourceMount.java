@@ -12,12 +12,12 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.shared.util.IoUtil;
+import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
+import net.fabricmc.fabric.api.resource.SimpleResourceReloadListener;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 
 import javax.annotation.Nonnull;
@@ -30,6 +30,8 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 public final class ResourceMount implements IMount
@@ -282,30 +284,37 @@ public final class ResourceMount implements IMount
     }
 
     /**
-     * A {@link PreparableReloadListener} which reloads any associated mounts and correctly updates the resource manager
+     * An {@link IdentifiableResourceReloadListener} which reloads any associated mounts and correctly updates the resource manager
      * they point to.
      */
-    public static final SimplePreparableReloadListener<Void> RELOAD_LISTENER = new SimplePreparableReloadListener<>()
+    public static final IdentifiableResourceReloadListener RELOAD_LISTENER = new SimpleResourceReloadListener<Void>()
     {
-        @Nonnull
         @Override
-        protected Void prepare( @Nonnull ResourceManager manager, @Nonnull ProfilerFiller profiler )
+        public ResourceLocation getFabricId()
         {
-            profiler.push( "Reloading ComputerCraft mounts" );
-            try
-            {
-                for( ResourceMount mount : MOUNT_CACHE.values() ) mount.load( manager );
-            }
-            finally
-            {
-                profiler.pop();
-            }
-            return null;
+            return new ResourceLocation( ComputerCraft.MOD_ID, "resource_mount_reload_listener" );
         }
 
         @Override
-        protected void apply( @Nonnull Void result, @Nonnull ResourceManager manager, @Nonnull ProfilerFiller profiler )
+        public CompletableFuture<Void> load( ResourceManager manager, ProfilerFiller profiler, Executor executor )
         {
+            return CompletableFuture.runAsync( () -> {
+                profiler.push( "Reloading ComputerCraft mounts" );
+                try
+                {
+                    for( ResourceMount mount : MOUNT_CACHE.values() ) mount.load( manager );
+                }
+                finally
+                {
+                    profiler.pop();
+                }
+            }, executor );
+        }
+
+        @Override
+        public CompletableFuture<Void> apply( Void data, ResourceManager manager, ProfilerFiller profiler, Executor executor )
+        {
+            return CompletableFuture.runAsync( () -> {}, executor );
         }
     };
 }
