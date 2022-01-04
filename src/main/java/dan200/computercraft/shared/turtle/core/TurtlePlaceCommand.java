@@ -295,9 +295,27 @@ public class TurtlePlaceCommand implements ITurtleCommand
                 turtlePlayer.setItemInHand( InteractionHand.MAIN_HAND, result.getObject() );
                 return result.getResult();
             }
+
+            Block block = context.getLevel().getBlockState(position).getBlock();
+            if(block.equals(Blocks.LAVA_CAULDRON)){
+                useBucketOnCauldron(context.getLevel(), position, stack, turtlePlayer, Items.LAVA_BUCKET);
+            } else if (block.equals(Blocks.WATER_CAULDRON)){
+                useBucketOnCauldron(context.getLevel(), position, stack, turtlePlayer, Items.WATER_BUCKET);
+            } else if (block.equals(Blocks.POWDER_SNOW_CAULDRON)){
+                useBucketOnCauldron(context.getLevel(), position, stack, turtlePlayer, Items.POWDER_SNOW_BUCKET);
+            }
         }
 
         return InteractionResult.PASS;
+    }
+
+    private static void useBucketOnCauldron(Level level, BlockPos position, ItemStack stack, TurtlePlayer turtlePlayer, Item bucket)
+    {
+
+        level.setBlockAndUpdate(position, Blocks.CAULDRON.defaultBlockState());
+        stack.setCount(stack.getCount()-1);
+        turtlePlayer.getInventory().add(new ItemStack(bucket));
+
     }
 
     private static void setSignText( Level world, BlockEntity tile, String message )
