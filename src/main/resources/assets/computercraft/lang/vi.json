@@ -34,7 +34,7 @@
     "block.computercraft.disk_drive": "Ỗ đĩa",
     "block.computercraft.computer_command": "Máy tính điều khiển",
     "block.computercraft.computer_normal": "Máy tính",
-    "itemGroup.computercraft": "ComputerCraft",
+    "itemGroup.computercraft.main": "ComputerCraft",
     "block.computercraft.computer_advanced": "Máy tính tiên tiến",
     "tracking_field.computercraft.websocket_incoming.name": "Websocket đến",
     "tracking_field.computercraft.websocket_outgoing.name": "Websocket đi",
