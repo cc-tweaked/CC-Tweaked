@@ -86,7 +86,7 @@
     "tracking_field.computercraft.coroutines_dead.name": "Корутин удалено",
     "gui.computercraft.tooltip.copy": "Скопировать в буфер обмена",
     "gui.computercraft.tooltip.disk_id": "ID дискеты: %s",
-    "itemGroup.computercraft": "ComputerCraft",
+    "itemGroup.computercraft.main": "ComputerCraft",
     "block.computercraft.wired_modem_full": "Проводной модем",
     "block.computercraft.turtle_normal": "Черепашка",
     "block.computercraft.turtle_normal.upgraded_twice": "%s %s черепашка",
