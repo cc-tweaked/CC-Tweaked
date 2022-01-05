@@ -33,6 +33,7 @@ import me.shedaniel.cloth.api.utils.v1.GameInstanceUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.resource.ReloadableResourceManager;
+import net.minecraft.resource.ResourceManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -116,7 +117,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
         MinecraftServer server = GameInstanceUtils.getServer();
         if( server != null )
         {
-            ReloadableResourceManager manager = (ReloadableResourceManager) ((MinecraftServerAccess) server).getServerResourceManager().getResourceManager();
+            ResourceManager manager = ((MinecraftServerAccess) server).getServerResourceManager().getResourceManager();
             ResourceMount mount = ResourceMount.get( domain, subPath, manager );
             return mount.exists( "" ) ? mount : null;
         }

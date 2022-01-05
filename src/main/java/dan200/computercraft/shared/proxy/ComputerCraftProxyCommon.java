@@ -11,6 +11,7 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.peripheral.IPeripheralTile;
 import dan200.computercraft.api.turtle.event.TurtleEvent;
 import dan200.computercraft.core.computer.MainThread;
+import dan200.computercraft.core.filesystem.ResourceMount;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.command.CommandComputerCraft;
@@ -33,11 +34,13 @@ import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.CommandBlockBlockEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.MusicDiscItem;
 import net.minecraft.loot.condition.LootConditionType;
+import net.minecraft.resource.ResourceType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -129,6 +132,8 @@ public final class ComputerCraftProxyCommon
         TurtleEvent.EVENT_BUS.register( FurnaceRefuelHandler.INSTANCE );
         TurtleEvent.EVENT_BUS.register( new TurtlePermissions() );
         TurtleEvent.EVENT_BUS.register( new SignInspectHandler() );
+
+        ResourceManagerHelper.get( ResourceType.SERVER_DATA ).registerReloadListener( ResourceMount.RELOAD_LISTENER );
     }
 
     public static void registerLoot()

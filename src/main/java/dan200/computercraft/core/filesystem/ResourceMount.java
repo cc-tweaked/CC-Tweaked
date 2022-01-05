@@ -7,16 +7,15 @@ package dan200.computercraft.core.filesystem;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.MapMaker;
 import com.google.common.io.ByteStreams;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.shared.util.IoUtil;
-import net.minecraft.resource.ReloadableResourceManager;
+import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
+import net.fabricmc.fabric.api.resource.SimpleResourceReloadListener;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourceReloadListener;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.profiler.Profiler;
@@ -28,7 +27,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -59,50 +60,37 @@ public final class ResourceMount implements IMount
         .<FileEntry, byte[]>weigher( ( k, v ) -> v.length )
         .build();
 
-    private static final MapMaker CACHE_TEMPLATE = new MapMaker().weakValues().concurrencyLevel( 1 );
-
     /**
      * Maintain a cache of currently loaded resource mounts. This cache is invalidated when currentManager changes.
      */
-    private static final Map<ReloadableResourceManager, Map<Identifier, ResourceMount>> MOUNT_CACHE = new WeakHashMap<>( 2 );
+    private static final Map<Identifier, ResourceMount> MOUNT_CACHE = new HashMap<>( 2 );
 
     private final String namespace;
     private final String subPath;
-    private final ReloadableResourceManager manager;
+    private ResourceManager manager;
 
     @Nullable
     private FileEntry root;
 
-    public static ResourceMount get( String namespace, String subPath, ReloadableResourceManager manager )
+    public static ResourceMount get( String namespace, String subPath, ResourceManager manager )
     {
-        Map<Identifier, ResourceMount> cache;
-
+        Identifier path = new Identifier( namespace, subPath );
         synchronized( MOUNT_CACHE )
         {
-            cache = MOUNT_CACHE.get( manager );
-            if( cache == null ) MOUNT_CACHE.put( manager, cache = CACHE_TEMPLATE.makeMap() );
-        }
-
-        Identifier path = new Identifier( namespace, subPath );
-        synchronized( cache )
-        {
-            ResourceMount mount = cache.get( path );
-            if( mount == null ) cache.put( path, mount = new ResourceMount( namespace, subPath, manager ) );
+            ResourceMount mount = MOUNT_CACHE.get( path );
+            if( mount == null ) MOUNT_CACHE.put( path, mount = new ResourceMount( namespace, subPath, manager ) );
             return mount;
         }
     }
 
-    private ResourceMount( String namespace, String subPath, ReloadableResourceManager manager )
+    private ResourceMount( String namespace, String subPath, ResourceManager manager )
     {
         this.namespace = namespace;
         this.subPath = subPath;
-        this.manager = manager;
-
-        Listener.INSTANCE.add( manager, this );
-        if( root == null ) load();
+        load( manager );
     }
 
-    private void load()
+    private void load( ResourceManager manager )
     {
         boolean hasAny = false;
         String existingNamespace = null;
@@ -119,6 +107,7 @@ public final class ResourceMount implements IMount
             hasAny = true;
         }
 
+        this.manager = manager;
         root = hasAny ? newRoot : null;
 
         if( !hasAny )
@@ -294,38 +283,37 @@ public final class ResourceMount implements IMount
     }
 
     /**
-     * A {@link ResourceReloadListener} which reloads any associated mounts.
-     *
-     * While people should really be keeping a permanent reference to this, some people construct it every
-     * method call, so let's make this as small as possible.
+     * An {@link IdentifiableResourceReloadListener} which reloads any associated mounts and correctly updates the resource manager they
+     * point to.
      */
-    static class Listener implements ResourceReloadListener
+    public static final IdentifiableResourceReloadListener RELOAD_LISTENER = new SimpleResourceReloadListener<Void>()
     {
-        private static final Listener INSTANCE = new Listener();
-
-        private final Set<ResourceMount> mounts = Collections.newSetFromMap( new WeakHashMap<>() );
-        private final Set<ReloadableResourceManager> managers = Collections.newSetFromMap( new WeakHashMap<>() );
+        @Override
+        public Identifier getFabricId()
+        {
+            return new Identifier( ComputerCraft.MOD_ID, "resource_mount_reload_listener" );
+        }
 
         @Override
-        public CompletableFuture<Void> reload( Synchronizer synchronizer, ResourceManager manager, Profiler prepareProfiler, Profiler applyProfiler, Executor prepareExecutor, Executor applyExecutor )
+        public CompletableFuture<Void> load( ResourceManager manager, Profiler profiler, Executor executor )
         {
             return CompletableFuture.runAsync( () -> {
-                prepareProfiler.push( "Mount reloading" );
+                profiler.push( "Reloading ComputerCraft mounts" );
                 try
                 {
-                    for( ResourceMount mount : mounts ) mount.load();
+                    for( ResourceMount mount : MOUNT_CACHE.values() ) mount.load( manager );
                 }
                 finally
                 {
-                    prepareProfiler.pop();
+                    profiler.pop();
                 }
-            }, prepareExecutor );
+            }, executor );
         }
 
-        synchronized void add( ReloadableResourceManager manager, ResourceMount mount )
+        @Override
+        public CompletableFuture<Void> apply( Void data, ResourceManager manager, Profiler profiler, Executor executor )
         {
-            if( managers.add( manager ) ) manager.registerListener( this );
-            mounts.add( mount );
+            return CompletableFuture.runAsync( () -> { }, executor );
         }
-    }
+    };
 }
