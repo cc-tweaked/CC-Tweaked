@@ -59,7 +59,7 @@ public enum CableModemVariant implements IStringSerializable
     @Nonnull
     public static CableModemVariant from( Direction facing, boolean modem, boolean peripheral )
     {
-        int state = (modem ? 2 : 0) + (peripheral ? 1 : 0);
+        int state = (modem ? 1 : 0) + (peripheral ? 2 : 0);
         return facing == null ? None : VALUES[1 + 6 * state + facing.get3DDataValue()];
     }
 
