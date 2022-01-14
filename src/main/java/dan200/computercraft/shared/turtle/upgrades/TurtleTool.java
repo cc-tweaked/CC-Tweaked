@@ -172,7 +172,6 @@ public class TurtleTool extends AbstractTurtleUpgrade
             {
                 float damage = (float) turtlePlayer.getAttributeValue( Attributes.ATTACK_DAMAGE );
                 damage *= getDamageMultiplier();
-                ComputerCraft.log.info( "Dealing {} damage", damage );
                 if( damage > 0.0f )
                 {
                     DamageSource source = DamageSource.playerAttack( turtlePlayer );
