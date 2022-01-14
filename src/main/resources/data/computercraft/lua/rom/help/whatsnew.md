@@ -1,7 +1,7 @@
-New features in CC: Tweaked 1.100.1
+New features in CC: Tweaked 1.100.2
 
 Several bug fixes:
-* Fix `peripheral.hasType` not working with wired modems (Toad-Dev).
-* Fix crashes when noisy pocket computer are shutdown.
+* Fix wired modems swapping the modem/peripheral block state.
+* Remove debugging logging line from `turtle.attack`.
 
 Type "help changelog" to see the full version history.
