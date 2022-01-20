@@ -11,7 +11,7 @@ local sDestination = tArgs[#tArgs]
 tArgs[#tArgs] = nil
 
 for _, sItem in ipairs(tArgs) do
-  local handle, sError = fs.open(sItem, "rb")
+  local handle, sError = fs.open(shell.resolve(sItem), "rb")
   if not handle then
     printError(sItem .. ": " .. sError)
     return
@@ -20,7 +20,7 @@ for _, sItem in ipairs(tArgs) do
   handle.close()
 end
 
-local outHandle, sError = fs.open(sDestination, "wb")
+local outHandle, sError = fs.open(shell.resolve(sDestination), "wb")
 if not outHandle then
   printError(sDestination .. ": " .. sError)
   return
