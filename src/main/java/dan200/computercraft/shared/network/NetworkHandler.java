@@ -76,6 +76,7 @@ public final class NetworkHandler
         registerMainThread( 17, SpeakerStopClientMessage.class, SpeakerStopClientMessage::new );
         registerMainThread( 18, SpeakerMoveClientMessage.class, SpeakerMoveClientMessage::new );
         registerMainThread( 19, UploadResultMessage.class, UploadResultMessage::new );
+        registerMainThread( 21, TerminalDimensionsClientMessage.class, TerminalDimensionsClientMessage::new );
     }
 
     private static void receive( PacketContext context, FriendlyByteBuf buffer )
