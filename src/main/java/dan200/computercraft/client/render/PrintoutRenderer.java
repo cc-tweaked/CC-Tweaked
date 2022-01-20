@@ -38,12 +38,12 @@ public final class PrintoutRenderer
     /**
      * Padding between the left and right of a page and the text.
      */
-    public static final int X_TEXT_MARGIN = 13;
+    public static final int X_TEXT_MARGIN = 11;
 
     /**
      * Padding between the top and bottom of a page and the text.
      */
-    public static final int Y_TEXT_MARGIN = 11;
+    public static final int Y_TEXT_MARGIN = 10;
 
     /**
      * Width of the extra page texture.

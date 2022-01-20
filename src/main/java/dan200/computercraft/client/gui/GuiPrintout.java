@@ -52,8 +52,7 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
     @Override
     public boolean keyPressed( int key, int scancode, int modifiers )
     {
-        if( super.keyPressed( key, scancode, modifiers ) ) return true;
-
+        // Check for key presses.
         if( key == GLFW.GLFW_KEY_RIGHT )
         {
             if( page < pages - 1 ) page++;
@@ -66,13 +65,16 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
             return true;
         }
 
+        // Otherwise, default to parent function
+        if( super.keyPressed( key, scancode, modifiers ) ) return true;
+
         return false;
     }
 
     @Override
     public boolean mouseScrolled( double x, double y, double delta )
     {
-        if( super.mouseScrolled( x, y, delta ) ) return true;
+        // Check for key presses.
         if( delta < 0 )
         {
             // Scroll up goes to the next page
@@ -86,6 +88,9 @@ public class GuiPrintout extends ContainerScreen<ContainerHeldItem>
             if( page > 0 ) page--;
             return true;
         }
+
+        // Otherwise, default to parent function
+        if( super.mouseScrolled( x, y, delta ) ) return true;
 
         return false;
     }
