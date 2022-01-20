@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.util;
 
+import com.google.common.io.BaseEncoding;
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.nbt.*;
 
@@ -21,6 +22,8 @@ import java.util.Map;
 
 public final class NBTUtil
 {
+    private static final BaseEncoding ENCODING = BaseEncoding.base16().lowerCase();
+
     private NBTUtil() {}
 
     private static Tag toNBTTag( Object object )
@@ -176,20 +179,13 @@ public final class NBTUtil
             DataOutput output = new DataOutputStream( new DigestOutputStream( digest ) );
             NbtIo.write( tag, output );
             byte[] hash = digest.digest();
-            return encodeHex( hash );
+            return ENCODING.encode( hash );
         }
         catch( NoSuchAlgorithmException | IOException e )
         {
             ComputerCraft.log.error( "Cannot hash NBT", e );
             return null;
         }
-    }
-
-    private static String encodeHex( byte[] bytes )
-    {
-        StringBuilder result = new StringBuilder();
-        for ( byte b : bytes ) result.append( String.format( "%02x", b ) );
-        return result.toString();
     }
 
     private static final class DigestOutputStream extends OutputStream

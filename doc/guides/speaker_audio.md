@@ -18,7 +18,7 @@ representable value.
 
 This representation of sound - a long, uniformally sampled list of amplitudes is referred to as [Pulse-code
 Modulation][PCM] (PCM). PCM can be thought of as the "standard" audio format, as it's incredibly easy to work with. For
-instance, to mix two pieces of audio together, you can just samples from the two tracks together and take the average.
+instance, to mix two pieces of audio together, you can just add samples from the two tracks together and take the average.
 
 CC: Tweaked's speakers also work with PCM audio. It plays back 48,000 samples a second, where each sample is an integer
 between -128 and 127. This is more commonly referred to as 48kHz and an 8-bit resolution.
