@@ -119,8 +119,12 @@ public final class PrintoutRenderer
             }
         }
 
-        // Left half
-        drawTexture( transform, buffer, x, y, z, X_FOLD_SIZE * 2, 0, X_SIZE / 2.0f, Y_SIZE );
+        // Current page background
+        // z-offset is interleaved between the "zeroth" left/right page and the first left/right page, so that the
+        // "bold" border can be drawn over the edge where appropriate.
+        drawTexture( transform, buffer, x, y, z - 1e-3f * 0.5f, X_FOLD_SIZE * 2, 0, X_SIZE, Y_SIZE );
+
+        // Left pages
         for( int n = 0; n <= leftPages; n++ )
         {
             drawTexture( transform, buffer,
@@ -131,8 +135,7 @@ public final class PrintoutRenderer
             );
         }
 
-        // Right half
-        drawTexture( transform, buffer, x + X_SIZE / 2.0f, y, z, X_FOLD_SIZE * 2 + X_SIZE / 2.0f, 0, X_SIZE / 2.0f, Y_SIZE );
+        // Right pages
         for( int n = 0; n <= rightPages; n++ )
         {
             drawTexture( transform, buffer,
