@@ -1,0 +1,1 @@
+concat is a basic file concatenation utility. It takes any number of file paths and one destination file path. Into the file at the destination path it will write the contents of all the files at the provided paths, in order.
