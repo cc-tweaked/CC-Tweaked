@@ -76,6 +76,7 @@ public final class NetworkHandler
         registerMainThread( 18, SpeakerPlayClientMessage.class, SpeakerPlayClientMessage::new );
         registerMainThread( 19, SpeakerStopClientMessage.class, SpeakerStopClientMessage::new );
         registerMainThread( 20, UploadResultMessage.class, UploadResultMessage::new );
+        registerMainThread( 21, TerminalDimensionsClientMessage.class, TerminalDimensionsClientMessage::new );
     }
 
     private static void receive( MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buffer, PacketSender sender )
