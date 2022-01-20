@@ -28,6 +28,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -296,13 +297,15 @@ public class TurtlePlaceCommand implements ITurtleCommand
                 return result.getResult();
             }
 
-            Block block = context.getLevel().getBlockState(position).getBlock();
-            if(block.equals(Blocks.LAVA_CAULDRON)){
-                useBucketOnCauldron(context.getLevel(), position, stack, turtlePlayer, Items.LAVA_BUCKET);
-            } else if (block.equals(Blocks.WATER_CAULDRON)){
-                useBucketOnCauldron(context.getLevel(), position, stack, turtlePlayer, Items.WATER_BUCKET);
-            } else if (block.equals(Blocks.POWDER_SNOW_CAULDRON)){
-                useBucketOnCauldron(context.getLevel(), position, stack, turtlePlayer, Items.POWDER_SNOW_BUCKET);
+            if(item == Items.BUCKET) {
+                Block block = context.getLevel().getBlockState(position).getBlock();
+                if(block.equals(Blocks.LAVA_CAULDRON)){
+                    useBucketOnCauldron(context.getLevel(), position, stack, turtlePlayer, Items.LAVA_BUCKET);
+                } else if (block.equals(Blocks.WATER_CAULDRON)){
+                    useBucketOnCauldron(context.getLevel(), position, stack, turtlePlayer, Items.WATER_BUCKET);
+                } else if (block.equals(Blocks.POWDER_SNOW_CAULDRON)){
+                    useBucketOnCauldron(context.getLevel(), position, stack, turtlePlayer, Items.POWDER_SNOW_BUCKET);
+                }
             }
         }
 
