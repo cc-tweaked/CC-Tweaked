@@ -67,6 +67,7 @@ public final class NetworkHandler
         registerMainThread( 12, ComputerDeletedClientMessage::new );
         registerMainThread( 13, ComputerTerminalClientMessage::new );
         registerMainThread( 14, PlayRecordClientMessage.class, PlayRecordClientMessage::new );
+        registerMainThread( 15, TerminalDimensionsClientMessage.class, TerminalDimensionsClientMessage::new );
     }
 
     private static void receive( PacketContext context, PacketByteBuf buffer )

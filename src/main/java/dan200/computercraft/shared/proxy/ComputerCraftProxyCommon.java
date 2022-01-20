@@ -23,6 +23,7 @@ import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
 import dan200.computercraft.shared.media.items.RecordMedia;
 import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.network.client.TerminalDimensionsClientMessage;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
@@ -34,6 +35,7 @@ import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.CommandBlockBlockEntity;
@@ -128,6 +130,10 @@ public final class ComputerCraftProxyCommon
         // Config
         ServerLifecycleEvents.SERVER_STARTING.register( Config::serverStarting );
         ServerLifecycleEvents.SERVER_STOPPING.register( Config::serverStopping );
+        ServerPlayConnectionEvents.JOIN.register( ( listener, sender, server ) ->
+        {
+            NetworkHandler.sendToPlayer( listener.player, new TerminalDimensionsClientMessage() );
+        } );
 
         TurtleEvent.EVENT_BUS.register( FurnaceRefuelHandler.INSTANCE );
         TurtleEvent.EVENT_BUS.register( new TurtlePermissions() );
