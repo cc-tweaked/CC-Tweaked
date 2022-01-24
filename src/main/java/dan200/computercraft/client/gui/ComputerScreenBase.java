@@ -113,6 +113,16 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
         return changed;
     }
 
+    // Fabric note: Forge patches some behavior in AbstractContainerScreen and so doesn't need this override. Fabric
+    // needs it as the vanilla mouseReleased override in AbstractContainerScreen (the super method from here) always
+    // consumes the event and doesn't forward it on.
+    @Override
+    public boolean mouseReleased( double x, double y, int button )
+    {
+        return (getFocused() != null && getFocused().mouseReleased( x, y, button ))
+            || super.mouseReleased( x, y, button );
+    }
+
     @Override
     public final boolean mouseDragged( double x, double y, int button, double deltaX, double deltaY )
     {
