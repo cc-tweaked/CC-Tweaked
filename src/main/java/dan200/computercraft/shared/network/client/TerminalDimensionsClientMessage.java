@@ -31,8 +31,8 @@ public class TerminalDimensionsClientMessage implements NetworkMessage
         this.computerTermHeight = ComputerCraft.computerTermHeight;
         this.pocketTermWidth = ComputerCraft.pocketTermWidth;
         this.pocketTermHeight = ComputerCraft.pocketTermHeight;
-        this.monitorHeight = ComputerCraft.monitorHeight;
         this.monitorWidth = ComputerCraft.monitorWidth;
+        this.monitorHeight = ComputerCraft.monitorHeight;
     }
 
     public TerminalDimensionsClientMessage( @Nonnull FriendlyByteBuf buf )
@@ -41,8 +41,8 @@ public class TerminalDimensionsClientMessage implements NetworkMessage
         computerTermHeight = buf.readVarInt();
         pocketTermWidth = buf.readVarInt();
         pocketTermHeight = buf.readVarInt();
-        monitorHeight = buf.readVarInt();
         monitorWidth = buf.readVarInt();
+        monitorHeight = buf.readVarInt();
     }
 
     @Override
