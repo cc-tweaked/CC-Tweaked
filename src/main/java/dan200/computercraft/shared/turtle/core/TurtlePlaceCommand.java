@@ -15,6 +15,7 @@ import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -272,6 +273,14 @@ public class TurtlePlaceCommand implements ITurtleCommand
         @Nonnull ItemStack stack, TurtlePlayer turtlePlayer, BlockPos position, ItemUseContext context, BlockRayTraceResult hit
     )
     {
+        Item item = stack.getItem();
+        Block block = context.getLevel().getBlockState( position ).getBlock();
+
+        if ( item instanceof BucketItem && context.getLevel().getBlockState( position ).getBlock() instanceof CauldronBlock )
+        {
+            useBucketOnCauldron( context.getLevel(), position, stack, turtlePlayer, block );
+        }
+
         PlayerInteractEvent.RightClickBlock event = ForgeHooks.onRightClickBlock( turtlePlayer, Hand.MAIN_HAND, position, hit );
         if( event.isCanceled() ) return event.getCancellationResult();
 
@@ -302,6 +311,53 @@ public class TurtlePlaceCommand implements ITurtleCommand
         }
 
         return ActionResultType.PASS;
+    }
+
+    private static void useBucketOnCauldron( Level level, BlockPos position, ItemStack bucket, TurtlePlayer turtlePlayer, Block cauldron )
+    {
+        //Check that either bucket is empty and cauldron is full or vice versa
+        if ( bucket.equals( Items.BUCKET ) )
+        {
+            if( cauldron.equals( Blocks.LAVA_CAULDRON ) )
+            {
+                level.setBlockAndUpdate( position, Blocks.LAVA_CAULDRON.defaultBlockState() );
+                bucket.setCount( bucket.getCount() - 1 );
+                turtlePlayer.getInventory().add( new ItemStack( Items.LAVA_BUCKET ) );
+            }
+            else if ( cauldron.equals( Blocks.WATER_CAULDRON ) )
+            {
+                level.setBlockAndUpdate( position, Blocks.WATER_CAULDRON.defaultBlockState() );
+                bucket.setCount( bucket.getCount() - 1 );
+                turtlePlayer.getInventory().add( new ItemStack( Items.WATER_BUCKET ) );
+            }
+            else if ( cauldron.equals( Blocks.POWDER_SNOW_CAULDRON ) )
+            {
+                level.setBlockAndUpdate( position, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState() );
+                bucket.setCount( bucket.getCount() - 1 );
+                turtlePlayer.getInventory().add( new ItemStack( Items.POWDER_SNOW_BUCKET ) );
+            }
+        }
+        else
+        {
+            if ( bucket.equals( Items.LAVA_BUCKET ) )
+            {
+                level.setBlockAndUpdate( position, Blocks.CAULDRON.defaultBlockState() );
+                bucket.setCount( bucket.getCount() - 1 );
+                turtlePlayer.getInventory().add( new ItemStack( Items.BUCKET ) );
+            }
+            else if ( bucket.equals( Items.WATER_BUCKET ) )
+            {
+                level.setBlockAndUpdate( position, Blocks.CAULDRON.defaultBlockState() );
+                bucket.setCount( bucket.getCount() - 1 );
+                turtlePlayer.getInventory().add( new ItemStack( Items.BUCKET ) );
+            }
+            else if( bucket.equals( Items.POWDER_SNOW_BUCKET ) )
+            {
+                level.setBlockAndUpdate( position, Blocks.CAULDRON.defaultBlockState() );
+                bucket.setCount( bucket.getCount() - 1 );
+                turtlePlayer.getInventory().add( new ItemStack( Items.BUCKET ) );
+            }
+        }
     }
 
     private static void setSignText( World world, TileEntity tile, String message )
