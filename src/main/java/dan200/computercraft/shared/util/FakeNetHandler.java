@@ -26,8 +26,7 @@ public class FakeNetHandler extends ServerGamePacketListenerImpl
 {
     public FakeNetHandler( @Nonnull FakePlayer player )
     {
-        super( player.getLevel()
-            .getServer(), new FakeNetworkManager(), player );
+        super( player.getLevel().getServer(), new FakeNetworkManager(), player );
     }
 
     @Override
@@ -240,11 +239,6 @@ public class FakeNetHandler extends ServerGamePacketListenerImpl
     public void handleSetCreativeModeSlot( @Nonnull ServerboundSetCreativeModeSlotPacket packet )
     {
     }
-
-    //    @Override
-    //    public void onConfirmScreenAction( ConfirmScreenActionC2SPacket packet )
-    //    {
-    //    }
 
     @Override
     public void handleSignUpdate( @Nonnull ServerboundSignUpdatePacket packet )

@@ -11,7 +11,6 @@ import dan200.computercraft.api.turtle.FakePlayer;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.util.DirectionUtil;
-import dan200.computercraft.shared.util.FakeNetHandler;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
@@ -54,7 +53,6 @@ public final class TurtlePlayer extends FakePlayer
         GameProfile profile = turtle.getOwningPlayer();
 
         TurtlePlayer player = new TurtlePlayer( world, getProfile( profile ) );
-        player.connection = new FakeNetHandler( player );
         player.setState( turtle );
 
         if( profile != null && profile.getId() != null )
