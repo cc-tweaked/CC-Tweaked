@@ -3,6 +3,7 @@
     "package": "dan200.computercraft.fabric.mixin",
     "compatibilityLevel": "JAVA_16",
     "mixins": [
+        "ConnectionAccess",
         "LevelResourceAccess",
         "MinecraftServerAccess",
 
