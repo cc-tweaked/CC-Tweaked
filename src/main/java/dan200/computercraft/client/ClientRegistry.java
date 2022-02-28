@@ -10,7 +10,6 @@ import dan200.computercraft.client.gui.*;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.client.render.TurtleModelLoader;
-import dan200.computercraft.client.render.TurtlePlayerRenderer;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
@@ -30,7 +29,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
-import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ForgeModelBakery;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
@@ -120,12 +118,6 @@ public final class ClientRegistry
             ( stack, tintIndex ) -> tintIndex == 0 ? ((IColouredItem) stack.getItem()).getColour( stack ) : 0xFFFFFF,
             Registry.ModBlocks.TURTLE_NORMAL.get(), Registry.ModBlocks.TURTLE_ADVANCED.get()
         );
-    }
-
-    @SubscribeEvent
-    public static void registerEntityRenderers( EntityRenderersEvent.RegisterRenderers event )
-    {
-        event.registerEntityRenderer( Registry.ModEntities.TURTLE_PLAYER.get(), TurtlePlayerRenderer::new );
     }
 
     @SubscribeEvent

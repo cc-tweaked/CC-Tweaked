@@ -160,6 +160,7 @@ public class UploadFileMessage extends ComputerServerMessage
                 contents.position( currentOffset ).limit( currentOffset + canWrite );
                 slices.add( new FileSlice( fileId, currentOffset, contents.slice() ) );
                 currentOffset += canWrite;
+                remaining -= canWrite;
             }
 
             contents.position( 0 ).limit( capacity );
