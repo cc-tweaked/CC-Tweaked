@@ -19,8 +19,8 @@ numerical value depending on which button on your mouse was last pressed when th
     <!-- Our markdown parser doesn't work on tables!? Guess I'll have to roll my own soonish :/. -->
     <tr><th>Button code</th><th>Mouse button</th></tr>
     <tr><td align="right">1</td><td>Left button</td></tr>
-    <tr><td align="right">2</td><td>Middle button</td></tr>
-    <tr><td align="right">3</td><td>Right button</td></tr>
+    <tr><td align="right">2</td><td>Right button</td></tr>
+    <tr><td align="right">3</td><td>Middle button</td></tr>
 </table>
 
 ## Example

@@ -21,6 +21,7 @@ import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -159,6 +160,16 @@ public final class CommonHooks
         else
         {
             NetworkHandler.sendToPlayer( event.getPlayer(), packet );
+        }
+    }
+
+    @SubscribeEvent
+    public static void onMissingEntityMappingsEvent( RegistryEvent.MissingMappings<EntityType<?>> event )
+    {
+        ResourceLocation id = new ResourceLocation( ComputerCraft.MOD_ID, "turtle_player" );
+        for( RegistryEvent.MissingMappings.Mapping<EntityType<?>> mapping : event.getMappings( ComputerCraft.MOD_ID ) )
+        {
+            if( mapping.key.equals( id ) ) mapping.ignore();
         }
     }
 }

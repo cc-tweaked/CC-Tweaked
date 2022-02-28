@@ -61,7 +61,6 @@ import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
-import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
@@ -73,8 +72,6 @@ import dan200.computercraft.shared.util.ImpostorRecipe;
 import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -285,18 +282,6 @@ public final class Registry
             SERIALISERS.register( "wireless_modem_advanced", () -> PocketUpgradeSerialiser.simpleWithCustomItem( ( id, item ) -> new PocketModem( id, item, true ) ) );
     }
 
-    public static class ModEntities
-    {
-        static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create( ForgeRegistries.ENTITIES, ComputerCraft.MOD_ID );
-
-        public static final RegistryObject<EntityType<TurtlePlayer>> TURTLE_PLAYER = ENTITIES.register( "turtle_player", () ->
-            EntityType.Builder.<TurtlePlayer>createNothing( MobCategory.MISC )
-                .noSave()
-                .noSummon()
-                .sized( 0, 0 )
-                .build( ComputerCraft.MOD_ID + ":turtle_player" ) );
-    }
-
     public static class ModContainers
     {
         static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create( ForgeRegistries.CONTAINERS, ComputerCraft.MOD_ID );
@@ -425,7 +410,6 @@ public final class Registry
         ModItems.ITEMS.register( bus );
         ModTurtleSerialisers.SERIALISERS.register( bus );
         ModPocketUpgradeSerialisers.SERIALISERS.register( bus );
-        ModEntities.ENTITIES.register( bus );
         ModContainers.CONTAINERS.register( bus );
     }
 }
