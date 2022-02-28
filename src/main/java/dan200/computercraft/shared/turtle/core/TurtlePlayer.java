@@ -8,14 +8,11 @@ package dan200.computercraft.shared.turtle.core;
 import com.mojang.authlib.GameProfile;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.util.DirectionUtil;
-import dan200.computercraft.shared.util.FakeNetHandler;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntitySize;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.Pose;
 import net.minecraft.entity.passive.horse.AbstractHorseEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -54,7 +51,6 @@ public final class TurtlePlayer extends FakePlayer
         GameProfile profile = turtle.getOwningPlayer();
 
         TurtlePlayer player = new TurtlePlayer( world, getProfile( profile ) );
-        player.connection = new FakeNetHandler( player );
         player.setState( turtle );
 
         if( profile != null && profile.getId() != null )
@@ -201,13 +197,6 @@ public final class TurtlePlayer extends FakePlayer
         }
 
         inventory.setChanged();
-    }
-
-    @Nonnull
-    @Override
-    public EntityType<?> getType()
-    {
-        return Registry.ModEntities.TURTLE_PLAYER.get();
     }
 
     @Override
