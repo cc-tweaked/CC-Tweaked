@@ -45,7 +45,7 @@ public final class CommandUtils
         }
         else
         {
-            return ((SharedSuggestionProvider) source).customSuggestion( (CommandContext<SharedSuggestionProvider>) context, builder );
+            return ((SharedSuggestionProvider) source).customSuggestion( context );
         }
     }
 

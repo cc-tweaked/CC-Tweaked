@@ -7,8 +7,6 @@ package dan200.computercraft.shared.peripheral.generic.data;
 
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
@@ -18,6 +16,7 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public final class DataHelpers
 {
@@ -35,14 +34,14 @@ public final class DataHelpers
     @Nonnull
     static Map<String, Boolean> getTags( @Nonnull Block block )
     {
-        Collection<ResourceLocation> tags = BlockTags.getAllTags().getMatchingTags( block );
+        Collection<ResourceLocation> tags = block.builtInRegistryHolder().tags().map( tag -> tag.location() ).collect( Collectors.toList() );
         return getTags( tags );
     }
 
     @Nonnull
     static Map<String, Boolean> getTags( @Nonnull Item item )
     {
-        Collection<ResourceLocation> tags = ItemTags.getAllTags().getMatchingTags( item );
+        Collection<ResourceLocation> tags = item.builtInRegistryHolder().tags().map( tag -> tag.location() ).collect( Collectors.toList() );
         return getTags( tags );
     }
 
