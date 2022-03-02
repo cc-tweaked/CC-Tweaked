@@ -13,5 +13,5 @@ labels: bug
  - Minecraft version
  - CC: Restitched version
  - Logs: These will be located in the `logs/` directory of your Minecraft instance. Please upload them as a gist or directly into this editor.
-  - Please send `latest.log` AND the appropriate crashlog, 
+  - Please send `latest.log` AND the appropriate crashlog,
  - Detailed reproduction steps: sometimes I can spot a bug pretty easily, but often it's much more obscure. The more information I have to help reproduce it, the quicker it'll get fixed.
