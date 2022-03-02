@@ -68,6 +68,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
 
 import java.util.function.BiFunction;
 
@@ -157,7 +158,7 @@ public final class Registry
 
         private static BlockBehaviour.Properties modemProperties()
         {
-            return FabricBlockSettings.copyOf( Blocks.STONE ).breakByHand( true ).strength( 1.5f );
+            return BlockBehaviour.Properties.of( Material.STONE, MaterialColor.STONE ).strength( 1.5f );
         }
     }
 
