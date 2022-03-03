@@ -397,6 +397,8 @@ tasks.register("jacocoTestServerReport", JacocoReport.class).configure {
     }
 }
 
+check.dependsOn("jacocoTestServerReport")
+
 
 // Upload tasks
 
