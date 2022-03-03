@@ -27,7 +27,7 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
@@ -370,7 +370,7 @@ class RecipeGenerator extends RecipeProvider
         return DyeColor.byId( 15 - colour.ordinal() );
     }
 
-    private static InventoryChangeTrigger.TriggerInstance inventoryChange( Tag<Item> stack )
+    private static InventoryChangeTrigger.TriggerInstance inventoryChange( TagKey<Item> stack )
     {
         return InventoryChangeTrigger.TriggerInstance.hasItems( ItemPredicate.Builder.item().of( stack ).build() );
     }

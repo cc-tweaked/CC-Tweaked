@@ -6,9 +6,11 @@
 package dan200.computercraft.core.filesystem;
 
 import dan200.computercraft.api.filesystem.IMount;
+import net.minecraft.Util;
 import net.minecraft.server.packs.FolderPackResources;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.resources.SimpleReloadableResourceManager;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.util.Unit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,8 +31,11 @@ public class ResourceMountTest
     @BeforeEach
     public void before()
     {
-        SimpleReloadableResourceManager manager = new SimpleReloadableResourceManager( PackType.SERVER_DATA );
-        manager.add( new FolderPackResources( new File( "src/main/resources" ) ) );
+        ReloadableResourceManager manager = new ReloadableResourceManager( PackType.SERVER_DATA );
+        CompletableFuture<Unit> done = new CompletableFuture<>();
+        manager.createReload( Util.backgroundExecutor(), Util.backgroundExecutor(), done, List.of(
+            new FolderPackResources( new File( "src/main/resources" ) )
+        ) );
 
         mount = ResourceMount.get( "computercraft", "lua/rom", manager );
     }

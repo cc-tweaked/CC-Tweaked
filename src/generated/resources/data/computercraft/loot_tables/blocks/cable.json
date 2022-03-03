@@ -22,8 +22,7 @@
             "cable": "true"
           }
         }
-      ],
-      "functions": []
+      ]
     },
     {
       "name": "wired_modem",
@@ -49,8 +48,7 @@
             }
           }
         }
-      ],
-      "functions": []
+      ]
     }
   ]
 }

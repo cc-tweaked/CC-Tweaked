@@ -6,14 +6,12 @@
 package dan200.computercraft.shared.turtle.upgrades;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.api.upgrades.IUpgradeBase;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.SerializationTags;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -36,18 +34,14 @@ public final class TurtleToolSerialiser extends TurtleUpgradeSerialiser.Base<Tur
         var craftingItem = GsonHelper.getAsItem( object, "craftingItem", toolItem );
         var damageMultiplier = GsonHelper.getAsFloat( object, "damageMultiplier", 3.0f );
 
-        ResourceLocation breakableName = null;
-        Tag<Block> breakable = null;
+        TagKey<Block> breakable = null;
         if( object.has( "breakable" ) )
         {
-            breakableName = new ResourceLocation( GsonHelper.getAsString( object, "breakable" ) );
-            breakable = SerializationTags.getInstance().getTagOrThrow(
-                Registry.BLOCK_REGISTRY, breakableName,
-                tagId -> new JsonSyntaxException( "Unknown item tag '" + tagId + "'" )
-            );
+            ResourceLocation tag = new ResourceLocation( GsonHelper.getAsString( object, "breakable" ) );
+            breakable = TagKey.create( Registry.BLOCK_REGISTRY, tag );
         }
 
-        return new TurtleTool( id, adjective, craftingItem, new ItemStack( toolItem ), damageMultiplier, breakableName, breakable );
+        return new TurtleTool( id, adjective, craftingItem, new ItemStack( toolItem ), damageMultiplier, breakable );
     }
 
     @Nonnull
@@ -61,14 +55,8 @@ public final class TurtleToolSerialiser extends TurtleUpgradeSerialiser.Base<Tur
         // as otherwise syncing on an SP world will overwrite the (shared) upgrade registry with an invalid upgrade!
         var damageMultiplier = buffer.readFloat();
 
-        ResourceLocation breakableName = null;
-        Tag<Block> breakable = null;
-        if( buffer.readBoolean() )
-        {
-            breakableName = buffer.readResourceLocation();
-            breakable = SerializationTags.getInstance().getOrEmpty( Registry.BLOCK_REGISTRY ).getTagOrEmpty( breakableName );
-        }
-        return new TurtleTool( id, adjective, craftingItem, toolItem, damageMultiplier, breakableName, breakable );
+        TagKey<Block> breakable = buffer.readBoolean() ? TagKey.create( Registry.BLOCK_REGISTRY, buffer.readResourceLocation() ) : null;
+        return new TurtleTool( id, adjective, craftingItem, toolItem, damageMultiplier, breakable );
     }
 
     @Override
@@ -78,7 +66,7 @@ public final class TurtleToolSerialiser extends TurtleUpgradeSerialiser.Base<Tur
         buffer.writeRegistryIdUnsafe( ForgeRegistries.ITEMS, upgrade.getCraftingItem().getItem() );
         buffer.writeItem( upgrade.item );
         buffer.writeFloat( upgrade.damageMulitiplier );
-        buffer.writeBoolean( upgrade.breakableName != null );
-        if( upgrade.breakableName != null ) buffer.writeResourceLocation( upgrade.breakableName );
+        buffer.writeBoolean( upgrade.breakable != null );
+        if( upgrade.breakable != null ) buffer.writeResourceLocation( upgrade.breakable.location() );
     }
 }

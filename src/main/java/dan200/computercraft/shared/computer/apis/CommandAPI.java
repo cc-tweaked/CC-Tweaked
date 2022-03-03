@@ -16,7 +16,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -81,7 +80,7 @@ public class CommandAPI implements ILuaAPI
         Map<String, Object> table = BlockData.fill( new HashMap<>(), state );
 
         BlockEntity tile = world.getBlockEntity( pos );
-        if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.save( new CompoundTag() ) ) );
+        if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.saveWithFullMetadata() ) );
 
         return table;
     }

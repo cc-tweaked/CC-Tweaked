@@ -10,7 +10,7 @@ import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.upgrades.UpgradeDataProvider;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -42,7 +42,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
      *
      * @param id   The ID of this tool.
      * @param item The item used for tool actions. Note, this doesn't inherit all properties of the tool, you may need
-     *             to specify {@link ToolBuilder#damageMultiplier(float)} and {@link ToolBuilder#breakable(Tag.Named)}.
+     *             to specify {@link ToolBuilder#damageMultiplier(float)} and {@link ToolBuilder#breakable(TagKey)}.
      * @return A tool builder,
      */
     @Nonnull
@@ -64,7 +64,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
         private String adjective;
         private Item craftingItem;
         private Float damageMultiplier = null;
-        private Tag.Named<Block> breakable;
+        private TagKey<Block> breakable;
 
         ToolBuilder( ResourceLocation id, TurtleUpgradeSerialiser<?> serialiser, Item toolItem )
         {
@@ -123,7 +123,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
          * @return The tool builder, for further use.
          * @see ComputerCraftTags.Blocks
          */
-        public ToolBuilder breakable( @Nonnull Tag.Named<Block> breakable )
+        public ToolBuilder breakable( @Nonnull TagKey<Block> breakable )
         {
             this.breakable = breakable;
             return this;
@@ -141,7 +141,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
                 if( adjective != null ) s.addProperty( "adjective", adjective );
                 if( craftingItem != null ) s.addProperty( "craftItem", craftingItem.getRegistryName().toString() );
                 if( damageMultiplier != null ) s.addProperty( "damageMultiplier", damageMultiplier );
-                if( breakable != null ) s.addProperty( "breakable", breakable.getName().toString() );
+                if( breakable != null ) s.addProperty( "breakable", breakable.location().toString() );
             } ) );
         }
     }

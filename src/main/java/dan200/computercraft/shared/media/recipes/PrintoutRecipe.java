@@ -80,11 +80,11 @@ public final class PrintoutRecipe extends CustomRecipe
                         numPages++;
                         numPrintouts++;
                     }
-                    else if( Tags.Items.STRING.contains( stack.getItem() ) && !stringFound )
+                    else if( stack.is( Tags.Items.STRING ) && !stringFound )
                     {
                         stringFound = true;
                     }
-                    else if( Tags.Items.LEATHER.contains( stack.getItem() ) && !leatherFound )
+                    else if( stack.is( Tags.Items.LEATHER ) && !leatherFound )
                     {
                         leatherFound = true;
                     }

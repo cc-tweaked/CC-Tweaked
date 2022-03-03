@@ -46,7 +46,7 @@ public class DiskRecipe extends CustomRecipe
                     if( paperFound ) return false;
                     paperFound = true;
                 }
-                else if( Tags.Items.DUSTS_REDSTONE.contains( stack.getItem() ) )
+                else if( stack.is( Tags.Items.DUSTS_REDSTONE ) )
                 {
                     if( redstoneFound ) return false;
                     redstoneFound = true;
@@ -73,7 +73,7 @@ public class DiskRecipe extends CustomRecipe
 
             if( stack.isEmpty() ) continue;
 
-            if( stack.getItem() != Items.PAPER && !Tags.Items.DUSTS_REDSTONE.contains( stack.getItem() ) )
+            if( stack.getItem() != Items.PAPER && !stack.is( Tags.Items.DUSTS_REDSTONE ) )
             {
                 DyeColor dye = ColourUtils.getStackColour( stack );
                 if( dye != null ) tracker.addColour( dye );

@@ -159,8 +159,8 @@ dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
-    compileOnly fg.deobf("mezz.jei:jei-1.18.1:9.1.0.47:api")
-    runtimeOnly fg.deobf("mezz.jei:jei-1.18.1:9.1.0.47")
+    compileOnly fg.deobf("mezz.jei:jei-1.18.2:9.4.1.116:api")
+    runtimeOnly fg.deobf("mezz.jei:jei-1.18.2:9.4.1.116")
 
     shade 'org.squiddev:Cobalt:0.5.2-SNAPSHOT'
 
