@@ -1,12 +1,16 @@
 package dan200.computercraft.ingame
 
-import dan200.computercraft.ingame.api.*
+import dan200.computercraft.ComputerCraft
+import dan200.computercraft.ingame.api.modifyBlock
+import dan200.computercraft.ingame.api.sequence
 import net.minecraft.core.BlockPos
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.world.level.block.LeverBlock
 import net.minecraft.world.level.block.RedstoneLampBlock
+import net.minecraftforge.gametest.GameTestHolder
 
+@GameTestHolder(ComputerCraft.MOD_ID)
 class Computer_Test {
     /**
      * Ensures redstone signals do not travel through computers.

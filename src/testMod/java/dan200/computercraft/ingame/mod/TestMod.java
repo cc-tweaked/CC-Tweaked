@@ -27,7 +27,6 @@ public class TestMod
     {
         log.info( "CC: Test initialised" );
         ComputerCraftAPI.registerAPIFactory( TestAPI::new );
-        TestLoader.setup();
 
         StructureUtils.testStructuresDir = sourceDir.resolve( "structures" ).toString();
     }
