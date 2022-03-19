@@ -255,6 +255,7 @@ if (System.getenv("MODRINTH")) {
         token = System.getenv("MODRINTH")
 
         projectId = "eldBwa5V"
+        versionName = "[" + ((String) project.mc_version) + "] " + version
         versionNumber = version
         versionType = "release"
         uploadFile = remapJar
@@ -275,6 +276,7 @@ if (System.getenv("CURSEFORGE")) {
         project {
             id = "462672"
             releaseType = "release"
+            displayName = "[" + ((String) project.mc_version) + "] " + version
             changelog = System.getenv("CHANGELOG")
             changelogType = "markdown"
             addGameVersion ((String) project.mc_version)
