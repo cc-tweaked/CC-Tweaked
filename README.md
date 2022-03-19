@@ -13,29 +13,27 @@ CC: R tries to maintain parity with CC: T, but may be behind or divergent in som
 ## Resource Packs
 This mod includes textures by [Jummit](https://github.com/Jummit) that are more in line with the style of Mojang's new texture-artist, Jappa. If you prefer the original textures, enable the "Classic" resource pack.
 
-<img src="https://raw.githubusercontent.com/3prm3/cc-pack/main/pack.png" alt="CC: Restitched" width="16"  height="16"/> We also have a second resourcepack made by [3prm3](https://github.com/3prm3), it features a complete overhaul and can be enabled by enabling the `overhaul` resource pack, go check out his resource pack over [here](https://github.com/3prm3/cc-pack/)!
+<img src="https://raw.githubusercontent.com/cc-orgs/cc-overhaul/main/pack.png" alt="CC: Restitched" width="32"  height="32"/> We also have a second resourcepack made by [3prm3](https://github.com/3prm3), it features a complete overhaul and can be enabled by enabling the `overhaul` resource pack, go check out his resource pack over [here](https://github.com/cc-orgs/cc-overhaul/tree/main)!
 
-## Contributing
+## Bleeding Edge Ver.
+Bleeding edge builds can be found [here](https://github.com/cc-tweaked/cc-restitched/actions) at Github Actions. In the .zip file there should be a "-dev" jar, a "-javadoc" jar, a "-sources-dev" jar, a "-sources" jar, and a plain (jar without an affixed tag) jar. Put the plain jar in the mods folder.
+
+## Contributions
 Any contribution is welcome, be that using the mod, reporting bugs or contributing code. In order to start helping develop CC: R there are a few rules;
-1) Make sure your code follows the checkstyle rules. You can test this by running `./gradle build` or `./gradle check`.
-2)  Do not alter the lua code unless those changes are taken directly from CC: Tweaked. If you wish to contribute changes to the in game rom please contribute upstream at [CC-Tweaked](https://github.com/SquidDev-CC/CC-Tweaked).
+1) Follow the [Fabric](https://fabricmc.net/) programming guidelines as close as possible. This means you have to use [`loom`](https://fabricmc.net/wiki/tutorial:mappings) mappings, if you use anything else, your code will be rejected.
+2) Make sure your code follows the checkstyle rules. You can test this by running `./gradle build` or `./gradle check`.
+3)  Do not alter the lua code unless those changes are taken directly from CC: Tweaked. If you wish to contribute changes to the in game rom please contribute upstream at [CC-Tweaked](https://github.com/SquidDev-CC/CC-Tweaked).
+4) You cannot intentionally implement bugs and security vulnerabilities.
+5) Unless the code is taken directly from CC: Tweaked, `lua` code is offlimits from alteration.
 
-# Does this work Fabric's many rendering mods?
+# Rendering Mod Compatability
 * [ YES ] Sodium
 * [ YES ] Optifine
 	* Works with VBO Rendering (automatically set)
 	* No issues
-* [ EHH ] Iris Shaders
+* [ OK ] Iris Shaders
 	* "Works" with TBO Rendering (Default)
-	* Crashes with VBO Rendering
-	* <details>
-		<summary>Shaders are broken</summary>
-
-		* Shaders will cause varrying results ranging from monitors being invisible, to straight up crashing.
-		* Not using shaders will result in odd Z-Fighting of the monitor display and the transparent texture
-			- ![](https://user-images.githubusercontent.com/10422110/136869483-91824c5f-841f-4316-bfb1-2412477a29ee.png)
-			- ![](https://user-images.githubusercontent.com/10422110/136869535-a16581a3-5e0a-4632-923f-c8de8cc8a6ea.png)
-		</details>
+	* Works with VBO Rendering
 * [ YES ] Canvas
 	* Works with TBO Rendering (Default)
 	* Scuffed with VBO Rendering
@@ -50,17 +48,8 @@ Any contribution is welcome, be that using the mod, reporting bugs or contributi
 			- ![](https://i.imgur.com/OEmZXsx.png)
 		</details>
 
-## Contributing
-Any contribution is welcome, be that using the mod, reporting bugs or contributing code. In order to start helping develop CC: R there are a few rules;
-1) Follow the [Fabric](https://fabricmc.net/) programming guidelines as close as possible. This means you have to use [`loom`](https://fabricmc.net/wiki/tutorial:mappings) mappings, if you use anything else, your code will be rejected.
-2) You cannot intentionally implement bugs and security vulnerabilities.
-3) Unless the code is taken directly from CC: Tweaked, `lua` code is offlimits from alteration.
-
-## Bleeding Edge Builds
-Bleeding edge builds can be found [here](https://github.com/cc-tweaked/cc-restitched/actions) at Github Actions.
-
 ## Community
 If you need help getting started with CC: Restitched, want to show off your latest project, or just want to chat about ComputerCraft, here is the [Forum](https://forums.computercraft.cc/) and the [Discord](https://discord.gg/H2UyJXe).
 
-## Perpheral mods
+## Perpheral Mods
 Unfortunately, CC: Restitched does not have as many peripherals mods available as CC: Tweaked. If you're an interested mod developer, please check out our `api` package. If you've already made a mod with CC: R peripheral support OR if you're a player who found a mod with ComputerCraft integration, please open an [issue here](https://github.com/cc-tweaked/cc-restitched/issues/new?assignees=&labels=peripheralShoutout&template=peripheral_shoutout.md) to let us know and we'll add it to the list!

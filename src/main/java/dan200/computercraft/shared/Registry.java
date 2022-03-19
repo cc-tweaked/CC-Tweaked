@@ -62,7 +62,6 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -148,12 +147,12 @@ public final class Registry
 
         private static BlockBehaviour.Properties properties()
         {
-            return BlockBehaviour.Properties.of( Material.GLASS ).strength( 2F ).sound( SoundType.STONE ).noOcclusion();
+            return BlockBehaviour.Properties.of( Material.STONE ).strength( 2F ).noOcclusion();
         }
 
         private static BlockBehaviour.Properties turtleProperties()
         {
-            return FabricBlockSettings.copyOf( Blocks.STONE ).strength( 2.5f );
+            return BlockBehaviour.Properties.of( Material.STONE ).strength( 2.5f );
         }
 
         private static BlockBehaviour.Properties modemProperties()

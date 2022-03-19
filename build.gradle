@@ -5,6 +5,8 @@ plugins {
     id "com.github.hierynomus.license" version "0.16.1"
     id "org.jetbrains.kotlin.jvm" version "1.5.21"
     id 'fabric-loom' version '0.10-SNAPSHOT'
+    id "com.modrinth.minotaur" version "2.+"
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
 
 def javaVersion = JavaLanguageVersion.of(17)
@@ -245,5 +247,51 @@ publishing {
     repositories {
         // uncomment to publish to the local maven
         // mavenLocal()
+    }
+}
+
+if (System.getenv("MODRINTH")) {
+    modrinth {
+        token = System.getenv("MODRINTH")
+
+        projectId = "eldBwa5V"
+        versionNumber = version
+        versionType = "release"
+        uploadFile = remapJar
+        gameVersions = [((String) project.mc_version)]
+        loaders = ["fabric"]
+        changelog = System.getenv("CHANGELOG")
+    }
+
+    remapJar {
+        finalizedBy project.tasks.modrinth
+    }
+}
+
+if (System.getenv("CURSEFORGE")) {
+    curseforge {
+        apiKey = System.getenv("CURSEFORGE")
+
+        project {
+            id = "462672"
+            releaseType = "release"
+            changelog = System.getenv("CHANGELOG")
+            changelogType = "markdown"
+            addGameVersion ((String) project.mc_version)
+            addGameVersion "Fabric"
+            mainArtifact(remapJar)
+
+            afterEvaluate {
+                uploadTask.dependsOn("remapJar")
+            }
+        }
+
+        options {
+            forgeGradleIntegration = false
+        }
+    }
+
+    remapJar {
+        finalizedBy project.tasks.curseforge
     }
 }
