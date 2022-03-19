@@ -25,6 +25,6 @@ public abstract class PocketUpgradeDataProvider extends UpgradeDataProvider<IPoc
 {
     public PocketUpgradeDataProvider( @Nonnull DataGenerator generator )
     {
-        super( generator, "Pocket Computer Upgrades", "computercraft/pocket_upgrades", PocketUpgradeSerialiser.TYPE );
+        super( generator, "Pocket Computer Upgrades", "computercraft/pocket_upgrades", PocketUpgradeSerialiser.REGISTRY_ID );
     }
 }

@@ -42,8 +42,8 @@ public class UpgradesLoadedMessage implements NetworkMessage
 
     public UpgradesLoadedMessage( @Nonnull FriendlyByteBuf buf )
     {
-        turtleUpgrades = fromBytes( buf, RegistryManager.ACTIVE.getRegistry( TurtleUpgradeSerialiser.TYPE ) );
-        pocketUpgrades = fromBytes( buf, RegistryManager.ACTIVE.getRegistry( PocketUpgradeSerialiser.TYPE ) );
+        turtleUpgrades = fromBytes( buf, RegistryManager.ACTIVE.getRegistry( TurtleUpgradeSerialiser.REGISTRY_ID ) );
+        pocketUpgrades = fromBytes( buf, RegistryManager.ACTIVE.getRegistry( PocketUpgradeSerialiser.REGISTRY_ID ) );
     }
 
     private <R extends UpgradeSerialiser<? extends T, R>, T extends IUpgradeBase> Map<String, UpgradeManager.UpgradeWrapper<R, T>> fromBytes(

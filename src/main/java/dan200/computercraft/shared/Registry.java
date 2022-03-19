@@ -94,10 +94,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryBuilder;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.registries.*;
 
 import java.util.function.BiFunction;
 
@@ -256,7 +253,7 @@ public final class Registry
 
     public static class ModTurtleSerialisers
     {
-        static final DeferredRegister<TurtleUpgradeSerialiser<?>> SERIALISERS = DeferredRegister.create( TurtleUpgradeSerialiser.TYPE, ComputerCraft.MOD_ID );
+        static final DeferredRegister<TurtleUpgradeSerialiser<?>> SERIALISERS = DeferredRegister.create( TurtleUpgradeSerialiser.REGISTRY_ID.location(), ComputerCraft.MOD_ID );
 
         public static final RegistryObject<TurtleUpgradeSerialiser<TurtleSpeaker>> SPEAKER =
             SERIALISERS.register( "speaker", () -> TurtleUpgradeSerialiser.simpleWithCustomItem( TurtleSpeaker::new ) );
@@ -272,7 +269,7 @@ public final class Registry
 
     public static class ModPocketUpgradeSerialisers
     {
-        static final DeferredRegister<PocketUpgradeSerialiser<?>> SERIALISERS = DeferredRegister.create( PocketUpgradeSerialiser.TYPE, ComputerCraft.MOD_ID );
+        static final DeferredRegister<PocketUpgradeSerialiser<?>> SERIALISERS = DeferredRegister.create( PocketUpgradeSerialiser.REGISTRY_ID, ComputerCraft.MOD_ID );
 
         public static final RegistryObject<PocketUpgradeSerialiser<PocketSpeaker>> SPEAKER =
             SERIALISERS.register( "speaker", () -> PocketUpgradeSerialiser.simpleWithCustomItem( PocketSpeaker::new ) );
@@ -312,17 +309,21 @@ public final class Registry
     }
 
     @SubscribeEvent
-    public static void registerRegistries( RegistryEvent.NewRegistry event )
+    public static void registerRegistries( NewRegistryEvent event )
     {
-        new RegistryBuilder<TurtleUpgradeSerialiser<?>>()
-            .setName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_upgrade_serialiser" ) )
-            .setType( TurtleUpgradeSerialiser.TYPE )
-            .disableSaving().disableSync().create();
+        @SuppressWarnings( "unchecked" )
+        Class<TurtleUpgradeSerialiser<?>> turtleType = (Class<TurtleUpgradeSerialiser<?>>) (Class<?>) TurtleUpgradeSerialiser.class;
+        event.create( new RegistryBuilder<TurtleUpgradeSerialiser<?>>()
+            .setName( TurtleUpgradeSerialiser.REGISTRY_ID.location() )
+            .setType( turtleType )
+            .disableSaving().disableSync() );
 
-        new RegistryBuilder<PocketUpgradeSerialiser<?>>()
-            .setName( new ResourceLocation( ComputerCraft.MOD_ID, "pocket_upgrade_serialiser" ) )
-            .setType( PocketUpgradeSerialiser.TYPE )
-            .disableSaving().disableSync().create();
+        @SuppressWarnings( "unchecked" )
+        Class<PocketUpgradeSerialiser<?>> pocketType = (Class<PocketUpgradeSerialiser<?>>) (Class<?>) PocketUpgradeSerialiser.class;
+        event.create( new RegistryBuilder<PocketUpgradeSerialiser<?>>()
+            .setName( PocketUpgradeSerialiser.REGISTRY_ID.location() )
+            .setType( pocketType )
+            .disableSaving().disableSync() );
     }
 
     @SubscribeEvent

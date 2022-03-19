@@ -5,10 +5,13 @@
  */
 package dan200.computercraft.api.turtle;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.upgrades.IUpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import dan200.computercraft.internal.upgrades.SerialiserWithCraftingItem;
 import dan200.computercraft.internal.upgrades.SimpleSerialiser;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -61,11 +64,12 @@ import java.util.function.Function;
 public interface TurtleUpgradeSerialiser<T extends ITurtleUpgrade> extends UpgradeSerialiser<T, TurtleUpgradeSerialiser<?>>
 {
     /**
-     * A {@link Class} representing an abstract {@link TurtleUpgradeSerialiser}. This is largely intended for use with
-     * Forge Registry methods/classes, such as {@link DeferredRegister} and {@link RegistryManager#getRegistry(Class)}.
+     * The ID for the associated registry.
+     *
+     * This is largely intended for use with Forge Registry methods/classes, such as {@link DeferredRegister} and
+     * {@link RegistryManager#getRegistry(ResourceKey)}.
      */
-    @SuppressWarnings( "unchecked" )
-    Class<TurtleUpgradeSerialiser<?>> TYPE = (Class<TurtleUpgradeSerialiser<?>>) (Class<?>) TurtleUpgradeSerialiser.class;
+    ResourceKey<Registry<TurtleUpgradeSerialiser<?>>> REGISTRY_ID = ResourceKey.createRegistryKey( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_upgrade_serialiser" ) );
 
     /**
      * A convenient base class to inherit to implement {@link TurtleUpgradeSerialiser}.
