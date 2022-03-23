@@ -500,6 +500,13 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         return nbt;
     }
 
+    @Nonnull
+    @Override
+    protected String getPeripheralName()
+    {
+        return "turtle";
+    }
+
     // Privates
 
     private boolean hasPeripheralUpgradeOnSide( ComputerSide side )
