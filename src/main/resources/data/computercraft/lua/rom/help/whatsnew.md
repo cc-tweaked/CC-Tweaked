@@ -1,9 +1,6 @@
-New features in CC: Tweaked 1.100.3
+New features in CC: Tweaked 1.100.4
 
 Several bug fixes:
-* Fix client disconnect when uploading large files.
-* Correctly handling empty computer ID file.
-* Fix the normal turtle recipe not being unlocked.
-* Remove turtle fake EntityType.
+* Fix the monitor watching blocking the main thread when chunks are slow to load.
 
 Type "help changelog" to see the full version history.
