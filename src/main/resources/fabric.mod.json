@@ -17,7 +17,8 @@
         "parly",
         "Merith.TK",
         "Jummit",
-		"Toad-Dev"
+		"Toad-Dev",
+        "3prm3"
     ],
     "depends": {
         "minecraft": "1.18.x",
