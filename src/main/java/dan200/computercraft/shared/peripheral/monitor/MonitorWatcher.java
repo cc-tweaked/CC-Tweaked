@@ -15,7 +15,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
@@ -47,8 +46,10 @@ public final class MonitorWatcher
     @SubscribeEvent
     public static void onWatch( ChunkWatchEvent.Watch event )
     {
+        // Get the current chunk if it has been loaded. This is safe as, if the chunk hasn't been loaded yet, then the
+        // monitor will have no contents, and so we won't need to send an update anyway.
         ChunkPos chunkPos = event.getPos();
-        LevelChunk chunk = (LevelChunk) event.getWorld().getChunk( chunkPos.x, chunkPos.z, ChunkStatus.FULL, false );
+        LevelChunk chunk = event.getWorld().getChunkSource().getChunkNow( chunkPos.x, chunkPos.z );
         if( chunk == null ) return;
 
         for( BlockEntity te : chunk.getBlockEntities().values() )
