@@ -8,7 +8,6 @@ package dan200.computercraft.shared.peripheral.monitor;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import net.fabricmc.loader.api.FabricLoader;
-import org.lwjgl.opengl.GL;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -49,61 +48,33 @@ public enum MonitorRenderer
     @Nonnull
     public static MonitorRenderer current()
     {
-        MonitorRenderer current = ComputerCraft.monitorRenderer;
-        switch( current )
-        {
-            case BEST:
-                return best();
-            case TBO:
-                checkCapabilities();
-                if( !textureBuffer )
-                {
-                    ComputerCraft.log.warn( "Texture buffers are not supported on your graphics card. Falling back to default." );
-                    ComputerCraft.monitorRenderer = BEST;
-                    return best();
-                }
+        if( !initialised ) initialise();
 
-                return TBO;
-            default:
-                return current;
-        }
+        MonitorRenderer current = ComputerCraft.monitorRenderer;
+        if( current == BEST ) return best();
+        return current;
     }
 
     private static MonitorRenderer best()
     {
-        if( !initialised )
+        if( shaderMod )
         {
-            checkCapabilities();
-            checkForShaderMods();
-            if( textureBuffer && shaderMod )
-            {
-                ComputerCraft.log.warn( "Shader mod detected. Enabling VBO renderer for compatibility." );
-            }
-
-            initialised = true;
+            ComputerCraft.log.warn( "Shader mod detected. Enabling VBO monitor renderer for compatibility." );
+            return ComputerCraft.monitorRenderer = VBO;
         }
-
-        return textureBuffer && !shaderMod ? TBO : VBO;
+        return ComputerCraft.monitorRenderer = TBO;
     }
 
     private static boolean initialised = false;
-    private static boolean textureBuffer = false;
-    private static boolean shaderMod = false;
-    //TODO find out which shader mods do better with VBOs and add them here.
-    private static List<String> shaderModIds = Arrays.asList( "optifabric" );
+    private static boolean shaderMod;
+    private static final List<String> shaderModIds = Arrays.asList( "iris", "canvas", "optifabric" );
 
-    private static void checkCapabilities()
-    {
-        if( initialised ) return;
-
-        textureBuffer = GL.getCapabilities().OpenGL31;
-        initialised = true;
-    }
-
-    private static void checkForShaderMods()
+    private static void initialise()
     {
         shaderMod = FabricLoader.getInstance().getAllMods().stream()
             .map( modContainer -> modContainer.getMetadata().getId() )
-            .anyMatch( id -> shaderModIds.contains( id ) );
+            .anyMatch( shaderModIds::contains );
+
+        initialised = true;
     }
 }

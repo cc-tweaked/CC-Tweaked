@@ -28,11 +28,6 @@ public class MixinGameRenderer
     @Inject( method = "reloadShaders", at = @At( value = "INVOKE_ASSIGN", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 53 ), locals = LocalCapture.CAPTURE_FAILSOFT )
     private void reloadShaders( ResourceManager manager, CallbackInfo info, List<Program> list, List<Pair<ShaderInstance, Consumer<ShaderInstance>>> list2 ) throws IOException
     {
-        list2.add( Pair.of( new ShaderInstance(
-            manager,
-            "terminal",
-            RenderTypes.TERMINAL_WITHOUT_DEPTH.format()
-        ), shader -> RenderTypes.terminalShader = shader ) );
         list2.add( Pair.of( new MonitorTextureBufferShader(
             manager,
             "monitor_tbo",

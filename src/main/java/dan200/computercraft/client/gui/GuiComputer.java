@@ -76,7 +76,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Computer
     public void renderBg( @Nonnull PoseStack stack, float partialTicks, int mouseX, int mouseY )
     {
         // Draw a border around the terminal
-        ComputerBorderRenderer.render(
+        ComputerBorderRenderer.renderFromGui(
             ComputerBorderRenderer.getTexture( family ), terminal.x, terminal.y, getBlitOffset(),
             RenderTypes.FULL_BRIGHT_LIGHTMAP, terminal.getWidth(), terminal.getHeight()
         );
