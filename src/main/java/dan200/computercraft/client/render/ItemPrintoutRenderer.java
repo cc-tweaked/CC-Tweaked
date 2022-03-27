@@ -29,32 +29,38 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
     {
     }
 
-    public boolean renderInFrame( PoseStack matrixStack, MultiBufferSource consumerProvider, ItemStack stack, int light )
+    public boolean renderInFrame( PoseStack transform, MultiBufferSource renderer, ItemStack stack, int light )
     {
         if( !(stack.getItem() instanceof ItemPrintout) ) return false;
 
         // Move a little bit forward to ensure we're not clipping with the frame
-        matrixStack.translate( 0.0f, 0.0f, -0.001f );
-        matrixStack.mulPose( Vector3f.ZP.rotationDegrees( 180f ) );
-        matrixStack.scale( 0.95f, 0.95f, -0.95f );
-        matrixStack.translate( -0.5f, -0.5f, 0.0f );
+        transform.translate( 0.0f, 0.0f, -0.001f );
+        transform.mulPose( Vector3f.ZP.rotationDegrees( 180f ) );
+        // Avoid PoseStack#scale to preserve normal matrix, and fix the normals ourselves.
+        transform.last().pose().multiply( Matrix4f.createScaleMatrix( 0.95f, 0.95f, -0.95f ) );
+        transform.last().normal().mul( -1.0f );
 
-        drawPrintout( matrixStack, consumerProvider, stack, light );
+        //transform.last().normal().mul( -1.0f );
+        transform.translate( -0.5f, -0.5f, 0.0f );
+
+        drawPrintout( transform, renderer, stack, light );
 
         return true;
     }
 
     @Override
-    protected void renderItem( PoseStack transform, MultiBufferSource render, ItemStack stack, int light )
+    protected void renderItem( PoseStack transform, MultiBufferSource renderer, ItemStack stack, int light )
     {
         transform.mulPose( Vector3f.XP.rotationDegrees( 180f ) );
-        transform.scale( 0.42f, 0.42f, -0.42f );
+        // Avoid PoseStack#scale to preserve normal matrix, and fix the normals ourselves.
+        transform.last().pose().multiply( Matrix4f.createScaleMatrix( 0.42f, 0.42f, -0.42f ) );
+        transform.last().normal().mul( -1.0f );
         transform.translate( -0.5f, -0.48f, 0.0f );
 
-        drawPrintout( transform, render, stack, light );
+        drawPrintout( transform, renderer, stack, light );
     }
 
-    private static void drawPrintout( PoseStack transform, MultiBufferSource render, ItemStack stack, int light )
+    private static void drawPrintout( PoseStack transform, MultiBufferSource renderer, ItemStack stack, int light )
     {
         int pages = ItemPrintout.getPageCount( stack );
         boolean book = ((ItemPrintout) stack.getItem()).getType() == ItemPrintout.Type.BOOK;
@@ -81,11 +87,13 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
         transform.scale( scale, scale, scale );
         transform.translate( (max - width) / 2.0, (max - height) / 2.0, 0.0 );
 
-        Matrix4f matrix = transform.last().pose();
-        drawBorder( matrix, render, 0, 0, -0.01f, 0, pages, book, light );
+        drawBorder(
+            transform, renderer.getBuffer( RenderTypes.ITEM_PRINTOUT_BACKGROUND ),
+            0, 0, -0.01f, 0, pages, book, light
+        );
         drawText(
-            matrix, render, X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, light,
-            ItemPrintout.getText( stack ), ItemPrintout.getColours( stack )
+            transform, renderer.getBuffer( RenderTypes.ITEM_PRINTOUT_TEXT ),
+            X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, light, ItemPrintout.getText( stack ), ItemPrintout.getColours( stack )
         );
     }
 }

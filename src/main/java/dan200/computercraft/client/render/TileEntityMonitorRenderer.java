@@ -9,8 +9,8 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
-import com.mojang.math.Transformation;
 import com.mojang.math.Vector3f;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.FrameInfo;
@@ -23,7 +23,6 @@ import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
@@ -36,6 +35,7 @@ import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 
 import static dan200.computercraft.client.gui.FixedWidthFontRenderer.*;
+import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
 
 public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonitor>
 {
@@ -43,10 +43,17 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
      * {@link TileMonitor#RENDER_MARGIN}, but a tiny bit of additional padding to ensure that there is no space between
      * the monitor frame and contents.
      */
-    private static final float MARGIN = (float) (TileMonitor.RENDER_MARGIN * 1.1);
+    private static final float MARGIN = (float) (TileMonitor.RENDER_MARGIN * 1.05);
     private static ByteBuffer tboContents;
 
-    private static final Matrix4f IDENTITY = Transformation.identity().getMatrix();
+    private static final Matrix3f IDENTITY;
+
+    static
+    {
+        Matrix3f identity = new Matrix3f();
+        identity.setIdentity();
+        IDENTITY = identity;
+    }
 
     public TileEntityMonitorRenderer( BlockEntityRendererProvider.Context context )
     {
@@ -110,44 +117,33 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
             double xScale = xSize / pixelWidth;
             double yScale = ySize / pixelHeight;
             transform.pushPose();
-            transform.scale( (float) xScale, (float) -yScale, 1.0f );
+            // Avoid PoseStack#scale to preserve normal matrix.
+            transform.last().pose().multiply( Matrix4f.createScaleMatrix( (float) xScale, (float) -yScale, 1.0f ) );
 
-            Matrix4f matrix = transform.last().pose();
-
-            renderTerminal( renderer, matrix, originTerminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale) );
+            renderTerminal( renderer, transform, originTerminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale) );
 
             // We don't draw the cursor with the VBO, as it's dynamic and so we'll end up refreshing far more than is
             // reasonable.
             FixedWidthFontRenderer.drawCursor(
-                matrix, renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ),
+                transform, renderer.getBuffer( RenderTypes.MONITOR ),
                 0, 0, terminal, !originTerminal.isColour()
             );
 
             transform.popPose();
-
-            FixedWidthFontRenderer.drawBlocker(
-                transform.last().pose(), renderer,
-                -MARGIN, MARGIN,
-                (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
-            );
-
-            // Force a flush of the blocker. WorldRenderer.updateCameraAndRender will "finish" all the built-in
-            // buffers before calling renderer.finish, which means the blocker isn't actually rendered at that point!
-            renderer.getBuffer( RenderType.solid() );
         }
         else
         {
             FixedWidthFontRenderer.drawEmptyTerminal(
-                transform.last().pose(), renderer,
+                transform, renderer.getBuffer( RenderTypes.MONITOR ),
                 -MARGIN, MARGIN,
-                (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
+                (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2), FULL_BRIGHT_LIGHTMAP
             );
         }
 
         transform.popPose();
     }
 
-    private static void renderTerminal( @Nonnull MultiBufferSource renderer, Matrix4f matrix, ClientMonitor monitor, float xMargin, float yMargin )
+    private static void renderTerminal( @Nonnull MultiBufferSource renderer, PoseStack transform, ClientMonitor monitor, float xMargin, float yMargin )
     {
         Terminal terminal = monitor.getTerminal();
 
@@ -198,15 +194,13 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 MonitorTextureBufferShader shader = RenderTypes.getMonitorTextureBufferShader();
                 shader.setupUniform( width, height, terminal.getPalette(), !monitor.isColour() );
 
+                Matrix4f matrix = transform.last().pose();
                 VertexConsumer buffer = renderer.getBuffer( RenderTypes.MONITOR_TBO );
                 tboVertex( buffer, matrix, -xMargin, -yMargin );
                 tboVertex( buffer, matrix, -xMargin, pixelHeight + yMargin );
                 tboVertex( buffer, matrix, pixelWidth + xMargin, -yMargin );
                 tboVertex( buffer, matrix, pixelWidth + xMargin, pixelHeight + yMargin );
 
-                // And force things to flush. We strictly speaking do this later on anyway for the cursor, but nice to
-                // be consistent.
-                renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
                 break;
             }
 
@@ -217,19 +211,32 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 {
                     Tesselator tessellator = Tesselator.getInstance();
                     BufferBuilder builder = tessellator.getBuilder();
-                    builder.begin( RenderTypes.TERMINAL_WITHOUT_DEPTH.mode(), RenderTypes.TERMINAL_WITHOUT_DEPTH.format() );
+                    builder.begin( RenderTypes.MONITOR.mode(), RenderTypes.MONITOR.format() );
+
                     FixedWidthFontRenderer.drawTerminalWithoutCursor(
-                        IDENTITY, builder, 0, 0,
-                        terminal, !monitor.isColour(), yMargin, yMargin, xMargin, xMargin
+                        new PoseStack(), builder, 0, 0,
+                        terminal, !monitor.isColour(), yMargin, yMargin, xMargin, xMargin, FULL_BRIGHT_LIGHTMAP
                     );
 
                     builder.end();
                     vbo.upload( builder );
                 }
 
-                renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
-                RenderTypes.TERMINAL_WITHOUT_DEPTH.setupRenderState();
-                vbo.drawWithShader( matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader() );
+                Matrix3f popViewRotation = RenderSystem.getInverseViewRotationMatrix();
+                RenderSystem.setInverseViewRotationMatrix( IDENTITY );
+
+                RenderTypes.MONITOR.setupRenderState();
+                vbo.drawWithShader( transform.last().pose(), RenderSystem.getProjectionMatrix(), RenderTypes.getMonitorShader() );
+                RenderTypes.MONITOR.clearRenderState();
+
+                RenderSystem.setInverseViewRotationMatrix( popViewRotation );
+
+                // How we would draw the terminal without using VBO, for reference until I need to delete this.
+                //VertexConsumer buffer = renderer.getBuffer( RenderTypes.MONITOR );
+                //FixedWidthFontRenderer.drawTerminalWithoutCursor(
+                //    transform, buffer, 0, 0,
+                //    terminal, !monitor.isColour(), yMargin, yMargin, xMargin, xMargin, FULL_BRIGHT_LIGHTMAP
+                //);
                 break;
             }
         }

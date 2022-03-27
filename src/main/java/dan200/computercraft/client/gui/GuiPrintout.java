@@ -5,10 +5,10 @@
  */
 package dan200.computercraft.client.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.math.Matrix4f;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.media.items.ItemPrintout;
@@ -100,13 +100,14 @@ public class GuiPrintout extends AbstractContainerScreen<ContainerHeldItem>
     protected void renderBg( @Nonnull PoseStack transform, float partialTicks, int mouseX, int mouseY )
     {
         // Draw the printout
-        RenderSystem.setShaderColor( 1.0f, 1.0f, 1.0f, 1.0f );
-        RenderSystem.enableDepthTest();
-
         MultiBufferSource.BufferSource renderer = MultiBufferSource.immediate( Tesselator.getInstance().getBuilder() );
-        Matrix4f matrix = transform.last().pose();
-        drawBorder( matrix, renderer, leftPos, topPos, getBlitOffset(), page, pages, book, FULL_BRIGHT_LIGHTMAP );
-        drawText( matrix, renderer, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, text, colours );
+
+        VertexConsumer borderBuffer = renderer.getBuffer( RenderTypes.GUI_PRINTOUT_BACKGROUND );
+        drawBorder( transform, borderBuffer, leftPos, topPos, getBlitOffset(), page, pages, book, FULL_BRIGHT_LIGHTMAP );
+
+        VertexConsumer textBuffer = renderer.getBuffer( RenderTypes.GUI_PRINTOUT_TEXT );
+        drawText( transform, textBuffer, leftPos + X_TEXT_MARGIN, topPos + Y_TEXT_MARGIN, ItemPrintout.LINES_PER_PAGE * page, FULL_BRIGHT_LIGHTMAP, text, colours );
+
         renderer.endBatch();
     }
 
