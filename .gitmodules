@@ -1,3 +1,4 @@
 [submodule "src/main/resources/resourcepacks/overhaul"]
 	path = src/main/resources/resourcepacks/overhaul
 	url = https://github.com/cc-orgs/cc-overhaul
+	branch = main

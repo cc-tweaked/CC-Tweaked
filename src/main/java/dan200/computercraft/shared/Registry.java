@@ -116,7 +116,7 @@ public final class Registry
             register( "computer_advanced", new BlockComputer<>( properties(), ComputerFamily.ADVANCED, () -> ModBlockEntities.COMPUTER_ADVANCED ) );
 
         public static final BlockComputer<TileCommandComputer> COMPUTER_COMMAND =
-            register( "computer_command", new BlockComputer<>( FabricBlockSettings.copyOf( Blocks.STONE ).strength( -1, 6000000.0F ), ComputerFamily.COMMAND, () -> ModBlockEntities.COMPUTER_COMMAND ) );
+            register( "computer_command", new BlockComputer<>( properties().strength( -1, 6000000.0F ).requiresCorrectToolForDrops().noDrops(), ComputerFamily.COMMAND, () -> ModBlockEntities.COMPUTER_COMMAND ) );
 
         public static final BlockTurtle TURTLE_NORMAL =
             register( "turtle_normal", new BlockTurtle( turtleProperties(), ComputerFamily.NORMAL, () -> ModBlockEntities.TURTLE_NORMAL ) );
