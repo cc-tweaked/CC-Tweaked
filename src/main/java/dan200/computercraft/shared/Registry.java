@@ -49,7 +49,6 @@ import dan200.computercraft.shared.turtle.upgrades.TurtleCraftingTable;
 import dan200.computercraft.shared.turtle.upgrades.TurtleModem;
 import dan200.computercraft.shared.turtle.upgrades.TurtleSpeaker;
 import dan200.computercraft.shared.turtle.upgrades.TurtleTool;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.core.BlockPos;
@@ -61,13 +60,12 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
 
 import java.util.function.BiFunction;
 
@@ -116,7 +114,7 @@ public final class Registry
             register( "computer_advanced", new BlockComputer<>( properties(), ComputerFamily.ADVANCED, () -> ModBlockEntities.COMPUTER_ADVANCED ) );
 
         public static final BlockComputer<TileCommandComputer> COMPUTER_COMMAND =
-            register( "computer_command", new BlockComputer<>( FabricBlockSettings.copyOf( Blocks.STONE ).strength( -1, 6000000.0F ), ComputerFamily.COMMAND, () -> ModBlockEntities.COMPUTER_COMMAND ) );
+            register( "computer_command", new BlockComputer<>( properties().strength( -1, 6000000.0F ).requiresCorrectToolForDrops().noDrops(), ComputerFamily.COMMAND, () -> ModBlockEntities.COMPUTER_COMMAND ) );
 
         public static final BlockTurtle TURTLE_NORMAL =
             register( "turtle_normal", new BlockTurtle( turtleProperties(), ComputerFamily.NORMAL, () -> ModBlockEntities.TURTLE_NORMAL ) );
@@ -147,17 +145,17 @@ public final class Registry
 
         private static BlockBehaviour.Properties properties()
         {
-            return BlockBehaviour.Properties.of( Material.GLASS ).strength( 2F ).sound( SoundType.STONE ).noOcclusion();
+            return BlockBehaviour.Properties.of( Material.STONE ).strength( 2F ).noOcclusion();
         }
 
         private static BlockBehaviour.Properties turtleProperties()
         {
-            return FabricBlockSettings.copyOf( Blocks.STONE ).strength( 2.5f );
+            return BlockBehaviour.Properties.of( Material.STONE ).strength( 2.5f );
         }
 
         private static BlockBehaviour.Properties modemProperties()
         {
-            return FabricBlockSettings.copyOf( Blocks.STONE ).breakByHand( true ).strength( 1.5f );
+            return BlockBehaviour.Properties.of( Material.STONE, MaterialColor.STONE ).strength( 1.5f );
         }
     }
 

@@ -423,7 +423,13 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     public IPeripheral getPeripheral( Direction side )
     {
         if( proxy == null ) proxy = new ComputerProxy( () -> this );
-        return new ComputerPeripheral( "computer", proxy );
+        return new ComputerPeripheral( getPeripheralName(), proxy );
+    }
+
+    @Nonnull
+    protected String getPeripheralName()
+    {
+        return "computer";
     }
 
     @Nonnull

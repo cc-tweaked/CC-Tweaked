@@ -7,7 +7,6 @@ package dan200.computercraft.shared.integration;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.util.Config;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
@@ -33,20 +32,60 @@ public class ModMenuIntegration implements ModMenuApi
                     Config.clientSpec.correct( Config.clientConfig );
                     Config.sync();
                     Config.save();
-                    ComputerCraft.log.info( "Monitor renderer: {}", ComputerCraft.monitorRenderer );
                 } );
 
             ConfigCategory client = builder.getOrCreateCategory( new TextComponent( "Client" ) );
 
             ConfigEntryBuilder entryBuilder = builder.entryBuilder();
 
-            client.addEntry( entryBuilder.startEnumSelector( new TextComponent( "Monitor Renderer" ), MonitorRenderer.class, ComputerCraft.monitorRenderer )
+            client.addEntry( entryBuilder
+                .startEnumSelector(
+                    new TextComponent( "Monitor Renderer" ),
+                    MonitorRenderer.class,
+                    Config.clientConfig.getEnum( "monitor_renderer", MonitorRenderer.class )
+                )
                 .setDefaultValue( MonitorRenderer.BEST )
                 .setSaveConsumer( renderer -> Config.clientConfig.set( "monitor_renderer", renderer ) )
-                .setTooltip( Component.nullToEmpty( Config.clientConfig.getComment( "monitor_renderer" ) ) )
+                .setTooltip( Component.nullToEmpty( rewrapComment( Config.clientConfig.getComment( "monitor_renderer" ) ) ) )
                 .build() );
 
             return builder.build();
         };
+    }
+
+    private static String rewrapComment( String comment )
+    {
+        String[] words = comment.strip().replaceAll( "[\r\n]", "" ).split( " " );
+
+        StringBuilder builder = new StringBuilder();
+        int lineLength = 0;
+        for( String word : words )
+        {
+            int wordLength = word.length();
+
+            if( lineLength + wordLength + 1 > 50 )
+            {
+                builder.append( "\n" );
+                lineLength = 0;
+                builder.append( word );
+                lineLength += wordLength;
+            }
+            else
+            {
+                if( builder.length() == 0 )
+                {
+                    builder.append( word );
+                    lineLength += wordLength;
+                }
+                else
+                {
+                    builder.append( " " );
+                    builder.append( word );
+                    lineLength += wordLength + 1;
+                }
+            }
+        }
+
+        return new String( builder );
     }
 }

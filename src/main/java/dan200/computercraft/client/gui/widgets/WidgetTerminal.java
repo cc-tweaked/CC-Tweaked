@@ -6,7 +6,6 @@
 package dan200.computercraft.client.gui.widgets;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ClientComputer;
@@ -313,15 +312,14 @@ public class WidgetTerminal extends AbstractWidget
     public void render( @Nonnull PoseStack transform, int mouseX, int mouseY, float partialTicks )
     {
         if( !visible ) return;
-        Matrix4f matrix = transform.last().pose();
         Terminal terminal = computer.getTerminal();
         if( terminal != null )
         {
-            FixedWidthFontRenderer.drawTerminal( matrix, innerX, innerY, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN );
+            FixedWidthFontRenderer.drawTerminalImmediate( transform, innerX, innerY, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN );
         }
         else
         {
-            FixedWidthFontRenderer.drawEmptyTerminal( matrix, x, y, width, height );
+            FixedWidthFontRenderer.drawEmptyTerminalImmediate( transform, x, y, width, height );
         }
     }
 

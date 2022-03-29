@@ -21,7 +21,7 @@
         "3prm3"
     ],
     "depends": {
-        "minecraft": "1.18.x",
+        "minecraft": ">=1.18.2-rc.1 <1.19",
         "fabricloader": ">=0.12.9",
         "fabric": "*"
     },
