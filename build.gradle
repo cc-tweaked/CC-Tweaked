@@ -276,12 +276,13 @@ if (System.getenv("CURSEFORGE")) {
         project {
             id = "462672"
             releaseType = "release"
-            displayName = "[" + ((String) project.mc_version) + "] " + version
             changelog = System.getenv("CHANGELOG")
             changelogType = "markdown"
             addGameVersion ((String) project.mc_version)
             addGameVersion "Fabric"
-            mainArtifact(remapJar)
+            mainArtifact(remapJar) {
+                displayName = "[" + ((String) project.mc_version) + "] " + version
+            }
 
             afterEvaluate {
                 uploadTask.dependsOn("remapJar")
