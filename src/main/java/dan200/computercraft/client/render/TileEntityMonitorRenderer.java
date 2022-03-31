@@ -8,9 +8,9 @@ package dan200.computercraft.client.render;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
-import com.mojang.math.Transformation;
 import com.mojang.math.Vector3f;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.FrameInfo;
@@ -44,9 +44,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
      * the monitor frame and contents.
      */
     private static final float MARGIN = (float) (TileMonitor.RENDER_MARGIN * 1.1);
-    private static ByteBuffer tboContents;
-
-    private static final Matrix4f IDENTITY = Transformation.identity().getMatrix();
+    private static ByteBuffer backingBuffer;
 
     public TileEntityMonitorRenderer( BlockEntityRendererProvider.Context context )
     {
@@ -119,7 +117,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
             // We don't draw the cursor with the VBO, as it's dynamic and so we'll end up refreshing far more than is
             // reasonable.
             FixedWidthFontRenderer.drawCursor(
-                matrix, renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ),
+                FixedWidthFontRenderer.toVertexConsumer( matrix, renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ) ),
                 0, 0, terminal, !originTerminal.isColour()
             );
 
@@ -164,14 +162,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
                 if( redraw )
                 {
-                    int size = width * height * 3;
-                    if( tboContents == null || tboContents.capacity() < size )
-                    {
-                        tboContents = MemoryTracker.create( size );
-                    }
-
-                    ByteBuffer monitorBuffer = tboContents;
-                    monitorBuffer.clear();
+                    ByteBuffer monitorBuffer = getBuffer( width * height * 3 );
                     for( int y = 0; y < height; y++ )
                     {
                         TextBuffer text = terminal.getLine( y ), textColour = terminal.getTextColourLine( y ), background = terminal.getBackgroundColourLine( y );
@@ -212,19 +203,18 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
             case VBO:
             {
-                VertexBuffer vbo = monitor.buffer;
+                var vbo = monitor.buffer;
                 if( redraw )
                 {
-                    Tesselator tessellator = Tesselator.getInstance();
-                    BufferBuilder builder = tessellator.getBuilder();
-                    builder.begin( RenderTypes.TERMINAL_WITHOUT_DEPTH.mode(), RenderTypes.TERMINAL_WITHOUT_DEPTH.format() );
+                    int vertexCount = FixedWidthFontRenderer.getVertexCount( terminal );
+                    ByteBuffer buffer = getBuffer( vertexCount * RenderTypes.TERMINAL_WITHOUT_DEPTH.format().getVertexSize() );
                     FixedWidthFontRenderer.drawTerminalWithoutCursor(
-                        IDENTITY, builder, 0, 0,
+                        FixedWidthFontRenderer.toByteBuffer( buffer ), 0, 0,
                         terminal, !monitor.isColour(), yMargin, yMargin, xMargin, xMargin
                     );
+                    buffer.flip();
 
-                    builder.end();
-                    vbo.upload( builder );
+                    vbo.upload( vertexCount, RenderTypes.TERMINAL_WITHOUT_DEPTH.mode(), RenderTypes.TERMINAL_WITHOUT_DEPTH.format(), buffer );
                 }
 
                 renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
@@ -239,6 +229,20 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
     {
         // We encode position in the UV, as that's not transformed by the matrix.
         builder.vertex( matrix, x, y, 0 ).uv( x, y ).endVertex();
+    }
+
+    @Nonnull
+    private static ByteBuffer getBuffer( int capacity )
+    {
+
+        ByteBuffer buffer = backingBuffer;
+        if( buffer == null || buffer.capacity() < capacity )
+        {
+            buffer = backingBuffer = MemoryTracker.create( capacity );
+        }
+
+        buffer.clear();
+        return buffer;
     }
 
     @Override

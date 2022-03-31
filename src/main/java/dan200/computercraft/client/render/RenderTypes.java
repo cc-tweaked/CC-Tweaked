@@ -88,7 +88,7 @@ public class RenderTypes
             false, false // blur, minimap
         );
         private static final VertexFormat TERM_FORMAT = DefaultVertexFormat.POSITION_COLOR_TEX;
-        private static final VertexFormat.Mode TERM_MODE = VertexFormat.Mode.TRIANGLES;
+        private static final VertexFormat.Mode TERM_MODE = VertexFormat.Mode.QUADS;
         private static final ShaderStateShard TERM_SHADER = new ShaderStateShard( RenderTypes::getTerminalShader );
 
         static final RenderType MONITOR_TBO = RenderType.create(

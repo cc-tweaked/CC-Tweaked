@@ -101,7 +101,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         if( computer != null && terminal != null )
         {
             FixedWidthFontRenderer.drawTerminal(
-                matrix, renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ),
+                FixedWidthFontRenderer.toVertexConsumer( matrix, renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ) ),
                 MARGIN, MARGIN, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN
             );
             FixedWidthFontRenderer.drawBlocker( transform.last().pose(), renderer, 0, 0, width, height );
