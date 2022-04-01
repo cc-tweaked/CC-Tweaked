@@ -53,6 +53,11 @@ public final class FixedWidthFontRenderer
     {
     }
 
+    private static byte byteColour( float c )
+    {
+        return (byte) (int) (c * 255);
+    }
+
     public static float toGreyscale( double[] rgb )
     {
         return (float) ((rgb[0] + rgb[1] + rgb[2]) / 3);
@@ -63,7 +68,7 @@ public final class FixedWidthFontRenderer
         return 15 - Terminal.getColour( c, def );
     }
 
-    private static void drawChar( VertexEmitter emitter, float x, float y, int index, float r, float g, float b, int light )
+    private static void drawChar( VertexEmitter emitter, float x, float y, int index, byte r, byte g, byte b, int light )
     {
         // Short circuit to avoid the common case - the texture should be blank here after all.
         if( index == '\0' || index == ' ' ) return;
@@ -80,7 +85,7 @@ public final class FixedWidthFontRenderer
         emitter.vertex( x + FONT_WIDTH, y, 0f, r, g, b, (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH, light );
     }
 
-    private static void drawQuad( VertexEmitter emitter, float x, float y, float width, float height, float r, float g, float b, int light )
+    private static void drawQuad( VertexEmitter emitter, float x, float y, float width, float height, byte r, byte g, byte b, int light )
     {
         emitter.vertex( x, y, 0, r, g, b, BACKGROUND_START, BACKGROUND_START, light );
         emitter.vertex( x, y + height, 0, r, g, b, BACKGROUND_START, BACKGROUND_END, light );
@@ -90,18 +95,8 @@ public final class FixedWidthFontRenderer
 
     private static void drawQuad( VertexEmitter emitter, float x, float y, float width, float height, Palette palette, boolean greyscale, char colourIndex, int light )
     {
-        double[] colour = palette.getColour( getColour( colourIndex, Colour.BLACK ) );
-        float r, g, b;
-        if( greyscale )
-        {
-            r = g = b = toGreyscale( colour );
-        }
-        else
-        {
-            r = (float) colour[0];
-            g = (float) colour[1];
-            b = (float) colour[2];
-        }
+        var colour = palette.getByteColour( getColour( colourIndex, Colour.BLACK ), greyscale );
+        byte r = colour.r(), g = colour.g(), b = colour.b();
 
         drawQuad( emitter, x, y, width, height, r, g, b, light );
     }
@@ -158,18 +153,8 @@ public final class FixedWidthFontRenderer
 
         for( int i = 0; i < text.length(); i++ )
         {
-            double[] colour = palette.getColour( getColour( textColour.charAt( i ), Colour.BLACK ) );
-            float r, g, b;
-            if( greyscale )
-            {
-                r = g = b = toGreyscale( colour );
-            }
-            else
-            {
-                r = (float) colour[0];
-                g = (float) colour[1];
-                b = (float) colour[2];
-            }
+            var colour = palette.getByteColour( getColour( textColour.charAt( i ), Colour.BLACK ), greyscale );
+            byte r = colour.r(), g = colour.g(), b = colour.b();
 
             // Draw char
             int index = text.charAt( i );
@@ -222,18 +207,8 @@ public final class FixedWidthFontRenderer
         int cursorY = terminal.getCursorY();
         if( terminal.getCursorBlink() && cursorX >= 0 && cursorX < width && cursorY >= 0 && cursorY < height && FrameInfo.getGlobalCursorBlink() )
         {
-            double[] colour = palette.getColour( 15 - terminal.getTextColour() );
-            float r, g, b;
-            if( greyscale )
-            {
-                r = g = b = toGreyscale( colour );
-            }
-            else
-            {
-                r = (float) colour[0];
-                g = (float) colour[1];
-                b = (float) colour[2];
-            }
+            var colour = palette.getByteColour( 15 - terminal.getTextColour(), greyscale );
+            byte r = colour.r(), g = colour.g(), b = colour.b();
 
             drawChar( emitter, x + cursorX * FONT_WIDTH, y + cursorY * FONT_HEIGHT, '_', r, g, b, FULL_BRIGHT_LIGHTMAP );
         }
@@ -252,13 +227,12 @@ public final class FixedWidthFontRenderer
     public static void drawEmptyTerminal( @Nonnull VertexEmitter emitter, float x, float y, float width, float height )
     {
         Colour colour = Colour.BLACK;
-        drawQuad( emitter, x, y, width, height, colour.getR(), colour.getG(), colour.getB(), FULL_BRIGHT_LIGHTMAP );
+        drawQuad( emitter, x, y, width, height, byteColour( colour.getR() ), byteColour( colour.getG() ), byteColour( colour.getB() ), FULL_BRIGHT_LIGHTMAP );
     }
 
     public static void drawBlocker( @Nonnull VertexEmitter emitter, float x, float y, float width, float height )
     {
-        Colour colour = Colour.BLACK;
-        drawQuad( emitter, x, y, width, height, colour.getR(), colour.getG(), colour.getB(), FULL_BRIGHT_LIGHTMAP );
+        drawQuad( emitter, x, y, width, height, (byte) 0, (byte) 0, (byte) 0, FULL_BRIGHT_LIGHTMAP );
     }
 
     public static int getVertexCount( Terminal terminal )
@@ -307,13 +281,13 @@ public final class FixedWidthFontRenderer
     @FunctionalInterface
     public interface VertexEmitter
     {
-        void vertex( float x, float y, float z, float r, float g, float b, float u, float v, int light );
+        void vertex( float x, float y, float z, byte r, byte g, byte b, float u, float v, int light );
     }
 
     public static VertexEmitter toVertexConsumer( Matrix4f matrix, VertexConsumer consumer )
     {
-        return ( float x, float y, float z, float r, float g, float b, float u, float v, int light ) ->
-            consumer.vertex( matrix, x, y, z ).color( r, g, b, 1.0f ).uv( u, v ).uv2( light ).endVertex();
+        return ( float x, float y, float z, byte r, byte g, byte b, float u, float v, int light ) ->
+            consumer.vertex( matrix, x, y, z ).color( r, g, b, 255 ).uv( u, v ).uv2( light ).endVertex();
     }
 
     /**
@@ -329,9 +303,9 @@ public final class FixedWidthFontRenderer
      */
     public static VertexEmitter toByteBuffer( ByteBuffer buffer )
     {
-        return ( float x, float y, float z, float r, float g, float b, float u, float v, int light ) -> buffer
+        return ( float x, float y, float z, byte r, byte g, byte b, float u, float v, int light ) -> buffer
             .putFloat( x ).putFloat( y ).putFloat( z )
-            .put( (byte) (int) (r * 255) ).put( (byte) (int) (g * 255) ).put( (byte) (int) (b * 255) ).put( (byte) 255 )
+            .put( r ).put( g ).put( b ).put( (byte) 255 )
             .putFloat( u ).putFloat( v );
     }
 }
