@@ -51,7 +51,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
     }
 
     @Override
-    public void render( @Nonnull TileMonitor monitor, float partialTicks, @Nonnull PoseStack transform, @Nonnull MultiBufferSource renderer, int lightmapCoord, int overlayLight )
+    public void render( @Nonnull TileMonitor monitor, float partialTicks, @Nonnull PoseStack transform, @Nonnull MultiBufferSource bufferSource, int lightmapCoord, int overlayLight )
     {
         // Render from the origin monitor
         ClientMonitor originTerminal = monitor.getClientMonitor();
@@ -112,31 +112,31 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
             Matrix4f matrix = transform.last().pose();
 
-            renderTerminal( renderer, matrix, originTerminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale) );
+            renderTerminal( bufferSource, matrix, originTerminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale) );
 
-            // We don't draw the cursor with the VBO, as it's dynamic and so we'll end up refreshing far more than is
-            // reasonable.
+            // We don't draw the cursor with the VBO/TBO, as it's dynamic and so we'll end up refreshing far more than
+            // is reasonable.
             FixedWidthFontRenderer.drawCursor(
-                FixedWidthFontRenderer.toVertexConsumer( matrix, renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ) ),
+                FixedWidthFontRenderer.toVertexConsumer( matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ) ),
                 0, 0, terminal, !originTerminal.isColour()
             );
 
             transform.popPose();
 
             FixedWidthFontRenderer.drawBlocker(
-                transform.last().pose(), renderer,
+                FixedWidthFontRenderer.toVertexConsumer( transform.last().pose(), bufferSource.getBuffer( RenderTypes.TERMINAL_BLOCKER ) ),
                 -MARGIN, MARGIN,
                 (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
             );
 
             // Force a flush of the blocker. WorldRenderer.updateCameraAndRender will "finish" all the built-in
             // buffers before calling renderer.finish, which means the blocker isn't actually rendered at that point!
-            renderer.getBuffer( RenderType.solid() );
+            bufferSource.getBuffer( RenderType.solid() );
         }
         else
         {
             FixedWidthFontRenderer.drawEmptyTerminal(
-                transform.last().pose(), renderer,
+                FixedWidthFontRenderer.toVertexConsumer( transform.last().pose(), bufferSource.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH ) ),
                 -MARGIN, MARGIN,
                 (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
             );
@@ -145,7 +145,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
         transform.popPose();
     }
 
-    private static void renderTerminal( @Nonnull MultiBufferSource renderer, Matrix4f matrix, ClientMonitor monitor, float xMargin, float yMargin )
+    private static void renderTerminal( @Nonnull MultiBufferSource bufferSource, Matrix4f matrix, ClientMonitor monitor, float xMargin, float yMargin )
     {
         Terminal terminal = monitor.getTerminal();
 
@@ -189,7 +189,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 MonitorTextureBufferShader shader = RenderTypes.getMonitorTextureBufferShader();
                 shader.setupUniform( width, height, terminal.getPalette(), !monitor.isColour() );
 
-                VertexConsumer buffer = renderer.getBuffer( RenderTypes.MONITOR_TBO );
+                VertexConsumer buffer = bufferSource.getBuffer( RenderTypes.MONITOR_TBO );
                 tboVertex( buffer, matrix, -xMargin, -yMargin );
                 tboVertex( buffer, matrix, -xMargin, pixelHeight + yMargin );
                 tboVertex( buffer, matrix, pixelWidth + xMargin, -yMargin );
@@ -197,7 +197,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
                 // And force things to flush. We strictly speaking do this later on anyway for the cursor, but nice to
                 // be consistent.
-                renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
+                bufferSource.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
                 break;
             }
 
@@ -217,7 +217,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                     vbo.upload( vertexCount, RenderTypes.TERMINAL_WITHOUT_DEPTH.mode(), RenderTypes.TERMINAL_WITHOUT_DEPTH.format(), buffer );
                 }
 
-                renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
+                bufferSource.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
                 RenderTypes.TERMINAL_WITHOUT_DEPTH.setupRenderState();
                 vbo.drawWithShader( matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader() );
                 break;

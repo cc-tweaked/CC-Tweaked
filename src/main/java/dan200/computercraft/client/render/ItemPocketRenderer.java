@@ -54,7 +54,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
     }
 
     @Override
-    protected void renderItem( PoseStack transform, MultiBufferSource renderer, ItemStack stack, int light )
+    protected void renderItem( PoseStack transform, MultiBufferSource bufferSource, ItemStack stack, int light )
     {
         ClientComputer computer = ItemPocketComputer.createClientComputer( stack );
         Terminal terminal = computer == null ? null : computer.getTerminal();
@@ -91,24 +91,30 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         int frameColour = item.getColour( stack );
 
         Matrix4f matrix = transform.last().pose();
-        renderFrame( matrix, renderer, family, frameColour, light, width, height );
+        renderFrame( matrix, bufferSource, family, frameColour, light, width, height );
 
         // Render the light
         int lightColour = ItemPocketComputer.getLightState( stack );
         if( lightColour == -1 ) lightColour = Colour.BLACK.getHex();
-        renderLight( matrix, renderer, lightColour, width, height );
+        renderLight( matrix, bufferSource, lightColour, width, height );
 
         if( computer != null && terminal != null )
         {
             FixedWidthFontRenderer.drawTerminal(
-                FixedWidthFontRenderer.toVertexConsumer( matrix, renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ) ),
+                FixedWidthFontRenderer.toVertexConsumer( matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ) ),
                 MARGIN, MARGIN, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN
             );
-            FixedWidthFontRenderer.drawBlocker( transform.last().pose(), renderer, 0, 0, width, height );
+            FixedWidthFontRenderer.drawBlocker(
+                FixedWidthFontRenderer.toVertexConsumer( matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_BLOCKER ) ),
+                0, 0, width, height
+            );
         }
         else
         {
-            FixedWidthFontRenderer.drawEmptyTerminal( matrix, renderer, 0, 0, width, height );
+            FixedWidthFontRenderer.drawEmptyTerminal(
+                FixedWidthFontRenderer.toVertexConsumer( matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH ) ),
+                0, 0, width, height
+            );
         }
 
         transform.popPose();

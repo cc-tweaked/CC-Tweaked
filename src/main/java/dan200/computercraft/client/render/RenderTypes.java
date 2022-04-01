@@ -29,17 +29,41 @@ public class RenderTypes
     private static MonitorTextureBufferShader monitorTboShader;
     private static ShaderInstance terminalShader;
 
+    /**
+     * Renders a fullbright terminal without writing to the depth layer. This is used in combination with
+     * {@link #TERMINAL_BLOCKER} to ensure we can render a terminal without z-fighting.
+     */
     public static final RenderType TERMINAL_WITHOUT_DEPTH = Types.TERMINAL_WITHOUT_DEPTH;
-    public static final RenderType TERMINAL_BLOCKER = Types.TERMINAL_BLOCKER;
-    public static final RenderType TERMINAL_WITH_DEPTH = Types.TERMINAL_WITH_DEPTH;
-    public static final RenderType MONITOR_TBO = Types.MONITOR_TBO;
-    public static final RenderType PRINTOUT_TEXT = Types.PRINTOUT_TEXT;
 
     /**
-     * This looks wrong (it should be POSITION_COLOR_TEX_LIGHTMAP surely!) but the fragment/vertex shader for that
-     * appear to entirely ignore the lightmap.
+     * A transparent texture which only writes to the depth layer.
+     */
+    public static final RenderType TERMINAL_BLOCKER = Types.TERMINAL_BLOCKER;
+
+    /**
+     * Renders a fullbright terminal which also writes to the depth layer. This is used when z-fighting isn't an issue -
+     * for instance rendering an empty terminal or inside a GUI.
      *
-     * Note that vanilla maps do the same, so this isn't unreasonable.
+     * This is identical to <em>vanilla's</em> {@link RenderType#text}. Forge overrides one with a definition which sets
+     * sortOnUpload to true, which is entirely broken!
+     */
+    public static final RenderType TERMINAL_WITH_DEPTH = Types.TERMINAL_WITH_DEPTH;
+
+    /**
+     * Renders a monitor with the TBO shader.
+     *
+     * @see MonitorTextureBufferShader
+     */
+    public static final RenderType MONITOR_TBO = Types.MONITOR_TBO;
+
+    /**
+     * A variant of {@link #TERMINAL_WITH_DEPTH} which uses the lightmap rather than rendering fullbright.
+     */
+    public static final RenderType PRINTOUT_TEXT = RenderType.text( FixedWidthFontRenderer.FONT );
+
+    /**
+     * Printout's background texture. {@link RenderType#text(ResourceLocation)} is a <em>little</em> questionable, but
+     * it is what maps use, so should behave the same as vanilla in both item frames and in-hand.
      */
     public static final RenderType PRINTOUT_BACKGROUND = RenderType.text( new ResourceLocation( "computercraft", "textures/gui/printout.png" ) );
 
@@ -88,7 +112,6 @@ public class RenderTypes
             false, false // blur, minimap
         );
         private static final VertexFormat TERM_FORMAT = DefaultVertexFormat.POSITION_COLOR_TEX;
-        private static final VertexFormat.Mode TERM_MODE = VertexFormat.Mode.QUADS;
         private static final ShaderStateShard TERM_SHADER = new ShaderStateShard( RenderTypes::getTerminalShader );
 
         static final RenderType MONITOR_TBO = RenderType.create(
@@ -102,44 +125,32 @@ public class RenderTypes
         );
 
         static final RenderType TERMINAL_WITHOUT_DEPTH = RenderType.create(
-            "terminal_without_depth", TERM_FORMAT, TERM_MODE, 1024,
+            "terminal_without_depth", TERM_FORMAT, VertexFormat.Mode.QUADS, 1024,
             false, false, // useDelegate, needsSorting
             RenderType.CompositeState.builder()
                 .setTextureState( TERM_FONT_TEXTURE )
                 .setShaderState( TERM_SHADER )
+                .setLightmapState( LIGHTMAP )
                 .setWriteMaskState( COLOR_WRITE )
                 .createCompositeState( false )
         );
 
         static final RenderType TERMINAL_BLOCKER = RenderType.create(
-            "terminal_blocker", TERM_FORMAT, TERM_MODE, 256,
+            "terminal_blocker", DefaultVertexFormat.POSITION, VertexFormat.Mode.QUADS, 256,
             false, false, // useDelegate, needsSorting
             RenderType.CompositeState.builder()
-                .setTextureState( TERM_FONT_TEXTURE )
-                .setShaderState( TERM_SHADER )
+                .setShaderState( POSITION_SHADER )
                 .setWriteMaskState( DEPTH_WRITE )
                 .createCompositeState( false )
         );
 
         static final RenderType TERMINAL_WITH_DEPTH = RenderType.create(
-            "terminal_with_depth", TERM_FORMAT, TERM_MODE, 1024,
+            "terminal_with_depth", TERM_FORMAT, VertexFormat.Mode.QUADS, 1024,
             false, false, // useDelegate, needsSorting
             RenderType.CompositeState.builder()
                 .setTextureState( TERM_FONT_TEXTURE )
                 .setShaderState( TERM_SHADER )
-                .createCompositeState( false )
-        );
-
-        /**
-         * A variant of {@link #TERMINAL_WITH_DEPTH} which uses the lightmap rather than rendering fullbright.
-         */
-        static final RenderType PRINTOUT_TEXT = RenderType.create(
-            "printout_text", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, TERM_MODE, 1024,
-            false, false, // useDelegate, needsSorting
-            RenderType.CompositeState.builder()
-                .setTextureState( TERM_FONT_TEXTURE )
-                .setShaderState( RenderStateShard.RENDERTYPE_TEXT_SHADER )
-                .setLightmapState( RenderStateShard.LIGHTMAP )
+                .setLightmapState( LIGHTMAP )
                 .createCompositeState( false )
         );
 
