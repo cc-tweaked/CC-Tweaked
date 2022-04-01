@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
@@ -27,7 +28,6 @@ public class RenderTypes
     public static final int FULL_BRIGHT_LIGHTMAP = (0xF << 4) | (0xF << 20);
 
     private static MonitorTextureBufferShader monitorTboShader;
-    private static ShaderInstance terminalShader;
 
     /**
      * Renders a fullbright terminal without writing to the depth layer. This is used in combination with
@@ -67,8 +67,6 @@ public class RenderTypes
      */
     public static final RenderType PRINTOUT_BACKGROUND = RenderType.text( new ResourceLocation( "computercraft", "textures/gui/printout.png" ) );
 
-    public static final RenderType POSITION_COLOR = Types.POSITION_COLOR;
-
     @Nonnull
     static MonitorTextureBufferShader getMonitorTextureBufferShader()
     {
@@ -79,8 +77,7 @@ public class RenderTypes
     @Nonnull
     static ShaderInstance getTerminalShader()
     {
-        if( terminalShader == null ) throw new NullPointerException( "MonitorTboShader has not been registered" );
-        return terminalShader;
+        return GameRenderer.getPositionColorTexShader();
     }
 
     @SubscribeEvent
@@ -93,15 +90,6 @@ public class RenderTypes
                 MONITOR_TBO.format()
             ),
             x -> monitorTboShader = (MonitorTextureBufferShader) x
-        );
-
-        event.registerShader(
-            new ShaderInstance(
-                event.getResourceManager(),
-                new ResourceLocation( ComputerCraft.MOD_ID, "terminal" ),
-                TERMINAL_WITHOUT_DEPTH.format()
-            ),
-            x -> terminalShader = x
         );
     }
 
@@ -151,14 +139,6 @@ public class RenderTypes
                 .setTextureState( TERM_FONT_TEXTURE )
                 .setShaderState( TERM_SHADER )
                 .setLightmapState( LIGHTMAP )
-                .createCompositeState( false )
-        );
-
-        static final RenderType POSITION_COLOR = RenderType.create(
-            "position_color", DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 128,
-            false, false, // useDelegate, needsSorting
-            RenderType.CompositeState.builder()
-                .setShaderState( POSITION_COLOR_SHADER )
                 .createCompositeState( false )
         );
 

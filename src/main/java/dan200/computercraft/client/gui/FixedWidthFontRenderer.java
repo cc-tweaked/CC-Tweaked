@@ -44,10 +44,10 @@ public final class FixedWidthFontRenderer
 
     public static final int FONT_HEIGHT = 9;
     public static final int FONT_WIDTH = 6;
-    public static final float WIDTH = 256.0f;
+    private static final float WIDTH = 256.0f;
 
-    public static final float BACKGROUND_START = (WIDTH - 6.0f) / WIDTH;
-    public static final float BACKGROUND_END = (WIDTH - 4.0f) / WIDTH;
+    private static final float BACKGROUND_START = (WIDTH - 6.0f) / WIDTH;
+    private static final float BACKGROUND_END = (WIDTH - 4.0f) / WIDTH;
 
     private FixedWidthFontRenderer()
     {
@@ -85,12 +85,12 @@ public final class FixedWidthFontRenderer
         emitter.vertex( x + FONT_WIDTH, y, 0f, r, g, b, (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH, light );
     }
 
-    private static void drawQuad( VertexEmitter emitter, float x, float y, float width, float height, byte r, byte g, byte b, int light )
+    public static void drawQuad( VertexEmitter emitter, float x, float y, float z, float width, float height, byte r, byte g, byte b, int light )
     {
-        emitter.vertex( x, y, 0, r, g, b, BACKGROUND_START, BACKGROUND_START, light );
-        emitter.vertex( x, y + height, 0, r, g, b, BACKGROUND_START, BACKGROUND_END, light );
-        emitter.vertex( x + width, y + height, 0, r, g, b, BACKGROUND_END, BACKGROUND_END, light );
-        emitter.vertex( x + width, y, 0, r, g, b, BACKGROUND_END, BACKGROUND_START, light );
+        emitter.vertex( x, y, z, r, g, b, BACKGROUND_START, BACKGROUND_START, light );
+        emitter.vertex( x, y + height, z, r, g, b, BACKGROUND_START, BACKGROUND_END, light );
+        emitter.vertex( x + width, y + height, z, r, g, b, BACKGROUND_END, BACKGROUND_END, light );
+        emitter.vertex( x + width, y, z, r, g, b, BACKGROUND_END, BACKGROUND_START, light );
     }
 
     private static void drawQuad( VertexEmitter emitter, float x, float y, float width, float height, Palette palette, boolean greyscale, char colourIndex, int light )
@@ -98,7 +98,7 @@ public final class FixedWidthFontRenderer
         var colour = palette.getByteColour( getColour( colourIndex, Colour.BLACK ), greyscale );
         byte r = colour.r(), g = colour.g(), b = colour.b();
 
-        drawQuad( emitter, x, y, width, height, r, g, b, light );
+        drawQuad( emitter, x, y, 0, width, height, r, g, b, light );
     }
 
     private static void drawBackground(
@@ -227,12 +227,12 @@ public final class FixedWidthFontRenderer
     public static void drawEmptyTerminal( @Nonnull VertexEmitter emitter, float x, float y, float width, float height )
     {
         Colour colour = Colour.BLACK;
-        drawQuad( emitter, x, y, width, height, byteColour( colour.getR() ), byteColour( colour.getG() ), byteColour( colour.getB() ), FULL_BRIGHT_LIGHTMAP );
+        drawQuad( emitter, x, y, 0, width, height, byteColour( colour.getR() ), byteColour( colour.getG() ), byteColour( colour.getB() ), FULL_BRIGHT_LIGHTMAP );
     }
 
     public static void drawBlocker( @Nonnull VertexEmitter emitter, float x, float y, float width, float height )
     {
-        drawQuad( emitter, x, y, width, height, (byte) 0, (byte) 0, (byte) 0, FULL_BRIGHT_LIGHTMAP );
+        drawQuad( emitter, x, y, 0, width, height, (byte) 0, (byte) 0, (byte) 0, FULL_BRIGHT_LIGHTMAP );
     }
 
     public static int getVertexCount( Terminal terminal )

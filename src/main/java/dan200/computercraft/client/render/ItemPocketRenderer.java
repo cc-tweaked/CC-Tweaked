@@ -133,15 +133,15 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
     private static void renderLight( Matrix4f transform, MultiBufferSource render, int colour, int width, int height )
     {
-        float r = ((colour >>> 16) & 0xFF) / 255.0f;
-        float g = ((colour >>> 8) & 0xFF) / 255.0f;
-        float b = (colour & 0xFF) / 255.0f;
-        float z = 0.001f;
+        byte r = (byte) ((colour >>> 16) & 0xFF);
+        byte g = (byte) ((colour >>> 8) & 0xFF);
+        byte b = (byte) (colour & 0xFF);
 
-        VertexConsumer buffer = render.getBuffer( RenderTypes.POSITION_COLOR );
-        buffer.vertex( transform, width - LIGHT_HEIGHT * 2, height + LIGHT_HEIGHT + BORDER / 2.0f, z ).color( r, g, b, 1.0f ).endVertex();
-        buffer.vertex( transform, width, height + LIGHT_HEIGHT + BORDER / 2.0f, z ).color( r, g, b, 1.0f ).endVertex();
-        buffer.vertex( transform, width, height + BORDER / 2.0f, z ).color( r, g, b, 1.0f ).endVertex();
-        buffer.vertex( transform, width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, z ).color( r, g, b, 1.0f ).endVertex();
+        VertexConsumer buffer = render.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH );
+        FixedWidthFontRenderer.drawQuad(
+            FixedWidthFontRenderer.toVertexConsumer( transform, buffer ),
+            width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, 0.001f, LIGHT_HEIGHT * 2, LIGHT_HEIGHT,
+            r, g, b, RenderTypes.FULL_BRIGHT_LIGHTMAP
+        );
     }
 }
