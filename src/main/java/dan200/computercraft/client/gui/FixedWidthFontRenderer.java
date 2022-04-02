@@ -81,11 +81,10 @@ public final class FixedWidthFontRenderer
         int xStart = 1 + column * (FONT_WIDTH + 2);
         int yStart = 1 + row * (FONT_HEIGHT + 2);
 
-        final float z = 1 / 128.0f;
-        emitter.vertex( x, y, z, colour, xStart / WIDTH, yStart / WIDTH, light );
-        emitter.vertex( x, y + FONT_HEIGHT, z, colour, xStart / WIDTH, (yStart + FONT_HEIGHT) / WIDTH, light );
-        emitter.vertex( x + FONT_WIDTH, y + FONT_HEIGHT, z, colour, (xStart + FONT_WIDTH) / WIDTH, (yStart + FONT_HEIGHT) / WIDTH, light );
-        emitter.vertex( x + FONT_WIDTH, y, z, colour, (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH, light );
+        emitter.vertex( x, y, (float) 0, colour, xStart / WIDTH, yStart / WIDTH, light );
+        emitter.vertex( x, y + FONT_HEIGHT, (float) 0, colour, xStart / WIDTH, (yStart + FONT_HEIGHT) / WIDTH, light );
+        emitter.vertex( x + FONT_WIDTH, y + FONT_HEIGHT, (float) 0, colour, (xStart + FONT_WIDTH) / WIDTH, (yStart + FONT_HEIGHT) / WIDTH, light );
+        emitter.vertex( x + FONT_WIDTH, y, (float) 0, colour, (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH, light );
     }
 
     public static void drawQuad( VertexEmitter emitter, float x, float y, float z, float width, float height, byte[] colour, int light )
