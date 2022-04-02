@@ -54,12 +54,13 @@ public final class PrintoutRenderer
 
     private PrintoutRenderer() {}
 
-    public static void drawText( Matrix4f transform, MultiBufferSource renderer, int x, int y, int start, int light, TextBuffer[] text, TextBuffer[] colours )
+    public static void drawText( Matrix4f transform, MultiBufferSource bufferSource, int x, int y, int start, int light, TextBuffer[] text, TextBuffer[] colours )
     {
-        VertexConsumer buffer = renderer.getBuffer( RenderTypes.PRINTOUT_TEXT );
+        var buffer = bufferSource.getBuffer( RenderTypes.PRINTOUT_TEXT );
+        var emitter = FixedWidthFontRenderer.toVertexConsumer( transform, buffer );
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; line++ )
         {
-            FixedWidthFontRenderer.drawString( transform, buffer,
+            FixedWidthFontRenderer.drawString( emitter,
                 x, y + line * FONT_HEIGHT, text[start + line], colours[start + line], null, Palette.DEFAULT,
                 false, 0, 0,
                 light
@@ -67,12 +68,13 @@ public final class PrintoutRenderer
         }
     }
 
-    public static void drawText( Matrix4f transform, MultiBufferSource renderer, int x, int y, int start, int light, String[] text, String[] colours )
+    public static void drawText( Matrix4f transform, MultiBufferSource bufferSource, int x, int y, int start, int light, String[] text, String[] colours )
     {
-        VertexConsumer buffer = renderer.getBuffer( RenderTypes.PRINTOUT_TEXT );
+        var buffer = bufferSource.getBuffer( RenderTypes.PRINTOUT_TEXT );
+        var emitter = FixedWidthFontRenderer.toVertexConsumer( transform, buffer );
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; line++ )
         {
-            FixedWidthFontRenderer.drawString( transform, buffer,
+            FixedWidthFontRenderer.drawString( emitter,
                 x, y + line * FONT_HEIGHT,
                 new TextBuffer( text[start + line] ), new TextBuffer( colours[start + line] ),
                 null, Palette.DEFAULT, false, 0, 0,
@@ -81,12 +83,12 @@ public final class PrintoutRenderer
         }
     }
 
-    public static void drawBorder( Matrix4f transform, MultiBufferSource renderer, float x, float y, float z, int page, int pages, boolean isBook, int light )
+    public static void drawBorder( Matrix4f transform, MultiBufferSource bufferSource, float x, float y, float z, int page, int pages, boolean isBook, int light )
     {
         int leftPages = page;
         int rightPages = pages - page - 1;
 
-        VertexConsumer buffer = renderer.getBuffer( RenderTypes.PRINTOUT_BACKGROUND );
+        VertexConsumer buffer = bufferSource.getBuffer( RenderTypes.PRINTOUT_BACKGROUND );
 
         if( isBook )
         {
