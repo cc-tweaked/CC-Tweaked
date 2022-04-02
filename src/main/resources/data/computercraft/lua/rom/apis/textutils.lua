@@ -658,6 +658,9 @@ do
     -- This may be used with @{textutils.serializeJSON}, or when communicating
     -- with command blocks or web APIs.
     --
+    -- If a `null` value is encountered, it is converted into @{textutils.json_null}.
+    -- If an empty array is encountered, it is converted into @{textutils.empty_json_array}.
+    --
     -- @tparam string s The serialised string to deserialise.
     -- @tparam[opt] { nbt_style? = boolean, parse_null? = boolean } options
     -- Options which control how this JSON object is parsed.
