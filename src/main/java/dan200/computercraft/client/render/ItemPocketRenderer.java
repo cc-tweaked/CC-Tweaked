@@ -136,12 +136,13 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         byte r = (byte) ((colour >>> 16) & 0xFF);
         byte g = (byte) ((colour >>> 8) & 0xFF);
         byte b = (byte) (colour & 0xFF);
+        var c = new byte[] { r, g, b, (byte) 255 };
 
         VertexConsumer buffer = render.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH );
         FixedWidthFontRenderer.drawQuad(
             FixedWidthFontRenderer.toVertexConsumer( transform, buffer ),
             width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, 0.001f, LIGHT_HEIGHT * 2, LIGHT_HEIGHT,
-            r, g, b, RenderTypes.FULL_BRIGHT_LIGHTMAP
+            c, RenderTypes.FULL_BRIGHT_LIGHTMAP
         );
     }
 }

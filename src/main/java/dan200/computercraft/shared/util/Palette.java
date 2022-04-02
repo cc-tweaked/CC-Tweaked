@@ -15,8 +15,8 @@ public class Palette
 {
     private static final int PALETTE_SIZE = 16;
     private final double[][] colours = new double[PALETTE_SIZE][3];
-    private final ByteColour[] byteColours = new ByteColour[PALETTE_SIZE];
-    private final ByteColour[] greyByteColours = new ByteColour[PALETTE_SIZE];
+    private final byte[][] byteColours = new byte[PALETTE_SIZE][4];
+    private final byte[][] greyByteColours = new byte[PALETTE_SIZE][4];
 
     public static final Palette DEFAULT = new Palette();
 
@@ -24,6 +24,8 @@ public class Palette
     {
         // Get the default palette
         resetColours();
+
+        for( int i = 0; i < PALETTE_SIZE; i++ ) byteColours[i][3] = greyByteColours[i][3] = (byte) 255;
     }
 
     public void setColour( int i, double r, double g, double b )
@@ -33,9 +35,12 @@ public class Palette
         colours[i][1] = g;
         colours[i][2] = b;
 
-        byteColours[i] = new ByteColour( (byte) (int) (r * 255), (byte) (int) (g * 255), (byte) (int) (b * 255) );
+        byteColours[i][0] = (byte) (int) (r * 255);
+        byteColours[i][1] = (byte) (int) (g * 255);
+        byteColours[i][2] = (byte) (int) (b * 255);
+
         byte grey = (byte) (int) ((r + g + b) / 3 * 255);
-        greyByteColours[i] = new ByteColour( grey, grey, grey );
+        greyByteColours[i][0] = greyByteColours[i][1] = greyByteColours[i][2] = grey;
     }
 
     public void setColour( int i, Colour colour )
@@ -60,7 +65,7 @@ public class Palette
      * @return The number as a tuple of bytes.
      */
     @Nonnull
-    public ByteColour getByteColour( int i, boolean greyscale )
+    public byte[] getByteColour( int i, boolean greyscale )
     {
         return greyscale ? greyByteColours[i] : byteColours[i];
     }
@@ -141,6 +146,4 @@ public class Palette
             setColour( i, colours[0], colours[1], colours[2] );
         }
     }
-
-    public record ByteColour(byte r, byte g, byte b) {}
 }

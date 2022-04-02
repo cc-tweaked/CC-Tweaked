@@ -70,6 +70,11 @@ public class TileMonitor extends TileGeneric
     private int xIndex = 0;
     private int yIndex = 0;
 
+    private BlockPos bbPos;
+    private BlockState bbState;
+    private int bbX, bbY, bbWidth, bbHeight;
+    private AABB boundingBox;
+
     public TileMonitor( BlockEntityType<? extends TileMonitor> type, BlockPos pos, BlockState state, boolean advanced )
     {
         super( type, pos, state );
@@ -620,9 +625,25 @@ public class TileMonitor extends TileGeneric
     @Override
     public AABB getRenderBoundingBox()
     {
+        // We attempt to cache the bounding box to save having to do property lookups (and allocations!) on every frame.
+        // Unfortunately the AABB does depend on quite a lot of state, so we need to add a bunch of extra fields -
+        // ideally these'd be a single object, but I don't think worth doing until Java has value types.
+        if( boundingBox != null && getBlockState().equals( bbState ) && getBlockPos().equals( bbPos ) &&
+            xIndex == bbX && yIndex == bbY && width == bbWidth && height == bbHeight )
+        {
+            return boundingBox;
+        }
+
+        bbState = getBlockState();
+        bbPos = getBlockPos();
+        bbX = xIndex;
+        bbY = yIndex;
+        bbWidth = width;
+        bbHeight = height;
+
         BlockPos startPos = toWorldPos( 0, 0 );
         BlockPos endPos = toWorldPos( width, height );
-        return new AABB(
+        return boundingBox = new AABB(
             Math.min( startPos.getX(), endPos.getX() ),
             Math.min( startPos.getY(), endPos.getY() ),
             Math.min( startPos.getZ(), endPos.getZ() ),
