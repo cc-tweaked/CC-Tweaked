@@ -3,9 +3,8 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.client.gui;
+package dan200.computercraft.client.render.text;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
 import dan200.computercraft.client.FrameInfo;
@@ -17,8 +16,6 @@ import dan200.computercraft.shared.util.Palette;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.nio.ByteBuffer;
 
 import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
 
@@ -37,6 +34,9 @@ import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMA
  * <li>{@link #drawBlocker}: When rendering a terminal using {@link RenderTypes#TERMINAL_WITHOUT_DEPTH} you need to
  * render an additional "depth blocker" on top of the monitor.</li>
  * </ul>
+ *
+ * <strong>IMPORTANT: </strong> When making changes to this class, please check if you need to make the same changes to
+ * {@link DirectFixedWidthFontRenderer}.
  */
 public final class FixedWidthFontRenderer
 {
@@ -44,10 +44,10 @@ public final class FixedWidthFontRenderer
 
     public static final int FONT_HEIGHT = 9;
     public static final int FONT_WIDTH = 6;
-    private static final float WIDTH = 256.0f;
+    static final float WIDTH = 256.0f;
 
-    private static final float BACKGROUND_START = (WIDTH - 6.0f) / WIDTH;
-    private static final float BACKGROUND_END = (WIDTH - 4.0f) / WIDTH;
+    static final float BACKGROUND_START = (WIDTH - 6.0f) / WIDTH;
+    static final float BACKGROUND_END = (WIDTH - 4.0f) / WIDTH;
 
     private static final byte[] BLACK = new byte[] { byteColour( Colour.BLACK.getR() ), byteColour( Colour.BLACK.getR() ), byteColour( Colour.BLACK.getR() ), (byte) 255 };
 
@@ -70,7 +70,7 @@ public final class FixedWidthFontRenderer
         return 15 - Terminal.getColour( c, def );
     }
 
-    private static void drawChar( VertexEmitter emitter, float x, float y, int index, byte[] colour, int light )
+    private static void drawChar( QuadEmitter emitter, float x, float y, int index, byte[] colour, int light )
     {
         // Short circuit to avoid the common case - the texture should be blank here after all.
         if( index == '\0' || index == ' ' ) return;
@@ -81,29 +81,25 @@ public final class FixedWidthFontRenderer
         int xStart = 1 + column * (FONT_WIDTH + 2);
         int yStart = 1 + row * (FONT_HEIGHT + 2);
 
-        emitter.vertex( x, y, (float) 0, colour, xStart / WIDTH, yStart / WIDTH, light );
-        emitter.vertex( x, y + FONT_HEIGHT, (float) 0, colour, xStart / WIDTH, (yStart + FONT_HEIGHT) / WIDTH, light );
-        emitter.vertex( x + FONT_WIDTH, y + FONT_HEIGHT, (float) 0, colour, (xStart + FONT_WIDTH) / WIDTH, (yStart + FONT_HEIGHT) / WIDTH, light );
-        emitter.vertex( x + FONT_WIDTH, y, (float) 0, colour, (xStart + FONT_WIDTH) / WIDTH, yStart / WIDTH, light );
+        quad(
+            emitter, x, y, x + FONT_WIDTH, y + FONT_HEIGHT, 0, colour,
+            xStart / WIDTH, yStart / WIDTH, (xStart + FONT_WIDTH) / WIDTH, (yStart + FONT_HEIGHT) / WIDTH, light
+        );
     }
 
-    public static void drawQuad( VertexEmitter emitter, float x, float y, float z, float width, float height, byte[] colour, int light )
+    public static void drawQuad( QuadEmitter emitter, float x, float y, float z, float width, float height, byte[] colour, int light )
     {
-        emitter.vertex( x, y, z, colour, BACKGROUND_START, BACKGROUND_START, light );
-        emitter.vertex( x, y + height, z, colour, BACKGROUND_START, BACKGROUND_END, light );
-        emitter.vertex( x + width, y + height, z, colour, BACKGROUND_END, BACKGROUND_END, light );
-        emitter.vertex( x + width, y, z, colour, BACKGROUND_END, BACKGROUND_START, light );
+        quad( emitter, x, y, x + width, y + height, z, colour, BACKGROUND_START, BACKGROUND_START, BACKGROUND_END, BACKGROUND_END, light );
     }
 
-    private static void drawQuad( VertexEmitter emitter, float x, float y, float width, float height, Palette palette, boolean greyscale, char colourIndex, int light )
+    private static void drawQuad( QuadEmitter emitter, float x, float y, float width, float height, Palette palette, boolean greyscale, char colourIndex, int light )
     {
         var colour = palette.getByteColour( getColour( colourIndex, Colour.BLACK ), greyscale );
         drawQuad( emitter, x, y, 0, width, height, colour, light );
     }
 
     private static void drawBackground(
-        @Nonnull VertexEmitter emitter, float x, float y,
-        @Nonnull TextBuffer backgroundColour, @Nonnull Palette palette, boolean greyscale,
+        @Nonnull QuadEmitter emitter, float x, float y, @Nonnull TextBuffer backgroundColour, @Nonnull Palette palette, boolean greyscale,
         float leftMarginSize, float rightMarginSize, float height, int light
     )
     {
@@ -140,22 +136,12 @@ public final class FixedWidthFontRenderer
         }
     }
 
-    public static void drawString(
-        @Nonnull VertexEmitter emitter, float x, float y,
-        @Nonnull TextBuffer text, @Nonnull TextBuffer textColour, @Nullable TextBuffer backgroundColour,
-        @Nonnull Palette palette, boolean greyscale, float leftMarginSize, float rightMarginSize, int light
-    )
+    public static void drawString( @Nonnull QuadEmitter emitter, float x, float y, @Nonnull TextBuffer text, @Nonnull TextBuffer textColour, @Nonnull Palette palette, boolean greyscale, int light )
     {
-        if( backgroundColour != null )
-        {
-            drawBackground( emitter, x, y, backgroundColour, palette, greyscale, leftMarginSize, rightMarginSize, FONT_HEIGHT, light );
-        }
-
         for( int i = 0; i < text.length(); i++ )
         {
             var colour = palette.getByteColour( getColour( textColour.charAt( i ), Colour.BLACK ), greyscale );
 
-            // Draw char
             int index = text.charAt( i );
             if( index > 255 ) index = '?';
             drawChar( emitter, x + i * FONT_WIDTH, y, index, colour, light );
@@ -164,7 +150,7 @@ public final class FixedWidthFontRenderer
     }
 
     public static void drawTerminalWithoutCursor(
-        @Nonnull VertexEmitter emitter, float x, float y,
+        @Nonnull QuadEmitter emitter, float x, float y,
         @Nonnull Terminal terminal, boolean greyscale,
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     )
@@ -174,29 +160,31 @@ public final class FixedWidthFontRenderer
 
         // Top and bottom margins
         drawBackground(
-            emitter, x, y - topMarginSize,
-            terminal.getBackgroundColourLine( 0 ), palette, greyscale,
+            emitter, x, y - topMarginSize, terminal.getBackgroundColourLine( 0 ), palette, greyscale,
             leftMarginSize, rightMarginSize, topMarginSize, FULL_BRIGHT_LIGHTMAP
         );
 
         drawBackground(
-            emitter, x, y + height * FONT_HEIGHT,
-            terminal.getBackgroundColourLine( height - 1 ), palette, greyscale,
+            emitter, x, y + height * FONT_HEIGHT, terminal.getBackgroundColourLine( height - 1 ), palette, greyscale,
             leftMarginSize, rightMarginSize, bottomMarginSize, FULL_BRIGHT_LIGHTMAP
         );
 
         // The main text
         for( int i = 0; i < height; i++ )
         {
+            float rowY = y + FixedWidthFontRenderer.FONT_HEIGHT * i;
+            drawBackground(
+                emitter, x, rowY, terminal.getBackgroundColourLine( i ), palette, greyscale,
+                leftMarginSize, rightMarginSize, FONT_HEIGHT, FULL_BRIGHT_LIGHTMAP
+            );
             drawString(
-                emitter, x, y + FixedWidthFontRenderer.FONT_HEIGHT * i,
-                terminal.getLine( i ), terminal.getTextColourLine( i ), terminal.getBackgroundColourLine( i ),
-                palette, greyscale, leftMarginSize, rightMarginSize, FULL_BRIGHT_LIGHTMAP
+                emitter, x, rowY, terminal.getLine( i ), terminal.getTextColourLine( i ),
+                palette, greyscale, FULL_BRIGHT_LIGHTMAP
             );
         }
     }
 
-    public static void drawCursor( @Nonnull VertexEmitter emitter, float x, float y, @Nonnull Terminal terminal, boolean greyscale )
+    public static void drawCursor( @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal, boolean greyscale )
     {
         Palette palette = terminal.getPalette();
         int width = terminal.getWidth();
@@ -212,94 +200,41 @@ public final class FixedWidthFontRenderer
     }
 
     public static void drawTerminal(
-        @Nonnull VertexEmitter buffer, float x, float y,
+        @Nonnull QuadEmitter emitter, float x, float y,
         @Nonnull Terminal terminal, boolean greyscale,
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     )
     {
-        drawTerminalWithoutCursor( buffer, x, y, terminal, greyscale, topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize );
-        drawCursor( buffer, x, y, terminal, greyscale );
+        drawTerminalWithoutCursor( emitter, x, y, terminal, greyscale, topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize );
+        drawCursor( emitter, x, y, terminal, greyscale );
     }
 
-    public static void drawEmptyTerminal( @Nonnull VertexEmitter emitter, float x, float y, float width, float height )
+    public static void drawEmptyTerminal( @Nonnull QuadEmitter emitter, float x, float y, float width, float height )
     {
         drawQuad( emitter, x, y, 0, width, height, BLACK, FULL_BRIGHT_LIGHTMAP );
     }
 
-    public static void drawBlocker( @Nonnull VertexEmitter emitter, float x, float y, float width, float height )
+    public static void drawBlocker( @Nonnull QuadEmitter emitter, float x, float y, float width, float height )
     {
         drawQuad( emitter, x, y, 0, width, height, BLACK, FULL_BRIGHT_LIGHTMAP );
     }
 
-    public static int getVertexCount( Terminal terminal )
+    public record QuadEmitter(Matrix4f matrix4f, VertexConsumer consumer) {}
+
+    public static QuadEmitter toVertexConsumer( Matrix4f matrix, VertexConsumer consumer )
     {
-        int height = terminal.getHeight();
-        int count = 0;
-
-        for( int y = 0; y < height; y++ )
-        {
-            // We compress runs of adjacent characters, so we need to do that calculation here too :/.
-            int background = 2;
-            TextBuffer backgroundColour = terminal.getBackgroundColourLine( y );
-            char blockColour = '\0';
-            for( int x = 0; x < backgroundColour.length(); x++ )
-            {
-                char colourIndex = backgroundColour.charAt( x );
-                if( colourIndex == blockColour ) continue;
-
-                if( blockColour != '\0' ) background++;
-                blockColour = colourIndex;
-            }
-            if( blockColour != '\0' ) background++;
-
-            count += background;
-            if( y == 0 ) count += background;
-            if( y == height - 1 ) count += background;
-
-            // Thankfully the normal characters are much easier!
-            TextBuffer foreground = terminal.getLine( y );
-            for( int x = 0; x < foreground.length(); x++ )
-            {
-                char c = foreground.charAt( x );
-                if( c != '\0' && c != ' ' ) count++;
-            }
-        }
-
-        return count * 4;
+        return new QuadEmitter( matrix, consumer );
     }
 
-    /**
-     * Emit a single vertex to some buffer.
-     *
-     * @see #toVertexConsumer(Matrix4f, VertexConsumer) Emits to a {@link VertexConsumer}.
-     * @see #toByteBuffer(ByteBuffer) Emits to a {@link ByteBuffer}.
-     */
-    @FunctionalInterface
-    public interface VertexEmitter
+    private static void quad( QuadEmitter c, float x1, float y1, float x2, float y2, float z, byte[] rgba, float u1, float v1, float u2, float v2, int light )
     {
-        void vertex( float x, float y, float z, byte[] rgba, float u, float v, int light );
-    }
+        var matrix = c.matrix4f();
+        var consumer = c.consumer();
+        byte r = rgba[0], g = rgba[1], b = rgba[2], a = rgba[3];
 
-    public static VertexEmitter toVertexConsumer( Matrix4f matrix, VertexConsumer consumer )
-    {
-        return ( float x, float y, float z, byte[] rgba, float u, float v, int light ) ->
-            consumer.vertex( matrix, x, y, z ).color( rgba[0], rgba[1], rgba[2], rgba[3] ).uv( u, v ).uv2( light ).endVertex();
-    }
-
-    /**
-     * An optimised vertex emitter which bypasses {@link VertexConsumer}. This allows us to emit vertices very quickly,
-     * when using the VBO renderer with some limitations:
-     * <ul>
-     *     <li>No transformation matrix (not needed for VBOs).</li>
-     *     <li>Only works with {@link DefaultVertexFormat#POSITION_COLOR_TEX_LIGHTMAP}.</li>
-     * </ul>
-     *
-     * @param buffer The buffer to emit to. This must have space for at least {@link #getVertexCount(Terminal)} vertices.
-     * @return The emitter, ot be passed to the rendering functions.
-     */
-    public static VertexEmitter toByteBuffer( ByteBuffer buffer )
-    {
-        return ( float x, float y, float z, byte[] rgba, float u, float v, int light ) -> buffer
-            .putFloat( x ).putFloat( y ).putFloat( z ).put( rgba ).putFloat( u ).putFloat( v );
+        consumer.vertex( matrix, x1, y1, z ).color( r, g, b, a ).uv( u1, v1 ).uv2( light ).endVertex();
+        consumer.vertex( matrix, x1, y2, z ).color( r, g, b, a ).uv( u1, v2 ).uv2( light ).endVertex();
+        consumer.vertex( matrix, x2, y2, z ).color( r, g, b, a ).uv( u2, v2 ).uv2( light ).endVertex();
+        consumer.vertex( matrix, x2, y1, z ).color( r, g, b, a ).uv( u2, v1 ).uv2( light ).endVertex();
     }
 }

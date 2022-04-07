@@ -14,7 +14,8 @@ import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.FrameInfo;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
+import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
@@ -35,7 +36,7 @@ import org.lwjgl.opengl.GL31;
 import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.*;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.*;
 
 public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonitor>
 {
@@ -206,15 +207,14 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 var vbo = monitor.buffer;
                 if( redraw )
                 {
-                    int vertexCount = FixedWidthFontRenderer.getVertexCount( terminal );
-                    ByteBuffer buffer = getBuffer( vertexCount * RenderTypes.TERMINAL_WITHOUT_DEPTH.format().getVertexSize() );
-                    FixedWidthFontRenderer.drawTerminalWithoutCursor(
-                        FixedWidthFontRenderer.toByteBuffer( buffer ), 0, 0,
-                        terminal, !monitor.isColour(), yMargin, yMargin, xMargin, xMargin
+                    int vertexSize = RenderTypes.TERMINAL_WITHOUT_DEPTH.format().getVertexSize();
+                    ByteBuffer buffer = getBuffer( DirectFixedWidthFontRenderer.getVertexCount( terminal ) * vertexSize );
+                    DirectFixedWidthFontRenderer.drawTerminalWithoutCursor(
+                        buffer, 0, 0, terminal, !monitor.isColour(), yMargin, yMargin, xMargin, xMargin
                     );
                     buffer.flip();
 
-                    vbo.upload( vertexCount, RenderTypes.TERMINAL_WITHOUT_DEPTH.mode(), RenderTypes.TERMINAL_WITHOUT_DEPTH.format(), buffer );
+                    vbo.upload( buffer.remaining() / vertexSize, RenderTypes.TERMINAL_WITHOUT_DEPTH.mode(), RenderTypes.TERMINAL_WITHOUT_DEPTH.format(), buffer );
                 }
 
                 bufferSource.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
