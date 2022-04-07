@@ -46,6 +46,10 @@ public class GenericPeripheralProvider
         for( Capability<?> capability : capabilities )
         {
             LazyOptional<?> wrapper = tile.getCapability( capability );
+            if(!wrapper.isPresent())
+            {
+                wrapper = tile.getCapability( capability, side );//if no internal acccss/null side is supported try with side to increase compatibility
+            }
             wrapper.ifPresent( contents -> {
                 List<NamedMethod<PeripheralMethod>> capabilityMethods = PeripheralMethod.GENERATOR.getMethods( contents.getClass() );
                 if( capabilityMethods.isEmpty() ) return;
