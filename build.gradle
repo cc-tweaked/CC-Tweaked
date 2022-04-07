@@ -78,6 +78,18 @@ minecraft {
             workingDirectory project.file('run')
         }
 
+        clientJitwatch {
+            parent runs.client
+            inheritJvmArgs true
+            jvmArgs [
+                "-XX:+UnlockDiagnosticVMOptions",
+                "-Xlog:class+load=info",
+                "-XX:+LogCompilation",
+                "-XX:+PrintAssembly",
+                "-XX:+DebugNonSafepoints",
+            ]
+        }
+
         server {
             workingDirectory project.file("run/server")
             arg "--nogui"
