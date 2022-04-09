@@ -153,9 +153,21 @@ public final class DirectFixedWidthFontRenderer
 
     private static void quad( ByteBuffer buffer, float x1, float y1, float x2, float y2, byte[] rgba, float u1, float v1, float u2, float v2 )
     {
-        buffer.putFloat( x1 ).putFloat( y1 ).putFloat( 0 ).put( rgba ).putFloat( u1 ).putFloat( v1 );
-        buffer.putFloat( x1 ).putFloat( y2 ).putFloat( 0 ).put( rgba ).putFloat( u1 ).putFloat( v2 );
-        buffer.putFloat( x2 ).putFloat( y2 ).putFloat( 0 ).put( rgba ).putFloat( u2 ).putFloat( v2 );
-        buffer.putFloat( x2 ).putFloat( y1 ).putFloat( 0 ).put( rgba ).putFloat( u2 ).putFloat( v1 );
+        int position = buffer.position();
+
+        // Check we've got enough space to write all our points. In an ideal world this'd get the JIT to eliminate
+        // bounds checks. It doesn't, but it does cause the JITted method to be marginally smaller (unclear why, diffing
+        // asm is nigh impossible as the register allocator is non-deterministic),
+        if( position < 0 || 96 > buffer.limit() - position ) throw new IndexOutOfBoundsException();
+        // Also assert the length of the array. This does appear to help, though cannot get into the nitty-gritty of why
+        // (again, see above comment on diffing asm).
+        if( rgba.length != 4 ) throw new IllegalStateException();
+
+        buffer.putFloat( position + 0, x1 ).putFloat( position + 4, y1 ).putFloat( position + 8, 0 ).put( position + 12, rgba, 0, 4 ).putFloat( position + 16, u1 ).putFloat( position + 20, v1 );
+        buffer.putFloat( position + 24, x1 ).putFloat( position + 28, y2 ).putFloat( position + 32, 0 ).put( position + 36, rgba, 0, 4 ).putFloat( position + 40, u1 ).putFloat( position + 44, v2 );
+        buffer.putFloat( position + 48, x2 ).putFloat( position + 52, y2 ).putFloat( position + 56, 0 ).put( position + 60, rgba, 0, 4 ).putFloat( position + 64, u2 ).putFloat( position + 68, v2 );
+        buffer.putFloat( position + 72, x2 ).putFloat( position + 76, y1 ).putFloat( position + 80, 0 ).put( position + 84, rgba, 0, 4 ).putFloat( position + 88, u2 ).putFloat( position + 92, v1 );
+
+        buffer.position( position + 96 );
     }
 }

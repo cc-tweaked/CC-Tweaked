@@ -238,7 +238,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
         ByteBuffer buffer = backingBuffer;
         if( buffer == null || buffer.capacity() < capacity )
         {
-            buffer = backingBuffer = MemoryTracker.create( capacity );
+            buffer = backingBuffer = buffer == null ? MemoryTracker.create( capacity ) : MemoryTracker.resize( buffer, capacity );
         }
 
         buffer.clear();
