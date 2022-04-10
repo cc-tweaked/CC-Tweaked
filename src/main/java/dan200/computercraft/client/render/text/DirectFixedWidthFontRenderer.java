@@ -5,26 +5,31 @@
  */
 package dan200.computercraft.client.render.text;
 
+import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
+import org.lwjgl.system.MemoryUtil;
 
 import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.*;
+import static org.lwjgl.system.MemoryUtil.memPutByte;
+import static org.lwjgl.system.MemoryUtil.memPutFloat;
 
 /**
- * An optimised copy of {@link FixedWidthFontRenderer} emitter emits direclty to a {@link ByteBuffer} rather than
+ * An optimised copy of {@link FixedWidthFontRenderer} emitter emits directly to a {@link ByteBuffer} rather than
  * emitting to {@link VertexConsumer}. This allows us to emit vertices very quickly, when using the VBO renderer.
  *
  * There are some limitations here:
  * <ul>
  *   <li>No transformation matrix (not needed for VBOs).</li>
- *   <li>Only works with {@link DefaultVertexFormat#POSITION_COLOR_TEX_LIGHTMAP}.</li>
+ *   <li>Only works with {@link DefaultVertexFormat#POSITION_COLOR_TEX}.</li>
+ *   <li>The buffer <strong>MUST</strong> be allocated with {@link MemoryTracker}, and not through any other means.</li>
  * </ul>
  *
  * Note this is almost an exact copy of {@link FixedWidthFontRenderer}. While the code duplication is unfortunate,
@@ -153,21 +158,66 @@ public final class DirectFixedWidthFontRenderer
 
     private static void quad( ByteBuffer buffer, float x1, float y1, float x2, float y2, byte[] rgba, float u1, float v1, float u2, float v2 )
     {
-        int position = buffer.position();
+        // Emit a single quad to our buffer. This uses Unsafe (well, LWJGL's MemoryUtil) to directly blit bytes to the
+        // underlying buffer. This allows us to have a single bounds check up-front, rather than one for every write.
+        // This provides significant performance gains, at the cost of well, using Unsafe.
 
-        // Check we've got enough space to write all our points. In an ideal world this'd get the JIT to eliminate
-        // bounds checks. It doesn't, but it does cause the JITted method to be marginally smaller (unclear why, diffing
-        // asm is nigh impossible as the register allocator is non-deterministic),
+        int position = buffer.position();
+        long addr = MemoryUtil.memAddress( buffer );
+
+        // We're doing terrible unsafe hacks below, so let's be really sure that what we're doing is reasonable.
         if( position < 0 || 96 > buffer.limit() - position ) throw new IndexOutOfBoundsException();
-        // Also assert the length of the array. This does appear to help, though cannot get into the nitty-gritty of why
-        // (again, see above comment on diffing asm).
+        // Require the pointer to be aligned to a 32-bit boundary.
+        if( (addr & 3) != 0 ) throw new IllegalStateException( "Memory is not aligned" );
+        // Also assert the length of the array. This appears to help elide bounds checks on the array in some circumstances.
         if( rgba.length != 4 ) throw new IllegalStateException();
 
-        buffer.putFloat( position + 0, x1 ).putFloat( position + 4, y1 ).putFloat( position + 8, 0 ).put( position + 12, rgba, 0, 4 ).putFloat( position + 16, u1 ).putFloat( position + 20, v1 );
-        buffer.putFloat( position + 24, x1 ).putFloat( position + 28, y2 ).putFloat( position + 32, 0 ).put( position + 36, rgba, 0, 4 ).putFloat( position + 40, u1 ).putFloat( position + 44, v2 );
-        buffer.putFloat( position + 48, x2 ).putFloat( position + 52, y2 ).putFloat( position + 56, 0 ).put( position + 60, rgba, 0, 4 ).putFloat( position + 64, u2 ).putFloat( position + 68, v2 );
-        buffer.putFloat( position + 72, x2 ).putFloat( position + 76, y1 ).putFloat( position + 80, 0 ).put( position + 84, rgba, 0, 4 ).putFloat( position + 88, u2 ).putFloat( position + 92, v1 );
+        // Each vertex is 24 bytes, giving 96 bytes in total. Verticies are of the form (xyz:FFF)(rgba:BBBB)(uv:FF),
+        // which matches the POSITION_COLOR_TEX vertex format.
 
+        memPutFloat( addr + 0, x1 );
+        memPutFloat( addr + 4, y1 );
+        memPutFloat( addr + 8, 0 );
+        memPutByte( addr + 12, rgba[0] );
+        memPutByte( addr + 13, rgba[1] );
+        memPutByte( addr + 14, rgba[2] );
+        memPutByte( addr + 15, (byte) 255 );
+        memPutFloat( addr + 16, u1 );
+        memPutFloat( addr + 20, v1 );
+
+        memPutFloat( addr + 24, x1 );
+        memPutFloat( addr + 28, y2 );
+        memPutFloat( addr + 32, 0 );
+        memPutByte( addr + 36, rgba[0] );
+        memPutByte( addr + 37, rgba[1] );
+        memPutByte( addr + 38, rgba[2] );
+        memPutByte( addr + 39, (byte) 255 );
+        memPutFloat( addr + 40, u1 );
+        memPutFloat( addr + 44, v2 );
+
+        memPutFloat( addr + 48, x2 );
+        memPutFloat( addr + 52, y2 );
+        memPutFloat( addr + 56, 0 );
+        memPutByte( addr + 60, rgba[0] );
+        memPutByte( addr + 61, rgba[1] );
+        memPutByte( addr + 62, rgba[2] );
+        memPutByte( addr + 63, (byte) 255 );
+        memPutFloat( addr + 64, u2 );
+        memPutFloat( addr + 68, v2 );
+
+        memPutFloat( addr + 72, x2 );
+        memPutFloat( addr + 76, y1 );
+        memPutFloat( addr + 80, 0 );
+        memPutByte( addr + 84, rgba[0] );
+        memPutByte( addr + 85, rgba[1] );
+        memPutByte( addr + 86, rgba[2] );
+        memPutByte( addr + 87, (byte) 255 );
+        memPutFloat( addr + 88, u2 );
+        memPutFloat( addr + 92, v1 );
+
+        // Finally increment the position.
         buffer.position( position + 96 );
+
+        // Well done for getting to the end of this method. I recommend you take a break and go look at cute puppies.
     }
 }
