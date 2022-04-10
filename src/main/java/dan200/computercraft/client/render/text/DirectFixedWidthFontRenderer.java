@@ -161,6 +161,8 @@ public final class DirectFixedWidthFontRenderer
         // Emit a single quad to our buffer. This uses Unsafe (well, LWJGL's MemoryUtil) to directly blit bytes to the
         // underlying buffer. This allows us to have a single bounds check up-front, rather than one for every write.
         // This provides significant performance gains, at the cost of well, using Unsafe.
+        // Each vertex is 24 bytes, giving 96 bytes in total. Vertices are of the form (xyz:FFF)(rgba:BBBB)(uv:FF),
+        // which matches the POSITION_COLOR_TEX vertex format.
 
         int position = buffer.position();
         long addr = MemoryUtil.memAddress( buffer );
@@ -171,9 +173,6 @@ public final class DirectFixedWidthFontRenderer
         if( (addr & 3) != 0 ) throw new IllegalStateException( "Memory is not aligned" );
         // Also assert the length of the array. This appears to help elide bounds checks on the array in some circumstances.
         if( rgba.length != 4 ) throw new IllegalStateException();
-
-        // Each vertex is 24 bytes, giving 96 bytes in total. Verticies are of the form (xyz:FFF)(rgba:BBBB)(uv:FF),
-        // which matches the POSITION_COLOR_TEX vertex format.
 
         memPutFloat( addr + 0, x1 );
         memPutFloat( addr + 4, y1 );
