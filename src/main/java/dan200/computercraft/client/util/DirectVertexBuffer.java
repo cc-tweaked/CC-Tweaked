@@ -9,7 +9,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL45C;
 
@@ -22,17 +21,9 @@ import java.nio.ByteBuffer;
  */
 public class DirectVertexBuffer extends VertexBuffer
 {
-    private static final boolean HAS_DSA;
-
-    static
-    {
-        var capabilities = GL.getCapabilities();
-        HAS_DSA = capabilities.OpenGL45 || capabilities.GL_ARB_direct_state_access;
-    }
-
     public DirectVertexBuffer()
     {
-        if( HAS_DSA )
+        if( DirectBuffers.HAS_DSA )
         {
             RenderSystem.glDeleteBuffers( vertextBufferId );
             vertextBufferId = GL45C.glCreateBuffers();
@@ -43,7 +34,7 @@ public class DirectVertexBuffer extends VertexBuffer
     {
         RenderSystem.assertOnRenderThread();
 
-        if( HAS_DSA )
+        if( DirectBuffers.HAS_DSA )
         {
             GL45C.glNamedBufferData( vertextBufferId, buffer, GL15.GL_STATIC_DRAW );
         }

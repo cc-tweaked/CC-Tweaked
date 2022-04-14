@@ -16,12 +16,11 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
+import dan200.computercraft.client.util.DirectBuffers;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
-import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -36,7 +35,8 @@ import org.lwjgl.opengl.GL31;
 import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 
-import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.*;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
 
 public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonitor>
 {
@@ -164,21 +164,8 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 if( redraw )
                 {
                     ByteBuffer monitorBuffer = getBuffer( width * height * 3 );
-                    for( int y = 0; y < height; y++ )
-                    {
-                        TextBuffer text = terminal.getLine( y ), textColour = terminal.getTextColourLine( y ), background = terminal.getBackgroundColourLine( y );
-                        for( int x = 0; x < width; x++ )
-                        {
-                            monitorBuffer.put( (byte) (text.charAt( x ) & 0xFF) );
-                            monitorBuffer.put( (byte) getColour( textColour.charAt( x ), Colour.WHITE ) );
-                            monitorBuffer.put( (byte) getColour( background.charAt( x ), Colour.BLACK ) );
-                        }
-                    }
-                    monitorBuffer.flip();
-
-                    GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer );
-                    GlStateManager._glBufferData( GL31.GL_TEXTURE_BUFFER, monitorBuffer, GL20.GL_STATIC_DRAW );
-                    GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
+                    MonitorTextureBufferShader.setTerminalData( monitorBuffer, terminal );
+                    DirectBuffers.setBufferData( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer, monitorBuffer, GL20.GL_STATIC_DRAW );
                 }
 
                 // Nobody knows what they're doing!

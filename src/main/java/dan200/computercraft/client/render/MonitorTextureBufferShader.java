@@ -8,6 +8,9 @@ package dan200.computercraft.client.render;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
+import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.terminal.TextBuffer;
+import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
@@ -18,7 +21,10 @@ import org.lwjgl.opengl.GL13;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.getColour;
 
 public class MonitorTextureBufferShader extends ShaderInstance
 {
@@ -108,5 +114,24 @@ public class MonitorTextureBufferShader extends ShaderInstance
         }
 
         return uniform;
+    }
+
+    public static void setTerminalData( ByteBuffer buffer, Terminal terminal )
+    {
+        int width = terminal.getWidth(), height = terminal.getHeight();
+
+        int pos = 0;
+        for( int y = 0; y < height; y++ )
+        {
+            TextBuffer text = terminal.getLine( y ), textColour = terminal.getTextColourLine( y ), background = terminal.getBackgroundColourLine( y );
+            for( int x = 0; x < width; x++ )
+            {
+                buffer.put( pos, (byte) (text.charAt( x ) & 0xFF) );
+                buffer.put( pos + 1, (byte) getColour( textColour.charAt( x ), Colour.WHITE ) );
+                buffer.put( pos + 2, (byte) getColour( background.charAt( x ), Colour.BLACK ) );
+                pos += 3;
+            }
+        }
+        buffer.limit( pos );
     }
 }
