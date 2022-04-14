@@ -9,6 +9,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.math.Matrix4f;
+import net.minecraft.client.renderer.ShaderInstance;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL45C;
 
@@ -21,6 +23,8 @@ import java.nio.ByteBuffer;
  */
 public class DirectVertexBuffer extends VertexBuffer
 {
+    private int actualIndexCount;
+
     public DirectVertexBuffer()
     {
         if( DirectBuffers.HAS_DSA )
@@ -48,8 +52,20 @@ public class DirectVertexBuffer extends VertexBuffer
 
         this.format = format;
         this.mode = mode;
-        indexCount = mode.indexCount( vertexCount );
+        actualIndexCount = indexCount = mode.indexCount( vertexCount );
         indexType = VertexFormat.IndexType.SHORT;
         sequentialIndices = true;
+    }
+
+    public void drawWithShader( Matrix4f modelView, Matrix4f projection, ShaderInstance shader, int indexCount )
+    {
+        this.indexCount = indexCount;
+        drawWithShader( modelView, projection, shader );
+        this.indexCount = actualIndexCount;
+    }
+
+    public int getIndexCount()
+    {
+        return actualIndexCount;
     }
 }

@@ -115,24 +115,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
             renderTerminal( bufferSource, matrix, originTerminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale) );
 
-            // We don't draw the cursor with the VBO/TBO, as it's dynamic and so we'll end up refreshing far more than
-            // is reasonable.
-            FixedWidthFontRenderer.drawCursor(
-                FixedWidthFontRenderer.toVertexConsumer( matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ) ),
-                0, 0, terminal, !originTerminal.isColour()
-            );
-
             transform.popPose();
-
-            FixedWidthFontRenderer.drawBlocker(
-                FixedWidthFontRenderer.toVertexConsumer( transform.last().pose(), bufferSource.getBuffer( RenderTypes.TERMINAL_BLOCKER ) ),
-                -MARGIN, MARGIN,
-                (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
-            );
-
-            // Force a flush of the blocker. WorldRenderer.updateCameraAndRender will "finish" all the built-in
-            // buffers before calling renderer.finish, which means the blocker isn't actually rendered at that point!
-            bufferSource.getBuffer( RenderType.solid() );
         }
         else
         {
@@ -149,6 +132,8 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
     private static void renderTerminal( @Nonnull MultiBufferSource bufferSource, Matrix4f matrix, ClientMonitor monitor, float xMargin, float yMargin )
     {
         Terminal terminal = monitor.getTerminal();
+        int width = terminal.getWidth(), height = terminal.getHeight();
+        int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
 
         MonitorRenderer renderType = MonitorRenderer.current();
         boolean redraw = monitor.pollTerminalChanged();
@@ -158,9 +143,6 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
         {
             case TBO:
             {
-                int width = terminal.getWidth(), height = terminal.getHeight();
-
-                int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
                 if( redraw )
                 {
                     var terminalBuffer = getBuffer( width * height * 3 );
@@ -181,15 +163,13 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 MonitorTextureBufferShader shader = RenderTypes.getMonitorTextureBufferShader();
                 shader.setupUniform( monitor.tboUniform );
 
+                // TODO: Switch to using a VBO here? Something to avoid having to do the
                 VertexConsumer buffer = bufferSource.getBuffer( RenderTypes.MONITOR_TBO );
                 tboVertex( buffer, matrix, -xMargin, -yMargin );
                 tboVertex( buffer, matrix, -xMargin, pixelHeight + yMargin );
                 tboVertex( buffer, matrix, pixelWidth + xMargin, -yMargin );
                 tboVertex( buffer, matrix, pixelWidth + xMargin, pixelHeight + yMargin );
 
-                // And force things to flush. We strictly speaking do this later on anyway for the cursor, but nice to
-                // be consistent.
-                bufferSource.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
                 break;
             }
 
@@ -200,20 +180,43 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 {
                     int vertexSize = RenderTypes.TERMINAL_WITHOUT_DEPTH.format().getVertexSize();
                     ByteBuffer buffer = getBuffer( DirectFixedWidthFontRenderer.getVertexCount( terminal ) * vertexSize );
+
+                    // Draw the main terminal and store how many vertices it has.
                     DirectFixedWidthFontRenderer.drawTerminalWithoutCursor(
                         buffer, 0, 0, terminal, !monitor.isColour(), yMargin, yMargin, xMargin, xMargin
                     );
+                    int termIndexes = buffer.position() / vertexSize;
+
+                    // If the cursor is visible, we append it to the end of our buffer. When rendering, we can either
+                    // render n or n+1 quads and so toggle the cursor on and off.
+                    DirectFixedWidthFontRenderer.drawCursor( buffer, 0, 0, terminal, !monitor.isColour() );
+
                     buffer.flip();
 
-                    vbo.upload( buffer.remaining() / vertexSize, RenderTypes.TERMINAL_WITHOUT_DEPTH.mode(), RenderTypes.TERMINAL_WITHOUT_DEPTH.format(), buffer );
+                    vbo.upload( termIndexes, RenderTypes.TERMINAL_WITHOUT_DEPTH.mode(), RenderTypes.TERMINAL_WITHOUT_DEPTH.format(), buffer );
                 }
 
                 bufferSource.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
                 RenderTypes.TERMINAL_WITHOUT_DEPTH.setupRenderState();
-                vbo.drawWithShader( matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader() );
+
+                vbo.drawWithShader(
+                    matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader(),
+                    // As mentioned in the above comment, render the extra cursor quad if it is visible this frame. Each
+                    // // quad has an index count of 6.
+                    FixedWidthFontRenderer.isCursorVisible( terminal ) && FrameInfo.getGlobalCursorBlink() ? vbo.getIndexCount() + 6 : vbo.getIndexCount()
+                );
+
+                FixedWidthFontRenderer.drawBlocker(
+                    FixedWidthFontRenderer.toVertexConsumer( matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_BLOCKER ) ),
+                    -xMargin, -yMargin, pixelWidth + xMargin, pixelHeight + yMargin
+                );
                 break;
             }
         }
+
+        // Force a flush of the buffer. WorldRenderer.updateCameraAndRender will "finish" all the built-in buffers
+        // before calling renderer.finish, which means our TBO quad or depth blocker won't be rendered yet!
+        bufferSource.getBuffer( RenderType.solid() );
     }
 
     private static void tboVertex( VertexConsumer builder, Matrix4f matrix, float x, float y )

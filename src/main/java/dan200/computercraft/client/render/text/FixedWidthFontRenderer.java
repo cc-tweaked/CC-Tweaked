@@ -184,18 +184,21 @@ public final class FixedWidthFontRenderer
         }
     }
 
-    public static void drawCursor( @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal, boolean greyscale )
+    public static boolean isCursorVisible( Terminal terminal )
     {
-        Palette palette = terminal.getPalette();
-        int width = terminal.getWidth();
-        int height = terminal.getHeight();
+        if( !terminal.getCursorBlink() ) return false;
 
         int cursorX = terminal.getCursorX();
         int cursorY = terminal.getCursorY();
-        if( terminal.getCursorBlink() && cursorX >= 0 && cursorX < width && cursorY >= 0 && cursorY < height && FrameInfo.getGlobalCursorBlink() )
+        return cursorX >= 0 && cursorX < terminal.getWidth() && cursorY >= 0 && cursorY < terminal.getHeight();
+    }
+
+    public static void drawCursor( @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal, boolean greyscale )
+    {
+        if( isCursorVisible( terminal ) && FrameInfo.getGlobalCursorBlink() )
         {
-            var colour = palette.getByteColour( 15 - terminal.getTextColour(), greyscale );
-            drawChar( emitter, x + cursorX * FONT_WIDTH, y + cursorY * FONT_HEIGHT, '_', colour, FULL_BRIGHT_LIGHTMAP );
+            var colour = terminal.getPalette().getByteColour( 15 - terminal.getTextColour(), greyscale );
+            drawChar( emitter, x + terminal.getCursorX() * FONT_WIDTH, y + terminal.getCursorY() * FONT_HEIGHT, '_', colour, FULL_BRIGHT_LIGHTMAP );
         }
     }
 

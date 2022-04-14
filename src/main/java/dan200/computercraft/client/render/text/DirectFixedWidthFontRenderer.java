@@ -151,9 +151,18 @@ public final class DirectFixedWidthFontRenderer
         }
     }
 
+    public static void drawCursor( @Nonnull ByteBuffer buffer, float x, float y, @Nonnull Terminal terminal, boolean greyscale )
+    {
+        if( isCursorVisible( terminal ) )
+        {
+            var colour = terminal.getPalette().getByteColour( 15 - terminal.getTextColour(), greyscale );
+            drawChar( buffer, x + terminal.getCursorX() * FONT_WIDTH, y + terminal.getCursorY() * FONT_HEIGHT, '_', colour );
+        }
+    }
+
     public static int getVertexCount( Terminal terminal )
     {
-        return (terminal.getHeight() + 2) * terminal.getWidth() * 2 * 4;
+        return (1 + (terminal.getHeight() + 2) * terminal.getWidth() * 2) * 4;
     }
 
     private static void quad( ByteBuffer buffer, float x1, float y1, float x2, float y2, byte[] rgba, float u1, float v1, float u2, float v2 )

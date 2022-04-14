@@ -108,7 +108,6 @@ public class RenderTypes
             RenderType.CompositeState.builder()
                 .setTextureState( TERM_FONT_TEXTURE )
                 .setShaderState( new ShaderStateShard( RenderTypes::getMonitorTextureBufferShader ) )
-                .setWriteMaskState( COLOR_WRITE )
                 .createCompositeState( false )
         );
 
