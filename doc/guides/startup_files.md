@@ -29,7 +29,7 @@ To reiterate, startup files names are all lowercase. CC is looking for `startup`
 ## Searching drives for startup files
 If `shell.allow_disk_startup` is true (which it is by default), then the CC computer will look for disk drives that have atleast one startup file, it only uses the first disk that fulfils this criteria. Disk drives are searched in the order they are found via `peripheral.getNames()`. It then runs the found startup files as described below.
 
-If `shell.allow_startup` is true (which it is by default) and no disk startup file was used, then the computer will look for startup files in it's internal storeage. Valid files are ran as described below.
+If `shell.allow_startup` is true (which it is by default) and no disk startup file was used, then the computer will look for startup files in it's internal storage. Valid files are ran as described below.
 
 ### Running the startup files
 If `startup` is a file then this file and *only* this file is ran, even if a `startup.lua` exists on the same device.
