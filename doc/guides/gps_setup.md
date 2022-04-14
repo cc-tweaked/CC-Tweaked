@@ -9,23 +9,23 @@ GPS host: a computer running the GPS program in host mode
 GPS constellation: a group of GPS hosts
 ```
 
-Before GPS can be used in a dimention (e.g. the Nether) a GPS host constellation needs to be set up. Traditionally this is done near the max build height for maximum range, but ender modems can beat normal modes in range even from bedrock.
+Before GPS can be used in a dimension (e.g. the Nether) a GPS host constellation needs to be set up. Traditionally this is done near the max build height for maximum range, but ender modems can beat normal modes in range even from bedrock.
 
-In order to give the best results, a GPS constallation needs atleast four computers. One can theroetically get away with three for most GPS requests, but four changes that to 100% accuracy when the requester is within all of their ranges, provided that they are placed correctly. More than four GPS hosts per constallation is redundent, but it does not harm.
+In order to give the best results, a GPS constellation needs at least four computers. One can theoretically get away with three for most GPS requests, but four changes that to 100% accuracy when the requester is within all of their ranges, provided that they are placed correctly. More than four GPS hosts per constellation is redundant, but it does not harm.
 
 ## Building a GPS constellation
 ![An example GPS constellation.](images/gps-constellation-example.png){.big-image}
 
-Assuming that you are using four computers per costallation, you will want each computer that makes up the constallation to be out of plane with atleast one other computer in the constalation. To put this another way, if you can make a straight wall or floor (diagonal also counts as straight, having a corner or curve doesn't) that touches all four computers then you need to move one of the computers so that it's nolonger in contact with the wall/floor.
+Assuming that you are using four computers per constellation, you will want each computer that makes up the constellation to be out of plane with at least one other computer in the constellation. To put this another way, if you can make a straight wall or floor (diagonal also counts as straight, having a corner or curve doesn't) that touches all four computers then you need to move one of the computers so that it's nolonger in contact with the wall/floor.
 
-Having the GPS constallation computers within a few blocks of each other is what people commonly do but is not required. So long as atleast four GPS hosts can respond to the requester the request will be fulfilled.
+Having the GPS constellation computers within a few blocks of each other is what people commonly do but is not required. So long as at least four GPS hosts can respond to the requester the request will be fulfilled.
 
 GPS only works with wireless modems, ender modems count as wireless. It doesn't matter what side you attach them to, just that each computer in the constellation has one.
 
 :::note Ender modems
-You might be aware that ender modems have a very large range, this makes them very usesful for setting up GPS hosts. Infact, if you do this then you will likely only need one GPS constellation for the whole dimention (in vanilla this will mean that you'd need three constellation, one for the Overworld, one for the Nether, and one for the End).
+You might be aware that ender modems have a very large range, this makes them very useful for setting up GPS hosts. Infact, if you do this then you will likely only need one GPS constellation for the whole dimension (in vanilla this will mean that you'd need three constellations, one for the Overworld, one for the Nether, and one for the End).
 
-Also, don't worry about an ender modem's ability to work across dimentions, the GPS API is smart enough to ignore constellation that are not in its dimention.
+Also, don't worry about an ender modem's ability to work across dimensions, the GPS API is smart enough to ignore constellations that are not in its dimension.
 :::
 
 ## Configureing the constellation
@@ -48,7 +48,7 @@ Wireless modems transmit from the block that they are attached to *not* the bloc
 :::
 
 ## A brief look at how the GPS API works in CC
-With the exception of command computers and user code overrides, ComputerCraft actually mimics real life GPS; computers triagulate themselves using signals with known sender positions (which is why we have to tell the GPS hosts where they are). This means that the average CC computer will need a wireless modem and be in range of a GPS constellation.
+With the exception of command computers and user code overrides, ComputerCraft actually mimics real life GPS; computers trilaterate themselves using signals with known sender positions (which is why we have to tell the GPS hosts where they are). This means that the average CC computer will need a wireless modem and be in range of a GPS constellation.
 
 :::note Double duty
 You could also set up one of their GPS hosts (per constellation) to run the rednet `repeat` program via @{multishell} or the @{parallel} API. Do note that if you use the parallel API that the console output of the two programs will merge together, this is harmless but can make it harder to understand the output.
