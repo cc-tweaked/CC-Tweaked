@@ -11,97 +11,51 @@ import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Colour;
-import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL31;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.getColour;
 
 public class MonitorTextureBufferShader extends ShaderInstance
 {
+    public static final int UNIFORM_SIZE = 4 * 4 * 16 + 4 + 4;
+
     static final int TEXTURE_INDEX = GL13.GL_TEXTURE3;
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    private final Uniform palette;
-    private final Uniform width;
-    private final Uniform height;
+    private final int monitorData;
+    private int uniformBuffer = 0;
 
     public MonitorTextureBufferShader( ResourceProvider provider, ResourceLocation location, VertexFormat format ) throws IOException
     {
         super( provider, location, format );
-
-        width = getUniformChecked( "Width" );
-        height = getUniformChecked( "Height" );
-        palette = new Uniform( "Palette", Uniform.UT_FLOAT3, 16 * 3, this );
-        updateUniformLocation( palette );
+        monitorData = GL31.glGetUniformBlockIndex( getId(), "MonitorData" );
+        if( monitorData == -1 ) throw new IllegalStateException( "Could not find MonitorData uniform." );
 
         Uniform tbo = getUniformChecked( "Tbo" );
         if( tbo != null ) tbo.set( TEXTURE_INDEX - GL13.GL_TEXTURE0 );
     }
 
-    void setupUniform( int width, int height, Palette palette, boolean greyscale )
+    public void setupUniform( int buffer )
     {
-        if( this.width != null ) this.width.set( width );
-        if( this.height != null ) this.height.set( height );
-        setupPalette( palette, greyscale );
-    }
-
-    private void setupPalette( Palette palette, boolean greyscale )
-    {
-        if( this.palette == null ) return;
-
-        FloatBuffer paletteBuffer = this.palette.getFloatBuffer();
-        paletteBuffer.rewind();
-        for( int i = 0; i < 16; i++ )
-        {
-            double[] colour = palette.getColour( i );
-            if( greyscale )
-            {
-                float f = FixedWidthFontRenderer.toGreyscale( colour );
-                paletteBuffer.put( f ).put( f ).put( f );
-            }
-            else
-            {
-                paletteBuffer.put( (float) colour[0] ).put( (float) colour[1] ).put( (float) colour[2] );
-            }
-        }
+        uniformBuffer = buffer;
     }
 
     @Override
     public void apply()
     {
         super.apply();
-        palette.upload();
-    }
-
-    @Override
-    public void close()
-    {
-        palette.close();
-        super.close();
-    }
-
-    private void updateUniformLocation( Uniform uniform )
-    {
-        int id = Uniform.glGetUniformLocation( getId(), uniform.getName() );
-        if( id == -1 )
-        {
-            LOGGER.warn( "Shader {} could not find uniform named {} in the specified shader program.", getName(), uniform.getName() );
-        }
-        else
-        {
-            uniform.setLocation( id );
-        }
+        GL31.glBindBufferBase( GL31.GL_UNIFORM_BUFFER, monitorData, uniformBuffer );
     }
 
     @Nullable
@@ -132,6 +86,35 @@ public class MonitorTextureBufferShader extends ShaderInstance
                 pos += 3;
             }
         }
+
         buffer.limit( pos );
+    }
+
+    public static void setUniformData( ByteBuffer buffer, Terminal terminal, boolean greyscale )
+    {
+        int pos = 0;
+        var palette = terminal.getPalette();
+        for( int i = 0; i < 16; i++ )
+        {
+            {
+                double[] colour = palette.getColour( i );
+                if( greyscale )
+                {
+                    float f = FixedWidthFontRenderer.toGreyscale( colour );
+                    buffer.putFloat( pos, f ).putFloat( pos + 4, f ).putFloat( pos + 8, f );
+                }
+                else
+                {
+                    buffer.putFloat( pos, (float) colour[0] ).putFloat( pos + 4, (float) colour[1] ).putFloat( pos + 8, (float) colour[2] );
+                }
+            }
+
+            pos += 4 * 4; // std140 requires these are 4-wide
+        }
+
+        int width = terminal.getWidth(), height = terminal.getHeight();
+        buffer.putInt( pos, width ).putInt( pos + 4, height );
+
+        buffer.limit( UNIFORM_SIZE );
     }
 }

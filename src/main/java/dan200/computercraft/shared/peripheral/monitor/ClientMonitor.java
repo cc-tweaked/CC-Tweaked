@@ -33,6 +33,7 @@ public final class ClientMonitor extends ClientTerminal
 
     public int tboBuffer;
     public int tboTexture;
+    public int tboUniform;
     public DirectVertexBuffer buffer;
 
     public ClientMonitor( boolean colour, TileMonitor origin )
@@ -70,6 +71,9 @@ public final class ClientMonitor extends ClientTerminal
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, tboTexture );
                 GL31.glTexBuffer( GL31.GL_TEXTURE_BUFFER, GL30.GL_R8UI, tboBuffer );
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, 0 );
+
+                tboUniform = DirectBuffers.createBuffer();
+                DirectBuffers.setEmptyBufferData( GL31.GL_UNIFORM_BUFFER, tboUniform, GL15.GL_STATIC_DRAW );
 
                 addMonitor();
                 return true;
@@ -109,6 +113,12 @@ public final class ClientMonitor extends ClientTerminal
         {
             GlStateManager._deleteTexture( tboTexture );
             tboTexture = 0;
+        }
+
+        if( tboUniform != 0 )
+        {
+            RenderSystem.glDeleteBuffers( tboUniform );
+            tboUniform = 0;
         }
 
         if( buffer != null )

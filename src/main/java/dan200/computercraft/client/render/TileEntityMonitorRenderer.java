@@ -163,9 +163,13 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
                 if( redraw )
                 {
-                    ByteBuffer monitorBuffer = getBuffer( width * height * 3 );
-                    MonitorTextureBufferShader.setTerminalData( monitorBuffer, terminal );
-                    DirectBuffers.setBufferData( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer, monitorBuffer, GL20.GL_STATIC_DRAW );
+                    var terminalBuffer = getBuffer( width * height * 3 );
+                    MonitorTextureBufferShader.setTerminalData( terminalBuffer, terminal );
+                    DirectBuffers.setBufferData( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer, terminalBuffer, GL20.GL_STATIC_DRAW );
+
+                    var uniformBuffer = getBuffer( MonitorTextureBufferShader.UNIFORM_SIZE );
+                    MonitorTextureBufferShader.setUniformData( uniformBuffer, terminal, !monitor.isColour() );
+                    DirectBuffers.setBufferData( GL31.GL_UNIFORM_BUFFER, monitor.tboUniform, uniformBuffer, GL20.GL_STATIC_DRAW );
                 }
 
                 // Nobody knows what they're doing!
@@ -175,7 +179,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 RenderSystem.activeTexture( active );
 
                 MonitorTextureBufferShader shader = RenderTypes.getMonitorTextureBufferShader();
-                shader.setupUniform( width, height, terminal.getPalette(), !monitor.isColour() );
+                shader.setupUniform( monitor.tboUniform );
 
                 VertexConsumer buffer = bufferSource.getBuffer( RenderTypes.MONITOR_TBO );
                 tboVertex( buffer, matrix, -xMargin, -yMargin );
