@@ -5,7 +5,7 @@ module: [kind=guide] startup_files
 # Running code when a computer boots
 
 :::note Use case
-You might be aware that CC computers restart when the chunk they are in reloads, one of the uses of startup files provides a way to have the CC computer to run arbitray code after it finished turning on. Currently this is the closest that CC has to persitance built in.
+You might be aware that CC computers restart when the chunk they are in reloads, one of the uses of startup files provides a way to have the CC computer to run arbitrary code after it has finished turning on. Currently this is the closest that CC has to persitance built in.
 :::
 
 CC computers will look for a file or folder with a special name when it finishes loading. Also, CC has a fixed order that it looks for these files and uses them.
