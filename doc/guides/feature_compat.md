@@ -9,10 +9,10 @@ CC: Tweaked is based off of the Cobalt Lua runtime, which uses Lua 5.1. However,
 | Feature | Supported? | Notes |
 |---------|------------|-------|
 | `goto`/labels | :x: |  |
+| `_ENV` | :large_orange_diamond: | The `_ENV` global points to `getfenv()`, but it cannot be set. |
 | `\z` escape | :heavy_check_mark: |  |
 | `\xNN` escape | :heavy_check_mark: |  |
 | hex literal fractional/exponent parts | :heavy_check_mark: |  |
-| `_ENV` | :large_orange_diamond: | The `_ENV` global points to `getfenv()`, but it cannot be set. |
 | empty statements | :x: |  |
 | `__len` metamethod | :heavy_check_mark: |  |
 | `__ipairs` metamethod | :x: |  |
@@ -20,7 +20,7 @@ CC: Tweaked is based off of the Cobalt Lua runtime, which uses Lua 5.1. However,
 | `bit32` library | :heavy_check_mark: | Replaces `bit` library, which is still available for compatibility. |
 | `collectgarbage` isrunning, generational, incremental options | :x: | `collectgarbage` does not exist in CC:T. |
 | new `load` syntax | :heavy_check_mark: |  |
-| `loadfile` mode parameter | :heavy_check_mark: |  |
+| `loadfile` mode parameter | :heavy_check_mark: | Supports both 5.1 and 5.2+ syntax. |
 | removed `loadstring` | :large_orange_diamond: | Only if `disable_lua51_features` is enabled in the configuration. |
 | removed `getfenv`, `setfenv` | :large_orange_diamond: | Only if `disable_lua51_features` is enabled in the configuration. |
 | `rawlen` function | :heavy_check_mark: |  |
@@ -86,9 +86,9 @@ CC: Tweaked is based off of the Cobalt Lua runtime, which uses Lua 5.1. However,
 ## Lua 5.0
 | Feature | Supported? | Notes |
 |---------|------------|-------|
-| `arg` table | :heavy_check_mark: |  |
+| `arg` table | :heavy_check_mark: | Only set in the shell - not used in functions. |
 | `string.gfind` | :heavy_check_mark: | Equal to `string.gmatch`. |
-| `table.getn` | :heavy_check_mark: |  |
+| `table.getn` | :heavy_check_mark: | Equal to `#tbl`. |
 | `table.setn` | :x: |  |
 | `math.mod` | :heavy_check_mark: | Equal to `math.fmod`. |
 | `table.foreach`/`table.foreachi` | :heavy_check_mark: |  |
