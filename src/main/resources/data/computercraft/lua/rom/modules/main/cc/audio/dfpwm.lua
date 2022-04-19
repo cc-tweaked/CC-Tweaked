@@ -17,10 +17,19 @@ a specific audio stream. Typically you will want to create a decoder for each st
 for each one you write.
 
 ## Converting audio to DFPWM
-DFPWM is not a popular file format and so standard audio processing tools will not have an option to export to it.
-Instead, you can convert audio files online using [music.madefor.cc] or with the [LionRay Wav Converter][LionRay] Java
-application.
+DFPWM is not a popular file format and so standard audio processing tools may not have an option to export to it.
+Instead, you can convert audio files online using [FFmpeg] (see below), [music.madefor.cc]
+or with the [LionRay Wav Converter][LionRay] Java application.
 
+:::note FFmpeg support
+FFmpeg recently added support for encoding and decoding DFPWM audio. This is only available in FFmpeg 5.1 or later,
+or Git master builds if FFmpeg 5.1 isn't available yet. (Do not use FFmpeg 5.0 or earlier - these do not support it.)
+Because FFmpeg now supports DFPWM, many FFmpeg-based audio players like mpv can now play DFPWM files. However, not
+all programs support the latest FFmpeg version yet, including VLC and Audacity. If you're unsure whether the program
+you're using supports DFPWM in FFmpeg, check that it's using libavcodec 59.22 and libavformat 59.18 or later.
+:::
+
+[FFmpeg]: https://ffmpeg.org "FFmpeg command-line audio manipulation library"
 [music.madefor.cc]: https://music.madefor.cc/ "DFPWM audio converter for Computronics and CC: Tweaked"
 [LionRay]: https://github.com/gamax92/LionRay/ "LionRay Wav Converter "
 
