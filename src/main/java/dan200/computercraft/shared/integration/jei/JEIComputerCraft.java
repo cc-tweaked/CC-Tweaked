@@ -96,7 +96,7 @@ public class JEIComputerCraft implements IModPlugin
         IRecipeCategory<?> category = registry.getRecipeCategory( VanillaRecipeCategoryUid.CRAFTING, false );
         if( category != null )
         {
-            for( Object wrapper : registry.getRecipes( category, null, false ) )
+            for( Object wrapper : registry.getRecipes( category, List.of(), false ) )
             {
                 if( !(wrapper instanceof Recipe) ) continue;
                 ResourceLocation id = ((Recipe<?>) wrapper).getId();

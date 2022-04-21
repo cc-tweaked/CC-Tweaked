@@ -121,7 +121,7 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
         }
 
         // Verify we've a command source and we're running on the server
-        return suggestOnServer( context, builder, s -> {
+        return suggestOnServer( context, s -> {
             if( remaining.startsWith( "@" ) )
             {
                 suggestComputers( builder, remaining, x -> {

@@ -12,9 +12,11 @@ import com.google.gson.JsonParseException;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.internal.upgrades.SerialiserWithCraftingItem;
 import dan200.computercraft.internal.upgrades.SimpleSerialiser;
+import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.RegistryManager;
@@ -43,16 +45,16 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
     private final DataGenerator generator;
     private final String name;
     private final String folder;
-    private final Class<R> klass;
+    private final ResourceKey<Registry<R>> registry;
 
     private List<T> upgrades;
 
-    protected UpgradeDataProvider( @Nonnull DataGenerator generator, @Nonnull String name, @Nonnull String folder, @Nonnull Class<R> klass )
+    protected UpgradeDataProvider( @Nonnull DataGenerator generator, @Nonnull String name, @Nonnull String folder, @Nonnull ResourceKey<Registry<R>> registry )
     {
         this.generator = generator;
         this.name = name;
         this.folder = folder;
-        this.klass = klass;
+        this.registry = registry;
     }
 
     /**
@@ -155,8 +157,8 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
     @Nonnull
     public final R existingSerialiser( @Nonnull ResourceLocation id )
     {
-        var result = RegistryManager.ACTIVE.getRegistry( klass ).getValue( id );
-        if( result == null ) throw new IllegalArgumentException( "No such serialiser " + klass );
+        var result = RegistryManager.ACTIVE.getRegistry( registry ).getValue( id );
+        if( result == null ) throw new IllegalArgumentException( "No such serialiser " + registry );
         return result;
     }
 

@@ -1,11 +1,14 @@
 package dan200.computercraft.ingame
 
+import dan200.computercraft.ComputerCraft
 import dan200.computercraft.ingame.api.Timeouts.COMPUTER_TIMEOUT
 import dan200.computercraft.ingame.api.sequence
 import dan200.computercraft.ingame.api.thenComputerOk
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
+import net.minecraftforge.gametest.GameTestHolder
 
+@GameTestHolder(ComputerCraft.MOD_ID)
 class Turtle_Test {
     @GameTest(timeoutTicks = COMPUTER_TIMEOUT)
     fun Unequip_refreshes_peripheral(helper: GameTestHelper) = helper.sequence { thenComputerOk() }

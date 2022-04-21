@@ -7,7 +7,7 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.VertexBuffer;
+import dan200.computercraft.client.util.DirectVertexBuffer;
 import dan200.computercraft.shared.common.ClientTerminal;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
@@ -32,7 +32,7 @@ public final class ClientMonitor extends ClientTerminal
 
     public int tboBuffer;
     public int tboTexture;
-    public VertexBuffer buffer;
+    public DirectVertexBuffer buffer;
 
     public ClientMonitor( boolean colour, TileMonitor origin )
     {
@@ -81,7 +81,7 @@ public final class ClientMonitor extends ClientTerminal
                 if( buffer != null ) return false;
 
                 deleteBuffers();
-                buffer = new VertexBuffer();
+                buffer = new DirectVertexBuffer();
                 addMonitor();
                 return true;
 

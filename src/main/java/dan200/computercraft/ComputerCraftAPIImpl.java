@@ -30,7 +30,6 @@ import dan200.computercraft.shared.wired.WiredNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -59,7 +58,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
 
     public static InputStream getResourceFile( String domain, String subPath )
     {
-        ReloadableResourceManager manager = (ReloadableResourceManager) ServerLifecycleHooks.getCurrentServer().getResourceManager();
+        var manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
         try
         {
             return manager.getResource( new ResourceLocation( domain, subPath ) ).getInputStream();

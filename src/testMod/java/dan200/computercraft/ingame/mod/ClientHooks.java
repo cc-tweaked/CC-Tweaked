@@ -17,12 +17,10 @@ import net.minecraft.world.level.DataPackConfig;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
-import net.minecraft.world.level.levelgen.StructureSettings;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.levelgen.flat.FlatLayerInfo;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
@@ -79,22 +77,23 @@ public final class ClientHooks
         {
             LOG.info( "World does not exist, creating it for the first time" );
 
-            RegistryAccess.RegistryHolder registries = RegistryAccess.builtin();
+            RegistryAccess registries = RegistryAccess.builtinCopy();
 
             Registry<DimensionType> dimensions = registries.registryOrThrow( Registry.DIMENSION_TYPE_REGISTRY );
-            Registry<Biome> biomes = registries.registryOrThrow( Registry.BIOME_REGISTRY );
+            var biomes = registries.registryOrThrow( Registry.BIOME_REGISTRY );
+            var structures = registries.registryOrThrow( Registry.STRUCTURE_SET_REGISTRY );
 
-            FlatLevelGeneratorSettings flatSettings = FlatLevelGeneratorSettings.getDefault( biomes )
+            FlatLevelGeneratorSettings flatSettings = FlatLevelGeneratorSettings.getDefault( biomes, structures )
                 .withLayers(
                     Collections.singletonList( new FlatLayerInfo( 4, Blocks.WHITE_CONCRETE ) ),
-                    new StructureSettings( Optional.empty(), Collections.emptyMap() )
+                    Optional.empty()
                 );
-            flatSettings.setBiome( () -> biomes.get( Biomes.DESERT ) );
+            flatSettings.setBiome( biomes.getHolderOrThrow( Biomes.DESERT ) );
 
             WorldGenSettings generator = new WorldGenSettings( 0, false, false, withOverworld(
                 dimensions,
                 DimensionType.defaultDimensions( registries, 0 ),
-                new FlatLevelSource( flatSettings )
+                new FlatLevelSource( structures, flatSettings )
             ) );
 
             LevelSettings settings = new LevelSettings(

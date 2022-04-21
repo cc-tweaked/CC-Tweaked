@@ -9,6 +9,8 @@ import com.google.gson.*;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.upgrades.IUpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -45,16 +47,16 @@ public class UpgradeManager<R extends UpgradeSerialiser<? extends T, R>, T exten
     ) {}
 
     private final String kind;
-    private final Class<R> klass;
+    private final ResourceKey<Registry<R>> registry;
 
     private Map<String, UpgradeWrapper<R, T>> current = Collections.emptyMap();
     private Map<T, UpgradeWrapper<R, T>> currentWrappers = Collections.emptyMap();
 
-    public UpgradeManager( @Nonnull String kind, @Nonnull String path, @Nonnull Class<R> klass )
+    public UpgradeManager( @Nonnull String kind, @Nonnull String path, @Nonnull ResourceKey<Registry<R>> registry )
     {
         super( GSON, path );
         this.kind = kind;
-        this.klass = klass;
+        this.registry = registry;
     }
 
     @Nullable
@@ -126,7 +128,7 @@ public class UpgradeManager<R extends UpgradeSerialiser<? extends T, R>, T exten
         var root = GsonHelper.convertToJsonObject( json, "top element" );
         var serialiserId = new ResourceLocation( GsonHelper.getAsString( root, "type" ) );
 
-        var serialiser = RegistryManager.ACTIVE.getRegistry( klass ).getValue( serialiserId );
+        var serialiser = RegistryManager.ACTIVE.getRegistry( registry ).getValue( serialiserId );
         if( serialiser == null ) throw new JsonSyntaxException( "Unknown upgrade type '" + serialiserId + "'" );
 
         // TODO: Can we track which mod this resource came from and use that instead? It's theoretically possible,

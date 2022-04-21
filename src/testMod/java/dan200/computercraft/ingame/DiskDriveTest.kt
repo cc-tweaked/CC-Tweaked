@@ -1,12 +1,15 @@
 package dan200.computercraft.ingame
 
+import dan200.computercraft.ComputerCraft
 import dan200.computercraft.ingame.api.sequence
 import dan200.computercraft.ingame.api.thenComputerOk
 import net.minecraft.core.BlockPos
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.world.item.Items
+import net.minecraftforge.gametest.GameTestHolder
 
+@GameTestHolder(ComputerCraft.MOD_ID)
 class Disk_Drive_Test {
     /**
      * Ensure audio disks exist and we can play them.

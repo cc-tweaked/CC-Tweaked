@@ -88,26 +88,8 @@ minecraft {
             args '--mod', 'computercraft', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
         }
 
-        testClient {
-            workingDirectory project.file('test-files/client')
-            parent runs.client
-
-            mods {
-                cctest {
-                    source sourceSets.testMod
-                }
-            }
-
-            lazyToken('minecraft_classpath') {
-                (configurations.shade.copyRecursive().resolve() + configurations.testModExtra.copyRecursive().resolve())
-                    .collect { it.absolutePath }
-                    .join(File.pathSeparator)
-            }
-        }
-
-        testServer {
+        gameTestServer {
             workingDirectory project.file('test-files/server')
-            parent runs.server
 
             mods {
                 cctest {
@@ -159,8 +141,8 @@ dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
-    compileOnly fg.deobf("mezz.jei:jei-1.18.1:9.1.0.47:api")
-    runtimeOnly fg.deobf("mezz.jei:jei-1.18.1:9.1.0.47")
+    compileOnly fg.deobf("mezz.jei:jei-1.18.2:9.4.1.116:api")
+    runtimeOnly fg.deobf("mezz.jei:jei-1.18.2:9.4.1.116")
 
     shade 'org.squiddev:Cobalt:0.5.2-SNAPSHOT'
 
@@ -374,68 +356,48 @@ task licenseFormatAPI(type: LicenseFormat)
     }
 }
 
-task setupServer(type: Copy) {
-    group "test server"
-    description "Sets up the environment for the test server."
+tasks.register("testServer", JavaExec.class).configure {
+    it.group('In-game tests')
+    it.description("Runs tests on a temporary Minecraft instance.")
+    it.dependsOn("prepareRunGameTestServer", "cleanTestServer", 'compileTestModJava')
 
-    from("src/testMod/server-files") {
-        include "eula.txt"
-        include "server.properties"
-    }
-    into "test-files/server"
+    // Copy from runTestServer. We do it in this slightly odd way as runTestServer
+    // isn't created until the task is configured (which is no good for us).
+    JavaExec exec = tasks.getByName("runGameTestServer")
+    exec.copyTo(it)
+    it.setClasspath(exec.getClasspath())
+    it.mainClass = exec.mainClass
+    it.setArgs(exec.getArgs())
+
+    // Jacoco and modlauncher don't play well together as the classes loaded in-game don't
+    // match up with those written to disk. We get Jacoco to dump all classes to disk, and
+    // use that when generating the report.
+    def coverageOut = new File(buildDir, "jacocoClassDump/testServer")
+    jacoco.applyTo(it)
+    it.jacoco.setIncludes(["dan200.computercraft.*"])
+    it.jacoco.setClassDumpDir(coverageOut)
+    it.outputs.dir(coverageOut)
+    // Older versions of modlauncher don't include a protection domain (and thus no code
+    // source). Jacoco skips such classes by default, so we need to explicitly include them.
+    it.jacoco.setIncludeNoLocationClasses(true)
 }
 
-["Client", "Server"].forEach { name ->
-    tasks.register("test$name", JavaExec.class).configure {
-        it.group('In-game tests')
-        it.description("Runs tests on a temporary Minecraft instance.")
-        it.dependsOn(setupServer, "prepareRunTest$name", "cleanTest$name", 'compileTestModJava')
+tasks.register("jacocoTestServerReport", JacocoReport.class).configure {
+    it.group('In-game')
+    it.description("Generate coverage reports for testServer")
+    it.dependsOn("testServer")
 
-        // Copy from runTestServer. We do it in this slightly odd way as runTestServer
-        // isn't created until the task is configured (which is no good for us).
-        JavaExec exec = tasks.getByName("runTest$name")
-        exec.copyTo(it)
-        it.setClasspath(exec.getClasspath())
-        it.mainClass = exec.mainClass
-        it.setArgs(exec.getArgs())
+    it.executionData(new File(buildDir, "jacoco/testServer.exec"))
+    it.sourceDirectories.from(sourceSets.main.allJava.srcDirs)
+    it.classDirectories.from(new File(buildDir, "jacocoClassDump/testServer"))
 
-        it.systemProperty('forge.logging.console.level', 'info')
-        it.systemProperty('cctest.run', 'true')
-
-        // Jacoco and modlauncher don't play well together as the classes loaded in-game don't
-        // match up with those written to disk. We get Jacoco to dump all classes to disk, and
-        // use that when generating the report.
-        def coverageOut = new File(buildDir, "jacocoClassDump/test$name")
-        jacoco.applyTo(it)
-        it.jacoco.setIncludes(["dan200.computercraft.*"])
-        it.jacoco.setClassDumpDir(coverageOut)
-        it.outputs.dir(coverageOut)
-        // Older versions of modlauncher don't include a protection domain (and thus no code
-        // source). Jacoco skips such classes by default, so we need to explicitly include them.
-        it.jacoco.setIncludeNoLocationClasses(true)
-    }
-
-    tasks.register("jacocoTest${name}Report", JacocoReport.class).configure {
-        it.group('In-game')
-        it.description("Generate coverage reports for test$name")
-        it.dependsOn("test$name")
-
-        it.executionData(new File(buildDir, "jacoco/test${name}.exec"))
-        it.sourceDirectories.from(sourceSets.main.allJava.srcDirs)
-        it.classDirectories.from(new File(buildDir, "jacocoClassDump/test$name"))
-
-        it.reports {
-            xml.enabled true
-            html.enabled true
-        }
-    }
-
-    if (name != "Client" || project.findProperty('cc.tweaked.clientTests') == 'true') {
-        // Don't run client tests unless explicitly opted into them. They're a bit of a faff
-        // to run and pretty flakey.
-        check.dependsOn("jacocoTest${name}Report")
+    it.reports {
+        xml.enabled true
+        html.enabled true
     }
 }
+
+check.dependsOn("jacocoTestServerReport")
 
 
 // Upload tasks

@@ -65,7 +65,7 @@ public class ItemData
             data.put( "durability", stack.getItem().getBarWidth( stack ) / 13.0 );
         }
 
-        data.put( "tags", DataHelpers.getTags( stack.getItem().getTags() ) );
+        data.put( "tags", DataHelpers.getTags( stack.getTags() ) );
 
         CompoundTag tag = stack.getTag();
         if( tag != null && tag.contains( "display", Tag.TAG_COMPOUND ) )

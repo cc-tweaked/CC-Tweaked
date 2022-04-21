@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -14,7 +14,7 @@ import net.minecraftforge.common.Tags;
 public final class ColourUtils
 {
     @SuppressWarnings( { "unchecked", "rawtypes" } )
-    private static final Tag<Item>[] DYES = new Tag[] {
+    private static final TagKey<Item>[] DYES = new TagKey[] {
         Tags.Items.DYES_WHITE,
         Tags.Items.DYES_ORANGE,
         Tags.Items.DYES_MAGENTA,
@@ -41,8 +41,8 @@ public final class ColourUtils
 
         for( int i = 0; i < DYES.length; i++ )
         {
-            Tag<Item> dye = DYES[i];
-            if( dye.contains( stack.getItem() ) ) return DyeColor.byId( i );
+            TagKey<Item> dye = DYES[i];
+            if( stack.is( dye ) ) return DyeColor.byId( i );
         }
 
         return null;

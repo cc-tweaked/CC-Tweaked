@@ -5,26 +5,31 @@
  */
 package dan200.computercraft.shared.peripheral.generic.data;
 
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class DataHelpers
 {
     private DataHelpers()
     {}
 
-    @Nonnull
-    public static Map<String, Boolean> getTags( @Nonnull Collection<ResourceLocation> tags )
+    public static <T> Map<String, Boolean> getTags( Holder.Reference<T> object )
     {
-        Map<String, Boolean> result = new HashMap<>( tags.size() );
-        for( ResourceLocation location : tags ) result.put( location.toString(), true );
-        return result;
+        return getTags( object.tags() );
+    }
+
+    @Nonnull
+    public static <T> Map<String, Boolean> getTags( @Nonnull Stream<TagKey<T>> tags )
+    {
+        return tags.collect( Collectors.toMap( x -> x.location().toString(), x -> true ) );
     }
 
     @Nullable

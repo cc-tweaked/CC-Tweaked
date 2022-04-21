@@ -97,10 +97,10 @@ class RecipeResolver implements IRecipeManagerPlugin
     @Override
     public <V> List<ResourceLocation> getRecipeCategoryUids( @Nonnull IFocus<V> focus )
     {
-        V value = focus.getValue();
+        V value = focus.getTypedValue().getIngredient();
         if( !(value instanceof ItemStack stack) ) return Collections.emptyList();
 
-        switch( focus.getMode() )
+        switch( focus.getRole() )
         {
             case INPUT:
                 return stack.getItem() instanceof ITurtleItem || stack.getItem() instanceof ItemPocketComputer ||
@@ -120,12 +120,12 @@ class RecipeResolver implements IRecipeManagerPlugin
     @Override
     public <T, V> List<T> getRecipes( @Nonnull IRecipeCategory<T> recipeCategory, @Nonnull IFocus<V> focus )
     {
-        if( !(focus.getValue() instanceof ItemStack stack) || !recipeCategory.getUid().equals( VanillaRecipeCategoryUid.CRAFTING ) )
+        if( !(focus.getTypedValue().getIngredient() instanceof ItemStack stack) || !recipeCategory.getUid().equals( VanillaRecipeCategoryUid.CRAFTING ) )
         {
             return Collections.emptyList();
         }
 
-        switch( focus.getMode() )
+        switch( focus.getRole() )
         {
             case INPUT:
                 return cast( findRecipesWithInput( stack ) );

@@ -2,7 +2,6 @@ package dan200.computercraft.ingame
 
 import dan200.computercraft.ComputerCraft
 import dan200.computercraft.ingame.api.*
-import dan200.computercraft.ingame.api.Timeouts.CLIENT_TIMEOUT
 import dan200.computercraft.shared.Capabilities
 import dan200.computercraft.shared.Registry
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer
@@ -13,8 +12,10 @@ import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.Blocks
+import net.minecraftforge.gametest.GameTestHolder
 import java.util.*
 
+@GameTestHolder(ComputerCraft.MOD_ID)
 class Monitor_Test {
     @GameTest
     fun Ensures_valid_on_place(context: GameTestHelper) = context.sequence {
@@ -67,16 +68,16 @@ class Monitor_Test {
             .thenScreenshot()
     }
 
-    @GameTest(batch = "client:Monitor_Test.Looks_acceptable", timeoutTicks = CLIENT_TIMEOUT, template = LOOKS_ACCEPTABLE)
+    // @GameTest(batch = "Monitor_Test.Looks_acceptable", template = LOOKS_ACCEPTABLE)
     fun Looks_acceptable(helper: GameTestHelper) = looksAcceptable(helper, renderer = MonitorRenderer.TBO)
 
-    @GameTest(batch = "client:Monitor_Test.Looks_acceptable_dark", timeoutTicks = CLIENT_TIMEOUT, template = LOOKS_ACCEPTABLE_DARK)
+    // @GameTest(batch = "Monitor_Test.Looks_acceptable_dark", template = LOOKS_ACCEPTABLE_DARK)
     fun Looks_acceptable_dark(helper: GameTestHelper) = looksAcceptable(helper, renderer = MonitorRenderer.TBO)
 
-    @GameTest(batch = "client:Monitor_Test.Looks_acceptable_vbo", timeoutTicks = CLIENT_TIMEOUT, template = LOOKS_ACCEPTABLE)
+    // @GameTest(batch = "Monitor_Test.Looks_acceptable_vbo", template = LOOKS_ACCEPTABLE)
     fun Looks_acceptable_vbo(helper: GameTestHelper) = looksAcceptable(helper, renderer = MonitorRenderer.VBO)
 
-    @GameTest(batch = "client:Monitor_Test.Looks_acceptable_dark_vbo", timeoutTicks = CLIENT_TIMEOUT, template = LOOKS_ACCEPTABLE_DARK)
+    // @GameTest(batch = "Monitor_Test.Looks_acceptable_dark_vbo", template = LOOKS_ACCEPTABLE_DARK)
     fun Looks_acceptable_dark_vbo(helper: GameTestHelper) = looksAcceptable(helper, renderer = MonitorRenderer.VBO)
 
     private companion object {

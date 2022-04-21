@@ -1,5 +1,7 @@
 #version 150
 
+#moj_import <fog.glsl>
+
 #define FONT_WIDTH 6.0
 #define FONT_HEIGHT 9.0
 
@@ -9,9 +11,15 @@ uniform int Height;
 uniform usamplerBuffer Tbo;
 uniform vec3 Palette[16];
 
-in vec2 f_pos;
+uniform vec4 ColorModulator;
+uniform float FogStart;
+uniform float FogEnd;
+uniform vec4 FogColor;
 
-out vec4 colour;
+in float vertexDistance;
+in vec2 fontPos;
+
+out vec4 fragColor;
 
 vec2 texture_corner(int index) {
     float x = 1.0 + float(index % 16) * (FONT_WIDTH + 2.0);
@@ -20,7 +28,7 @@ vec2 texture_corner(int index) {
 }
 
 void main() {
-    vec2 term_pos = vec2(f_pos.x / FONT_WIDTH, f_pos.y / FONT_HEIGHT);
+    vec2 term_pos = vec2(fontPos.x / FONT_WIDTH, fontPos.y / FONT_HEIGHT);
     vec2 corner = floor(term_pos);
 
     ivec2 cell = ivec2(corner);
@@ -36,5 +44,7 @@ void main() {
 
     vec2 pos = (term_pos - corner) * vec2(FONT_WIDTH, FONT_HEIGHT);
     vec4 img = texture(Sampler0, (texture_corner(character) + pos) / 256.0);
-    colour = vec4(mix(Palette[bg], img.rgb * Palette[fg], img.a * mult), 1.0);
+    vec4 colour = vec4(mix(Palette[bg], img.rgb * Palette[fg], img.a * mult), 1.0) * ColorModulator;
+
+    fragColor = linear_fog(colour, vertexDistance, FogStart, FogEnd, FogColor);
 }

@@ -54,7 +54,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
     }
 
     @Override
-    protected void renderItem( PoseStack transform, MultiBufferSource renderer, ItemStack stack, int light )
+    protected void renderItem( PoseStack transform, MultiBufferSource bufferSource, ItemStack stack, int light )
     {
         ClientComputer computer = ItemPocketComputer.createClientComputer( stack );
         Terminal terminal = computer == null ? null : computer.getTerminal();
@@ -91,24 +91,30 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         int frameColour = item.getColour( stack );
 
         Matrix4f matrix = transform.last().pose();
-        renderFrame( matrix, renderer, family, frameColour, light, width, height );
+        renderFrame( matrix, bufferSource, family, frameColour, light, width, height );
 
         // Render the light
         int lightColour = ItemPocketComputer.getLightState( stack );
         if( lightColour == -1 ) lightColour = Colour.BLACK.getHex();
-        renderLight( matrix, renderer, lightColour, width, height );
+        renderLight( matrix, bufferSource, lightColour, width, height );
 
         if( computer != null && terminal != null )
         {
             FixedWidthFontRenderer.drawTerminal(
-                matrix, renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ),
+                FixedWidthFontRenderer.toVertexConsumer( matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ) ),
                 MARGIN, MARGIN, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN
             );
-            FixedWidthFontRenderer.drawBlocker( transform.last().pose(), renderer, 0, 0, width, height );
+            FixedWidthFontRenderer.drawBlocker(
+                FixedWidthFontRenderer.toVertexConsumer( matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_BLOCKER ) ),
+                0, 0, width, height
+            );
         }
         else
         {
-            FixedWidthFontRenderer.drawEmptyTerminal( matrix, renderer, 0, 0, width, height );
+            FixedWidthFontRenderer.drawEmptyTerminal(
+                FixedWidthFontRenderer.toVertexConsumer( matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH ) ),
+                0, 0, width, height
+            );
         }
 
         transform.popPose();
@@ -127,15 +133,16 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
 
     private static void renderLight( Matrix4f transform, MultiBufferSource render, int colour, int width, int height )
     {
-        float r = ((colour >>> 16) & 0xFF) / 255.0f;
-        float g = ((colour >>> 8) & 0xFF) / 255.0f;
-        float b = (colour & 0xFF) / 255.0f;
-        float z = 0.001f;
+        byte r = (byte) ((colour >>> 16) & 0xFF);
+        byte g = (byte) ((colour >>> 8) & 0xFF);
+        byte b = (byte) (colour & 0xFF);
+        var c = new byte[] { r, g, b, (byte) 255 };
 
-        VertexConsumer buffer = render.getBuffer( RenderTypes.POSITION_COLOR );
-        buffer.vertex( transform, width - LIGHT_HEIGHT * 2, height + LIGHT_HEIGHT + BORDER / 2.0f, z ).color( r, g, b, 1.0f ).endVertex();
-        buffer.vertex( transform, width, height + LIGHT_HEIGHT + BORDER / 2.0f, z ).color( r, g, b, 1.0f ).endVertex();
-        buffer.vertex( transform, width, height + BORDER / 2.0f, z ).color( r, g, b, 1.0f ).endVertex();
-        buffer.vertex( transform, width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, z ).color( r, g, b, 1.0f ).endVertex();
+        VertexConsumer buffer = render.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH );
+        FixedWidthFontRenderer.drawQuad(
+            FixedWidthFontRenderer.toVertexConsumer( transform, buffer ),
+            width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, 0.001f, LIGHT_HEIGHT * 2, LIGHT_HEIGHT,
+            c, RenderTypes.FULL_BRIGHT_LIGHTMAP
+        );
     }
 }

@@ -111,7 +111,7 @@ public final class ComputerCraftAPI
     }
 
     /**
-     * rers a peripheral provider to convert blocks into {@link IPeripheral} implementations.
+     * Registers a peripheral provider to convert blocks into {@link IPeripheral} implementations.
      *
      * @param provider The peripheral provider to register.
      * @see IPeripheral

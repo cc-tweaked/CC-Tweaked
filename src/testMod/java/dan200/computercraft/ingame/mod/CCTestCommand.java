@@ -11,7 +11,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
-import net.minecraft.gametest.framework.*;
+import net.minecraft.gametest.framework.GameTestRegistry;
+import net.minecraft.gametest.framework.StructureUtils;
+import net.minecraft.gametest.framework.TestCommand;
+import net.minecraft.gametest.framework.TestFunction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.MinecraftServer;
@@ -23,7 +26,6 @@ import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.fml.loading.FMLLoader;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
@@ -130,35 +132,6 @@ class CCTestCommand
         catch( IOException e )
         {
             throw new UncheckedIOException( e );
-        }
-    }
-
-    private static class Callback implements GameTestListener
-    {
-        private final CommandSourceStack source;
-        private final MultipleTestTracker result;
-
-        Callback( CommandSourceStack source, MultipleTestTracker result )
-        {
-            this.source = source;
-            this.result = result;
-        }
-
-        @Override
-        public void testStructureLoaded( @Nonnull GameTestInfo tracker )
-        {
-        }
-
-        @Override
-        public void testFailed( @Nonnull GameTestInfo tracker )
-        {
-            TestHooks.writeResults( source, result );
-        }
-
-        @Override
-        public void testPassed( @Nonnull GameTestInfo tracker )
-        {
-            TestHooks.writeResults( source, result );
         }
     }
 
