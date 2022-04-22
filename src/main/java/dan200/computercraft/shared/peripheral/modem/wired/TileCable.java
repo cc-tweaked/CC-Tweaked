@@ -60,8 +60,7 @@ public class TileCable extends TileGeneric
         @Override
         public Vector3d getPosition()
         {
-            BlockPos pos = getBlockPos();
-            return new Vector3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+            return Vector3d.atCenterOf( getBlockPos() );
         }
 
         @Override
@@ -106,8 +105,7 @@ public class TileCable extends TileGeneric
         @Override
         public Vector3d getPosition()
         {
-            BlockPos pos = getBlockPos().relative( modemDirection );
-            return new Vector3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+            return Vector3d.atCenterOf( getBlockPos().relative( modemDirection ) );
         }
 
         @Nonnull

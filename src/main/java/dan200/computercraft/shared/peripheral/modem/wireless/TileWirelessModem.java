@@ -14,7 +14,6 @@ import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.block.BlockState;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -48,8 +47,7 @@ public class TileWirelessModem extends TileGeneric
         @Override
         public Vector3d getPosition()
         {
-            BlockPos pos = entity.getBlockPos().relative( entity.modemDirection );
-            return new Vector3d( pos.getX(), pos.getY(), pos.getZ() );
+            return Vector3d.atLowerCornerOf( entity.getBlockPos().relative( entity.modemDirection ) );
         }
 
         @Override
