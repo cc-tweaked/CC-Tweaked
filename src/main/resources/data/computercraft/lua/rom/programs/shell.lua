@@ -3,7 +3,7 @@
 -- It allows you to @{run|start programs}, @{setCompletionFunction|add
 -- completion for a program}, and much more.
 --
--- @{shell} is not a "true" API. Instead, it is a standard program, which its
+-- @{shell} is not a "true" API. Instead, it is a standard program, which injects its
 -- API into the programs that it launches. This allows for multiple shells to
 -- run at the same time, but means that the API is not available in the global
 -- environment, and so is unavailable to other @{os.loadAPI|APIs}.
