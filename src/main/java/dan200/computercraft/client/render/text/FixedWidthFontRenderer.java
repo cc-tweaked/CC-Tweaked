@@ -7,6 +7,7 @@ package dan200.computercraft.client.render.text;
 
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import dan200.computercraft.client.FrameInfo;
+import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Colour;
@@ -30,9 +31,12 @@ import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMA
  * </li>
  * <li>{@link #drawTerminal}: Draw a terminal with a cursor. This is used by the various computer GUIs to render the
  * whole term.</li>
- * <li>{@link #drawBlocker}: When rendering a terminal using {@link dan200.computercraft.client.render.RenderTypes#TERMINAL_WITHOUT_DEPTH} you need to
+ * <li>{@link #drawBlocker}: When rendering a terminal using {@link RenderTypes#TERMINAL_WITHOUT_DEPTH} you need to
  * render an additional "depth blocker" on top of the monitor.</li>
  * </ul>
+ *
+ * <strong>IMPORTANT: </strong> When making changes to this class, please check if you need to make the same changes to
+ * {@link DirectFixedWidthFontRenderer}.
  */
 public final class FixedWidthFontRenderer
 {
@@ -40,10 +44,10 @@ public final class FixedWidthFontRenderer
 
     public static final int FONT_HEIGHT = 9;
     public static final int FONT_WIDTH = 6;
-    public static final float WIDTH = 256.0f;
+    static final float WIDTH = 256.0f;
 
-    private static final float BACKGROUND_START = (WIDTH - 6.0f) / WIDTH;
-    private static final float BACKGROUND_END = (WIDTH - 4.0f) / WIDTH;
+    static final float BACKGROUND_START = (WIDTH - 6.0f) / WIDTH;
+    static final float BACKGROUND_END = (WIDTH - 4.0f) / WIDTH;
 
     private static final byte[] BLACK = new byte[] { byteColour( Colour.BLACK.getR() ), byteColour( Colour.BLACK.getR() ), byteColour( Colour.BLACK.getR() ), (byte) 255 };
 

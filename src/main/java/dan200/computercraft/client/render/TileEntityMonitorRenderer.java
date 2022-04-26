@@ -9,7 +9,10 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import dan200.computercraft.client.FrameInfo;
+import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
+import dan200.computercraft.client.util.DirectBuffers;
+import dan200.computercraft.client.util.DirectVertexBuffer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
@@ -17,15 +20,16 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.DirectionUtil;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.TransformationMatrix;
 import net.minecraft.util.math.vector.Vector3f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -44,9 +48,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
      * the monitor frame and contents.
      */
     private static final float MARGIN = (float) (TileMonitor.RENDER_MARGIN * 1.1);
-    private static ByteBuffer tboContents;
-
-    private static final Matrix4f IDENTITY = TransformationMatrix.identity().getMatrix();
+    private static ByteBuffer backingBuffer;
 
     public TileEntityMonitorRenderer( TileEntityRendererDispatcher rendererDispatcher )
     {
@@ -170,14 +172,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
 
                 if( redraw )
                 {
-                    int size = width * height * 3;
-                    if( tboContents == null || tboContents.capacity() < size )
-                    {
-                        tboContents = GLAllocation.createByteBuffer( size );
-                    }
-
-                    ByteBuffer monitorBuffer = tboContents;
-                    monitorBuffer.clear();
+                    ByteBuffer monitorBuffer = getBuffer( width * height * 3 );
                     for( int y = 0; y < height; y++ )
                     {
                         TextBuffer text = terminal.getLine( y ), textColour = terminal.getTextColourLine( y ), background = terminal.getBackgroundColourLine( y );
@@ -217,28 +212,42 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
 
             case VBO:
             {
-                VertexBuffer vbo = monitor.buffer;
+                DirectVertexBuffer vbo = monitor.buffer;
                 if( redraw )
                 {
-                    Tessellator tessellator = Tessellator.getInstance();
-                    BufferBuilder builder = tessellator.getBuilder();
-                    builder.begin( RenderTypes.TERMINAL_WITHOUT_DEPTH.mode(), RenderTypes.TERMINAL_WITHOUT_DEPTH.format() );
-                    FixedWidthFontRenderer.drawTerminalWithoutCursor(
-                        IDENTITY, builder, 0, 0,
-                        terminal, !monitor.isColour(), yMargin, yMargin, xMargin, xMargin
-                    );
+                    int vertexSize = RenderTypes.TERMINAL_WITHOUT_DEPTH.format().getVertexSize();
+                    ByteBuffer buffer = getBuffer( DirectFixedWidthFontRenderer.getVertexCount( terminal ) * vertexSize );
 
-                    builder.end();
-                    vbo.upload( builder );
+                    // Draw the main terminal and store how many vertices it has.
+                    DirectFixedWidthFontRenderer.drawTerminalWithoutCursor(
+                        buffer, 0, 0, terminal, !monitor.isColour(), yMargin, yMargin, xMargin, xMargin
+                    );
+                    int termIndexes = buffer.position() / vertexSize;
+
+                    buffer.flip();
+
+                    vbo.upload( termIndexes, RenderTypes.TERMINAL_WITHOUT_DEPTH.format(), buffer );
                 }
 
-                vbo.bind();
-                RenderTypes.TERMINAL_WITHOUT_DEPTH.format().setupBufferState( 0L );
-                vbo.draw( matrix, RenderTypes.TERMINAL_WITHOUT_DEPTH.mode() );
-                VertexBuffer.unbind();
+                vbo.draw( matrix, vbo.getIndexCount() );
+
                 RenderTypes.TERMINAL_WITHOUT_DEPTH.format().clearBufferState();
                 break;
             }
         }
+    }
+
+    @Nonnull
+    private static ByteBuffer getBuffer( int capacity )
+    {
+
+        ByteBuffer buffer = backingBuffer;
+        if( buffer == null || buffer.capacity() < capacity )
+        {
+            buffer = backingBuffer = buffer == null ? DirectBuffers.createByteBuffer( capacity ) : DirectBuffers.resizeByteBuffer( buffer, capacity );
+        }
+
+        buffer.clear();
+        return buffer;
     }
 }
