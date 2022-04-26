@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.generic.methods;
@@ -19,10 +19,10 @@ import javax.annotation.Nonnull;
  *
  * This works with energy storage blocks, as well as generators and machines which consume energy.
  *
- * <blockquote>
- * <strong>Note:</strong> Due to limitations with Forge's energy API, it is not possible to measure throughput (i.e. RF
+ * :::note
+ * Due to limitations with Forge's energy API, it is not possible to measure throughput (i.e. RF
  * used/generated per tick).
- * </blockquote>
+ * :::
  *
  * @cc.module energy_storage
  */

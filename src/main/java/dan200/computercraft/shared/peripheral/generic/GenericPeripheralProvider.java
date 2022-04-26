@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.generic;
@@ -45,7 +45,7 @@ public class GenericPeripheralProvider
 
         for( Capability<?> capability : capabilities )
         {
-            LazyOptional<?> wrapper = tile.getCapability( capability );
+            LazyOptional<?> wrapper = CapabilityUtil.getCapability( tile, capability, side );
             wrapper.ifPresent( contents -> {
                 List<NamedMethod<PeripheralMethod>> capabilityMethods = PeripheralMethod.GENERATOR.getMethods( contents.getClass() );
                 if( capabilityMethods.isEmpty() ) return;

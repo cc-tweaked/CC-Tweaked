@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.client.sound;
@@ -114,12 +114,19 @@ class DfpwmStream implements IAudioStream
         }
 
         result.flip();
-        return result;
+
+        // This is naughty, but ensures we're not enqueuing empty buffers when the stream is exhausted.
+        return result.remaining() == 0 ? null : result;
     }
 
     @Override
     public void close() throws IOException
     {
         buffers.clear();
+    }
+
+    public boolean isEmpty()
+    {
+        return buffers.isEmpty();
     }
 }

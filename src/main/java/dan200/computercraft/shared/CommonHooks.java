@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared;
@@ -16,6 +16,7 @@ import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
+import net.minecraft.entity.EntityType;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.loot.ConstantRange;
 import net.minecraft.loot.LootPool;
@@ -24,10 +25,7 @@ import net.minecraft.loot.TableLootEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.LootTableLoadEvent;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.*;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -145,5 +143,15 @@ public final class CommonHooks
     public static void onAddReloadListeners( AddReloadListenerEvent event )
     {
         event.addListener( ResourceMount.RELOAD_LISTENER );
+    }
+
+    @SubscribeEvent
+    public static void onMissingEntityMappingsEvent( RegistryEvent.MissingMappings<EntityType<?>> event )
+    {
+        ResourceLocation id = new ResourceLocation( ComputerCraft.MOD_ID, "turtle_player" );
+        for( RegistryEvent.MissingMappings.Mapping<EntityType<?>> mapping : event.getMappings( ComputerCraft.MOD_ID ) )
+        {
+            if( mapping.key.equals( id ) ) mapping.ignore();
+        }
     }
 }

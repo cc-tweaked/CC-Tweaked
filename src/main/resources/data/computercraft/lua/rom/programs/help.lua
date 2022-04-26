@@ -171,7 +171,7 @@ end
 local current_section = nil
 local offset = 0
 
---- Find the currently visible seciton, or nil if this document has no sections.
+--- Find the currently visible section, or nil if this document has no sections.
 --
 -- This could potentially be a binary search, but right now it's not worth it.
 local function find_section()

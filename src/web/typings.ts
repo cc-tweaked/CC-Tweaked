@@ -19,9 +19,22 @@ declare module "*.settings" {
     export default contents;
 }
 
+declare module "*.LICENSE" {
+    const contents: string;
+    export default contents;
+}
+
+declare module "*.dfpwm" {
+    const contents: string;
+    export default contents;
+}
+
 
 declare module "copycat/embed" {
     import { h, Component, render, ComponentChild } from "preact";
+
+    export type Side = "up" | "down" | "left" | "right" | "front" | "back";
+    export type PeripheralKind = "speaker";
 
     export { h, Component, render };
 
@@ -35,6 +48,9 @@ declare module "copycat/embed" {
         width?: number,
         height?: number,
         resolve?: (computer: ComputerAccess) => void,
+        peripherals?: {
+            [side in Side]?: PeripheralKind | null
+        },
     }
 
     class Computer extends Component<MainProps, unknown> {

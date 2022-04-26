@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.util;
@@ -45,21 +45,17 @@ public final class IDAssigner
         return ServerLifecycleHooks.getCurrentServer().getWorldPath( FOLDER ).toFile();
     }
 
-    private static MinecraftServer getCachedServer()
+    private static boolean hasServerChanged()
     {
-        if( server == null ) return null;
+        if( server == null ) return true;
 
         MinecraftServer currentServer = server.get();
-        if( currentServer == null ) return null;
-
-        if( currentServer != ServerLifecycleHooks.getCurrentServer() ) return null;
-        return currentServer;
+        return currentServer == null || currentServer != ServerLifecycleHooks.getCurrentServer();
     }
 
     public static synchronized int getNextId( String kind )
     {
-        MinecraftServer currentServer = getCachedServer();
-        if( currentServer == null )
+        if( hasServerChanged() )
         {
             // The server has changed, refetch our ID map
             server = new WeakReference<>( ServerLifecycleHooks.getCurrentServer() );
@@ -68,23 +64,22 @@ public final class IDAssigner
             dir.mkdirs();
 
             // Load our ID file from disk
+            Map<String, Integer> newIds = null;
             idFile = new File( dir, "ids.json" ).toPath();
             if( Files.isRegularFile( idFile ) )
             {
                 try( Reader reader = Files.newBufferedReader( idFile, StandardCharsets.UTF_8 ) )
                 {
-                    ids = GSON.fromJson( reader, ID_TOKEN );
+                    newIds = GSON.fromJson( reader, ID_TOKEN );
                 }
                 catch( Exception e )
                 {
                     ComputerCraft.log.error( "Cannot load id file '" + idFile + "'", e );
-                    ids = new HashMap<>();
                 }
             }
-            else
-            {
-                ids = new HashMap<>();
-            }
+
+            if( newIds == null ) newIds = new HashMap<>();
+            ids = newIds;
         }
 
         Integer existing = ids.get( kind );

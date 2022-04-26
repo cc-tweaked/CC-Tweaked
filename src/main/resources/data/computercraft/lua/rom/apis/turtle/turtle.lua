@@ -1,6 +1,4 @@
---- The turtle API allows you to control your turtle.
---
--- @module turtle
+--- @module turtle
 
 if not turtle then
     error("Cannot load turtle API on computer", 2)
@@ -8,9 +6,8 @@ end
 
 --- The builtin turtle API, without any generated helper functions.
 --
--- Generally you should not need to use this table - it only exists for
--- backwards compatibility reasons.
--- @deprecated
+-- @deprecated Historically this table behaved differently to the main turtle API, but this is no longer the base. You
+-- should not need to use it.
 native = turtle.native or turtle
 
 local function addCraftMethod(object)

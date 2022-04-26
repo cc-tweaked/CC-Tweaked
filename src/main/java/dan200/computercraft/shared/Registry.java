@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared;
@@ -60,7 +60,6 @@ import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
-import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
@@ -70,8 +69,6 @@ import dan200.computercraft.shared.util.*;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntityType;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.*;
 import net.minecraft.item.crafting.IRecipeSerializer;
@@ -296,18 +293,6 @@ public final class Registry
         ComputerCraftAPI.registerPocketUpgrade( ComputerCraft.PocketUpgrades.speaker = new PocketSpeaker() );
     }
 
-    public static class ModEntities
-    {
-        static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create( ForgeRegistries.ENTITIES, ComputerCraft.MOD_ID );
-
-        public static final RegistryObject<EntityType<TurtlePlayer>> TURTLE_PLAYER = ENTITIES.register( "turtle_player", () ->
-            EntityType.Builder.<TurtlePlayer>createNothing( EntityClassification.MISC )
-                .noSave()
-                .noSummon()
-                .sized( 0, 0 )
-                .build( ComputerCraft.MOD_ID + ":turtle_player" ) );
-    }
-
     public static class ModContainers
     {
         static final DeferredRegister<ContainerType<?>> CONTAINERS = DeferredRegister.create( ForgeRegistries.CONTAINERS, ComputerCraft.MOD_ID );
@@ -418,7 +403,6 @@ public final class Registry
         ModBlocks.BLOCKS.register( bus );
         ModTiles.TILES.register( bus );
         ModItems.ITEMS.register( bus );
-        ModEntities.ENTITIES.register( bus );
         ModContainers.CONTAINERS.register( bus );
     }
 }

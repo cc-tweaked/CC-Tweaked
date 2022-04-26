@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.speaker;
@@ -17,6 +17,7 @@ import dan200.computercraft.shared.network.client.SpeakerAudioClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerMoveClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerPlayClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
+import dan200.computercraft.shared.util.PauseAwareTimer;
 import net.minecraft.network.play.server.SPlaySoundPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.state.properties.NoteBlockInstrument;
@@ -52,7 +53,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
     public static final int SAMPLE_RATE = 48000;
 
     private final UUID source = UUID.randomUUID();
-    private final Set<IComputerAccess> computers = Collections.newSetFromMap( new HashMap<>() );
+    private final Set<IComputerAccess> computers = new HashSet<>();
 
     private long clock = 0;
     private long lastPositionTime;
@@ -119,7 +120,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
             return;
         }
 
-        long now = System.nanoTime();
+        long now = PauseAwareTimer.getTime();
         if( sound != null )
         {
             lastPlayTime = clock;
@@ -140,9 +141,12 @@ public abstract class SpeakerPeripheral implements IPeripheral
             syncedPosition( pos );
 
             // And notify computers that we have space for more audio.
-            for( IComputerAccess computer : computers )
+            synchronized( computers )
             {
-                computer.queueEvent( "speaker_audio_empty", computer.getAttachmentName() );
+                for( IComputerAccess computer : computers )
+                {
+                    computer.queueEvent( "speaker_audio_empty", computer.getAttachmentName() );
+                }
             }
         }
 
@@ -342,7 +346,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
         // TODO: Use ArgumentHelpers instead?
         int length = audio.length();
         if( length <= 0 ) throw new LuaException( "Cannot play empty audio" );
-        if( length > 1024 * 16 * 8 ) throw new LuaException( "Audio data is too large" );
+        if( length > 128 * 1024 ) throw new LuaException( "Audio data is too large" );
 
         DfpwmState state;
         synchronized( lock )
@@ -378,13 +382,19 @@ public abstract class SpeakerPeripheral implements IPeripheral
     @Override
     public void attach( @Nonnull IComputerAccess computer )
     {
-        computers.add( computer );
+        synchronized( computers )
+        {
+            computers.add( computer );
+        }
     }
 
     @Override
     public void detach( @Nonnull IComputerAccess computer )
     {
-        computers.remove( computer );
+        synchronized( computers )
+        {
+            computers.remove( computer );
+        }
     }
 
     private static final class PendingSound

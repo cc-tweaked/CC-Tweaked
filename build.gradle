@@ -158,7 +158,7 @@ dependencies {
 
     testModImplementation sourceSets.main.output
 
-    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.4'
+    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.5'
 }
 
 // Compile tasks
@@ -273,18 +273,7 @@ task rollup(type: Exec) {
     commandLine mkCommand('"node_modules/.bin/rollup" --config rollup.config.js')
 }
 
-task minifyWeb(type: Exec, dependsOn: rollup) {
-    group = "build"
-    description = "Bundles JS into rollup"
-
-    inputs.file("$buildDir/rollup/index.js").withPropertyName("sources")
-    inputs.file("package-lock.json").withPropertyName("package-lock.json")
-    outputs.file("$buildDir/rollup/index.min.js").withPropertyName("output")
-
-    commandLine mkCommand('"node_modules/.bin/terser"' + " -o '$buildDir/rollup/index.min.js' '$buildDir/rollup/index.js'")
-}
-
-task illuaminateDocs(type: Exec, dependsOn: [minifyWeb, luaJavadoc]) {
+task illuaminateDocs(type: Exec, dependsOn: [rollup, luaJavadoc]) {
     group = "build"
     description = "Bundles JS into rollup"
 
@@ -292,7 +281,7 @@ task illuaminateDocs(type: Exec, dependsOn: [minifyWeb, luaJavadoc]) {
     inputs.files(fileTree("src/main/resources/data/computercraft/lua/rom")).withPropertyName("lua rom")
     inputs.file("illuaminate.sexp").withPropertyName("illuaminate.sexp")
     inputs.dir("$buildDir/docs/luaJavadoc")
-    inputs.file("$buildDir/rollup/index.min.js").withPropertyName("scripts")
+    inputs.file("$buildDir/rollup/index.js").withPropertyName("scripts")
     inputs.file("src/web/styles.css").withPropertyName("styles")
     outputs.dir("$buildDir/docs/lua")
 
@@ -300,9 +289,13 @@ task illuaminateDocs(type: Exec, dependsOn: [minifyWeb, luaJavadoc]) {
 }
 
 task docWebsite(type: Copy, dependsOn: [illuaminateDocs]) {
-    from 'doc'
-    include 'logo.png'
-    include 'images/**'
+    from('doc') {
+        include 'logo.png'
+        include 'images/**'
+    }
+    from("$buildDir/rollup") {
+        exclude 'index.js'
+    }
     into "${project.docsDir}/lua"
 }
 

@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.monitor;
@@ -15,7 +15,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
@@ -47,8 +46,10 @@ public final class MonitorWatcher
     @SubscribeEvent
     public static void onWatch( ChunkWatchEvent.Watch event )
     {
+        // Get the current chunk if it has been loaded. This is safe as, if the chunk hasn't been loaded yet, then the
+        // monitor will have no contents, and so we won't need to send an update anyway.
         ChunkPos chunkPos = event.getPos();
-        Chunk chunk = (Chunk) event.getWorld().getChunk( chunkPos.x, chunkPos.z, ChunkStatus.FULL, false );
+        Chunk chunk = event.getWorld().getChunkSource().getChunkNow( chunkPos.x, chunkPos.z );
         if( chunk == null ) return;
 
         for( TileEntity te : chunk.getBlockEntities().values() )

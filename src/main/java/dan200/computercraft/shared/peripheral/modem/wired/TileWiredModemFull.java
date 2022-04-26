@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.modem.wired;
@@ -87,8 +87,7 @@ public class TileWiredModemFull extends TileGeneric
         @Override
         public Vector3d getPosition()
         {
-            BlockPos pos = entity.getBlockPos();
-            return new Vector3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+            return Vector3d.atCenterOf( entity.getBlockPos() );
         }
     }
 
@@ -418,8 +417,7 @@ public class TileWiredModemFull extends TileGeneric
             @Override
             public Vector3d getPosition()
             {
-                BlockPos pos = getBlockPos().relative( side );
-                return new Vector3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+                return Vector3d.atCenterOf( getBlockPos().relative( side ) );
             }
 
             @Nonnull

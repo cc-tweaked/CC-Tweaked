@@ -1,22 +1,24 @@
---- This provides a pure Lua implementation of the builtin @{require} function
--- and @{package} library.
---
--- Generally you do not need to use this module - it is injected into the
--- every program's environment. However, it may be useful when building a
--- custom shell or when running programs yourself.
---
--- @module cc.require
--- @since 1.88.0
--- @usage Construct the package and require function, and insert them into a
--- custom environment.
---
---     local r = require "cc.require"
---     local env = setmetatable({}, { __index = _ENV })
---     env.require, env.package = r.make(env, "/")
---
---     -- Now we have our own require function, separate to the original.
---     local r2 = env.require "cc.require"
---     print(r, r2)
+--[[- This provides a pure Lua implementation of the builtin @{require} function
+and @{package} library.
+
+Generally you do not need to use this module - it is injected into the every
+program's environment. However, it may be useful when building a custom shell or
+when running programs yourself.
+
+@module cc.require
+@since 1.88.0
+@see using_require For an introduction on how to use @{require}.
+@usage Construct the package and require function, and insert them into a
+custom environment.
+
+    local r = require "cc.require"
+    local env = setmetatable({}, { __index = _ENV })
+    env.require, env.package = r.make(env, "/")
+
+    -- Now we have our own require function, separate to the original.
+    local r2 = env.require "cc.require"
+    print(r, r2)
+]]
 
 local expect = require and require("cc.expect") or dofile("rom/modules/main/cc/expect.lua")
 local expect = expect.expect

@@ -1,14 +1,14 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.util;
 
+import com.google.common.io.BaseEncoding;
 import dan200.computercraft.ComputerCraft;
 import net.minecraft.nbt.*;
 import net.minecraftforge.common.util.Constants;
-import org.apache.commons.codec.binary.Hex;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,6 +25,8 @@ import static net.minecraftforge.common.util.Constants.NBT.*;
 
 public final class NBTUtil
 {
+    private static final BaseEncoding ENCODING = BaseEncoding.base16().lowerCase();
+
     private NBTUtil() {}
 
     private static INBT toNBTTag( Object object )
@@ -181,7 +183,7 @@ public final class NBTUtil
             DataOutput output = new DataOutputStream( new DigestOutputStream( digest ) );
             CompressedStreamTools.write( tag, output );
             byte[] hash = digest.digest();
-            return new String( Hex.encodeHex( hash ) );
+            return ENCODING.encode( hash );
         }
         catch( NoSuchAlgorithmException | IOException e )
         {

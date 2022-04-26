@@ -1,3 +1,40 @@
+# New features in CC: Tweaked 1.100.4
+
+Several bug fixes:
+* Fix the monitor watching blocking the main thread when chunks are slow to load.
+
+# New features in CC: Tweaked 1.100.3
+
+Several bug fixes:
+* Fix client disconnect when uploading large files.
+* Correctly handling empty computer ID file.
+* Fix the normal turtle recipe not being unlocked.
+* Remove turtle fake EntityType.
+
+# New features in CC: Tweaked 1.100.2
+
+Several bug fixes:
+* Fix wired modems swapping the modem/peripheral block state.
+* Remove debugging logging line from `turtle.attack`.
+
+# New features in CC: Tweaked 1.100.1
+
+Several bug fixes:
+* Fix `peripheral.hasType` not working with wired modems (Toad-Dev).
+* Fix crashes when noisy pocket computer are shutdown.
+
+# New features in CC: Tweaked 1.100.0
+
+* Speakers can now play arbitrary PCM audio.
+* Add support for encoding and decoding DFPWM streams, with the `cc.audio.dfpwm` module.
+* Wired modems now only render breaking progress for the part which is being broken.
+* Various documentation improvements.
+
+Several bug fixes:
+* Fix the "repeat" program not repeating broadcast rednet messages.
+* Fix the drag-and-drop upload functionality writing empty files.
+* Prevent turtles from pushing non-pushable entities.
+
 # New features in CC: Tweaked 1.99.1
 
 * Add package.searchpath to the cc.require API. (MCJack123)

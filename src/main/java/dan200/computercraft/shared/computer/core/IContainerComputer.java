@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.computer.core;
@@ -56,7 +56,7 @@ public interface IContainerComputer
     void continueUpload( @Nonnull UUID uploadId, @Nonnull List<FileSlice> slices );
 
     /**
-     * Finish off an upload. This either writes the uploaded files or
+     * Finish off an upload. This either writes the uploaded files or informs the user that files will be overwritten.
      *
      * @param uploader The player uploading files.
      * @param uploadId The unique ID of this upload.

@@ -12,7 +12,7 @@ see: speaker.playAudio To play audio using the speaker
 This uses @{io.lines} to read audio data in blocks of 16KiB from "example_song.dfpwm", and then attempts to play it
 using @{speaker.playAudio}. If the speaker's buffer is full, it waits for an event and tries again.
 
-```lua
+```lua {data-peripheral=speaker}
 local dfpwm = require("cc.audio.dfpwm")
 local speaker = peripheral.find("speaker")
 

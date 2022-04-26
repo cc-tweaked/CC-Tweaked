@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.peripheral.speaker;
@@ -21,6 +21,8 @@ public abstract class UpgradeSpeakerPeripheral extends SpeakerPeripheral
     @Override
     public void detach( @Nonnull IComputerAccess computer )
     {
+        super.detach( computer );
+
         // We could be in the process of shutting down the server, so we can't send packets in this case.
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if( server == null || server.isStopped() ) return;

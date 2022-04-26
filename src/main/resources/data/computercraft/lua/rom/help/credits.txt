@@ -6,7 +6,7 @@ Uses LuaJ from http://luaj.sourceforge.net/
 The ComputerCraft 1.76 update was sponsored by MinecraftU and Deep Space.
 Visit http://www.minecraftu.org and http://www.deepspace.me/space-cadets to find out more.
 
-Join the ComputerCraft community online at http://www.computercraft.info
+Join the ComputerCraft community online at https://computercraft.cc
 Follow @DanTwoHundred on Twitter!
 
 To help contribute to ComputerCraft, browse the source code at https://github.com/dan200/ComputerCraft.

@@ -1,11 +1,10 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.network.server;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.IContainerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.upload.FileSlice;
@@ -122,9 +121,9 @@ public class UploadFileMessage extends ComputerServerMessage
             buf.writeByte( slice.getFileId() );
             buf.writeVarInt( slice.getOffset() );
 
-            slice.getBytes().rewind();
-            buf.writeShort( slice.getBytes().remaining() );
-            buf.writeBytes( slice.getBytes() );
+            ByteBuffer bytes = slice.getBytes().duplicate();
+            buf.writeShort( bytes.remaining() );
+            buf.writeBytes( bytes );
         }
     }
 
@@ -158,10 +157,10 @@ public class UploadFileMessage extends ComputerServerMessage
 
                 int canWrite = Math.min( remaining, capacity - currentOffset );
 
-                ComputerCraft.log.info( "Adding slice from {} to {}", currentOffset, currentOffset + canWrite - 1 );
                 contents.position( currentOffset ).limit( currentOffset + canWrite );
                 slices.add( new FileSlice( fileId, currentOffset, contents.slice() ) );
                 currentOffset += canWrite;
+                remaining -= canWrite;
             }
 
             contents.position( 0 ).limit( capacity );

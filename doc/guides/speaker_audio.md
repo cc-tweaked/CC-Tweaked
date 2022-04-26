@@ -18,7 +18,7 @@ representable value.
 
 This representation of sound - a long, uniformally sampled list of amplitudes is referred to as [Pulse-code
 Modulation][PCM] (PCM). PCM can be thought of as the "standard" audio format, as it's incredibly easy to work with. For
-instance, to mix two pieces of audio together, you can just samples from the two tracks together and take the average.
+instance, to mix two pieces of audio together, you can just add samples from the two tracks together and take the average.
 
 CC: Tweaked's speakers also work with PCM audio. It plays back 48,000 samples a second, where each sample is an integer
 between -128 and 127. This is more commonly referred to as 48kHz and an 8-bit resolution.
@@ -145,7 +145,7 @@ adds the sample from one second ago to it.
 For this, we'll need to keep track of the last 48k samples - exactly one seconds worth of audio. We can do this using a
 [Ring Buffer], which helps makes things a little more efficient.
 
-```lua
+```lua {data-peripheral=speaker}
 local dfpwm = require("cc.audio.dfpwm")
 local speaker = peripheral.find("speaker")
 
@@ -157,14 +157,14 @@ for i = 1, samples_n do samples[i] = 0 end
 
 local decoder = dfpwm.make_decoder()
 for chunk in io.lines("data/example.dfpwm", 16 * 1024) do
-    local buffer = decoder(input)
+    local buffer = decoder(chunk)
 
     for i = 1, #buffer do
         local original_value = buffer[i]
 
         -- Replace this sample with its current amplitude plus the amplitude from one second ago.
         -- We scale both to ensure the resulting value is still between -128 and 127.
-        buffer[i] = original_value * 0.7 + samples[samples_i] * 0.3
+        buffer[i] = original_value * 0.6 + samples[samples_i] * 0.4
 
         -- Now store the current sample, and move the "head" of our ring buffer forward one place.
         samples[samples_i] = original_value

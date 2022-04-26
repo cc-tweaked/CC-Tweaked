@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.computer.blocks;
@@ -97,7 +97,7 @@ public class TileCommandComputer extends TileComputer
         }
 
         return new CommandSource( receiver,
-            new Vector3d( worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5 ), Vector2f.ZERO,
+            Vector3d.atCenterOf( worldPosition ), Vector2f.ZERO,
             (ServerWorld) getLevel(), 2,
             name, new StringTextComponent( name ),
             getLevel().getServer(), null

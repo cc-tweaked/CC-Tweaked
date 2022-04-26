@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.client.sound;
@@ -32,6 +32,9 @@ public class SpeakerManager
 
         event.getSource().attachBufferStream( sound.stream );
         event.getSource().play();
+
+        sound.source = event.getSource();
+        sound.executor = event.getManager().executor;
     }
 
     public static SpeakerInstance getSound( UUID source )

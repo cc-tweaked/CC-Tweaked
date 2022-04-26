@@ -1,6 +1,6 @@
 /*
  * This file is part of ComputerCraft - http://www.computercraft.info
- * Copyright Daniel Ratcliffe, 2011-2021. Do not distribute without permission.
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
 package dan200.computercraft.shared.computer.upload;
@@ -56,7 +56,7 @@ public class FileUpload
 
     public boolean checksumMatches()
     {
-        // This is meant to be a checksum. Doesn't need to be cryptographically secure, hence non constant time.
+        // This is meant to be a checksum. Doesn't need to be cryptographically secure, hence non-constant time.
         byte[] digest = getDigest( bytes );
         return digest != null && Arrays.equals( checksum, digest );
     }
@@ -66,9 +66,8 @@ public class FileUpload
     {
         try
         {
-            bytes.rewind();
             MessageDigest digest = MessageDigest.getInstance( "SHA-256" );
-            digest.update( bytes );
+            digest.update( bytes.duplicate() );
             return digest.digest();
         }
         catch( NoSuchAlgorithmException e )
