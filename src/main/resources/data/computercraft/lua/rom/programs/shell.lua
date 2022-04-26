@@ -242,8 +242,8 @@ end
 -- @since 1.2
 -- @usage Locate the `hello` program.
 --
---      shell.resolveProgram("hello")
---      -- => rom/programs/fun/hello.lua
+--     shell.resolveProgram("hello")
+--     -- => rom/programs/fun/hello.lua
 function shell.resolveProgram(command)
     expect(1, command, "string")
     -- Substitute aliases firsts
