@@ -9,6 +9,7 @@ import com.google.common.base.Strings;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
@@ -29,7 +30,7 @@ import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.get
 
 class MonitorTextureBufferShader
 {
-    public static final int UNIFORM_SIZE = 4 * 4 * 16 + 4 + 4;
+    public static final int UNIFORM_SIZE = 4 * 4 * 16 + 4 + 4 + 2 * 4 + 4;
 
     static final int TEXTURE_INDEX = GL13.GL_TEXTURE3;
 
@@ -40,6 +41,7 @@ class MonitorTextureBufferShader
     private static int uniformFont;
     private static int uniformTbo;
     private static int uniformMonitor;
+    private static int uniformCursorBlink;
 
     private static boolean initialised;
     private static boolean ok;
@@ -53,6 +55,9 @@ class MonitorTextureBufferShader
         RenderSystem.glUniformMatrix4( uniformMv, false, MATRIX_BUFFER );
 
         GL31.glBindBufferBase( GL31.GL_UNIFORM_BUFFER, uniformMonitor, tboUniform );
+
+        int cursorAlpha = FrameInfo.getGlobalCursorBlink() ? 1 : 0;
+        RenderSystem.glUniform1i( uniformCursorBlink, cursorAlpha );
     }
 
     static boolean use()
@@ -107,6 +112,7 @@ class MonitorTextureBufferShader
             uniformTbo = getUniformLocation( program, "u_tbo" );
             uniformMonitor = GL31.glGetUniformBlockIndex( program, "u_monitor" );
             if( uniformMonitor == -1 ) throw new IllegalStateException( "Could not find uniformMonitor uniform." );
+            uniformCursorBlink = getUniformLocation( program, "u_cursorBlink" );
 
             ComputerCraft.log.info( "Loaded monitor shader." );
             return true;
@@ -187,8 +193,12 @@ class MonitorTextureBufferShader
             pos += 4 * 4; // std140 requires these are 4-wide
         }
 
-        int width = terminal.getWidth(), height = terminal.getHeight();
-        buffer.putInt( pos, width ).putInt( pos + 4, height );
+        boolean showCursor = FixedWidthFontRenderer.isCursorVisible( terminal );
+        buffer
+            .putInt( pos, terminal.getWidth() ).putInt( pos + 4, terminal.getHeight() )
+            .putInt( pos + 8, showCursor ? terminal.getCursorX() : -2 )
+            .putInt( pos + 12, showCursor ? terminal.getCursorY() : -2 )
+            .putInt( pos + 16, 15 - terminal.getTextColour() );
 
         buffer.limit( UNIFORM_SIZE );
     }

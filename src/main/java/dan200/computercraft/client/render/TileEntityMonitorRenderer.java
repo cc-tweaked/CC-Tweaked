@@ -7,7 +7,6 @@ package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
 import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
@@ -115,18 +114,11 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
             transform.scale( (float) xScale, (float) -yScale, 1.0f );
 
             Matrix4f matrix = transform.last().pose();
+            renderTerminal( renderer, matrix, originTerminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale) );
 
-            // Sneaky hack here: we get a buffer now in order to flush existing ones and set up the appropriate
-            // render state. I've no clue how well this'll work in future versions of Minecraft, but it does the trick
-            // for now.
-            IVertexBuilder buffer = renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
-            RenderTypes.TERMINAL_WITHOUT_DEPTH.setupRenderState();
-
-            renderTerminal( matrix, originTerminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale) );
-
-            // We don't draw the cursor with the VBO, as it's dynamic and so we'll end up refreshing far more than is
-            // reasonable.
-            FixedWidthFontRenderer.drawCursor( matrix, buffer, 0, 0, terminal, !originTerminal.isColour() );
+            // Force a flush of the buffer. WorldRenderer.updateCameraAndRender will "finish" all the built-in buffers
+            // before calling renderer.finish, which means the blocker isn't actually rendered at that point!
+            renderer.getBuffer( RenderType.solid() );
 
             transform.popPose();
         }
@@ -139,22 +131,14 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
             );
         }
 
-        FixedWidthFontRenderer.drawBlocker(
-            transform.last().pose(), renderer.getBuffer( RenderTypes.TERMINAL_BLOCKER ),
-            -MARGIN, MARGIN,
-            (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
-        );
-
-        // Force a flush of the blocker. WorldRenderer.updateCameraAndRender will "finish" all the built-in
-        // buffers before calling renderer.finish, which means the blocker isn't actually rendered at that point!
-        renderer.getBuffer( RenderType.solid() );
-
         transform.popPose();
     }
 
-    private static void renderTerminal( Matrix4f matrix, ClientMonitor monitor, float xMargin, float yMargin )
+    private static void renderTerminal( IRenderTypeBuffer bufferSource, Matrix4f matrix, ClientMonitor monitor, float xMargin, float yMargin )
     {
         Terminal terminal = monitor.getTerminal();
+        int width = terminal.getWidth(), height = terminal.getHeight();
+        int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
 
         MonitorRenderer renderType = MonitorRenderer.current();
         boolean redraw = monitor.pollTerminalChanged();
@@ -166,9 +150,6 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
             {
                 if( !MonitorTextureBufferShader.use() ) return;
 
-                int width = terminal.getWidth(), height = terminal.getHeight();
-                int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
-
                 if( redraw )
                 {
                     ByteBuffer terminalBuffer = getBuffer( width * height * 3 );
@@ -179,6 +160,12 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                     MonitorTextureBufferShader.setUniformData( uniformBuffer, terminal, !monitor.isColour() );
                     DirectBuffers.setBufferData( GL31.GL_UNIFORM_BUFFER, monitor.tboUniform, uniformBuffer, GL20.GL_STATIC_DRAW );
                 }
+
+                // Sneaky hack here: we get a buffer now in order to flush existing ones and set up the appropriate
+                // render state. I've no clue how well this'll work in future versions of Minecraft, but it does the trick
+                // for now.
+                bufferSource.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH );
+                RenderTypes.TERMINAL_WITH_DEPTH.setupRenderState();
 
                 // Nobody knows what they're doing!
                 GlStateManager._activeTexture( MonitorTextureBufferShader.TEXTURE_INDEX );
@@ -214,14 +201,31 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                     );
                     int termIndexes = buffer.position() / vertexSize;
 
+                    // If the cursor is visible, we append it to the end of our buffer. When rendering, we can either
+                    // render n or n+1 quads and so toggle the cursor on and off.
+                    DirectFixedWidthFontRenderer.drawCursor( buffer, 0, 0, terminal, !monitor.isColour() );
+
                     buffer.flip();
 
                     vbo.upload( termIndexes, RenderTypes.TERMINAL_WITHOUT_DEPTH.format(), buffer );
                 }
 
-                vbo.draw( matrix, vbo.getIndexCount() );
+                // As with the TBO backend we use getBuffer to flush existing buffers. This time we use TERMINAL_WITHOUT_DEPTH
+                // instead and render a separate depth blocker.
+                bufferSource.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
+                RenderTypes.TERMINAL_WITHOUT_DEPTH.setupRenderState();
 
-                RenderTypes.TERMINAL_WITHOUT_DEPTH.format().clearBufferState();
+                vbo.draw(
+                    matrix,
+                    // As mentioned in the uploading block, render the extra cursor quad if it is visible this frame.
+                    // Each quad has an index count of 6.
+                    FixedWidthFontRenderer.isCursorVisible( terminal ) && FrameInfo.getGlobalCursorBlink() ? vbo.getIndexCount() + 6 : vbo.getIndexCount()
+                );
+
+                FixedWidthFontRenderer.drawBlocker(
+                    matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_BLOCKER ),
+                    -xMargin, -yMargin, pixelWidth + xMargin, pixelHeight + yMargin
+                );
                 break;
             }
         }
