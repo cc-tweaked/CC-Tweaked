@@ -9,62 +9,55 @@ import com.google.common.base.Strings;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import dan200.computercraft.client.FrameInfo;
+import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
+import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.terminal.TextBuffer;
+import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.util.math.vector.Matrix4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL31;
 
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.getColour;
 
 class MonitorTextureBufferShader
 {
+    public static final int UNIFORM_SIZE = 4 * 4 * 16 + 4 + 4 + 2 * 4 + 4;
+
     static final int TEXTURE_INDEX = GL13.GL_TEXTURE3;
 
     private static final FloatBuffer MATRIX_BUFFER = BufferUtils.createFloatBuffer( 16 );
-    private static final FloatBuffer PALETTE_BUFFER = BufferUtils.createFloatBuffer( 16 * 3 );
 
     private static int uniformMv;
 
     private static int uniformFont;
-    private static int uniformWidth;
-    private static int uniformHeight;
     private static int uniformTbo;
-    private static int uniformPalette;
+    private static int uniformMonitor;
+    private static int uniformCursorBlink;
 
     private static boolean initialised;
     private static boolean ok;
     private static int program;
 
-    static void setupUniform( Matrix4f transform, int width, int height, Palette palette, boolean greyscale )
+    static void setupUniform( Matrix4f transform, int tboUniform )
     {
         MATRIX_BUFFER.rewind();
         transform.store( MATRIX_BUFFER );
         MATRIX_BUFFER.rewind();
         RenderSystem.glUniformMatrix4( uniformMv, false, MATRIX_BUFFER );
 
-        RenderSystem.glUniform1i( uniformWidth, width );
-        RenderSystem.glUniform1i( uniformHeight, height );
+        GL31.glBindBufferBase( GL31.GL_UNIFORM_BUFFER, uniformMonitor, tboUniform );
 
-        PALETTE_BUFFER.rewind();
-        for( int i = 0; i < 16; i++ )
-        {
-            double[] colour = palette.getColour( i );
-            if( greyscale )
-            {
-                float f = FixedWidthFontRenderer.toGreyscale( colour );
-                PALETTE_BUFFER.put( f ).put( f ).put( f );
-            }
-            else
-            {
-                PALETTE_BUFFER.put( (float) colour[0] ).put( (float) colour[1] ).put( (float) colour[2] );
-            }
-        }
-        PALETTE_BUFFER.flip();
-        RenderSystem.glUniform3( uniformPalette, PALETTE_BUFFER );
+        int cursorAlpha = FrameInfo.getGlobalCursorBlink() ? 1 : 0;
+        RenderSystem.glUniform1i( uniformCursorBlink, cursorAlpha );
     }
 
     static boolean use()
@@ -116,10 +109,10 @@ class MonitorTextureBufferShader
 
             uniformMv = getUniformLocation( program, "u_mv" );
             uniformFont = getUniformLocation( program, "u_font" );
-            uniformWidth = getUniformLocation( program, "u_width" );
-            uniformHeight = getUniformLocation( program, "u_height" );
             uniformTbo = getUniformLocation( program, "u_tbo" );
-            uniformPalette = getUniformLocation( program, "u_palette" );
+            uniformMonitor = GL31.glGetUniformBlockIndex( program, "u_monitor" );
+            if( uniformMonitor == -1 ) throw new IllegalStateException( "Could not find uniformMonitor uniform." );
+            uniformCursorBlink = getUniformLocation( program, "u_cursorBlink" );
 
             ComputerCraft.log.info( "Loaded monitor shader." );
             return true;
@@ -158,5 +151,55 @@ class MonitorTextureBufferShader
         int uniform = GlStateManager._glGetUniformLocation( program, name );
         if( uniform == -1 ) throw new IllegalStateException( "Cannot find uniform " + name );
         return uniform;
+    }
+
+    public static void setTerminalData( ByteBuffer buffer, Terminal terminal )
+    {
+        int width = terminal.getWidth(), height = terminal.getHeight();
+
+        int pos = 0;
+        for( int y = 0; y < height; y++ )
+        {
+            TextBuffer text = terminal.getLine( y ), textColour = terminal.getTextColourLine( y ), background = terminal.getBackgroundColourLine( y );
+            for( int x = 0; x < width; x++ )
+            {
+                buffer.put( pos, (byte) (text.charAt( x ) & 0xFF) );
+                buffer.put( pos + 1, (byte) getColour( textColour.charAt( x ), Colour.WHITE ) );
+                buffer.put( pos + 2, (byte) getColour( background.charAt( x ), Colour.BLACK ) );
+                pos += 3;
+            }
+        }
+
+        buffer.limit( pos );
+    }
+
+    public static void setUniformData( ByteBuffer buffer, Terminal terminal, boolean greyscale )
+    {
+        int pos = 0;
+        Palette palette = terminal.getPalette();
+        for( int i = 0; i < 16; i++ )
+        {
+            double[] colour = palette.getColour( i );
+            if( greyscale )
+            {
+                float f = FixedWidthFontRenderer.toGreyscale( colour );
+                buffer.putFloat( pos, f ).putFloat( pos + 4, f ).putFloat( pos + 8, f );
+            }
+            else
+            {
+                buffer.putFloat( pos, (float) colour[0] ).putFloat( pos + 4, (float) colour[1] ).putFloat( pos + 8, (float) colour[2] );
+            }
+
+            pos += 4 * 4; // std140 requires these are 4-wide
+        }
+
+        boolean showCursor = FixedWidthFontRenderer.isCursorVisible( terminal );
+        buffer
+            .putInt( pos, terminal.getWidth() ).putInt( pos + 4, terminal.getHeight() )
+            .putInt( pos + 8, showCursor ? terminal.getCursorX() : -2 )
+            .putInt( pos + 12, showCursor ? terminal.getCursorY() : -2 )
+            .putInt( pos + 16, 15 - terminal.getTextColour() );
+
+        buffer.limit( UNIFORM_SIZE );
     }
 }

@@ -6,31 +6,27 @@
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.lwjgl.opengl.GL11;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.*;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
 
 /**
  * Emulates map rendering for pocket computers.
@@ -58,7 +54,7 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
     }
 
     @Override
-    protected void renderItem( MatrixStack transform, IRenderTypeBuffer render, ItemStack stack )
+    protected void renderItem( MatrixStack transform, IRenderTypeBuffer bufferSource, ItemStack stack, int light )
     {
         ClientComputer computer = ItemPocketComputer.createClientComputer( stack );
         Terminal terminal = computer == null ? null : computer.getTerminal();
@@ -95,61 +91,58 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         int frameColour = item.getColour( stack );
 
         Matrix4f matrix = transform.last().pose();
-        renderFrame( matrix, family, frameColour, width, height );
+        renderFrame( matrix, bufferSource, family, frameColour, light, width, height );
 
         // Render the light
         int lightColour = ItemPocketComputer.getLightState( stack );
         if( lightColour == -1 ) lightColour = Colour.BLACK.getHex();
-        renderLight( matrix, lightColour, width, height );
+        renderLight( matrix, bufferSource, lightColour, width, height );
 
         if( computer != null && terminal != null )
         {
-            FixedWidthFontRenderer.drawTerminal( matrix, MARGIN, MARGIN, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN );
+            FixedWidthFontRenderer.drawTerminal(
+                matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ),
+                MARGIN, MARGIN, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN
+            );
+            FixedWidthFontRenderer.drawBlocker(
+                matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_BLOCKER ),
+                0, 0, width, height
+            );
         }
         else
         {
-            FixedWidthFontRenderer.drawEmptyTerminal( matrix, 0, 0, width, height );
+            FixedWidthFontRenderer.drawEmptyTerminal(
+                matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH ),
+                0, 0, width, height
+            );
         }
 
         transform.popPose();
     }
 
-    private static void renderFrame( Matrix4f transform, ComputerFamily family, int colour, int width, int height )
+    private static void renderFrame( Matrix4f transform, IRenderTypeBuffer bufferSource, ComputerFamily family, int colour, int light, int width, int height )
     {
-        RenderSystem.enableBlend();
-        Minecraft.getInstance().getTextureManager()
-            .bind( colour != -1 ? ComputerBorderRenderer.BACKGROUND_COLOUR : ComputerBorderRenderer.getTexture( family ) );
+        ResourceLocation texture = colour != -1 ? ComputerBorderRenderer.BACKGROUND_COLOUR : ComputerBorderRenderer.getTexture( family );
 
         float r = ((colour >>> 16) & 0xFF) / 255.0f;
         float g = ((colour >>> 8) & 0xFF) / 255.0f;
         float b = (colour & 0xFF) / 255.0f;
 
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuilder();
-        buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR_TEX );
-
-        ComputerBorderRenderer.render( transform, buffer, 0, 0, 0, width, height, true, r, g, b );
-
-        tessellator.end();
+        ComputerBorderRenderer.render( transform, bufferSource.getBuffer( ComputerBorderRenderer.getRenderType( texture ) ), 0, 0, 0, light, width, height, true, r, g, b );
     }
 
-    private static void renderLight( Matrix4f transform, int colour, int width, int height )
+    private static void renderLight( Matrix4f transform, IRenderTypeBuffer bufferSource, int colour, int width, int height )
     {
-        RenderSystem.disableTexture();
+        byte r = (byte) ((colour >>> 16) & 0xFF);
+        byte g = (byte) ((colour >>> 8) & 0xFF);
+        byte b = (byte) (colour & 0xFF);
+        byte[] c = new byte[] { r, g, b, (byte) 255 };
 
-        float r = ((colour >>> 16) & 0xFF) / 255.0f;
-        float g = ((colour >>> 8) & 0xFF) / 255.0f;
-        float b = (colour & 0xFF) / 255.0f;
-
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuilder();
-        buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR );
-        buffer.vertex( transform, width - LIGHT_HEIGHT * 2, height + LIGHT_HEIGHT + BORDER / 2.0f, 0 ).color( r, g, b, 1.0f ).endVertex();
-        buffer.vertex( transform, width, height + LIGHT_HEIGHT + BORDER / 2.0f, 0 ).color( r, g, b, 1.0f ).endVertex();
-        buffer.vertex( transform, width, height + BORDER / 2.0f, 0 ).color( r, g, b, 1.0f ).endVertex();
-        buffer.vertex( transform, width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, 0 ).color( r, g, b, 1.0f ).endVertex();
-
-        tessellator.end();
-        RenderSystem.enableTexture();
+        IVertexBuilder buffer = bufferSource.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH );
+        FixedWidthFontRenderer.drawQuad(
+            transform, buffer,
+            width - LIGHT_HEIGHT * 2, height + BORDER / 2.0f, 0.001f, LIGHT_HEIGHT * 2, LIGHT_HEIGHT,
+            c, RenderTypes.FULL_BRIGHT_LIGHTMAP
+        );
     }
 }

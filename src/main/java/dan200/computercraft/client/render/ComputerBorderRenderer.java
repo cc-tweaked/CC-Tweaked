@@ -5,16 +5,14 @@
  */
 package dan200.computercraft.client.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Matrix4f;
-import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
 
@@ -59,17 +57,18 @@ public class ComputerBorderRenderer
     private final IVertexBuilder builder;
     private final int z;
     private final float r, g, b;
+    private final int light;
 
-    public ComputerBorderRenderer( Matrix4f transform, IVertexBuilder builder, int z, float r, float g, float b )
+    public ComputerBorderRenderer( Matrix4f transform, IVertexBuilder builder, int z, int light, float r, float g, float b )
     {
         this.transform = transform;
         this.builder = builder;
         this.z = z;
+        this.light = light;
         this.r = r;
         this.g = g;
         this.b = b;
     }
-
 
     @Nonnull
     public static ResourceLocation getTexture( @Nonnull ComputerFamily family )
@@ -86,31 +85,22 @@ public class ComputerBorderRenderer
         }
     }
 
-    public static void render( int x, int y, int z, int width, int height )
+    public static RenderType getRenderType( ResourceLocation location )
     {
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuilder();
-        buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR_TEX );
-
-        render( IDENTITY, buffer, x, y, z, width, height );
-
-        RenderSystem.enableAlphaTest();
-        tessellator.end();
+        // See note in RenderTypes about why we use text rather than anything intuitive.
+        return RenderType.text( location );
     }
 
-    public static void render( Matrix4f transform, IVertexBuilder buffer, int x, int y, int z, int width, int height )
+    public static void render( ResourceLocation location, int x, int y, int z, int light, int width, int height )
     {
-        render( transform, buffer, x, y, z, width, height, 1, 1, 1 );
+        IRenderTypeBuffer.Impl source = IRenderTypeBuffer.immediate( Tessellator.getInstance().getBuilder() );
+        render( IDENTITY, source.getBuffer( getRenderType( location ) ), x, y, z, light, width, height, false, 1, 1, 1 );
+        source.endBatch();
     }
 
-    public static void render( Matrix4f transform, IVertexBuilder buffer, int x, int y, int z, int width, int height, float r, float g, float b )
+    public static void render( Matrix4f transform, IVertexBuilder buffer, int x, int y, int z, int light, int width, int height, boolean withLight, float r, float g, float b )
     {
-        render( transform, buffer, x, y, z, width, height, false, r, g, b );
-    }
-
-    public static void render( Matrix4f transform, IVertexBuilder buffer, int x, int y, int z, int width, int height, boolean withLight, float r, float g, float b )
-    {
-        new ComputerBorderRenderer( transform, buffer, z, r, g, b ).doRender( x, y, width, height, withLight );
+        new ComputerBorderRenderer( transform, buffer, z, light, r, g, b ).doRender( x, y, width, height, withLight );
     }
 
     public void doRender( int x, int y, int width, int height, boolean withLight )
@@ -160,9 +150,9 @@ public class ComputerBorderRenderer
 
     private void renderTexture( int x, int y, int u, int v, int width, int height, int textureWidth, int textureHeight )
     {
-        builder.vertex( transform, x, y + height, z ).color( r, g, b, 1.0f ).uv( u * TEX_SCALE, (v + textureHeight) * TEX_SCALE ).endVertex();
-        builder.vertex( transform, x + width, y + height, z ).color( r, g, b, 1.0f ).uv( (u + textureWidth) * TEX_SCALE, (v + textureHeight) * TEX_SCALE ).endVertex();
-        builder.vertex( transform, x + width, y, z ).color( r, g, b, 1.0f ).uv( (u + textureWidth) * TEX_SCALE, v * TEX_SCALE ).endVertex();
-        builder.vertex( transform, x, y, z ).color( r, g, b, 1.0f ).uv( u * TEX_SCALE, v * TEX_SCALE ).endVertex();
+        builder.vertex( transform, x, y + height, z ).color( r, g, b, 1.0f ).uv( u * TEX_SCALE, (v + textureHeight) * TEX_SCALE ).uv2( light ).endVertex();
+        builder.vertex( transform, x + width, y + height, z ).color( r, g, b, 1.0f ).uv( (u + textureWidth) * TEX_SCALE, (v + textureHeight) * TEX_SCALE ).uv2( light ).endVertex();
+        builder.vertex( transform, x + width, y, z ).color( r, g, b, 1.0f ).uv( (u + textureWidth) * TEX_SCALE, v * TEX_SCALE ).uv2( light ).endVertex();
+        builder.vertex( transform, x, y, z ).color( r, g, b, 1.0f ).uv( u * TEX_SCALE, v * TEX_SCALE ).uv2( light ).endVertex();
     }
 }
