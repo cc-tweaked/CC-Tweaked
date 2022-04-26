@@ -87,8 +87,7 @@ public class TileWiredModemFull extends TileGeneric
         @Override
         public Vec3 getPosition()
         {
-            BlockPos pos = entity.getBlockPos();
-            return new Vec3( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+            return Vec3.atCenterOf( entity.getBlockPos() );
         }
     }
 
@@ -417,8 +416,7 @@ public class TileWiredModemFull extends TileGeneric
             @Override
             public Vec3 getPosition()
             {
-                BlockPos pos = getBlockPos().relative( side );
-                return new Vec3( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+                return Vec3.atCenterOf( getBlockPos().relative( side ) );
             }
 
             @Nonnull

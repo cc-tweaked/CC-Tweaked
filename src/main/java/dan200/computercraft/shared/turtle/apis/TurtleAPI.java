@@ -66,6 +66,7 @@ import java.util.Optional;
  * accessible by accessing the `"left"` or `"right"` peripheral.
  *
  * [Turtle Graphics]: https://en.wikipedia.org/wiki/Turtle_graphics "Turtle graphics"
+ *
  * @cc.module turtle
  * @cc.since 1.3
  */

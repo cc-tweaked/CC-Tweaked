@@ -7,12 +7,12 @@ package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.renderer.MultiBufferSource;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.shared.media.items.ItemPrintout.LINES_PER_PAGE;
 
 public final class PrintoutRenderer
@@ -61,9 +61,8 @@ public final class PrintoutRenderer
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; line++ )
         {
             FixedWidthFontRenderer.drawString( emitter,
-                x, y + line * FONT_HEIGHT, text[start + line], colours[start + line], null, Palette.DEFAULT,
-                false, 0, 0,
-                light
+                x, y + line * FONT_HEIGHT, text[start + line], colours[start + line],
+                Palette.DEFAULT, false, light
             );
         }
     }
@@ -77,8 +76,7 @@ public final class PrintoutRenderer
             FixedWidthFontRenderer.drawString( emitter,
                 x, y + line * FONT_HEIGHT,
                 new TextBuffer( text[start + line] ), new TextBuffer( colours[start + line] ),
-                null, Palette.DEFAULT, false, 0, 0,
-                light
+                Palette.DEFAULT, false, light
             );
         }
     }

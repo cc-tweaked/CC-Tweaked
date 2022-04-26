@@ -13,7 +13,6 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
 import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -47,8 +46,7 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
         @Override
         public Vec3 getPosition()
         {
-            BlockPos pos = turtle.getPosition();
-            return new Vec3( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+            return Vec3.atCenterOf( turtle.getPosition() );
         }
 
         @Override

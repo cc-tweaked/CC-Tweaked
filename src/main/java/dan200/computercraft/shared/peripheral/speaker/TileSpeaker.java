@@ -89,8 +89,7 @@ public class TileSpeaker extends TileGeneric
         @Override
         public Vec3 getPosition()
         {
-            BlockPos pos = speaker.getBlockPos();
-            return new Vec3( pos.getX(), pos.getY(), pos.getZ() );
+            return Vec3.atCenterOf( speaker.getBlockPos() );
         }
 
         @Override

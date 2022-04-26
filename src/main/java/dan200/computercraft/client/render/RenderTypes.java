@@ -8,7 +8,7 @@ package dan200.computercraft.client.render;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
@@ -108,7 +108,6 @@ public class RenderTypes
             RenderType.CompositeState.builder()
                 .setTextureState( TERM_FONT_TEXTURE )
                 .setShaderState( new ShaderStateShard( RenderTypes::getMonitorTextureBufferShader ) )
-                .setWriteMaskState( COLOR_WRITE )
                 .createCompositeState( false )
         );
 

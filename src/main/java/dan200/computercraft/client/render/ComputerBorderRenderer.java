@@ -70,7 +70,6 @@ public class ComputerBorderRenderer
         this.b = b;
     }
 
-
     @Nonnull
     public static ResourceLocation getTexture( @Nonnull ComputerFamily family )
     {

@@ -45,7 +45,7 @@ public class GenericPeripheralProvider
 
         for( Capability<?> capability : capabilities )
         {
-            LazyOptional<?> wrapper = tile.getCapability( capability );
+            LazyOptional<?> wrapper = CapabilityUtil.getCapability( tile, capability, side );
             wrapper.ifPresent( contents -> {
                 List<NamedMethod<PeripheralMethod>> capabilityMethods = PeripheralMethod.GENERATOR.getMethods( contents.getClass() );
                 if( capabilityMethods.isEmpty() ) return;

@@ -99,7 +99,7 @@ public class TileCommandComputer extends TileComputer
         }
 
         return new CommandSourceStack( receiver,
-            new Vec3( worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5 ), Vec2.ZERO,
+            Vec3.atCenterOf( worldPosition ), Vec2.ZERO,
             (ServerLevel) getLevel(), 2,
             name, new TextComponent( name ),
             getLevel().getServer(), null

@@ -5,9 +5,13 @@
  */
 package dan200.computercraft.shared.util;
 
+import net.minecraft.core.Direction;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullConsumer;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class CapabilityUtil
@@ -56,5 +60,22 @@ public final class CapabilityUtil
     public static <T> T unwrapUnsafe( LazyOptional<T> p )
     {
         return !p.isPresent() ? null : p.orElseThrow( NullPointerException::new );
+    }
+
+    /**
+     * Find a capability, preferring the internal/null side but falling back to a given side if a mod doesn't support
+     * the internal one.
+     *
+     * @param provider   The capability provider to get the capability from.
+     * @param capability The capability to get.
+     * @param side       The side we'll fall back to.
+     * @param <T>        The type of the underlying capability.
+     * @return The extracted capability, if present.
+     */
+    @Nonnull
+    public static <T> LazyOptional<T> getCapability( ICapabilityProvider provider, Capability<T> capability, Direction side )
+    {
+        LazyOptional<T> cap = provider.getCapability( capability );
+        return cap.isPresent() ? cap : provider.getCapability( capability, side );
     }
 }

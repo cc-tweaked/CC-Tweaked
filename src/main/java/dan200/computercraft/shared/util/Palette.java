@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.util;
 
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 
@@ -142,7 +142,7 @@ public class Palette
 
         for( int i = 0; i < colours.length; i++ )
         {
-            var colours = decodeRGB8( rgb8[i] );
+            double[] colours = decodeRGB8( rgb8[i] );
             setColour( i, colours[0], colours[1], colours[2] );
         }
     }

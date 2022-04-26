@@ -23,8 +23,6 @@ table.pretty-table th {
 
 pre.highlight.highlight-lua {
     position: relative;
-    background: var(--background-2);
-    padding: 2px;
 }
 
 .example-run {

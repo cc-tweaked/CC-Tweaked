@@ -48,8 +48,7 @@ public class TileWirelessModem extends TileGeneric
         @Override
         public Vec3 getPosition()
         {
-            BlockPos pos = entity.getBlockPos().relative( entity.getDirection() );
-            return new Vec3( pos.getX(), pos.getY(), pos.getZ() );
+            return Vec3.atLowerCornerOf( entity.getBlockPos().relative( entity.getDirection() ) );
         }
 
         @Override
