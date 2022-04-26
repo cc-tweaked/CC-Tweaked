@@ -163,7 +163,6 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 MonitorTextureBufferShader shader = RenderTypes.getMonitorTextureBufferShader();
                 shader.setupUniform( monitor.tboUniform );
 
-                // TODO: Switch to using a VBO here? Something to avoid having to do the
                 VertexConsumer buffer = bufferSource.getBuffer( RenderTypes.MONITOR_TBO );
                 tboVertex( buffer, matrix, -xMargin, -yMargin );
                 tboVertex( buffer, matrix, -xMargin, pixelHeight + yMargin );

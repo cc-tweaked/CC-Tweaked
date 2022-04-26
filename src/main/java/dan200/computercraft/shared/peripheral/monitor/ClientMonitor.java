@@ -6,7 +6,6 @@
 package dan200.computercraft.shared.peripheral.monitor;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.client.util.DirectBuffers;
 import dan200.computercraft.client.util.DirectVertexBuffer;
 import dan200.computercraft.shared.common.ClientTerminal;
@@ -105,7 +104,7 @@ public final class ClientMonitor extends ClientTerminal
 
         if( tboBuffer != 0 )
         {
-            RenderSystem.glDeleteBuffers( tboBuffer );
+            DirectBuffers.deleteBuffer( GL31.GL_TEXTURE_BUFFER, tboBuffer );
             tboBuffer = 0;
         }
 
@@ -117,7 +116,7 @@ public final class ClientMonitor extends ClientTerminal
 
         if( tboUniform != 0 )
         {
-            RenderSystem.glDeleteBuffers( tboUniform );
+            DirectBuffers.deleteBuffer( GL31.GL_UNIFORM_BUFFER, tboUniform );
             tboUniform = 0;
         }
 

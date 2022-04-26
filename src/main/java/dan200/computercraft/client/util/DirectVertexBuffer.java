@@ -6,6 +6,7 @@
 package dan200.computercraft.client.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
@@ -29,6 +30,7 @@ public class DirectVertexBuffer extends VertexBuffer
         if( DirectBuffers.HAS_DSA )
         {
             RenderSystem.glDeleteBuffers( vertextBufferId );
+            if( DirectBuffers.ON_LINUX ) BufferUploader.reset(); // See comment on DirectBuffers.deleteBuffer.
             vertextBufferId = GL45C.glCreateBuffers();
         }
     }
@@ -56,5 +58,12 @@ public class DirectVertexBuffer extends VertexBuffer
     public int getIndexCount()
     {
         return actualIndexCount;
+    }
+
+    @Override
+    public void close()
+    {
+        super.close();
+        if( DirectBuffers.ON_LINUX ) BufferUploader.reset(); // See comment on DirectBuffers.deleteBuffer.
     }
 }
