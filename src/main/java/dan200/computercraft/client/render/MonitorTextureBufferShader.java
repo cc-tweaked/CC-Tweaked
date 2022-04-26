@@ -9,7 +9,7 @@ import com.google.common.base.Strings;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.util.math.vector.Matrix4f;

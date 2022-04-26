@@ -8,7 +8,7 @@ package dan200.computercraft.client.render;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -28,8 +28,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.opengl.GL11;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.*;
 
 /**

@@ -3,7 +3,7 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.client.gui;
+package dan200.computercraft.client.render.text;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
@@ -175,18 +175,6 @@ public final class FixedWidthFontRenderer
 
     }
 
-    public static void drawString(
-        float x, float y, @Nonnull TextBuffer text, @Nonnull TextBuffer textColour, @Nullable TextBuffer backgroundColour,
-        @Nonnull Palette palette, boolean greyscale, float leftMarginSize, float rightMarginSize
-    )
-    {
-        bindFont();
-
-        IRenderTypeBuffer.Impl renderer = Minecraft.getInstance().renderBuffers().bufferSource();
-        drawString( IDENTITY, ((IRenderTypeBuffer) renderer).getBuffer( TYPE ), x, y, text, textColour, backgroundColour, palette, greyscale, leftMarginSize, rightMarginSize );
-        renderer.endBatch();
-    }
-
     public static void drawTerminalWithoutCursor(
         @Nonnull Matrix4f transform, @Nonnull IVertexBuilder buffer, float x, float y,
         @Nonnull Terminal terminal, boolean greyscale,
@@ -271,14 +259,6 @@ public final class FixedWidthFontRenderer
         IVertexBuilder buffer = renderer.getBuffer( TYPE );
         drawTerminal( transform, buffer, x, y, terminal, greyscale, topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize );
         renderer.endBatch( TYPE );
-    }
-
-    public static void drawTerminal(
-        float x, float y, @Nonnull Terminal terminal, boolean greyscale,
-        float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
-    )
-    {
-        drawTerminal( IDENTITY, x, y, terminal, greyscale, topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize );
     }
 
     public static void drawEmptyTerminal( @Nonnull Matrix4f transform, @Nonnull IRenderTypeBuffer renderer, float x, float y, float width, float height )

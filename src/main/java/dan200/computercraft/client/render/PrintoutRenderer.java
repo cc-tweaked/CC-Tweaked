@@ -6,7 +6,7 @@
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -17,7 +17,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.shared.media.items.ItemPrintout.LINES_PER_PAGE;
 
 public final class PrintoutRenderer

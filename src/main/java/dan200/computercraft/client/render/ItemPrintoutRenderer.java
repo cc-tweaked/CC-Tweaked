@@ -18,8 +18,8 @@ import net.minecraftforge.client.event.RenderItemInFrameEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
 import static dan200.computercraft.shared.media.items.ItemPrintout.LINES_PER_PAGE;
 import static dan200.computercraft.shared.media.items.ItemPrintout.LINE_MAX_LENGTH;

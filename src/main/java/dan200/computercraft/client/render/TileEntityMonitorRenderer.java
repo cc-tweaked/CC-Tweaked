@@ -9,7 +9,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import dan200.computercraft.client.FrameInfo;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
@@ -35,7 +35,7 @@ import org.lwjgl.opengl.GL31;
 import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.*;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.*;
 
 public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
 {

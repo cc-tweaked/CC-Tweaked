@@ -6,7 +6,7 @@
 package dan200.computercraft.client.gui.widgets;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import net.minecraft.client.Minecraft;
@@ -19,8 +19,8 @@ import org.lwjgl.glfw.GLFW;
 import javax.annotation.Nonnull;
 import java.util.BitSet;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
 
 public class WidgetTerminal extends Widget
