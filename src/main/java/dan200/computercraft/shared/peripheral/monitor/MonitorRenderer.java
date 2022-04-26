@@ -7,6 +7,7 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
+import net.minecraftforge.fml.ModList;
 import org.lwjgl.opengl.GL;
 
 import javax.annotation.Nonnull;
@@ -47,39 +48,24 @@ public enum MonitorRenderer
     public static MonitorRenderer current()
     {
         MonitorRenderer current = ComputerCraft.monitorRenderer;
-        switch( current )
-        {
-            case BEST:
-                return best();
-            case TBO:
-                checkCapabilities();
-                if( !textureBuffer )
-                {
-                    ComputerCraft.log.warn( "Texture buffers are not supported on your graphics card. Falling back to default." );
-                    ComputerCraft.monitorRenderer = BEST;
-                    return best();
-                }
-
-                return TBO;
-            default:
-                return current;
-        }
+        if( current == BEST ) current = ComputerCraft.monitorRenderer = best();
+        return current;
     }
 
     private static MonitorRenderer best()
     {
-        checkCapabilities();
-        return textureBuffer ? TBO : VBO;
-    }
+        if( !GL.getCapabilities().OpenGL31 )
+        {
+            ComputerCraft.log.warn( "Texture buffers are not supported on your graphics card. Falling back to VBO monitor renderer." );
+            return VBO;
+        }
 
-    private static boolean initialised = false;
-    private static boolean textureBuffer = false;
+        if( ModList.get().isLoaded( "optifine" ) )
+        {
+            ComputerCraft.log.warn( "Optifine is loaded, assuming shaders are being used. Falling back to VBO monitor renderer." );
+            return VBO;
+        }
 
-    private static void checkCapabilities()
-    {
-        if( initialised ) return;
-
-        textureBuffer = GL.getCapabilities().OpenGL31;
-        initialised = true;
+        return TBO;
     }
 }
