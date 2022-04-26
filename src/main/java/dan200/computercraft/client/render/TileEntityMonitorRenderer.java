@@ -14,11 +14,9 @@ import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.client.util.DirectBuffers;
 import dan200.computercraft.client.util.DirectVertexBuffer;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
-import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -39,7 +37,8 @@ import org.lwjgl.opengl.GL31;
 import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 
-import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.*;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
 
 public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
 {
@@ -172,22 +171,13 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
 
                 if( redraw )
                 {
-                    ByteBuffer monitorBuffer = getBuffer( width * height * 3 );
-                    for( int y = 0; y < height; y++ )
-                    {
-                        TextBuffer text = terminal.getLine( y ), textColour = terminal.getTextColourLine( y ), background = terminal.getBackgroundColourLine( y );
-                        for( int x = 0; x < width; x++ )
-                        {
-                            monitorBuffer.put( (byte) (text.charAt( x ) & 0xFF) );
-                            monitorBuffer.put( (byte) getColour( textColour.charAt( x ), Colour.WHITE ) );
-                            monitorBuffer.put( (byte) getColour( background.charAt( x ), Colour.BLACK ) );
-                        }
-                    }
-                    monitorBuffer.flip();
+                    ByteBuffer terminalBuffer = getBuffer( width * height * 3 );
+                    MonitorTextureBufferShader.setTerminalData( terminalBuffer, terminal );
+                    DirectBuffers.setBufferData( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer, terminalBuffer, GL20.GL_STATIC_DRAW );
 
-                    GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer );
-                    GlStateManager._glBufferData( GL31.GL_TEXTURE_BUFFER, monitorBuffer, GL20.GL_STATIC_DRAW );
-                    GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
+                    ByteBuffer uniformBuffer = getBuffer( MonitorTextureBufferShader.UNIFORM_SIZE );
+                    MonitorTextureBufferShader.setUniformData( uniformBuffer, terminal, !monitor.isColour() );
+                    DirectBuffers.setBufferData( GL31.GL_UNIFORM_BUFFER, monitor.tboUniform, uniformBuffer, GL20.GL_STATIC_DRAW );
                 }
 
                 // Nobody knows what they're doing!
@@ -195,7 +185,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, monitor.tboTexture );
                 GlStateManager._activeTexture( GL13.GL_TEXTURE0 );
 
-                MonitorTextureBufferShader.setupUniform( matrix, width, height, terminal.getPalette(), !monitor.isColour() );
+                MonitorTextureBufferShader.setupUniform( matrix, monitor.tboUniform );
 
                 Tessellator tessellator = Tessellator.getInstance();
                 BufferBuilder buffer = tessellator.getBuilder();
