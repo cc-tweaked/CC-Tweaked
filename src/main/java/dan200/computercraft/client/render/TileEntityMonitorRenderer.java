@@ -118,8 +118,8 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
             // Sneaky hack here: we get a buffer now in order to flush existing ones and set up the appropriate
             // render state. I've no clue how well this'll work in future versions of Minecraft, but it does the trick
             // for now.
-            IVertexBuilder buffer = renderer.getBuffer( FixedWidthFontRenderer.TYPE );
-            FixedWidthFontRenderer.TYPE.setupRenderState();
+            IVertexBuilder buffer = renderer.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
+            RenderTypes.TERMINAL_WITHOUT_DEPTH.setupRenderState();
 
             renderTerminal( matrix, originTerminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale) );
 
@@ -132,14 +132,14 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
         else
         {
             FixedWidthFontRenderer.drawEmptyTerminal(
-                transform.last().pose(), renderer,
+                transform.last().pose(), renderer.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH ),
                 -MARGIN, MARGIN,
                 (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
             );
         }
 
         FixedWidthFontRenderer.drawBlocker(
-            transform.last().pose(), renderer,
+            transform.last().pose(), renderer.getBuffer( RenderTypes.TERMINAL_BLOCKER ),
             -MARGIN, MARGIN,
             (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
         );
@@ -222,7 +222,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                 {
                     Tessellator tessellator = Tessellator.getInstance();
                     BufferBuilder builder = tessellator.getBuilder();
-                    builder.begin( FixedWidthFontRenderer.TYPE.mode(), FixedWidthFontRenderer.TYPE.format() );
+                    builder.begin( RenderTypes.TERMINAL_WITHOUT_DEPTH.mode(), RenderTypes.TERMINAL_WITHOUT_DEPTH.format() );
                     FixedWidthFontRenderer.drawTerminalWithoutCursor(
                         IDENTITY, builder, 0, 0,
                         terminal, !monitor.isColour(), yMargin, yMargin, xMargin, xMargin
@@ -233,10 +233,10 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                 }
 
                 vbo.bind();
-                FixedWidthFontRenderer.TYPE.format().setupBufferState( 0L );
-                vbo.draw( matrix, FixedWidthFontRenderer.TYPE.mode() );
+                RenderTypes.TERMINAL_WITHOUT_DEPTH.format().setupBufferState( 0L );
+                vbo.draw( matrix, RenderTypes.TERMINAL_WITHOUT_DEPTH.mode() );
                 VertexBuffer.unbind();
-                FixedWidthFontRenderer.TYPE.format().clearBufferState();
+                RenderTypes.TERMINAL_WITHOUT_DEPTH.format().clearBufferState();
                 break;
             }
         }
