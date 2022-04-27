@@ -7,13 +7,16 @@ package dan200.computercraft.client.sound;
 
 import com.mojang.blaze3d.audio.Channel;
 import net.minecraft.client.resources.sounds.AbstractSoundInstance;
+import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.resources.sounds.TickableSoundInstance;
 import net.minecraft.client.sounds.AudioStream;
+import net.minecraft.client.sounds.SoundBufferLibrary;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 public class SpeakerSound extends AbstractSoundInstance implements TickableSoundInstance
@@ -50,9 +53,10 @@ public class SpeakerSound extends AbstractSoundInstance implements TickableSound
     {
     }
 
-    @Nullable
-    public AudioStream getStream()
+    @Nonnull
+    @Override
+    public CompletableFuture<AudioStream> getStream( @Nonnull SoundBufferLibrary soundBuffers, @Nonnull Sound sound, boolean looping )
     {
-        return stream;
+        return stream != null ? CompletableFuture.completedFuture( stream ) : super.getStream( soundBuffers, sound, looping );
     }
 }

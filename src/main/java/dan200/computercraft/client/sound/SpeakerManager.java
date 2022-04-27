@@ -26,12 +26,9 @@ public class SpeakerManager
     @SubscribeEvent
     public static void playStreaming( PlayStreamingSourceEvent event )
     {
-        if( !(event.getSound() instanceof SpeakerSound sound) ) return;
-        if( sound.stream == null ) return;
+        if( !(event.getSound() instanceof SpeakerSound sound) || sound.stream == null ) return;
 
-        event.getChannel().attachBufferStream( sound.stream );
-        event.getChannel().play();
-
+        // Associate the sound with the current channel, so SpeakerInstance.pushAudio can queue audio immediately.
         sound.channel = event.getChannel();
         sound.executor = event.getEngine().executor;
     }
