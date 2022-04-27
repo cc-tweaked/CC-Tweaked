@@ -17,7 +17,7 @@ CC: Tweaked is based off of the Cobalt Lua runtime, which uses Lua 5.1. However,
 | `__len` metamethod | :heavy_check_mark: |  |
 | `__ipairs` metamethod | :x: |  |
 | `__pairs` metamethod | :heavy_check_mark: |  |
-| `bit32` library | :heavy_check_mark: | Replaces `bit` library, which is still available for compatibility. |
+| `bit32` library | :heavy_check_mark: |  |
 | `collectgarbage` isrunning, generational, incremental options | :x: | `collectgarbage` does not exist in CC:T. |
 | new `load` syntax | :heavy_check_mark: |  |
 | `loadfile` mode parameter | :heavy_check_mark: | Supports both 5.1 and 5.2+ syntax. |
@@ -57,8 +57,8 @@ CC: Tweaked is based off of the Cobalt Lua runtime, which uses Lua 5.1. However,
 | yield across C boundary | :heavy_check_mark: |  |
 | removal of ambiguity error | :x: |  |
 | identifiers may no longer use locale-dependent letters | :heavy_check_mark: |  |
-| ephemeron tables | :x: | Weak tables are not supported. |
-| functions may be reused | :x: |  |
+| ephemeron tables | :x: |  |
+| identical functions may be reused | :x: |  |
 | generational garbage collector | :x: | Cobalt uses the built-in Java garbage collector. |
 
 ## Lua 5.3
@@ -81,12 +81,12 @@ CC: Tweaked is based off of the Cobalt Lua runtime, which uses Lua 5.1. However,
 | `math.ult` | :x: |  |
 | removed `bit32` library | :x: |  |
 | remove `*` from `file:read` modes | :heavy_check_mark: |  |
-| metamethods respected in `table.*`, `ipairs` | :heavy_check_mark: |  |
+| metamethods respected in `table.*`, `ipairs` | :large_orange_diamond: | Only `__lt` is respected. |
 
 ## Lua 5.0
 | Feature | Supported? | Notes |
 |---------|------------|-------|
-| `arg` table | :heavy_check_mark: | Only set in the shell - not used in functions. |
+| `arg` table | :large_orange_diamond: | Only set in the shell - not used in functions. |
 | `string.gfind` | :heavy_check_mark: | Equal to `string.gmatch`. |
 | `table.getn` | :heavy_check_mark: | Equal to `#tbl`. |
 | `table.setn` | :x: |  |
