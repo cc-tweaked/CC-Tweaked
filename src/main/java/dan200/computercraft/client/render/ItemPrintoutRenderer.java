@@ -86,7 +86,7 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
         double height = LINES_PER_PAGE * FONT_HEIGHT + Y_TEXT_MARGIN * 2;
 
         // Non-books will be left aligned
-        if( !book ) width += offsetAt( pages );
+        if( !book ) width += offsetAt( pages - 1 );
 
         double visualWidth = width, visualHeight = height;
 
