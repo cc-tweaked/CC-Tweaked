@@ -12,7 +12,6 @@ import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -79,17 +78,11 @@ public class TileSpeaker extends TileGeneric
             this.speaker = speaker;
         }
 
-        @Override
-        public Level getLevel()
-        {
-            return speaker.getLevel();
-        }
-
         @Nonnull
         @Override
-        public Vec3 getPosition()
+        public SpeakerPosition getPosition()
         {
-            return Vec3.atCenterOf( speaker.getBlockPos() );
+            return SpeakerPosition.of( speaker.getLevel(), Vec3.atCenterOf( speaker.getBlockPos() ) );
         }
 
         @Override

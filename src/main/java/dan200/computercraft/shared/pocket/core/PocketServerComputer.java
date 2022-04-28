@@ -21,6 +21,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -59,6 +60,10 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         else if( entity instanceof LivingEntity living )
         {
             return living.getMainHandItem() == stack || living.getOffhandItem() == stack ? entity : null;
+        }
+        else if( entity instanceof ItemEntity itemEntity )
+        {
+            return itemEntity.getItem() == stack ? entity : null;
         }
         else
         {

@@ -6,6 +6,7 @@
 package dan200.computercraft.client.sound;
 
 import com.mojang.blaze3d.audio.Channel;
+import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.client.resources.sounds.AbstractSoundInstance;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.resources.sounds.TickableSoundInstance;
@@ -13,7 +14,7 @@ import net.minecraft.client.sounds.AudioStream;
 import net.minecraft.client.sounds.SoundBufferLibrary;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.Entity;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
@@ -25,7 +26,11 @@ public class SpeakerSound extends AbstractSoundInstance implements TickableSound
     Executor executor;
     DfpwmStream stream;
 
-    SpeakerSound( ResourceLocation sound, DfpwmStream stream, Vec3 position, float volume, float pitch )
+    private Entity entity;
+
+    private boolean stopped = false;
+
+    SpeakerSound( ResourceLocation sound, DfpwmStream stream, SpeakerPosition position, float volume, float pitch )
     {
         super( sound, SoundSource.RECORDS );
         setPosition( position );
@@ -35,22 +40,35 @@ public class SpeakerSound extends AbstractSoundInstance implements TickableSound
         attenuation = Attenuation.LINEAR;
     }
 
-    void setPosition( Vec3 position )
+    void setPosition( SpeakerPosition position )
     {
-        x = (float) position.x();
-        y = (float) position.y();
-        z = (float) position.z();
+        x = position.position().x;
+        y = position.position().y;
+        z = position.position().z;
+        entity = position.entity();
     }
 
     @Override
     public boolean isStopped()
     {
-        return false;
+        return stopped;
     }
 
     @Override
     public void tick()
     {
+        if( entity == null ) return;
+        if( !entity.isAlive() )
+        {
+            stopped = true;
+            looping = false;
+        }
+        else
+        {
+            x = entity.getX();
+            y = entity.getY();
+            z = entity.getZ();
+        }
     }
 
     @Nonnull

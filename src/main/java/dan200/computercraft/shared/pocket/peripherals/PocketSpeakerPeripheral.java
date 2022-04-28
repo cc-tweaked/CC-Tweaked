@@ -6,7 +6,10 @@
 package dan200.computercraft.shared.pocket.peripherals;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.api.pocket.IPocketAccess;
+import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -14,31 +17,41 @@ import javax.annotation.Nonnull;
 
 public class PocketSpeakerPeripheral extends UpgradeSpeakerPeripheral
 {
-    private Level world = null;
+    private final IPocketAccess access;
+    private Level level;
     private Vec3 position = Vec3.ZERO;
 
-    void setLocation( Level world, Vec3 position )
+    public PocketSpeakerPeripheral( IPocketAccess access )
     {
-        this.position = position;
-        this.world = world;
-    }
-
-    @Override
-    public Level getLevel()
-    {
-        return world;
+        this.access = access;
     }
 
     @Nonnull
     @Override
-    public Vec3 getPosition()
+    public SpeakerPosition getPosition()
     {
-        return world != null ? position : null;
+        Entity entity = access.getEntity();
+        return entity == null ? SpeakerPosition.of( level, position ) : SpeakerPosition.of( entity );
     }
 
     @Override
     public boolean equals( IPeripheral other )
     {
         return other instanceof PocketSpeakerPeripheral;
+    }
+
+    @Override
+    public void update()
+    {
+        Entity entity = access.getEntity();
+        if( entity != null )
+        {
+            level = entity.level;
+            position = entity.position();
+        }
+
+        super.update();
+
+        access.setLight( madeSound() ? 0x3320fc : -1 );
     }
 }

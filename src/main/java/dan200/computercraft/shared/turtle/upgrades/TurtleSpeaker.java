@@ -11,11 +11,11 @@ import dan200.computercraft.api.turtle.AbstractTurtleUpgrade;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeType;
+import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -36,17 +36,11 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade
             this.turtle = turtle;
         }
 
-        @Override
-        public Level getLevel()
-        {
-            return turtle.getLevel();
-        }
-
         @Nonnull
         @Override
-        public Vec3 getPosition()
+        public SpeakerPosition getPosition()
         {
-            return Vec3.atCenterOf( turtle.getPosition() );
+            return SpeakerPosition.of( turtle.getLevel(), Vec3.atCenterOf( turtle.getPosition() ) );
         }
 
         @Override
