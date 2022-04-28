@@ -14,7 +14,6 @@ import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -79,17 +78,11 @@ public class TileSpeaker extends TileGeneric implements ITickableTileEntity
             this.speaker = speaker;
         }
 
-        @Override
-        public World getWorld()
-        {
-            return speaker.getLevel();
-        }
-
         @Nonnull
         @Override
-        public Vector3d getPosition()
+        public SpeakerPosition getPosition()
         {
-            return Vector3d.atCenterOf( speaker.getBlockPos() );
+            return SpeakerPosition.of( speaker.getLevel(), Vector3d.atCenterOf( speaker.getBlockPos() ) );
         }
 
         @Override

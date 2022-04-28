@@ -5,13 +5,14 @@
  */
 package dan200.computercraft.client.sound;
 
+import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.client.audio.IAudioStream;
 import net.minecraft.client.audio.ITickableSound;
 import net.minecraft.client.audio.LocatableSound;
 import net.minecraft.client.audio.SoundSource;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.vector.Vector3d;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.Executor;
@@ -22,7 +23,11 @@ public class SpeakerSound extends LocatableSound implements ITickableSound
     Executor executor;
     DfpwmStream stream;
 
-    SpeakerSound( ResourceLocation sound, DfpwmStream stream, Vector3d position, float volume, float pitch )
+    private Entity entity;
+
+    private boolean stopped = false;
+
+    SpeakerSound( ResourceLocation sound, DfpwmStream stream, SpeakerPosition position, float volume, float pitch )
     {
         super( sound, SoundCategory.RECORDS );
         setPosition( position );
@@ -32,22 +37,35 @@ public class SpeakerSound extends LocatableSound implements ITickableSound
         attenuation = AttenuationType.LINEAR;
     }
 
-    void setPosition( Vector3d position )
+    void setPosition( SpeakerPosition position )
     {
-        x = (float) position.x();
-        y = (float) position.y();
-        z = (float) position.z();
+        x = position.position().x;
+        y = position.position().y;
+        z = position.position().z;
+        entity = position.entity();
     }
 
     @Override
     public boolean isStopped()
     {
-        return false;
+        return stopped;
     }
 
     @Override
     public void tick()
     {
+        if( entity == null ) return;
+        if( !entity.isAlive() )
+        {
+            stopped = true;
+            looping = false;
+        }
+        else
+        {
+            x = entity.getX();
+            y = entity.getY();
+            z = entity.getZ();
+        }
     }
 
     @Nullable

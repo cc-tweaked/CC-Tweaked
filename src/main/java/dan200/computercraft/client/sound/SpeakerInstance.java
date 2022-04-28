@@ -6,11 +6,11 @@
 package dan200.computercraft.client.sound;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
 
 /**
  * An instance of a speaker, which is either playing a {@link DfpwmStream} stream or a normal sound.
@@ -44,7 +44,7 @@ public class SpeakerInstance
         }
     }
 
-    public void playAudio( Vector3d position, float volume )
+    public void playAudio( SpeakerPosition position, float volume )
     {
         SoundHandler soundManager = Minecraft.getInstance().getSoundManager();
 
@@ -63,7 +63,7 @@ public class SpeakerInstance
         }
     }
 
-    public void playSound( Vector3d position, ResourceLocation location, float volume, float pitch )
+    public void playSound( SpeakerPosition position, ResourceLocation location, float volume, float pitch )
     {
         SoundHandler soundManager = Minecraft.getInstance().getSoundManager();
         currentStream = null;
@@ -78,7 +78,7 @@ public class SpeakerInstance
         soundManager.play( sound );
     }
 
-    void setPosition( Vector3d position )
+    void setPosition( SpeakerPosition position )
     {
         if( sound != null ) sound.setPosition( position );
     }
