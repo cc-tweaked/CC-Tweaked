@@ -70,7 +70,7 @@ dependencies {
 
     runtime "mezz.jei:jei_1.12.2:4.15.0.269"
 
-    shade 'org.squiddev:Cobalt:0.5.1-SNAPSHOT'
+    shade 'org.squiddev:Cobalt:0.5.5'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
