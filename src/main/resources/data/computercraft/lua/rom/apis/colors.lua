@@ -16,7 +16,7 @@ terminal supports color by using the function @{term.isColor}.
 Grayscale colors are calculated by taking the average of the three components,
 i.e. `(red + green + blue) / 3`.
 
-<table class="pretty-table">
+<table style="display: block">
 <thead>
     <tr><th colspan="8" align="center">Default Colors</th></tr>
     <tr>

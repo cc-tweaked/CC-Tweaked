@@ -7,17 +7,17 @@
 }
 
 /* Pretty tables, mostly inherited from table.definition-list */
-table.pretty-table {
+table {
     border-collapse: collapse;
     width: 100%;
 }
 
-table.pretty-table td, table.pretty-table th {
+table td, table th {
     border: 1px solid #cccccc;
     padding: 2px 4px;
 }
 
-table.pretty-table th {
+table th {
     background-color: var(--background-2);
 }
 
