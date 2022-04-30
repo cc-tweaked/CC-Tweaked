@@ -19,10 +19,12 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.RegistryObject;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -52,10 +54,18 @@ public class BlockMonitor extends BlockGeneric
         builder.add( ORIENTATION, FACING, STATE );
     }
 
+    @NotNull
     @Override
     public BlockState mirror( BlockState state, Mirror mirrorIn )
     {
         return state.rotate( mirrorIn.getRotation( state.getValue( FACING ) ) );
+    }
+
+    @NotNull
+    @Override
+    public BlockState rotate( BlockState pState, Rotation pRot )
+    {
+        return pState.setValue( FACING, pRot.rotate( pState.getValue( FACING ) ) );
     }
 
     @Override

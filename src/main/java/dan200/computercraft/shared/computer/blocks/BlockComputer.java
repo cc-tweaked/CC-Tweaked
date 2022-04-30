@@ -10,6 +10,8 @@ import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.items.ComputerItemFactory;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.FurnaceBlock;
+import net.minecraft.block.StairsBlock;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.DirectionProperty;
@@ -19,6 +21,7 @@ import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraftforge.fml.RegistryObject;
 
 import javax.annotation.Nonnull;
@@ -57,6 +60,10 @@ public class BlockComputer extends BlockComputerBase<TileComputer>
         return state.rotate( mirrorIn.getRotation( state.getValue( FACING ) ) );
     }
 
+    public BlockState rotate( BlockState pState, Rotation pRot )
+    {
+        return pState.setValue( FACING, pRot.rotate( pState.getValue( FACING ) ) );
+    }
     @Nonnull
     @Override
     protected ItemStack getItem( TileComputerBase tile )
