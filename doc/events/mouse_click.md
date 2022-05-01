@@ -15,13 +15,11 @@ advanced turtles and pocket computers).
 Several mouse events (@{mouse_click}, @{mouse_up}, @{mouse_scroll}) contain a "mouse button" code. This takes a
 numerical value depending on which button on your mouse was last pressed when this event occurred.
 
-<table class="pretty-table">
-    <!-- Our markdown parser doesn't work on tables!? Guess I'll have to roll my own soonish :/. -->
-    <tr><th>Button code</th><th>Mouse button</th></tr>
-    <tr><td align="right">1</td><td>Left button</td></tr>
-    <tr><td align="right">2</td><td>Right button</td></tr>
-    <tr><td align="right">3</td><td>Middle button</td></tr>
-</table>
+| Button Code | Mouse Button  |
+|------------:|---------------|
+|           1 | Left button   |
+|           2 | Right button  |
+|           3 | Middle button |
 
 ## Example
 Print the button and the coordinates whenever the mouse is clicked.
