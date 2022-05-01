@@ -52,16 +52,20 @@ public class BlockComputer extends BlockComputerBase<TileComputer>
         return defaultBlockState().setValue( FACING, placement.getHorizontalDirection().getOpposite() );
     }
 
+    @Nonnull
     @Override
     public BlockState mirror( BlockState state, Mirror mirrorIn )
     {
         return state.rotate( mirrorIn.getRotation( state.getValue( FACING ) ) );
     }
 
-    public BlockState rotate( BlockState pState, Rotation pRot )
+    @Nonnull
+    @Override
+    public BlockState rotate( BlockState state, Rotation rot )
     {
-        return pState.setValue( FACING, pRot.rotate( pState.getValue( FACING ) ) );
+        return state.setValue( FACING, rot.rotate( state.getValue( FACING ) ) );
     }
+
     @Nonnull
     @Override
     protected ItemStack getItem( TileComputerBase tile )
