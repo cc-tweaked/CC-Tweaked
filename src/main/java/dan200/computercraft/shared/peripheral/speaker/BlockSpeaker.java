@@ -14,7 +14,10 @@ import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlockSpeaker extends BlockGeneric
@@ -32,6 +35,20 @@ public class BlockSpeaker extends BlockGeneric
     protected void createBlockStateDefinition( StateContainer.Builder<Block, BlockState> properties )
     {
         properties.add( FACING );
+    }
+
+    @Nonnull
+    @Override
+    public BlockState mirror( BlockState state, Mirror mirrorIn )
+    {
+        return state.rotate( mirrorIn.getRotation( state.getValue( FACING ) ) );
+    }
+
+    @Nonnull
+    @Override
+    public BlockState rotate( BlockState state, Rotation rot )
+    {
+        return state.setValue( FACING, rot.rotate( state.getValue( FACING ) ) );
     }
 
     @Nullable

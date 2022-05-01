@@ -18,6 +18,8 @@ import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraftforge.fml.RegistryObject;
 
 import javax.annotation.Nonnull;
@@ -48,6 +50,20 @@ public class BlockComputer extends BlockComputerBase<TileComputer>
     public BlockState getStateForPlacement( BlockItemUseContext placement )
     {
         return defaultBlockState().setValue( FACING, placement.getHorizontalDirection().getOpposite() );
+    }
+
+    @Nonnull
+    @Override
+    public BlockState mirror( BlockState state, Mirror mirrorIn )
+    {
+        return state.rotate( mirrorIn.getRotation( state.getValue( FACING ) ) );
+    }
+
+    @Nonnull
+    @Override
+    public BlockState rotate( BlockState state, Rotation rot )
+    {
+        return state.setValue( FACING, rot.rotate( state.getValue( FACING ) ) );
     }
 
     @Nonnull
