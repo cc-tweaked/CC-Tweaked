@@ -51,6 +51,7 @@ public class BlockDiskDrive extends BlockGeneric
 
     @Nonnull
     @Override
+    @Deprecated
     public BlockState mirror( BlockState state, Mirror mirrorIn )
     {
         return state.rotate( mirrorIn.getRotation( state.getValue( FACING ) ) );
@@ -58,6 +59,7 @@ public class BlockDiskDrive extends BlockGeneric
 
     @Nonnull
     @Override
+    @Deprecated
     public BlockState rotate( BlockState state, Rotation rot )
     {
         return state.setValue( FACING, rot.rotate( state.getValue( FACING ) ) );
