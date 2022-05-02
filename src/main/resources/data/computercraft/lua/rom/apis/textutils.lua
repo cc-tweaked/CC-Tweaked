@@ -1,5 +1,4 @@
---- The @{textutils} API provides helpful utilities for formatting and
--- manipulating strings.
+--- Helpful utilities for formatting and manipulating strings.
 --
 -- @module textutils
 -- @since 1.2

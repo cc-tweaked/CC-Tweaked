@@ -1,12 +1,13 @@
---[[- The Colors API allows you to manipulate sets of colors.
+--[[- Constants and functions for colour values, suitable for working with
+@{term} and @{redstone}.
 
-This is useful in conjunction with Bundled Cables from the RedPower mod, RedNet
-Cables from the MineFactory Reloaded mod, and colors on Advanced Computers and
-Advanced Monitors.
+This is useful in conjunction with @{redstone.setBundledOutput|Bundled Cables}
+from mods like Project Red, and @{term.setTextColour|colors on Advanced
+Computers and Advanced Monitors}.
 
-For the non-American English version just replace @{colors} with @{colours} and
-it will use the other API, colours which is exactly the same, except in British
-English (e.g. @{colors.gray} is spelt @{colours.grey}).
+For the non-American English version just replace @{colors} with @{colours}.
+This alternative API is exactly the same, except the colours use British English
+(e.g. @{colors.gray} is spelt @{colours.grey}).
 
 On basic terminals (such as the Computer and Monitor), all the colors are
 converted to grayscale. This means you can still use all 16 colors on the

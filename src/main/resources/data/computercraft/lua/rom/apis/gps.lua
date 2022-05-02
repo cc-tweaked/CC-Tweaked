@@ -1,5 +1,5 @@
---[[- The GPS API provides a method for turtles and computers to retrieve their
-own locations.
+--[[- Use @{modem|modems} to locate the position of the current turtle or
+computers.
 
 It broadcasts a PING message over @{rednet} and wait for responses. In order for
 this system to work, there must be at least 4 computers used as gps hosts which

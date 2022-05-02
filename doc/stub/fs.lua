@@ -1,6 +1,4 @@
----  The FS API allows you to manipulate files and the filesystem.
---
--- @module fs
+--- @module fs
 
 --- Returns true if a path is mounted to the parent filesystem.
 --

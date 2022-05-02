@@ -16,7 +16,8 @@ import dan200.computercraft.shared.util.Colour;
 import javax.annotation.Nonnull;
 
 /**
- * The Terminal API provides functions for writing text to the terminal and monitors, and drawing ASCII graphics.
+ * Interact with a computer's terminal or monitors, writing text and drawing
+ * ASCII graphics.
  *
  * @cc.module term
  */

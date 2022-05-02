@@ -1,7 +1,4 @@
---- The Terminal API provides functions for writing text to the terminal and
--- monitors, and drawing ASCII graphics.
---
--- @module term
+--- @module term
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 

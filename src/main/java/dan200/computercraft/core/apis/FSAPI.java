@@ -30,8 +30,8 @@ import java.util.OptionalLong;
 import java.util.function.Function;
 
 /**
- * The FS API provides access to the computer's files and filesystem, allowing you to manipulate files, directories and
- * paths. This includes:
+ * Interact with the computer's files and filesystem, allowing you to manipulate files, directories and paths. This
+ * includes:
  *
  * <ul>
  * <li>**Reading and writing files:** Call {@link #open} to obtain a file "handle", which can be used to read from or

@@ -1,5 +1,4 @@
---- The settings API allows to store values and save them to a file for
--- persistent configurations for CraftOS and your programs.
+--- Read and write configuration options for CraftOS and your programs.
 --
 -- By default, the settings API will load its configuration from the
 -- `/.settings` file. One can then use @{settings.save} to update the file.
