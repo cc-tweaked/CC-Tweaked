@@ -424,11 +424,6 @@ public class CobaltLuaMachine implements ILuaMachine
         return objects;
     }
 
-    static IArguments toArguments( Varargs values )
-    {
-        return values == Constants.NONE ? VarargArguments.EMPTY : new VarargArguments( values );
-    }
-
     /**
      * A {@link DebugHandler} which observes the {@link TimeoutState} and responds accordingly.
      */

@@ -51,7 +51,7 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
     @Override
     protected Varargs invoke( LuaState state, DebugFrame debugFrame, Varargs args ) throws LuaError, UnwindThrowable
     {
-        IArguments arguments = CobaltLuaMachine.toArguments( args );
+        IArguments arguments = VarargArguments.of( args );
         MethodResult results;
         try
         {

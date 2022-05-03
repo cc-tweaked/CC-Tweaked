@@ -41,7 +41,7 @@ class BasicFunction extends VarArgFunction
     @Override
     public Varargs invoke( LuaState luaState, Varargs args ) throws LuaError
     {
-        IArguments arguments = CobaltLuaMachine.toArguments( args );
+        IArguments arguments = VarargArguments.of( args );
         MethodResult results;
         try
         {
