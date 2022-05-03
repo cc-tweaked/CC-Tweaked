@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.core.terminal;
 
+import dan200.computercraft.api.lua.LuaValues;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.utils.CallCounter;
 import io.netty.buffer.Unpooled;
@@ -293,7 +294,7 @@ class TerminalTest
         CallCounter callCounter = new CallCounter();
         Terminal terminal = new Terminal( 4, 3, callCounter );
 
-        terminal.blit( "test", "1234", "abcd" );
+        blit( terminal, "test", "1234", "abcd" );
 
         assertThat( terminal, allOf(
             textMatches( new String[] {
@@ -322,7 +323,7 @@ class TerminalTest
 
         terminal.setCursorPos( 2, 1 );
         callCounter.reset();
-        terminal.blit( "hi", "11", "ee" );
+        blit( terminal, "hi", "11", "ee" );
 
         assertThat( terminal, allOf(
             textMatches( new String[] {
@@ -354,13 +355,13 @@ class TerminalTest
 
         terminal.setCursorPos( 2, -5 );
         callCounter.reset();
-        terminal.blit( "hi", "11", "ee" );
+        blit( terminal, "hi", "11", "ee" );
         assertThat( terminal, old.matches() );
         callCounter.assertNotCalled();
 
         terminal.setCursorPos( 2, 5 );
         callCounter.reset();
-        terminal.blit( "hi", "11", "ee" );
+        blit( terminal, "hi", "11", "ee" );
         assertThat( terminal, old.matches() );
         callCounter.assertNotCalled();
     }
@@ -584,7 +585,7 @@ class TerminalTest
     {
         Terminal writeTerminal = new Terminal( 2, 1 );
 
-        writeTerminal.blit( "hi", "11", "ee" );
+        blit( writeTerminal, "hi", "11", "ee" );
         writeTerminal.setCursorPos( 2, 5 );
         writeTerminal.setTextColour( 3 );
         writeTerminal.setBackgroundColour( 5 );
@@ -614,7 +615,7 @@ class TerminalTest
     void testNbtRoundtrip()
     {
         Terminal writeTerminal = new Terminal( 10, 5 );
-        writeTerminal.blit( "hi", "11", "ee" );
+        blit( writeTerminal, "hi", "11", "ee" );
         writeTerminal.setCursorPos( 2, 5 );
         writeTerminal.setTextColour( 3 );
         writeTerminal.setBackgroundColour( 5 );
@@ -685,6 +686,11 @@ class TerminalTest
         assertEquals( 0, Terminal.getColour( '!', Colour.WHITE ) );
         assertEquals( 0, Terminal.getColour( 'Z', Colour.WHITE ) );
         assertEquals( 5, Terminal.getColour( 'Z', Colour.LIME ) );
+    }
+
+    private static void blit( Terminal terminal, String text, String fg, String bg )
+    {
+        terminal.blit( LuaValues.encode( text ), LuaValues.encode( fg ), LuaValues.encode( bg ) );
     }
 
     private static final class TerminalBufferSnapshot

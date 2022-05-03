@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 
 import javax.annotation.Nonnull;
+import java.nio.ByteBuffer;
 
 public class Terminal
 {
@@ -191,7 +192,7 @@ public class Terminal
         return palette;
     }
 
-    public synchronized void blit( String text, String textColour, String backgroundColour )
+    public synchronized void blit( ByteBuffer text, ByteBuffer textColour, ByteBuffer backgroundColour )
     {
         int x = cursorX;
         int y = cursorY;
