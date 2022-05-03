@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static dan200.computercraft.ContramapMatcher.contramap;
+import static dan200.computercraft.support.ContramapMatcher.contramap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
