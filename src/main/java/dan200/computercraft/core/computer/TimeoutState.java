@@ -86,7 +86,7 @@ public final class TimeoutState
     /**
      * Recompute the {@link #isSoftAborted()} and {@link #isPaused()} flags.
      */
-    public void refresh()
+    public synchronized void refresh()
     {
         // Important: The weird arithmetic here is important, as nanoTime may return negative values, and so we
         // need to handle overflow.
@@ -153,7 +153,7 @@ public final class TimeoutState
      *
      * @see #nanoCumulative()
      */
-    void pauseTimer()
+    synchronized void pauseTimer()
     {
         // We set the cumulative time to difference between current time and "nominal start time".
         cumulativeElapsed = System.nanoTime() - cumulativeStart;
@@ -163,7 +163,7 @@ public final class TimeoutState
     /**
      * Resets the cumulative time and resets the abort flags.
      */
-    void stopTimer()
+    synchronized void stopTimer()
     {
         cumulativeElapsed = 0;
         paused = softAbort = hardAbort = false;
