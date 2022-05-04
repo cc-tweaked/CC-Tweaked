@@ -3,42 +3,34 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft;
+package dan200.computercraft.support;
 
-import org.hamcrest.Description;
+import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeDiagnosingMatcher;
 
 import java.util.function.Function;
 
-public class ContramapMatcher<T, U> extends TypeSafeDiagnosingMatcher<T>
+/**
+ * Given some function from {@code T} to {@code U}, converts a {@code Matcher<U>} to {@code Matcher<T>}. This is useful
+ * when you want to match on a particular field (or some other projection) as part of a larger matcher.
+ *
+ * @param <T> The type of the object to be matched.
+ * @param <U> The type of the projection/field to be matched.
+ */
+public final class ContramapMatcher<T, U> extends FeatureMatcher<T, U>
 {
-    private final String desc;
     private final Function<T, U> convert;
-    private final Matcher<U> matcher;
 
     public ContramapMatcher( String desc, Function<T, U> convert, Matcher<U> matcher )
     {
-        this.desc = desc;
+        super( matcher, desc, desc );
         this.convert = convert;
-        this.matcher = matcher;
     }
 
     @Override
-    protected boolean matchesSafely( T item, Description mismatchDescription )
+    protected U featureValueOf( T actual )
     {
-        U converted = convert.apply( item );
-        if( matcher.matches( converted ) ) return true;
-
-        mismatchDescription.appendText( desc ).appendText( " " );
-        matcher.describeMismatch( converted, mismatchDescription );
-        return false;
-    }
-
-    @Override
-    public void describeTo( Description description )
-    {
-        description.appendText( desc ).appendText( " " ).appendDescriptionOf( matcher );
+        return convert.apply( actual );
     }
 
     public static <T, U> Matcher<T> contramap( Matcher<U> matcher, String desc, Function<T, U> convert )

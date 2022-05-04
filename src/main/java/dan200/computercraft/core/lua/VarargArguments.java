@@ -15,17 +15,22 @@ import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 
-class VarargArguments implements IArguments
+final class VarargArguments implements IArguments
 {
-    static final IArguments EMPTY = new VarargArguments( Constants.NONE );
+    private static final IArguments EMPTY = new VarargArguments( Constants.NONE );
 
     boolean released;
     private final Varargs varargs;
     private Object[] cache;
 
-    VarargArguments( Varargs varargs )
+    private VarargArguments( Varargs varargs )
     {
         this.varargs = varargs;
+    }
+
+    static IArguments of( Varargs values )
+    {
+        return values == Constants.NONE ? EMPTY : new VarargArguments( values );
     }
 
     @Override

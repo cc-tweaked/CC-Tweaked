@@ -7,7 +7,7 @@ package dan200.computercraft.core.terminal;
 
 import dan200.computercraft.api.lua.LuaValues;
 import dan200.computercraft.shared.util.Colour;
-import dan200.computercraft.utils.CallCounter;
+import dan200.computercraft.support.CallCounter;
 import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
