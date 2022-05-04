@@ -33,10 +33,7 @@ public class ComputerThreadTest
         FakeComputerManager.enqueue( computer, timeout -> {
             assertFalse( timeout.isSoftAborted(), "Should not start soft-aborted" );
 
-            long delay = ConcurrentHelpers.waitUntil( () -> {
-                timeout.refresh();
-                return timeout.isSoftAborted();
-            } );
+            long delay = ConcurrentHelpers.waitUntil( timeout::isSoftAborted );
             assertThat( "Should be soft aborted", delay * 1e-9, closeTo( 7, 0.5 ) );
             ComputerCraft.log.info( "Slept for {}", delay );
 
@@ -69,10 +66,7 @@ public class ComputerThreadTest
     {
         Computer computer = FakeComputerManager.create();
         FakeComputerManager.enqueue( computer, timeout -> {
-            boolean didPause = ConcurrentHelpers.waitUntil( () -> {
-                timeout.refresh();
-                return timeout.isPaused();
-            }, 5, TimeUnit.SECONDS );
+            boolean didPause = ConcurrentHelpers.waitUntil( timeout::isPaused, 5, TimeUnit.SECONDS );
             assertFalse( didPause, "Machine shouldn't have paused within 5s" );
 
             computer.shutdown();
@@ -90,11 +84,8 @@ public class ComputerThreadTest
             long budget = ComputerThread.scaledPeriod();
             assertEquals( budget, TimeUnit.MILLISECONDS.toNanos( 25 ), "Budget should be 25ms" );
 
-            long delay = ConcurrentHelpers.waitUntil( () -> {
-                timeout.refresh();
-                return timeout.isPaused();
-            } );
-            assertThat( "Paused within 25ms", delay * 1e-9, closeTo( 0.025, 0.01 ) );
+            long delay = ConcurrentHelpers.waitUntil( timeout::isPaused );
+            assertThat( "Paused within 25ms", delay * 1e-9, closeTo( 0.03, 0.015 ) );
 
             computer.shutdown();
             return MachineResult.OK;
