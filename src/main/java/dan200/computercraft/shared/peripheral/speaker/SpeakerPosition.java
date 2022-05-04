@@ -11,6 +11,8 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -102,6 +104,7 @@ public final class SpeakerPosition
         }
 
         @Nonnull
+        @OnlyIn( Dist.CLIENT )
         public SpeakerPosition reify()
         {
             Minecraft minecraft = Minecraft.getInstance();
