@@ -34,7 +34,7 @@ Next, you are going to want to set up one of the computers to receive a message.
 `rednet.receive()` has three return values but we are only interested in the first two, the id of the sender and the message. You will probably want to print out both of these values. It may also be helpful to put this in a while true loop. Your receiver code might end up looking something like this.
 
 ```lua
-While true do
+while true do
   local senderID, message = rednet.receive()
   print("sender ID: "..senderID)
   print("Message: "..message)
