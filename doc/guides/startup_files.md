@@ -2,7 +2,7 @@
 module: [kind=guide] startup_files
 ---
 
-# Running code when a computer boots
+# Running code when a computer turns on
 
 :::note Use case
 You might be aware that CC computers restart when the chunk they are in reloads, one of the uses of startup files provides a way to have the CC computer run arbitrary code after it has finished turning on. Currently, this is the closest that CC has to persistence built-in.
