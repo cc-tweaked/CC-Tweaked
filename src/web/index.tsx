@@ -102,7 +102,7 @@ class Window extends Component<WindowProps, WindowState> {
             </div>
             <div class="computer-container">
                 <Computer key={exampleIdx} files={{
-                    ...example!.files, ...defaultFiles
+                    ...defaultFiles, ...example!.files,
                 }} peripherals={{ back: example!.peripheral }} />
             </div>
         </div> : <div class="example-window example-window-hidden" />;

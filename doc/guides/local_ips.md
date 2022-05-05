@@ -2,10 +2,14 @@
 module: [kind=guide] local_ips
 ---
 
-# Allowing access to local IPS
+# Allowing access to local IPs
 By default, ComputerCraft blocks access to local IP addresses for security. This means you can't normally access any
 HTTP server running on your computer. However, this may be useful for testing programs without having a remote
 server. You can unblock these IPs in the ComputerCraft config.
+
+ - [Minecraft 1.13 and later, CC:T 1.87.0 and later](#cc-1.87.0)
+ - [Minecraft 1.13 and later, CC:T 1.86.2 and earlier](#cc-1.86.2)
+ - [Minecraft 1.12.2 and earlier](#mc-1.12)
 
 ## Minecraft 1.13 and later, CC:T 1.87.0 and later {#cc-1.87.0}
 The configuration file can be located at `serverconfig/computercraft-server.toml` inside the world folder on either

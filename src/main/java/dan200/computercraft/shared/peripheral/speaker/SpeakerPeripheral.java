@@ -302,7 +302,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
      * computer is lagging.
      * :::
      *
-     * {@literal @}{speaker_audio} provides a more complete guide in to using speakers
+     * {@literal @}{speaker_audio} provides a more complete guide to using speakers
      *
      * @param context The Lua context.
      * @param audio   The audio data to play.

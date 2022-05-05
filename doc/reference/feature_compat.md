@@ -1,5 +1,5 @@
 ---
-module: [kind=guide] feature_compat
+module: [kind=reference] feature_compat
 ---
 
 # Lua 5.2/5.3 features in CC: Tweaked
