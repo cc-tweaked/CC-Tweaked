@@ -675,6 +675,8 @@ do
     -- @treturn[2] nil If the object could not be deserialised.
     -- @treturn string A message describing why the JSON string is invalid.
     -- @since 1.87.0
+    -- @see textutils.json_null Use to serialize a JSON `null` value.
+    -- @see textutils.empty_json_array Use to serialize a JSON empty array.
     unserialise_json = function(s, options)
         expect(1, s, "string")
         expect(2, options, "table", "nil")
@@ -788,6 +790,8 @@ unserialise = unserialize -- GB version
 -- times.
 -- @usage textutils.serializeJSON({ values = { 1, "2", true } })
 -- @since 1.7
+-- @see textutils.json_null Use to serialize a JSON `null` value.
+-- @see textutils.empty_json_array Use to serialize a JSON empty array.
 function serializeJSON(t, bNBTStyle)
     expect(1, t, "table", "string", "number", "boolean")
     expect(2, bNBTStyle, "boolean", "nil")
