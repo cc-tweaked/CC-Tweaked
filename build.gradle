@@ -52,14 +52,6 @@ repositories {
         name "Charset"
         artifactPattern "https://asie.pl/files/mods/Charset/LibOnly/[module]-[revision](-[classifier]).[ext]"
     }
-    maven {
-        name "Amadornes"
-        url "https://maven.amadornes.com/"
-    }
-    maven {
-        name "CraftTweaker"
-        url "https://maven.blamejared.com/"
-    }
 }
 
 configurations {
@@ -143,6 +135,9 @@ task proguard(type: ProGuardTask, dependsOn: jar) {
 
     // We want to avoid as much obfuscation as possible. We're only doing this to shrink code size.
     dontobfuscate; dontoptimize; keepattributes; keepparameternames
+
+    // Tell ProGuard to shut up
+    dontwarn 'org.checkerframework.**'
 
     // Proguard will remove directories by default, but that breaks JarMount.
     keepdirectories 'assets/computercraft/lua**'
@@ -265,7 +260,7 @@ license {
     mapping("java", "SLASHSTAR_STYLE")
     strictCheck true
 
-    ext.year = Calendar.getInstance().get(Calendar.YEAR)
+    ext.year = 2020
 }
 
 [licenseMain, licenseFormatMain].forEach {
