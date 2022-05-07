@@ -1,4 +1,5 @@
---- Helpful utilities for formatting and manipulating strings.
+--- The @{textutils} API provides helpful utilities for formatting and
+-- manipulating strings.
 --
 -- @module textutils
 -- @since 1.2
@@ -140,7 +141,6 @@ function pagedPrint(text, free_lines)
     for k, v in pairs(oldTerm) do
         newTerm[k] = v
     end
-
     newTerm.scroll = makePagedScroll(oldTerm, free_lines)
     term.redirect(newTerm)
 
@@ -411,7 +411,7 @@ do
     end
 
     serializeJSONString = function(s)
-        return ('"%s"'):format(s:gsub("[\0-\x1f\"\\]", map):gsub("[\x7f-\xff]", hexify))
+        return ('"%s"'):format(s:gsub("[%z\1-\x1f\"\\]", map):gsub("[\x7f-\xff]", hexify))
     end
 end
 
@@ -631,7 +631,13 @@ do
             end
 
             if c == "" then return expected(pos, c, "']'") end
-            if c == "]" then return empty_json_array, pos + 1 end
+            if c == "]" then
+                if opts.use_empty_json_array then
+                    return empty_json_array, pos + 1 
+                else
+                    return {}, pos + 1 
+                end
+            end
 
             while true do
                 n, arr[n], pos = n + 1, decode_impl(str, pos, opts)
