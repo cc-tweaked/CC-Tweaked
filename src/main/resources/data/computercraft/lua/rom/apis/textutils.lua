@@ -632,7 +632,7 @@ do
 
             if c == "" then return expected(pos, c, "']'") end
             if c == "]" then
-                if opts.use_empty_json_array then
+                if opts.parse_empty_array ~= false then
                     return empty_json_array, pos + 1
                 else
                     return {}, pos + 1
@@ -658,32 +658,43 @@ do
         error_at(pos, "Unexpected character %q.", c)
     end
 
-    --- Converts a serialised JSON string back into a reassembled Lua object.
-    --
-    -- This may be used with @{textutils.serializeJSON}, or when communicating
-    -- with command blocks or web APIs.
-    --
-    -- @tparam string s The serialised string to deserialise.
-    -- @tparam[opt] { nbt_style? = boolean, parse_null? = boolean } options
-    -- Options which control how this JSON object is parsed.
-    --
-    --  - `nbt_style`: When true, this will accept [stringified NBT][nbt] strings,
-    --    as produced by many commands.
-    --  - `parse_null`: When true, `null` will be parsed as @{json_null}, rather
-    --    than `nil`.
-    --
-    --  [nbt]: https://minecraft.gamepedia.com/NBT_format
-    -- @return[1] The deserialised object
-    -- @treturn[2] nil If the object could not be deserialised.
-    -- @treturn string A message describing why the JSON string is invalid.
-    -- @since 1.87.0
+    --[[- Converts a serialised JSON string back into a reassembled Lua object.
+
+    This may be used with @{textutils.serializeJSON}, or when communicating
+    with command blocks or web APIs.
+
+    @tparam string s The serialised string to deserialise.
+    @tparam[opt] { nbt_style? = boolean, parse_null? = boolean, parse_empty_array? = boolean } options
+    Options which control how this JSON object is parsed.
+
+    - `nbt_style`: When true, this will accept [stringified NBT][nbt] strings,
+       as produced by many commands.
+    - `parse_null`: When true, `null` will be parsed as @{json_null}, rather than
+       `nil`.
+    - `parse_empty_array`: When false, empty arrays will be parsed as a new table.
+       By default (or when this value is true), they are parsed as @{empty_json_array}.
+
+    [nbt]: https://minecraft.gamepedia.com/NBT_format
+    @return[1] The deserialised object
+    @treturn[2] nil If the object could not be deserialised.
+    @treturn string A message describing why the JSON string is invalid.
+    @since 1.87.0
+    @usage Unserialise a basic JSON object
+
+        textutils.unserialiseJSON('{"name": "Steve", "age": null}')
+
+    @usage Unserialise a basic JSON object, returning null values as @{json_null}.
+
+        textutils.unserialiseJSON('{"name": "Steve", "age": null}', { parse_null = true })
+    ]]
     unserialise_json = function(s, options)
         expect(1, s, "string")
         expect(2, options, "table", "nil")
 
         if options then
             field(options, "nbt_style", "boolean", "nil")
-            field(options, "nbt_style", "boolean", "nil")
+            field(options, "parse_null", "boolean", "nil")
+            field(options, "parse_empty_array", "boolean", "nil")
         else
             options = {}
         end
