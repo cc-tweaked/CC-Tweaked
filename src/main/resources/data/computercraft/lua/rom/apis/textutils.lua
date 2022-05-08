@@ -663,6 +663,12 @@ do
     This may be used with @{textutils.serializeJSON}, or when communicating
     with command blocks or web APIs.
 
+    If a `null` value is encountered, it is converted into `nil`. It can be converted
+    into @{textutils.json_null} with the `parse_null` option.
+
+    If an empty array is encountered, it is converted into @{textutils.empty_json_array}.
+    It can be converted into a new empty table with the `parse_empty_array` option.
+
     @tparam string s The serialised string to deserialise.
     @tparam[opt] { nbt_style? = boolean, parse_null? = boolean, parse_empty_array? = boolean } options
     Options which control how this JSON object is parsed.
@@ -679,6 +685,8 @@ do
     @treturn[2] nil If the object could not be deserialised.
     @treturn string A message describing why the JSON string is invalid.
     @since 1.87.0
+    @see textutils.json_null Use to serialize a JSON `null` value.
+    @see textutils.empty_json_array Use to serialize a JSON empty array.
     @usage Unserialise a basic JSON object
 
         textutils.unserialiseJSON('{"name": "Steve", "age": null}')
@@ -801,6 +809,8 @@ unserialise = unserialize -- GB version
 -- times.
 -- @usage textutils.serializeJSON({ values = { 1, "2", true } })
 -- @since 1.7
+-- @see textutils.json_null Use to serialize a JSON `null` value.
+-- @see textutils.empty_json_array Use to serialize a JSON empty array.
 function serializeJSON(t, bNBTStyle)
     expect(1, t, "table", "string", "number", "boolean")
     expect(2, bNBTStyle, "boolean", "nil")
