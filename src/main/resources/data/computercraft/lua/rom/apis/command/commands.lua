@@ -12,7 +12,7 @@ instance, `commands.say("Hi!")` is equivalent to `commands.exec("say Hi!")`.
 
 @{commands.async} provides a similar interface to execute asynchronous
 commands. `commands.async.say("Hi!")` is equivalent to
-`commands.execAsync("Hi!")`.
+`commands.execAsync("say Hi!")`.
 
 [mc]: https://minecraft.gamepedia.com/Commands
 
