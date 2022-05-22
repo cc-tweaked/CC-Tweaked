@@ -17,9 +17,9 @@ import java.util.Optional;
 
 final class VarargArguments implements IArguments
 {
-    private static final IArguments EMPTY = new VarargArguments( Constants.NONE );
+    private static final VarargArguments EMPTY = new VarargArguments( Constants.NONE );
 
-    boolean released;
+    boolean closed;
     private final Varargs varargs;
     private Object[] cache;
 
@@ -28,7 +28,7 @@ final class VarargArguments implements IArguments
         this.varargs = varargs;
     }
 
-    static IArguments of( Varargs values )
+    static VarargArguments of( Varargs values )
     {
         return values == Constants.NONE ? EMPTY : new VarargArguments( values );
     }
@@ -109,9 +109,9 @@ final class VarargArguments implements IArguments
     @Override
     public dan200.computercraft.api.lua.LuaTable<?, ?> getTableUnsafe( int index ) throws LuaException
     {
-        if( released )
+        if( closed )
         {
-            throw new IllegalStateException( "Cannot use getTableUnsafe after IArguments has been released" );
+            throw new IllegalStateException( "Cannot use getTableUnsafe after IArguments has been closed." );
         }
 
         LuaValue value = varargs.arg( index + 1 );
@@ -123,9 +123,9 @@ final class VarargArguments implements IArguments
     @Override
     public Optional<dan200.computercraft.api.lua.LuaTable<?, ?>> optTableUnsafe( int index ) throws LuaException
     {
-        if( released )
+        if( closed )
         {
-            throw new IllegalStateException( "Cannot use optTableUnsafe after IArguments has been released" );
+            throw new IllegalStateException( "Cannot use optTableUnsafe after IArguments has been closed." );
         }
 
         LuaValue value = varargs.arg( index + 1 );
@@ -134,9 +134,8 @@ final class VarargArguments implements IArguments
         return Optional.of( new TableImpl( this, (LuaTable) value ) );
     }
 
-    @Override
-    public void releaseImmediate()
+    public void close()
     {
-        released = true;
+        closed = true;
     }
 }
