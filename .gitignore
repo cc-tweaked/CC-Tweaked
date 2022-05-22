@@ -8,3 +8,6 @@
 /gradle*
 /*.gradle
 /build
+
+# Misc
+/.mailmap

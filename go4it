@@ -32,8 +32,7 @@ class Branch:
 
 BRANCHES: List[Branch] = [
     Branch('mc-1.16.x'),
-    Branch('mc-1.17.x', parent='mc-1.16.x', java="16"),
-    Branch('mc-1.18.x', parent='mc-1.17.x', java="17"),
+    Branch('mc-1.18.x', parent='mc-1.16.x', java="17"),
 ]
 
 
@@ -205,7 +204,7 @@ def build() -> None:
 
     for branch in BRANCHES:
         log(f"Building {branch.name}")
-        ret = run_in(branch, "xvfb-run", "./gradlew", "build", "--no-daemon").returncode
+        ret = run_in(branch, "./gradlew", "build", "--no-daemon").returncode
         if ret != 0:
             log(f"Build failed")
             sys.exit(ret)
@@ -215,7 +214,7 @@ def release() -> None:
     """Publish releases for each version."""
     build()
 
-    check = input("Are you sure you want to release? Make sure you've performed some manual checks first! [y/N]").lower()
+    check = input("Are you sure you want to release? Make sure you've performed some manual checks first! [y/N]").lower().strip()
     if check != "y":
         sys.exit(1)
 
