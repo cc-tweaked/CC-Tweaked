@@ -60,7 +60,7 @@ class RecipeResolver implements IRecipeManagerPlugin
             UpgradeInfo info = new UpgradeInfo( stack, upgrade );
             upgradeItemLookup.computeIfAbsent( stack.getItem(), k -> new ArrayList<>( 1 ) ).add( info );
             turtleUpgrades.add( info );
-        };
+        }
 
         for( IPocketUpgrade upgrade : PocketUpgrades.instance().getUpgrades() )
         {

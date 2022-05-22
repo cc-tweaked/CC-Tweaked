@@ -11,6 +11,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -73,6 +75,7 @@ public record SpeakerPosition(@Nullable Level level, @Nonnull Vec3 position, @Nu
         }
 
         @Nonnull
+        @OnlyIn( Dist.CLIENT )
         public SpeakerPosition reify()
         {
             Minecraft minecraft = Minecraft.getInstance();

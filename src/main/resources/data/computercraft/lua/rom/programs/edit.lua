@@ -431,7 +431,7 @@ local tMenuFuncs = {
             file.write(runHandler:format(sTitle, table.concat(tLines, "\n"), "@" .. fs.getName(sPath)))
         end)
         if ok then
-            local nTask = shell.openTab(sTempPath)
+            local nTask = shell.openTab("/" .. sTempPath)
             if nTask then
                 shell.switchTab(nTask)
             else

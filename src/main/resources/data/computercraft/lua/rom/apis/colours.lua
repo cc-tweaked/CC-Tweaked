@@ -1,4 +1,4 @@
---- Colours for lovers of British spelling.
+--- An alternative version of @{colors} for lovers of British spelling.
 --
 -- @see colors
 -- @module colours

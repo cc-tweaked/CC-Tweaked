@@ -9,6 +9,8 @@ import exampleNft from "./mount/example.nft";
 import exampleAudioLicense from "./mount/example.dfpwm.LICENSE";
 import exampleAudioUrl from "./mount/example.dfpwm";
 
+import "./prism.js";
+
 const defaultFiles: { [filename: string]: string } = {
     ".settings": settingsFile,
     "startup.lua": startupFile,
@@ -76,7 +78,9 @@ class Window extends Component<WindowProps, WindowState> {
             const snippet = element.getAttribute("data-snippet");
             if (snippet) this.snippets[snippet] = example;
 
-            if (element.getAttribute("data-lua-kind") == "expr") {
+            // We attempt to pretty-print the result of a function _except_ when the function
+            // is print. This is pretty ugly, but prevents the confusing trailing "1".
+            if (element.getAttribute("data-lua-kind") == "expr" && !example.startsWith("print(")) {
                 example = exprTemplate.replace("__expr__", example);
             }
 
@@ -98,7 +102,7 @@ class Window extends Component<WindowProps, WindowState> {
             </div>
             <div class="computer-container">
                 <Computer key={exampleIdx} files={{
-                    ...example!.files, ...defaultFiles
+                    ...defaultFiles, ...example!.files,
                 }} peripherals={{ back: example!.peripheral }} />
             </div>
         </div> : <div class="example-window example-window-hidden" />;

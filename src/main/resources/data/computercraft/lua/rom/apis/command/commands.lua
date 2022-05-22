@@ -1,21 +1,26 @@
---- The commands API allows your system to directly execute [Minecraft
--- commands][mc] and gather data from the results.
---
--- While one may use @{commands.exec} directly to execute a command, the
--- commands API also provides helper methods to execute every command. For
--- instance, `commands.say("Hi!")` is equivalent to `commands.exec("say Hi!")`.
---
--- @{commands.async} provides a similar interface to execute asynchronous
--- commands. `commands.async.say("Hi!")` is equivalent to
--- `commands.execAsync("Hi!")`.
---
--- [mc]: https://minecraft.gamepedia.com/Commands
---
--- @module commands
--- @usage Set the block above this computer to stone:
---
---     commands.setblock("~", "~1", "~", "minecraft:stone")
+--[[- Execute [Minecraft commands][mc] and gather data from the results from
+a command computer.
 
+:::note
+This API is only available on Command computers. It is not accessible to normal
+players.
+:::
+
+While one may use @{commands.exec} directly to execute a command, the
+commands API also provides helper methods to execute every command. For
+instance, `commands.say("Hi!")` is equivalent to `commands.exec("say Hi!")`.
+
+@{commands.async} provides a similar interface to execute asynchronous
+commands. `commands.async.say("Hi!")` is equivalent to
+`commands.execAsync("say Hi!")`.
+
+[mc]: https://minecraft.gamepedia.com/Commands
+
+@module commands
+@usage Set the block above this computer to stone:
+
+    commands.setblock("~", "~1", "~", "minecraft:stone")
+]]
 if not commands then
     error("Cannot load command API on normal computer", 2)
 end

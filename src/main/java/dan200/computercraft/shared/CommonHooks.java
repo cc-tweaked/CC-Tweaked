@@ -29,7 +29,6 @@ import net.minecraft.world.level.storage.loot.entries.LootTableReference;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraftforge.event.*;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -92,22 +91,21 @@ public final class CommonHooks
         {
             ComputerMBean.register();
         }
-    }
 
-    @SubscribeEvent
-    public static void onServerStarted( ServerStartedEvent event )
-    {
-        ComputerCraft.serverComputerRegistry.reset();
-        WirelessNetwork.resetNetworks();
-        Tracking.reset();
+        resetState();
         ComputerMBean.registerTracker();
-        NetworkUtils.reset();
     }
 
     @SubscribeEvent
     public static void onServerStopped( ServerStoppedEvent event )
     {
+        resetState();
+    }
+
+    private static void resetState()
+    {
         ComputerCraft.serverComputerRegistry.reset();
+        MainThread.reset();
         WirelessNetwork.resetNetworks();
         Tracking.reset();
         NetworkUtils.reset();

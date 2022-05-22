@@ -1,6 +1,6 @@
---[[- The Rednet API allows computers to communicate between each other by using
-@{modem|modems}. It provides a layer of abstraction on top of the main @{modem}
-peripheral, making it slightly easier to use.
+--[[- Communicate with other computers by using @{modem|modems}. @{rednet}
+provides a layer of abstraction on top of the main @{modem} peripheral, making
+it slightly easier to use.
 
 ## Basic usage
 In order to send a message between two computers, each computer must have a

@@ -28,7 +28,7 @@ import java.util.Optional;
 import static dan200.computercraft.core.apis.TableHelper.*;
 
 /**
- * The http library allows communicating with web servers, sending and receiving data from them.
+ * Placeholder description, please ignore.
  *
  * @cc.module http
  * @hidden

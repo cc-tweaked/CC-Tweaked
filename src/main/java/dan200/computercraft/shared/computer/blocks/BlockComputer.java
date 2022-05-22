@@ -12,6 +12,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -48,6 +50,22 @@ public class BlockComputer<T extends TileComputer> extends BlockComputerBase<T>
     public BlockState getStateForPlacement( BlockPlaceContext placement )
     {
         return defaultBlockState().setValue( FACING, placement.getHorizontalDirection().getOpposite() );
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public BlockState mirror( BlockState state, Mirror mirrorIn )
+    {
+        return state.rotate( mirrorIn.getRotation( state.getValue( FACING ) ) );
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public BlockState rotate( BlockState state, Rotation rot )
+    {
+        return state.setValue( FACING, rot.rotate( state.getValue( FACING ) ) );
     }
 
     @Nonnull

@@ -26,10 +26,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -74,6 +71,22 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Simple
     protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> builder )
     {
         builder.add( FACING, WATERLOGGED );
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public BlockState mirror( BlockState state, Mirror mirrorIn )
+    {
+        return state.rotate( mirrorIn.getRotation( state.getValue( FACING ) ) );
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public BlockState rotate( BlockState state, Rotation rot )
+    {
+        return state.setValue( FACING, rot.rotate( state.getValue( FACING ) ) );
     }
 
     @Nonnull

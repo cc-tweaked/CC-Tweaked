@@ -62,7 +62,7 @@ function print(...) end
 -- @usage printError("Something went wrong!")
 function printError(...) end
 
---[[- Reads user input from the terminal, automatically handling arrow keys,
+--[[- Reads user input from the terminal. This automatically handles arrow keys,
 pasting, character replacement, history scrollback, auto-completion, and
 default values.
 
@@ -110,10 +110,15 @@ the prompt.
 ]]
 function read(replaceChar, history, completeFn, default) end
 
---- The ComputerCraft and Minecraft version of the current computer environment.
+--- Stores the current ComputerCraft and Minecraft versions.
+--
+-- Outside of Minecraft (for instance, in an emulator) @{_HOST} will contain the
+-- emulator's version instead.
 --
 -- For example, `ComputerCraft 1.93.0 (Minecraft 1.15.2)`.
--- @usage _HOST
+-- @usage Print the current computer's environment.
+--
+--     print(_HOST)
 -- @since 1.76
 _HOST = _HOST
 

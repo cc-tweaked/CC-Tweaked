@@ -143,7 +143,7 @@ dependencies {
     compileOnly fg.deobf("mezz.jei:jei-1.18.2:9.4.1.116:api")
     runtimeOnly fg.deobf("mezz.jei:jei-1.18.2:9.4.1.116")
 
-    shade 'org.squiddev:Cobalt:0.5.2-SNAPSHOT'
+    shade 'org.squiddev:Cobalt:0.5.5'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
@@ -219,9 +219,32 @@ processResources {
     try {
         hash = ["git", "-C", projectDir, "rev-parse", "HEAD"].execute().text.trim()
 
-        def blacklist = ['GitHub', 'dan200', 'Daniel Ratcliffe']
-        ["git", "-C", projectDir, "log", "--format=tformat:%an%n%cn"].execute().text.split('\n').each {
-            if (!blacklist.contains(it)) contributors.add(it)
+        def blacklist = ['GitHub', 'Daniel Ratcliffe', 'Weblate']
+
+        // Extract all authors, commiters and co-authors from the git log.
+        def authors = ["git", "-C", projectDir, "log", "--format=tformat:%an <%ae>%n%cn <%ce>%n%(trailers:key=Co-authored-by,valueonly)"]
+            .execute().text.readLines().unique()
+
+        // We now pass this through git's mailmap to de-duplicate some authors.
+        def remapAuthors = ["git", "check-mailmap", "--stdin"].execute()
+        remapAuthors.withWriter { stdin ->
+            if (stdin !instanceof BufferedWriter) stdin = new BufferedWriter(stdin)
+
+            authors.forEach {
+                if (it == "") return
+                if (!it.endsWith(">")) it += ">" // Some commits have broken Co-Authored-By lines!
+                stdin.writeLine(it)
+            }
+            stdin.close()
+        }
+
+        // And finally extract out the actual name.
+        def emailRegex = ~/^([^<]+) <.+>$/
+        remapAuthors.text.readLines().forEach {
+            def matcher = it =~ emailRegex
+            matcher.find()
+            def name = matcher.group(1)
+            if (!blacklist.contains(name)) contributors.add(name)
         }
     } catch (Exception e) {
         e.printStackTrace()
