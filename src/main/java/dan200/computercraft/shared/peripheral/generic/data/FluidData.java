@@ -25,6 +25,13 @@ public class FluidData
     {
         fillBasic( data, stack );
         data.put( "tags", DataHelpers.getTags( stack.getFluid().getTags() ) );
+
+        /*
+         * Execute the detail providers to fill additional data if any.
+         * @see IFluidDetailProvider
+         */
+        DetailProviders.fillData( FluidStack.class, data, stack );
+
         return data;
     }
 }

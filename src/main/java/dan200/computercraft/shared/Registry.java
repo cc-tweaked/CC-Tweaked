@@ -41,6 +41,7 @@ import dan200.computercraft.shared.network.container.ViewComputerContainerData;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
+import dan200.computercraft.shared.peripheral.generic.data.providers.PrintoutItemDetailProvider;
 import dan200.computercraft.shared.peripheral.generic.methods.EnergyMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.FluidMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
@@ -375,6 +376,9 @@ public final class Registry
         ComputerCraftAPI.registerGenericCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY );
         ComputerCraftAPI.registerGenericCapability( CapabilityEnergy.ENERGY );
         ComputerCraftAPI.registerGenericCapability( CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY );
+
+        // Register detail providers
+        ComputerCraftAPI.registerDetailProvider( new PrintoutItemDetailProvider() );
 
         // Mod integration code.
         if( ModList.get().isLoaded( MoreRedIntegration.MOD_ID ) ) MoreRedIntegration.initialise();

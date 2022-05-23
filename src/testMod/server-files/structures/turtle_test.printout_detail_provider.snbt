@@ -1,0 +1,196 @@
+{
+    size: [3, 3, 3],
+    entities: [],
+    blocks: [
+        {
+            pos: [0, 0, 0],
+            state: 0
+        },
+        {
+            pos: [0, 0, 1],
+            state: 0
+        },
+        {
+            pos: [0, 0, 2],
+            state: 0
+        },
+        {
+            pos: [1, 0, 0],
+            state: 0
+        },
+        {
+            pos: [1, 0, 1],
+            state: 0
+        },
+        {
+            pos: [1, 0, 2],
+            state: 0
+        },
+        {
+            pos: [2, 0, 0],
+            state: 0
+        },
+        {
+            pos: [2, 0, 1],
+            state: 0
+        },
+        {
+            pos: [2, 0, 2],
+            state: 0
+        },
+        {
+            pos: [0, 1, 0],
+            state: 1
+        },
+        {
+            pos: [0, 1, 1],
+            state: 1
+        },
+        {
+            pos: [0, 1, 2],
+            state: 1
+        },
+        {
+            pos: [1, 1, 1],
+            state: 1
+        },
+        {
+            pos: [1, 1, 2],
+            state: 1
+        },
+        {
+            pos: [2, 1, 0],
+            state: 1
+        },
+        {
+            pos: [2, 1, 1],
+            state: 1
+        },
+        {
+            pos: [2, 1, 2],
+            state: 1
+        },
+        {
+            pos: [0, 2, 0],
+            state: 1
+        },
+        {
+            pos: [0, 2, 1],
+            state: 1
+        },
+        {
+            pos: [0, 2, 2],
+            state: 1
+        },
+        {
+            pos: [1, 2, 0],
+            state: 1
+        },
+        {
+            pos: [1, 2, 1],
+            state: 1
+        },
+        {
+            pos: [1, 2, 2],
+            state: 1
+        },
+        {
+            pos: [2, 2, 0],
+            state: 1
+        },
+        {
+            pos: [2, 2, 1],
+            state: 1
+        },
+        {
+            pos: [2, 2, 2],
+            state: 1
+        },
+        {
+            nbt: {
+                Owner: {
+                    UpperId: 4039158846114182220L,
+                    LowerId: -6876936588741668278L,
+                    Name: "Dev"
+                },
+                Fuel: 0,
+                Label: "turtle_test.printout_detail_provider",
+                Slot: 0,
+                Items: [
+                    {
+                        Slot: 0b,
+                        id: "computercraft:printed_page",
+                        Count: 1b,
+                        tag: {
+                            Text9: "                         ",
+                            Text8: "                         ",
+                            Text7: "                         ",
+                            Text6: "                         ",
+                            Text5: "                         ",
+                            Text4: "                         ",
+                            Text3: "                         ",
+                            Text2: "                         ",
+                            Text1: "                         ",
+                            Text0: "Example                  ",
+                            Color20: "fffffffffffffffffffffffff",
+                            Text20: "                         ",
+                            Title: "Example page",
+                            Text18: "                         ",
+                            Text19: "                         ",
+                            Text16: "                         ",
+                            Color2: "fffffffffffffffffffffffff",
+                            Text17: "                         ",
+                            Color1: "fffffffffffffffffffffffff",
+                            Text14: "                         ",
+                            Color0: "fffffffffffffffffffffffff",
+                            Text15: "                         ",
+                            Pages: 1,
+                            Text12: "                         ",
+                            Color6: "fffffffffffffffffffffffff",
+                            Text13: "                         ",
+                            Color5: "fffffffffffffffffffffffff",
+                            Text10: "                         ",
+                            Color4: "fffffffffffffffffffffffff",
+                            Color11: "fffffffffffffffffffffffff",
+                            Text11: "                         ",
+                            Color3: "fffffffffffffffffffffffff",
+                            Color10: "fffffffffffffffffffffffff",
+                            Color13: "fffffffffffffffffffffffff",
+                            Color9: "fffffffffffffffffffffffff",
+                            Color12: "fffffffffffffffffffffffff",
+                            Color8: "fffffffffffffffffffffffff",
+                            Color15: "fffffffffffffffffffffffff",
+                            Color7: "fffffffffffffffffffffffff",
+                            Color14: "fffffffffffffffffffffffff",
+                            Color17: "fffffffffffffffffffffffff",
+                            Color16: "fffffffffffffffffffffffff",
+                            Color19: "fffffffffffffffffffffffff",
+                            Color18: "fffffffffffffffffffffffff"
+                        }
+                    }
+                ],
+                id: "computercraft:turtle_normal",
+                ComputerId: 0,
+                On: 1b
+            },
+            pos: [1, 1, 0],
+            state: 2
+        }
+    ],
+    palette: [
+        {
+            Name: "minecraft:polished_andesite"
+        },
+        {
+            Name: "minecraft:air"
+        },
+        {
+            Properties: {
+                waterlogged: "false",
+                facing: "south"
+            },
+            Name: "computercraft:turtle_normal"
+        }
+    ],
+    DataVersion: 2586
+}

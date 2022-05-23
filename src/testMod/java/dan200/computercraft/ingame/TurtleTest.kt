@@ -72,4 +72,10 @@ class Turtle_Test {
      */
     @GameTest
     fun Cleaned_with_cauldrons(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
+
+    /**
+     * Checks turtles can use IDetailProviders by getting details for a printed page.
+     */
+    @GameTest(timeoutTicks = COMPUTER_TIMEOUT)
+    fun Printout_detail_provider(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
 }

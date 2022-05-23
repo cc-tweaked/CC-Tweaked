@@ -28,6 +28,12 @@ public class BlockData
         data.put( "state", stateTable );
         data.put( "tags", DataHelpers.getTags( state.getBlock().getTags() ) );
 
+        /*
+         * Execute the detail providers to fill additional data if any.
+         * @see IBlockDetailProvider
+         */
+        DetailProviders.fillData( BlockState.class, data, state );
+
         return data;
     }
 
