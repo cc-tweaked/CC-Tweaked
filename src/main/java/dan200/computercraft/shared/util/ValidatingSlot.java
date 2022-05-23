@@ -10,17 +10,21 @@ import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.function.Predicate;
 
 public class ValidatingSlot extends Slot
 {
-    public ValidatingSlot( IInventory inventoryIn, int index, int xPosition, int yPosition )
+    private final Predicate<ItemStack> predicate;
+
+    public ValidatingSlot( IInventory inventoryIn, int index, int xPosition, int yPosition, Predicate<ItemStack> predicate )
     {
         super( inventoryIn, index, xPosition, yPosition );
+        this.predicate = predicate;
     }
 
     @Override
     public boolean mayPlace( @Nonnull ItemStack stack )
     {
-        return true; // inventory.isItemValidForSlot( slotNumber, stack );
+        return predicate.test( stack );
     }
 }

@@ -308,7 +308,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         return ColourUtils.getStackColour( stack ) != null;
     }
 
-    private static boolean isPaper( @Nonnull ItemStack stack )
+    static boolean isPaper( @Nonnull ItemStack stack )
     {
         Item item = stack.getItem();
         return item == Items.PAPER
