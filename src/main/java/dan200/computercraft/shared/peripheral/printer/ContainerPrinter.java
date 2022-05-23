@@ -40,7 +40,7 @@ public class ContainerPrinter extends Container
         for( int x = 0; x < 6; x++ ) addSlot( new ValidatingSlot( inventory, x + 1, 61 + x * 18, 22, TilePrinter::isPaper ) );
 
         // Out-tray
-        for( int x = 0; x < 6; x++ ) addSlot( new ValidatingSlot( inventory, x + 7, 61 + x * 18, 49, TilePrinter::isPage ) );
+        for( int x = 0; x < 6; x++ ) addSlot( new ValidatingSlot( inventory, x + 7, 61 + x * 18, 49, o -> false ) );
 
         // Player inv
         for( int y = 0; y < 3; y++ )
