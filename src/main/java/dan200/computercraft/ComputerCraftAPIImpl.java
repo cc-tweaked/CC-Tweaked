@@ -171,9 +171,9 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     }
 
     @Override
-    public <T> void registerDetailProvider( @Nonnull IDetailProvider<T> provider )
+    public <T> void registerDetailProvider( @Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider )
     {
-        DetailProviders.register( provider );
+        DetailProviders.registerProvider( type, provider );
     }
 
     @Nonnull

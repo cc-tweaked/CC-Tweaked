@@ -114,7 +114,7 @@
                     Name: "Dev"
                 },
                 Fuel: 0,
-                Label: "turtle_test.printout_detail_provider",
+                Label: "turtle_test.item_detail_provider",
                 Slot: 0,
                 Items: [
                     {

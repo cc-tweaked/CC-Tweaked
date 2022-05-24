@@ -18,7 +18,7 @@ import java.util.Objects;
  *
  * @param <T> The type the stack's item must have.
  */
-public abstract class BasicItemDetailProvider<T> implements IItemDetailProvider
+public abstract class BasicItemDetailProvider<T> implements IDetailProvider<ItemStack>
 {
     private final Class<T> itemType;
     private final String namespace;

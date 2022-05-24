@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.generic.data;
 
+import dan200.computercraft.api.detail.BlockReference;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.Property;
 
@@ -15,8 +16,10 @@ import java.util.Map;
 public class BlockData
 {
     @Nonnull
-    public static <T extends Map<? super String, Object>> T fill( @Nonnull T data, @Nonnull BlockState state )
+    public static <T extends Map<? super String, Object>> T fill( @Nonnull T data, @Nonnull BlockReference block )
     {
+        BlockState state = block.getState();
+
         data.put( "name", DataHelpers.getId( state.getBlock() ) );
 
         Map<Object, Object> stateTable = new HashMap<>();
@@ -30,9 +33,9 @@ public class BlockData
 
         /*
          * Execute the detail providers to fill additional data if any.
-         * @see IBlockDetailProvider
+         * @see IDetailProvider
          */
-        DetailProviders.fillData( BlockState.class, data, state );
+        DetailProviders.fillData( BlockReference.class, data, block );
 
         return data;
     }

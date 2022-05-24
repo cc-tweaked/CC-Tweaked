@@ -5,12 +5,8 @@
  */
 package dan200.computercraft.shared.peripheral.generic.data;
 
-import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.detail.IBlockDetailProvider;
+import dan200.computercraft.api.detail.BlockReference;
 import dan200.computercraft.api.detail.IDetailProvider;
-import dan200.computercraft.api.detail.IFluidDetailProvider;
-import dan200.computercraft.api.detail.IItemDetailProvider;
-import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -20,40 +16,17 @@ public final class DetailProviders
 {
     private static final Map<Class<?>, Collection<IDetailProvider<?>>> allProviders = new HashMap<>();
 
-    public static synchronized <T> void register( IDetailProvider<T> provider )
+    public static synchronized <T> void registerProvider( Class<T> type, IDetailProvider<T> provider )
     {
+        Objects.requireNonNull( type, "type cannot be null" );
         Objects.requireNonNull( provider, "provider cannot be null" );
 
-        // A detail provider can implement multiple interfaces. Check the valid ones, and log an error if the given
-        // provider matched none of them.
-        boolean matched = false;
-
-        if ( provider instanceof IBlockDetailProvider )
+        if ( !type.isAssignableFrom( BlockReference.class ) && !type.isAssignableFrom( ItemStack.class )
+            && !type.isAssignableFrom( FluidStack.class ) )
         {
-            registerProvider( BlockState.class, (IBlockDetailProvider) provider );
-            matched = true;
+            throw new IllegalArgumentException( "type must be assignable from BlockReference, ItemStack or FluidStack" );
         }
 
-        if ( provider instanceof IFluidDetailProvider )
-        {
-            registerProvider( FluidStack.class, (IFluidDetailProvider) provider );
-            matched = true;
-        }
-
-        if ( provider instanceof IItemDetailProvider )
-        {
-            registerProvider( ItemStack.class, (IItemDetailProvider) provider );
-            matched = true;
-        }
-
-        if ( !matched )
-        {
-            ComputerCraft.log.error( "Detail provider {} does not implement any valid interfaces.", provider.getClass().getName() );
-        }
-    }
-
-    private static <T> void registerProvider( Class<T> type, IDetailProvider<T> provider )
-    {
         allProviders.computeIfAbsent( type, k -> new LinkedHashSet<>() ).add( provider );
     }
 
@@ -65,15 +38,7 @@ public final class DetailProviders
 
         for ( IDetailProvider<T> provider : providers )
         {
-            try
-            {
-                provider.provideDetails( data, value );
-            }
-            catch ( Exception e )
-            {
-                ComputerCraft.log.error( "Error while providing details for {}", value, e );
-                // TODO: Should this throw an exception here, preventing the rest of the details from being filled?
-            }
+            provider.provideDetails( data, value );
         }
     }
 }

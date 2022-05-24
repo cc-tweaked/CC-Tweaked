@@ -1,10 +1,11 @@
 package dan200.computercraft.ingame
 
-import dan200.computercraft.ingame.api.GameTest
-import dan200.computercraft.ingame.api.GameTestHelper
+import dan200.computercraft.api.ComputerCraftAPI
+import dan200.computercraft.api.detail.BasicItemDetailProvider
+import dan200.computercraft.ingame.api.*
 import dan200.computercraft.ingame.api.Timeouts.COMPUTER_TIMEOUT
-import dan200.computercraft.ingame.api.sequence
-import dan200.computercraft.ingame.api.thenComputerOk
+import dan200.computercraft.shared.media.items.ItemPrintout
+import net.minecraft.item.ItemStack
 
 class Turtle_Test {
     @GameTest(timeoutTicks = COMPUTER_TIMEOUT)
@@ -77,5 +78,20 @@ class Turtle_Test {
      * Checks turtles can use IDetailProviders by getting details for a printed page.
      */
     @GameTest(timeoutTicks = COMPUTER_TIMEOUT)
-    fun Printout_detail_provider(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
+    fun Item_detail_provider(helper: GameTestHelper) = helper.sequence {
+        this
+            .thenComputerOk(marker = "initial")
+            .thenExecute {
+                // Register a dummy provider for printout items
+                ComputerCraftAPI.registerDetailProvider(
+                    ItemStack::class.java,
+                    object : BasicItemDetailProvider<ItemPrintout>("printout", ItemPrintout::class.java) {
+                        override fun provideDetails(data: MutableMap<in String, Any>, stack: ItemStack, item: ItemPrintout) {
+                            data["type"] = item.type.toString();
+                        }
+                    }
+                )
+            }
+            .thenComputerOk()
+    }
 }

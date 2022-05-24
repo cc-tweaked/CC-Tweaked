@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.api;
 
+import dan200.computercraft.api.detail.BlockReference;
 import dan200.computercraft.api.detail.IDetailProvider;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
@@ -21,12 +22,14 @@ import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -226,15 +229,14 @@ public final class ComputerCraftAPI
      * Registers a detail provider to provide additional details for blocks, fluids and items when inspected by methods
      * such as {@code turtle.getItemDetail()} or {@code turtle.inspect()}.
      *
+     * @param type     The type of object that this provider can provide details for. Should be {@link BlockReference},
+     *                 {@link FluidStack} or {@link ItemStack}.
      * @param provider The detail provider to register.
      * @param <T> The type of object that this provider can provide details for.
-     * @see dan200.computercraft.api.detail.IBlockDetailProvider
-     * @see dan200.computercraft.api.detail.IFluidDetailProvider
-     * @see dan200.computercraft.api.detail.IItemDetailProvider
      */
-    public static <T> void registerDetailProvider( @Nonnull IDetailProvider<T> provider )
+    public static <T> void registerDetailProvider( @Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider )
     {
-        getInstance().registerDetailProvider( provider );
+        getInstance().registerDetailProvider( type, provider );
     }
 
     /**
@@ -317,7 +319,7 @@ public final class ComputerCraftAPI
 
         void registerAPIFactory( @Nonnull ILuaAPIFactory factory );
 
-        <T> void registerDetailProvider( @Nonnull IDetailProvider<T> provider );
+        <T> void registerDetailProvider( @Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider );
 
         @Nonnull
         IWiredNode createWiredNodeForElement( @Nonnull IWiredElement element );

@@ -9,12 +9,11 @@ import javax.annotation.Nonnull;
 import java.util.Map;
 
 /**
- * This interface is a base interface for the other detail providers, {@link IBlockDetailProvider},
- * {@link IItemDetailProvider}, and {@link IFluidDetailProvider}.
+ * This interface is used to provide details about a block, fluid, or item.
  *
  * @param <T> The type of object that this provider can provide details for.
  *
- * @see dan200.computercraft.api.ComputerCraftAPI#registerDetailProvider(IDetailProvider)
+ * @see dan200.computercraft.api.ComputerCraftAPI#registerDetailProvider(Class, IDetailProvider)
  */
 @FunctionalInterface
 public interface IDetailProvider<T>
