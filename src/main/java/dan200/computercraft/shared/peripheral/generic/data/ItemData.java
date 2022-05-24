@@ -98,10 +98,6 @@ public class ItemData
             data.put( "unbreakable", true );
         }
 
-        /*
-         * Execute the detail providers to fill additional data if any.
-         * @see IItemDetailProvider
-         */
         DetailProviders.fillData( ItemStack.class, data, stack );
 
         return data;

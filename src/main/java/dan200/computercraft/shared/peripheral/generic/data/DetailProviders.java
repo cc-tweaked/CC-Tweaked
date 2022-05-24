@@ -21,8 +21,7 @@ public final class DetailProviders
         Objects.requireNonNull( type, "type cannot be null" );
         Objects.requireNonNull( provider, "provider cannot be null" );
 
-        if ( !type.isAssignableFrom( BlockReference.class ) && !type.isAssignableFrom( ItemStack.class )
-            && !type.isAssignableFrom( FluidStack.class ) )
+        if ( type != BlockReference.class && type != ItemStack.class && type != FluidStack.class )
         {
             throw new IllegalArgumentException( "type must be assignable from BlockReference, ItemStack or FluidStack" );
         }

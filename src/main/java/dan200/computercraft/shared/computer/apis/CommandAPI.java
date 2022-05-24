@@ -80,7 +80,7 @@ public class CommandAPI implements ILuaAPI
         BlockReference block = new BlockReference( world, pos );
         Map<String, Object> table = BlockData.fill( new HashMap<>(), block );
 
-        TileEntity tile = block.getTile();
+        TileEntity tile = block.getBlockEntity();
         if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.save( new CompoundNBT() ) ) );
 
         return table;

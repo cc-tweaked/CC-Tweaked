@@ -21,22 +21,22 @@ public class BlockReference
     private final World world;
     private final BlockPos pos;
     private final BlockState state;
-    private final TileEntity tile;
+    private final TileEntity blockEntity;
 
     public BlockReference( World world, BlockPos pos )
     {
         this.world = world;
         this.pos = pos;
         this.state = world.getBlockState( pos );
-        this.tile = world.getBlockEntity( pos );
+        this.blockEntity = world.getBlockEntity( pos );
     }
 
-    public BlockReference( World world, BlockPos pos, BlockState state, TileEntity tile )
+    public BlockReference( World world, BlockPos pos, BlockState state, TileEntity blockEntity )
     {
         this.world = world;
         this.pos = pos;
         this.state = state;
-        this.tile = tile;
+        this.blockEntity = blockEntity;
     }
 
     @Nonnull
@@ -58,8 +58,8 @@ public class BlockReference
     }
 
     @Nullable
-    public TileEntity getTile()
+    public TileEntity getBlockEntity()
     {
-        return tile;
+        return blockEntity;
     }
 }
