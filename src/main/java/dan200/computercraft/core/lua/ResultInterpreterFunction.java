@@ -6,7 +6,10 @@
 package dan200.computercraft.core.lua;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.*;
+import dan200.computercraft.api.lua.ILuaCallback;
+import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.core.asm.LuaMethod;
 import org.squiddev.cobalt.*;
 import org.squiddev.cobalt.debug.DebugFrame;

@@ -88,6 +88,23 @@ minecraft {
             args '--mod', 'computercraft', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
         }
 
+        testClient {
+            workingDirectory project.file('test-files/client')
+            parent runs.client
+
+            mods {
+                cctest {
+                    source sourceSets.testMod
+                }
+            }
+
+            lazyToken('minecraft_classpath') {
+                (configurations.shade.copyRecursive().resolve() + configurations.testModExtra.copyRecursive().resolve())
+                    .collect { it.absolutePath }
+                    .join(File.pathSeparator)
+            }
+        }
+
         gameTestServer {
             workingDirectory project.file('test-files/server')
 

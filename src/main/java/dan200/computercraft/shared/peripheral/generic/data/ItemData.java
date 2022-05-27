@@ -97,6 +97,8 @@ public class ItemData
             data.put( "unbreakable", true );
         }
 
+        DetailProviders.fillData( ItemStack.class, data, stack );
+
         return data;
     }
 

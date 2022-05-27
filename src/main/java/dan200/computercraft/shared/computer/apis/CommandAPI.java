@@ -8,6 +8,7 @@ package dan200.computercraft.shared.computer.apis;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.detail.BlockReference;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.peripheral.generic.data.BlockData;
@@ -21,7 +22,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -76,10 +76,10 @@ public class CommandAPI implements ILuaAPI
     private static Map<?, ?> getBlockInfo( Level world, BlockPos pos )
     {
         // Get the details of the block
-        BlockState state = world.getBlockState( pos );
-        Map<String, Object> table = BlockData.fill( new HashMap<>(), state );
+        BlockReference block = new BlockReference( world, pos );
+        Map<String, Object> table = BlockData.fill( new HashMap<>(), block );
 
-        BlockEntity tile = world.getBlockEntity( pos );
+        BlockEntity tile = block.blockEntity();
         if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.saveWithFullMetadata() ) );
 
         return table;

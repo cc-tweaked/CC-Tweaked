@@ -6,6 +6,7 @@
 package dan200.computercraft;
 
 import dan200.computercraft.api.ComputerCraftAPI.IComputerCraftAPI;
+import dan200.computercraft.api.detail.IDetailProvider;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.GenericSource;
@@ -24,6 +25,7 @@ import dan200.computercraft.shared.BundledRedstone;
 import dan200.computercraft.shared.MediaProviders;
 import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.peripheral.generic.GenericPeripheralProvider;
+import dan200.computercraft.shared.peripheral.generic.data.DetailProviders;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.wired.WiredNode;
@@ -153,6 +155,12 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     public void registerAPIFactory( @Nonnull ILuaAPIFactory factory )
     {
         ApiFactories.register( factory );
+    }
+
+    @Override
+    public <T> void registerDetailProvider( @Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider )
+    {
+        DetailProviders.registerProvider( type, provider );
     }
 
     @Nonnull

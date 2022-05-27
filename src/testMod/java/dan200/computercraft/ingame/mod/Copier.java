@@ -6,6 +6,7 @@
 package dan200.computercraft.ingame.mod;
 
 import com.google.common.io.MoreFiles;
+import com.google.common.io.RecursiveDeleteOption;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -55,7 +56,7 @@ final class Copier extends SimpleFileVisitor<Path>
 
     public static void replicate( Path from, Path to, Predicate<Path> check ) throws IOException
     {
-        if( Files.exists( to ) ) MoreFiles.deleteRecursively( to );
+        if( Files.exists( to ) ) MoreFiles.deleteRecursively( to, RecursiveDeleteOption.ALLOW_INSECURE );
         Files.walkFileTree( from, new Copier( from, to, check ) );
     }
 }

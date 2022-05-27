@@ -107,7 +107,7 @@ class AsyncRunner : NullApiEnvironment() {
         private val empty: Array<Any?> = arrayOf()
 
         @OptIn(ExperimentalTime::class)
-        fun runTest(timeout: Duration = Duration.seconds(5), fn: suspend AsyncRunner.() -> Unit) {
+        fun runTest(timeout: Duration = 5.seconds, fn: suspend AsyncRunner.() -> Unit) {
             runBlocking {
                 val runner = AsyncRunner()
                 try {

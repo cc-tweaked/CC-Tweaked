@@ -24,10 +24,13 @@ public class FluidData
     public static <T extends Map<? super String, Object>> T fill( @Nonnull T data, @Nonnull FluidStack stack )
     {
         fillBasic( data, stack );
+
         // FluidStack doesn't have a getTags method, so we need to use the deprecated builtInRegistryHolder.
         @SuppressWarnings( "deprecation" )
         var holder = stack.getFluid().builtInRegistryHolder();
         data.put( "tags", DataHelpers.getTags( holder ) );
+
+        DetailProviders.fillData( FluidStack.class, data, stack );
         return data;
     }
 }

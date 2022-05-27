@@ -6,7 +6,10 @@
 package dan200.computercraft.core.lua;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.*;
+import dan200.computercraft.api.lua.IDynamicLuaObject;
+import dan200.computercraft.api.lua.ILuaAPI;
+import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.api.lua.ILuaFunction;
 import dan200.computercraft.core.asm.LuaMethod;
 import dan200.computercraft.core.asm.ObjectSource;
 import dan200.computercraft.core.computer.Computer;
@@ -14,7 +17,6 @@ import dan200.computercraft.core.computer.TimeoutState;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.util.ThreadUtils;
-import org.squiddev.cobalt.LuaTable;
 import org.squiddev.cobalt.*;
 import org.squiddev.cobalt.compiler.CompileException;
 import org.squiddev.cobalt.compiler.LoadState;
