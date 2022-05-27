@@ -23,15 +23,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.Nameable;
+import net.minecraft.world.*;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -61,6 +59,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     }
 
     Component customName;
+    private LockCode lockCode;
 
     private final Map<IComputerAccess, MountInfo> computers = new HashMap<>();
 
@@ -95,6 +94,12 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         peripheralCap = CapabilityUtil.invalidate( peripheralCap );
     }
 
+    @Override
+    public boolean isUsable( Player player )
+    {
+        return super.isUsable( player ) && BaseContainerBlockEntity.canUnlock( player, lockCode, getDisplayName() );
+    }
+
     @Nonnull
     @Override
     public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
@@ -114,7 +119,10 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         else
         {
             // Open the GUI
-            if( !getLevel().isClientSide ) NetworkHooks.openGui( (ServerPlayer) player, this );
+            if( !getLevel().isClientSide && isUsable( player ) )
+            {
+                NetworkHooks.openGui( (ServerPlayer) player, this );
+            }
             return InteractionResult.SUCCESS;
         }
     }
@@ -135,6 +143,8 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
             diskStack = ItemStack.of( item );
             diskMount = null;
         }
+
+        lockCode = LockCode.fromTag( nbt );
     }
 
     @Override
@@ -148,6 +158,9 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
             diskStack.save( item );
             nbt.put( NBT_ITEM, item );
         }
+
+        lockCode.addToTag( nbt );
+
         super.saveAdditional( nbt );
     }
 
@@ -298,7 +311,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     @Override
     public boolean stillValid( @Nonnull Player player )
     {
-        return isUsable( player, false );
+        return isUsable( player );
     }
 
     @Override

@@ -62,10 +62,9 @@ public abstract class TileGeneric extends BlockEntity
         return 8.0;
     }
 
-    public boolean isUsable( Player player, boolean ignoreRange )
+    public boolean isUsable( Player player )
     {
         if( player == null || !player.isAlive() || getLevel().getBlockEntity( getBlockPos() ) != this ) return false;
-        if( ignoreRange ) return true;
 
         double range = getInteractRange( player );
         BlockPos pos = getBlockPos();

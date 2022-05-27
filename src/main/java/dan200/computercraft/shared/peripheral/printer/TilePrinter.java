@@ -25,6 +25,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -55,6 +56,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     private static final int[] SIDE_SLOTS = new int[] { 0 };
 
     Component customName;
+    private LockCode lockCode;
 
     private final NonNullList<ItemStack> inventory = NonNullList.withSize( SLOTS, ItemStack.EMPTY );
     private final SidedCaps<IItemHandler> itemHandlerCaps =
@@ -84,13 +86,22 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         peripheralCap = CapabilityUtil.invalidate( peripheralCap );
     }
 
+    @Override
+    public boolean isUsable( Player player )
+    {
+        return super.isUsable( player ) && BaseContainerBlockEntity.canUnlock( player, lockCode, getDisplayName() );
+    }
+
     @Nonnull
     @Override
     public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
     {
         if( player.isCrouching() ) return InteractionResult.PASS;
 
-        if( !getLevel().isClientSide ) NetworkHooks.openGui( (ServerPlayer) player, this );
+        if( !getLevel().isClientSide && isUsable( player ) )
+        {
+            NetworkHooks.openGui( (ServerPlayer) player, this );
+        }
         return InteractionResult.SUCCESS;
     }
 
@@ -111,6 +122,8 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
         // Read inventory
         ContainerHelper.loadAllItems( nbt, inventory );
+
+        lockCode = LockCode.fromTag( nbt );
     }
 
     @Override
@@ -128,6 +141,8 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
         // Write inventory
         ContainerHelper.saveAllItems( nbt, inventory );
+
+        lockCode.addToTag( nbt );
 
         super.saveAdditional( nbt );
     }
@@ -231,7 +246,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     @Override
     public boolean stillValid( @Nonnull Player playerEntity )
     {
-        return isUsable( playerEntity, false );
+        return isUsable( playerEntity );
     }
 
     // ISidedInventory implementation

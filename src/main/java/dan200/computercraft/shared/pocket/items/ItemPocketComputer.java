@@ -50,6 +50,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     private static final String NBT_UPGRADE = "Upgrade";
     private static final String NBT_UPGRADE_INFO = "UpgradeInfo";
     public static final String NBT_LIGHT = "Light";
+    private static final String NBT_ON = "On";
 
     private static final String NBT_INSTANCE = "Instanceid";
     private static final String NBT_SESSION = "SessionId";
@@ -103,6 +104,13 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         {
             changed = true;
             setLabel( stack, label );
+        }
+
+        boolean on = computer.isOn();
+        if( on != isMarkedOn( stack ) )
+        {
+            changed = true;
+            stack.getOrCreateTag().putBoolean( NBT_ON, on );
         }
 
         // Update pocket upgrade
@@ -247,6 +255,10 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
             computer.updateValues( entity, stack, getUpgrade( stack ) );
             computer.addAPI( new PocketAPI( computer ) );
             ComputerCraft.serverComputerRegistry.add( instanceID, computer );
+
+            // Only turn on when initially creating the computer, rather than each tick.
+            if( isMarkedOn( stack ) && entity instanceof Player ) computer.turnOn();
+
             if( inventory != null ) inventory.setChanged();
         }
         computer.setLevel( world );
@@ -360,6 +372,12 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     private static void setSessionID( @Nonnull ItemStack stack, int sessionID )
     {
         stack.getOrCreateTag().putInt( NBT_SESSION, sessionID );
+    }
+
+    private static boolean isMarkedOn( @Nonnull ItemStack stack )
+    {
+        CompoundTag nbt = stack.getTag();
+        return nbt != null && nbt.getBoolean( NBT_ON );
     }
 
     public static ComputerState getState( @Nonnull ItemStack stack )
