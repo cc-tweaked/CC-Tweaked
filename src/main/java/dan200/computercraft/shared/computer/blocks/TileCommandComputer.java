@@ -113,12 +113,12 @@ public class TileCommandComputer extends TileComputer
     }
 
     @Override
-    public boolean isUsable( PlayerEntity player, boolean ignoreRange )
+    public boolean isUsable( PlayerEntity player )
     {
-        return isUsable( player ) && super.isUsable( player, ignoreRange );
+        return isCommandUsable( player ) && super.isUsable( player );
     }
 
-    public static boolean isUsable( PlayerEntity player )
+    public static boolean isCommandUsable( PlayerEntity player )
     {
         MinecraftServer server = player.getServer();
         if( server == null || !server.isCommandBlockEnabled() )

@@ -43,7 +43,7 @@ public class ContainerViewComputer extends ComputerMenuWithoutInventory
         }
 
         // If we're a command computer then ensure we're in creative
-        if( computer.getFamily() == ComputerFamily.COMMAND && !TileCommandComputer.isUsable( player ) )
+        if( computer.getFamily() == ComputerFamily.COMMAND && !TileCommandComputer.isCommandUsable( player ) )
         {
             return false;
         }
