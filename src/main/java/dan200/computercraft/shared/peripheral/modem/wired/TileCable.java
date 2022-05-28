@@ -262,7 +262,7 @@ public class TileCable extends TileGeneric
     @Override
     public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
     {
-        if( player.isCrouching() ) return ActionResultType.PASS;
+        if( player.isCrouching() || !player.mayBuild() ) return ActionResultType.PASS;
         if( !canAttachPeripheral() ) return ActionResultType.FAIL;
 
         if( getLevel().isClientSide ) return ActionResultType.SUCCESS;
