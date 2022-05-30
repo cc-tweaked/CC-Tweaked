@@ -74,7 +74,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Computer
     {
         // Draw a border around the terminal
         ComputerBorderRenderer.render(
-            ComputerBorderRenderer.getTexture( family ), terminal.x, terminal.y, getBlitOffset(),
+            stack.last().pose(), ComputerBorderRenderer.getTexture( family ), terminal.x, terminal.y, getBlitOffset(),
             FULL_BRIGHT_LIGHTMAP, terminal.getWidth(), terminal.getHeight()
         );
         ComputerSidebar.renderBackground( stack, leftPos, topPos + sidebarYOffset );

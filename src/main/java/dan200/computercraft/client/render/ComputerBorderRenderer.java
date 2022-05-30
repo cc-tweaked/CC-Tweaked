@@ -23,13 +23,6 @@ public class ComputerBorderRenderer
     public static final ResourceLocation BACKGROUND_COMMAND = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_command.png" );
     public static final ResourceLocation BACKGROUND_COLOUR = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/corners_colour.png" );
 
-    private static final Matrix4f IDENTITY = new Matrix4f();
-
-    static
-    {
-        IDENTITY.setIdentity();
-    }
-
     /**
      * The margin between the terminal and its border.
      */
@@ -91,10 +84,10 @@ public class ComputerBorderRenderer
         return RenderType.text( location );
     }
 
-    public static void render( ResourceLocation location, int x, int y, int z, int light, int width, int height )
+    public static void render( Matrix4f transform, ResourceLocation location, int x, int y, int z, int light, int width, int height )
     {
         IRenderTypeBuffer.Impl source = IRenderTypeBuffer.immediate( Tessellator.getInstance().getBuilder() );
-        render( IDENTITY, source.getBuffer( getRenderType( location ) ), x, y, z, light, width, height, false, 1, 1, 1 );
+        render( transform, source.getBuffer( getRenderType( location ) ), x, y, z, light, width, height, false, 1, 1, 1 );
         source.endBatch();
     }
 
