@@ -41,6 +41,9 @@ import static dan200.computercraft.api.lua.LuaValues.checkFinite;
  * - {@link #playSound} plays any built-in Minecraft sound, such as block sounds or mob noises.
  * - {@link #playAudio} can play arbitrary audio.
  *
+ * <h2>Recipe</h2>
+ * <McRecipe recipe="computercraft:speaker"></McRecipe>
+ *
  * @cc.module speaker
  * @cc.since 1.80pr1
  */

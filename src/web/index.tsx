@@ -9,8 +9,6 @@ import exampleNft from "./mount/example.nft";
 import exampleAudioLicense from "./mount/example.dfpwm.LICENSE";
 import exampleAudioUrl from "./mount/example.dfpwm";
 
-import "./prism.js";
-
 const defaultFiles: { [filename: string]: string } = {
     ".settings": settingsFile,
     "startup.lua": startupFile,
