@@ -9,7 +9,7 @@ GPS host: a computer running the GPS program in host mode
 GPS constellation: a group of GPS hosts
 ```
 
-Before GPS can be used in a dimension (e.g. the Nether) a GPS host constellation needs to be set up. Traditionally this is done near the max build height for maximum range, but ender modems can beat normal modes in range even from bedrock.
+Before GPS can be used in a dimension (e.g. the Nether) a GPS host constellation needs to be set up. Traditionally this is done near the max build height for maximum range, but ender modems easily beats a normal modem's max range at any height.
 
 To give the best results, a GPS constellation needs at least four computers. One can theoretically get away with three for most GPS requests, but four changes that to 100% accuracy when the requester is within all of their ranges, provided that they are placed correctly. Having more than four GPS hosts per constellation is redundant, but it does not harm.
 
@@ -40,7 +40,7 @@ shell.run("gps", "host", x, y, z)
 Where `x`, `y`, and `z` are the respective coordinates of the CC computer. The easiest way to get the computer's coordinates is to look at it and press `F3`, its coordinates can then be found on the right side of the screen as `Targeted Block`.
 
 :::note Why use MC's coordinates?
-CC doesn't care if you use Minecraft's coordinate system, so long as all of the GPS hosts with overlapping ranges use the same reference point (requesting computers will get confused if hosts have different reference points). However, using MC's coordinate system does provide a nice standard to adopt server-wide. It also is good to use as command computers use it when they cheat to find their position with @{gps.locate}.
+CC doesn't care if you use Minecraft's coordinate system, so long as all of the GPS hosts with overlapping ranges use the same reference point (requesting computers will get confused if hosts have different reference points). However, using MC's coordinate system does provide a nice standard to adopt server-wide. It also is consistaint with how command computers get their location, they use MC's command system to get their block which returns that in MC's coordinate system.
 :::
 
 :::note Modem messages come from the computer's position, not the modem's
@@ -51,7 +51,7 @@ Wireless modems transmit from the block that they are attached to *not* the bloc
 Except for command computers and user code overrides, ComputerCraft mimics real-life GPS; computers trilaterate themselves using signals with known sender positions (which is why we have to tell the GPS hosts where they are). This means that the average CC computer will need a wireless modem and be in range of a GPS constellation.
 
 :::note Double duty
-You could also set up one of their GPS hosts (per constellation) to run the rednet `repeat` program via @{multishell} or the @{parallel} API. Do note that if you use the parallel API the console output of the two programs will merge together, this is harmless but can make it harder to understand the output.
+You could also set up one of the GPS hosts (per constellation) to run the rednet `repeat` program via @{multishell} or the @{parallel} API. Do note that if you use the parallel API the console output of the two programs will merge together, this is harmless but can make it harder to understand the output.
 
 Ender modems are also useful for the `repeat` program and will mean that you only need one computer running this program.
 :::
