@@ -47,9 +47,3 @@ Wireless modems transmit from the block that they are attached to *not* the bloc
 
 ## A brief look at how the GPS API works in CC
 Except for command computers and user code overrides, ComputerCraft mimics real-life GPS; computers trilaterate themselves using signals with known sender positions (which is why we have to tell the GPS hosts where they are). This means that the average CC computer will need a wireless modem and be in range of a GPS constellation.
-
-:::note Double duty
-You could also set up one of the GPS hosts (per constellation) to run the rednet `repeat` program via @{multishell} or the @{parallel} API. Do note that if you use the parallel API the console output of the two programs will merge together, this is harmless but can make it harder to understand the output.
-
-Ender modems are also useful for the `repeat` program and will mean that you only need one computer running this program.
-:::
