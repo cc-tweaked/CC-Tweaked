@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 
 import javax.annotation.Nonnull;
+import java.nio.ByteBuffer;
 
 public class Terminal
 {
@@ -191,7 +192,7 @@ public class Terminal
         return palette;
     }
 
-    public synchronized void blit( String text, String textColour, String backgroundColour )
+    public synchronized void blit( ByteBuffer text, ByteBuffer textColour, ByteBuffer backgroundColour )
     {
         int x = cursorX;
         int y = cursorY;
@@ -323,9 +324,9 @@ public class Terminal
             TextBuffer textColour = this.textColour[y];
             TextBuffer backColour = backgroundColour[y];
 
+            for( int x = 0; x < width; x++ ) buffer.writeByte( text.charAt( x ) & 0xFF );
             for( int x = 0; x < width; x++ )
             {
-                buffer.writeByte( text.charAt( x ) & 0xFF );
                 buffer.writeByte( getColour(
                     backColour.charAt( x ), Colour.BLACK ) << 4 |
                     getColour( textColour.charAt( x ), Colour.WHITE )
@@ -352,10 +353,9 @@ public class Terminal
             TextBuffer textColour = this.textColour[y];
             TextBuffer backColour = backgroundColour[y];
 
+            for( int x = 0; x < width; x++ ) text.setChar( x, (char) (buffer.readByte() & 0xFF) );
             for( int x = 0; x < width; x++ )
             {
-                text.setChar( x, (char) (buffer.readByte() & 0xFF) );
-
                 byte colour = buffer.readByte();
                 backColour.setChar( x, base16.charAt( (colour >> 4) & 0xF ) );
                 textColour.setChar( x, base16.charAt( colour & 0xF ) );

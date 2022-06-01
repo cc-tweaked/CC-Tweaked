@@ -1,5 +1,5 @@
---[[- Provides a "pretty printer", for rendering data structures in an
-aesthetically pleasing manner.
+--[[- A pretty printer for rendering data structures in an aesthetically
+pleasing manner.
 
 In order to display something using @{cc.pretty}, you build up a series of
 @{Doc|documents}. These behave a little bit like strings; you can concatenate

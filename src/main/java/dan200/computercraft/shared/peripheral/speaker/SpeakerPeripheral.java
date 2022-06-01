@@ -29,7 +29,6 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.*;
 
 import static dan200.computercraft.api.lua.LuaValues.checkFinite;
@@ -41,6 +40,9 @@ import static dan200.computercraft.api.lua.LuaValues.checkFinite;
  * - {@link #playNote} allows you to play noteblock note.
  * - {@link #playSound} plays any built-in Minecraft sound, such as block sounds or mob noises.
  * - {@link #playAudio} can play arbitrary audio.
+ *
+ * <h2>Recipe</h2>
+ * <McRecipe recipe="computercraft:speaker"></McRecipe>
  *
  * @cc.module speaker
  * @cc.since 1.80pr1
@@ -57,7 +59,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
     private long clock = 0;
     private long lastPositionTime;
-    private Vector3d lastPosition;
+    private SpeakerPosition lastPosition;
 
     private long lastPlayTime;
 
@@ -72,10 +74,11 @@ public abstract class SpeakerPeripheral implements IPeripheral
     {
         clock++;
 
-        Vector3d pos = getPosition();
-        World world = getWorld();
-        if( world == null ) return;
-        MinecraftServer server = world.getServer();
+        SpeakerPosition position = getPosition();
+        World level = position.level();
+        Vector3d pos = position.position();
+        if( level == null ) return;
+        MinecraftServer server = level.getServer();
 
         synchronized( pendingNotes )
         {
@@ -83,7 +86,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
             {
                 lastPlayTime = clock;
                 server.getPlayerList().broadcast(
-                    null, pos.x, pos.y, pos.z, sound.volume * 16, world.dimension(),
+                    null, pos.x, pos.y, pos.z, sound.volume * 16, level.dimension(),
                     new SPlaySoundPacket( sound.location, SoundCategory.RECORDS, pos, sound.volume, sound.pitch )
                 );
             }
@@ -125,20 +128,20 @@ public abstract class SpeakerPeripheral implements IPeripheral
         {
             lastPlayTime = clock;
             NetworkHandler.sendToAllAround(
-                new SpeakerPlayClientMessage( getSource(), pos, sound.location, sound.volume, sound.pitch ),
-                world, pos, sound.volume * 16
+                new SpeakerPlayClientMessage( getSource(), position, sound.location, sound.volume, sound.pitch ),
+                level, pos, sound.volume * 16
             );
-            syncedPosition( pos );
+            syncedPosition( position );
         }
         else if( dfpwmState != null && dfpwmState.shouldSendPending( now ) )
         {
             // If clients need to receive another batch of audio, send it and then notify computers our internal buffer is
             // free again.
             NetworkHandler.sendToAllTracking(
-                new SpeakerAudioClientMessage( getSource(), pos, dfpwmState.getVolume(), dfpwmState.pullPending( now ) ),
-                getWorld().getChunkAt( new BlockPos( pos ) )
+                new SpeakerAudioClientMessage( getSource(), position, dfpwmState.getVolume(), dfpwmState.pullPending( now ) ),
+                level.getChunkAt( new BlockPos( pos ) )
             );
-            syncedPosition( pos );
+            syncedPosition( position );
 
             // And notify computers that we have space for more audio.
             synchronized( computers )
@@ -153,25 +156,19 @@ public abstract class SpeakerPeripheral implements IPeripheral
         // Push position updates to any speakers which have ever played a note,
         // have moved by a non-trivial amount and haven't had a position update
         // in the last second.
-        if( lastPosition != null && (clock - lastPositionTime) >= 20 )
+        if( lastPosition != null && (clock - lastPositionTime) >= 20 && !lastPosition.withinDistance( position, 0.1 ) )
         {
-            Vector3d position = getPosition();
-            if( lastPosition.distanceToSqr( position ) >= 0.1 )
-            {
-                NetworkHandler.sendToAllTracking(
-                    new SpeakerMoveClientMessage( getSource(), position ),
-                    getWorld().getChunkAt( new BlockPos( position ) )
-                );
-                syncedPosition( position );
-            }
+            // TODO: What to do when entities move away? How do we notify people left behind that they're gone.
+            NetworkHandler.sendToAllTracking(
+                new SpeakerMoveClientMessage( getSource(), position ),
+                level.getChunkAt( new BlockPos( pos ) )
+            );
+            syncedPosition( position );
         }
     }
 
-    @Nullable
-    public abstract World getWorld();
-
     @Nonnull
-    public abstract Vector3d getPosition();
+    public abstract SpeakerPosition getPosition();
 
     @Nonnull
     public UUID getSource()
@@ -308,7 +305,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
      * computer is lagging.
      * :::
      *
-     * {@literal @}{speaker_audio} provides a more complete guide in to using speakers
+     * {@literal @}{speaker_audio} provides a more complete guide to using speakers
      *
      * @param context The Lua context.
      * @param audio   The audio data to play.
@@ -373,7 +370,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
         shouldStop = true;
     }
 
-    private void syncedPosition( Vector3d position )
+    private void syncedPosition( SpeakerPosition position )
     {
         lastPosition = position;
         lastPositionTime = clock;

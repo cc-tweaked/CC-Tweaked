@@ -53,7 +53,7 @@ public class TileComputer extends TileComputerBase
 
     protected boolean isUsableByPlayer( PlayerEntity player )
     {
-        return isUsable( player, false );
+        return isUsable( player );
     }
 
     @Override

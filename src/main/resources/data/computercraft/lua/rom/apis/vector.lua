@@ -1,4 +1,6 @@
---- The vector API provides methods to create and manipulate vectors.
+--- A basic 3D vector type and some common vector operations. This may be useful
+-- when working with coordinates in Minecraft's world (such as those from the
+-- @{gps} API).
 --
 -- An introduction to vectors can be found on [Wikipedia][wiki].
 --

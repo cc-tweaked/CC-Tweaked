@@ -87,8 +87,7 @@ public class TileWiredModemFull extends TileGeneric
         @Override
         public Vector3d getPosition()
         {
-            BlockPos pos = entity.getBlockPos();
-            return new Vector3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+            return Vector3d.atCenterOf( entity.getBlockPos() );
         }
     }
 
@@ -200,6 +199,7 @@ public class TileWiredModemFull extends TileGeneric
     @Override
     public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
     {
+        if( player.isCrouching() || !player.mayBuild() ) return ActionResultType.PASS;
         if( getLevel().isClientSide ) return ActionResultType.SUCCESS;
 
         // On server, we interacted if a peripheral was found
@@ -418,8 +418,7 @@ public class TileWiredModemFull extends TileGeneric
             @Override
             public Vector3d getPosition()
             {
-                BlockPos pos = getBlockPos().relative( side );
-                return new Vector3d( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+                return Vector3d.atCenterOf( getBlockPos().relative( side ) );
             }
 
             @Nonnull

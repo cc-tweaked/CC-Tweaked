@@ -6,22 +6,28 @@
 package dan200.computercraft.client.gui.widgets;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import dan200.computercraft.client.render.RenderTypes;
+import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ClientComputer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.util.SharedConstants;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.text.StringTextComponent;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
 import java.util.BitSet;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_WIDTH;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
 
 public class WidgetTerminal extends Widget
 {
@@ -314,14 +320,23 @@ public class WidgetTerminal extends Widget
         if( !visible ) return;
         Matrix4f matrix = transform.last().pose();
         Terminal terminal = computer.getTerminal();
+
+        Minecraft.getInstance().getTextureManager().bind( FixedWidthFontRenderer.FONT );
+        RenderSystem.texParameter( GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP );
+
+        IRenderTypeBuffer.Impl renderer = IRenderTypeBuffer.immediate( Tessellator.getInstance().getBuilder() );
+        IVertexBuilder buffer = renderer.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH );
+
         if( terminal != null )
         {
-            FixedWidthFontRenderer.drawTerminal( matrix, innerX, innerY, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN );
+            FixedWidthFontRenderer.drawTerminal( matrix, buffer, innerX, innerY, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN );
         }
         else
         {
-            FixedWidthFontRenderer.drawEmptyTerminal( matrix, x, y, width, height );
+            FixedWidthFontRenderer.drawEmptyTerminal( matrix, buffer, x, y, width, height );
         }
+
+        renderer.endBatch();
     }
 
     public static int getWidth( int termWidth )

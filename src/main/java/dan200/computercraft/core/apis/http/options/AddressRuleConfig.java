@@ -32,10 +32,10 @@ public class AddressRuleConfig
             config.setComment( "timeout", "The period of time (in milliseconds) to wait before a HTTP request times out. Set to 0 for unlimited." );
             config.add( "timeout", AddressRule.TIMEOUT );
 
-            config.setComment( "max_download", "The maximum size (in bytes) that a computer can download in a single request. Note that responses may receive more data than allowed, but this data will not be returned to the client." );
+            config.setComment( "max_download", "The maximum size (in bytes) that a computer can download in a single request.\nNote that responses may receive more data than allowed, but this data will not\nbe returned to the client." );
             config.set( "max_download", AddressRule.MAX_DOWNLOAD );
 
-            config.setComment( "max_upload", "The maximum size (in bytes) that a computer can upload in a single request. This includes headers and POST text." );
+            config.setComment( "max_upload", "The maximum size (in bytes) that a computer can upload in a single request. This\nincludes headers and POST text." );
             config.set( "max_upload", AddressRule.MAX_UPLOAD );
 
             config.setComment( "max_websocket_message", "The maximum size (in bytes) that a computer can send or receive in one websocket packet." );

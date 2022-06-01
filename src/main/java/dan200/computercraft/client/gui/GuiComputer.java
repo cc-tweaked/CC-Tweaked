@@ -6,7 +6,6 @@
 package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
@@ -19,6 +18,7 @@ import net.minecraft.util.text.ITextComponent;
 import javax.annotation.Nonnull;
 
 import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
+import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
 
 public final class GuiComputer<T extends ContainerComputerBase> extends ComputerScreenBase<T>
 {
@@ -73,9 +73,10 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Computer
     public void renderBg( @Nonnull MatrixStack stack, float partialTicks, int mouseX, int mouseY )
     {
         // Draw a border around the terminal
-        RenderSystem.color4f( 1, 1, 1, 1 );
-        minecraft.getTextureManager().bind( ComputerBorderRenderer.getTexture( family ) );
-        ComputerBorderRenderer.render( terminal.x, terminal.y, getBlitOffset(), terminal.getWidth(), terminal.getHeight() );
+        ComputerBorderRenderer.render(
+            stack.last().pose(), ComputerBorderRenderer.getTexture( family ), terminal.x, terminal.y, getBlitOffset(),
+            FULL_BRIGHT_LIGHTMAP, terminal.getWidth(), terminal.getHeight()
+        );
         ComputerSidebar.renderBackground( stack, leftPos, topPos + sidebarYOffset );
     }
 }

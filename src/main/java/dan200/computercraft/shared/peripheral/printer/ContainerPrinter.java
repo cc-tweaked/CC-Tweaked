@@ -7,6 +7,7 @@ package dan200.computercraft.shared.peripheral.printer;
 
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.util.SingleIntArray;
+import dan200.computercraft.shared.util.ValidatingSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
@@ -33,13 +34,13 @@ public class ContainerPrinter extends Container
         addDataSlots( properties );
 
         // Ink slot
-        addSlot( new Slot( inventory, 0, 13, 35 ) );
+        addSlot( new ValidatingSlot( inventory, 0, 13, 35, TilePrinter::isInk ) );
 
         // In-tray
-        for( int x = 0; x < 6; x++ ) addSlot( new Slot( inventory, x + 1, 61 + x * 18, 22 ) );
+        for( int x = 0; x < 6; x++ ) addSlot( new ValidatingSlot( inventory, x + 1, 61 + x * 18, 22, TilePrinter::isPaper ) );
 
         // Out-tray
-        for( int x = 0; x < 6; x++ ) addSlot( new Slot( inventory, x + 7, 61 + x * 18, 49 ) );
+        for( int x = 0; x < 6; x++ ) addSlot( new ValidatingSlot( inventory, x + 7, 61 + x * 18, 49, o -> false ) );
 
         // Player inv
         for( int y = 0; y < 3; y++ )

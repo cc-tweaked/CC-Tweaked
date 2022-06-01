@@ -1,12 +1,13 @@
---[[- The Colors API allows you to manipulate sets of colors.
+--[[- Constants and functions for colour values, suitable for working with
+@{term} and @{redstone}.
 
-This is useful in conjunction with Bundled Cables from the RedPower mod, RedNet
-Cables from the MineFactory Reloaded mod, and colors on Advanced Computers and
-Advanced Monitors.
+This is useful in conjunction with @{redstone.setBundledOutput|Bundled Cables}
+from mods like Project Red, and @{term.setTextColour|colors on Advanced
+Computers and Advanced Monitors}.
 
-For the non-American English version just replace @{colors} with @{colours} and
-it will use the other API, colours which is exactly the same, except in British
-English (e.g. @{colors.gray} is spelt @{colours.grey}).
+For the non-American English version just replace @{colors} with @{colours}.
+This alternative API is exactly the same, except the colours use British English
+(e.g. @{colors.gray} is spelt @{colours.grey}).
 
 On basic terminals (such as the Computer and Monitor), all the colors are
 converted to grayscale. This means you can still use all 16 colors on the
@@ -16,7 +17,7 @@ terminal supports color by using the function @{term.isColor}.
 Grayscale colors are calculated by taking the average of the three components,
 i.e. `(red + green + blue) / 3`.
 
-<table class="pretty-table">
+<table>
 <thead>
     <tr><th colspan="8" align="center">Default Colors</th></tr>
     <tr>
@@ -268,7 +269,7 @@ end
 --- Combine a three-colour RGB value into one hexadecimal representation.
 --
 -- @tparam number r The red channel, should be between 0 and 1.
--- @tparam number g The red channel, should be between 0 and 1.
+-- @tparam number g The green channel, should be between 0 and 1.
 -- @tparam number b The blue channel, should be between 0 and 1.
 -- @treturn number The combined hexadecimal colour.
 -- @usage
@@ -291,7 +292,7 @@ end
 --
 -- @tparam number rgb The combined hexadecimal colour.
 -- @treturn number The red channel, will be between 0 and 1.
--- @treturn number The red channel, will be between 0 and 1.
+-- @treturn number The green channel, will be between 0 and 1.
 -- @treturn number The blue channel, will be between 0 and 1.
 -- @usage
 -- ```lua

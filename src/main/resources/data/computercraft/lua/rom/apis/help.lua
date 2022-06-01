@@ -1,4 +1,4 @@
---- Provides an API to read help files.
+--- Find help files on the current computer.
 --
 -- @module help
 -- @since 1.2

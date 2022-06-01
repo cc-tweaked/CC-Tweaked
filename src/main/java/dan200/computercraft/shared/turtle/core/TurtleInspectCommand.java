@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.turtle.core;
 
+import dan200.computercraft.api.detail.BlockReference;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
@@ -41,13 +42,14 @@ public class TurtleInspectCommand implements ITurtleCommand
         BlockPos oldPosition = turtle.getPosition();
         BlockPos newPosition = oldPosition.relative( direction );
 
-        BlockState state = world.getBlockState( newPosition );
+        BlockReference block = new BlockReference( world, newPosition );
+        BlockState state = block.getState();
         if( state.getBlock().isAir( state, world, newPosition ) )
         {
             return TurtleCommandResult.failure( "No block to inspect" );
         }
 
-        Map<String, Object> table = BlockData.fill( new HashMap<>(), state );
+        Map<String, Object> table = BlockData.fill( new HashMap<>(), block );
 
         // Fire the event, exiting if it is cancelled
         TurtlePlayer turtlePlayer = TurtlePlayer.getWithPosition( turtle, oldPosition, direction );

@@ -1,5 +1,5 @@
---[[- This provides a pure Lua implementation of the builtin @{require} function
-and @{package} library.
+--[[- A pure Lua implementation of the builtin @{require} function and
+@{package} library.
 
 Generally you do not need to use this module - it is injected into the every
 program's environment. However, it may be useful when building a custom shell or
