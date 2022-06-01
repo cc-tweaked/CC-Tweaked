@@ -54,17 +54,17 @@ Once both computers have code you'll want to start the receiver code first and t
 
 You know the basics of sending and receiving rednet messages. @{rednet.broadcast} is similar to @{rednet.send} but it will send the message to every computer in range of the modem.
 
-:::Note The repeat program
+:::note The repeat program
 Ender modems are expensive to craft but wireless modems have a quite limited range. Thankfully there is a solution, the repeat program. To put simply, any rednet message that a computer running the repeat program hears will be resent from that computer.
 
 With a single ender modem on a single computer running the repeat program, you can send rednet messages to any computer in the server. Just make sure that this computer and modem stay chunk loaded.
 :::
 
-:::Note Computers can send rednet messages to themselves without a modem
+:::note Computers can send rednet messages to themselves without a modem
 Rednet has a loopback feature, computers can send rednet messages to themselves without having a modem attached. This is useful for allowing multiple programs on the same computer to communicate with each other.
 :::
 
-:::Note Rednet is not secure
+:::note Rednet is not secure
 Rednet is not secure. It is not designed to be. Anyone can easily listen to your messages even if they are not the intended recipient. Rednet protocols also are *not* a means of security.
 
 To demonstrate this, here is a very basic rednet sniffer. FYI, we are using the modem API here, specifically its `modem_message` event and `modem.open()`.
@@ -102,7 +102,7 @@ monitor.write("Hello World!")
 ```
 
 ## Moving items and fluids
-:::Note Fluids are very much the same
+:::note Fluids are very much the same
 We only cover items here, but fluids can be moved in very much the same way.
 
 Some blocks can have multiple tanks, think of these as multiple inventory slots. The quantity of fluid is like the number of items in the slot.
