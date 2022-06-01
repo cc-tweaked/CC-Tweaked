@@ -23,9 +23,11 @@ object Times {
  * Custom timeouts for various test types.
  */
 object Timeouts {
-    const val COMPUTER_TIMEOUT: Int = 200
+    private const val SECOND: Int = 20
 
-    const val CLIENT_TIMEOUT: Int = 400
+    const val COMPUTER_TIMEOUT: Int = SECOND * 15
+
+    const val CLIENT_TIMEOUT: Int = SECOND * 20
 }
 
 /**

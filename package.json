@@ -4,6 +4,7 @@
   "description": "Website additions for tweaked.cc",
   "author": "SquidDev",
   "license": "BSD-3-Clause",
+  "type": "module",
   "dependencies": {
     "preact": "^10.5.5",
     "tslib": "^2.0.3"
@@ -11,9 +12,18 @@
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.2.5",
     "@rollup/plugin-url": "^6.1.0",
+    "@types/glob": "^7.2.0",
+    "@types/react-dom": "^18.0.5",
+    "glob": "^8.0.3",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "rehype": "^12.0.1",
+    "rehype-highlight": "^5.0.2",
+    "rehype-react": "^7.1.1",
     "requirejs": "^2.3.6",
     "rollup": "^2.33.1",
     "rollup-plugin-terser": "^7.0.2",
+    "ts-node": "^10.8.0",
     "typescript": "^4.0.5"
   }
 }

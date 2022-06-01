@@ -1,5 +1,5 @@
---- An API for advanced systems which can draw pixels and lines, load and draw
--- image files. You can use the `colors` API for easier color manipulation.
+--- Utilities for drawing more complex graphics, such as pixels, lines and
+-- images.
 --
 -- @module paintutils
 -- @since 1.45

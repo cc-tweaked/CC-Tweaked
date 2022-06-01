@@ -1,4 +1,4 @@
---[[- The Disk API allows you to interact with disk drives.
+--[[- Interact with disk drives.
 
 These functions can operate on locally attached or remote disk drives. To use a
 locally attached drive, specify “side” as one of the six sides (e.g. `left`); to

@@ -141,9 +141,10 @@ public final class CommandComputerCraft
             .then( command( "shutdown" )
                 .requires( UserLevel.OWNER_OP )
                 .argManyValue( "computers", manyComputers(), s -> ComputerCraft.serverComputerRegistry.getComputers() )
-                .executes( ( context, computers ) -> {
+                .executes( ( context, computerSelectors ) -> {
                     int shutdown = 0;
-                    for( ServerComputer computer : unwrap( context.getSource(), computers ) )
+                    Set<ServerComputer> computers = unwrap( context.getSource(), computerSelectors );
+                    for( ServerComputer computer : computers )
                     {
                         if( computer.isOn() ) shutdown++;
                         computer.shutdown();
@@ -155,9 +156,10 @@ public final class CommandComputerCraft
             .then( command( "turn-on" )
                 .requires( UserLevel.OWNER_OP )
                 .argManyValue( "computers", manyComputers(), s -> ComputerCraft.serverComputerRegistry.getComputers() )
-                .executes( ( context, computers ) -> {
+                .executes( ( context, computerSelectors ) -> {
                     int on = 0;
-                    for( ServerComputer computer : unwrap( context.getSource(), computers ) )
+                    Set<ServerComputer> computers = unwrap( context.getSource(), computerSelectors );
+                    for( ServerComputer computer : computers )
                     {
                         if( !computer.isOn() ) on++;
                         computer.turnOn();

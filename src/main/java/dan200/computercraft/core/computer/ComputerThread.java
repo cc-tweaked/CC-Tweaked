@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 import java.util.TreeSet;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.LockSupport;
@@ -49,11 +50,11 @@ import static dan200.computercraft.core.computer.TimeoutState.TIMEOUT;
 public final class ComputerThread
 {
     /**
-     * How often the computer thread monitor should run, in milliseconds.
+     * How often the computer thread monitor should run.
      *
      * @see Monitor
      */
-    private static final int MONITOR_WAKEUP = 100;
+    private static final long MONITOR_WAKEUP = TimeUnit.MILLISECONDS.toNanos( 100 );
 
     /**
      * The target latency between executing two tasks on a single machine.
@@ -75,6 +76,13 @@ public final class ComputerThread
      * The maximum number of tasks before we have to start scaling latency linearly.
      */
     private static final long LATENCY_MAX_TASKS = DEFAULT_LATENCY / DEFAULT_MIN_PERIOD;
+
+    /**
+     * Time difference between reporting crashed threads.
+     *
+     * @see TaskRunner#reportTimeout(ComputerExecutor, long)
+     */
+    private static final long REPORT_DEBOUNCE = TimeUnit.SECONDS.toNanos( 1 );
 
     /**
      * Lock used for modifications to the array of current threads.
@@ -102,6 +110,8 @@ public final class ComputerThread
     private static final ReentrantLock computerLock = new ReentrantLock();
 
     private static final Condition hasWork = computerLock.newCondition();
+    private static final AtomicInteger idleWorkers = new AtomicInteger( 0 );
+    private static final Condition monitorWakeup = computerLock.newCondition();
 
     /**
      * Active queues to execute.
@@ -135,7 +145,7 @@ public final class ComputerThread
 
             if( runners == null )
             {
-                // TODO: Change the runners length on config reloads
+                // TODO: Update this on config reloads. Or possibly on world restarts?
                 runners = new TaskRunner[ComputerCraft.computerThreads];
 
                 // latency and minPeriod are scaled by 1 + floor(log2(threads)). We can afford to execute tasks for
@@ -227,9 +237,14 @@ public final class ComputerThread
 
             executor.virtualRuntime = Math.max( newRuntime, executor.virtualRuntime );
 
+            boolean wasBusy = isBusy();
             // Add to the queue, and signal the workers.
             computerQueue.add( executor );
             hasWork.signal();
+
+            // If we've transitioned into a busy state, notify the monitor. This will cause it to sleep for scaledPeriod
+            // instead of the longer wakeup duration.
+            if( !wasBusy && isBusy() ) monitorWakeup.signal();
         }
         finally
         {
@@ -347,6 +362,17 @@ public final class ComputerThread
     }
 
     /**
+     * Check if we have more work queued than we have capacity for. Effectively a more fine-grained version of
+     * {@link #hasPendingWork()}.
+     *
+     * @return If the computer threads are busy.
+     */
+    private static boolean isBusy()
+    {
+        return computerQueue.size() > idleWorkers.get();
+    }
+
+    /**
      * Observes all currently active {@link TaskRunner}s and terminates their tasks once they have exceeded the hard
      * abort limit.
      *
@@ -357,76 +383,93 @@ public final class ComputerThread
         @Override
         public void run()
         {
-            try
+            while( true )
             {
-                while( true )
+                computerLock.lock();
+                try
                 {
-                    Thread.sleep( MONITOR_WAKEUP );
+                    // If we've got more work than we have capacity for it, then we'll need to pause a task soon, so
+                    // sleep for a single pause duration. Otherwise we only need to wake up to set the soft/hard abort
+                    // flags, which are far less granular.
+                    monitorWakeup.awaitNanos( isBusy() ? scaledPeriod() : MONITOR_WAKEUP );
+                }
+                catch( InterruptedException e )
+                {
+                    ComputerCraft.log.error( "Monitor thread interrupted. Computers may behave very badly!", e );
+                    break;
+                }
+                finally
+                {
+                    computerLock.unlock();
+                }
 
-                    TaskRunner[] currentRunners = ComputerThread.runners;
-                    if( currentRunners != null )
+                checkRunners();
+            }
+        }
+
+        private static void checkRunners()
+        {
+            TaskRunner[] currentRunners = ComputerThread.runners;
+            if( currentRunners == null ) return;
+
+            for( int i = 0; i < currentRunners.length; i++ )
+            {
+                TaskRunner runner = currentRunners[i];
+                // If we've no runner, skip.
+                if( runner == null || runner.owner == null || !runner.owner.isAlive() )
+                {
+                    if( !running ) continue;
+
+                    // Mark the old runner as dead and start a new one.
+                    ComputerCraft.log.warn( "Previous runner ({}) has crashed, restarting!",
+                        runner != null && runner.owner != null ? runner.owner.getName() : runner );
+                    if( runner != null ) runner.running = false;
+                    runnerFactory.newThread( runners[i] = new TaskRunner() ).start();
+                }
+
+                // If the runner has no work, skip
+                ComputerExecutor executor = runner.currentExecutor.get();
+                if( executor == null ) continue;
+
+                // Refresh the timeout state. Will set the pause/soft timeout flags as appropriate.
+                executor.timeout.refresh();
+
+                // If we're still within normal execution times (TIMEOUT) or soft abort (ABORT_TIMEOUT),
+                // then we can let the Lua machine do its work.
+                long afterStart = executor.timeout.nanoCumulative();
+                long afterHardAbort = afterStart - TIMEOUT - ABORT_TIMEOUT;
+                if( afterHardAbort < 0 ) continue;
+
+                // Set the hard abort flag.
+                executor.timeout.hardAbort();
+                executor.abort();
+
+                if( afterHardAbort >= ABORT_TIMEOUT * 2 )
+                {
+                    // If we've hard aborted and interrupted, and we're still not dead, then mark the runner
+                    // as dead, finish off the task, and spawn a new runner.
+                    runner.reportTimeout( executor, afterStart );
+                    runner.running = false;
+                    runner.owner.interrupt();
+
+                    ComputerExecutor thisExecutor = runner.currentExecutor.getAndSet( null );
+                    if( thisExecutor != null ) afterWork( runner, executor );
+
+                    synchronized( threadLock )
                     {
-                        for( int i = 0; i < currentRunners.length; i++ )
+                        if( running && runners.length > i && runners[i] == runner )
                         {
-                            TaskRunner runner = currentRunners[i];
-                            // If we've no runner, skip.
-                            if( runner == null || runner.owner == null || !runner.owner.isAlive() )
-                            {
-                                if( !running ) continue;
-
-                                // Mark the old runner as dead and start a new one.
-                                ComputerCraft.log.warn( "Previous runner ({}) has crashed, restarting!",
-                                    runner != null && runner.owner != null ? runner.owner.getName() : runner );
-                                if( runner != null ) runner.running = false;
-                                runnerFactory.newThread( runners[i] = new TaskRunner() ).start();
-                            }
-
-                            // If the runner has no work, skip
-                            ComputerExecutor executor = runner.currentExecutor.get();
-                            if( executor == null ) continue;
-
-                            // If we're still within normal execution times (TIMEOUT) or soft abort (ABORT_TIMEOUT),
-                            // then we can let the Lua machine do its work.
-                            long afterStart = executor.timeout.nanoCumulative();
-                            long afterHardAbort = afterStart - TIMEOUT - ABORT_TIMEOUT;
-                            if( afterHardAbort < 0 ) continue;
-
-                            // Set the hard abort flag.
-                            executor.timeout.hardAbort();
-                            executor.abort();
-
-                            if( afterHardAbort >= ABORT_TIMEOUT * 2 )
-                            {
-                                // If we've hard aborted and interrupted, and we're still not dead, then mark the runner
-                                // as dead, finish off the task, and spawn a new runner.
-                                timeoutTask( executor, runner.owner, afterStart );
-                                runner.running = false;
-                                runner.owner.interrupt();
-
-                                ComputerExecutor thisExecutor = runner.currentExecutor.getAndSet( null );
-                                if( thisExecutor != null ) afterWork( runner, executor );
-
-                                synchronized( threadLock )
-                                {
-                                    if( running && runners.length > i && runners[i] == runner )
-                                    {
-                                        runnerFactory.newThread( currentRunners[i] = new TaskRunner() ).start();
-                                    }
-                                }
-                            }
-                            else if( afterHardAbort >= ABORT_TIMEOUT )
-                            {
-                                // If we've hard aborted but we're still not dead, dump the stack trace and interrupt
-                                // the task.
-                                timeoutTask( executor, runner.owner, afterStart );
-                                runner.owner.interrupt();
-                            }
+                            runnerFactory.newThread( currentRunners[i] = new TaskRunner() ).start();
                         }
                     }
                 }
-            }
-            catch( InterruptedException ignored )
-            {
+                else if( afterHardAbort >= ABORT_TIMEOUT )
+                {
+                    // If we've hard aborted but we're still not dead, dump the stack trace and interrupt
+                    // the task.
+                    runner.reportTimeout( executor, afterStart );
+                    runner.owner.interrupt();
+                }
             }
         }
     }
@@ -441,6 +484,7 @@ public final class ComputerThread
     private static final class TaskRunner implements Runnable
     {
         Thread owner;
+        long lastReport = Long.MIN_VALUE;
         volatile boolean running = true;
 
         final AtomicReference<ComputerExecutor> currentExecutor = new AtomicReference<>();
@@ -460,6 +504,7 @@ public final class ComputerThread
                     computerLock.lockInterruptibly();
                     try
                     {
+                        idleWorkers.incrementAndGet();
                         while( computerQueue.isEmpty() ) hasWork.await();
                         executor = computerQueue.pollFirst();
                         assert executor != null : "hasWork should ensure we never receive null work";
@@ -467,6 +512,7 @@ public final class ComputerThread
                     finally
                     {
                         computerLock.unlock();
+                        idleWorkers.decrementAndGet();
                     }
                 }
                 catch( InterruptedException ignored )
@@ -516,27 +562,32 @@ public final class ComputerThread
                 }
             }
         }
-    }
 
-    private static void timeoutTask( ComputerExecutor executor, Thread thread, long time )
-    {
-        if( !ComputerCraft.logComputerErrors ) return;
-
-        StringBuilder builder = new StringBuilder()
-            .append( "Terminating computer #" ).append( executor.getComputer().getID() )
-            .append( " due to timeout (running for " ).append( time * 1e-9 )
-            .append( " seconds). This is NOT a bug, but may mean a computer is misbehaving. " )
-            .append( thread.getName() )
-            .append( " is currently " )
-            .append( thread.getState() );
-        Object blocking = LockSupport.getBlocker( thread );
-        if( blocking != null ) builder.append( "\n  on " ).append( blocking );
-
-        for( StackTraceElement element : thread.getStackTrace() )
+        private void reportTimeout( ComputerExecutor executor, long time )
         {
-            builder.append( "\n  at " ).append( element );
-        }
+            if( !ComputerCraft.logComputerErrors ) return;
 
-        ComputerCraft.log.warn( builder.toString() );
+            // Attempt to debounce stack trace reporting, limiting ourselves to one every second.
+            long now = System.nanoTime();
+            if( lastReport != Long.MIN_VALUE && now - lastReport - REPORT_DEBOUNCE <= 0 ) return;
+            lastReport = now;
+
+            StringBuilder builder = new StringBuilder()
+                .append( "Terminating computer #" ).append( executor.getComputer().getID() )
+                .append( " due to timeout (running for " ).append( time * 1e-9 )
+                .append( " seconds). This is NOT a bug, but may mean a computer is misbehaving. " )
+                .append( owner.getName() )
+                .append( " is currently " )
+                .append( owner.getState() );
+            Object blocking = LockSupport.getBlocker( owner );
+            if( blocking != null ) builder.append( "\n  on " ).append( blocking );
+
+            for( StackTraceElement element : owner.getStackTrace() )
+            {
+                builder.append( "\n  at " ).append( element );
+            }
+
+            ComputerCraft.log.warn( builder.toString() );
+        }
     }
 }

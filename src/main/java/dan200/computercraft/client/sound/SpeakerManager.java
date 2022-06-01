@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.client.sound;
 
-import net.minecraft.util.math.vector.Vector3d;
+import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.sound.PlayStreamingSourceEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -48,7 +48,7 @@ public class SpeakerManager
         if( sound != null ) sound.stop();
     }
 
-    public static void moveSound( UUID source, Vector3d position )
+    public static void moveSound( UUID source, SpeakerPosition position )
     {
         SpeakerInstance sound = sounds.get( source );
         if( sound != null ) sound.setPosition( position );

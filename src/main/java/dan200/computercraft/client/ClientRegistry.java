@@ -122,8 +122,6 @@ public final class ClientRegistry
     @SubscribeEvent
     public static void setupClient( FMLClientSetupEvent event )
     {
-        registerContainers();
-
         // While turtles themselves are not transparent, their upgrades may be.
         RenderTypeLookup.setRenderLayer( Registry.ModBlocks.TURTLE_NORMAL.get(), RenderType.translucent() );
         RenderTypeLookup.setRenderLayer( Registry.ModBlocks.TURTLE_ADVANCED.get(), RenderType.translucent() );
@@ -138,14 +136,18 @@ public final class ClientRegistry
         net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntityRenderer( Registry.ModTiles.TURTLE_NORMAL.get(), TileEntityTurtleRenderer::new );
         net.minecraftforge.fml.client.registry.ClientRegistry.bindTileEntityRenderer( Registry.ModTiles.TURTLE_ADVANCED.get(), TileEntityTurtleRenderer::new );
 
-        registerItemProperty( "state",
-            ( stack, world, player ) -> ItemPocketComputer.getState( stack ).ordinal(),
-            Registry.ModItems.POCKET_COMPUTER_NORMAL, Registry.ModItems.POCKET_COMPUTER_ADVANCED
-        );
-        registerItemProperty( "coloured",
-            ( stack, world, player ) -> IColouredItem.getColourBasic( stack ) != -1 ? 1 : 0,
-            Registry.ModItems.POCKET_COMPUTER_NORMAL, Registry.ModItems.POCKET_COMPUTER_ADVANCED
-        );
+        event.enqueueWork( () -> {
+            registerContainers();
+
+            registerItemProperty( "state",
+                ( stack, world, player ) -> ItemPocketComputer.getState( stack ).ordinal(),
+                Registry.ModItems.POCKET_COMPUTER_NORMAL, Registry.ModItems.POCKET_COMPUTER_ADVANCED
+            );
+            registerItemProperty( "coloured",
+                ( stack, world, player ) -> IColouredItem.getColourBasic( stack ) != -1 ? 1 : 0,
+                Registry.ModItems.POCKET_COMPUTER_NORMAL, Registry.ModItems.POCKET_COMPUTER_ADVANCED
+            );
+        } );
     }
 
     @SafeVarargs

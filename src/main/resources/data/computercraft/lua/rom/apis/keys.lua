@@ -1,5 +1,4 @@
---- The Keys API provides a table of numerical codes corresponding to keyboard
--- keys, suitable for decoding key events.
+--- Constants for all keyboard "key codes", as queued by the @{key} event.
 --
 -- These values are not guaranteed to remain the same between versions. It is
 -- recommended that you use the constants provided by this file, rather than

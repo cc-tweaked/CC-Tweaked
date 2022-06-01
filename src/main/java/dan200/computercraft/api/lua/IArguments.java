@@ -188,8 +188,8 @@ public interface IArguments
      *
      * Classes implementing this interface may choose to implement a more optimised version which does not copy the
      * table, instead returning a wrapper version, making it more efficient. However, the caller must guarantee that
-     * they do not access off the computer thread (and so should not be used with main-thread functions) or once the
-     * function call has finished (for instance, in callbacks).
+     * they do not access the table the computer thread (and so should not be used with main-thread functions) or once
+     * the initial call has finished (for instance, in a callback to {@link MethodResult#pullEvent}).
      *
      * @param index The argument number.
      * @return The argument's value.
@@ -448,7 +448,10 @@ public interface IArguments
      * This is called when the current function finishes, before any main thread tasks have run.
      *
      * Called when the current function returns, and so some values are no longer guaranteed to be safe to access.
+     *
+     * @deprecated This method was an internal implementation detail and is no longer used.
      */
+    @Deprecated
     default void releaseImmediate()
     {
     }

@@ -57,7 +57,8 @@ public final class ComputerMBean implements DynamicMBean, Tracker
         {
             ManagementFactory.getPlatformMBeanServer().registerMBean( instance = new ComputerMBean(), new ObjectName( "dan200.computercraft:type=Computers" ) );
         }
-        catch( InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException | MalformedObjectNameException e )
+        catch( InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException |
+               MalformedObjectNameException e )
         {
             ComputerCraft.log.warn( "Failed to register JMX bean", e );
         }

@@ -23,8 +23,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * {@link MainThread} starts cool, and runs as many tasks as it can in the current {@link #budget}ns. Any external tasks
  * (those run by tile entities, etc...) will also consume the budget
  *
- * Next tick, we put {@link ComputerCraft#maxMainGlobalTime} into our budget (and clamp it to that value to). If we're
- * still over budget, then we should not execute <em>any</em> work (either as part of {@link MainThread} or externally).
+ * Next tick, we add {@link ComputerCraft#maxMainGlobalTime} to our budget (clamp it to that value too). If we're still
+ * over budget, then we should not execute <em>any</em> work (either as part of {@link MainThread} or externally).
  */
 public final class MainThread
 {

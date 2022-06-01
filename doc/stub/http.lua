@@ -1,14 +1,13 @@
---- The http library allows communicating with web servers, sending and
--- receiving data from them.
+--- Make HTTP requests, sending and receiving data to a remote web server.
 --
 -- @module http
 -- @since 1.1
+-- @see local_ips To allow accessing servers running on your local network.
 
 --- Asynchronously make a HTTP request to the given url.
 --
--- This returns immediately, a [`http_success`](#http-success-event) or
--- [`http_failure`](#http-failure-event) will be queued once the request has
--- completed.
+-- This returns immediately, a @{http_success} or @{http_failure} will be queued
+-- once the request has completed.
 --
 -- @tparam      string url   The url to request
 -- @tparam[opt] string body  An optional string containing the body of the
@@ -112,9 +111,8 @@ function post(...) end
 
 --- Asynchronously determine whether a URL can be requested.
 --
--- If this returns `true`, one should also listen for [`http_check`
--- events](#http-check-event) which will container further information about
--- whether the URL is allowed or not.
+-- If this returns `true`, one should also listen for @{http_check} which will
+-- container further information about whether the URL is allowed or not.
 --
 -- @tparam string url The URL to check.
 -- @treturn true When this url is not invalid. This does not imply that it is
@@ -128,9 +126,8 @@ function checkURLAsync(url) end
 
 --- Determine whether a URL can be requested.
 --
--- If this returns `true`, one should also listen for [`http_check`
--- events](#http-check-event) which will container further information about
--- whether the URL is allowed or not.
+-- If this returns `true`, one should also listen for @{http_check} which will
+-- container further information about whether the URL is allowed or not.
 --
 -- @tparam string url The URL to check.
 -- @treturn true When this url is valid and can be requested via @{http.request}.
@@ -168,9 +165,8 @@ function websocket(url, headers) end
 
 --- Asynchronously open a websocket.
 --
--- This returns immediately, a [`websocket_success`](#websocket-success-event)
--- or [`websocket_failure`](#websocket-failure-event) will be queued once the
--- request has completed.
+-- This returns immediately, a @{websocket_success} or @{websocket_failure}
+-- will be queued once the request has completed.
 --
 -- @tparam string url The websocket url to connect to. This should have the
 -- `ws://` or `wss://` protocol.

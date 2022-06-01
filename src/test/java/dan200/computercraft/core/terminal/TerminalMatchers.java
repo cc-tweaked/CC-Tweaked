@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.core.terminal;
 
-import dan200.computercraft.ContramapMatcher;
+import dan200.computercraft.support.ContramapMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
@@ -36,11 +36,11 @@ public class TerminalMatchers
 
     public static Matcher<Terminal> linesMatchWith( String kind, LineProvider getLine, Matcher<String>[] lines )
     {
-        return new ContramapMatcher<>( kind, terminal -> {
+        return ContramapMatcher.contramap( Matchers.array( lines ), kind, terminal -> {
             String[] termLines = new String[terminal.getHeight()];
             for( int i = 0; i < termLines.length; i++ ) termLines[i] = getLine.getLine( terminal, i ).toString();
             return termLines;
-        }, Matchers.array( lines ) );
+        } );
     }
 
     @FunctionalInterface

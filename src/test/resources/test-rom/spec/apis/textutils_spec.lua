@@ -177,8 +177,15 @@ describe("The textutils library", function()
                 expect(textutils.unserializeJSON("null", { parse_null = false })):eq(nil)
             end)
 
-            it("an empty array", function()
-                expect(textutils.unserializeJSON("[]", { parse_null = false })):eq(textutils.empty_json_array)
+            it("an empty array when parse_empty_array is true", function()
+                expect(textutils.unserializeJSON("[]")):eq(textutils.empty_json_array)
+                expect(textutils.unserializeJSON("[]", { parse_empty_array = true })):eq(textutils.empty_json_array)
+            end)
+
+            it("an empty array when parse_empty_array is false", function()
+                expect(textutils.unserializeJSON("[]", { parse_empty_array = false }))
+                    :ne(textutils.empty_json_array)
+                    :same({})
             end)
 
             it("basic objects", function()

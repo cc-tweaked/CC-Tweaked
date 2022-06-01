@@ -11,7 +11,7 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.computer.ComputerSide;
 
 /**
- * Interact with redstone attached to this computer.
+ * Get and set redstone signals adjacent to this computer.
  *
  * The {@link RedstoneAPI} library exposes three "types" of redstone control:
  * - Binary input/output ({@link #setOutput}/{@link #getInput}): These simply check if a redstone wire has any input or

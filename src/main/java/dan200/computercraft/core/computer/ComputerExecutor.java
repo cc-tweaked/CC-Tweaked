@@ -53,6 +53,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 final class ComputerExecutor
 {
+    static ILuaMachine.Factory luaFactory = CobaltLuaMachine::new;
     private static final int QUEUE_LIMIT = 256;
 
     private final Computer computer;
@@ -400,7 +401,7 @@ final class ComputerExecutor
         }
 
         // Create the lua machine
-        ILuaMachine machine = new CobaltLuaMachine( computer, timeout );
+        ILuaMachine machine = luaFactory.create( computer, timeout );
 
         // Add the APIs. We unwrap them (yes, this is horrible) to get access to the underlying object.
         for( ILuaAPI api : apis ) machine.addAPI( api instanceof ApiWrapper ? ((ApiWrapper) api).getDelegate() : api );

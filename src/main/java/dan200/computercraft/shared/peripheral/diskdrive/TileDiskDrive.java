@@ -26,12 +26,14 @@ import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.tileentity.LockableTileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.LockCode;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.network.NetworkHooks;
@@ -58,6 +60,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     }
 
     ITextComponent customName;
+    private LockCode lockCode;
 
     private final Map<IComputerAccess, MountInfo> computers = new HashMap<>();
 
@@ -92,6 +95,12 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         peripheralCap = CapabilityUtil.invalidate( peripheralCap );
     }
 
+    @Override
+    public boolean isUsable( PlayerEntity player )
+    {
+        return super.isUsable( player ) && LockableTileEntity.canUnlock( player, lockCode, getDisplayName() );
+    }
+
     @Nonnull
     @Override
     public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
@@ -111,7 +120,10 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         else
         {
             // Open the GUI
-            if( !getLevel().isClientSide ) NetworkHooks.openGui( (ServerPlayerEntity) player, this );
+            if( !getLevel().isClientSide && isUsable( player ) )
+            {
+                NetworkHooks.openGui( (ServerPlayerEntity) player, this );
+            }
             return ActionResultType.SUCCESS;
         }
     }
@@ -132,6 +144,8 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
             diskStack = ItemStack.of( item );
             diskMount = null;
         }
+
+        lockCode = LockCode.fromTag( nbt );
     }
 
     @Nonnull
@@ -146,6 +160,9 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
             diskStack.save( item );
             nbt.put( NBT_ITEM, item );
         }
+
+        lockCode.addToTag( nbt );
+
         return super.save( nbt );
     }
 
@@ -297,7 +314,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     @Override
     public boolean stillValid( @Nonnull PlayerEntity player )
     {
-        return isUsable( player, false );
+        return isUsable( player );
     }
 
     @Override

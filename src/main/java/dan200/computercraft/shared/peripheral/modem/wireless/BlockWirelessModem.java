@@ -18,6 +18,8 @@ import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
@@ -93,5 +95,21 @@ public class BlockWirelessModem extends BlockGeneric implements IWaterLoggable
         return defaultBlockState()
             .setValue( FACING, placement.getClickedFace().getOpposite() )
             .setValue( WATERLOGGED, getWaterloggedStateForPlacement( placement ) );
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public BlockState mirror( BlockState state, Mirror mirrorIn )
+    {
+        return state.rotate( mirrorIn.getRotation( state.getValue( FACING ) ) );
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public BlockState rotate( BlockState state, Rotation rot )
+    {
+        return state.setValue( FACING, rot.rotate( state.getValue( FACING ) ) );
     }
 }

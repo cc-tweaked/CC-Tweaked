@@ -9,7 +9,6 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.AbstractPocketUpgrade;
 import dan200.computercraft.api.pocket.IPocketAccess;
 import dan200.computercraft.shared.Registry;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
@@ -26,23 +25,13 @@ public class PocketSpeaker extends AbstractPocketUpgrade
     @Override
     public IPeripheral createPeripheral( @Nonnull IPocketAccess access )
     {
-        return new PocketSpeakerPeripheral();
+        return new PocketSpeakerPeripheral( access );
     }
 
     @Override
     public void update( @Nonnull IPocketAccess access, @Nullable IPeripheral peripheral )
     {
         if( !(peripheral instanceof PocketSpeakerPeripheral) ) return;
-
-        PocketSpeakerPeripheral speaker = (PocketSpeakerPeripheral) peripheral;
-
-        Entity entity = access.getEntity();
-        if( entity != null )
-        {
-            speaker.setLocation( entity.getCommandSenderWorld(), entity.getEyePosition( 1 ) );
-        }
-
-        speaker.update();
-        access.setLight( speaker.madeSound() ? 0x3320fc : -1 );
+        ((PocketSpeakerPeripheral) peripheral).update();
     }
 }
