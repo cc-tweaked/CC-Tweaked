@@ -39,7 +39,7 @@ const glob = promisify(globModule);
             } as any
         });
 
-    const dataExport = JSON.parse(await fs.readFile("src/web/export/index.json", "utf-8")) as DataExport;
+    const dataExport = JSON.parse(await fs.readFile("src/generated/export/index.json", "utf-8")) as DataExport;
 
     for (const file of await glob(base + "/**/*.html")) {
         const contents = await fs.readFile(file, "utf-8");

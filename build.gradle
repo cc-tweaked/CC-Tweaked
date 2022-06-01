@@ -335,7 +335,7 @@ task docWebsite(type: Copy, dependsOn: [jsxDocs]) {
     from("$buildDir/docs/lua") {
         exclude '**/*.html'
     }
-    from("src/web/export/items") {
+    from("src/generated/export/items") {
         into("images/items")
     }
 
