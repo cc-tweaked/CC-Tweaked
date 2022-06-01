@@ -101,6 +101,8 @@ local monitor = peripheral.wrap("monitor_1")
 monitor.write("Hello World!")
 ```
 
+If you use @{peripheral.find} instead of @{peripheral.wrap} then you can use the same code for both directly connected peripherals and peripherals connected via a wired modem.
+
 ## Moving items and fluids
 :::note Fluids are very much the same
 We only cover items here, but fluids can be moved in very much the same way.
