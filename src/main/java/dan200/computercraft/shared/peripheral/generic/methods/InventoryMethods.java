@@ -36,6 +36,7 @@ import static dan200.computercraft.shared.peripheral.generic.methods.ArgumentHel
  * Methods for interacting with inventories.
  *
  * @cc.module inventory
+ * @cc.see item_transportation For a detailed guide on how to use these methods.
  */
 public class InventoryMethods implements GenericPeripheral
 {
