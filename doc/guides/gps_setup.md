@@ -3,18 +3,16 @@ module: [kind=guide] gps_setup
 ---
 
 # Setting up GPS
-Some quick definitions for this page.
-```
-GPS host: a computer running the GPS program in host mode
-GPS constellation: a group of GPS hosts
-```
+The @{gps} API allows computers and turtles to find their current position using wireless modems.
+
+In order to use GPS, you'll need to set up multiple GPS hosts. These are computers running the special gps host program, which tell other computers the host's position. Several hosts running together are known as a GPS constellation.
 
 Before GPS can be used in a dimension (e.g. the Nether) a GPS host constellation needs to be set up. Traditionally this is done near the max build height for maximum range, but ender modems can beat normal modes in range even from bedrock.
 
-In order to give the best results, a GPS constellation needs at least four computers. One can theoretically get away with three for most GPS requests, but four changes that to 100% accuracy when the requester is within all of their ranges, provided that they are placed correctly. More than four GPS hosts per constellation is redundant, but it does not harm.
+In order to give the best results, a GPS constellation needs at least four computers.  More than four GPS hosts per constellation is redundant, but it does not harm.
 
 ## Building a GPS constellation
-![An example GPS constellation.](images/gps-constellation-example.png){.big-image}
+![An example GPS constellation.](/images/gps-constellation-example.png){.big-image}
 
 Assuming that you are using four computers per constellation, you will want each computer that makes up the constellation to be out of plane with at least one other computer in the constellation. To put this another way, if you can make a straight wall or floor (diagonal also counts as straight, having a corner or curve doesn't) that touches all four computers then you need to move one of the computers so that it's nolonger in contact with the wall/floor.
 
