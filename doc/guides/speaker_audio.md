@@ -125,7 +125,7 @@ different.
 First, we require the dfpwm module and call @{cc.audio.dfpwm.make_decoder} to construct a new decoder. This decoder
 accepts blocks of DFPWM data and converts it to a list of 8-bit amplitudes, which we can then play with our speaker.
 
-As mentioned to above, @{speaker.playAudio} accepts at most 128×1024 samples in one go. DFPMW uses a single bit for each
+As mentioned above, @{speaker.playAudio} accepts at most 128×1024 samples in one go. DFPMW uses a single bit for each
 sample, which means we want to process our audio in chunks of 16×1024 bytes (16KiB). In order to do this, we use
 @{io.lines}, which provides a nice way to loop over chunks of a file. You can of course just use @{fs.open} and
 @{fs.BinaryReadHandle.read} if you prefer.
@@ -136,22 +136,22 @@ You can mix together samples from different streams by adding their amplitudes, 
 samples, etc...
 
 Let's put together a small demonstration here. We're going to add a small delay effect to the song above, so that you
-hear a faint echo about a second later.
+hear a faint echo a second and a half later.
 
 In order to do this, we'll follow a format similar to the previous example, decoding the audio and then playing it.
 However, we'll also add some new logic between those two steps, which loops over every sample in our chunk of audio, and
-adds the sample from one second ago to it.
+adds the sample from 1.5 seconds ago to it.
 
-For this, we'll need to keep track of the last 48k samples - exactly one seconds worth of audio. We can do this using a
+For this, we'll need to keep track of the last 72k samples - exactly 1.5 seconds worth of audio. We can do this using a
 [Ring Buffer], which helps makes things a little more efficient.
 
 ```lua {data-peripheral=speaker}
 local dfpwm = require("cc.audio.dfpwm")
 local speaker = peripheral.find("speaker")
 
--- Speakers play at 48kHz, so one second is 48k samples. We first fill our buffer
+-- Speakers play at 48kHz, so 1.5 seconds is 72k samples. We first fill our buffer
 -- with 0s, as there's nothing to echo at the start of the track!
-local samples_i, samples_n = 1, 48000
+local samples_i, samples_n = 1, 48000 * 1.5
 local samples = {}
 for i = 1, samples_n do samples[i] = 0 end
 
@@ -162,7 +162,7 @@ for chunk in io.lines("data/example.dfpwm", 16 * 1024) do
     for i = 1, #buffer do
         local original_value = buffer[i]
 
-        -- Replace this sample with its current amplitude plus the amplitude from one second ago.
+        -- Replace this sample with its current amplitude plus the amplitude from 1.5 seconds ago.
         -- We scale both to ensure the resulting value is still between -128 and 127.
         buffer[i] = original_value * 0.6 + samples[samples_i] * 0.4
 
@@ -175,6 +175,11 @@ for chunk in io.lines("data/example.dfpwm", 16 * 1024) do
     while not speaker.playAudio(buffer) do
         os.pullEvent("speaker_audio_empty")
     end
+
+    -- The audio processing above can be quite slow and preparing the first batch of audio
+    -- may timeout the computer. We sleep to avoid this.
+    -- There's definitely better ways of handling this - this is just an example!
+    sleep(0.05)
 end
 ```
 

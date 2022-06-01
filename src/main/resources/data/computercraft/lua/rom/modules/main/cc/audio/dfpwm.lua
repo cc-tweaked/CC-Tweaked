@@ -1,5 +1,5 @@
 --[[-
-Provides utilities for converting between streams of DFPWM audio data and a list of amplitudes.
+Convert between streams of DFPWM audio data and a list of amplitudes.
 
 DFPWM (Dynamic Filter Pulse Width Modulation) is an audio codec designed by GreaseMonkey. It's a relatively compact
 format compared to raw PCM data, only using 1 bit per sample, but is simple enough to simple enough to encode and decode
@@ -18,11 +18,12 @@ for each one you write.
 
 ## Converting audio to DFPWM
 DFPWM is not a popular file format and so standard audio processing tools will not have an option to export to it.
-Instead, you can convert audio files online using [music.madefor.cc] or with the [LionRay Wav Converter][LionRay] Java
-application.
+Instead, you can convert audio files online using [music.madefor.cc], the [LionRay Wav Converter][LionRay] Java
+application or development builds of [FFmpeg].
 
 [music.madefor.cc]: https://music.madefor.cc/ "DFPWM audio converter for Computronics and CC: Tweaked"
 [LionRay]: https://github.com/gamax92/LionRay/ "LionRay Wav Converter "
+[FFmpeg]: https://ffmpeg.org "FFmpeg command-line audio manipulation library"
 
 @see guide!speaker_audio Gives a more general introduction to audio processing and the speaker.
 @see speaker.playAudio To play the decoded audio data.

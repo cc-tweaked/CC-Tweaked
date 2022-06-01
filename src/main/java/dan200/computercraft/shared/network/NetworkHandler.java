@@ -23,7 +23,6 @@ import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public final class NetworkHandler
 {
@@ -110,11 +109,5 @@ public final class NetworkHandler
                 context.setPacketHandled( true );
             } )
             .add();
-    }
-
-    @SuppressWarnings( "unchecked" )
-    private static <T> Class<T> getType( Supplier<T> supplier )
-    {
-        return (Class<T>) supplier.get().getClass();
     }
 }

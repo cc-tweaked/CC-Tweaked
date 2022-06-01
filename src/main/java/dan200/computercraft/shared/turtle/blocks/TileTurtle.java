@@ -479,7 +479,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     @Override
     public boolean stillValid( @Nonnull PlayerEntity player )
     {
-        return isUsable( player, false );
+        return isUsable( player );
     }
 
     private void onInventoryDefinitelyChanged()

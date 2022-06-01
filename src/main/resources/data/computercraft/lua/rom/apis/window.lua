@@ -1,32 +1,33 @@
---- The Window API allows easy definition of spaces within the display that can
--- be written/drawn to, then later redrawn/repositioned/etc as need be. The API
--- itself contains only one function, @{window.create}, which returns the
--- windows themselves.
---
--- Windows are considered terminal objects - as such, they have access to nearly
--- all the commands in the term API (plus a few extras of their own, listed
--- within said API) and are valid targets to redirect to.
---
--- Each window has a "parent" terminal object, which can be the computer's own
--- display, a monitor, another window or even other, user-defined terminal
--- objects. Whenever a window is rendered to, the actual screen-writing is
--- performed via that parent (or, if that has one too, then that parent, and so
--- forth). Bear in mind that the cursor of a window's parent will hence be moved
--- around etc when writing a given child window.
---
--- Windows retain a memory of everything rendered "through" them (hence acting
--- as display buffers), and if the parent's display is wiped, the window's
--- content can be easily redrawn later. A window may also be flagged as
--- invisible, preventing any changes to it from being rendered until it's
--- flagged as visible once more.
---
--- A parent terminal object may have multiple children assigned to it, and
--- windows may overlap. For example, the Multishell system functions by
--- assigning each tab a window covering the screen, each using the starting
--- terminal display as its parent, and only one of which is visible at a time.
---
--- @module window
--- @since 1.6
+--[[- A @{term.Redirect|terminal redirect} occupying a smaller area of an
+existing terminal. This allows for easy definition of spaces within the display
+that can be written/drawn to, then later redrawn/repositioned/etc as need
+be. The API itself contains only one function, @{window.create}, which returns
+the windows themselves.
+
+Windows are considered terminal objects - as such, they have access to nearly
+all the commands in the term API (plus a few extras of their own, listed within
+said API) and are valid targets to redirect to.
+
+Each window has a "parent" terminal object, which can be the computer's own
+display, a monitor, another window or even other, user-defined terminal
+objects. Whenever a window is rendered to, the actual screen-writing is
+performed via that parent (or, if that has one too, then that parent, and so
+forth). Bear in mind that the cursor of a window's parent will hence be moved
+around etc when writing a given child window.
+
+Windows retain a memory of everything rendered "through" them (hence acting as
+display buffers), and if the parent's display is wiped, the window's content can
+be easily redrawn later. A window may also be flagged as invisible, preventing
+any changes to it from being rendered until it's flagged as visible once more.
+
+A parent terminal object may have multiple children assigned to it, and windows
+may overlap. For example, the Multishell system functions by assigning each tab
+a window covering the screen, each using the starting terminal display as its
+parent, and only one of which is visible at a time.
+
+@module window
+@since 1.6
+]]
 
 local expect = dofile("rom/modules/main/cc/expect.lua").expect
 

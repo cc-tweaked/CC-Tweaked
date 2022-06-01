@@ -82,7 +82,6 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
@@ -339,12 +338,11 @@ public final class Registry
     }
 
     @SubscribeEvent
-    @SuppressWarnings( "deprecation" )
     public static void init( FMLCommonSetupEvent event )
     {
         NetworkHandler.setup();
 
-        DeferredWorkQueue.runLater( () -> {
+        event.enqueueWork( () -> {
             registerProviders();
             ArgumentSerializers.register();
             registerLoot();

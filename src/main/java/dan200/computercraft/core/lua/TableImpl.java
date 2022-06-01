@@ -133,7 +133,7 @@ class TableImpl implements dan200.computercraft.api.lua.LuaTable<Object, Object>
 
     private void checkValid()
     {
-        if( arguments.released )
+        if( arguments.closed )
         {
             throw new IllegalStateException( "Cannot use LuaTable after IArguments has been released" );
         }

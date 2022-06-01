@@ -7,8 +7,8 @@ package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.client.sound.SpeakerManager;
 import dan200.computercraft.shared.network.NetworkMessage;
+import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
@@ -27,14 +27,14 @@ import java.util.UUID;
 public class SpeakerAudioClientMessage implements NetworkMessage
 {
     private final UUID source;
-    private final Vector3d pos;
+    private final SpeakerPosition.Message pos;
     private final ByteBuffer content;
     private final float volume;
 
-    public SpeakerAudioClientMessage( UUID source, Vector3d pos, float volume, ByteBuffer content )
+    public SpeakerAudioClientMessage( UUID source, SpeakerPosition pos, float volume, ByteBuffer content )
     {
         this.source = source;
-        this.pos = pos;
+        this.pos = pos.asMessage();
         this.content = content;
         this.volume = volume;
     }
@@ -42,7 +42,7 @@ public class SpeakerAudioClientMessage implements NetworkMessage
     public SpeakerAudioClientMessage( PacketBuffer buf )
     {
         source = buf.readUUID();
-        pos = new Vector3d( buf.readDouble(), buf.readDouble(), buf.readDouble() );
+        pos = SpeakerPosition.Message.read( buf );
         volume = buf.readFloat();
 
         SpeakerManager.getSound( source ).pushAudio( buf );
@@ -53,9 +53,7 @@ public class SpeakerAudioClientMessage implements NetworkMessage
     public void toBytes( @Nonnull PacketBuffer buf )
     {
         buf.writeUUID( source );
-        buf.writeDouble( pos.x() );
-        buf.writeDouble( pos.y() );
-        buf.writeDouble( pos.z() );
+        pos.write( buf );
         buf.writeFloat( volume );
         buf.writeBytes( content.duplicate() );
     }
@@ -64,6 +62,6 @@ public class SpeakerAudioClientMessage implements NetworkMessage
     @OnlyIn( Dist.CLIENT )
     public void handle( NetworkEvent.Context context )
     {
-        SpeakerManager.getSound( source ).playAudio( pos, volume );
+        SpeakerManager.getSound( source ).playAudio( pos.reify(), volume );
     }
 }

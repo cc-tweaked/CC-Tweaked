@@ -6,18 +6,14 @@
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Palette;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderState;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Matrix4f;
-import org.lwjgl.opengl.GL11;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.FONT_HEIGHT;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.shared.media.items.ItemPrintout.LINES_PER_PAGE;
 
 public final class PrintoutRenderer
@@ -60,37 +56,37 @@ public final class PrintoutRenderer
 
     private PrintoutRenderer() {}
 
-    public static void drawText( Matrix4f transform, IRenderTypeBuffer renderer, int x, int y, int start, TextBuffer[] text, TextBuffer[] colours )
+    public static void drawText( Matrix4f transform, IRenderTypeBuffer renderer, int x, int y, int start, int light, TextBuffer[] text, TextBuffer[] colours )
     {
-        IVertexBuilder buffer = renderer.getBuffer( FixedWidthFontRenderer.TYPE );
+        IVertexBuilder buffer = renderer.getBuffer( RenderTypes.PRINTOUT_TEXT );
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; line++ )
         {
             FixedWidthFontRenderer.drawString( transform, buffer,
-                x, y + line * FONT_HEIGHT, text[start + line], colours[start + line], null, Palette.DEFAULT,
-                false, 0, 0
+                x, y + line * FONT_HEIGHT, text[start + line], colours[start + line],
+                Palette.DEFAULT, false, light
             );
         }
     }
 
-    public static void drawText( Matrix4f transform, IRenderTypeBuffer renderer, int x, int y, int start, String[] text, String[] colours )
+    public static void drawText( Matrix4f transform, IRenderTypeBuffer renderer, int x, int y, int start, int light, String[] text, String[] colours )
     {
-        IVertexBuilder buffer = renderer.getBuffer( FixedWidthFontRenderer.TYPE );
+        IVertexBuilder buffer = renderer.getBuffer( RenderTypes.PRINTOUT_TEXT );
         for( int line = 0; line < LINES_PER_PAGE && line < text.length; line++ )
         {
             FixedWidthFontRenderer.drawString( transform, buffer,
                 x, y + line * FONT_HEIGHT,
                 new TextBuffer( text[start + line] ), new TextBuffer( colours[start + line] ),
-                null, Palette.DEFAULT, false, 0, 0
+                Palette.DEFAULT, false, light
             );
         }
     }
 
-    public static void drawBorder( Matrix4f transform, IRenderTypeBuffer renderer, float x, float y, float z, int page, int pages, boolean isBook )
+    public static void drawBorder( Matrix4f transform, IRenderTypeBuffer renderer, float x, float y, float z, int page, int pages, boolean isBook, int light )
     {
         int leftPages = page;
         int rightPages = pages - page - 1;
 
-        IVertexBuilder buffer = renderer.getBuffer( Type.TYPE );
+        IVertexBuilder buffer = renderer.getBuffer( RenderTypes.PRINTOUT_BACKGROUND );
 
         if( isBook )
         {
@@ -100,86 +96,73 @@ public final class PrintoutRenderer
             float right = x + X_SIZE + offset - 4;
 
             // Left and right border
-            drawTexture( transform, buffer, left - 4, y - 8, z - 0.02f, COVER_X, 0, COVER_SIZE, Y_SIZE + COVER_SIZE * 2 );
-            drawTexture( transform, buffer, right, y - 8, z - 0.02f, COVER_X + COVER_SIZE, 0, COVER_SIZE, Y_SIZE + COVER_SIZE * 2 );
+            drawTexture( transform, buffer, left - 4, y - 8, z - 0.02f, COVER_X, 0, COVER_SIZE, Y_SIZE + COVER_SIZE * 2, light );
+            drawTexture( transform, buffer, right, y - 8, z - 0.02f, COVER_X + COVER_SIZE, 0, COVER_SIZE, Y_SIZE + COVER_SIZE * 2, light );
 
             // Draw centre panel (just stretched texture, sorry).
             drawTexture( transform, buffer,
                 x - offset, y, z - 0.02f, X_SIZE + offset * 2, Y_SIZE,
-                COVER_X + COVER_SIZE / 2.0f, COVER_SIZE, COVER_SIZE, Y_SIZE
+                COVER_X + COVER_SIZE / 2.0f, COVER_SIZE, COVER_SIZE, Y_SIZE, light
             );
 
             float borderX = left;
             while( borderX < right )
             {
                 double thisWidth = Math.min( right - borderX, X_SIZE );
-                drawTexture( transform, buffer, borderX, y - 8, z - 0.02f, 0, COVER_Y, (float) thisWidth, COVER_SIZE );
-                drawTexture( transform, buffer, borderX, y + Y_SIZE - 4, z - 0.02f, 0, COVER_Y + COVER_SIZE, (float) thisWidth, COVER_SIZE );
+                drawTexture( transform, buffer, borderX, y - 8, z - 0.02f, 0, COVER_Y, (float) thisWidth, COVER_SIZE, light );
+                drawTexture( transform, buffer, borderX, y + Y_SIZE - 4, z - 0.02f, 0, COVER_Y + COVER_SIZE, (float) thisWidth, COVER_SIZE, light );
                 borderX += thisWidth;
             }
         }
 
         // Left half
-        drawTexture( transform, buffer, x, y, z, X_FOLD_SIZE * 2, 0, X_SIZE / 2.0f, Y_SIZE );
+        drawTexture( transform, buffer, x, y, z, X_FOLD_SIZE * 2, 0, X_SIZE / 2.0f, Y_SIZE, light );
         for( int n = 0; n <= leftPages; n++ )
         {
             drawTexture( transform, buffer,
                 x - offsetAt( n ), y, z - 1e-3f * n,
                 // Use the left "bold" fold for the outermost page
                 n == leftPages ? 0 : X_FOLD_SIZE, 0,
-                X_FOLD_SIZE, Y_SIZE
+                X_FOLD_SIZE, Y_SIZE, light
             );
         }
 
         // Right half
-        drawTexture( transform, buffer, x + X_SIZE / 2.0f, y, z, X_FOLD_SIZE * 2 + X_SIZE / 2.0f, 0, X_SIZE / 2.0f, Y_SIZE );
+        drawTexture( transform, buffer, x + X_SIZE / 2.0f, y, z, X_FOLD_SIZE * 2 + X_SIZE / 2.0f, 0, X_SIZE / 2.0f, Y_SIZE, light );
         for( int n = 0; n <= rightPages; n++ )
         {
             drawTexture( transform, buffer,
                 x + (X_SIZE - X_FOLD_SIZE) + offsetAt( n ), y, z - 1e-3f * n,
                 // Two folds, then the main page. Use the right "bold" fold for the outermost page.
                 X_FOLD_SIZE * 2 + X_SIZE + (n == rightPages ? X_FOLD_SIZE : 0), 0,
-                X_FOLD_SIZE, Y_SIZE
+                X_FOLD_SIZE, Y_SIZE, light
             );
         }
     }
 
-    private static void drawTexture( Matrix4f matrix, IVertexBuilder buffer, float x, float y, float z, float u, float v, float width, float height )
+    private static void drawTexture( Matrix4f matrix, IVertexBuilder buffer, float x, float y, float z, float u, float v, float width, float height, int light )
     {
-        buffer.vertex( matrix, x, y + height, z ).uv( u / BG_SIZE, (v + height) / BG_SIZE ).endVertex();
-        buffer.vertex( matrix, x + width, y + height, z ).uv( (u + width) / BG_SIZE, (v + height) / BG_SIZE ).endVertex();
-        buffer.vertex( matrix, x + width, y, z ).uv( (u + width) / BG_SIZE, v / BG_SIZE ).endVertex();
-        buffer.vertex( matrix, x, y, z ).uv( u / BG_SIZE, v / BG_SIZE ).endVertex();
+        vertex( buffer, matrix, x, y + height, z, u / BG_SIZE, (v + height) / BG_SIZE, light );
+        vertex( buffer, matrix, x + width, y + height, z, (u + width) / BG_SIZE, (v + height) / BG_SIZE, light );
+        vertex( buffer, matrix, x + width, y, z, (u + width) / BG_SIZE, v / BG_SIZE, light );
+        vertex( buffer, matrix, x, y, z, u / BG_SIZE, v / BG_SIZE, light );
     }
 
-    private static void drawTexture( Matrix4f matrix, IVertexBuilder buffer, float x, float y, float z, float width, float height, float u, float v, float tWidth, float tHeight )
+    private static void drawTexture( Matrix4f matrix, IVertexBuilder buffer, float x, float y, float z, float width, float height, float u, float v, float tWidth, float tHeight, int light )
     {
-        buffer.vertex( matrix, x, y + height, z ).uv( u / BG_SIZE, (v + tHeight) / BG_SIZE ).endVertex();
-        buffer.vertex( matrix, x + width, y + height, z ).uv( (u + tWidth) / BG_SIZE, (v + tHeight) / BG_SIZE ).endVertex();
-        buffer.vertex( matrix, x + width, y, z ).uv( (u + tWidth) / BG_SIZE, v / BG_SIZE ).endVertex();
-        buffer.vertex( matrix, x, y, z ).uv( u / BG_SIZE, v / BG_SIZE ).endVertex();
+        vertex( buffer, matrix, x, y + height, z, u / BG_SIZE, (v + tHeight) / BG_SIZE, light );
+        vertex( buffer, matrix, x + width, y + height, z, (u + tWidth) / BG_SIZE, (v + tHeight) / BG_SIZE, light );
+        vertex( buffer, matrix, x + width, y, z, (u + tWidth) / BG_SIZE, v / BG_SIZE, light );
+        vertex( buffer, matrix, x, y, z, u / BG_SIZE, v / BG_SIZE, light );
+    }
+
+    private static void vertex( IVertexBuilder buffer, Matrix4f matrix, float x, float y, float z, float u, float v, int light )
+    {
+        buffer.vertex( matrix, x, y, z ).color( 255, 255, 255, 255 ).uv( u, v ).uv2( light ).endVertex();
     }
 
     public static float offsetAt( int page )
     {
         return (float) (32 * (1 - Math.pow( 1.2, -page )));
-    }
-
-    private static final class Type extends RenderState
-    {
-        static final RenderType TYPE = RenderType.create(
-            "printout_background", DefaultVertexFormats.POSITION_TEX, GL11.GL_QUADS, 1024,
-            false, false, // useDelegate, needsSorting
-            RenderType.State.builder()
-                .setTextureState( new RenderState.TextureState( BG, false, false ) ) // blur, minimap
-                .setAlphaState( DEFAULT_ALPHA )
-                .setLightmapState( NO_LIGHTMAP )
-                .createCompositeState( false )
-        );
-
-        private Type( String name, Runnable setup, Runnable destroy )
-        {
-            super( name, setup, destroy );
-        }
     }
 }

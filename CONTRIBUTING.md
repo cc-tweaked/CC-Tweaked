@@ -65,7 +65,7 @@ Gradle should be your entrypoint to building most documentation. There's two tas
 
  - `./gradlew luaJavadoc` - Generate documentation stubs for Java methods.
  - `./gradlew docWebsite` - Generate the whole website (including Javascript pages). The resulting HTML is stored at
-   `./build/docs/lua/`.
+   `./build/docs/site/`.
 
 #### Writing documentation
 illuaminate's documentation system is not currently documented (somewhat ironic), but is _largely_ the same as

@@ -19,9 +19,17 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class TileGeneric extends TileEntity
 {
+    /**
+     * Is this block enqueued to be updated next tick? This should only be read/written by the tick scheduler.
+     *
+     * @see dan200.computercraft.shared.util.TickScheduler
+     */
+    public final AtomicBoolean scheduled = new AtomicBoolean();
+
     public TileGeneric( TileEntityType<? extends TileGeneric> type )
     {
         super( type );
@@ -62,10 +70,9 @@ public abstract class TileGeneric extends TileEntity
         return 8.0;
     }
 
-    public boolean isUsable( PlayerEntity player, boolean ignoreRange )
+    public boolean isUsable( PlayerEntity player )
     {
         if( player == null || !player.isAlive() || getLevel().getBlockEntity( getBlockPos() ) != this ) return false;
-        if( ignoreRange ) return true;
 
         double range = getInteractRange( player );
         BlockPos pos = getBlockPos();

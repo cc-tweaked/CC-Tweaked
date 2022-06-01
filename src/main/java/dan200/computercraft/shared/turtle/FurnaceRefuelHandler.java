@@ -52,7 +52,7 @@ public final class FurnaceRefuelHandler implements TurtleRefuelEvent.Handler
 
     private static int getFuelPerItem( @Nonnull ItemStack stack )
     {
-        return (ForgeHooks.getBurnTime( stack ) * 5) / 100;
+        return (ForgeHooks.getBurnTime( stack, null ) * 5) / 100;
     }
 
     @SubscribeEvent

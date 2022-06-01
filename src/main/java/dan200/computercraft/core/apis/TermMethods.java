@@ -14,6 +14,7 @@ import dan200.computercraft.shared.util.StringUtil;
 import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nonnull;
+import java.nio.ByteBuffer;
 
 /**
  * A base class for all objects which interact with a terminal. Namely the {@link TermAPI} and monitors.
@@ -283,9 +284,9 @@ public abstract class TermMethods
      * }</pre>
      */
     @LuaFunction
-    public final void blit( String text, String textColour, String backgroundColour ) throws LuaException
+    public final void blit( ByteBuffer text, ByteBuffer textColour, ByteBuffer backgroundColour ) throws LuaException
     {
-        if( textColour.length() != text.length() || backgroundColour.length() != text.length() )
+        if( textColour.remaining() != text.remaining() || backgroundColour.remaining() != text.remaining() )
         {
             throw new LuaException( "Arguments must be the same length" );
         }
@@ -294,7 +295,7 @@ public abstract class TermMethods
         synchronized( terminal )
         {
             terminal.blit( text, textColour, backgroundColour );
-            terminal.setCursorPos( terminal.getCursorX() + text.length(), terminal.getCursorY() );
+            terminal.setCursorPos( terminal.getCursorX() + text.remaining(), terminal.getCursorY() );
         }
     }
 

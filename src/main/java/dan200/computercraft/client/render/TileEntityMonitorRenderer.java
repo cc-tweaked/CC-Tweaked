@@ -7,25 +7,26 @@ package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
 import dan200.computercraft.client.FrameInfo;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
+import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
+import dan200.computercraft.client.util.DirectBuffers;
+import dan200.computercraft.client.util.DirectVertexBuffer;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
-import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.DirectionUtil;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.TransformationMatrix;
 import net.minecraft.util.math.vector.Vector3f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -35,7 +36,8 @@ import org.lwjgl.opengl.GL31;
 import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 
-import static dan200.computercraft.client.gui.FixedWidthFontRenderer.*;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
+import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
 
 public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
 {
@@ -44,9 +46,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
      * the monitor frame and contents.
      */
     private static final float MARGIN = (float) (TileMonitor.RENDER_MARGIN * 1.1);
-    private static ByteBuffer tboContents;
-
-    private static final Matrix4f IDENTITY = TransformationMatrix.identity().getMatrix();
+    private static ByteBuffer backingBuffer;
 
     public TileEntityMonitorRenderer( TileEntityRendererDispatcher rendererDispatcher )
     {
@@ -114,46 +114,31 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
             transform.scale( (float) xScale, (float) -yScale, 1.0f );
 
             Matrix4f matrix = transform.last().pose();
+            renderTerminal( renderer, matrix, originTerminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale) );
 
-            // Sneaky hack here: we get a buffer now in order to flush existing ones and set up the appropriate
-            // render state. I've no clue how well this'll work in future versions of Minecraft, but it does the trick
-            // for now.
-            IVertexBuilder buffer = renderer.getBuffer( FixedWidthFontRenderer.TYPE );
-            FixedWidthFontRenderer.TYPE.setupRenderState();
-
-            renderTerminal( matrix, originTerminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale) );
-
-            // We don't draw the cursor with the VBO, as it's dynamic and so we'll end up refreshing far more than is
-            // reasonable.
-            FixedWidthFontRenderer.drawCursor( matrix, buffer, 0, 0, terminal, !originTerminal.isColour() );
+            // Force a flush of the buffer. WorldRenderer.updateCameraAndRender will "finish" all the built-in buffers
+            // before calling renderer.finish, which means the blocker isn't actually rendered at that point!
+            renderer.getBuffer( RenderType.solid() );
 
             transform.popPose();
         }
         else
         {
             FixedWidthFontRenderer.drawEmptyTerminal(
-                transform.last().pose(), renderer,
+                transform.last().pose(), renderer.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH ),
                 -MARGIN, MARGIN,
                 (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
             );
         }
 
-        FixedWidthFontRenderer.drawBlocker(
-            transform.last().pose(), renderer,
-            -MARGIN, MARGIN,
-            (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
-        );
-
-        // Force a flush of the blocker. WorldRenderer.updateCameraAndRender will "finish" all the built-in
-        // buffers before calling renderer.finish, which means the blocker isn't actually rendered at that point!
-        renderer.getBuffer( RenderType.solid() );
-
         transform.popPose();
     }
 
-    private static void renderTerminal( Matrix4f matrix, ClientMonitor monitor, float xMargin, float yMargin )
+    private static void renderTerminal( IRenderTypeBuffer bufferSource, Matrix4f matrix, ClientMonitor monitor, float xMargin, float yMargin )
     {
         Terminal terminal = monitor.getTerminal();
+        int width = terminal.getWidth(), height = terminal.getHeight();
+        int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
 
         MonitorRenderer renderType = MonitorRenderer.current();
         boolean redraw = monitor.pollTerminalChanged();
@@ -165,42 +150,29 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
             {
                 if( !MonitorTextureBufferShader.use() ) return;
 
-                int width = terminal.getWidth(), height = terminal.getHeight();
-                int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
-
                 if( redraw )
                 {
-                    int size = width * height * 3;
-                    if( tboContents == null || tboContents.capacity() < size )
-                    {
-                        tboContents = GLAllocation.createByteBuffer( size );
-                    }
+                    ByteBuffer terminalBuffer = getBuffer( width * height * 3 );
+                    MonitorTextureBufferShader.setTerminalData( terminalBuffer, terminal );
+                    DirectBuffers.setBufferData( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer, terminalBuffer, GL20.GL_STATIC_DRAW );
 
-                    ByteBuffer monitorBuffer = tboContents;
-                    monitorBuffer.clear();
-                    for( int y = 0; y < height; y++ )
-                    {
-                        TextBuffer text = terminal.getLine( y ), textColour = terminal.getTextColourLine( y ), background = terminal.getBackgroundColourLine( y );
-                        for( int x = 0; x < width; x++ )
-                        {
-                            monitorBuffer.put( (byte) (text.charAt( x ) & 0xFF) );
-                            monitorBuffer.put( (byte) getColour( textColour.charAt( x ), Colour.WHITE ) );
-                            monitorBuffer.put( (byte) getColour( background.charAt( x ), Colour.BLACK ) );
-                        }
-                    }
-                    monitorBuffer.flip();
-
-                    GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer );
-                    GlStateManager._glBufferData( GL31.GL_TEXTURE_BUFFER, monitorBuffer, GL20.GL_STATIC_DRAW );
-                    GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
+                    ByteBuffer uniformBuffer = getBuffer( MonitorTextureBufferShader.UNIFORM_SIZE );
+                    MonitorTextureBufferShader.setUniformData( uniformBuffer, terminal, !monitor.isColour() );
+                    DirectBuffers.setBufferData( GL31.GL_UNIFORM_BUFFER, monitor.tboUniform, uniformBuffer, GL20.GL_STATIC_DRAW );
                 }
+
+                // Sneaky hack here: we get a buffer now in order to flush existing ones and set up the appropriate
+                // render state. I've no clue how well this'll work in future versions of Minecraft, but it does the trick
+                // for now.
+                bufferSource.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH );
+                RenderTypes.TERMINAL_WITH_DEPTH.setupRenderState();
 
                 // Nobody knows what they're doing!
                 GlStateManager._activeTexture( MonitorTextureBufferShader.TEXTURE_INDEX );
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, monitor.tboTexture );
                 GlStateManager._activeTexture( GL13.GL_TEXTURE0 );
 
-                MonitorTextureBufferShader.setupUniform( matrix, width, height, terminal.getPalette(), !monitor.isColour() );
+                MonitorTextureBufferShader.setupUniform( matrix, monitor.tboUniform );
 
                 Tessellator tessellator = Tessellator.getInstance();
                 BufferBuilder buffer = tessellator.getBuilder();
@@ -217,28 +189,59 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
 
             case VBO:
             {
-                VertexBuffer vbo = monitor.buffer;
+                DirectVertexBuffer vbo = monitor.buffer;
                 if( redraw )
                 {
-                    Tessellator tessellator = Tessellator.getInstance();
-                    BufferBuilder builder = tessellator.getBuilder();
-                    builder.begin( FixedWidthFontRenderer.TYPE.mode(), FixedWidthFontRenderer.TYPE.format() );
-                    FixedWidthFontRenderer.drawTerminalWithoutCursor(
-                        IDENTITY, builder, 0, 0,
-                        terminal, !monitor.isColour(), yMargin, yMargin, xMargin, xMargin
-                    );
+                    int vertexSize = RenderTypes.TERMINAL_WITHOUT_DEPTH.format().getVertexSize();
+                    ByteBuffer buffer = getBuffer( DirectFixedWidthFontRenderer.getVertexCount( terminal ) * vertexSize );
 
-                    builder.end();
-                    vbo.upload( builder );
+                    // Draw the main terminal and store how many vertices it has.
+                    DirectFixedWidthFontRenderer.drawTerminalWithoutCursor(
+                        buffer, 0, 0, terminal, !monitor.isColour(), yMargin, yMargin, xMargin, xMargin
+                    );
+                    int termIndexes = buffer.position() / vertexSize;
+
+                    // If the cursor is visible, we append it to the end of our buffer. When rendering, we can either
+                    // render n or n+1 quads and so toggle the cursor on and off.
+                    DirectFixedWidthFontRenderer.drawCursor( buffer, 0, 0, terminal, !monitor.isColour() );
+
+                    buffer.flip();
+
+                    vbo.upload( termIndexes, RenderTypes.TERMINAL_WITHOUT_DEPTH.format(), buffer );
                 }
 
-                vbo.bind();
-                FixedWidthFontRenderer.TYPE.format().setupBufferState( 0L );
-                vbo.draw( matrix, FixedWidthFontRenderer.TYPE.mode() );
-                VertexBuffer.unbind();
-                FixedWidthFontRenderer.TYPE.format().clearBufferState();
+                // As with the TBO backend we use getBuffer to flush existing buffers. This time we use TERMINAL_WITHOUT_DEPTH
+                // instead and render a separate depth blocker.
+                bufferSource.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
+                RenderTypes.TERMINAL_WITHOUT_DEPTH.setupRenderState();
+
+                vbo.draw(
+                    matrix,
+                    // As mentioned in the uploading block, render the extra cursor quad if it is visible this frame.
+                    // Each quad has an index count of 6.
+                    FixedWidthFontRenderer.isCursorVisible( terminal ) && FrameInfo.getGlobalCursorBlink() ? vbo.getIndexCount() + 6 : vbo.getIndexCount()
+                );
+
+                FixedWidthFontRenderer.drawBlocker(
+                    matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_BLOCKER ),
+                    -xMargin, -yMargin, pixelWidth + xMargin, pixelHeight + yMargin
+                );
                 break;
             }
         }
+    }
+
+    @Nonnull
+    private static ByteBuffer getBuffer( int capacity )
+    {
+
+        ByteBuffer buffer = backingBuffer;
+        if( buffer == null || buffer.capacity() < capacity )
+        {
+            buffer = backingBuffer = buffer == null ? DirectBuffers.createByteBuffer( capacity ) : DirectBuffers.resizeByteBuffer( buffer, capacity );
+        }
+
+        buffer.clear();
+        return buffer;
     }
 }

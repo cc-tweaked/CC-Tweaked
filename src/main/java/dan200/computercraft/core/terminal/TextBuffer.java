@@ -5,6 +5,8 @@
  */
 package dan200.computercraft.core.terminal;
 
+import java.nio.ByteBuffer;
+
 public class TextBuffer
 {
     private final char[] text;
@@ -39,6 +41,19 @@ public class TextBuffer
         for( int i = start; i < end; i++ )
         {
             this.text[i] = text.charAt( i - pos );
+        }
+    }
+
+    public void write( ByteBuffer text, int start )
+    {
+        int pos = start;
+        start = Math.max( start, 0 );
+        int length = text.remaining();
+        int end = Math.min( start + length, pos + length );
+        end = Math.min( end, this.text.length );
+        for( int i = start; i < end; i++ )
+        {
+            this.text[i] = (char) (text.get( i - pos ) & 0xFF);
         }
     }
 

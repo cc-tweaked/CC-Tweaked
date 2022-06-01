@@ -1,8 +1,8 @@
---[[- Provides a simple implementation of multitasking.
+--[[- A simple way to run several functions at once.
 
 Functions are not actually executed simultaniously, but rather this API will
-automatically switch between them whenever they yield (eg whenever they call
-@{coroutine.yield}, or functions that call that - eg @{os.pullEvent} - or
+automatically switch between them whenever they yield (e.g. whenever they call
+@{coroutine.yield}, or functions that call that - such as @{os.pullEvent} - or
 functions that call that, etc - basically, anything that causes the function
 to "pause").
 
@@ -11,6 +11,27 @@ and so "event consuming" functions (again, mostly anything that causes the
 script to pause - eg @{os.sleep}, @{rednet.receive}, most of the @{turtle} API,
 etc) can safely be used in one without affecting the event queue accessed by
 the other.
+
+
+:::caution
+When using this API, be careful to pass the functions you want to run in
+parallel, and _not_ the result of calling those functions.
+
+For instance, the following is correct:
+
+```lua
+local function do_sleep() sleep(1) end
+parallel.waitForAny(do_sleep, rednet.receive)
+```
+
+but the following is **NOT**:
+
+```lua
+local function do_sleep() sleep(1) end
+parallel.waitForAny(do_sleep(), rednet.receive)
+```
+
+:::
 
 @module parallel
 @since 1.2

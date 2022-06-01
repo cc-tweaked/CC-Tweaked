@@ -97,7 +97,7 @@ public class TileCommandComputer extends TileComputer
         }
 
         return new CommandSource( receiver,
-            new Vector3d( worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5 ), Vector2f.ZERO,
+            Vector3d.atCenterOf( worldPosition ), Vector2f.ZERO,
             (ServerWorld) getLevel(), 2,
             name, new StringTextComponent( name ),
             getLevel().getServer(), null
@@ -113,12 +113,12 @@ public class TileCommandComputer extends TileComputer
     }
 
     @Override
-    public boolean isUsable( PlayerEntity player, boolean ignoreRange )
+    public boolean isUsable( PlayerEntity player )
     {
-        return isUsable( player ) && super.isUsable( player, ignoreRange );
+        return isCommandUsable( player ) && super.isUsable( player );
     }
 
-    public static boolean isUsable( PlayerEntity player )
+    public static boolean isCommandUsable( PlayerEntity player )
     {
         MinecraftServer server = player.getServer();
         if( server == null || !server.isCommandBlockEnabled() )

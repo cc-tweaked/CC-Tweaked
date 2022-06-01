@@ -5,10 +5,8 @@
  */
 package dan200.computercraft.shared.util;
 
-import com.google.common.collect.MapMaker;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.common.TileGeneric;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ITickList;
 import net.minecraft.world.World;
@@ -16,9 +14,8 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * A thread-safe version of {@link ITickList#scheduleTick(BlockPos, Object, int)}.
@@ -32,16 +29,12 @@ public final class TickScheduler
     {
     }
 
-    private static final Set<TileEntity> toTick = Collections.newSetFromMap(
-        new MapMaker()
-            .weakKeys()
-            .makeMap()
-    );
+    private static final Queue<TileGeneric> toTick = new ConcurrentLinkedDeque<>();
 
     public static void schedule( TileGeneric tile )
     {
         World world = tile.getLevel();
-        if( world != null && !world.isClientSide ) toTick.add( tile );
+        if( world != null && !world.isClientSide && !tile.scheduled.getAndSet( true ) ) toTick.add( tile );
     }
 
     @SubscribeEvent
@@ -49,11 +42,11 @@ public final class TickScheduler
     {
         if( event.phase != TickEvent.Phase.START ) return;
 
-        Iterator<TileEntity> iterator = toTick.iterator();
-        while( iterator.hasNext() )
+        TileGeneric tile;
+        while( (tile = toTick.poll()) != null )
         {
-            TileEntity tile = iterator.next();
-            iterator.remove();
+            tile.scheduled.set( false );
+            if( tile.isRemoved() ) continue;
 
             World world = tile.getLevel();
             BlockPos pos = tile.getBlockPos();

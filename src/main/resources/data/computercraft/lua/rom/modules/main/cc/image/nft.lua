@@ -1,8 +1,8 @@
---- Provides utilities for working with "nft" images.
+--- Read and draw nbt ("Nitrogen Fingers Text") images.
 --
 -- nft ("Nitrogen Fingers Text") is a file format for drawing basic images.
 -- Unlike the images that @{paintutils.parseImage} uses, nft supports coloured
--- text.
+-- text as well as simple coloured pixels.
 --
 -- @module cc.image.nft
 -- @since 1.90.0

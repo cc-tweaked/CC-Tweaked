@@ -22,12 +22,14 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.LockableTileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.LockCode;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.network.NetworkHooks;
@@ -54,6 +56,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     private static final int[] SIDE_SLOTS = new int[] { 0 };
 
     ITextComponent customName;
+    private LockCode lockCode;
 
     private final NonNullList<ItemStack> inventory = NonNullList.withSize( SLOTS, ItemStack.EMPTY );
     private final SidedCaps<IItemHandler> itemHandlerCaps =
@@ -83,13 +86,22 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         peripheralCap = CapabilityUtil.invalidate( peripheralCap );
     }
 
+    @Override
+    public boolean isUsable( PlayerEntity player )
+    {
+        return super.isUsable( player ) && LockableTileEntity.canUnlock( player, lockCode, getDisplayName() );
+    }
+
     @Nonnull
     @Override
     public ActionResultType onActivate( PlayerEntity player, Hand hand, BlockRayTraceResult hit )
     {
         if( player.isCrouching() ) return ActionResultType.PASS;
 
-        if( !getLevel().isClientSide ) NetworkHooks.openGui( (ServerPlayerEntity) player, this );
+        if( !getLevel().isClientSide && isUsable( player ) )
+        {
+            NetworkHooks.openGui( (ServerPlayerEntity) player, this );
+        }
         return ActionResultType.SUCCESS;
     }
 
@@ -110,6 +122,8 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
         // Read inventory
         ItemStackHelper.loadAllItems( nbt, inventory );
+
+        lockCode = LockCode.fromTag( nbt );
     }
 
     @Nonnull
@@ -128,6 +142,8 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
         // Write inventory
         ItemStackHelper.saveAllItems( nbt, inventory );
+
+        lockCode.addToTag( nbt );
 
         return super.save( nbt );
     }
@@ -231,7 +247,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     @Override
     public boolean stillValid( @Nonnull PlayerEntity playerEntity )
     {
-        return isUsable( playerEntity, false );
+        return isUsable( playerEntity );
     }
 
     // ISidedInventory implementation
@@ -308,7 +324,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         return ColourUtils.getStackColour( stack ) != null;
     }
 
-    private static boolean isPaper( @Nonnull ItemStack stack )
+    static boolean isPaper( @Nonnull ItemStack stack )
     {
         Item item = stack.getItem();
         return item == Items.PAPER

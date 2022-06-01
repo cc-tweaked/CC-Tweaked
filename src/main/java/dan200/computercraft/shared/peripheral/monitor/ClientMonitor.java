@@ -7,9 +7,9 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import dan200.computercraft.client.gui.FixedWidthFontRenderer;
+import dan200.computercraft.client.util.DirectBuffers;
+import dan200.computercraft.client.util.DirectVertexBuffer;
 import dan200.computercraft.shared.common.ClientTerminal;
-import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -33,7 +33,8 @@ public final class ClientMonitor extends ClientTerminal
 
     public int tboBuffer;
     public int tboTexture;
-    public VertexBuffer buffer;
+    public int tboUniform;
+    public DirectVertexBuffer buffer;
 
     public ClientMonitor( boolean colour, TileMonitor origin )
     {
@@ -64,15 +65,15 @@ public final class ClientMonitor extends ClientTerminal
 
                 deleteBuffers();
 
-                tboBuffer = GlStateManager._glGenBuffers();
-                GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, tboBuffer );
-                GL15.glBufferData( GL31.GL_TEXTURE_BUFFER, 0, GL15.GL_STATIC_DRAW );
+                tboBuffer = DirectBuffers.createBuffer();
+                DirectBuffers.setEmptyBufferData( GL31.GL_TEXTURE_BUFFER, tboBuffer, GL15.GL_STATIC_DRAW );
                 tboTexture = GlStateManager._genTexture();
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, tboTexture );
                 GL31.glTexBuffer( GL31.GL_TEXTURE_BUFFER, GL30.GL_R8UI, tboBuffer );
                 GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, 0 );
 
-                GlStateManager._glBindBuffer( GL31.GL_TEXTURE_BUFFER, 0 );
+                tboUniform = DirectBuffers.createBuffer();
+                DirectBuffers.setEmptyBufferData( GL31.GL_UNIFORM_BUFFER, tboUniform, GL15.GL_STATIC_DRAW );
 
                 addMonitor();
                 return true;
@@ -82,7 +83,7 @@ public final class ClientMonitor extends ClientTerminal
                 if( buffer != null ) return false;
 
                 deleteBuffers();
-                buffer = new VertexBuffer( FixedWidthFontRenderer.TYPE.format() );
+                buffer = new DirectVertexBuffer();
                 addMonitor();
                 return true;
 
@@ -112,6 +113,12 @@ public final class ClientMonitor extends ClientTerminal
         {
             GlStateManager._deleteTexture( tboTexture );
             tboTexture = 0;
+        }
+
+        if( tboUniform != 0 )
+        {
+            RenderSystem.glDeleteBuffers( tboUniform );
+            tboUniform = 0;
         }
 
         if( buffer != null )

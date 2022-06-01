@@ -29,7 +29,6 @@ import net.minecraftforge.event.*;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
 
@@ -90,22 +89,21 @@ public final class CommonHooks
         {
             ComputerMBean.register();
         }
-    }
 
-    @SubscribeEvent
-    public static void onServerStarted( FMLServerStartedEvent event )
-    {
-        ComputerCraft.serverComputerRegistry.reset();
-        WirelessNetwork.resetNetworks();
-        Tracking.reset();
+        resetState();
         ComputerMBean.registerTracker();
-        NetworkUtils.reset();
     }
 
     @SubscribeEvent
     public static void onServerStopped( FMLServerStoppedEvent event )
     {
+        resetState();
+    }
+
+    private static void resetState()
+    {
         ComputerCraft.serverComputerRegistry.reset();
+        MainThread.reset();
         WirelessNetwork.resetNetworks();
         Tracking.reset();
         NetworkUtils.reset();

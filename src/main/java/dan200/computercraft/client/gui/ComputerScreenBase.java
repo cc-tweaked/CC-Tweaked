@@ -58,7 +58,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
     protected abstract WidgetTerminal createTerminal();
 
     @Override
-    protected final void init()
+    protected void init()
     {
         super.init();
         minecraft.keyboardHandler.setSendRepeatsToGui( true );
@@ -69,21 +69,21 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
     }
 
     @Override
-    public final void removed()
+    public void removed()
     {
         super.removed();
         minecraft.keyboardHandler.setSendRepeatsToGui( false );
     }
 
     @Override
-    public final void tick()
+    public void tick()
     {
         super.tick();
         terminal.update();
     }
 
     @Override
-    public final boolean keyPressed( int key, int scancode, int modifiers )
+    public boolean keyPressed( int key, int scancode, int modifiers )
     {
         // Forward the tab key to the terminal, rather than moving between controls.
         if( key == GLFW.GLFW_KEY_TAB && getFocused() != null && getFocused() == terminal )
@@ -96,7 +96,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
 
 
     @Override
-    public final void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
+    public void render( @Nonnull MatrixStack stack, int mouseX, int mouseY, float partialTicks )
     {
         renderBackground( stack );
         super.render( stack, mouseX, mouseY, partialTicks );
@@ -114,7 +114,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
     }
 
     @Override
-    public final boolean mouseDragged( double x, double y, int button, double deltaX, double deltaY )
+    public boolean mouseDragged( double x, double y, int button, double deltaX, double deltaY )
     {
         return (getFocused() != null && getFocused().mouseDragged( x, y, button, deltaX, deltaY ))
             || super.mouseDragged( x, y, button, deltaX, deltaY );
