@@ -16,29 +16,41 @@ Additionally, the GPS constellation needs to be chunk loaded. CC doesn't provide
 ## Building a GPS constellation
 ![An example GPS constellation.](/images/gps-constellation-example.png){.big-image}
 
-Assuming that you are using four computers per constellation, you will want each computer that makes up the constellation to be out of plane with at least one other computer in the constellation. To put this another way, if you can make a straight wall or floor (diagonal also counts as straight, having a corner or curve doesn't) that touches all four computers then you need to move one of the computers so that it's no longer in contact with the wall/floor.
+We are going to build our GPS constellation as shown in the image above. You will need 4 computers and either 4 wireless modems or 4 ender modems - try not to mix ender and wireless modems together as you might get some odd behavior when your requesting computers are out of range.
 
-Having the GPS constellation computers within a few blocks of each other is what people commonly do but is not required. So long as at least four GPS hosts can respond to the requester the request will be fulfilled.
-
-GPS only works with wireless modems, ender modems count as wireless. It doesn't matter what side you attach them to, just that each computer in the constellation has one.
-
-You will need at least one GPS constellation per dimension, maybe more if your constellation is not using ender modems and need to cover a large area. If you are not using ender modems then you may wish to build your constellation near the build height limit, high altitude boosts modem message range and thus the radius that your constellation covers.
-
-:::note Ender modems
+:::note Ender modems vs wireless modems
 You might be aware that ender modems have a very large range, this makes them very useful for setting up GPS hosts. If you do this then you will likely only need one GPS constellation for the whole dimension (in vanilla this will mean that you'd need three constellations, one for the Overworld, one for the Nether, and one for the End).
 
 Also, don't worry about an ender modem's ability to work across dimensions, the GPS API is smart enough to ignore constellations that are not in its dimension.
+
+If you do use wireless modems then you may find that you need multiple GPS constellations to cover your needs.
 :::
 
+Locate where you want to place your GPS constellation, you will need at least a 6 by 6 by 6 blocks of space. If you are using wireless modems then you may want to build your constellation as high as you can because high altitude boosts modem message range and thus the radius that your constellation covers.
+
+As for the actual building itself, place your first computer in one of the corners of your 6 by 6 by 6 space. Remember which computer this is as you other computers need to be placed relative to it. For your second computer, place it 4 blocks above the first computer leaving 3 blocks of air between them and one block of air above the second computer that is within your 6 by 6 by 6 space. Go back to your first computer and place your third computer 5 blocks in front of your first computer, leaving 4 blocks of air between them. Finally for the fourth computer, go back to your first computer and place it 5 blocks right of your first computer, leaving 4 blocks of air between them.
+
+With all four computers placed within the 6 by 6 by 6 space, place one modem on top of each computer. Yuo should have 4 modems and 4 computers all within your 6 by 6 by 6 space where each modem is attached to a computer and each computer has a modem.
+
 ## Configuring the constellation
-To provide computers (or more commonly, turtles) their location, every GPS host needs to know its own location. GPS host can get this from other constellations, but we are going to input it manually, which means that we are going to make a startup file.
+Now that the structure of your constellation is built, we need to configure each host in it.
 
+Go back to the first computer that you placed and create a startup file, the easiest way to do this is `edit startup`.
 
-Here's a template for the startup file's contents:
+Type the following code into the file:
 ```lua
 shell.run("gps", "host", x, y, z)
 ```
-Where `x`, `y`, and `z` are the respective coordinates of the CC computer. The easiest way to get the computer's coordinates is to look at it and press `F3`, its coordinates can then be found on the right side of the screen as `Targeted Block`.
+
+Escape from the computer GUI and then press `F3` to open Minecraft's debug screen and then look at the computer (without opening the GUI). On the right of the screen about halfway down you should see an entry labeled `Targeted Block`, the numbers correspond to the position of the block that you are looking at. Replace `x` with the first number, `y` with the second number, and `z` with the third number.
+
+For example, if I had a computer at x = 59, y = 5, z = -150, then my `F3` debug screen entry would be `Target Block: 59, 5, -150` and I would change my startup file to this `shell.run("gps", "host", 59, 5, -150)`.
+
+To hide Minecraft's debug screen, press `F3` again.
+
+Create similar startup files for the other computers in your constellation, making sure to input the each computer's own coordinates.
+
+Each computer should have a slightly different startup file and their coordinates are different and thus the values for `x`, `y` and `z` will be different.
 
 :::note Modem messages come from the computer's position, not the modem's
 Wireless modems transmit from the block that they are attached to *not* the block space that they occupy, the coordinates that you input into your GPS host should be the position of the computer and not the position of the modem.
