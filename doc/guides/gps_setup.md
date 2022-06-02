@@ -26,10 +26,9 @@ You might be aware that ender modems have a very large range, this makes them ve
 Also, don't worry about an ender modem's ability to work across dimensions, the GPS API is smart enough to ignore constellations that are not in its dimension.
 :::
 
-## Configureing the constellation
+## Configuring the constellation
 To provide computers (or more commonly, turtles) their location, every GPS host needs to know its own location. GPS host can get this from other constellations, but we are going to input it manually, which means that we are going to make a startup file.
 
-It doesn't matter what kind of startup file you use, so long as it's a valid one; the contents of the file is going to be the same.
 
 Here's a template for the startup file's contents:
 ```lua
