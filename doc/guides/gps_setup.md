@@ -11,6 +11,8 @@ In order to give the best results, a GPS constellation needs at least four compu
 
 A computer needs a wireless modem and to be in range of a GPS constellation to use the GPS API. The reason for this is that ComputerCraft mimics real-life GPS by making use of the distance parameter of @{modem_message|modem messages} and some maths.
 
+Additionally, the GPS constellation needs to be chunk loaded. CC doesn't provide any chunk loading capabilities so you'll need to make use of another mod or the vanilla `forceload` command.
+
 ## Building a GPS constellation
 ![An example GPS constellation.](/images/gps-constellation-example.png){.big-image}
 
