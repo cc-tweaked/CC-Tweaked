@@ -29,7 +29,6 @@ Also, don't worry about an ender modem's ability to work across dimensions, the 
 ## Configuring the constellation
 To provide computers (or more commonly, turtles) their location, every GPS host needs to know its own location. GPS host can get this from other constellations, but we are going to input it manually, which means that we are going to make a startup file.
 
-It doesn't matter what kind of startup file you use, so long as it's a valid one; the contents of the file is going to be the same.
 
 Here's a template for the startup file's contents:
 ```lua
