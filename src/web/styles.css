@@ -40,7 +40,6 @@ pre.highlight {
     z-index: 200;
     top: 0px;
     top: 0px;
-    ;
 }
 
 /* Behold, the most cursed CSS! copy-cat's resizing algorithm is a weird, in
@@ -108,11 +107,12 @@ pre.highlight {
     --recipe-size: 32px;
 }
 
-
 .recipe-container {
     display: flex;
     justify-content: center;
     margin: 1em 0;
+    gap: 1em;
+    flex-wrap: wrap;
 }
 
 .recipe {
@@ -127,6 +127,7 @@ pre.highlight {
 }
 
 .recipe-title {
+    color: #222; /* Same as --foreground in light theme. Ugly, but too lazy to style in dark for now. */
     grid-column-start: span 3;
 }
 
@@ -148,7 +149,7 @@ pre.highlight {
     background-color: var(--recipe-hover);
 }
 
-.recipe-item > img {
+.recipe-icon {
     display: block;
     width: var(--recipe-size);
     height: var(--recipe-size);
@@ -163,6 +164,14 @@ pre.highlight {
 }
 
 .recipe-output {
-    /* Hrm! */
     align-self: center;
+    position: relative;
+}
+
+.recipe-count {
+    position: absolute;
+    bottom: 0;
+    right: var(--recipe-padding);
+    color: #fff;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000
 }

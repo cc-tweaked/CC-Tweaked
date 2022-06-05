@@ -75,6 +75,15 @@ import java.util.Set;
  *
  * print("Received a reply: " .. tostring(message))
  * }</pre>
+ *
+ * ## Recipes
+ * <div class="recipe-container">
+ *     <mc-recipe recipe="computercraft:wireless_modem_normal"></mc-recipe>
+ *     <mc-recipe recipe="computercraft:wireless_modem_advanced"></mc-recipe>
+ *     <mc-recipe recipe="computercraft:wired_modem"></mc-recipe>
+ *     <mc-recipe recipe="computercraft:cable"></mc-recipe>
+ *     <mc-recipe recipe="computercraft:wired_modem_full_from"></mc-recipe>
+ * </div>
  */
 public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPacketReceiver
 {

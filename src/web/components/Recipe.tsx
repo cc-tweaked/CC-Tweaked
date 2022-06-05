@@ -10,8 +10,11 @@ const Item: FunctionComponent<{ item: string }> = ({ item }) => {
         src={`/images/items/${item.replace(":", "/")}.png`}
         alt={itemName}
         title={itemName}
+        className="recipe-icon"
     />
 };
+
+const EmptyItem: FunctionComponent = () => <span className="recipe-icon " />;
 
 const Arrow: FunctionComponent<JSX.IntrinsicElements["svg"]> = (props) => <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45.513 45.512" {...props}>
     <g>
@@ -27,18 +30,17 @@ const Recipe: FunctionComponent<{ recipe: string }> = ({ recipe }) => {
     const recipeInfo = data.recipes[recipe];
     if (!recipeInfo) throw Error("Cannot find recipe for " + recipe);
 
-    return <div className="recipe-container">
-        <div className="recipe">
-            <strong className="recipe-title">{data.itemNames[recipeInfo.output]}</strong>
-            <div className="recipe-inputs">
-                {recipeInfo.inputs.map((items, i) => <div className="recipe-item recipe-input" key={i}>{items && <Item item={items[0]} />}</div>)}
-            </div>
-            <Arrow className="recipe-arrow" />
-            <div className="recipe-item recipe-output">
-                <Item item={recipeInfo.output} />
-                {recipeInfo.count > 1 && <span className="recipe-count">{recipeInfo.count}</span>}
-            </div>
+    return <div className="recipe">
+        <strong className="recipe-title">{data.itemNames[recipeInfo.output]}</strong>
+        <div className="recipe-inputs">
+            {recipeInfo.inputs.map((items, i) => <div className="recipe-item recipe-input" key={i}>{items ? <Item item={items[0]} /> : <EmptyItem />}</div>)}
         </div>
-    </div>;
-}
+        <Arrow className="recipe-arrow" />
+        <div className="recipe-item recipe-output">
+            <Item item={recipeInfo.output} />
+            {recipeInfo.count > 1 && <span className="recipe-count">{recipeInfo.count}</span>}
+        </div>
+    </div>
+};
+
 export default Recipe;
