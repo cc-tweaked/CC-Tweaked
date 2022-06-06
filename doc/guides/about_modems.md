@@ -7,6 +7,7 @@ see: basic_rednet For a guide of using rednet to send and receive messages
 ---
 
 # A look at the different types of modems
+<!--TODO: may want to rewrite this-->
 
 The main traits and differences of modems that you may need to be aware of are:
 * The two types of wired modem connect to things a bit differently, the smaller one can only connect to what it's placed on, the larger one can connect to everything that it's in contact with.
@@ -26,3 +27,6 @@ The main traits and differences of modems that you may need to be aware of are:
   * The server side config file also allows for having wireless modem range reduce during thunderstorms, but this is not the default.
   * The default range pre 1.18 near bedrock is 64 blocks and 384 blocks near the max build height. The max ranges after 1.18 are likely different now that Minecraft has negative y levels and a higher build limit. You can run the calculation yourself by checking the [source code].
 * Ender modems are the only modem that can send and receive messages from other dimensions.
+
+## Using modems as peripheral connectors
+<!--TODO: write this-->
