@@ -8,19 +8,26 @@ Modems in Computercraft can be used to both transmit messages and connect to per
 
 A modem's primary use is to send messages between two or more computers, all three kinds of modem do this slightly differently with the wired modem being the most different. Additionally, there are two APIs for using modems for sending messages, the modem API and the Rednet API. We are only going to cover the rednet API as it is simpler to use and has some additional ease of use features. The modem API is lower level and not as intuitive for just sending messages, if you are curious about the modem API then you can look up its documentation and/or check the Rednet API source code for how Rednet uses the lower-level API for its needs (FYI, the Rednet API sits on top of the modem API - i.e. it uses the modem API to do its stuff).
 
-## A brief look at the three types of modems
-The first modem that we will be looking at is the wired modem. It comes in two forms which both behave extremely similarly, both have the same capabilities aside from two small differences. The original wired modem is the smaller one, it requires networking cable to connect to any other devices as it can only connect to the device that it is attached to (by placing it on the device). Additionally, this smaller wired modem can be a bit limited on what it can be placed on (kind of like torches). The other type of wired modem is a whole block, it doesn't require networking cable in the same way as its smaller counterpart but can still use those cables. However, unlike its smaller counterpart, the full block wired modem will connect to every device that it is in contact with and doesn't have the limitation of placement.
+The main traits and differences of modems that you may need to be aware of are:
+* The two types of wired modem connect to things a bit differently, the smaller one can only connect to what it's placed on, the larger one can connect to everything that it's in contact with.
+  * Also, the smaller wired modem cannot be placed on everything. Kind of like torches, it needs to be placed on a solid block. This is more relevant when using wired modems to connect to peripherals.
+* While both wired modems can use networking cables, the smaller wired modem needs a cable placed in its block space to become functional.
+* Full block modems will allow the network to pass through them, effectively allowing them to double as networking cables.
+  * If you are running some cables though a wall then having a full block modem as part of the wall can be a nice aesthetic choice.
+  * This works even i the modem is only connected to networking cables.
+* Wired modems and network cables have a max length of 256 blocks, after which connections will be ignored.
+  * This means that if another computer is further away then rednet messages will not reach it and it will not show up @{computer|as a peripheral}.
+  * This range cannot be changed in the config.
+* Wired modems and wireless modems cannot talk to each other directly. A computer will need to relay messages heard on one modem to the other, there is a built in program that will do this for you it is called `repeat`.
+  * Wireless modems and ender modems can talk to each other though.
+  * The two types of wired modem also can talk to each other, provided that they are connected to each other.
+* Wireless modems have a limited range, ender modems have a practically infinite range.
+* By default, wireless modems have their range increase the higher they are in the world. The exact values can be set in the server side config file.
+  * The server side config file also allows for having wireless modem range reduce during thunderstorms, but this is not the default.
+  * The default range pre 1.18 near bedrock is 64 blocks and 384 blocks near the max build height. The max ranges after 1.18 are likely different now that Minecraft has negative y levels and a higher build limit. You can run the calculation yourself by checking the [source code].
+* Ender modems are the only modem that can send and receive messages from other dimensions.
 
-Since we have mentioned them already, networking cables only connect wired modems to other wired modems. You can mix and match the two types of wired modems on the same network. Full block modems can connect to other full block modems, essentially functioning as a full block network cable.
-
-Additionally, wired networks have a limited distance (256 blocks) that they can go before needing a computer acting as a repeater. Unlike wireless modem range, this cannot be configured.
-
-As for wireless modems, as the name implies they do not use networking cables. They also have the same placement limitations as the small wired modem, but most of the time this is not a problem as wireless modems are usually placed on a computer. Unlike their wired counterpart, the wireless mode cannot be used to connect to peripherals.
-
-The range of wireless modes can be set in ComputerCraft's server-side config, so the numbers we will be giving here are just the default values, check the config file or ask your server owner for the actual values. Wireless modems have an interesting property with their range, the higher they are the more range they have. At high altitude the default range is 384 blocks, with it being 64 blocks at low altitude - the range between is calculated by the mod. It used to be that the range would be reduced during thunderstorms, this behaviour can be re-enabled by setting the appropriate config values. If two modems talking to each other have different ranges, then the range will be the greatest of the two.
-
-Ender modems are like wireless modems in every way except that their range is functionally infinite and they can send messages across dimensions. Wireless modems and ender modems can send messages to each other, the range of the ender modem is used to determine if the recipient can 'hear' the message. This makes ender modems ideal rednet repeaters.
-
+<!--TODO: rewrite-->
 ## Using modems to send messages between computers
 No matter which type of modem you use, the process of sending rednet messages is the same. For the rest of this guide, we are going to assume that you have two computers, both with compatible modems in an arrangement that they can hear each other. It's recommended that you keep the two computers close to each other as you will be needing to which back and forth between both computers.
 
@@ -88,3 +95,5 @@ If you want secure communication then look into encryption, there are a few impl
 [new]: https://forums.computercraft.cc/index.php "The CC:T forums"
 
 [discord]: https://discord.computercraft.cc/ "The Minecraft Computer Mods Discord"
+
+[source code]: https://github.com/cc-tweaked/CC-Tweaked/blob/9d50d6414ce84ed2b442c933ca2fb60c97849c6b/src/main/java/dan200/computercraft/shared/peripheral/modem/wireless/WirelessModemPeripheral.java#L40-L57 "Wireless modem range calculation"
