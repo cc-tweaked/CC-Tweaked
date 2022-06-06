@@ -1,9 +1,10 @@
 ---
-module: [kind=guide] Item transportation
+module: [kind=guide] item_transportation
 see: peripheral The full documentation of the peripheral API
 see: inventory The full documentation of generic inventory peripherals.
 ---
 
+# How to use ComputerCraft to move items around
 <!--TODO: rewrite all this-->
 
 
