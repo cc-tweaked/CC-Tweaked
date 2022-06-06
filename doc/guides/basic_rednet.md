@@ -1,10 +1,9 @@
 ---
-module: [kind=guide] basic_rednet
+module: [kind=guide] The basics of rednet messaging
 see: peripheral The full documentation of the peripheral API
 see: rednet The full documentation of the rednet API
 ---
 
-# The basics of rednet messaging
 Modems in Computercraft can be used to both transmit messages and connect to peripherals from a distance. We will cover how to do both in this guide.
 
 A modem's primary use is to send messages between two or more computers, all three kinds of modem do this slightly differently with the wired modem being the most different. Additionally, there are two APIs for using modems for sending messages, the modem API and the Rednet API. We are only going to cover the rednet API as it is simpler to use and has some additional ease of use features. The modem API is lower level and not as intuitive for just sending messages, if you are curious about the modem API then you can look up its documentation and/or check the Rednet API source code for how Rednet uses the lower-level API for its needs (FYI, the Rednet API sits on top of the modem API - i.e. it uses the modem API to do its stuff).

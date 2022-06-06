@@ -1,10 +1,9 @@
 ---
-module: [kind=guide] item_transportation
+module: [kind=guide] Item transportation
 see: peripheral The full documentation of the peripheral API
 see: inventory The full documentation of generic inventory peripherals.
 ---
 
-# Item transportation
 
 Modems in Computercraft can be used to both transmit messages and connect to peripherals from a distance. We will cover how to do both in this guide.
 
