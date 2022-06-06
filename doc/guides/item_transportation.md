@@ -4,11 +4,10 @@ see: peripheral The full documentation of the peripheral API
 see: inventory The full documentation of generic inventory peripherals.
 ---
 
+<!--TODO: rewrite all this-->
 
-Modems in Computercraft can be used to both transmit messages and connect to peripherals from a distance. We will cover how to do both in this guide.
 
-A modem's primary use is to send messages between two or more computers, all three kinds of modem do this slightly differently with the wired modem being the most different. Additionally, there are two APIs for using modems for sending messages, the modem API and the Rednet API. We are only going to cover the rednet API as it is simpler to use and has some additional ease of use features. The modem API is lower level and not as intuitive for just sending messages, if you are curious about the modem API then you can look up its documentation and/or check the Rednet API source code for how Rednet uses the lower-level API for its needs (FYI, the Rednet API sits on top of the modem API - i.e. it uses the modem API to do its stuff).
-
+<!--TODO: probably delete this-->
 ## A brief look at the three types of modems
 The first modem that we will be looking at is the wired modem. It comes in two forms which both behave extremely similarly, both have the same capabilities aside from two small differences. The original wired modem is the smaller one, it requires networking cable to connect to any other devices as it can only connect to the device that it is attached to (by placing it on the device). Additionally, this smaller wired modem can be a bit limited on what it can be placed on (kind of like torches). The other type of wired modem is a whole block, it doesn't require networking cable in the same way as its smaller counterpart but can still use those cables. However, unlike its smaller counterpart, the full block wired modem will connect to every device that it is in contact with and doesn't have the limitation of placement.
 
