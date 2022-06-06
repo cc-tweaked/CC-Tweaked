@@ -11,13 +11,15 @@ A modem's primary use is to send messages between two or more computers, all thr
 
 <!--TODO: rewrite-->
 ## Using modems to send messages between computers
-No matter which type of modem you use, the process of sending rednet messages is the same. For the rest of this guide, we are going to assume that you have two computers, both with compatible modems in an arrangement that they can hear each other. It's recommended that you keep the two computers close to each other as you will be needing to which back and forth between both computers.
+No matter which type of modem you use, the process of sending rednet messages is the same. For the rest of this guide, we are going to assume that you have two computers, connected together by a single full block modem.
+
+![Two computers separated by a full block wired modem such that they are on the same network.](/images/rednet-example.png){.big-image}
 
 Before you begin, you are going to want to note the IDs of both computers that you are using. Rednet uses IDs to specify the *intended* recipient of a message, do note that every computer in range of the message (or connected via wired modems) will receive the message - we will explain this a bit more later. The easiest way to get the ID of a computer is to use the `id` command.
 
 The first thing that every computer needs to do before using rednet is to tell rednet what modem/s it's allowed to use, this is done with `rednet.open(<side>)` where `<side>` is the side of the computer that the modem is on as a string. If your modem is on the top of the computer then you would do `rednet.open("top")`. Opening the same modem twice is not a problem, it will only open it once. Rednet cannot send and receive messages through modems that are not open.
 
-Next, you are going to want to set up one of the computers to receive a message. The easiest way to do this is with @{rednet.receive}, this will cause the computer to wait for a rednet message. You could also pull a @{rednet_message} event, but rednet.receive is simpler so we will be using that. While computers can hear every rednet message that they are in range of, the rednet API will ignore those that it's not the intended recipient of.
+Next, you are going to want to set up one of the computers to receive a message. The easiest way to do this is with @{rednet.receive}, this will cause the computer to wait for a rednet message. You could also pull a @{rednet_message} event, but `rednet.receive` is simpler so we will be using that. While computers can hear every rednet message that they are in range of (as a `modem_message`), the rednet API will ignore those that it's not the intended recipient of.
 
 `rednet.receive()` has three return values but we are only interested in the first two, the id of the sender and the message. You will probably want to print out both of these values. It may also be helpful to put this in a while true loop. Your receiver code might end up looking something like this.
 
@@ -40,7 +42,7 @@ Just make sure to replace the targetID with the ID of the computer that you want
 
 Once both computers have code you'll want to start the receiver code first and then the sender code, this is because you need the receiver to be listening before you have the sender send a message.
 
-You know the basics of sending and receiving rednet messages. @{rednet.broadcast} is similar to @{rednet.send} but it will send the message to every computer in range of the modem.
+You now know the basics of sending and receiving rednet messages. @{rednet.broadcast} is similar to @{rednet.send} but it will send the message to every computer in range of the modem.
 
 :::note The repeat program
 Ender modems are expensive to craft but wireless modems have a quite limited range. Thankfully there is a solution, the repeat program. To put simply, any rednet message that a computer running the repeat program hears will be resent from that computer.
