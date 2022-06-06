@@ -18,6 +18,11 @@ import java.util.Optional;
 /**
  * The printer peripheral allows pages and books to be printed.
  *
+ * ## Recipe
+ * <div class="recipe-container">
+ *     <mc-recipe recipe="computercraft:printer"></mc-recipe>
+ * </div>
+ *
  * @cc.module printer
  */
 public class PrinterPeripheral implements IPeripheral
