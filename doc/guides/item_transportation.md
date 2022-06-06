@@ -22,13 +22,7 @@ The range of wireless modes can be set in ComputerCraft's server-side config, so
 
 Ender modems are like wireless modems in every way except that their range is functionally infinite and they can send messages across dimensions. Wireless modems and ender modems can send messages to each other, the range of the ender modem is used to determine if the recipient can 'hear' the message. This makes ender modems ideal rednet repeaters.
 
-## Moving items and fluids
-:::note Fluids are very much the same
-We only cover items here, but fluids can be moved in very much the same way.
-
-Some blocks can have multiple tanks, think of these as multiple inventory slots. The quantity of fluid is like the number of items in the slot.
-See the generic peripheral documentation for more info.
-:::
+## Moving items
 
 There are two key limitations to keep in mind when using computercraft to move items/ First, chests are peripherals and so are bound by the same limitations that peripherals are as described above. Second, the source and destination inventories must be on the same network. Technically both of these are limitations of modems, but the second is more visible when trying to move items as a computer can easily bridge a rednet message to another network with the repeat program.
 
