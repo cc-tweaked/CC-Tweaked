@@ -9,10 +9,6 @@ In order to use GPS, you'll need to set up multiple GPS hosts. These are compute
 
 In order to give the best results, a GPS constellation needs at least four computers. More than four GPS hosts per constellation is redundant, but it does not harm.
 
-A computer needs a wireless modem and to be in range of a GPS constellation to use the GPS API. The reason for this is that ComputerCraft mimics real-life GPS by making use of the distance parameter of @{modem_message|modem messages} and some maths.
-
-Additionally, the GPS constellation needs to be chunk loaded. CC doesn't provide any chunk loading capabilities so you'll need to make use of another mod or the vanilla `forceload` command.
-
 ## Building a GPS constellation
 ![An example GPS constellation.](/images/gps-constellation-example.png){.big-image}
 
@@ -21,16 +17,18 @@ We are going to build our GPS constellation as shown in the image above. You wil
 :::note Ender modems vs wireless modems
 You might be aware that ender modems have a very large range, this makes them very useful for setting up GPS hosts. If you do this then you will likely only need one GPS constellation for the whole dimension (in vanilla this will mean that you'd need three constellations, one for the Overworld, one for the Nether, and one for the End).
 
-Also, don't worry about an ender modem's ability to work across dimensions, the GPS API is smart enough to ignore constellations that are not in its dimension.
-
 If you do use wireless modems then you may find that you need multiple GPS constellations to cover your needs.
+
+A computer needs a wireless or ender modem and to be in range of a GPS constellation that is in the same dimension as it to use the GPS API. The reason for this is that ComputerCraft mimics real-life GPS by making use of the distance parameter of @{modem_message|modem messages} and some maths.
 :::
 
-Locate where you want to place your GPS constellation, you will need at least a 6 by 6 by 6 blocks of space. If you are using wireless modems then you may want to build your constellation as high as you can because high altitude boosts modem message range and thus the radius that your constellation covers.
+Locate where you want to place your GPS constellation, you will need at least 6 blocks high, 6 blocks wide, and 6 blocks long (6x6x6). If you are using wireless modems then you may want to build your constellation as high as you can because high altitude boosts modem message range and thus the radius that your constellation covers.
 
-As for the actual building itself, place your first computer in one of the corners of your 6 by 6 by 6 space. Remember which computer this is as you other computers need to be placed relative to it. For your second computer, place it 4 blocks above the first computer leaving 3 blocks of air between them and one block of air above the second computer that is within your 6 by 6 by 6 space. Go back to your first computer and place your third computer 5 blocks in front of your first computer, leaving 4 blocks of air between them. Finally for the fourth computer, go back to your first computer and place it 5 blocks right of your first computer, leaving 4 blocks of air between them.
+Additionally, the GPS constellation needs to be chunk loaded. CC doesn't provide any chunk loading capabilities so you'll need to make use of another mod or the vanilla `forceload` command. You may want to make sure that your 6x6x6 fits in a single chunk to reduce the number of chunks that need to be kept loaded.
 
-With all four computers placed within the 6 by 6 by 6 space, place one modem on top of each computer. You should have 4 modems and 4 computers all within your 6 by 6 by 6 space where each modem is attached to a computer and each computer has a modem.
+As for the actual building itself, place your first computer in one of the corners of your 6x6x6. Remember which computer this is as you other computers need to be placed relative to it. For your second computer, place it 4 blocks above the first computer leaving 3 blocks of air between them and one block of air above the second computer that is within your 6x6x6. Go back to your first computer and place your third computer 5 blocks in front of your first computer, leaving 4 blocks of air between them. Finally for the fourth computer, go back to your first computer and place it 5 blocks right of your first computer, leaving 4 blocks of air between them.
+
+With all four computers placed within the 6x6x6, place one modem on top of each computer. You should have 4 modems and 4 computers all within your 6x6x6 where each modem is attached to a computer and each computer has a modem.
 
 Currently your GPS constellation will not work, that's because each host is not aware that it's a GPS host. We will fix this in the next section.
 
