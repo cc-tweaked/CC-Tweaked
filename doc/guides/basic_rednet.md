@@ -2,7 +2,7 @@
 module: [kind=guide] basic_rednet
 see: peripheral The full documentation of the peripheral API
 see: rednet The full documentation of the rednet API
-see: about_modems 
+see: about_modems The differences between the types of modems
 ---
 
 # The basics of rednet messaging

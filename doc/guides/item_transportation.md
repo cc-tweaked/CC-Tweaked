@@ -1,7 +1,8 @@
 ---
 module: [kind=guide] item_transportation
 see: peripheral The full documentation of the peripheral API
-see: inventory The full documentation of generic inventory peripherals.
+see: inventory The full documentation of generic inventory peripherals
+see: about_modems The differences between the types of modems
 ---
 
 # How to use ComputerCraft to move items around

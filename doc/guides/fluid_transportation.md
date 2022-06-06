@@ -1,6 +1,8 @@
 ---
 module: [kind=guide] fluid_transportation
-see: fluid_storage The full documentation of generic fluid peripherals.
+see: peripheral The full documentation of the peripheral API
+see: fluid_storage The full documentation of generic fluid peripherals
+see: about_modems The differences between the types of modems
 ---
 
 # How to use ComputerCraft to move fluids  around
