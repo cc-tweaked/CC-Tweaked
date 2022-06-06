@@ -16,15 +16,14 @@ Since we have mentioned them already, networking cables only connect wired modem
 
 Additionally, wired networks have a limited distance (256 blocks) that they can go before needing a computer acting as a repeater. Unlike wireless modem range, this cannot be configured.
 
-As for wireless modems, as the name implies they do not use networking cables. They also have the same placement limitations as the small wired modem, but most of the time this is not a problem as wireless modems are usually placed on a computer. Unlike their wired counterpart, the wireless mode cannot be used to connect to peripherals.
+As for wireless modems, as the name implies they do not use networking cables. They also have the same placement limitations as the small wired modem, but most of the time this is not a problem as wireless modems are usually placed on a computer. Unlike their wired counterpart, the wireless modem cannot be used to connect to peripherals.
 
 The range of wireless modes can be set in ComputerCraft's server-side config, so the numbers we will be giving here are just the default values, check the config file or ask your server owner for the actual values. Wireless modems have an interesting property with their range, the higher they are the more range they have. At high altitude the default range is 384 blocks, with it being 64 blocks at low altitude - the range between is calculated by the mod. It used to be that the range would be reduced during thunderstorms, this behaviour can be re-enabled by setting the appropriate config values. If two modems talking to each other have different ranges, then the range will be the greatest of the two.
 
 Ender modems are like wireless modems in every way except that their range is functionally infinite and they can send messages across dimensions. Wireless modems and ender modems can send messages to each other, the range of the ender modem is used to determine if the recipient can 'hear' the message. This makes ender modems ideal rednet repeaters.
 
 ## Moving items
-
-There are two key limitations to keep in mind when using computercraft to move items/ First, chests are peripherals and so are bound by the same limitations that peripherals are as described above. Second, the source and destination inventories must be on the same network. Technically both of these are limitations of modems, but the second is more visible when trying to move items as a computer can easily bridge a rednet message to another network with the repeat program.
+There are two key limitations to keep in mind when using computercraft to move items. First, chests are peripherals and so are bound by the same limitations that peripherals are as described above. Second, the source and destination inventories must be on the same network. Technically both of these are limitations of modems, but the second is more visible when trying to move items as a computer can easily bridge a rednet message to another network with the repeat program.
 
 This means that if you have two chests connected by modems to a single computer you will not be able to move items between the two chests as the modems are their own networks. We are using red blocks in the image below to show that the chests cannot move items to each other.
 
