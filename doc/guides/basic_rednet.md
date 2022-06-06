@@ -2,29 +2,12 @@
 module: [kind=guide] basic_rednet
 see: peripheral The full documentation of the peripheral API
 see: rednet The full documentation of the rednet API
+see: about_modems 
 ---
 
 # The basics of rednet messaging
-A modem's primary use is to send messages between two or more computers, all three kinds of modem do this slightly differently with the wired modem being the most different. Additionally, there are two APIs for using modems for sending messages, the modem API and the Rednet API. We are only going to cover the rednet API as it is simpler to use and has some additional ease of use features. The modem API is lower level and not as intuitive for just sending messages, if you are curious about the modem API then you can look up its documentation and/or check the Rednet API source code for how Rednet uses the lower-level API for its needs (FYI, the Rednet API sits on top of the modem API - i.e. it uses the modem API to do its stuff).
 
-The main traits and differences of modems that you may need to be aware of are:
-* The two types of wired modem connect to things a bit differently, the smaller one can only connect to what it's placed on, the larger one can connect to everything that it's in contact with.
-  * Also, the smaller wired modem cannot be placed on everything. Kind of like torches, it needs to be placed on a solid block. This is more relevant when using wired modems to connect to peripherals.
-* While both wired modems can use networking cables, the smaller wired modem needs a cable placed in its block space to become functional.
-* Full block modems will allow the network to pass through them, effectively allowing them to double as networking cables.
-  * If you are running some cables though a wall then having a full block modem as part of the wall can be a nice aesthetic choice.
-  * This works even i the modem is only connected to networking cables.
-* Wired modems and network cables have a max length of 256 blocks, after which connections will be ignored.
-  * This means that if another computer is further away then rednet messages will not reach it and it will not show up @{computer|as a peripheral}.
-  * This range cannot be changed in the config.
-* Wired modems and wireless modems cannot talk to each other directly. A computer will need to relay messages heard on one modem to the other, there is a built in program that will do this for you it is called `repeat`.
-  * Wireless modems and ender modems can talk to each other though.
-  * The two types of wired modem also can talk to each other, provided that they are connected to each other.
-* Wireless modems have a limited range, ender modems have a practically infinite range.
-* By default, wireless modems have their range increase the higher they are in the world. The exact values can be set in the server side config file.
-  * The server side config file also allows for having wireless modem range reduce during thunderstorms, but this is not the default.
-  * The default range pre 1.18 near bedrock is 64 blocks and 384 blocks near the max build height. The max ranges after 1.18 are likely different now that Minecraft has negative y levels and a higher build limit. You can run the calculation yourself by checking the [source code].
-* Ender modems are the only modem that can send and receive messages from other dimensions.
+A modem's primary use is to send messages between two or more computers, all three kinds of modem do this slightly differently with the wired modem being the most different. Additionally, there are two APIs for using modems for sending messages, the modem API and the Rednet API. We are only going to cover the rednet API as it is simpler to use and has some additional ease of use features. The modem API is lower level and not as intuitive for just sending messages, if you are curious about the modem API then you can look up its documentation and/or check the Rednet API source code for how Rednet uses the lower-level API for its needs (FYI, the Rednet API sits on top of the modem API - i.e. it uses the modem API to do its stuff).
 
 <!--TODO: rewrite-->
 ## Using modems to send messages between computers
