@@ -30,7 +30,7 @@ Locate where you want to place your GPS constellation, you will need at least a 
 
 As for the actual building itself, place your first computer in one of the corners of your 6 by 6 by 6 space. Remember which computer this is as you other computers need to be placed relative to it. For your second computer, place it 4 blocks above the first computer leaving 3 blocks of air between them and one block of air above the second computer that is within your 6 by 6 by 6 space. Go back to your first computer and place your third computer 5 blocks in front of your first computer, leaving 4 blocks of air between them. Finally for the fourth computer, go back to your first computer and place it 5 blocks right of your first computer, leaving 4 blocks of air between them.
 
-With all four computers placed within the 6 by 6 by 6 space, place one modem on top of each computer. Yuo should have 4 modems and 4 computers all within your 6 by 6 by 6 space where each modem is attached to a computer and each computer has a modem.
+With all four computers placed within the 6 by 6 by 6 space, place one modem on top of each computer. You should have 4 modems and 4 computers all within your 6 by 6 by 6 space where each modem is attached to a computer and each computer has a modem.
 
 Currently your GPS constellation will not work, that's because each host is not aware that it's a GPS host. We will fix this in the next section.
 
