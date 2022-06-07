@@ -40,3 +40,5 @@ local monitor = peripheral.wrap("monitor_1")
 
 monitor.write("hello world")
 ```
+
+[source code]: https://github.com/cc-tweaked/CC-Tweaked/blob/9d50d6414ce84ed2b442c933ca2fb60c97849c6b/src/main/java/dan200/computercraft/shared/peripheral/modem/wireless/WirelessModemPeripheral.java#L40-L57 "Wireless modem range calculation"
