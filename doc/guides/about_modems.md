@@ -29,4 +29,14 @@ The main traits and differences of modems that you may need to be aware of are:
 * Ender modems are the only modem that can send and receive messages from other dimensions.
 
 ## Using modems as peripheral connectors
-<!--TODO: write this-->
+Only wired modems can be used as peripherals connectors.
+
+Place the wired modem on the peripheral block, if it doesn't place then try using a full block modem. Next you'll want to right click the modem to activate it's peripheral mode, if everything worked then you should see a message in the chat window displaying the network name of the peripheral. Make a note of this name, you'll need it to wrap the peripheral. Note that you can click on the message in the chat to copy the peripheral's network name to your clipboard.
+
+Next, connect your computer's modem to the peripheral modem with networking cables (if required). Then you can use the peripheral's network name in place of a side as if you had the peripheral on the computer.
+
+```lua
+local monitor = peripheral.wrap("monitor_1")
+
+monitor.write("hello world")
+```
