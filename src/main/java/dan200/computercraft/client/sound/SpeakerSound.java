@@ -9,6 +9,7 @@ import com.mojang.blaze3d.audio.Channel;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.client.resources.sounds.AbstractSoundInstance;
 import net.minecraft.client.resources.sounds.Sound;
+import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.resources.sounds.TickableSoundInstance;
 import net.minecraft.client.sounds.AudioStream;
 import net.minecraft.client.sounds.SoundBufferLibrary;
@@ -32,7 +33,7 @@ public class SpeakerSound extends AbstractSoundInstance implements TickableSound
 
     SpeakerSound( ResourceLocation sound, DfpwmStream stream, SpeakerPosition position, float volume, float pitch )
     {
-        super( sound, SoundSource.RECORDS );
+        super( sound, SoundSource.RECORDS, SoundInstance.createUnseededRandom() );
         setPosition( position );
         this.stream = stream;
         this.volume = volume;

@@ -15,7 +15,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
 import org.lwjgl.glfw.GLFW;
@@ -112,7 +111,7 @@ public class NoTermComputerScreen<T extends ContainerComputerBase> extends Scree
         super.render( transform, mouseX, mouseY, partialTicks );
 
         Font font = minecraft.font;
-        List<FormattedCharSequence> lines = font.split( new TranslatableComponent( "gui.computercraft.pocket_computer_overlay" ), (int) (width * 0.8) );
+        List<FormattedCharSequence> lines = font.split( Component.translatable( "gui.computercraft.pocket_computer_overlay" ), (int) (width * 0.8) );
         float y = 10.0f;
         for( FormattedCharSequence line : lines )
         {

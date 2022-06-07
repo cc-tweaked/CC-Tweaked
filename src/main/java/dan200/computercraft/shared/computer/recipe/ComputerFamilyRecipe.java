@@ -7,7 +7,6 @@ package dan200.computercraft.shared.computer.recipe;
 
 import com.google.gson.JsonObject;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.util.BasicRecipeSerializer;
 import dan200.computercraft.shared.util.RecipeUtil;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
@@ -15,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 
 import javax.annotation.Nonnull;
 
@@ -33,7 +33,7 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
         return family;
     }
 
-    public abstract static class Serializer<T extends ComputerFamilyRecipe> extends BasicRecipeSerializer<T>
+    public abstract static class Serializer<T extends ComputerFamilyRecipe> implements RecipeSerializer<T>
     {
         protected abstract T create( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family );
 

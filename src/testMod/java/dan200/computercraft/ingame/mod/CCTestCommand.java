@@ -16,7 +16,7 @@ import net.minecraft.gametest.framework.StructureUtils;
 import net.minecraft.gametest.framework.TestCommand;
 import net.minecraft.gametest.framework.TestFunction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -88,7 +88,7 @@ class CCTestCommand
                 ArmorStand armorStand = EntityType.ARMOR_STAND.create( player.getLevel() );
                 armorStand.readAdditionalSaveData( nbt );
                 armorStand.copyPosition( player );
-                armorStand.setCustomName( new TextComponent( info.getTestName() ) );
+                armorStand.setCustomName( Component.literal( info.getTestName() ) );
                 player.getLevel().addFreshEntity( armorStand );
                 return 0;
             } ) )
@@ -137,7 +137,7 @@ class CCTestCommand
 
     private static int error( CommandSourceStack source, String message )
     {
-        source.sendFailure( new TextComponent( message ).withStyle( ChatFormatting.RED ) );
+        source.sendFailure( Component.literal( message ).withStyle( ChatFormatting.RED ) );
         return 0;
     }
 }

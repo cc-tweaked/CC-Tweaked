@@ -20,7 +20,6 @@ import dan200.computercraft.shared.network.server.ContinueUploadMessage;
 import dan200.computercraft.shared.network.server.UploadFileMessage;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Inventory;
 import org.lwjgl.glfw.GLFW;
 
@@ -37,9 +36,9 @@ import java.util.List;
 
 public abstract class ComputerScreenBase<T extends ContainerComputerBase> extends AbstractContainerScreen<T>
 {
-    private static final Component OK = new TranslatableComponent( "gui.ok" );
-    private static final Component CANCEL = new TranslatableComponent( "gui.cancel" );
-    private static final Component OVERWRITE = new TranslatableComponent( "gui.computercraft.upload.overwrite_button" );
+    private static final Component OK = Component.translatable( "gui.ok" );
+    private static final Component CANCEL = Component.translatable( "gui.cancel" );
+    private static final Component OVERWRITE = Component.translatable( "gui.computercraft.upload.overwrite_button" );
 
     protected WidgetTerminal terminal;
     protected final ClientComputer computer;
@@ -158,7 +157,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
                 String name = file.getFileName().toString();
                 if( name.length() > UploadFileMessage.MAX_FILE_NAME )
                 {
-                    alert( UploadResult.FAILED_TITLE, new TranslatableComponent( "gui.computercraft.upload.failed.name_too_long" ) );
+                    alert( UploadResult.FAILED_TITLE, Component.translatable( "gui.computercraft.upload.failed.name_too_long" ) );
                     return;
                 }
 
@@ -169,7 +168,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
                 byte[] digest = FileUpload.getDigest( buffer );
                 if( digest == null )
                 {
-                    alert( UploadResult.FAILED_TITLE, new TranslatableComponent( "gui.computercraft.upload.failed.corrupted" ) );
+                    alert( UploadResult.FAILED_TITLE, Component.translatable( "gui.computercraft.upload.failed.corrupted" ) );
                     return;
                 }
 
@@ -178,13 +177,13 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
             catch( IOException e )
             {
                 ComputerCraft.log.error( "Failed uploading files", e );
-                alert( UploadResult.FAILED_TITLE, new TranslatableComponent( "gui.computercraft.upload.failed.generic", "Cannot compute checksum" ) );
+                alert( UploadResult.FAILED_TITLE, Component.translatable( "gui.computercraft.upload.failed.generic", "Cannot compute checksum" ) );
             }
         }
 
         if( toUpload.size() > UploadFileMessage.MAX_FILES )
         {
-            alert( UploadResult.FAILED_TITLE, new TranslatableComponent( "gui.computercraft.upload.failed.too_many_files" ) );
+            alert( UploadResult.FAILED_TITLE, Component.translatable( "gui.computercraft.upload.failed.too_many_files" ) );
             return;
         }
 

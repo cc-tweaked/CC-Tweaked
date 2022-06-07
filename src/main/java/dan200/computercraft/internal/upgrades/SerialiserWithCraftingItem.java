@@ -12,7 +12,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 import java.util.function.BiFunction;
@@ -25,7 +24,7 @@ import java.util.function.BiFunction;
  * @param <R> The serialiser for this upgrade category, either {@code TurtleUpgradeSerialiser<?>} or {@code PocketUpgradeSerialiser<?>}.
  * @param <T> The upgrade that this class can serialise and deserialise.
  */
-public abstract class SerialiserWithCraftingItem<T extends IUpgradeBase, R extends UpgradeSerialiser<?, R>> extends ForgeRegistryEntry<R> implements UpgradeSerialiser<T, R>
+public abstract class SerialiserWithCraftingItem<T extends IUpgradeBase, R extends UpgradeSerialiser<?, R>> implements UpgradeSerialiser<T, R>
 {
     private final BiFunction<ResourceLocation, ItemStack, T> factory;
 

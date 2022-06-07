@@ -63,7 +63,7 @@ public abstract class ItemBlockCable extends BlockItem
     @Override
     public void fillItemCategory( @Nonnull CreativeModeTab group, @Nonnull NonNullList<ItemStack> list )
     {
-        if( allowdedIn( group ) ) list.add( new ItemStack( this ) );
+        if( allowedIn( group ) ) list.add( new ItemStack( this ) );
     }
 
     @Nonnull

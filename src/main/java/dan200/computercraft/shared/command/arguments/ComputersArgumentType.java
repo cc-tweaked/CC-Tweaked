@@ -15,9 +15,11 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.synchronization.ArgumentSerializer;
+import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.network.FriendlyByteBuf;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -171,26 +173,47 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
         );
     }
 
-    public static class Serializer implements ArgumentSerializer<ComputersArgumentType>
+    public static class Info implements ArgumentTypeInfo<ComputersArgumentType, Template>
     {
-
         @Override
-        public void serializeToNetwork( @Nonnull ComputersArgumentType arg, @Nonnull FriendlyByteBuf buf )
+        public void serializeToNetwork( @Nonnull ComputersArgumentType.Template arg, @Nonnull FriendlyByteBuf buf )
         {
-            buf.writeBoolean( arg.requireSome );
+            buf.writeBoolean( arg.requireSome() );
         }
 
         @Nonnull
         @Override
-        public ComputersArgumentType deserializeFromNetwork( @Nonnull FriendlyByteBuf buf )
+        public ComputersArgumentType.Template deserializeFromNetwork( @Nonnull FriendlyByteBuf buf )
         {
-            return buf.readBoolean() ? SOME : MANY;
+            boolean requiresSome = buf.readBoolean();
+            return new ComputersArgumentType.Template( this, requiresSome );
         }
 
         @Override
-        public void serializeToJson( @Nonnull ComputersArgumentType arg, @Nonnull JsonObject json )
+        public void serializeToJson( @Nonnull ComputersArgumentType.Template arg, @Nonnull JsonObject json )
         {
             json.addProperty( "requireSome", arg.requireSome );
+        }
+
+        @Override
+        public ComputersArgumentType.Template unpack( @NotNull ComputersArgumentType argumentType )
+        {
+            return new ComputersArgumentType.Template( this, argumentType.requireSome );
+        }
+    }
+
+    public record Template(Info info, boolean requireSome) implements ArgumentTypeInfo.Template<ComputersArgumentType>
+    {
+        @Override
+        public ComputersArgumentType instantiate( @NotNull CommandBuildContext context )
+        {
+            return requireSome ? SOME : MANY;
+        }
+
+        @Override
+        public Info type()
+        {
+            return info;
         }
     }
 

@@ -12,7 +12,7 @@ import dan200.computercraft.shared.computer.core.ClientComputer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Arrays;
@@ -53,11 +53,11 @@ public final class ComputerSidebar
             screen, x, y, ICON_WIDTH, ICON_HEIGHT, () -> computer.isOn() ? 15 : 1, 1, ICON_TEX_Y_DIFF,
             TEXTURE, TEX_SIZE, TEX_SIZE, b -> toggleComputer( computer ),
             () -> computer.isOn() ? Arrays.asList(
-                new TranslatableComponent( "gui.computercraft.tooltip.turn_off" ),
-                new TranslatableComponent( "gui.computercraft.tooltip.turn_off.key" ).withStyle( ChatFormatting.GRAY )
+                Component.translatable( "gui.computercraft.tooltip.turn_off" ),
+                Component.translatable( "gui.computercraft.tooltip.turn_off.key" ).withStyle( ChatFormatting.GRAY )
             ) : Arrays.asList(
-                new TranslatableComponent( "gui.computercraft.tooltip.turn_on" ),
-                new TranslatableComponent( "gui.computercraft.tooltip.turn_off.key" ).withStyle( ChatFormatting.GRAY )
+                Component.translatable( "gui.computercraft.tooltip.turn_on" ),
+                Component.translatable( "gui.computercraft.tooltip.turn_off.key" ).withStyle( ChatFormatting.GRAY )
             )
         ) );
 
@@ -67,8 +67,8 @@ public final class ComputerSidebar
             screen, x, y, ICON_WIDTH, ICON_HEIGHT, 29, 1, ICON_TEX_Y_DIFF,
             TEXTURE, TEX_SIZE, TEX_SIZE, b -> computer.queueEvent( "terminate" ),
             Arrays.asList(
-                new TranslatableComponent( "gui.computercraft.tooltip.terminate" ),
-                new TranslatableComponent( "gui.computercraft.tooltip.terminate.key" ).withStyle( ChatFormatting.GRAY )
+                Component.translatable( "gui.computercraft.tooltip.terminate" ),
+                Component.translatable( "gui.computercraft.tooltip.terminate.key" ).withStyle( ChatFormatting.GRAY )
             )
         ) );
     }

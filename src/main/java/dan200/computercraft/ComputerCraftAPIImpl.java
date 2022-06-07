@@ -61,9 +61,11 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     public static InputStream getResourceFile( String domain, String subPath )
     {
         var manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
+        var resource = manager.getResource( new ResourceLocation( domain, subPath ) ).orElse( null );
+        if( resource == null ) return null;
         try
         {
-            return manager.getResource( new ResourceLocation( domain, subPath ) ).getInputStream();
+            return resource.open();
         }
         catch( IOException ignored )
         {

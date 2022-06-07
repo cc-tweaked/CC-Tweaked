@@ -10,10 +10,12 @@ import net.minecraft.gametest.framework.GameTestAssertException
 import net.minecraft.gametest.framework.GameTestAssertPosException
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.gametest.framework.GameTestSequence
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.decoration.ArmorStand
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraftforge.registries.ForgeRegistries
 import java.nio.file.Files
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
@@ -135,12 +137,14 @@ fun GameTestHelper.sequence(run: GameTestSequence.() -> GameTestSequence) {
     run(startSequence()).thenSucceed()
 }
 
+private fun getName(type: BlockEntityType<*>): ResourceLocation = ForgeRegistries.BLOCK_ENTITIES.getKey(type)!!
+
 fun <T : BlockEntity> GameTestHelper.getBlockEntity(pos: BlockPos, type: BlockEntityType<T>): T {
     val tile = getBlockEntity(pos)
     @Suppress("UNCHECKED_CAST")
     return when {
-        tile == null -> throw GameTestAssertPosException("Expected ${type.registryName}, but no tile was there", absolutePos(pos), pos, 0)
-        tile.type != type -> throw GameTestAssertPosException("Expected ${type.registryName} but got ${tile.type.registryName}", absolutePos(pos), pos, 0)
+        tile == null -> throw GameTestAssertPosException("Expected ${getName(type)}, but no tile was there", absolutePos(pos), pos, 0)
+        tile.type != type -> throw GameTestAssertPosException("Expected ${getName(type)} but got ${getName(tile.type)}", absolutePos(pos), pos, 0)
         else -> tile as T
     }
 }

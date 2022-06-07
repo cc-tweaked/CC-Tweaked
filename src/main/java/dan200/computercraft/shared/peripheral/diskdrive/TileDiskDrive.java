@@ -20,7 +20,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.*;
@@ -563,7 +562,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     @Override
     public Component getName()
     {
-        return customName != null ? customName : new TranslatableComponent( getBlockState().getBlock().getDescriptionId() );
+        return customName != null ? customName : Component.translatable( getBlockState().getBlock().getDescriptionId() );
     }
 
     @Nonnull

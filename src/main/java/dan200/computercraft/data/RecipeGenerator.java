@@ -34,6 +34,7 @@ import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.Locale;
@@ -393,6 +394,6 @@ class RecipeGenerator extends RecipeProvider
 
     private static void addSpecial( Consumer<FinishedRecipe> add, SimpleRecipeSerializer<?> special )
     {
-        SpecialRecipeBuilder.special( special ).save( add, special.getRegistryName().toString() );
+        SpecialRecipeBuilder.special( special ).save( add, ForgeRegistries.RECIPE_SERIALIZERS.getKey( special ).toString() );
     }
 }

@@ -122,7 +122,8 @@ minecraft {
         }
     }
 
-    mappings channel: 'parchment', version: "${mapping_version}-${mc_version}"
+    // mappings channel: 'parchment', version: "${mapping_version}-${mc_version}"
+    mappings channel: 'official', version: mc_version
 
     accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
     accessTransformer file('src/testMod/resources/META-INF/accesstransformer.cfg')
@@ -158,9 +159,10 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
     compileOnly fg.deobf("mezz.jei:jei-1.18.2:9.4.1.116:api")
-    runtimeOnly fg.deobf("mezz.jei:jei-1.18.2:9.4.1.116")
+    // runtimeOnly fg.deobf("mezz.jei:jei-1.18.2:9.4.1.116")
 
     shade 'org.squiddev:Cobalt:0.5.5'
+    shade 'io.netty:netty-codec-http:4.1.76.Final'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
@@ -218,6 +220,8 @@ jar {
             "MixinConfigs"            : "computercraft.mixins.json",
         ])
     }
+
+    duplicatesStrategy(DuplicatesStrategy.WARN)
 
     from configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
 }

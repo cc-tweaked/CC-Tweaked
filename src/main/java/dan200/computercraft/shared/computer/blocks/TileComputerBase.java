@@ -22,8 +22,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
@@ -438,8 +436,8 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     public Component getName()
     {
         return hasCustomName()
-            ? new TextComponent( label )
-            : new TranslatableComponent( getBlockState().getBlock().getDescriptionId() );
+            ? Component.literal( label )
+            : Component.translatable( getBlockState().getBlock().getDescriptionId() );
     }
 
     @Override
@@ -452,7 +450,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Override
     public Component getCustomName()
     {
-        return hasCustomName() ? new TextComponent( label ) : null;
+        return hasCustomName() ? Component.literal( label ) : null;
     }
 
     @Nonnull

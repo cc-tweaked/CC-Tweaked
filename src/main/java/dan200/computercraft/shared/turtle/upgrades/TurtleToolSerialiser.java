@@ -19,7 +19,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 
-public final class TurtleToolSerialiser extends TurtleUpgradeSerialiser.Base<TurtleTool>
+public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<TurtleTool>
 {
     public static final TurtleToolSerialiser INSTANCE = new TurtleToolSerialiser();
 

@@ -20,7 +20,7 @@ import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -269,12 +269,12 @@ public class TileCable extends TileGeneric
         {
             if( oldName != null )
             {
-                player.displayClientMessage( new TranslatableComponent( "chat.computercraft.wired_modem.peripheral_disconnected",
+                player.displayClientMessage( Component.translatable( "chat.computercraft.wired_modem.peripheral_disconnected",
                     ChatHelpers.copy( oldName ) ), false );
             }
             if( newName != null )
             {
-                player.displayClientMessage( new TranslatableComponent( "chat.computercraft.wired_modem.peripheral_connected",
+                player.displayClientMessage( Component.translatable( "chat.computercraft.wired_modem.peripheral_connected",
                     ChatHelpers.copy( newName ) ), false );
             }
         }

@@ -16,7 +16,7 @@ import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.UploadResultMessage;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -154,7 +154,7 @@ public abstract class ContainerComputerBase extends AbstractContainerMenu implem
             if( !upload.checksumMatches() )
             {
                 ComputerCraft.log.warn( "Checksum failed to match for {}.", upload.getName() );
-                return new UploadResultMessage( UploadResult.ERROR, new TranslatableComponent( "gui.computercraft.upload.failed.corrupted" ) );
+                return new UploadResultMessage( UploadResult.ERROR, Component.translatable( "gui.computercraft.upload.failed.corrupted" ) );
             }
         }
 
@@ -170,7 +170,7 @@ public abstract class ContainerComputerBase extends AbstractContainerMenu implem
                 {
                     return new UploadResultMessage(
                         UploadResult.ERROR,
-                        new TranslatableComponent( "gui.computercraft.upload.failed.overwrite_dir", upload.getName() )
+                        Component.translatable( "gui.computercraft.upload.failed.overwrite_dir", upload.getName() )
                     );
                 }
 
@@ -184,7 +184,7 @@ public abstract class ContainerComputerBase extends AbstractContainerMenu implem
                 toUpload = files;
                 return new UploadResultMessage(
                     UploadResult.CONFIRM_OVERWRITE,
-                    new TranslatableComponent( "gui.computercraft.upload.overwrite.detail", joiner.toString() )
+                    Component.translatable( "gui.computercraft.upload.overwrite.detail", joiner.toString() )
                 );
             }
 
@@ -202,13 +202,13 @@ public abstract class ContainerComputerBase extends AbstractContainerMenu implem
             }
 
             return new UploadResultMessage(
-                UploadResult.SUCCESS, new TranslatableComponent( "gui.computercraft.upload.success.msg", files.size() )
+                UploadResult.SUCCESS, Component.translatable( "gui.computercraft.upload.success.msg", files.size() )
             );
         }
         catch( FileSystemException | IOException e )
         {
             ComputerCraft.log.error( "Error uploading files", e );
-            return new UploadResultMessage( UploadResult.ERROR, new TranslatableComponent( "gui.computercraft.upload.failed.generic", e.getMessage() ) );
+            return new UploadResultMessage( UploadResult.ERROR, Component.translatable( "gui.computercraft.upload.failed.generic", e.getMessage() ) );
         }
     }
 

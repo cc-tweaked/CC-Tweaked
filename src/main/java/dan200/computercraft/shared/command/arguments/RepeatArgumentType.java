@@ -6,7 +6,6 @@
 package dan200.computercraft.shared.command.arguments;
 
 import com.google.gson.JsonObject;
-import com.mojang.brigadier.Message;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -14,11 +13,12 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.commands.synchronization.ArgumentSerializer;
-import net.minecraft.commands.synchronization.ArgumentTypes;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -125,41 +125,57 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
         return child.getExamples();
     }
 
-    public static class Serializer implements ArgumentSerializer<RepeatArgumentType<?, ?>>
+    public static class Info implements ArgumentTypeInfo<RepeatArgumentType<?, ?>, Template>
     {
         @Override
-        public void serializeToNetwork( @Nonnull RepeatArgumentType<?, ?> arg, @Nonnull FriendlyByteBuf buf )
+        public void serializeToNetwork( @Nonnull RepeatArgumentType.Template arg, @Nonnull FriendlyByteBuf buf )
         {
             buf.writeBoolean( arg.flatten );
-            ArgumentTypes.serialize( buf, arg.child );
-            buf.writeComponent( getMessage( arg ) );
+            ArgumentUtils.serializeToNetwork( buf, arg.child );
+            buf.writeComponent( ArgumentUtils.getMessage( arg.some ) );
         }
 
         @Nonnull
         @Override
-        @SuppressWarnings( { "unchecked", "rawtypes" } )
-        public RepeatArgumentType<?, ?> deserializeFromNetwork( @Nonnull FriendlyByteBuf buf )
+        public RepeatArgumentType.Template deserializeFromNetwork( @Nonnull FriendlyByteBuf buf )
         {
             boolean isList = buf.readBoolean();
-            ArgumentType<?> child = ArgumentTypes.deserialize( buf );
+            var child = ArgumentUtils.deserialize( buf );
             Component message = buf.readComponent();
-            BiConsumer<List<Object>, ?> appender = isList ? ( list, x ) -> list.addAll( (Collection) x ) : List::add;
-            return new RepeatArgumentType( child, appender, isList, new SimpleCommandExceptionType( message ) );
+            return new RepeatArgumentType.Template( this, child, isList, new SimpleCommandExceptionType( message ) );
         }
 
         @Override
-        public void serializeToJson( @Nonnull RepeatArgumentType<?, ?> arg, @Nonnull JsonObject json )
+        public RepeatArgumentType.Template unpack( RepeatArgumentType<?, ?> argumentType )
         {
-            json.addProperty( "flatten", arg.flatten );
-            json.addProperty( "child", "<<cannot serialize>>" ); // TODO: Potentially serialize this using reflection.
-            json.addProperty( "error", Component.Serializer.toJson( getMessage( arg ) ) );
+            return new RepeatArgumentType.Template( this, ArgumentTypeInfos.unpack( argumentType.child ), argumentType.flatten, argumentType.some );
         }
 
-        private static Component getMessage( RepeatArgumentType<?, ?> arg )
+        @Override
+        public void serializeToJson( @Nonnull RepeatArgumentType.Template arg, @Nonnull JsonObject json )
         {
-            Message message = arg.some.create().getRawMessage();
-            if( message instanceof Component ) return (Component) message;
-            return new TextComponent( message.getString() );
+            json.addProperty( "flatten", arg.flatten );
+            json.add( "child", ArgumentUtils.serializeToJson( arg.child ) );
+            json.addProperty( "error", Component.Serializer.toJson( ArgumentUtils.getMessage( arg.some ) ) );
+        }
+    }
+
+    public record Template(
+        Info info, ArgumentTypeInfo.Template<?> child, boolean flatten, SimpleCommandExceptionType some
+    ) implements ArgumentTypeInfo.Template<RepeatArgumentType<?, ?>>
+    {
+        @Override
+        @SuppressWarnings( { "unchecked", "rawtypes" } )
+        public RepeatArgumentType<?, ?> instantiate( @NotNull CommandBuildContext commandBuildContext )
+        {
+            var child = child().instantiate( commandBuildContext );
+            return flatten ? RepeatArgumentType.someFlat( (ArgumentType) child, some() ) : RepeatArgumentType.some( child, some() );
+        }
+
+        @Override
+        public ArgumentTypeInfo<RepeatArgumentType<?, ?>, ?> type()
+        {
+            return info;
         }
     }
 }

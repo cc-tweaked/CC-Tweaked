@@ -20,7 +20,7 @@ public final class ChatHelpers
 
     public static MutableComponent coloured( String text, ChatFormatting colour )
     {
-        return new TextComponent( text == null ? "" : text ).withStyle( colour );
+        return Component.literal( text == null ? "" : text ).withStyle( colour );
     }
 
     public static <T extends MutableComponent> T coloured( T component, ChatFormatting colour )
@@ -31,22 +31,22 @@ public final class ChatHelpers
 
     public static MutableComponent text( String text )
     {
-        return new TextComponent( text == null ? "" : text );
+        return Component.literal( text == null ? "" : text );
     }
 
     public static MutableComponent translate( String text )
     {
-        return new TranslatableComponent( text == null ? "" : text );
+        return Component.translatable( text == null ? "" : text );
     }
 
     public static MutableComponent translate( String text, Object... args )
     {
-        return new TranslatableComponent( text == null ? "" : text, args );
+        return Component.translatable( text == null ? "" : text, args );
     }
 
     public static MutableComponent list( Component... children )
     {
-        MutableComponent component = new TextComponent( "" );
+        MutableComponent component = Component.literal( "" );
         for( Component child : children )
         {
             component.append( child );
@@ -90,10 +90,10 @@ public final class ChatHelpers
 
     public static MutableComponent copy( String text )
     {
-        TextComponent name = new TextComponent( text );
+        MutableComponent name = Component.literal( text );
         Style style = name.getStyle()
             .withClickEvent( new ClickEvent( ClickEvent.Action.COPY_TO_CLIPBOARD, text ) )
-            .withHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new TranslatableComponent( "gui.computercraft.tooltip.copy" ) ) );
+            .withHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, Component.translatable( "gui.computercraft.tooltip.copy" ) ) );
         return name.withStyle( style );
     }
 }

@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
@@ -19,7 +20,10 @@ import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
 import net.minecraftforge.client.model.pipeline.TRSRTransformer;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 
 public class TurtleMultiModel implements BakedModel
 {
@@ -44,14 +48,14 @@ public class TurtleMultiModel implements BakedModel
     @Nonnull
     @Override
     @Deprecated
-    public List<BakedQuad> getQuads( BlockState state, Direction side, @Nonnull Random rand )
+    public List<BakedQuad> getQuads( BlockState state, Direction side, @Nonnull RandomSource rand )
     {
         return getQuads( state, side, rand, EmptyModelData.INSTANCE );
     }
 
     @Nonnull
     @Override
-    public List<BakedQuad> getQuads( BlockState state, Direction side, @Nonnull Random rand, @Nonnull IModelData data )
+    public List<BakedQuad> getQuads( BlockState state, Direction side, @Nonnull RandomSource rand, @Nonnull IModelData data )
     {
         if( side != null )
         {
@@ -65,7 +69,7 @@ public class TurtleMultiModel implements BakedModel
         }
     }
 
-    private List<BakedQuad> buildQuads( BlockState state, Direction side, Random rand )
+    private List<BakedQuad> buildQuads( BlockState state, Direction side, RandomSource rand )
     {
         ArrayList<BakedQuad> quads = new ArrayList<>();
 

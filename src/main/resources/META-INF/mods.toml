@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[40,41)"
+loaderVersion="[41,42)"
 
 issueTrackerURL="https://github.com/cc-tweaked/CC-Tweaked/issues"
 logoFile="pack.png"
@@ -21,6 +21,6 @@ CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles a
 [[dependencies.computercraft]]
     modId="forge"
     mandatory=true
-    versionRange="[40.1.0,41)"
+    versionRange="[41.0.1,42)"
     ordering="NONE"
     side="BOTH"

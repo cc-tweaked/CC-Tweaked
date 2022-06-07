@@ -14,7 +14,6 @@ import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.shared.util.IoUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
@@ -22,7 +21,6 @@ import net.minecraft.util.profiling.ProfilerFiller;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.Channels;
@@ -94,7 +92,7 @@ public final class ResourceMount implements IMount
         String existingNamespace = null;
 
         FileEntry newRoot = new FileEntry( new ResourceLocation( namespace, subPath ) );
-        for( ResourceLocation file : manager.listResources( subPath, s -> true ) )
+        for( ResourceLocation file : manager.listResources( subPath, s -> true ).keySet() )
         {
             existingNamespace = file.getNamespace();
 
@@ -202,10 +200,11 @@ public final class ResourceMount implements IMount
             byte[] contents = CONTENTS_CACHE.getIfPresent( file );
             if( contents != null ) return file.size = contents.length;
 
-            try
+            Resource resource = manager.getResource( file.identifier ).orElse( null );
+            if( resource == null ) return file.size = 0;
+
+            try( InputStream s = resource.open() )
             {
-                Resource resource = manager.getResource( file.identifier );
-                InputStream s = resource.getInputStream();
                 int total = 0, read = 0;
                 do
                 {
@@ -234,9 +233,10 @@ public final class ResourceMount implements IMount
             byte[] contents = CONTENTS_CACHE.getIfPresent( file );
             if( contents != null ) return new ArrayByteChannel( contents );
 
-            try
+            var resource = manager.getResource( file.identifier ).orElse( null );
+            if( resource != null )
             {
-                InputStream stream = manager.getResource( file.identifier ).getInputStream();
+                InputStream stream = resource.open();
                 if( stream.available() > MAX_CACHED_SIZE ) return Channels.newChannel( stream );
 
                 try
@@ -250,9 +250,6 @@ public final class ResourceMount implements IMount
 
                 CONTENTS_CACHE.put( file, contents );
                 return new ArrayByteChannel( contents );
-            }
-            catch( FileNotFoundException ignored )
-            {
             }
         }
 

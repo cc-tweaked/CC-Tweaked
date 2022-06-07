@@ -27,6 +27,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -84,7 +85,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
                 lastPlayTime = clock;
                 server.getPlayerList().broadcast(
                     null, pos.x, pos.y, pos.z, sound.volume * 16, level.dimension(),
-                    new ClientboundCustomSoundPacket( sound.location, SoundSource.RECORDS, pos, sound.volume, sound.pitch )
+                    new ClientboundCustomSoundPacket( sound.location, SoundSource.RECORDS, pos, sound.volume, sound.pitch, level.getRandom().nextLong() )
                 );
             }
             pendingNotes.clear();
@@ -236,7 +237,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
         synchronized( pendingNotes )
         {
             if( pendingNotes.size() >= ComputerCraft.maxNotesPerTick ) return false;
-            pendingNotes.add( new PendingSound( instrument.getSoundEvent().getRegistryName(), volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ) ) );
+            pendingNotes.add( new PendingSound( ForgeRegistries.SOUND_EVENTS.getKey( instrument.getSoundEvent() ), volume, (float) Math.pow( 2.0, (pitch - 12.0) / 12.0 ) ) );
         }
         return true;
     }

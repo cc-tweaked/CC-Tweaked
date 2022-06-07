@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.media.items;
 
 import dan200.computercraft.api.media.IMedia;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -37,7 +37,7 @@ public final class RecordMedia implements IMedia
         Item item = stack.getItem();
         if( !(item instanceof RecordItem) ) return null;
 
-        return new TranslatableComponent( item.getDescriptionId() + ".desc" ).getString();
+        return Component.translatable( item.getDescriptionId() + ".desc" ).getString();
     }
 
     @Override

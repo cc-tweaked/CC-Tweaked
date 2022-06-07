@@ -7,7 +7,7 @@ package dan200.computercraft.shared.command.text;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.MutableComponent;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
@@ -76,7 +76,7 @@ public interface TableFormatter
 
         if( headers != null )
         {
-            TextComponent line = new TextComponent( "" );
+            MutableComponent line = Component.literal( "" );
             for( int i = 0; i < columns - 1; i++ )
             {
                 line.append( headers[i] );
@@ -97,7 +97,7 @@ public interface TableFormatter
 
         for( Component[] row : table.getRows() )
         {
-            TextComponent line = new TextComponent( "" );
+            MutableComponent line = Component.literal( "" );
             for( int i = 0; i < columns - 1; i++ )
             {
                 line.append( row[i] );

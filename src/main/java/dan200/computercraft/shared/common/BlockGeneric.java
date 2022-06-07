@@ -7,6 +7,7 @@ package dan200.computercraft.shared.common;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -23,7 +24,6 @@ import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Random;
 
 public abstract class BlockGeneric extends BaseEntityBlock
 {
@@ -73,7 +73,7 @@ public abstract class BlockGeneric extends BaseEntityBlock
 
     @Override
     @Deprecated
-    public void tick( @Nonnull BlockState state, ServerLevel world, @Nonnull BlockPos pos, @Nonnull Random rand )
+    public void tick( @Nonnull BlockState state, ServerLevel world, @Nonnull BlockPos pos, @Nonnull RandomSource rand )
     {
         BlockEntity te = world.getBlockEntity( pos );
         if( te instanceof TileGeneric generic ) generic.blockTick();

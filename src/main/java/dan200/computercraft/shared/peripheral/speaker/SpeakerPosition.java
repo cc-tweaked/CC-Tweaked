@@ -38,7 +38,7 @@ public record SpeakerPosition(@Nullable Level level, @Nonnull Vec3 position, @Nu
     public Message asMessage()
     {
         if( level == null ) throw new NullPointerException( "Cannot send a position without a level" );
-        return new Message( level.dimension().getRegistryName(), position, entity == null ? OptionalInt.empty() : OptionalInt.of( entity.getId() ) );
+        return new Message( level.dimension().location(), position, entity == null ? OptionalInt.empty() : OptionalInt.of( entity.getId() ) );
     }
 
     public static final class Message
@@ -80,7 +80,7 @@ public record SpeakerPosition(@Nullable Level level, @Nonnull Vec3 position, @Nu
         {
             Minecraft minecraft = Minecraft.getInstance();
             Level level = minecraft.level;
-            if( level != null && !level.dimension().getRegistryName().equals( this.level ) ) level = null;
+            if( level != null && !level.dimension().location().equals( this.level ) ) level = null;
 
             return new SpeakerPosition(
                 level, position,

@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.peripheral.generic.data;
 
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -15,7 +16,7 @@ public class FluidData
     @Nonnull
     public static <T extends Map<? super String, Object>> T fillBasic( @Nonnull T data, @Nonnull FluidStack stack )
     {
-        data.put( "name", DataHelpers.getId( stack.getFluid() ) );
+        data.put( "name", DataHelpers.getId( ForgeRegistries.FLUIDS, stack.getFluid() ) );
         data.put( "amount", stack.getAmount() );
         return data;
     }

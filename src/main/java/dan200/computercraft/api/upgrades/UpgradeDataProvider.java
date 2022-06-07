@@ -12,14 +12,13 @@ import com.google.gson.JsonParseException;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.internal.upgrades.SerialiserWithCraftingItem;
 import dan200.computercraft.internal.upgrades.SimpleSerialiser;
-import net.minecraft.core.Registry;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.HashCache;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.registries.RegistryManager;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -45,11 +44,11 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
     private final DataGenerator generator;
     private final String name;
     private final String folder;
-    private final ResourceKey<Registry<R>> registry;
+    private final IForgeRegistry<R> registry;
 
     private List<T> upgrades;
 
-    protected UpgradeDataProvider( @Nonnull DataGenerator generator, @Nonnull String name, @Nonnull String folder, @Nonnull ResourceKey<Registry<R>> registry )
+    protected UpgradeDataProvider( @Nonnull DataGenerator generator, @Nonnull String name, @Nonnull String folder, @Nonnull IForgeRegistry<R> registry )
     {
         this.generator = generator;
         this.name = name;
@@ -92,7 +91,7 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
         }
 
         return new Upgrade<>( id, serialiser, s ->
-            s.addProperty( "item", Objects.requireNonNull( item.getRegistryName(), "Item is not registered" ).toString() )
+            s.addProperty( "item", Objects.requireNonNull( ForgeRegistries.ITEMS.getKey( item ), "Item is not registered" ).toString() )
         );
     }
 
@@ -111,7 +110,7 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
     protected abstract void addUpgrades( @Nonnull Consumer<Upgrade<R>> addUpgrade );
 
     @Override
-    public final void run( @Nonnull HashCache cache ) throws IOException
+    public final void run( @Nonnull CachedOutput cache ) throws IOException
     {
         Path base = generator.getOutputFolder().resolve( "data" );
 
@@ -121,12 +120,12 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
             if( !seen.add( upgrade.id() ) ) throw new IllegalStateException( "Duplicate upgrade " + upgrade.id() );
 
             var json = new JsonObject();
-            json.addProperty( "type", Objects.requireNonNull( upgrade.serialiser().getRegistryName(), "Serialiser has not been registered" ).toString() );
+            json.addProperty( "type", Objects.requireNonNull( registry.getKey( upgrade.serialiser() ), "Serialiser has not been registered" ).toString() );
             upgrade.serialise().accept( json );
 
             try
             {
-                DataProvider.save( GSON, cache, json, base.resolve( upgrade.id().getNamespace() + "/" + folder + "/" + upgrade.id().getPath() + ".json" ) );
+                DataProvider.saveStable( cache, json, base.resolve( upgrade.id().getNamespace() + "/" + folder + "/" + upgrade.id().getPath() + ".json" ) );
             }
             catch( IOException e )
             {
@@ -157,7 +156,7 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
     @Nonnull
     public final R existingSerialiser( @Nonnull ResourceLocation id )
     {
-        var result = RegistryManager.ACTIVE.getRegistry( registry ).getValue( id );
+        var result = registry.getValue( id );
         if( result == null ) throw new IllegalArgumentException( "No such serialiser " + registry );
         return result;
     }

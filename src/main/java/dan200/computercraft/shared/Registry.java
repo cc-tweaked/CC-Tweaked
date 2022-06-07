@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared;
 
+import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.media.IMedia;
@@ -12,7 +13,7 @@ import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
-import dan200.computercraft.shared.command.arguments.ArgumentSerializers;
+import dan200.computercraft.shared.command.arguments.*;
 import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
@@ -70,6 +71,9 @@ import dan200.computercraft.shared.util.CreativeTabMain;
 import dan200.computercraft.shared.util.FixedPointTileEntityType;
 import dan200.computercraft.shared.util.ImpostorRecipe;
 import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
+import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.commands.synchronization.ArgumentTypeInfos;
+import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.MenuType;
@@ -77,7 +81,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.RecordItem;
-import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -86,7 +89,6 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -308,38 +310,62 @@ public final class Registry
             () -> ContainerData.toType( ViewComputerContainerData::new, ContainerViewComputer::new ) );
     }
 
+    static class ModArgumentTypes
+    {
+        static final DeferredRegister<ArgumentTypeInfo<?, ?>> ARGUMENT_TYPES = DeferredRegister.create( net.minecraft.core.Registry.COMMAND_ARGUMENT_TYPE_REGISTRY, ComputerCraft.MOD_ID );
+
+        @SuppressWarnings( "unchecked" )
+        private static <T extends ArgumentType<?>> void registerUnsafe( String name, Class<T> type, ArgumentTypeInfo<?, ?> serializer )
+        {
+            ARGUMENT_TYPES.register( name, () -> ArgumentTypeInfos.registerByClass( type, (ArgumentTypeInfo<T, ?>)serializer ) );
+        }
+
+        private static <T extends ArgumentType<?>> void register( String name, Class<T> type, ArgumentTypeInfo<T, ?> serializer )
+        {
+            ARGUMENT_TYPES.register( name, () -> ArgumentTypeInfos.registerByClass( type, serializer ) );
+        }
+
+        private static <T extends ArgumentType<?>> void register( String name, Class<T> type, T instance )
+        {
+            register( name, type, SingletonArgumentInfo.contextFree( () -> instance ) );
+        }
+
+        static
+        {
+            register( "tracking_field", TrackingFieldArgumentType.class, TrackingFieldArgumentType.trackingField() );
+            register( "computer", ComputerArgumentType.class, ComputerArgumentType.oneComputer() );
+            register( "computers", ComputersArgumentType.class, new ComputersArgumentType.Info() );
+            registerUnsafe( "repeat", RepeatArgumentType.class, new RepeatArgumentType.Info() );
+        }
+    }
+
+
     @SubscribeEvent
     public static void registerRegistries( NewRegistryEvent event )
     {
-        @SuppressWarnings( "unchecked" )
-        Class<TurtleUpgradeSerialiser<?>> turtleType = (Class<TurtleUpgradeSerialiser<?>>) (Class<?>) TurtleUpgradeSerialiser.class;
         event.create( new RegistryBuilder<TurtleUpgradeSerialiser<?>>()
             .setName( TurtleUpgradeSerialiser.REGISTRY_ID.location() )
-            .setType( turtleType )
             .disableSaving().disableSync() );
 
-        @SuppressWarnings( "unchecked" )
-        Class<PocketUpgradeSerialiser<?>> pocketType = (Class<PocketUpgradeSerialiser<?>>) (Class<?>) PocketUpgradeSerialiser.class;
         event.create( new RegistryBuilder<PocketUpgradeSerialiser<?>>()
             .setName( PocketUpgradeSerialiser.REGISTRY_ID.location() )
-            .setType( pocketType )
             .disableSaving().disableSync() );
     }
 
     @SubscribeEvent
-    public static void registerRecipeSerializers( RegistryEvent.Register<RecipeSerializer<?>> event )
+    public static void registerRecipeSerializers( RegisterEvent event )
     {
-        event.getRegistry().registerAll(
-            ColourableRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "colour" ) ),
-            ComputerUpgradeRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "computer_upgrade" ) ),
-            PocketComputerUpgradeRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "pocket_computer_upgrade" ) ),
-            DiskRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "disk" ) ),
-            PrintoutRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "printout" ) ),
-            TurtleRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle" ) ),
-            TurtleUpgradeRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_upgrade" ) ),
-            ImpostorShapelessRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "impostor_shapeless" ) ),
-            ImpostorRecipe.SERIALIZER.setRegistryName( new ResourceLocation( ComputerCraft.MOD_ID, "impostor_shaped" ) )
-        );
+        event.register( ForgeRegistries.RECIPE_SERIALIZERS.getRegistryKey(), registry -> {
+            registry.register( new ResourceLocation( ComputerCraft.MOD_ID, "colour" ), ColourableRecipe.SERIALIZER );
+            registry.register( new ResourceLocation( ComputerCraft.MOD_ID, "computer_upgrade" ), ComputerUpgradeRecipe.SERIALIZER );
+            registry.register( new ResourceLocation( ComputerCraft.MOD_ID, "pocket_computer_upgrade" ), PocketComputerUpgradeRecipe.SERIALIZER );
+            registry.register( new ResourceLocation( ComputerCraft.MOD_ID, "disk" ), DiskRecipe.SERIALIZER );
+            registry.register( new ResourceLocation( ComputerCraft.MOD_ID, "printout" ), PrintoutRecipe.SERIALIZER );
+            registry.register( new ResourceLocation( ComputerCraft.MOD_ID, "turtle" ), TurtleRecipe.SERIALIZER );
+            registry.register( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_upgrade" ), TurtleUpgradeRecipe.SERIALIZER );
+            registry.register( new ResourceLocation( ComputerCraft.MOD_ID, "impostor_shapeless" ), ImpostorShapelessRecipe.SERIALIZER );
+            registry.register( new ResourceLocation( ComputerCraft.MOD_ID, "impostor_shaped" ), ImpostorRecipe.SERIALIZER );
+        } );
     }
 
     @SubscribeEvent
@@ -356,7 +382,6 @@ public final class Registry
 
         event.enqueueWork( () -> {
             registerProviders();
-            ArgumentSerializers.register();
             registerLoot();
         } );
 
@@ -412,5 +437,6 @@ public final class Registry
         ModTurtleSerialisers.SERIALISERS.register( bus );
         ModPocketUpgradeSerialisers.SERIALISERS.register( bus );
         ModContainers.CONTAINERS.register( bus );
+        ModArgumentTypes.ARGUMENT_TYPES.register( bus );
     }
 }

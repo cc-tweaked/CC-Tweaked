@@ -162,7 +162,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
                 popResource( world, pos, item );
             }
 
-            state.spawnAfterBreak( serverWorld, pos, player.getMainHandItem() );
+            state.spawnAfterBreak( serverWorld, pos, player.getMainHandItem(), true );
         }
     }
 

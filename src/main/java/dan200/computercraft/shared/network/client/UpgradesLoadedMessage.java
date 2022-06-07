@@ -72,12 +72,12 @@ public class UpgradesLoadedMessage implements NetworkMessage
     @Override
     public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
-        toBytes( buf, turtleUpgrades );
-        toBytes( buf, pocketUpgrades );
+        toBytes( buf, TurtleUpgradeSerialiser.registry(), turtleUpgrades );
+        toBytes( buf, PocketUpgradeSerialiser.registry(), pocketUpgrades );
     }
 
     private <R extends UpgradeSerialiser<? extends T, R>, T extends IUpgradeBase> void toBytes(
-        @Nonnull FriendlyByteBuf buf, Map<String, UpgradeManager.UpgradeWrapper<R, T>> upgrades
+        @Nonnull FriendlyByteBuf buf, IForgeRegistry<R> registry, Map<String, UpgradeManager.UpgradeWrapper<R, T>> upgrades
     )
     {
         buf.writeVarInt( upgrades.size() );
@@ -85,11 +85,12 @@ public class UpgradesLoadedMessage implements NetworkMessage
         {
             buf.writeUtf( entry.getKey() );
 
+            var serialiser = entry.getValue().serialiser();
             @SuppressWarnings( "unchecked" )
-            var serialiser = (UpgradeSerialiser<T, R>) entry.getValue().serialiser();
+            var unwrapedSerialiser = (UpgradeSerialiser<T, R>) serialiser;
 
-            buf.writeResourceLocation( Objects.requireNonNull( serialiser.getRegistryName(), "Serialiser is not registered!" ) );
-            serialiser.toNetwork( buf, entry.getValue().upgrade() );
+            buf.writeResourceLocation( Objects.requireNonNull( registry.getKey( serialiser ), "Serialiser is not registered!" ) );
+            unwrapedSerialiser.toNetwork( buf, entry.getValue().upgrade() );
 
             buf.writeUtf( entry.getValue().modId() );
         }

@@ -17,7 +17,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryManager;
 
@@ -68,16 +67,18 @@ public interface TurtleUpgradeSerialiser<T extends ITurtleUpgrade> extends Upgra
      *
      * This is largely intended for use with Forge Registry methods/classes, such as {@link DeferredRegister} and
      * {@link RegistryManager#getRegistry(ResourceKey)}.
+     * @see #registry()
      */
     ResourceKey<Registry<TurtleUpgradeSerialiser<?>>> REGISTRY_ID = ResourceKey.createRegistryKey( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_upgrade_serialiser" ) );
 
     /**
-     * A convenient base class to inherit to implement {@link TurtleUpgradeSerialiser}.
-     *
-     * @param <T> The type of the upgrade created by this serialiser.
+     * The associated registry.
+     * @return The registry for pocket upgrade serialisers.
+     * @see #REGISTRY_ID
      */
-    abstract class Base<T extends ITurtleUpgrade> extends ForgeRegistryEntry<TurtleUpgradeSerialiser<?>> implements TurtleUpgradeSerialiser<T>
+    static IForgeRegistry<TurtleUpgradeSerialiser<?>> registry()
     {
+        return RegistryManager.ACTIVE.getRegistry( REGISTRY_ID );
     }
 
     /**

@@ -10,7 +10,6 @@ import dan200.computercraft.api.upgrades.IUpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 import java.util.function.Function;
@@ -23,7 +22,7 @@ import java.util.function.Function;
  * @param <R> The serialiser for this upgrade category, either {@code TurtleUpgradeSerialiser<?>} or {@code PocketUpgradeSerialiser<?>}.
  * @param <T> The upgrade that this class can serialise and deserialise.
  */
-public abstract class SimpleSerialiser<T extends IUpgradeBase, R extends UpgradeSerialiser<?, R>> extends ForgeRegistryEntry<R> implements UpgradeSerialiser<T, R>
+public abstract class SimpleSerialiser<T extends IUpgradeBase, R extends UpgradeSerialiser<?, R>> implements UpgradeSerialiser<T, R>
 {
     private final Function<ResourceLocation, T> constructor;
 

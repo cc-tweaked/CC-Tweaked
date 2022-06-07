@@ -10,7 +10,6 @@ import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 
@@ -25,7 +24,7 @@ import javax.annotation.Nonnull;
  * @see TurtleUpgradeSerialiser
  * @see PocketUpgradeSerialiser
  */
-public interface UpgradeSerialiser<T extends IUpgradeBase, R extends UpgradeSerialiser<?, R>> extends IForgeRegistryEntry<R>
+public interface UpgradeSerialiser<T extends IUpgradeBase, R extends UpgradeSerialiser<?, R>>
 {
     /**
      * Read this upgrade from a JSON file in a datapack.

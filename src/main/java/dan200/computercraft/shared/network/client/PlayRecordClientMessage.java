@@ -9,11 +9,12 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 
@@ -71,7 +72,7 @@ public class PlayRecordClientMessage implements NetworkMessage
         {
             buf.writeBoolean( true );
             buf.writeUtf( name );
-            buf.writeRegistryId( soundEvent );
+            buf.writeRegistryId( ForgeRegistries.SOUND_EVENTS, soundEvent );
         }
     }
 
@@ -81,6 +82,6 @@ public class PlayRecordClientMessage implements NetworkMessage
     {
         Minecraft mc = Minecraft.getInstance();
         mc.levelRenderer.playStreamingMusic( soundEvent, pos, null );
-        if( name != null ) mc.gui.setNowPlaying( new TextComponent( name ) );
+        if( name != null ) mc.gui.setNowPlaying( Component.literal( name ) );
     }
 }

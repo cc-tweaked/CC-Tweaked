@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix4f;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.lwjgl.opengl.GL15;
+import org.lwjgl.opengl.GL15C;
 import org.lwjgl.opengl.GL45C;
 
 import java.nio.ByteBuffer;
@@ -29,23 +30,38 @@ public class DirectVertexBuffer extends VertexBuffer
     {
         if( DirectBuffers.HAS_DSA )
         {
-            RenderSystem.glDeleteBuffers( vertextBufferId );
+            RenderSystem.glDeleteBuffers( vertexBufferId );
             if( DirectBuffers.ON_LINUX ) BufferUploader.reset(); // See comment on DirectBuffers.deleteBuffer.
-            vertextBufferId = GL45C.glCreateBuffers();
+            vertexBufferId = GL45C.glCreateBuffers();
         }
     }
 
     public void upload( int vertexCount, VertexFormat.Mode mode, VertexFormat format, ByteBuffer buffer )
     {
-        RenderSystem.assertOnRenderThread();
+        bind();
 
-        DirectBuffers.setBufferData( GL15.GL_ARRAY_BUFFER, vertextBufferId, buffer, GL15.GL_STATIC_DRAW );
-
-        this.format = format;
         this.mode = mode;
         actualIndexCount = indexCount = mode.indexCount( vertexCount );
         indexType = VertexFormat.IndexType.SHORT;
-        sequentialIndices = true;
+
+        RenderSystem.assertOnRenderThread();
+
+        DirectBuffers.setBufferData( GL15.GL_ARRAY_BUFFER, vertexBufferId, buffer, GL15.GL_STATIC_DRAW );
+        if( format != this.format )
+        {
+            if( this.format != null ) this.format.clearBufferState();
+
+            GL15C.glBindBuffer( GL15C.GL_ARRAY_BUFFER, vertexBufferId );
+            format.setupBufferState();
+            GL15C.glBindBuffer( GL15C.GL_ARRAY_BUFFER, 0 );
+        }
+
+        RenderSystem.AutoStorageIndexBuffer indexBuffer = RenderSystem.getSequentialBuffer( mode );
+        if( indexBuffer != sequentialIndices || !indexBuffer.hasStorage( indexCount ) )
+        {
+            indexBuffer.bind( indexCount );
+            sequentialIndices = indexBuffer;
+        }
     }
 
     public void drawWithShader( Matrix4f modelView, Matrix4f projection, ShaderInstance shader, int indexCount )

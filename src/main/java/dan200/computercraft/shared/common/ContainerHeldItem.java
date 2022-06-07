@@ -43,6 +43,13 @@ public class ContainerHeldItem extends AbstractContainerMenu
         return stack;
     }
 
+    @Nonnull
+    @Override
+    public ItemStack quickMoveStack( @Nonnull Player player, int slot )
+    {
+        return ItemStack.EMPTY;
+    }
+
     @Override
     public boolean stillValid( @Nonnull Player player )
     {

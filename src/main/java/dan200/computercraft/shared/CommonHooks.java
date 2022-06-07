@@ -21,7 +21,6 @@ import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -33,6 +32,8 @@ import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.MissingMappingsEvent;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -162,12 +163,12 @@ public final class CommonHooks
     }
 
     @SubscribeEvent
-    public static void onMissingEntityMappingsEvent( RegistryEvent.MissingMappings<EntityType<?>> event )
+    public static void onMissingEntityMappingsEvent( MissingMappingsEvent event )
     {
         ResourceLocation id = new ResourceLocation( ComputerCraft.MOD_ID, "turtle_player" );
-        for( RegistryEvent.MissingMappings.Mapping<EntityType<?>> mapping : event.getMappings( ComputerCraft.MOD_ID ) )
+        for( var mapping : event.getMappings( ForgeRegistries.BLOCKS.getRegistryKey(), ComputerCraft.MOD_ID ) )
         {
-            if( mapping.key.equals( id ) ) mapping.ignore();
+            if( mapping.getKey().equals( id ) ) mapping.ignore();
         }
     }
 }

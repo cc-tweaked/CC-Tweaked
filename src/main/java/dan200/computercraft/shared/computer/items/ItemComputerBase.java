@@ -13,8 +13,6 @@ import dan200.computercraft.shared.computer.blocks.BlockComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -42,7 +40,7 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
             int id = getComputerID( stack );
             if( id >= 0 )
             {
-                list.add( new TranslatableComponent( "gui.computercraft.tooltip.computer_id", id )
+                list.add( Component.translatable( "gui.computercraft.tooltip.computer_id", id )
                     .withStyle( ChatFormatting.GRAY ) );
             }
         }
@@ -67,7 +65,7 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     {
         if( label != null )
         {
-            stack.setHoverName( new TextComponent( label ) );
+            stack.setHoverName( Component.literal( label ) );
         }
         else
         {

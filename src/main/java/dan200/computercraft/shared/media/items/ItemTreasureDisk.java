@@ -15,7 +15,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -49,7 +48,7 @@ public class ItemTreasureDisk extends Item implements IMedia
     public void appendHoverText( @Nonnull ItemStack stack, @Nullable Level world, @Nonnull List<Component> list, @Nonnull TooltipFlag tooltipOptions )
     {
         String label = getTitle( stack );
-        if( !label.isEmpty() ) list.add( new TextComponent( label ) );
+        if( !label.isEmpty() ) list.add( Component.literal( label ) );
     }
 
     @Override

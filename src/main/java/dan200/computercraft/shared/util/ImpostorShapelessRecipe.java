@@ -59,7 +59,7 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe
         return SERIALIZER;
     }
 
-    public static final RecipeSerializer<ImpostorShapelessRecipe> SERIALIZER = new BasicRecipeSerializer<>()
+    public static final RecipeSerializer<ImpostorShapelessRecipe> SERIALIZER = new RecipeSerializer<ImpostorShapelessRecipe>()
     {
         @Nonnull
         @Override

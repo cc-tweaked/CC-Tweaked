@@ -19,18 +19,18 @@ import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.client.model.data.IModelData;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.Random;
 
 /**
  * Provides custom block breaking progress for modems, so it only applies to the current part.
@@ -41,18 +41,16 @@ import java.util.Random;
 public class BlockRenderDispatcherMixin
 {
     @Shadow
-    private final Random random;
-    @Shadow
-    private final BlockModelShaper blockModelShaper;
-    @Shadow
-    private final ModelBlockRenderer modelRenderer;
+    @Final
+    private RandomSource random;
 
-    public BlockRenderDispatcherMixin( Random random, BlockModelShaper blockModelShaper, ModelBlockRenderer modelRenderer )
-    {
-        this.random = random;
-        this.blockModelShaper = blockModelShaper;
-        this.modelRenderer = modelRenderer;
-    }
+    @Shadow
+    @Final
+    private BlockModelShaper blockModelShaper;
+
+    @Shadow
+    @Final
+    private ModelBlockRenderer modelRenderer;
 
     @Inject(
         method = "name=/^renderBreakingTexture/ desc=/IModelData;\\)V$/",

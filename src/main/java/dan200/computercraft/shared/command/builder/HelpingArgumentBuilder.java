@@ -17,7 +17,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -174,7 +173,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
         temp.addChild( node );
         String usage = dispatcher.getSmartUsage( temp, context.getSource() ).get( node ).substring( node.getName().length() );
 
-        MutableComponent output = new TextComponent( "" )
+        MutableComponent output = Component.literal( "" )
             .append( coloured( "/" + command + usage, HEADER ) )
             .append( " " )
             .append( coloured( translate( "commands." + id + ".synopsis" ), SYNOPSIS ) )

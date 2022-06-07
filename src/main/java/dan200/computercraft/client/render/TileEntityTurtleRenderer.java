@@ -30,6 +30,7 @@ import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -37,7 +38,6 @@ import net.minecraftforge.client.model.data.EmptyModelData;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Random;
 
 public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
 {
@@ -46,7 +46,7 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
     private static final ModelResourceLocation COLOUR_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_colour", "inventory" );
     private static final ModelResourceLocation ELF_OVERLAY_MODEL = new ModelResourceLocation( "computercraft:turtle_elf_overlay", "inventory" );
 
-    private final Random random = new Random( 0 );
+    private final RandomSource random = RandomSource.create( 0 );
 
     private final BlockEntityRenderDispatcher renderer;
 

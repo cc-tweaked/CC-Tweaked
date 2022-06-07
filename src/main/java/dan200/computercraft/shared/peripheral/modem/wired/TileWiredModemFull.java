@@ -20,8 +20,8 @@ import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -222,14 +222,14 @@ public class TileWiredModemFull extends TileGeneric
         List<String> names = new ArrayList<>( peripherals );
         names.sort( Comparator.naturalOrder() );
 
-        TextComponent base = new TextComponent( "" );
+        MutableComponent base = Component.literal( "" );
         for( int i = 0; i < names.size(); i++ )
         {
             if( i > 0 ) base.append( ", " );
             base.append( ChatHelpers.copy( names.get( i ) ) );
         }
 
-        player.displayClientMessage( new TranslatableComponent( kind, base ), false );
+        player.displayClientMessage( Component.translatable( kind, base ), false );
     }
 
     @Override

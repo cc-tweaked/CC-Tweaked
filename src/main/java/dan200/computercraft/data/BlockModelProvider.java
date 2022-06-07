@@ -17,10 +17,11 @@ import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import net.minecraft.core.Direction;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.generators.*;
 import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -206,7 +207,7 @@ class BlockModelProvider extends BlockStateProvider
         for( MonitorEdgeState edge : BlockMonitor.STATE.getPossibleValues() )
         {
             String suffix = edge == MonitorEdgeState.NONE ? "" : "_" + edge.getSerializedName();
-            ModelFile model = models().getBuilder( extend( block.getRegistryName(), suffix ) );
+            ModelFile model = models().getBuilder( extendedName( block, suffix ) );
 
             for( Direction facing : BlockMonitor.FACING.getPossibleValues() )
             {
@@ -260,20 +261,26 @@ class BlockModelProvider extends BlockStateProvider
 
     private static ResourceLocation blockTexture( Block block, String suffix )
     {
-        ResourceLocation id = block.getRegistryName();
+        ResourceLocation id = ForgeRegistries.BLOCKS.getKey( block );
         return new ResourceLocation( id.getNamespace(), "block/" + id.getPath() + suffix );
     }
 
     @Nonnull
-    private String name( @Nonnull IForgeRegistryEntry<?> term )
+    private <T> String name( @Nonnull Block term )
     {
-        return Objects.requireNonNull( term.getRegistryName() ).toString();
+        return Objects.requireNonNull( ForgeRegistries.BLOCKS.getKey( term ) ).toString();
     }
 
     @Nonnull
-    private String extendedName( @Nonnull IForgeRegistryEntry<?> term, @Nonnull String suffix )
+    private <T> String name( @Nonnull Item term )
     {
-        return extend( Objects.requireNonNull( term.getRegistryName() ), suffix );
+        return Objects.requireNonNull( ForgeRegistries.ITEMS.getKey( term ) ).toString();
+    }
+
+    @Nonnull
+    private String extendedName( @Nonnull Block term, @Nonnull String suffix )
+    {
+        return extend( Objects.requireNonNull( ForgeRegistries.BLOCKS.getKey( term ) ), suffix );
     }
 
     @Nonnull

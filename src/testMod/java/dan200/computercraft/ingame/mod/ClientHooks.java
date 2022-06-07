@@ -10,31 +10,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.ParticleStatus;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.tutorial.TutorialSteps;
-import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.level.DataPackConfig;
-import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.LevelSettings;
-import net.minecraft.world.level.biome.Biomes;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.levelgen.FlatLevelSource;
-import net.minecraft.world.level.levelgen.WorldGenSettings;
-import net.minecraft.world.level.levelgen.flat.FlatLayerInfo;
-import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.Collections;
-import java.util.Optional;
-
-import static net.minecraft.world.level.levelgen.WorldGenSettings.withOverworld;
 
 @Mod.EventBusSubscriber( modid = TestMod.MOD_ID, value = Dist.CLIENT )
 public final class ClientHooks
@@ -61,13 +42,14 @@ public final class ClientHooks
         Minecraft minecraft = Minecraft.getInstance();
 
         // Clear some options before we get any further.
-        minecraft.options.autoJump = false;
-        minecraft.options.renderClouds = CloudStatus.OFF;
-        minecraft.options.particles = ParticleStatus.MINIMAL;
+        minecraft.options.autoJump().set( false );
+        minecraft.options.cloudStatus().set( CloudStatus.OFF );
+        minecraft.options.particles().set( ParticleStatus.MINIMAL );
         minecraft.options.tutorialStep = TutorialSteps.NONE;
-        minecraft.options.renderDistance = 6;
-        minecraft.options.gamma = 1.0;
+        minecraft.options.renderDistance().set( 6 );
+        minecraft.options.gamma().set( 1.0 );
 
+        /*
         if( minecraft.getLevelSource().levelExists( "test" ) )
         {
             LOG.info( "World exists, loading it" );
@@ -102,5 +84,6 @@ public final class ClientHooks
             );
             Minecraft.getInstance().createLevel( "test", settings, registries, generator );
         }
+        */
     }
 }

@@ -24,6 +24,7 @@ import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
@@ -33,7 +34,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 
 public class TurtleSmartItemModel implements BakedModel
 {
@@ -118,7 +118,7 @@ public class TurtleSmartItemModel implements BakedModel
     @Nonnull
     @Override
     @Deprecated
-    public List<BakedQuad> getQuads( BlockState state, Direction facing, @Nonnull Random rand )
+    public List<BakedQuad> getQuads( BlockState state, Direction facing, @Nonnull RandomSource rand )
     {
         return familyModel.getQuads( state, facing, rand );
     }
@@ -126,7 +126,7 @@ public class TurtleSmartItemModel implements BakedModel
     @Nonnull
     @Override
     @Deprecated
-    public List<BakedQuad> getQuads( BlockState state, Direction facing, @Nonnull Random rand, @Nonnull IModelData data )
+    public List<BakedQuad> getQuads( BlockState state, Direction facing, @Nonnull RandomSource rand, @Nonnull IModelData data )
     {
         return familyModel.getQuads( state, facing, rand, data );
     }

@@ -9,7 +9,6 @@ import dan200.computercraft.api.lua.LuaException;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import javax.annotation.Nonnull;
 
@@ -42,7 +41,7 @@ final class ArgumentHelpers
     }
 
     @Nonnull
-    public static <T extends IForgeRegistryEntry<T>> T getRegistryEntry( String name, String typeName, IForgeRegistry<T> registry ) throws LuaException
+    public static <T> T getRegistryEntry( String name, String typeName, IForgeRegistry<T> registry ) throws LuaException
     {
         ResourceLocation id;
         try

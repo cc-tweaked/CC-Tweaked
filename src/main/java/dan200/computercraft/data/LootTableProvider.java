@@ -9,9 +9,9 @@ import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dan200.computercraft.ComputerCraft;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.LootTables;
@@ -40,7 +40,7 @@ abstract class LootTableProvider implements DataProvider
     }
 
     @Override
-    public void run( @Nonnull HashCache cache )
+    public void run( @Nonnull CachedOutput cache )
     {
         Map<ResourceLocation, LootTable> tables = new HashMap<>();
         ValidationContext validation = new ValidationContext( LootContextParamSets.ALL_PARAMS, x -> null, tables::get );
@@ -64,7 +64,7 @@ abstract class LootTableProvider implements DataProvider
             Path path = getPath( key );
             try
             {
-                DataProvider.save( GSON, cache, LootTables.serialize( value ), path );
+                DataProvider.saveStable( cache, LootTables.serialize( value ), path );
             }
             catch( IOException e )
             {

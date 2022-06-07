@@ -8,7 +8,7 @@ package dan200.computercraft.shared.peripheral.generic.data;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import net.minecraftforge.registries.IForgeRegistry;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,9 +33,9 @@ public final class DataHelpers
     }
 
     @Nullable
-    public static String getId( @Nonnull IForgeRegistryEntry<?> entry )
+    public static <T> String getId( @Nonnull IForgeRegistry<T> registry, T entry )
     {
-        ResourceLocation id = entry.getRegistryName();
+        ResourceLocation id = registry.getKey( entry );
         return id == null ? null : id.toString();
     }
 }

@@ -15,6 +15,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
@@ -34,7 +35,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
 
     public TurtleUpgradeDataProvider( DataGenerator generator )
     {
-        super( generator, "Turtle Upgrades", "computercraft/turtle_upgrades", TurtleUpgradeSerialiser.REGISTRY_ID );
+        super( generator, "Turtle Upgrades", "computercraft/turtle_upgrades", TurtleUpgradeSerialiser.registry() );
     }
 
     /**
@@ -137,9 +138,9 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
         public void add( @Nonnull Consumer<Upgrade<TurtleUpgradeSerialiser<?>>> add )
         {
             add.accept( new Upgrade<>( id, serialiser, s -> {
-                s.addProperty( "item", toolItem.getRegistryName().toString() );
+                s.addProperty( "item", ForgeRegistries.ITEMS.getKey( toolItem ).toString() );
                 if( adjective != null ) s.addProperty( "adjective", adjective );
-                if( craftingItem != null ) s.addProperty( "craftItem", craftingItem.getRegistryName().toString() );
+                if( craftingItem != null ) s.addProperty( "craftItem", ForgeRegistries.ITEMS.getKey( craftingItem ).toString() );
                 if( damageMultiplier != null ) s.addProperty( "damageMultiplier", damageMultiplier );
                 if( breakable != null ) s.addProperty( "breakable", breakable.location().toString() );
             } ) );

@@ -15,6 +15,7 @@ import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,7 +30,7 @@ public class ItemData
     @Nonnull
     public static <T extends Map<? super String, Object>> T fillBasicSafe( @Nonnull T data, @Nonnull ItemStack stack )
     {
-        data.put( "name", DataHelpers.getId( stack.getItem() ) );
+        data.put( "name", DataHelpers.getId( ForgeRegistries.ITEMS, stack.getItem() ) );
         data.put( "count", stack.getCount() );
 
         return data;
@@ -163,7 +164,7 @@ public class ItemData
             Enchantment enchantment = entry.getKey();
             Integer level = entry.getValue();
             HashMap<String, Object> enchant = new HashMap<>( 3 );
-            enchant.put( "name", DataHelpers.getId( enchantment ) );
+            enchant.put( "name", DataHelpers.getId( ForgeRegistries.ENCHANTMENTS, enchantment ) );
             enchant.put( "level", level );
             enchant.put( "displayName", enchantment.getFullname( level ).getString() );
             enchants.add( enchant );

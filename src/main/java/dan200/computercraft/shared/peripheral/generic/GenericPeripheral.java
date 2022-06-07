@@ -14,6 +14,7 @@ import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,7 +30,7 @@ class GenericPeripheral implements IDynamicPeripheral
 
     GenericPeripheral( BlockEntity tile, String name, Set<String> additionalTypes, List<SaturatedMethod> methods )
     {
-        ResourceLocation type = tile.getType().getRegistryName();
+        ResourceLocation type = ForgeRegistries.BLOCK_ENTITIES.getKey( tile.getType() );
         this.tile = tile;
         this.type = name != null ? name : (type != null ? type.toString() : "unknown");
         this.additionalTypes = additionalTypes;

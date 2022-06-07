@@ -25,15 +25,15 @@ public class Generators
 
         var turtleUpgrades = new TurtleUpgradeGenerator( generator );
         var pocketUpgrades = new PocketUpgradeGenerator( generator );
-        generator.addProvider( turtleUpgrades );
-        generator.addProvider( pocketUpgrades );
+        generator.addProvider( event.includeServer(), turtleUpgrades );
+        generator.addProvider( event.includeServer(), pocketUpgrades );
 
-        generator.addProvider( new RecipeGenerator( generator, turtleUpgrades, pocketUpgrades ) );
-        generator.addProvider( new LootTableGenerator( generator ) );
-        generator.addProvider( new BlockModelProvider( generator, existingFiles ) );
+        generator.addProvider( event.includeServer(), new RecipeGenerator( generator, turtleUpgrades, pocketUpgrades ) );
+        generator.addProvider( event.includeServer(), new LootTableGenerator( generator ) );
+        generator.addProvider( event.includeClient(), new BlockModelProvider( generator, existingFiles ) );
 
         BlockTagsGenerator blockTags = new BlockTagsGenerator( generator, existingFiles );
-        generator.addProvider( blockTags );
-        generator.addProvider( new ItemTagsGenerator( generator, blockTags, existingFiles ) );
+        generator.addProvider( event.includeServer(), blockTags );
+        generator.addProvider( event.includeServer(), new ItemTagsGenerator( generator, blockTags, existingFiles ) );
     }
 }
