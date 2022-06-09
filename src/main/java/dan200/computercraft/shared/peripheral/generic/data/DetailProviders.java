@@ -21,7 +21,7 @@ public final class DetailProviders
         Objects.requireNonNull( type, "type cannot be null" );
         Objects.requireNonNull( provider, "provider cannot be null" );
 
-        if ( type != BlockReference.class && type != ItemStack.class && type != FluidStack.class )
+        if( type != BlockReference.class && type != ItemStack.class && type != FluidStack.class )
         {
             throw new IllegalArgumentException( "type must be assignable from BlockReference, ItemStack or FluidStack" );
         }
@@ -33,9 +33,9 @@ public final class DetailProviders
     public static <T> void fillData( Class<T> type, Map<? super String, Object> data, T value )
     {
         Collection<IDetailProvider<T>> providers = (Collection<IDetailProvider<T>>) (Object) allProviders.get( type );
-        if ( providers == null ) return;
+        if( providers == null ) return;
 
-        for ( IDetailProvider<T> provider : providers )
+        for( IDetailProvider<T> provider : providers )
         {
             provider.provideDetails( data, value );
         }

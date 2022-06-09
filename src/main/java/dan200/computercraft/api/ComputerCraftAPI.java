@@ -232,7 +232,7 @@ public final class ComputerCraftAPI
      * @param type     The type of object that this provider can provide details for. Should be {@link BlockReference},
      *                 {@link FluidStack} or {@link ItemStack}.
      * @param provider The detail provider to register.
-     * @param <T> The type of object that this provider can provide details for.
+     * @param <T>      The type of object that this provider can provide details for.
      */
     public static <T> void registerDetailProvider( @Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider )
     {

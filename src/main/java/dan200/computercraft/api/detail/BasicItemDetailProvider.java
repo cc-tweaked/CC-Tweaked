@@ -64,14 +64,14 @@ public abstract class BasicItemDetailProvider<T> implements IDetailProvider<Item
     public void provideDetails( @Nonnull Map<? super String, Object> data, @Nonnull ItemStack stack )
     {
         Item item = stack.getItem();
-        if ( !itemType.isInstance( item ) ) return;
+        if( !itemType.isInstance( item ) ) return;
 
         // If `namespace` is specified, insert into a new data map instead of the existing one.
         Map<? super String, Object> child = namespace == null ? data : new HashMap<>();
 
         provideDetails( child, stack, itemType.cast( item ) );
 
-        if ( namespace != null )
+        if( namespace != null )
         {
             data.put( namespace, child );
         }
