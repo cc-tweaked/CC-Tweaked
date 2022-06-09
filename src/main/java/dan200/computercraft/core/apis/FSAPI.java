@@ -44,7 +44,7 @@ import java.util.function.Function;
  * {@link #copy} and {@link #delete}.</li>
  * </ul>
  *
- * :::note
+ * :::note Absolute vs relative paths
  * All functions in the API work on absolute paths, and do not take the @{shell.dir|current directory} into account.
  * You can use @{shell.resolve} to convert a relative path into an absolute one.
  * :::
