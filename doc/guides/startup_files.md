@@ -5,7 +5,7 @@ module: [kind=guide] startup_files
 # Running code when a computer turns on
 
 :::note Use case
-You might be aware that CC computers restart when the chunk they are in reloads, one of the uses of startup files provides a way to have the CC computer run arbitrary code after it has finished turning on. Currently, this is the closest that CC has to persistence built-in.
+You might be aware that CC computers restart when the chunk they are in reloads,  startup files provides a way to have the CC computer run arbitrary code after it has finished turning on.
 :::
 
 CC computers will look for a file or folder with a special name when it finishes loading. Also, CC has a fixed order in which it looks for these files and uses them.
@@ -43,4 +43,16 @@ We are down to the two disks both with startup files, the computer finds one of 
 Unless disabled in the server config, CC computers will look for startup files on disks in attached disk drives. This means that a freshly crafted computer can automatically load a program from that disk startup file.
 
 Apply this to turtles with a nearby chest containing fuel and you can have a turtle factory that automatically programs the turtles after creating them.
+:::
+
+:::note Computers don't remember what they were doing when the chunk unloads
+You may have heard of the term "persistence", Computercraft computers do not have persistence. Startup files are currently the closest that CC has to persistence.
+
+If you don't know what persistence is, if CC computers were persistent then they would remember what they were doing when the chunk they are in was unloaded, and resume running the task they were doing when the chunk gets reloaded.
+
+However, Computercraft doesn't have persistence and thus restart as if they were just turned on. Mentioning turning on, they will remember that they were running and when the chunk reloads they will turn themselves on and start looking for startup files. Clever use of startup files and recording data to disk can somewhat circumvent the lack of built in persistence.
+
+For most programs (usually running on computers), restarting from the beginning of the program is not an issue. However, turtles commonly have startup complications due to their ability to move. Unless you make sure that the turtle is in a fixed starting position every time (which is not always practical), your turtle programs will need some way to cope with the turtle starting in a different position - perhaps with the @{gps} API.
+
+Incase it's not clear, Minecraft unloads all chunks (including force loaded chunks with chunk loaders) when the server restarts and when the single player world closes. So you may want startup files even if you are chunk loading your computers.
 :::
