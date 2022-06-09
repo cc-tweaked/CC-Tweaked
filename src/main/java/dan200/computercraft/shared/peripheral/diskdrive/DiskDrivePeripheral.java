@@ -30,6 +30,11 @@ import java.util.Optional;
  * When a disk is inserted, a {@code disk} event is fired, with the side peripheral is on. Likewise, when the disk is
  * detached, a {@code disk_eject} event is fired.
  *
+ * ## Recipe
+ * <div class="recipe-container">
+ *     <mc-recipe recipe="computercraft:disk_drive"></mc-recipe>
+ * </div>
+ *
  * @cc.module drive
  */
 public class DiskDrivePeripheral implements IPeripheral

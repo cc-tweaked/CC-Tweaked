@@ -19,9 +19,17 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nonnull;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class TileGeneric extends BlockEntity
 {
+    /**
+     * Is this block enqueued to be updated next tick? This should only be read/written by the tick scheduler.
+     *
+     * @see dan200.computercraft.shared.util.TickScheduler
+     */
+    public final AtomicBoolean scheduled = new AtomicBoolean();
+
     public TileGeneric( BlockEntityType<? extends TileGeneric> type, BlockPos pos, BlockState state )
     {
         super( type, pos, state );

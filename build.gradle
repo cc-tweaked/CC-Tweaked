@@ -176,7 +176,7 @@ dependencies {
         exclude group: "org.jetbrains", module: "annotations"
     }
 
-    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.5'
+    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.6'
 }
 
 // Compile tasks
@@ -317,7 +317,7 @@ task rollup(type: Exec) {
 
 task illuaminateDocs(type: Exec, dependsOn: [rollup, luaJavadoc]) {
     group = "build"
-    description = "Bundles JS into rollup"
+    description = "Generates docs using Illuaminate"
 
     inputs.files(fileTree("doc")).withPropertyName("docs")
     inputs.files(fileTree("src/main/resources/data/computercraft/lua/rom")).withPropertyName("lua rom")
@@ -330,7 +330,21 @@ task illuaminateDocs(type: Exec, dependsOn: [rollup, luaJavadoc]) {
     commandLine mkCommand('"bin/illuaminate" doc-gen')
 }
 
-task docWebsite(type: Copy, dependsOn: [illuaminateDocs]) {
+task jsxDocs(type: Exec, dependsOn: [illuaminateDocs]) {
+    group = "build"
+    description = "Post-processes documentation to statically render some dynamic content."
+
+    inputs.files(fileTree("src/web")).withPropertyName("sources")
+    inputs.file("src/generated/export/index.json").withPropertyName("export")
+    inputs.file("package-lock.json").withPropertyName("package-lock.json")
+    inputs.file("tsconfig.json").withPropertyName("Typescript config")
+    inputs.files(fileTree("$buildDir/docs/lua"))
+    outputs.dir("$buildDir/docs/site")
+
+    commandLine mkCommand('"node_modules/.bin/ts-node" --esm src/web/transform.tsx')
+}
+
+task docWebsite(type: Copy, dependsOn: [jsxDocs]) {
     from('doc') {
         include 'logo.png'
         include 'images/**'
@@ -338,7 +352,14 @@ task docWebsite(type: Copy, dependsOn: [illuaminateDocs]) {
     from("$buildDir/rollup") {
         exclude 'index.js'
     }
-    into "${project.docsDir}/lua"
+    from("$buildDir/docs/lua") {
+        exclude '**/*.html'
+    }
+    from("src/generated/export/items") {
+        into("images/items")
+    }
+
+    into "${project.docsDir}/site"
 }
 
 // Check tasks

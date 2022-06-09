@@ -426,6 +426,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             label = copy.label;
             on = copy.on;
             startOn = copy.startOn;
+            lockCode = copy.lockCode;
             updateBlock();
         }
         copy.instanceID = -1;

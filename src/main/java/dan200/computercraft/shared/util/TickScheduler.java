@@ -5,21 +5,18 @@
  */
 package dan200.computercraft.shared.util;
 
-import com.google.common.collect.MapMaker;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.common.TileGeneric;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * A thread-safe version of {@link LevelAccessor#scheduleTick(BlockPos, Block, int)}.
@@ -33,16 +30,12 @@ public final class TickScheduler
     {
     }
 
-    private static final Set<BlockEntity> toTick = Collections.newSetFromMap(
-        new MapMaker()
-            .weakKeys()
-            .makeMap()
-    );
+    private static final Queue<TileGeneric> toTick = new ConcurrentLinkedDeque<>();
 
     public static void schedule( TileGeneric tile )
     {
         Level world = tile.getLevel();
-        if( world != null && !world.isClientSide ) toTick.add( tile );
+        if( world != null && !world.isClientSide && !tile.scheduled.getAndSet( true ) ) toTick.add( tile );
     }
 
     @SubscribeEvent
@@ -50,11 +43,11 @@ public final class TickScheduler
     {
         if( event.phase != TickEvent.Phase.START ) return;
 
-        Iterator<BlockEntity> iterator = toTick.iterator();
-        while( iterator.hasNext() )
+        TileGeneric tile;
+        while( (tile = toTick.poll()) != null )
         {
-            BlockEntity tile = iterator.next();
-            iterator.remove();
+            tile.scheduled.set( false );
+            if( tile.isRemoved() ) continue;
 
             Level world = tile.getLevel();
             BlockPos pos = tile.getBlockPos();
