@@ -61,6 +61,14 @@ import java.util.function.Function;
  * an incredibly large file) will fail. You can see a mount's capacity with {@link #getCapacity} and the remaining
  * space with {@link #getFreeSpace}.
  *
+ * :::note Case sensitivity
+ * CC inherits the case sensitivity of the real world OS that the Minecraft server is running on, so if you are used to
+ * Microsoft Windows' case insensitivity (e.g. `startup.lua` and `StartUp.Lua` are considered the same when used as
+ * file names) and play on a server (which will likely be running Linux which is case sensitive) then you should keep
+ * in mind that programs which work on your machine in singleplayer may not work correctly on the server if you are
+ * inconsistent with the case that you use for file names.
+ * :::
+ *
  * @cc.module fs
  */
 public class FSAPI implements ILuaAPI

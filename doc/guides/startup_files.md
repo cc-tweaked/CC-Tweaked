@@ -16,15 +16,8 @@ All startup *files* have to be at the root of their drive, this drive is commonl
 startup
 startup.lua
 ```
-`startup` may be a file or a folder, the behaviour of it changes depending on which it is but we'll cover that in a bit. `startup.lua` has to be a file.
+`startup` may be a file or a folder, the behaviour of it changes depending on which it is but we'll cover that in a bit. `startup.lua` has to be a file. Note that these are all lower case, case matters sometimes so keep to the correct one - more info in a note on the @{fs} API page.
 
-:::note Case sensitivity
-Startup file names are all lowercase.
-
-CC inherits the case sensitivity of the real world OS that the Minecraft server is running on, so if you are used to Microsoft Windows' case insensitivity (e.g. `startup.lua` and `StartUp.Lua` are considered the same when used as file names) and play on a server (which will likely be running Linux which is case sensitive) then you should keep in mind that programs which work on your machine in singleplayer may not work correctly on the server if you are inconsistent with the case that you use for file names.
-
-To reiterate, startup file names are all lowercase. CC is looking for `startup` and `startup.lua` not `Startup` or any other capitalisations.
-:::
 
 ## Searching drives for startup files
 If `shell.allow_disk_startup` is true (which it is by default), then the CC computer will look for disk drives that have at least one startup file, it only uses the first disk that fulfils these criteria. Disk drives are searched in the order they are found via `peripheral.getNames()`. It then runs the found startup files as described below.
