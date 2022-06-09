@@ -16,7 +16,11 @@ All startup *files* have to be at the root of their drive, this drive is commonl
 startup
 startup.lua
 ```
-`startup` may be a file or a folder, the behaviour of it changes depending on which it is but we'll cover that in a bit. `startup.lua` has to be a file. Note that these are all lower case, case matters sometimes so keep to the correct one - more info in a note on the @{fs} API page.
+`startup` may be a file or a folder, the behavior of it changes depending on which it is. If it's a file then it is ran, if it's a folder then each file inside it is ran.
+
+`startup.lua` has to be a file.
+
+Note that these are all lower case, case matters sometimes so keep to the correct one - more info in a note on the @{fs} API page.
 
 
 ## Searching drives for startup files
