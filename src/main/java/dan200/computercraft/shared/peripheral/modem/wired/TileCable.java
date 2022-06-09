@@ -257,7 +257,7 @@ public class TileCable extends TileGeneric
     @Override
     public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
     {
-        if( player.isCrouching() ) return InteractionResult.PASS;
+        if( player.isCrouching() || !player.mayBuild() ) return InteractionResult.PASS;
         if( !canAttachPeripheral() ) return InteractionResult.FAIL;
 
         if( getLevel().isClientSide ) return InteractionResult.SUCCESS;

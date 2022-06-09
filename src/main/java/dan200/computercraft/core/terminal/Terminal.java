@@ -324,9 +324,9 @@ public class Terminal
             TextBuffer textColour = this.textColour[y];
             TextBuffer backColour = backgroundColour[y];
 
+            for( int x = 0; x < width; x++ ) buffer.writeByte( text.charAt( x ) & 0xFF );
             for( int x = 0; x < width; x++ )
             {
-                buffer.writeByte( text.charAt( x ) & 0xFF );
                 buffer.writeByte( getColour(
                     backColour.charAt( x ), Colour.BLACK ) << 4 |
                     getColour( textColour.charAt( x ), Colour.WHITE )
@@ -353,10 +353,9 @@ public class Terminal
             TextBuffer textColour = this.textColour[y];
             TextBuffer backColour = backgroundColour[y];
 
+            for( int x = 0; x < width; x++ ) text.setChar( x, (char) (buffer.readByte() & 0xFF) );
             for( int x = 0; x < width; x++ )
             {
-                text.setChar( x, (char) (buffer.readByte() & 0xFF) );
-
                 byte colour = buffer.readByte();
                 backColour.setChar( x, base16.charAt( (colour >> 4) & 0xF ) );
                 textColour.setChar( x, base16.charAt( colour & 0xF ) );

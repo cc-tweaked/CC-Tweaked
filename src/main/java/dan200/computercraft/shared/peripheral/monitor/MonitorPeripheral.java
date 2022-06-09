@@ -25,6 +25,12 @@ import javax.annotation.Nullable;
  *
  * Like computers, monitors come in both normal (no colour) and advanced (colour) varieties.
  *
+ * ## Recipes
+ * <div class="recipe-container">
+ *     <mc-recipe recipe="computercraft:monitor_normal"></mc-recipe>
+ *     <mc-recipe recipe="computercraft:monitor_advanced"></mc-recipe>
+ * </div>
+ *
  * @cc.module monitor
  * @cc.usage Write "Hello, world!" to an adjacent monitor:
  *

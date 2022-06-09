@@ -199,6 +199,7 @@ public class TileWiredModemFull extends TileGeneric
     @Override
     public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
     {
+        if( player.isCrouching() || !player.mayBuild() ) return InteractionResult.PASS;
         if( getLevel().isClientSide ) return InteractionResult.SUCCESS;
 
         // On server, we interacted if a peripheral was found

@@ -22,6 +22,9 @@
         "noFallthroughCasesInSwitch": true,
         "importsNotUsedAsValues": "error",
         "forceConsistentCasingInFileNames": true,
+
+        // Needed for some of our internal stuff.
+        "allowSyntheticDefaultImports": true,
     },
     "include": [
         "src/web",
