@@ -33,6 +33,7 @@ class Branch:
 BRANCHES: List[Branch] = [
     Branch('mc-1.16.x'),
     Branch('mc-1.18.x', parent='mc-1.16.x', java="17"),
+    Branch('mc-1.19.x', parent='mc-1.18.x', java="17"),
 ]
 
 
