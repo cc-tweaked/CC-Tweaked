@@ -5,7 +5,13 @@ module: [kind=guide] startup_files
 # Running code when a computer turns on
 
 :::note Use case
-You might be aware that CC computers restart when the chunk they are in reloads,  startup files provides a way to have the CC computer run arbitrary code after it has finished turning on.
+You might be aware that CC computers restart when the chunk they are in reloads, startup files provides a way to have the CC computer run arbitrary code after it has finished turning on.
+:::
+
+:::note Mass configuration
+Unless disabled in the server config, CC computers will look for startup files on disks in attached disk drives. This means that a freshly crafted computer can automatically load a program from that disk startup file.
+
+Apply this to turtles with a nearby chest containing fuel and you can have a turtle factory that automatically programs the turtles after creating them.
 :::
 
 CC computers will look for a file or folder with a special name when it finishes loading. Also, CC has a fixed order in which it looks for these files and uses them.
@@ -41,12 +47,6 @@ Both of the settings that affect startup are set to allow their respective start
 I turn on my computer, it looks for disk drives. It so happens that the first one it finds is the empty one, since this drive has no disk it goes to the next drive it found. The second drive that it searches for startup files is the jukebox music disk, this one is also skipped as music disks don't have startup files. Third, it finds the disk drive containing the disk without files, it goes to the next drive. Forth is the disk with files but without startup files, it tries the next disk.
 
 We are down to the two disks both with startup files, the computer finds one of them and searches it for startup files, it finds the files and runs them in the order above. When/if these startup files exit without shutting down the computer then the CC computer drops into the interactive prompt. The computer *didn't* look at the last disk drive and *didn't* use the startup files on its internal storage.
-:::
-
-:::note Mass configuration
-Unless disabled in the server config, CC computers will look for startup files on disks in attached disk drives. This means that a freshly crafted computer can automatically load a program from that disk startup file.
-
-Apply this to turtles with a nearby chest containing fuel and you can have a turtle factory that automatically programs the turtles after creating them.
 :::
 
 :::note Computers don't remember what they were doing when the chunk unloads
