@@ -1,3 +1,7 @@
+# New features in CC: Tweaked 1.100.7
+
+* Fix failing to launch outside of a dev environment.
+
 # New features in CC: Tweaked 1.100.6
 
 * Various documentation improvements (MCJack123, FayneAldan).
