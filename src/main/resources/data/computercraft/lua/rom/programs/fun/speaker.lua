@@ -18,6 +18,14 @@ local function get_speakers(name)
     end
 end
 
+local function pcm_decoder(chunk)
+    local buffer = {}
+    for i = 1, #chunk do
+        buffer[i] = chunk:byte(i) - 128
+    end
+    return buffer
+end
+
 
 local cmd = ...
 if cmd == "stop" then
@@ -40,12 +48,60 @@ elseif cmd == "play" then
         error(err, 0)
     end
 
+    local start = handle.read(4)
+    local pcm = false
+    if start == "RIFF" then
+        handle.read(4)
+        if handle.read(8) ~= "WAVEfmt " then
+            handle.close()
+            error("Could not play audio: Unsupported WAV file", 0)
+        end
+
+        local fmtsize = ("<I4"):unpack(handle.read(4))
+        local fmt = handle.read(fmtsize)
+        local format, channels, rate, _, _, bits = ("<I2I2I4I4I2I2"):unpack(fmt)
+        if not ((format == 1 and bits == 8) or (format == 0xFFFE and bits == 1)) then
+            handle.close()
+            error("Could not play audio: Unsupported WAV file", 0)
+        end
+        if channels ~= 1 or rate ~= 48000 then
+            print("Warning: This WAV file may not play correctly.")
+        end
+        if format == 0xFFFE then
+            local guid = fmt:sub(25)
+            if guid ~= "\x3A\xC1\xFA\x38\x81\x1D\x43\x61\xA4\x0D\xCE\x53\xCA\x60\x7C\xD1" then -- DFPWM format GUID
+                handle.close()
+                error("Could not play audio: Unsupported WAV file", 0)
+            end
+        else
+            pcm = true
+        end
+
+        repeat
+            local chunk = handle.read(4)
+            if chunk == nil then
+                handle.close()
+                error("Could not play audio: Invalid WAV file", 0)
+            elseif chunk ~= "data" then -- Ignore extra chunks
+                local size = ("<I4"):unpack(handle.read(4))
+                handle.read(size)
+            end
+        until chunk == "data"
+
+        handle.read(4)
+        start = nil
+    end
+
     print("Playing " .. file)
 
-    local decoder = require "cc.audio.dfpwm".make_decoder()
+    local decoder = pcm and pcm_decoder or require "cc.audio.dfpwm".make_decoder()
+    local size = pcm and 16 * 1024 * 8 or 16 * 1024 - 4
     while true do
-        local chunk = handle.read(16 * 1024)
+        local chunk = handle.read(size)
         if not chunk then break end
+        if start then
+            chunk, start = start .. chunk, nil
+        end
 
         local buffer = decoder(chunk)
         while not speaker.playAudio(buffer) do
