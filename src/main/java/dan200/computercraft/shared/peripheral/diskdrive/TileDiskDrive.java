@@ -60,7 +60,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     }
 
     ITextComponent customName;
-    private LockCode lockCode;
+    private LockCode lockCode = LockCode.NO_LOCK;
 
     private final Map<IComputerAccess, MountInfo> computers = new HashMap<>();
 
