@@ -16,6 +16,7 @@ import dan200.computercraft.api.peripheral.PeripheralType;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
+import net.minecraft.world.Nameable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -263,6 +264,27 @@ public class InventoryMethods implements GenericPeripheral
 
         if( actualLimit <= 0 ) return 0;
         return moveItem( from, fromSlot - 1, to, toSlot.orElse( 0 ) - 1, actualLimit );
+    }
+
+    /**
+     * Get the display name of the current inventory.
+     *
+     * This allows you to get the name of inventories renamed in an anvil.
+     *
+     * @param peripheral The current peripheral.
+     * @return The name of the inventory, or nil.
+     * @cc.usage find a chest, and print it's (custom) name.
+     * <pre>{@code
+     * local chest = peripheral.find("minecraft:chest")
+     *
+     * print(chest.displayName())
+     * }</pre>
+     */
+    @LuaFunction( mainThread = true )
+    public static String displayName(IPeripheral peripheral)
+    {
+        if (peripheral.getTarget() instanceof Nameable nameable) return nameable.getDisplayName().getString();
+        return null;
     }
 
     @Nullable
