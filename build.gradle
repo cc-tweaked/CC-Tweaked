@@ -158,8 +158,9 @@ dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
-    compileOnly fg.deobf("mezz.jei:jei-1.18.2:9.4.1.116:api")
-    // runtimeOnly fg.deobf("mezz.jei:jei-1.18.2:9.4.1.116")
+    compileOnly fg.deobf("mezz.jei:jei-1.19-forge-api:11.0.0.206")
+    compileOnly fg.deobf("mezz.jei:jei-1.19-common-api:11.0.0.206")
+    runtimeOnly fg.deobf("mezz.jei:jei-1.19-forge:11.0.0.206")
 
     shade 'org.squiddev:Cobalt:0.5.5'
     shade('io.netty:netty-codec-http:4.1.76.Final') {

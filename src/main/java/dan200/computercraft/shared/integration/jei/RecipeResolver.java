@@ -6,10 +6,10 @@
 package dan200.computercraft.shared.integration.jei;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.upgrades.IUpgradeBase;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.api.upgrades.IUpgradeBase;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -17,8 +17,9 @@ import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
-import mezz.jei.api.constants.VanillaRecipeCategoryUid;
+import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.recipe.IFocus;
+import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.advanced.IRecipeManagerPlugin;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.core.NonNullList;
@@ -95,7 +96,7 @@ class RecipeResolver implements IRecipeManagerPlugin
 
     @Nonnull
     @Override
-    public <V> List<ResourceLocation> getRecipeCategoryUids( @Nonnull IFocus<V> focus )
+    public <V> List<RecipeType<?>> getRecipeTypes( @Nonnull IFocus<V> focus )
     {
         V value = focus.getTypedValue().getIngredient();
         if( !(value instanceof ItemStack stack) ) return Collections.emptyList();
@@ -105,11 +106,11 @@ class RecipeResolver implements IRecipeManagerPlugin
             case INPUT:
                 return stack.getItem() instanceof ITurtleItem || stack.getItem() instanceof ItemPocketComputer ||
                     hasUpgrade( stack )
-                    ? Collections.singletonList( VanillaRecipeCategoryUid.CRAFTING )
+                    ? Collections.singletonList( RecipeTypes.CRAFTING )
                     : Collections.emptyList();
             case OUTPUT:
                 return stack.getItem() instanceof ITurtleItem || stack.getItem() instanceof ItemPocketComputer
-                    ? Collections.singletonList( VanillaRecipeCategoryUid.CRAFTING )
+                    ? Collections.singletonList( RecipeTypes.CRAFTING )
                     : Collections.emptyList();
             default:
                 return Collections.emptyList();
@@ -120,7 +121,7 @@ class RecipeResolver implements IRecipeManagerPlugin
     @Override
     public <T, V> List<T> getRecipes( @Nonnull IRecipeCategory<T> recipeCategory, @Nonnull IFocus<V> focus )
     {
-        if( !(focus.getTypedValue().getIngredient() instanceof ItemStack stack) || !recipeCategory.getUid().equals( VanillaRecipeCategoryUid.CRAFTING ) )
+        if( !(focus.getTypedValue().getIngredient() instanceof ItemStack stack) || recipeCategory.getRecipeType() != RecipeTypes.CRAFTING )
         {
             return Collections.emptyList();
         }

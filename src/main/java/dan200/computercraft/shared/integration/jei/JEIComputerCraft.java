@@ -20,21 +20,22 @@ import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
-import mezz.jei.api.constants.VanillaRecipeCategoryUid;
+import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter;
+import mezz.jei.api.recipe.IRecipeLookup;
 import mezz.jei.api.recipe.IRecipeManager;
-import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IAdvancedRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static dan200.computercraft.shared.integration.jei.RecipeResolver.MAIN_FAMILIES;
@@ -52,13 +53,13 @@ public class JEIComputerCraft implements IModPlugin
     @Override
     public void registerItemSubtypes( ISubtypeRegistration subtypeRegistry )
     {
-        subtypeRegistry.registerSubtypeInterpreter( Registry.ModItems.TURTLE_NORMAL.get(), turtleSubtype );
-        subtypeRegistry.registerSubtypeInterpreter( Registry.ModItems.TURTLE_ADVANCED.get(), turtleSubtype );
+        subtypeRegistry.registerSubtypeInterpreter( VanillaTypes.ITEM_STACK, Registry.ModItems.TURTLE_NORMAL.get(), turtleSubtype );
+        subtypeRegistry.registerSubtypeInterpreter( VanillaTypes.ITEM_STACK, Registry.ModItems.TURTLE_ADVANCED.get(), turtleSubtype );
 
-        subtypeRegistry.registerSubtypeInterpreter( Registry.ModItems.POCKET_COMPUTER_NORMAL.get(), pocketSubtype );
-        subtypeRegistry.registerSubtypeInterpreter( Registry.ModItems.POCKET_COMPUTER_ADVANCED.get(), pocketSubtype );
+        subtypeRegistry.registerSubtypeInterpreter( VanillaTypes.ITEM_STACK, Registry.ModItems.POCKET_COMPUTER_NORMAL.get(), pocketSubtype );
+        subtypeRegistry.registerSubtypeInterpreter( VanillaTypes.ITEM_STACK, Registry.ModItems.POCKET_COMPUTER_ADVANCED.get(), pocketSubtype );
 
-        subtypeRegistry.registerSubtypeInterpreter( Registry.ModItems.DISK.get(), diskSubtype );
+        subtypeRegistry.registerSubtypeInterpreter( VanillaTypes.ITEM_STACK, Registry.ModItems.DISK.get(), diskSubtype );
     }
 
     @Override
@@ -89,27 +90,22 @@ public class JEIComputerCraft implements IModPlugin
 
         if( !upgradeItems.isEmpty() )
         {
-            runtime.getIngredientManager().addIngredientsAtRuntime( VanillaTypes.ITEM, upgradeItems );
+            runtime.getIngredientManager().addIngredientsAtRuntime( VanillaTypes.ITEM_STACK, upgradeItems );
         }
 
         // Hide all upgrade recipes
-        IRecipeCategory<?> category = registry.getRecipeCategory( VanillaRecipeCategoryUid.CRAFTING, false );
-        if( category != null )
-        {
-            for( Object wrapper : registry.getRecipes( category, List.of(), false ) )
-            {
-                if( !(wrapper instanceof Recipe) ) continue;
-                ResourceLocation id = ((Recipe<?>) wrapper).getId();
-                if( !id.getNamespace().equals( ComputerCraft.MOD_ID ) ) continue;
+        IRecipeLookup<CraftingRecipe> category = registry.createRecipeLookup( RecipeTypes.CRAFTING );
+        category.get().forEach( wrapper -> {
+            ResourceLocation id = wrapper.getId();
+            if( !id.getNamespace().equals( ComputerCraft.MOD_ID ) ) return;
 
-                String path = id.getPath();
-                if( path.startsWith( "turtle_normal/" ) || path.startsWith( "turtle_advanced/" )
-                    || path.startsWith( "pocket_normal/" ) || path.startsWith( "pocket_advanced/" ) )
-                {
-                    registry.hideRecipe( wrapper, VanillaRecipeCategoryUid.CRAFTING );
-                }
+            String path = id.getPath();
+            if( path.startsWith( "turtle_normal/" ) || path.startsWith( "turtle_advanced/" )
+                || path.startsWith( "pocket_normal/" ) || path.startsWith( "pocket_advanced/" ) )
+            {
+                registry.hideRecipes( RecipeTypes.CRAFTING, Collections.singleton( wrapper ) );
             }
-        }
+        } );
     }
 
     /**
