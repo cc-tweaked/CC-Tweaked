@@ -1,16 +1,3 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        maven { url = "https://maven.minecraftforge.net" }
-        maven { url = 'https://maven.parchmentmc.org' }
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.+'
-        classpath "org.spongepowered:mixingradle:0.7.+"
-        classpath 'org.parchmentmc:librarian:1.+'
-    }
-}
-
 plugins {
     id "checkstyle"
     id "jacoco"
@@ -18,13 +5,17 @@ plugins {
     id "com.github.hierynomus.license" version "0.16.1"
     id "com.matthewprenger.cursegradle" version "1.4.0"
     id "com.github.breadmoirai.github-release" version "2.2.12"
-    id "org.jetbrains.kotlin.jvm" version "1.6.0"
-    id "com.modrinth.minotaur" version "1.2.1"
+    id 'org.jetbrains.kotlin.jvm' version '1.7.0'
+    id "com.modrinth.minotaur" version "2.+"
+    id "net.minecraftforge.gradle" version "5.1.+"
+    id "org.spongepowered.mixin" version "0.7.+"
+    id "org.parchmentmc.librarian.forgegradle" version "1.+"
 }
 
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: "org.spongepowered.mixin"
-apply plugin: 'org.parchmentmc.librarian.forgegradle'
+
+import com.hierynomus.gradle.license.tasks.LicenseCheck
+import com.hierynomus.gradle.license.tasks.LicenseFormat
+import org.apache.tools.ant.taskdefs.condition.Os
 
 version = mod_version
 
@@ -39,12 +30,7 @@ java {
 
     withSourcesJar()
     withJavadocJar()
-}
-
-tasks.withType(JavaExec).configureEach {
-    javaLauncher = javaToolchains.launcherFor {
-        languageVersion = javaVersion
-    }
+    registerFeature("extraMods") { usingSourceSet(sourceSets.main) }
 }
 
 sourceSets {
@@ -140,11 +126,11 @@ dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
-    compileOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.0.104:api")
-    compileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.5:7.1.0.313")
-    compileOnly fg.deobf("commoble.morered:morered-1.16.5:2.1.1.0")
+    extraModsCompileOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.0.104:api")
+    extraModsRuntimeOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.0.104")
 
-    runtimeOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.0.104")
+    extraModsCompileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.5:7.1.0.313")
+    extraModsCompileOnly fg.deobf("commoble.morered:morered-1.16.5:2.1.1.0")
 
     shade 'org.squiddev:Cobalt:0.5.5'
 
@@ -152,9 +138,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
     testImplementation 'org.hamcrest:hamcrest:2.2'
-    testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0'
-    testImplementation 'org.jetbrains.kotlin:kotlin-reflect:1.6.0'
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2'
+    testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.0'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2'
 
     testModImplementation sourceSets.main.output
 
@@ -204,6 +189,8 @@ jar {
 
     from configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
 }
+
+jar.finalizedBy("reobfJar")
 
 [compileJava, compileTestJava, compileTestModJava].forEach {
     it.configure {
@@ -273,11 +260,6 @@ sourcesJar {
 }
 
 // Web tasks
-
-
-import com.hierynomus.gradle.license.tasks.LicenseCheck
-import com.hierynomus.gradle.license.tasks.LicenseFormat
-import org.apache.tools.ant.taskdefs.condition.Os
 
 List<String> mkCommand(String command) {
     return Os.isFamily(Os.FAMILY_WINDOWS) ? ["cmd", "/c", command] : ["sh", "-c", command]
@@ -360,7 +342,7 @@ jacocoTestReport {
     }
 }
 
-check.dependsOn jacocoTestReport
+test.finalizedBy(jacocoTestReport)
 
 license {
     mapping("java", "SLASHSTAR_STYLE")
@@ -412,58 +394,52 @@ task setupServer(type: Copy) {
     into "test-files/server"
 }
 
-["Client", "Server"].forEach { name ->
-    tasks.register("test$name", JavaExec.class).configure {
-        it.group('In-game tests')
-        it.description("Runs tests on a temporary Minecraft instance.")
-        it.dependsOn(setupServer, "prepareRunTest$name", "cleanTest$name", 'compileTestModJava')
+tasks.register("testServer", JavaExec.class).configure {
+    it.group('In-game tests')
+    it.description("Runs tests on a temporary Minecraft instance.")
+    it.dependsOn(setupServer, "prepareRunTestServer", "cleanTestServer", 'compileTestModJava')
+    finalizedBy("jacocoTestServerReport")
 
-        // Copy from runTestServer. We do it in this slightly odd way as runTestServer
-        // isn't created until the task is configured (which is no good for us).
-        JavaExec exec = tasks.getByName("runTest$name")
-        exec.copyTo(it)
-        it.setClasspath(exec.getClasspath())
-        it.mainClass = exec.mainClass
-        it.setArgs(exec.getArgs())
+    // Copy from runTestServer. We do it in this slightly odd way as runTestServer
+    // isn't created until the task is configured (which is no good for us).
+    JavaExec exec = tasks.getByName("runTestServer")
+    exec.copyTo(it)
+    it.setClasspath(exec.getClasspath())
+    it.mainClass = exec.mainClass
+    it.setArgs(exec.getArgs())
 
-        it.systemProperty('forge.logging.console.level', 'info')
-        it.systemProperty('cctest.run', 'true')
+    it.systemProperty('forge.logging.console.level', 'info')
+    it.systemProperty('cctest.run', 'true')
 
-        // Jacoco and modlauncher don't play well together as the classes loaded in-game don't
-        // match up with those written to disk. We get Jacoco to dump all classes to disk, and
-        // use that when generating the report.
-        def coverageOut = new File(buildDir, "jacocoClassDump/test$name")
-        jacoco.applyTo(it)
-        it.jacoco.setIncludes(["dan200.computercraft.*"])
-        it.jacoco.setClassDumpDir(coverageOut)
-        it.outputs.dir(coverageOut)
-        // Older versions of modlauncher don't include a protection domain (and thus no code
-        // source). Jacoco skips such classes by default, so we need to explicitly include them.
-        it.jacoco.setIncludeNoLocationClasses(true)
-    }
+    // Jacoco and modlauncher don't play well together as the classes loaded in-game don't
+    // match up with those written to disk. We get Jacoco to dump all classes to disk, and
+    // use that when generating the report.
+    def coverageOut = new File(buildDir, "jacocoClassDump/testServer")
+    jacoco.applyTo(it)
+    it.jacoco.setIncludes(["dan200.computercraft.*"])
+    it.jacoco.setClassDumpDir(coverageOut)
+    it.outputs.dir(coverageOut)
+    // Older versions of modlauncher don't include a protection domain (and thus no code
+    // source). Jacoco skips such classes by default, so we need to explicitly include them.
+    it.jacoco.setIncludeNoLocationClasses(true)
+}
 
-    tasks.register("jacocoTest${name}Report", JacocoReport.class).configure {
-        it.group('In-game')
-        it.description("Generate coverage reports for test$name")
-        it.dependsOn("test$name")
+tasks.register("jacocoTestServerReport", JacocoReport.class).configure {
+    it.group('In-game')
+    it.description("Generate coverage reports for testServer")
+    it.dependsOn("testServer")
 
-        it.executionData(new File(buildDir, "jacoco/test${name}.exec"))
-        it.sourceDirectories.from(sourceSets.main.allJava.srcDirs)
-        it.classDirectories.from(new File(buildDir, "jacocoClassDump/test$name"))
+    it.executionData(new File(buildDir, "jacoco/testServer.exec"))
+    it.sourceDirectories.from(sourceSets.main.allJava.srcDirs)
+    it.classDirectories.from(new File(buildDir, "jacocoClassDump/testServer"))
 
-        it.reports {
-            xml.enabled true
-            html.enabled true
-        }
-    }
-
-    if (name != "Client" || project.findProperty('cc.tweaked.clientTests') == 'true') {
-        // Don't run client tests unless explicitly opted into them. They're a bit of a faff
-        // to run and pretty flakey.
-        check.dependsOn("jacocoTest${name}Report")
+    it.reports {
+        xml.enabled true
+        html.enabled true
     }
 }
 
+check.dependsOn("testServer")
 
 // Upload tasks
 
@@ -507,42 +483,36 @@ task checkRelease {
 }
 check.dependsOn checkRelease
 
+def isStable = true
+
 curseforge {
     apiKey = project.hasProperty('curseForgeApiKey') ? project.curseForgeApiKey : ''
     project {
         id = '282001'
-        releaseType = 'release'
+        releaseType = isStable ? 'release' : 'alpha'
         changelog = "Release notes can be found on the GitHub repository (https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
 
         addGameVersion "${mc_version}"
     }
+
 }
 
-import com.modrinth.minotaur.TaskModrinthUpload
-tasks.register('publishModrinth', TaskModrinthUpload.class).configure {
-    dependsOn('assemble', 'reobfJar')
-    onlyIf {
-        project.hasProperty('modrinthApiKey')
-    }
-
+modrinth {
     token = project.hasProperty('modrinthApiKey') ? project.getProperty('modrinthApiKey') : ''
     projectId = 'gu7yAYhd'
     versionNumber = "${project.mc_version}-${project.mod_version}"
+    versionType = isStable ? 'release' : 'alpha'
     uploadFile = jar
-    addGameVersion(project.mc_version)
+    gameVersions = [project.mc_version]
     changelog = "Release notes can be found on the [GitHub repository](https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
-    addLoader('forge')
-}
 
-tasks.withType(GenerateModuleMetadata) {
-    // We can't generate metadata as that includes Forge as a dependency.
-    enabled = false
 }
 
 publishing {
     publications {
         maven(MavenPublication) {
             from components.java
+            fg.component(it)
 
             pom {
                 name = 'CC: Tweaked'
@@ -561,11 +531,9 @@ publishing {
                 licenses {
                     license {
                         name = 'ComputerCraft Public License, Version 1.0'
-                        url = 'https://github.com/cc-tweaked/CC-Tweaked/blob/mc-1.15.x/LICENSE'
+                        url = 'https://github.com/cc-tweaked/CC-Tweaked/blob/mc-1.16.x/LICENSE'
                     }
                 }
-
-                withXml { asNode().remove(asNode().get("dependencies")) }
             }
         }
     }
@@ -606,10 +574,11 @@ githubRelease {
             .join("\n").trim()
     }))
     prerelease false
+    prerelease !isStable
 }
 
-def uploadTasks = ["publish", "curseforge", "publishModrinth", "githubRelease"]
-uploadTasks.forEach { tasks.getByName(it).dependsOn checkRelease }
+def uploadTasks = ["publish", "curseforge", "modrinth", "githubRelease"]
+uploadTasks.forEach { tasks.named(it) { dependsOn checkRelease } }
 
 task uploadAll(dependsOn: uploadTasks) {
     group "upload"
