@@ -5,9 +5,7 @@
  */
 package dan200.computercraft.shared;
 
-import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
-import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
 import dan200.computercraft.ComputerCraft;
@@ -291,7 +289,7 @@ public final class Config
         ModLoadingContext.get().registerConfig( ModConfig.Type.CLIENT, clientSpec );
     }
 
-    public static void sync()
+    private static void syncServer()
     {
         // General
         ComputerCraft.computerSpaceLimit = computerSpaceLimit.get();
@@ -343,26 +341,31 @@ public final class Config
         ComputerCraft.pocketTermHeight = pocketTermHeight.get();
         ComputerCraft.monitorWidth = monitorWidth.get();
         ComputerCraft.monitorHeight = monitorHeight.get();
+    }
 
-        // Client
+    private static void syncClient()
+    {
         ComputerCraft.monitorRenderer = monitorRenderer.get();
         ComputerCraft.monitorDistance = monitorDistance.get();
+    }
+
+    private static void sync( ModConfig config )
+    {
+        if( !config.getModId().equals( ComputerCraft.MOD_ID ) ) return;
+        if( config.getType() == ModConfig.Type.SERVER ) syncServer();
+        if( config.getType() == ModConfig.Type.CLIENT ) syncClient();
     }
 
     @SubscribeEvent
     public static void sync( ModConfigEvent.Loading event )
     {
-        sync();
+        sync( event.getConfig() );
     }
 
     @SubscribeEvent
     public static void sync( ModConfigEvent.Reloading event )
     {
-        // Ensure file configs are reloaded. Forge should probably do this, so worth checking in the future.
-        CommentedConfig config = event.getConfig().getConfigData();
-        if( config instanceof CommentedFileConfig loadable ) loadable.load();
-
-        sync();
+        sync( event.getConfig() );
     }
 
     private static final Converter<String, String> converter = CaseFormat.LOWER_CAMEL.converterTo( CaseFormat.UPPER_UNDERSCORE );
