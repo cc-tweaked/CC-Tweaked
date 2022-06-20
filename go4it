@@ -77,24 +77,29 @@ def setup() -> None:
         else:
             shutil.copy2(src, file)
 
-    with open("settings.gradle", "w") as h:
+    with open("settings.gradle.kts", "w") as h:
         h.write(dedent("""\
         pluginManagement {
             repositories {
-                maven {
-                    name = 'Fabric'
-                    url = 'https://maven.fabricmc.net/'
-                }
                 gradlePluginPortal()
+                maven("https://maven.minecraftforge.net")
+                maven("https://maven.parchmentmc.org")
+            }
+            resolutionStrategy {
+                eachPlugin {
+                    if (requested.id.id == "org.spongepowered.mixin") {
+                        useModule("org.spongepowered:mixingradle:${requested.version}")
+                    }
+                }
             }
         }
 
-        rootProject.name = 'cc-tweaked'
+        rootProject.name = "cc-tweaked"
         """))
         for branch in BRANCHES:
-            h.write(f"include '{branch.name}'\n")
+            h.write(f"include(\"{branch.name}\")\n")
 
-    with open("build.gradle", "w") as h:
+    with open("build.gradle.kts", "w") as h:
         pass
 
     log("Installing npm packages")
@@ -108,7 +113,11 @@ def gen_runs() -> None:
     Generate .idea run files
     """
     setup()
-    subprocess.check_call(["./gradlew", "--no-daemon", "genIntellijRuns"])
+
+    gen_command = ["./gradlew", "--no-daemon"]
+    for branch in BRANCHES:
+        gen_command.append(f"{branch.name}:genIntellijRuns")
+    subprocess.check_call(gen_command)
 
     re = regex.compile(r"(mc-.*)_run(.*)\.xml")
     for path in pathlib.Path(".idea/runConfigurations").glob("*.xml"):
