@@ -5,13 +5,13 @@ plugins {
     id "com.github.hierynomus.license" version "0.16.1"
     id "com.matthewprenger.cursegradle" version "1.4.0"
     id "com.github.breadmoirai.github-release" version "2.2.12"
-    id 'org.jetbrains.kotlin.jvm' version '1.7.0'
+    id "org.jetbrains.kotlin.jvm" version "1.7.0"
     id "com.modrinth.minotaur" version "2.+"
     id "net.minecraftforge.gradle" version "5.1.+"
     id "org.spongepowered.mixin" version "0.7.+"
     id "org.parchmentmc.librarian.forgegradle" version "1.+"
+    id "com.github.johnrengelman.shadow" version "7.1.2"
 }
-
 
 import com.hierynomus.gradle.license.tasks.LicenseCheck
 import com.hierynomus.gradle.license.tasks.LicenseFormat
@@ -103,6 +103,10 @@ mixin {
     add sourceSets.main, 'computercraft.mixins.refmap.json'
 }
 
+reobf {
+    shadowJar {}
+}
+
 repositories {
     mavenCentral()
     maven {
@@ -112,7 +116,7 @@ repositories {
 }
 
 configurations {
-    shade
+    shade { transitive = false }
     implementation.extendsFrom shade
     cctJavadoc
 
@@ -156,6 +160,14 @@ javadoc {
     include "dan200/computercraft/api/**/*.java"
 }
 
+task apiJar(type: Jar) {
+    archiveClassifier.set("api")
+    from(sourceSets.main.output) {
+        include "dan200/computercraft/api/**/*"
+    }
+}
+assemble.dependsOn(apiJar)
+
 task luaJavadoc(type: Javadoc) {
     description "Generates documentation for Java-side Lua functions."
     group "documentation"
@@ -174,6 +186,9 @@ task luaJavadoc(type: Javadoc) {
 }
 
 jar {
+    finalizedBy("reobfJar")
+
+    archiveClassifier.set("slim")
     manifest {
         attributes([
             "Specification-Title"     : "computercraft",
@@ -186,11 +201,18 @@ jar {
             "MixinConfigs"            : "computercraft.mixins.json",
         ])
     }
-
-    from configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
 }
 
-jar.finalizedBy("reobfJar")
+shadowJar {
+    finalizedBy("reobfShadowJar")
+
+    archiveClassifier.set("")
+    configurations = [project.configurations.shade]
+    relocate("org.squiddev.cobalt", "cc.tweaked.internal.cobalt")
+    minimize()
+}
+
+assemble.dependsOn("shadowJar")
 
 [compileJava, compileTestJava, compileTestModJava].forEach {
     it.configure {
@@ -245,8 +267,8 @@ processResources {
         include 'data/computercraft/lua/rom/help/credits.txt'
 
         expand 'version': mod_version,
-                'mcversion': mc_version,
-                'gitcontributors': contributors.sort(false, String.CASE_INSENSITIVE_ORDER).join('\n')
+            'mcversion': mc_version,
+            'gitcontributors': contributors.sort(false, String.CASE_INSENSITIVE_ORDER).join('\n')
     }
 
     from(sourceSets.main.resources.srcDirs) {
@@ -491,10 +513,10 @@ curseforge {
         id = '282001'
         releaseType = isStable ? 'release' : 'alpha'
         changelog = "Release notes can be found on the GitHub repository (https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
+        mainArtifact(shadowJar)
 
         addGameVersion "${mc_version}"
     }
-
 }
 
 modrinth {
@@ -502,16 +524,16 @@ modrinth {
     projectId = 'gu7yAYhd'
     versionNumber = "${project.mc_version}-${project.mod_version}"
     versionType = isStable ? 'release' : 'alpha'
-    uploadFile = jar
+    uploadFile = shadowJar
     gameVersions = [project.mc_version]
     changelog = "Release notes can be found on the [GitHub repository](https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
-
 }
 
 publishing {
     publications {
         maven(MavenPublication) {
             from components.java
+            // artifact(apiJar)
             fg.component(it)
 
             pom {
