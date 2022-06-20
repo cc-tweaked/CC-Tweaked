@@ -17,8 +17,8 @@ import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import dan200.computercraft.shared.turtle.upgrades.*;
 import net.minecraftforge.fml.common.Mod;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -110,7 +110,7 @@ public final class ComputerCraft
     public static final ServerComputerRegistry serverComputerRegistry = new ServerComputerRegistry();
 
     // Logging
-    public static final Logger log = LoggerFactory.getLogger( MOD_ID );
+    public static final Logger log = LogManager.getLogger( MOD_ID );
 
     public ComputerCraft()
     {
