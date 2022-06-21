@@ -533,7 +533,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             from components.java
-            // artifact(apiJar)
+            artifact(apiJar)
             fg.component(it)
 
             pom {
