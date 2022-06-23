@@ -417,6 +417,7 @@ def testServer = tasks.register("testServer", JavaExec.class) {
     exec.copyTo(it)
     setClasspath(exec.getClasspath())
     mainClass = exec.mainClass
+    javaLauncher = exec.javaLauncher
     setArgs(exec.getArgs())
 
     // Jacoco and modlauncher don't play well together as the classes loaded in-game don't
