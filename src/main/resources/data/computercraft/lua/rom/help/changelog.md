@@ -1,3 +1,8 @@
+# New features in CC: Tweaked 1.100.8
+
+Several bug fixes:
+* Fix NPE within disk drive and printer code.
+
 # New features in CC: Tweaked 1.100.6
 
 * Various documentation improvements (MCJack123, FayneAldan).
