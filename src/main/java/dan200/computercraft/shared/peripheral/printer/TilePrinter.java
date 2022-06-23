@@ -55,7 +55,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     private static final int[] SIDE_SLOTS = new int[] { 0 };
 
     Component customName;
-    private LockCode lockCode;
+    private LockCode lockCode = LockCode.NO_LOCK;
 
     private final NonNullList<ItemStack> inventory = NonNullList.withSize( SLOTS, ItemStack.EMPTY );
     private final SidedCaps<IItemHandler> itemHandlerCaps =

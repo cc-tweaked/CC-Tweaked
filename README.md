@@ -35,7 +35,8 @@ repositories {
 }
 
 dependencies {
-  implementation fg.deobf("org.squiddev:cc-tweaked-${mc_version}:${cct_version}")
+  compileOnly fg.deobf("org.squiddev:cc-tweaked-${mc_version}:${cct_version}:api")
+  runtimeOnly fg.deobf("org.squiddev:cc-tweaked-${mc_version}:${cct_version}")
 }
 ```
 

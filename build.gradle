@@ -1,30 +1,19 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        maven { url = "https://maven.minecraftforge.net" }
-        maven { url = 'https://maven.parchmentmc.org' }
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.+'
-        classpath "org.spongepowered:mixingradle:0.7.+"
-        classpath 'org.parchmentmc:librarian:1.+'
-    }
-}
-
 plugins {
     id "checkstyle"
     id "jacoco"
     id "maven-publish"
-    id "com.github.hierynomus.license" version "0.16.1"
+    id "org.cadixdev.licenser" version "0.6.1"
     id "com.matthewprenger.cursegradle" version "1.4.0"
     id "com.github.breadmoirai.github-release" version "2.2.12"
-    id "org.jetbrains.kotlin.jvm" version "1.6.0"
-    id "com.modrinth.minotaur" version "1.2.1"
+    id "org.jetbrains.kotlin.jvm" version "1.7.0"
+    id "com.modrinth.minotaur" version "2.+"
+    id "net.minecraftforge.gradle" version "5.1.+"
+    id "org.spongepowered.mixin" version "0.7.+"
+    id "org.parchmentmc.librarian.forgegradle" version "1.+"
+    id "com.github.johnrengelman.shadow" version "7.1.2"
 }
 
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: "org.spongepowered.mixin"
-apply plugin: 'org.parchmentmc.librarian.forgegradle'
+import org.apache.tools.ant.taskdefs.condition.Os
 
 version = mod_version
 
@@ -39,12 +28,7 @@ java {
 
     withSourcesJar()
     withJavadocJar()
-}
-
-tasks.withType(JavaExec).configureEach {
-    javaLauncher = javaToolchains.launcherFor {
-        languageVersion = javaVersion
-    }
+    registerFeature("extraMods") { usingSourceSet(sourceSets.main) }
 }
 
 sourceSets {
@@ -64,6 +48,7 @@ minecraft {
 
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
+            forceExit = false
 
             mods {
                 computercraft {
@@ -108,6 +93,8 @@ minecraft {
         gameTestServer {
             workingDirectory project.file('test-files/server')
 
+            property("forge.logging.console.level", "info")
+
             mods {
                 cctest {
                     source sourceSets.testMod
@@ -133,6 +120,10 @@ mixin {
     add sourceSets.main, 'computercraft.mixins.refmap.json'
 }
 
+reobf {
+    shadowJar {}
+}
+
 repositories {
     mavenCentral()
     maven {
@@ -142,7 +133,7 @@ repositories {
 }
 
 configurations {
-    shade
+    shade { transitive = false }
     implementation.extendsFrom shade
 
     cctJavadoc
@@ -158,21 +149,19 @@ dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
-    compileOnly fg.deobf("mezz.jei:jei-1.19-forge-api:11.0.0.206")
-    compileOnly fg.deobf("mezz.jei:jei-1.19-common-api:11.0.0.206")
-    runtimeOnly fg.deobf("mezz.jei:jei-1.19-forge:11.0.0.206")
+    extraModsCompileOnly fg.deobf("mezz.jei:jei-1.19-forge-api:11.0.0.206")
+    extraModsCompileOnly fg.deobf("mezz.jei:jei-1.19-common-api:11.0.0.206")
+    extraModsRuntimeOnly fg.deobf("mezz.jei:jei-1.19-forge:11.0.0.206")
 
     shade 'org.squiddev:Cobalt:0.5.5'
-    shade('io.netty:netty-codec-http:4.1.76.Final') {
-        exclude group: "*"
-    }
+    shade 'io.netty:netty-codec-http:4.1.76.Final'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
     testImplementation 'org.hamcrest:hamcrest:2.2'
-    testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0'
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2'
+    testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.0'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2'
 
     testModImplementation sourceSets.main.output
     testModExtra('org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0') {
@@ -184,15 +173,19 @@ dependencies {
 
 // Compile tasks
 
-compileTestModJava {
-    dependsOn(compileJava)
-}
-
 javadoc {
     include "dan200/computercraft/api/**/*.java"
 }
 
-task luaJavadoc(type: Javadoc) {
+def apiJar = tasks.register("apiJar", Jar.class) {
+    archiveClassifier.set("api")
+    from(sourceSets.main.output) {
+        include "dan200/computercraft/api/**/*"
+    }
+}
+assemble.dependsOn(apiJar)
+
+def luaJavadoc = tasks.register("luaJavadoc", Javadoc.class) {
     description "Generates documentation for Java-side Lua functions."
     group "documentation"
 
@@ -210,6 +203,9 @@ task luaJavadoc(type: Javadoc) {
 }
 
 jar {
+    finalizedBy("reobfJar")
+
+    archiveClassifier.set("slim")
     manifest {
         attributes([
             "Specification-Title"     : "computercraft",
@@ -218,20 +214,29 @@ jar {
             "Implementation-Title"    : "CC: Tweaked",
             "Implementation-Version"  : "${mod_version}",
             "Implementation-Vendor"   : "SquidDev",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ,
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
             "MixinConfigs"            : "computercraft.mixins.json",
         ])
     }
-
-    duplicatesStrategy(DuplicatesStrategy.WARN)
-
-    from configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
 }
 
-jar.finalizedBy('reobfJar')
+shadowJar {
+    finalizedBy("reobfShadowJar")
 
-[compileJava, compileTestJava, compileTestModJava].forEach {
+    archiveClassifier.set("")
+    configurations = [project.configurations.shade]
+    relocate("org.squiddev.cobalt", "cc.tweaked.internal.cobalt")
+    relocate("io.netty.handler.codec.http", "cc.tweaked.internal.netty")
+    minimize()
+}
+
+assemble.dependsOn("shadowJar")
+
+[
+    tasks.named("compileJava", JavaCompile.class),
+    tasks.named("compileTestJava", JavaCompile.class),
+    tasks.named("compileTestModJava", JavaCompile.class)
+].forEach {
     it.configure {
         options.compilerArgs << "-Xlint" << "-Xlint:-processing"
     }
@@ -295,17 +300,11 @@ sourcesJar {
 
 // Web tasks
 
-
-import com.hierynomus.gradle.license.tasks.LicenseCheck
-import com.hierynomus.gradle.license.tasks.LicenseFormat
-import com.modrinth.minotaur.TaskModrinthUpload
-import org.apache.tools.ant.taskdefs.condition.Os
-
 List<String> mkCommand(String command) {
     return Os.isFamily(Os.FAMILY_WINDOWS) ? ["cmd", "/c", command] : ["sh", "-c", command]
 }
 
-task rollup(type: Exec) {
+def rollup = tasks.register("rollup", Exec.class) {
     group = "build"
     description = "Bundles JS into rollup"
 
@@ -318,9 +317,10 @@ task rollup(type: Exec) {
     commandLine mkCommand('"node_modules/.bin/rollup" --config rollup.config.js')
 }
 
-task illuaminateDocs(type: Exec, dependsOn: [rollup, luaJavadoc]) {
-    group = "build"
+def illuaminateDocs = tasks.register("illuaminateDocs", Exec.class) {
+    group = "documentation"
     description = "Generates docs using Illuaminate"
+    dependsOn(rollup, luaJavadoc)
 
     inputs.files(fileTree("doc")).withPropertyName("docs")
     inputs.files(fileTree("src/main/resources/data/computercraft/lua/rom")).withPropertyName("lua rom")
@@ -333,9 +333,10 @@ task illuaminateDocs(type: Exec, dependsOn: [rollup, luaJavadoc]) {
     commandLine mkCommand('"bin/illuaminate" doc-gen')
 }
 
-task jsxDocs(type: Exec, dependsOn: [illuaminateDocs]) {
-    group = "build"
+def jsxDocs = tasks.register("jsxDocs", Exec) {
+    group = "documentation"
     description = "Post-processes documentation to statically render some dynamic content."
+    dependsOn(illuaminateDocs)
 
     inputs.files(fileTree("src/web")).withPropertyName("sources")
     inputs.file("src/generated/export/index.json").withPropertyName("export")
@@ -347,7 +348,11 @@ task jsxDocs(type: Exec, dependsOn: [illuaminateDocs]) {
     commandLine mkCommand('"node_modules/.bin/ts-node" --esm src/web/transform.tsx')
 }
 
-task docWebsite(type: Copy, dependsOn: [jsxDocs]) {
+def docWebsite = tasks.register("docWebsite", Copy.class) {
+    group = "documentation"
+    description = "Copy additional assets to the website directory."
+    dependsOn(jsxDocs)
+
     from('doc') {
         include 'logo.png'
         include 'images/**'
@@ -382,94 +387,75 @@ jacocoTestReport {
     }
 }
 
-check.dependsOn jacocoTestReport
+test.finalizedBy("jacocoTestReport")
 
 license {
-    mapping("java", "SLASHSTAR_STYLE")
-    strictCheck true
+    header = file('config/license/main.txt')
+    lineEnding = '\n'
+    newLine = false
 
-    ext.year = Calendar.getInstance().get(Calendar.YEAR)
-}
+    properties {
+        year = Calendar.getInstance().get(Calendar.YEAR)
+    }
 
-[licenseMain, licenseFormatMain].forEach {
-    it.configure {
-        include("**/*.java")
-        exclude("dan200/computercraft/api/**")
-        header file('config/license/main.txt')
+    include("**/*.java") // We could apply to Kotlin, but for now let's not
+    matching("dan200/computercraft/api/**") {
+        header = file('config/license/api.txt')
     }
 }
 
-[licenseTest, licenseFormatTest, licenseTestMod, licenseFormatTestMod].forEach {
-    it.configure {
-        include("**/*.java")
-        header file('config/license/main.txt')
-    }
-}
+check.dependsOn("licenseCheck")
 
-gradle.projectsEvaluated {
-    tasks.withType(LicenseFormat) {
-        outputs.upToDateWhen { false }
-    }
-}
+def testServerClassDumpDir = new File(buildDir, "jacocoClassDump/runTestServer")
 
-
-task licenseAPI(type: LicenseCheck)
-task licenseFormatAPI(type: LicenseFormat)
-[licenseAPI, licenseFormatAPI].forEach {
-    it.configure {
-        source = sourceSets.main.java
-        include("dan200/computercraft/api/**")
-        header file('config/license/api.txt')
-    }
-}
-
-tasks.register("testServer", JavaExec.class).configure {
-    it.group('In-game tests')
-    it.description("Runs tests on a temporary Minecraft instance.")
-    it.dependsOn("prepareRunGameTestServer", "cleanTestServer", 'compileTestModJava')
+def testServer = tasks.register("testServer", JavaExec.class) {
+    group("In-game tests")
+    description("Runs tests on a temporary Minecraft instance.")
+    dependsOn("cleanTestServer")
+    finalizedBy("jacocoTestServerReport")
 
     // Copy from runTestServer. We do it in this slightly odd way as runTestServer
     // isn't created until the task is configured (which is no good for us).
     JavaExec exec = tasks.getByName("runGameTestServer")
+    dependsOn(exec.getDependsOn())
     exec.copyTo(it)
-    it.setClasspath(exec.getClasspath())
-    it.mainClass = exec.mainClass
-    it.setArgs(exec.getArgs())
+    setClasspath(exec.getClasspath())
+    mainClass = exec.mainClass
+    javaLauncher = exec.javaLauncher
+    setArgs(exec.getArgs())
 
     // Jacoco and modlauncher don't play well together as the classes loaded in-game don't
     // match up with those written to disk. We get Jacoco to dump all classes to disk, and
     // use that when generating the report.
-    def coverageOut = new File(buildDir, "jacocoClassDump/testServer")
     jacoco.applyTo(it)
     it.jacoco.setIncludes(["dan200.computercraft.*"])
-    it.jacoco.setClassDumpDir(coverageOut)
-    it.outputs.dir(coverageOut)
+    it.jacoco.setClassDumpDir(testServerClassDumpDir)
+    outputs.dir(testServerClassDumpDir)
     // Older versions of modlauncher don't include a protection domain (and thus no code
     // source). Jacoco skips such classes by default, so we need to explicitly include them.
     it.jacoco.setIncludeNoLocationClasses(true)
 }
 
-tasks.register("jacocoTestServerReport", JacocoReport.class).configure {
-    it.group('In-game')
-    it.description("Generate coverage reports for testServer")
-    it.dependsOn("testServer")
+tasks.register("jacocoTestServerReport", JacocoReport.class) {
+    group("In-game tests")
+    description("Generate coverage reports for testServer")
+    dependsOn(testServer)
 
-    it.executionData(new File(buildDir, "jacoco/testServer.exec"))
-    it.sourceDirectories.from(sourceSets.main.allJava.srcDirs)
-    it.classDirectories.from(new File(buildDir, "jacocoClassDump/testServer"))
+    executionData(new File(buildDir, "jacoco/testServer.exec"))
+    sourceDirectories.from(sourceSets.main.allJava.srcDirs)
+    classDirectories.from(testServerClassDumpDir)
 
-    it.reports {
+    reports {
         xml.enabled true
         html.enabled true
     }
 }
 
-check.dependsOn("jacocoTestServerReport")
-
+check.dependsOn(testServer)
 
 // Upload tasks
 
-task checkRelease {
+def checkRelease = tasks.register("checkRelease") {
     group "upload"
     description "Verifies that everything is ready for a release"
 
@@ -507,7 +493,7 @@ task checkRelease {
         if (!ok) throw new IllegalStateException("Could not check release")
     }
 }
-check.dependsOn checkRelease
+check.dependsOn(checkRelease)
 
 def isStable = false
 
@@ -517,36 +503,28 @@ curseforge {
         id = '282001'
         releaseType = isStable ? 'release' : 'alpha'
         changelog = "Release notes can be found on the GitHub repository (https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
+        mainArtifact(shadowJar)
 
         addGameVersion "${mc_version}"
     }
 }
 
-tasks.register('publishModrinth', TaskModrinthUpload.class).configure {
-    dependsOn('assemble', 'reobfJar')
-    onlyIf {
-        project.hasProperty('modrinthApiKey')
-    }
-
+modrinth {
     token = project.hasProperty('modrinthApiKey') ? project.getProperty('modrinthApiKey') : ''
     projectId = 'gu7yAYhd'
     versionNumber = "${project.mc_version}-${project.mod_version}"
-    uploadFile = jar
-    versionType = isStable ? 'RELEASE' : 'ALPHA'
-    addGameVersion(project.mc_version)
+    versionType = isStable ? 'release' : 'alpha'
+    uploadFile = shadowJar
+    gameVersions = [project.mc_version]
     changelog = "Release notes can be found on the [GitHub repository](https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v${mc_version}-${mod_version})."
-    addLoader('forge')
-}
-
-tasks.withType(GenerateModuleMetadata) {
-    // We can't generate metadata as that includes Forge as a dependency.
-    enabled = false
 }
 
 publishing {
     publications {
         maven(MavenPublication) {
             from components.java
+            artifact(apiJar)
+            fg.component(it)
 
             pom {
                 name = 'CC: Tweaked'
@@ -565,11 +543,9 @@ publishing {
                 licenses {
                     license {
                         name = 'ComputerCraft Public License, Version 1.0'
-                        url = 'https://github.com/cc-tweaked/CC-Tweaked/blob/mc-1.15.x/LICENSE'
+                        url = 'https://github.com/cc-tweaked/CC-Tweaked/blob/mc-1.16.x/LICENSE'
                     }
                 }
-
-                withXml { asNode().remove(asNode().get("dependencies")) }
             }
         }
     }
@@ -617,10 +593,11 @@ githubRelease {
     prerelease !isStable
 }
 
-def uploadTasks = ["publish", "curseforge", "publishModrinth", "githubRelease"]
-uploadTasks.forEach { tasks.getByName(it).dependsOn checkRelease }
+def uploadTasks = ["publish", "curseforge", "modrinth", "githubRelease"]
+uploadTasks.forEach { tasks.named(it) { dependsOn(checkRelease) } }
 
-task uploadAll(dependsOn: uploadTasks) {
-    group "upload"
-    description "Uploads to all repositories (Maven, Curse, Modrinth, GitHub release)"
+tasks.register("uploadAll") {
+    group = "upload"
+    description = "Uploads to all repositories (Maven, Curse, Modrinth, GitHub release)"
+    dependsOn(uploadTasks)
 }

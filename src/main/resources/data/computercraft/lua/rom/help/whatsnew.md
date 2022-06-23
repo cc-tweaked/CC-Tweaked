@@ -1,5 +1,6 @@
-New features in CC: Tweaked 1.100.7
+New features in CC: Tweaked 1.100.8
 
-* Fix failing to launch outside of a dev environment.
+Several bug fixes:
+* Fix NPE within disk drive and printer code.
 
 Type "help changelog" to see the full version history.
