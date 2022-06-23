@@ -2,7 +2,7 @@ plugins {
     id "checkstyle"
     id "jacoco"
     id "maven-publish"
-    id "com.github.hierynomus.license" version "0.16.1"
+    id "org.cadixdev.licenser" version "0.6.1"
     id "com.matthewprenger.cursegradle" version "1.4.0"
     id "com.github.breadmoirai.github-release" version "2.2.12"
     id "org.jetbrains.kotlin.jvm" version "1.7.0"
@@ -13,8 +13,6 @@ plugins {
     id "com.github.johnrengelman.shadow" version "7.1.2"
 }
 
-import com.hierynomus.gradle.license.tasks.LicenseCheck
-import com.hierynomus.gradle.license.tasks.LicenseFormat
 import org.apache.tools.ant.taskdefs.condition.Os
 
 version = mod_version
@@ -46,6 +44,7 @@ minecraft {
         all {
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
+            forceExit = false
 
             mods {
                 computercraft {
@@ -84,6 +83,9 @@ minecraft {
         testServer {
             workingDirectory project.file('test-files/server')
             parent runs.server
+
+            property("cctest.run", "true")
+            property("forge.logging.console.level", "info")
 
             mods {
                 cctest {
@@ -152,15 +154,11 @@ dependencies {
 
 // Compile tasks
 
-compileTestModJava {
-    dependsOn(compileJava)
-}
-
 javadoc {
     include "dan200/computercraft/api/**/*.java"
 }
 
-task apiJar(type: Jar) {
+def apiJar = tasks.register("apiJar", Jar.class) {
     archiveClassifier.set("api")
     from(sourceSets.main.output) {
         include "dan200/computercraft/api/**/*"
@@ -168,7 +166,7 @@ task apiJar(type: Jar) {
 }
 assemble.dependsOn(apiJar)
 
-task luaJavadoc(type: Javadoc) {
+def luaJavadoc = tasks.register("luaJavadoc", Javadoc.class) {
     description "Generates documentation for Java-side Lua functions."
     group "documentation"
 
@@ -214,7 +212,11 @@ shadowJar {
 
 assemble.dependsOn("shadowJar")
 
-[compileJava, compileTestJava, compileTestModJava].forEach {
+[
+    tasks.named("compileJava", JavaCompile.class),
+    tasks.named("compileTestJava", JavaCompile.class),
+    tasks.named("compileTestModJava", JavaCompile.class)
+].forEach {
     it.configure {
         options.compilerArgs << "-Xlint" << "-Xlint:-processing"
     }
@@ -287,7 +289,7 @@ List<String> mkCommand(String command) {
     return Os.isFamily(Os.FAMILY_WINDOWS) ? ["cmd", "/c", command] : ["sh", "-c", command]
 }
 
-task rollup(type: Exec) {
+def rollup = tasks.register("rollup", Exec.class) {
     group = "build"
     description = "Bundles JS into rollup"
 
@@ -300,9 +302,10 @@ task rollup(type: Exec) {
     commandLine mkCommand('"node_modules/.bin/rollup" --config rollup.config.js')
 }
 
-task illuaminateDocs(type: Exec, dependsOn: [rollup, luaJavadoc]) {
-    group = "build"
+def illuaminateDocs = tasks.register("illuaminateDocs", Exec.class) {
+    group = "documentation"
     description = "Generates docs using Illuaminate"
+    dependsOn(rollup, luaJavadoc)
 
     inputs.files(fileTree("doc")).withPropertyName("docs")
     inputs.files(fileTree("src/main/resources/data/computercraft/lua/rom")).withPropertyName("lua rom")
@@ -315,9 +318,10 @@ task illuaminateDocs(type: Exec, dependsOn: [rollup, luaJavadoc]) {
     commandLine mkCommand('"bin/illuaminate" doc-gen')
 }
 
-task jsxDocs(type: Exec, dependsOn: [illuaminateDocs]) {
-    group = "build"
+def jsxDocs = tasks.register("jsxDocs", Exec) {
+    group = "documentation"
     description = "Post-processes documentation to statically render some dynamic content."
+    dependsOn(illuaminateDocs)
 
     inputs.files(fileTree("src/web")).withPropertyName("sources")
     inputs.file("src/generated/export/index.json").withPropertyName("export")
@@ -329,7 +333,11 @@ task jsxDocs(type: Exec, dependsOn: [illuaminateDocs]) {
     commandLine mkCommand('"node_modules/.bin/ts-node" --esm src/web/transform.tsx')
 }
 
-task docWebsite(type: Copy, dependsOn: [jsxDocs]) {
+def docWebsite = tasks.register("docWebsite", Copy.class) {
+    group = "documentation"
+    description = "Copy additional assets to the website directory."
+    dependsOn(jsxDocs)
+
     from('doc') {
         include 'logo.png'
         include 'images/**'
@@ -364,48 +372,26 @@ jacocoTestReport {
     }
 }
 
-test.finalizedBy(jacocoTestReport)
+test.finalizedBy("jacocoTestReport")
 
 license {
-    mapping("java", "SLASHSTAR_STYLE")
-    strictCheck true
+    header = file('config/license/main.txt')
+    lineEnding = '\n'
+    newLine = false
 
-    ext.year = Calendar.getInstance().get(Calendar.YEAR)
-}
+    properties {
+        year = Calendar.getInstance().get(Calendar.YEAR)
+    }
 
-[licenseMain, licenseFormatMain].forEach {
-    it.configure {
-        include("**/*.java")
-        exclude("dan200/computercraft/api/**")
-        header file('config/license/main.txt')
+    include("**/*.java") // We could apply to Kotlin, but for now let's not
+    matching("dan200/computercraft/api/**") {
+        header = file('config/license/api.txt')
     }
 }
 
-[licenseTest, licenseFormatTest, licenseTestMod, licenseFormatTestMod].forEach {
-    it.configure {
-        include("**/*.java")
-        header file('config/license/main.txt')
-    }
-}
+check.dependsOn("licenseCheck")
 
-gradle.projectsEvaluated {
-    tasks.withType(LicenseFormat) {
-        outputs.upToDateWhen { false }
-    }
-}
-
-
-task licenseAPI(type: LicenseCheck)
-task licenseFormatAPI(type: LicenseFormat)
-[licenseAPI, licenseFormatAPI].forEach {
-    it.configure {
-        source = sourceSets.main.java
-        include("dan200/computercraft/api/**")
-        header file('config/license/api.txt')
-    }
-}
-
-task setupServer(type: Copy) {
+def setupServer = tasks.register("setupServer", Copy.class) {
     group "test server"
     description "Sets up the environment for the test server."
 
@@ -416,56 +402,55 @@ task setupServer(type: Copy) {
     into "test-files/server"
 }
 
-tasks.register("testServer", JavaExec.class).configure {
-    it.group('In-game tests')
-    it.description("Runs tests on a temporary Minecraft instance.")
-    it.dependsOn(setupServer, "prepareRunTestServer", "cleanTestServer", 'compileTestModJava')
+def testServerClassDumpDir = new File(buildDir, "jacocoClassDump/runTestServer")
+
+def testServer = tasks.register("testServer", JavaExec.class) {
+    group("In-game tests")
+    description("Runs tests on a temporary Minecraft instance.")
+    dependsOn(setupServer, "cleanTestServer")
     finalizedBy("jacocoTestServerReport")
 
     // Copy from runTestServer. We do it in this slightly odd way as runTestServer
     // isn't created until the task is configured (which is no good for us).
     JavaExec exec = tasks.getByName("runTestServer")
+    dependsOn(exec.getDependsOn())
     exec.copyTo(it)
-    it.setClasspath(exec.getClasspath())
-    it.mainClass = exec.mainClass
-    it.setArgs(exec.getArgs())
-
-    it.systemProperty('forge.logging.console.level', 'info')
-    it.systemProperty('cctest.run', 'true')
+    setClasspath(exec.getClasspath())
+    mainClass = exec.mainClass
+    setArgs(exec.getArgs())
 
     // Jacoco and modlauncher don't play well together as the classes loaded in-game don't
     // match up with those written to disk. We get Jacoco to dump all classes to disk, and
     // use that when generating the report.
-    def coverageOut = new File(buildDir, "jacocoClassDump/testServer")
     jacoco.applyTo(it)
     it.jacoco.setIncludes(["dan200.computercraft.*"])
-    it.jacoco.setClassDumpDir(coverageOut)
-    it.outputs.dir(coverageOut)
+    it.jacoco.setClassDumpDir(testServerClassDumpDir)
+    outputs.dir(testServerClassDumpDir)
     // Older versions of modlauncher don't include a protection domain (and thus no code
     // source). Jacoco skips such classes by default, so we need to explicitly include them.
     it.jacoco.setIncludeNoLocationClasses(true)
 }
 
-tasks.register("jacocoTestServerReport", JacocoReport.class).configure {
-    it.group('In-game')
-    it.description("Generate coverage reports for testServer")
-    it.dependsOn("testServer")
+tasks.register("jacocoTestServerReport", JacocoReport.class) {
+    group("In-game tests")
+    description("Generate coverage reports for testServer")
+    dependsOn(testServer)
 
-    it.executionData(new File(buildDir, "jacoco/testServer.exec"))
-    it.sourceDirectories.from(sourceSets.main.allJava.srcDirs)
-    it.classDirectories.from(new File(buildDir, "jacocoClassDump/testServer"))
+    executionData(new File(buildDir, "jacoco/testServer.exec"))
+    sourceDirectories.from(sourceSets.main.allJava.srcDirs)
+    classDirectories.from(testServerClassDumpDir)
 
-    it.reports {
+    reports {
         xml.enabled true
         html.enabled true
     }
 }
 
-check.dependsOn("testServer")
+check.dependsOn(testServer)
 
 // Upload tasks
 
-task checkRelease {
+def checkRelease = tasks.register("checkRelease") {
     group "upload"
     description "Verifies that everything is ready for a release"
 
@@ -503,7 +488,7 @@ task checkRelease {
         if (!ok) throw new IllegalStateException("Could not check release")
     }
 }
-check.dependsOn checkRelease
+check.dependsOn(checkRelease)
 
 def isStable = true
 
@@ -595,14 +580,14 @@ githubRelease {
             .takeWhile { it != 'Type "help changelog" to see the full version history.' }
             .join("\n").trim()
     }))
-    prerelease false
     prerelease !isStable
 }
 
 def uploadTasks = ["publish", "curseforge", "modrinth", "githubRelease"]
-uploadTasks.forEach { tasks.named(it) { dependsOn checkRelease } }
+uploadTasks.forEach { tasks.named(it) { dependsOn(checkRelease) } }
 
-task uploadAll(dependsOn: uploadTasks) {
-    group "upload"
-    description "Uploads to all repositories (Maven, Curse, Modrinth, GitHub release)"
+tasks.register("uploadAll") {
+    group = "upload"
+    description = "Uploads to all repositories (Maven, Curse, Modrinth, GitHub release)"
+    dependsOn(uploadTasks)
 }
