@@ -211,8 +211,7 @@ jar {
             "Implementation-Title"    : "CC: Tweaked",
             "Implementation-Version"  : "${mod_version}",
             "Implementation-Vendor"   : "SquidDev",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ,
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
             "MixinConfigs"            : "computercraft.mixins.json",
         ])
     }
@@ -418,6 +417,7 @@ def testServer = tasks.register("testServer", JavaExec.class) {
     exec.copyTo(it)
     setClasspath(exec.getClasspath())
     mainClass = exec.mainClass
+    javaLauncher = exec.javaLauncher
     setArgs(exec.getArgs())
 
     // Jacoco and modlauncher don't play well together as the classes loaded in-game don't
