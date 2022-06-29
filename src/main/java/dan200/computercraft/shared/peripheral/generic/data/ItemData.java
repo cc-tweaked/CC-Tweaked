@@ -10,6 +10,7 @@ import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.EnchantedBookItem;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
@@ -32,7 +33,6 @@ public class ItemData
     {
         data.put( "name", DataHelpers.getId( stack.getItem() ) );
         data.put( "count", stack.getCount() );
-
         return data;
     }
 
@@ -40,6 +40,15 @@ public class ItemData
     public static <T extends Map<? super String, Object>> T fillBasic( @Nonnull T data, @Nonnull ItemStack stack )
     {
         fillBasicSafe( data, stack );
+        Collection<ItemGroup> groups = stack.getItem().getCreativeTabs();
+        if ( !groups.isEmpty() )
+        {
+            data.put( "groups", groups.stream()
+                .map( ItemGroup::getDisplayName )
+                .map( ITextComponent::getString )
+                .collect( Collectors.toList() ) );
+        }
+
         String hash = NBTUtil.getNBTHash( stack.getTag() );
         if( hash != null ) data.put( "nbt", hash );
         return data;

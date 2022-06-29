@@ -107,7 +107,8 @@ public class InventoryMethods implements GenericPeripheral
      *
      * The returned information contains the same information as each item in
      * {@link #list}, as well as additional details like the display name
-     * (`displayName`) and item durability (`damage`, `maxDamage`, `durability`).
+     * (`displayName`), item groups (`groups`), which are the name of creative tabs the item appears under, and item
+     * durability (`damage`, `maxDamage`, `durability`).
      *
      * Some items include more information (such as enchantments) - it is
      * recommended to print it out using @{textutils.serialize} or in the Lua
@@ -127,6 +128,13 @@ public class InventoryMethods implements GenericPeripheral
      *
      * print(("%s (%s)"):format(item.displayName, item.name))
      * print(("Count: %d/%d"):format(item.count, item.maxCount))
+     *
+     * if item.groups then
+     *   for _, group in ipairs(item.groups) do
+     *     print(("Group: %s"):format(group))
+     *   end
+     * end
+     *
      * if item.damage then
      *   print(("Damage: %d/%d"):format(item.damage, item.maxDamage))
      * end
@@ -263,6 +271,56 @@ public class InventoryMethods implements GenericPeripheral
         return moveItem( from, fromSlot - 1, to, toSlot.orElse( 0 ) - 1, actualLimit );
     }
 
+    /**
+     * Swap slots of two specified items.
+     *
+     * Allows for swapping items places without the need for a buffer inventory slot. The swap can happen withing the same
+     * inventory or between distinct inventories and slots.
+     *
+     * @param from     The first inventory to take part in the swap.
+     * @param computer The current computer.
+     * @param fromSlot The slot from the first inventory to swap.
+     * @param toSlot   The slot from the second inventory to swap.
+     * @param toName   The name of the second peripheral/inventory to take part in the swap. This is the string given
+     *                 to @{peripheral.wrap}, and displayed by the wired modem. If not given, the second inventory will
+     *                 be the same as the first one.
+     * @return Whether the swap succeeded.
+     * @throws LuaException If the second peripheral in the swap to doesn't exist or isn't an inventory.
+     * @throws LuaException If either source or destination slot is out of range.
+     * @cc.see peripheral.getName Allows you to get the name of a @{peripheral.wrap|wrapped} peripheral.
+     * @cc.usage Wrap two chests, swap their first slot and then swap the first and second slots of another inventory.
+     * <pre>{@code
+     * local chest_a = peripheral.wrap("minecraft:chest_0")
+     * local chest_b = peripheral.wrap("minecraft:chest_1")
+     *
+     * chest_a.swapItems(1, 1, peripheral.getName(chest_b))
+     * chest_b.swapItems(1, 2)
+     * }</pre>
+     */
+    @LuaFunction( mainThread = true )
+    public static boolean swapItems(
+        IItemHandler from, IComputerAccess computer,
+        int fromSlot, int toSlot, Optional<String> toName
+    ) throws LuaException
+    {
+        // Destination is the same as the source unless otherwise is specified
+        IItemHandler to = from;
+        if ( toName.isPresent() )
+        {
+            IPeripheral location = computer.getAvailablePeripheral( toName.get() );
+            if( location == null ) throw new LuaException( "Target '" + toName.get() + "' does not exist" );
+
+            to = extractHandler( location.getTarget() );
+            if( to == null ) throw new LuaException( "Target '" + toName.get() + "' is not an inventory" );
+        }
+
+        // Validate slots
+        assertBetween( fromSlot, 1, from.getSlots(), "From slot out of range (%s)" );
+        assertBetween( toSlot, 1, to.getSlots(), "To slot out of range (%s)" );
+
+        return swapItem( from, fromSlot - 1, to, toSlot - 1 );
+    }
+
     @Nullable
     private static IItemHandler extractHandler( @Nullable Object object )
     {
@@ -307,5 +365,33 @@ public class InventoryMethods implements GenericPeripheral
         // about that.
         from.extractItem( fromSlot, inserted, false );
         return inserted;
+    }
+
+    /**
+     * Swap an item with another.
+     *
+     * @param from     The handler to move from.
+     * @param fromSlot The slot to move from.
+     * @param to       The handler to move to.
+     * @param toSlot   The slot to move to.
+     * @return Whether the swap succeeded.
+     */
+    private static boolean swapItem( IItemHandler from, int fromSlot, IItemHandler to, int toSlot )
+    {
+        // Get the stacks from both slots to validate the swap
+        ItemStack stackFrom = from.getStackInSlot( fromSlot );
+        ItemStack stackTo = to.getStackInSlot( toSlot );
+
+        // Make sure both slots can fit the amount and type of each other's items
+        if ( stackFrom.getCount() > to.getSlotLimit( toSlot ) || stackTo.getCount() > from.getSlotLimit( fromSlot )
+            || !from.isItemValid( fromSlot, stackTo ) || !to.isItemValid( toSlot, stackFrom ) ) return false;
+
+        // Swap, all checks have been done, and we can't properly simulate a swap. This could still fail.
+        stackFrom = from.extractItem( fromSlot, stackFrom.getCount(), false );
+        stackTo = to.extractItem( toSlot, stackTo.getCount(), false );
+
+        from.insertItem( fromSlot, stackTo, false );
+        to.insertItem( toSlot, stackFrom, false );
+        return true;
     }
 }
