@@ -44,8 +44,7 @@ public class ItemData
         if ( !groups.isEmpty() )
         {
             data.put( "groups", groups.stream()
-                .map( ItemGroup::getDisplayName )
-                .map( ITextComponent::getString )
+                .map( ItemGroup::getId )
                 .collect( Collectors.toList() ) );
         }
 

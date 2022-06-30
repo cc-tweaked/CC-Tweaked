@@ -107,7 +107,7 @@ public class InventoryMethods implements GenericPeripheral
      *
      * The returned information contains the same information as each item in
      * {@link #list}, as well as additional details like the display name
-     * (`displayName`), item groups (`groups`), which are the name of creative tabs the item appears under, and item
+     * (`displayName`), item groups (`groups`), which are the IDs of creative tabs the item appears under, and item
      * durability (`damage`, `maxDamage`, `durability`).
      *
      * Some items include more information (such as enchantments) - it is
@@ -131,7 +131,7 @@ public class InventoryMethods implements GenericPeripheral
      *
      * if item.groups then
      *   for _, group in ipairs(item.groups) do
-     *     print(("Group: %s"):format(group))
+     *     print(("Group ID: %d"):format(group))
      *   end
      * end
      *
