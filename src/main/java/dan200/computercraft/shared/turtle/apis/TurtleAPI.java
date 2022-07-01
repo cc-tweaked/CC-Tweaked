@@ -29,7 +29,7 @@ import java.util.Optional;
  * an internal inventory of 16 slots, allowing them to store blocks they have broken or would like to place.
  *
  * ## Movement
- * Turtles are capable of moving throug the world. As turtles are blocks themselves, they are confined to Minecraft's
+ * Turtles are capable of moving through the world. As turtles are blocks themselves, they are confined to Minecraft's
  * grid, moving a single block at a time.
  *
  * {@literal @}{turtle.forward} and @{turtle.back} move the turtle in the direction it is facing, while @{turtle.up} and
