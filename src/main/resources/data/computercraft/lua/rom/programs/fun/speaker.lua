@@ -50,6 +50,7 @@ elseif cmd == "play" then
 
     local start = handle.read(4)
     local pcm = false
+    local size = 16 * 1024 - 4
     if start == "RIFF" then
         handle.read(4)
         if handle.read(8) ~= "WAVEfmt " then
@@ -65,7 +66,7 @@ elseif cmd == "play" then
             error("Could not play audio: Unsupported WAV file", 0)
         end
         if channels ~= 1 or rate ~= 48000 then
-            print("Warning: This WAV file may not play correctly.")
+            print("Warning: Only 48 kHz mono WAV files are supported. This file may not play correctly.")
         end
         if format == 0xFFFE then
             local guid = fmt:sub(25)
@@ -73,8 +74,10 @@ elseif cmd == "play" then
                 handle.close()
                 error("Could not play audio: Unsupported WAV file", 0)
             end
+            size = size + 4
         else
             pcm = true
+            size = 16 * 1024 * 8
         end
 
         repeat
@@ -95,12 +98,12 @@ elseif cmd == "play" then
     print("Playing " .. file)
 
     local decoder = pcm and pcm_decoder or require "cc.audio.dfpwm".make_decoder()
-    local size = pcm and 16 * 1024 * 8 or 16 * 1024 - 4
     while true do
         local chunk = handle.read(size)
         if not chunk then break end
         if start then
             chunk, start = start .. chunk, nil
+            size = size + 4
         end
 
         local buffer = decoder(chunk)
