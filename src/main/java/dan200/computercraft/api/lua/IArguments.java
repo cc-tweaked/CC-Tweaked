@@ -443,16 +443,4 @@ public interface IArguments
     {
         return optTable( index ).orElse( def );
     }
-
-    /**
-     * This is called when the current function finishes, before any main thread tasks have run.
-     *
-     * Called when the current function returns, and so some values are no longer guaranteed to be safe to access.
-     *
-     * @deprecated This method was an internal implementation detail and is no longer used.
-     */
-    @Deprecated
-    default void releaseImmediate()
-    {
-    }
 }
