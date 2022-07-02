@@ -509,6 +509,7 @@ modrinth {
     token = project.hasProperty('modrinthApiKey') ? project.getProperty('modrinthApiKey') : ''
     projectId = 'gu7yAYhd'
     versionNumber = "${project.mc_version}-${project.mod_version}"
+    versionName = "${project.mod_version}"
     versionType = isStable ? 'release' : 'alpha'
     uploadFile = shadowJar
     gameVersions = [project.mc_version]
