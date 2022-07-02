@@ -149,7 +149,7 @@ dependencies {
 
     testModImplementation sourceSets.main.output
 
-    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.6'
+    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.7'
 }
 
 // Compile tasks
