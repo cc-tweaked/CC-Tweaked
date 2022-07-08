@@ -153,7 +153,7 @@ public final class Config
             builder.push( "http" );
 
             httpEnabled = builder
-                .comment( "Enable the \"http\" API on Computers (see \"rules\" for more fine grained control than this)." )
+                .comment( "Enable the \"http\" API on Computers. This also disables the \"pastebin\" and \"wget\"\nprograms, that many users rely on. It's recommended to leave this on and use the\n\"rules\" config option to impose more fine-grained control." )
                 .define( "enabled", ComputerCraft.httpEnabled );
 
             httpWebsocketEnabled = builder
