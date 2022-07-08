@@ -166,7 +166,7 @@ public class InventoryMethods implements GenericPeripheral
     public static int getItemLimit( IItemHandler inventory, int slot ) throws LuaException
     {
         assertBetween( slot, 1, inventory.getSlots(), "Slot out of range (%s)" );
-        return inventory.getSlotLimit( slot );
+        return inventory.getSlotLimit( slot - 1 );
     }
 
     /**
