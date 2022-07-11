@@ -67,6 +67,10 @@ public class ItemData
         }
 
         data.put( "tags", DataHelpers.getTags( stack.getItem().getTags() ) );
+        data.put( "groups", stack.getItem().getCreativeTabs().stream()
+            .filter( Objects::nonNull )
+            .map( g -> g.langId )
+            .collect( Collectors.toList() ) );
 
         CompoundNBT tag = stack.getTag();
         if( tag != null && tag.contains( "display", Constants.NBT.TAG_COMPOUND ) )
