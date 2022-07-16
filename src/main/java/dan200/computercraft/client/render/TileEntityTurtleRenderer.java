@@ -34,7 +34,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.model.data.EmptyModelData;
+import net.minecraftforge.client.model.data.ModelData;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -165,10 +165,10 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
     private void renderModel( @Nonnull PoseStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, BakedModel model, int[] tints )
     {
         random.setSeed( 0 );
-        renderQuads( transform, renderer, lightmapCoord, overlayLight, model.getQuads( null, null, random, EmptyModelData.INSTANCE ), tints );
+        renderQuads( transform, renderer, lightmapCoord, overlayLight, model.getQuads( null, null, random, ModelData.EMPTY, null ), tints );
         for( Direction facing : DirectionUtil.FACINGS )
         {
-            renderQuads( transform, renderer, lightmapCoord, overlayLight, model.getQuads( null, facing, random, EmptyModelData.INSTANCE ), tints );
+            renderQuads( transform, renderer, lightmapCoord, overlayLight, model.getQuads( null, facing, random, ModelData.EMPTY, null ), tints );
         }
     }
 
@@ -185,10 +185,10 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
                 if( idx >= 0 && idx < tints.length ) tint = tints[bakedquad.getTintIndex()];
             }
 
-            float f = (float) (tint >> 16 & 255) / 255.0F;
-            float f1 = (float) (tint >> 8 & 255) / 255.0F;
-            float f2 = (float) (tint & 255) / 255.0F;
-            buffer.putBulkData( matrix, bakedquad, f, f1, f2, lightmapCoord, overlayLight, true );
+            float r = (float) (tint >> 16 & 255) / 255.0F;
+            float g = (float) (tint >> 8 & 255) / 255.0F;
+            float b = (float) (tint & 255) / 255.0F;
+            buffer.putBulkData( matrix, bakedquad, r, g, b, lightmapCoord, overlayLight );
         }
     }
 }

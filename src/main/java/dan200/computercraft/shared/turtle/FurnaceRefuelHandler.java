@@ -37,7 +37,7 @@ public final class FurnaceRefuelHandler implements TurtleRefuelEvent.Handler
         ItemStack stack = turtle.getItemHandler().extractItem( slot, limit, false );
         int fuelToGive = fuelPerItem * stack.getCount();
         // Store the replacement item in the inventory
-        ItemStack replacementStack = stack.getItem().getContainerItem( stack );
+        ItemStack replacementStack = ForgeHooks.getCraftingRemainingItem( stack );
         if( !replacementStack.isEmpty() )
         {
             ItemStack remainder = InventoryUtil.storeItems( replacementStack, turtle.getItemHandler(), turtle.getSelectedSlot() );

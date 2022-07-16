@@ -29,7 +29,7 @@ public final class ClientHooks
     }
 
     @SubscribeEvent
-    public static void onGuiInit( ScreenEvent.InitScreenEvent event )
+    public static void onGuiInit( ScreenEvent.Init event )
     {
         if( triggered || !(event.getScreen() instanceof TitleScreen) ) return;
         triggered = true;

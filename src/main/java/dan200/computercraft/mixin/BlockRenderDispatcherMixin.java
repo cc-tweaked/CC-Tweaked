@@ -24,7 +24,7 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelData;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -35,7 +35,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /**
  * Provides custom block breaking progress for modems, so it only applies to the current part.
  *
- * @see BlockRenderDispatcher#renderBreakingTexture(BlockState, BlockPos, BlockAndTintGetter, PoseStack, VertexConsumer, IModelData)
+ * @see BlockRenderDispatcher#renderBreakingTexture(BlockState, BlockPos, BlockAndTintGetter, PoseStack, VertexConsumer, ModelData)
  */
 @Mixin( BlockRenderDispatcher.class )
 public class BlockRenderDispatcherMixin
@@ -53,13 +53,13 @@ public class BlockRenderDispatcherMixin
     private ModelBlockRenderer modelRenderer;
 
     @Inject(
-        method = "name=/^renderBreakingTexture/ desc=/IModelData;\\)V$/",
+        method = "name=/^renderBreakingTexture/ desc=/ModelData;\\)V$/",
         at = @At( "HEAD" ),
         cancellable = true,
         require = 0 // This isn't critical functionality, so don't worry if we can't apply it.
     )
     public void renderBlockDamage(
-        BlockState state, BlockPos pos, BlockAndTintGetter world, PoseStack pose, VertexConsumer buffers, IModelData modelData,
+        BlockState state, BlockPos pos, BlockAndTintGetter world, PoseStack pose, VertexConsumer buffers, ModelData modelData,
         CallbackInfo info
     )
     {
@@ -85,6 +85,6 @@ public class BlockRenderDispatcherMixin
 
         BakedModel model = blockModelShaper.getBlockModel( newState );
         long seed = newState.getSeed( pos );
-        modelRenderer.tesselateBlock( world, model, newState, pos, pose, buffers, true, random, seed, OverlayTexture.NO_OVERLAY, modelData );
+        modelRenderer.tesselateBlock( world, model, newState, pos, pose, buffers, true, random, seed, OverlayTexture.NO_OVERLAY, modelData, null );
     }
 }

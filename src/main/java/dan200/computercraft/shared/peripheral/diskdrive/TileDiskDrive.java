@@ -120,7 +120,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
             // Open the GUI
             if( !getLevel().isClientSide && isUsable( player ) )
             {
-                NetworkHooks.openGui( (ServerPlayer) player, this );
+                NetworkHooks.openScreen( (ServerPlayer) player, this );
             }
             return InteractionResult.SUCCESS;
         }

@@ -109,8 +109,8 @@ minecraft {
         }
     }
 
-    // mappings channel: 'parchment', version: "${mapping_version}-${mc_version}"
-    mappings channel: 'official', version: mc_version
+    mappings channel: 'parchment', version: "${mapping_version}-${mc_version}"
+    // mappings channel: 'official', version: mc_version
 
     accessTransformer file('src/main/resources/META-INF/accesstransformer.cfg')
     accessTransformer file('src/testMod/resources/META-INF/accesstransformer.cfg')
@@ -149,9 +149,9 @@ dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
-    extraModsCompileOnly fg.deobf("mezz.jei:jei-1.19-forge-api:11.0.0.206")
-    extraModsCompileOnly fg.deobf("mezz.jei:jei-1.19-common-api:11.0.0.206")
-    extraModsRuntimeOnly fg.deobf("mezz.jei:jei-1.19-forge:11.0.0.206")
+    extraModsCompileOnly fg.deobf("mezz.jei:jei-1.19-forge-api:11.0.0.211")
+    extraModsCompileOnly fg.deobf("mezz.jei:jei-1.19-common-api:11.0.0.211")
+    extraModsRuntimeOnly fg.deobf("mezz.jei:jei-1.19-forge:11.0.0.211")
 
     shade 'org.squiddev:Cobalt:0.5.5'
     shade 'io.netty:netty-codec-http:4.1.76.Final'

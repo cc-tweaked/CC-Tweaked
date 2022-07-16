@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.CustomizeGuiOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -25,7 +25,7 @@ import java.util.List;
 public class DebugOverlay
 {
     @SubscribeEvent
-    public static void onRenderText( RenderGameOverlayEvent.Text event )
+    public static void onRenderText( CustomizeGuiOverlayEvent.DebugText event )
     {
         Minecraft minecraft = Minecraft.getInstance();
         if( !minecraft.options.renderDebug || minecraft.level == null ) return;

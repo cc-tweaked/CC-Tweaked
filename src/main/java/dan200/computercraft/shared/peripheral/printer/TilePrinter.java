@@ -99,7 +99,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
         if( !getLevel().isClientSide && isUsable( player ) )
         {
-            NetworkHooks.openGui( (ServerPlayer) player, this );
+            NetworkHooks.openScreen( (ServerPlayer) player, this );
         }
         return InteractionResult.SUCCESS;
     }

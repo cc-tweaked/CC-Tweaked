@@ -47,6 +47,7 @@ public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends Upgra
 
     /**
      * The associated registry.
+     *
      * @return The registry for pocket upgrade serialisers.
      * @see #REGISTRY_ID
      */

@@ -13,7 +13,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -80,10 +80,10 @@ public final class DropConsumer
     }
 
     @SubscribeEvent( priority = EventPriority.HIGHEST )
-    public static void onEntitySpawn( EntityJoinWorldEvent event )
+    public static void onEntitySpawn( EntityJoinLevelEvent event )
     {
         // Capture any nearby item spawns
-        if( dropWorld == event.getWorld() && event.getEntity() instanceof ItemEntity
+        if( dropWorld == event.getLevel() && event.getEntity() instanceof ItemEntity
             && dropBounds.contains( event.getEntity().position() ) )
         {
             handleDrops( ((ItemEntity) event.getEntity()).getItem() );

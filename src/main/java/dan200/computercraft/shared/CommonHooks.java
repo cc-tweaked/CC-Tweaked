@@ -73,7 +73,7 @@ public final class CommonHooks
             IComputer computer = ((IContainerComputer) container).getComputer();
             if( computer instanceof ServerComputer )
             {
-                ((ServerComputer) computer).sendTerminalState( event.getPlayer() );
+                ((ServerComputer) computer).sendTerminalState( event.getEntity() );
             }
         }
     }

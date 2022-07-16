@@ -18,7 +18,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.DrawSelectionEvent;
+import net.minecraftforge.client.event.RenderHighlightEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -38,7 +38,7 @@ public final class MonitorHighlightRenderer
     }
 
     @SubscribeEvent
-    public static void drawHighlight( DrawSelectionEvent.HighlightBlock event )
+    public static void drawHighlight( RenderHighlightEvent.Block event )
     {
         // Preserve normal behaviour when crouching.
         if( event.getCamera().getEntity().isCrouching() ) return;

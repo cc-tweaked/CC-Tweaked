@@ -19,8 +19,6 @@ import dan200.computercraft.shared.media.items.ItemTreasureDisk;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.item.ItemPropertyFunction;
@@ -28,10 +26,8 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ColorHandlerEvent;
-import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.ForgeModelBakery;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
+import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -69,17 +65,22 @@ public final class ClientRegistry
     private ClientRegistry() {}
 
     @SubscribeEvent
-    public static void registerModels( ModelRegistryEvent event )
+    public static void registerModelLoaders( ModelEvent.RegisterGeometryLoaders event )
     {
-        ModelLoaderRegistry.registerLoader( new ResourceLocation( ComputerCraft.MOD_ID, "turtle" ), TurtleModelLoader.INSTANCE );
+        event.register( "turtle", TurtleModelLoader.INSTANCE );
+    }
+
+    @SubscribeEvent
+    public static void registerModels( ModelEvent.RegisterAdditional event )
+    {
         for( String model : EXTRA_MODELS )
         {
-            ForgeModelBakery.addSpecialModel( new ModelResourceLocation( new ResourceLocation( ComputerCraft.MOD_ID, model ), "inventory" ) );
+            event.register( new ModelResourceLocation( new ResourceLocation( ComputerCraft.MOD_ID, model ), "inventory" ) );
         }
     }
 
     @SubscribeEvent
-    public static void onItemColours( ColorHandlerEvent.Item event )
+    public static void onItemColours( RegisterColorHandlersEvent.Item event )
     {
         if( Registry.ModItems.DISK == null || Registry.ModBlocks.TURTLE_NORMAL == null )
         {
@@ -87,17 +88,17 @@ public final class ClientRegistry
             return;
         }
 
-        event.getItemColors().register(
+        event.register(
             ( stack, layer ) -> layer == 1 ? ((ItemDisk) stack.getItem()).getColour( stack ) : 0xFFFFFF,
             Registry.ModItems.DISK.get()
         );
 
-        event.getItemColors().register(
+        event.register(
             ( stack, layer ) -> layer == 1 ? ItemTreasureDisk.getColour( stack ) : 0xFFFFFF,
             Registry.ModItems.TREASURE_DISK.get()
         );
 
-        event.getItemColors().register( ( stack, layer ) -> {
+        event.register( ( stack, layer ) -> {
             switch( layer )
             {
                 case 0:
@@ -123,14 +124,6 @@ public final class ClientRegistry
     @SubscribeEvent
     public static void setupClient( FMLClientSetupEvent event )
     {
-        // While turtles themselves are not transparent, their upgrades may be.
-        ItemBlockRenderTypes.setRenderLayer( Registry.ModBlocks.TURTLE_NORMAL.get(), RenderType.translucent() );
-        ItemBlockRenderTypes.setRenderLayer( Registry.ModBlocks.TURTLE_ADVANCED.get(), RenderType.translucent() );
-
-        // Monitors' textures have transparent fronts and so count as cutouts.
-        ItemBlockRenderTypes.setRenderLayer( Registry.ModBlocks.MONITOR_NORMAL.get(), RenderType.cutout() );
-        ItemBlockRenderTypes.setRenderLayer( Registry.ModBlocks.MONITOR_ADVANCED.get(), RenderType.cutout() );
-
         // Setup TESRs
         BlockEntityRenderers.register( Registry.ModBlockEntities.MONITOR_NORMAL.get(), TileEntityMonitorRenderer::new );
         BlockEntityRenderers.register( Registry.ModBlockEntities.MONITOR_ADVANCED.get(), TileEntityMonitorRenderer::new );

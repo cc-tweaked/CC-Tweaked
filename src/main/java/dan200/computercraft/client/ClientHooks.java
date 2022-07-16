@@ -10,7 +10,7 @@ import dan200.computercraft.client.sound.SpeakerManager;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -18,9 +18,9 @@ import net.minecraftforge.fml.common.Mod;
 public class ClientHooks
 {
     @SubscribeEvent
-    public static void onWorldUnload( WorldEvent.Unload event )
+    public static void onWorldUnload( LevelEvent.Unload event )
     {
-        if( event.getWorld().isClientSide() )
+        if( event.getLevel().isClientSide() )
         {
             ClientMonitor.destroyAll();
             SpeakerManager.reset();
@@ -28,13 +28,13 @@ public class ClientHooks
     }
 
     @SubscribeEvent
-    public static void onLogIn( ClientPlayerNetworkEvent.LoggedInEvent event )
+    public static void onLogIn( ClientPlayerNetworkEvent.LoggingIn event )
     {
         ComputerCraft.clientComputerRegistry.reset();
     }
 
     @SubscribeEvent
-    public static void onLogOut( ClientPlayerNetworkEvent.LoggedOutEvent event )
+    public static void onLogOut( ClientPlayerNetworkEvent.LoggingOut event )
     {
         ComputerCraft.clientComputerRegistry.reset();
     }

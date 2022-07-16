@@ -137,7 +137,7 @@ fun GameTestHelper.sequence(run: GameTestSequence.() -> GameTestSequence) {
     run(startSequence()).thenSucceed()
 }
 
-private fun getName(type: BlockEntityType<*>): ResourceLocation = ForgeRegistries.BLOCK_ENTITIES.getKey(type)!!
+private fun getName(type: BlockEntityType<*>): ResourceLocation = ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(type)!!
 
 fun <T : BlockEntity> GameTestHelper.getBlockEntity(pos: BlockPos, type: BlockEntityType<T>): T {
     val tile = getBlockEntity(pos)

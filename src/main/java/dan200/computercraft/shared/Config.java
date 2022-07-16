@@ -6,8 +6,6 @@
 package dan200.computercraft.shared;
 
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
-import com.google.common.base.CaseFormat;
-import com.google.common.base.Converter;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.options.Action;
@@ -367,6 +365,4 @@ public final class Config
     {
         sync( event.getConfig() );
     }
-
-    private static final Converter<String, String> converter = CaseFormat.LOWER_CAMEL.converterTo( CaseFormat.UPPER_UNDERSCORE );
 }

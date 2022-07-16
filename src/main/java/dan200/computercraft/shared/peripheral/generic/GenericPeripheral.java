@@ -30,7 +30,7 @@ class GenericPeripheral implements IDynamicPeripheral
 
     GenericPeripheral( BlockEntity tile, String name, Set<String> additionalTypes, List<SaturatedMethod> methods )
     {
-        ResourceLocation type = ForgeRegistries.BLOCK_ENTITIES.getKey( tile.getType() );
+        ResourceLocation type = ForgeRegistries.BLOCK_ENTITY_TYPES.getKey( tile.getType() );
         this.tile = tile;
         this.type = name != null ? name : (type != null ? type.toString() : "unknown");
         this.additionalTypes = additionalTypes;

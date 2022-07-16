@@ -11,13 +11,11 @@ import dan200.computercraft.shared.network.client.MonitorClientMessage;
 import dan200.computercraft.shared.network.client.TerminalState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.world.ChunkWatchEvent;
+import net.minecraftforge.event.level.ChunkWatchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -28,7 +26,6 @@ import java.util.Queue;
 public final class MonitorWatcher
 {
     private static final Queue<TileMonitor> watching = new ArrayDeque<>();
-    private static final Queue<PlayerUpdate> playerUpdates = new ArrayDeque<>();
 
     private MonitorWatcher()
     {
@@ -46,46 +43,27 @@ public final class MonitorWatcher
     @SubscribeEvent
     public static void onWatch( ChunkWatchEvent.Watch event )
     {
-        // Get the current chunk if it has been loaded. This is safe as, if the chunk hasn't been loaded yet, then the
-        // monitor will have no contents, and so we won't need to send an update anyway.
-        ChunkPos chunkPos = event.getPos();
-        LevelChunk chunk = event.getWorld().getChunkSource().getChunkNow( chunkPos.x, chunkPos.z );
-        if( chunk == null ) return;
-
-        for( BlockEntity te : chunk.getBlockEntities().values() )
+        // Find all origin monitors who are not already on the queue and send the
+        // monitor data to the player.
+        for( BlockEntity te : event.getChunk().getBlockEntities().values() )
         {
-            // Find all origin monitors who are not already on the queue.
             if( !(te instanceof TileMonitor monitor) ) continue;
 
             ServerMonitor serverMonitor = getMonitor( monitor );
             if( serverMonitor == null || monitor.enqueued ) continue;
 
-            // The chunk hasn't been sent to the client yet, so we can't send an update. Do it on tick end.
-            playerUpdates.add( new PlayerUpdate( event.getPlayer(), monitor ) );
+            TerminalState state = monitor.cached;
+            if( state == null ) state = monitor.cached = serverMonitor.write();
+            NetworkHandler.sendToPlayer( event.getPlayer(), new MonitorClientMessage( monitor.getBlockPos(), state ) );
         }
     }
 
     @SubscribeEvent
     public static void onTick( TickEvent.ServerTickEvent event )
     {
+        // Find all enqueued monitors and send their contents to all nearby players.
+
         if( event.phase != TickEvent.Phase.END ) return;
-
-        PlayerUpdate playerUpdate;
-        while( (playerUpdate = playerUpdates.poll()) != null )
-        {
-            TileMonitor tile = playerUpdate.monitor;
-            if( tile.enqueued || tile.isRemoved() ) continue;
-
-            ServerMonitor monitor = getMonitor( tile );
-            if( monitor == null ) continue;
-
-            // Some basic sanity checks to the player. It's possible they're no longer within range, but that's harder
-            // to track efficiently.
-            ServerPlayer player = playerUpdate.player;
-            if( !player.isAlive() || player.getLevel() != tile.getLevel() ) continue;
-
-            NetworkHandler.sendToPlayer( playerUpdate.player, new MonitorClientMessage( tile.getBlockPos(), getState( tile, monitor ) ) );
-        }
 
         long limit = ComputerCraft.monitorBandwidth;
         boolean obeyLimit = limit > 0;
@@ -124,17 +102,5 @@ public final class MonitorWatcher
         TerminalState state = tile.cached;
         if( state == null ) state = tile.cached = monitor.write();
         return state;
-    }
-
-    private static final class PlayerUpdate
-    {
-        final ServerPlayer player;
-        final TileMonitor monitor;
-
-        private PlayerUpdate( ServerPlayer player, TileMonitor monitor )
-        {
-            this.player = player;
-            this.monitor = monitor;
-        }
     }
 }

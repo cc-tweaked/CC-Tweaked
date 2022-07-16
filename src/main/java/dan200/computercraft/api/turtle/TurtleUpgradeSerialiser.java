@@ -67,12 +67,14 @@ public interface TurtleUpgradeSerialiser<T extends ITurtleUpgrade> extends Upgra
      *
      * This is largely intended for use with Forge Registry methods/classes, such as {@link DeferredRegister} and
      * {@link RegistryManager#getRegistry(ResourceKey)}.
+     *
      * @see #registry()
      */
     ResourceKey<Registry<TurtleUpgradeSerialiser<?>>> REGISTRY_ID = ResourceKey.createRegistryKey( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_upgrade_serialiser" ) );
 
     /**
      * The associated registry.
+     *
      * @return The registry for pocket upgrade serialisers.
      * @see #REGISTRY_ID
      */

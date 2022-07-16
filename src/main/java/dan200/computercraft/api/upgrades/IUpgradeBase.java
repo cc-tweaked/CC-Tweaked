@@ -68,7 +68,7 @@ public interface IUpgradeBase
      * @param stack The stack to check. This is guaranteed to be non-empty and have the same item as
      *              {@link #getCraftingItem()}.
      * @return If this stack may be used to equip this upgrade.
-     * @see net.minecraftforge.common.crafting.NBTIngredient#test(ItemStack) For the implementation of the default
+     * @see net.minecraftforge.common.crafting.StrictNBTIngredient#test(ItemStack) For the implementation of the default
      * check.
      */
     default boolean isItemSuitable( @Nonnull ItemStack stack )

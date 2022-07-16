@@ -30,7 +30,7 @@ public interface ContainerData
 
     default void open( Player player, MenuProvider owner )
     {
-        NetworkHooks.openGui( (ServerPlayer) player, owner, this::toBytes );
+        NetworkHooks.openScreen( (ServerPlayer) player, owner, this::toBytes );
     }
 
     static <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> toType( Function<FriendlyByteBuf, T> reader, Factory<C, T> factory )

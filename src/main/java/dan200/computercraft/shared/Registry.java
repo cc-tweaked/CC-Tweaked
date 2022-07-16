@@ -13,7 +13,10 @@ import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
-import dan200.computercraft.shared.command.arguments.*;
+import dan200.computercraft.shared.command.arguments.ComputerArgumentType;
+import dan200.computercraft.shared.command.arguments.ComputersArgumentType;
+import dan200.computercraft.shared.command.arguments.RepeatArgumentType;
+import dan200.computercraft.shared.command.arguments.TrackingFieldArgumentType;
 import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.common.DefaultBundledRedstoneProvider;
@@ -164,7 +167,7 @@ public final class Registry
 
     public static class ModBlockEntities
     {
-        static final DeferredRegister<BlockEntityType<?>> TILES = DeferredRegister.create( ForgeRegistries.BLOCK_ENTITIES, ComputerCraft.MOD_ID );
+        static final DeferredRegister<BlockEntityType<?>> TILES = DeferredRegister.create( ForgeRegistries.BLOCK_ENTITY_TYPES, ComputerCraft.MOD_ID );
 
         private static <T extends BlockEntity> RegistryObject<BlockEntityType<T>> ofBlock( RegistryObject<? extends Block> block, FixedPointTileEntityType.FixedPointBlockEntitySupplier<T> factory )
         {
@@ -283,7 +286,7 @@ public final class Registry
 
     public static class ModContainers
     {
-        static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create( ForgeRegistries.CONTAINERS, ComputerCraft.MOD_ID );
+        static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create( ForgeRegistries.MENU_TYPES, ComputerCraft.MOD_ID );
 
         public static final RegistryObject<MenuType<ContainerComputerBase>> COMPUTER = CONTAINERS.register( "computer",
             () -> ContainerData.toType( ComputerContainerData::new, ComputerMenuWithoutInventory::new ) );
@@ -317,7 +320,7 @@ public final class Registry
         @SuppressWarnings( "unchecked" )
         private static <T extends ArgumentType<?>> void registerUnsafe( String name, Class<T> type, ArgumentTypeInfo<?, ?> serializer )
         {
-            ARGUMENT_TYPES.register( name, () -> ArgumentTypeInfos.registerByClass( type, (ArgumentTypeInfo<T, ?>)serializer ) );
+            ARGUMENT_TYPES.register( name, () -> ArgumentTypeInfos.registerByClass( type, (ArgumentTypeInfo<T, ?>) serializer ) );
         }
 
         private static <T extends ArgumentType<?>> void register( String name, Class<T> type, ArgumentTypeInfo<T, ?> serializer )

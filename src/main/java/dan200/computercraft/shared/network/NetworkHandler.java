@@ -104,7 +104,7 @@ public final class NetworkHandler
         network.messageBuilder( type, id, direction )
             .encoder( NetworkMessage::toBytes )
             .decoder( decoder )
-            .consumer( ( packet, contextSup ) -> {
+            .consumerMainThread( ( packet, contextSup ) -> {
                 NetworkEvent.Context context = contextSup.get();
                 context.enqueueWork( () -> packet.handle( context ) );
                 context.setPacketHandled( true );

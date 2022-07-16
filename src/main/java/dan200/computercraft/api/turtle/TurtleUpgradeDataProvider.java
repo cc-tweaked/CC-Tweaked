@@ -14,7 +14,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
@@ -140,7 +140,10 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
             add.accept( new Upgrade<>( id, serialiser, s -> {
                 s.addProperty( "item", ForgeRegistries.ITEMS.getKey( toolItem ).toString() );
                 if( adjective != null ) s.addProperty( "adjective", adjective );
-                if( craftingItem != null ) s.addProperty( "craftItem", ForgeRegistries.ITEMS.getKey( craftingItem ).toString() );
+                if( craftingItem != null )
+                {
+                    s.addProperty( "craftItem", ForgeRegistries.ITEMS.getKey( craftingItem ).toString() );
+                }
                 if( damageMultiplier != null ) s.addProperty( "damageMultiplier", damageMultiplier );
                 if( breakable != null ) s.addProperty( "breakable", breakable.location().toString() );
             } ) );

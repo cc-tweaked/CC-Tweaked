@@ -7,7 +7,7 @@ package dan200.computercraft.api.pocket;
 
 import dan200.computercraft.api.upgrades.UpgradeDataProvider;
 import net.minecraft.data.DataGenerator;
-import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.data.event.GatherDataEvent;
 
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
