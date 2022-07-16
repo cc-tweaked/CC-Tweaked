@@ -224,7 +224,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
 
                 FixedWidthFontRenderer.drawBlocker(
                     matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_BLOCKER ),
-                    -xMargin, -yMargin, pixelWidth + xMargin, pixelHeight + yMargin
+                    -xMargin, -yMargin, pixelWidth + xMargin * 2, pixelHeight + yMargin * 2
                 );
                 break;
             }
