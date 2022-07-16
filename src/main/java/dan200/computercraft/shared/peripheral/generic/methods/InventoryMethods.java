@@ -130,7 +130,7 @@ public class InventoryMethods implements GenericPeripheral
      * print(("%s (%s)"):format(item.displayName, item.name))
      * print(("Count: %d/%d"):format(item.count, item.maxCount))
      *
-     * for _, group in pairs(item.groups) do
+     * for _, group in pairs(item.itemGroups) do
      *   print(("Group: %s"):format(group.displayName))
      * end
      *
