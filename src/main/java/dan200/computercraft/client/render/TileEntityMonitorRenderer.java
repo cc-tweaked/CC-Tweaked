@@ -8,7 +8,9 @@ package dan200.computercraft.client.render;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
@@ -23,7 +25,6 @@ import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.util.DirectionUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
@@ -113,7 +114,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
             Matrix4f matrix = transform.last().pose();
 
-            renderTerminal( bufferSource, matrix, originTerminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale) );
+            renderTerminal( matrix, originTerminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale) );
 
             transform.popPose();
         }
@@ -129,7 +130,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
         transform.popPose();
     }
 
-    private static void renderTerminal( @Nonnull MultiBufferSource bufferSource, Matrix4f matrix, ClientMonitor monitor, float xMargin, float yMargin )
+    private static void renderTerminal( Matrix4f matrix, ClientMonitor monitor, float xMargin, float yMargin )
     {
         Terminal terminal = monitor.getTerminal();
         int width = terminal.getWidth(), height = terminal.getHeight();
@@ -163,11 +164,13 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 MonitorTextureBufferShader shader = RenderTypes.getMonitorTextureBufferShader();
                 shader.setupUniform( monitor.tboUniform );
 
-                VertexConsumer buffer = bufferSource.getBuffer( RenderTypes.MONITOR_TBO );
+                BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+                buffer.begin( RenderTypes.MONITOR_TBO.mode(), RenderTypes.MONITOR_TBO.format() );
                 tboVertex( buffer, matrix, -xMargin, -yMargin );
                 tboVertex( buffer, matrix, -xMargin, pixelHeight + yMargin );
                 tboVertex( buffer, matrix, pixelWidth + xMargin, -yMargin );
                 tboVertex( buffer, matrix, pixelWidth + xMargin, pixelHeight + yMargin );
+                RenderTypes.MONITOR_TBO.end( buffer, 0, 0, 0 );
 
                 break;
             }
@@ -195,27 +198,27 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                     vbo.upload( termIndexes, RenderTypes.TERMINAL_WITHOUT_DEPTH.mode(), RenderTypes.TERMINAL_WITHOUT_DEPTH.format(), buffer );
                 }
 
-                bufferSource.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH );
                 RenderTypes.TERMINAL_WITHOUT_DEPTH.setupRenderState();
-
                 vbo.drawWithShader(
                     matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader(),
                     // As mentioned in the above comment, render the extra cursor quad if it is visible this frame. Each
                     // // quad has an index count of 6.
                     FixedWidthFontRenderer.isCursorVisible( terminal ) && FrameInfo.getGlobalCursorBlink() ? vbo.getIndexCount() + 6 : vbo.getIndexCount()
                 );
+                RenderTypes.TERMINAL_WITHOUT_DEPTH.clearRenderState();
 
+                // TERMINAL_WITHOUT_DEPTH doesn't write to the depth blocker, so write a blocker over the monitor.
+                BufferBuilder buffer = Tesselator.getInstance().getBuilder();
+                buffer.begin( RenderTypes.TERMINAL_BLOCKER.mode(), RenderTypes.TERMINAL_BLOCKER.format() );
                 FixedWidthFontRenderer.drawBlocker(
-                    FixedWidthFontRenderer.toVertexConsumer( matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_BLOCKER ) ),
-                    -xMargin, -yMargin, pixelWidth + xMargin, pixelHeight + yMargin
+                    FixedWidthFontRenderer.toVertexConsumer( matrix, buffer ),
+                    -xMargin, -yMargin, pixelWidth + xMargin * 2, pixelHeight + yMargin * 2
                 );
+                RenderTypes.TERMINAL_BLOCKER.end( buffer, 0, 0, 0 );
+
                 break;
             }
         }
-
-        // Force a flush of the buffer. WorldRenderer.updateCameraAndRender will "finish" all the built-in buffers
-        // before calling renderer.finish, which means our TBO quad or depth blocker won't be rendered yet!
-        bufferSource.getBuffer( RenderType.solid() );
     }
 
     private static void tboVertex( VertexConsumer builder, Matrix4f matrix, float x, float y )
