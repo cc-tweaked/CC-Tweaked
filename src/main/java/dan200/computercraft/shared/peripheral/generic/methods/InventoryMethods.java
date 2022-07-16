@@ -107,8 +107,9 @@ public class InventoryMethods implements GenericPeripheral
      *
      * The returned information contains the same information as each item in
      * {@link #list}, as well as additional details like the display name
-     * (`displayName`), item groups (`groups`), which are the creative tabs an item will appear under,
-     * and item and item durability (`damage`, `maxDamage`, `durability`).
+     * (`displayName`), item groups (`itemGroups`), which are the creative tabs
+     * an item will appear under, and item and item durability (`damage`,
+     * `maxDamage`, `durability`).
      *
      * Some items include more information (such as enchantments) - it is
      * recommended to print it out using @{textutils.serialize} or in the Lua
@@ -130,7 +131,7 @@ public class InventoryMethods implements GenericPeripheral
      * print(("Count: %d/%d"):format(item.count, item.maxCount))
      *
      * for _, group in pairs(item.groups) do
-     *   print(("Group: %s"):format(group))
+     *   print(("Group: %s"):format(group.displayName))
      * end
      *
      * if item.damage then

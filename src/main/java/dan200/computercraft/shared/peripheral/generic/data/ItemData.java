@@ -10,6 +10,7 @@ import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.EnchantedBookItem;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
@@ -67,10 +68,7 @@ public class ItemData
         }
 
         data.put( "tags", DataHelpers.getTags( stack.getItem().getTags() ) );
-        data.put( "groups", stack.getItem().getCreativeTabs().stream()
-            .filter( Objects::nonNull )
-            .map( g -> g.langId )
-            .collect( Collectors.toList() ) );
+        data.put( "itemGroups", getItemGroups( stack ) );
 
         CompoundNBT tag = stack.getTag();
         if( tag != null && tag.contains( "display", Constants.NBT.TAG_COMPOUND ) )
@@ -118,6 +116,30 @@ public class ItemData
         {
             return null;
         }
+    }
+
+    /**
+     * Retrieve all item groups an item stack pertains to.
+     *
+     * @param stack Stack to analyse
+     * @return A filled list that contains pairs of item group IDs and their display names.
+     */
+    @Nonnull
+    private static List<Map<String, Object>> getItemGroups( @Nonnull ItemStack stack )
+    {
+        List<Map<String, Object>> groups = new ArrayList<>( 1 );
+
+        for( ItemGroup group : stack.getItem().getCreativeTabs() )
+        {
+            if( group == null ) continue;
+
+            Map<String, Object> groupData = new HashMap<>( 2 );
+            groupData.put( "id", group.langId );
+            groupData.put( "displayName", group.displayName.getString() );
+            groups.add( groupData );
+        }
+
+        return groups;
     }
 
     /**
