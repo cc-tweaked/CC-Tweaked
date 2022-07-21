@@ -50,6 +50,7 @@ public class DirectVertexBuffer extends VertexBuffer
         if( format != this.format )
         {
             if( this.format != null ) this.format.clearBufferState();
+            this.format = format;
 
             GL15C.glBindBuffer( GL15C.GL_ARRAY_BUFFER, vertexBufferId );
             format.setupBufferState();
