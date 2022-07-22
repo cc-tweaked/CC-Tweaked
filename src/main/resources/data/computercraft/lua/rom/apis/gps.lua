@@ -10,8 +10,8 @@ gps program.
 
 :::note
 When entering in the coordinates for the host you need to put in the `x`, `y`,
-and `z` coordinates of the computer, not the modem, as all modem distances are
-measured from the block the computer is in.
+and `z` coordinates of the block that the modem is connected to, not the modem, as all modem distances are
+measured from the block that the modem is placed on.
 :::
 
 Also note that you may choose which axes x, y, or z refers to - so long as your
