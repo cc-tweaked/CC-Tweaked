@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.2.5",
-    "@rollup/plugin-url": "^6.1.0",
+    "@rollup/plugin-url": "^7.0.0",
     "@types/glob": "^7.2.0",
     "@types/react-dom": "^18.0.5",
     "glob": "^8.0.3",

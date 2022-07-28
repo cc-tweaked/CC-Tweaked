@@ -118,10 +118,55 @@ describe("The os library", function()
     end)
 
     describe("os.time", function()
+        it("supports in-game time", function()
+            expect(os.time("ingame")):equal(os.time())
+        end)
+
+        it("supports local and utc time", function()
+            os.time("utc")
+            os.time("local")
+        end)
+
+        it("fails on other times", function()
+            expect.error(os.time, "unknown"):eq("Unsupported operation")
+        end)
+
         it("maps directly to seconds", function()
             local t1 = os.time { year = 2000, month = 10, day = 1, hour = 23, min = 12, sec = 17 }
             local t2 = os.time { year = 2000, month = 10, day = 1, hour = 23, min = 10, sec = 19 }
             expect(t1 - t2):eq(60 * 2 - 2)
+        end)
+    end)
+
+    describe("os.day", function()
+        it("supports in-game time", function()
+            expect(os.day("ingame")):equal(os.day())
+        end)
+
+        it("supports local and utc time", function()
+            os.day("utc")
+            os.day("local")
+        end)
+
+        it("fails on other times", function()
+            expect.error(os.day, "unknown"):eq("Unsupported operation")
+        end)
+    end)
+
+    describe("os.epoch", function()
+        it("supports in-game time", function()
+            local in_game = os.epoch("ingame")
+            local default = os.epoch()
+            assert(math.abs(default - in_game) < 5)
+        end)
+
+        it("supports local and utc time", function()
+            os.epoch("utc")
+            os.epoch("local")
+        end)
+
+        it("fails on other times", function()
+            expect.error(os.epoch, "unknown"):eq("Unsupported operation")
         end)
     end)
 

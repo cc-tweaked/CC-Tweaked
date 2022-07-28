@@ -66,6 +66,7 @@ public class ItemData
         }
 
         data.put( "tags", DataHelpers.getTags( stack.getTags() ) );
+        data.put( "itemGroups", getItemGroups( stack ) );
 
         CompoundTag tag = stack.getTag();
         if( tag != null && tag.contains( "display", Tag.TAG_COMPOUND ) )
@@ -113,6 +114,30 @@ public class ItemData
         {
             return null;
         }
+    }
+
+    /**
+     * Retrieve all item groups an item stack pertains to.
+     *
+     * @param stack Stack to analyse
+     * @return A filled list that contains pairs of item group IDs and their display names.
+     */
+    @Nonnull
+    private static List<Map<String, Object>> getItemGroups( @Nonnull ItemStack stack )
+    {
+        List<Map<String, Object>> groups = new ArrayList<>( 1 );
+
+        for( var group : stack.getItem().getCreativeTabs() )
+        {
+            if( group == null ) continue;
+
+            Map<String, Object> groupData = new HashMap<>( 2 );
+            groupData.put( "id", group.langId );
+            groupData.put( "displayName", group.getDisplayName().getString() );
+            groups.add( groupData );
+        }
+
+        return groups;
     }
 
     /**

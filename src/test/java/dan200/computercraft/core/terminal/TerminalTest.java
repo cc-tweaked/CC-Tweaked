@@ -14,9 +14,12 @@ import net.minecraft.network.FriendlyByteBuf;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 
+import java.nio.ByteBuffer;
+
 import static dan200.computercraft.core.terminal.TerminalMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TerminalTest
@@ -364,6 +367,19 @@ class TerminalTest
         blit( terminal, "hi", "11", "ee" );
         assertThat( terminal, old.matches() );
         callCounter.assertNotCalled();
+    }
+
+    @Test
+    public void testBlitPartialBuffer()
+    {
+        Terminal terminal = new Terminal( 4, 3 );
+
+        ByteBuffer text = LuaValues.encode( "123456" );
+        text.position( 1 );
+
+        terminal.blit( text, LuaValues.encode( "aaaaaa" ), LuaValues.encode( "aaaaaa" ) );
+
+        assertThat( terminal.getLine( 0 ).toString(), equalTo( "2345" ) );
     }
 
     @Test
