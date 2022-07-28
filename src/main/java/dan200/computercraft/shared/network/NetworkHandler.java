@@ -9,6 +9,8 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.network.client.*;
 import dan200.computercraft.shared.network.server.*;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,7 +28,8 @@ import java.util.function.Function;
 
 public final class NetworkHandler
 {
-    public static SimpleChannel network;
+    private static SimpleChannel network;
+    private static final IntSet usedIds = new IntOpenHashSet();
 
     private NetworkHandler()
     {
@@ -61,7 +64,7 @@ public final class NetworkHandler
         registerMainThread( 18, NetworkDirection.PLAY_TO_CLIENT, SpeakerPlayClientMessage.class, SpeakerPlayClientMessage::new );
         registerMainThread( 19, NetworkDirection.PLAY_TO_CLIENT, SpeakerStopClientMessage.class, SpeakerStopClientMessage::new );
         registerMainThread( 20, NetworkDirection.PLAY_TO_CLIENT, UploadResultMessage.class, UploadResultMessage::new );
-        registerMainThread( 20, NetworkDirection.PLAY_TO_CLIENT, UpgradesLoadedMessage.class, UpgradesLoadedMessage::new );
+        registerMainThread( 21, NetworkDirection.PLAY_TO_CLIENT, UpgradesLoadedMessage.class, UpgradesLoadedMessage::new );
     }
 
     public static void sendToPlayer( Player player, NetworkMessage packet )
@@ -101,6 +104,7 @@ public final class NetworkHandler
      */
     private static <T extends NetworkMessage> void registerMainThread( int id, NetworkDirection direction, Class<T> type, Function<FriendlyByteBuf, T> decoder )
     {
+        if( !usedIds.add( id ) ) throw new IllegalStateException( "Duplicate message kind for for id " + id );
         network.messageBuilder( type, id, direction )
             .encoder( NetworkMessage::toBytes )
             .decoder( decoder )

@@ -47,13 +47,15 @@ public class TextBuffer
     public void write( ByteBuffer text, int start )
     {
         int pos = start;
+        int bufferPos = text.position();
+
         start = Math.max( start, 0 );
         int length = text.remaining();
         int end = Math.min( start + length, pos + length );
         end = Math.min( end, this.text.length );
         for( int i = start; i < end; i++ )
         {
-            this.text[i] = (char) (text.get( i - pos ) & 0xFF);
+            this.text[i] = (char) (text.get( bufferPos + i - pos ) & 0xFF);
         }
     }
 

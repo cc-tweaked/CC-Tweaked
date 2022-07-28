@@ -168,7 +168,7 @@ dependencies {
         exclude group: "org.jetbrains", module: "annotations"
     }
 
-    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.6'
+    cctJavadoc 'cc.tweaked:cct-javadoc:1.4.7'
 }
 
 // Compile tasks
@@ -345,7 +345,7 @@ def jsxDocs = tasks.register("jsxDocs", Exec) {
     inputs.files(fileTree("$buildDir/docs/lua"))
     outputs.dir("$buildDir/docs/site")
 
-    commandLine mkCommand('"node_modules/.bin/ts-node" --esm src/web/transform.tsx')
+    commandLine mkCommand('"node_modules/.bin/ts-node" -T --esm src/web/transform.tsx')
 }
 
 def docWebsite = tasks.register("docWebsite", Copy.class) {
@@ -513,6 +513,7 @@ modrinth {
     token = project.hasProperty('modrinthApiKey') ? project.getProperty('modrinthApiKey') : ''
     projectId = 'gu7yAYhd'
     versionNumber = "${project.mc_version}-${project.mod_version}"
+    versionName = "${project.mod_version}"
     versionType = isStable ? 'release' : 'alpha'
     uploadFile = shadowJar
     gameVersions = [project.mc_version]

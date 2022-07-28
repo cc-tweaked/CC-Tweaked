@@ -316,7 +316,7 @@ public class OSAPI implements ILuaAPI
      * Returns the current time depending on the string passed in. This will
      * always be in the range [0.0, 24.0).
      *
-     * * If called with {@code dan200.computercraft.ingame}, the current world time will be returned.
+     * * If called with {@code ingame}, the current world time will be returned.
      * This is the default if nothing is passed.
      * * If called with {@code utc}, returns the hour of the day in UTC time.
      * * If called with {@code local}, returns the hour of the day in the
@@ -326,10 +326,10 @@ public class OSAPI implements ILuaAPI
      * which will convert the date fields into a UNIX timestamp (number of
      * seconds since 1 January 1970).
      *
-     * @param args The locale of the time, or a table filled by {@code os.date("*t")} to decode. Defaults to {@code dan200.computercraft.ingame} locale if not specified.
+     * @param args The locale of the time, or a table filled by {@code os.date("*t")} to decode. Defaults to {@code ingame} locale if not specified.
      * @return The hour of the selected locale, or a UNIX timestamp from the table, depending on the argument passed in.
      * @throws LuaException If an invalid locale is passed.
-     * @cc.tparam [opt] string|table locale The locale of the time, or a table filled by {@code os.date("*t")} to decode. Defaults to {@code dan200.computercraft.ingame} locale if not specified.
+     * @cc.tparam [opt] string|table locale The locale of the time, or a table filled by {@code os.date("*t")} to decode. Defaults to {@code ingame} locale if not specified.
      * @cc.see textutils.formatTime To convert times into a user-readable string.
      * @cc.usage Print the current in-game time.
      * <pre>{@code
@@ -347,14 +347,14 @@ public class OSAPI implements ILuaAPI
         Object value = args.get( 0 );
         if( value instanceof Map ) return LuaDateTime.fromTable( (Map<?, ?>) value );
 
-        String param = args.optString( 0, "dan200.computercraft.ingame" );
+        String param = args.optString( 0, "ingame" );
         switch( param.toLowerCase( Locale.ROOT ) )
         {
             case "utc": // Get Hour of day (UTC)
                 return getTimeForCalendar( Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) ) );
             case "local": // Get Hour of day (local time)
                 return getTimeForCalendar( Calendar.getInstance() );
-            case "dan200.computercraft.ingame": // Get in-game hour
+            case "ingame": // Get in-game hour
                 return time;
             default:
                 throw new LuaException( "Unsupported operation" );
@@ -364,14 +364,14 @@ public class OSAPI implements ILuaAPI
     /**
      * Returns the day depending on the locale specified.
      *
-     * * If called with {@code dan200.computercraft.ingame}, returns the number of days since the
+     * * If called with {@code ingame}, returns the number of days since the
      * world was created. This is the default.
      * * If called with {@code utc}, returns the number of days since 1 January
      * 1970 in the UTC timezone.
      * * If called with {@code local}, returns the number of days since 1
      * January 1970 in the server's local timezone.
      *
-     * @param args The locale to get the day for. Defaults to {@code dan200.computercraft.ingame} if not set.
+     * @param args The locale to get the day for. Defaults to {@code ingame} if not set.
      * @return The day depending on the selected locale.
      * @throws LuaException If an invalid locale is passed.
      * @cc.since 1.48
@@ -380,13 +380,13 @@ public class OSAPI implements ILuaAPI
     @LuaFunction
     public final int day( Optional<String> args ) throws LuaException
     {
-        switch( args.orElse( "dan200.computercraft.ingame" ).toLowerCase( Locale.ROOT ) )
+        switch( args.orElse( "ingame" ).toLowerCase( Locale.ROOT ) )
         {
             case "utc":     // Get numbers of days since 1970-01-01 (utc)
                 return getDayForCalendar( Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) ) );
             case "local": // Get numbers of days since 1970-01-01 (local time)
                 return getDayForCalendar( Calendar.getInstance() );
-            case "dan200.computercraft.ingame":// Get game day
+            case "ingame":// Get game day
                 return day;
             default:
                 throw new LuaException( "Unsupported operation" );
@@ -396,14 +396,14 @@ public class OSAPI implements ILuaAPI
     /**
      * Returns the number of milliseconds since an epoch depending on the locale.
      *
-     * * If called with {@code dan200.computercraft.ingame}, returns the number of milliseconds since the
+     * * If called with {@code ingame}, returns the number of milliseconds since the
      * world was created. This is the default.
      * * If called with {@code utc}, returns the number of milliseconds since 1
      * January 1970 in the UTC timezone.
      * * If called with {@code local}, returns the number of milliseconds since 1
      * January 1970 in the server's local timezone.
      *
-     * @param args The locale to get the milliseconds for. Defaults to {@code dan200.computercraft.ingame} if not set.
+     * @param args The locale to get the milliseconds for. Defaults to {@code ingame} if not set.
      * @return The milliseconds since the epoch depending on the selected locale.
      * @throws LuaException If an invalid locale is passed.
      * @cc.since 1.80pr1
@@ -418,7 +418,7 @@ public class OSAPI implements ILuaAPI
     @LuaFunction
     public final long epoch( Optional<String> args ) throws LuaException
     {
-        switch( args.orElse( "dan200.computercraft.ingame" ).toLowerCase( Locale.ROOT ) )
+        switch( args.orElse( "ingame" ).toLowerCase( Locale.ROOT ) )
         {
             case "utc":
             {
@@ -432,7 +432,7 @@ public class OSAPI implements ILuaAPI
                 Calendar c = Calendar.getInstance();
                 return getEpochForCalendar( c );
             }
-            case "dan200.computercraft.ingame":
+            case "ingame":
                 // Get in-game epoch
                 synchronized( alarms )
                 {
