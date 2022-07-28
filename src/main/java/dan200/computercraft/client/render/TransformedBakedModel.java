@@ -14,7 +14,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.BakedModelWrapper;
-import net.minecraftforge.client.model.IQuadTransformer;
+import net.minecraftforge.client.model.QuadTransformers;
 import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,7 +50,7 @@ public class TransformedBakedModel extends BakedModelWrapper<BakedModel>
     public @NotNull List<BakedQuad> getQuads( @Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData extraData, @Nullable RenderType renderType )
     {
         List<BakedQuad> quads = originalModel.getQuads( state, side, rand, extraData, renderType );
-        return isIdentity ? quads : IQuadTransformer.applying( transformation ).process( quads );
+        return isIdentity ? quads : QuadTransformers.applying( transformation ).process( quads );
     }
 
     public TransformedBakedModel composeWith( Transformation other )

@@ -16,6 +16,7 @@ import javax.annotation.Nonnull;
 
 public class ChatTableClientMessage implements NetworkMessage
 {
+    private static final int MAX_LEN = 16;
     private final TableBuilder table;
 
     public ChatTableClientMessage( TableBuilder table )
@@ -26,7 +27,7 @@ public class ChatTableClientMessage implements NetworkMessage
 
     public ChatTableClientMessage( @Nonnull FriendlyByteBuf buf )
     {
-        int id = buf.readVarInt();
+        String id = buf.readUtf( MAX_LEN );
         int columns = buf.readVarInt();
         TableBuilder table;
         if( buf.readBoolean() )
@@ -55,7 +56,7 @@ public class ChatTableClientMessage implements NetworkMessage
     @Override
     public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
-        buf.writeVarInt( table.getId() );
+        buf.writeUtf( table.getId(), MAX_LEN );
         buf.writeVarInt( table.getColumns() );
         buf.writeBoolean( table.getHeaders() != null );
         if( table.getHeaders() != null )

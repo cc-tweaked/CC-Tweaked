@@ -8,8 +8,8 @@ package dan200.computercraft.client;
 import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.command.text.TableFormatter;
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.ChatComponent;
@@ -18,12 +18,11 @@ import net.minecraft.util.Mth;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 public class ClientTableFormatter implements TableFormatter
 {
     public static final ClientTableFormatter INSTANCE = new ClientTableFormatter();
-
-    private static final Int2IntOpenHashMap lastHeights = new Int2IntOpenHashMap();
 
     private static Font renderer()
     {
@@ -59,7 +58,7 @@ public class ClientTableFormatter implements TableFormatter
     }
 
     @Override
-    public void writeLine( int id, Component component )
+    public void writeLine( String label, Component component )
     {
         Minecraft mc = Minecraft.getInstance();
         ChatComponent chat = mc.gui.getChat();
@@ -68,20 +67,25 @@ public class ClientTableFormatter implements TableFormatter
         // int maxWidth = MathHelper.floor( chat.getChatWidth() / chat.getScale() );
         // List<ITextProperties> list = RenderComponentsUtil.wrapComponents( component, maxWidth, mc.fontRenderer );
         // if( !list.isEmpty() ) chat.printChatMessageWithOptionalDeletion( list.get( 0 ), id );
-        chat.addMessage( component, id );
+        chat.addMessage( component, null, createTag( label ) );
     }
 
     @Override
-    public int display( TableBuilder table )
+    public void display( TableBuilder table )
     {
         ChatComponent chat = Minecraft.getInstance().gui.getChat();
 
-        int lastHeight = lastHeights.get( table.getId() );
+        var tag = createTag( table.getId() );
+        if( chat.allMessages.removeIf( guiMessage -> guiMessage.tag() != null && Objects.equals( guiMessage.tag().logTag(), tag.logTag() ) ) )
+        {
+            chat.refreshTrimmedMessage();
+        }
 
-        int height = TableFormatter.super.display( table );
-        lastHeights.put( table.getId(), height );
+        TableFormatter.super.display( table );
+    }
 
-        for( int i = height; i < lastHeight; i++ ) chat.removeById( i + table.getId() );
-        return height;
+    private static GuiMessageTag createTag( String id )
+    {
+        return new GuiMessageTag( 0xa0a0a0, null, null, "ComputerCraft/" + id );
     }
 }

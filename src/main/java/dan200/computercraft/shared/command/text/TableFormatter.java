@@ -39,13 +39,13 @@ public interface TableFormatter
 
     int getWidth( Component component );
 
-    void writeLine( int id, Component component );
+    void writeLine( String label, Component component );
 
-    default int display( TableBuilder table )
+    default void display( TableBuilder table )
     {
-        if( table.getColumns() <= 0 ) return 0;
+        if( table.getColumns() <= 0 ) return;
 
-        int rowId = table.getId();
+        String id = table.getId();
         int columns = table.getColumns();
         int[] maxWidths = new int[columns];
 
@@ -86,13 +86,13 @@ public interface TableFormatter
             }
             line.append( headers[columns - 1] );
 
-            writeLine( rowId++, line );
+            writeLine( id, line );
 
             // Write a separator line. We round the width up rather than down to make
             // it a tad prettier.
             int rowCharWidth = getWidth( HEADER );
             int rowWidth = totalWidth / rowCharWidth + (totalWidth % rowCharWidth == 0 ? 0 : 1);
-            writeLine( rowId++, coloured( StringUtils.repeat( HEADER.getString(), rowWidth ), ChatFormatting.GRAY ) );
+            writeLine( id, coloured( StringUtils.repeat( HEADER.getString(), rowWidth ), ChatFormatting.GRAY ) );
         }
 
         for( Component[] row : table.getRows() )
@@ -106,14 +106,12 @@ public interface TableFormatter
                 line.append( SEPARATOR );
             }
             line.append( row[columns - 1] );
-            writeLine( rowId++, line );
+            writeLine( id, line );
         }
 
         if( table.getAdditional() > 0 )
         {
-            writeLine( rowId++, coloured( translate( "commands.computercraft.generic.additional_rows", table.getAdditional() ), ChatFormatting.AQUA ) );
+            writeLine( id, coloured( translate( "commands.computercraft.generic.additional_rows", table.getAdditional() ), ChatFormatting.AQUA ) );
         }
-
-        return rowId - table.getId();
     }
 }

@@ -63,7 +63,7 @@ public class CommandAPI implements ILuaAPI
         try
         {
             receiver.clearOutput();
-            int result = commandManager.performCommand( computer.getSource(), command );
+            int result = commandManager.performPrefixedCommand( computer.getSource(), command );
             return new Object[] { result > 0, receiver.copyOutput(), result };
         }
         catch( Throwable t )

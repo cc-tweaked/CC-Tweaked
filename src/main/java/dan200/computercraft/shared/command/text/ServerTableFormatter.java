@@ -42,7 +42,7 @@ public class ServerTableFormatter implements TableFormatter
     }
 
     @Override
-    public void writeLine( int id, Component component )
+    public void writeLine( String label, Component component )
     {
         source.sendSuccess( component, false );
     }

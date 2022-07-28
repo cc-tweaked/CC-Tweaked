@@ -10,9 +10,9 @@ import com.mojang.brigadier.Message;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
-import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Objects;
 
@@ -27,7 +27,7 @@ public class ArgumentUtils
     {
         JsonObject object = new JsonObject();
         object.addProperty( "type", "argument" );
-        object.addProperty( "parser", Registry.COMMAND_ARGUMENT_TYPE.getKey( template.type() ).toString() );
+        object.addProperty( "parser", ForgeRegistries.COMMAND_ARGUMENT_TYPES.getKey( template.type() ).toString() );
 
         var properties = new JsonObject();
         serializeToJson( properties, template.type(), template );
@@ -50,13 +50,13 @@ public class ArgumentUtils
     @SuppressWarnings( "unchecked" )
     private static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>> void serializeToNetwork( FriendlyByteBuf buffer, ArgumentTypeInfo<A, T> type, ArgumentTypeInfo.Template<A> template )
     {
-        buffer.writeVarInt( Registry.COMMAND_ARGUMENT_TYPE.getId( type ) );
+        buffer.writeRegistryIdUnsafe( ForgeRegistries.COMMAND_ARGUMENT_TYPES, type );
         type.serializeToNetwork( (T) template, buffer );
     }
 
     public static ArgumentTypeInfo.Template<?> deserialize( FriendlyByteBuf buffer )
     {
-        var type = Registry.COMMAND_ARGUMENT_TYPE.byId( buffer.readVarInt() );
+        var type = buffer.readRegistryIdUnsafe( ForgeRegistries.COMMAND_ARGUMENT_TYPES );
         Objects.requireNonNull( type, "Unknown argument type" );
         return type.deserializeFromNetwork( buffer );
     }

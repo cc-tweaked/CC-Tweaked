@@ -19,30 +19,27 @@ import java.util.List;
 
 public class TableBuilder
 {
-    private final int id;
+    private final String id;
     private int columns = -1;
     private final Component[] headers;
     private final ArrayList<Component[]> rows = new ArrayList<>();
     private int additional;
 
-    public TableBuilder( int id, @Nonnull Component... headers )
+    public TableBuilder( @Nonnull String id, @Nonnull Component... headers )
     {
-        if( id < 0 ) throw new IllegalArgumentException( "ID must be positive" );
         this.id = id;
         this.headers = headers;
         columns = headers.length;
     }
 
-    public TableBuilder( int id )
+    public TableBuilder( @Nonnull String id )
     {
-        if( id < 0 ) throw new IllegalArgumentException( "ID must be positive" );
         this.id = id;
         headers = null;
     }
 
-    public TableBuilder( int id, @Nonnull String... headers )
+    public TableBuilder( @Nonnull String id, @Nonnull String... headers )
     {
-        if( id < 0 ) throw new IllegalArgumentException( "ID must be positive" );
         this.id = id;
         this.headers = new Component[headers.length];
         columns = headers.length;
@@ -65,7 +62,7 @@ public class TableBuilder
      *
      * @return This table's type.
      */
-    public int getId()
+    public String getId()
     {
         return id;
     }

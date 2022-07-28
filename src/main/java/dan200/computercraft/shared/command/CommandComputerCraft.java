@@ -56,10 +56,6 @@ public final class CommandComputerCraft
 {
     public static final UUID SYSTEM_UUID = new UUID( 0, 0 );
 
-    private static final int DUMP_LIST_ID = 5373952;
-    private static final int DUMP_SINGLE_ID = 1844510720;
-    private static final int TRACK_ID = 373882880;
-
     private CommandComputerCraft()
     {
     }
@@ -70,7 +66,7 @@ public final class CommandComputerCraft
             .then( literal( "dump" )
                 .requires( UserLevel.OWNER_OP )
                 .executes( context -> {
-                    TableBuilder table = new TableBuilder( DUMP_LIST_ID, "Computer", "On", "Position" );
+                    TableBuilder table = new TableBuilder( "DumpAll", "Computer", "On", "Position" );
 
                     CommandSourceStack source = context.getSource();
                     List<ServerComputer> computers = new ArrayList<>( ComputerCraft.serverComputerRegistry.getComputers() );
@@ -115,7 +111,7 @@ public final class CommandComputerCraft
                     .executes( context -> {
                         ServerComputer computer = getComputerArgument( context, "computer" );
 
-                        TableBuilder table = new TableBuilder( DUMP_SINGLE_ID );
+                        TableBuilder table = new TableBuilder( "Dump" );
                         table.row( header( "Instance" ), text( Integer.toString( computer.getInstanceID() ) ) );
                         table.row( header( "Id" ), text( Integer.toString( computer.getID() ) ) );
                         table.row( header( "Label" ), text( computer.getLabel() ) );
@@ -392,7 +388,7 @@ public final class CommandComputerCraft
         Component[] headers = new Component[1 + fields.size()];
         headers[0] = translate( "commands.computercraft.track.dump.computer" );
         for( int i = 0; i < fields.size(); i++ ) headers[i + 1] = translate( fields.get( i ).translationKey() );
-        TableBuilder table = new TableBuilder( TRACK_ID, headers );
+        TableBuilder table = new TableBuilder( "Metrics", headers );
 
         for( ComputerTracker entry : timings )
         {
