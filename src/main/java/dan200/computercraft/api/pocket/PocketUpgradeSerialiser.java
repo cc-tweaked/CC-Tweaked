@@ -33,7 +33,7 @@ import java.util.function.Function;
  * @see IPocketUpgrade
  * @see PocketUpgradeDataProvider
  */
-public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends UpgradeSerialiser<T, PocketUpgradeSerialiser<?>>
+public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends UpgradeSerialiser<T>
 {
     /**
      * The ID for the associated registry.
@@ -69,7 +69,7 @@ public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends Upgra
     @Nonnull
     static <T extends IPocketUpgrade> PocketUpgradeSerialiser<T> simple( @Nonnull Function<ResourceLocation, T> factory )
     {
-        class Impl extends SimpleSerialiser<T, PocketUpgradeSerialiser<?>> implements PocketUpgradeSerialiser<T>
+        class Impl extends SimpleSerialiser<T> implements PocketUpgradeSerialiser<T>
         {
             private Impl( Function<ResourceLocation, T> constructor )
             {
@@ -92,7 +92,7 @@ public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends Upgra
     @Nonnull
     static <T extends IPocketUpgrade> PocketUpgradeSerialiser<T> simpleWithCustomItem( @Nonnull BiFunction<ResourceLocation, ItemStack, T> factory )
     {
-        class Impl extends SerialiserWithCraftingItem<T, PocketUpgradeSerialiser<?>> implements PocketUpgradeSerialiser<T>
+        class Impl extends SerialiserWithCraftingItem<T> implements PocketUpgradeSerialiser<T>
         {
             private Impl( BiFunction<ResourceLocation, ItemStack, T> factory )
             {

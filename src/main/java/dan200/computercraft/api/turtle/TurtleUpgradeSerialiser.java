@@ -6,6 +6,8 @@
 package dan200.computercraft.api.turtle;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.client.ComputerCraftAPIClient;
+import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.api.upgrades.IUpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
 import dan200.computercraft.internal.upgrades.SerialiserWithCraftingItem;
@@ -54,13 +56,22 @@ import java.util.function.Function;
  * }
  * }</pre>
  *
+ * Finally, we need to register a model for our upgrade. This is done with
+ * {@link ComputerCraftAPIClient#registerTurtleUpgradeModeller(TurtleUpgradeSerialiser, TurtleUpgradeModeller)}:
+ *
+ * <pre>{@code
+ * // Register our model inside FMLClientSetupEvent
+ * ComputerCraftAPIClient.registerTurtleUpgradeModeller(MY_UPGRADE.get(), TurtleUpgradeModeller.flatItem())
+ * }</pre>
+ *
  * {@link TurtleUpgradeDataProvider} provides a data provider to aid with generating these JSON files.
  *
  * @param <T> The type of turtle upgrade this is responsible for serialising.
  * @see ITurtleUpgrade
  * @see TurtleUpgradeDataProvider
+ * @see TurtleUpgradeModeller
  */
-public interface TurtleUpgradeSerialiser<T extends ITurtleUpgrade> extends UpgradeSerialiser<T, TurtleUpgradeSerialiser<?>>
+public interface TurtleUpgradeSerialiser<T extends ITurtleUpgrade> extends UpgradeSerialiser<T>
 {
     /**
      * The ID for the associated registry.
@@ -96,7 +107,7 @@ public interface TurtleUpgradeSerialiser<T extends ITurtleUpgrade> extends Upgra
     @Nonnull
     static <T extends ITurtleUpgrade> TurtleUpgradeSerialiser<T> simple( @Nonnull Function<ResourceLocation, T> factory )
     {
-        class Impl extends SimpleSerialiser<T, TurtleUpgradeSerialiser<?>> implements TurtleUpgradeSerialiser<T>
+        class Impl extends SimpleSerialiser<T> implements TurtleUpgradeSerialiser<T>
         {
             private Impl( Function<ResourceLocation, T> constructor )
             {
@@ -119,7 +130,7 @@ public interface TurtleUpgradeSerialiser<T extends ITurtleUpgrade> extends Upgra
     @Nonnull
     static <T extends ITurtleUpgrade> TurtleUpgradeSerialiser<T> simpleWithCustomItem( @Nonnull BiFunction<ResourceLocation, ItemStack, T> factory )
     {
-        class Impl extends SerialiserWithCraftingItem<T, TurtleUpgradeSerialiser<?>> implements TurtleUpgradeSerialiser<T>
+        class Impl extends SerialiserWithCraftingItem<T> implements TurtleUpgradeSerialiser<T>
         {
             private Impl( BiFunction<ResourceLocation, ItemStack, T> factory )
             {

@@ -37,12 +37,12 @@ import java.util.stream.Collectors;
  * @see TurtleUpgrades
  * @see PocketUpgrades
  */
-public class UpgradeManager<R extends UpgradeSerialiser<? extends T, R>, T extends IUpgradeBase> extends SimpleJsonResourceReloadListener
+public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends IUpgradeBase> extends SimpleJsonResourceReloadListener
 {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
-    public static record UpgradeWrapper<R extends UpgradeSerialiser<? extends T, R>, T extends IUpgradeBase>(
+    public record UpgradeWrapper<R extends UpgradeSerialiser<? extends T>, T extends IUpgradeBase>(
         @Nonnull String id, @Nonnull T upgrade, @Nonnull R serialiser, @Nonnull String modId
     ) {}
 
@@ -64,6 +64,12 @@ public class UpgradeManager<R extends UpgradeSerialiser<? extends T, R>, T exten
     {
         var wrapper = current.get( id );
         return wrapper == null ? null : wrapper.upgrade();
+    }
+
+    @Nullable
+    public UpgradeWrapper<R, T> getWrapper( @Nonnull T upgrade )
+    {
+        return currentWrappers.get( upgrade );
     }
 
     @Nullable

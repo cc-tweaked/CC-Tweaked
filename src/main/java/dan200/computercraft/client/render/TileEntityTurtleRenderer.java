@@ -12,6 +12,7 @@ import com.mojang.math.Vector3f;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.util.DirectionUtil;
@@ -148,7 +149,7 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
         transform.mulPose( Vector3f.XN.rotationDegrees( toolAngle ) );
         transform.translate( 0.0f, -0.5f, -0.5f );
 
-        TransformedModel model = upgrade.getModel( turtle.getAccess(), side );
+        TransformedModel model = TurtleUpgradeModellers.getModel( upgrade, turtle.getAccess(), side );
         model.getMatrix().push( transform );
         renderModel( transform, renderer, lightmapCoord, overlayLight, model.getModel(), null );
         transform.popPose();

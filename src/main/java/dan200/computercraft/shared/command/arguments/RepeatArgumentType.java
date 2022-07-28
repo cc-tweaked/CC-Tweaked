@@ -145,6 +145,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
             return new RepeatArgumentType.Template( this, child, isList, new SimpleCommandExceptionType( message ) );
         }
 
+        @Nonnull
         @Override
         public RepeatArgumentType.Template unpack( RepeatArgumentType<?, ?> argumentType )
         {
@@ -164,6 +165,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
         Info info, ArgumentTypeInfo.Template<?> child, boolean flatten, SimpleCommandExceptionType some
     ) implements ArgumentTypeInfo.Template<RepeatArgumentType<?, ?>>
     {
+        @Nonnull
         @Override
         @SuppressWarnings( { "unchecked", "rawtypes" } )
         public RepeatArgumentType<?, ?> instantiate( @NotNull CommandBuildContext commandBuildContext )
@@ -172,6 +174,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
             return flatten ? RepeatArgumentType.someFlat( (ArgumentType) child, some() ) : RepeatArgumentType.some( child, some() );
         }
 
+        @Nonnull
         @Override
         public ArgumentTypeInfo<RepeatArgumentType<?, ?>, ?> type()
         {

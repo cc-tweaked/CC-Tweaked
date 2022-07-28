@@ -5,11 +5,8 @@
  */
 package dan200.computercraft.shared.turtle.upgrades;
 
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Transformation;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftTags;
-import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
@@ -37,8 +34,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
@@ -86,14 +81,6 @@ public class TurtleTool extends AbstractTurtleUpgrade
         }
 
         return true;
-    }
-
-    @Nonnull
-    @Override
-    @OnlyIn( Dist.CLIENT )
-    public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
-    {
-        return TransformedModel.of( getCraftingItem(), side == TurtleSide.LEFT ? Transforms.leftTransform : Transforms.rightTransform );
     }
 
     @Nonnull
@@ -274,22 +261,6 @@ public class TurtleTool extends AbstractTurtleUpgrade
     {
         Direction direction = tile.isRemoved() ? null : turtle.getDirection().getOpposite();
         DropConsumer.clearAndDrop( turtle.getLevel(), turtle.getPosition(), direction );
-    }
-
-    private static class Transforms
-    {
-        static final Transformation leftTransform = getMatrixFor( -0.40625f );
-        static final Transformation rightTransform = getMatrixFor( 0.40625f );
-
-        private static Transformation getMatrixFor( float offset )
-        {
-            return new Transformation( new Matrix4f( new float[] {
-                0.0f, 0.0f, -1.0f, 1.0f + offset,
-                1.0f, 0.0f, 0.0f, 0.0f,
-                0.0f, -1.0f, 0.0f, 1.0f,
-                0.0f, 0.0f, 0.0f, 1.0f,
-            } ) );
-        }
     }
 
     protected boolean isTriviallyBreakable( BlockGetter reader, BlockPos pos, BlockState state )

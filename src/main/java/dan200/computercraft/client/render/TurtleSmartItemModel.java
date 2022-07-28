@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Transformation;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
 import dan200.computercraft.shared.turtle.items.ItemTurtle;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
@@ -106,11 +107,11 @@ public class TurtleSmartItemModel extends BakedModelWrapper<BakedModel>
         }
         if( combo.leftUpgrade() != null )
         {
-            parts.add( new TransformedBakedModel( combo.leftUpgrade().getModel( null, TurtleSide.LEFT ) ).composeWith( transformation ) );
+            parts.add( new TransformedBakedModel( TurtleUpgradeModellers.getModel( combo.leftUpgrade(), null, TurtleSide.LEFT ) ).composeWith( transformation ) );
         }
         if( combo.rightUpgrade() != null )
         {
-            parts.add( new TransformedBakedModel( combo.rightUpgrade().getModel( null, TurtleSide.RIGHT ) ).composeWith( transformation ) );
+            parts.add( new TransformedBakedModel( TurtleUpgradeModellers.getModel( combo.rightUpgrade(), null, TurtleSide.RIGHT ) ).composeWith( transformation ) );
         }
 
         return parts;

@@ -21,10 +21,9 @@ import java.util.function.BiFunction;
  *
  * Do <strong>NOT</strong> directly reference this class. It exists for internal use by the API.
  *
- * @param <R> The serialiser for this upgrade category, either {@code TurtleUpgradeSerialiser<?>} or {@code PocketUpgradeSerialiser<?>}.
  * @param <T> The upgrade that this class can serialise and deserialise.
  */
-public abstract class SerialiserWithCraftingItem<T extends IUpgradeBase, R extends UpgradeSerialiser<?, R>> implements UpgradeSerialiser<T, R>
+public abstract class SerialiserWithCraftingItem<T extends IUpgradeBase> implements UpgradeSerialiser<T>
 {
     private final BiFunction<ResourceLocation, ItemStack, T> factory;
 

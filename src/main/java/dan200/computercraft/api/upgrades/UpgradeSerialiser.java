@@ -19,12 +19,11 @@ import javax.annotation.Nonnull;
  *
  * However, it may sometimes be useful to implement this if you have some shared logic between upgrade types.
  *
- * @param <R> The serialiser for this upgrade category, either {@code TurtleUpgradeSerialiser<?>} or {@code PocketUpgradeSerialiser<?>}.
  * @param <T> The upgrade that this class can serialise and deserialise.
  * @see TurtleUpgradeSerialiser
  * @see PocketUpgradeSerialiser
  */
-public interface UpgradeSerialiser<T extends IUpgradeBase, R extends UpgradeSerialiser<?, R>>
+public interface UpgradeSerialiser<T extends IUpgradeBase>
 {
     /**
      * Read this upgrade from a JSON file in a datapack.

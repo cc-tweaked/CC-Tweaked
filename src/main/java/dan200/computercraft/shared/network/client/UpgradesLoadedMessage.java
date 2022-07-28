@@ -46,7 +46,7 @@ public class UpgradesLoadedMessage implements NetworkMessage
         pocketUpgrades = fromBytes( buf, RegistryManager.ACTIVE.getRegistry( PocketUpgradeSerialiser.REGISTRY_ID ) );
     }
 
-    private <R extends UpgradeSerialiser<? extends T, R>, T extends IUpgradeBase> Map<String, UpgradeManager.UpgradeWrapper<R, T>> fromBytes(
+    private <R extends UpgradeSerialiser<? extends T>, T extends IUpgradeBase> Map<String, UpgradeManager.UpgradeWrapper<R, T>> fromBytes(
         @Nonnull FriendlyByteBuf buf, @Nonnull IForgeRegistry<R> registry
     )
     {
@@ -76,7 +76,7 @@ public class UpgradesLoadedMessage implements NetworkMessage
         toBytes( buf, PocketUpgradeSerialiser.registry(), pocketUpgrades );
     }
 
-    private <R extends UpgradeSerialiser<? extends T, R>, T extends IUpgradeBase> void toBytes(
+    private <R extends UpgradeSerialiser<? extends T>, T extends IUpgradeBase> void toBytes(
         @Nonnull FriendlyByteBuf buf, IForgeRegistry<R> registry, Map<String, UpgradeManager.UpgradeWrapper<R, T>> upgrades
     )
     {
@@ -87,7 +87,7 @@ public class UpgradesLoadedMessage implements NetworkMessage
 
             var serialiser = entry.getValue().serialiser();
             @SuppressWarnings( "unchecked" )
-            var unwrapedSerialiser = (UpgradeSerialiser<T, R>) serialiser;
+            var unwrapedSerialiser = (UpgradeSerialiser<T>) serialiser;
 
             buf.writeResourceLocation( Objects.requireNonNull( registry.getKey( serialiser ), "Serialiser is not registered!" ) );
             unwrapedSerialiser.toNetwork( buf, entry.getValue().upgrade() );

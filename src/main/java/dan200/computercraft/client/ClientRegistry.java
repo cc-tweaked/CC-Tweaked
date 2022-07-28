@@ -6,10 +6,13 @@
 package dan200.computercraft.client;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.client.ComputerCraftAPIClient;
+import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.client.gui.*;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.client.render.TurtleModelLoader;
+import dan200.computercraft.client.turtle.TurtleModemModeller;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
@@ -129,6 +132,18 @@ public final class ClientRegistry
         BlockEntityRenderers.register( Registry.ModBlockEntities.MONITOR_ADVANCED.get(), TileEntityMonitorRenderer::new );
         BlockEntityRenderers.register( Registry.ModBlockEntities.TURTLE_NORMAL.get(), TileEntityTurtleRenderer::new );
         BlockEntityRenderers.register( Registry.ModBlockEntities.TURTLE_ADVANCED.get(), TileEntityTurtleRenderer::new );
+
+        ComputerCraftAPIClient.registerTurtleUpgradeModeller( Registry.ModTurtleSerialisers.SPEAKER.get(), TurtleUpgradeModeller.sided(
+            new ModelResourceLocation( "computercraft:turtle_speaker_upgrade_left", "inventory" ),
+            new ModelResourceLocation( "computercraft:turtle_speaker_upgrade_right", "inventory" )
+        ) );
+        ComputerCraftAPIClient.registerTurtleUpgradeModeller( Registry.ModTurtleSerialisers.WORKBENCH.get(), TurtleUpgradeModeller.sided(
+            new ModelResourceLocation( "computercraft:turtle_crafting_table_left", "inventory" ),
+            new ModelResourceLocation( "computercraft:turtle_crafting_table_right", "inventory" )
+        ) );
+        ComputerCraftAPIClient.registerTurtleUpgradeModeller( Registry.ModTurtleSerialisers.WIRELESS_MODEM_NORMAL.get(), new TurtleModemModeller( false ) );
+        ComputerCraftAPIClient.registerTurtleUpgradeModeller( Registry.ModTurtleSerialisers.WIRELESS_MODEM_ADVANCED.get(), new TurtleModemModeller( true ) );
+        ComputerCraftAPIClient.registerTurtleUpgradeModeller( Registry.ModTurtleSerialisers.TOOL.get(), TurtleUpgradeModeller.flatItem() );
 
         event.enqueueWork( () -> {
             registerContainers();

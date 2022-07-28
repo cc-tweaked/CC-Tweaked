@@ -5,21 +5,16 @@
  */
 package dan200.computercraft.shared.turtle.upgrades;
 
-import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
@@ -63,30 +58,10 @@ public class TurtleModem extends AbstractTurtleUpgrade
 
     private final boolean advanced;
 
-    private final ModelResourceLocation leftOffModel;
-    private final ModelResourceLocation rightOffModel;
-    private final ModelResourceLocation leftOnModel;
-    private final ModelResourceLocation rightOnModel;
-
     public TurtleModem( ResourceLocation id, ItemStack stack, boolean advanced )
     {
         super( id, TurtleUpgradeType.PERIPHERAL, advanced ? WirelessModemPeripheral.ADVANCED_ADJECTIVE : WirelessModemPeripheral.NORMAL_ADJECTIVE, stack );
         this.advanced = advanced;
-
-        if( advanced )
-        {
-            leftOffModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_off_left", "inventory" );
-            rightOffModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_off_right", "inventory" );
-            leftOnModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_on_left", "inventory" );
-            rightOnModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_on_right", "inventory" );
-        }
-        else
-        {
-            leftOffModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_off_left", "inventory" );
-            rightOffModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_off_right", "inventory" );
-            leftOnModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_on_left", "inventory" );
-            rightOnModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_on_right", "inventory" );
-        }
     }
 
     @Override
@@ -100,23 +75,6 @@ public class TurtleModem extends AbstractTurtleUpgrade
     public TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull Direction dir )
     {
         return TurtleCommandResult.failure();
-    }
-
-    @Nonnull
-    @Override
-    @OnlyIn( Dist.CLIENT )
-    public TransformedModel getModel( ITurtleAccess turtle, @Nonnull TurtleSide side )
-    {
-        boolean active = false;
-        if( turtle != null )
-        {
-            CompoundTag turtleNBT = turtle.getUpgradeNBTData( side );
-            active = turtleNBT.contains( "active" ) && turtleNBT.getBoolean( "active" );
-        }
-
-        return side == TurtleSide.LEFT
-            ? TransformedModel.of( active ? leftOnModel : leftOffModel )
-            : TransformedModel.of( active ? rightOnModel : rightOffModel );
     }
 
     @Override

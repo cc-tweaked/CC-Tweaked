@@ -5,8 +5,6 @@
  */
 package dan200.computercraft.api.upgrades;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
@@ -36,10 +34,9 @@ import java.util.function.Function;
  * @param <T> The base class of upgrades.
  * @param <R> The upgrade serialiser to register for.
  */
-public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends UpgradeSerialiser<?, R>> implements DataProvider
+public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends UpgradeSerialiser<? extends T>> implements DataProvider
 {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private final DataGenerator generator;
     private final String name;
@@ -134,7 +131,7 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
 
             try
             {
-                @SuppressWarnings( "unchecked" ) var result = (T) upgrade.serialiser().fromJson( upgrade.id(), json );
+                var result = upgrade.serialiser().fromJson( upgrade.id(), json );
                 upgrades.add( result );
             }
             catch( IllegalArgumentException | JsonParseException e )
@@ -176,7 +173,7 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
      * @param serialise  Augment the generated JSON with additional fields.
      * @param <R>        The type of upgrade serialiser.
      */
-    public static record Upgrade<R extends UpgradeSerialiser<?, R>>(
+    public record Upgrade<R extends UpgradeSerialiser<?>>(
         ResourceLocation id, R serialiser, Consumer<JsonObject> serialise
     )
     {
