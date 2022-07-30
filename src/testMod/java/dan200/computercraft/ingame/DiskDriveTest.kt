@@ -16,10 +16,10 @@ class Disk_Drive_Test {
      *
      * @see [#688](https://github.com/cc-tweaked/CC-Tweaked/issues/688)
      */
-    @GameTest
+    @GameTest(timeoutTicks = Modem_Test.TIMEOUT)
     fun Audio_disk(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
 
-    @GameTest
+    @GameTest(timeoutTicks = Modem_Test.TIMEOUT)
     fun Ejects_disk(helper: GameTestHelper) = helper.sequence {
         val stackAt = BlockPos(2, 2, 2)
         this
