@@ -7,7 +7,6 @@ package dan200.computercraft.client.gui.widgets;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.math.Matrix4f;
 import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
@@ -316,11 +315,10 @@ public class WidgetTerminal extends AbstractWidget
     public void render( @Nonnull PoseStack transform, int mouseX, int mouseY, float partialTicks )
     {
         if( !visible ) return;
-        Matrix4f matrix = transform.last().pose();
         Terminal terminal = computer.getTerminal();
 
         var bufferSource = MultiBufferSource.immediate( Tesselator.getInstance().getBuilder() );
-        var emitter = FixedWidthFontRenderer.toVertexConsumer( matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH ) );
+        var emitter = FixedWidthFontRenderer.toVertexConsumer( transform, bufferSource.getBuffer( RenderTypes.TERMINAL ) );
 
         if( terminal != null )
         {

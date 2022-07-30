@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import dan200.computercraft.ComputerCraft;
@@ -19,11 +20,14 @@ import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.client.util.DirectBuffers;
+import dan200.computercraft.client.util.DirectVertexBuffer;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.shared.integration.ShaderMod;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.util.DirectionUtil;
+import net.minecraft.Util;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -35,6 +39,7 @@ import org.lwjgl.opengl.GL31;
 
 import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
+import java.util.function.Consumer;
 
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
@@ -46,6 +51,9 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
      * the monitor frame and contents.
      */
     private static final float MARGIN = (float) (TileMonitor.RENDER_MARGIN * 1.1);
+
+    private static final Matrix3f IDENTITY_NORMAL = Util.make( new Matrix3f(), Matrix3f::setIdentity );
+
     private static ByteBuffer backingBuffer;
 
     public TileEntityMonitorRenderer( BlockEntityRendererProvider.Context context )
@@ -102,7 +110,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
         // Draw the contents
         Terminal terminal = originTerminal.getTerminal();
-        if( terminal != null )
+        if( terminal != null && !ShaderMod.INSTANCE.isRenderingShadowPass() )
         {
             // Draw a terminal
             int width = terminal.getWidth(), height = terminal.getHeight();
@@ -121,7 +129,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
         else
         {
             FixedWidthFontRenderer.drawEmptyTerminal(
-                FixedWidthFontRenderer.toVertexConsumer( transform.last().pose(), bufferSource.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH ) ),
+                FixedWidthFontRenderer.toVertexConsumer( transform, bufferSource.getBuffer( RenderTypes.TERMINAL ) ),
                 -MARGIN, MARGIN,
                 (float) (xSize + 2 * MARGIN), (float) -(ySize + MARGIN * 2)
             );
@@ -177,48 +185,68 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
             case VBO:
             {
-                var vbo = monitor.buffer;
+                var backgroundBuffer = monitor.backgroundBuffer;
+                var foregroundBuffer = monitor.foregroundBuffer;
                 if( redraw )
                 {
-                    int vertexSize = RenderTypes.TERMINAL_WITHOUT_DEPTH.format().getVertexSize();
-                    ByteBuffer buffer = getBuffer( DirectFixedWidthFontRenderer.getVertexCount( terminal ) * vertexSize );
+                    int size = DirectFixedWidthFontRenderer.getVertexCount( terminal );
 
-                    // Draw the main terminal and store how many vertices it has.
-                    DirectFixedWidthFontRenderer.drawTerminalWithoutCursor(
-                        buffer, 0, 0, terminal, !monitor.isColour(), yMargin, yMargin, xMargin, xMargin
-                    );
-                    int termIndexes = buffer.position() / vertexSize;
+                    // In an ideal world we could upload these both into one buffer. However, we can't render VBOs with
+                    // and starting and ending offset, and so need to use two buffers instead.
 
-                    // If the cursor is visible, we append it to the end of our buffer. When rendering, we can either
-                    // render n or n+1 quads and so toggle the cursor on and off.
-                    DirectFixedWidthFontRenderer.drawCursor( buffer, 0, 0, terminal, !monitor.isColour() );
+                    renderToBuffer( backgroundBuffer, size, sink ->
+                        DirectFixedWidthFontRenderer.drawTerminalBackground( sink, 0, 0, terminal, !monitor.isColour(), yMargin, yMargin, xMargin, xMargin ) );
 
-                    buffer.flip();
-
-                    vbo.upload( termIndexes, RenderTypes.TERMINAL_WITHOUT_DEPTH.mode(), RenderTypes.TERMINAL_WITHOUT_DEPTH.format(), buffer );
+                    renderToBuffer( foregroundBuffer, size, sink -> {
+                        DirectFixedWidthFontRenderer.drawTerminalForeground( sink, 0, 0, terminal, !monitor.isColour() );
+                        // If the cursor is visible, we append it to the end of our buffer. When rendering, we can either
+                        // render n or n+1 quads and so toggle the cursor on and off.
+                        DirectFixedWidthFontRenderer.drawCursor( sink, 0, 0, terminal, !monitor.isColour() );
+                    } );
                 }
 
-                RenderTypes.TERMINAL_WITHOUT_DEPTH.setupRenderState();
-                vbo.drawWithShader(
+                // Our VBO doesn't transform its vertices with the provided pose stack, which means that the inverse view
+                // rotation matrix gives entirely wrong numbers for fog distances. We just set it to the identity which
+                // gives a good enough approximation.
+                Matrix3f oldInverseRotation = RenderSystem.getInverseViewRotationMatrix();
+                RenderSystem.setInverseViewRotationMatrix( IDENTITY_NORMAL );
+
+                RenderTypes.TERMINAL.setupRenderState();
+
+                // Render background geometry
+                backgroundBuffer.drawWithShader( matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader() );
+
+                // Render foreground geometry with glPolygonOffset enabled.
+                GL11.glPolygonOffset( -1.0f, -10.0f );
+                GL11.glEnable( GL11.GL_POLYGON_OFFSET_FILL );
+                foregroundBuffer.drawWithShader(
                     matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader(),
                     // As mentioned in the above comment, render the extra cursor quad if it is visible this frame. Each
                     // // quad has an index count of 6.
-                    FixedWidthFontRenderer.isCursorVisible( terminal ) && FrameInfo.getGlobalCursorBlink() ? vbo.getIndexCount() + 6 : vbo.getIndexCount()
+                    FixedWidthFontRenderer.isCursorVisible( terminal ) && FrameInfo.getGlobalCursorBlink()
+                        ? foregroundBuffer.getIndexCount() + 6 : foregroundBuffer.getIndexCount()
                 );
-                RenderTypes.TERMINAL_WITHOUT_DEPTH.clearRenderState();
 
-                // TERMINAL_WITHOUT_DEPTH doesn't write to the depth blocker, so write a blocker over the monitor.
-                BufferBuilder buffer = Tesselator.getInstance().getBuilder();
-                buffer.begin( RenderTypes.TERMINAL_BLOCKER.mode(), RenderTypes.TERMINAL_BLOCKER.format() );
-                FixedWidthFontRenderer.drawBlocker(
-                    FixedWidthFontRenderer.toVertexConsumer( matrix, buffer ),
-                    -xMargin, -yMargin, pixelWidth + xMargin * 2, pixelHeight + yMargin * 2
-                );
-                RenderTypes.TERMINAL_BLOCKER.end( buffer, 0, 0, 0 );
+                // Clear state
+                GL11.glPolygonOffset( 0.0f, -0.0f );
+                GL11.glDisable( GL11.GL_POLYGON_OFFSET_FILL );
+                RenderTypes.TERMINAL.clearRenderState();
+
+                RenderSystem.setInverseViewRotationMatrix( oldInverseRotation );
 
                 break;
             }
         }
+    }
+
+    private static void renderToBuffer( DirectVertexBuffer vbo, int size, Consumer<DirectFixedWidthFontRenderer.QuadEmitter> draw )
+    {
+        var sink = ShaderMod.INSTANCE.getQuadEmitter( size, TileEntityMonitorRenderer::getBuffer );
+        var buffer = sink.buffer();
+
+        draw.accept( sink );
+        buffer.flip();
+        vbo.upload( buffer.limit() / sink.format().getVertexSize(), RenderTypes.TERMINAL.mode(), sink.format(), buffer );
     }
 
     private static void tboVertex( VertexConsumer builder, Matrix4f matrix, float x, float y )

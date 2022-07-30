@@ -5,10 +5,11 @@
  */
 package dan200.computercraft.client.render.text;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector3f;
 import dan200.computercraft.client.FrameInfo;
-import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.shared.util.Colour;
@@ -26,13 +27,8 @@ import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMA
  * <ul>
  * <li>{@link #drawString}: Drawing basic text without a terminal (such as for printouts). Unlike the other methods,
  * this accepts a lightmap coordinate as, unlike terminals, printed pages render fullbright.</li>
- * <li>{@link #drawTerminalWithoutCursor}/{@link #drawCursor}: Draw a terminal without a cursor and then draw the cursor
- * separately. This is used by the monitor renderer to render the terminal to a VBO and draw the cursor dynamically.
- * </li>
  * <li>{@link #drawTerminal}: Draw a terminal with a cursor. This is used by the various computer GUIs to render the
  * whole term.</li>
- * <li>{@link #drawBlocker}: When rendering a terminal using {@link RenderTypes#TERMINAL_WITHOUT_DEPTH} you need to
- * render an additional "depth blocker" on top of the monitor.</li>
  * </ul>
  *
  * <strong>IMPORTANT: </strong> When making changes to this class, please check if you need to make the same changes to
@@ -50,6 +46,7 @@ public final class FixedWidthFontRenderer
     static final float BACKGROUND_END = (WIDTH - 4.0f) / WIDTH;
 
     private static final byte[] BLACK = new byte[] { byteColour( Colour.BLACK.getR() ), byteColour( Colour.BLACK.getR() ), byteColour( Colour.BLACK.getR() ), (byte) 255 };
+    private static final float Z_OFFSET = 1e-3f;
 
     private FixedWidthFontRenderer()
     {
@@ -149,9 +146,24 @@ public final class FixedWidthFontRenderer
 
     }
 
-    public static void drawTerminalWithoutCursor(
-        @Nonnull QuadEmitter emitter, float x, float y,
-        @Nonnull Terminal terminal, boolean greyscale,
+    public static void drawTerminalForeground( @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal, boolean greyscale )
+    {
+        Palette palette = terminal.getPalette();
+        int height = terminal.getHeight();
+
+        // The main text
+        for( int i = 0; i < height; i++ )
+        {
+            float rowY = y + FONT_HEIGHT * i;
+            drawString(
+                emitter, x, rowY, terminal.getLine( i ), terminal.getTextColourLine( i ),
+                palette, greyscale, FULL_BRIGHT_LIGHTMAP
+            );
+        }
+    }
+
+    public static void drawTerminalBackground(
+        @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal, boolean greyscale,
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     )
     {
@@ -172,14 +184,10 @@ public final class FixedWidthFontRenderer
         // The main text
         for( int i = 0; i < height; i++ )
         {
-            float rowY = y + FixedWidthFontRenderer.FONT_HEIGHT * i;
+            float rowY = y + FONT_HEIGHT * i;
             drawBackground(
                 emitter, x, rowY, terminal.getBackgroundColourLine( i ), palette, greyscale,
                 leftMarginSize, rightMarginSize, FONT_HEIGHT, FULL_BRIGHT_LIGHTMAP
-            );
-            drawString(
-                emitter, x, rowY, terminal.getLine( i ), terminal.getTextColourLine( i ),
-                palette, greyscale, FULL_BRIGHT_LIGHTMAP
             );
         }
     }
@@ -208,8 +216,21 @@ public final class FixedWidthFontRenderer
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     )
     {
-        drawTerminalWithoutCursor( emitter, x, y, terminal, greyscale, topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize );
+        drawTerminalBackground(
+            emitter, x, y, terminal, greyscale,
+            topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize
+        );
+
+        // Render the foreground with a slight offset. By calling .translate() on the matrix itself, we're translating
+        // in screen space, rather than in model/view space.
+        // It's definitely not perfect, but better than z fighting!
+        var transformBackup = emitter.poseMatrix().copy();
+        emitter.poseMatrix().translate( new Vector3f( 0, 0, Z_OFFSET ) );
+
+        drawTerminalForeground( emitter, x, y, terminal, greyscale );
         drawCursor( emitter, x, y, terminal, greyscale );
+
+        emitter.poseMatrix().load( transformBackup );
     }
 
     public static void drawEmptyTerminal( @Nonnull QuadEmitter emitter, float x, float y, float width, float height )
@@ -217,27 +238,24 @@ public final class FixedWidthFontRenderer
         drawQuad( emitter, x, y, 0, width, height, BLACK, FULL_BRIGHT_LIGHTMAP );
     }
 
-    public static void drawBlocker( @Nonnull QuadEmitter emitter, float x, float y, float width, float height )
+    public record QuadEmitter(Matrix4f poseMatrix, VertexConsumer consumer)
     {
-        drawQuad( emitter, x, y, 0, width, height, BLACK, FULL_BRIGHT_LIGHTMAP );
     }
 
-    public record QuadEmitter(Matrix4f matrix4f, VertexConsumer consumer) {}
-
-    public static QuadEmitter toVertexConsumer( Matrix4f matrix, VertexConsumer consumer )
+    public static QuadEmitter toVertexConsumer( PoseStack transform, VertexConsumer consumer )
     {
-        return new QuadEmitter( matrix, consumer );
+        return new QuadEmitter( transform.last().pose(), consumer );
     }
 
     private static void quad( QuadEmitter c, float x1, float y1, float x2, float y2, float z, byte[] rgba, float u1, float v1, float u2, float v2, int light )
     {
-        var matrix = c.matrix4f();
+        var poseMatrix = c.poseMatrix();
         var consumer = c.consumer();
         byte r = rgba[0], g = rgba[1], b = rgba[2], a = rgba[3];
 
-        consumer.vertex( matrix, x1, y1, z ).color( r, g, b, a ).uv( u1, v1 ).uv2( light ).endVertex();
-        consumer.vertex( matrix, x1, y2, z ).color( r, g, b, a ).uv( u1, v2 ).uv2( light ).endVertex();
-        consumer.vertex( matrix, x2, y2, z ).color( r, g, b, a ).uv( u2, v2 ).uv2( light ).endVertex();
-        consumer.vertex( matrix, x2, y1, z ).color( r, g, b, a ).uv( u2, v1 ).uv2( light ).endVertex();
+        consumer.vertex( poseMatrix, x1, y1, z ).color( r, g, b, a ).uv( u1, v1 ).uv2( light ).endVertex();
+        consumer.vertex( poseMatrix, x1, y2, z ).color( r, g, b, a ).uv( u1, v2 ).uv2( light ).endVertex();
+        consumer.vertex( poseMatrix, x2, y2, z ).color( r, g, b, a ).uv( u2, v2 ).uv2( light ).endVertex();
+        consumer.vertex( poseMatrix, x2, y1, z ).color( r, g, b, a ).uv( u2, v1 ).uv2( light ).endVertex();
     }
 }

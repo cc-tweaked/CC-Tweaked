@@ -7,7 +7,7 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
-import dan200.computercraft.shared.integration.Optifine;
+import dan200.computercraft.shared.integration.ShaderMod;
 import org.lwjgl.opengl.GL;
 
 import javax.annotation.Nonnull;
@@ -60,7 +60,7 @@ public enum MonitorRenderer
             return VBO;
         }
 
-        if( Optifine.isLoaded() )
+        if( ShaderMod.INSTANCE.isShaderMod() )
         {
             ComputerCraft.log.warn( "Optifine is loaded, assuming shaders are being used. Falling back to VBO monitor renderer." );
             return VBO;

@@ -6,7 +6,6 @@
 package dan200.computercraft.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.media.items.ItemPrintout;
@@ -106,10 +105,9 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
         transform.scale( scale, scale, scale );
         transform.translate( (max - width) / 2.0, (max - height) / 2.0, 0.0 );
 
-        Matrix4f matrix = transform.last().pose();
-        drawBorder( matrix, render, 0, 0, -0.01f, 0, pages, book, light );
+        drawBorder( transform, render, 0, 0, -0.01f, 0, pages, book, light );
         drawText(
-            matrix, render, X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, light,
+            transform, render, X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, light,
             ItemPrintout.getText( stack ), ItemPrintout.getColours( stack )
         );
     }

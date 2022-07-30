@@ -33,7 +33,8 @@ public final class ClientMonitor extends ClientTerminal
     public int tboBuffer;
     public int tboTexture;
     public int tboUniform;
-    public DirectVertexBuffer buffer;
+    public DirectVertexBuffer backgroundBuffer;
+    public DirectVertexBuffer foregroundBuffer;
 
     public ClientMonitor( boolean colour, TileMonitor origin )
     {
@@ -79,10 +80,11 @@ public final class ClientMonitor extends ClientTerminal
             }
 
             case VBO:
-                if( buffer != null ) return false;
+                if( backgroundBuffer != null ) return false;
 
                 deleteBuffers();
-                buffer = new DirectVertexBuffer();
+                backgroundBuffer = new DirectVertexBuffer();
+                foregroundBuffer = new DirectVertexBuffer();
                 addMonitor();
                 return true;
 
@@ -120,17 +122,23 @@ public final class ClientMonitor extends ClientTerminal
             tboUniform = 0;
         }
 
-        if( buffer != null )
+        if( backgroundBuffer != null )
         {
-            buffer.close();
-            buffer = null;
+            backgroundBuffer.close();
+            backgroundBuffer = null;
+        }
+
+        if( foregroundBuffer != null )
+        {
+            foregroundBuffer.close();
+            foregroundBuffer = null;
         }
     }
 
     @OnlyIn( Dist.CLIENT )
     public void destroy()
     {
-        if( tboBuffer != 0 || buffer != null )
+        if( tboBuffer != 0 || backgroundBuffer != null )
         {
             synchronized( allMonitors )
             {

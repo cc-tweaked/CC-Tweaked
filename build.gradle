@@ -129,6 +129,13 @@ repositories {
         name "SquidDev"
         url "https://squiddev.cc/maven"
     }
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 configurations {
@@ -150,6 +157,7 @@ dependencies {
 
     extraModsCompileOnly fg.deobf("mezz.jei:jei-1.18.2:9.4.1.116:api")
     extraModsRuntimeOnly fg.deobf("mezz.jei:jei-1.18.2:9.4.1.116")
+    extraModsCompileOnly fg.deobf("maven.modrinth:oculus:1.18.2-1.2.5")
 
     shade 'org.squiddev:Cobalt:0.5.5'
 
