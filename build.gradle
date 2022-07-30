@@ -129,13 +129,6 @@ repositories {
         name "SquidDev"
         url "https://squiddev.cc/maven"
     }
-    maven {
-        name = "Modrinth"
-        url = "https://api.modrinth.com/maven"
-        content {
-            includeGroup "maven.modrinth"
-        }
-    }
 }
 
 configurations {
