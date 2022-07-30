@@ -30,24 +30,9 @@ public class RenderTypes
     private static MonitorTextureBufferShader monitorTboShader;
 
     /**
-     * Renders a fullbright terminal without writing to the depth layer. This is used in combination with
-     * {@link #TERMINAL_BLOCKER} to ensure we can render a terminal without z-fighting.
+     * Renders a fullbright terminal.
      */
-    public static final RenderType TERMINAL_WITHOUT_DEPTH = Types.TERMINAL_WITHOUT_DEPTH;
-
-    /**
-     * A transparent texture which only writes to the depth layer.
-     */
-    public static final RenderType TERMINAL_BLOCKER = Types.TERMINAL_BLOCKER;
-
-    /**
-     * Renders a fullbright terminal which also writes to the depth layer. This is used when z-fighting isn't an issue -
-     * for instance rendering an empty terminal or inside a GUI.
-     *
-     * This is identical to <em>vanilla's</em> {@link RenderType#text}. Forge overrides one with a definition which sets
-     * sortOnUpload to true, which is entirely broken!
-     */
-    public static final RenderType TERMINAL_WITH_DEPTH = Types.TERMINAL_WITH_DEPTH;
+    public static final RenderType TERMINAL = RenderType.text( FixedWidthFontRenderer.FONT );
 
     /**
      * Renders a monitor with the TBO shader.
@@ -57,7 +42,7 @@ public class RenderTypes
     public static final RenderType MONITOR_TBO = Types.MONITOR_TBO;
 
     /**
-     * A variant of {@link #TERMINAL_WITH_DEPTH} which uses the lightmap rather than rendering fullbright.
+     * A variant of {@link #TERMINAL} which uses the lightmap rather than rendering fullbright.
      */
     public static final RenderType PRINTOUT_TEXT = RenderType.text( FixedWidthFontRenderer.FONT );
 
@@ -77,7 +62,7 @@ public class RenderTypes
     @Nonnull
     static ShaderInstance getTerminalShader()
     {
-        return GameRenderer.getPositionColorTexShader();
+        return GameRenderer.getRendertypeTextShader();
     }
 
     @SubscribeEvent
@@ -99,8 +84,6 @@ public class RenderTypes
             FixedWidthFontRenderer.FONT,
             false, false // blur, minimap
         );
-        private static final VertexFormat TERM_FORMAT = DefaultVertexFormat.POSITION_COLOR_TEX;
-        private static final ShaderStateShard TERM_SHADER = new ShaderStateShard( RenderTypes::getTerminalShader );
 
         static final RenderType MONITOR_TBO = RenderType.create(
             "monitor_tbo", DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.TRIANGLE_STRIP, 128,
@@ -108,36 +91,6 @@ public class RenderTypes
             RenderType.CompositeState.builder()
                 .setTextureState( TERM_FONT_TEXTURE )
                 .setShaderState( new ShaderStateShard( RenderTypes::getMonitorTextureBufferShader ) )
-                .createCompositeState( false )
-        );
-
-        static final RenderType TERMINAL_WITHOUT_DEPTH = RenderType.create(
-            "terminal_without_depth", TERM_FORMAT, VertexFormat.Mode.QUADS, 1024,
-            false, false, // useDelegate, needsSorting
-            RenderType.CompositeState.builder()
-                .setTextureState( TERM_FONT_TEXTURE )
-                .setShaderState( TERM_SHADER )
-                .setLightmapState( LIGHTMAP )
-                .setWriteMaskState( COLOR_WRITE )
-                .createCompositeState( false )
-        );
-
-        static final RenderType TERMINAL_BLOCKER = RenderType.create(
-            "terminal_blocker", DefaultVertexFormat.POSITION, VertexFormat.Mode.QUADS, 256,
-            false, false, // useDelegate, needsSorting
-            RenderType.CompositeState.builder()
-                .setShaderState( POSITION_SHADER )
-                .setWriteMaskState( DEPTH_WRITE )
-                .createCompositeState( false )
-        );
-
-        static final RenderType TERMINAL_WITH_DEPTH = RenderType.create(
-            "terminal_with_depth", TERM_FORMAT, VertexFormat.Mode.QUADS, 1024,
-            false, false, // useDelegate, needsSorting
-            RenderType.CompositeState.builder()
-                .setTextureState( TERM_FONT_TEXTURE )
-                .setShaderState( TERM_SHADER )
-                .setLightmapState( LIGHTMAP )
                 .createCompositeState( false )
         );
 

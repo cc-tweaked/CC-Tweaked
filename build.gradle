@@ -152,6 +152,7 @@ dependencies {
     extraModsCompileOnly fg.deobf("mezz.jei:jei-1.19-forge-api:11.1.1.236")
     extraModsCompileOnly fg.deobf("mezz.jei:jei-1.19-common-api:11.1.1.236")
     extraModsRuntimeOnly fg.deobf("mezz.jei:jei-1.19-forge:11.1.1.236")
+    extraModsCompileOnly fg.deobf("maven.modrinth:oculus:1.2.5")
 
     shade 'org.squiddev:Cobalt:0.5.5'
     shade 'io.netty:netty-codec-http:4.1.76.Final'

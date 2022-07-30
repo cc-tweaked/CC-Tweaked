@@ -77,7 +77,7 @@ class Turtle_Test {
      *
      * Currently not required as turtles can no longer right-click cauldrons.
      */
-    @GameTest(required = false)
+    @GameTest(timeoutTicks = COMPUTER_TIMEOUT, required = false)
     fun Cleaned_with_cauldrons(helper: GameTestHelper) = helper.sequence { thenComputerOk() }
 
     /**
