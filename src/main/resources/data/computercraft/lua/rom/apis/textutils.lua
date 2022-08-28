@@ -259,7 +259,7 @@ input should the whole output not fit on the display.
     local rows = {}
     for i = 1, 30 do rows[i] = {("Row #%d"):format(i), math.random(1, 400)} end
 
-    textutils.tabulate(colors.orange, {"Column", "Value"}, colors.lightBlue, table.unpack(rows))
+    textutils.pagedTabulate(colors.orange, {"Column", "Value"}, colors.lightBlue, table.unpack(rows))
 ]]
 function pagedTabulate(...)
     return tabulateCommon(true, ...)
