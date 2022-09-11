@@ -17,6 +17,6 @@ vscode:
 
 tasks:
   - name: Setup pre-commit hool
-    init: pre-commit install --config config/pre-commit/config.yml --allow-missing-config
+    init: pre-commit install --allow-missing-config
   - name: Install npm packages
     init: npm ci
