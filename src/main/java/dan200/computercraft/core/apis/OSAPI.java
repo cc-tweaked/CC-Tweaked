@@ -493,7 +493,7 @@ public class OSAPI implements ILuaAPI
         if( format.equals( "*t" ) ) return LuaDateTime.toTable( date, offset, instant );
 
         DateTimeFormatterBuilder formatter = new DateTimeFormatterBuilder();
-        LuaDateTime.format( formatter, format, offset );
+        LuaDateTime.format( formatter, format );
         return formatter.toFormatter( Locale.ROOT ).format( date );
     }
 
