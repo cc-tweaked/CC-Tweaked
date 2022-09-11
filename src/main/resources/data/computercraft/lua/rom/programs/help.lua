@@ -146,14 +146,17 @@ end
 
 local contents = file:read("*a")
 file:close()
+-- Trim trailing newlines from the file to avoid displaying a blank line.
+if contents:sub(-1) == "\n" then contents:sub(1, -2) end
 
 local word_wrap = sFile:sub(-3) == ".md" and word_wrap_markdown or word_wrap_basic
 local width, height = term.getSize()
+local content_height = height - 1 -- Height of the content box.
 local lines, fg, bg, sections = word_wrap(contents, width)
 local print_height = #lines
 
 -- If we fit within the screen, just display without pagination.
-if print_height <= height then
+if print_height <= content_height then
     local _, y = term.getCursorPos()
     for i = 1, print_height do
         if y + i - 1 > height then
@@ -201,7 +204,7 @@ end
 
 
 local function draw()
-    for y = 1, height - 1 do
+    for y = 1, content_height do
         term.setCursorPos(1, y)
         if y + offset > print_height then
             -- Should only happen if we resize the terminal to a larger one
@@ -228,14 +231,14 @@ while true do
         if param == keys.up and offset > 0 then
             offset = offset - 1
             draw()
-        elseif param == keys.down and offset < print_height - height then
+        elseif param == keys.down and offset < print_height - content_height then
             offset = offset + 1
             draw()
         elseif param == keys.pageUp and offset > 0 then
-            offset = math.max(offset - height + 2, 0)
+            offset = math.max(offset - content_height + 1, 0)
             draw()
-        elseif param == keys.pageDown and offset < print_height - height then
-            offset = math.min(offset + height - 2, print_height - height)
+        elseif param == keys.pageDown and offset < print_height - content_height then
+            offset = math.min(offset + content_height - 1, print_height - content_height)
             draw()
         elseif param == keys.home then
             offset = 0
@@ -247,7 +250,7 @@ while true do
             offset = sections[current_section + 1].offset
             draw()
         elseif param == keys["end"] then
-            offset = print_height - height
+            offset = print_height - content_height
             draw()
         elseif param == keys.q then
             sleep(0) -- Super janky, but consumes stray "char" events.
@@ -257,7 +260,7 @@ while true do
         if param < 0 and offset > 0 then
             offset = offset - 1
             draw()
-        elseif param > 0 and offset < print_height - height then
+        elseif param > 0 and offset <= print_height - content_height then
             offset = offset + 1
             draw()
         end
@@ -270,7 +273,8 @@ while true do
         end
 
         width, height = new_width, new_height
-        offset = math.max(math.min(offset, print_height - height), 0)
+        content_height = height - 1
+        offset = math.max(math.min(offset, print_height - content_height), 0)
         draw()
         draw_menu()
     elseif event == "terminate" then
