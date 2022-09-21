@@ -149,9 +149,9 @@ dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
-    extraModsCompileOnly fg.deobf("mezz.jei:jei-1.19-forge-api:11.1.1.236")
-    extraModsCompileOnly fg.deobf("mezz.jei:jei-1.19-common-api:11.1.1.236")
-    extraModsRuntimeOnly fg.deobf("mezz.jei:jei-1.19-forge:11.1.1.236")
+    extraModsCompileOnly fg.deobf("mezz.jei:jei-1.19.2-forge-api:11.3.0.262")
+    extraModsCompileOnly fg.deobf("mezz.jei:jei-1.19.2-common-api:11.3.0.262")
+    extraModsRuntimeOnly fg.deobf("mezz.jei:jei-1.19.2-forge:11.3.0.262")
     extraModsCompileOnly fg.deobf("maven.modrinth:oculus:1.2.5")
 
     shade 'org.squiddev:Cobalt:0.5.5'
