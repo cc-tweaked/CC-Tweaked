@@ -24,6 +24,7 @@ import dan200.computercraft.shared.util.HolidayUtil;
 import dan200.computercraft.shared.util.InventoryDelegate;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.GrassBlock;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
@@ -40,6 +41,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -323,6 +325,10 @@ public class TurtleBrain implements ITurtleAccess
 
         try
         {
+            //Gets the block below the turtle's next position, right before the turtle moves
+            //This is later needed to check if rerendering will be necessary
+            BlockState oldBlockBelowNewPos = world.getBlockState(pos.below());
+
             // Create a new turtle
             if( world.setBlock( pos, newState, 0 ) )
             {
@@ -347,6 +353,18 @@ public class TurtleBrain implements ITurtleAccess
                         // Make sure everybody knows about it
                         newTurtle.updateOutput();
                         newTurtle.updateInputsImmediately();
+
+                        //There's an issue where if the turtle breaks the snow-layer on top of a snowy grass block, the grass block updates server-side, but not client-side
+                        //These lines of code checks to see if that will happen, and does a rerender if so
+                        //A rerender could still be done without a pre-check, but that might cause performance issues
+                        boolean needsRerender =
+                            oldBlockBelowNewPos.hasProperty(GrassBlock.SNOWY) &&
+                            oldBlockBelowNewPos.getValue(GrassBlock.SNOWY);
+
+                        if (needsRerender && world instanceof ServerWorld){
+                            ((ServerWorld)world).getChunkSource().blockChanged(pos.below());
+                        }
+
                         return true;
                     }
                 }
