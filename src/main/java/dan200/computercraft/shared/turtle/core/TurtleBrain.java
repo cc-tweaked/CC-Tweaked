@@ -323,8 +323,9 @@ public class TurtleBrain implements ITurtleAccess
 
         try
         {
-            // Create a new turtle
-            if( world.setBlock( pos, newState, 0 ) )
+            // We use Block.UPDATE_CLIENTS here to ensure that neighbour updates caused in Block.updateNeighbourShapes
+            // are sent to the client. We want to avoid doing a full block update until the turtle state is copied over.
+            if( world.setBlock( pos, newState, 2 ) )
             {
                 Block block = world.getBlockState( pos ).getBlock();
                 if( block == oldBlock.getBlock() )
