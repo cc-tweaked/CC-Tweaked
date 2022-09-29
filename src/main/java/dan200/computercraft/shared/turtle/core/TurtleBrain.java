@@ -24,7 +24,6 @@ import dan200.computercraft.shared.util.HolidayUtil;
 import dan200.computercraft.shared.util.InventoryDelegate;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.GrassBlock;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
@@ -41,7 +40,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -325,8 +323,8 @@ public class TurtleBrain implements ITurtleAccess
 
         try
         {
-            //Create a new turtle
-            //Uses flag 2 to send the change to clients
+            // We use Block.UPDATE_CLIENTS here to ensure that neighbour updates caused in Block.updateNeighbourShapes
+            // are sent to the client. We want to avoid doing a full block update until the turtle state is copied over.
             if( world.setBlock( pos, newState, 2 ) )
             {
                 Block block = world.getBlockState( pos ).getBlock();
@@ -350,7 +348,6 @@ public class TurtleBrain implements ITurtleAccess
                         // Make sure everybody knows about it
                         newTurtle.updateOutput();
                         newTurtle.updateInputsImmediately();
-
                         return true;
                     }
                 }
