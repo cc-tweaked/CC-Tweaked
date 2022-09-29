@@ -749,9 +749,9 @@ suitable for pretty printing.
 @usage Demonstrates some of the other options
 
     local tbl = { 1, 2, 3 }
-    print(textutils.serialize({ tbl, tbl }, { allow_repetitions = true }))
+    print(textutils.serialise({ tbl, tbl }, { allow_repetitions = true }))
 
-    print(textutils.serialize(tbl, { compact = true }))
+    print(textutils.serialise(tbl, { compact = true }))
 ]]
 function serialize(t, opts)
     local tTracking = {}
@@ -770,7 +770,7 @@ serialise = serialize -- GB version
 
 --- Converts a serialised string back into a reassembled Lua object.
 --
--- This is mainly used together with @{textutils.serialize}.
+-- This is mainly used together with @{textutils.serialise}.
 --
 -- @tparam string s The serialised string to deserialise.
 -- @return[1] The deserialised object
@@ -807,10 +807,10 @@ unserialise = unserialize -- GB version
 -- @throws If the object contains a value which cannot be
 -- serialised. This includes functions and tables which appear multiple
 -- times.
--- @usage textutils.serializeJSON({ values = { 1, "2", true } })
+-- @usage textutils.serialiseJSON({ values = { 1, "2", true } })
 -- @since 1.7
--- @see textutils.json_null Use to serialize a JSON `null` value.
--- @see textutils.empty_json_array Use to serialize a JSON empty array.
+-- @see textutils.json_null Use to serialise a JSON `null` value.
+-- @see textutils.empty_json_array Use to serialise a JSON empty array.
 function serializeJSON(t, bNBTStyle)
     expect(1, t, "table", "string", "number", "boolean")
     expect(2, bNBTStyle, "boolean", "nil")
