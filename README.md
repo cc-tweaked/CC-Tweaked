@@ -13,9 +13,8 @@ developing the mod, [check out the instructions here](CONTRIBUTING.md#developing
 
 ## Community
 If you need help getting started with CC: Tweaked, want to show off your latest project, or just want to chat about
-ComputerCraft we have a [forum](https://forums.computercraft.cc/) and [Discord guild](https://discord.computercraft.cc)!
-There's also a fairly populated, albeit quiet [IRC channel](http://webchat.esper.net/?channels=computercraft), if that's
-more your cup of tea.
+ComputerCraft, do check out our [forum] and [GitHub discussions page][GitHub discussions]! There's also a fairly
+populated, albeit quiet [IRC channel][irc], if that's more your cup of tea.
 
 We also host fairly comprehensive documentation at [tweaked.cc](https://tweaked.cc/ "The CC: Tweaked website").
 
@@ -52,3 +51,6 @@ the generated documentation [can be browsed online](https://tweaked.cc/javadoc/)
 [modrinth]: https://modrinth.com/mod/gu7yAYhd "Download CC: Tweaked from Modrinth"
 [forge]: https://files.minecraftforge.net/ "Download Minecraft Forge."
 [ccrestitched]: https://www.curseforge.com/minecraft/mc-mods/cc-restitched "Download CC: Restitched from CurseForge"
+[forum]: https://forums.computercraft.cc/
+[GitHub Discussions]: https://github.com/cc-tweaked/CC-Tweaked/discussions
+[IRC]: http://webchat.esper.net/?channels=computercraft "#computercraft on EsperNet"
