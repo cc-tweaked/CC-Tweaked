@@ -13,8 +13,8 @@ if #tArgs < 2 then
 end
 
 if not http then
-    printError("Pastebin requires the http API")
-    printError("Set http.enabled to true in CC: Tweaked's config")
+    printError("Pastebin requires the http API, but it is not enabled")
+    printError("Set http.enabled to true in CC: Tweaked's server config")
     return
 end
 
