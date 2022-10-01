@@ -2,6 +2,7 @@
 /classes
 /logs
 /build
+/buildSrc/build
 /out
 /doc/out/
 /node_modules

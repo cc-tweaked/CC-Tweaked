@@ -14,7 +14,7 @@ thread, not the whole program.
 
 :::tip
 Because sleep internally uses timers, it is a function that yields. This means
-that you can use it to prevent "Too long without yielding" errors, however, as
+that you can use it to prevent "Too long without yielding" errors. However, as
 the minimum sleep time is 0.05 seconds, it will slow your program down.
 :::
 

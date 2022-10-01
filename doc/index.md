@@ -37,8 +37,7 @@ little daunting getting started. Thankfully, there's several fantastic tutorials
 Once you're a little more familiar with the mod, the sidebar and links below provide more detailed documentation on the
 various APIs and peripherals provided by the mod.
 
-If you get stuck, do pop in to the [Minecraft Computer Mod Discord guild][discord] or ComputerCraft's
-[IRC channel][irc].
+If you get stuck, do [ask a question on GitHub][GitHub Discussions] or pop in to the ComputerCraft's [IRC channel][IRC].
 
 ## Get Involved
 CC: Tweaked lives on [GitHub]. If you've got any ideas, feedback or bugs please do [create an issue][bug].
@@ -51,5 +50,5 @@ CC: Tweaked lives on [GitHub]. If you've got any ideas, feedback or bugs please 
 [forge]: https://files.minecraftforge.net/ "Download Minecraft Forge."
 [ccrestitched]: https://www.curseforge.com/minecraft/mc-mods/cc-restitched "Download CC: Restitched from CurseForge"
 [lua]: https://www.lua.org/ "Lua's main website"
-[discord]: https://discord.computercraft.cc "The Minecraft Computer Mods Discord"
-[irc]: http://webchat.esper.net/?channels=computercraft "IRC webchat on EsperNet"
+[GitHub Discussions]: https://github.com/cc-tweaked/CC-Tweaked/discussions
+[IRC]: http://webchat.esper.net/?channels=computercraft "#computercraft on EsperNet"

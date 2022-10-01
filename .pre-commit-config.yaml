@@ -41,8 +41,8 @@ repos:
   - id: illuaminate
     name: Check Lua code
     files: ".*\\.(lua|java|md)"
-    language: script
-    entry: config/pre-commit/illuaminate-lint.sh
+    language: system
+    entry: ./gradlew lintLua -i
     pass_filenames: false
     require_serial: true
 

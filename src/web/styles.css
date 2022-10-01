@@ -1,3 +1,6 @@
+:root {
+    --nav-width: 250px;
+}
 /* Some misc styles */
 
 .big-image {
