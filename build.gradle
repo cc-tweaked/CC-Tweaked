@@ -11,9 +11,12 @@ plugins {
     id "org.spongepowered.mixin" version "0.7.+"
     id "org.parchmentmc.librarian.forgegradle" version "1.+"
     id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "cc-tweaked.illuaminate"
 }
 
 import org.apache.tools.ant.taskdefs.condition.Os
+import cc.tweaked.gradle.IlluaminateExec
+import cc.tweaked.gradle.IlluaminateExecToDir
 
 version = mod_version
 
@@ -169,6 +172,10 @@ dependencies {
     cctJavadoc 'cc.tweaked:cct-javadoc:1.4.7'
 }
 
+illuaminate {
+    version.set("0.1.0-3-g0f40379")
+}
+
 // Compile tasks
 
 javadoc {
@@ -314,32 +321,36 @@ def rollup = tasks.register("rollup", Exec.class) {
     commandLine mkCommand('"node_modules/.bin/rollup" --config rollup.config.js')
 }
 
-def illuaminateDocs = tasks.register("illuaminateDocs", Exec.class) {
+def illuaminateDocs = tasks.register("illuaminateDocs", IlluaminateExecToDir.class) {
     group = "documentation"
     description = "Generates docs using Illuaminate"
-    dependsOn(rollup, luaJavadoc)
+    dependsOn(rollup)
 
-    inputs.files(fileTree("doc")).withPropertyName("docs")
-    inputs.files(fileTree("src/main/resources/data/computercraft/lua/rom")).withPropertyName("lua rom")
+    // Config files
     inputs.file("illuaminate.sexp").withPropertyName("illuaminate.sexp")
-    inputs.dir("$buildDir/docs/luaJavadoc")
+    // Sources
+    inputs.files(fileTree("doc")).withPropertyName("docs")
+    inputs.files(fileTree("src/main/resources/data/computercraft/lua")).withPropertyName("lua rom")
+    inputs.files(luaJavadoc)
+    // Additional assets
     inputs.file("$buildDir/rollup/index.js").withPropertyName("scripts")
     inputs.file("src/web/styles.css").withPropertyName("styles")
-    outputs.dir("$buildDir/docs/lua")
 
-    commandLine mkCommand('"bin/illuaminate" doc-gen')
+    // Output directory. Also defined in illuaminate.sexp and transform.tsx
+    output.set(new File(buildDir, "docs/lua"))
+
+    args = ["doc-gen"]
 }
 
 def jsxDocs = tasks.register("jsxDocs", Exec) {
     group = "documentation"
     description = "Post-processes documentation to statically render some dynamic content."
-    dependsOn(illuaminateDocs)
 
     inputs.files(fileTree("src/web")).withPropertyName("sources")
     inputs.file("src/generated/export/index.json").withPropertyName("export")
     inputs.file("package-lock.json").withPropertyName("package-lock.json")
     inputs.file("tsconfig.json").withPropertyName("Typescript config")
-    inputs.files(fileTree("$buildDir/docs/lua"))
+    inputs.files(illuaminateDocs)
     outputs.dir("$buildDir/docs/site")
 
     commandLine mkCommand('"node_modules/.bin/ts-node" -T --esm src/web/transform.tsx')
@@ -402,6 +413,23 @@ license {
 }
 
 check.dependsOn("licenseCheck")
+
+def lintLua = tasks.register("lintLua", IlluaminateExec.class) {
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    description = "Lint Lua (and Lua docs) with illuaminate"
+
+    // Config files
+    inputs.file("illuaminate.sexp").withPropertyName("illuaminate.sexp")
+    // Sources
+    inputs.files(fileTree("doc")).withPropertyName("docs")
+    inputs.files(fileTree("src/main/resources/data/computercraft/lua")).withPropertyName("lua rom")
+    inputs.files(luaJavadoc)
+
+    args = ["lint"]
+
+    doFirst { if (System.getenv("GITHUB_ACTIONS") != null) println("::add-matcher::.github/matchers/illuaminate.json") }
+    doLast { if (System.getenv("GITHUB_ACTIONS") != null) println("::remove-matcher owner=illuaminate::") }
+}
 
 def testServerClassDumpDir = new File(buildDir, "jacocoClassDump/runTestServer")
 

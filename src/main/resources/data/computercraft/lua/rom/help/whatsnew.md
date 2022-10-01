@@ -1,15 +1,12 @@
-New features in CC: Tweaked 1.100.9
+New features in CC: Tweaked 1.100.10
 
-* Add documentation for setting up GPS (Lupus590).
-* Add WAV support to the `speaker` program (MCJack123).
-* Expose item groups in `getItemDetail` (itisluiz).
-* Other fixes to documentation (Erb3, JohnnyIrvin).
-* Add Norwegian translation (Erb3).
+* Mention WAV support in speaker help (MCJack123).
+* Add http programs to the path, even when http is not enabled.
 
 Several bug fixes:
-* Fix z-fighting on bold printout borders (toad-dev).
-* Fix `term.blit` failing on certain strings.
-* Fix `getItemLimit()` using the wrong slot (heap-underflow).
-* Increase size of monitor depth blocker.
+* Fix example in textutils.pagedTabulate docs (IvoLeal72).
+* Fix help program treating the terminal one line longer than it was.
+* Send block updates to client when turtle moves (roland-a).
+* Resolve several monitor issues when running Occulus shaders.
 
 Type "help changelog" to see the full version history.

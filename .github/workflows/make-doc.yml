@@ -26,12 +26,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - name: Setup illuaminate
-      run: |
-        test -d bin || mkdir bin
-        test -f bin/illuaminate || wget -q -Obin/illuaminate https://squiddev.cc/illuaminate/linux-x86-64/illuaminate
-        chmod +x bin/illuaminate
-
     - name: Setup node
       run: npm ci
 

@@ -24,7 +24,7 @@ final class LuaDateTime
     {
     }
 
-    static void format( DateTimeFormatterBuilder formatter, String format, ZoneOffset offset ) throws LuaException
+    static void format( DateTimeFormatterBuilder formatter, String format ) throws LuaException
     {
         for( int i = 0; i < format.length(); )
         {
@@ -61,7 +61,7 @@ final class LuaDateTime
                             formatter.appendText( ChronoField.MONTH_OF_YEAR, TextStyle.FULL );
                             break;
                         case 'c':
-                            format( formatter, "%a %b %e %H:%M:%S %Y", offset );
+                            format( formatter, "%a %b %e %H:%M:%S %Y" );
                             break;
                         case 'C':
                             formatter.appendValueReduced( CENTURY, 2, 2, 0 );
@@ -71,13 +71,13 @@ final class LuaDateTime
                             break;
                         case 'D':
                         case 'x':
-                            format( formatter, "%m/%d/%y", offset );
+                            format( formatter, "%m/%d/%y" );
                             break;
                         case 'e':
                             formatter.padNext( 2 ).appendValue( ChronoField.DAY_OF_MONTH );
                             break;
                         case 'F':
-                            format( formatter, "%Y-%m-%d", offset );
+                            format( formatter, "%Y-%m-%d" );
                             break;
                         case 'g':
                             formatter.appendValueReduced( IsoFields.WEEK_BASED_YEAR, 2, 2, 0 );
@@ -107,10 +107,10 @@ final class LuaDateTime
                             formatter.appendText( ChronoField.AMPM_OF_DAY );
                             break;
                         case 'r':
-                            format( formatter, "%I:%M:%S %p", offset );
+                            format( formatter, "%I:%M:%S %p" );
                             break;
                         case 'R':
-                            format( formatter, "%H:%M", offset );
+                            format( formatter, "%H:%M" );
                             break;
                         case 'S':
                             formatter.appendValue( ChronoField.SECOND_OF_MINUTE, 2 );
@@ -120,7 +120,7 @@ final class LuaDateTime
                             break;
                         case 'T':
                         case 'X':
-                            format( formatter, "%H:%M:%S", offset );
+                            format( formatter, "%H:%M:%S" );
                             break;
                         case 'u':
                             formatter.appendValue( ChronoField.DAY_OF_WEEK );
@@ -212,15 +212,13 @@ final class LuaDateTime
         throw new LuaException( "field \"" + field + "\" missing in date table" );
     }
 
-    private static final TemporalField CENTURY = map( ChronoField.YEAR, ValueRange.of( 0, 6 ), x -> (x / 100) % 100 );
+    private static final TemporalField CENTURY = map( ChronoField.YEAR, ValueRange.of( 0, 99 ), x -> (x / 100) % 100 );
     private static final TemporalField ZERO_WEEK = map( WeekFields.SUNDAY_START.dayOfWeek(), ValueRange.of( 0, 6 ), x -> x - 1 );
 
     private static TemporalField map( TemporalField field, ValueRange range, LongUnaryOperator convert )
     {
         return new TemporalField()
         {
-            private final ValueRange range = ValueRange.of( 0, 99 );
-
             @Override
             public TemporalUnit getBaseUnit()
             {
