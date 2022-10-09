@@ -141,7 +141,7 @@ dependencies {
     extraModsCompileOnly fg.deobf("com.blamejared.crafttweaker:CraftTweaker-1.16.5:7.1.0.313")
     extraModsCompileOnly fg.deobf("commoble.morered:morered-1.16.5:2.1.1.0")
 
-    shade 'org.squiddev:Cobalt:0.5.5'
+    shade 'org.squiddev:Cobalt:0.5.7'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'

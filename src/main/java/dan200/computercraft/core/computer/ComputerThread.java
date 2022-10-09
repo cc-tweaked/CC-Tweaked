@@ -575,17 +575,21 @@ public final class ComputerThread
             StringBuilder builder = new StringBuilder()
                 .append( "Terminating computer #" ).append( executor.getComputer().getID() )
                 .append( " due to timeout (running for " ).append( time * 1e-9 )
-                .append( " seconds). This is NOT a bug, but may mean a computer is misbehaving. " )
+                .append( " seconds). This is NOT a bug, but may mean a computer is misbehaving.\n" )
+                .append( "Thread " )
                 .append( owner.getName() )
                 .append( " is currently " )
-                .append( owner.getState() );
+                .append( owner.getState() )
+                .append( '\n' );
             Object blocking = LockSupport.getBlocker( owner );
-            if( blocking != null ) builder.append( "\n  on " ).append( blocking );
+            if( blocking != null ) builder.append( "  on " ).append( blocking ).append( '\n' );
 
             for( StackTraceElement element : owner.getStackTrace() )
             {
-                builder.append( "\n  at " ).append( element );
+                builder.append( "  at " ).append( element ).append( '\n' );
             }
+
+            executor.printState( builder );
 
             ComputerCraft.log.warn( builder.toString() );
         }
