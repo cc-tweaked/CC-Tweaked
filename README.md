@@ -53,4 +53,4 @@ the generated documentation [can be browsed online](https://tweaked.cc/javadoc/)
 [ccrestitched]: https://www.curseforge.com/minecraft/mc-mods/cc-restitched "Download CC: Restitched from CurseForge"
 [forum]: https://forums.computercraft.cc/
 [GitHub Discussions]: https://github.com/cc-tweaked/CC-Tweaked/discussions
-[IRC]: http://webchat.esper.net/?channels=computercraft "#computercraft on EsperNet"
+[IRC]: https://webchat.esper.net/?channels=computercraft "#computercraft on EsperNet"
