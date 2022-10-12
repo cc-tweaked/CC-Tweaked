@@ -212,6 +212,11 @@ public class FakeComputerManager
         }
 
         @Override
+        public void printExecutionState( StringBuilder out )
+        {
+        }
+
+        @Override
         public void close()
         {
         }

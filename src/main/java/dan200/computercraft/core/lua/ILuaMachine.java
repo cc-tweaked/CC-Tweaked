@@ -62,6 +62,15 @@ public interface ILuaMachine
     MachineResult handleEvent( @Nullable String eventName, @Nullable Object[] arguments );
 
     /**
+     * Print some information about the internal execution state.
+     * <p>
+     * This function is purely intended for debugging, its output should not be relied on in any way.
+     *
+     * @param out The buffer to write to.
+     */
+    void printExecutionState( StringBuilder out );
+
+    /**
      * Close the Lua machine, aborting any running functions and deleting the internal state.
      */
     void close();

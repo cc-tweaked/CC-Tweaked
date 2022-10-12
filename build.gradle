@@ -155,7 +155,7 @@ dependencies {
     extraModsRuntimeOnly fg.deobf("mezz.jei:jei-1.18.2:9.4.1.116")
     extraModsCompileOnly fg.deobf("maven.modrinth:oculus:1.18.2-1.2.5")
 
-    shade 'org.squiddev:Cobalt:0.5.5'
+    shade 'org.squiddev:Cobalt:0.5.7'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
