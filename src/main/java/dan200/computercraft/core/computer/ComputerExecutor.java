@@ -625,6 +625,15 @@ final class ComputerExecutor
         }
     }
 
+    void printState( StringBuilder out )
+    {
+        out.append( "Enqueued command: " ).append( command ).append( '\n' );
+        out.append( "Enqueued events: " ).append( eventQueue.size() ).append( '\n' );
+
+        ILuaMachine machine = this.machine;
+        if( machine != null ) machine.printExecutionState( out );
+    }
+
     private void displayFailure( String message, String extra )
     {
         Terminal terminal = computer.getTerminal();

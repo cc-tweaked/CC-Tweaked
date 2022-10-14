@@ -215,6 +215,20 @@ public class CobaltLuaMachine implements ILuaMachine
     }
 
     @Override
+    public void printExecutionState( StringBuilder out )
+    {
+        LuaState state = this.state;
+        if( state == null )
+        {
+            out.append( "CobaltLuaMachine is terminated\n" );
+        }
+        else
+        {
+            state.printExecutionState( out );
+        }
+    }
+
+    @Override
     public void close()
     {
         LuaState state = this.state;

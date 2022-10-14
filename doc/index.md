@@ -51,4 +51,4 @@ CC: Tweaked lives on [GitHub]. If you've got any ideas, feedback or bugs please 
 [ccrestitched]: https://www.curseforge.com/minecraft/mc-mods/cc-restitched "Download CC: Restitched from CurseForge"
 [lua]: https://www.lua.org/ "Lua's main website"
 [GitHub Discussions]: https://github.com/cc-tweaked/CC-Tweaked/discussions
-[IRC]: http://webchat.esper.net/?channels=computercraft "#computercraft on EsperNet"
+[IRC]: https://webchat.esper.net/?channels=computercraft "#computercraft on EsperNet"

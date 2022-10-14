@@ -201,4 +201,4 @@ This is, I'm afraid, left as an exercise to the reader.
 [Ring Buffer]: https://en.wikipedia.org/wiki/Circular_buffer "Circular buffer - Wikipedia"
 [Sine Wave]: https://en.wikipedia.org/wiki/Sine_wave "Sine wave - Wikipedia"
 [GitHub Discussions]: https://github.com/cc-tweaked/CC-Tweaked/discussions
-[IRC]: http://webchat.esper.net/?channels=computercraft "#computercraft on EsperNet"
+[IRC]: https://webchat.esper.net/?channels=computercraft "#computercraft on EsperNet"
