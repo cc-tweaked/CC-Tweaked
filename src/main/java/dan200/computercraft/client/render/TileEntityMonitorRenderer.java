@@ -8,10 +8,7 @@ package dan200.computercraft.client.render;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
@@ -214,11 +211,14 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 RenderTypes.TERMINAL.setupRenderState();
 
                 // Render background geometry
+                backgroundBuffer.bind();
                 backgroundBuffer.drawWithShader( matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader() );
 
                 // Render foreground geometry with glPolygonOffset enabled.
                 GL11.glPolygonOffset( -1.0f, -10.0f );
                 GL11.glEnable( GL11.GL_POLYGON_OFFSET_FILL );
+
+                foregroundBuffer.bind();
                 foregroundBuffer.drawWithShader(
                     matrix, RenderSystem.getProjectionMatrix(), RenderTypes.getTerminalShader(),
                     // As mentioned in the above comment, render the extra cursor quad if it is visible this frame. Each
@@ -231,6 +231,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 GL11.glPolygonOffset( 0.0f, -0.0f );
                 GL11.glDisable( GL11.GL_POLYGON_OFFSET_FILL );
                 RenderTypes.TERMINAL.clearRenderState();
+                VertexBuffer.unbind();
 
                 RenderSystem.setInverseViewRotationMatrix( oldInverseRotation );
 
