@@ -7,8 +7,9 @@ package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
+import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.core.computer.IComputerEnvironment;
+import dan200.computercraft.core.computer.GlobalEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.tracking.TrackingField;
@@ -29,7 +30,10 @@ public interface IAPIEnvironment
     int getComputerID();
 
     @Nonnull
-    IComputerEnvironment getComputerEnvironment();
+    ComputerEnvironment getComputerEnvironment();
+
+    @Nonnull
+    GlobalEnvironment getGlobalEnvironment();
 
     @Nonnull
     IWorkMonitor getMainThreadMonitor();

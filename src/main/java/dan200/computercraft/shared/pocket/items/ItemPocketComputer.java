@@ -16,6 +16,7 @@ import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
+import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.pocket.apis.PocketAPI;
@@ -31,6 +32,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
@@ -140,7 +142,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     {
         if( entity.level.isClientSide ) return false;
 
-        PocketServerComputer computer = getServerComputer( stack );
+        PocketServerComputer computer = getServerComputer( entity.level.getServer(), stack );
         if( computer != null && tick( stack, entity.level, entity, computer ) ) entity.setItem( stack.copy() );
         return false;
     }
@@ -228,7 +230,8 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
         int sessionID = getSessionID( stack );
 
-        PocketServerComputer computer = (PocketServerComputer) ServerComputerRegistry.INSTANCE.get( sessionID, getInstanceID( stack ) );
+        ServerComputerRegistry registry = ServerContext.get( world.getServer() ).registry();
+        PocketServerComputer computer = (PocketServerComputer) registry.get( sessionID, getInstanceID( stack ) );
         if( computer == null )
         {
             int computerID = getComputerID( stack );
@@ -241,7 +244,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
             computer = new PocketServerComputer( world, getComputerID( stack ), getLabel( stack ), getFamily() );
 
             setInstanceID( stack, computer.register() );
-            setSessionID( stack, ServerComputerRegistry.INSTANCE.getSessionID() );
+            setSessionID( stack, registry.getSessionID() );
 
             computer.updateValues( entity, stack, getUpgrade( stack ) );
             computer.addAPI( new PocketAPI( computer ) );
@@ -256,9 +259,9 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     }
 
     @Nullable
-    public static PocketServerComputer getServerComputer( @Nonnull ItemStack stack )
+    public static PocketServerComputer getServerComputer( MinecraftServer server, @Nonnull ItemStack stack )
     {
-        return (PocketServerComputer) ServerComputerRegistry.INSTANCE.get( getSessionID( stack ), getInstanceID( stack ) );
+        return (PocketServerComputer) ServerContext.get( server ).registry().get( getSessionID( stack ), getInstanceID( stack ) );
     }
 
     // IComputerItem implementation

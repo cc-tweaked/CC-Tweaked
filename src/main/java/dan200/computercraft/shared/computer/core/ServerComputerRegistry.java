@@ -16,9 +16,8 @@ import java.util.Random;
 public class ServerComputerRegistry
 {
     private static final Random RANDOM = new Random();
-    public static final ServerComputerRegistry INSTANCE = new ServerComputerRegistry();
 
-    private int sessionId = RANDOM.nextInt();
+    private final int sessionId = RANDOM.nextInt();
     private final Int2ObjectMap<ServerComputer> computers = new Int2ObjectOpenHashMap<>();
     private int nextInstanceId;
 
@@ -82,11 +81,10 @@ public class ServerComputerRegistry
         computers.remove( instanceID );
     }
 
-    public void reset()
+    void close()
     {
         for( ServerComputer computer : getComputers() ) computer.unload();
         computers.clear();
-        sessionId = RANDOM.nextInt();
     }
 
     public Collection<ServerComputer> getComputers()

@@ -340,7 +340,7 @@ final class ComputerExecutor
 
     private IMount getRomMount()
     {
-        return computer.getComputerEnvironment().createResourceMount( "computercraft", "lua/rom" );
+        return computer.getGlobalEnvironment().createResourceMount( "computercraft", "lua/rom" );
     }
 
     private IWritableMount getRootMount()
@@ -382,7 +382,7 @@ final class ComputerExecutor
         InputStream biosStream = null;
         try
         {
-            biosStream = computer.getComputerEnvironment().createResourceFile( "computercraft", "lua/bios.lua" );
+            biosStream = computer.getGlobalEnvironment().createResourceFile( "computercraft", "lua/bios.lua" );
         }
         catch( Exception ignored )
         {

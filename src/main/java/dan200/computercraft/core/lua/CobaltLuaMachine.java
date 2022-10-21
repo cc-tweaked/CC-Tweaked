@@ -110,7 +110,7 @@ public class CobaltLuaMachine implements ILuaMachine
 
         // Add version globals
         globals.rawset( "_VERSION", valueOf( "Lua 5.1" ) );
-        globals.rawset( "_HOST", valueOf( computer.getAPIEnvironment().getComputerEnvironment().getHostString() ) );
+        globals.rawset( "_HOST", valueOf( computer.getAPIEnvironment().getGlobalEnvironment().getHostString() ) );
         globals.rawset( "_CC_DEFAULT_SETTINGS", valueOf( ComputerCraft.defaultComputerSettings ) );
         if( ComputerCraft.disableLua51Features )
         {

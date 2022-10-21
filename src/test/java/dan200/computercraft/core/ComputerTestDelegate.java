@@ -112,7 +112,8 @@ public class ComputerTestDelegate
             writer.write( "loadfile('test-rom/mcfly.lua', nil, _ENV)('test-rom/spec') cct_test.finish()" );
         }
 
-        computer = new Computer( new BasicEnvironment( mount ), term, 0 );
+        BasicEnvironment environment = new BasicEnvironment( mount );
+        computer = new Computer( environment, environment, term, 0 );
         computer.getEnvironment().setPeripheral( ComputerSide.TOP, new FakeModem() );
         computer.addApi( new CctTestAPI() );
 

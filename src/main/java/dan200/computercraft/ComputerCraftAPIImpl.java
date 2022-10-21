@@ -24,13 +24,13 @@ import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.ResourceMount;
 import dan200.computercraft.shared.*;
+import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.peripheral.generic.GenericPeripheralProvider;
 import dan200.computercraft.shared.peripheral.generic.data.DetailProviders;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
-import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.wired.WiredNode;
-import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResourceManager;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
@@ -59,9 +59,9 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     {
     }
 
-    public static InputStream getResourceFile( String domain, String subPath )
+    public static InputStream getResourceFile( MinecraftServer server, String domain, String subPath )
     {
-        IReloadableResourceManager manager = (IReloadableResourceManager) ServerLifecycleHooks.getCurrentServer().getDataPackRegistries().getResourceManager();
+        IResourceManager manager = server.getDataPackRegistries().getResourceManager();
         try
         {
             return manager.getResource( new ResourceLocation( domain, subPath ) ).getInputStream();
@@ -85,7 +85,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     @Override
     public int createUniqueNumberedSaveDir( @Nonnull World world, @Nonnull String parentSubPath )
     {
-        return IDAssigner.getNextId( parentSubPath );
+        return ServerContext.get( world.getServer() ).getNextId( parentSubPath );
     }
 
     @Override
@@ -93,7 +93,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     {
         try
         {
-            return new FileMount( new File( IDAssigner.getDir(), subPath ), capacity );
+            return new FileMount( new File( ServerContext.get( world.getServer() ).storageDir().toFile(), subPath ), capacity );
         }
         catch( Exception e )
         {

@@ -55,7 +55,8 @@ public class FakeComputerManager
     @Nonnull
     public static Computer create()
     {
-        Computer computer = new Computer( new BasicEnvironment(), new Terminal( 51, 19, true ), 0 );
+        BasicEnvironment environment = new BasicEnvironment();
+        Computer computer = new Computer( environment, environment, new Terminal( 51, 19, true ), 0 );
         machines.put( computer, new ConcurrentLinkedQueue<>() );
         return computer;
     }

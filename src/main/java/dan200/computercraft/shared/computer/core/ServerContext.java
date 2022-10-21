@@ -1,0 +1,183 @@
+/*
+ * This file is part of ComputerCraft - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
+ * Send enquiries to dratcliffe@gmail.com
+ */
+package dan200.computercraft.shared.computer.core;
+
+import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.ComputerCraftAPIImpl;
+import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.core.computer.GlobalEnvironment;
+import dan200.computercraft.shared.CommonHooks;
+import dan200.computercraft.shared.util.IDAssigner;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.World;
+import net.minecraft.world.storage.FolderName;
+import net.minecraftforge.versions.mcp.MCPVersion;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.Objects;
+
+/**
+ * Stores ComputerCraft's server-side state for the lifetime of a {@link MinecraftServer}.
+ * <p>
+ * This is effectively a glorified singleton, holding references to most global state ComputerCraft stores
+ * (for instance, {@linkplain IDAssigner ID assignment} and {@linkplain  ServerComputerRegistry running computers}. Its
+ * main purpose is to offer a single point of resetting the state ({@link ServerContext#close()} and ensure disciplined
+ * access to the current state, by ensuring callers have a {@link MinecraftServer} to hand.
+ *
+ * @see CommonHooks for where the context is created and torn down.
+ */
+public final class ServerContext
+{
+    private static final FolderName FOLDER = new FolderName( ComputerCraft.MOD_ID );
+
+    private static @Nullable ServerContext instance;
+
+    private final MinecraftServer server;
+
+    private final ServerComputerRegistry registry = new ServerComputerRegistry();
+    private final GlobalEnvironment environment;
+    private final IDAssigner idAssigner;
+    private final Path storageDir;
+
+    private ServerContext( MinecraftServer server )
+    {
+        this.server = server;
+        storageDir = server.getWorldPath( FOLDER );
+        environment = new Environment( server );
+        idAssigner = new IDAssigner( storageDir.resolve( "ids.json" ) );
+    }
+
+    /**
+     * Start a new server context from the currently running Minecraft server.
+     *
+     * @param server The currently running Minecraft server.
+     * @throws IllegalStateException If a context is already present.
+     */
+    public static void create( MinecraftServer server )
+    {
+        if( ServerContext.instance != null ) throw new IllegalStateException( "ServerContext already exists!" );
+        ServerContext.instance = new ServerContext( server );
+    }
+
+    /**
+     * Stops the current server context, resetting any state and terminating all computers.
+     */
+    public static void close()
+    {
+        ServerContext instance = ServerContext.instance;
+        if( instance == null ) return;
+
+        instance.registry.close();
+
+        ServerContext.instance = null;
+    }
+
+    /**
+     * Get the {@link ServerContext} instance for the currently running Minecraft server.
+     *
+     * @param server The current server.
+     * @return The current server context.
+     */
+    public static ServerContext get( MinecraftServer server )
+    {
+        Objects.requireNonNull( server, "Server cannot be null" );
+
+        ServerContext instance = ServerContext.instance;
+        if( instance == null ) throw new IllegalStateException( "ServerContext has not been started yet" );
+        if( instance.server != server )
+        {
+            throw new IllegalStateException( "Incorrect server given. Did ServerContext shutdown correctly?" );
+        }
+
+        return instance;
+    }
+
+    /**
+     * Get the current {@link GlobalEnvironment} computers should run under.
+     *
+     * @return The current {@link GlobalEnvironment}.
+     */
+    GlobalEnvironment environment()
+    {
+        return environment;
+    }
+
+    /**
+     * Get the current {@link ServerComputerRegistry}.
+     *
+     * @return The global computer registry.
+     */
+    public ServerComputerRegistry registry()
+    {
+        return registry;
+    }
+
+    /**
+     * Return the next available ID for a particular kind (for instance, a computer or particular peripheral type).
+     * <p>
+     * IDs are assigned incrementally, with the last assigned ID being stored in {@code ids.json} in our root
+     * {@linkplain    #storageDir() storage folder}.
+     *
+     * @param kind The kind we're assigning an ID for, for instance {@code "computer"} or {@code "peripheral.monitor"}.
+     * @return The next available ID.
+     * @see ComputerCraftAPI#createUniqueNumberedSaveDir(World, String)
+     */
+    public int getNextId( String kind )
+    {
+        return idAssigner.getNextId( kind );
+    }
+
+    /**
+     * Get the directory used for all ComputerCraft related information. This includes the computer/peripheral id store,
+     * and all computer data.
+     *
+     * @return The storge directory for ComputerCraft.
+     */
+    public Path storageDir()
+    {
+        return storageDir;
+    }
+
+    private static final class Environment implements GlobalEnvironment
+    {
+        private final MinecraftServer server;
+
+        Environment( MinecraftServer server )
+        {
+            this.server = server;
+        }
+
+        @Override
+        public IMount createResourceMount( String domain, String subPath )
+        {
+            return ComputerCraftAPI.createResourceMount( domain, subPath );
+        }
+
+        @Override
+        public InputStream createResourceFile( String domain, String subPath )
+        {
+            return ComputerCraftAPIImpl.getResourceFile( server, domain, subPath );
+        }
+
+        @Nonnull
+        @Override
+        public String getHostString()
+        {
+            return String.format( "ComputerCraft %s (Minecraft %s)", ComputerCraftAPI.getInstalledVersion(), MCPVersion.getMCVersion() );
+        }
+
+        @Nonnull
+        @Override
+        public String getUserAgent()
+        {
+            return ComputerCraft.MOD_ID + "/" + ComputerCraftAPI.getInstalledVersion();
+        }
+    }
+}

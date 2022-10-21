@@ -18,10 +18,9 @@ import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
+import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
-import dan200.computercraft.shared.util.IDAssigner;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -75,7 +74,7 @@ public final class CommandComputerCraft
                     TableBuilder table = new TableBuilder( DUMP_LIST_ID, "Computer", "On", "Position" );
 
                     CommandSource source = context.getSource();
-                    List<ServerComputer> computers = new ArrayList<>( ServerComputerRegistry.INSTANCE.getComputers() );
+                    List<ServerComputer> computers = new ArrayList<>( ServerContext.get( source.getServer() ).registry().getComputers() );
 
                     // Unless we're on a server, limit the number of rows we can send.
                     World world = source.getLevel();
@@ -140,7 +139,7 @@ public final class CommandComputerCraft
 
             .then( command( "shutdown" )
                 .requires( UserLevel.OWNER_OP )
-                .argManyValue( "computers", manyComputers(), s -> ServerComputerRegistry.INSTANCE.getComputers() )
+                .argManyValue( "computers", manyComputers(), s -> ServerContext.get( s.getServer() ).registry().getComputers() )
                 .executes( ( context, computerSelectors ) -> {
                     int shutdown = 0;
                     Set<ServerComputer> computers = unwrap( context.getSource(), computerSelectors );
@@ -155,7 +154,7 @@ public final class CommandComputerCraft
 
             .then( command( "turn-on" )
                 .requires( UserLevel.OWNER_OP )
-                .argManyValue( "computers", manyComputers(), s -> ServerComputerRegistry.INSTANCE.getComputers() )
+                .argManyValue( "computers", manyComputers(), s -> ServerContext.get( s.getServer() ).registry().getComputers() )
                 .executes( ( context, computerSelectors ) -> {
                     int on = 0;
                     Set<ServerComputer> computers = unwrap( context.getSource(), computerSelectors );
@@ -327,7 +326,7 @@ public final class CommandComputerCraft
 
         if( UserLevel.OWNER.test( source ) && isPlayer( source ) )
         {
-            ITextComponent linkPath = linkStorage( computerId );
+            ITextComponent linkPath = linkStorage( source, computerId );
             if( linkPath != null ) out.append( " " ).append( linkPath );
         }
 
@@ -350,9 +349,9 @@ public final class CommandComputerCraft
         }
     }
 
-    private static ITextComponent linkStorage( int id )
+    private static ITextComponent linkStorage( CommandSource source, int id )
     {
-        File file = new File( IDAssigner.getDir(), "computer/" + id );
+        File file = new File( ServerContext.get( source.getServer() ).storageDir().toFile(), "computer/" + id );
         if( !file.isDirectory() ) return null;
 
         return link(
@@ -382,7 +381,7 @@ public final class CommandComputerCraft
 
         Map<Computer, ServerComputer> lookup = new HashMap<>();
         int maxId = 0, maxInstance = 0;
-        for( ServerComputer server : ServerComputerRegistry.INSTANCE.getComputers() )
+        for( ServerComputer server : ServerContext.get( source.getServer() ).registry().getComputers() )
         {
             lookup.put( server.getComputer(), server );
 

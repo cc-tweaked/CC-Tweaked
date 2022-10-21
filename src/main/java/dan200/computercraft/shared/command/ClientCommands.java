@@ -6,14 +6,14 @@
 package dan200.computercraft.shared.command;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.util.IDAssigner;
+import dan200.computercraft.shared.computer.core.ServerContext;
+import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Util;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.io.File;
 
@@ -37,8 +37,8 @@ public final class ClientCommands
         // Emulate the command on the client side
         if( event.getMessage().startsWith( OPEN_COMPUTER ) )
         {
-            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-            if( server == null || server.isDedicatedServer() ) return;
+            MinecraftServer server = Minecraft.getInstance().getSingleplayerServer();
+            if( server == null ) return;
 
             event.setCanceled( true );
 
@@ -53,7 +53,7 @@ public final class ClientCommands
                 return;
             }
 
-            File file = new File( IDAssigner.getDir(), "computer/" + id );
+            File file = new File( ServerContext.get( server ).storageDir().toFile(), "computer/" + id );
             if( !file.isDirectory() ) return;
 
             Util.getPlatform().openFile( file );

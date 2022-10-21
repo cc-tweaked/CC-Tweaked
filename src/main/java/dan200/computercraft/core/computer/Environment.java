@@ -73,9 +73,16 @@ public final class Environment implements IAPIEnvironment
 
     @Nonnull
     @Override
-    public IComputerEnvironment getComputerEnvironment()
+    public ComputerEnvironment getComputerEnvironment()
     {
         return computer.getComputerEnvironment();
+    }
+
+    @Nonnull
+    @Override
+    public GlobalEnvironment getGlobalEnvironment()
+    {
+        return computer.getGlobalEnvironment();
     }
 
     @Nonnull

@@ -14,7 +14,7 @@ import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
+import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.IDAssigner;
@@ -378,7 +378,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
         boolean changed = false;
 
-        ServerComputer computer = ServerComputerRegistry.INSTANCE.get( instanceID );
+        ServerComputer computer = ServerContext.get( getLevel().getServer() ).registry().get( instanceID );
         if( computer == null )
         {
             if( computerID < 0 )
@@ -400,7 +400,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Nullable
     public ServerComputer getServerComputer()
     {
-        return getLevel().isClientSide ? null : ServerComputerRegistry.INSTANCE.get( instanceID );
+        return getLevel().isClientSide ? null : ServerContext.get( getLevel().getServer() ).registry().get( instanceID );
     }
 
     // Networking stuff

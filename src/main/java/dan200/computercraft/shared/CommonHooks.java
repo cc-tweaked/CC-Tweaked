@@ -12,7 +12,7 @@ import dan200.computercraft.core.filesystem.ResourceMount;
 import dan200.computercraft.core.tracking.ComputerMBean;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.command.CommandComputerCraft;
-import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
+import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import net.minecraft.entity.EntityType;
 import net.minecraft.loot.ConstantRange;
@@ -27,6 +27,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppedEvent;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -52,7 +53,7 @@ public final class CommonHooks
         if( event.phase == TickEvent.Phase.START )
         {
             MainThread.executePendingTasks();
-            ServerComputerRegistry.INSTANCE.update();
+            ServerContext.get( ServerLifecycleHooks.getCurrentServer() ).registry().update();
         }
     }
 
@@ -72,6 +73,7 @@ public final class CommonHooks
         }
 
         resetState();
+        ServerContext.create( server );
         ComputerMBean.registerTracker();
     }
 
@@ -83,7 +85,7 @@ public final class CommonHooks
 
     private static void resetState()
     {
-        ServerComputerRegistry.INSTANCE.reset();
+        ServerContext.close();
         MainThread.reset();
         WirelessNetwork.resetNetworks();
         Tracking.reset();

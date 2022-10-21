@@ -6,16 +6,14 @@
 package dan200.computercraft.shared.computer.core;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.ComputerCraftAPIImpl;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.computer.Computer;
+import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import dan200.computercraft.shared.network.NetworkHandler;
@@ -27,14 +25,11 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.versions.mcp.MCPVersion;
 
-import javax.annotation.Nonnull;
-import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
-public class ServerComputer implements InputHandler, IComputerEnvironment
+public class ServerComputer implements InputHandler, ComputerEnvironment
 {
     private final int instanceID;
 
@@ -55,10 +50,11 @@ public class ServerComputer implements InputHandler, IComputerEnvironment
         this.world = world;
         this.family = family;
 
-        instanceID = ServerComputerRegistry.INSTANCE.getUnusedInstanceID();
+        ServerContext context = ServerContext.get( world.getServer() );
+        instanceID = context.registry().getUnusedInstanceID();
         terminal = new Terminal( terminalWidth, terminalHeight, family != ComputerFamily.NORMAL, this::markTerminalChanged );
 
-        computer = new Computer( this, terminal, computerID );
+        computer = new Computer( context.environment(), this, terminal, computerID );
         computer.setLabel( label );
     }
 
@@ -140,7 +136,7 @@ public class ServerComputer implements InputHandler, IComputerEnvironment
 
     public int register()
     {
-        ServerComputerRegistry.INSTANCE.add( instanceID, this );
+        ServerContext.get( world.getServer() ).registry().add( instanceID, this );
         return instanceID;
     }
 
@@ -152,7 +148,7 @@ public class ServerComputer implements InputHandler, IComputerEnvironment
     public void close()
     {
         unload();
-        ServerComputerRegistry.INSTANCE.remove( instanceID );
+        ServerContext.get( world.getServer() ).registry().remove( instanceID );
     }
 
     private void sendToAllInteracting( Function<Container, NetworkMessage> createPacket )
@@ -284,31 +280,5 @@ public class ServerComputer implements InputHandler, IComputerEnvironment
     public IWritableMount createRootMount()
     {
         return ComputerCraftAPI.createSaveDirMount( world, "computer/" + computer.getID(), ComputerCraft.computerSpaceLimit );
-    }
-
-    @Override
-    public IMount createResourceMount( String domain, String subPath )
-    {
-        return ComputerCraftAPI.createResourceMount( domain, subPath );
-    }
-
-    @Override
-    public InputStream createResourceFile( String domain, String subPath )
-    {
-        return ComputerCraftAPIImpl.getResourceFile( domain, subPath );
-    }
-
-    @Nonnull
-    @Override
-    public String getHostString()
-    {
-        return String.format( "ComputerCraft %s (Minecraft %s)", ComputerCraftAPI.getInstalledVersion(), MCPVersion.getMCVersion() );
-    }
-
-    @Nonnull
-    @Override
-    public String getUserAgent()
-    {
-        return ComputerCraft.MOD_ID + "/" + ComputerCraftAPI.getInstalledVersion();
     }
 }

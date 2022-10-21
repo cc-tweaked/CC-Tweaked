@@ -36,7 +36,8 @@ public class Computer
     private String label = null;
 
     // Read-only fields about the computer
-    private final IComputerEnvironment environment;
+    private final ComputerEnvironment computerEnvironment;
+    private final GlobalEnvironment globalEnvironment;
     private final Terminal terminal;
     private final ComputerExecutor executor;
     private final MainThreadExecutor serverExecutor;
@@ -49,20 +50,26 @@ public class Computer
     private boolean startRequested;
     private int ticksSinceStart = -1;
 
-    public Computer( IComputerEnvironment environment, Terminal terminal, int id )
+    public Computer( GlobalEnvironment globalEnvironment, ComputerEnvironment environment, Terminal terminal, int id )
     {
         if( id < 0 ) throw new IllegalStateException( "Id has not been assigned" );
         this.id = id;
-        this.environment = environment;
+        this.globalEnvironment = globalEnvironment;
+        this.computerEnvironment = environment;
         this.terminal = terminal;
 
         executor = new ComputerExecutor( this );
         serverExecutor = new MainThreadExecutor( this );
     }
 
-    IComputerEnvironment getComputerEnvironment()
+    ComputerEnvironment getComputerEnvironment()
     {
-        return environment;
+        return computerEnvironment;
+    }
+
+    GlobalEnvironment getGlobalEnvironment()
+    {
+        return globalEnvironment;
     }
 
     FileSystem getFileSystem()

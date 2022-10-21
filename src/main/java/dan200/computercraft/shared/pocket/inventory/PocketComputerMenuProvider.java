@@ -53,7 +53,7 @@ public class PocketComputerMenuProvider implements INamedContainerProvider
             isTypingOnly ? Registry.ModContainers.POCKET_COMPUTER_NO_TERM.get() : Registry.ModContainers.POCKET_COMPUTER.get(), id, inventory,
             p -> {
                 ItemStack stack = p.getItemInHand( hand );
-                return stack.getItem() == item && ItemPocketComputer.getServerComputer( stack ) == computer;
+                return stack.getItem() == item && ItemPocketComputer.getServerComputer( entity.level.getServer(), stack ) == computer;
             },
             computer, item.getFamily()
         );

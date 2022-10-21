@@ -46,7 +46,8 @@ public class ComputerBootstrap
         ComputerCraft.maxMainComputerTime = ComputerCraft.maxMainGlobalTime = Integer.MAX_VALUE;
 
         Terminal term = new Terminal( ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight, true );
-        final Computer computer = new Computer( new BasicEnvironment( mount ), term, 0 );
+        BasicEnvironment environment = new BasicEnvironment( mount );
+        final Computer computer = new Computer( environment, environment, term, 0 );
 
         AssertApi api = new AssertApi();
         computer.addApi( api );

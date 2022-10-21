@@ -24,7 +24,7 @@ import java.net.URL;
 /**
  * A very basic environment.
  */
-public class BasicEnvironment implements IComputerEnvironment
+public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment
 {
     private final IWritableMount mount;
 

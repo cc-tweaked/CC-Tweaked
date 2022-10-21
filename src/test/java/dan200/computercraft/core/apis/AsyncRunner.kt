@@ -6,8 +6,9 @@ import dan200.computercraft.api.lua.MethodResult
 import dan200.computercraft.api.peripheral.IPeripheral
 import dan200.computercraft.api.peripheral.IWorkMonitor
 import dan200.computercraft.core.computer.BasicEnvironment
+import dan200.computercraft.core.computer.ComputerEnvironment
 import dan200.computercraft.core.computer.ComputerSide
-import dan200.computercraft.core.computer.IComputerEnvironment
+import dan200.computercraft.core.computer.GlobalEnvironment
 import dan200.computercraft.core.filesystem.FileSystem
 import dan200.computercraft.core.terminal.Terminal
 import dan200.computercraft.core.tracking.TrackingField
@@ -23,7 +24,8 @@ abstract class NullApiEnvironment : IAPIEnvironment {
     private val computerEnv = BasicEnvironment()
 
     override fun getComputerID(): Int = 0
-    override fun getComputerEnvironment(): IComputerEnvironment = computerEnv
+    override fun getComputerEnvironment(): ComputerEnvironment = computerEnv
+    override fun getGlobalEnvironment(): GlobalEnvironment = computerEnv
     override fun getMainThreadMonitor(): IWorkMonitor = throw IllegalStateException("Work monitor not available")
     override fun getTerminal(): Terminal = throw IllegalStateException("Terminal not available")
     override fun getFileSystem(): FileSystem = throw IllegalStateException("Terminal not available")

@@ -9,7 +9,7 @@ import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
+import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -31,7 +31,7 @@ public class ContainerViewComputer extends ComputerMenuWithoutInventory
     private static boolean canInteractWith( @Nonnull ServerComputer computer, @Nonnull PlayerEntity player )
     {
         // If this computer no longer exists then discard it.
-        if( ServerComputerRegistry.INSTANCE.get( computer.getInstanceID() ) != computer )
+        if( ServerContext.get( computer.getWorld().getServer() ).registry().get( computer.getInstanceID() ) != computer )
         {
             return false;
         }
