@@ -14,9 +14,10 @@ plugins {
     id "cc-tweaked.illuaminate"
 }
 
-import org.apache.tools.ant.taskdefs.condition.Os
+
 import cc.tweaked.gradle.IlluaminateExec
 import cc.tweaked.gradle.IlluaminateExecToDir
+import org.apache.tools.ant.taskdefs.condition.Os
 
 version = mod_version
 
@@ -143,12 +144,12 @@ dependencies {
 
     shade 'org.squiddev:Cobalt:0.5.7'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
-    testImplementation 'org.hamcrest:hamcrest:2.2'
-    testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.0'
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2'
+    testCompileOnly(libs.autoService)
+    testAnnotationProcessor(libs.autoService)
+
+    testImplementation(libs.bundles.test)
+    testImplementation(libs.bundles.kotlin)
+    testRuntimeOnly(libs.bundles.testRuntime)
 
     testModImplementation sourceSets.main.output
 

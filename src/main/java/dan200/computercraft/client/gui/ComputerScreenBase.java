@@ -191,7 +191,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
             return;
         }
 
-        if( toUpload.size() > 0 ) UploadFileMessage.send( menu, toUpload );
+        if( toUpload.size() > 0 ) UploadFileMessage.send( menu, toUpload, NetworkHandler::sendToServer );
     }
 
     public void uploadResult( UploadResult result, ITextComponent message )

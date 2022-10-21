@@ -23,7 +23,7 @@ import java.util.zip.GZIPOutputStream;
 
 /**
  * A snapshot of a terminal's state.
- *
+ * <p>
  * This is somewhat memory inefficient (we build a buffer, only to write it elsewhere), however it means we get a
  * complete and accurate description of a terminal, which avoids a lot of complexities with resizing terminals, dirty
  * states, etc...
