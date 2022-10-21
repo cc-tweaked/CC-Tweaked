@@ -55,12 +55,7 @@ public class TermAPI extends TermMethods implements ILuaAPI
     {
         int actualColour = 15 - parseColour( colour );
         Colour c = Colour.fromInt( actualColour );
-
-        float[] rgb = c.getRGB();
-
-        Object[] rgbObj = new Object[rgb.length];
-        for( int i = 0; i < rgbObj.length; ++i ) rgbObj[i] = rgb[i];
-        return rgbObj;
+        return new Object[] { c.getR(), c.getG(), c.getB() };
     }
 
     @Nonnull
