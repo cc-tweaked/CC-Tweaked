@@ -85,7 +85,7 @@ public class ComputerThreadTest
             assertEquals( budget, TimeUnit.MILLISECONDS.toNanos( 25 ), "Budget should be 25ms" );
 
             long delay = ConcurrentHelpers.waitUntil( timeout::isPaused );
-            assertThat( "Paused within 25ms", delay * 1e-9, closeTo( 0.03, 0.02 ) );
+            assertThat( "Paused within 25ms", delay * 1e-9, closeTo( 0.025, 0.025 ) );
 
             computer.shutdown();
             return MachineResult.OK;
