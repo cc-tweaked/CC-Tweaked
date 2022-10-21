@@ -105,9 +105,9 @@ public class TileCommandComputer extends TileComputer
     }
 
     @Override
-    protected ServerComputer createComputer( int instanceID, int id )
+    protected ServerComputer createComputer( int id )
     {
-        ServerComputer computer = super.createComputer( instanceID, id );
+        ServerComputer computer = super.createComputer( id );
         computer.addAPI( new CommandAPI( this ) );
         return computer;
     }

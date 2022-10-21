@@ -14,6 +14,8 @@ import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.NetworkHandler;
+import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
+import dan200.computercraft.shared.network.client.PocketComputerDeletedClientMessage;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -24,15 +26,11 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.Map;
-
-import static dan200.computercraft.shared.pocket.items.ItemPocketComputer.NBT_LIGHT;
+import java.util.*;
 
 public class PocketServerComputer extends ServerComputer implements IPocketAccess
 {
@@ -40,9 +38,14 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     private Entity entity;
     private ItemStack stack;
 
-    public PocketServerComputer( World world, int computerID, String label, int instanceID, ComputerFamily family )
+    private int lightColour = -1;
+    private boolean lightChanged = false;
+
+    private final Set<ServerPlayerEntity> tracking = new HashSet<>();
+
+    public PocketServerComputer( ServerWorld world, int computerID, String label, ComputerFamily family )
     {
-        super( world, computerID, label, instanceID, family, ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight );
+        super( world, computerID, label, family, ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight );
     }
 
     @Nullable
@@ -89,27 +92,17 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     @Override
     public int getLight()
     {
-        CompoundNBT tag = getUserData();
-        return tag.contains( NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) ? tag.getInt( NBT_LIGHT ) : -1;
+        return lightColour;
     }
 
     @Override
     public void setLight( int colour )
     {
-        CompoundNBT tag = getUserData();
-        if( colour >= 0 && colour <= 0xFFFFFF )
-        {
-            if( !tag.contains( NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) || tag.getInt( NBT_LIGHT ) != colour )
-            {
-                tag.putInt( NBT_LIGHT, colour );
-                updateUserData();
-            }
-        }
-        else if( tag.contains( NBT_LIGHT, Constants.NBT.TAG_ANY_NUMERIC ) )
-        {
-            tag.remove( NBT_LIGHT );
-            updateUserData();
-        }
+        if( colour < 0 || colour > 0xFFFFFF ) colour = -1;
+
+        if( lightColour == colour ) return;
+        lightColour = colour;
+        lightChanged = true;
     }
 
     @Nonnull
@@ -168,7 +161,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     {
         if( entity != null )
         {
-            setWorld( entity.getCommandSenderWorld() );
+            setWorld( (ServerWorld) entity.getCommandSenderWorld() );
             setPosition( entity.blockPosition() );
         }
 
@@ -186,18 +179,53 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
     }
 
     @Override
-    public void broadcastState( boolean force )
+    public void tickServer()
     {
-        super.broadcastState( force );
+        super.tickServer();
 
-        if( (hasTerminalChanged() || force) && entity instanceof ServerPlayerEntity )
+        // Find any players which have gone missing and remove them from the tracking list.
+        tracking.removeIf( player -> !player.isAlive() || player.level != getWorld() );
+
+        // And now find any new players, add them to the tracking list, and broadcast state where appropriate.
+        boolean sendState = hasOutputChanged() || lightChanged;
+        lightChanged = false;
+        if( sendState )
         {
-            // Broadcast the state to the current entity if they're not already interacting with it.
-            ServerPlayerEntity player = (ServerPlayerEntity) entity;
-            if( player.connection != null && !isInteracting( player ) )
+            // Broadcast the state to all players
+            tracking.addAll( getWorld().players() );
+            NetworkHandler.sendToPlayers( new PocketComputerDataMessage( this, false ), tracking );
+        }
+        else
+        {
+            // Broadcast the state to new players.
+            List<ServerPlayerEntity> added = new ArrayList<>();
+            for( ServerPlayerEntity player : getWorld().players() )
             {
-                NetworkHandler.sendToPlayer( player, createTerminalPacket() );
+                if( tracking.add( player ) ) added.add( player );
+            }
+            if( !added.isEmpty() )
+            {
+                NetworkHandler.sendToPlayers( new PocketComputerDataMessage( this, false ), added );
             }
         }
+    }
+
+    @Override
+    protected void onTerminalChanged()
+    {
+        super.onTerminalChanged();
+
+        if( entity instanceof ServerPlayerEntity && entity.isAlive() )
+        {
+            // Broadcast the terminal to the current player.
+            NetworkHandler.sendToPlayer( (ServerPlayerEntity) entity, new PocketComputerDataMessage( this, true ) );
+        }
+    }
+
+    @Override
+    protected void onRemoved()
+    {
+        super.onRemoved();
+        NetworkHandler.sendToAllPlayers( new PocketComputerDeletedClientMessage( getInstanceID() ) );
     }
 }

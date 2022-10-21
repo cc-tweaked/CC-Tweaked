@@ -5,13 +5,14 @@
  */
 package dan200.computercraft.shared.network.server;
 
-import dan200.computercraft.shared.computer.core.IContainerComputer;
-import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.menu.ComputerMenu;
+import dan200.computercraft.shared.computer.menu.ServerInputHandler;
 import dan200.computercraft.shared.computer.upload.FileSlice;
 import dan200.computercraft.shared.computer.upload.FileUpload;
 import dan200.computercraft.shared.network.NetworkHandler;
 import io.netty.handler.codec.DecoderException;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -37,9 +38,9 @@ public class UploadFileMessage extends ComputerServerMessage
     private final List<FileUpload> files;
     private final List<FileSlice> slices;
 
-    UploadFileMessage( int instanceId, UUID uuid, int flag, List<FileUpload> files, List<FileSlice> slices )
+    UploadFileMessage( Container menu, UUID uuid, int flag, List<FileUpload> files, List<FileSlice> slices )
     {
-        super( instanceId );
+        super( menu );
         this.uuid = uuid;
         this.flag = flag;
         this.files = files;
@@ -127,7 +128,7 @@ public class UploadFileMessage extends ComputerServerMessage
         }
     }
 
-    public static void send( int instanceId, List<FileUpload> files )
+    public static void send( Container container, List<FileUpload> files )
     {
         UUID uuid = UUID.randomUUID();
 
@@ -148,8 +149,8 @@ public class UploadFileMessage extends ComputerServerMessage
                 if( remaining <= 0 )
                 {
                     NetworkHandler.sendToServer( first
-                        ? new UploadFileMessage( instanceId, uuid, FLAG_FIRST, files, new ArrayList<>( slices ) )
-                        : new UploadFileMessage( instanceId, uuid, 0, null, new ArrayList<>( slices ) ) );
+                        ? new UploadFileMessage( container, uuid, FLAG_FIRST, files, new ArrayList<>( slices ) )
+                        : new UploadFileMessage( container, uuid, 0, null, new ArrayList<>( slices ) ) );
                     slices.clear();
                     remaining = MAX_PACKET_SIZE;
                     first = false;
@@ -167,19 +168,20 @@ public class UploadFileMessage extends ComputerServerMessage
         }
 
         NetworkHandler.sendToServer( first
-            ? new UploadFileMessage( instanceId, uuid, FLAG_FIRST | FLAG_LAST, files, new ArrayList<>( slices ) )
-            : new UploadFileMessage( instanceId, uuid, FLAG_LAST, null, new ArrayList<>( slices ) ) );
+            ? new UploadFileMessage( container, uuid, FLAG_FIRST | FLAG_LAST, files, new ArrayList<>( slices ) )
+            : new UploadFileMessage( container, uuid, FLAG_LAST, null, new ArrayList<>( slices ) ) );
     }
 
     @Override
-    protected void handle( NetworkEvent.Context context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
+    protected void handle( NetworkEvent.Context context, @Nonnull ComputerMenu container )
     {
         ServerPlayerEntity player = context.getSender();
         if( player != null )
         {
-            if( (flag & FLAG_FIRST) != 0 ) container.startUpload( uuid, files );
-            container.continueUpload( uuid, slices );
-            if( (flag & FLAG_LAST) != 0 ) container.finishUpload( player, uuid );
+            ServerInputHandler input = container.getInput();
+            if( (flag & FLAG_FIRST) != 0 ) input.startUpload( uuid, files );
+            input.continueUpload( uuid, slices );
+            if( (flag & FLAG_LAST) != 0 ) input.finishUpload( player, uuid );
         }
     }
 }

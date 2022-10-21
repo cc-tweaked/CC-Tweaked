@@ -5,15 +5,24 @@
  */
 package dan200.computercraft.shared.computer.core;
 
+import dan200.computercraft.shared.computer.menu.ServerInputHandler;
+
+import javax.annotation.Nullable;
+
 /**
- * Receives some input and forwards it to a computer.
+ * Handles user-provided input, forwarding it to a computer. This is used
  *
- * @see InputState
- * @see IComputer
+ * @see ServerInputHandler
+ * @see ServerComputer
  */
 public interface InputHandler
 {
-    void queueEvent( String event, Object[] arguments );
+    void queueEvent( String event, @Nullable Object[] arguments );
+
+    default void queueEvent( String event )
+    {
+        queueEvent( event, null );
+    }
 
     default void keyDown( int key, boolean repeat )
     {
@@ -44,4 +53,10 @@ public interface InputHandler
     {
         queueEvent( "mouse_scroll", new Object[] { direction, x, y } );
     }
+
+    void shutdown();
+
+    void turnOn();
+
+    void reboot();
 }

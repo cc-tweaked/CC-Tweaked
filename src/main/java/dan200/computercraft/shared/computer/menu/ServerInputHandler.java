@@ -3,49 +3,33 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.shared.computer.core;
+package dan200.computercraft.shared.computer.menu;
 
+import dan200.computercraft.shared.computer.core.InputHandler;
 import dan200.computercraft.shared.computer.upload.FileSlice;
 import dan200.computercraft.shared.computer.upload.FileUpload;
+import dan200.computercraft.shared.network.server.ComputerServerMessage;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.Container;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
 /**
- * An instance of {@link Container} which provides a computer. You should implement this
- * if you provide custom computers/GUIs to interact with them.
+ * An {@link InputHandler} which operates on the server, receiving data from the client over the network.
+ *
+ * @see ServerInputState The default implementation of this interface.
+ * @see ComputerServerMessage Packets which consume this interface.
+ * @see ComputerMenu
  */
-public interface IContainerComputer
+public interface ServerInputHandler extends InputHandler
 {
-    /**
-     * Get the computer you are interacting with.
-     *
-     * This will only be called on the server.
-     *
-     * @return The computer you are interacting with.
-     */
-    @Nullable
-    IComputer getComputer();
-
-    /**
-     * Get the input controller for this container.
-     *
-     * @return This container's input.
-     */
-    @Nonnull
-    InputState getInput();
-
     /**
      * Start a file upload into this container.
      *
      * @param uploadId The unique ID of this upload.
      * @param files    The files to upload.
      */
-    void startUpload( @Nonnull UUID uploadId, @Nonnull List<FileUpload> files );
+    void startUpload( UUID uploadId, List<FileUpload> files );
 
     /**
      * Append more data to partially uploaded files.
@@ -53,7 +37,7 @@ public interface IContainerComputer
      * @param uploadId The unique ID of this upload.
      * @param slices   Additional parts of file data to upload.
      */
-    void continueUpload( @Nonnull UUID uploadId, @Nonnull List<FileSlice> slices );
+    void continueUpload( UUID uploadId, List<FileSlice> slices );
 
     /**
      * Finish off an upload. This either writes the uploaded files or informs the user that files will be overwritten.
@@ -61,7 +45,7 @@ public interface IContainerComputer
      * @param uploader The player uploading files.
      * @param uploadId The unique ID of this upload.
      */
-    void finishUpload( @Nonnull ServerPlayerEntity uploader, @Nonnull UUID uploadId );
+    void finishUpload( ServerPlayerEntity uploader, UUID uploadId );
 
     /**
      * Continue an upload.
@@ -69,5 +53,5 @@ public interface IContainerComputer
      * @param uploader  The player uploading files.
      * @param overwrite Whether the files should be overwritten or not.
      */
-    void confirmUpload( @Nonnull ServerPlayerEntity uploader, boolean overwrite );
+    void confirmUpload( ServerPlayerEntity uploader, boolean overwrite );
 }

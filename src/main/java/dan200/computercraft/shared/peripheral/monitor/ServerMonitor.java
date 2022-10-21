@@ -85,7 +85,7 @@ public class ServerMonitor extends ServerTerminal
 
     public boolean pollTerminalChanged()
     {
-        update();
+        tickServer();
         return hasTerminalChanged();
     }
 }

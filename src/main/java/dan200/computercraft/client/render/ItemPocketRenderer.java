@@ -8,9 +8,10 @@ package dan200.computercraft.client.render;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.client.pocket.ClientPocketComputers;
+import dan200.computercraft.client.pocket.PocketComputerData;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
@@ -56,20 +57,11 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
     @Override
     protected void renderItem( MatrixStack transform, IRenderTypeBuffer bufferSource, ItemStack stack, int light )
     {
-        ClientComputer computer = ItemPocketComputer.createClientComputer( stack );
-        Terminal terminal = computer == null ? null : computer.getTerminal();
+        PocketComputerData computer = ClientPocketComputers.get( stack );
+        Terminal terminal = computer.getTerminal();
 
-        int termWidth, termHeight;
-        if( terminal == null )
-        {
-            termWidth = ComputerCraft.pocketTermWidth;
-            termHeight = ComputerCraft.pocketTermHeight;
-        }
-        else
-        {
-            termWidth = terminal.getWidth();
-            termHeight = terminal.getHeight();
-        }
+        int termWidth = terminal.getWidth();
+        int termHeight = terminal.getHeight();
 
         int width = termWidth * FONT_WIDTH + MARGIN * 2;
         int height = termHeight * FONT_HEIGHT + MARGIN * 2;
@@ -94,28 +86,18 @@ public final class ItemPocketRenderer extends ItemMapLikeRenderer
         renderFrame( matrix, bufferSource, family, frameColour, light, width, height );
 
         // Render the light
-        int lightColour = ItemPocketComputer.getLightState( stack );
+        int lightColour = ClientPocketComputers.get( stack ).getLightState();
         if( lightColour == -1 ) lightColour = Colour.BLACK.getHex();
         renderLight( matrix, bufferSource, lightColour, width, height );
 
-        if( computer != null && terminal != null )
-        {
-            FixedWidthFontRenderer.drawTerminal(
-                matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ),
-                MARGIN, MARGIN, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN
-            );
-            FixedWidthFontRenderer.drawBlocker(
-                matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_BLOCKER ),
-                0, 0, width, height
-            );
-        }
-        else
-        {
-            FixedWidthFontRenderer.drawEmptyTerminal(
-                matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH ),
-                0, 0, width, height
-            );
-        }
+        FixedWidthFontRenderer.drawTerminal(
+            matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_WITHOUT_DEPTH ),
+            MARGIN, MARGIN, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN
+        );
+        FixedWidthFontRenderer.drawBlocker(
+            matrix, bufferSource.getBuffer( RenderTypes.TERMINAL_BLOCKER ),
+            0, 0, width, height
+        );
 
         transform.popPose();
     }

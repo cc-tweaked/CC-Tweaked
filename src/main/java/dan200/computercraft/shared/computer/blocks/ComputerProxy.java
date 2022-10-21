@@ -5,13 +5,12 @@
  */
 package dan200.computercraft.shared.computer.blocks;
 
-import dan200.computercraft.shared.computer.core.IComputer;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 
 import java.util.function.Supplier;
 
 /**
- * A proxy object for computer objects, delegating to {@link IComputer} or {@link TileComputer} where appropriate.
+ * A proxy object for computer objects, delegating to {@link ServerComputer} or {@link TileComputer} where appropriate.
  */
 public final class ComputerProxy
 {

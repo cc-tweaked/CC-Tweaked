@@ -44,8 +44,8 @@ public class GuiTurtle extends ComputerScreenBase<ContainerTurtle>
     protected WidgetTerminal createTerminal()
     {
         return new WidgetTerminal(
-            computer, leftPos + BORDER + ComputerSidebar.WIDTH, topPos + BORDER,
-            ComputerCraft.turtleTermWidth, ComputerCraft.turtleTermHeight
+            getMenu().getFamily() != ComputerFamily.NORMAL, terminalData, input,
+            leftPos + BORDER + ComputerSidebar.WIDTH, topPos + BORDER
         );
     }
 

@@ -8,7 +8,7 @@ package dan200.computercraft.shared.turtle.inventory;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
+import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
@@ -24,26 +24,26 @@ import net.minecraft.util.IIntArray;
 import net.minecraft.util.IntArray;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.function.Predicate;
 
-public class ContainerTurtle extends ContainerComputerBase
+public final class ContainerTurtle extends ContainerComputerBase
 {
     public static final int BORDER = 8;
     public static final int PLAYER_START_Y = 134;
     public static final int TURTLE_START_X = ComputerSidebar.WIDTH + 175;
     public static final int PLAYER_START_X = ComputerSidebar.WIDTH + BORDER;
 
-    private final IIntArray properties;
+    private final IIntArray data;
 
     private ContainerTurtle(
-        int id, Predicate<PlayerEntity> canUse, IComputer computer, ComputerFamily family,
-        PlayerInventory playerInventory, IInventory inventory, IIntArray properties
+        int id, Predicate<PlayerEntity> canUse, ComputerFamily family, @Nullable ServerComputer computer, @Nullable ComputerContainerData menuData,
+        PlayerInventory playerInventory, IInventory inventory, IIntArray data
     )
     {
-        super( Registry.ModContainers.TURTLE.get(), id, canUse, computer, family );
-        this.properties = properties;
-
-        addDataSlots( properties );
+        super( Registry.ModContainers.TURTLE.get(), id, canUse, family, computer, menuData );
+        this.data = data;
+        addDataSlots( data );
 
         // Turtle inventory
         for( int y = 0; y < 4; y++ )
@@ -70,25 +70,25 @@ public class ContainerTurtle extends ContainerComputerBase
         }
     }
 
-    public ContainerTurtle( int id, PlayerInventory player, TurtleBrain turtle )
+    public static ContainerTurtle ofBrain( int id, PlayerInventory player, TurtleBrain turtle )
     {
-        this(
-            id, p -> turtle.getOwner().stillValid( p ), turtle.getOwner().createServerComputer(), turtle.getFamily(),
+        return new ContainerTurtle(
+            // Laziness in turtle.getOwner() is important here!
+            id, p -> turtle.getOwner().stillValid( p ), turtle.getFamily(), turtle.getOwner().createServerComputer(), null,
             player, turtle.getInventory(), (SingleIntArray) turtle::getSelectedSlot
         );
     }
 
-    public ContainerTurtle( int id, PlayerInventory player, ComputerContainerData data )
+    public static ContainerTurtle ofMenuData( int id, PlayerInventory player, ComputerContainerData data )
     {
-        this(
-            id, x -> true, getComputer( player, data ), data.getFamily(),
-            player, new Inventory( TileTurtle.INVENTORY_SIZE ), new IntArray( 1 )
+        return new ContainerTurtle(
+            id, x -> true, data.family(), null, data, player, new Inventory( TileTurtle.INVENTORY_SIZE ), new IntArray( 1 )
         );
     }
 
     public int getSelectedSlot()
     {
-        return properties.get( 0 );
+        return data.get( 0 );
     }
 
     @Nonnull

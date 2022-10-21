@@ -56,7 +56,7 @@ public class ServerTerminal implements ITerminal
         terminalChanged.set( true );
     }
 
-    public void update()
+    public void tickServer()
     {
         terminalChangedLastFrame = terminalChanged.getAndSet( false );
     }

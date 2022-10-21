@@ -7,6 +7,7 @@ package dan200.computercraft.client;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.*;
+import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.client.render.TurtleModelLoader;
@@ -16,7 +17,6 @@ import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
-import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.RenderType;
@@ -106,7 +106,7 @@ public final class ClientRegistry
                     return IColouredItem.getColourBasic( stack );
                 case 2: // Light colour
                 {
-                    int light = ItemPocketComputer.getLightState( stack );
+                    int light = ClientPocketComputers.get( stack ).getLightState();
                     return light == -1 ? Colour.BLACK.getHex() : light;
                 }
             }
@@ -140,7 +140,7 @@ public final class ClientRegistry
             registerContainers();
 
             registerItemProperty( "state",
-                ( stack, world, player ) -> ItemPocketComputer.getState( stack ).ordinal(),
+                ( stack, world, player ) -> ClientPocketComputers.get( stack ).getState().ordinal(),
                 Registry.ModItems.POCKET_COMPUTER_NORMAL, Registry.ModItems.POCKET_COMPUTER_ADVANCED
             );
             registerItemProperty( "coloured",
@@ -165,8 +165,8 @@ public final class ClientRegistry
     {
         // My IDE doesn't think so, but we do actually need these generics.
 
-        ScreenManager.<ContainerComputerBase, GuiComputer<ContainerComputerBase>>register( Registry.ModContainers.COMPUTER.get(), GuiComputer::create );
-        ScreenManager.<ContainerComputerBase, GuiComputer<ContainerComputerBase>>register( Registry.ModContainers.POCKET_COMPUTER.get(), GuiComputer::createPocket );
+        ScreenManager.<ContainerComputerBase, GuiComputer<ContainerComputerBase>>register( Registry.ModContainers.COMPUTER.get(), GuiComputer::new );
+        ScreenManager.<ContainerComputerBase, GuiComputer<ContainerComputerBase>>register( Registry.ModContainers.POCKET_COMPUTER.get(), GuiComputer::new );
         ScreenManager.<ContainerComputerBase, NoTermComputerScreen<ContainerComputerBase>>register( Registry.ModContainers.POCKET_COMPUTER_NO_TERM.get(), NoTermComputerScreen::new );
         ScreenManager.register( Registry.ModContainers.TURTLE.get(), GuiTurtle::new );
 
@@ -174,6 +174,6 @@ public final class ClientRegistry
         ScreenManager.register( Registry.ModContainers.DISK_DRIVE.get(), GuiDiskDrive::new );
         ScreenManager.register( Registry.ModContainers.PRINTOUT.get(), GuiPrintout::new );
 
-        ScreenManager.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>register( Registry.ModContainers.VIEW_COMPUTER.get(), GuiComputer::createView );
+        ScreenManager.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>register( Registry.ModContainers.VIEW_COMPUTER.get(), GuiComputer::new );
     }
 }

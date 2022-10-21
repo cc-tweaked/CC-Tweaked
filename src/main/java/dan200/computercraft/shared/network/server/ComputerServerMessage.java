@@ -5,52 +5,49 @@
  */
 package dan200.computercraft.shared.network.server;
 
-import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.computer.core.IContainerComputer;
-import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import dan200.computercraft.shared.network.NetworkMessage;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 /**
- * A packet, which performs an action on a {@link ServerComputer}.
- *
- * This requires that the sending player is interacting with that computer via a
- * {@link IContainerComputer}.
+ * A packet, which performs an action on the currently open {@link ComputerMenu}.
  */
 public abstract class ComputerServerMessage implements NetworkMessage
 {
-    private final int instanceId;
+    private final int containerId;
 
-    public ComputerServerMessage( int instanceId )
+    protected ComputerServerMessage( Container menu )
     {
-        this.instanceId = instanceId;
+        containerId = menu.containerId;
     }
 
-    public ComputerServerMessage( @Nonnull PacketBuffer buf )
+    protected ComputerServerMessage( PacketBuffer buffer )
     {
-        instanceId = buf.readVarInt();
+        containerId = buffer.readVarInt();
     }
 
     @Override
+    @OverridingMethodsMustInvokeSuper
     public void toBytes( @Nonnull PacketBuffer buf )
     {
-        buf.writeVarInt( instanceId );
+        buf.writeVarInt( containerId );
     }
 
     @Override
     public void handle( NetworkEvent.Context context )
     {
-        ServerComputer computer = ComputerCraft.serverComputerRegistry.get( instanceId );
-        if( computer == null ) return;
-
-        IContainerComputer container = computer.getContainer( context.getSender() );
-        if( container == null ) return;
-
-        handle( context, computer, container );
+        PlayerEntity player = context.getSender();
+        if( player.containerMenu.containerId == containerId && player.containerMenu instanceof ComputerMenu )
+        {
+            handle( context, (ComputerMenu) player.containerMenu );
+        }
     }
 
-    protected abstract void handle( NetworkEvent.Context context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container );
+    protected abstract void handle( NetworkEvent.Context context, @Nonnull ComputerMenu container );
 }

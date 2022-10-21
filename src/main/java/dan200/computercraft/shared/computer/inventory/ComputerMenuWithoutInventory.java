@@ -6,13 +6,15 @@
 package dan200.computercraft.shared.computer.inventory;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
+import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.util.InvisibleSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.item.ItemStack;
 
+import javax.annotation.Nonnull;
 import java.util.function.Predicate;
 
 /**
@@ -22,20 +24,30 @@ import java.util.function.Predicate;
  */
 public class ComputerMenuWithoutInventory extends ContainerComputerBase
 {
-    public ComputerMenuWithoutInventory( ContainerType<? extends ContainerComputerBase> type, int id, PlayerInventory player, Predicate<PlayerEntity> canUse, IComputer computer, ComputerFamily family )
+    public ComputerMenuWithoutInventory(
+        ContainerType<? extends ContainerComputerBase> type, int id, PlayerInventory player, Predicate<PlayerEntity> canUse,
+        ServerComputer computer, ComputerFamily family
+    )
     {
-        super( type, id, canUse, computer, family );
+        super( type, id, canUse, family, computer, null );
         addSlots( player );
     }
 
-    public ComputerMenuWithoutInventory( ContainerType<? extends ContainerComputerBase> type, int id, PlayerInventory player, ComputerContainerData data )
+    public ComputerMenuWithoutInventory( ContainerType<? extends ContainerComputerBase> type, int id, PlayerInventory player, ComputerContainerData menuData )
     {
-        super( type, id, player, data );
+        super( type, id, p -> true, menuData.family(), null, menuData );
         addSlots( player );
     }
 
     private void addSlots( PlayerInventory player )
     {
         for( int i = 0; i < 9; i++ ) addSlot( new InvisibleSlot( player, i ) );
+    }
+
+    @Nonnull
+    @Override
+    public ItemStack quickMoveStack( @Nonnull PlayerEntity player, int slot )
+    {
+        return ItemStack.EMPTY;
     }
 }

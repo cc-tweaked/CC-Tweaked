@@ -11,7 +11,7 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.shared.computer.core.ClientComputer;
+import dan200.computercraft.shared.computer.core.InputHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -33,7 +33,10 @@ public class WidgetTerminal extends Widget
 {
     private static final float TERMINATE_TIME = 0.5f;
 
-    private final ClientComputer computer;
+    private final boolean isColour;
+    private final @Nonnull Terminal terminal;
+    private final @Nonnull InputHandler computer;
+
 
     // The positions of the actual terminal
     private final int innerX;
@@ -51,16 +54,18 @@ public class WidgetTerminal extends Widget
 
     private final BitSet keysDown = new BitSet( 256 );
 
-    public WidgetTerminal( @Nonnull ClientComputer computer, int x, int y, int termWidth, int termHeight )
+    public WidgetTerminal( boolean isColour, @Nonnull Terminal terminal, @Nonnull InputHandler computer, int x, int y )
     {
-        super( x, y, termWidth * FONT_WIDTH + MARGIN * 2, termHeight * FONT_HEIGHT + MARGIN * 2, StringTextComponent.EMPTY );
+        super( x, y, terminal.getWidth() * FONT_WIDTH + MARGIN * 2, terminal.getHeight() * FONT_HEIGHT + MARGIN * 2, StringTextComponent.EMPTY );
 
+        this.isColour = isColour;
+        this.terminal = terminal;
         this.computer = computer;
 
         innerX = x + MARGIN;
         innerY = y + MARGIN;
-        innerWidth = termWidth * FONT_WIDTH;
-        innerHeight = termHeight * FONT_HEIGHT;
+        innerWidth = terminal.getWidth() * FONT_WIDTH;
+        innerHeight = terminal.getHeight() * FONT_HEIGHT;
     }
 
     @Override
@@ -173,22 +178,18 @@ public class WidgetTerminal extends Widget
     public boolean mouseClicked( double mouseX, double mouseY, int button )
     {
         if( !inTermRegion( mouseX, mouseY ) ) return false;
-        if( !computer.isColour() || button < 0 || button > 2 ) return false;
+        if( !isColour || button < 0 || button > 2 ) return false;
 
-        Terminal term = computer.getTerminal();
-        if( term != null )
-        {
-            int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
-            int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
-            charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
-            charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
+        int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
+        int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
+        charX = Math.min( Math.max( charX, 0 ), terminal.getWidth() - 1 );
+        charY = Math.min( Math.max( charY, 0 ), terminal.getHeight() - 1 );
 
-            computer.mouseClick( button + 1, charX + 1, charY + 1 );
+        computer.mouseClick( button + 1, charX + 1, charY + 1 );
 
-            lastMouseButton = button;
-            lastMouseX = charX;
-            lastMouseY = charY;
-        }
+        lastMouseButton = button;
+        lastMouseX = charX;
+        lastMouseY = charY;
 
         return true;
     }
@@ -197,25 +198,21 @@ public class WidgetTerminal extends Widget
     public boolean mouseReleased( double mouseX, double mouseY, int button )
     {
         if( !inTermRegion( mouseX, mouseY ) ) return false;
-        if( !computer.isColour() || button < 0 || button > 2 ) return false;
+        if( !isColour || button < 0 || button > 2 ) return false;
 
-        Terminal term = computer.getTerminal();
-        if( term != null )
+        int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
+        int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
+        charX = Math.min( Math.max( charX, 0 ), terminal.getWidth() - 1 );
+        charY = Math.min( Math.max( charY, 0 ), terminal.getHeight() - 1 );
+
+        if( lastMouseButton == button )
         {
-            int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
-            int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
-            charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
-            charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
-
-            if( lastMouseButton == button )
-            {
-                computer.mouseUp( lastMouseButton + 1, charX + 1, charY + 1 );
-                lastMouseButton = -1;
-            }
-
-            lastMouseX = charX;
-            lastMouseY = charY;
+            computer.mouseUp( lastMouseButton + 1, charX + 1, charY + 1 );
+            lastMouseButton = -1;
         }
+
+        lastMouseX = charX;
+        lastMouseY = charY;
 
         return false;
     }
@@ -224,22 +221,18 @@ public class WidgetTerminal extends Widget
     public boolean mouseDragged( double mouseX, double mouseY, int button, double v2, double v3 )
     {
         if( !inTermRegion( mouseX, mouseY ) ) return false;
-        if( !computer.isColour() || button < 0 || button > 2 ) return false;
+        if( !isColour || button < 0 || button > 2 ) return false;
 
-        Terminal term = computer.getTerminal();
-        if( term != null )
+        int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
+        int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
+        charX = Math.min( Math.max( charX, 0 ), terminal.getWidth() - 1 );
+        charY = Math.min( Math.max( charY, 0 ), terminal.getHeight() - 1 );
+
+        if( button == lastMouseButton && (charX != lastMouseX || charY != lastMouseY) )
         {
-            int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
-            int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
-            charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
-            charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
-
-            if( button == lastMouseButton && (charX != lastMouseX || charY != lastMouseY) )
-            {
-                computer.mouseDrag( button + 1, charX + 1, charY + 1 );
-                lastMouseX = charX;
-                lastMouseY = charY;
-            }
+            computer.mouseDrag( button + 1, charX + 1, charY + 1 );
+            lastMouseX = charX;
+            lastMouseY = charY;
         }
 
         return false;
@@ -249,21 +242,17 @@ public class WidgetTerminal extends Widget
     public boolean mouseScrolled( double mouseX, double mouseY, double delta )
     {
         if( !inTermRegion( mouseX, mouseY ) ) return false;
-        if( !computer.isColour() || delta == 0 ) return false;
+        if( !isColour || delta == 0 ) return false;
 
-        Terminal term = computer.getTerminal();
-        if( term != null )
-        {
-            int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
-            int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
-            charX = Math.min( Math.max( charX, 0 ), term.getWidth() - 1 );
-            charY = Math.min( Math.max( charY, 0 ), term.getHeight() - 1 );
+        int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
+        int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
+        charX = Math.min( Math.max( charX, 0 ), terminal.getWidth() - 1 );
+        charY = Math.min( Math.max( charY, 0 ), terminal.getHeight() - 1 );
 
-            computer.mouseScroll( delta < 0 ? 1 : -1, charX + 1, charY + 1 );
+        computer.mouseScroll( delta < 0 ? 1 : -1, charX + 1, charY + 1 );
 
-            lastMouseX = charX;
-            lastMouseY = charY;
-        }
+        lastMouseX = charX;
+        lastMouseY = charY;
 
         return true;
     }
@@ -319,7 +308,6 @@ public class WidgetTerminal extends Widget
     {
         if( !visible ) return;
         Matrix4f matrix = transform.last().pose();
-        Terminal terminal = computer.getTerminal();
 
         Minecraft.getInstance().getTextureManager().bind( FixedWidthFontRenderer.FONT );
         RenderSystem.texParameter( GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_CLAMP );
@@ -329,7 +317,7 @@ public class WidgetTerminal extends Widget
 
         if( terminal != null )
         {
-            FixedWidthFontRenderer.drawTerminal( matrix, buffer, innerX, innerY, terminal, !computer.isColour(), MARGIN, MARGIN, MARGIN, MARGIN );
+            FixedWidthFontRenderer.drawTerminal( matrix, buffer, innerX, innerY, terminal, !isColour, MARGIN, MARGIN, MARGIN, MARGIN );
         }
         else
         {

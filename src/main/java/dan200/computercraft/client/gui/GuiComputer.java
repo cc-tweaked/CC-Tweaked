@@ -6,12 +6,11 @@
 package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
+import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
-import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.text.ITextComponent;
 
@@ -22,50 +21,20 @@ import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMA
 
 public final class GuiComputer<T extends ContainerComputerBase> extends ComputerScreenBase<T>
 {
-    private final int termWidth;
-    private final int termHeight;
-
-    private GuiComputer(
-        T container, PlayerInventory player, ITextComponent title, int termWidth, int termHeight
-    )
+    public GuiComputer( T container, PlayerInventory player, ITextComponent title )
     {
         super( container, player, title, BORDER );
-        this.termWidth = termWidth;
-        this.termHeight = termHeight;
 
-        imageWidth = WidgetTerminal.getWidth( termWidth ) + BORDER * 2 + ComputerSidebar.WIDTH;
-        imageHeight = WidgetTerminal.getHeight( termHeight ) + BORDER * 2;
-    }
-
-    public static GuiComputer<ContainerComputerBase> create( ContainerComputerBase container, PlayerInventory inventory, ITextComponent component )
-    {
-        return new GuiComputer<>(
-            container, inventory, component,
-            ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight
-        );
-    }
-
-    public static GuiComputer<ContainerComputerBase> createPocket( ContainerComputerBase container, PlayerInventory inventory, ITextComponent component )
-    {
-        return new GuiComputer<>(
-            container, inventory, component,
-            ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight
-        );
-    }
-
-    public static GuiComputer<ContainerViewComputer> createView( ContainerViewComputer container, PlayerInventory inventory, ITextComponent component )
-    {
-        return new GuiComputer<>(
-            container, inventory, component,
-            container.getWidth(), container.getHeight()
-        );
+        imageWidth = WidgetTerminal.getWidth( terminalData.getWidth() ) + BORDER * 2 + ComputerSidebar.WIDTH;
+        imageHeight = WidgetTerminal.getHeight( terminalData.getHeight() ) + BORDER * 2;
     }
 
     @Override
     protected WidgetTerminal createTerminal()
     {
-        return new WidgetTerminal( computer,
-            leftPos + ComputerSidebar.WIDTH + BORDER, topPos + BORDER, termWidth, termHeight
+        return new WidgetTerminal(
+            getMenu().getFamily() != ComputerFamily.NORMAL, terminalData, input,
+            leftPos + ComputerSidebar.WIDTH + BORDER, topPos + BORDER
         );
     }
 

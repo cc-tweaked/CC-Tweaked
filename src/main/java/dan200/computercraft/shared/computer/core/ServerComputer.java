@@ -16,49 +16,56 @@ import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.computer.IComputerEnvironment;
-import dan200.computercraft.shared.common.ServerTerminal;
+import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.NetworkMessage;
-import dan200.computercraft.shared.network.client.ComputerDataClientMessage;
-import dan200.computercraft.shared.network.client.ComputerDeletedClientMessage;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
-import net.minecraft.entity.player.PlayerEntity;
+import dan200.computercraft.shared.network.client.TerminalState;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.Container;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.versions.mcp.MCPVersion;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
-public class ServerComputer extends ServerTerminal implements IComputer, IComputerEnvironment
+public class ServerComputer implements InputHandler, IComputerEnvironment
 {
     private final int instanceID;
 
-    private World world;
+    private ServerWorld world;
     private BlockPos position;
 
     private final ComputerFamily family;
     private final Computer computer;
-    private CompoundNBT userData;
-    private boolean changed;
+
+    private final Terminal terminal;
+    private final AtomicBoolean terminalChanged = new AtomicBoolean( false );
 
     private boolean changedLastFrame;
     private int ticksSincePing;
 
-    public ServerComputer( World world, int computerID, String label, int instanceID, ComputerFamily family, int terminalWidth, int terminalHeight )
+    public ServerComputer( ServerWorld world, int computerID, String label, ComputerFamily family, int terminalWidth, int terminalHeight )
     {
-        super( family != ComputerFamily.NORMAL, terminalWidth, terminalHeight );
-        this.instanceID = instanceID;
-
         this.world = world;
         this.family = family;
-        computer = new Computer( this, getTerminal(), computerID );
+
+        instanceID = ServerComputerRegistry.INSTANCE.getUnusedInstanceID();
+        terminal = new Terminal( terminalWidth, terminalHeight, this::markTerminalChanged );
+
+        computer = new Computer( this, terminal, computerID );
         computer.setLabel( label );
+    }
+
+    @Override
+    public boolean isColour()
+    {
+        return family != ComputerFamily.NORMAL;
     }
 
     public ComputerFamily getFamily()
@@ -66,12 +73,12 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return family;
     }
 
-    public World getWorld()
+    public ServerWorld getWorld()
     {
         return world;
     }
 
-    public void setWorld( World world )
+    public void setWorld( ServerWorld world )
     {
         this.world = world;
     }
@@ -96,16 +103,30 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return computer;
     }
 
-    @Override
-    public void update()
+    protected void markTerminalChanged()
     {
-        super.update();
+        terminalChanged.set( true );
+    }
+
+
+    public void tickServer()
+    {
+        ticksSincePing++;
+
         computer.tick();
 
-        changedLastFrame = computer.pollAndResetChanged() || changed;
-        changed = false;
+        changedLastFrame = computer.pollAndResetChanged();
+        if( terminalChanged.getAndSet( false ) ) onTerminalChanged();
+    }
 
-        ticksSincePing++;
+    protected void onTerminalChanged()
+    {
+        sendToAllInteracting( c -> new ComputerTerminalClientMessage( c, getTerminalState() ) );
+    }
+
+    public TerminalState getTerminalState()
+    {
+        return new TerminalState( isColour(), terminal );
     }
 
     public void keepAlive()
@@ -123,76 +144,38 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return changedLastFrame;
     }
 
-    public void unload()
+    public int register()
+    {
+        ServerComputerRegistry.INSTANCE.add( instanceID, this );
+        return instanceID;
+    }
+
+    void unload()
     {
         computer.unload();
     }
 
-    public CompoundNBT getUserData()
+    public void close()
     {
-        if( userData == null )
+        unload();
+        ServerComputerRegistry.INSTANCE.remove( instanceID );
+    }
+
+    private void sendToAllInteracting( Function<Container, NetworkMessage> createPacket )
+    {
+        MinecraftServer server = world.getServer();
+
+        for( ServerPlayerEntity player : server.getPlayerList().getPlayers() )
         {
-            userData = new CompoundNBT();
-        }
-        return userData;
-    }
-
-    public void updateUserData()
-    {
-        changed = true;
-    }
-
-    private NetworkMessage createComputerPacket()
-    {
-        return new ComputerDataClientMessage( this );
-    }
-
-    protected NetworkMessage createTerminalPacket()
-    {
-        return new ComputerTerminalClientMessage( getInstanceID(), write() );
-    }
-
-    public void broadcastState( boolean force )
-    {
-        if( hasOutputChanged() || force )
-        {
-            // Send computer state to all clients
-            NetworkHandler.sendToAllPlayers( createComputerPacket() );
-        }
-
-        if( hasTerminalChanged() || force )
-        {
-            // Send terminal state to clients who are currently interacting with the computer.
-            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-
-            NetworkMessage packet = null;
-            for( PlayerEntity player : server.getPlayerList().getPlayers() )
+            if( player.containerMenu instanceof ComputerMenu && ((ComputerMenu) player.containerMenu).getComputer() == this )
             {
-                if( isInteracting( player ) )
-                {
-                    if( packet == null ) packet = createTerminalPacket();
-                    NetworkHandler.sendToPlayer( player, packet );
-                }
+                NetworkHandler.sendToPlayer( player, createPacket.apply( player.containerMenu ) );
             }
         }
     }
 
-    public void sendComputerState( PlayerEntity player )
+    protected void onRemoved()
     {
-        // Send state to client
-        NetworkHandler.sendToPlayer( player, createComputerPacket() );
-    }
-
-    public void sendTerminalState( PlayerEntity player )
-    {
-        // Send terminal state to client
-        NetworkHandler.sendToPlayer( player, createTerminalPacket() );
-    }
-
-    public void broadcastDelete()
-    {
-        // Send deletion to client
-        NetworkHandler.sendToAllPlayers( new ComputerDeletedClientMessage( getInstanceID() ) );
     }
 
     public void setID( int id )
@@ -200,9 +183,6 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         computer.setID( id );
     }
 
-    // IComputer
-
-    @Override
     public int getInstanceID()
     {
         return instanceID;
@@ -218,16 +198,15 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
         return computer.getLabel();
     }
 
-    @Override
     public boolean isOn()
     {
         return computer.isOn();
     }
 
-    @Override
-    public boolean isCursorDisplayed()
+    public ComputerState getState()
     {
-        return computer.isOn() && computer.isBlinking();
+        if( !isOn() ) return ComputerState.OFF;
+        return computer.isBlinking() ? ComputerState.BLINKING : ComputerState.ON;
     }
 
     @Override
@@ -354,22 +333,5 @@ public class ServerComputer extends ServerTerminal implements IComputer, IComput
     public int assignNewID()
     {
         return ComputerCraftAPI.createUniqueNumberedSaveDir( world, "computer" );
-    }
-
-    @Nullable
-    public IContainerComputer getContainer( PlayerEntity player )
-    {
-        if( player == null ) return null;
-
-        Container container = player.containerMenu;
-        if( !(container instanceof IContainerComputer) ) return null;
-
-        IContainerComputer computerContainer = (IContainerComputer) container;
-        return computerContainer.getComputer() != this ? null : computerContainer;
-    }
-
-    protected boolean isInteracting( PlayerEntity player )
-    {
-        return getContainer( player ) != null;
     }
 }

@@ -12,9 +12,9 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.arguments.IArgumentSerializer;
 import net.minecraft.network.PacketBuffer;
@@ -89,7 +89,7 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
         {
             int instance = reader.readInt();
             computers = s -> {
-                ServerComputer computer = ComputerCraft.serverComputerRegistry.get( instance );
+                ServerComputer computer = ServerComputerRegistry.INSTANCE.get( instance );
                 return computer == null ? Collections.emptyList() : Collections.singletonList( computer );
             };
         }
@@ -151,7 +151,7 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
     private static void suggestComputers( SuggestionsBuilder builder, String remaining, Function<ServerComputer, String> renderer )
     {
         remaining = remaining.toLowerCase( Locale.ROOT );
-        for( ServerComputer computer : ComputerCraft.serverComputerRegistry.getComputers() )
+        for( ServerComputer computer : ServerComputerRegistry.INSTANCE.getComputers() )
         {
             String converted = renderer.apply( computer );
             if( converted != null && converted.toLowerCase( Locale.ROOT ).startsWith( remaining ) )
@@ -163,7 +163,7 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
 
     private static ComputersSupplier getComputers( Predicate<ServerComputer> predicate )
     {
-        return s -> Collections.unmodifiableList( ComputerCraft.serverComputerRegistry
+        return s -> Collections.unmodifiableList( ServerComputerRegistry.INSTANCE
             .getComputers()
             .stream()
             .filter( predicate )

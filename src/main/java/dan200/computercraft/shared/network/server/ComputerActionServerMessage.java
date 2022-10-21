@@ -5,8 +5,8 @@
  */
 package dan200.computercraft.shared.network.server;
 
-import dan200.computercraft.shared.computer.core.IContainerComputer;
-import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.menu.ComputerMenu;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -16,9 +16,9 @@ public class ComputerActionServerMessage extends ComputerServerMessage
 {
     private final Action action;
 
-    public ComputerActionServerMessage( int instanceId, Action action )
+    public ComputerActionServerMessage( Container menu, Action action )
     {
-        super( instanceId );
+        super( menu );
         this.action = action;
     }
 
@@ -36,18 +36,18 @@ public class ComputerActionServerMessage extends ComputerServerMessage
     }
 
     @Override
-    protected void handle( NetworkEvent.Context context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
+    protected void handle( NetworkEvent.Context context, @Nonnull ComputerMenu container )
     {
         switch( action )
         {
             case TURN_ON:
-                computer.turnOn();
+                container.getInput().turnOn();
                 break;
             case REBOOT:
-                computer.reboot();
+                container.getInput().reboot();
                 break;
             case SHUTDOWN:
-                computer.shutdown();
+                container.getInput().shutdown();
                 break;
         }
     }

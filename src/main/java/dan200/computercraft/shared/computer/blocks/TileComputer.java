@@ -20,6 +20,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -39,13 +40,12 @@ public class TileComputer extends TileComputerBase
     }
 
     @Override
-    protected ServerComputer createComputer( int instanceID, int id )
+    protected ServerComputer createComputer( int id )
     {
         ComputerFamily family = getFamily();
         ServerComputer computer = new ServerComputer(
-            getLevel(), id, label, instanceID, family,
-            ComputerCraft.computerTermWidth,
-            ComputerCraft.computerTermHeight
+            (ServerWorld) getLevel(), id, label, family,
+            ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight
         );
         computer.setPosition( getBlockPos() );
         return computer;

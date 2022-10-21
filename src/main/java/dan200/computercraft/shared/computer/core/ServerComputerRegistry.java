@@ -5,10 +5,45 @@
  */
 package dan200.computercraft.shared.computer.core;
 
-import java.util.Iterator;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
-public class ServerComputerRegistry extends ComputerRegistry<ServerComputer>
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Random;
+
+public class ServerComputerRegistry
 {
+    private static final Random RANDOM = new Random();
+    public static final ServerComputerRegistry INSTANCE = new ServerComputerRegistry();
+
+    private int sessionId = RANDOM.nextInt();
+    private final Int2ObjectMap<ServerComputer> computers = new Int2ObjectOpenHashMap<>();
+    private int nextInstanceId;
+
+    public int getSessionID()
+    {
+        return sessionId;
+    }
+
+    int getUnusedInstanceID()
+    {
+        return nextInstanceId++;
+    }
+
+    @Nullable
+    public ServerComputer get( int instanceID )
+    {
+        return instanceID >= 0 ? computers.get( instanceID ) : null;
+    }
+
+    @Nullable
+    public ServerComputer get( int sessionId, int instanceId )
+    {
+        return sessionId == this.sessionId ? get( instanceId ) : null;
+    }
+
     public void update()
     {
         Iterator<ServerComputer> it = getComputers().iterator();
@@ -17,66 +52,45 @@ public class ServerComputerRegistry extends ComputerRegistry<ServerComputer>
             ServerComputer computer = it.next();
             if( computer.hasTimedOut() )
             {
-                //System.out.println( "TIMED OUT SERVER COMPUTER " + computer.getInstanceID() );
                 computer.unload();
-                computer.broadcastDelete();
+                computer.onRemoved();
                 it.remove();
-                //System.out.println( getComputers().size() + " SERVER COMPUTERS" );
             }
             else
             {
-                computer.update();
-                if( computer.hasTerminalChanged() || computer.hasOutputChanged() )
-                {
-                    computer.broadcastState( false );
-                }
+                computer.tickServer();
             }
         }
     }
 
-    @Override
-    public void add( int instanceID, ServerComputer computer )
+    void add( int instanceID, ServerComputer computer )
     {
-        //System.out.println( "ADD SERVER COMPUTER " + instanceID );
-        super.add( instanceID, computer );
-        computer.broadcastState( true );
-        //System.out.println( getComputers().size() + " SERVER COMPUTERS" );
+        remove( instanceID );
+        computers.put( instanceID, computer );
+        nextInstanceId = Math.max( nextInstanceId, instanceID + 1 );
     }
 
-    @Override
-    public void remove( int instanceID )
+    void remove( int instanceID )
     {
-        //System.out.println( "REMOVE SERVER COMPUTER " + instanceID );
         ServerComputer computer = get( instanceID );
         if( computer != null )
         {
             computer.unload();
-            computer.broadcastDelete();
+            computer.onRemoved();
         }
-        super.remove( instanceID );
-        //System.out.println( getComputers().size() + " SERVER COMPUTERS" );
+
+        computers.remove( instanceID );
     }
 
-    @Override
     public void reset()
     {
-        //System.out.println( "RESET SERVER COMPUTERS" );
-        for( ServerComputer computer : getComputers() )
-        {
-            computer.unload();
-        }
-        super.reset();
-        //System.out.println( getComputers().size() + " SERVER COMPUTERS" );
+        for( ServerComputer computer : getComputers() ) computer.unload();
+        computers.clear();
+        sessionId = RANDOM.nextInt();
     }
 
-    public ServerComputer lookup( int computerID )
+    public Collection<ServerComputer> getComputers()
     {
-        if( computerID < 0 ) return null;
-
-        for( ServerComputer computer : getComputers() )
-        {
-            if( computer.getID() == computerID ) return computer;
-        }
-        return null;
+        return computers.values();
     }
 }

@@ -5,12 +5,12 @@
  */
 package dan200.computercraft.shared.computer.inventory;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.network.container.ViewComputerContainerData;
+import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
+import dan200.computercraft.shared.network.container.ComputerContainerData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 
@@ -18,26 +18,20 @@ import javax.annotation.Nonnull;
 
 public class ContainerViewComputer extends ComputerMenuWithoutInventory
 {
-    private final int width;
-    private final int height;
-
     public ContainerViewComputer( int id, PlayerInventory player, ServerComputer computer )
     {
         super( Registry.ModContainers.VIEW_COMPUTER.get(), id, player, p -> canInteractWith( computer, p ), computer, computer.getFamily() );
-        width = height = 0;
     }
 
-    public ContainerViewComputer( int id, PlayerInventory player, ViewComputerContainerData data )
+    public ContainerViewComputer( int id, PlayerInventory player, ComputerContainerData data )
     {
         super( Registry.ModContainers.VIEW_COMPUTER.get(), id, player, data );
-        width = data.getWidth();
-        height = data.getHeight();
     }
 
     private static boolean canInteractWith( @Nonnull ServerComputer computer, @Nonnull PlayerEntity player )
     {
         // If this computer no longer exists then discard it.
-        if( ComputerCraft.serverComputerRegistry.get( computer.getInstanceID() ) != computer )
+        if( ServerComputerRegistry.INSTANCE.get( computer.getInstanceID() ) != computer )
         {
             return false;
         }
@@ -49,15 +43,5 @@ public class ContainerViewComputer extends ComputerMenuWithoutInventory
         }
 
         return true;
-    }
-
-    public int getWidth()
-    {
-        return width;
-    }
-
-    public int getHeight()
-    {
-        return height;
     }
 }

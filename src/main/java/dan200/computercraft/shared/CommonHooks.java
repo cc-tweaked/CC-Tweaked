@@ -12,12 +12,9 @@ import dan200.computercraft.core.filesystem.ResourceMount;
 import dan200.computercraft.core.tracking.ComputerMBean;
 import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.command.CommandComputerCraft;
-import dan200.computercraft.shared.computer.core.IComputer;
-import dan200.computercraft.shared.computer.core.IContainerComputer;
-import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import net.minecraft.entity.EntityType;
-import net.minecraft.inventory.container.Container;
 import net.minecraft.loot.ConstantRange;
 import net.minecraft.loot.LootPool;
 import net.minecraft.loot.LootTables;
@@ -26,7 +23,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.*;
-import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
@@ -56,22 +52,7 @@ public final class CommonHooks
         if( event.phase == TickEvent.Phase.START )
         {
             MainThread.executePendingTasks();
-            ComputerCraft.serverComputerRegistry.update();
-        }
-    }
-
-    @SubscribeEvent
-    public static void onContainerOpen( PlayerContainerEvent.Open event )
-    {
-        // If we're opening a computer container then broadcast the terminal state
-        Container container = event.getContainer();
-        if( container instanceof IContainerComputer )
-        {
-            IComputer computer = ((IContainerComputer) container).getComputer();
-            if( computer instanceof ServerComputer )
-            {
-                ((ServerComputer) computer).sendTerminalState( event.getPlayer() );
-            }
+            ServerComputerRegistry.INSTANCE.update();
         }
     }
 
@@ -102,7 +83,7 @@ public final class CommonHooks
 
     private static void resetState()
     {
-        ComputerCraft.serverComputerRegistry.reset();
+        ServerComputerRegistry.INSTANCE.reset();
         MainThread.reset();
         WirelessNetwork.resetNetworks();
         Tracking.reset();

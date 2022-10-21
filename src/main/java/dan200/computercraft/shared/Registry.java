@@ -37,7 +37,6 @@ import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.network.container.HeldItemContainerData;
-import dan200.computercraft.shared.network.container.ViewComputerContainerData;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
@@ -306,7 +305,7 @@ public final class Registry
             () -> ContainerData.toType( ComputerContainerData::new, ComputerMenuWithoutInventory::new ) );
 
         public static final RegistryObject<ContainerType<ContainerTurtle>> TURTLE = CONTAINERS.register( "turtle",
-            () -> ContainerData.toType( ComputerContainerData::new, ContainerTurtle::new ) );
+            () -> ContainerData.toType( ComputerContainerData::new, ContainerTurtle::ofMenuData ) );
 
         public static final RegistryObject<ContainerType<ContainerDiskDrive>> DISK_DRIVE = CONTAINERS.register( "disk_drive",
             () -> new ContainerType<>( ContainerDiskDrive::new ) );
@@ -318,7 +317,7 @@ public final class Registry
             () -> ContainerData.toType( HeldItemContainerData::new, ContainerHeldItem::createPrintout ) );
 
         public static final RegistryObject<ContainerType<ContainerViewComputer>> VIEW_COMPUTER = CONTAINERS.register( "view_computer",
-            () -> ContainerData.toType( ViewComputerContainerData::new, ContainerViewComputer::new ) );
+            () -> ContainerData.toType( ComputerContainerData::new, ContainerViewComputer::new ) );
     }
 
     @SubscribeEvent

@@ -11,8 +11,8 @@ import dan200.computercraft.shared.network.client.*;
 import dan200.computercraft.shared.network.server.*;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3d;
@@ -24,6 +24,7 @@ import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 
+import java.util.Collection;
 import java.util.function.Function;
 
 public final class NetworkHandler
@@ -46,16 +47,15 @@ public final class NetworkHandler
         // Server messages
         registerMainThread( 0, NetworkDirection.PLAY_TO_SERVER, ComputerActionServerMessage.class, ComputerActionServerMessage::new );
         registerMainThread( 1, NetworkDirection.PLAY_TO_SERVER, QueueEventServerMessage.class, QueueEventServerMessage::new );
-        registerMainThread( 2, NetworkDirection.PLAY_TO_SERVER, RequestComputerMessage.class, RequestComputerMessage::new );
-        registerMainThread( 3, NetworkDirection.PLAY_TO_SERVER, KeyEventServerMessage.class, KeyEventServerMessage::new );
-        registerMainThread( 4, NetworkDirection.PLAY_TO_SERVER, MouseEventServerMessage.class, MouseEventServerMessage::new );
-        registerMainThread( 5, NetworkDirection.PLAY_TO_SERVER, UploadFileMessage.class, UploadFileMessage::new );
-        registerMainThread( 6, NetworkDirection.PLAY_TO_SERVER, ContinueUploadMessage.class, ContinueUploadMessage::new );
+        registerMainThread( 2, NetworkDirection.PLAY_TO_SERVER, KeyEventServerMessage.class, KeyEventServerMessage::new );
+        registerMainThread( 3, NetworkDirection.PLAY_TO_SERVER, MouseEventServerMessage.class, MouseEventServerMessage::new );
+        registerMainThread( 4, NetworkDirection.PLAY_TO_SERVER, UploadFileMessage.class, UploadFileMessage::new );
+        registerMainThread( 5, NetworkDirection.PLAY_TO_SERVER, ContinueUploadMessage.class, ContinueUploadMessage::new );
 
         // Client messages
         registerMainThread( 10, NetworkDirection.PLAY_TO_CLIENT, ChatTableClientMessage.class, ChatTableClientMessage::new );
-        registerMainThread( 11, NetworkDirection.PLAY_TO_CLIENT, ComputerDataClientMessage.class, ComputerDataClientMessage::new );
-        registerMainThread( 12, NetworkDirection.PLAY_TO_CLIENT, ComputerDeletedClientMessage.class, ComputerDeletedClientMessage::new );
+        registerMainThread( 11, NetworkDirection.PLAY_TO_CLIENT, PocketComputerDataMessage.class, PocketComputerDataMessage::new );
+        registerMainThread( 12, NetworkDirection.PLAY_TO_CLIENT, PocketComputerDeletedClientMessage.class, PocketComputerDeletedClientMessage::new );
         registerMainThread( 13, NetworkDirection.PLAY_TO_CLIENT, ComputerTerminalClientMessage.class, ComputerTerminalClientMessage::new );
         registerMainThread( 14, NetworkDirection.PLAY_TO_CLIENT, PlayRecordClientMessage.class, PlayRecordClientMessage::new );
         registerMainThread( 15, NetworkDirection.PLAY_TO_CLIENT, MonitorClientMessage.class, MonitorClientMessage::new );
@@ -66,9 +66,9 @@ public final class NetworkHandler
         registerMainThread( 20, NetworkDirection.PLAY_TO_CLIENT, UploadResultMessage.class, UploadResultMessage::new );
     }
 
-    public static void sendToPlayer( PlayerEntity player, NetworkMessage packet )
+    public static void sendToPlayer( ServerPlayerEntity player, NetworkMessage packet )
     {
-        network.sendTo( packet, ((ServerPlayerEntity) player).connection.connection, NetworkDirection.PLAY_TO_CLIENT );
+        network.sendTo( packet, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT );
     }
 
     public static void sendToAllPlayers( NetworkMessage packet )
@@ -91,6 +91,15 @@ public final class NetworkHandler
     {
         network.send( PacketDistributor.TRACKING_CHUNK.with( () -> chunk ), packet );
     }
+
+    public static void sendToPlayers( NetworkMessage packet, Collection<ServerPlayerEntity> players )
+    {
+        if( players.isEmpty() ) return;
+
+        IPacket<?> vanillaPacket = network.toVanillaPacket( packet, NetworkDirection.PLAY_TO_CLIENT );
+        for( ServerPlayerEntity player : players ) player.connection.send( vanillaPacket );
+    }
+
 
     /**
      * Register packet, and a thread-unsafe handler for it.

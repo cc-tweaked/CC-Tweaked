@@ -12,6 +12,8 @@ import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
@@ -41,6 +43,7 @@ public class MonitorClientMessage implements NetworkMessage
     }
 
     @Override
+    @OnlyIn( Dist.CLIENT )
     public void handle( NetworkEvent.Context context )
     {
         ClientPlayerEntity player = Minecraft.getInstance().player;

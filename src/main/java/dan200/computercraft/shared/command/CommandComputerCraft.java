@@ -8,7 +8,6 @@ package dan200.computercraft.shared.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerSide;
@@ -19,8 +18,9 @@ import dan200.computercraft.core.tracking.TrackingField;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
-import dan200.computercraft.shared.network.container.ViewComputerContainerData;
+import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.util.IDAssigner;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.Entity;
@@ -75,7 +75,7 @@ public final class CommandComputerCraft
                     TableBuilder table = new TableBuilder( DUMP_LIST_ID, "Computer", "On", "Position" );
 
                     CommandSource source = context.getSource();
-                    List<ServerComputer> computers = new ArrayList<>( ComputerCraft.serverComputerRegistry.getComputers() );
+                    List<ServerComputer> computers = new ArrayList<>( ServerComputerRegistry.INSTANCE.getComputers() );
 
                     // Unless we're on a server, limit the number of rows we can send.
                     World world = source.getLevel();
@@ -140,7 +140,7 @@ public final class CommandComputerCraft
 
             .then( command( "shutdown" )
                 .requires( UserLevel.OWNER_OP )
-                .argManyValue( "computers", manyComputers(), s -> ComputerCraft.serverComputerRegistry.getComputers() )
+                .argManyValue( "computers", manyComputers(), s -> ServerComputerRegistry.INSTANCE.getComputers() )
                 .executes( ( context, computerSelectors ) -> {
                     int shutdown = 0;
                     Set<ServerComputer> computers = unwrap( context.getSource(), computerSelectors );
@@ -155,7 +155,7 @@ public final class CommandComputerCraft
 
             .then( command( "turn-on" )
                 .requires( UserLevel.OWNER_OP )
-                .argManyValue( "computers", manyComputers(), s -> ComputerCraft.serverComputerRegistry.getComputers() )
+                .argManyValue( "computers", manyComputers(), s -> ServerComputerRegistry.INSTANCE.getComputers() )
                 .executes( ( context, computerSelectors ) -> {
                     int on = 0;
                     Set<ServerComputer> computers = unwrap( context.getSource(), computerSelectors );
@@ -226,7 +226,7 @@ public final class CommandComputerCraft
                 .executes( context -> {
                     ServerPlayerEntity player = context.getSource().getPlayerOrException();
                     ServerComputer computer = getComputerArgument( context, "computer" );
-                    new ViewComputerContainerData( computer ).open( player, new INamedContainerProvider()
+                    new ComputerContainerData( computer ).open( player, new INamedContainerProvider()
                     {
                         @Nonnull
                         @Override
@@ -382,7 +382,7 @@ public final class CommandComputerCraft
 
         Map<Computer, ServerComputer> lookup = new HashMap<>();
         int maxId = 0, maxInstance = 0;
-        for( ServerComputer server : ComputerCraft.serverComputerRegistry.getComputers() )
+        for( ServerComputer server : ServerComputerRegistry.INSTANCE.getComputers() )
         {
             lookup.put( server.getComputer(), server );
 

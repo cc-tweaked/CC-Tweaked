@@ -14,9 +14,8 @@ import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.common.IColouredItem;
-import dan200.computercraft.shared.computer.core.ClientComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.ComputerState;
+import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.pocket.apis.PocketAPI;
@@ -40,6 +39,7 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -88,7 +88,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     {
         IPocketUpgrade upgrade = getUpgrade( stack );
 
-        computer.setWorld( world );
+        computer.setWorld( (ServerWorld) world );
         computer.updateValues( entity, stack, upgrade );
 
         boolean changed = false;
@@ -125,19 +125,13 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     @Override
     public void inventoryTick( @Nonnull ItemStack stack, World world, @Nonnull Entity entity, int slotNum, boolean selected )
     {
-        if( !world.isClientSide )
-        {
-            IInventory inventory = entity instanceof PlayerEntity ? ((PlayerEntity) entity).inventory : null;
-            PocketServerComputer computer = createServerComputer( world, entity, inventory, stack );
-            computer.keepAlive();
+        if( world.isClientSide ) return;
+        IInventory inventory = entity instanceof PlayerEntity ? ((PlayerEntity) entity).inventory : null;
+        PocketServerComputer computer = createServerComputer( (ServerWorld) world, entity, inventory, stack );
+        computer.keepAlive();
 
-            boolean changed = tick( stack, world, entity, computer );
-            if( changed && inventory != null ) inventory.setChanged();
-        }
-        else
-        {
-            createClientComputer( stack );
-        }
+        boolean changed = tick( stack, world, entity, computer );
+        if( changed && inventory != null ) inventory.setChanged();
     }
 
     @Override
@@ -157,7 +151,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         ItemStack stack = player.getItemInHand( hand );
         if( !world.isClientSide )
         {
-            PocketServerComputer computer = createServerComputer( world, player, player.inventory, stack );
+            PocketServerComputer computer = createServerComputer( (ServerWorld) world, player, player.inventory, stack );
             computer.turnOn();
 
             boolean stop = false;
@@ -227,37 +221,29 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     }
 
     @Nonnull
-    public PocketServerComputer createServerComputer( World world, Entity entity, @Nullable IInventory inventory, @Nonnull ItemStack stack )
+    public PocketServerComputer createServerComputer( ServerWorld world, Entity entity, @Nullable IInventory inventory, @Nonnull ItemStack stack )
     {
         if( world.isClientSide ) throw new IllegalStateException( "Cannot call createServerComputer on the client" );
 
-        PocketServerComputer computer;
-        int instanceID = getInstanceID( stack );
         int sessionID = getSessionID( stack );
-        int correctSessionID = ComputerCraft.serverComputerRegistry.getSessionID();
 
-        if( instanceID >= 0 && sessionID == correctSessionID && ComputerCraft.serverComputerRegistry.contains( instanceID ) )
+        PocketServerComputer computer = (PocketServerComputer) ServerComputerRegistry.INSTANCE.get( sessionID, getInstanceID( stack ) );
+        if( computer == null )
         {
-            computer = (PocketServerComputer) ComputerCraft.serverComputerRegistry.get( instanceID );
-        }
-        else
-        {
-            if( instanceID < 0 || sessionID != correctSessionID )
-            {
-                instanceID = ComputerCraft.serverComputerRegistry.getUnusedInstanceID();
-                setInstanceID( stack, instanceID );
-                setSessionID( stack, correctSessionID );
-            }
             int computerID = getComputerID( stack );
             if( computerID < 0 )
             {
                 computerID = ComputerCraftAPI.createUniqueNumberedSaveDir( world, "computer" );
                 setComputerID( stack, computerID );
             }
-            computer = new PocketServerComputer( world, computerID, getLabel( stack ), instanceID, getFamily() );
+
+            computer = new PocketServerComputer( world, getComputerID( stack ), getLabel( stack ), getFamily() );
+
+            setInstanceID( stack, computer.register() );
+            setSessionID( stack, ServerComputerRegistry.INSTANCE.getSessionID() );
+
             computer.updateValues( entity, stack, getUpgrade( stack ) );
             computer.addAPI( new PocketAPI( computer ) );
-            ComputerCraft.serverComputerRegistry.add( instanceID, computer );
 
             // Only turn on when initially creating the computer, rather than each tick.
             if( isMarkedOn( stack ) && entity instanceof PlayerEntity ) computer.turnOn();
@@ -271,33 +257,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     @Nullable
     public static PocketServerComputer getServerComputer( @Nonnull ItemStack stack )
     {
-        int session = getSessionID( stack );
-        if( session != ComputerCraft.serverComputerRegistry.getSessionID() ) return null;
-
-        int instanceID = getInstanceID( stack );
-        return instanceID >= 0 ? (PocketServerComputer) ComputerCraft.serverComputerRegistry.get( instanceID ) : null;
-    }
-
-    @Nullable
-    public static ClientComputer createClientComputer( @Nonnull ItemStack stack )
-    {
-        int instanceID = getInstanceID( stack );
-        if( instanceID >= 0 )
-        {
-            if( !ComputerCraft.clientComputerRegistry.contains( instanceID ) )
-            {
-                ComputerCraft.clientComputerRegistry.add( instanceID, new ClientComputer( instanceID ) );
-            }
-            return ComputerCraft.clientComputerRegistry.get( instanceID );
-        }
-        return null;
-    }
-
-    @Nullable
-    private static ClientComputer getClientComputer( @Nonnull ItemStack stack )
-    {
-        int instanceID = getInstanceID( stack );
-        return instanceID >= 0 ? ComputerCraft.clientComputerRegistry.get( instanceID ) : null;
+        return (PocketServerComputer) ServerComputerRegistry.INSTANCE.get( getSessionID( stack ), getInstanceID( stack ) );
     }
 
     // IComputerItem implementation
@@ -355,7 +315,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
         return null;
     }
 
-    private static int getInstanceID( @Nonnull ItemStack stack )
+    public static int getInstanceID( @Nonnull ItemStack stack )
     {
         CompoundNBT nbt = stack.getTag();
         return nbt != null && nbt.contains( NBT_INSTANCE ) ? nbt.getInt( NBT_INSTANCE ) : -1;
@@ -381,26 +341,6 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
     {
         CompoundNBT nbt = stack.getTag();
         return nbt != null && nbt.getBoolean( NBT_ON );
-    }
-
-    public static ComputerState getState( @Nonnull ItemStack stack )
-    {
-        ClientComputer computer = getClientComputer( stack );
-        return computer == null ? ComputerState.OFF : computer.getState();
-    }
-
-    public static int getLightState( @Nonnull ItemStack stack )
-    {
-        ClientComputer computer = getClientComputer( stack );
-        if( computer != null && computer.isOn() )
-        {
-            CompoundNBT computerNBT = computer.getUserData();
-            if( computerNBT != null && computerNBT.contains( NBT_LIGHT ) )
-            {
-                return computerNBT.getInt( NBT_LIGHT );
-            }
-        }
-        return -1;
     }
 
     public static IPocketUpgrade getUpgrade( @Nonnull ItemStack stack )

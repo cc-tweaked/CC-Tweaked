@@ -5,9 +5,9 @@
  */
 package dan200.computercraft.shared.network.server;
 
-import dan200.computercraft.shared.computer.core.IContainerComputer;
-import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -17,9 +17,9 @@ public class ContinueUploadMessage extends ComputerServerMessage
 {
     private final boolean overwrite;
 
-    public ContinueUploadMessage( int instanceId, boolean overwrite )
+    public ContinueUploadMessage( Container menu, boolean overwrite )
     {
-        super( instanceId );
+        super( menu );
         this.overwrite = overwrite;
     }
 
@@ -37,9 +37,9 @@ public class ContinueUploadMessage extends ComputerServerMessage
     }
 
     @Override
-    protected void handle( NetworkEvent.Context context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
+    protected void handle( NetworkEvent.Context context, @Nonnull ComputerMenu container )
     {
         ServerPlayerEntity player = context.getSender();
-        if( player != null ) container.confirmUpload( player, overwrite );
+        if( player != null ) container.getInput().confirmUpload( player, overwrite );
     }
 }

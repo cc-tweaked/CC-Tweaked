@@ -38,6 +38,7 @@ import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.LazyOptional;
@@ -84,10 +85,10 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    protected ServerComputer createComputer( int instanceID, int id )
+    protected ServerComputer createComputer( int id )
     {
         ServerComputer computer = new ServerComputer(
-            getLevel(), id, label, instanceID, getFamily(),
+            (ServerWorld) getLevel(), id, label, getFamily(),
             ComputerCraft.turtleTermWidth, ComputerCraft.turtleTermHeight
         );
         computer.setPosition( getBlockPos() );
@@ -576,6 +577,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     @Override
     public Container createMenu( int id, @Nonnull PlayerInventory inventory, @Nonnull PlayerEntity player )
     {
-        return new ContainerTurtle( id, inventory, brain );
+        return ContainerTurtle.ofBrain( id, inventory, brain );
     }
 }

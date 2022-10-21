@@ -120,6 +120,14 @@ public class TerminalState
         terminal.read( new PacketBuffer( buffer ) );
     }
 
+    public Terminal create()
+    {
+        if( buffer == null ) throw new NullPointerException( "Terminal does not exist" );
+        Terminal terminal = new Terminal( width, height );
+        terminal.read( new PacketBuffer( buffer ) );
+        return terminal;
+    }
+
     private ByteBuf getCompressed()
     {
         if( buffer == null ) throw new NullPointerException( "buffer" );
