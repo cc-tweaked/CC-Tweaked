@@ -42,23 +42,24 @@ public class TerminalState
 
     private ByteBuf compressed;
 
-    public TerminalState( boolean colour, @Nullable Terminal terminal )
+    public TerminalState( @Nullable Terminal terminal )
     {
-        this( colour, terminal, true );
+        this( terminal, true );
     }
 
-    public TerminalState( boolean colour, @Nullable Terminal terminal, boolean compress )
+    public TerminalState( @Nullable Terminal terminal, boolean compress )
     {
-        this.colour = colour;
         this.compress = compress;
 
         if( terminal == null )
         {
+            colour = false;
             width = height = 0;
             buffer = null;
         }
         else
         {
+            colour = terminal.isColour();
             width = terminal.getWidth();
             height = terminal.getHeight();
 
@@ -123,7 +124,7 @@ public class TerminalState
     public Terminal create()
     {
         if( buffer == null ) throw new NullPointerException( "Terminal does not exist" );
-        Terminal terminal = new Terminal( width, height );
+        Terminal terminal = new Terminal( width, height, colour );
         terminal.read( new PacketBuffer( buffer ) );
         return terminal;
     }

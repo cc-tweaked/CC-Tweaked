@@ -92,26 +92,26 @@ public final class FixedWidthFontRenderer
         quad( transform, buffer, x, y, x + width, y + height, z, colour, BACKGROUND_START, BACKGROUND_START, BACKGROUND_END, BACKGROUND_END, light );
     }
 
-    private static void drawQuad( Matrix4f transform, IVertexBuilder buffer, float x, float y, float width, float height, Palette palette, boolean greyscale, char colourIndex, int light )
+    private static void drawQuad( Matrix4f transform, IVertexBuilder buffer, float x, float y, float width, float height, Palette palette, char colourIndex, int light )
     {
-        byte[] colour = palette.getByteColour( getColour( colourIndex, Colour.BLACK ), greyscale );
+        byte[] colour = palette.getRenderColours( getColour( colourIndex, Colour.BLACK ) );
         drawQuad( transform, buffer, x, y, 0, width, height, colour, light );
     }
 
     private static void drawBackground(
         @Nonnull Matrix4f transform, @Nonnull IVertexBuilder buffer, float x, float y,
-        @Nonnull TextBuffer backgroundColour, @Nonnull Palette palette, boolean greyscale,
+        @Nonnull TextBuffer backgroundColour, @Nonnull Palette palette,
         float leftMarginSize, float rightMarginSize, float height, int light
     )
     {
         if( leftMarginSize > 0 )
         {
-            drawQuad( transform, buffer, x - leftMarginSize, y, leftMarginSize, height, palette, greyscale, backgroundColour.charAt( 0 ), light );
+            drawQuad( transform, buffer, x - leftMarginSize, y, leftMarginSize, height, palette, backgroundColour.charAt( 0 ), light );
         }
 
         if( rightMarginSize > 0 )
         {
-            drawQuad( transform, buffer, x + backgroundColour.length() * FONT_WIDTH, y, rightMarginSize, height, palette, greyscale, backgroundColour.charAt( backgroundColour.length() - 1 ), light );
+            drawQuad( transform, buffer, x + backgroundColour.length() * FONT_WIDTH, y, rightMarginSize, height, palette, backgroundColour.charAt( backgroundColour.length() - 1 ), light );
         }
 
         // Batch together runs of identical background cells.
@@ -124,7 +124,7 @@ public final class FixedWidthFontRenderer
 
             if( blockColour != '\0' )
             {
-                drawQuad( transform, buffer, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (i - blockStart), height, palette, greyscale, blockColour, light );
+                drawQuad( transform, buffer, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (i - blockStart), height, palette, blockColour, light );
             }
 
             blockColour = colourIndex;
@@ -133,18 +133,18 @@ public final class FixedWidthFontRenderer
 
         if( blockColour != '\0' )
         {
-            drawQuad( transform, buffer, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (backgroundColour.length() - blockStart), height, palette, greyscale, blockColour, light );
+            drawQuad( transform, buffer, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (backgroundColour.length() - blockStart), height, palette, blockColour, light );
         }
     }
 
     public static void drawString(
         @Nonnull Matrix4f transform, @Nonnull IVertexBuilder renderer, float x, float y,
-        @Nonnull TextBuffer text, @Nonnull TextBuffer textColour, @Nonnull Palette palette, boolean greyscale, int light
+        @Nonnull TextBuffer text, @Nonnull TextBuffer textColour, @Nonnull Palette palette, int light
     )
     {
         for( int i = 0; i < text.length(); i++ )
         {
-            byte[] colour = palette.getByteColour( getColour( textColour.charAt( i ), Colour.BLACK ), greyscale );
+            byte[] colour = palette.getRenderColours( getColour( textColour.charAt( i ), Colour.BLACK ) );
 
             int index = text.charAt( i );
             if( index > 255 ) index = '?';
@@ -154,7 +154,7 @@ public final class FixedWidthFontRenderer
 
     public static void drawTerminalWithoutCursor(
         @Nonnull Matrix4f transform, @Nonnull IVertexBuilder buffer, float x, float y,
-        @Nonnull Terminal terminal, boolean greyscale,
+        @Nonnull Terminal terminal,
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     )
     {
@@ -164,13 +164,13 @@ public final class FixedWidthFontRenderer
         // Top and bottom margins
         drawBackground(
             transform, buffer, x, y - topMarginSize,
-            terminal.getBackgroundColourLine( 0 ), palette, greyscale,
+            terminal.getBackgroundColourLine( 0 ), palette,
             leftMarginSize, rightMarginSize, topMarginSize, FULL_BRIGHT_LIGHTMAP
         );
 
         drawBackground(
             transform, buffer, x, y + height * FONT_HEIGHT,
-            terminal.getBackgroundColourLine( height - 1 ), palette, greyscale,
+            terminal.getBackgroundColourLine( height - 1 ), palette,
             leftMarginSize, rightMarginSize, bottomMarginSize, FULL_BRIGHT_LIGHTMAP
         );
 
@@ -180,12 +180,12 @@ public final class FixedWidthFontRenderer
             float rowY = y + FONT_HEIGHT * i;
             drawBackground(
                 transform, buffer, x, rowY, terminal.getBackgroundColourLine( i ),
-                palette, greyscale, leftMarginSize, rightMarginSize, FONT_HEIGHT, FULL_BRIGHT_LIGHTMAP
+                palette, leftMarginSize, rightMarginSize, FONT_HEIGHT, FULL_BRIGHT_LIGHTMAP
             );
 
             drawString(
                 transform, buffer, x, rowY, terminal.getLine( i ), terminal.getTextColourLine( i ),
-                palette, greyscale, FULL_BRIGHT_LIGHTMAP
+                palette, FULL_BRIGHT_LIGHTMAP
             );
         }
     }
@@ -200,25 +200,23 @@ public final class FixedWidthFontRenderer
     }
 
     public static void drawCursor(
-        @Nonnull Matrix4f transform, @Nonnull IVertexBuilder buffer, float x, float y,
-        @Nonnull Terminal terminal, boolean greyscale
+        @Nonnull Matrix4f transform, @Nonnull IVertexBuilder buffer, float x, float y, @Nonnull Terminal terminal
     )
     {
         if( isCursorVisible( terminal ) && FrameInfo.getGlobalCursorBlink() )
         {
-            byte[] colour = terminal.getPalette().getByteColour( 15 - terminal.getTextColour(), greyscale );
+            byte[] colour = terminal.getPalette().getRenderColours( 15 - terminal.getTextColour() );
             drawChar( transform, buffer, x + terminal.getCursorX() * FONT_WIDTH, y + terminal.getCursorY() * FONT_HEIGHT, '_', colour, FULL_BRIGHT_LIGHTMAP );
         }
     }
 
     public static void drawTerminal(
-        @Nonnull Matrix4f transform, @Nonnull IVertexBuilder buffer, float x, float y,
-        @Nonnull Terminal terminal, boolean greyscale,
+        @Nonnull Matrix4f transform, @Nonnull IVertexBuilder buffer, float x, float y, @Nonnull Terminal terminal,
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     )
     {
-        drawTerminalWithoutCursor( transform, buffer, x, y, terminal, greyscale, topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize );
-        drawCursor( transform, buffer, x, y, terminal, greyscale );
+        drawTerminalWithoutCursor( transform, buffer, x, y, terminal, topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize );
+        drawCursor( transform, buffer, x, y, terminal );
     }
 
     public static void drawEmptyTerminal( @Nonnull Matrix4f transform, @Nonnull IVertexBuilder renderer, float x, float y, float width, float height )

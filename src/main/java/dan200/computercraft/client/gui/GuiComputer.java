@@ -9,7 +9,6 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.text.ITextComponent;
@@ -32,10 +31,7 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Computer
     @Override
     protected WidgetTerminal createTerminal()
     {
-        return new WidgetTerminal(
-            getMenu().getFamily() != ComputerFamily.NORMAL, terminalData, input,
-            leftPos + ComputerSidebar.WIDTH + BORDER, topPos + BORDER
-        );
+        return new WidgetTerminal( terminalData, input, leftPos + ComputerSidebar.WIDTH + BORDER, topPos + BORDER );
     }
 
     @Override

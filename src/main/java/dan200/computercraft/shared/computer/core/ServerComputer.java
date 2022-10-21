@@ -56,16 +56,10 @@ public class ServerComputer implements InputHandler, IComputerEnvironment
         this.family = family;
 
         instanceID = ServerComputerRegistry.INSTANCE.getUnusedInstanceID();
-        terminal = new Terminal( terminalWidth, terminalHeight, this::markTerminalChanged );
+        terminal = new Terminal( terminalWidth, terminalHeight, family != ComputerFamily.NORMAL, this::markTerminalChanged );
 
         computer = new Computer( this, terminal, computerID );
         computer.setLabel( label );
-    }
-
-    @Override
-    public boolean isColour()
-    {
-        return family != ComputerFamily.NORMAL;
     }
 
     public ComputerFamily getFamily()
@@ -126,7 +120,7 @@ public class ServerComputer implements InputHandler, IComputerEnvironment
 
     public TerminalState getTerminalState()
     {
-        return new TerminalState( isColour(), terminal );
+        return new TerminalState( terminal );
     }
 
     public void keepAlive()

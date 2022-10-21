@@ -18,8 +18,6 @@ public interface IComputerEnvironment
 
     double getTimeOfDay();
 
-    boolean isColour();
-
     long getComputerSpaceLimit();
 
     @Nonnull

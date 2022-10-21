@@ -637,11 +637,10 @@ final class ComputerExecutor
     private void displayFailure( String message, String extra )
     {
         Terminal terminal = computer.getTerminal();
-        boolean colour = computer.getComputerEnvironment().isColour();
         terminal.reset();
 
         // Display our primary error message
-        if( colour ) terminal.setTextColour( 15 - Colour.RED.ordinal() );
+        if( terminal.isColour() ) terminal.setTextColour( 15 - Colour.RED.ordinal() );
         terminal.write( message );
 
         if( extra != null )
@@ -654,7 +653,7 @@ final class ComputerExecutor
 
         // And display our generic "CC may be installed incorrectly" message.
         terminal.setCursorPos( 0, terminal.getCursorY() + 1 );
-        if( colour ) terminal.setTextColour( 15 - Colour.WHITE.ordinal() );
+        if( terminal.isColour() ) terminal.setTextColour( 15 - Colour.WHITE.ordinal() );
         terminal.write( "ComputerCraft may be installed incorrectly" );
     }
 

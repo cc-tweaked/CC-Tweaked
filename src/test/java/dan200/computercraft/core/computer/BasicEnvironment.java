@@ -63,12 +63,6 @@ public class BasicEnvironment implements IComputerEnvironment
     }
 
     @Override
-    public boolean isColour()
-    {
-        return true;
-    }
-
-    @Override
     public long getComputerSpaceLimit()
     {
         return ComputerCraft.computerSpaceLimit;

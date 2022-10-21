@@ -8,32 +8,26 @@ package dan200.computercraft.shared.common;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.network.client.TerminalState;
 
+import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ServerTerminal implements ITerminal
+public class ServerTerminal
 {
     private final boolean colour;
-    private Terminal terminal;
+    private @Nullable Terminal terminal;
     private final AtomicBoolean terminalChanged = new AtomicBoolean( false );
     private boolean terminalChangedLastFrame = false;
 
     public ServerTerminal( boolean colour )
     {
         this.colour = colour;
-        terminal = null;
-    }
-
-    public ServerTerminal( boolean colour, int terminalWidth, int terminalHeight )
-    {
-        this.colour = colour;
-        terminal = new Terminal( terminalWidth, terminalHeight, this::markTerminalChanged );
     }
 
     protected void resize( int width, int height )
     {
         if( terminal == null )
         {
-            terminal = new Terminal( width, height, this::markTerminalChanged );
+            terminal = new Terminal( width, height, colour, this::markTerminalChanged );
             markTerminalChanged();
         }
         else
@@ -66,20 +60,13 @@ public class ServerTerminal implements ITerminal
         return terminalChangedLastFrame;
     }
 
-    @Override
     public Terminal getTerminal()
     {
         return terminal;
     }
 
-    @Override
-    public boolean isColour()
-    {
-        return colour;
-    }
-
     public TerminalState write()
     {
-        return new TerminalState( colour, terminal );
+        return new TerminalState( terminal );
     }
 }

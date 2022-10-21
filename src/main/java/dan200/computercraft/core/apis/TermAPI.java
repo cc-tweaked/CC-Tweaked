@@ -69,10 +69,4 @@ public class TermAPI extends TermMethods implements ILuaAPI
     {
         return terminal;
     }
-
-    @Override
-    public boolean isColour()
-    {
-        return environment.isColour();
-    }
 }

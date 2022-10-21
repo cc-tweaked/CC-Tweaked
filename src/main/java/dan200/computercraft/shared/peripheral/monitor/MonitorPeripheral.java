@@ -120,12 +120,6 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral
         return terminal;
     }
 
-    @Override
-    public boolean isColour() throws LuaException
-    {
-        return getMonitor().isColour();
-    }
-
     @Nullable
     @Override
     public Object getTarget()

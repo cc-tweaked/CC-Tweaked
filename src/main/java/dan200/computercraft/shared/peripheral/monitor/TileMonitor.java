@@ -577,6 +577,8 @@ public class TileMonitor extends TileGeneric
 
     private void monitorTouched( float xPos, float yPos, float zPos )
     {
+        if( !advanced ) return;
+
         XYPair pair = XYPair
             .of( xPos, yPos, zPos, getDirection(), getOrientation() )
             .add( xIndex, height - yIndex - 1 );
@@ -587,7 +589,7 @@ public class TileMonitor extends TileGeneric
         }
 
         ServerTerminal serverTerminal = getServerMonitor();
-        if( serverTerminal == null || !serverTerminal.isColour() ) return;
+        if( serverTerminal == null ) return;
 
         Terminal originTerminal = serverTerminal.getTerminal();
         if( originTerminal == null ) return;

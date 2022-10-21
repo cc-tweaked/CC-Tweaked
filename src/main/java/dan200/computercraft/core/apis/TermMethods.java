@@ -37,8 +37,6 @@ public abstract class TermMethods
     @Nonnull
     public abstract Terminal getTerminal() throws LuaException;
 
-    public abstract boolean isColour() throws LuaException;
-
     /**
      * Write {@code text} at the current cursor position, moving the cursor to the end of the text.
      *
@@ -258,7 +256,7 @@ public abstract class TermMethods
     @LuaFunction( { "isColour", "isColor" } )
     public final boolean getIsColour() throws LuaException
     {
-        return isColour();
+        return getTerminal().isColour();
     }
 
     /**

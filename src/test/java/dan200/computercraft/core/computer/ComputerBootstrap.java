@@ -37,7 +37,7 @@ public class ComputerBootstrap
 
     public static void run( String program, int maxTimes )
     {
-        run( program, x -> { }, maxTimes );
+        run( program, x -> {}, maxTimes );
     }
 
     public static void run( IWritableMount mount, Consumer<Computer> setup, int maxTicks )
@@ -45,7 +45,7 @@ public class ComputerBootstrap
         ComputerCraft.logComputerErrors = true;
         ComputerCraft.maxMainComputerTime = ComputerCraft.maxMainGlobalTime = Integer.MAX_VALUE;
 
-        Terminal term = new Terminal( ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight );
+        Terminal term = new Terminal( ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight, true );
         final Computer computer = new Computer( new BasicEnvironment( mount ), term, 0 );
 
         AssertApi api = new AssertApi();

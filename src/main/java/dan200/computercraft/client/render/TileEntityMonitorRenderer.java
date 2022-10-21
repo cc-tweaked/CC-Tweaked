@@ -157,7 +157,7 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
                     DirectBuffers.setBufferData( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer, terminalBuffer, GL20.GL_STATIC_DRAW );
 
                     ByteBuffer uniformBuffer = getBuffer( MonitorTextureBufferShader.UNIFORM_SIZE );
-                    MonitorTextureBufferShader.setUniformData( uniformBuffer, terminal, !monitor.isColour() );
+                    MonitorTextureBufferShader.setUniformData( uniformBuffer, terminal );
                     DirectBuffers.setBufferData( GL31.GL_UNIFORM_BUFFER, monitor.tboUniform, uniformBuffer, GL20.GL_STATIC_DRAW );
                 }
 
@@ -197,13 +197,13 @@ public class TileEntityMonitorRenderer extends TileEntityRenderer<TileMonitor>
 
                     // Draw the main terminal and store how many vertices it has.
                     DirectFixedWidthFontRenderer.drawTerminalWithoutCursor(
-                        buffer, 0, 0, terminal, !monitor.isColour(), yMargin, yMargin, xMargin, xMargin
+                        buffer, 0, 0, terminal, yMargin, yMargin, xMargin, xMargin
                     );
                     int termIndexes = buffer.position() / vertexSize;
 
                     // If the cursor is visible, we append it to the end of our buffer. When rendering, we can either
                     // render n or n+1 quads and so toggle the cursor on and off.
-                    DirectFixedWidthFontRenderer.drawCursor( buffer, 0, 0, terminal, !monitor.isColour() );
+                    DirectFixedWidthFontRenderer.drawCursor( buffer, 0, 0, terminal );
 
                     buffer.flip();
 

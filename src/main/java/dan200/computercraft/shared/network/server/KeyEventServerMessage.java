@@ -39,6 +39,7 @@ public class KeyEventServerMessage extends ComputerServerMessage
     @Override
     public void toBytes( @Nonnull PacketBuffer buf )
     {
+        super.toBytes( buf );
         buf.writeByte( type );
         buf.writeVarInt( key );
     }

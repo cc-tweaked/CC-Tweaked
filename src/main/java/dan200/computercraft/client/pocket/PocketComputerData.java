@@ -25,25 +25,18 @@ import javax.annotation.Nonnull;
  */
 public class PocketComputerData
 {
-    private boolean isColour;
     private Terminal terminal;
     private ComputerState state = ComputerState.OFF;
     private int lightColour = -1;
 
     public PocketComputerData( boolean colour )
     {
-        isColour = colour;
-        terminal = new Terminal( ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight );
+        terminal = new Terminal( ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight, colour );
     }
 
     public int getLightState()
     {
         return state != ComputerState.OFF ? lightColour : -1;
-    }
-
-    public boolean isColour()
-    {
-        return isColour;
     }
 
     @Nonnull
@@ -65,8 +58,7 @@ public class PocketComputerData
 
     public void setTerminal( TerminalState state )
     {
-        isColour = state.colour;
-        if( state.width != terminal.getWidth() || state.height != terminal.getHeight() )
+        if( state.width != terminal.getWidth() || state.height != terminal.getHeight() || state.colour != terminal.isColour() )
         {
             terminal = state.create();
         }

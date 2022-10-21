@@ -33,10 +33,8 @@ public class WidgetTerminal extends Widget
 {
     private static final float TERMINATE_TIME = 0.5f;
 
-    private final boolean isColour;
     private final @Nonnull Terminal terminal;
     private final @Nonnull InputHandler computer;
-
 
     // The positions of the actual terminal
     private final int innerX;
@@ -54,11 +52,10 @@ public class WidgetTerminal extends Widget
 
     private final BitSet keysDown = new BitSet( 256 );
 
-    public WidgetTerminal( boolean isColour, @Nonnull Terminal terminal, @Nonnull InputHandler computer, int x, int y )
+    public WidgetTerminal( @Nonnull Terminal terminal, @Nonnull InputHandler computer, int x, int y )
     {
         super( x, y, terminal.getWidth() * FONT_WIDTH + MARGIN * 2, terminal.getHeight() * FONT_HEIGHT + MARGIN * 2, StringTextComponent.EMPTY );
 
-        this.isColour = isColour;
         this.terminal = terminal;
         this.computer = computer;
 
@@ -178,7 +175,7 @@ public class WidgetTerminal extends Widget
     public boolean mouseClicked( double mouseX, double mouseY, int button )
     {
         if( !inTermRegion( mouseX, mouseY ) ) return false;
-        if( !isColour || button < 0 || button > 2 ) return false;
+        if( !hasMouseSupport() || button < 0 || button > 2 ) return false;
 
         int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
         int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
@@ -198,7 +195,7 @@ public class WidgetTerminal extends Widget
     public boolean mouseReleased( double mouseX, double mouseY, int button )
     {
         if( !inTermRegion( mouseX, mouseY ) ) return false;
-        if( !isColour || button < 0 || button > 2 ) return false;
+        if( !hasMouseSupport() || button < 0 || button > 2 ) return false;
 
         int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
         int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
@@ -221,7 +218,7 @@ public class WidgetTerminal extends Widget
     public boolean mouseDragged( double mouseX, double mouseY, int button, double v2, double v3 )
     {
         if( !inTermRegion( mouseX, mouseY ) ) return false;
-        if( !isColour || button < 0 || button > 2 ) return false;
+        if( !hasMouseSupport() || button < 0 || button > 2 ) return false;
 
         int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
         int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
@@ -242,7 +239,7 @@ public class WidgetTerminal extends Widget
     public boolean mouseScrolled( double mouseX, double mouseY, double delta )
     {
         if( !inTermRegion( mouseX, mouseY ) ) return false;
-        if( !isColour || delta == 0 ) return false;
+        if( !hasMouseSupport() || delta == 0 ) return false;
 
         int charX = (int) ((mouseX - innerX) / FONT_WIDTH);
         int charY = (int) ((mouseY - innerY) / FONT_HEIGHT);
@@ -260,6 +257,11 @@ public class WidgetTerminal extends Widget
     private boolean inTermRegion( double mouseX, double mouseY )
     {
         return active && visible && mouseX >= innerX && mouseY >= innerY && mouseX < innerX + innerWidth && mouseY < innerY + innerHeight;
+    }
+
+    private boolean hasMouseSupport()
+    {
+        return terminal.isColour();
     }
 
     public void update()
@@ -315,14 +317,7 @@ public class WidgetTerminal extends Widget
         IRenderTypeBuffer.Impl renderer = IRenderTypeBuffer.immediate( Tessellator.getInstance().getBuilder() );
         IVertexBuilder buffer = renderer.getBuffer( RenderTypes.TERMINAL_WITH_DEPTH );
 
-        if( terminal != null )
-        {
-            FixedWidthFontRenderer.drawTerminal( matrix, buffer, innerX, innerY, terminal, !isColour, MARGIN, MARGIN, MARGIN, MARGIN );
-        }
-        else
-        {
-            FixedWidthFontRenderer.drawEmptyTerminal( matrix, buffer, x, y, width, height );
-        }
+        FixedWidthFontRenderer.drawTerminal( matrix, buffer, innerX, innerY, terminal, MARGIN, MARGIN, MARGIN, MARGIN );
 
         renderer.endBatch();
     }

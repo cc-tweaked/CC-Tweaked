@@ -8,7 +8,6 @@ package dan200.computercraft.client.gui;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.IHasContainer;
@@ -56,7 +55,7 @@ public class NoTermComputerScreen<T extends ContainerComputerBase> extends Scree
         super.init();
         minecraft.keyboardHandler.setSendRepeatsToGui( true );
 
-        terminal = addWidget( new WidgetTerminal( getMenu().getFamily() != ComputerFamily.NORMAL, terminalData, new ClientInputHandler( menu ), 0, 0 ) );
+        terminal = addWidget( new WidgetTerminal( terminalData, new ClientInputHandler( menu ), 0, 0 ) );
         terminal.visible = false;
         terminal.active = false;
         setFocused( terminal );

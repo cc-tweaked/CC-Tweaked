@@ -43,10 +43,7 @@ public class GuiTurtle extends ComputerScreenBase<ContainerTurtle>
     @Override
     protected WidgetTerminal createTerminal()
     {
-        return new WidgetTerminal(
-            getMenu().getFamily() != ComputerFamily.NORMAL, terminalData, input,
-            leftPos + BORDER + ComputerSidebar.WIDTH, topPos + BORDER
-        );
+        return new WidgetTerminal( terminalData, input, leftPos + BORDER + ComputerSidebar.WIDTH, topPos + BORDER );
     }
 
     @Override

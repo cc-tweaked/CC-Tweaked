@@ -8,7 +8,7 @@ package dan200.computercraft.shared.common;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.network.client.TerminalState;
 
-public class ClientTerminal implements ITerminal
+public class ClientTerminal
 {
     private boolean colour;
     private Terminal terminal;
@@ -28,18 +28,9 @@ public class ClientTerminal implements ITerminal
         return changed;
     }
 
-    // ITerminal implementation
-
-    @Override
     public Terminal getTerminal()
     {
         return terminal;
-    }
-
-    @Override
-    public boolean isColour()
-    {
-        return colour;
     }
 
     public void read( TerminalState state )
@@ -60,7 +51,7 @@ public class ClientTerminal implements ITerminal
     {
         if( terminal == null )
         {
-            terminal = new Terminal( width, height, () -> terminalChanged = true );
+            terminal = new Terminal( width, height, colour, () -> terminalChanged = true );
             terminalChanged = true;
         }
         else
