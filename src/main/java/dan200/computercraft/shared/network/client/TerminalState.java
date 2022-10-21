@@ -118,6 +118,7 @@ public class TerminalState
     public void apply( Terminal terminal )
     {
         if( buffer == null ) throw new NullPointerException( "buffer" );
+        terminal.resize( width, height );
         terminal.read( new PacketBuffer( buffer ) );
     }
 

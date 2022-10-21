@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
  */
 public class PocketComputerData
 {
-    private Terminal terminal;
+    private final Terminal terminal;
     private ComputerState state = ComputerState.OFF;
     private int lightColour = -1;
 
@@ -58,13 +58,6 @@ public class PocketComputerData
 
     public void setTerminal( TerminalState state )
     {
-        if( state.width != terminal.getWidth() || state.height != terminal.getHeight() || state.colour != terminal.isColour() )
-        {
-            terminal = state.create();
-        }
-        else
-        {
-            state.apply( terminal );
-        }
+        state.apply( terminal );
     }
 }

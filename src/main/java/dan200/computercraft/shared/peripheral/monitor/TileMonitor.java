@@ -5,11 +5,11 @@
  */
 package dan200.computercraft.shared.peripheral.monitor;
 
+import com.google.common.annotations.VisibleForTesting;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.network.client.TerminalState;
 import dan200.computercraft.shared.util.CapabilityUtil;
@@ -171,8 +171,6 @@ public class TileMonitor extends TileGeneric
 
         if( xIndex != 0 || yIndex != 0 || serverMonitor == null ) return;
 
-        serverMonitor.clearChanged();
-
         if( serverMonitor.pollResized() ) eachComputer( c -> c.queueEvent( "monitor_resize", c.getAttachmentName() ) );
         if( serverMonitor.pollTerminalChanged() ) MonitorWatcher.enqueue( this );
     }
@@ -199,6 +197,7 @@ public class TileMonitor extends TileGeneric
     }
 
     @Nullable
+    @VisibleForTesting
     public ServerMonitor getCachedServerMonitor()
     {
         return serverMonitor;
@@ -305,7 +304,7 @@ public class TileMonitor extends TileGeneric
         if( xIndex == 0 && yIndex == 0 )
         {
             // If we're the origin terminal then create it.
-            if( clientMonitor == null ) clientMonitor = new ClientMonitor( advanced, this );
+            if( clientMonitor == null ) clientMonitor = new ClientMonitor( this );
         }
     }
 
@@ -317,7 +316,7 @@ public class TileMonitor extends TileGeneric
             return;
         }
 
-        if( clientMonitor == null ) clientMonitor = new ClientMonitor( advanced, this );
+        if( clientMonitor == null ) clientMonitor = new ClientMonitor( this );
         clientMonitor.read( state );
     }
 
@@ -588,7 +587,7 @@ public class TileMonitor extends TileGeneric
             return;
         }
 
-        ServerTerminal serverTerminal = getServerMonitor();
+        ServerMonitor serverTerminal = getServerMonitor();
         if( serverTerminal == null ) return;
 
         Terminal originTerminal = serverTerminal.getTerminal();
