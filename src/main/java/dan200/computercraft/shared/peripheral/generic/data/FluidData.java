@@ -12,22 +12,14 @@ import java.util.Map;
 
 public class FluidData
 {
-    @Nonnull
-    public static <T extends Map<? super String, Object>> T fillBasic( @Nonnull T data, @Nonnull FluidStack stack )
+    public static void fillBasic( @Nonnull Map<? super String, Object> data, @Nonnull FluidStack stack )
     {
         data.put( "name", DataHelpers.getId( stack.getFluid() ) );
         data.put( "amount", stack.getAmount() );
-        return data;
     }
 
-    @Nonnull
-    public static <T extends Map<? super String, Object>> T fill( @Nonnull T data, @Nonnull FluidStack stack )
+    public static void fill( @Nonnull Map<? super String, Object> data, @Nonnull FluidStack stack )
     {
-        fillBasic( data, stack );
         data.put( "tags", DataHelpers.getTags( stack.getFluid().getTags() ) );
-
-        DetailProviders.fillData( FluidStack.class, data, stack );
-
-        return data;
     }
 }
