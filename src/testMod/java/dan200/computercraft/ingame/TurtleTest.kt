@@ -1,7 +1,7 @@
 package dan200.computercraft.ingame
 
-import dan200.computercraft.api.ComputerCraftAPI
 import dan200.computercraft.api.detail.BasicItemDetailProvider
+import dan200.computercraft.api.detail.DetailRegistries
 import dan200.computercraft.ingame.api.*
 import dan200.computercraft.ingame.api.Timeouts.COMPUTER_TIMEOUT
 import dan200.computercraft.shared.media.items.ItemPrintout
@@ -83,8 +83,7 @@ class Turtle_Test {
             .thenComputerOk(marker = "initial")
             .thenExecute {
                 // Register a dummy provider for printout items
-                ComputerCraftAPI.registerDetailProvider(
-                    ItemStack::class.java,
+                DetailRegistries.ITEM_STACK.addProvider(
                     object : BasicItemDetailProvider<ItemPrintout>("printout", ItemPrintout::class.java) {
                         override fun provideDetails(data: MutableMap<in String, Any>, stack: ItemStack, item: ItemPrintout) {
                             data["type"] = item.type.toString();

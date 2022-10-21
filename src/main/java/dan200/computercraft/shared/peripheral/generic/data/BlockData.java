@@ -15,8 +15,7 @@ import java.util.Map;
 
 public class BlockData
 {
-    @Nonnull
-    public static <T extends Map<? super String, Object>> T fill( @Nonnull T data, @Nonnull BlockReference block )
+    public static void fillBasic( @Nonnull Map<? super String, Object> data, @Nonnull BlockReference block )
     {
         BlockState state = block.getState();
 
@@ -29,11 +28,11 @@ public class BlockData
             stateTable.put( property.getName(), getPropertyValue( property, entry.getValue() ) );
         }
         data.put( "state", stateTable );
-        data.put( "tags", DataHelpers.getTags( state.getBlock().getTags() ) );
+    }
 
-        DetailProviders.fillData( BlockReference.class, data, block );
-
-        return data;
+    public static void fill( @Nonnull Map<? super String, Object> data, @Nonnull BlockReference block )
+    {
+        data.put( "tags", DataHelpers.getTags( block.getState().getBlock().getTags() ) );
     }
 
     @SuppressWarnings( { "unchecked", "rawtypes" } )

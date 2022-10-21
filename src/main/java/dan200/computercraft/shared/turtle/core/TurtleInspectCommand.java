@@ -6,11 +6,11 @@
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.detail.BlockReference;
+import dan200.computercraft.api.detail.DetailRegistries;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.event.TurtleBlockEvent;
-import dan200.computercraft.shared.peripheral.generic.data.BlockData;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -18,7 +18,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
 import java.util.Map;
 
 public class TurtleInspectCommand implements ITurtleCommand
@@ -49,7 +48,7 @@ public class TurtleInspectCommand implements ITurtleCommand
             return TurtleCommandResult.failure( "No block to inspect" );
         }
 
-        Map<String, Object> table = BlockData.fill( new HashMap<>(), block );
+        Map<String, Object> table = DetailRegistries.BLOCK_IN_WORLD.getDetails( block );
 
         // Fire the event, exiting if it is cancelled
         TurtlePlayer turtlePlayer = TurtlePlayer.getWithPosition( turtle, oldPosition, direction );

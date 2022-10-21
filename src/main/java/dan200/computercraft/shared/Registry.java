@@ -7,6 +7,7 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.detail.DetailRegistries;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -40,6 +41,9 @@ import dan200.computercraft.shared.network.container.HeldItemContainerData;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
+import dan200.computercraft.shared.peripheral.generic.data.BlockData;
+import dan200.computercraft.shared.peripheral.generic.data.FluidData;
+import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.peripheral.generic.methods.EnergyMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.FluidMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
@@ -374,6 +378,10 @@ public final class Registry
         ComputerCraftAPI.registerGenericCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY );
         ComputerCraftAPI.registerGenericCapability( CapabilityEnergy.ENERGY );
         ComputerCraftAPI.registerGenericCapability( CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY );
+
+        DetailRegistries.ITEM_STACK.addProvider( ItemData::fill );
+        DetailRegistries.BLOCK_IN_WORLD.addProvider( BlockData::fill );
+        DetailRegistries.FLUID_STACK.addProvider( FluidData::fill );
 
         // Mod integration code.
         if( ModList.get().isLoaded( MoreRedIntegration.MOD_ID ) ) MoreRedIntegration.initialise();

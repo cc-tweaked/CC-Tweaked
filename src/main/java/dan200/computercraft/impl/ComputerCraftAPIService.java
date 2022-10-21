@@ -6,6 +6,8 @@
 package dan200.computercraft.impl;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.detail.BlockReference;
+import dan200.computercraft.api.detail.DetailRegistry;
 import dan200.computercraft.api.detail.IDetailProvider;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
@@ -19,12 +21,14 @@ import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fluids.FluidStack;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nonnull;
@@ -76,6 +80,7 @@ public interface ComputerCraftAPIService
 
     void registerAPIFactory( @Nonnull ILuaAPIFactory factory );
 
+    @Deprecated
     <T> void registerDetailProvider( @Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider );
 
     @Nonnull
@@ -83,6 +88,12 @@ public interface ComputerCraftAPIService
 
     @Nonnull
     LazyOptional<IWiredElement> getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction side );
+
+    DetailRegistry<ItemStack> getItemStackDetailRegistry();
+
+    DetailRegistry<BlockReference> getBlockInWorldDetailRegistry();
+
+    DetailRegistry<FluidStack> getFluidStackDetailRegistry();
 
     class Instance
     {

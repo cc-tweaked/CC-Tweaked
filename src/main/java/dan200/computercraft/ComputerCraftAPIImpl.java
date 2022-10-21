@@ -6,6 +6,8 @@
 package dan200.computercraft;
 
 import com.google.auto.service.AutoService;
+import dan200.computercraft.api.detail.BlockReference;
+import dan200.computercraft.api.detail.DetailRegistry;
 import dan200.computercraft.api.detail.IDetailProvider;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
@@ -24,12 +26,16 @@ import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.ResourceMount;
 import dan200.computercraft.impl.ComputerCraftAPIService;
+import dan200.computercraft.impl.detail.DetailRegistryImpl;
 import dan200.computercraft.shared.*;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.peripheral.generic.GenericPeripheralProvider;
-import dan200.computercraft.shared.peripheral.generic.data.DetailProviders;
+import dan200.computercraft.shared.peripheral.generic.data.BlockData;
+import dan200.computercraft.shared.peripheral.generic.data.FluidData;
+import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import dan200.computercraft.shared.wired.WiredNode;
+import net.minecraft.item.ItemStack;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
@@ -40,6 +46,7 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
@@ -53,6 +60,10 @@ import static dan200.computercraft.shared.Capabilities.CAPABILITY_WIRED_ELEMENT;
 @AutoService( ComputerCraftAPIService.class )
 public final class ComputerCraftAPIImpl implements ComputerCraftAPIService
 {
+    private final DetailRegistry<ItemStack> itemStackDetails = new DetailRegistryImpl<>( ItemData::fillBasic );
+    private final DetailRegistry<BlockReference> blockDetails = new DetailRegistryImpl<>( BlockData::fillBasic );
+    private final DetailRegistry<FluidStack> fluidStackDetails = new DetailRegistryImpl<>( FluidData::fillBasic );
+
     private String version;
 
     public static InputStream getResourceFile( MinecraftServer server, String domain, String subPath )
@@ -167,9 +178,26 @@ public final class ComputerCraftAPIImpl implements ComputerCraftAPIService
     }
 
     @Override
+    @Deprecated
+    @SuppressWarnings( "unchecked" )
     public <T> void registerDetailProvider( @Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider )
     {
-        DetailProviders.registerProvider( type, provider );
+        if( type == ItemStack.class )
+        {
+            itemStackDetails.addProvider( (IDetailProvider<ItemStack>) provider );
+        }
+        else if( type == BlockReference.class )
+        {
+            blockDetails.addProvider( (IDetailProvider<BlockReference>) provider );
+        }
+        else if( type == FluidStack.class )
+        {
+            itemStackDetails.addProvider( (IDetailProvider<ItemStack>) provider );
+        }
+        else
+        {
+            throw new IllegalArgumentException( "Unknown detail provider " + type );
+        }
     }
 
     @Nonnull
@@ -185,5 +213,23 @@ public final class ComputerCraftAPIImpl implements ComputerCraftAPIService
     {
         TileEntity tile = world.getBlockEntity( pos );
         return tile == null ? LazyOptional.empty() : tile.getCapability( CAPABILITY_WIRED_ELEMENT, side );
+    }
+
+    @Override
+    public DetailRegistry<ItemStack> getItemStackDetailRegistry()
+    {
+        return itemStackDetails;
+    }
+
+    @Override
+    public DetailRegistry<BlockReference> getBlockInWorldDetailRegistry()
+    {
+        return blockDetails;
+    }
+
+    @Override
+    public DetailRegistry<FluidStack> getFluidStackDetailRegistry()
+    {
+        return fluidStackDetails;
     }
 }

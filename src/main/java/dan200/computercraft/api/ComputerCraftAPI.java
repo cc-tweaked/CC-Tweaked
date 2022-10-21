@@ -6,6 +6,7 @@
 package dan200.computercraft.api;
 
 import dan200.computercraft.api.detail.BlockReference;
+import dan200.computercraft.api.detail.DetailRegistry;
 import dan200.computercraft.api.detail.IDetailProvider;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
@@ -234,7 +235,9 @@ public final class ComputerCraftAPI
      *                 {@link FluidStack} or {@link ItemStack}.
      * @param provider The detail provider to register.
      * @param <T>      The type of object that this provider can provide details for.
+     * @deprecated Use {@link DetailRegistry#addProvider(IDetailProvider)} to register your provider.
      */
+    @Deprecated
     public static <T> void registerDetailProvider( @Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider )
     {
         getInstance().registerDetailProvider( type, provider );
