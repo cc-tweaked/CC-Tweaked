@@ -22,6 +22,7 @@ import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
+import dan200.computercraft.impl.ComputerCraftAPIService;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -267,64 +268,9 @@ public final class ComputerCraftAPI
         return getInstance().getWiredElementAt( world, pos, side );
     }
 
-    private static IComputerCraftAPI instance;
-
     @Nonnull
-    private static IComputerCraftAPI getInstance()
+    private static ComputerCraftAPIService getInstance()
     {
-        if( instance != null ) return instance;
-
-        try
-        {
-            return instance = (IComputerCraftAPI) Class.forName( "dan200.computercraft.ComputerCraftAPIImpl" )
-                .getField( "INSTANCE" ).get( null );
-        }
-        catch( ReflectiveOperationException e )
-        {
-            throw new IllegalStateException( "Cannot find ComputerCraft API", e );
-        }
-    }
-
-    public interface IComputerCraftAPI
-    {
-        @Nonnull
-        String getInstalledVersion();
-
-        int createUniqueNumberedSaveDir( @Nonnull World world, @Nonnull String parentSubPath );
-
-        @Nullable
-        IWritableMount createSaveDirMount( @Nonnull World world, @Nonnull String subPath, long capacity );
-
-        @Nullable
-        IMount createResourceMount( @Nonnull String domain, @Nonnull String subPath );
-
-        void registerPeripheralProvider( @Nonnull IPeripheralProvider provider );
-
-        void registerGenericSource( @Nonnull GenericSource source );
-
-        void registerGenericCapability( @Nonnull Capability<?> capability );
-
-        void registerTurtleUpgrade( @Nonnull ITurtleUpgrade upgrade );
-
-        void registerBundledRedstoneProvider( @Nonnull IBundledRedstoneProvider provider );
-
-        int getBundledRedstoneOutput( @Nonnull World world, @Nonnull BlockPos pos, @Nonnull Direction side );
-
-        void registerMediaProvider( @Nonnull IMediaProvider provider );
-
-        void registerPocketUpgrade( @Nonnull IPocketUpgrade upgrade );
-
-        @Nonnull
-        IPacketNetwork getWirelessNetwork();
-
-        void registerAPIFactory( @Nonnull ILuaAPIFactory factory );
-
-        <T> void registerDetailProvider( @Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider );
-
-        @Nonnull
-        IWiredNode createWiredNodeForElement( @Nonnull IWiredElement element );
-
-        @Nonnull
-        LazyOptional<IWiredElement> getWiredElementAt( @Nonnull IBlockReader world, @Nonnull BlockPos pos, @Nonnull Direction side );
+        return ComputerCraftAPIService.get();
     }
 }

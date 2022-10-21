@@ -15,6 +15,7 @@ plugins {
 }
 
 
+import cc.tweaked.gradle.ExtensionsKt
 import cc.tweaked.gradle.IlluaminateExec
 import cc.tweaked.gradle.IlluaminateExecToDir
 import org.apache.tools.ant.taskdefs.condition.Os
@@ -136,6 +137,9 @@ dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
+    compileOnly(libs.jetbrainsAnnotations)
+    ExtensionsKt.annotationProcessorEverywhere(dependencies, libs.autoService)
+
     extraModsCompileOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.0.104:api")
     extraModsRuntimeOnly fg.deobf("mezz.jei:jei-1.16.5:7.7.0.104")
 
@@ -143,9 +147,6 @@ dependencies {
     extraModsCompileOnly fg.deobf("commoble.morered:morered-1.16.5:2.1.1.0")
 
     shade 'org.squiddev:Cobalt:0.5.7'
-
-    testCompileOnly(libs.autoService)
-    testAnnotationProcessor(libs.autoService)
 
     testImplementation(libs.bundles.test)
     testImplementation(libs.bundles.kotlin)
@@ -442,13 +443,7 @@ def testServer = tasks.register("testServer", JavaExec.class) {
 
     // Copy from runTestServer. We do it in this slightly odd way as runTestServer
     // isn't created until the task is configured (which is no good for us).
-    JavaExec exec = tasks.getByName("runTestServer")
-    dependsOn(exec.getDependsOn())
-    exec.copyTo(it)
-    setClasspath(exec.getClasspath())
-    mainClass = exec.mainClass
-    javaLauncher = exec.javaLauncher
-    setArgs(exec.getArgs())
+    ExtensionsKt.copyToFull(tasks.getByName("runTestServer"), it)
 
     // Jacoco and modlauncher don't play well together as the classes loaded in-game don't
     // match up with those written to disk. We get Jacoco to dump all classes to disk, and

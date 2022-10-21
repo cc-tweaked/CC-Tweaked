@@ -35,7 +35,7 @@ public class UploadFileMessageTest
      *
      * @param sentFiles The files to send.
      */
-    @Property( tries = 500 )
+    @Property( tries = 200 )
     @Tag( "slow" )
     public void testRoundTrip( @ForAll( "fileUploads" ) List<FileUpload> sentFiles )
     {

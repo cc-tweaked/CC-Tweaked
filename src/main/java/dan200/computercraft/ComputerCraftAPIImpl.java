@@ -5,7 +5,7 @@
  */
 package dan200.computercraft;
 
-import dan200.computercraft.api.ComputerCraftAPI.IComputerCraftAPI;
+import com.google.auto.service.AutoService;
 import dan200.computercraft.api.detail.IDetailProvider;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
@@ -23,6 +23,7 @@ import dan200.computercraft.core.apis.ApiFactories;
 import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.ResourceMount;
+import dan200.computercraft.impl.ComputerCraftAPIService;
 import dan200.computercraft.shared.*;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.peripheral.generic.GenericPeripheralProvider;
@@ -49,15 +50,10 @@ import java.io.InputStream;
 
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_WIRED_ELEMENT;
 
-public final class ComputerCraftAPIImpl implements IComputerCraftAPI
+@AutoService( ComputerCraftAPIService.class )
+public final class ComputerCraftAPIImpl implements ComputerCraftAPIService
 {
-    public static final ComputerCraftAPIImpl INSTANCE = new ComputerCraftAPIImpl();
-
     private String version;
-
-    private ComputerCraftAPIImpl()
-    {
-    }
 
     public static InputStream getResourceFile( MinecraftServer server, String domain, String subPath )
     {

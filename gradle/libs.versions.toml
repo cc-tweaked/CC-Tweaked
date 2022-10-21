@@ -1,5 +1,6 @@
 [versions]
 autoService = "1.0.1"
+jetbrainsAnnotations = "23.0.0"
 kotlin = "1.7.10"
 kotlin-coroutines = "1.6.0"
 
@@ -10,6 +11,7 @@ junit = "5.9.1"
 
 [libraries]
 autoService = { module = "com.google.auto.service:auto-service", version.ref = "autoService" }
+jetbrainsAnnotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsAnnotations" }
 kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
 
