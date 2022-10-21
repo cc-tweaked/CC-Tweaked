@@ -18,18 +18,14 @@ public interface IComputerEnvironment
 
     double getTimeOfDay();
 
-    long getComputerSpaceLimit();
-
     @Nonnull
     String getHostString();
 
     @Nonnull
     String getUserAgent();
 
-    int assignNewID();
-
     @Nullable
-    IWritableMount createSaveDirMount( String subPath, long capacity );
+    IWritableMount createRootMount();
 
     @Nullable
     IMount createResourceMount( String domain, String subPath );

@@ -68,7 +68,7 @@ public final class ComputerProxy
         }
     }
 
-    public int assignID()
+    public int getID()
     {
         TileComputerBase tile = getTile();
         ServerComputer computer = tile.getServerComputer();

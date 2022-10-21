@@ -74,7 +74,7 @@ public class ComputerPeripheral implements IPeripheral
     @LuaFunction
     public final int getID()
     {
-        return computer.assignID();
+        return computer.getID();
     }
 
     /**

@@ -345,13 +345,7 @@ final class ComputerExecutor
 
     private IWritableMount getRootMount()
     {
-        if( rootMount == null )
-        {
-            rootMount = computer.getComputerEnvironment().createSaveDirMount(
-                "computer/" + computer.assignID(),
-                computer.getComputerEnvironment().getComputerSpaceLimit()
-            );
-        }
+        if( rootMount == null ) rootMount = computer.getComputerEnvironment().createRootMount();
         return rootMount;
     }
 

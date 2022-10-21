@@ -21,6 +21,7 @@ import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.pocket.apis.PocketAPI;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import dan200.computercraft.shared.pocket.inventory.PocketComputerMenuProvider;
+import dan200.computercraft.shared.util.IDAssigner;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
@@ -233,7 +234,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
             int computerID = getComputerID( stack );
             if( computerID < 0 )
             {
-                computerID = ComputerCraftAPI.createUniqueNumberedSaveDir( world, "computer" );
+                computerID = ComputerCraftAPI.createUniqueNumberedSaveDir( world, IDAssigner.COMPUTER );
                 setComputerID( stack, computerID );
             }
 

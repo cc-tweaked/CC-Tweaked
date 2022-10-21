@@ -68,7 +68,7 @@ public final class Environment implements IAPIEnvironment
     @Override
     public int getComputerID()
     {
-        return computer.assignID();
+        return computer.getID();
     }
 
     @Nonnull

@@ -172,11 +172,6 @@ public class ServerComputer implements InputHandler, IComputerEnvironment
     {
     }
 
-    public void setID( int id )
-    {
-        computer.setID( id );
-    }
-
     public int getInstanceID()
     {
         return instanceID;
@@ -286,9 +281,9 @@ public class ServerComputer implements InputHandler, IComputerEnvironment
     }
 
     @Override
-    public IWritableMount createSaveDirMount( String subPath, long capacity )
+    public IWritableMount createRootMount()
     {
-        return ComputerCraftAPI.createSaveDirMount( world, subPath, capacity );
+        return ComputerCraftAPI.createSaveDirMount( world, "computer/" + computer.getID(), ComputerCraft.computerSpaceLimit );
     }
 
     @Override
@@ -303,12 +298,6 @@ public class ServerComputer implements InputHandler, IComputerEnvironment
         return ComputerCraftAPIImpl.getResourceFile( domain, subPath );
     }
 
-    @Override
-    public long getComputerSpaceLimit()
-    {
-        return ComputerCraft.computerSpaceLimit;
-    }
-
     @Nonnull
     @Override
     public String getHostString()
@@ -321,11 +310,5 @@ public class ServerComputer implements InputHandler, IComputerEnvironment
     public String getUserAgent()
     {
         return ComputerCraft.MOD_ID + "/" + ComputerCraftAPI.getInstalledVersion();
-    }
-
-    @Override
-    public int assignNewID()
-    {
-        return ComputerCraftAPI.createUniqueNumberedSaveDir( world, "computer" );
     }
 }

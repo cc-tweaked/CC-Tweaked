@@ -32,7 +32,7 @@ public class Computer
     private static final int START_DELAY = 50;
 
     // Various properties of the computer
-    private int id;
+    private final int id;
     private String label = null;
 
     // Read-only fields about the computer
@@ -51,6 +51,7 @@ public class Computer
 
     public Computer( IComputerEnvironment environment, Terminal terminal, int id )
     {
+        if( id < 0 ) throw new IllegalStateException( "Id has not been assigned" );
         this.id = id;
         this.environment = environment;
         this.terminal = terminal;
@@ -133,20 +134,6 @@ public class Computer
     public int getID()
     {
         return id;
-    }
-
-    public int assignID()
-    {
-        if( id < 0 )
-        {
-            id = environment.assignNewID();
-        }
-        return id;
-    }
-
-    public void setID( int id )
-    {
-        this.id = id;
     }
 
     public String getLabel()

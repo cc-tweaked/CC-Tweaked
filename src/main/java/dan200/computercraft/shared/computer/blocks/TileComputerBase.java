@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.computer.blocks;
 
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.BundledRedstone;
@@ -16,6 +17,7 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.util.DirectionUtil;
+import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.util.RedstoneUtil;
 import joptsimple.internal.Strings;
 import net.minecraft.block.BlockState;
@@ -167,6 +169,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     public void tick()
     {
         if( getLevel().isClientSide ) return;
+        if( computerID < 0 && !startOn ) return; // Don't tick if we don't need a computer!
 
         ServerComputer computer = createServerComputer();
 
@@ -348,8 +351,6 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         if( getLevel().isClientSide || computerID == id ) return;
 
         computerID = id;
-        ServerComputer computer = getServerComputer();
-        if( computer != null ) computer.setID( computerID );
         setChanged();
     }
 
@@ -371,7 +372,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     }
 
     @Nonnull
-    public ServerComputer createServerComputer()
+    public final ServerComputer createServerComputer()
     {
         if( getLevel().isClientSide ) throw new IllegalStateException( "Cannot access server computer on the client." );
 
@@ -380,6 +381,12 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         ServerComputer computer = ServerComputerRegistry.INSTANCE.get( instanceID );
         if( computer == null )
         {
+            if( computerID < 0 )
+            {
+                computerID = ComputerCraftAPI.createUniqueNumberedSaveDir( level, IDAssigner.COMPUTER );
+                updateBlock();
+            }
+
             computer = createComputer( computerID );
             instanceID = computer.register();
             fresh = true;

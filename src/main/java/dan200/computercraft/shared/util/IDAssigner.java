@@ -26,6 +26,8 @@ import java.util.Map;
 
 public final class IDAssigner
 {
+    public static final String COMPUTER = "computer";
+
     private static final FolderName FOLDER = new FolderName( ComputerCraft.MOD_ID );
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Type ID_TOKEN = new TypeToken<Map<String, Integer>>()

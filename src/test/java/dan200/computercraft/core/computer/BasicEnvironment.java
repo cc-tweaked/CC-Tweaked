@@ -39,13 +39,7 @@ public class BasicEnvironment implements IComputerEnvironment
     }
 
     @Override
-    public int assignNewID()
-    {
-        return 0;
-    }
-
-    @Override
-    public IWritableMount createSaveDirMount( String path, long space )
+    public IWritableMount createRootMount()
     {
         return mount;
     }
@@ -60,12 +54,6 @@ public class BasicEnvironment implements IComputerEnvironment
     public double getTimeOfDay()
     {
         return 0;
-    }
-
-    @Override
-    public long getComputerSpaceLimit()
-    {
-        return ComputerCraft.computerSpaceLimit;
     }
 
     @Nonnull
