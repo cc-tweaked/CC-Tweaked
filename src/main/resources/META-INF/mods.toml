@@ -11,7 +11,7 @@ license="ComputerCraft Public License (https://raw.githubusercontent.com/dan200/
 
 [[mods]]
 modId="computercraft"
-version="${version}"
+version="${file.jarVersion}"
 displayName="CC: Tweaked"
 description='''
 CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles and more to Minecraft.
@@ -20,6 +20,6 @@ CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles a
 [[dependencies.computercraft]]
     modId="forge"
     mandatory=true
-    versionRange="[36.2.34,37)"
+    versionRange="[${forgeVersion},37)"
     ordering="NONE"
     side="BOTH"

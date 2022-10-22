@@ -23,5 +23,10 @@ gradlePlugin {
             id = "cc-tweaked.illuaminate"
             implementationClass = "cc.tweaked.gradle.IlluaminatePlugin"
         }
+
+        register("cc-tweaked.node") {
+            id = "cc-tweaked.node"
+            implementationClass = "cc.tweaked.gradle.NodePlugin"
+        }
     }
 }
