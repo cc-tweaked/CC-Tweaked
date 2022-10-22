@@ -10,10 +10,10 @@ import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
+import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.apis.*;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
-import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.lua.MachineEnvironment;
 import dan200.computercraft.core.lua.MachineResult;
@@ -36,26 +36,25 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * The main task queue and executor for a single computer. This handles turning on and off a computer, as well as
  * running events.
- *
+ * <p>
  * When the computer is instructed to turn on or off, or handle an event, we queue a task and register this to be
  * executed on the {@link ComputerThread}. Note, as we may be starting many events in a single tick, the external
  * cannot lock on anything which may be held for a long time.
- *
+ * <p>
  * The executor is effectively composed of two separate queues. Firstly, we have a "single element" queue
  * {@link #command} which determines which state the computer should transition too. This is set by
  * {@link #queueStart()} and {@link #queueStop(boolean, boolean)}.
- *
+ * <p>
  * When a computer is on, we simply push any events onto to the {@link #eventQueue}.
- *
+ * <p>
  * Both queues are run from the {@link #work()} method, which tries to execute a command if one exists, or resumes the
  * machine with an event otherwise.
- *
+ * <p>
  * One final responsibility for the executor is calling {@link ILuaAPI#update()} every tick, via the {@link #tick()}
  * method. This should only be called when the computer is actually on ({@link #isOn}).
  */
 final class ComputerExecutor
 {
-    static ILuaMachine.Factory luaFactory = CobaltLuaMachine::new;
     private static final int QUEUE_LIMIT = 256;
 
     private final Computer computer;
@@ -161,7 +160,9 @@ final class ComputerExecutor
      */
     final AtomicReference<Thread> executingThread = new AtomicReference<>();
 
-    ComputerExecutor( Computer computer, ComputerEnvironment computerEnvironment )
+    private final ILuaMachine.Factory luaFactory;
+
+    ComputerExecutor( Computer computer, ComputerEnvironment computerEnvironment, ComputerContext context )
     {
         // Ensure the computer thread is running as required.
         ComputerThread.start();
@@ -169,6 +170,7 @@ final class ComputerExecutor
         this.computer = computer;
         this.computerEnvironment = computerEnvironment;
         metrics = computerEnvironment.getMetrics();
+        luaFactory = context.luaFactory();
 
         Environment environment = computer.getEnvironment();
 

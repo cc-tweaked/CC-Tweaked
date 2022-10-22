@@ -57,7 +57,7 @@ public class ServerComputer implements InputHandler, ComputerEnvironment
         terminal = new Terminal( terminalWidth, terminalHeight, family != ComputerFamily.NORMAL, this::markTerminalChanged );
         metrics = context.metrics().createMetricObserver( this );
 
-        computer = new Computer( context.environment(), this, terminal, computerID );
+        computer = new Computer( context.computerContext(), this, terminal, computerID );
         computer.setLabel( label );
     }
 

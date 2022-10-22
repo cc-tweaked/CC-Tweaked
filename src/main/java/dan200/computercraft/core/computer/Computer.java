@@ -7,16 +7,21 @@ package dan200.computercraft.core.computer;
 
 import com.google.common.base.Objects;
 import dan200.computercraft.api.lua.ILuaAPI;
+import dan200.computercraft.api.lua.ILuaContext;
+import dan200.computercraft.api.lua.ILuaTask;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
+import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.apis.IAPIEnvironment;
+import dan200.computercraft.core.computer.mainthread.MainThreadScheduler;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.terminal.Terminal;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Represents a computer which may exist in-world or elsewhere.
- *
+ * <p>
  * Note, this class has several (read: far, far too many) responsibilities, so can get a little unwieldy at times.
  *
  * <ul>
@@ -24,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <li>Keeps track of whether the computer is on and blinking.</li>
  * <li>Monitors whether the computer's visible state (redstone, on/off/blinking) has changed.</li>
  * <li>Passes commands and events to the {@link ComputerExecutor}.</li>
- * <li>Passes main thread tasks to the {@link MainThreadExecutor}.</li>
+ * <li>Passes main thread tasks to the {@link MainThreadScheduler.Executor}.</li>
  * </ul>
  */
 public class Computer
@@ -39,7 +44,15 @@ public class Computer
     private final GlobalEnvironment globalEnvironment;
     private final Terminal terminal;
     private final ComputerExecutor executor;
-    private final MainThreadExecutor serverExecutor;
+    private final MainThreadScheduler.Executor serverExecutor;
+
+    /**
+     * An internal counter for {@link ILuaTask} ids.
+     *
+     * @see ILuaContext#issueMainThreadTask(ILuaTask)
+     * @see #getUniqueTaskId()
+     */
+    private final AtomicLong lastTaskId = new AtomicLong();
 
     // Additional state about the computer and its environment.
     private boolean blinking = false;
@@ -49,16 +62,16 @@ public class Computer
     private boolean startRequested;
     private int ticksSinceStart = -1;
 
-    public Computer( GlobalEnvironment globalEnvironment, ComputerEnvironment environment, Terminal terminal, int id )
+    public Computer( ComputerContext context, ComputerEnvironment environment, Terminal terminal, int id )
     {
         if( id < 0 ) throw new IllegalStateException( "Id has not been assigned" );
         this.id = id;
-        this.globalEnvironment = globalEnvironment;
+        globalEnvironment = context.globalEnvironment();
         this.terminal = terminal;
 
         internalEnvironment = new Environment( this, environment );
-        executor = new ComputerExecutor( this, environment );
-        serverExecutor = new MainThreadExecutor( environment.getMetrics() );
+        executor = new ComputerExecutor( this, environment, context );
+        serverExecutor = context.mainThreadScheduler().createExecutor( environment.getMetrics() );
     }
 
     GlobalEnvironment getGlobalEnvironment()
@@ -117,7 +130,7 @@ public class Computer
     }
 
     /**
-     * Queue a task to be run on the main thread, using {@link MainThread}.
+     * Queue a task to be run on the main thread, using {@link MainThreadScheduler}.
      *
      * @param runnable The task to run
      * @return If the task was successfully queued (namely, whether there is space on it).
@@ -203,5 +216,10 @@ public class Computer
     public void addApi( ILuaAPI api )
     {
         executor.addApi( api );
+    }
+
+    long getUniqueTaskId()
+    {
+        return lastTaskId.incrementAndGet();
     }
 }

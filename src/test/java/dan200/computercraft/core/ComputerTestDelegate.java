@@ -14,7 +14,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.BasicEnvironment;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.core.computer.MainThread;
+import dan200.computercraft.core.computer.FakeMainThreadScheduler;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.terminal.Terminal;
@@ -76,6 +76,7 @@ public class ComputerTestDelegate
     private static final Pattern KEYWORD = Pattern.compile( ":([a-z_]+)" );
 
     private final ReentrantLock lock = new ReentrantLock();
+    private ComputerContext context;
     private Computer computer;
 
     private final Condition hasTests = lock.newCondition();
@@ -113,7 +114,8 @@ public class ComputerTestDelegate
         }
 
         BasicEnvironment environment = new BasicEnvironment( mount );
-        computer = new Computer( environment, environment, term, 0 );
+        context = new ComputerContext( environment, new FakeMainThreadScheduler() );
+        computer = new Computer( context, environment, term, 0 );
         computer.getEnvironment().setPeripheral( ComputerSide.TOP, new FakeModem() );
         computer.addApi( new CctTestAPI() );
 
@@ -272,7 +274,6 @@ public class ComputerTestDelegate
     private void tick()
     {
         computer.tick();
-        MainThread.executePendingTasks();
     }
 
     private static String formatName( String name )

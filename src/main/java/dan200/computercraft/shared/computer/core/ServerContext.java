@@ -9,7 +9,9 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.ComputerCraftAPIImpl;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.computer.GlobalEnvironment;
+import dan200.computercraft.core.computer.mainthread.MainThread;
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.computer.metrics.GlobalMetrics;
 import dan200.computercraft.shared.util.IDAssigner;
@@ -44,7 +46,8 @@ public final class ServerContext
 
     private final ServerComputerRegistry registry = new ServerComputerRegistry();
     private final GlobalMetrics metrics = new GlobalMetrics();
-    private final GlobalEnvironment environment;
+    private final ComputerContext context;
+    private final MainThread mainThread;
     private final IDAssigner idAssigner;
     private final Path storageDir;
 
@@ -52,7 +55,8 @@ public final class ServerContext
     {
         this.server = server;
         storageDir = server.getWorldPath( FOLDER );
-        environment = new Environment( server );
+        mainThread = new MainThread();
+        context = new ComputerContext( new Environment( server ), mainThread );
         idAssigner = new IDAssigner( storageDir.resolve( "ids.json" ) );
     }
 
@@ -77,6 +81,7 @@ public final class ServerContext
         if( instance == null ) return;
 
         instance.registry.close();
+        instance.context.close();
 
         ServerContext.instance = null;
     }
@@ -102,13 +107,22 @@ public final class ServerContext
     }
 
     /**
-     * Get the current {@link GlobalEnvironment} computers should run under.
+     * Get the current {@link ComputerContext} computers should run under.
      *
-     * @return The current {@link GlobalEnvironment}.
+     * @return The current {@link ComputerContext}.
      */
-    GlobalEnvironment environment()
+    ComputerContext computerContext()
     {
-        return environment;
+        return context;
+    }
+
+    /**
+     * Tick all components of this server context. This should <em>NOT</em> be called outside of {@link CommonHooks}.
+     */
+    public void tick()
+    {
+        registry.update();
+        mainThread.tick();
     }
 
     /**

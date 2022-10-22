@@ -25,7 +25,7 @@ class LuaContext implements ILuaContext
     public long issueMainThreadTask( @Nonnull final ILuaTask task ) throws LuaException
     {
         // Issue command
-        final long taskID = MainThread.getUniqueTaskID();
+        final long taskID = computer.getUniqueTaskId();
         final Runnable iTask = () -> {
             try
             {

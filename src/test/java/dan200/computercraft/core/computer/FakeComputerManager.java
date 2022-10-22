@@ -6,6 +6,7 @@
 package dan200.computercraft.core.computer;
 
 import dan200.computercraft.api.lua.ILuaAPI;
+import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.lua.MachineResult;
 import dan200.computercraft.core.terminal.Terminal;
@@ -35,16 +36,15 @@ public class FakeComputerManager
         MachineResult run( TimeoutState state ) throws Exception;
     }
 
+    private static final ComputerContext context = new ComputerContext(
+        new BasicEnvironment(), new FakeMainThreadScheduler(),
+        args -> new DummyLuaMachine( args.timeout )
+    );
     private static final Map<Computer, Queue<Task>> machines = new HashMap<>();
 
     private static final Lock errorLock = new ReentrantLock();
     private static final Condition hasError = errorLock.newCondition();
     private static volatile Throwable error;
-
-    static
-    {
-        ComputerExecutor.luaFactory = args -> new DummyLuaMachine( args.timeout );
-    }
 
     /**
      * Create a new computer which pulls from our task queue.
@@ -55,8 +55,7 @@ public class FakeComputerManager
     @Nonnull
     public static Computer create()
     {
-        BasicEnvironment environment = new BasicEnvironment();
-        Computer computer = new Computer( environment, environment, new Terminal( 51, 19, true ), 0 );
+        Computer computer = new Computer( context, new BasicEnvironment(), new Terminal( 51, 19, true ), 0 );
         ConcurrentLinkedQueue<Task> tasks = new ConcurrentLinkedQueue<>();
         computer.addApi( new QueuePassingAPI( tasks ) );
         machines.put( computer, tasks );

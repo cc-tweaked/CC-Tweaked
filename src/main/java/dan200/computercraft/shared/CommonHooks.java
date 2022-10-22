@@ -7,7 +7,6 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.apis.http.NetworkUtils;
-import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.filesystem.ResourceMount;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.computer.core.ServerContext;
@@ -51,8 +50,7 @@ public final class CommonHooks
     {
         if( event.phase == TickEvent.Phase.START )
         {
-            MainThread.executePendingTasks();
-            ServerContext.get( ServerLifecycleHooks.getCurrentServer() ).registry().update();
+            ServerContext.get( ServerLifecycleHooks.getCurrentServer() ).tick();
         }
     }
 
@@ -85,7 +83,6 @@ public final class CommonHooks
     private static void resetState()
     {
         ServerContext.close();
-        MainThread.reset();
         WirelessNetwork.resetNetworks();
         NetworkUtils.reset();
     }

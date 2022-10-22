@@ -11,6 +11,8 @@ import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.core.ComputerContext;
+import dan200.computercraft.core.computer.mainthread.MainThread;
 import dan200.computercraft.core.filesystem.MemoryMount;
 import dan200.computercraft.core.terminal.Terminal;
 import org.junit.jupiter.api.Assertions;
@@ -46,8 +48,10 @@ public class ComputerBootstrap
         ComputerCraft.maxMainComputerTime = ComputerCraft.maxMainGlobalTime = Integer.MAX_VALUE;
 
         Terminal term = new Terminal( ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight, true );
+        MainThread mainThread = new MainThread();
         BasicEnvironment environment = new BasicEnvironment( mount );
-        final Computer computer = new Computer( environment, environment, term, 0 );
+        ComputerContext context = new ComputerContext( environment, mainThread );
+        final Computer computer = new Computer( context, environment, term, 0 );
 
         AssertApi api = new AssertApi();
         computer.addApi( api );
@@ -64,7 +68,7 @@ public class ComputerBootstrap
                 long start = System.currentTimeMillis();
 
                 computer.tick();
-                MainThread.executePendingTasks();
+                mainThread.tick();
 
                 if( api.message != null )
                 {
@@ -101,6 +105,10 @@ public class ComputerBootstrap
         catch( InterruptedException ignored )
         {
             Thread.currentThread().interrupt();
+        }
+        finally
+        {
+            context.close();
         }
     }
 

@@ -3,43 +3,33 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.core.computer;
+package dan200.computercraft.core.computer.mainthread;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.lua.ILuaTask;
+import dan200.computercraft.core.metrics.MetricsObserver;
 
-import javax.annotation.Nonnull;
 import java.util.HashSet;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Runs tasks on the main (server) thread, ticks {@link MainThreadExecutor}s, and limits how much time is used this
  * tick.
- *
+ * <p>
  * Similar to {@link MainThreadExecutor}, the {@link MainThread} can be in one of three states: cool, hot and cooling.
  * However, the implementation here is a little different:
- *
+ * <p>
  * {@link MainThread} starts cool, and runs as many tasks as it can in the current {@link #budget}ns. Any external tasks
  * (those run by tile entities, etc...) will also consume the budget
- *
+ * <p>
  * Next tick, we add {@link ComputerCraft#maxMainGlobalTime} to our budget (clamp it to that value too). If we're still
  * over budget, then we should not execute <em>any</em> work (either as part of {@link MainThread} or externally).
  */
-public final class MainThread
+public final class MainThread implements MainThreadScheduler
 {
-    /**
-     * An internal counter for {@link ILuaTask} ids.
-     *
-     * @see dan200.computercraft.api.lua.ILuaContext#issueMainThreadTask(ILuaTask)
-     * @see #getUniqueTaskID()
-     */
-    private static final AtomicLong lastTaskId = new AtomicLong();
-
     /**
      * The queue of {@link MainThreadExecutor}s with tasks to perform.
      */
-    private static final TreeSet<MainThreadExecutor> executors = new TreeSet<>( ( a, b ) -> {
+    private final TreeSet<MainThreadExecutor> executors = new TreeSet<>( ( a, b ) -> {
         if( a == b ) return 0; // Should never happen, but let's be consistent here
 
         long at = a.virtualTime, bt = b.virtualTime;
@@ -53,7 +43,7 @@ public final class MainThread
      * @see MainThreadExecutor#tickCooling()
      * @see #cooling(MainThreadExecutor)
      */
-    private static final HashSet<MainThreadExecutor> cooling = new HashSet<>();
+    private final HashSet<MainThreadExecutor> cooling = new HashSet<>();
 
     /**
      * The current tick number. This is used by {@link MainThreadExecutor} to determine when to reset its own time
@@ -61,30 +51,27 @@ public final class MainThread
      *
      * @see #currentTick()
      */
-    private static int currentTick;
+    private int currentTick;
 
     /**
      * The remaining budgeted time for this tick. This may be negative, in the case that we've gone over budget.
      */
-    private static long budget;
+    private long budget;
 
     /**
      * Whether we should be executing any work this tick.
-     *
+     * <p>
      * This is true iff {@code MAX_TICK_TIME - currentTime} was true <em>at the beginning of the tick</em>.
      */
-    private static boolean canExecute = true;
+    private boolean canExecute = true;
 
-    private static long minimumTime = 0;
+    private long minimumTime = 0;
 
-    private MainThread() {}
-
-    public static long getUniqueTaskID()
+    public MainThread()
     {
-        return lastTaskId.incrementAndGet();
     }
 
-    static void queue( @Nonnull MainThreadExecutor executor, boolean sleeper )
+    void queue( MainThreadExecutor executor )
     {
         synchronized( executors )
         {
@@ -105,27 +92,27 @@ public final class MainThread
         }
     }
 
-    static void cooling( @Nonnull MainThreadExecutor executor )
+    void cooling( MainThreadExecutor executor )
     {
         cooling.add( executor );
     }
 
-    static void consumeTime( long time )
+    void consumeTime( long time )
     {
         budget -= time;
     }
 
-    static boolean canExecute()
+    boolean canExecute()
     {
         return canExecute;
     }
 
-    static int currentTick()
+    int currentTick()
     {
         return currentTick;
     }
 
-    public static void executePendingTasks()
+    public void tick()
     {
         // Move onto the next tick and cool down the global executor. We're allowed to execute if we have _any_ time
         // allocated for this tick. This means we'll stick much closer to doing MAX_TICK_TIME work every tick.
@@ -178,17 +165,9 @@ public final class MainThread
         consumeTime( System.nanoTime() - start );
     }
 
-    public static void reset()
+    @Override
+    public Executor createExecutor( MetricsObserver metrics )
     {
-        currentTick = 0;
-        budget = 0;
-        canExecute = true;
-        minimumTime = 0;
-        lastTaskId.set( 0 );
-        cooling.clear();
-        synchronized( executors )
-        {
-            executors.clear();
-        }
+        return new MainThreadExecutor( metrics, this );
     }
 }

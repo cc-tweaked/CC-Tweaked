@@ -43,7 +43,7 @@ public class ServerComputerRegistry
         return sessionId == this.sessionId ? get( instanceId ) : null;
     }
 
-    public void update()
+    void update()
     {
         Iterator<ServerComputer> it = getComputers().iterator();
         while( it.hasNext() )
