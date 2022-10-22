@@ -56,7 +56,7 @@ public final class ServerContext
         this.server = server;
         storageDir = server.getWorldPath( FOLDER );
         mainThread = new MainThread();
-        context = new ComputerContext( new Environment( server ), mainThread );
+        context = new ComputerContext( new Environment( server ), ComputerCraft.computerThreads, mainThread );
         idAssigner = new IDAssigner( storageDir.resolve( "ids.json" ) );
     }
 

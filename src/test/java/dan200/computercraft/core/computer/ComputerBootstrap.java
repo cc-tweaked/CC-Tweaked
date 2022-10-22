@@ -50,7 +50,7 @@ public class ComputerBootstrap
         Terminal term = new Terminal( ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight, true );
         MainThread mainThread = new MainThread();
         BasicEnvironment environment = new BasicEnvironment( mount );
-        ComputerContext context = new ComputerContext( environment, mainThread );
+        ComputerContext context = new ComputerContext( environment, 1, mainThread );
         final Computer computer = new Computer( context, environment, term, 0 );
 
         AssertApi api = new AssertApi();

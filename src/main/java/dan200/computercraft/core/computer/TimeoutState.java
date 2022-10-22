@@ -49,6 +49,8 @@ public final class TimeoutState
      */
     public static final String ABORT_MESSAGE = "Too long without yielding";
 
+    private final ComputerThread scheduler;
+
     private boolean paused;
     private boolean softAbort;
     private volatile boolean hardAbort;
@@ -73,6 +75,11 @@ public final class TimeoutState
      */
     private long currentDeadline;
 
+    public TimeoutState( ComputerThread scheduler )
+    {
+        this.scheduler = scheduler;
+    }
+
     long nanoCumulative()
     {
         return System.nanoTime() - cumulativeStart;
@@ -91,7 +98,7 @@ public final class TimeoutState
         // Important: The weird arithmetic here is important, as nanoTime may return negative values, and so we
         // need to handle overflow.
         long now = System.nanoTime();
-        if( !paused ) paused = currentDeadline - now <= 0 && ComputerThread.hasPendingWork(); // now >= currentDeadline
+        if( !paused ) paused = currentDeadline - now <= 0 && scheduler.hasPendingWork(); // now >= currentDeadline
         if( !softAbort ) softAbort = now - cumulativeStart - TIMEOUT >= 0; // now - cumulativeStart >= TIMEOUT
     }
 
@@ -143,7 +150,7 @@ public final class TimeoutState
     {
         long now = System.nanoTime();
         currentStart = now;
-        currentDeadline = now + ComputerThread.scaledPeriod();
+        currentDeadline = now + scheduler.scaledPeriod();
         // Compute the "nominal start time".
         cumulativeStart = now - cumulativeElapsed;
     }

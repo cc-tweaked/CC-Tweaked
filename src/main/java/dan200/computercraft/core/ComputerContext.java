@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.core;
 
+import dan200.computercraft.core.computer.ComputerThread;
 import dan200.computercraft.core.computer.GlobalEnvironment;
 import dan200.computercraft.core.computer.mainthread.MainThreadScheduler;
 import dan200.computercraft.core.lua.CobaltLuaMachine;
@@ -16,12 +17,17 @@ import dan200.computercraft.core.lua.ILuaMachine;
 public final class ComputerContext implements AutoCloseable
 {
     private final GlobalEnvironment globalEnvironment;
+    private final ComputerThread computerScheduler;
     private final MainThreadScheduler mainThreadScheduler;
     private final ILuaMachine.Factory factory;
 
-    public ComputerContext( GlobalEnvironment globalEnvironment, MainThreadScheduler mainThreadScheduler, ILuaMachine.Factory factory )
+    public ComputerContext(
+        GlobalEnvironment globalEnvironment, ComputerThread computerScheduler,
+        MainThreadScheduler mainThreadScheduler, ILuaMachine.Factory factory
+    )
     {
         this.globalEnvironment = globalEnvironment;
+        this.computerScheduler = computerScheduler;
         this.mainThreadScheduler = mainThreadScheduler;
         this.factory = factory;
     }
@@ -30,11 +36,12 @@ public final class ComputerContext implements AutoCloseable
      * Create a default {@link ComputerContext} with the given global environment.
      *
      * @param environment         The current global environment.
+     * @param threads             The number of threads to use for the {@link #computerScheduler()}
      * @param mainThreadScheduler The main thread scheduler to use.
      */
-    public ComputerContext( GlobalEnvironment environment, MainThreadScheduler mainThreadScheduler )
+    public ComputerContext( GlobalEnvironment environment, int threads, MainThreadScheduler mainThreadScheduler )
     {
-        this( environment, mainThreadScheduler, CobaltLuaMachine::new );
+        this( environment, new ComputerThread( threads ), mainThreadScheduler, CobaltLuaMachine::new );
     }
 
     /**
@@ -45,6 +52,17 @@ public final class ComputerContext implements AutoCloseable
     public GlobalEnvironment globalEnvironment()
     {
         return globalEnvironment;
+    }
+
+    /**
+     * The {@link ComputerThread} instance under which computers are run. This is closed when the context is closed, and
+     * so should be unique per-context.
+     *
+     * @return The current computer thread manager.
+     */
+    public ComputerThread computerScheduler()
+    {
+        return computerScheduler;
     }
 
     /**
@@ -73,5 +91,6 @@ public final class ComputerContext implements AutoCloseable
     @Override
     public void close()
     {
+        computerScheduler().stop();
     }
 }

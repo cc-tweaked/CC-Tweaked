@@ -10,10 +10,9 @@ import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.core.lua.MachineResult;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.support.IsolatedRunner;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,25 +25,36 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Creates "fake" computers, which just run user-defined tasks rather than Lua code.
- * <p>
- * Note, this will clobber some parts of the global state. It's recommended you use this inside an {@link IsolatedRunner}.
  */
-public class FakeComputerManager
+public class FakeComputerManager implements AutoCloseable
 {
     interface Task
     {
         MachineResult run( TimeoutState state ) throws Exception;
     }
 
-    private static final ComputerContext context = new ComputerContext(
-        new BasicEnvironment(), new FakeMainThreadScheduler(),
+    private final Map<Computer, Queue<Task>> machines = new HashMap<>();
+    private final ComputerContext context = new ComputerContext(
+        new BasicEnvironment(),
+        new ComputerThread( 1 ),
+        new FakeMainThreadScheduler(),
         args -> new DummyLuaMachine( args.timeout )
     );
-    private static final Map<Computer, Queue<Task>> machines = new HashMap<>();
 
-    private static final Lock errorLock = new ReentrantLock();
-    private static final Condition hasError = errorLock.newCondition();
-    private static volatile Throwable error;
+    private final Lock errorLock = new ReentrantLock();
+    private final Condition hasError = errorLock.newCondition();
+    private volatile @Nullable Throwable error;
+
+    @Override
+    public void close()
+    {
+        context.close();
+    }
+
+    public ComputerContext context()
+    {
+        return context;
+    }
 
     /**
      * Create a new computer which pulls from our task queue.
@@ -52,20 +62,19 @@ public class FakeComputerManager
      * @return The computer. This will not be started yet, you must call {@link Computer#turnOn()} and
      * {@link Computer#tick()} to do so.
      */
-    @Nonnull
-    public static Computer create()
+    public Computer create()
     {
+        Queue<Task> queue = new ConcurrentLinkedQueue<>();
         Computer computer = new Computer( context, new BasicEnvironment(), new Terminal( 51, 19, true ), 0 );
-        ConcurrentLinkedQueue<Task> tasks = new ConcurrentLinkedQueue<>();
-        computer.addApi( new QueuePassingAPI( tasks ) );
-        machines.put( computer, tasks );
+        computer.addApi( new QueuePassingAPI( queue ) ); // Inject an extra API to pass the queue to the machine.
+        machines.put( computer, queue );
         return computer;
     }
 
     /**
      * Create and start a new computer which loops forever.
      */
-    public static void createLoopingComputer()
+    public void createLoopingComputer()
     {
         Computer computer = create();
         enqueueForever( computer, t -> {
@@ -82,7 +91,7 @@ public class FakeComputerManager
      * @param computer The computer to enqueue the work on.
      * @param task     The task to run.
      */
-    public static void enqueue( @Nonnull Computer computer, @Nonnull Task task )
+    public void enqueue( Computer computer, Task task )
     {
         machines.get( computer ).offer( task );
     }
@@ -94,7 +103,7 @@ public class FakeComputerManager
      * @param computer The computer to enqueue the work on.
      * @param task     The task to run.
      */
-    private static void enqueueForever( @Nonnull Computer computer, @Nonnull Task task )
+    private void enqueueForever( Computer computer, Task task )
     {
         machines.get( computer ).offer( t -> {
             MachineResult result = task.run( t );
@@ -112,7 +121,7 @@ public class FakeComputerManager
      * @param unit  The time unit the duration is measured in.
      * @throws Exception An exception thrown by a running computer.
      */
-    public static void sleep( long delay, TimeUnit unit ) throws Exception
+    public void sleep( long delay, TimeUnit unit ) throws Exception
     {
         errorLock.lock();
         try
@@ -132,7 +141,7 @@ public class FakeComputerManager
      * @param computer The computer to wait for.
      * @throws Exception An exception thrown by a running computer.
      */
-    public static void startAndWait( Computer computer ) throws Exception
+    public void startAndWait( Computer computer ) throws Exception
     {
         computer.turnOn();
         computer.tick();
@@ -140,16 +149,16 @@ public class FakeComputerManager
         do
         {
             sleep( 100, TimeUnit.MILLISECONDS );
-        } while( ComputerThread.hasPendingWork() || computer.isOn() );
+        } while( context.computerScheduler().hasPendingWork() || computer.isOn() );
 
         rethrowIfNeeded();
     }
 
-    private static void rethrowIfNeeded() throws Exception
+    private void rethrowIfNeeded() throws Exception
     {
+        Throwable error = this.error;
         if( error == null ) return;
         if( error instanceof Exception ) throw (Exception) error;
-        if( error instanceof Error ) throw (Error) error;
         rethrow( error );
     }
 
@@ -175,10 +184,10 @@ public class FakeComputerManager
         }
     }
 
-    private static class DummyLuaMachine implements ILuaMachine
+    private final class DummyLuaMachine implements ILuaMachine
     {
         private final TimeoutState state;
-        private @javax.annotation.Nullable Queue<Task> tasks;
+        private @Nullable Queue<Task> tasks;
 
         DummyLuaMachine( TimeoutState state )
         {

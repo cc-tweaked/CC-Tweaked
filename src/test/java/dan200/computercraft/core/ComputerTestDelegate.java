@@ -114,7 +114,7 @@ public class ComputerTestDelegate
         }
 
         BasicEnvironment environment = new BasicEnvironment( mount );
-        context = new ComputerContext( environment, new FakeMainThreadScheduler() );
+        context = new ComputerContext( environment, 1, new FakeMainThreadScheduler() );
         computer = new Computer( context, environment, term, 0 );
         computer.getEnvironment().setPeripheral( ComputerSide.TOP, new FakeModem() );
         computer.addApi( new CctTestAPI() );

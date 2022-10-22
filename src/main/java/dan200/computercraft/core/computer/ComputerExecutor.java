@@ -61,7 +61,8 @@ final class ComputerExecutor
     private final ComputerEnvironment computerEnvironment;
     private final MetricsObserver metrics;
     private final List<ILuaAPI> apis = new ArrayList<>();
-    final TimeoutState timeout = new TimeoutState();
+    private final ComputerThread scheduler;
+    final TimeoutState timeout;
 
     private FileSystem fileSystem;
 
@@ -164,13 +165,15 @@ final class ComputerExecutor
 
     ComputerExecutor( Computer computer, ComputerEnvironment computerEnvironment, ComputerContext context )
     {
-        // Ensure the computer thread is running as required.
-        ComputerThread.start();
-
         this.computer = computer;
         this.computerEnvironment = computerEnvironment;
         metrics = computerEnvironment.getMetrics();
         luaFactory = context.luaFactory();
+        scheduler = context.computerScheduler();
+        timeout = new TimeoutState( scheduler );
+
+        // Ensure the computer thread is running as required.
+        scheduler.start();
 
         Environment environment = computer.getEnvironment();
 
@@ -316,7 +319,7 @@ final class ComputerExecutor
     {
         synchronized( queueLock )
         {
-            if( !onComputerQueue ) ComputerThread.queue( this );
+            if( !onComputerQueue ) scheduler.queue( this );
         }
     }
 
