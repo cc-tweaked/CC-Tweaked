@@ -45,12 +45,12 @@ public class BlockCable extends BlockGeneric implements IWaterLoggable
     public static final EnumProperty<CableModemVariant> MODEM = EnumProperty.create( "modem", CableModemVariant.class );
     public static final BooleanProperty CABLE = BooleanProperty.create( "cable" );
 
-    private static final BooleanProperty NORTH = BooleanProperty.create( "north" );
-    private static final BooleanProperty SOUTH = BooleanProperty.create( "south" );
-    private static final BooleanProperty EAST = BooleanProperty.create( "east" );
-    private static final BooleanProperty WEST = BooleanProperty.create( "west" );
-    private static final BooleanProperty UP = BooleanProperty.create( "up" );
-    private static final BooleanProperty DOWN = BooleanProperty.create( "down" );
+    public static final BooleanProperty NORTH = BooleanProperty.create( "north" );
+    public static final BooleanProperty SOUTH = BooleanProperty.create( "south" );
+    public static final BooleanProperty EAST = BooleanProperty.create( "east" );
+    public static final BooleanProperty WEST = BooleanProperty.create( "west" );
+    public static final BooleanProperty UP = BooleanProperty.create( "up" );
+    public static final BooleanProperty DOWN = BooleanProperty.create( "down" );
 
     static final EnumMap<Direction, BooleanProperty> CONNECTIONS =
         new EnumMap<>( new ImmutableMap.Builder<Direction, BooleanProperty>()

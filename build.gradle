@@ -72,6 +72,7 @@ minecraft {
         data {
             workingDirectory project.file('run')
             args '--mod', 'computercraft', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            property("cct.pretty-json", "true")
         }
 
         testClient {

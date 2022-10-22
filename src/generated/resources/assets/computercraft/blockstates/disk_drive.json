@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "facing=east,state=empty": {"y": 90, "model": "computercraft:block/disk_drive_empty"},
+    "facing=east,state=full": {"y": 90, "model": "computercraft:block/disk_drive_full"},
+    "facing=east,state=invalid": {"y": 90, "model": "computercraft:block/disk_drive_invalid"},
+    "facing=north,state=empty": {"y": 0, "model": "computercraft:block/disk_drive_empty"},
+    "facing=north,state=full": {"y": 0, "model": "computercraft:block/disk_drive_full"},
+    "facing=north,state=invalid": {"y": 0, "model": "computercraft:block/disk_drive_invalid"},
+    "facing=south,state=empty": {"y": 180, "model": "computercraft:block/disk_drive_empty"},
+    "facing=south,state=full": {"y": 180, "model": "computercraft:block/disk_drive_full"},
+    "facing=south,state=invalid": {"y": 180, "model": "computercraft:block/disk_drive_invalid"},
+    "facing=west,state=empty": {"y": 270, "model": "computercraft:block/disk_drive_empty"},
+    "facing=west,state=full": {"y": 270, "model": "computercraft:block/disk_drive_full"},
+    "facing=west,state=invalid": {"y": 270, "model": "computercraft:block/disk_drive_invalid"}
+  }
+}

@@ -5,13 +5,13 @@
  */
 package dan200.computercraft.shared.turtle.upgrades;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
@@ -63,10 +63,10 @@ public class TurtleModem extends AbstractTurtleUpgrade
 
     private final boolean advanced;
 
-    private final ModelResourceLocation leftOffModel;
-    private final ModelResourceLocation rightOffModel;
-    private final ModelResourceLocation leftOnModel;
-    private final ModelResourceLocation rightOnModel;
+    private final ResourceLocation leftOffModel;
+    private final ResourceLocation rightOffModel;
+    private final ResourceLocation leftOnModel;
+    private final ResourceLocation rightOnModel;
 
     public TurtleModem( boolean advanced, ResourceLocation id )
     {
@@ -80,17 +80,17 @@ public class TurtleModem extends AbstractTurtleUpgrade
 
         if( advanced )
         {
-            leftOffModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_off_left", "inventory" );
-            rightOffModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_off_right", "inventory" );
-            leftOnModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_on_left", "inventory" );
-            rightOnModel = new ModelResourceLocation( "computercraft:turtle_modem_advanced_on_right", "inventory" );
+            leftOffModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_advanced_off_left" );
+            rightOffModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_advanced_off_right" );
+            leftOnModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_advanced_on_left" );
+            rightOnModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_advanced_on_right" );
         }
         else
         {
-            leftOffModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_off_left", "inventory" );
-            rightOffModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_off_right", "inventory" );
-            leftOnModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_on_left", "inventory" );
-            rightOnModel = new ModelResourceLocation( "computercraft:turtle_modem_normal_on_right", "inventory" );
+            leftOffModel = new ResourceLocation( ComputerCraft.MOD_ID, "turtle_modem_normal_off_left" );
+            rightOffModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_normal_off_right" );
+            leftOnModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_normal_on_left" );
+            rightOnModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_normal_on_right" );
         }
     }
 
