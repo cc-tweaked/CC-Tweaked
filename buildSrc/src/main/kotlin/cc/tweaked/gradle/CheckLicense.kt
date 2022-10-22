@@ -25,7 +25,7 @@ object LicenseHeader {
     )
 
     private fun getTemplateText(file: File): String =
-        file.readText(StandardCharsets.UTF_8).trim().replace("\${year}", "$YEAR")
+        file.readText().trim().replace("\${year}", "$YEAR")
 
     private fun formatFile(licenses: Licenses, contents: String, file: File): String {
         val license = getLicense(contents)
@@ -38,8 +38,8 @@ object LicenseHeader {
         }
     }
 
-    private fun getExpectedLicense(licenses: Licenses, file: File): String {
-        var file: File? = file
+    private fun getExpectedLicense(licenses: Licenses, root: File): String {
+        var file: File? = root
         while (file != null) {
             if (file.name == "api" && file.parentFile?.name == "computercraft") return licenses.api
             file = file.parentFile

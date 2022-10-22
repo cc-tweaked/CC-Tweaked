@@ -1,6 +1,4 @@
 plugins {
-    id "checkstyle"
-    id "jacoco"
     id "maven-publish"
     id "com.matthewprenger.cursegradle" version "1.4.0"
     id "com.github.breadmoirai.github-release" version "2.2.12"
@@ -12,9 +10,10 @@ plugins {
     id "com.github.johnrengelman.shadow" version "7.1.2"
     id("cc-tweaked.illuaminate")
     id("cc-tweaked.java-convention")
+    id("cc-tweaked")
 }
 
-
+import cc.tweaked.gradle.CheckChangelog
 import cc.tweaked.gradle.ExtensionsKt
 import cc.tweaked.gradle.IlluaminateExec
 import cc.tweaked.gradle.IlluaminateExecToDir
@@ -25,16 +24,7 @@ version = mod_version
 group = "org.squiddev"
 archivesBaseName = "cc-tweaked-${mc_version}"
 
-def javaVersion = JavaLanguageVersion.of(8)
-java {
-    toolchain {
-        languageVersion = javaVersion
-    }
-
-    withSourcesJar()
-    withJavadocJar()
-    registerFeature("extraMods") { usingSourceSet(sourceSets.main) }
-}
+java.registerFeature("extraMods") { usingSourceSet(sourceSets.main) }
 
 sourceSets {
     main.resources {
@@ -115,14 +105,6 @@ reobf {
     shadowJar {}
 }
 
-repositories {
-    mavenCentral()
-    maven {
-        name "SquidDev"
-        url "https://squiddev.cc/maven"
-    }
-}
-
 configurations {
     shade { transitive = false }
     implementation.extendsFrom shade
@@ -133,8 +115,6 @@ configurations {
 }
 
 dependencies {
-    checkstyle "com.puppycrawl.tools:checkstyle:8.25"
-
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 
@@ -222,75 +202,19 @@ shadowJar {
 
 assemble.dependsOn("shadowJar")
 
-[
-    tasks.named("compileJava", JavaCompile.class),
-    tasks.named("compileTestJava", JavaCompile.class),
-    tasks.named("compileTestModJava", JavaCompile.class)
-].forEach {
-    it.configure {
-        options.compilerArgs << "-Xlint" << "-Xlint:-processing"
-    }
-}
-
 processResources {
     inputs.property "version", mod_version
     inputs.property "mcversion", mc_version
 
-    def hash = 'none'
-    Set<String> contributors = []
-    try {
-        hash = ["git", "-C", projectDir, "rev-parse", "HEAD"].execute().text.trim()
+    inputs.property("gitHash", cct.gitHash)
 
-        def blacklist = ['GitHub', 'Daniel Ratcliffe', 'Weblate']
-
-        // Extract all authors, commiters and co-authors from the git log.
-        def authors = ["git", "-C", projectDir, "log", "--format=tformat:%an <%ae>%n%cn <%ce>%n%(trailers:key=Co-authored-by,valueonly)"]
-            .execute().text.readLines().unique()
-
-        // We now pass this through git's mailmap to de-duplicate some authors.
-        def remapAuthors = ["git", "check-mailmap", "--stdin"].execute()
-        remapAuthors.withWriter { stdin ->
-            if (stdin !instanceof BufferedWriter) stdin = new BufferedWriter(stdin)
-
-            authors.forEach {
-                if (it == "") return
-                if (!it.endsWith(">")) it += ">" // Some commits have broken Co-Authored-By lines!
-                stdin.writeLine(it)
-            }
-            stdin.close()
-        }
-
-        // And finally extract out the actual name.
-        def emailRegex = ~/^([^<]+) <.+>$/
-        remapAuthors.text.readLines().forEach {
-            def matcher = it =~ emailRegex
-            matcher.find()
-            def name = matcher.group(1)
-            if (!blacklist.contains(name)) contributors.add(name)
-        }
-    } catch (Exception e) {
-        e.printStackTrace()
-    }
-    inputs.property "commithash", hash
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-
-    from(sourceSets.main.resources.srcDirs) {
-        include 'META-INF/mods.toml'
-        include 'data/computercraft/lua/rom/help/credits.txt'
-
-        expand 'version': mod_version,
-            'mcversion': mc_version,
-            'gitcontributors': contributors.sort(false, String.CASE_INSENSITIVE_ORDER).join('\n')
+    filesMatching("data/computercraft/lua/rom/help/credits.txt") {
+        expand("gitContributors": cct.gitContributors.get().join("\n"))
     }
 
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'META-INF/mods.toml'
-        exclude 'data/computercraft/lua/rom/help/credits.txt'
+    filesMatching("META-INF/mods.toml") {
+        expand("version": mod_version, "mcversion": mc_version)
     }
-}
-
-sourcesJar {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 // Web tasks
@@ -378,16 +302,6 @@ test {
     }
 }
 
-jacocoTestReport {
-    dependsOn('test')
-    reports {
-        xml.required = true
-        html.required = true
-    }
-}
-
-test.finalizedBy("jacocoTestReport")
-
 def lintLua = tasks.register("lintLua", IlluaminateExec.class) {
     group = JavaBasePlugin.VERIFICATION_GROUP
     description = "Lint Lua (and Lua docs) with illuaminate"
@@ -417,88 +331,29 @@ def setupServer = tasks.register("setupServer", Copy.class) {
     into "test-files/server"
 }
 
-def testServerClassDumpDir = new File(buildDir, "jacocoClassDump/runTestServer")
-
-def testServer = tasks.register("testServer", JavaExec.class) {
+def runGametest = tasks.register("runGametest", JavaExec.class) {
     group("In-game tests")
     description("Runs tests on a temporary Minecraft instance.")
-    dependsOn(setupServer, "cleanTestServer")
-    finalizedBy("jacocoTestServerReport")
+    dependsOn(setupServer, "cleanRunGametest")
 
     // Copy from runTestServer. We do it in this slightly odd way as runTestServer
     // isn't created until the task is configured (which is no good for us).
     ExtensionsKt.copyToFull(tasks.getByName("runTestServer"), it)
-
-    // Jacoco and modlauncher don't play well together as the classes loaded in-game don't
-    // match up with those written to disk. We get Jacoco to dump all classes to disk, and
-    // use that when generating the report.
-    jacoco.applyTo(it)
-    it.jacoco.setIncludes(["dan200.computercraft.*"])
-    it.jacoco.setClassDumpDir(testServerClassDumpDir)
-    outputs.dir(testServerClassDumpDir)
-    // Older versions of modlauncher don't include a protection domain (and thus no code
-    // source). Jacoco skips such classes by default, so we need to explicitly include them.
-    it.jacoco.setIncludeNoLocationClasses(true)
 }
 
-tasks.register("jacocoTestServerReport", JacocoReport.class) {
-    group("In-game tests")
-    description("Generate coverage reports for testServer")
-    dependsOn(testServer)
+cct.jacoco(runGametest)
 
-    executionData(new File(buildDir, "jacoco/testServer.exec"))
-    sourceDirectories.from(sourceSets.main.allJava.srcDirs)
-    classDirectories.from(testServerClassDumpDir)
-
-    reports {
-        xml.enabled true
-        html.enabled true
-    }
-}
-
-check.dependsOn(testServer)
+tasks.check { dependsOn(runGametest) }
 
 // Upload tasks
 
-def checkRelease = tasks.register("checkRelease") {
-    group "upload"
-    description "Verifies that everything is ready for a release"
-
-    inputs.property "version", mod_version
-    inputs.file("src/main/resources/data/computercraft/lua/rom/help/changelog.md")
-    inputs.file("src/main/resources/data/computercraft/lua/rom/help/whatsnew.md")
-
-    doLast {
-        def ok = true
-
-        // Check we're targetting the current version
-        def whatsnew = new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/whatsnew.md").readLines()
-        if (whatsnew[0] != "New features in CC: Tweaked $mod_version") {
-            ok = false
-            project.logger.error("Expected `whatsnew.md' to target $mod_version.")
-        }
-
-        // Check "read more" exists and trim it
-        def idx = whatsnew.findIndexOf { it == 'Type "help changelog" to see the full version history.' }
-        if (idx == -1) {
-            ok = false
-            project.logger.error("Must mention the changelog in whatsnew.md")
-        } else {
-            whatsnew = whatsnew.getAt(0..<idx)
-        }
-
-        // Check whatsnew and changelog match.
-        def versionChangelog = "# " + whatsnew.join("\n")
-        def changelog = new File(projectDir, "src/main/resources/data/computercraft/lua/rom/help/changelog.md").getText()
-        if (!changelog.startsWith(versionChangelog)) {
-            ok = false
-            project.logger.error("whatsnew and changelog are not in sync")
-        }
-
-        if (!ok) throw new IllegalStateException("Could not check release")
-    }
+def checkChangelog = tasks.register("checkChangelog", CheckChangelog.class) {
+    version.set(mod_version)
+    whatsNew.set(file("src/main/resources/data/computercraft/lua/rom/help/whatsnew.md"))
+    changelog.set(file("src/main/resources/data/computercraft/lua/rom/help/changelog.md"))
 }
-check.dependsOn(checkRelease)
+
+tasks.check { dependsOn(checkChangelog) }
 
 def isStable = true
 
@@ -595,7 +450,7 @@ githubRelease {
 }
 
 def uploadTasks = ["publish", "curseforge", "modrinth", "githubRelease"]
-uploadTasks.forEach { tasks.named(it) { dependsOn(checkRelease) } }
+uploadTasks.forEach { tasks.named(it) { dependsOn(checkChangelog) } }
 
 tasks.register("uploadAll") {
     group = "upload"

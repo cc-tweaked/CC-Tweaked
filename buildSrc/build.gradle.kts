@@ -14,6 +14,11 @@ dependencies {
 
 gradlePlugin {
     plugins {
+        register("cc-tweaked") {
+            id = "cc-tweaked"
+            implementationClass = "cc.tweaked.gradle.CCTweakedPlugin"
+        }
+
         register("cc-tweaked.illuaminate") {
             id = "cc-tweaked.illuaminate"
             implementationClass = "cc.tweaked.gradle.IlluaminatePlugin"

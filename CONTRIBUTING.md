@@ -83,7 +83,7 @@ Before we get into writing tests, it's worth mentioning the various test suites 
  - In-game (`./src/testMod/java/dan200/computercraft/ingame/`): These tests are run on an actual Minecraft server, using
    the same system Mojang do][mc-test]. The aim of these is to test in-game behaviour of blocks and peripherals.
 
-   These tests are run with `./gradlew testServer`.
+   These tests are run with `./gradlew runGametest`.
 
 ## CraftOS tests
 CraftOS's tests are written using a test system called "mcfly", heavily inspired by [busted] (and thus RSpec). Groups of

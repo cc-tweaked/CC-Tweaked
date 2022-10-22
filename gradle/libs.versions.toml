@@ -10,6 +10,7 @@ jqwik = "1.7.0"
 junit = "5.9.1"
 
 # Build tools
+checkstyle = "8.25" # There's a reason we're pinned on an ancient version, but I can't remember what it is.
 spotless = "6.8.0"
 
 [libraries]
@@ -26,7 +27,8 @@ junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.re
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 
-# Gradle plugins
+# Build tools
+checkstyle = { module = "com.puppycrawl.tools:checkstyle", version.ref = "checkstyle" }
 spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 
 [bundles]
