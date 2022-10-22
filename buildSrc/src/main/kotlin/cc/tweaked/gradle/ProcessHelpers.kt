@@ -4,6 +4,7 @@ import org.codehaus.groovy.runtime.ProcessGroovyMethods
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
+import java.util.stream.Collectors
 
 internal object ProcessHelpers {
     fun startProcess(vararg command: String): Process {
@@ -25,7 +26,7 @@ internal object ProcessHelpers {
 
     fun captureLines(process: Process): List<String> {
         val out = BufferedReader(InputStreamReader(process.inputStream)).use { reader ->
-            reader.lines().filter { it.isNotEmpty() }.toList()
+            reader.lines().filter { it.isNotEmpty() }.collect(Collectors.toList())
         }
         ProcessGroovyMethods.closeStreams(process)
         if (process.waitFor() != 0) throw IOException("Command exited with a non-0 status")

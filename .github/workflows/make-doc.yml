@@ -11,23 +11,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Clone repository
+      uses: actions/checkout@v3
 
-    - name: Set up Java 8
+    - name: Set up Java
       uses: actions/setup-java@v1
       with:
         java-version: 8
+        distribution: 'temurin'
 
-    - name: Cache gradle dependencies
-      uses: actions/cache@v2
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
       with:
-        path: ~/.gradle/caches
-        key: ${{ runner.os }}-gradle-${{ hashFiles('gradle.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-
-    - name: Setup node
-      run: npm ci
+        cache-read-only: ${{ !startsWith(github.ref, 'refs/heads/mc-') }}
 
     - name: Build with Gradle
       run: ./gradlew compileJava --no-daemon || ./gradlew compileJava --no-daemon
