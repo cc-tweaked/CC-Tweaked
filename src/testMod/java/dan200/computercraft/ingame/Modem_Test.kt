@@ -15,10 +15,14 @@ class Modem_Test {
         this
             .thenComputerOk(marker = "initial")
             .thenExecute {
-                helper.setBlock(position, BlockCable.correctConnections(
-                    helper.level, helper.absolutePos(position),
-                    Registry.ModBlocks.CABLE.get().defaultBlockState().setValue(BlockCable.CABLE, true)
-                ))
+                helper.setBlock(
+                    position,
+                    BlockCable.correctConnections(
+                        helper.level,
+                        helper.absolutePos(position),
+                        Registry.ModBlocks.CABLE.get().defaultBlockState().setValue(BlockCable.CABLE, true),
+                    ),
+                )
             }
             .thenComputerOk()
     }

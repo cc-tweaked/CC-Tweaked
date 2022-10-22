@@ -28,8 +28,8 @@ class TestHttpApi {
             ComputerCraft.httpRules = Collections.unmodifiableList(
                 listOf(
                     AddressRule.parse("\$private", null, Action.DENY.toPartial()),
-                    AddressRule.parse("*", null, Action.ALLOW.toPartial())
-                )
+                    AddressRule.parse("*", null, Action.ALLOW.toPartial()),
+                ),
             )
         }
     }
