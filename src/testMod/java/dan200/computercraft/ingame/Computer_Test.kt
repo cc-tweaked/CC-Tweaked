@@ -25,7 +25,8 @@ class Computer_Test {
                 context.assertBlockState(
                     lamp,
                     { !it.getValue(RedstoneLampBlock.LIT) },
-                    { "Lamp should still not be lit" })
+                    { "Lamp should still not be lit" },
+                )
             }
     }
 }

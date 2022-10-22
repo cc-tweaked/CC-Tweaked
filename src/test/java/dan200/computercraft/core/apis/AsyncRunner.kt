@@ -19,7 +19,6 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 
-
 abstract class NullApiEnvironment : IAPIEnvironment {
     private val computerEnv = BasicEnvironment()
 

@@ -14,4 +14,4 @@ pluginManagement {
 }
 
 val mc_version: String by settings
-rootProject.name = "cc-tweaked-${mc_version}"
+rootProject.name = "cc-tweaked-$mc_version"

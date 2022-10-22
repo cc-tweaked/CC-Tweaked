@@ -24,7 +24,7 @@ class Monitor_Test {
         val toSet = BlockStateInput(
             Registry.ModBlocks.MONITOR_ADVANCED.get().defaultBlockState(),
             Collections.emptySet(),
-            tag
+            tag,
         )
 
         context.setBlock(pos, Blocks.AIR.defaultBlockState())

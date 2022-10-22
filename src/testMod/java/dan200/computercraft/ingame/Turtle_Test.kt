@@ -86,9 +86,9 @@ class Turtle_Test {
                 DetailRegistries.ITEM_STACK.addProvider(
                     object : BasicItemDetailProvider<ItemPrintout>("printout", ItemPrintout::class.java) {
                         override fun provideDetails(data: MutableMap<in String, Any>, stack: ItemStack, item: ItemPrintout) {
-                            data["type"] = item.type.toString();
+                            data["type"] = item.type.toString()
                         }
-                    }
+                    },
                 )
             }
             .thenComputerOk()

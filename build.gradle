@@ -2,7 +2,6 @@ plugins {
     id "checkstyle"
     id "jacoco"
     id "maven-publish"
-    id "org.cadixdev.licenser" version "0.6.1"
     id "com.matthewprenger.cursegradle" version "1.4.0"
     id "com.github.breadmoirai.github-release" version "2.2.12"
     id "org.jetbrains.kotlin.jvm" version "1.7.0"
@@ -11,7 +10,8 @@ plugins {
     id "org.spongepowered.mixin" version "0.7.+"
     id "org.parchmentmc.librarian.forgegradle" version "1.+"
     id "com.github.johnrengelman.shadow" version "7.1.2"
-    id "cc-tweaked.illuaminate"
+    id("cc-tweaked.illuaminate")
+    id("cc-tweaked.java-convention")
 }
 
 
@@ -387,23 +387,6 @@ jacocoTestReport {
 }
 
 test.finalizedBy("jacocoTestReport")
-
-license {
-    header = file('config/license/main.txt')
-    lineEnding = '\n'
-    newLine = false
-
-    properties {
-        year = Calendar.getInstance().get(Calendar.YEAR)
-    }
-
-    include("**/*.java") // We could apply to Kotlin, but for now let's not
-    matching("dan200/computercraft/api/**") {
-        header = file('config/license/api.txt')
-    }
-}
-
-check.dependsOn("licenseCheck")
 
 def lintLua = tasks.register("lintLua", IlluaminateExec.class) {
     group = JavaBasePlugin.VERIFICATION_GROUP

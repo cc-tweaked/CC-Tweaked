@@ -8,6 +8,10 @@ repositories {
     gradlePluginPortal()
 }
 
+dependencies {
+    implementation(libs.spotless)
+}
+
 gradlePlugin {
     plugins {
         register("cc-tweaked.illuaminate") {

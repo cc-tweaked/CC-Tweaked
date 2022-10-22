@@ -99,7 +99,7 @@ fun GameTestSequence.thenScreenshot(name: String? = null): GameTestSequence {
             val screenshotPath = screenshotsPath.resolve("$fullName.png")
             val originalPath = TestMod.sourceDir.resolve("screenshots").resolve("$fullName.png")
 
-            if (!Files.exists(originalPath)) throw GameTestAssertException("$fullName does not exist. Use `/cctest promote' to create it.");
+            if (!Files.exists(originalPath)) throw GameTestAssertException("$fullName does not exist. Use `/cctest promote' to create it.")
 
             val screenshot = ImageIO.read(screenshotPath.toFile())
                 ?: throw GameTestAssertException("Error reading screenshot from $screenshotPath")
@@ -147,14 +147,16 @@ fun GameTestHelper.positionAtArmorStand() {
     player.connection.teleport(stand.x, stand.y, stand.z, stand.yRot, stand.xRot)
 }
 
-
 class ClientTestHelper {
     val minecraft: Minecraft = Minecraft.getInstance()
 
     fun screenshot(name: String, callback: () -> Unit = {}) {
         ScreenShotHelper.grab(
-            minecraft.gameDirectory, name,
-            minecraft.window.width, minecraft.window.height, minecraft.mainRenderTarget
+            minecraft.gameDirectory,
+            name,
+            minecraft.window.width,
+            minecraft.window.height,
+            minecraft.mainRenderTarget,
         ) {
             TestMod.log.info(it.string)
             callback()

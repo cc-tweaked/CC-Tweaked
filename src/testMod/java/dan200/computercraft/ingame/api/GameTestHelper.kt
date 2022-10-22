@@ -79,7 +79,8 @@ typealias GameTestSequence = TestList
 
 typealias GameTestAssertException = RuntimeException
 
-private fun GameTestSequence.addResult(task: () -> Unit, delay: Long? = null): GameTestSequence {
+private fun GameTestSequence.addResult(task: () -> Unit) = addResult(null, task)
+private fun GameTestSequence.addResult(delay: Long?, task: () -> Unit): GameTestSequence {
     val result = UnsafeHacks.newInstance(TestTickResult::class.java) as TestTickResult
     result.assertion = Runnable(task)
     result.expectedDelay = delay
@@ -88,29 +89,29 @@ private fun GameTestSequence.addResult(task: () -> Unit, delay: Long? = null): G
 }
 
 fun GameTestSequence.thenSucceed() {
-    addResult({
+    addResult {
         if (parent.error != null) return@addResult
 
         parent.finish()
         parent.markAsComplete()
-    })
+    }
 }
 
 fun GameTestSequence.thenWaitUntil(task: () -> Unit) = addResult(task)
 
-fun GameTestSequence.thenExecute(task: () -> Unit) = addResult({
+fun GameTestSequence.thenExecute(task: () -> Unit) = addResult {
     try {
         task()
     } catch (e: Exception) {
         parent.fail(e)
     }
-})
+}
 
-fun GameTestSequence.thenIdle(delay: Long) = addResult({
+fun GameTestSequence.thenIdle(delay: Long) = addResult {
     if (parent.tickCount < lastTick + delay) {
         throw GameTestAssertException("Waiting")
     }
-})
+}
 
 /**
  * Proguard strips out all the "on success" code as it's never called anywhere. This is workable most of the time, but
