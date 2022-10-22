@@ -139,7 +139,7 @@ public class TurtleSmartItemModel implements IBakedModel
     {
         Minecraft mc = Minecraft.getInstance();
         ModelManager modelManager = mc.getItemRenderer().getItemModelShaper().getModelManager();
-        ModelResourceLocation overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.overlay, combo.christmas );
+        ResourceLocation overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.overlay, combo.christmas );
 
         IBakedModel baseModel = combo.colour ? colourModel : familyModel;
         IBakedModel overlayModel = overlayModelLocation != null ? modelManager.getModel( overlayModelLocation ) : null;

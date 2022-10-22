@@ -1,0 +1,4 @@
+{
+  "parent": "computercraft:block/turtle_upgrade_base_right",
+  "textures": {"texture": "computercraft:block/wireless_modem_normal_face_on"}
+}

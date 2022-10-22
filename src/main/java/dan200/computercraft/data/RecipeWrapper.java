@@ -14,78 +14,106 @@ import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
  * Adapter for recipes which overrides the serializer and adds custom item NBT.
  */
-public final class RecipeWrapper implements IFinishedRecipe
+final class RecipeWrapper implements Consumer<IFinishedRecipe>
 {
-    private final IFinishedRecipe recipe;
-    private final CompoundNBT resultData;
+    private final Consumer<IFinishedRecipe> add;
     private final IRecipeSerializer<?> serializer;
+    private final List<Consumer<JsonObject>> extend = new ArrayList<>( 0 );
 
-    private RecipeWrapper( IFinishedRecipe recipe, CompoundNBT resultData, IRecipeSerializer<?> serializer )
+    RecipeWrapper( Consumer<IFinishedRecipe> add, IRecipeSerializer<?> serializer )
     {
-        this.resultData = resultData;
-        this.recipe = recipe;
+        this.add = add;
         this.serializer = serializer;
     }
 
-    public static Consumer<IFinishedRecipe> wrap( IRecipeSerializer<?> serializer, Consumer<IFinishedRecipe> original )
+    public static RecipeWrapper wrap( IRecipeSerializer<?> serializer, Consumer<IFinishedRecipe> original )
     {
-        return x -> original.accept( new RecipeWrapper( x, null, serializer ) );
+        return new RecipeWrapper( original, serializer );
     }
 
-    public static Consumer<IFinishedRecipe> wrap( IRecipeSerializer<?> serializer, Consumer<IFinishedRecipe> original, CompoundNBT resultData )
+    public RecipeWrapper withExtraData( Consumer<JsonObject> extra )
     {
-        return x -> original.accept( new RecipeWrapper( x, resultData, serializer ) );
+        extend.add( extra );
+        return this;
     }
 
-    public static Consumer<IFinishedRecipe> wrap( IRecipeSerializer<?> serializer, Consumer<IFinishedRecipe> original, Consumer<CompoundNBT> resultData )
+    public RecipeWrapper withResultTag( @Nullable CompoundNBT resultTag )
+    {
+        if( resultTag == null ) return this;
+
+        extend.add( json -> {
+            JsonObject object = JSONUtils.getAsJsonObject( json, "result" );
+            object.addProperty( "nbt", resultTag.toString() );
+        } );
+        return this;
+    }
+
+    public RecipeWrapper withResultTag( Consumer<CompoundNBT> resultTag )
     {
         CompoundNBT tag = new CompoundNBT();
-        resultData.accept( tag );
-        return x -> original.accept( new RecipeWrapper( x, tag, serializer ) );
+        resultTag.accept( tag );
+        return withResultTag( tag );
     }
 
     @Override
-    public void serializeRecipeData( @Nonnull JsonObject jsonObject )
+    public void accept( IFinishedRecipe finishedRecipe )
     {
-        recipe.serializeRecipeData( jsonObject );
+        add.accept( new RecipeImpl( finishedRecipe, serializer, extend ) );
+    }
 
-        if( resultData != null )
+    private static final class RecipeImpl implements IFinishedRecipe
+    {
+        private final IFinishedRecipe recipe;
+        private final IRecipeSerializer<?> serializer;
+        private final List<Consumer<JsonObject>> extend;
+
+        private RecipeImpl( IFinishedRecipe recipe, IRecipeSerializer<?> serializer, List<Consumer<JsonObject>> extend )
         {
-            JsonObject object = JSONUtils.getAsJsonObject( jsonObject, "result" );
-            object.addProperty( "nbt", resultData.toString() );
+            this.recipe = recipe;
+            this.serializer = serializer;
+            this.extend = extend;
         }
-    }
 
-    @Nonnull
-    @Override
-    public ResourceLocation getId()
-    {
-        return recipe.getId();
-    }
+        @Override
+        public void serializeRecipeData( @Nonnull JsonObject jsonObject )
+        {
+            recipe.serializeRecipeData( jsonObject );
+            for( Consumer<JsonObject> extender : extend ) extender.accept( jsonObject );
+        }
 
-    @Nonnull
-    @Override
-    public IRecipeSerializer<?> getType()
-    {
-        return serializer;
-    }
+        @Nonnull
+        @Override
+        public ResourceLocation getId()
+        {
+            return recipe.getId();
+        }
 
-    @Nullable
-    @Override
-    public JsonObject serializeAdvancement()
-    {
-        return recipe.serializeAdvancement();
-    }
+        @Nonnull
+        @Override
+        public IRecipeSerializer<?> getType()
+        {
+            return serializer;
+        }
 
-    @Nullable
-    @Override
-    public ResourceLocation getAdvancementId()
-    {
-        return recipe.getAdvancementId();
+        @Nullable
+        @Override
+        public JsonObject serializeAdvancement()
+        {
+            return recipe.serializeAdvancement();
+        }
+
+        @Nullable
+        @Override
+        public ResourceLocation getAdvancementId()
+        {
+            return recipe.getAdvancementId();
+        }
     }
 }

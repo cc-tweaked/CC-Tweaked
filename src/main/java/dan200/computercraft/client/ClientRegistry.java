@@ -21,7 +21,6 @@ import dan200.computercraft.shared.util.Colour;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemModelsProperties;
@@ -45,24 +44,25 @@ public final class ClientRegistry
 {
     private static final String[] EXTRA_MODELS = new String[] {
         // Turtle upgrades
-        "turtle_modem_normal_off_left",
-        "turtle_modem_normal_on_left",
-        "turtle_modem_normal_off_right",
-        "turtle_modem_normal_on_right",
+        "block/turtle_modem_normal_off_left",
+        "block/turtle_modem_normal_on_left",
+        "block/turtle_modem_normal_off_right",
+        "block/turtle_modem_normal_on_right",
 
-        "turtle_modem_advanced_off_left",
-        "turtle_modem_advanced_on_left",
-        "turtle_modem_advanced_off_right",
-        "turtle_modem_advanced_on_right",
-        "turtle_crafting_table_left",
-        "turtle_crafting_table_right",
+        "block/turtle_modem_advanced_off_left",
+        "block/turtle_modem_advanced_on_left",
+        "block/turtle_modem_advanced_off_right",
+        "block/turtle_modem_advanced_on_right",
 
-        "turtle_speaker_upgrade_left",
-        "turtle_speaker_upgrade_right",
+        "block/turtle_crafting_table_left",
+        "block/turtle_crafting_table_right",
+
+        "block/turtle_speaker_left",
+        "block/turtle_speaker_right",
 
         // Turtle block renderer
-        "turtle_colour",
-        "turtle_elf_overlay",
+        "block/turtle_colour",
+        "block/turtle_elf_overlay",
     };
 
     private ClientRegistry() {}
@@ -73,7 +73,7 @@ public final class ClientRegistry
         ModelLoaderRegistry.registerLoader( new ResourceLocation( ComputerCraft.MOD_ID, "turtle" ), TurtleModelLoader.INSTANCE );
         for( String model : EXTRA_MODELS )
         {
-            ModelLoader.addSpecialModel( new ModelResourceLocation( new ResourceLocation( ComputerCraft.MOD_ID, model ), "inventory" ) );
+            ModelLoader.addSpecialModel( new ResourceLocation( ComputerCraft.MOD_ID, model ) );
         }
     }
 

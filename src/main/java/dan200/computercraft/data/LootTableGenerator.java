@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.data;
 
+import com.mojang.datafixers.util.Pair;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.Registry;
@@ -16,14 +17,22 @@ import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
 import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.data.LootTableProvider;
 import net.minecraft.loot.*;
 import net.minecraft.loot.conditions.Alternative;
 import net.minecraft.loot.conditions.BlockStateProperty;
+import net.minecraft.loot.conditions.ILootCondition;
 import net.minecraft.loot.conditions.SurvivesExplosion;
+import net.minecraft.loot.functions.CopyName;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.RegistryObject;
 
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class LootTableGenerator extends LootTableProvider
 {
@@ -32,17 +41,32 @@ public class LootTableGenerator extends LootTableProvider
         super( generator );
     }
 
+    @Nonnull
     @Override
-    protected void registerLoot( BiConsumer<ResourceLocation, LootTable> add )
+    protected List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootParameterSet>> getTables()
     {
-        basicDrop( add, Registry.ModBlocks.DISK_DRIVE );
-        basicDrop( add, Registry.ModBlocks.MONITOR_NORMAL );
-        basicDrop( add, Registry.ModBlocks.MONITOR_ADVANCED );
-        basicDrop( add, Registry.ModBlocks.PRINTER );
-        basicDrop( add, Registry.ModBlocks.SPEAKER );
-        basicDrop( add, Registry.ModBlocks.WIRED_MODEM_FULL );
-        basicDrop( add, Registry.ModBlocks.WIRELESS_MODEM_NORMAL );
-        basicDrop( add, Registry.ModBlocks.WIRELESS_MODEM_ADVANCED );
+        return Arrays.asList(
+            Pair.of( () -> LootTableGenerator::registerBlocks, LootParameterSets.BLOCK ),
+            Pair.of( () -> LootTableGenerator::registerGeneric, LootParameterSets.ALL_PARAMS )
+        );
+    }
+
+    @Override
+    protected void validate( Map<ResourceLocation, LootTable> map, @Nonnull ValidationTracker validationtracker )
+    {
+        map.forEach( ( id, table ) -> LootTableManager.validate( validationtracker, id, table ) );
+    }
+
+    private static void registerBlocks( BiConsumer<ResourceLocation, LootTable.Builder> add )
+    {
+        namedBlockDrop( add, Registry.ModBlocks.DISK_DRIVE );
+        selfDrop( add, Registry.ModBlocks.MONITOR_NORMAL );
+        selfDrop( add, Registry.ModBlocks.MONITOR_ADVANCED );
+        namedBlockDrop( add, Registry.ModBlocks.PRINTER );
+        selfDrop( add, Registry.ModBlocks.SPEAKER );
+        selfDrop( add, Registry.ModBlocks.WIRED_MODEM_FULL );
+        selfDrop( add, Registry.ModBlocks.WIRELESS_MODEM_NORMAL );
+        selfDrop( add, Registry.ModBlocks.WIRELESS_MODEM_ADVANCED );
 
         computerDrop( add, Registry.ModBlocks.COMPUTER_NORMAL );
         computerDrop( add, Registry.ModBlocks.COMPUTER_ADVANCED );
@@ -52,9 +76,7 @@ public class LootTableGenerator extends LootTableProvider
 
         add.accept( Registry.ModBlocks.CABLE.get().getLootTable(), LootTable
             .lootTable()
-            .setParamSet( LootParameterSets.BLOCK )
             .withPool( LootPool.lootPool()
-                .name( "cable" )
                 .setRolls( ConstantRange.exactly( 1 ) )
                 .add( ItemLootEntry.lootTableItem( Registry.ModItems.CABLE.get() ) )
                 .when( SurvivesExplosion.survivesExplosion() )
@@ -63,7 +85,6 @@ public class LootTableGenerator extends LootTableProvider
                 )
             )
             .withPool( LootPool.lootPool()
-                .name( "wired_modem" )
                 .setRolls( ConstantRange.exactly( 1 ) )
                 .add( ItemLootEntry.lootTableItem( Registry.ModItems.WIRED_MODEM.get() ) )
                 .when( SurvivesExplosion.survivesExplosion() )
@@ -71,44 +92,55 @@ public class LootTableGenerator extends LootTableProvider
                     .setProperties( StatePropertiesPredicate.Builder.properties().hasProperty( BlockCable.MODEM, CableModemVariant.None ) )
                     .invert()
                 )
+            ) );
+    }
+
+    private static void registerGeneric( BiConsumer<ResourceLocation, LootTable.Builder> add )
+    {
+        add.accept( CommonHooks.LOOT_TREASURE_DISK, LootTable.lootTable() );
+    }
+
+    private static void selfDrop( BiConsumer<ResourceLocation, LootTable.Builder> add, Supplier<? extends Block> wrapper )
+    {
+        blockDrop( add, wrapper, ItemLootEntry.lootTableItem( wrapper.get() ), SurvivesExplosion.survivesExplosion() );
+    }
+
+    private static void namedBlockDrop( BiConsumer<ResourceLocation, LootTable.Builder> add, Supplier<? extends Block> wrapper )
+    {
+        blockDrop(
+            add, wrapper,
+            ItemLootEntry.lootTableItem( wrapper.get() ).apply( CopyName.copyName( CopyName.Source.BLOCK_ENTITY ) ),
+            SurvivesExplosion.survivesExplosion()
+        );
+    }
+
+    private static void computerDrop( BiConsumer<ResourceLocation, LootTable.Builder> add, Supplier<? extends Block> block )
+    {
+        blockDrop(
+            add, block,
+            DynamicLootEntry.dynamicEntry( new ResourceLocation( ComputerCraft.MOD_ID, "computer" ) ),
+            Alternative.alternative(
+                BlockNamedEntityLootCondition.BUILDER,
+                HasComputerIdLootCondition.BUILDER,
+                PlayerCreativeLootCondition.BUILDER.invert()
             )
-            .build() );
-
-        add.accept( CommonHooks.LOOT_TREASURE_DISK, LootTable
-            .lootTable()
-            .setParamSet( LootParameterSets.ALL_PARAMS )
-            .build() );
+        );
     }
 
-    private static <T extends Block> void basicDrop( BiConsumer<ResourceLocation, LootTable> add, RegistryObject<T> wrapper )
+    private static void blockDrop(
+        BiConsumer<ResourceLocation, LootTable.Builder> add, Supplier<? extends Block> wrapper,
+        LootEntry.Builder<?> drop,
+        ILootCondition.IBuilder condition
+    )
     {
         Block block = wrapper.get();
         add.accept( block.getLootTable(), LootTable
             .lootTable()
-            .setParamSet( LootParameterSets.BLOCK )
             .withPool( LootPool.lootPool()
-                .name( "main" )
                 .setRolls( ConstantRange.exactly( 1 ) )
-                .add( ItemLootEntry.lootTableItem( block ) )
-                .when( SurvivesExplosion.survivesExplosion() )
-            ).build() );
-    }
-
-    private static <T extends Block> void computerDrop( BiConsumer<ResourceLocation, LootTable> add, RegistryObject<T> wrapper )
-    {
-        Block block = wrapper.get();
-        add.accept( block.getLootTable(), LootTable
-            .lootTable()
-            .setParamSet( LootParameterSets.BLOCK )
-            .withPool( LootPool.lootPool()
-                .name( "main" )
-                .setRolls( ConstantRange.exactly( 1 ) )
-                .add( DynamicLootEntry.dynamicEntry( new ResourceLocation( ComputerCraft.MOD_ID, "computer" ) ) )
-                .when( Alternative.alternative(
-                    BlockNamedEntityLootCondition.BUILDER,
-                    HasComputerIdLootCondition.BUILDER,
-                    PlayerCreativeLootCondition.BUILDER.invert()
-                ) )
-            ).build() );
+                .add( drop )
+                .when( condition )
+            )
+        );
     }
 }

@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.data;
 
+import com.google.gson.JsonObject;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.Registry;
@@ -12,11 +13,13 @@ import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.recipe.ComputerUpgradeRecipe;
 import dan200.computercraft.shared.media.recipes.DiskRecipe;
 import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
 import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
+import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.ImpostorRecipe;
@@ -79,10 +82,11 @@ public class RecipeGenerator extends RecipeProvider
                 .requires( DyeItem.byColor( ofColour( colour ) ) )
                 .group( "computercraft:disk" )
                 .unlockedBy( "has_drive", inventoryChange( Registry.ModBlocks.DISK_DRIVE.get() ) )
-                .save( RecipeWrapper.wrap(
-                    ImpostorShapelessRecipe.SERIALIZER, add,
-                    x -> x.putInt( IColouredItem.NBT_COLOUR, colour.getHex() )
-                ), new ResourceLocation( ComputerCraft.MOD_ID, "disk_" + (colour.ordinal() + 1) ) );
+                .save(
+                    RecipeWrapper.wrap( ImpostorShapelessRecipe.SERIALIZER, add )
+                        .withResultTag( x -> x.putInt( IColouredItem.NBT_COLOUR, colour.getHex() ) ),
+                    new ResourceLocation( ComputerCraft.MOD_ID, "disk_" + (colour.ordinal() + 1) )
+                );
         }
     }
 
@@ -111,7 +115,7 @@ public class RecipeGenerator extends RecipeProvider
                     .unlockedBy( "has_items",
                         inventoryChange( base.getItem(), upgrade.getCraftingItem().getItem() ) )
                     .save(
-                        RecipeWrapper.wrap( ImpostorRecipe.SERIALIZER, add, result.getTag() ),
+                        RecipeWrapper.wrap( ImpostorRecipe.SERIALIZER, add ).withResultTag( result.getTag() ),
                         new ResourceLocation( ComputerCraft.MOD_ID, String.format( "turtle_%s/%s/%s",
                             nameId, upgrade.getUpgradeID().getNamespace(), upgrade.getUpgradeID().getPath()
                         ) )
@@ -146,7 +150,7 @@ public class RecipeGenerator extends RecipeProvider
                     .unlockedBy( "has_items",
                         inventoryChange( base.getItem(), upgrade.getCraftingItem().getItem() ) )
                     .save(
-                        RecipeWrapper.wrap( ImpostorRecipe.SERIALIZER, add, result.getTag() ),
+                        RecipeWrapper.wrap( ImpostorRecipe.SERIALIZER, add ).withResultTag( result.getTag() ),
                         new ResourceLocation( ComputerCraft.MOD_ID, String.format( "pocket_%s/%s/%s",
                             nameId, upgrade.getUpgradeID().getNamespace(), upgrade.getUpgradeID().getPath()
                         ) )
@@ -191,6 +195,19 @@ public class RecipeGenerator extends RecipeProvider
             .save( add );
 
         ShapedRecipeBuilder
+            .shaped( Registry.ModItems.COMPUTER_ADVANCED.get() )
+            .pattern( "###" )
+            .pattern( "#C#" )
+            .pattern( "# #" )
+            .define( '#', Tags.Items.INGOTS_GOLD )
+            .define( 'C', Registry.ModItems.COMPUTER_ADVANCED.get() )
+            .unlockedBy( "has_components", inventoryChange( itemPredicate( Registry.ModItems.COMPUTER_NORMAL.get() ), itemPredicate( Tags.Items.INGOTS_GOLD ) ) )
+            .save(
+                RecipeWrapper.wrap( ComputerUpgradeRecipe.SERIALIZER, add ).withExtraData( family( ComputerFamily.ADVANCED ) ),
+                new ResourceLocation( ComputerCraft.MOD_ID, "computer_advanced_upgrade" )
+            );
+
+        ShapedRecipeBuilder
             .shaped( Registry.ModBlocks.COMPUTER_COMMAND.get() )
             .pattern( "###" )
             .pattern( "#R#" )
@@ -200,6 +217,42 @@ public class RecipeGenerator extends RecipeProvider
             .define( 'G', Tags.Items.GLASS_PANES )
             .unlockedBy( "has_components", inventoryChange( Blocks.COMMAND_BLOCK ) )
             .save( add );
+
+        ShapedRecipeBuilder
+            .shaped( Registry.ModBlocks.TURTLE_NORMAL.get() )
+            .pattern( "###" )
+            .pattern( "#C#" )
+            .pattern( "#I#" )
+            .define( '#', Tags.Items.INGOTS_IRON )
+            .define( 'C', Registry.ModItems.COMPUTER_NORMAL.get() )
+            .define( 'I', Tags.Items.CHESTS_WOODEN )
+            .unlockedBy( "has_computer", inventoryChange( Registry.ModItems.COMPUTER_NORMAL.get() ) )
+            .save( RecipeWrapper.wrap( TurtleRecipe.SERIALIZER, add ).withExtraData( family( ComputerFamily.NORMAL ) ) );
+
+        ShapedRecipeBuilder
+            .shaped( Registry.ModBlocks.TURTLE_ADVANCED.get() )
+            .pattern( "###" )
+            .pattern( "#C#" )
+            .pattern( "#I#" )
+            .define( '#', Tags.Items.INGOTS_GOLD )
+            .define( 'C', Registry.ModItems.COMPUTER_ADVANCED.get() )
+            .define( 'I', Tags.Items.CHESTS_WOODEN )
+            .unlockedBy( "has_computer", inventoryChange( Registry.ModItems.COMPUTER_NORMAL.get() ) )
+            .save( RecipeWrapper.wrap( TurtleRecipe.SERIALIZER, add ).withExtraData( family( ComputerFamily.ADVANCED ) ) );
+
+        ShapedRecipeBuilder
+            .shaped( Registry.ModBlocks.TURTLE_ADVANCED.get() )
+            .pattern( "###" )
+            .pattern( "#C#" )
+            .pattern( " B " )
+            .define( '#', Tags.Items.INGOTS_GOLD )
+            .define( 'C', Registry.ModItems.COMPUTER_ADVANCED.get() )
+            .define( 'B', Tags.Items.STORAGE_BLOCKS_GOLD )
+            .unlockedBy( "has_components", inventoryChange( itemPredicate( Registry.ModItems.TURTLE_NORMAL.get() ), itemPredicate( Tags.Items.INGOTS_GOLD ) ) )
+            .save(
+                RecipeWrapper.wrap( ComputerUpgradeRecipe.SERIALIZER, add ).withExtraData( family( ComputerFamily.ADVANCED ) ),
+                new ResourceLocation( ComputerCraft.MOD_ID, "turtle_advanced_upgrade" )
+            );
 
         ShapedRecipeBuilder
             .shaped( Registry.ModBlocks.DISK_DRIVE.get() )
@@ -254,6 +307,19 @@ public class RecipeGenerator extends RecipeProvider
             .unlockedBy( "has_computer", inventoryChange( COMPUTER ) )
             .unlockedBy( "has_apple", inventoryChange( Items.GOLDEN_APPLE ) )
             .save( add );
+
+        ShapedRecipeBuilder
+            .shaped( Registry.ModItems.POCKET_COMPUTER_ADVANCED.get() )
+            .pattern( "###" )
+            .pattern( "#C#" )
+            .pattern( "# #" )
+            .define( '#', Tags.Items.INGOTS_GOLD )
+            .define( 'C', Registry.ModItems.POCKET_COMPUTER_NORMAL.get() )
+            .unlockedBy( "has_components", inventoryChange( itemPredicate( Registry.ModItems.POCKET_COMPUTER_NORMAL.get() ), itemPredicate( Tags.Items.INGOTS_GOLD ) ) )
+            .save(
+                RecipeWrapper.wrap( ComputerUpgradeRecipe.SERIALIZER, add ).withExtraData( family( ComputerFamily.ADVANCED ) ),
+                new ResourceLocation( ComputerCraft.MOD_ID, "pocket_computer_advanced_upgrade" )
+            );
 
         ShapedRecipeBuilder
             .shaped( Registry.ModBlocks.PRINTER.get() )
@@ -326,7 +392,8 @@ public class RecipeGenerator extends RecipeProvider
             .requires( Registry.ModItems.MONITOR_NORMAL.get() )
             .unlockedBy( "has_monitor", inventoryChange( Registry.ModItems.MONITOR_NORMAL.get() ) )
             .save(
-                RecipeWrapper.wrap( IRecipeSerializer.SHAPELESS_RECIPE, add, playerHead( "Cloudhunter", "6d074736-b1e9-4378-a99b-bd8777821c9c" ) ),
+                RecipeWrapper.wrap( IRecipeSerializer.SHAPELESS_RECIPE, add )
+                    .withResultTag( playerHead( "Cloudhunter", "6d074736-b1e9-4378-a99b-bd8777821c9c" ) ),
                 new ResourceLocation( ComputerCraft.MOD_ID, "skull_cloudy" )
             );
 
@@ -336,7 +403,8 @@ public class RecipeGenerator extends RecipeProvider
             .requires( Registry.ModItems.COMPUTER_ADVANCED.get() )
             .unlockedBy( "has_computer", inventoryChange( Registry.ModItems.COMPUTER_ADVANCED.get() ) )
             .save(
-                RecipeWrapper.wrap( IRecipeSerializer.SHAPELESS_RECIPE, add, playerHead( "dan200", "f3c8d69b-0776-4512-8434-d1b2165909eb" ) ),
+                RecipeWrapper.wrap( IRecipeSerializer.SHAPELESS_RECIPE, add )
+                    .withResultTag( playerHead( "dan200", "f3c8d69b-0776-4512-8434-d1b2165909eb" ) ),
                 new ResourceLocation( ComputerCraft.MOD_ID, "skull_dan200" )
             );
 
@@ -363,12 +431,27 @@ public class RecipeGenerator extends RecipeProvider
 
     private static InventoryChangeTrigger.Instance inventoryChange( ITag<Item> stack )
     {
-        return InventoryChangeTrigger.Instance.hasItems( ItemPredicate.Builder.item().of( stack ).build() );
+        return InventoryChangeTrigger.Instance.hasItems( itemPredicate( stack ) );
     }
 
     private static InventoryChangeTrigger.Instance inventoryChange( IItemProvider... stack )
     {
         return InventoryChangeTrigger.Instance.hasItems( stack );
+    }
+
+    private static InventoryChangeTrigger.Instance inventoryChange( ItemPredicate... items )
+    {
+        return InventoryChangeTrigger.Instance.hasItems( items );
+    }
+
+    private static ItemPredicate itemPredicate( IItemProvider item )
+    {
+        return ItemPredicate.Builder.item().of( item ).build();
+    }
+
+    private static ItemPredicate itemPredicate( ITag<Item> item )
+    {
+        return ItemPredicate.Builder.item().of( item ).build();
     }
 
     private static CompoundNBT playerHead( String name, String uuid )
@@ -380,6 +463,11 @@ public class RecipeGenerator extends RecipeProvider
         CompoundNBT tag = new CompoundNBT();
         tag.put( "SkullOwner", owner );
         return tag;
+    }
+
+    private static Consumer<JsonObject> family( ComputerFamily family )
+    {
+        return json -> json.addProperty( "family", family.toString() );
     }
 
     private static void addSpecial( Consumer<IFinishedRecipe> add, SpecialRecipeSerializer<?> special )
