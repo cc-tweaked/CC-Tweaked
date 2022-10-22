@@ -32,7 +32,7 @@ public final class ArgumentSerializers
 
     public static void register()
     {
-        register( new ResourceLocation( ComputerCraft.MOD_ID, "tracking_field" ), TrackingFieldArgumentType.trackingField() );
+        register( new ResourceLocation( ComputerCraft.MOD_ID, "tracking_field" ), TrackingFieldArgumentType.metric() );
         register( new ResourceLocation( ComputerCraft.MOD_ID, "computer" ), ComputerArgumentType.oneComputer() );
         register( new ResourceLocation( ComputerCraft.MOD_ID, "computers" ), ComputersArgumentType.class, new ComputersArgumentType.Serializer() );
         registerUnsafe( new ResourceLocation( ComputerCraft.MOD_ID, "repeat" ), RepeatArgumentType.class, new RepeatArgumentType.Serializer() );

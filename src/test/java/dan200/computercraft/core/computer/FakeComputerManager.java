@@ -25,7 +25,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Creates "fake" computers, which just run user-defined tasks rather than Lua code.
- *
+ * <p>
  * Note, this will clobber some parts of the global state. It's recommended you use this inside an {@link IsolatedRunner}.
  */
 public class FakeComputerManager
@@ -43,7 +43,7 @@ public class FakeComputerManager
 
     static
     {
-        ComputerExecutor.luaFactory = ( computer, timeout ) -> new DummyLuaMachine( timeout, machines.get( computer ) );
+        ComputerExecutor.luaFactory = args -> new DummyLuaMachine( args.timeout );
     }
 
     /**
@@ -57,7 +57,9 @@ public class FakeComputerManager
     {
         BasicEnvironment environment = new BasicEnvironment();
         Computer computer = new Computer( environment, environment, new Terminal( 51, 19, true ), 0 );
-        machines.put( computer, new ConcurrentLinkedQueue<>() );
+        ConcurrentLinkedQueue<Task> tasks = new ConcurrentLinkedQueue<>();
+        computer.addApi( new QueuePassingAPI( tasks ) );
+        machines.put( computer, tasks );
         return computer;
     }
 
@@ -158,20 +160,36 @@ public class FakeComputerManager
         throw (T) e;
     }
 
+    private static final class QueuePassingAPI implements ILuaAPI
+    {
+        final Queue<Task> tasks;
+
+        private QueuePassingAPI( Queue<Task> tasks )
+        {
+            this.tasks = tasks;
+        }
+
+        @Override
+        public String[] getNames()
+        {
+            return new String[0];
+        }
+    }
+
     private static class DummyLuaMachine implements ILuaMachine
     {
         private final TimeoutState state;
-        private final Queue<Task> handleEvent;
+        private @javax.annotation.Nullable Queue<Task> tasks;
 
-        DummyLuaMachine( TimeoutState state, Queue<Task> handleEvent )
+        DummyLuaMachine( TimeoutState state )
         {
             this.state = state;
-            this.handleEvent = handleEvent;
         }
 
         @Override
         public void addAPI( @Nonnull ILuaAPI api )
         {
+            if( api instanceof QueuePassingAPI ) tasks = ((QueuePassingAPI) api).tasks;
         }
 
         @Override
@@ -185,7 +203,8 @@ public class FakeComputerManager
         {
             try
             {
-                return handleEvent.remove().run( state );
+                if( tasks == null ) throw new IllegalStateException( "Not received tasks yet" );
+                return tasks.remove().run( state );
             }
             catch( Throwable e )
             {

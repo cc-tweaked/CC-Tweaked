@@ -15,9 +15,11 @@ import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.ILuaMachine;
+import dan200.computercraft.core.lua.MachineEnvironment;
 import dan200.computercraft.core.lua.MachineResult;
+import dan200.computercraft.core.metrics.Metrics;
+import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.IoUtil;
 
@@ -57,6 +59,8 @@ final class ComputerExecutor
     private static final int QUEUE_LIMIT = 256;
 
     private final Computer computer;
+    private final ComputerEnvironment computerEnvironment;
+    private final MetricsObserver metrics;
     private final List<ILuaAPI> apis = new ArrayList<>();
     final TimeoutState timeout = new TimeoutState();
 
@@ -157,12 +161,14 @@ final class ComputerExecutor
      */
     final AtomicReference<Thread> executingThread = new AtomicReference<>();
 
-    ComputerExecutor( Computer computer )
+    ComputerExecutor( Computer computer, ComputerEnvironment computerEnvironment )
     {
         // Ensure the computer thread is running as required.
         ComputerThread.start();
 
         this.computer = computer;
+        this.computerEnvironment = computerEnvironment;
+        metrics = computerEnvironment.getMetrics();
 
         Environment environment = computer.getEnvironment();
 
@@ -345,7 +351,7 @@ final class ComputerExecutor
 
     private IWritableMount getRootMount()
     {
-        if( rootMount == null ) rootMount = computer.getComputerEnvironment().createRootMount();
+        if( rootMount == null ) rootMount = computerEnvironment.createRootMount();
         return rootMount;
     }
 
@@ -395,7 +401,9 @@ final class ComputerExecutor
         }
 
         // Create the lua machine
-        ILuaMachine machine = luaFactory.create( computer, timeout );
+        ILuaMachine machine = luaFactory.create( new MachineEnvironment(
+            new LuaContext( computer ), metrics, timeout, computer.getGlobalEnvironment().getHostString()
+        ) );
 
         // Add the APIs. We unwrap them (yes, this is horrible) to get access to the underlying object.
         for( ILuaAPI api : apis ) machine.addAPI( api instanceof ApiWrapper ? ((ApiWrapper) api).getDelegate() : api );
@@ -522,7 +530,7 @@ final class ComputerExecutor
             timeout.stopTimer();
         }
 
-        Tracking.addTaskTiming( getComputer(), timeout.nanoCurrent() );
+        metrics.observe( Metrics.COMPUTER_TASKS, timeout.nanoCurrent() );
 
         if( interruptedEvent ) return true;
 

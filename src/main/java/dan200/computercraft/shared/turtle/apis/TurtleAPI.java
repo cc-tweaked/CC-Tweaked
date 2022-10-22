@@ -14,7 +14,7 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.event.TurtleActionEvent;
 import dan200.computercraft.api.turtle.event.TurtleInspectItemEvent;
 import dan200.computercraft.core.apis.IAPIEnvironment;
-import dan200.computercraft.core.tracking.TrackingField;
+import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.turtle.core.*;
@@ -93,7 +93,7 @@ public class TurtleAPI implements ILuaAPI
 
     private MethodResult trackCommand( ITurtleCommand command )
     {
-        environment.addTrackingChange( TrackingField.TURTLE_OPS );
+        environment.observe( Metrics.TURTLE_OPS );
         return turtle.executeCommand( command );
     }
 
@@ -191,7 +191,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult dig( Optional<TurtleSide> side )
     {
-        environment.addTrackingChange( TrackingField.TURTLE_OPS );
+        environment.observe( Metrics.TURTLE_OPS );
         return trackCommand( TurtleToolCommand.dig( InteractDirection.FORWARD, side.orElse( null ) ) );
     }
 
@@ -207,7 +207,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult digUp( Optional<TurtleSide> side )
     {
-        environment.addTrackingChange( TrackingField.TURTLE_OPS );
+        environment.observe( Metrics.TURTLE_OPS );
         return trackCommand( TurtleToolCommand.dig( InteractDirection.UP, side.orElse( null ) ) );
     }
 
@@ -223,7 +223,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult digDown( Optional<TurtleSide> side )
     {
-        environment.addTrackingChange( TrackingField.TURTLE_OPS );
+        environment.observe( Metrics.TURTLE_OPS );
         return trackCommand( TurtleToolCommand.dig( InteractDirection.DOWN, side.orElse( null ) ) );
     }
 

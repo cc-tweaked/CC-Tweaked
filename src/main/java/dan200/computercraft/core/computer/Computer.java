@@ -36,7 +36,6 @@ public class Computer
     private String label = null;
 
     // Read-only fields about the computer
-    private final ComputerEnvironment computerEnvironment;
     private final GlobalEnvironment globalEnvironment;
     private final Terminal terminal;
     private final ComputerExecutor executor;
@@ -44,7 +43,7 @@ public class Computer
 
     // Additional state about the computer and its environment.
     private boolean blinking = false;
-    private final Environment internalEnvironment = new Environment( this );
+    private final Environment internalEnvironment;
     private final AtomicBoolean externalOutputChanged = new AtomicBoolean();
 
     private boolean startRequested;
@@ -55,16 +54,11 @@ public class Computer
         if( id < 0 ) throw new IllegalStateException( "Id has not been assigned" );
         this.id = id;
         this.globalEnvironment = globalEnvironment;
-        this.computerEnvironment = environment;
         this.terminal = terminal;
 
-        executor = new ComputerExecutor( this );
-        serverExecutor = new MainThreadExecutor( this );
-    }
-
-    ComputerEnvironment getComputerEnvironment()
-    {
-        return computerEnvironment;
+        internalEnvironment = new Environment( this, environment );
+        executor = new ComputerExecutor( this, environment );
+        serverExecutor = new MainThreadExecutor( environment.getMetrics() );
     }
 
     GlobalEnvironment getGlobalEnvironment()

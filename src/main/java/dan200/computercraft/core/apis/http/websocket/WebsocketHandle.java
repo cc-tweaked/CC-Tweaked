@@ -8,7 +8,7 @@ package dan200.computercraft.core.apis.http.websocket;
 import com.google.common.base.Objects;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.apis.http.options.Options;
-import dan200.computercraft.core.tracking.TrackingField;
+import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.shared.util.StringUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -89,7 +89,7 @@ public class WebsocketHandle implements Closeable
             throw new LuaException( "Message is too large" );
         }
 
-        websocket.environment().addTrackingChange( TrackingField.WEBSOCKET_OUTGOING, text.length() );
+        websocket.environment().observe( Metrics.WEBSOCKET_OUTGOING, text.length() );
 
         Channel channel = this.channel;
         if( channel != null )

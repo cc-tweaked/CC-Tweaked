@@ -10,8 +10,8 @@ import dan200.computercraft.core.computer.ComputerEnvironment
 import dan200.computercraft.core.computer.ComputerSide
 import dan200.computercraft.core.computer.GlobalEnvironment
 import dan200.computercraft.core.filesystem.FileSystem
+import dan200.computercraft.core.metrics.Metric
 import dan200.computercraft.core.terminal.Terminal
-import dan200.computercraft.core.tracking.TrackingField
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -43,7 +43,8 @@ abstract class NullApiEnvironment : IAPIEnvironment {
     override fun setLabel(label: String?) {}
     override fun startTimer(ticks: Long): Int = 0
     override fun cancelTimer(id: Int) {}
-    override fun addTrackingChange(field: TrackingField, change: Long) {}
+    override fun observe(field: Metric.Counter) {}
+    override fun observe(field: Metric.Event, change: Long) {}
 }
 
 class EventResult(val name: String, val args: Array<Any?>)
