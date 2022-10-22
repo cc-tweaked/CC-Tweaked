@@ -11,6 +11,8 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
 import dan200.computercraft.core.filesystem.MemoryMount;
+import dan200.computercraft.core.metrics.Metric;
+import dan200.computercraft.core.metrics.MetricsObserver;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -24,7 +26,7 @@ import java.net.URL;
 /**
  * A very basic environment.
  */
-public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment
+public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment, MetricsObserver
 {
     private final IWritableMount mount;
 
@@ -54,6 +56,12 @@ public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment
     public double getTimeOfDay()
     {
         return 0;
+    }
+
+    @Override
+    public MetricsObserver getMetrics()
+    {
+        return this;
     }
 
     @Nonnull
@@ -143,5 +151,15 @@ public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment
         {
             return new File( url.getPath() );
         }
+    }
+
+    @Override
+    public void observe( Metric.Counter counter )
+    {
+    }
+
+    @Override
+    public void observe( Metric.Event event, long value )
+    {
     }
 }

@@ -11,6 +11,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.computer.GlobalEnvironment;
 import dan200.computercraft.shared.CommonHooks;
+import dan200.computercraft.shared.computer.metrics.GlobalMetrics;
 import dan200.computercraft.shared.util.IDAssigner;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
@@ -42,6 +43,7 @@ public final class ServerContext
     private final MinecraftServer server;
 
     private final ServerComputerRegistry registry = new ServerComputerRegistry();
+    private final GlobalMetrics metrics = new GlobalMetrics();
     private final GlobalEnvironment environment;
     private final IDAssigner idAssigner;
     private final Path storageDir;
@@ -143,6 +145,16 @@ public final class ServerContext
     public Path storageDir()
     {
         return storageDir;
+    }
+
+    /**
+     * Get the current global metrics store.
+     *
+     * @return The current metrics store.
+     */
+    public GlobalMetrics metrics()
+    {
+        return metrics;
     }
 
     private static final class Environment implements GlobalEnvironment

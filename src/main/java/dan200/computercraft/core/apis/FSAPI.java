@@ -16,7 +16,7 @@ import dan200.computercraft.core.apis.handles.EncodedWritableHandle;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.filesystem.FileSystemWrapper;
-import dan200.computercraft.core.tracking.TrackingField;
+import dan200.computercraft.core.metrics.Metrics;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -108,7 +108,7 @@ public class FSAPI implements ILuaAPI
     @LuaFunction
     public final String[] list( String path ) throws LuaException
     {
-        environment.addTrackingChange( TrackingField.FS_OPS );
+        environment.observe( Metrics.FS_OPS );
         try
         {
             return fileSystem.list( path );
@@ -276,7 +276,7 @@ public class FSAPI implements ILuaAPI
     {
         try
         {
-            environment.addTrackingChange( TrackingField.FS_OPS );
+            environment.observe( Metrics.FS_OPS );
             fileSystem.makeDir( path );
         }
         catch( FileSystemException e )
@@ -299,7 +299,7 @@ public class FSAPI implements ILuaAPI
     {
         try
         {
-            environment.addTrackingChange( TrackingField.FS_OPS );
+            environment.observe( Metrics.FS_OPS );
             fileSystem.move( path, dest );
         }
         catch( FileSystemException e )
@@ -322,7 +322,7 @@ public class FSAPI implements ILuaAPI
     {
         try
         {
-            environment.addTrackingChange( TrackingField.FS_OPS );
+            environment.observe( Metrics.FS_OPS );
             fileSystem.copy( path, dest );
         }
         catch( FileSystemException e )
@@ -345,7 +345,7 @@ public class FSAPI implements ILuaAPI
     {
         try
         {
-            environment.addTrackingChange( TrackingField.FS_OPS );
+            environment.observe( Metrics.FS_OPS );
             fileSystem.delete( path );
         }
         catch( FileSystemException e )
@@ -411,7 +411,7 @@ public class FSAPI implements ILuaAPI
     @LuaFunction
     public final Object[] open( String path, String mode ) throws LuaException
     {
-        environment.addTrackingChange( TrackingField.FS_OPS );
+        environment.observe( Metrics.FS_OPS );
         try
         {
             switch( mode )
@@ -532,7 +532,7 @@ public class FSAPI implements ILuaAPI
     {
         try
         {
-            environment.addTrackingChange( TrackingField.FS_OPS );
+            environment.observe( Metrics.FS_OPS );
             return fileSystem.find( path );
         }
         catch( FileSystemException e )

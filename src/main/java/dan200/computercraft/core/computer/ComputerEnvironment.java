@@ -7,6 +7,7 @@ package dan200.computercraft.core.computer;
 
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.core.filesystem.FileMount;
+import dan200.computercraft.core.metrics.MetricsObserver;
 
 import javax.annotation.Nullable;
 
@@ -25,6 +26,14 @@ public interface ComputerEnvironment
      * @return The current time.
      */
     double getTimeOfDay();
+
+    /**
+     * Get the {@link MetricsObserver} for this computer. This should be constant for the duration of this
+     * {@link ComputerEnvironment}.
+     *
+     * @return This computer's {@link MetricsObserver}.
+     */
+    MetricsObserver getMetrics();
 
     /**
      * Construct the mount for this computer's user-writable data.

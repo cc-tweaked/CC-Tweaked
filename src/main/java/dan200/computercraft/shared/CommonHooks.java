@@ -9,10 +9,9 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.filesystem.ResourceMount;
-import dan200.computercraft.core.tracking.ComputerMBean;
-import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.computer.core.ServerContext;
+import dan200.computercraft.shared.computer.metrics.ComputerMBean;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import net.minecraft.entity.EntityType;
 import net.minecraft.loot.ConstantRange;
@@ -74,7 +73,7 @@ public final class CommonHooks
 
         resetState();
         ServerContext.create( server );
-        ComputerMBean.registerTracker();
+        ComputerMBean.start( server );
     }
 
     @SubscribeEvent
@@ -88,7 +87,6 @@ public final class CommonHooks
         ServerContext.close();
         MainThread.reset();
         WirelessNetwork.resetNetworks();
-        Tracking.reset();
         NetworkUtils.reset();
     }
 

@@ -14,6 +14,7 @@ import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import dan200.computercraft.shared.network.NetworkHandler;
@@ -37,6 +38,7 @@ public class ServerComputer implements InputHandler, ComputerEnvironment
     private BlockPos position;
 
     private final ComputerFamily family;
+    private final MetricsObserver metrics;
     private final Computer computer;
 
     private final Terminal terminal;
@@ -53,6 +55,7 @@ public class ServerComputer implements InputHandler, ComputerEnvironment
         ServerContext context = ServerContext.get( world.getServer() );
         instanceID = context.registry().getUnusedInstanceID();
         terminal = new Terminal( terminalWidth, terminalHeight, family != ComputerFamily.NORMAL, this::markTerminalChanged );
+        metrics = context.metrics().createMetricObserver( this );
 
         computer = new Computer( context.environment(), this, terminal, computerID );
         computer.setLabel( label );
@@ -262,8 +265,6 @@ public class ServerComputer implements InputHandler, ComputerEnvironment
         computer.setLabel( label );
     }
 
-    // IComputerEnvironment implementation
-
     @Override
     public double getTimeOfDay()
     {
@@ -274,6 +275,12 @@ public class ServerComputer implements InputHandler, ComputerEnvironment
     public int getDay()
     {
         return (int) ((world.getDayTime() + 6000) / 24000) + 1;
+    }
+
+    @Override
+    public MetricsObserver getMetrics()
+    {
+        return metrics;
     }
 
     @Override

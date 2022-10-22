@@ -3,14 +3,12 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.core.lua;
+package dan200.computercraft.core.computer;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.ILuaTask;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.core.computer.Computer;
-import dan200.computercraft.core.computer.MainThread;
 
 import javax.annotation.Nonnull;
 

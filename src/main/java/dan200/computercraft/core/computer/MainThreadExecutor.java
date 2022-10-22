@@ -7,7 +7,8 @@ package dan200.computercraft.core.computer;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
-import dan200.computercraft.core.tracking.Tracking;
+import dan200.computercraft.core.metrics.Metrics;
+import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import net.minecraft.tileentity.TileEntity;
 
@@ -56,7 +57,7 @@ final class MainThreadExecutor implements IWorkMonitor
      */
     private static final int MAX_TASKS = 5000;
 
-    private final Computer computer;
+    private final MetricsObserver metrics;
 
     /**
      * A lock used for any changes to {@link #tasks}, or {@link #onQueue}. This will be
@@ -109,9 +110,9 @@ final class MainThreadExecutor implements IWorkMonitor
 
     long virtualTime;
 
-    MainThreadExecutor( Computer computer )
+    MainThreadExecutor( MetricsObserver metrics )
     {
-        this.computer = computer;
+        this.metrics = metrics;
     }
 
     /**
@@ -194,7 +195,7 @@ final class MainThreadExecutor implements IWorkMonitor
 
     private void consumeTime( long time )
     {
-        Tracking.addServerTiming( computer, time );
+        metrics.observe( Metrics.SERVER_TASKS, time );
 
         // Reset the budget if moving onto a new tick. We know this is safe, as this will only have happened if
         // #tickCooling() isn't called, and so we didn't overrun the previous tick.

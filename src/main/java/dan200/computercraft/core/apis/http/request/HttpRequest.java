@@ -12,7 +12,7 @@ import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.Resource;
 import dan200.computercraft.core.apis.http.ResourceGroup;
 import dan200.computercraft.core.apis.http.options.Options;
-import dan200.computercraft.core.tracking.TrackingField;
+import dan200.computercraft.core.metrics.Metrics;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -148,8 +148,8 @@ public class HttpRequest extends Resource<HttpRequest>
             }
 
             // Add request size to the tracker before opening the connection
-            environment.addTrackingChange( TrackingField.HTTP_REQUESTS, 1 );
-            environment.addTrackingChange( TrackingField.HTTP_UPLOAD, requestBody );
+            environment.observe( Metrics.HTTP_REQUESTS );
+            environment.observe( Metrics.HTTP_UPLOAD, requestBody );
 
             HttpRequestHandler handler = currentRequest = new HttpRequestHandler( this, uri, method, options );
             connectFuture = new Bootstrap()

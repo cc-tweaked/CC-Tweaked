@@ -10,9 +10,9 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
+import dan200.computercraft.core.metrics.Metric;
+import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.core.tracking.Tracking;
-import dan200.computercraft.core.tracking.TrackingField;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
@@ -42,6 +42,8 @@ import java.util.Iterator;
 public final class Environment implements IAPIEnvironment
 {
     private final Computer computer;
+    private final ComputerEnvironment environment;
+    private final MetricsObserver metrics;
 
     private boolean internalOutputChanged = false;
     private final int[] internalOutput = new int[ComputerSide.COUNT];
@@ -60,9 +62,11 @@ public final class Environment implements IAPIEnvironment
     private final Int2ObjectMap<Timer> timers = new Int2ObjectOpenHashMap<>();
     private int nextTimerToken = 0;
 
-    Environment( Computer computer )
+    Environment( Computer computer, ComputerEnvironment environment )
     {
         this.computer = computer;
+        this.environment = environment;
+        metrics = environment.getMetrics();
     }
 
     @Override
@@ -75,7 +79,7 @@ public final class Environment implements IAPIEnvironment
     @Override
     public ComputerEnvironment getComputerEnvironment()
     {
-        return computer.getComputerEnvironment();
+        return environment;
     }
 
     @Nonnull
@@ -367,9 +371,15 @@ public final class Environment implements IAPIEnvironment
     }
 
     @Override
-    public void addTrackingChange( @Nonnull TrackingField field, long change )
+    public void observe( @Nonnull Metric.Event event, long change )
     {
-        Tracking.addValue( computer, field, change );
+        metrics.observe( event, change );
+    }
+
+    @Override
+    public void observe( @Nonnull Metric.Counter counter )
+    {
+        metrics.observe( counter );
     }
 
     private static class Timer

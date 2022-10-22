@@ -7,8 +7,6 @@ package dan200.computercraft.core.lua;
 
 import dan200.computercraft.api.lua.IDynamicLuaObject;
 import dan200.computercraft.api.lua.ILuaAPI;
-import dan200.computercraft.core.computer.Computer;
-import dan200.computercraft.core.computer.TimeoutState;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -77,6 +75,6 @@ public interface ILuaMachine
 
     interface Factory
     {
-        ILuaMachine create( Computer computer, TimeoutState timeout );
+        ILuaMachine create( MachineEnvironment environment );
     }
 }
