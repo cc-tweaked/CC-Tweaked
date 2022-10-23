@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.computer.metrics;
 
 import com.google.common.base.CaseFormat;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -15,8 +16,6 @@ import dan200.computercraft.shared.computer.metrics.basic.AggregatedMetric;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.server.MinecraftServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.management.*;
@@ -33,8 +32,6 @@ import java.util.function.LongSupplier;
  */
 public final class ComputerMBean implements DynamicMBean, ComputerMetricsObserver
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger( ComputerMBean.class );
-
     private static @Nullable ComputerMBean instance;
 
     private final Map<String, LongSupplier> attributes = new HashMap<>();
@@ -66,7 +63,7 @@ public final class ComputerMBean implements DynamicMBean, ComputerMetricsObserve
         catch( InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException |
                MalformedObjectNameException e )
         {
-            LOGGER.warn( "Failed to register JMX bean", e );
+            ComputerCraft.log.warn( "Failed to register JMX bean", e );
         }
     }
 

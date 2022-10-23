@@ -6,13 +6,12 @@
 package dan200.computercraft.data;
 
 import com.google.gson.JsonElement;
+import dan200.computercraft.ComputerCraft;
 import net.minecraft.block.Block;
 import net.minecraft.data.*;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.nio.file.Path;
@@ -32,8 +31,6 @@ import java.util.function.Supplier;
  */
 public class ModelProvider implements IDataProvider
 {
-    private static final Logger LOGGER = LogManager.getLogger();
-
     private final DataGenerator generator;
 
     private final Consumer<BlockModelProvider> blocks;
@@ -97,7 +94,7 @@ public class ModelProvider implements IDataProvider
             }
             catch( Exception exception )
             {
-                LOGGER.error( "Couldn't save {}", path, exception );
+                ComputerCraft.log.error( "Couldn't save {}", path, exception );
             }
         }
     }

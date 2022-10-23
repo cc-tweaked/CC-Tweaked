@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.core.computer;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.lua.MachineResult;
 import dan200.computercraft.support.ConcurrentHelpers;
 import org.junit.jupiter.api.AfterEach;
@@ -13,8 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
@@ -26,8 +25,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @Execution( ExecutionMode.CONCURRENT )
 public class ComputerThreadTest
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger( ComputerThreadTest.class );
-
     private FakeComputerManager manager;
 
     @BeforeEach
@@ -51,7 +48,7 @@ public class ComputerThreadTest
 
             long delay = ConcurrentHelpers.waitUntil( timeout::isSoftAborted );
             assertThat( "Should be soft aborted", delay * 1e-9, closeTo( 7, 0.5 ) );
-            LOGGER.info( "Slept for {}", delay );
+            ComputerCraft.log.info( "Slept for {}", delay );
 
             computer.shutdown();
             return MachineResult.OK;
