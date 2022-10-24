@@ -10,6 +10,7 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ObjectWrapper;
 import dan200.computercraft.core.apis.handles.EncodedWritableHandle;
+import dan200.computercraft.support.TestFiles;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedWriter;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FileSystemTest
 {
-    private static final File ROOT = new File( "test-files/filesystem" );
+    private static final File ROOT = TestFiles.get( "filesystem" ).toFile();
     private static final long CAPACITY = 1000000;
 
     private static FileSystem mkFs() throws FileSystemException

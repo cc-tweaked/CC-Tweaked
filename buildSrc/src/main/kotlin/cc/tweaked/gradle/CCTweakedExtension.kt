@@ -25,17 +25,17 @@ abstract class CCTweakedExtension(
     private val fs: FileSystemOperations,
 ) {
     /** Get the hash of the latest git commit. */
-    val gitHash: Provider<String> = gitProvider(project) {
+    val gitHash: Provider<String> = gitProvider(project, "<no git hash>") {
         ProcessHelpers.captureOut("git", "-C", project.projectDir.absolutePath, "rev-parse", "HEAD")
     }
 
     /** Get the current git branch. */
-    val gitBranch: Provider<String> = gitProvider(project) {
+    val gitBranch: Provider<String> = gitProvider(project, "<no git branch>") {
         ProcessHelpers.captureOut("git", "-C", project.projectDir.absolutePath, "rev-parse", "--abbrev-ref", "HEAD")
     }
 
     /** Get a list of all contributors to the project. */
-    val gitContributors: Provider<List<String>> = gitProvider(project) {
+    val gitContributors: Provider<List<String>> = gitProvider(project, listOf()) {
         val authors: Set<String> = HashSet(
             ProcessHelpers.captureLines(
                 "git", "-C", project.projectDir.absolutePath, "log",
@@ -110,13 +110,13 @@ abstract class CCTweakedExtension(
             "GitHub", "Daniel Ratcliffe", "Weblate",
         )
 
-        private fun <T> gitProvider(project: Project, supplier: () -> T): Provider<T> {
+        private fun <T> gitProvider(project: Project, default: T, supplier: () -> T): Provider<T> {
             return project.provider {
                 try {
                     supplier()
                 } catch (e: IOException) {
-                    project.logger.error("Cannot read Git Repository", e)
-                    null
+                    project.logger.error("Cannot read Git repository: ${e.message}")
+                    default
                 }
             }
         }

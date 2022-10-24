@@ -77,14 +77,14 @@ minecraft {
         }
 
         val testClient by registering {
-            workingDirectory(project.file("test-files/client"))
+            workingDirectory(file("run/testClient"))
             parent(client.get())
 
             mods.register("cctest") { source(sourceSets["testMod"]) }
         }
 
         val testServer by registering {
-            workingDirectory(project.file("test-files/server"))
+            workingDirectory(file("run/testServer"))
             parent(server.get())
 
             property("cctest.run", "true")
@@ -165,7 +165,7 @@ val luaJavadoc by tasks.registering(Javadoc::class) {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
 
     source(sourceSets.main.get().java)
-    setDestinationDir(project.buildDir.resolve("docs/luaJavadoc"))
+    setDestinationDir(buildDir.resolve("docs/luaJavadoc"))
     classpath = sourceSets.main.get().compileClasspath
 
     options.docletpath = configurations["cctJavadoc"].files.toList()
@@ -296,6 +296,10 @@ val docWebsite by tasks.registering(Copy::class) {
 
 // Check tasks
 
+tasks.test {
+    systemProperty("cct.test-files", buildDir.resolve("tmp/test-files").absolutePath)
+}
+
 val lintLua by tasks.registering(IlluaminateExec::class) {
     group = JavaBasePlugin.VERIFICATION_GROUP
     description = "Lint Lua (and Lua docs) with illuaminate"
@@ -321,7 +325,7 @@ val setupRunGametest by tasks.registering(Copy::class) {
         include("eula.txt")
         include("server.properties")
     }
-    into("test-files/server")
+    into("run/testServer")
 }
 
 val runGametest by tasks.registering(JavaExec::class) {
@@ -354,7 +358,7 @@ val publishCurseForge by tasks.registering(TaskPublishCurseForge::class) {
     group = PublishingPlugin.PUBLISH_TASK_GROUP
     description = "Upload artifacts to CurseForge"
 
-    apiToken = project.findProperty("curseForgeApiKey") ?: ""
+    apiToken = findProperty("curseForgeApiKey") ?: ""
     enabled = apiToken != ""
 
     val mainFile = upload("282001", tasks.shadowJar)
@@ -368,7 +372,7 @@ val publishCurseForge by tasks.registering(TaskPublishCurseForge::class) {
 tasks.publish { dependsOn(publishCurseForge) }
 
 modrinth {
-    token.set(project.findProperty("modrinthApiKey") as String? ?: "")
+    token.set(findProperty("modrinthApiKey") as String? ?: "")
     projectId.set("gu7yAYhd")
     versionNumber.set("$mcVersion-$modVersion")
     versionName.set(modVersion)
@@ -377,13 +381,13 @@ modrinth {
     gameVersions.add(mcVersion)
     changelog.set("Release notes can be found on the [GitHub repository](https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v$mcVersion-$modVersion).")
 
-    syncBodyFrom.set(project.provider { file("doc/mod-page.md").readText() })
+    syncBodyFrom.set(provider { file("doc/mod-page.md").readText() })
 }
 
 tasks.publish { dependsOn(tasks.modrinth) }
 
 githubRelease {
-    token(project.findProperty("githubApiKey") as String? ?: "")
+    token(findProperty("githubApiKey") as String? ?: "")
     owner.set("cc-tweaked")
     repo.set("CC-Tweaked")
     targetCommitish.set(cct.gitBranch)
@@ -391,14 +395,12 @@ githubRelease {
     tagName.set("v$mcVersion-$modVersion")
     releaseName.set("[$mcVersion] $modVersion")
     body.set(
-        project.provider(
-            {
-                "## " + file("src/main/resources/data/computercraft/lua/rom/help/whatsnew.md")
-                    .readLines()
-                    .takeWhile { it != "Type \"help changelog\" to see the full version history." }
-                    .joinToString("\n").trim()
-            },
-        ),
+        provider {
+            "## " + file("src/main/resources/data/computercraft/lua/rom/help/whatsnew.md")
+                .readLines()
+                .takeWhile { it != "Type \"help changelog\" to see the full version history." }
+                .joinToString("\n").trim()
+        },
     )
     prerelease.set(!isStable)
 }

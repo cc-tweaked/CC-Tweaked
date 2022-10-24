@@ -20,6 +20,7 @@ import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
+import dan200.computercraft.support.TestFiles;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
@@ -31,13 +32,13 @@ import org.opentest4j.AssertionFailedError;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -50,18 +51,18 @@ import static dan200.computercraft.api.lua.LuaValues.getType;
 
 /**
  * Loads tests from {@code test-rom/spec} and executes them.
- *
+ * <p>
  * This spins up a new computer and runs the {@code mcfly.lua} script. This will then load all files in the {@code spec}
  * directory and register them with {@code cct_test.start}.
- *
+ * <p>
  * From the test names, we generate a tree of {@link DynamicNode}s which queue an event and wait for
  * {@code cct_test.submit} to be called. McFly pulls these events, executes the tests and then calls the submit method.
- *
+ * <p>
  * Once all tests are done, we invoke {@code cct_test.finish} in order to mark everything as complete.
  */
 public class ComputerTestDelegate
 {
-    private static final File REPORT_PATH = new File( "test-files/luacov.report.out" );
+    private static final Path REPORT_PATH = TestFiles.get( "luacov.report.out" );
 
     private static final Logger LOG = LogManager.getLogger( ComputerTestDelegate.class );
 
@@ -96,10 +97,10 @@ public class ComputerTestDelegate
     {
         ComputerCraft.logComputerErrors = true;
 
-        if( REPORT_PATH.delete() ) ComputerCraft.log.info( "Deleted previous coverage report." );
+        if( Files.deleteIfExists( REPORT_PATH ) ) ComputerCraft.log.info( "Deleted previous coverage report." );
 
         Terminal term = new Terminal( 80, 100, true );
-        IWritableMount mount = new FileMount( new File( "test-files/mount" ), 10_000_000 );
+        IWritableMount mount = new FileMount( TestFiles.get( "mount" ).toFile(), 10_000_000 );
 
         // Remove any existing files
         List<String> children = new ArrayList<>();
@@ -161,8 +162,8 @@ public class ComputerTestDelegate
 
         if( finishedWith != null )
         {
-            REPORT_PATH.getParentFile().mkdirs();
-            try( BufferedWriter writer = Files.newBufferedWriter( REPORT_PATH.toPath() ) )
+            Files.createDirectories( REPORT_PATH.getParent() );
+            try( BufferedWriter writer = Files.newBufferedWriter( REPORT_PATH ) )
             {
                 new LuaCoverage( finishedWith ).write( writer );
             }
