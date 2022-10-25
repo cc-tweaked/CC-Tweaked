@@ -57,7 +57,7 @@ public final class ClientPocketComputers
     @Nonnull
     public static PocketComputerData get( ItemStack stack )
     {
-        ComputerFamily family = stack.getItem() instanceof ItemComputer ? ((ItemComputer) stack.getItem()).getFamily() : ComputerFamily.NORMAL;
+        ComputerFamily family = stack.getItem() instanceof ItemComputer computer ? computer.getFamily() : ComputerFamily.NORMAL;
         return get( ItemPocketComputer.getInstanceID( stack ), family != ComputerFamily.NORMAL );
     }
 }

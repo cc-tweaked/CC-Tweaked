@@ -126,15 +126,6 @@ public final class MonitorWatcher
         return state;
     }
 
-    private static final class PlayerUpdate
-    {
-        final ServerPlayer player;
-        final TileMonitor monitor;
-
-        private PlayerUpdate( ServerPlayer player, TileMonitor monitor )
-        {
-            this.player = player;
-            this.monitor = monitor;
-        }
-    }
+    private record PlayerUpdate(ServerPlayer player, TileMonitor monitor)
+    {}
 }

@@ -85,8 +85,8 @@ public final class AddressRule
 
         int port = socketAddress.getPort();
         InetAddress address = socketAddress.getAddress();
-        Inet4Address ipv4Address = address instanceof Inet6Address && InetAddresses.is6to4Address( (Inet6Address) address )
-            ? InetAddresses.get6to4IPv4Address( (Inet6Address) address ) : null;
+        Inet4Address ipv4Address = address instanceof Inet6Address inet6 && InetAddresses.is6to4Address( inet6 )
+            ? InetAddresses.get6to4IPv4Address( inet6 ) : null;
 
         for( AddressRule rule : rules )
         {

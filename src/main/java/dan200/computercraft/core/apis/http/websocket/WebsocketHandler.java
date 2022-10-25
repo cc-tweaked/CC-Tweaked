@@ -61,9 +61,9 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object>
         }
 
         WebSocketFrame frame = (WebSocketFrame) msg;
-        if( frame instanceof TextWebSocketFrame )
+        if( frame instanceof TextWebSocketFrame textFrame )
         {
-            String data = ((TextWebSocketFrame) frame).text();
+            String data = textFrame.text();
 
             websocket.environment().observe( Metrics.WEBSOCKET_INCOMING, data.length() );
             websocket.environment().queueEvent( MESSAGE_EVENT, websocket.address(), data, false );

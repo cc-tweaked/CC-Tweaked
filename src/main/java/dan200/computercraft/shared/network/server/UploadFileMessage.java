@@ -120,10 +120,10 @@ public class UploadFileMessage extends ComputerServerMessage
         buf.writeVarInt( slices.size() );
         for( FileSlice slice : slices )
         {
-            buf.writeByte( slice.getFileId() );
-            buf.writeVarInt( slice.getOffset() );
+            buf.writeByte( slice.fileId() );
+            buf.writeVarInt( slice.offset() );
 
-            ByteBuffer bytes = slice.getBytes().duplicate();
+            ByteBuffer bytes = slice.bytes().duplicate();
             buf.writeShort( bytes.remaining() );
             buf.writeBytes( bytes );
         }

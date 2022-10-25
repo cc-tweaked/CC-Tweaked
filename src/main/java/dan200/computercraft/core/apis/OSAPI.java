@@ -39,17 +39,8 @@ public class OSAPI implements ILuaAPI
 
     private int nextAlarmToken = 0;
 
-    private static class Alarm implements Comparable<Alarm>
+    private record Alarm(double time, int day) implements Comparable<Alarm>
     {
-        final double time;
-        final int day;
-
-        Alarm( double time, int day )
-        {
-            this.time = time;
-            this.day = day;
-        }
-
         @Override
         public int compareTo( @Nonnull Alarm o )
         {

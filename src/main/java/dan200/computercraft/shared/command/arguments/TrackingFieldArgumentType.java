@@ -8,8 +8,6 @@ package dan200.computercraft.shared.command.arguments;
 import dan200.computercraft.shared.command.Exceptions;
 import dan200.computercraft.shared.computer.metrics.basic.AggregatedMetric;
 
-import java.util.stream.Collectors;
-
 public final class TrackingFieldArgumentType extends ChoiceArgumentType<AggregatedMetric>
 {
     private static final TrackingFieldArgumentType INSTANCE = new TrackingFieldArgumentType();
@@ -17,7 +15,7 @@ public final class TrackingFieldArgumentType extends ChoiceArgumentType<Aggregat
     private TrackingFieldArgumentType()
     {
         super(
-            AggregatedMetric.aggregatedMetrics().collect( Collectors.toList() ),
+            AggregatedMetric.aggregatedMetrics().toList(),
             AggregatedMetric::name, AggregatedMetric::displayName, Exceptions.TRACKING_FIELD_ARG_NONE
         );
     }

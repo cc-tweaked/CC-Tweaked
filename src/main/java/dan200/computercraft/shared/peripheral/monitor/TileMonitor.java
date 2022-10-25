@@ -241,9 +241,9 @@ public class TileMonitor extends TileGeneric
             // Otherwise fetch the origin and attempt to get its monitor
             // Note this may load chunks, but we don't really have a choice here.
             BlockEntity te = level.getBlockEntity( toWorldPos( 0, 0 ) );
-            if( !(te instanceof TileMonitor) ) return null;
+            if( !(te instanceof TileMonitor monitor) ) return null;
 
-            return serverMonitor = ((TileMonitor) te).createServerMonitor();
+            return serverMonitor = monitor.createServerMonitor();
         }
     }
 
@@ -253,9 +253,9 @@ public class TileMonitor extends TileGeneric
         if( clientMonitor != null ) return clientMonitor;
 
         BlockEntity te = level.getBlockEntity( toWorldPos( 0, 0 ) );
-        if( !(te instanceof TileMonitor) ) return null;
+        if( !(te instanceof TileMonitor monitor) ) return null;
 
-        return clientMonitor = ((TileMonitor) te).clientMonitor;
+        return clientMonitor = monitor.clientMonitor;
     }
 
     // Networking stuff
@@ -578,7 +578,7 @@ public class TileMonitor extends TileGeneric
             .of( xPos, yPos, zPos, getDirection(), getOrientation() )
             .add( xIndex, height - yIndex - 1 );
 
-        if( pair.x > width - RENDER_BORDER || pair.y > height - RENDER_BORDER || pair.x < RENDER_BORDER || pair.y < RENDER_BORDER )
+        if( pair.x() > width - RENDER_BORDER || pair.y() > height - RENDER_BORDER || pair.x() < RENDER_BORDER || pair.y() < RENDER_BORDER )
         {
             return;
         }
@@ -592,8 +592,8 @@ public class TileMonitor extends TileGeneric
         double xCharWidth = (width - (RENDER_BORDER + RENDER_MARGIN) * 2.0) / originTerminal.getWidth();
         double yCharHeight = (height - (RENDER_BORDER + RENDER_MARGIN) * 2.0) / originTerminal.getHeight();
 
-        int xCharPos = (int) Math.min( originTerminal.getWidth(), Math.max( (pair.x - RENDER_BORDER - RENDER_MARGIN) / xCharWidth + 1.0, 1.0 ) );
-        int yCharPos = (int) Math.min( originTerminal.getHeight(), Math.max( (pair.y - RENDER_BORDER - RENDER_MARGIN) / yCharHeight + 1.0, 1.0 ) );
+        int xCharPos = (int) Math.min( originTerminal.getWidth(), Math.max( (pair.x() - RENDER_BORDER - RENDER_MARGIN) / xCharWidth + 1.0, 1.0 ) );
+        int yCharPos = (int) Math.min( originTerminal.getHeight(), Math.max( (pair.y() - RENDER_BORDER - RENDER_MARGIN) / yCharHeight + 1.0, 1.0 ) );
 
         eachComputer( c -> c.queueEvent( "monitor_touch", c.getAttachmentName(), xCharPos, yCharPos ) );
     }

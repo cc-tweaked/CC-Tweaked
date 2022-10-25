@@ -63,12 +63,12 @@ public class CobaltLuaMachine implements ILuaMachine
 
     public CobaltLuaMachine( MachineEnvironment environment )
     {
-        timeout = environment.timeout;
-        context = environment.context;
+        timeout = environment.timeout();
+        context = environment.context();
         debug = new TimeoutDebugHandler();
 
         // Create an environment to run in
-        MetricsObserver metrics = environment.metrics;
+        MetricsObserver metrics = environment.metrics();
         LuaState state = this.state = LuaState.builder()
             .resourceManipulator( new VoidResourceManipulator() )
             .debug( debug )
@@ -108,7 +108,7 @@ public class CobaltLuaMachine implements ILuaMachine
 
         // Add version globals
         globals.rawset( "_VERSION", valueOf( "Lua 5.1" ) );
-        globals.rawset( "_HOST", valueOf( environment.hostString ) );
+        globals.rawset( "_HOST", valueOf( environment.hostString() ) );
         globals.rawset( "_CC_DEFAULT_SETTINGS", valueOf( ComputerCraft.defaultComputerSettings ) );
         if( ComputerCraft.disableLua51Features )
         {
@@ -241,8 +241,8 @@ public class CobaltLuaMachine implements ILuaMachine
     @Nullable
     private LuaTable wrapLuaObject( Object object )
     {
-        String[] dynamicMethods = object instanceof IDynamicLuaObject
-            ? Objects.requireNonNull( ((IDynamicLuaObject) object).getMethodNames(), "Methods cannot be null" )
+        String[] dynamicMethods = object instanceof IDynamicLuaObject dynamic
+            ? Objects.requireNonNull( dynamic.getMethodNames(), "Methods cannot be null" )
             : LuaMethod.EMPTY_METHODS;
 
         LuaTable table = new LuaTable();
@@ -272,9 +272,9 @@ public class CobaltLuaMachine implements ILuaMachine
     private LuaValue toValue( @Nullable Object object, @Nullable Map<Object, LuaValue> values )
     {
         if( object == null ) return Constants.NIL;
-        if( object instanceof Number ) return valueOf( ((Number) object).doubleValue() );
-        if( object instanceof Boolean ) return valueOf( (Boolean) object );
-        if( object instanceof String ) return valueOf( object.toString() );
+        if( object instanceof Number num ) return valueOf( num.doubleValue() );
+        if( object instanceof Boolean bool ) return valueOf( bool );
+        if( object instanceof String str ) return valueOf( str );
         if( object instanceof byte[] b )
         {
             return valueOf( Arrays.copyOf( b, b.length ) );
@@ -303,12 +303,12 @@ public class CobaltLuaMachine implements ILuaMachine
             return wrapped;
         }
 
-        if( object instanceof Map )
+        if( object instanceof Map<?, ?> map )
         {
             LuaTable table = new LuaTable();
             values.put( object, table );
 
-            for( Map.Entry<?, ?> pair : ((Map<?, ?>) object).entrySet() )
+            for( Map.Entry<?, ?> pair : map.entrySet() )
             {
                 LuaValue key = toValue( pair.getKey(), values );
                 LuaValue value = toValue( pair.getValue(), values );

@@ -408,7 +408,7 @@ final class ComputerExecutor
         ) );
 
         // Add the APIs. We unwrap them (yes, this is horrible) to get access to the underlying object.
-        for( ILuaAPI api : apis ) machine.addAPI( api instanceof ApiWrapper ? ((ApiWrapper) api).getDelegate() : api );
+        for( ILuaAPI api : apis ) machine.addAPI( api instanceof ApiWrapper wrapper ? wrapper.getDelegate() : api );
 
         // Start the machine running the bios resource
         MachineResult result = machine.loadBios( biosStream );
@@ -680,15 +680,7 @@ final class ComputerExecutor
         ERROR,
     }
 
-    private static final class Event
+    private record Event(String name, Object[] args)
     {
-        final String name;
-        final Object[] args;
-
-        private Event( String name, Object[] args )
-        {
-            this.name = name;
-            this.args = args;
-        }
     }
 }

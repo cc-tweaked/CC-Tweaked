@@ -786,13 +786,13 @@ public class TurtleBrain implements ITurtleAccess
 
         // Execute the command
         long start = System.nanoTime();
-        TurtleCommandResult result = nextCommand.command.execute( this );
+        TurtleCommandResult result = nextCommand.command().execute( this );
         long end = System.nanoTime();
 
         // Dispatch the callback
         if( computer == null ) return;
         computer.getComputer().getMainThreadMonitor().trackWork( end - start, TimeUnit.NANOSECONDS );
-        int callbackID = nextCommand.callbackID;
+        int callbackID = nextCommand.callbackID();
         if( callbackID < 0 ) return;
 
         if( result != null && result.isSuccess() )

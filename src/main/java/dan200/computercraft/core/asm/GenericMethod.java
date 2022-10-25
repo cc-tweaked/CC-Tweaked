@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -51,7 +50,7 @@ public class GenericMethod
     static List<GenericMethod> all()
     {
         if( cache != null ) return cache;
-        return cache = sources.stream().flatMap( GenericMethod::getMethods ).collect( Collectors.toList() );
+        return cache = sources.stream().flatMap( GenericMethod::getMethods ).toList();
     }
 
     public static synchronized void register( @Nonnull GenericSource source )
@@ -69,7 +68,7 @@ public class GenericMethod
     private static Stream<GenericMethod> getMethods( GenericSource source )
     {
         Class<?> klass = source.getClass();
-        PeripheralType type = source instanceof GenericPeripheral ? ((GenericPeripheral) source).getType() : null;
+        PeripheralType type = source instanceof GenericPeripheral generic ? generic.getType() : null;
 
         return Arrays.stream( klass.getDeclaredMethods() )
             .map( method -> {

@@ -21,9 +21,9 @@ public interface ObjectSource
     {
         for( NamedMethod<T> method : generator.getMethods( object.getClass() ) ) accept.accept( object, method );
 
-        if( object instanceof ObjectSource )
+        if( object instanceof ObjectSource source )
         {
-            for( Object extra : ((ObjectSource) object).getExtra() )
+            for( Object extra : source.getExtra() )
             {
                 for( NamedMethod<T> method : generator.getMethods( extra.getClass() ) ) accept.accept( extra, method );
             }

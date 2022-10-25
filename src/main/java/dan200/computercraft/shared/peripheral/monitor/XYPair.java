@@ -7,17 +7,8 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import net.minecraft.core.Direction;
 
-public class XYPair
+public record XYPair(float x, float y)
 {
-    public final float x;
-    public final float y;
-
-    public XYPair( float x, float y )
-    {
-        this.x = x;
-        this.y = y;
-    }
-
     public XYPair add( float x, float y )
     {
         return new XYPair( this.x + x, this.y + y );

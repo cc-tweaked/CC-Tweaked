@@ -19,7 +19,6 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Data providers for items.
@@ -71,7 +70,7 @@ public class ItemData
                     .map( ItemData::parseTextComponent )
                     .filter( Objects::nonNull )
                     .map( Component::getString )
-                    .collect( Collectors.toList() ) );
+                    .toList() );
             }
         }
 

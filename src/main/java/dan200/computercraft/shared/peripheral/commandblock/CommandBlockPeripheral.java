@@ -128,9 +128,9 @@ public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
     public static void onCapability( AttachCapabilitiesEvent<BlockEntity> event )
     {
         BlockEntity tile = event.getObject();
-        if( ComputerCraft.enableCommandBlock && tile instanceof CommandBlockEntity )
+        if( ComputerCraft.enableCommandBlock && tile instanceof CommandBlockEntity commandBlock )
         {
-            CommandBlockPeripheral peripheral = new CommandBlockPeripheral( (CommandBlockEntity) tile );
+            CommandBlockPeripheral peripheral = new CommandBlockPeripheral( commandBlock );
             event.addCapability( CAP_ID, peripheral );
             event.addListener( peripheral::invalidate );
         }

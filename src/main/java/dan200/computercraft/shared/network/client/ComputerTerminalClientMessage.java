@@ -46,9 +46,9 @@ public class ComputerTerminalClientMessage implements NetworkMessage
     public void handle( NetworkEvent.Context context )
     {
         Player player = Minecraft.getInstance().player;
-        if( player != null && player.containerMenu.containerId == containerId && player.containerMenu instanceof ComputerMenu )
+        if( player != null && player.containerMenu.containerId == containerId && player.containerMenu instanceof ComputerMenu menu )
         {
-            ((ComputerMenu) player.containerMenu).updateTerminal( terminal );
+            menu.updateTerminal( terminal );
         }
     }
 }

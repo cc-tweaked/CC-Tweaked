@@ -120,10 +120,8 @@ public class UpgradeRecipeGenerator<T>
     {
         setupCache();
 
-        if( stack.getItem() instanceof ItemTurtle )
+        if( stack.getItem() instanceof ItemTurtle item )
         {
-            ItemTurtle item = (ItemTurtle) stack.getItem();
-
             // Suggest possible upgrades which can be applied to this turtle
             ITurtleUpgrade left = item.getUpgrade( stack, TurtleSide.LEFT );
             ITurtleUpgrade right = item.getUpgrade( stack, TurtleSide.RIGHT );
@@ -206,9 +204,8 @@ public class UpgradeRecipeGenerator<T>
     public List<T> findRecipesWithOutput( ItemStack stack )
     {
         // Find which upgrade this item currently has, and so how we could build it.
-        if( stack.getItem() instanceof ItemTurtle )
+        if( stack.getItem() instanceof ItemTurtle item )
         {
-            ItemTurtle item = (ItemTurtle) stack.getItem();
             List<T> recipes = new ArrayList<>( 0 );
 
             ITurtleUpgrade left = item.getUpgrade( stack, TurtleSide.LEFT );

@@ -158,7 +158,7 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>>
         private static Component getMessage( RepeatArgumentType<?, ?> arg )
         {
             Message message = arg.some.create().getRawMessage();
-            if( message instanceof Component ) return (Component) message;
+            if( message instanceof Component component ) return component;
             return new TextComponent( message.getString() );
         }
     }

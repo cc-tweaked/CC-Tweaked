@@ -217,25 +217,12 @@ public class PrettyJsonWriter extends JsonWriter
 
     /**
      * A key/value pair inside a JSON object.
+     *
+     * @param key   The escaped object key.
+     * @param value The object value.
      */
-    private static final class Pair
+    private record Pair(String key, Object value)
     {
-        /**
-         * The escaped object key.
-         */
-        final String key;
-
-        /**
-         * The object value.
-         */
-        final Object value;
-
-        private Pair( String key, Object value )
-        {
-            this.key = key;
-            this.value = value;
-        }
-
         int width()
         {
             return key.length() + 2 + PrettyJsonWriter.width( value );
@@ -328,9 +315,9 @@ public class PrettyJsonWriter extends JsonWriter
      */
     private static int width( Object object )
     {
-        if( object instanceof String ) return ((String) object).length();
-        if( object instanceof DocList ) return ((DocList) object).width;
-        if( object instanceof Pair ) return ((Pair) object).width();
+        if( object instanceof String string ) return string.length();
+        if( object instanceof DocList list ) return list.width;
+        if( object instanceof Pair pair ) return pair.width();
         throw new IllegalArgumentException( "Not a valid document" );
     }
 
@@ -346,19 +333,18 @@ public class PrettyJsonWriter extends JsonWriter
      */
     private static int write( Writer writer, Object object, int space, int indent ) throws IOException
     {
-        if( object instanceof String )
+        if( object instanceof String str )
         {
-            String str = (String) object;
             writer.write( str );
             return space - str.length();
         }
-        else if( object instanceof DocList )
+        else if( object instanceof DocList list )
         {
-            return ((DocList) object).write( writer, space, indent );
+            return list.write( writer, space, indent );
         }
-        else if( object instanceof Pair )
+        else if( object instanceof Pair pair )
         {
-            return ((Pair) object).write( writer, space, indent );
+            return pair.write( writer, space, indent );
         }
         else
         {

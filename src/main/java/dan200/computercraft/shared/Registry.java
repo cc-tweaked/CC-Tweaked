@@ -376,7 +376,7 @@ public final class Registry
         // Register media providers
         ComputerCraftAPI.registerMediaProvider( stack -> {
             Item item = stack.getItem();
-            if( item instanceof IMedia ) return (IMedia) item;
+            if( item instanceof IMedia media ) return media;
             if( item instanceof RecordItem ) return RecordMedia.INSTANCE;
             return null;
         } );

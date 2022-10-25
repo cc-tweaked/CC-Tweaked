@@ -24,7 +24,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static dan200.computercraft.shared.command.CommandUtils.suggest;
 import static dan200.computercraft.shared.command.CommandUtils.suggestOnServer;
@@ -163,12 +162,11 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
 
     private static ComputersSupplier getComputers( Predicate<ServerComputer> predicate )
     {
-        return s -> Collections.unmodifiableList( ServerContext.get( s.getServer() ).registry()
+        return s -> ServerContext.get( s.getServer() ).registry()
             .getComputers()
             .stream()
             .filter( predicate )
-            .collect( Collectors.toList() )
-        );
+            .toList();
     }
 
     public static class Serializer implements ArgumentSerializer<ComputersArgumentType>

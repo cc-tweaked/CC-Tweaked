@@ -35,9 +35,8 @@ public interface LuaTable<K, V> extends Map<K, V>
     default long getLong( int index ) throws LuaException
     {
         Object value = get( (double) index );
-        if( !(value instanceof Number) ) throw badTableItem( index, "number", getType( value ) );
+        if( !(value instanceof Number number) ) throw badTableItem( index, "number", getType( value ) );
 
-        Number number = (Number) value;
         double asDouble = number.doubleValue();
         if( !Double.isFinite( asDouble ) ) throw badTableItem( index, "number", getNumericType( asDouble ) );
         return number.longValue();
@@ -53,9 +52,8 @@ public interface LuaTable<K, V> extends Map<K, V>
     default long getLong( String key ) throws LuaException
     {
         Object value = get( key );
-        if( !(value instanceof Number) ) throw badField( key, "number", getType( value ) );
+        if( !(value instanceof Number number) ) throw badField( key, "number", getType( value ) );
 
-        Number number = (Number) value;
         double asDouble = number.doubleValue();
         if( !Double.isFinite( asDouble ) ) throw badField( key, "number", getNumericType( asDouble ) );
         return number.longValue();

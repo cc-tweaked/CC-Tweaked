@@ -15,29 +15,13 @@ import java.util.stream.Stream;
 
 /**
  * An aggregate of a specific metric.
+ *
+ * @param metric    The metric we're aggregating.
+ * @param aggregate The aggregate to use.
  */
-public class AggregatedMetric
+public record AggregatedMetric(Metric metric, Aggregate aggregate)
 {
     private static final String TRANSLATION_PREFIX = "tracking_field.computercraft.";
-
-    private final Metric metric;
-    private final Aggregate aggregate;
-
-    public AggregatedMetric( Metric metric, Aggregate aggregate )
-    {
-        this.metric = metric;
-        this.aggregate = aggregate;
-    }
-
-    public Metric metric()
-    {
-        return metric;
-    }
-
-    public Aggregate aggregate()
-    {
-        return aggregate;
-    }
 
     public static Stream<AggregatedMetric> aggregatedMetrics()
     {

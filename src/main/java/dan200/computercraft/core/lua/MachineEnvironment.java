@@ -14,36 +14,13 @@ import dan200.computercraft.core.metrics.MetricsObserver;
 /**
  * Arguments used to construct a {@link ILuaMachine}.
  *
+ * @param context    The Lua context to execute main-thread tasks with.
+ * @param metrics    A sink to submit metrics to. You do not need to submit task timings here, it should only be for additional
+ *                   metrics such as {@link Metrics#COROUTINES_CREATED}
+ * @param timeout    The current timeout state. This should be used by the machine to interrupt its execution.
+ * @param hostString A {@linkplain GlobalEnvironment#getHostString() host string} to identify the current environment.
  * @see ILuaMachine.Factory
  */
-public class MachineEnvironment
+public record MachineEnvironment(ILuaContext context, MetricsObserver metrics, TimeoutState timeout, String hostString)
 {
-    /**
-     * The Lua context to execute main-thread tasks with.
-     */
-    public final ILuaContext context;
-
-    /**
-     * A sink to submit metrics to. You do not need to submit task timings here, it should only be for additional
-     * metrics such as {@link Metrics#COROUTINES_CREATED}
-     */
-    public final MetricsObserver metrics;
-
-    /**
-     * The current timeout state. This should be used by the machine to interrupt its execution.
-     */
-    public final TimeoutState timeout;
-
-    /**
-     * A {@linkplain GlobalEnvironment#getHostString() host string} to identify the current environment.
-     */
-    public final String hostString;
-
-    public MachineEnvironment( ILuaContext context, MetricsObserver metrics, TimeoutState timeout, String hostString )
-    {
-        this.context = context;
-        this.metrics = metrics;
-        this.timeout = timeout;
-        this.hostString = hostString;
-    }
 }

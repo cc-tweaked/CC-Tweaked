@@ -183,15 +183,8 @@ public final class ServerContext
         return metrics;
     }
 
-    private static final class Environment implements GlobalEnvironment
+    private record Environment(MinecraftServer server) implements GlobalEnvironment
     {
-        private final MinecraftServer server;
-
-        Environment( MinecraftServer server )
-        {
-            this.server = server;
-        }
-
         @Override
         public IMount createResourceMount( String domain, String subPath )
         {

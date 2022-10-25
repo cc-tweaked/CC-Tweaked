@@ -298,11 +298,11 @@ class MountWrapper
             if( ex.getFilename() != null ) return localExceptionOf( ex.getFilename(), ex.getMessage() );
         }
 
-        if( e instanceof java.nio.file.FileSystemException )
+        if( e instanceof java.nio.file.FileSystemException ex )
         {
             // This error will contain the absolute path, leaking information about where MC is installed. We drop that,
             // just taking the reason. We assume that the error refers to the input path.
-            String message = ((java.nio.file.FileSystemException) e).getReason().trim();
+            String message = ex.getReason().trim();
             return localPath == null ? new FileSystemException( message ) : localExceptionOf( localPath, message );
         }
 

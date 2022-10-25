@@ -38,7 +38,7 @@ public class FakeComputerManager implements AutoCloseable
         new BasicEnvironment(),
         new ComputerThread( 1 ),
         new FakeMainThreadScheduler(),
-        args -> new DummyLuaMachine( args.timeout )
+        args -> new DummyLuaMachine( args.timeout() )
     );
 
     private final Lock errorLock = new ReentrantLock();
