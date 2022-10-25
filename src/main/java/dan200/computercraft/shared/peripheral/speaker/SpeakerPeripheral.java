@@ -35,12 +35,12 @@ import static dan200.computercraft.api.lua.LuaValues.checkFinite;
 
 /**
  * The speaker peirpheral allow your computer to play notes and other sounds.
- *
+ * <p>
  * The speaker can play three kinds of sound, in increasing orders of complexity:
  * - {@link #playNote} allows you to play noteblock note.
  * - {@link #playSound} plays any built-in Minecraft sound, such as block sounds or mob noises.
  * - {@link #playAudio} can play arbitrary audio.
- *
+ * <p>
  * ## Recipe
  * <div class="recipe-container">
  *     <mc-recipe recipe="computercraft:speaker"></mc-recipe>
@@ -193,21 +193,21 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
     /**
      * Plays a note block note through the speaker.
-     *
+     * <p>
      * This takes the name of a note to play, as well as optionally the volume
      * and pitch to play the note at.
-     *
+     * <p>
      * The pitch argument uses semitones as the unit. This directly maps to the
      * number of clicks on a note block. For reference, 0, 12, and 24 map to F#,
      * and 6 and 18 map to C.
-     *
+     * <p>
      * A maximum of 8 notes can be played in a single tick. If this limit is hit, this function will return
      * {@literal false}.
-     *
+     * <p>
      * ### Valid instruments
      * The speaker supports [all of Minecraft's noteblock instruments](https://minecraft.fandom.com/wiki/Note_Block#Instruments).
      * These are:
-     *
+     * <p>
      * {@code "harp"}, {@code "basedrum"}, {@code "snare"}, {@code "hat"}, {@code "bass"}, @code "flute"},
      * {@code "bell"}, {@code "guitar"}, {@code "chime"}, {@code "xylophone"}, {@code "iron_xylophone"},
      * {@code "cow_bell"}, {@code "didgeridoo"}, {@code "bit"}, {@code "banjo"} and {@code "pling"}.
@@ -248,10 +248,10 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
     /**
      * Plays a Minecraft sound through the speaker.
-     *
+     * <p>
      * This takes the [name of a Minecraft sound](https://minecraft.fandom.com/wiki/Sounds.json), such as
      * {@code "minecraft:block.note_block.harp"}, as well as an optional volume and pitch.
-     *
+     * <p>
      * Only one sound can be played at once. This function will return {@literal false} if another sound was started
      * this tick, or if some {@link #playAudio audio} is still playing.
      *
@@ -295,18 +295,18 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
     /**
      * Attempt to stream some audio data to the speaker.
-     *
+     * <p>
      * This accepts a list of audio samples as amplitudes between -128 and 127. These are stored in an internal buffer
      * and played back at 48kHz. If this buffer is full, this function will return {@literal false}. You should wait for
      * a @{speaker_audio_empty} event before trying again.
-     *
+     * <p>
      * :::note
      * The speaker only buffers a single call to {@link #playAudio} at once. This means if you try to play a small
      * number of samples, you'll have a lot of stutter. You should try to play as many samples in one call as possible
      * (up to 128×1024), as this reduces the chances of audio stuttering or halting, especially when the server or
      * computer is lagging.
      * :::
-     *
+     * <p>
      * {@literal @}{speaker_audio} provides a more complete guide to using speakers
      *
      * @param context The Lua context.
@@ -361,7 +361,7 @@ public abstract class SpeakerPeripheral implements IPeripheral
 
     /**
      * Stop all audio being played by this speaker.
-     *
+     * <p>
      * This clears any audio that {@link #playAudio} had queued and stops the latest sound played by {@link #playSound}.
      *
      * @cc.since 1.100

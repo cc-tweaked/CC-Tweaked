@@ -49,7 +49,7 @@ public abstract class BasicItemDetailProvider<T> implements IDetailProvider<Item
     /**
      * Provide additional details for the given {@link Item} and {@link ItemStack}. This method is called by
      * {@code turtle.getItemDetail()}. New properties should be added to the given {@link Map}, {@code data}.
-     *
+     * <p>
      * This method is always called on the server thread, so it is safe to interact with the world here, but you should
      * take care to avoid long blocking operations as this will stall the server and other computers.
      *

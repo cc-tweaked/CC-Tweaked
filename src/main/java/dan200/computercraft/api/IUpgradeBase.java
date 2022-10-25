@@ -21,7 +21,7 @@ public interface IUpgradeBase
     /**
      * Gets a unique identifier representing this type of turtle upgrade. eg: "computercraft:wireless_modem"
      * or "my_mod:my_upgrade".
-     *
+     * <p>
      * You should use a unique resource domain to ensure this upgrade is uniquely identified.
      * The upgrade will fail registration if an already used ID is specified.
      *
@@ -32,7 +32,7 @@ public interface IUpgradeBase
 
     /**
      * Return an unlocalised string to describe this type of computer in item names.
-     *
+     * <p>
      * Examples of built-in adjectives are "Wireless", "Mining" and "Crafty".
      *
      * @return The localisation key for this upgrade's adjective.
@@ -44,7 +44,7 @@ public interface IUpgradeBase
      * Return an item stack representing the type of item that a computer must be crafted
      * with to create a version which holds this upgrade. This item stack is also used
      * to determine the upgrade given by {@code turtle.equipLeft()} or {@code pocket.equipBack()}
-     *
+     * <p>
      * This should be constant over a session (or at least a datapack reload). It is recommended
      * that you cache the stack too, in order to prevent constructing it every time the method
      * is called.
@@ -56,11 +56,11 @@ public interface IUpgradeBase
 
     /**
      * Determine if an item is suitable for being used for this upgrade.
-     *
+     * <p>
      * When un-equipping an upgrade, we return {@link #getCraftingItem()} rather than
      * the original stack. In order to prevent people losing items with enchantments (or
      * repairing items with non-0 damage), we impose additional checks on the item.
-     *
+     * <p>
      * The default check requires that any non-capability NBT is exactly the same as the
      * crafting item, but this may be relaxed for your upgrade.
      *

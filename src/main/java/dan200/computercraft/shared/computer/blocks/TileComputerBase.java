@@ -279,7 +279,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     /**
      * Update all redstone and peripherals.
-     *
+     * <p>
      * This should only be really be called when the computer is being ticked (though there are some cases where it
      * won't be), as peripheral scanning requires adjacent tiles to be in a "correct" state - which may not be the case
      * if they're still updating!

@@ -31,7 +31,7 @@ public class FileSystem
 {
     /**
      * Maximum depth that {@link #copyRecursive(String, MountWrapper, String, MountWrapper, int)} will descend into.
-     *
+     * <p>
      * This is a pretty arbitrary value, though hopefully it is large enough that it'll never be normally hit. This
      * exists to prevent it overflowing if it ever gets into an infinite loop.
      */

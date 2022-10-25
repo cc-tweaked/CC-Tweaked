@@ -20,7 +20,7 @@ public interface NetworkMessage
 {
     /**
      * Write this packet to a buffer.
-     *
+     * <p>
      * This may be called on any thread, so this should be a pure operation.
      *
      * @param buf The buffer to write data to.

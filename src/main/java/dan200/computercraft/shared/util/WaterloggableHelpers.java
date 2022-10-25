@@ -17,7 +17,7 @@ import net.minecraft.world.IWorld;
 
 /**
  * Represents a block which can be filled with water
- *
+ * <p>
  * I'm fairly sure this exists on 1.14, but it's a useful convenience wrapper to have on 1.13.
  */
 public final class WaterloggableHelpers

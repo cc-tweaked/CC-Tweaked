@@ -30,10 +30,10 @@ import java.util.function.BiConsumer;
 
 /**
  * Reads one argument multiple times.
- *
+ * <p>
  * Note that this must be the last element in an argument chain: in order to improve the quality of error messages,
  * we will always try to consume another argument while there is input remaining.
- *
+ * <p>
  * One problem with how parsers function, is that they must consume some input: and thus we
  *
  * @param <T> The type of each value returned

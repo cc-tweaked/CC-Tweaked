@@ -110,11 +110,11 @@ public class CommandAPI implements ILuaAPI
 
     /**
      * Asynchronously execute a command.
-     *
+     * <p>
      * Unlike {@link #exec}, this will immediately return, instead of waiting for the
      * command to execute. This allows you to run multiple commands at the same
      * time.
-     *
+     * <p>
      * When this command has finished executing, it will queue a `task_complete`
      * event containing the result of executing this command (what {@link #exec} would
      * return).
@@ -184,10 +184,10 @@ public class CommandAPI implements ILuaAPI
 
     /**
      * Get information about a range of blocks.
-     *
+     * <p>
      * This returns the same information as @{getBlockInfo}, just for multiple
      * blocks at once.
-     *
+     * <p>
      * Blocks are traversed by ascending y level, followed by z and x - the returned
      * table may be indexed using `x + z*width + y*depth*depth`.
      *
@@ -245,7 +245,7 @@ public class CommandAPI implements ILuaAPI
 
     /**
      * Get some basic information about a block.
-     *
+     * <p>
      * The returned table contains the current name, metadata and block state (as
      * with @{turtle.inspect}). If there is a tile entity for that block, its NBT
      * will also be returned.

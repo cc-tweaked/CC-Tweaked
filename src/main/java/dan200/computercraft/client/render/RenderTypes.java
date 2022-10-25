@@ -31,7 +31,7 @@ public class RenderTypes
     /**
      * Renders a fullbright terminal which also writes to the depth layer. This is used when z-fighting isn't an issue -
      * for instance rendering an empty terminal or inside a GUI.
-     *
+     * <p>
      * This is identical to <em>vanilla's</em> {@link RenderType#text}. Forge overrides one with a definition which sets
      * sortOnUpload to true, which is entirely broken!
      */

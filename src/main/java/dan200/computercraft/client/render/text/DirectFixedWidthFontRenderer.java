@@ -24,14 +24,14 @@ import static org.lwjgl.system.MemoryUtil.memPutFloat;
 /**
  * An optimised copy of {@link FixedWidthFontRenderer} emitter emits directly to a {@link ByteBuffer} rather than
  * emitting to {@link IVertexBuilder}. This allows us to emit vertices very quickly, when using the VBO renderer.
- *
+ * <p>
  * There are some limitations here:
  * <ul>
  *   <li>No transformation matrix (not needed for VBOs).</li>
  *   <li>Only works with {@link DefaultVertexFormats#POSITION_COLOR_TEX}.</li>
  *   <li>The buffer <strong>MUST</strong> be allocated with {@link DirectBuffers}, and not through any other means.</li>
  * </ul>
- *
+ * <p>
  * Note this is almost an exact copy of {@link FixedWidthFontRenderer}. While the code duplication is unfortunate,
  * it is measurably faster than introducing polymorphism into {@link FixedWidthFontRenderer}.
  *

@@ -33,7 +33,7 @@ public interface IPacketReceiver
 
     /**
      * Get the maximum distance this receiver can send and receive messages.
-     *
+     * <p>
      * When determining whether a receiver can receive a message, the largest distance of the packet and receiver is
      * used - ensuring it is within range. If the packet or receiver is inter-dimensional, then the packet will always
      * be received.
@@ -47,7 +47,7 @@ public interface IPacketReceiver
 
     /**
      * Determine whether this receiver can receive packets from other dimensions.
-     *
+     * <p>
      * A device will receive an inter-dimensional packet if either it or the sending device is inter-dimensional.
      *
      * @return Whether this receiver receives packets from other dimensions.

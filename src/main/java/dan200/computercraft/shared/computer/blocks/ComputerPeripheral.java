@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 
 /**
  * A computer or turtle wrapped as a peripheral.
- *
+ * <p>
  * This allows for basic interaction with adjacent computers. Computers wrapped as peripherals will have the type
  * {@code computer} while turtles will be {@code turtle}.
  *

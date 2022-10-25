@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 
 /**
  * Represents an item that can be placed in a disk drive and used by a Computer.
- *
+ * <p>
  * Implement this interface on your {@link Item} class to allow it to be used in the drive. Alternatively, register
  * a {@link IMediaProvider}.
  */

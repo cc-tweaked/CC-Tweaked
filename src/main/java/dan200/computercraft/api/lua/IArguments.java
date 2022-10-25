@@ -185,7 +185,7 @@ public interface IArguments
 
     /**
      * Get an argument as a table in an unsafe manner.
-     *
+     * <p>
      * Classes implementing this interface may choose to implement a more optimised version which does not copy the
      * table, instead returning a wrapper version, making it more efficient. However, the caller must guarantee that
      * they do not access the table the computer thread (and so should not be used with main-thread functions) or once
@@ -334,7 +334,7 @@ public interface IArguments
 
     /**
      * Get an argument as a table in an unsafe manner.
-     *
+     * <p>
      * Classes implementing this interface may choose to implement a more optimised version which does not copy the
      * table, instead returning a wrapper version, making it more efficient. However, the caller must guarantee that
      * they do not access off the computer thread (and so should not be used with main-thread functions) or once the
@@ -446,7 +446,7 @@ public interface IArguments
 
     /**
      * This is called when the current function finishes, before any main thread tasks have run.
-     *
+     * <p>
      * Called when the current function returns, and so some values are no longer guaranteed to be safe to access.
      *
      * @deprecated This method was an internal implementation detail and is no longer used.

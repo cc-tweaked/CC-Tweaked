@@ -43,20 +43,20 @@ import java.util.function.Function;
  * <li>**File and directory manipulation:** For instance, moving or copying files. See {@link #makeDir}, {@link #move},
  * {@link #copy} and {@link #delete}.</li>
  * </ul>
- *
+ * <p>
  * :::note
  * All functions in the API work on absolute paths, and do not take the @{shell.dir|current directory} into account.
  * You can use @{shell.resolve} to convert a relative path into an absolute one.
  * :::
- *
+ * <p>
  * ## Mounts
  * While a computer can only have one hard drive and filesystem, other filesystems may be "mounted" inside it. For
  * instance, the {@link dan200.computercraft.shared.peripheral.diskdrive.DiskDrivePeripheral drive peripheral} mounts
  * its disk's contents at {@code "disk/"}, {@code "disk1/"}, etc...
- *
+ * <p>
  * You can see which mount a path belongs to with the {@link #getDrive} function. This returns {@code "hdd"} for the
  * computer's main filesystem ({@code "/"}), {@code "rom"} for the rom ({@code "rom/"}).
- *
+ * <p>
  * Most filesystems have a limited capacity, operations which would cause that capacity to be reached (such as writing
  * an incredibly large file) will fail. You can see a mount's capacity with {@link #getCapacity} and the remaining
  * space with {@link #getFreeSpace}.
@@ -287,7 +287,7 @@ public class FSAPI implements ILuaAPI
 
     /**
      * Moves a file or directory from one path to another.
-     *
+     * <p>
      * Any parent directories are created as needed.
      *
      * @param path The current file or directory to move from.
@@ -310,7 +310,7 @@ public class FSAPI implements ILuaAPI
 
     /**
      * Copies a file or directory to a new path.
-     *
+     * <p>
      * Any parent directories are created as needed.
      *
      * @param path The file or directory to copy.
@@ -333,7 +333,7 @@ public class FSAPI implements ILuaAPI
 
     /**
      * Deletes a file or directory.
-     *
+     * <p>
      * If the path points to a directory, all of the enclosed files and
      * subdirectories are also deleted.
      *
@@ -358,14 +358,14 @@ public class FSAPI implements ILuaAPI
 
     /**
      * Opens a file for reading or writing at a path.
-     *
+     * <p>
      * The {@code mode} string can be any of the following:
      * <ul>
      * <li><strong>"r"</strong>: Read mode</li>
      * <li><strong>"w"</strong>: Write mode</li>
      * <li><strong>"a"</strong>: Append mode</li>
      * </ul>
-     *
+     * <p>
      * The mode may also have a "b" at the end, which opens the file in "binary
      * mode". This allows you to read binary files, as well as seek within a file.
      *
@@ -516,7 +516,7 @@ public class FSAPI implements ILuaAPI
 
     /**
      * Searches for files matching a string with wildcards.
-     *
+     * <p>
      * This string is formatted like a normal path string, but can include any
      * number of wildcards ({@code *}) to look for files matching anything.
      * For example, <code>rom/&#42;/command*</code> will look for any path starting with
@@ -568,10 +568,10 @@ public class FSAPI implements ILuaAPI
 
     /**
      * Get attributes about a specific file or folder.
-     *
+     * <p>
      * The returned attributes table contains information about the size of the file, whether it is a directory,
      * when it was created and last modified, and whether it is read only.
-     *
+     * <p>
      * The creation and modification times are given as the number of milliseconds since the UNIX epoch. This may be
      * given to {@link OSAPI#date} in order to convert it to more usable form.
      *

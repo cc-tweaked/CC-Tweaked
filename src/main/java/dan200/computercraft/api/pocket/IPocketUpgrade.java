@@ -22,7 +22,7 @@ public interface IPocketUpgrade extends IUpgradeBase
 {
     /**
      * Creates a peripheral for the pocket computer.
-     *
+     * <p>
      * The peripheral created will be stored for the lifetime of the upgrade, will be passed an argument to
      * {@link #update(IPocketAccess, IPeripheral)} and will be attached, detached and have methods called in the same
      * manner as an ordinary peripheral.

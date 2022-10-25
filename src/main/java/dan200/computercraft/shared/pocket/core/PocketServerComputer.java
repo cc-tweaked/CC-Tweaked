@@ -139,7 +139,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
     /**
      * Set the upgrade for this pocket computer, also updating the item stack.
-     *
+     * <p>
      * Note this method is not thread safe - it must be called from the server thread.
      *
      * @param upgrade The new upgrade to set it to, may be {@code null}.

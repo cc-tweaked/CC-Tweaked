@@ -24,7 +24,7 @@ import java.util.Map;
 
 /**
  * Represents a local peripheral exposed on the wired network.
- *
+ * <p>
  * This is responsible for getting the peripheral in world, tracking id and type and determining whether
  * it has changed.
  */

@@ -54,10 +54,10 @@ public class FluidMethods implements GenericPeripheral
 
     /**
      * Get all "tanks" in this fluid storage.
-     *
+     * <p>
      * Each tank either contains some amount of fluid or is empty. Tanks with fluids inside will return some basic
      * information about the fluid, including its name and amount.
-     *
+     * <p>
      * The returned table is sparse, and so empty tanks will be `nil` - it is recommended to loop over using `pairs`
      * rather than `ipairs`.
      *
@@ -81,7 +81,7 @@ public class FluidMethods implements GenericPeripheral
 
     /**
      * Move a fluid from one fluid container to another connected one.
-     *
+     * <p>
      * This allows you to pull fluid in the current fluid container to another container <em>on the same wired
      * network</em>. Both containers must attached to wired modems which are connected via a cable.
      *
@@ -122,7 +122,7 @@ public class FluidMethods implements GenericPeripheral
 
     /**
      * Move a fluid from a connected fluid container into this oneone.
-     *
+     * <p>
      * This allows you to pull fluid in the current fluid container from another container <em>on the same wired
      * network</em>. Both containers must attached to wired modems which are connected via a cable.
      *

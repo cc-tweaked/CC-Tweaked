@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
 
 /**
  * An interface for representing custom objects returned by peripherals or other Lua objects.
- *
+ * <p>
  * Generally, one does not need to implement this type - it is sufficient to return an object with some methods
  * annotated with {@link LuaFunction}. {@link IDynamicLuaObject} is useful when you wish your available methods to
  * change at runtime.

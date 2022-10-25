@@ -21,7 +21,7 @@ import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMA
 
 /**
  * Handles rendering fixed width text and computer terminals.
- *
+ * <p>
  * This class has several modes of usage:
  * <ul>
  * <li>{@link #drawString}: Drawing basic text without a terminal (such as for printouts). Unlike the other methods,

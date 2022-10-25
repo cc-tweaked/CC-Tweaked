@@ -13,7 +13,7 @@ import java.io.InputStream;
 
 /**
  * The result of executing an action on a machine.
- *
+ * <p>
  * Errors should halt the machine and display the error to the user.
  *
  * @see ILuaMachine#loadBios(InputStream)

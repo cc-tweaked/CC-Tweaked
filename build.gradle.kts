@@ -149,6 +149,7 @@ illuaminate {
 
 tasks.javadoc {
     include("dan200/computercraft/api/**/*.java")
+    (options as StandardJavadocDocletOptions).links("https://docs.oracle.com/javase/8/docs/api/")
 }
 
 val apiJar by tasks.registering(Jar::class) {

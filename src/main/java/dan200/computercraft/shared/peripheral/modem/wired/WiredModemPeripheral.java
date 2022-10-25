@@ -76,10 +76,10 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
 
     /**
      * List all remote peripherals on the wired network.
-     *
+     * <p>
      * If this computer is attached to the network, it _will not_ be included in
      * this list.
-     *
+     * <p>
      * :::note
      * This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
      * :::
@@ -95,7 +95,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
 
     /**
      * Determine if a peripheral is available on this wired network.
-     *
+     * <p>
      * :::note
      * This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
      * :::
@@ -113,7 +113,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
 
     /**
      * Get the type of a peripheral is available on this wired network.
-     *
+     * <p>
      * :::note
      * This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
      * :::
@@ -134,7 +134,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
 
     /**
      * Check a peripheral is of a particular type.
-     *
+     * <p>
      * :::note
      * This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
      * :::
@@ -156,7 +156,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
 
     /**
      * Get all available methods for the remote peripheral with the given name.
-     *
+     * <p>
      * :::note
      * This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
      * :::
@@ -178,7 +178,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
 
     /**
      * Call a method on a peripheral on this wired network.
-     *
+     * <p>
      * :::note
      * This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
      * :::
@@ -209,7 +209,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
      * Returns the network name of the current computer, if the modem is on. This
      * may be used by other computers on the network to wrap this computer as a
      * peripheral.
-     *
+     * <p>
      * :::note
      * This function only appears on wired modems. Check {@link #isWireless} returns false before calling it.
      * :::

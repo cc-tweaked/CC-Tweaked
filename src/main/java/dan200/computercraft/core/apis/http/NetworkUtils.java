@@ -126,7 +126,7 @@ public final class NetworkUtils
 
     /**
      * Create a {@link InetSocketAddress} from a {@link java.net.URI}.
-     *
+     * <p>
      * Note, this may require a DNS lookup, and so should not be executed on the main CC thread.
      *
      * @param uri The URI to fetch.
@@ -141,7 +141,7 @@ public final class NetworkUtils
 
     /**
      * Create a {@link InetSocketAddress} from the resolved {@code host} and port.
-     *
+     * <p>
      * Note, this may require a DNS lookup, and so should not be executed on the main CC thread.
      *
      * @param host The host to resolve.

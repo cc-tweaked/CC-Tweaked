@@ -39,7 +39,7 @@ public abstract class HandleGeneric
 
     /**
      * Close this file, freeing any resources it uses.
-     *
+     * <p>
      * Once a file is closed it may no longer be read or written to.
      *
      * @throws LuaException If the file has already been closed.

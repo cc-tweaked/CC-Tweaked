@@ -12,7 +12,7 @@ import dan200.computercraft.core.computer.ComputerSide;
 
 /**
  * Get and set redstone signals adjacent to this computer.
- *
+ * <p>
  * The {@link RedstoneAPI} library exposes three "types" of redstone control:
  * - Binary input/output ({@link #setOutput}/{@link #getInput}): These simply check if a redstone wire has any input or
  * output. A signal strength of 1 and 15 are treated the same.
@@ -21,10 +21,10 @@ import dan200.computercraft.core.computer.ComputerSide;
  * - Bundled cables ({@link #setBundledOutput}/{@link #getBundledInput}): These interact with "bundled" cables, such
  * as those from Project:Red. These allow you to send 16 separate on/off signals. Each channel corresponds to a
  * colour, with the first being @{colors.white} and the last @{colors.black}.
- *
+ * <p>
  * Whenever a redstone input changes, a @{event!redstone} event will be fired. This may be used instead of repeativly
  * polling.
- *
+ * <p>
  * This module may also be referred to as {@code rs}. For example, one may call {@code rs.getSides()} instead of
  * {@link #getSides}.
  *
@@ -47,7 +47,7 @@ import dan200.computercraft.core.computer.ComputerSide;
  *   os.pullEvent("redstone") -- Wait for a change to inputs.
  * end
  * }</pre>
- *
+ * <p>
  * [comparator]: https://minecraft.gamepedia.com/Redstone_Comparator#Subtract_signal_strength "Redstone Comparator on
  * the Minecraft wiki."
  * @cc.module redstone

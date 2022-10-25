@@ -19,7 +19,7 @@ import java.io.File;
 
 /**
  * Basic client-side commands.
- *
+ * <p>
  * Simply hooks into client chat messages and intercepts matching strings.
  */
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )

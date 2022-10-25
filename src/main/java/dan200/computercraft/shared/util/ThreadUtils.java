@@ -44,7 +44,7 @@ public final class ThreadUtils
 
     /**
      * Create a new {@link ThreadFactoryBuilder}, which constructs threads under a group of the given {@code name}.
-     *
+     * <p>
      * Each thread will be of the format {@code ComputerCraft-<name>-<number>}, and belong to a group
      * called {@code ComputerCraft-<name>} (which in turn will be a child group of the main {@code ComputerCraft} group.
      *
@@ -64,7 +64,7 @@ public final class ThreadUtils
 
     /**
      * Create a new {@link ThreadFactory}, which constructs threads under a group of the given {@code name}.
-     *
+     * <p>
      * Each thread will be of the format {@code ComputerCraft-<name>-<number>}, and belong to a group
      * called {@code ComputerCraft-<name>} (which in turn will be a child group of the main {@code ComputerCraft} group.
      *

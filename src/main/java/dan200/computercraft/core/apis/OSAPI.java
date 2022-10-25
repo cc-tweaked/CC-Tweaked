@@ -173,7 +173,7 @@ public class OSAPI implements ILuaAPI
      * Starts a timer that will run for the specified number of seconds. Once
      * the timer fires, a {@code timer} event will be added to the queue with
      * the ID returned from this function as the first parameter.
-     *
+     * <p>
      * As with @{os.sleep|sleep}, {@code timer} will automatically be rounded up
      * to the nearest multiple of 0.05 seconds, as it waits for a fixed amount
      * of world ticks.
@@ -315,13 +315,13 @@ public class OSAPI implements ILuaAPI
     /**
      * Returns the current time depending on the string passed in. This will
      * always be in the range [0.0, 24.0).
-     *
+     * <p>
      * * If called with {@code ingame}, the current world time will be returned.
      * This is the default if nothing is passed.
      * * If called with {@code utc}, returns the hour of the day in UTC time.
      * * If called with {@code local}, returns the hour of the day in the
      * timezone the server is located in.
-     *
+     * <p>
      * This function can also be called with a table returned from {@link #date},
      * which will convert the date fields into a UNIX timestamp (number of
      * seconds since 1 January 1970).
@@ -363,7 +363,7 @@ public class OSAPI implements ILuaAPI
 
     /**
      * Returns the day depending on the locale specified.
-     *
+     * <p>
      * * If called with {@code ingame}, returns the number of days since the
      * world was created. This is the default.
      * * If called with {@code utc}, returns the number of days since 1 January
@@ -395,7 +395,7 @@ public class OSAPI implements ILuaAPI
 
     /**
      * Returns the number of milliseconds since an epoch depending on the locale.
-     *
+     * <p>
      * * If called with {@code ingame}, returns the number of milliseconds since the
      * world was created. This is the default.
      * * If called with {@code utc}, returns the number of milliseconds since 1
@@ -446,12 +446,12 @@ public class OSAPI implements ILuaAPI
     /**
      * Returns a date string (or table) using a specified format string and
      * optional time to format.
-     *
+     * <p>
      * The format string takes the same formats as C's {@code strftime} function
      * (http://www.cplusplus.com/reference/ctime/strftime/). In extension, it
      * can be prefixed with an exclamation mark ({@code !}) to use UTC time
      * instead of the server's local timezone.
-     *
+     * <p>
      * If the format is exactly {@code *t} (optionally prefixed with {@code !}), a
      * table will be returned instead. This table has fields for the year, month,
      * day, hour, minute, second, day of the week, day of the year, and whether

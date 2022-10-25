@@ -19,10 +19,10 @@ import java.util.Objects;
 
 /**
  * Fired when a turtle attempts to attack an entity.
- *
+ * <p>
  * This must be fired by {@link ITurtleUpgrade#useTool(ITurtleAccess, TurtleSide, TurtleVerb, Direction)},
  * as the base {@code turtle.attack()} command does not fire it.
- *
+ * <p>
  * Note that such commands should also fire {@link AttackEntityEvent}, so you do not need to listen to both.
  *
  * @see TurtleAction#ATTACK

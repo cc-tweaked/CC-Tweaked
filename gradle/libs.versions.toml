@@ -18,7 +18,7 @@ jqwik = "1.7.0"
 junit = "5.9.1"
 
 # Build tools
-cctJavadoc = "1.5.0"
+cctJavadoc = "1.5.1"
 checkstyle = "8.25" # There's a reason we're pinned on an ancient version, but I can't remember what it is.
 curseForgeGradle = "1.0.11"
 forgeGradle = "5.1.+"

@@ -22,7 +22,7 @@ import java.util.Iterator;
 
 /**
  * Represents the "environment" that a {@link Computer} exists in.
- *
+ * <p>
  * This handles storing and updating of peripherals and redstone.
  *
  * <h1>Redstone</h1>

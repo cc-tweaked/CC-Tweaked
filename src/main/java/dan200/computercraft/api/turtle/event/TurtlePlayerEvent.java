@@ -13,7 +13,7 @@ import java.util.Objects;
 
 /**
  * An action done by a turtle which is normally done by a player.
- *
+ * <p>
  * {@link #getPlayer()} may be used to modify the player's attributes or perform permission checks.
  */
 public abstract class TurtlePlayerEvent extends TurtleActionEvent
@@ -30,7 +30,7 @@ public abstract class TurtlePlayerEvent extends TurtleActionEvent
 
     /**
      * A fake player, representing this turtle.
-     *
+     * <p>
      * This may be used for triggering permission checks.
      *
      * @return A {@link FakePlayer} representing this turtle.

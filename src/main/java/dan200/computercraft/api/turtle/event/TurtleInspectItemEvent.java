@@ -15,7 +15,7 @@ import java.util.Objects;
 
 /**
  * Fired when a turtle gathers data on an item in its inventory.
- *
+ * <p>
  * You may prevent items being inspected, or add additional information to the result. Be aware that this may be fired
  * on the computer thread, and so any operations on it must be thread safe.
  *

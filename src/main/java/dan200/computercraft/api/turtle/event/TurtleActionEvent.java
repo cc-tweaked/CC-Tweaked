@@ -37,7 +37,7 @@ public class TurtleActionEvent extends TurtleEvent
 
     /**
      * Sets the cancellation state of this action.
-     *
+     * <p>
      * If {@code cancel} is {@code true}, this action will not be carried out.
      *
      * @param cancel The new canceled value.
@@ -53,7 +53,7 @@ public class TurtleActionEvent extends TurtleEvent
 
     /**
      * Set the cancellation state of this action, setting a failure message if required.
-     *
+     * <p>
      * If {@code cancel} is {@code true}, this action will not be carried out.
      *
      * @param cancel         The new canceled value.

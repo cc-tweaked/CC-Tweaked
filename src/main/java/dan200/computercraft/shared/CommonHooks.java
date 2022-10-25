@@ -33,7 +33,7 @@ import java.util.Set;
 
 /**
  * Miscellaneous hooks which are present on the client and server.
- *
+ * <p>
  * These should possibly be refactored into separate classes at some point, but are fine here for now.
  *
  * @see dan200.computercraft.client.ClientHooks For client-specific ones.

@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 
 /**
  * A base class for {@link ITurtleUpgrade}s.
- *
+ * <p>
  * One does not have to use this, but it does provide a convenient template.
  */
 public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
@@ -100,7 +100,7 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
 
     /**
      * A supplier which converts an item into an item stack.
-     *
+     * <p>
      * Constructing item stacks is somewhat expensive due to attaching capabilities. We cache it if given a consistent item.
      */
     private static final class CachedStack implements NonNullSupplier<ItemStack>

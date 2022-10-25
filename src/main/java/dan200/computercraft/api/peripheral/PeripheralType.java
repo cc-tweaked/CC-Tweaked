@@ -16,7 +16,7 @@ import java.util.Set;
 
 /**
  * The type of a {@link GenericPeripheral}.
- *
+ * <p>
  * When determining the final type of the resulting peripheral, the union of all types is taken, with the
  * lexicographically smallest non-empty name being chosen.
  */

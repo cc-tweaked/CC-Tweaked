@@ -24,13 +24,13 @@ import java.util.Objects;
 
 /**
  * A general event for when a turtle interacts with a block or region.
- *
+ * <p>
  * You should generally listen to one of the sub-events instead, cancelling them where
  * appropriate.
- *
+ * <p>
  * Note that you are not guaranteed to receive this event, if it has been cancelled by other
  * mechanisms, such as block protection systems.
- *
+ * <p>
  * Be aware that some events (such as {@link TurtleInventoryEvent}) do not necessarily interact
  * with a block, simply objects within that block space.
  */
@@ -72,10 +72,10 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
 
     /**
      * Fired when a turtle attempts to dig a block.
-     *
+     * <p>
      * This must be fired by {@link ITurtleUpgrade#useTool(ITurtleAccess, TurtleSide, TurtleVerb, Direction)},
      * as the base {@code turtle.dig()} command does not fire it.
-     *
+     * <p>
      * Note that such commands should also fire {@link BlockEvent.BreakEvent}, so you do not need to listen to both.
      *
      * @see TurtleAction#DIG
@@ -176,7 +176,7 @@ public abstract class TurtleBlockEvent extends TurtlePlayerEvent
 
     /**
      * Fired when a turtle gathers data on a block in world.
-     *
+     * <p>
      * You may prevent blocks being inspected, or add additional information to the result.
      *
      * @see TurtleAction#INSPECT

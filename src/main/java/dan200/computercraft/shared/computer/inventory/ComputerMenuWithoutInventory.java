@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 
 /**
  * A computer menu which does not have any visible inventory.
- *
+ * <p>
  * This adds invisible versions of the player's hotbars slots, to ensure they're synced to the client when changed.
  */
 public class ComputerMenuWithoutInventory extends ContainerComputerBase

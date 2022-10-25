@@ -41,7 +41,7 @@ public interface ITurtleUpgrade extends IUpgradeBase
 
     /**
      * Will only be called for peripheral upgrades. Creates a peripheral for a turtle being placed using this upgrade.
-     *
+     * <p>
      * The peripheral created will be stored for the lifetime of the upgrade and will be passed as an argument to
      * {@link #update(ITurtleAccess, TurtleSide)}. It will be attached, detached and have methods called in the same
      * manner as a Computer peripheral.
@@ -60,7 +60,7 @@ public interface ITurtleUpgrade extends IUpgradeBase
     /**
      * Will only be called for Tool turtle. Called when turtle.dig() or turtle.attack() is called
      * by the turtle, and the tool is required to do some work.
-     *
+     * <p>
      * Conforming implementations should fire {@link BlockEvent.BreakEvent} and {@link TurtleBlockEvent.Dig} for
      * digging, {@link AttackEntityEvent} and {@link TurtleAttackEvent} for attacking.
      *
@@ -83,7 +83,7 @@ public interface ITurtleUpgrade extends IUpgradeBase
 
     /**
      * Called to obtain the model to be used when rendering a turtle peripheral.
-     *
+     * <p>
      * This can be obtained from {@link net.minecraft.client.renderer.ItemModelMesher#getItemModel(ItemStack)},
      * {@link net.minecraft.client.renderer.model.ModelManager#getModel(ModelResourceLocation)} or any other
      * source.
