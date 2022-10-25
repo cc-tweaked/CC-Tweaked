@@ -16,7 +16,7 @@ import dan200.computercraft.core.asm.LuaMethod;
 import dan200.computercraft.core.asm.NamedMethod;
 import dan200.computercraft.core.asm.PeripheralMethod;
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.core.tracking.TrackingField;
+import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.shared.util.LuaUtil;
 
 import javax.annotation.Nonnull;
@@ -108,7 +108,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
 
             if( method == null ) throw new LuaException( "No such method " + methodName );
 
-            environment.addTrackingChange( TrackingField.PERIPHERAL_OPS );
+            environment.observe( Metrics.PERIPHERAL_OPS );
             return method.apply( peripheral, context, this, arguments );
         }
 

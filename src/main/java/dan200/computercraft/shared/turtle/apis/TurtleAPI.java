@@ -5,13 +5,14 @@
  */
 package dan200.computercraft.shared.turtle.apis;
 
+import dan200.computercraft.api.detail.DetailRegistries;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.core.apis.IAPIEnvironment;
-import dan200.computercraft.core.tracking.TrackingField;
+import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.turtle.core.*;
@@ -24,47 +25,47 @@ import java.util.Optional;
 /**
  * Turtles are a robotic device, which can break and place blocks, attack mobs, and move about the world. They have
  * an internal inventory of 16 slots, allowing them to store blocks they have broken or would like to place.
- *
+ * <p>
  * ## Movement
  * Turtles are capable of moving through the world. As turtles are blocks themselves, they are confined to Minecraft's
  * grid, moving a single block at a time.
- *
+ * <p>
  * {@literal @}{turtle.forward} and @{turtle.back} move the turtle in the direction it is facing, while @{turtle.up} and
  * {@literal @}{turtle.down} move it up and down (as one might expect!). In order to move left or right, you first need
  * to turn the turtle using @{turtle.turnLeft}/@{turtle.turnRight} and then move forward or backwards.
- *
+ * <p>
  * :::info
  * The name "turtle" comes from [Turtle graphics], which originated from the Logo programming language. Here you'd move
  * a turtle with various commands like "move 10" and "turn left", much like ComputerCraft's turtles!
  * :::
- *
+ * <p>
  * Moving a turtle (though not turning it) consumes *fuel*. If a turtle does not have any @{turtle.refuel|fuel}, it
  * won't move, and the movement functions will return @{false}. If your turtle isn't going anywhere, the first thing to
  * check is if you've fuelled your turtle.
- *
+ * <p>
  * :::tip Handling errors
  * Many turtle functions can fail in various ways. For instance, a turtle cannot move forward if there's already a block
  * there. Instead of erroring, functions which can fail either return @{true} if they succeed, or @{false} and some
  * error message if they fail.
- *
+ * <p>
  * Unexpected failures can often lead to strange behaviour. It's often a good idea to check the return values of these
  * functions, or wrap them in @{assert} (for instance, use `assert(turtle.forward())` rather than `turtle.forward()`),
  * so the program doesn't misbehave.
  * :::
- *
+ * <p>
  * ## Turtle upgrades
  * While a normal turtle can move about the world and place blocks, its functionality is limited. Thankfully, turtles
  * can be upgraded with *tools* and @{peripheral|peripherals}. Turtles have two upgrade slots, one on the left and right
  * sides. Upgrades can be equipped by crafting a turtle with the upgrade, or calling the @{turtle.equipLeft}/@{turtle.equipRight}
  * functions.
- *
+ * <p>
  * Turtle tools allow you to break blocks (@{turtle.dig}) and attack entities (@{turtle.attack}). Some tools are more
  * suitable to a task than others. For instance, a diamond pickaxe can break every block, while a sword does more
  * damage. Other tools have more niche use-cases, for instance hoes can til dirt.
- *
+ * <p>
  * Peripherals (such as the @{modem|wireless modem} or @{speaker}) can also be equipped as upgrades. These are then
  * accessible by accessing the `"left"` or `"right"` peripheral.
- *
+ * <p>
  * [Turtle Graphics]: https://en.wikipedia.org/wiki/Turtle_graphics "Turtle graphics"
  *
  * @cc.module turtle
@@ -89,7 +90,7 @@ public class TurtleAPI implements ILuaAPI
 
     private MethodResult trackCommand( ITurtleCommand command )
     {
-        environment.addTrackingChange( TrackingField.TURTLE_OPS );
+        environment.observe( Metrics.TURTLE_OPS );
         return turtle.executeCommand( command );
     }
 
@@ -173,7 +174,7 @@ public class TurtleAPI implements ILuaAPI
 
     /**
      * Attempt to break the block in front of the turtle.
-     *
+     * <p>
      * This requires a turtle tool capable of breaking the block. Diamond pickaxes
      * (mining turtles) can break any vanilla block, but other tools (such as axes)
      * are more limited.
@@ -187,7 +188,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult dig( Optional<TurtleSide> side )
     {
-        environment.addTrackingChange( TrackingField.TURTLE_OPS );
+        environment.observe( Metrics.TURTLE_OPS );
         return trackCommand( TurtleToolCommand.dig( InteractDirection.FORWARD, side.orElse( null ) ) );
     }
 
@@ -203,7 +204,7 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult digUp( Optional<TurtleSide> side )
     {
-        environment.addTrackingChange( TrackingField.TURTLE_OPS );
+        environment.observe( Metrics.TURTLE_OPS );
         return trackCommand( TurtleToolCommand.dig( InteractDirection.UP, side.orElse( null ) ) );
     }
 
@@ -219,13 +220,13 @@ public class TurtleAPI implements ILuaAPI
     @LuaFunction
     public final MethodResult digDown( Optional<TurtleSide> side )
     {
-        environment.addTrackingChange( TrackingField.TURTLE_OPS );
+        environment.observe( Metrics.TURTLE_OPS );
         return trackCommand( TurtleToolCommand.dig( InteractDirection.DOWN, side.orElse( null ) ) );
     }
 
     /**
      * Place a block or item into the world in front of the turtle.
-     *
+     * <p>
      * "Placing" an item allows it to interact with blocks and entities in front of the turtle. For instance, buckets
      * can pick up and place down fluids, and wheat can be used to breed cows. However, you cannot use {@link #place} to
      * perform arbitrary block interactions, such as clicking buttons or flipping levers.
@@ -333,7 +334,7 @@ public class TurtleAPI implements ILuaAPI
 
     /**
      * Change the currently selected slot.
-     *
+     * <p>
      * The selected slot is determines what slot actions like {@link #drop} or {@link #getItemCount} act on.
      *
      * @param slot The slot to select.
@@ -369,7 +370,7 @@ public class TurtleAPI implements ILuaAPI
 
     /**
      * Get the remaining number of items which may be stored in this stack.
-     *
+     * <p>
      * For instance, if a slot contains 13 blocks of dirt, it has room for another 51.
      *
      * @param slot The slot we wish to check. Defaults to the {@link #select selected slot}.
@@ -510,7 +511,7 @@ public class TurtleAPI implements ILuaAPI
 
     /**
      * Suck an item from the inventory in front of the turtle, or from an item floating in the world.
-     *
+     * <p>
      * This will pull items into the first acceptable slot, starting at the {@link #select currently selected} one.
      *
      * @param count The number of items to suck. If not given, up to a stack of items will be picked up.
@@ -579,10 +580,10 @@ public class TurtleAPI implements ILuaAPI
 
     /**
      * Refuel this turtle.
-     *
+     * <p>
      * While most actions a turtle can perform (such as digging or placing blocks) are free, moving consumes fuel from
      * the turtle's internal buffer. If a turtle has no fuel, it will not move.
-     *
+     * <p>
      * {@link #refuel} refuels the turtle, consuming fuel items (such as coal or lava buckets) from the currently
      * selected slot and converting them into energy. This finishes once the turtle is fully refuelled or all items have
      * been consumed.
@@ -671,7 +672,7 @@ public class TurtleAPI implements ILuaAPI
 
     /**
      * Get the maximum amount of fuel this turtle can hold.
-     *
+     * <p>
      * By default, normal turtles have a limit of 20,000 and advanced turtles of 100,000.
      *
      * @return The limit, or "unlimited".
@@ -689,7 +690,7 @@ public class TurtleAPI implements ILuaAPI
 
     /**
      * Equip (or unequip) an item on the left side of this turtle.
-     *
+     * <p>
      * This finds the item in the currently selected slot and attempts to equip it to the left side of the turtle. The
      * previous upgrade is removed and placed into the turtle's inventory. If there is no item in the slot, the previous
      * upgrade is removed, but no new one is equipped.
@@ -709,7 +710,7 @@ public class TurtleAPI implements ILuaAPI
 
     /**
      * Equip (or unequip) an item on the right side of this turtle.
-     *
+     * <p>
      * This finds the item in the currently selected slot and attempts to equip it to the right side of the turtle. The
      * previous upgrade is removed and placed into the turtle's inventory. If there is no item in the slot, the previous
      * upgrade is removed, but no new one is equipped.
@@ -819,7 +820,7 @@ public class TurtleAPI implements ILuaAPI
         if( stack.isEmpty() ) return new Object[] { null };
 
         Map<String, Object> table = detailed
-            ? ItemData.fill( new HashMap<>(), stack )
+            ? DetailRegistries.ITEM_STACK.getDetails( stack )
             : ItemData.fillBasicSafe( new HashMap<>(), stack );
 
         return new Object[] { table };

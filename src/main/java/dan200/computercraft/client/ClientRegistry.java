@@ -7,6 +7,7 @@ package dan200.computercraft.client;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.*;
+import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.client.render.TurtleModelLoader;
@@ -16,7 +17,6 @@ import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.media.items.ItemTreasureDisk;
-import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.util.Colour;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -24,7 +24,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.item.ItemPropertyFunction;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
@@ -46,24 +45,25 @@ public final class ClientRegistry
 {
     private static final String[] EXTRA_MODELS = new String[] {
         // Turtle upgrades
-        "turtle_modem_normal_off_left",
-        "turtle_modem_normal_on_left",
-        "turtle_modem_normal_off_right",
-        "turtle_modem_normal_on_right",
+        "block/turtle_modem_normal_off_left",
+        "block/turtle_modem_normal_on_left",
+        "block/turtle_modem_normal_off_right",
+        "block/turtle_modem_normal_on_right",
 
-        "turtle_modem_advanced_off_left",
-        "turtle_modem_advanced_on_left",
-        "turtle_modem_advanced_off_right",
-        "turtle_modem_advanced_on_right",
-        "turtle_crafting_table_left",
-        "turtle_crafting_table_right",
+        "block/turtle_modem_advanced_off_left",
+        "block/turtle_modem_advanced_on_left",
+        "block/turtle_modem_advanced_off_right",
+        "block/turtle_modem_advanced_on_right",
 
-        "turtle_speaker_upgrade_left",
-        "turtle_speaker_upgrade_right",
+        "block/turtle_crafting_table_left",
+        "block/turtle_crafting_table_right",
+
+        "block/turtle_speaker_left",
+        "block/turtle_speaker_right",
 
         // Turtle block renderer
-        "turtle_colour",
-        "turtle_elf_overlay",
+        "block/turtle_colour",
+        "block/turtle_elf_overlay",
     };
 
     private ClientRegistry() {}
@@ -74,7 +74,7 @@ public final class ClientRegistry
         ModelLoaderRegistry.registerLoader( new ResourceLocation( ComputerCraft.MOD_ID, "turtle" ), TurtleModelLoader.INSTANCE );
         for( String model : EXTRA_MODELS )
         {
-            ForgeModelBakery.addSpecialModel( new ModelResourceLocation( new ResourceLocation( ComputerCraft.MOD_ID, model ), "inventory" ) );
+            ForgeModelBakery.addSpecialModel( new ResourceLocation( ComputerCraft.MOD_ID, model ) );
         }
     }
 
@@ -107,7 +107,7 @@ public final class ClientRegistry
                     return IColouredItem.getColourBasic( stack );
                 case 2: // Light colour
                 {
-                    int light = ItemPocketComputer.getLightState( stack );
+                    int light = ClientPocketComputers.get( stack ).getLightState();
                     return light == -1 ? Colour.BLACK.getHex() : light;
                 }
             }
@@ -141,7 +141,7 @@ public final class ClientRegistry
             registerContainers();
 
             registerItemProperty( "state",
-                ( stack, world, player, random ) -> ItemPocketComputer.getState( stack ).ordinal(),
+                ( stack, world, player, random ) -> ClientPocketComputers.get( stack ).getState().ordinal(),
                 Registry.ModItems.POCKET_COMPUTER_NORMAL, Registry.ModItems.POCKET_COMPUTER_ADVANCED
             );
             registerItemProperty( "coloured",
@@ -166,8 +166,8 @@ public final class ClientRegistry
     {
         // My IDE doesn't think so, but we do actually need these generics.
 
-        MenuScreens.<ContainerComputerBase, GuiComputer<ContainerComputerBase>>register( Registry.ModContainers.COMPUTER.get(), GuiComputer::create );
-        MenuScreens.<ContainerComputerBase, GuiComputer<ContainerComputerBase>>register( Registry.ModContainers.POCKET_COMPUTER.get(), GuiComputer::createPocket );
+        MenuScreens.<ContainerComputerBase, GuiComputer<ContainerComputerBase>>register( Registry.ModContainers.COMPUTER.get(), GuiComputer::new );
+        MenuScreens.<ContainerComputerBase, GuiComputer<ContainerComputerBase>>register( Registry.ModContainers.POCKET_COMPUTER.get(), GuiComputer::new );
         MenuScreens.<ContainerComputerBase, NoTermComputerScreen<ContainerComputerBase>>register( Registry.ModContainers.POCKET_COMPUTER_NO_TERM.get(), NoTermComputerScreen::new );
         MenuScreens.register( Registry.ModContainers.TURTLE.get(), GuiTurtle::new );
 
@@ -175,6 +175,6 @@ public final class ClientRegistry
         MenuScreens.register( Registry.ModContainers.DISK_DRIVE.get(), GuiDiskDrive::new );
         MenuScreens.register( Registry.ModContainers.PRINTOUT.get(), GuiPrintout::new );
 
-        MenuScreens.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>register( Registry.ModContainers.VIEW_COMPUTER.get(), GuiComputer::createView );
+        MenuScreens.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>register( Registry.ModContainers.VIEW_COMPUTER.get(), GuiComputer::new );
     }
 }

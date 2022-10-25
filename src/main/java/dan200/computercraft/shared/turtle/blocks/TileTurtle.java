@@ -30,6 +30,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Inventory;
@@ -88,10 +89,10 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    protected ServerComputer createComputer( int instanceID, int id )
+    protected ServerComputer createComputer( int id )
     {
         ServerComputer computer = new ServerComputer(
-            getLevel(), id, label, instanceID, getFamily(),
+            (ServerLevel) getLevel(), id, label, getFamily(),
             ComputerCraft.turtleTermWidth, ComputerCraft.turtleTermHeight
         );
         computer.setPosition( getBlockPos() );
@@ -584,6 +585,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     @Override
     public AbstractContainerMenu createMenu( int id, @Nonnull Inventory inventory, @Nonnull Player player )
     {
-        return new ContainerTurtle( id, inventory, brain );
+        return ContainerTurtle.ofBrain( id, inventory, brain );
     }
 }

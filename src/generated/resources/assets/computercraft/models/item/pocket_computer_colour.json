@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "computercraft:item/pocket_computer_frame",
+    "layer1": "computercraft:item/pocket_computer_colour"
+  }
+}

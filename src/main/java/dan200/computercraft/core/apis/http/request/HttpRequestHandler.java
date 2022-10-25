@@ -13,7 +13,7 @@ import dan200.computercraft.core.apis.handles.HandleGeneric;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.options.Options;
-import dan200.computercraft.core.tracking.TrackingField;
+import dan200.computercraft.core.metrics.Metrics;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.CompositeByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -199,7 +199,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
         }
 
         // Fire off a stats event
-        request.environment().addTrackingChange( TrackingField.HTTP_DOWNLOAD, getHeaderSize( responseHeaders ) + bytes.length );
+        request.environment().observe( Metrics.HTTP_DOWNLOAD, getHeaderSize( responseHeaders ) + bytes.length );
 
         // Prepare to queue an event
         ArrayByteChannel contents = new ArrayByteChannel( bytes );

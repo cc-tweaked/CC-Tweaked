@@ -6,16 +6,15 @@
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.detail.BlockReference;
+import dan200.computercraft.api.detail.DetailRegistries;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
-import dan200.computercraft.shared.peripheral.generic.data.BlockData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
 import java.util.Map;
 
 public class TurtleInspectCommand implements ITurtleCommand
@@ -42,7 +41,7 @@ public class TurtleInspectCommand implements ITurtleCommand
         BlockReference block = new BlockReference( world, newPosition );
         if( block.state().isAir() ) return TurtleCommandResult.failure( "No block to inspect" );
 
-        Map<String, Object> table = BlockData.fill( new HashMap<>(), block );
+        Map<String, Object> table = DetailRegistries.BLOCK_IN_WORLD.getDetails( block );
 
         return TurtleCommandResult.success( new Object[] { table } );
 

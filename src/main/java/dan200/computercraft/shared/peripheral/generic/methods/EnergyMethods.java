@@ -16,9 +16,9 @@ import javax.annotation.Nonnull;
 
 /**
  * Methods for interacting with blocks using Forge's energy storage system.
- *
+ * <p>
  * This works with energy storage blocks, as well as generators and machines which consume energy.
- *
+ * <p>
  * :::note
  * Due to limitations with Forge's energy API, it is not possible to measure throughput (i.e. RF
  * used/generated per tick).

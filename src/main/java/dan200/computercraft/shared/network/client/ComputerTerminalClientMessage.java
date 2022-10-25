@@ -5,37 +5,50 @@
  */
 package dan200.computercraft.shared.network.client;
 
+import dan200.computercraft.shared.computer.menu.ComputerMenu;
+import dan200.computercraft.shared.network.NetworkMessage;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
-public class ComputerTerminalClientMessage extends ComputerClientMessage
+public class ComputerTerminalClientMessage implements NetworkMessage
 {
-    private final TerminalState state;
+    private final int containerId;
+    private final TerminalState terminal;
 
-    public ComputerTerminalClientMessage( int instanceId, TerminalState state )
+    public ComputerTerminalClientMessage( AbstractContainerMenu menu, TerminalState terminal )
     {
-        super( instanceId );
-        this.state = state;
+        containerId = menu.containerId;
+        this.terminal = terminal;
     }
 
     public ComputerTerminalClientMessage( @Nonnull FriendlyByteBuf buf )
     {
-        super( buf );
-        state = new TerminalState( buf );
+        containerId = buf.readVarInt();
+        terminal = new TerminalState( buf );
     }
 
     @Override
     public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
-        super.toBytes( buf );
-        state.write( buf );
+        buf.writeVarInt( containerId );
+        terminal.write( buf );
     }
 
     @Override
+    @OnlyIn( Dist.CLIENT )
     public void handle( NetworkEvent.Context context )
     {
-        getComputer().read( state );
+        Player player = Minecraft.getInstance().player;
+        if( player != null && player.containerMenu.containerId == containerId && player.containerMenu instanceof ComputerMenu )
+        {
+            ((ComputerMenu) player.containerMenu).updateTerminal( terminal );
+        }
     }
 }

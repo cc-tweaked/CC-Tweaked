@@ -7,39 +7,40 @@ package dan200.computercraft.shared.network.container;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.network.client.TerminalState;
 import net.minecraft.network.FriendlyByteBuf;
 
 public class ComputerContainerData implements ContainerData
 {
-    private final int id;
     private final ComputerFamily family;
+    private final TerminalState terminal;
 
     public ComputerContainerData( ServerComputer computer )
     {
-        id = computer.getInstanceID();
         family = computer.getFamily();
+        terminal = computer.getTerminalState();
     }
 
     public ComputerContainerData( FriendlyByteBuf buf )
     {
-        id = buf.readInt();
         family = buf.readEnum( ComputerFamily.class );
+        terminal = new TerminalState( buf );
     }
 
     @Override
     public void toBytes( FriendlyByteBuf buf )
     {
-        buf.writeInt( id );
         buf.writeEnum( family );
+        terminal.write( buf );
     }
 
-    public int getInstanceId()
-    {
-        return id;
-    }
-
-    public ComputerFamily getFamily()
+    public ComputerFamily family()
     {
         return family;
+    }
+
+    public TerminalState terminal()
+    {
+        return terminal;
     }
 }

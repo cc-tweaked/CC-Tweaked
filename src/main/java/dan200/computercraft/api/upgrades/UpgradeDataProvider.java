@@ -177,7 +177,7 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
      * @param serialise  Augment the generated JSON with additional fields.
      * @param <R>        The type of upgrade serialiser.
      */
-    public static record Upgrade<R extends UpgradeSerialiser<?, R>>(
+    public record Upgrade<R extends UpgradeSerialiser<?, R>>(
         ResourceLocation id, R serialiser, Consumer<JsonObject> serialise
     )
     {

@@ -11,6 +11,8 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
 import dan200.computercraft.core.filesystem.MemoryMount;
+import dan200.computercraft.core.metrics.Metric;
+import dan200.computercraft.core.metrics.MetricsObserver;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -24,7 +26,7 @@ import java.net.URL;
 /**
  * A very basic environment.
  */
-public class BasicEnvironment implements IComputerEnvironment
+public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment, MetricsObserver
 {
     private final IWritableMount mount;
 
@@ -39,13 +41,7 @@ public class BasicEnvironment implements IComputerEnvironment
     }
 
     @Override
-    public int assignNewID()
-    {
-        return 0;
-    }
-
-    @Override
-    public IWritableMount createSaveDirMount( String path, long space )
+    public IWritableMount createRootMount()
     {
         return mount;
     }
@@ -63,15 +59,9 @@ public class BasicEnvironment implements IComputerEnvironment
     }
 
     @Override
-    public boolean isColour()
+    public MetricsObserver getMetrics()
     {
-        return true;
-    }
-
-    @Override
-    public long getComputerSpaceLimit()
-    {
-        return ComputerCraft.computerSpaceLimit;
+        return this;
     }
 
     @Nonnull
@@ -161,5 +151,15 @@ public class BasicEnvironment implements IComputerEnvironment
         {
             return new File( url.getPath() );
         }
+    }
+
+    @Override
+    public void observe( Metric.Counter counter )
+    {
+    }
+
+    @Override
+    public void observe( Metric.Event event, long value )
+    {
     }
 }

@@ -5,10 +5,10 @@
  */
 package dan200.computercraft.shared.network.server;
 
-import dan200.computercraft.shared.computer.core.IContainerComputer;
-import dan200.computercraft.shared.computer.core.InputState;
-import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.menu.ComputerMenu;
+import dan200.computercraft.shared.computer.menu.ServerInputHandler;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
@@ -25,9 +25,9 @@ public class MouseEventServerMessage extends ComputerServerMessage
     private final int y;
     private final int arg;
 
-    public MouseEventServerMessage( int instanceId, int type, int arg, int x, int y )
+    public MouseEventServerMessage( AbstractContainerMenu menu, int type, int arg, int x, int y )
     {
-        super( instanceId );
+        super( menu );
         this.type = type;
         this.arg = arg;
         this.x = x;
@@ -54,9 +54,9 @@ public class MouseEventServerMessage extends ComputerServerMessage
     }
 
     @Override
-    protected void handle( NetworkEvent.Context context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
+    protected void handle( NetworkEvent.Context context, @Nonnull ComputerMenu container )
     {
-        InputState input = container.getInput();
+        ServerInputHandler input = container.getInput();
         switch( type )
         {
             case TYPE_CLICK:

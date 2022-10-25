@@ -16,6 +16,7 @@ import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInvento
 import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -40,13 +41,12 @@ public class TileComputer extends TileComputerBase
     }
 
     @Override
-    protected ServerComputer createComputer( int instanceID, int id )
+    protected ServerComputer createComputer( int id )
     {
         ComputerFamily family = getFamily();
         ServerComputer computer = new ServerComputer(
-            getLevel(), id, label, instanceID, family,
-            ComputerCraft.computerTermWidth,
-            ComputerCraft.computerTermHeight
+            (ServerLevel) getLevel(), id, label, family,
+            ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight
         );
         computer.setPosition( getBlockPos() );
         return computer;

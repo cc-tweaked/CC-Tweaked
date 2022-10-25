@@ -25,14 +25,14 @@ import static org.lwjgl.system.MemoryUtil.*;
 /**
  * An optimised copy of {@link FixedWidthFontRenderer} emitter emits directly to a {@link QuadEmitter} rather than
  * emitting to {@link VertexConsumer}. This allows us to emit vertices very quickly, when using the VBO renderer.
- *
+ * <p>
  * There are some limitations here:
  * <ul>
  *   <li>No transformation matrix (not needed for VBOs).</li>
  *   <li>Only works with {@link DefaultVertexFormat#POSITION_COLOR_TEX_LIGHTMAP}.</li>
  *   <li>The buffer <strong>MUST</strong> be allocated with {@link MemoryTracker}, and not through any other means.</li>
  * </ul>
- *
+ * <p>
  * Note this is almost an exact copy of {@link FixedWidthFontRenderer}. While the code duplication is unfortunate,
  * it is measurably faster than introducing polymorphism into {@link FixedWidthFontRenderer}.
  *
@@ -62,25 +62,25 @@ public final class DirectFixedWidthFontRenderer
         );
     }
 
-    private static void drawQuad( QuadEmitter emitter, float x, float y, float width, float height, Palette palette, boolean greyscale, char colourIndex )
+    private static void drawQuad( QuadEmitter emitter, float x, float y, float width, float height, Palette palette, char colourIndex )
     {
-        byte[] colour = palette.getByteColour( getColour( colourIndex, Colour.BLACK ), greyscale );
+        byte[] colour = palette.getRenderColours( getColour( colourIndex, Colour.BLACK ) );
         quad( emitter, x, y, x + width, y + height, 0f, colour, BACKGROUND_START, BACKGROUND_START, BACKGROUND_END, BACKGROUND_END );
     }
 
     private static void drawBackground(
-        @Nonnull QuadEmitter emitter, float x, float y, @Nonnull TextBuffer backgroundColour, @Nonnull Palette palette, boolean greyscale,
+        @Nonnull QuadEmitter emitter, float x, float y, @Nonnull TextBuffer backgroundColour, @Nonnull Palette palette,
         float leftMarginSize, float rightMarginSize, float height
     )
     {
         if( leftMarginSize > 0 )
         {
-            drawQuad( emitter, x - leftMarginSize, y, leftMarginSize, height, palette, greyscale, backgroundColour.charAt( 0 ) );
+            drawQuad( emitter, x - leftMarginSize, y, leftMarginSize, height, palette, backgroundColour.charAt( 0 ) );
         }
 
         if( rightMarginSize > 0 )
         {
-            drawQuad( emitter, x + backgroundColour.length() * FONT_WIDTH, y, rightMarginSize, height, palette, greyscale, backgroundColour.charAt( backgroundColour.length() - 1 ) );
+            drawQuad( emitter, x + backgroundColour.length() * FONT_WIDTH, y, rightMarginSize, height, palette, backgroundColour.charAt( backgroundColour.length() - 1 ) );
         }
 
         // Batch together runs of identical background cells.
@@ -93,7 +93,7 @@ public final class DirectFixedWidthFontRenderer
 
             if( blockColour != '\0' )
             {
-                drawQuad( emitter, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (i - blockStart), height, palette, greyscale, blockColour );
+                drawQuad( emitter, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (i - blockStart), height, palette, blockColour );
             }
 
             blockColour = colourIndex;
@@ -102,15 +102,15 @@ public final class DirectFixedWidthFontRenderer
 
         if( blockColour != '\0' )
         {
-            drawQuad( emitter, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (backgroundColour.length() - blockStart), height, palette, greyscale, blockColour );
+            drawQuad( emitter, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (backgroundColour.length() - blockStart), height, palette, blockColour );
         }
     }
 
-    public static void drawString( @Nonnull QuadEmitter emitter, float x, float y, @Nonnull TextBuffer text, @Nonnull TextBuffer textColour, @Nonnull Palette palette, boolean greyscale )
+    public static void drawString( @Nonnull QuadEmitter emitter, float x, float y, @Nonnull TextBuffer text, @Nonnull TextBuffer textColour, @Nonnull Palette palette )
     {
         for( int i = 0; i < text.length(); i++ )
         {
-            byte[] colour = palette.getByteColour( getColour( textColour.charAt( i ), Colour.BLACK ), greyscale );
+            byte[] colour = palette.getRenderColours( getColour( textColour.charAt( i ), Colour.BLACK ) );
 
             int index = text.charAt( i );
             if( index > 255 ) index = '?';
@@ -119,7 +119,7 @@ public final class DirectFixedWidthFontRenderer
 
     }
 
-    public static void drawTerminalForeground( @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal, boolean greyscale )
+    public static void drawTerminalForeground( @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal )
     {
         Palette palette = terminal.getPalette();
         int height = terminal.getHeight();
@@ -130,13 +130,13 @@ public final class DirectFixedWidthFontRenderer
             float rowY = y + FONT_HEIGHT * i;
             drawString(
                 emitter, x, rowY, terminal.getLine( i ), terminal.getTextColourLine( i ),
-                palette, greyscale
+                palette
             );
         }
     }
 
     public static void drawTerminalBackground(
-        @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal, boolean greyscale,
+        @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal,
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     )
     {
@@ -145,12 +145,12 @@ public final class DirectFixedWidthFontRenderer
 
         // Top and bottom margins
         drawBackground(
-            emitter, x, y - topMarginSize, terminal.getBackgroundColourLine( 0 ), palette, greyscale,
+            emitter, x, y - topMarginSize, terminal.getBackgroundColourLine( 0 ), palette,
             leftMarginSize, rightMarginSize, topMarginSize
         );
 
         drawBackground(
-            emitter, x, y + height * FONT_HEIGHT, terminal.getBackgroundColourLine( height - 1 ), palette, greyscale,
+            emitter, x, y + height * FONT_HEIGHT, terminal.getBackgroundColourLine( height - 1 ), palette,
             leftMarginSize, rightMarginSize, bottomMarginSize
         );
 
@@ -159,17 +159,17 @@ public final class DirectFixedWidthFontRenderer
         {
             float rowY = y + FONT_HEIGHT * i;
             drawBackground(
-                emitter, x, rowY, terminal.getBackgroundColourLine( i ), palette, greyscale,
+                emitter, x, rowY, terminal.getBackgroundColourLine( i ), palette,
                 leftMarginSize, rightMarginSize, FONT_HEIGHT
             );
         }
     }
 
-    public static void drawCursor( @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal, boolean greyscale )
+    public static void drawCursor( @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal )
     {
         if( isCursorVisible( terminal ) )
         {
-            byte[] colour = terminal.getPalette().getByteColour( 15 - terminal.getTextColour(), greyscale );
+            byte[] colour = terminal.getPalette().getRenderColours( 15 - terminal.getTextColour() );
             drawChar( emitter, x + terminal.getCursorX() * FONT_WIDTH, y + terminal.getCursorY() * FONT_HEIGHT, '_', colour );
         }
     }

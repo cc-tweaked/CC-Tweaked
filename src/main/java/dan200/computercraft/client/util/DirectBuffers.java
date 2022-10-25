@@ -37,7 +37,7 @@ public class DirectBuffers
 
     /**
      * Delete a previously created buffer.
-     *
+     * <p>
      * On Linux, {@link GlStateManager#_glDeleteBuffers(int)} clears a buffer before deleting it. However, this involves
      * binding and unbinding the buffer, conflicting with {@link BufferUploader}'s cache. This deletion method uses
      * our existing {@link #setEmptyBufferData(int, int, int)}, which correctly handles clearing the buffer.

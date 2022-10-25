@@ -17,7 +17,7 @@ public interface ILuaContext
      * Queue a task to be executed on the main server thread at the beginning of next tick, but do not wait for it to
      * complete. This should be used when you need to interact with the world in a thread-safe manner but do not care
      * about the result or you wish to run asynchronously.
-     *
+     * <p>
      * When the task has finished, it will enqueue a {@code task_completed} event, which takes the task id, a success
      * value and the return values, or an error message if it failed.
      *
@@ -31,7 +31,7 @@ public interface ILuaContext
     /**
      * Queue a task to be executed on the main server thread at the beginning of next tick, waiting for it to complete.
      * This should be used when you need to interact with the world in a thread-safe manner.
-     *
+     * <p>
      * Note that the return values of your task are handled as events, meaning more complex objects such as maps or
      * {@link IDynamicLuaObject} will not preserve their identities.
      *

@@ -23,7 +23,7 @@ import java.util.zip.GZIPOutputStream;
 
 /**
  * A snapshot of a terminal's state.
- *
+ * <p>
  * This is somewhat memory inefficient (we build a buffer, only to write it elsewhere), however it means we get a
  * complete and accurate description of a terminal, which avoids a lot of complexities with resizing terminals, dirty
  * states, etc...
@@ -42,23 +42,24 @@ public class TerminalState
 
     private ByteBuf compressed;
 
-    public TerminalState( boolean colour, @Nullable Terminal terminal )
+    public TerminalState( @Nullable Terminal terminal )
     {
-        this( colour, terminal, true );
+        this( terminal, true );
     }
 
-    public TerminalState( boolean colour, @Nullable Terminal terminal, boolean compress )
+    public TerminalState( @Nullable Terminal terminal, boolean compress )
     {
-        this.colour = colour;
         this.compress = compress;
 
         if( terminal == null )
         {
+            colour = false;
             width = height = 0;
             buffer = null;
         }
         else
         {
+            colour = terminal.isColour();
             width = terminal.getWidth();
             height = terminal.getHeight();
 
@@ -117,7 +118,16 @@ public class TerminalState
     public void apply( Terminal terminal )
     {
         if( buffer == null ) throw new NullPointerException( "buffer" );
+        terminal.resize( width, height );
         terminal.read( new FriendlyByteBuf( buffer ) );
+    }
+
+    public Terminal create()
+    {
+        if( buffer == null ) throw new NullPointerException( "Terminal does not exist" );
+        Terminal terminal = new Terminal( width, height, colour );
+        terminal.read( new FriendlyByteBuf( buffer ) );
+        return terminal;
     }
 
     private ByteBuf getCompressed()

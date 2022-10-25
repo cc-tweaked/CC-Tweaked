@@ -12,6 +12,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
@@ -41,6 +43,7 @@ public class MonitorClientMessage implements NetworkMessage
     }
 
     @Override
+    @OnlyIn( Dist.CLIENT )
     public void handle( NetworkEvent.Context context )
     {
         LocalPlayer player = Minecraft.getInstance().player;

@@ -63,7 +63,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         SidedCaps.ofNullable( facing -> facing == null ? new InvWrapper( this ) : new SidedInvWrapper( this, facing ) );
     private LazyOptional<IPeripheral> peripheralCap;
 
-    private final Terminal page = new Terminal( ItemPrintout.LINE_MAX_LENGTH, ItemPrintout.LINES_PER_PAGE );
+    private final Terminal page = new Terminal( ItemPrintout.LINE_MAX_LENGTH, ItemPrintout.LINES_PER_PAGE, true );
     private String pageTitle = "";
     private boolean printing = false;
 

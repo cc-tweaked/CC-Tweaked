@@ -17,7 +17,7 @@ import java.util.function.Function;
 
 /**
  * Simple serialiser which returns a constant upgrade.
- *
+ * <p>
  * Do <strong>NOT</strong> directly reference this class. It exists for internal use by the API.
  *
  * @param <R> The serialiser for this upgrade category, either {@code TurtleUpgradeSerialiser<?>} or {@code PocketUpgradeSerialiser<?>}.

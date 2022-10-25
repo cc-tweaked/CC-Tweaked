@@ -5,42 +5,45 @@
  */
 package dan200.computercraft.core.computer;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.shared.util.ThreadUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.TreeSet;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static dan200.computercraft.core.computer.TimeoutState.ABORT_TIMEOUT;
-import static dan200.computercraft.core.computer.TimeoutState.TIMEOUT;
-
 /**
- * Responsible for running all tasks from a {@link Computer}.
- *
- * This is split into two components: the {@link TaskRunner}s, which pull an executor from the queue and execute it, and
- * a single {@link Monitor} which observes all runners and kills them if they have not been terminated by
- * {@link TimeoutState#isSoftAborted()}.
- *
+ * Runs all scheduled tasks for computers in a {@link ComputerContext}.
+ * <p>
+ * This acts as an over-complicated {@link ThreadPoolExecutor}: It creates several {@link Worker} threads which pull
+ * tasks from a shared queue, executing them. It also creates a single {@link Monitor} thread, which updates computer
+ * timeouts, killing workers if they have not been terminated by {@link TimeoutState#isSoftAborted()}.
+ * <p>
  * Computers are executed using a priority system, with those who have spent less time executing having a higher
  * priority than those hogging the thread. This, combined with {@link TimeoutState#isPaused()} means we can reduce the
  * risk of badly behaved computers stalling execution for everyone else.
- *
+ * <p>
  * This is done using an implementation of Linux's Completely Fair Scheduler. When a computer executes, we compute what
  * share of execution time it has used (time executed/number of tasks). We then pick the computer who has the least
  * "virtual execution time" (aka {@link ComputerExecutor#virtualRuntime}).
- *
+ * <p>
  * When adding a computer to the queue, we make sure its "virtual runtime" is at least as big as the smallest runtime.
  * This means that adding computers which have slept a lot do not then have massive priority over everyone else. See
  * {@link #queue(ComputerExecutor)} for how this is implemented.
- *
+ * <p>
  * In reality, it's unlikely that more than a few computers are waiting to execute at once, so this will not have much
  * effect unless you have a computer hogging execution time. However, it is pretty effective in those situations.
  *
@@ -49,6 +52,9 @@ import static dan200.computercraft.core.computer.TimeoutState.TIMEOUT;
  */
 public final class ComputerThread
 {
+    private static final ThreadFactory monitorFactory = ThreadUtils.factory( "Computer-Monitor" );
+    private static final ThreadFactory workerFactory = ThreadUtils.factory( "Computer-Worker" );
+
     /**
      * How often the computer thread monitor should run.
      *
@@ -58,7 +64,7 @@ public final class ComputerThread
 
     /**
      * The target latency between executing two tasks on a single machine.
-     *
+     * <p>
      * An average tick takes 50ms, and so we ideally need to have handled a couple of events within that window in order
      * to have a perceived low latency.
      */
@@ -66,7 +72,7 @@ public final class ComputerThread
 
     /**
      * The minimum value that {@link #DEFAULT_LATENCY} can have when scaled.
-     *
+     * <p>
      * From statistics gathered on SwitchCraft, almost all machines will execute under 15ms, 75% under 1.5ms, with the
      * mean being about 3ms. Most computers shouldn't be too impacted with having such a short period to execute in.
      */
@@ -80,43 +86,56 @@ public final class ComputerThread
     /**
      * Time difference between reporting crashed threads.
      *
-     * @see TaskRunner#reportTimeout(ComputerExecutor, long)
+     * @see Worker#reportTimeout(ComputerExecutor, long)
      */
     private static final long REPORT_DEBOUNCE = TimeUnit.SECONDS.toNanos( 1 );
 
     /**
      * Lock used for modifications to the array of current threads.
      */
-    private static final Object threadLock = new Object();
+    private final ReentrantLock threadLock = new ReentrantLock();
+
+    private static final int RUNNING = 0;
+    private static final int STOPPING = 1;
+    private static final int CLOSED = 2;
 
     /**
      * Whether the computer thread system is currently running.
      */
-    private static volatile boolean running = false;
+    private final AtomicInteger state = new AtomicInteger( RUNNING );
 
     /**
      * The current task manager.
      */
-    private static Thread monitor;
+    private @Nullable Thread monitor;
 
     /**
-     * The array of current runners, and their owning threads.
+     * The array of current workers, and their owning threads.
      */
-    private static TaskRunner[] runners;
+    @GuardedBy( "threadLock" )
+    private final Worker[] workers;
 
-    private static long latency;
-    private static long minPeriod;
+    /**
+     * The number of workers in {@link #workers}.
+     */
+    @GuardedBy( "threadLock" )
+    private int workerCount = 0;
 
-    private static final ReentrantLock computerLock = new ReentrantLock();
+    private final Condition shutdown = threadLock.newCondition();
 
-    private static final Condition hasWork = computerLock.newCondition();
-    private static final AtomicInteger idleWorkers = new AtomicInteger( 0 );
-    private static final Condition monitorWakeup = computerLock.newCondition();
+    private final long latency;
+    private final long minPeriod;
+
+    private final ReentrantLock computerLock = new ReentrantLock();
+    private final Condition workerWakeup = computerLock.newCondition();
+    private final Condition monitorWakeup = computerLock.newCondition();
+
+    private final AtomicInteger idleWorkers = new AtomicInteger( 0 );
 
     /**
      * Active queues to execute.
      */
-    private static final TreeSet<ComputerExecutor> computerQueue = new TreeSet<>( ( a, b ) -> {
+    private final TreeSet<ComputerExecutor> computerQueue = new TreeSet<>( ( a, b ) -> {
         if( a == b ) return 0; // Should never happen, but let's be consistent here
 
         long at = a.virtualRuntime, bt = b.virtualRuntime;
@@ -127,94 +146,160 @@ public final class ComputerThread
     /**
      * The minimum {@link ComputerExecutor#virtualRuntime} time on the tree.
      */
-    private static long minimumVirtualRuntime = 0;
+    private long minimumVirtualRuntime = 0;
 
-    private static final ThreadFactory monitorFactory = ThreadUtils.factory( "Computer-Monitor" );
-    private static final ThreadFactory runnerFactory = ThreadUtils.factory( "Computer-Runner" );
+    public ComputerThread( int threadCount )
+    {
+        workers = new Worker[threadCount];
 
-    private ComputerThread() {}
+        // latency and minPeriod are scaled by 1 + floor(log2(threads)). We can afford to execute tasks for
+        // longer when executing on more than one thread.
+        int factor = 64 - Long.numberOfLeadingZeros( workers.length );
+        latency = DEFAULT_LATENCY * factor;
+        minPeriod = DEFAULT_MIN_PERIOD * factor;
+    }
+
+    @GuardedBy( "threadLock" )
+    private void addWorker( int index )
+    {
+        ComputerCraft.log.trace( "Spawning new worker {}.", index );
+        (workers[index] = new Worker( index )).owner.start();
+        workerCount++;
+    }
 
     /**
-     * Start the computer thread.
+     * Ensure sufficient workers are running.
      */
-    static void start()
+    @GuardedBy( "computerLock" )
+    private void ensureRunning()
     {
-        synchronized( threadLock )
+        // Don't even enter the lock if we've a monitor and don't need to/can't spawn an additional worker.
+        // We'll be holding the computer lock at this point, so there's no problems with idleWorkers being wrong.
+        if( monitor != null && (idleWorkers.get() > 0 || workerCount == workers.length) ) return;
+
+        threadLock.lock();
+        try
         {
-            running = true;
-
-            if( runners == null )
-            {
-                // TODO: Update this on config reloads. Or possibly on world restarts?
-                runners = new TaskRunner[ComputerCraft.computerThreads];
-
-                // latency and minPeriod are scaled by 1 + floor(log2(threads)). We can afford to execute tasks for
-                // longer when executing on more than one thread.
-                long factor = 64 - Long.numberOfLeadingZeros( runners.length );
-                latency = DEFAULT_LATENCY * factor;
-                minPeriod = DEFAULT_MIN_PERIOD * factor;
-            }
-
-            for( int i = 0; i < runners.length; i++ )
-            {
-                TaskRunner runner = runners[i];
-                if( runner == null || runner.owner == null || !runner.owner.isAlive() )
-                {
-                    // Mark the old runner as dead, just in case.
-                    if( runner != null ) runner.running = false;
-                    // And start a new runner
-                    runnerFactory.newThread( runners[i] = new TaskRunner() ).start();
-                }
-            }
+            ComputerCraft.log.trace( "Possibly spawning a worker or monitor." );
 
             if( monitor == null || !monitor.isAlive() ) (monitor = monitorFactory.newThread( new Monitor() )).start();
+            if( idleWorkers.get() == 0 || workerCount < workers.length )
+            {
+                for( int i = 0; i < workers.length; i++ )
+                {
+                    if( workers[i] == null )
+                    {
+                        addWorker( i );
+                        break;
+                    }
+                }
+            }
+        }
+        finally
+        {
+            threadLock.unlock();
+        }
+    }
+
+    private void advanceState( int newState )
+    {
+        while( true )
+        {
+            int current = state.get();
+            if( current >= newState || state.compareAndSet( current, newState ) ) break;
         }
     }
 
     /**
-     * Attempt to stop the computer thread. This interrupts each runner, and clears the task queue.
+     * Attempt to stop the computer thread. This interrupts each worker, and clears the task queue.
+     *
+     * @param timeout The maximum time to wait.
+     * @param unit    The unit {@code timeout} is in.
+     * @return Whether the thread was successfully shut down.
+     * @throws InterruptedException If interrupted while waiting.
      */
-    public static void stop()
+    public boolean stop( long timeout, TimeUnit unit ) throws InterruptedException
     {
-        synchronized( threadLock )
-        {
-            running = false;
-            if( runners != null )
-            {
-                for( TaskRunner runner : runners )
-                {
-                    if( runner == null ) continue;
+        advanceState( STOPPING );
 
-                    runner.running = false;
-                    if( runner.owner != null ) runner.owner.interrupt();
-                }
+        // Encourage any currently running runners to terminate.
+        threadLock.lock();
+        try
+        {
+            for( @Nullable Worker worker : workers )
+            {
+                if( worker == null ) continue;
+
+                ComputerExecutor executor = worker.currentExecutor.get();
+                if( executor != null ) executor.timeout.hardAbort();
             }
         }
+        finally
+        {
+            threadLock.unlock();
+        }
 
+        // Wake all workers
         computerLock.lock();
         try
         {
-            computerQueue.clear();
+            workerWakeup.signalAll();
         }
         finally
         {
             computerLock.unlock();
         }
+
+        // Wait for all workers to signal they have finished.
+        long timeoutNs = unit.toNanos( timeout );
+        threadLock.lock();
+        try
+        {
+            while( workerCount > 0 )
+            {
+                if( timeoutNs <= 0 ) return false;
+                timeoutNs = shutdown.awaitNanos( timeoutNs );
+            }
+        }
+        finally
+        {
+            threadLock.unlock();
+        }
+
+        advanceState( CLOSED );
+
+        // Signal the monitor to finish, but don't wait for it to stop.
+        computerLock.lock();
+        try
+        {
+            monitorWakeup.signal();
+        }
+        finally
+        {
+            computerLock.unlock();
+        }
+
+        return true;
     }
 
     /**
      * Mark a computer as having work, enqueuing it on the thread.
-     *
+     * <p>
      * You must be holding {@link ComputerExecutor}'s {@code queueLock} when calling this method - it should only
      * be called from {@code enqueue}.
      *
      * @param executor The computer to execute work on.
      */
-    static void queue( @Nonnull ComputerExecutor executor )
+    void queue( ComputerExecutor executor )
     {
         computerLock.lock();
         try
         {
+            if( state.get() != RUNNING ) throw new IllegalStateException( "ComputerThread is no longer running" );
+
+            // Ensure we've got a worker running.
+            ensureRunning();
+
             if( executor.onComputerQueue ) throw new IllegalStateException( "Cannot queue already queued executor" );
             executor.onComputerQueue = true;
 
@@ -240,7 +325,7 @@ public final class ComputerThread
             boolean wasBusy = isBusy();
             // Add to the queue, and signal the workers.
             computerQueue.add( executor );
-            hasWork.signal();
+            workerWakeup.signal();
 
             // If we've transitioned into a busy state, notify the monitor. This will cause it to sleep for scaledPeriod
             // instead of the longer wakeup duration.
@@ -256,12 +341,12 @@ public final class ComputerThread
     /**
      * Update the {@link ComputerExecutor#virtualRuntime}s of all running tasks, and then update the
      * {@link #minimumVirtualRuntime} based on the current tasks.
-     *
+     * <p>
      * This is called before queueing tasks, to ensure that {@link #minimumVirtualRuntime} is up-to-date.
      *
      * @param current The machine which we updating runtimes from.
      */
-    private static void updateRuntimes( @Nullable ComputerExecutor current )
+    private void updateRuntimes( @Nullable ComputerExecutor current )
     {
         long minRuntime = Long.MAX_VALUE;
 
@@ -271,20 +356,16 @@ public final class ComputerThread
         // Update all the currently executing tasks
         long now = System.nanoTime();
         int tasks = 1 + computerQueue.size();
-        TaskRunner[] currentRunners = runners;
-        if( currentRunners != null )
+        for( @Nullable Worker runner : workers )
         {
-            for( TaskRunner runner : currentRunners )
-            {
-                if( runner == null ) continue;
-                ComputerExecutor executor = runner.currentExecutor.get();
-                if( executor == null ) continue;
+            if( runner == null ) continue;
+            ComputerExecutor executor = runner.currentExecutor.get();
+            if( executor == null ) continue;
 
-                // We do two things here: first we update the task's virtual runtime based on when we
-                // last checked, and then we check the minimum.
-                minRuntime = Math.min( minRuntime, executor.virtualRuntime += (now - executor.vRuntimeStart) / tasks );
-                executor.vRuntimeStart = now;
-            }
+            // We do two things here: first we update the task's virtual runtime based on when we
+            // last checked, and then we check the minimum.
+            minRuntime = Math.min( minRuntime, executor.virtualRuntime += (now - executor.vRuntimeStart) / tasks );
+            executor.vRuntimeStart = now;
         }
 
         // And update the most recently executed one (if set).
@@ -306,15 +387,18 @@ public final class ComputerThread
      * @param runner   The runner this task was on.
      * @param executor The executor to requeue
      */
-    private static void afterWork( TaskRunner runner, ComputerExecutor executor )
+    private void afterWork( Worker runner, ComputerExecutor executor )
     {
         // Clear the executor's thread.
         Thread currentThread = executor.executingThread.getAndSet( null );
         if( currentThread != runner.owner )
         {
+
             ComputerCraft.log.error(
                 "Expected computer #{} to be running on {}, but already running on {}. This is a SERIOUS bug, please report with your debug.log.",
-                executor.getComputer().getID(), runner.owner.getName(), currentThread == null ? "nothing" : currentThread.getName()
+                executor.getComputer().getID(),
+                runner.owner.getName(),
+                currentThread == null ? "nothing" : currentThread.getName()
             );
         }
 
@@ -324,11 +408,11 @@ public final class ComputerThread
             updateRuntimes( executor );
 
             // If we've no more tasks, just return.
-            if( !executor.afterWork() ) return;
+            if( !executor.afterWork() || state.get() != RUNNING ) return;
 
             // Otherwise, add to the queue, and signal any waiting workers.
             computerQueue.add( executor );
-            hasWork.signal();
+            workerWakeup.signal();
         }
         finally
         {
@@ -344,8 +428,11 @@ public final class ComputerThread
      * @see #DEFAULT_MIN_PERIOD
      * @see #LATENCY_MAX_TASKS
      */
-    static long scaledPeriod()
+    long scaledPeriod()
     {
+        // FIXME: We access this on other threads (in TimeoutState), so their reads won't be consistent. This isn't
+        //  "criticial" behaviour, so not clear if it matters too much.
+
         // +1 to include the current task
         int count = 1 + computerQueue.size();
         return count < LATENCY_MAX_TASKS ? latency / count : minPeriod;
@@ -356,8 +443,9 @@ public final class ComputerThread
      *
      * @return If we have work queued up.
      */
-    static boolean hasPendingWork()
+    boolean hasPendingWork()
     {
+        // FIXME: See comment in scaledPeriod. Again, we access this in multiple threads but not clear if it matters!
         return !computerQueue.isEmpty();
     }
 
@@ -367,23 +455,73 @@ public final class ComputerThread
      *
      * @return If the computer threads are busy.
      */
-    private static boolean isBusy()
+    @GuardedBy( "computerLock" )
+    private boolean isBusy()
     {
         return computerQueue.size() > idleWorkers.get();
     }
 
+    private void workerFinished( Worker worker )
+    {
+        // We should only shut down a worker once! This should only happen if we fail to abort a worker and then the
+        // worker finishes normally.
+        if( !worker.running.getAndSet( false ) ) return;
+
+        ComputerCraft.log.trace( "Worker {} finished.", worker.index );
+
+        ComputerExecutor executor = worker.currentExecutor.getAndSet( null );
+        if( executor != null ) executor.afterWork();
+
+        threadLock.lock();
+        try
+        {
+            workerCount--;
+
+            if( workers[worker.index] != worker )
+            {
+                ComputerCraft.log.error( "Worker {} closed, but new runner has been spawned.", worker.index );
+            }
+            else if( state.get() == RUNNING || (state.get() == STOPPING && hasPendingWork()) )
+            {
+                addWorker( worker.index );
+                workerCount++;
+            }
+            else
+            {
+                workers[worker.index] = null;
+            }
+        }
+        finally
+        {
+            threadLock.unlock();
+        }
+    }
+
     /**
-     * Observes all currently active {@link TaskRunner}s and terminates their tasks once they have exceeded the hard
+     * Observes all currently active {@link Worker}s and terminates their tasks once they have exceeded the hard
      * abort limit.
      *
      * @see TimeoutState
      */
-    private static final class Monitor implements Runnable
+    private final class Monitor implements Runnable
     {
         @Override
         public void run()
         {
-            while( true )
+            ComputerCraft.log.trace( "Monitor starting." );
+            try
+            {
+                runImpl();
+            }
+            finally
+            {
+                ComputerCraft.log.trace( "Monitor shutting down. Current state is {}.", state.get() );
+            }
+        }
+
+        private void runImpl()
+        {
+            while( state.get() < CLOSED )
             {
                 computerLock.lock();
                 try
@@ -407,27 +545,13 @@ public final class ComputerThread
             }
         }
 
-        private static void checkRunners()
+        private void checkRunners()
         {
-            TaskRunner[] currentRunners = ComputerThread.runners;
-            if( currentRunners == null ) return;
-
-            for( int i = 0; i < currentRunners.length; i++ )
+            for( @Nullable Worker runner : workers )
             {
-                TaskRunner runner = currentRunners[i];
-                // If we've no runner, skip.
-                if( runner == null || runner.owner == null || !runner.owner.isAlive() )
-                {
-                    if( !running ) continue;
+                if( runner == null ) continue;
 
-                    // Mark the old runner as dead and start a new one.
-                    ComputerCraft.log.warn( "Previous runner ({}) has crashed, restarting!",
-                        runner != null && runner.owner != null ? runner.owner.getName() : runner );
-                    if( runner != null ) runner.running = false;
-                    runnerFactory.newThread( runners[i] = new TaskRunner() ).start();
-                }
-
-                // If the runner has no work, skip
+                // If the worker has no work, skip
                 ComputerExecutor executor = runner.currentExecutor.get();
                 if( executor == null ) continue;
 
@@ -437,33 +561,23 @@ public final class ComputerThread
                 // If we're still within normal execution times (TIMEOUT) or soft abort (ABORT_TIMEOUT),
                 // then we can let the Lua machine do its work.
                 long afterStart = executor.timeout.nanoCumulative();
-                long afterHardAbort = afterStart - TIMEOUT - ABORT_TIMEOUT;
+                long afterHardAbort = afterStart - TimeoutState.TIMEOUT - TimeoutState.ABORT_TIMEOUT;
                 if( afterHardAbort < 0 ) continue;
 
                 // Set the hard abort flag.
                 executor.timeout.hardAbort();
                 executor.abort();
 
-                if( afterHardAbort >= ABORT_TIMEOUT * 2 )
+                if( afterHardAbort >= TimeoutState.ABORT_TIMEOUT * 2 )
                 {
-                    // If we've hard aborted and interrupted, and we're still not dead, then mark the runner
+                    // If we've hard aborted and interrupted, and we're still not dead, then mark the worker
                     // as dead, finish off the task, and spawn a new runner.
                     runner.reportTimeout( executor, afterStart );
-                    runner.running = false;
                     runner.owner.interrupt();
 
-                    ComputerExecutor thisExecutor = runner.currentExecutor.getAndSet( null );
-                    if( thisExecutor != null ) afterWork( runner, executor );
-
-                    synchronized( threadLock )
-                    {
-                        if( running && runners.length > i && runners[i] == runner )
-                        {
-                            runnerFactory.newThread( currentRunners[i] = new TaskRunner() ).start();
-                        }
-                    }
+                    workerFinished( runner );
                 }
-                else if( afterHardAbort >= ABORT_TIMEOUT )
+                else if( afterHardAbort >= TimeoutState.ABORT_TIMEOUT )
                 {
                     // If we've hard aborted but we're still not dead, dump the stack trace and interrupt
                     // the task.
@@ -476,50 +590,83 @@ public final class ComputerThread
 
     /**
      * Pulls tasks from the {@link #computerQueue} queue and runs them.
-     *
+     * <p>
      * This is responsible for running the {@link ComputerExecutor#work()}, {@link ComputerExecutor#beforeWork()} and
      * {@link ComputerExecutor#afterWork()} functions. Everything else is either handled by the executor, timeout
      * state or monitor.
      */
-    private static final class TaskRunner implements Runnable
+    private final class Worker implements Runnable
     {
-        Thread owner;
-        long lastReport = Long.MIN_VALUE;
-        volatile boolean running = true;
+        /**
+         * The index into the {@link #workers} array.
+         */
+        final int index;
 
-        final AtomicReference<ComputerExecutor> currentExecutor = new AtomicReference<>();
+        /**
+         * The thread this runner runs on.
+         */
+        final @Nonnull Thread owner;
+
+        /**
+         * Whether this runner is currently executing. This may be set to false when this worker terminates, or when
+         * we try to abandon a worker in the monitor
+         *
+         * @see #workerFinished(Worker)
+         */
+        final AtomicBoolean running = new AtomicBoolean( true );
+
+        /**
+         * The computer we're currently running.
+         */
+        final AtomicReference<ComputerExecutor> currentExecutor = new AtomicReference<>( null );
+
+        /**
+         * The last time we reported a stack trace, used to avoid spamming the logs.
+         */
+        AtomicLong lastReport = new AtomicLong( Long.MIN_VALUE );
+
+        Worker( int index )
+        {
+            this.index = index;
+            owner = workerFactory.newThread( this );
+        }
 
         @Override
         public void run()
         {
-            owner = Thread.currentThread();
+            try
+            {
+                runImpl();
+            }
+            finally
+            {
+                workerFinished( this );
+            }
+        }
 
+        private void runImpl()
+        {
             tasks:
-            while( running && ComputerThread.running )
+            while( running.get() )
             {
                 // Wait for an active queue to execute
                 ComputerExecutor executor;
+                computerLock.lock();
                 try
                 {
-                    computerLock.lockInterruptibly();
-                    try
+                    idleWorkers.getAndIncrement();
+                    while( (executor = computerQueue.pollFirst()) == null )
                     {
-                        idleWorkers.incrementAndGet();
-                        while( computerQueue.isEmpty() ) hasWork.await();
-                        executor = computerQueue.pollFirst();
-                        assert executor != null : "hasWork should ensure we never receive null work";
-                    }
-                    finally
-                    {
-                        computerLock.unlock();
-                        idleWorkers.decrementAndGet();
+                        if( state.get() >= STOPPING ) return;
+
+                        // We should never interrupt() the worker, so this should be fine.
+                        workerWakeup.awaitUninterruptibly();
                     }
                 }
-                catch( InterruptedException ignored )
+                finally
                 {
-                    // If we've been interrupted, our running flag has probably been reset, so we'll
-                    // just jump into the next iteration.
-                    continue;
+                    idleWorkers.getAndDecrement();
+                    computerLock.unlock();
                 }
 
                 // If we're trying to executing some task on this computer while someone else is doing work, something
@@ -537,6 +684,9 @@ public final class ComputerThread
                     }
                 }
 
+                // If we're stopping, the only thing this executor should be doing is shutting down.
+                if( state.get() >= STOPPING ) executor.queueStop( false, true );
+
                 // Reset the timers
                 executor.beforeWork();
 
@@ -552,7 +702,7 @@ public final class ComputerThread
                 catch( Exception | LinkageError | VirtualMachineError e )
                 {
                     ComputerCraft.log.error( "Error running task on computer #" + executor.getComputer().getID(), e );
-                    // Tear down the computer immediately. There's no guarantee it's well behaved from now on.
+                    // Tear down the computer immediately. There's no guarantee it's well-behaved from now on.
                     executor.fastFail();
                 }
                 finally
@@ -567,10 +717,14 @@ public final class ComputerThread
         {
             if( !ComputerCraft.logComputerErrors ) return;
 
-            // Attempt to debounce stack trace reporting, limiting ourselves to one every second.
+            // Attempt to debounce stack trace reporting, limiting ourselves to one every second. There's no need to be
+            // ultra-precise in our atomics, as long as one of them wins!
             long now = System.nanoTime();
-            if( lastReport != Long.MIN_VALUE && now - lastReport - REPORT_DEBOUNCE <= 0 ) return;
-            lastReport = now;
+            long then = lastReport.get();
+            if( then != Long.MIN_VALUE && now - then - REPORT_DEBOUNCE <= 0 ) return;
+            if( !lastReport.compareAndSet( then, now ) ) return;
+
+            Thread owner = Objects.requireNonNull( this.owner );
 
             StringBuilder builder = new StringBuilder()
                 .append( "Terminating computer #" ).append( executor.getComputer().getID() )

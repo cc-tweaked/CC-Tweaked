@@ -28,7 +28,7 @@ public enum Colour
 
     public static Colour fromInt( int colour )
     {
-        return colour >= 0 && colour < 16 ? Colour.VALUES[colour] : null;
+        return Colour.VALUES[colour];
     }
 
     public static Colour fromHex( int colour )
@@ -42,16 +42,14 @@ public enum Colour
     }
 
     private final int hex;
-    private final float[] rgb;
+    private final float red, green, blue;
 
     Colour( int hex )
     {
         this.hex = hex;
-        rgb = new float[] {
-            ((hex >> 16) & 0xFF) / 255.0f,
-            ((hex >> 8) & 0xFF) / 255.0f,
-            (hex & 0xFF) / 255.0f,
-        };
+        red = ((hex >> 16) & 0xFF) / 255.0f;
+        green = ((hex >> 8) & 0xFF) / 255.0f;
+        blue = (hex & 0xFF) / 255.0f;
     }
 
     public Colour getNext()
@@ -69,23 +67,18 @@ public enum Colour
         return hex;
     }
 
-    public float[] getRGB()
-    {
-        return rgb;
-    }
-
     public float getR()
     {
-        return rgb[0];
+        return red;
     }
 
     public float getG()
     {
-        return rgb[1];
+        return green;
     }
 
     public float getB()
     {
-        return rgb[2];
+        return blue;
     }
 }

@@ -9,7 +9,7 @@ import dan200.computercraft.ComputerCraft;
 
 /**
  * Verifies certain elements of a network are "well formed".
- *
+ * <p>
  * This adds substantial overhead to network modification, and so should only be enabled
  * in a development environment.
  */

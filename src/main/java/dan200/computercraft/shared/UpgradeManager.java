@@ -42,7 +42,7 @@ public class UpgradeManager<R extends UpgradeSerialiser<? extends T, R>, T exten
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
 
-    public static record UpgradeWrapper<R extends UpgradeSerialiser<? extends T, R>, T extends IUpgradeBase>(
+    public record UpgradeWrapper<R extends UpgradeSerialiser<? extends T, R>, T extends IUpgradeBase>(
         @Nonnull String id, @Nonnull T upgrade, @Nonnull R serialiser, @Nonnull String modId
     ) {}
 

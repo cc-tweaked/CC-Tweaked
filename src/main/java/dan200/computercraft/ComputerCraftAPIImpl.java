@@ -5,7 +5,9 @@
  */
 package dan200.computercraft;
 
-import dan200.computercraft.api.ComputerCraftAPI.IComputerCraftAPI;
+import com.google.auto.service.AutoService;
+import dan200.computercraft.api.detail.BlockReference;
+import dan200.computercraft.api.detail.DetailRegistry;
 import dan200.computercraft.api.detail.IDetailProvider;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
@@ -21,23 +23,30 @@ import dan200.computercraft.core.apis.ApiFactories;
 import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.ResourceMount;
+import dan200.computercraft.impl.ComputerCraftAPIService;
+import dan200.computercraft.impl.detail.DetailRegistryImpl;
 import dan200.computercraft.shared.BundledRedstone;
 import dan200.computercraft.shared.MediaProviders;
 import dan200.computercraft.shared.Peripherals;
+import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.peripheral.generic.GenericPeripheralProvider;
-import dan200.computercraft.shared.peripheral.generic.data.DetailProviders;
+import dan200.computercraft.shared.peripheral.generic.data.BlockData;
+import dan200.computercraft.shared.peripheral.generic.data.FluidData;
+import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
-import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.wired.WiredNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
@@ -48,19 +57,18 @@ import java.io.InputStream;
 
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_WIRED_ELEMENT;
 
-public final class ComputerCraftAPIImpl implements IComputerCraftAPI
+@AutoService( ComputerCraftAPIService.class )
+public final class ComputerCraftAPIImpl implements ComputerCraftAPIService
 {
-    public static final ComputerCraftAPIImpl INSTANCE = new ComputerCraftAPIImpl();
+    private final DetailRegistry<ItemStack> itemStackDetails = new DetailRegistryImpl<>( ItemData::fillBasic );
+    private final DetailRegistry<BlockReference> blockDetails = new DetailRegistryImpl<>( BlockData::fillBasic );
+    private final DetailRegistry<FluidStack> fluidStackDetails = new DetailRegistryImpl<>( FluidData::fillBasic );
 
     private String version;
 
-    private ComputerCraftAPIImpl()
+    public static InputStream getResourceFile( MinecraftServer server, String domain, String subPath )
     {
-    }
-
-    public static InputStream getResourceFile( String domain, String subPath )
-    {
-        var manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
+        ResourceManager manager = server.getResourceManager();
         try
         {
             return manager.getResource( new ResourceLocation( domain, subPath ) ).getInputStream();
@@ -84,7 +92,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     @Override
     public int createUniqueNumberedSaveDir( @Nonnull Level world, @Nonnull String parentSubPath )
     {
-        return IDAssigner.getNextId( parentSubPath );
+        return ServerContext.get( world.getServer() ).getNextId( parentSubPath );
     }
 
     @Override
@@ -92,7 +100,7 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     {
         try
         {
-            return new FileMount( new File( IDAssigner.getDir(), subPath ), capacity );
+            return new FileMount( new File( ServerContext.get( world.getServer() ).storageDir().toFile(), subPath ), capacity );
         }
         catch( Exception e )
         {
@@ -158,9 +166,26 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     }
 
     @Override
+    @Deprecated
+    @SuppressWarnings( "unchecked" )
     public <T> void registerDetailProvider( @Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider )
     {
-        DetailProviders.registerProvider( type, provider );
+        if( type == ItemStack.class )
+        {
+            itemStackDetails.addProvider( (IDetailProvider<ItemStack>) provider );
+        }
+        else if( type == BlockReference.class )
+        {
+            blockDetails.addProvider( (IDetailProvider<BlockReference>) provider );
+        }
+        else if( type == FluidStack.class )
+        {
+            itemStackDetails.addProvider( (IDetailProvider<ItemStack>) provider );
+        }
+        else
+        {
+            throw new IllegalArgumentException( "Unknown detail provider " + type );
+        }
     }
 
     @Nonnull
@@ -176,5 +201,23 @@ public final class ComputerCraftAPIImpl implements IComputerCraftAPI
     {
         BlockEntity tile = world.getBlockEntity( pos );
         return tile == null ? LazyOptional.empty() : tile.getCapability( CAPABILITY_WIRED_ELEMENT, side );
+    }
+
+    @Override
+    public DetailRegistry<ItemStack> getItemStackDetailRegistry()
+    {
+        return itemStackDetails;
+    }
+
+    @Override
+    public DetailRegistry<BlockReference> getBlockInWorldDetailRegistry()
+    {
+        return blockDetails;
+    }
+
+    @Override
+    public DetailRegistry<FluidStack> getFluidStackDetailRegistry()
+    {
+        return fluidStackDetails;
     }
 }

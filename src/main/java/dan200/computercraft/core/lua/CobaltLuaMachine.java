@@ -12,10 +12,9 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.ILuaFunction;
 import dan200.computercraft.core.asm.LuaMethod;
 import dan200.computercraft.core.asm.ObjectSource;
-import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.TimeoutState;
-import dan200.computercraft.core.tracking.Tracking;
-import dan200.computercraft.core.tracking.TrackingField;
+import dan200.computercraft.core.metrics.Metrics;
+import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.shared.util.ThreadUtils;
 import org.squiddev.cobalt.*;
 import org.squiddev.cobalt.compiler.CompileException;
@@ -52,7 +51,6 @@ public class CobaltLuaMachine implements ILuaMachine
 
     private static final LuaMethod FUNCTION_METHOD = ( target, context, args ) -> ((ILuaFunction) target).call( args );
 
-    private final Computer computer;
     private final TimeoutState timeout;
     private final TimeoutDebugHandler debug;
     private final ILuaContext context;
@@ -63,19 +61,19 @@ public class CobaltLuaMachine implements ILuaMachine
     private LuaThread mainRoutine = null;
     private String eventFilter = null;
 
-    public CobaltLuaMachine( Computer computer, TimeoutState timeout )
+    public CobaltLuaMachine( MachineEnvironment environment )
     {
-        this.computer = computer;
-        this.timeout = timeout;
-        context = new LuaContext( computer );
+        timeout = environment.timeout;
+        context = environment.context;
         debug = new TimeoutDebugHandler();
 
         // Create an environment to run in
+        MetricsObserver metrics = environment.metrics;
         LuaState state = this.state = LuaState.builder()
             .resourceManipulator( new VoidResourceManipulator() )
             .debug( debug )
             .coroutineExecutor( command -> {
-                Tracking.addValue( this.computer, TrackingField.COROUTINES_CREATED, 1 );
+                metrics.observe( Metrics.COROUTINES_CREATED );
                 COROUTINES.execute( () -> {
                     try
                     {
@@ -83,7 +81,7 @@ public class CobaltLuaMachine implements ILuaMachine
                     }
                     finally
                     {
-                        Tracking.addValue( this.computer, TrackingField.COROUTINES_DISPOSED, 1 );
+                        metrics.observe( Metrics.COROUTINES_DISPOSED );
                     }
                 } );
             } )
@@ -110,7 +108,7 @@ public class CobaltLuaMachine implements ILuaMachine
 
         // Add version globals
         globals.rawset( "_VERSION", valueOf( "Lua 5.1" ) );
-        globals.rawset( "_HOST", valueOf( computer.getAPIEnvironment().getComputerEnvironment().getHostString() ) );
+        globals.rawset( "_HOST", valueOf( environment.hostString ) );
         globals.rawset( "_CC_DEFAULT_SETTINGS", valueOf( ComputerCraft.defaultComputerSettings ) );
         if( ComputerCraft.disableLua51Features )
         {

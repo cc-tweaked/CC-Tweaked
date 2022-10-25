@@ -7,6 +7,7 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.detail.DetailRegistries;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -38,10 +39,12 @@ import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.network.container.HeldItemContainerData;
-import dan200.computercraft.shared.network.container.ViewComputerContainerData;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
+import dan200.computercraft.shared.peripheral.generic.data.BlockData;
+import dan200.computercraft.shared.peripheral.generic.data.FluidData;
+import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.peripheral.generic.methods.EnergyMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.FluidMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
@@ -293,7 +296,7 @@ public final class Registry
             () -> ContainerData.toType( ComputerContainerData::new, ComputerMenuWithoutInventory::new ) );
 
         public static final RegistryObject<MenuType<ContainerTurtle>> TURTLE = CONTAINERS.register( "turtle",
-            () -> ContainerData.toType( ComputerContainerData::new, ContainerTurtle::new ) );
+            () -> ContainerData.toType( ComputerContainerData::new, ContainerTurtle::ofMenuData ) );
 
         public static final RegistryObject<MenuType<ContainerDiskDrive>> DISK_DRIVE = CONTAINERS.register( "disk_drive",
             () -> new MenuType<>( ContainerDiskDrive::new ) );
@@ -305,7 +308,7 @@ public final class Registry
             () -> ContainerData.toType( HeldItemContainerData::new, ContainerHeldItem::createPrintout ) );
 
         public static final RegistryObject<MenuType<ContainerViewComputer>> VIEW_COMPUTER = CONTAINERS.register( "view_computer",
-            () -> ContainerData.toType( ViewComputerContainerData::new, ContainerViewComputer::new ) );
+            () -> ContainerData.toType( ComputerContainerData::new, ContainerViewComputer::new ) );
     }
 
     @SubscribeEvent
@@ -383,6 +386,10 @@ public final class Registry
         ComputerCraftAPI.registerGenericCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY );
         ComputerCraftAPI.registerGenericCapability( CapabilityEnergy.ENERGY );
         ComputerCraftAPI.registerGenericCapability( CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY );
+
+        DetailRegistries.ITEM_STACK.addProvider( ItemData::fill );
+        DetailRegistries.BLOCK_IN_WORLD.addProvider( BlockData::fill );
+        DetailRegistries.FLUID_STACK.addProvider( FluidData::fill );
 
         CauldronInteraction.WATER.put( ModItems.TURTLE_NORMAL.get(), ItemTurtle.CAULDRON_INTERACTION );
         CauldronInteraction.WATER.put( ModItems.TURTLE_ADVANCED.get(), ItemTurtle.CAULDRON_INTERACTION );

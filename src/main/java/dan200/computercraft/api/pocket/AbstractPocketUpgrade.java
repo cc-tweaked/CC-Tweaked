@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 
 /**
  * A base class for {@link IPocketUpgrade}s.
- *
+ * <p>
  * One does not have to use this, but it does provide a convenient template.
  */
 public abstract class AbstractPocketUpgrade implements IPocketUpgrade

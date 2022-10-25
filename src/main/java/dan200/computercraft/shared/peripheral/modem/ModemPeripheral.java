@@ -22,31 +22,31 @@ import java.util.Set;
 
 /**
  * Modems allow you to send messages between computers over long distances.
- *
+ * <p>
  * :::tip
  * Modems provide a fairly basic set of methods, which makes them very flexible but often hard to work with. The
  * {@literal @}{rednet} API is built on top of modems, and provides a more user-friendly interface.
  * :::
- *
+ * <p>
  * ## Sending and receiving messages
  * Modems operate on a series of channels, a bit like frequencies on a radio. Any modem can send a message on a
  * particular channel, but only those which have {@link #open opened} the channel and are "listening in" can receive
  * messages.
- *
+ * <p>
  * Channels are represented as an integer between 0 and 65535 inclusive. These channels don't have any defined meaning,
  * though some APIs or programs will assign a meaning to them. For instance, the @{gps} module sends all its messages on
  * channel 65534 (@{gps.CHANNEL_GPS}), while @{rednet} uses channels equal to the computer's ID.
- *
+ * <p>
  * - Sending messages is done with the {@link #transmit(int, int, Object)} message.
  * - Receiving messages is done by listening to the @{modem_message} event.
- *
+ * <p>
  * ## Types of modem
  * CC: Tweaked comes with three kinds of modem, with different capabilities.
  *
  * <ul>
  * <li><strong>Wireless modems:</strong> Wireless modems can send messages to any other wireless modem. They can be placed next to a
  * computer, or equipped as a pocket computer or turtle upgrade.
- *
+ * <p>
  * Wireless modems have a limited range, only sending messages to modems within 64 blocks. This range increases
  * linearly once the modem is above y=96, to a maximum of 384 at world height.</li>
  * <li><strong>Ender modems:</strong> These are upgraded versions of normal wireless modems. They do not have a distance
@@ -75,7 +75,7 @@ import java.util.Set;
  *
  * print("Received a reply: " .. tostring(message))
  * }</pre>
- *
+ * <p>
  * ## Recipes
  * <div class="recipe-container">
  *     <mc-recipe recipe="computercraft:wireless_modem_normal"></mc-recipe>
@@ -216,7 +216,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     /**
      * Sends a modem message on a certain channel. Modems listening on the channel will queue a {@code modem_message}
      * event on adjacent computers.
-     *
+     * <p>
      * :::note
      * The channel does not need be open to send a message.
      * :::
@@ -260,7 +260,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
 
     /**
      * Determine if this is a wired or wireless modem.
-     *
+     * <p>
      * Some methods (namely those dealing with wired networks and remote peripherals) are only available on wired
      * modems.
      *

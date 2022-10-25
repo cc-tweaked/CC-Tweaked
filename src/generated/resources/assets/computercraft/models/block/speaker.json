@@ -1,8 +1,8 @@
 {
   "parent": "minecraft:block/orientable",
   "textures": {
-    "side": "computercraft:block/speaker_side",
+    "top": "computercraft:block/speaker_top",
     "front": "computercraft:block/speaker_front",
-    "top": "computercraft:block/speaker_top"
+    "side": "computercraft:block/speaker_side"
   }
 }

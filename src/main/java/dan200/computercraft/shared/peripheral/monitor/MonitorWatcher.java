@@ -122,7 +122,7 @@ public final class MonitorWatcher
     private static TerminalState getState( TileMonitor tile, ServerMonitor monitor )
     {
         TerminalState state = tile.cached;
-        if( state == null ) state = tile.cached = monitor.write();
+        if( state == null ) state = tile.cached = new TerminalState( monitor.getTerminal() );
         return state;
     }
 

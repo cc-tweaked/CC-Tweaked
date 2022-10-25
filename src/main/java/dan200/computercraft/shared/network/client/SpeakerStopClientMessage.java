@@ -17,7 +17,7 @@ import java.util.UUID;
 
 /**
  * Stops a sound on the client
- *
+ * <p>
  * Called when a speaker is broken.
  *
  * @see dan200.computercraft.shared.peripheral.speaker.TileSpeaker

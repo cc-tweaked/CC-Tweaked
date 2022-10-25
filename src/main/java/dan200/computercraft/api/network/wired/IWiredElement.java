@@ -11,11 +11,11 @@ import javax.annotation.Nonnull;
 
 /**
  * An object which may be part of a wired network.
- *
+ * <p>
  * Elements should construct a node using {@link ComputerCraftAPI#createWiredNodeForElement(IWiredElement)}. This acts
  * as a proxy for all network objects. Whilst the node may change networks, an element's node should remain constant
  * for its lifespan.
- *
+ * <p>
  * Elements are generally tied to a block or tile entity in world. In such as case, one should provide the
  * {@link IWiredElement} capability for the appropriate sides.
  */

@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -36,6 +37,12 @@ public final class TransformedModel
     }
 
     public static TransformedModel of( @Nonnull ModelResourceLocation location )
+    {
+        ModelManager modelManager = Minecraft.getInstance().getModelManager();
+        return new TransformedModel( modelManager.getModel( location ) );
+    }
+
+    public static TransformedModel of( @Nonnull ResourceLocation location )
     {
         ModelManager modelManager = Minecraft.getInstance().getModelManager();
         return new TransformedModel( modelManager.getModel( location ) );

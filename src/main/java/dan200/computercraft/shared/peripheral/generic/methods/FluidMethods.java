@@ -6,13 +6,13 @@
 package dan200.computercraft.shared.peripheral.generic.methods;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.detail.DetailRegistries;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.generic.data.FluidData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluid;
@@ -54,10 +54,10 @@ public class FluidMethods implements GenericPeripheral
 
     /**
      * Get all "tanks" in this fluid storage.
-     *
+     * <p>
      * Each tank either contains some amount of fluid or is empty. Tanks with fluids inside will return some basic
      * information about the fluid, including its name and amount.
-     *
+     * <p>
      * The returned table is sparse, and so empty tanks will be `nil` - it is recommended to loop over using `pairs`
      * rather than `ipairs`.
      *
@@ -73,7 +73,7 @@ public class FluidMethods implements GenericPeripheral
         for( int i = 0; i < size; i++ )
         {
             FluidStack stack = fluids.getFluidInTank( i );
-            if( !stack.isEmpty() ) result.put( i + 1, FluidData.fillBasic( new HashMap<>( 4 ), stack ) );
+            if( !stack.isEmpty() ) result.put( i + 1, DetailRegistries.FLUID_STACK.getBasicDetails( stack ) );
         }
 
         return result;
@@ -81,7 +81,7 @@ public class FluidMethods implements GenericPeripheral
 
     /**
      * Move a fluid from one fluid container to another connected one.
-     *
+     * <p>
      * This allows you to pull fluid in the current fluid container to another container <em>on the same wired
      * network</em>. Both containers must attached to wired modems which are connected via a cable.
      *
@@ -122,7 +122,7 @@ public class FluidMethods implements GenericPeripheral
 
     /**
      * Move a fluid from a connected fluid container into this oneone.
-     *
+     * <p>
      * This allows you to pull fluid in the current fluid container from another container <em>on the same wired
      * network</em>. Both containers must attached to wired modems which are connected via a cable.
      *

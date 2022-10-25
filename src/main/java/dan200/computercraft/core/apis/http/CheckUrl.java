@@ -13,7 +13,7 @@ import java.util.concurrent.Future;
 
 /**
  * Checks a URL using {@link NetworkUtils#getAddress(String, int, boolean)}}
- *
+ * <p>
  * This requires a DNS lookup, and so needs to occur off-thread.
  */
 public class CheckUrl extends Resource<CheckUrl>

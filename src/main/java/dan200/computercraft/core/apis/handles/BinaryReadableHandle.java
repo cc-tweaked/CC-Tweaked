@@ -249,11 +249,11 @@ public class BinaryReadableHandle extends HandleGeneric
         /**
          * Seek to a new position within the file, changing where bytes are written to. The new position is an offset
          * given by {@code offset}, relative to a start position determined by {@code whence}:
-         *
+         * <p>
          * - {@code "set"}: {@code offset} is relative to the beginning of the file.
          * - {@code "cur"}: Relative to the current position. This is the default.
          * - {@code "end"}: Relative to the end of the file.
-         *
+         * <p>
          * In case of success, {@code seek} returns the new file position from the beginning of the file.
          *
          * @param whence Where the offset is relative to.

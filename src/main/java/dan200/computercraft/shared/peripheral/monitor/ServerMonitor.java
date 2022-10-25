@@ -5,26 +5,30 @@
  */
 package dan200.computercraft.shared.peripheral.monitor;
 
+import com.google.common.annotations.VisibleForTesting;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.shared.common.ServerTerminal;
 import dan200.computercraft.shared.util.TickScheduler;
 
+import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ServerMonitor extends ServerTerminal
+public class ServerMonitor
 {
     private final TileMonitor origin;
+
+    private final boolean colour;
     private int textScale = 2;
+    private @Nullable Terminal terminal;
     private final AtomicBoolean resized = new AtomicBoolean( false );
     private final AtomicBoolean changed = new AtomicBoolean( false );
 
-    public ServerMonitor( boolean colour, TileMonitor origin )
+    ServerMonitor( boolean colour, TileMonitor origin )
     {
-        super( colour );
+        this.colour = colour;
         this.origin = origin;
     }
 
-    public synchronized void rebuild()
+    synchronized void rebuild()
     {
         Terminal oldTerm = getTerminal();
         int oldWidth = oldTerm == null ? -1 : oldTerm.getWidth();
@@ -40,20 +44,22 @@ public class ServerMonitor extends ServerTerminal
             1.0
         );
 
-        resize( termWidth, termHeight );
+        if( terminal == null )
+        {
+            terminal = new Terminal( termWidth, termHeight, colour, this::markChanged );
+            markChanged();
+        }
+        else
+        {
+            terminal.resize( termWidth, termHeight );
+        }
+
         if( oldWidth != termWidth || oldHeight != termHeight )
         {
-            getTerminal().clear();
+            terminal.clear();
             resized.set( true );
             markChanged();
         }
-    }
-
-    @Override
-    protected void markTerminalChanged()
-    {
-        super.markTerminalChanged();
-        markChanged();
     }
 
     private void markChanged()
@@ -61,31 +67,32 @@ public class ServerMonitor extends ServerTerminal
         if( !changed.getAndSet( true ) ) TickScheduler.schedule( origin );
     }
 
-    protected void clearChanged()
-    {
-        changed.set( false );
-    }
-
-    public int getTextScale()
+    int getTextScale()
     {
         return textScale;
     }
 
-    public synchronized void setTextScale( int textScale )
+    synchronized void setTextScale( int textScale )
     {
         if( this.textScale == textScale ) return;
         this.textScale = textScale;
         rebuild();
     }
 
-    public boolean pollResized()
+    boolean pollResized()
     {
         return resized.getAndSet( false );
     }
 
-    public boolean pollTerminalChanged()
+    boolean pollTerminalChanged()
     {
-        update();
-        return hasTerminalChanged();
+        return changed.getAndSet( false );
+    }
+
+    @Nullable
+    @VisibleForTesting
+    public Terminal getTerminal()
+    {
+        return terminal;
     }
 }

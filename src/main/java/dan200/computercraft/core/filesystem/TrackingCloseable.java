@@ -10,7 +10,7 @@ import java.io.IOException;
 
 /**
  * A {@link Closeable} which knows when it has been closed.
- *
+ * <p>
  * This is a quick (though racey) way of providing more friendly (and more similar to Lua)
  * error messages to the user.
  */

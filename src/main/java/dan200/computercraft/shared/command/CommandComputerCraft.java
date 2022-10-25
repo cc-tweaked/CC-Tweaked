@@ -8,20 +8,19 @@ package dan200.computercraft.shared.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.core.tracking.ComputerTracker;
-import dan200.computercraft.core.tracking.Tracking;
-import dan200.computercraft.core.tracking.TrackingContext;
-import dan200.computercraft.core.tracking.TrackingField;
+import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
-import dan200.computercraft.shared.network.container.ViewComputerContainerData;
-import dan200.computercraft.shared.util.IDAssigner;
+import dan200.computercraft.shared.computer.metrics.basic.Aggregate;
+import dan200.computercraft.shared.computer.metrics.basic.AggregatedMetric;
+import dan200.computercraft.shared.computer.metrics.basic.BasicComputerMetricsObserver;
+import dan200.computercraft.shared.computer.metrics.basic.ComputerMetrics;
+import dan200.computercraft.shared.network.container.ComputerContainerData;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -47,7 +46,7 @@ import static dan200.computercraft.shared.command.Exceptions.*;
 import static dan200.computercraft.shared.command.arguments.ComputerArgumentType.getComputerArgument;
 import static dan200.computercraft.shared.command.arguments.ComputerArgumentType.oneComputer;
 import static dan200.computercraft.shared.command.arguments.ComputersArgumentType.*;
-import static dan200.computercraft.shared.command.arguments.TrackingFieldArgumentType.trackingField;
+import static dan200.computercraft.shared.command.arguments.TrackingFieldArgumentType.metric;
 import static dan200.computercraft.shared.command.builder.CommandBuilder.args;
 import static dan200.computercraft.shared.command.builder.CommandBuilder.command;
 import static dan200.computercraft.shared.command.builder.HelpingArgumentBuilder.choice;
@@ -75,7 +74,7 @@ public final class CommandComputerCraft
                     TableBuilder table = new TableBuilder( DUMP_LIST_ID, "Computer", "On", "Position" );
 
                     CommandSourceStack source = context.getSource();
-                    List<ServerComputer> computers = new ArrayList<>( ComputerCraft.serverComputerRegistry.getComputers() );
+                    List<ServerComputer> computers = new ArrayList<>( ServerContext.get( source.getServer() ).registry().getComputers() );
 
                     // Unless we're on a server, limit the number of rows we can send.
                     Level world = source.getLevel();
@@ -140,7 +139,7 @@ public final class CommandComputerCraft
 
             .then( command( "shutdown" )
                 .requires( UserLevel.OWNER_OP )
-                .argManyValue( "computers", manyComputers(), s -> ComputerCraft.serverComputerRegistry.getComputers() )
+                .argManyValue( "computers", manyComputers(), s -> ServerContext.get( s.getServer() ).registry().getComputers() )
                 .executes( ( context, computerSelectors ) -> {
                     int shutdown = 0;
                     Set<ServerComputer> computers = unwrap( context.getSource(), computerSelectors );
@@ -155,7 +154,7 @@ public final class CommandComputerCraft
 
             .then( command( "turn-on" )
                 .requires( UserLevel.OWNER_OP )
-                .argManyValue( "computers", manyComputers(), s -> ComputerCraft.serverComputerRegistry.getComputers() )
+                .argManyValue( "computers", manyComputers(), s -> ServerContext.get( s.getServer() ).registry().getComputers() )
                 .executes( ( context, computerSelectors ) -> {
                     int on = 0;
                     Set<ServerComputer> computers = unwrap( context.getSource(), computerSelectors );
@@ -225,7 +224,7 @@ public final class CommandComputerCraft
                 .executes( context -> {
                     ServerPlayer player = context.getSource().getPlayerOrException();
                     ServerComputer computer = getComputerArgument( context, "computer" );
-                    new ViewComputerContainerData( computer ).open( player, new MenuProvider()
+                    new ComputerContainerData( computer ).open( player, new MenuProvider()
                     {
                         @Nonnull
                         @Override
@@ -248,7 +247,7 @@ public final class CommandComputerCraft
                 .then( command( "start" )
                     .requires( UserLevel.OWNER_OP )
                     .executes( context -> {
-                        getTimingContext( context.getSource() ).start();
+                        getMetricsInstance( context.getSource() ).start();
 
                         String stopCommand = "/computercraft track stop";
                         context.getSource().sendSuccess( translate( "commands.computercraft.track.start.stop",
@@ -259,17 +258,17 @@ public final class CommandComputerCraft
                 .then( command( "stop" )
                     .requires( UserLevel.OWNER_OP )
                     .executes( context -> {
-                        TrackingContext timings = getTimingContext( context.getSource() );
+                        BasicComputerMetricsObserver timings = getMetricsInstance( context.getSource() );
                         if( !timings.stop() ) throw NOT_TRACKING_EXCEPTION.create();
-                        displayTimings( context.getSource(), timings.getImmutableTimings(), TrackingField.AVERAGE_TIME, DEFAULT_FIELDS );
+                        displayTimings( context.getSource(), timings.getSnapshot(), new AggregatedMetric( Metrics.COMPUTER_TASKS, Aggregate.AVG ), DEFAULT_FIELDS );
                         return 1;
                     } ) )
 
                 .then( command( "dump" )
                     .requires( UserLevel.OWNER_OP )
-                    .argManyValue( "fields", trackingField(), DEFAULT_FIELDS )
+                    .argManyValue( "fields", metric(), DEFAULT_FIELDS )
                     .executes( ( context, fields ) -> {
-                        TrackingField sort;
+                        AggregatedMetric sort;
                         if( fields.size() == 1 && DEFAULT_FIELDS.contains( fields.get( 0 ) ) )
                         {
                             sort = fields.get( 0 );
@@ -326,7 +325,7 @@ public final class CommandComputerCraft
 
         if( UserLevel.OWNER.test( source ) && isPlayer( source ) )
         {
-            Component linkPath = linkStorage( computerId );
+            Component linkPath = linkStorage( source, computerId );
             if( linkPath != null ) out.append( " " ).append( linkPath );
         }
 
@@ -349,9 +348,9 @@ public final class CommandComputerCraft
         }
     }
 
-    private static Component linkStorage( int id )
+    private static Component linkStorage( CommandSourceStack source, int id )
     {
-        File file = new File( IDAssigner.getDir(), "computer/" + id );
+        File file = new File( ServerContext.get( source.getServer() ).storageDir().toFile(), "computer/" + id );
         if( !file.isDirectory() ) return null;
 
         return link(
@@ -362,50 +361,48 @@ public final class CommandComputerCraft
     }
 
     @Nonnull
-    private static TrackingContext getTimingContext( CommandSourceStack source )
+    private static BasicComputerMetricsObserver getMetricsInstance( CommandSourceStack source )
     {
         Entity entity = source.getEntity();
-        return entity instanceof Player ? Tracking.getContext( entity.getUUID() ) : Tracking.getContext( SYSTEM_UUID );
+        return ServerContext.get( source.getServer() ).metrics().getMetricsInstance( entity instanceof Player ? entity.getUUID() : SYSTEM_UUID );
     }
 
-    private static final List<TrackingField> DEFAULT_FIELDS = Arrays.asList( TrackingField.TASKS, TrackingField.TOTAL_TIME, TrackingField.AVERAGE_TIME, TrackingField.MAX_TIME );
+    private static final List<AggregatedMetric> DEFAULT_FIELDS = Arrays.asList(
+        new AggregatedMetric( Metrics.COMPUTER_TASKS, Aggregate.COUNT ),
+        new AggregatedMetric( Metrics.COMPUTER_TASKS, Aggregate.NONE ),
+        new AggregatedMetric( Metrics.COMPUTER_TASKS, Aggregate.AVG ),
+        new AggregatedMetric( Metrics.COMPUTER_TASKS, Aggregate.MAX )
+    );
 
-    private static int displayTimings( CommandSourceStack source, TrackingField sortField, List<TrackingField> fields ) throws CommandSyntaxException
+    private static int displayTimings( CommandSourceStack source, AggregatedMetric sortField, List<AggregatedMetric> fields ) throws CommandSyntaxException
     {
-        return displayTimings( source, getTimingContext( source ).getTimings(), sortField, fields );
+        return displayTimings( source, getMetricsInstance( source ).getTimings(), sortField, fields );
     }
 
-    private static int displayTimings( CommandSourceStack source, @Nonnull List<ComputerTracker> timings, @Nonnull TrackingField sortField, @Nonnull List<TrackingField> fields ) throws CommandSyntaxException
+    private static int displayTimings( CommandSourceStack source, List<ComputerMetrics> timings, AggregatedMetric sortField, List<AggregatedMetric> fields ) throws CommandSyntaxException
     {
         if( timings.isEmpty() ) throw NO_TIMINGS_EXCEPTION.create();
 
-        Map<Computer, ServerComputer> lookup = new HashMap<>();
-        int maxId = 0, maxInstance = 0;
-        for( ServerComputer server : ComputerCraft.serverComputerRegistry.getComputers() )
-        {
-            lookup.put( server.getComputer(), server );
-
-            if( server.getInstanceID() > maxInstance ) maxInstance = server.getInstanceID();
-            if( server.getID() > maxId ) maxId = server.getID();
-        }
-
-        timings.sort( Comparator.<ComputerTracker, Long>comparing( x -> x.get( sortField ) ).reversed() );
+        timings.sort( Comparator.<ComputerMetrics, Long>comparing( x -> x.get( sortField.metric(), sortField.aggregate() ) ).reversed() );
 
         Component[] headers = new Component[1 + fields.size()];
         headers[0] = translate( "commands.computercraft.track.dump.computer" );
-        for( int i = 0; i < fields.size(); i++ ) headers[i + 1] = translate( fields.get( i ).translationKey() );
+        for( int i = 0; i < fields.size(); i++ ) headers[i + 1] = fields.get( i ).displayName();
         TableBuilder table = new TableBuilder( TRACK_ID, headers );
 
-        for( ComputerTracker entry : timings )
+        for( ComputerMetrics entry : timings )
         {
-            Computer computer = entry.getComputer();
-            ServerComputer serverComputer = computer == null ? null : lookup.get( computer );
+            ServerComputer serverComputer = entry.computer();
 
-            Component computerComponent = linkComputer( source, serverComputer, entry.getComputerId() );
+            Component computerComponent = linkComputer( source, serverComputer, entry.computerId() );
 
             Component[] row = new Component[1 + fields.size()];
             row[0] = computerComponent;
-            for( int i = 0; i < fields.size(); i++ ) row[i + 1] = text( entry.getFormatted( fields.get( i ) ) );
+            for( int i = 0; i < fields.size(); i++ )
+            {
+                AggregatedMetric metric = fields.get( i );
+                row[i + 1] = text( entry.getFormatted( metric.metric(), metric.aggregate() ) );
+            }
             table.row( row );
         }
 

@@ -16,7 +16,7 @@ import java.util.Objects;
 
 /**
  * The result of invoking a Lua method.
- *
+ * <p>
  * Method results either return a value immediately ({@link #of(Object...)} or yield control to the parent coroutine.
  * When the current coroutine is resumed, we invoke the provided {@link ILuaCallback#resume(Object[])} callback.
  */
@@ -55,11 +55,11 @@ public final class MethodResult
 
     /**
      * Return a single value immediately.
-     *
+     * <p>
      * Integers, doubles, floats, strings, booleans, {@link Map}, {@link Collection}s, arrays and {@code null} will be
      * converted to their corresponding Lua type. {@code byte[]} and {@link ByteBuffer} will be treated as binary
      * strings. {@link ILuaFunction} will be treated as a function.
-     *
+     * <p>
      * In order to provide a custom object with methods, one may return a {@link IDynamicLuaObject}, or an arbitrary
      * class with {@link LuaFunction} annotations. Anything else will be converted to {@code nil}.
      *

@@ -37,11 +37,9 @@ public abstract class TermMethods
     @Nonnull
     public abstract Terminal getTerminal() throws LuaException;
 
-    public abstract boolean isColour() throws LuaException;
-
     /**
      * Write {@code text} at the current cursor position, moving the cursor to the end of the text.
-     *
+     * <p>
      * Unlike functions like {@code write} and {@code print}, this does not wrap the text - it simply copies the
      * text to the current terminal line.
      *
@@ -63,7 +61,7 @@ public abstract class TermMethods
 
     /**
      * Move all positions up (or down) by {@code y} pixels.
-     *
+     * <p>
      * Every pixel in the terminal will be replaced by the line {@code y} pixels below it. If {@code y} is negative, it
      * will copy pixels from above instead.
      *
@@ -247,7 +245,7 @@ public abstract class TermMethods
 
     /**
      * Determine if this terminal supports colour.
-     *
+     * <p>
      * Terminals which do not support colour will still allow writing coloured text/backgrounds, but it will be
      * displayed in greyscale.
      *
@@ -258,15 +256,15 @@ public abstract class TermMethods
     @LuaFunction( { "isColour", "isColor" } )
     public final boolean getIsColour() throws LuaException
     {
-        return isColour();
+        return getTerminal().isColour();
     }
 
     /**
      * Writes {@code text} to the terminal with the specific foreground and background characters.
-     *
+     * <p>
      * As with {@link #write(IArguments)}, the text will be written at the current cursor location, with the cursor
      * moving to the end of the text.
-     *
+     * <p>
      * {@code textColour} and {@code backgroundColour} must both be strings the same length as {@code text}. All
      * characters represent a single hexadecimal digit, which is converted to one of CC's colours. For instance,
      * {@code "a"} corresponds to purple.
@@ -301,7 +299,7 @@ public abstract class TermMethods
 
     /**
      * Set the palette for a specific colour.
-     *
+     * <p>
      * ComputerCraft's palette system allows you to change how a specific colour should be displayed. For instance, you
      * can make @{colors.red} <em>more red</em> by setting its palette to #FF0000. This does now allow you to draw more
      * colours - you are still limited to 16 on the screen at one time - but you can change <em>which</em> colours are

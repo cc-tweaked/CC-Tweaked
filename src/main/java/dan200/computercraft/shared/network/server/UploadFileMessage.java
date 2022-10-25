@@ -5,14 +5,15 @@
  */
 package dan200.computercraft.shared.network.server;
 
-import dan200.computercraft.shared.computer.core.IContainerComputer;
-import dan200.computercraft.shared.computer.core.ServerComputer;
+import com.google.common.annotations.VisibleForTesting;
+import dan200.computercraft.shared.computer.menu.ComputerMenu;
+import dan200.computercraft.shared.computer.menu.ServerInputHandler;
 import dan200.computercraft.shared.computer.upload.FileSlice;
 import dan200.computercraft.shared.computer.upload.FileUpload;
-import dan200.computercraft.shared.network.NetworkHandler;
 import io.netty.handler.codec.DecoderException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
@@ -20,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class UploadFileMessage extends ComputerServerMessage
 {
@@ -29,17 +31,17 @@ public class UploadFileMessage extends ComputerServerMessage
     public static final int MAX_FILES = 32;
     public static final int MAX_FILE_NAME = 128;
 
-    private static final int FLAG_FIRST = 1;
-    private static final int FLAG_LAST = 2;
+    static final @VisibleForTesting int FLAG_FIRST = 1;
+    static final @VisibleForTesting int FLAG_LAST = 2;
 
     private final UUID uuid;
-    private final int flag;
-    private final List<FileUpload> files;
-    private final List<FileSlice> slices;
+    final @VisibleForTesting int flag;
+    final @VisibleForTesting List<FileUpload> files;
+    final @VisibleForTesting List<FileSlice> slices;
 
-    UploadFileMessage( int instanceId, UUID uuid, int flag, List<FileUpload> files, List<FileSlice> slices )
+    UploadFileMessage( AbstractContainerMenu menu, UUID uuid, int flag, List<FileUpload> files, List<FileSlice> slices )
     {
-        super( instanceId );
+        super( menu );
         this.uuid = uuid;
         this.flag = flag;
         this.files = files;
@@ -56,14 +58,14 @@ public class UploadFileMessage extends ComputerServerMessage
         if( (flag & FLAG_FIRST) != 0 )
         {
             int nFiles = buf.readVarInt();
-            if( nFiles >= MAX_FILES ) throw new DecoderException( "Too many files" );
+            if( nFiles > MAX_FILES ) throw new DecoderException( "Too many files" );
 
             List<FileUpload> files = this.files = new ArrayList<>( nFiles );
             for( int i = 0; i < nFiles; i++ )
             {
                 String name = buf.readUtf( MAX_FILE_NAME );
                 int size = buf.readVarInt();
-                if( size > MAX_SIZE || (totalSize += size) >= MAX_SIZE )
+                if( size > MAX_SIZE || (totalSize += size) > MAX_SIZE )
                 {
                     throw new DecoderException( "Files are too large" );
                 }
@@ -127,7 +129,7 @@ public class UploadFileMessage extends ComputerServerMessage
         }
     }
 
-    public static void send( int instanceId, List<FileUpload> files )
+    public static void send( AbstractContainerMenu container, List<FileUpload> files, Consumer<UploadFileMessage> send )
     {
         UUID uuid = UUID.randomUUID();
 
@@ -147,9 +149,9 @@ public class UploadFileMessage extends ComputerServerMessage
             {
                 if( remaining <= 0 )
                 {
-                    NetworkHandler.sendToServer( first
-                        ? new UploadFileMessage( instanceId, uuid, FLAG_FIRST, files, new ArrayList<>( slices ) )
-                        : new UploadFileMessage( instanceId, uuid, 0, null, new ArrayList<>( slices ) ) );
+                    send.accept( first
+                        ? new UploadFileMessage( container, uuid, FLAG_FIRST, files, new ArrayList<>( slices ) )
+                        : new UploadFileMessage( container, uuid, 0, null, new ArrayList<>( slices ) ) );
                     slices.clear();
                     remaining = MAX_PACKET_SIZE;
                     first = false;
@@ -166,20 +168,21 @@ public class UploadFileMessage extends ComputerServerMessage
             contents.position( 0 ).limit( capacity );
         }
 
-        NetworkHandler.sendToServer( first
-            ? new UploadFileMessage( instanceId, uuid, FLAG_FIRST | FLAG_LAST, files, new ArrayList<>( slices ) )
-            : new UploadFileMessage( instanceId, uuid, FLAG_LAST, null, new ArrayList<>( slices ) ) );
+        send.accept( first
+            ? new UploadFileMessage( container, uuid, FLAG_FIRST | FLAG_LAST, files, new ArrayList<>( slices ) )
+            : new UploadFileMessage( container, uuid, FLAG_LAST, null, new ArrayList<>( slices ) ) );
     }
 
     @Override
-    protected void handle( NetworkEvent.Context context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
+    protected void handle( NetworkEvent.Context context, @Nonnull ComputerMenu container )
     {
         ServerPlayer player = context.getSender();
         if( player != null )
         {
-            if( (flag & FLAG_FIRST) != 0 ) container.startUpload( uuid, files );
-            container.continueUpload( uuid, slices );
-            if( (flag & FLAG_LAST) != 0 ) container.finishUpload( player, uuid );
+            ServerInputHandler input = container.getInput();
+            if( (flag & FLAG_FIRST) != 0 ) input.startUpload( uuid, files );
+            input.continueUpload( uuid, slices );
+            if( (flag & FLAG_LAST) != 0 ) input.finishUpload( player, uuid );
         }
     }
 }

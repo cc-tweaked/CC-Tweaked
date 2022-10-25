@@ -7,11 +7,12 @@ package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
+import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.core.computer.IComputerEnvironment;
+import dan200.computercraft.core.computer.GlobalEnvironment;
 import dan200.computercraft.core.filesystem.FileSystem;
+import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.core.tracking.TrackingField;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,7 +30,10 @@ public interface IAPIEnvironment
     int getComputerID();
 
     @Nonnull
-    IComputerEnvironment getComputerEnvironment();
+    ComputerEnvironment getComputerEnvironment();
+
+    @Nonnull
+    GlobalEnvironment getGlobalEnvironment();
 
     @Nonnull
     IWorkMonitor getMainThreadMonitor();
@@ -71,10 +75,7 @@ public interface IAPIEnvironment
 
     void cancelTimer( int id );
 
-    void addTrackingChange( @Nonnull TrackingField field, long change );
+    void observe( @Nonnull Metric.Event event, long change );
 
-    default void addTrackingChange( @Nonnull TrackingField field )
-    {
-        addTrackingChange( field, 1 );
-    }
+    void observe( @Nonnull Metric.Counter counter );
 }

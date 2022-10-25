@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 /**
  * A data provider to generate pocket computer upgrades.
- *
+ * <p>
  * This should be subclassed and registered to a {@link DataGenerator}. Override the {@link #addUpgrades(Consumer)} function,
  * construct each upgrade, and pass them off to the provided consumer to generate them.
  *

@@ -7,7 +7,7 @@ package dan200.computercraft.core.apis.http.websocket;
 
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.options.Options;
-import dan200.computercraft.core.tracking.TrackingField;
+import dan200.computercraft.core.metrics.Metrics;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -65,14 +65,14 @@ public class WebsocketHandler extends SimpleChannelInboundHandler<Object>
         {
             String data = ((TextWebSocketFrame) frame).text();
 
-            websocket.environment().addTrackingChange( TrackingField.WEBSOCKET_INCOMING, data.length() );
+            websocket.environment().observe( Metrics.WEBSOCKET_INCOMING, data.length() );
             websocket.environment().queueEvent( MESSAGE_EVENT, websocket.address(), data, false );
         }
         else if( frame instanceof BinaryWebSocketFrame )
         {
             byte[] converted = NetworkUtils.toBytes( frame.content() );
 
-            websocket.environment().addTrackingChange( TrackingField.WEBSOCKET_INCOMING, converted.length );
+            websocket.environment().observe( Metrics.WEBSOCKET_INCOMING, converted.length );
             websocket.environment().queueEvent( MESSAGE_EVENT, websocket.address(), converted, true );
         }
         else if( frame instanceof CloseWebSocketFrame closeFrame )

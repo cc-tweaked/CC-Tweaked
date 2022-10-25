@@ -9,7 +9,7 @@ import java.util.function.BiConsumer;
 
 /**
  * A Lua object which exposes additional methods.
- *
+ * <p>
  * This can be used to merge multiple objects together into one. Ideally this'd be part of the API, but I'm not entirely
  * happy with the interface - something I'd like to think about first.
  */

@@ -11,11 +11,14 @@ import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.core.ComputerContext;
+import dan200.computercraft.core.computer.mainthread.MainThread;
 import dan200.computercraft.core.filesystem.MemoryMount;
 import dan200.computercraft.core.terminal.Terminal;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -37,7 +40,7 @@ public class ComputerBootstrap
 
     public static void run( String program, int maxTimes )
     {
-        run( program, x -> { }, maxTimes );
+        run( program, x -> {}, maxTimes );
     }
 
     public static void run( IWritableMount mount, Consumer<Computer> setup, int maxTicks )
@@ -45,8 +48,11 @@ public class ComputerBootstrap
         ComputerCraft.logComputerErrors = true;
         ComputerCraft.maxMainComputerTime = ComputerCraft.maxMainGlobalTime = Integer.MAX_VALUE;
 
-        Terminal term = new Terminal( ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight );
-        final Computer computer = new Computer( new BasicEnvironment( mount ), term, 0 );
+        Terminal term = new Terminal( ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight, true );
+        MainThread mainThread = new MainThread();
+        BasicEnvironment environment = new BasicEnvironment( mount );
+        ComputerContext context = new ComputerContext( environment, 1, mainThread );
+        final Computer computer = new Computer( context, environment, term, 0 );
 
         AssertApi api = new AssertApi();
         computer.addApi( api );
@@ -63,7 +69,7 @@ public class ComputerBootstrap
                 long start = System.currentTimeMillis();
 
                 computer.tick();
-                MainThread.executePendingTasks();
+                mainThread.tick();
 
                 if( api.message != null )
                 {
@@ -100,6 +106,17 @@ public class ComputerBootstrap
         catch( InterruptedException ignored )
         {
             Thread.currentThread().interrupt();
+        }
+        finally
+        {
+            try
+            {
+                context.ensureClosed( 1, TimeUnit.SECONDS );
+            }
+            catch( InterruptedException e )
+            {
+                throw new IllegalStateException( "Runtime thread was interrupted", e );
+            }
         }
     }
 

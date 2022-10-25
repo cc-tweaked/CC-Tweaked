@@ -59,7 +59,7 @@ public class TableBuilder
 
     /**
      * Get the unique identifier for this table type.
-     *
+     * <p>
      * When showing a table within Minecraft, previous instances of this table with
      * the same ID will be removed from chat.
      *
@@ -72,7 +72,7 @@ public class TableBuilder
 
     /**
      * Get the number of columns for this table.
-     *
+     * <p>
      * This will be the same as {@link #getHeaders()}'s length if it is is non-{@code null},
      * otherwise the length of the first column.
      *

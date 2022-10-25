@@ -27,7 +27,7 @@ class TerminalTest
     @Test
     void testCreation()
     {
-        Terminal terminal = new Terminal( 16, 9 );
+        Terminal terminal = new Terminal( 16, 9, true );
         assertEquals( 16, terminal.getWidth() );
         assertEquals( 9, terminal.getHeight() );
     }
@@ -35,7 +35,7 @@ class TerminalTest
     @Test
     void testSetAndGetLine()
     {
-        Terminal terminal = new Terminal( 16, 9 );
+        Terminal terminal = new Terminal( 16, 9, true );
         terminal.setLine( 1, "ABCDEFGHIJKLMNOP", "0123456789abcdef", "fedcba9876543210" );
         assertEquals( "ABCDEFGHIJKLMNOP", terminal.getLine( 1 ).toString() );
         assertEquals( "0123456789abcdef", terminal.getTextColourLine( 1 ).toString() );
@@ -45,7 +45,7 @@ class TerminalTest
     @Test
     void testGetLineOutOfBounds()
     {
-        Terminal terminal = new Terminal( 16, 9 );
+        Terminal terminal = new Terminal( 16, 9, true );
 
         assertNull( terminal.getLine( -5 ) );
         assertNull( terminal.getLine( 12 ) );
@@ -60,7 +60,7 @@ class TerminalTest
     @Test
     void testDefaults()
     {
-        Terminal terminal = new Terminal( 16, 9 );
+        Terminal terminal = new Terminal( 16, 9, true );
         assertEquals( 0, terminal.getCursorX() );
         assertEquals( 0, terminal.getCursorY() );
         assertFalse( terminal.getCursorBlink() );
@@ -71,7 +71,7 @@ class TerminalTest
     @Test
     void testDefaultTextBuffer()
     {
-        assertThat( new Terminal( 4, 3 ), textMatches( new String[] {
+        assertThat( new Terminal( 4, 3, true ), textMatches( new String[] {
             "    ",
             "    ",
             "    ",
@@ -81,7 +81,7 @@ class TerminalTest
     @Test
     void testDefaultTextColourBuffer()
     {
-        assertThat( new Terminal( 4, 3 ), textColourMatches( new String[] {
+        assertThat( new Terminal( 4, 3, true ), textColourMatches( new String[] {
             "0000",
             "0000",
             "0000",
@@ -91,7 +91,7 @@ class TerminalTest
     @Test
     void testDefaultBackgroundColourBuffer()
     {
-        assertThat( new Terminal( 4, 3 ), TerminalMatchers.backgroundColourMatches( new String[] {
+        assertThat( new Terminal( 4, 3, true ), TerminalMatchers.backgroundColourMatches( new String[] {
             "ffff",
             "ffff",
             "ffff",
@@ -102,7 +102,7 @@ class TerminalTest
     void testZeroSizeBuffers()
     {
         String[] x = new String[0];
-        assertThat( new Terminal( 0, 0 ), allOf(
+        assertThat( new Terminal( 0, 0, true ), allOf(
             textMatches( new String[0] ),
             textColourMatches( x ),
             TerminalMatchers.backgroundColourMatches( x )
@@ -113,7 +113,7 @@ class TerminalTest
     void testResizeWidthAndHeight()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
         terminal.setLine( 0, "test", "aaaa", "eeee" );
         callCounter.reset();
 
@@ -146,7 +146,7 @@ class TerminalTest
     void testResizeSmaller()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
         terminal.setLine( 0, "test", "aaaa", "eeee" );
         terminal.setLine( 1, "smol", "aaaa", "eeee" );
         terminal.setLine( 2, "term", "aaaa", "eeee" );
@@ -176,7 +176,7 @@ class TerminalTest
     void testResizeWithSameDimensions()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
         TerminalBufferSnapshot old = new TerminalBufferSnapshot( terminal );
         terminal.resize( 4, 3 );
 
@@ -189,7 +189,7 @@ class TerminalTest
     void testSetAndGetCursorPos()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
 
         terminal.setCursorPos( 2, 1 );
 
@@ -202,7 +202,7 @@ class TerminalTest
     void testSetCursorPosUnchanged()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
 
         terminal.setCursorPos( 2, 1 );
         callCounter.reset();
@@ -217,7 +217,7 @@ class TerminalTest
     void testSetCursorBlink()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
 
         terminal.setCursorBlink( true );
 
@@ -229,7 +229,7 @@ class TerminalTest
     void testSetCursorBlinkUnchanged()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
 
         terminal.setCursorBlink( true );
         callCounter.reset();
@@ -243,7 +243,7 @@ class TerminalTest
     void testSetTextColour()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
 
         terminal.setTextColour( 5 );
 
@@ -255,7 +255,7 @@ class TerminalTest
     void testSetTextColourUnchanged()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
 
         terminal.setTextColour( 5 );
         callCounter.reset();
@@ -269,7 +269,7 @@ class TerminalTest
     void testSetBackgroundColour()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
 
         terminal.setBackgroundColour( 5 );
 
@@ -281,7 +281,7 @@ class TerminalTest
     void testSetBackgroundColourUnchanged()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
 
         terminal.setBackgroundColour( 5 );
         callCounter.reset();
@@ -295,7 +295,7 @@ class TerminalTest
     void testBlitFromOrigin()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
 
         blit( terminal, "test", "1234", "abcd" );
 
@@ -322,7 +322,7 @@ class TerminalTest
     void testBlitWithOffset()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
 
         terminal.setCursorPos( 2, 1 );
         callCounter.reset();
@@ -353,7 +353,7 @@ class TerminalTest
     void testBlitOutOfBounds()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
         TerminalBufferSnapshot old = new TerminalBufferSnapshot( terminal );
 
         terminal.setCursorPos( 2, -5 );
@@ -372,7 +372,7 @@ class TerminalTest
     @Test
     public void testBlitPartialBuffer()
     {
-        Terminal terminal = new Terminal( 4, 3 );
+        Terminal terminal = new Terminal( 4, 3, true );
 
         ByteBuffer text = LuaValues.encode( "123456" );
         text.position( 1 );
@@ -386,7 +386,7 @@ class TerminalTest
     void testWriteFromOrigin()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
 
         terminal.write( "test" );
 
@@ -413,7 +413,7 @@ class TerminalTest
     void testWriteWithOffset()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
 
         terminal.setCursorPos( 2, 1 );
         callCounter.reset();
@@ -444,7 +444,7 @@ class TerminalTest
     void testWriteOutOfBounds()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
         TerminalBufferSnapshot old = new TerminalBufferSnapshot( terminal );
 
         terminal.setCursorPos( 2, -5 );
@@ -465,7 +465,7 @@ class TerminalTest
     void testScrollUp()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
 
         terminal.setLine( 1, "test", "1111", "eeee" );
         callCounter.reset();
@@ -496,7 +496,7 @@ class TerminalTest
     void testScrollDown()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
 
         terminal.setLine( 1, "test", "1111", "eeee" );
         callCounter.reset();
@@ -527,7 +527,7 @@ class TerminalTest
     void testScrollZeroLinesUnchanged()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
 
         terminal.setLine( 1, "test", "1111", "eeee" );
         TerminalBufferSnapshot old = new TerminalBufferSnapshot( terminal );
@@ -543,7 +543,7 @@ class TerminalTest
     void testClear()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
         TerminalBufferSnapshot old = new TerminalBufferSnapshot( terminal );
 
         terminal.setLine( 1, "test", "1111", "eeee" );
@@ -559,7 +559,7 @@ class TerminalTest
     void testClearLine()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
         TerminalBufferSnapshot old = new TerminalBufferSnapshot( terminal );
 
         terminal.setLine( 1, "test", "1111", "eeee" );
@@ -576,7 +576,7 @@ class TerminalTest
     void testClearLineOutOfBounds()
     {
         CallCounter callCounter = new CallCounter();
-        Terminal terminal = new Terminal( 4, 3, callCounter );
+        Terminal terminal = new Terminal( 4, 3, true, callCounter );
         TerminalBufferSnapshot old;
 
         terminal.setLine( 1, "test", "1111", "eeee" );
@@ -599,7 +599,7 @@ class TerminalTest
     @Test
     void testPacketBufferRoundtrip()
     {
-        Terminal writeTerminal = new Terminal( 2, 1 );
+        Terminal writeTerminal = new Terminal( 2, 1, true );
 
         blit( writeTerminal, "hi", "11", "ee" );
         writeTerminal.setCursorPos( 2, 5 );
@@ -610,7 +610,7 @@ class TerminalTest
         writeTerminal.write( packetBuffer );
 
         CallCounter callCounter = new CallCounter();
-        Terminal readTerminal = new Terminal( 2, 1, callCounter );
+        Terminal readTerminal = new Terminal( 2, 1, true, callCounter );
         packetBuffer.writeBytes( packetBuffer );
         readTerminal.read( packetBuffer );
 
@@ -630,7 +630,7 @@ class TerminalTest
     @Test
     void testNbtRoundtrip()
     {
-        Terminal writeTerminal = new Terminal( 10, 5 );
+        Terminal writeTerminal = new Terminal( 10, 5, true );
         blit( writeTerminal, "hi", "11", "ee" );
         writeTerminal.setCursorPos( 2, 5 );
         writeTerminal.setTextColour( 3 );
@@ -640,7 +640,7 @@ class TerminalTest
         writeTerminal.writeToNBT( nbt );
 
         CallCounter callCounter = new CallCounter();
-        Terminal readTerminal = new Terminal( 2, 1, callCounter );
+        Terminal readTerminal = new Terminal( 2, 1, true, callCounter );
 
         readTerminal.readFromNBT( nbt );
 
@@ -660,13 +660,13 @@ class TerminalTest
     @Test
     void testReadWriteNBTEmpty()
     {
-        Terminal terminal = new Terminal( 0, 0 );
+        Terminal terminal = new Terminal( 0, 0, true );
 
         CompoundTag nbt = new CompoundTag();
         terminal.writeToNBT( nbt );
 
         CallCounter callCounter = new CallCounter();
-        terminal = new Terminal( 0, 1, callCounter );
+        terminal = new Terminal( 0, 1, true, callCounter );
         terminal.readFromNBT( nbt );
 
         assertThat( terminal, allOf(

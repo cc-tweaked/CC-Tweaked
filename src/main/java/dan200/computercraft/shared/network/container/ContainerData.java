@@ -53,7 +53,7 @@ public interface ContainerData
         C create( MenuType<C> type, int id, @Nonnull Inventory inventory, T data );
     }
 
-    class FixedPointContainerFactory<C extends AbstractContainerMenu, T extends ContainerData> implements IContainerFactory<C>
+    final class FixedPointContainerFactory<C extends AbstractContainerMenu, T extends ContainerData> implements IContainerFactory<C>
     {
         private final IContainerFactory<C> impl;
         private final MenuType<C> type;

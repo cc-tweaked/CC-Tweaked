@@ -21,7 +21,6 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -49,7 +48,7 @@ public class TurtleSmartItemModel implements BakedModel
         flip = new Transformation( stack.last().pose() );
     }
 
-    private static record TurtleModelCombination(
+    private record TurtleModelCombination(
         boolean colour,
         ITurtleUpgrade leftUpgrade,
         ITurtleUpgrade rightUpgrade,
@@ -105,7 +104,7 @@ public class TurtleSmartItemModel implements BakedModel
     {
         Minecraft mc = Minecraft.getInstance();
         ModelManager modelManager = mc.getItemRenderer().getItemModelShaper().getModelManager();
-        ModelResourceLocation overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.overlay, combo.christmas );
+        ResourceLocation overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.overlay, combo.christmas );
 
         BakedModel baseModel = combo.colour ? colourModel : familyModel;
         BakedModel overlayModel = overlayModelLocation != null ? modelManager.getModel( overlayModelLocation ) : null;

@@ -31,26 +31,18 @@ public class ItemData
     {
         data.put( "name", DataHelpers.getId( stack.getItem() ) );
         data.put( "count", stack.getCount() );
-
         return data;
     }
 
-    @Nonnull
-    public static <T extends Map<? super String, Object>> T fillBasic( @Nonnull T data, @Nonnull ItemStack stack )
+    public static void fillBasic( @Nonnull Map<? super String, Object> data, @Nonnull ItemStack stack )
     {
         fillBasicSafe( data, stack );
         String hash = NBTUtil.getNBTHash( stack.getTag() );
         if( hash != null ) data.put( "nbt", hash );
-        return data;
     }
 
-    @Nonnull
-    public static <T extends Map<? super String, Object>> T fill( @Nonnull T data, @Nonnull ItemStack stack )
+    public static void fill( @Nonnull Map<? super String, Object> data, @Nonnull ItemStack stack )
     {
-        if( stack.isEmpty() ) return data;
-
-        fillBasic( data, stack );
-
         data.put( "displayName", stack.getHoverName().getString() );
         data.put( "maxCount", stack.getMaxStackSize() );
 
@@ -97,10 +89,6 @@ public class ItemData
         {
             data.put( "unbreakable", true );
         }
-
-        DetailProviders.fillData( ItemStack.class, data, stack );
-
-        return data;
     }
 
     @Nullable

@@ -68,7 +68,7 @@ public abstract class Resource<T extends Resource<T>> implements Closeable
 
     /**
      * Clean up any pending resources
-     *
+     * <p>
      * Note, this may be called multiple times, and so should be thread-safe and
      * avoid any major side effects.
      */

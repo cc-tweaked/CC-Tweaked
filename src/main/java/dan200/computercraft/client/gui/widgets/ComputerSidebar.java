@@ -8,7 +8,7 @@ package dan200.computercraft.client.gui.widgets;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.render.ComputerBorderRenderer;
-import dan200.computercraft.shared.computer.core.ClientComputer;
+import dan200.computercraft.shared.computer.core.InputHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
@@ -16,6 +16,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Arrays;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 /**
@@ -44,15 +45,15 @@ public final class ComputerSidebar
     {
     }
 
-    public static void addButtons( Screen screen, ClientComputer computer, Consumer<AbstractWidget> add, int x, int y )
+    public static void addButtons( Screen screen, BooleanSupplier isOn, InputHandler input, Consumer<AbstractWidget> add, int x, int y )
     {
         x += CORNERS_BORDER + 1;
         y += CORNERS_BORDER + ICON_MARGIN;
 
         add.accept( new DynamicImageButton(
-            screen, x, y, ICON_WIDTH, ICON_HEIGHT, () -> computer.isOn() ? 15 : 1, 1, ICON_TEX_Y_DIFF,
-            TEXTURE, TEX_SIZE, TEX_SIZE, b -> toggleComputer( computer ),
-            () -> computer.isOn() ? Arrays.asList(
+            screen, x, y, ICON_WIDTH, ICON_HEIGHT, () -> isOn.getAsBoolean() ? 15 : 1, 1, ICON_TEX_Y_DIFF,
+            TEXTURE, TEX_SIZE, TEX_SIZE, b -> toggleComputer( isOn, input ),
+            () -> isOn.getAsBoolean() ? Arrays.asList(
                 new TranslatableComponent( "gui.computercraft.tooltip.turn_off" ),
                 new TranslatableComponent( "gui.computercraft.tooltip.turn_off.key" ).withStyle( ChatFormatting.GRAY )
             ) : Arrays.asList(
@@ -65,7 +66,7 @@ public final class ComputerSidebar
 
         add.accept( new DynamicImageButton(
             screen, x, y, ICON_WIDTH, ICON_HEIGHT, 29, 1, ICON_TEX_Y_DIFF,
-            TEXTURE, TEX_SIZE, TEX_SIZE, b -> computer.queueEvent( "terminate" ),
+            TEXTURE, TEX_SIZE, TEX_SIZE, b -> input.queueEvent( "terminate" ),
             Arrays.asList(
                 new TranslatableComponent( "gui.computercraft.tooltip.terminate" ),
                 new TranslatableComponent( "gui.computercraft.tooltip.terminate.key" ).withStyle( ChatFormatting.GRAY )
@@ -92,15 +93,15 @@ public final class ComputerSidebar
         );
     }
 
-    private static void toggleComputer( ClientComputer computer )
+    private static void toggleComputer( BooleanSupplier isOn, InputHandler input )
     {
-        if( computer.isOn() )
+        if( isOn.getAsBoolean() )
         {
-            computer.shutdown();
+            input.shutdown();
         }
         else
         {
-            computer.turnOn();
+            input.turnOn();
         }
     }
 }

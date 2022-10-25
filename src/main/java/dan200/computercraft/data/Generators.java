@@ -30,7 +30,7 @@ public class Generators
 
         generator.addProvider( new RecipeGenerator( generator, turtleUpgrades, pocketUpgrades ) );
         generator.addProvider( new LootTableGenerator( generator ) );
-        generator.addProvider( new BlockModelProvider( generator, existingFiles ) );
+        generator.addProvider( new ModelProvider( generator, BlockModelGenerator::addBlockModels, ItemModelGenerator::addItemModels ) );
 
         BlockTagsGenerator blockTags = new BlockTagsGenerator( generator, existingFiles );
         generator.addProvider( blockTags );

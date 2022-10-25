@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
@@ -43,8 +44,8 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
 {
     private static final ModelResourceLocation NORMAL_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_normal", "inventory" );
     private static final ModelResourceLocation ADVANCED_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_advanced", "inventory" );
-    private static final ModelResourceLocation COLOUR_TURTLE_MODEL = new ModelResourceLocation( "computercraft:turtle_colour", "inventory" );
-    private static final ModelResourceLocation ELF_OVERLAY_MODEL = new ModelResourceLocation( "computercraft:turtle_elf_overlay", "inventory" );
+    private static final ResourceLocation COLOUR_TURTLE_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_colour" );
+    private static final ResourceLocation ELF_OVERLAY_MODEL = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_elf_overlay" );
 
     private final Random random = new Random( 0 );
 
@@ -55,7 +56,7 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
         renderer = context.getBlockEntityRenderDispatcher();
     }
 
-    public static ModelResourceLocation getTurtleModel( ComputerFamily family, boolean coloured )
+    public static ResourceLocation getTurtleModel( ComputerFamily family, boolean coloured )
     {
         switch( family )
         {
@@ -67,9 +68,9 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
         }
     }
 
-    public static ModelResourceLocation getTurtleOverlayModel( ResourceLocation overlay, boolean christmas )
+    public static ResourceLocation getTurtleOverlayModel( ResourceLocation overlay, boolean christmas )
     {
-        if( overlay != null ) return new ModelResourceLocation( overlay, "inventory" );
+        if( overlay != null ) return overlay;
         if( christmas ) return ELF_OVERLAY_MODEL;
         return null;
     }
@@ -124,7 +125,7 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
         renderModel( transform, buffer, lightmapCoord, overlayLight, getTurtleModel( family, colour != -1 ), colour == -1 ? null : new int[] { colour } );
 
         // Render the overlay
-        ModelResourceLocation overlayModel = getTurtleOverlayModel( overlay, HolidayUtil.getCurrentHoliday() == Holiday.CHRISTMAS );
+        ResourceLocation overlayModel = getTurtleOverlayModel( overlay, HolidayUtil.getCurrentHoliday() == Holiday.CHRISTMAS );
         if( overlayModel != null )
         {
             renderModel( transform, buffer, lightmapCoord, overlayLight, overlayModel, null );
@@ -156,7 +157,7 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
         transform.popPose();
     }
 
-    private void renderModel( @Nonnull PoseStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, ModelResourceLocation modelLocation, int[] tints )
+    private void renderModel( @Nonnull PoseStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, ResourceLocation modelLocation, int[] tints )
     {
         ModelManager modelManager = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getModelManager();
         renderModel( transform, renderer, lightmapCoord, overlayLight, modelManager.getModel( modelLocation ), tints );

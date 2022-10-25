@@ -5,10 +5,10 @@
  */
 package dan200.computercraft.shared.network.server;
 
-import dan200.computercraft.shared.computer.core.IContainerComputer;
-import dan200.computercraft.shared.computer.core.InputState;
-import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.menu.ComputerMenu;
+import dan200.computercraft.shared.computer.menu.ServerInputHandler;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
@@ -22,9 +22,9 @@ public class KeyEventServerMessage extends ComputerServerMessage
     private final int type;
     private final int key;
 
-    public KeyEventServerMessage( int instanceId, int type, int key )
+    public KeyEventServerMessage( AbstractContainerMenu menu, int type, int key )
     {
-        super( instanceId );
+        super( menu );
         this.type = type;
         this.key = key;
     }
@@ -45,9 +45,9 @@ public class KeyEventServerMessage extends ComputerServerMessage
     }
 
     @Override
-    protected void handle( NetworkEvent.Context context, @Nonnull ServerComputer computer, @Nonnull IContainerComputer container )
+    protected void handle( NetworkEvent.Context context, @Nonnull ComputerMenu container )
     {
-        InputState input = container.getInput();
+        ServerInputHandler input = container.getInput();
         if( type == TYPE_UP )
         {
             input.keyUp( key );

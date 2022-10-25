@@ -12,14 +12,14 @@ import java.util.concurrent.TimeUnit;
 /**
  * Monitors "work" associated with a computer, keeping track of how much a computer has done, and ensuring every
  * computer receives a fair share of any processing time.
- *
+ * <p>
  * This is primarily intended for work done by peripherals on the main thread (such as on a tile entity's tick), but
  * could be used for other purposes (such as complex computations done on another thread).
- *
+ * <p>
  * Before running a task, one should call {@link #canWork()} to determine if the computer is currently allowed to
  * execute work. If that returns true, you should execute the task and use {@link #trackWork(long, TimeUnit)} to inform
  * the monitor how long that task took.
- *
+ * <p>
  * Alternatively, use {@link #runWork(Runnable)} to run and keep track of work.
  *
  * @see IComputerAccess#getMainThreadMonitor()
@@ -35,7 +35,7 @@ public interface IWorkMonitor
 
     /**
      * If the owning computer is currently allowed to execute work, and has ample time to do so.
-     *
+     * <p>
      * This is effectively a more restrictive form of {@link #canWork()}. One should use that in order to determine if
      * you may do an initial piece of work, and shouldWork to determine if any additional task may be performed.
      *

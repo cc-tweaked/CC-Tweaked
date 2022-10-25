@@ -9,8 +9,6 @@ import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.shared.Config;
 import dan200.computercraft.shared.Registry;
-import dan200.computercraft.shared.computer.core.ClientComputerRegistry;
-import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import net.minecraftforge.fml.common.Mod;
 import org.slf4j.Logger;
@@ -76,11 +74,6 @@ public final class ComputerCraft
     public static int monitorWidth = 8;
     public static int monitorHeight = 6;
 
-    // Registries
-    public static final ClientComputerRegistry clientComputerRegistry = new ClientComputerRegistry();
-    public static final ServerComputerRegistry serverComputerRegistry = new ServerComputerRegistry();
-
-    // Logging
     public static final Logger log = LoggerFactory.getLogger( MOD_ID );
 
     public ComputerCraft()

@@ -1,5 +1,6 @@
 {
     "parent": "block/cube",
+    "render_type": "cutout",
     "textures": {
         "particle": "#front",
         "down": "#top",
