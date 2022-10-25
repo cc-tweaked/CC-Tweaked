@@ -9,15 +9,11 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.Registry;
-import dan200.computercraft.shared.TurtleUpgrades;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.integration.RecipeModHelpers;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
-import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
-import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaRecipeCategoryUid;
@@ -34,10 +30,7 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.List;
-
-import static dan200.computercraft.shared.integration.jei.RecipeResolver.MAIN_FAMILIES;
 
 @JeiPlugin
 public class JEIComputerCraft implements IModPlugin
@@ -73,21 +66,11 @@ public class JEIComputerCraft implements IModPlugin
         IRecipeManager registry = runtime.getRecipeManager();
 
         // Register all turtles/pocket computers (not just vanilla upgrades) as upgrades on JEI.
-        List<ItemStack> upgradeItems = new ArrayList<>();
-        for( ComputerFamily family : MAIN_FAMILIES )
+        List<ItemStack> upgradeItems = RecipeModHelpers.getExtraStacks();
+        if( !upgradeItems.isEmpty() )
         {
-            TurtleUpgrades.getUpgrades()
-                .filter( x -> TurtleUpgrades.suitableForFamily( family, x ) )
-                .map( x -> TurtleItemFactory.create( -1, null, -1, family, null, x, 0, null ) )
-                .forEach( upgradeItems::add );
-
-            for( IPocketUpgrade upgrade : PocketUpgrades.getUpgrades() )
-            {
-                upgradeItems.add( PocketComputerItemFactory.create( -1, null, -1, family, upgrade ) );
-            }
+            runtime.getIngredientManager().addIngredientsAtRuntime( VanillaTypes.ITEM, upgradeItems );
         }
-
-        runtime.getIngredientManager().addIngredientsAtRuntime( VanillaTypes.ITEM, upgradeItems );
 
         // Hide all upgrade recipes
         IRecipeCategory<?> category = registry.getRecipeCategory( VanillaRecipeCategoryUid.CRAFTING );
@@ -96,12 +79,7 @@ public class JEIComputerCraft implements IModPlugin
             for( Object wrapper : registry.getRecipes( category ) )
             {
                 if( !(wrapper instanceof IRecipe) ) continue;
-                ResourceLocation id = ((IRecipe<?>) wrapper).getId();
-                if( !id.getNamespace().equals( ComputerCraft.MOD_ID ) ) continue;
-
-                String path = id.getPath();
-                if( path.startsWith( "turtle_normal/" ) || path.startsWith( "turtle_advanced/" )
-                    || path.startsWith( "pocket_normal/" ) || path.startsWith( "pocket_advanced/" ) )
+                if( RecipeModHelpers.shouldRemoveRecipe( ((IRecipe<?>) wrapper).getId() ) )
                 {
                     registry.hideRecipe( wrapper, VanillaRecipeCategoryUid.CRAFTING );
                 }
