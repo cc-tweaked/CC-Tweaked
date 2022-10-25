@@ -9,7 +9,6 @@ import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.util.Colour;
 
@@ -24,12 +23,10 @@ import javax.annotation.Nonnull;
 public class TermAPI extends TermMethods implements ILuaAPI
 {
     private final Terminal terminal;
-    private final ComputerEnvironment environment;
 
     public TermAPI( IAPIEnvironment environment )
     {
         terminal = environment.getTerminal();
-        this.environment = environment.getComputerEnvironment();
     }
 
     @Override

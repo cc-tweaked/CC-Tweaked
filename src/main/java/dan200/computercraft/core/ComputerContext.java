@@ -11,10 +11,13 @@ import dan200.computercraft.core.computer.mainthread.MainThreadScheduler;
 import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.ILuaMachine;
 
+import javax.annotation.CheckReturnValue;
+import java.util.concurrent.TimeUnit;
+
 /**
  * The global context under which computers run.
  */
-public final class ComputerContext implements AutoCloseable
+public final class ComputerContext
 {
     private final GlobalEnvironment globalEnvironment;
     private final ComputerThread computerScheduler;
@@ -87,10 +90,31 @@ public final class ComputerContext implements AutoCloseable
 
     /**
      * Close the current {@link ComputerContext}, disposing of any resources inside.
+     *
+     * @param timeout The maximum time to wait.
+     * @param unit    The unit {@code timeout} is in.
+     * @return Whether the context was successfully shut down.
+     * @throws InterruptedException If interrupted while waiting.
      */
-    @Override
-    public void close()
+    @CheckReturnValue
+    public boolean close( long timeout, TimeUnit unit ) throws InterruptedException
     {
-        computerScheduler().stop();
+        return computerScheduler().stop( timeout, unit );
+    }
+
+    /**
+     * Close the current {@link ComputerContext}, disposing of any resources inside.
+     *
+     * @param timeout The maximum time to wait.
+     * @param unit    The unit {@code timeout} is in.
+     * @throws IllegalStateException If the computer thread was not shut down in time.
+     * @throws InterruptedException  If interrupted while waiting.
+     */
+    public void ensureClosed( long timeout, TimeUnit unit ) throws InterruptedException
+    {
+        if( !computerScheduler().stop( timeout, unit ) )
+        {
+            throw new IllegalStateException( "Failed to shutdown ComputerContext in time." );
+        }
     }
 }

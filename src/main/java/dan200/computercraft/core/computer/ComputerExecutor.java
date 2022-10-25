@@ -78,7 +78,7 @@ final class ComputerExecutor
 
     /**
      * The lock to acquire when you need to modify the "on state" of a computer.
-     *
+     * <p>
      * We hold this lock when running any command, and attempt to hold it when updating APIs. This ensures you don't
      * update APIs while also starting/stopping them.
      *
@@ -120,10 +120,10 @@ final class ComputerExecutor
 
     /**
      * The command that {@link #work()} should execute on the computer thread.
-     *
+     * <p>
      * One sets the command with {@link #queueStart()} and {@link #queueStop(boolean, boolean)}. Neither of these will
      * queue a new event if there is an existing one in the queue.
-     *
+     * <p>
      * Note, if command is not {@code null}, then some command is scheduled to be executed. Otherwise it is not
      * currently in the queue (or is currently being executed).
      */
@@ -131,7 +131,7 @@ final class ComputerExecutor
 
     /**
      * The queue of events which should be executed when this computer is on.
-     *
+     * <p>
      * Note, this should be empty if this computer is off - it is cleared on shutdown and when turning on again.
      */
     private final Queue<Event> eventQueue = new ArrayDeque<>( 4 );
@@ -171,9 +171,6 @@ final class ComputerExecutor
         luaFactory = context.luaFactory();
         scheduler = context.computerScheduler();
         timeout = new TimeoutState( scheduler );
-
-        // Ensure the computer thread is running as required.
-        scheduler.start();
 
         Environment environment = computer.getEnvironment();
 
@@ -548,7 +545,7 @@ final class ComputerExecutor
 
     /**
      * The main worker function, called by {@link ComputerThread}.
-     *
+     * <p>
      * This either executes a {@link StateCommand} or attempts to run an event
      *
      * @throws InterruptedException If various locks could not be acquired.
@@ -557,7 +554,7 @@ final class ComputerExecutor
      */
     void work() throws InterruptedException
     {
-        if( interruptedEvent )
+        if( interruptedEvent && !closed )
         {
             interruptedEvent = false;
             if( machine != null )

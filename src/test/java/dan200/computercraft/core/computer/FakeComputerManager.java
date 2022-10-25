@@ -48,7 +48,14 @@ public class FakeComputerManager implements AutoCloseable
     @Override
     public void close()
     {
-        context.close();
+        try
+        {
+            context.ensureClosed( 1, TimeUnit.SECONDS );
+        }
+        catch( InterruptedException e )
+        {
+            throw new IllegalStateException( "Runtime thread was interrupted", e );
+        }
     }
 
     public ComputerContext context()

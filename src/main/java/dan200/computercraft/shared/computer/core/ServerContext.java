@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Stores ComputerCraft's server-side state for the lifetime of a {@link MinecraftServer}.
@@ -81,7 +82,18 @@ public final class ServerContext
         if( instance == null ) return;
 
         instance.registry.close();
-        instance.context.close();
+        try
+        {
+            if( !instance.context.close( 1, TimeUnit.SECONDS ) )
+            {
+                ComputerCraft.log.error( "Failed to stop computers under deadline." );
+            }
+        }
+        catch( InterruptedException e )
+        {
+            ComputerCraft.log.error( "Failed to stop computers.", e );
+            Thread.currentThread().interrupt();
+        }
 
         ServerContext.instance = null;
     }

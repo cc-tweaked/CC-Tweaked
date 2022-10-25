@@ -18,6 +18,7 @@ import dan200.computercraft.core.terminal.Terminal;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -108,7 +109,14 @@ public class ComputerBootstrap
         }
         finally
         {
-            context.close();
+            try
+            {
+                context.ensureClosed( 1, TimeUnit.SECONDS );
+            }
+            catch( InterruptedException e )
+            {
+                throw new IllegalStateException( "Runtime thread was interrupted", e );
+            }
         }
     }
 
