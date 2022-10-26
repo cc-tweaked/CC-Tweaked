@@ -11,19 +11,13 @@ import java.time.Instant;
 
 /**
  * A simple version of {@link BasicFileAttributes}, which provides what information a {@link IMount} already exposes.
+ *
+ * @param isDirectory Whether this filesystem entry is a directory.
+ * @param size        The size of the file.
  */
-final class FileAttributes implements BasicFileAttributes
+record FileAttributes(boolean isDirectory, long size) implements BasicFileAttributes
 {
     private static final FileTime EPOCH = FileTime.from( Instant.EPOCH );
-
-    private final boolean isDirectory;
-    private final long size;
-
-    FileAttributes( boolean isDirectory, long size )
-    {
-        this.isDirectory = isDirectory;
-        this.size = size;
-    }
 
     @Override
     public FileTime lastModifiedTime()
@@ -50,12 +44,6 @@ final class FileAttributes implements BasicFileAttributes
     }
 
     @Override
-    public boolean isDirectory()
-    {
-        return isDirectory;
-    }
-
-    @Override
     public boolean isSymbolicLink()
     {
         return false;
@@ -65,12 +53,6 @@ final class FileAttributes implements BasicFileAttributes
     public boolean isOther()
     {
         return false;
-    }
-
-    @Override
-    public long size()
-    {
-        return size;
     }
 
     @Override

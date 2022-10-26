@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
 
 /**
  * Starts or stops a record on the client, depending on if {@link #soundEvent} is {@code null}.
- *
+ * <p>
  * Used by disk drives to play record items.
  *
  * @see dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive

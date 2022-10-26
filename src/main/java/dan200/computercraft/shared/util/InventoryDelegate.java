@@ -16,7 +16,7 @@ import java.util.Set;
 
 /**
  * Provides a delegate over inventories.
- *
+ * <p>
  * This may be used both on {@link BlockEntity}s to redirect the inventory to another tile,
  * and by other interfaces to have inventories which change their backing store.
  */

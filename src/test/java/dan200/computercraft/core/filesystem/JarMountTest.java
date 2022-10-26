@@ -7,6 +7,7 @@ package dan200.computercraft.core.filesystem;
 
 import com.google.common.io.ByteStreams;
 import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.support.TestFiles;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class JarMountTest
 {
-    private static final File ZIP_FILE = new File( "test-files/jar-mount.zip" );
+    private static final File ZIP_FILE = TestFiles.get( "jar-mount.zip" ).toFile();
 
     private static final FileTime MODIFY_TIME = FileTime.from( Instant.EPOCH.plus( 2, ChronoUnit.DAYS ) );
 

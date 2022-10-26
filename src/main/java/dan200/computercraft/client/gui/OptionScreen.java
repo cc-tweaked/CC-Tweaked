@@ -56,7 +56,7 @@ public final class OptionScreen extends Screen
 
     public static Screen unwrap( Screen screen )
     {
-        return screen instanceof OptionScreen ? ((OptionScreen) screen).getOriginalScreen() : screen;
+        return screen instanceof OptionScreen option ? option.getOriginalScreen() : screen;
     }
 
     @Override

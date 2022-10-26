@@ -10,8 +10,9 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.DynamicImageButton;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
-import dan200.computercraft.shared.computer.core.ClientComputer;
+import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.computer.core.InputHandler;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.upload.FileUpload;
 import dan200.computercraft.shared.computer.upload.UploadResult;
@@ -41,16 +42,18 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
     private static final Component OVERWRITE = Component.translatable( "gui.computercraft.upload.overwrite_button" );
 
     protected WidgetTerminal terminal;
-    protected final ClientComputer computer;
+    protected Terminal terminalData;
     protected final ComputerFamily family;
+    protected final InputHandler input;
 
     protected final int sidebarYOffset;
 
     public ComputerScreenBase( T container, Inventory player, Component title, int sidebarYOffset )
     {
         super( container, player, title );
-        computer = (ClientComputer) container.getComputer();
+        terminalData = container.getTerminal();
         family = container.getFamily();
+        input = new ClientInputHandler( menu );
         this.sidebarYOffset = sidebarYOffset;
     }
 
@@ -63,7 +66,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
         minecraft.keyboardHandler.setSendRepeatsToGui( true );
 
         terminal = addRenderableWidget( createTerminal() );
-        ComputerSidebar.addButtons( this, computer, this::addRenderableWidget, leftPos, topPos + sidebarYOffset );
+        ComputerSidebar.addButtons( this, menu::isOn, input, this::addRenderableWidget, leftPos, topPos + sidebarYOffset );
         setFocused( terminal );
     }
 
@@ -131,7 +134,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
     {
         if( files.isEmpty() ) return;
 
-        if( computer == null || !computer.isOn() )
+        if( !menu.isOn() )
         {
             alert( UploadResult.FAILED_TITLE, UploadResult.COMPUTER_OFF_MSG );
             return;
@@ -187,10 +190,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
             return;
         }
 
-        if( toUpload.size() > 0 )
-        {
-            UploadFileMessage.send( computer.getInstanceID(), toUpload );
-        }
+        if( toUpload.size() > 0 ) UploadFileMessage.send( menu, toUpload, NetworkHandler::sendToServer );
     }
 
     public void uploadResult( UploadResult result, Component message )
@@ -219,13 +219,13 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
     private void continueUpload()
     {
         if( minecraft.screen instanceof OptionScreen screen ) screen.disable();
-        NetworkHandler.sendToServer( new ContinueUploadMessage( computer.getInstanceID(), true ) );
+        NetworkHandler.sendToServer( new ContinueUploadMessage( menu, true ) );
     }
 
     private void cancelUpload()
     {
         minecraft.setScreen( this );
-        NetworkHandler.sendToServer( new ContinueUploadMessage( computer.getInstanceID(), false ) );
+        NetworkHandler.sendToServer( new ContinueUploadMessage( menu, false ) );
     }
 
     private void alert( Component title, Component message )

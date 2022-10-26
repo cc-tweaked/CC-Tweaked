@@ -26,7 +26,7 @@ public class TerminalStateTest
         Terminal terminal = randomTerminal();
 
         FriendlyByteBuf buffer = new FriendlyByteBuf( Unpooled.directBuffer() );
-        new TerminalState( true, terminal, true ).write( buffer );
+        new TerminalState( terminal, true ).write( buffer );
 
         checkEqual( terminal, read( buffer ) );
         assertEquals( 0, buffer.readableBytes() );
@@ -38,7 +38,7 @@ public class TerminalStateTest
         Terminal terminal = randomTerminal();
 
         FriendlyByteBuf buffer = new FriendlyByteBuf( Unpooled.directBuffer() );
-        new TerminalState( true, terminal, false ).write( buffer );
+        new TerminalState( terminal, false ).write( buffer );
 
         checkEqual( terminal, read( buffer ) );
         assertEquals( 0, buffer.readableBytes() );
@@ -47,7 +47,7 @@ public class TerminalStateTest
     private static Terminal randomTerminal()
     {
         Random random = new Random();
-        Terminal terminal = new Terminal( 10, 5 );
+        Terminal terminal = new Terminal( 10, 5, true );
         for( int y = 0; y < terminal.getHeight(); y++ )
         {
             TextBuffer buffer = terminal.getLine( y );
@@ -77,7 +77,7 @@ public class TerminalStateTest
 
         if( !state.hasTerminal() ) return null;
 
-        Terminal other = new Terminal( state.width, state.height );
+        Terminal other = new Terminal( state.width, state.height, true );
         state.apply( other );
         return other;
     }

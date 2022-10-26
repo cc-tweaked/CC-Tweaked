@@ -19,7 +19,7 @@ import java.nio.ByteBuffer;
 
 /**
  * A version of {@link VertexBuffer} which allows uploading {@link ByteBuffer}s directly.
- *
+ * <p>
  * This should probably be its own class (rather than subclassing), but I need access to {@link VertexBuffer#drawWithShader}.
  */
 public class DirectVertexBuffer extends VertexBuffer

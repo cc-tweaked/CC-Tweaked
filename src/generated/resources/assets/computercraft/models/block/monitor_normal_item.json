@@ -1,8 +1,9 @@
 {
-  "parent": "minecraft:block/orientable",
+  "parent": "computercraft:block/monitor_base",
   "textures": {
-    "side": "computercraft:block/monitor_normal_4",
     "front": "computercraft:block/monitor_normal_15",
-    "top": "computercraft:block/monitor_normal_0"
+    "side": "computercraft:block/monitor_normal_4",
+    "top": "computercraft:block/monitor_normal_0",
+    "back": "computercraft:block/monitor_normal_32"
   }
 }

@@ -17,7 +17,7 @@ import org.squiddev.cobalt.function.VarArgFunction;
 
 /**
  * An "optimised" version of {@link ResultInterpreterFunction} which is guaranteed to never yield.
- *
+ * <p>
  * As we never yield, we do not need to push a function to the stack, which removes a small amount of overhead.
  */
 class BasicFunction extends VarArgFunction

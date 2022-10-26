@@ -6,9 +6,8 @@
 package dan200.computercraft.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
-import dan200.computercraft.shared.computer.core.ClientComputer;
+import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.Font;
@@ -25,12 +24,14 @@ import java.util.List;
 public class NoTermComputerScreen<T extends ContainerComputerBase> extends Screen implements MenuAccess<T>
 {
     private final T menu;
+    private final Terminal terminalData;
     private WidgetTerminal terminal;
 
     public NoTermComputerScreen( T menu, Inventory player, Component title )
     {
         super( title );
         this.menu = menu;
+        terminalData = menu.getTerminal();
     }
 
     @Nonnull
@@ -53,7 +54,7 @@ public class NoTermComputerScreen<T extends ContainerComputerBase> extends Scree
         super.init();
         minecraft.keyboardHandler.setSendRepeatsToGui( true );
 
-        terminal = addWidget( new WidgetTerminal( (ClientComputer) menu.getComputer(), 0, 0, ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight ) );
+        terminal = addWidget( new WidgetTerminal( terminalData, new ClientInputHandler( menu ), 0, 0 ) );
         terminal.visible = false;
         terminal.active = false;
         setFocused( terminal );

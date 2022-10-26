@@ -9,7 +9,6 @@ import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.util.Colour;
 
@@ -24,12 +23,10 @@ import javax.annotation.Nonnull;
 public class TermAPI extends TermMethods implements ILuaAPI
 {
     private final Terminal terminal;
-    private final IComputerEnvironment environment;
 
     public TermAPI( IAPIEnvironment environment )
     {
         terminal = environment.getTerminal();
-        this.environment = environment.getComputerEnvironment();
     }
 
     @Override
@@ -55,12 +52,7 @@ public class TermAPI extends TermMethods implements ILuaAPI
     {
         int actualColour = 15 - parseColour( colour );
         Colour c = Colour.fromInt( actualColour );
-
-        float[] rgb = c.getRGB();
-
-        Object[] rgbObj = new Object[rgb.length];
-        for( int i = 0; i < rgbObj.length; ++i ) rgbObj[i] = rgb[i];
-        return rgbObj;
+        return new Object[] { c.getR(), c.getG(), c.getB() };
     }
 
     @Nonnull
@@ -68,11 +60,5 @@ public class TermAPI extends TermMethods implements ILuaAPI
     public Terminal getTerminal()
     {
         return terminal;
-    }
-
-    @Override
-    public boolean isColour()
-    {
-        return environment.isColour();
     }
 }

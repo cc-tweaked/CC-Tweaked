@@ -12,4 +12,4 @@ Follow @DanTwoHundred on Twitter!
 To help contribute to ComputerCraft, browse the source code at https://github.com/dan200/ComputerCraft.
 
 GitHub Contributors:
-${gitcontributors}
+${gitContributors}

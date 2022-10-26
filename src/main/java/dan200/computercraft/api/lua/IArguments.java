@@ -69,8 +69,8 @@ public interface IArguments
     default double getDouble( int index ) throws LuaException
     {
         Object value = get( index );
-        if( !(value instanceof Number) ) throw LuaValues.badArgumentOf( index, "number", value );
-        return ((Number) value).doubleValue();
+        if( !(value instanceof Number number) ) throw LuaValues.badArgumentOf( index, "number", value );
+        return number.doubleValue();
     }
 
     /**
@@ -95,8 +95,8 @@ public interface IArguments
     default long getLong( int index ) throws LuaException
     {
         Object value = get( index );
-        if( !(value instanceof Number) ) throw LuaValues.badArgumentOf( index, "number", value );
-        return LuaValues.checkFiniteNum( index, (Number) value ).longValue();
+        if( !(value instanceof Number number) ) throw LuaValues.badArgumentOf( index, "number", value );
+        return LuaValues.checkFiniteNum( index, number ).longValue();
     }
 
     /**
@@ -121,8 +121,8 @@ public interface IArguments
     default boolean getBoolean( int index ) throws LuaException
     {
         Object value = get( index );
-        if( !(value instanceof Boolean) ) throw LuaValues.badArgumentOf( index, "boolean", value );
-        return (Boolean) value;
+        if( !(value instanceof Boolean bool) ) throw LuaValues.badArgumentOf( index, "boolean", value );
+        return bool;
     }
 
     /**
@@ -136,8 +136,8 @@ public interface IArguments
     default String getString( int index ) throws LuaException
     {
         Object value = get( index );
-        if( !(value instanceof String) ) throw LuaValues.badArgumentOf( index, "string", value );
-        return (String) value;
+        if( !(value instanceof String string) ) throw LuaValues.badArgumentOf( index, "string", value );
+        return string;
     }
 
     /**
@@ -185,7 +185,7 @@ public interface IArguments
 
     /**
      * Get an argument as a table in an unsafe manner.
-     *
+     * <p>
      * Classes implementing this interface may choose to implement a more optimised version which does not copy the
      * table, instead returning a wrapper version, making it more efficient. However, the caller must guarantee that
      * they do not access the table the computer thread (and so should not be used with main-thread functions) or once
@@ -213,8 +213,8 @@ public interface IArguments
     {
         Object value = get( index );
         if( value == null ) return Optional.empty();
-        if( !(value instanceof Number) ) throw LuaValues.badArgumentOf( index, "number", value );
-        return Optional.of( ((Number) value).doubleValue() );
+        if( !(value instanceof Number number) ) throw LuaValues.badArgumentOf( index, "number", value );
+        return Optional.of( number.doubleValue() );
     }
 
     /**
@@ -241,8 +241,8 @@ public interface IArguments
     {
         Object value = get( index );
         if( value == null ) return Optional.empty();
-        if( !(value instanceof Number) ) throw LuaValues.badArgumentOf( index, "number", value );
-        return Optional.of( LuaValues.checkFiniteNum( index, (Number) value ).longValue() );
+        if( !(value instanceof Number number) ) throw LuaValues.badArgumentOf( index, "number", value );
+        return Optional.of( LuaValues.checkFiniteNum( index, number ).longValue() );
     }
 
     /**
@@ -270,8 +270,8 @@ public interface IArguments
     {
         Object value = get( index );
         if( value == null ) return Optional.empty();
-        if( !(value instanceof Boolean) ) throw LuaValues.badArgumentOf( index, "boolean", value );
-        return Optional.of( (Boolean) value );
+        if( !(value instanceof Boolean bool) ) throw LuaValues.badArgumentOf( index, "boolean", value );
+        return Optional.of( bool );
     }
 
     /**
@@ -285,8 +285,8 @@ public interface IArguments
     {
         Object value = get( index );
         if( value == null ) return Optional.empty();
-        if( !(value instanceof String) ) throw LuaValues.badArgumentOf( index, "string", value );
-        return Optional.of( (String) value );
+        if( !(value instanceof String string) ) throw LuaValues.badArgumentOf( index, "string", value );
+        return Optional.of( string );
     }
 
     /**
@@ -334,7 +334,7 @@ public interface IArguments
 
     /**
      * Get an argument as a table in an unsafe manner.
-     *
+     * <p>
      * Classes implementing this interface may choose to implement a more optimised version which does not copy the
      * table, instead returning a wrapper version, making it more efficient. However, the caller must guarantee that
      * they do not access off the computer thread (and so should not be used with main-thread functions) or once the

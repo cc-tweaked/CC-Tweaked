@@ -30,7 +30,7 @@ public class Generators
 
         generator.addProvider( event.includeServer(), new RecipeGenerator( generator, turtleUpgrades, pocketUpgrades ) );
         generator.addProvider( event.includeServer(), new LootTableGenerator( generator ) );
-        generator.addProvider( event.includeClient(), new BlockModelProvider( generator, existingFiles ) );
+        generator.addProvider( event.includeClient(), new ModelProvider( generator, BlockModelGenerator::addBlockModels, ItemModelGenerator::addItemModels ) );
 
         BlockTagsGenerator blockTags = new BlockTagsGenerator( generator, existingFiles );
         generator.addProvider( event.includeServer(), blockTags );

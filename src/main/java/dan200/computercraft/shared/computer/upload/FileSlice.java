@@ -10,34 +10,8 @@ import dan200.computercraft.ComputerCraft;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-public class FileSlice
+public record FileSlice(int fileId, int offset, ByteBuffer bytes)
 {
-    private final int fileId;
-    private final int offset;
-    private final ByteBuffer bytes;
-
-    public FileSlice( int fileId, int offset, ByteBuffer bytes )
-    {
-        this.fileId = fileId;
-        this.offset = offset;
-        this.bytes = bytes;
-    }
-
-    public int getFileId()
-    {
-        return fileId;
-    }
-
-    public int getOffset()
-    {
-        return offset;
-    }
-
-    public ByteBuffer getBytes()
-    {
-        return bytes;
-    }
-
     public void apply( List<FileUpload> files )
     {
         if( fileId < 0 || fileId >= files.size() )

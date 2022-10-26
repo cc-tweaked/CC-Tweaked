@@ -16,8 +16,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -51,7 +51,7 @@ public final class InventoryUtil
         BlockEntity tileEntity = world.getBlockEntity( pos );
         if( tileEntity != null )
         {
-            LazyOptional<IItemHandler> itemHandler = tileEntity.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side );
+            LazyOptional<IItemHandler> itemHandler = tileEntity.getCapability( ForgeCapabilities.ITEM_HANDLER, side );
             if( itemHandler.isPresent() )
             {
                 return itemHandler.orElseThrow( NullPointerException::new );

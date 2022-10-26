@@ -6,6 +6,7 @@
 package dan200.computercraft.client;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.client.sound.SpeakerManager;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import net.minecraftforge.api.distmarker.Dist;
@@ -30,12 +31,12 @@ public class ClientHooks
     @SubscribeEvent
     public static void onLogIn( ClientPlayerNetworkEvent.LoggingIn event )
     {
-        ComputerCraft.clientComputerRegistry.reset();
+        ClientPocketComputers.reset();
     }
 
     @SubscribeEvent
     public static void onLogOut( ClientPlayerNetworkEvent.LoggingOut event )
     {
-        ComputerCraft.clientComputerRegistry.reset();
+        ClientPocketComputers.reset();
     }
 }

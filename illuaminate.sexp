@@ -10,7 +10,7 @@
 
 
 (doc
-  (destination build/docs/lua)
+  (destination build/illuaminate)
   (index doc/index.md)
 
   (site

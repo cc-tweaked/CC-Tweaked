@@ -6,11 +6,11 @@
 /out
 /doc/out/
 /node_modules
+/.jqwik-database
 
 # Runtime directories
 /run
 /run-*
-/test-files
 
 *.ipr
 *.iws

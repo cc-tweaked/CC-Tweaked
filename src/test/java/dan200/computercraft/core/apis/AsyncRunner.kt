@@ -6,11 +6,12 @@ import dan200.computercraft.api.lua.MethodResult
 import dan200.computercraft.api.peripheral.IPeripheral
 import dan200.computercraft.api.peripheral.IWorkMonitor
 import dan200.computercraft.core.computer.BasicEnvironment
+import dan200.computercraft.core.computer.ComputerEnvironment
 import dan200.computercraft.core.computer.ComputerSide
-import dan200.computercraft.core.computer.IComputerEnvironment
+import dan200.computercraft.core.computer.GlobalEnvironment
 import dan200.computercraft.core.filesystem.FileSystem
+import dan200.computercraft.core.metrics.Metric
 import dan200.computercraft.core.terminal.Terminal
-import dan200.computercraft.core.tracking.TrackingField
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -18,12 +19,12 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 
-
 abstract class NullApiEnvironment : IAPIEnvironment {
     private val computerEnv = BasicEnvironment()
 
     override fun getComputerID(): Int = 0
-    override fun getComputerEnvironment(): IComputerEnvironment = computerEnv
+    override fun getComputerEnvironment(): ComputerEnvironment = computerEnv
+    override fun getGlobalEnvironment(): GlobalEnvironment = computerEnv
     override fun getMainThreadMonitor(): IWorkMonitor = throw IllegalStateException("Work monitor not available")
     override fun getTerminal(): Terminal = throw IllegalStateException("Terminal not available")
     override fun getFileSystem(): FileSystem = throw IllegalStateException("Terminal not available")
@@ -41,7 +42,8 @@ abstract class NullApiEnvironment : IAPIEnvironment {
     override fun setLabel(label: String?) {}
     override fun startTimer(ticks: Long): Int = 0
     override fun cancelTimer(id: Int) {}
-    override fun addTrackingChange(field: TrackingField, change: Long) {}
+    override fun observe(field: Metric.Counter) {}
+    override fun observe(field: Metric.Event, change: Long) {}
 }
 
 class EventResult(val name: String, val args: Array<Any?>)

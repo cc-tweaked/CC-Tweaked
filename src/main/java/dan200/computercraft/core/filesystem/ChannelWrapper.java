@@ -11,7 +11,7 @@ import java.nio.channels.Channel;
 
 /**
  * Wraps some closeable object such as a buffered writer, and the underlying stream.
- *
+ * <p>
  * When flushing a buffer before closing, some implementations will not close the buffer if an exception is thrown
  * this causes us to release the channel, but not actually close it. This wrapper will attempt to close the wrapper (and
  * so hopefully flush the channel), and then close the underlying channel.

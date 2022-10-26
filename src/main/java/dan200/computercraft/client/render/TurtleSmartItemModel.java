@@ -17,7 +17,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.model.BakedModelWrapper;
@@ -100,7 +99,7 @@ public class TurtleSmartItemModel extends BakedModelWrapper<BakedModel>
         ArrayList<BakedModel> parts = new ArrayList<>( 4 );
         parts.add( new TransformedBakedModel( combo.colour() ? colourModel : familyModel, transformation ) );
 
-        ModelResourceLocation overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.overlay(), combo.christmas() );
+        ResourceLocation overlayModelLocation = TileEntityTurtleRenderer.getTurtleOverlayModel( combo.overlay(), combo.christmas() );
         if( overlayModelLocation != null )
         {
             parts.add( new TransformedBakedModel( modelManager.getModel( overlayModelLocation ), transformation ) );

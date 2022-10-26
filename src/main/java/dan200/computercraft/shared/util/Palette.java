@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.util;
 
-import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 
@@ -14,18 +13,19 @@ import javax.annotation.Nonnull;
 public class Palette
 {
     private static final int PALETTE_SIZE = 16;
+
+    private final boolean colour;
     private final double[][] colours = new double[PALETTE_SIZE][3];
     private final byte[][] byteColours = new byte[PALETTE_SIZE][4];
-    private final byte[][] greyByteColours = new byte[PALETTE_SIZE][4];
 
-    public static final Palette DEFAULT = new Palette();
+    public static final Palette DEFAULT = new Palette( true );
 
-    public Palette()
+    public Palette( boolean colour )
     {
-        // Get the default palette
+        this.colour = colour;
         resetColours();
 
-        for( int i = 0; i < PALETTE_SIZE; i++ ) byteColours[i][3] = greyByteColours[i][3] = (byte) 255;
+        for( int i = 0; i < PALETTE_SIZE; i++ ) byteColours[i][3] = (byte) 255;
     }
 
     public void setColour( int i, double r, double g, double b )
@@ -35,12 +35,17 @@ public class Palette
         colours[i][1] = g;
         colours[i][2] = b;
 
-        byteColours[i][0] = (byte) (int) (r * 255);
-        byteColours[i][1] = (byte) (int) (g * 255);
-        byteColours[i][2] = (byte) (int) (b * 255);
-
-        byte grey = (byte) (int) ((r + g + b) / 3 * 255);
-        greyByteColours[i][0] = greyByteColours[i][1] = greyByteColours[i][2] = grey;
+        if( colour )
+        {
+            byteColours[i][0] = (byte) (int) (r * 255);
+            byteColours[i][1] = (byte) (int) (g * 255);
+            byteColours[i][2] = (byte) (int) (b * 255);
+        }
+        else
+        {
+            byte grey = (byte) (int) ((r + g + b) / 3 * 255);
+            byteColours[i][0] = byteColours[i][1] = byteColours[i][2] = grey;
+        }
     }
 
     public void setColour( int i, Colour colour )
@@ -54,20 +59,18 @@ public class Palette
     }
 
     /**
-     * Get the colour as a set of bytes rather than floats. This is called frequently by {@link FixedWidthFontRenderer},
-     * as our vertex format uses bytes.
+     * Get the colour as a set of RGB values suitable for rendering. Colours are automatically converted to greyscale
+     * when using a black and white palette.
+     * <p>
+     * This returns a byte array, suitable for being used directly by our terminal vertex format.
      *
-     * This allows us to do the conversion once (when setting the colour) rather than for every vertex, at the cost of
-     * some memory overhead.
-     *
-     * @param i         The colour index.
-     * @param greyscale Whether this number should be converted to greyscale.
+     * @param i The colour index.
      * @return The number as a tuple of bytes.
      */
     @Nonnull
-    public byte[] getByteColour( int i, boolean greyscale )
+    public byte[] getRenderColours( int i )
     {
-        return greyscale ? greyByteColours[i] : byteColours[i];
+        return byteColours[i];
     }
 
     public void resetColour( int i )

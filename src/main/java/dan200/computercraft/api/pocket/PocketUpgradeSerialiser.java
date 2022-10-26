@@ -25,7 +25,7 @@ import java.util.function.Function;
 
 /**
  * Reads a {@link IPocketUpgrade} from disk and reads/writes it to a network packet.
- *
+ * <p>
  * This follows the same format as {@link dan200.computercraft.api.turtle.TurtleUpgradeSerialiser} - consult the
  * documentation there for more information.
  *
@@ -37,7 +37,7 @@ public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends Upgra
 {
     /**
      * The ID for the associated registry.
-     *
+     * <p>
      * This is largely intended for use with Forge Registry methods/classes, such as {@link DeferredRegister} and
      * {@link RegistryManager#getRegistry(ResourceKey)}.
      *
@@ -59,7 +59,7 @@ public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends Upgra
     /**
      * Create an upgrade serialiser for a simple upgrade. This is similar to a {@link SimpleRecipeSerializer}, but for
      * upgrades.
-     *
+     * <p>
      * If you might want to vary the item, it's suggested you use {@link #simpleWithCustomItem(BiFunction)} instead.
      *
      * @param factory Generate a new upgrade with a specific ID.
@@ -69,7 +69,7 @@ public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends Upgra
     @Nonnull
     static <T extends IPocketUpgrade> PocketUpgradeSerialiser<T> simple( @Nonnull Function<ResourceLocation, T> factory )
     {
-        class Impl extends SimpleSerialiser<T> implements PocketUpgradeSerialiser<T>
+        final class Impl extends SimpleSerialiser<T> implements PocketUpgradeSerialiser<T>
         {
             private Impl( Function<ResourceLocation, T> constructor )
             {
@@ -92,7 +92,7 @@ public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends Upgra
     @Nonnull
     static <T extends IPocketUpgrade> PocketUpgradeSerialiser<T> simpleWithCustomItem( @Nonnull BiFunction<ResourceLocation, ItemStack, T> factory )
     {
-        class Impl extends SerialiserWithCraftingItem<T> implements PocketUpgradeSerialiser<T>
+        final class Impl extends SerialiserWithCraftingItem<T> implements PocketUpgradeSerialiser<T>
         {
             private Impl( BiFunction<ResourceLocation, ItemStack, T> factory )
             {

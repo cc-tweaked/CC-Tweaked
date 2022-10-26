@@ -5,22 +5,18 @@
  */
 package dan200.computercraft.client;
 
-import dan200.computercraft.api.client.ComputerCraftAPIClient;
+import com.google.auto.service.AutoService;
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
+import dan200.computercraft.impl.client.ComputerCraftAPIClientService;
 
 import javax.annotation.Nonnull;
 
-public final class ComputerCraftAPIClientImpl implements ComputerCraftAPIClient.IComputerCraftAPIClient
+@AutoService( ComputerCraftAPIClientService.class )
+public final class ComputerCraftAPIClientImpl implements ComputerCraftAPIClientService
 {
-    public static final ComputerCraftAPIClientImpl INSTANCE = new ComputerCraftAPIClientImpl();
-
-    private ComputerCraftAPIClientImpl()
-    {
-    }
-
     @Override
     public <T extends ITurtleUpgrade> void registerTurtleUpgradeModeller( @Nonnull TurtleUpgradeSerialiser<T> serialiser, @Nonnull TurtleUpgradeModeller<T> modeller )
     {

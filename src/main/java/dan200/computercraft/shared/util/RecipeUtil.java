@@ -25,18 +25,8 @@ public final class RecipeUtil
 {
     private RecipeUtil() {}
 
-    public static class ShapedTemplate
+    public record ShapedTemplate(int width, int height, NonNullList<Ingredient> ingredients)
     {
-        public final int width;
-        public final int height;
-        public final NonNullList<Ingredient> ingredients;
-
-        public ShapedTemplate( int width, int height, NonNullList<Ingredient> ingredients )
-        {
-            this.width = width;
-            this.height = height;
-            this.ingredients = ingredients;
-        }
     }
 
     public static ShapedTemplate getTemplate( JsonObject json )

@@ -16,7 +16,7 @@ import javax.annotation.Nonnull;
 /**
  * Base interface for upgrade serialisers. This should generally not be implemented directly, instead implementing one
  * of {@link TurtleUpgradeSerialiser} or {@link PocketUpgradeSerialiser}.
- *
+ * <p>
  * However, it may sometimes be useful to implement this if you have some shared logic between upgrade types.
  *
  * @param <T> The upgrade that this class can serialise and deserialise.

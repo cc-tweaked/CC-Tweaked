@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -40,7 +41,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
-import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 public final class TilePrinter extends TileGeneric implements DefaultSidedInventory, Nameable, MenuProvider
 {
@@ -62,7 +62,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         SidedCaps.ofNullable( facing -> facing == null ? new InvWrapper( this ) : new SidedInvWrapper( this, facing ) );
     private LazyOptional<IPeripheral> peripheralCap;
 
-    private final Terminal page = new Terminal( ItemPrintout.LINE_MAX_LENGTH, ItemPrintout.LINES_PER_PAGE );
+    private final Terminal page = new Terminal( ItemPrintout.LINE_MAX_LENGTH, ItemPrintout.LINES_PER_PAGE, true );
     private String pageTitle = "";
     private boolean printing = false;
 
@@ -464,7 +464,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     @Override
     public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> capability, @Nullable Direction facing )
     {
-        if( capability == ITEM_HANDLER_CAPABILITY ) return itemHandlerCaps.get( facing ).cast();
+        if( capability == ForgeCapabilities.ITEM_HANDLER ) return itemHandlerCaps.get( facing ).cast();
         if( capability == CAPABILITY_PERIPHERAL )
         {
             if( peripheralCap == null ) peripheralCap = LazyOptional.of( () -> new PrinterPeripheral( this ) );

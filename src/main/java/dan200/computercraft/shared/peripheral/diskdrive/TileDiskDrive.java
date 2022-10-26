@@ -33,6 +33,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -45,7 +46,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
-import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 public final class TileDiskDrive extends TileGeneric implements DefaultInventory, Nameable, MenuProvider
 {
@@ -530,7 +530,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     @Override
     public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable final Direction side )
     {
-        if( cap == ITEM_HANDLER_CAPABILITY )
+        if( cap == ForgeCapabilities.ITEM_HANDLER )
         {
             if( itemHandlerCap == null ) itemHandlerCap = LazyOptional.of( () -> new InvWrapper( this ) );
             return itemHandlerCap.cast();

@@ -32,8 +32,8 @@ import javax.annotation.Nullable;
 public class BlockPrinter extends BlockGeneric
 {
     private static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    static final BooleanProperty TOP = BooleanProperty.create( "top" );
-    static final BooleanProperty BOTTOM = BooleanProperty.create( "bottom" );
+    public static final BooleanProperty TOP = BooleanProperty.create( "top" );
+    public static final BooleanProperty BOTTOM = BooleanProperty.create( "bottom" );
 
     public BlockPrinter( Properties settings )
     {

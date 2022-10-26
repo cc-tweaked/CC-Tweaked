@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 
 /**
  * This interface is used to create peripheral implementations for blocks.
- *
+ * <p>
  * If you have a {@link BlockEntity} which acts as a peripheral, you may alternatively expose the {@link IPeripheral}
  * capability.
  *

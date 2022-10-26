@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * A thread-safe version of {@link LevelAccessor#scheduleTick(BlockPos, Block, int)}.
- *
+ * <p>
  * We use this when modems and other peripherals change a block in a different thread.
  */
 @Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )

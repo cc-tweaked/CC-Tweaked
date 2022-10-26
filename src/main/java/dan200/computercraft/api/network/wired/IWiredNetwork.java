@@ -13,12 +13,12 @@ import java.util.Map;
 /**
  * A wired network is composed of one of more {@link IWiredNode}s, a set of connections between them, and a series
  * of peripherals.
- *
+ * <p>
  * Networks from a connected graph. This means there is some path between all nodes on the network. Further more, if
  * there is some path between two nodes then they must be on the same network. {@link IWiredNetwork} will automatically
  * handle the merging and splitting of networks (and thus changing of available nodes and peripherals) as connections
  * change.
- *
+ * <p>
  * This does mean one can not rely on the network remaining consistent between subsequent operations. Consequently,
  * it is generally preferred to use the methods provided by {@link IWiredNode}.
  *
@@ -28,7 +28,7 @@ public interface IWiredNetwork
 {
     /**
      * Create a connection between two nodes.
-     *
+     * <p>
      * This should only be used on the server thread.
      *
      * @param left  The first node to connect
@@ -43,7 +43,7 @@ public interface IWiredNetwork
 
     /**
      * Destroy a connection between this node and another.
-     *
+     * <p>
      * This should only be used on the server thread.
      *
      * @param left  The first node in the connection.
@@ -58,7 +58,7 @@ public interface IWiredNetwork
 
     /**
      * Sever all connections this node has, removing it from this network.
-     *
+     * <p>
      * This should only be used on the server thread. You should only call this on nodes
      * that your network element owns.
      *
@@ -72,7 +72,7 @@ public interface IWiredNetwork
 
     /**
      * Update the peripherals a node provides.
-     *
+     * <p>
      * This should only be used on the server thread. You should only call this on nodes
      * that your network element owns.
      *

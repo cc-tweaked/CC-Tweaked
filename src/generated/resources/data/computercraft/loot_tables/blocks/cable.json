@@ -2,7 +2,6 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "name": "cable",
       "rolls": 1.0,
       "bonus_rolls": 0.0,
       "entries": [
@@ -25,7 +24,6 @@
       ]
     },
     {
-      "name": "wired_modem",
       "rolls": 1.0,
       "bonus_rolls": 0.0,
       "entries": [

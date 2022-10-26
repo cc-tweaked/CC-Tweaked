@@ -156,7 +156,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                     DirectBuffers.setBufferData( GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer, terminalBuffer, GL20.GL_STATIC_DRAW );
 
                     var uniformBuffer = getBuffer( MonitorTextureBufferShader.UNIFORM_SIZE );
-                    MonitorTextureBufferShader.setUniformData( uniformBuffer, terminal, !monitor.isColour() );
+                    MonitorTextureBufferShader.setUniformData( uniformBuffer, terminal );
                     DirectBuffers.setBufferData( GL31.GL_UNIFORM_BUFFER, monitor.tboUniform, uniformBuffer, GL20.GL_STATIC_DRAW );
                 }
 
@@ -192,13 +192,13 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                     // and starting and ending offset, and so need to use two buffers instead.
 
                     renderToBuffer( backgroundBuffer, size, sink ->
-                        DirectFixedWidthFontRenderer.drawTerminalBackground( sink, 0, 0, terminal, !monitor.isColour(), yMargin, yMargin, xMargin, xMargin ) );
+                        DirectFixedWidthFontRenderer.drawTerminalBackground( sink, 0, 0, terminal, yMargin, yMargin, xMargin, xMargin ) );
 
                     renderToBuffer( foregroundBuffer, size, sink -> {
-                        DirectFixedWidthFontRenderer.drawTerminalForeground( sink, 0, 0, terminal, !monitor.isColour() );
+                        DirectFixedWidthFontRenderer.drawTerminalForeground( sink, 0, 0, terminal );
                         // If the cursor is visible, we append it to the end of our buffer. When rendering, we can either
                         // render n or n+1 quads and so toggle the cursor on and off.
-                        DirectFixedWidthFontRenderer.drawCursor( sink, 0, 0, terminal, !monitor.isColour() );
+                        DirectFixedWidthFontRenderer.drawCursor( sink, 0, 0, terminal );
                     } );
                 }
 

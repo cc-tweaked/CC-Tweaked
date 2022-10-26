@@ -63,7 +63,7 @@ public final class PrintoutRenderer
         {
             FixedWidthFontRenderer.drawString( emitter,
                 x, y + line * FONT_HEIGHT, text[start + line], colours[start + line],
-                Palette.DEFAULT, false, light
+                Palette.DEFAULT, light
             );
         }
     }
@@ -77,7 +77,7 @@ public final class PrintoutRenderer
             FixedWidthFontRenderer.drawString( emitter,
                 x, y + line * FONT_HEIGHT,
                 new TextBuffer( text[start + line] ), new TextBuffer( colours[start + line] ),
-                Palette.DEFAULT, false, light
+                Palette.DEFAULT, light
             );
         }
     }

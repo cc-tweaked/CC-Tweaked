@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
 
 /**
  * The interface passed to turtle by turtles, providing methods that they can call.
- *
+ * <p>
  * This should not be implemented by your classes. Do not interact with turtles except via this interface and
  * {@link ITurtleUpgrade}.
  */
@@ -46,7 +46,7 @@ public interface ITurtleAccess
 
     /**
      * Attempt to move this turtle to a new position.
-     *
+     * <p>
      * This will preserve the turtle's internal state, such as it's inventory, computer and upgrades. It should
      * be used before playing a movement animation using {@link #playAnimation(TurtleAnimation)}.
      *
@@ -144,7 +144,7 @@ public interface ITurtleAccess
 
     /**
      * Get the inventory of this turtle.
-     *
+     * <p>
      * Note: this inventory should only be accessed and modified on the server thread.
      *
      * @return This turtle's inventory
@@ -155,7 +155,7 @@ public interface ITurtleAccess
 
     /**
      * Get the inventory of this turtle as an {@link IItemHandlerModifiable}.
-     *
+     * <p>
      * Note: this inventory should only be accessed and modified on the server thread.
      *
      * @return This turtle's inventory
@@ -278,7 +278,7 @@ public interface ITurtleAccess
 
     /**
      * Get an upgrade-specific NBT compound, which can be used to store arbitrary data.
-     *
+     * <p>
      * This will be persisted across turtle restarts and chunk loads, as well as being synced to the client. You must
      * call {@link #updateUpgradeNBTData(TurtleSide)} after modifying it.
      *

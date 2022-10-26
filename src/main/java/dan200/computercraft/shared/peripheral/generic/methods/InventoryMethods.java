@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.peripheral.generic.methods;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.detail.DetailRegistries;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -13,14 +14,13 @@ import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralType;
-import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -68,13 +68,13 @@ public class InventoryMethods implements GenericPeripheral
 
     /**
      * List all items in this inventory. This returns a table, with an entry for each slot.
-     *
+     * <p>
      * Each item in the inventory is represented by a table containing some basic information, much like
      * {@link dan200.computercraft.shared.turtle.apis.TurtleAPI#getItemDetail(ILuaContext, Optional, Optional)}
      * includes. More information can be fetched with {@link #getItemDetail}. The table contains the item `name`, the
      * `count` and an a (potentially nil) hash of the item's `nbt.` This NBT data doesn't contain anything useful, but
      * allows you to distinguish identical items.
-     *
+     * <p>
      * The returned table is sparse, and so empty slots will be `nil` - it is recommended to loop over using `pairs`
      * rather than `ipairs`.
      *
@@ -98,7 +98,7 @@ public class InventoryMethods implements GenericPeripheral
         for( int i = 0; i < size; i++ )
         {
             ItemStack stack = inventory.getStackInSlot( i );
-            if( !stack.isEmpty() ) result.put( i + 1, ItemData.fillBasic( new HashMap<>( 4 ), stack ) );
+            if( !stack.isEmpty() ) result.put( i + 1, DetailRegistries.ITEM_STACK.getBasicDetails( stack ) );
         }
 
         return result;
@@ -106,13 +106,13 @@ public class InventoryMethods implements GenericPeripheral
 
     /**
      * Get detailed information about an item.
-     *
+     * <p>
      * The returned information contains the same information as each item in
      * {@link #list}, as well as additional details like the display name
      * (`displayName`), item groups (`itemGroups`), which are the creative tabs
      * an item will appear under, and item and item durability (`damage`,
      * `maxDamage`, `durability`).
-     *
+     * <p>
      * Some items include more information (such as enchantments) - it is
      * recommended to print it out using @{textutils.serialize} or in the Lua
      * REPL, to explore what is available.
@@ -148,12 +148,12 @@ public class InventoryMethods implements GenericPeripheral
         assertBetween( slot, 1, inventory.getSlots(), "Slot out of range (%s)" );
 
         ItemStack stack = inventory.getStackInSlot( slot - 1 );
-        return stack.isEmpty() ? null : ItemData.fill( new HashMap<>(), stack );
+        return stack.isEmpty() ? null : DetailRegistries.ITEM_STACK.getDetails( stack );
     }
 
     /**
      * Get the maximum number of items which can be stored in this slot.
-     *
+     * <p>
      * Typically this will be limited to 64 items. However, some inventories (such as barrels or caches) can store
      * hundreds or thousands of items in one slot.
      *
@@ -180,7 +180,7 @@ public class InventoryMethods implements GenericPeripheral
 
     /**
      * Push items from one inventory to another connected one.
-     *
+     * <p>
      * This allows you to push an item in an inventory to another inventory <em>on the same wired network</em>. Both
      * inventories must attached to wired modems which are connected via a cable.
      *
@@ -227,7 +227,7 @@ public class InventoryMethods implements GenericPeripheral
 
     /**
      * Pull items from a connected inventory into this one.
-     *
+     * <p>
      * This allows you to transfer items between inventories <em>on the same wired network</em>. Both this and the source
      * inventory must attached to wired modems which are connected via a cable.
      *
@@ -279,7 +279,7 @@ public class InventoryMethods implements GenericPeripheral
 
         if( object instanceof ICapabilityProvider provider )
         {
-            LazyOptional<IItemHandler> cap = provider.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY );
+            LazyOptional<IItemHandler> cap = provider.getCapability( ForgeCapabilities.ITEM_HANDLER );
             if( cap.isPresent() ) return cap.orElseThrow( NullPointerException::new );
         }
 

@@ -22,7 +22,7 @@ import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMA
 
 /**
  * Handles rendering fixed width text and computer terminals.
- *
+ * <p>
  * This class has several modes of usage:
  * <ul>
  * <li>{@link #drawString}: Drawing basic text without a terminal (such as for printouts). Unlike the other methods,
@@ -89,25 +89,25 @@ public final class FixedWidthFontRenderer
         quad( emitter, x, y, x + width, y + height, z, colour, BACKGROUND_START, BACKGROUND_START, BACKGROUND_END, BACKGROUND_END, light );
     }
 
-    private static void drawQuad( QuadEmitter emitter, float x, float y, float width, float height, Palette palette, boolean greyscale, char colourIndex, int light )
+    private static void drawQuad( QuadEmitter emitter, float x, float y, float width, float height, Palette palette, char colourIndex, int light )
     {
-        byte[] colour = palette.getByteColour( getColour( colourIndex, Colour.BLACK ), greyscale );
+        byte[] colour = palette.getRenderColours( getColour( colourIndex, Colour.BLACK ) );
         drawQuad( emitter, x, y, 0, width, height, colour, light );
     }
 
     private static void drawBackground(
-        @Nonnull QuadEmitter emitter, float x, float y, @Nonnull TextBuffer backgroundColour, @Nonnull Palette palette, boolean greyscale,
+        @Nonnull QuadEmitter emitter, float x, float y, @Nonnull TextBuffer backgroundColour, @Nonnull Palette palette,
         float leftMarginSize, float rightMarginSize, float height, int light
     )
     {
         if( leftMarginSize > 0 )
         {
-            drawQuad( emitter, x - leftMarginSize, y, leftMarginSize, height, palette, greyscale, backgroundColour.charAt( 0 ), light );
+            drawQuad( emitter, x - leftMarginSize, y, leftMarginSize, height, palette, backgroundColour.charAt( 0 ), light );
         }
 
         if( rightMarginSize > 0 )
         {
-            drawQuad( emitter, x + backgroundColour.length() * FONT_WIDTH, y, rightMarginSize, height, palette, greyscale, backgroundColour.charAt( backgroundColour.length() - 1 ), light );
+            drawQuad( emitter, x + backgroundColour.length() * FONT_WIDTH, y, rightMarginSize, height, palette, backgroundColour.charAt( backgroundColour.length() - 1 ), light );
         }
 
         // Batch together runs of identical background cells.
@@ -120,7 +120,7 @@ public final class FixedWidthFontRenderer
 
             if( blockColour != '\0' )
             {
-                drawQuad( emitter, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (i - blockStart), height, palette, greyscale, blockColour, light );
+                drawQuad( emitter, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (i - blockStart), height, palette, blockColour, light );
             }
 
             blockColour = colourIndex;
@@ -129,15 +129,15 @@ public final class FixedWidthFontRenderer
 
         if( blockColour != '\0' )
         {
-            drawQuad( emitter, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (backgroundColour.length() - blockStart), height, palette, greyscale, blockColour, light );
+            drawQuad( emitter, x + blockStart * FONT_WIDTH, y, FONT_WIDTH * (backgroundColour.length() - blockStart), height, palette, blockColour, light );
         }
     }
 
-    public static void drawString( @Nonnull QuadEmitter emitter, float x, float y, @Nonnull TextBuffer text, @Nonnull TextBuffer textColour, @Nonnull Palette palette, boolean greyscale, int light )
+    public static void drawString( @Nonnull QuadEmitter emitter, float x, float y, @Nonnull TextBuffer text, @Nonnull TextBuffer textColour, @Nonnull Palette palette, int light )
     {
         for( int i = 0; i < text.length(); i++ )
         {
-            byte[] colour = palette.getByteColour( getColour( textColour.charAt( i ), Colour.BLACK ), greyscale );
+            byte[] colour = palette.getRenderColours( getColour( textColour.charAt( i ), Colour.BLACK ) );
 
             int index = text.charAt( i );
             if( index > 255 ) index = '?';
@@ -146,7 +146,7 @@ public final class FixedWidthFontRenderer
 
     }
 
-    public static void drawTerminalForeground( @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal, boolean greyscale )
+    public static void drawTerminalForeground( @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal )
     {
         Palette palette = terminal.getPalette();
         int height = terminal.getHeight();
@@ -157,13 +157,13 @@ public final class FixedWidthFontRenderer
             float rowY = y + FONT_HEIGHT * i;
             drawString(
                 emitter, x, rowY, terminal.getLine( i ), terminal.getTextColourLine( i ),
-                palette, greyscale, FULL_BRIGHT_LIGHTMAP
+                palette, FULL_BRIGHT_LIGHTMAP
             );
         }
     }
 
     public static void drawTerminalBackground(
-        @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal, boolean greyscale,
+        @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal,
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     )
     {
@@ -172,12 +172,12 @@ public final class FixedWidthFontRenderer
 
         // Top and bottom margins
         drawBackground(
-            emitter, x, y - topMarginSize, terminal.getBackgroundColourLine( 0 ), palette, greyscale,
+            emitter, x, y - topMarginSize, terminal.getBackgroundColourLine( 0 ), palette,
             leftMarginSize, rightMarginSize, topMarginSize, FULL_BRIGHT_LIGHTMAP
         );
 
         drawBackground(
-            emitter, x, y + height * FONT_HEIGHT, terminal.getBackgroundColourLine( height - 1 ), palette, greyscale,
+            emitter, x, y + height * FONT_HEIGHT, terminal.getBackgroundColourLine( height - 1 ), palette,
             leftMarginSize, rightMarginSize, bottomMarginSize, FULL_BRIGHT_LIGHTMAP
         );
 
@@ -186,7 +186,7 @@ public final class FixedWidthFontRenderer
         {
             float rowY = y + FONT_HEIGHT * i;
             drawBackground(
-                emitter, x, rowY, terminal.getBackgroundColourLine( i ), palette, greyscale,
+                emitter, x, rowY, terminal.getBackgroundColourLine( i ), palette,
                 leftMarginSize, rightMarginSize, FONT_HEIGHT, FULL_BRIGHT_LIGHTMAP
             );
         }
@@ -201,23 +201,22 @@ public final class FixedWidthFontRenderer
         return cursorX >= 0 && cursorX < terminal.getWidth() && cursorY >= 0 && cursorY < terminal.getHeight();
     }
 
-    public static void drawCursor( @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal, boolean greyscale )
+    public static void drawCursor( @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal )
     {
         if( isCursorVisible( terminal ) && FrameInfo.getGlobalCursorBlink() )
         {
-            byte[] colour = terminal.getPalette().getByteColour( 15 - terminal.getTextColour(), greyscale );
+            byte[] colour = terminal.getPalette().getRenderColours( 15 - terminal.getTextColour() );
             drawChar( emitter, x + terminal.getCursorX() * FONT_WIDTH, y + terminal.getCursorY() * FONT_HEIGHT, '_', colour, FULL_BRIGHT_LIGHTMAP );
         }
     }
 
     public static void drawTerminal(
-        @Nonnull QuadEmitter emitter, float x, float y,
-        @Nonnull Terminal terminal, boolean greyscale,
+        @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal,
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     )
     {
         drawTerminalBackground(
-            emitter, x, y, terminal, greyscale,
+            emitter, x, y, terminal,
             topMarginSize, bottomMarginSize, leftMarginSize, rightMarginSize
         );
 
@@ -227,8 +226,8 @@ public final class FixedWidthFontRenderer
         var transformBackup = emitter.poseMatrix().copy();
         emitter.poseMatrix().translate( new Vector3f( 0, 0, Z_OFFSET ) );
 
-        drawTerminalForeground( emitter, x, y, terminal, greyscale );
-        drawCursor( emitter, x, y, terminal, greyscale );
+        drawTerminalForeground( emitter, x, y, terminal );
+        drawCursor( emitter, x, y, terminal );
 
         emitter.poseMatrix().load( transformBackup );
     }

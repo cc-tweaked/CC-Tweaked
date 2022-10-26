@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * A base class for all events concerning a turtle. This will only ever constructed and fired on the server side,
  * so sever specific methods on {@link ITurtleAccess} are safe to use.
- *
+ * <p>
  * You should generally not need to subscribe to this event, preferring one of the more specific classes.
  */
 public abstract class TurtleEvent extends Event

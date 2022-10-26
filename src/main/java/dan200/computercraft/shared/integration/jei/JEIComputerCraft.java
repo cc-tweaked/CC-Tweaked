@@ -9,15 +9,11 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.Registry;
-import dan200.computercraft.shared.TurtleUpgrades;
-import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.integration.RecipeModHelpers;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
-import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
-import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
@@ -34,11 +30,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static dan200.computercraft.shared.integration.jei.RecipeResolver.MAIN_FAMILIES;
 
 @JeiPlugin
 public class JEIComputerCraft implements IModPlugin
@@ -74,20 +67,7 @@ public class JEIComputerCraft implements IModPlugin
         IRecipeManager registry = runtime.getRecipeManager();
 
         // Register all turtles/pocket computers (not just vanilla upgrades) as upgrades on JEI.
-        List<ItemStack> upgradeItems = new ArrayList<>();
-        for( ComputerFamily family : MAIN_FAMILIES )
-        {
-            for( ITurtleUpgrade upgrade : TurtleUpgrades.instance().getUpgrades() )
-            {
-                upgradeItems.add( TurtleItemFactory.create( -1, null, -1, family, null, upgrade, 0, null ) );
-            }
-
-            for( IPocketUpgrade upgrade : PocketUpgrades.instance().getUpgrades() )
-            {
-                upgradeItems.add( PocketComputerItemFactory.create( -1, null, -1, family, upgrade ) );
-            }
-        }
-
+        List<ItemStack> upgradeItems = RecipeModHelpers.getExtraStacks();
         if( !upgradeItems.isEmpty() )
         {
             runtime.getIngredientManager().addIngredientsAtRuntime( VanillaTypes.ITEM_STACK, upgradeItems );
@@ -96,12 +76,7 @@ public class JEIComputerCraft implements IModPlugin
         // Hide all upgrade recipes
         IRecipeLookup<CraftingRecipe> category = registry.createRecipeLookup( RecipeTypes.CRAFTING );
         category.get().forEach( wrapper -> {
-            ResourceLocation id = wrapper.getId();
-            if( !id.getNamespace().equals( ComputerCraft.MOD_ID ) ) return;
-
-            String path = id.getPath();
-            if( path.startsWith( "turtle_normal/" ) || path.startsWith( "turtle_advanced/" )
-                || path.startsWith( "pocket_normal/" ) || path.startsWith( "pocket_advanced/" ) )
+            if( RecipeModHelpers.shouldRemoveRecipe( wrapper.getId() ) )
             {
                 registry.hideRecipes( RecipeTypes.CRAFTING, Collections.singleton( wrapper ) );
             }

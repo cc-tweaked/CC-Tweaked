@@ -28,6 +28,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
@@ -338,7 +339,7 @@ public class TurtleBrain implements ITurtleAccess
                         newTurtle.transferStateFrom( oldOwner );
 
                         ServerComputer computer = newTurtle.createServerComputer();
-                        computer.setLevel( world );
+                        computer.setLevel( (ServerLevel) world );
                         computer.setPosition( pos );
 
                         // Remove the old turtle
@@ -785,13 +786,13 @@ public class TurtleBrain implements ITurtleAccess
 
         // Execute the command
         long start = System.nanoTime();
-        TurtleCommandResult result = nextCommand.command.execute( this );
+        TurtleCommandResult result = nextCommand.command().execute( this );
         long end = System.nanoTime();
 
         // Dispatch the callback
         if( computer == null ) return;
         computer.getComputer().getMainThreadMonitor().trackWork( end - start, TimeUnit.NANOSECONDS );
-        int callbackID = nextCommand.callbackID;
+        int callbackID = nextCommand.callbackID();
         if( callbackID < 0 ) return;
 
         if( result != null && result.isSuccess() )

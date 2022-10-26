@@ -7,33 +7,28 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.apis.http.NetworkUtils;
-import dan200.computercraft.core.computer.MainThread;
 import dan200.computercraft.core.filesystem.ResourceMount;
-import dan200.computercraft.core.tracking.ComputerMBean;
-import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.command.CommandComputerCraft;
-import dan200.computercraft.shared.computer.core.IComputer;
-import dan200.computercraft.shared.computer.core.IContainerComputer;
-import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.core.ServerContext;
+import dan200.computercraft.shared.computer.metrics.ComputerMBean;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.UpgradesLoadedMessage;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootTableReference;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraftforge.event.*;
-import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.MissingMappingsEvent;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -41,7 +36,7 @@ import java.util.Set;
 
 /**
  * Miscellaneous hooks which are present on the client and server.
- *
+ * <p>
  * These should possibly be refactored into separate classes at some point, but are fine here for now.
  *
  * @see dan200.computercraft.client.ClientHooks For client-specific ones.
@@ -58,23 +53,7 @@ public final class CommonHooks
     {
         if( event.phase == TickEvent.Phase.START )
         {
-            MainThread.executePendingTasks();
-            ComputerCraft.serverComputerRegistry.update();
-        }
-    }
-
-    @SubscribeEvent
-    public static void onContainerOpen( PlayerContainerEvent.Open event )
-    {
-        // If we're opening a computer container then broadcast the terminal state
-        AbstractContainerMenu container = event.getContainer();
-        if( container instanceof IContainerComputer )
-        {
-            IComputer computer = ((IContainerComputer) container).getComputer();
-            if( computer instanceof ServerComputer )
-            {
-                ((ServerComputer) computer).sendTerminalState( event.getEntity() );
-            }
+            ServerContext.get( ServerLifecycleHooks.getCurrentServer() ).tick();
         }
     }
 
@@ -94,7 +73,8 @@ public final class CommonHooks
         }
 
         resetState();
-        ComputerMBean.registerTracker();
+        ServerContext.create( server );
+        ComputerMBean.start( server );
     }
 
     @SubscribeEvent
@@ -105,10 +85,8 @@ public final class CommonHooks
 
     private static void resetState()
     {
-        ComputerCraft.serverComputerRegistry.reset();
-        MainThread.reset();
+        ServerContext.close();
         WirelessNetwork.resetNetworks();
-        Tracking.reset();
         NetworkUtils.reset();
     }
 

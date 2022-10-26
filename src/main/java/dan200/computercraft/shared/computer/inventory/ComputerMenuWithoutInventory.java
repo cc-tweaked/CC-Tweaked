@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.computer.inventory;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.IComputer;
+import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.util.InvisibleSlot;
 import net.minecraft.world.entity.player.Inventory;
@@ -19,20 +19,23 @@ import java.util.function.Predicate;
 
 /**
  * A computer menu which does not have any visible inventory.
- *
+ * <p>
  * This adds invisible versions of the player's hotbars slots, to ensure they're synced to the client when changed.
  */
 public class ComputerMenuWithoutInventory extends ContainerComputerBase
 {
-    public ComputerMenuWithoutInventory( MenuType<? extends ContainerComputerBase> type, int id, Inventory player, Predicate<Player> canUse, IComputer computer, ComputerFamily family )
+    public ComputerMenuWithoutInventory(
+        MenuType<? extends ContainerComputerBase> type, int id, Inventory player, Predicate<Player> canUse,
+        ServerComputer computer, ComputerFamily family
+    )
     {
-        super( type, id, canUse, computer, family );
+        super( type, id, canUse, family, computer, null );
         addSlots( player );
     }
 
-    public ComputerMenuWithoutInventory( MenuType<? extends ContainerComputerBase> type, int id, Inventory player, ComputerContainerData data )
+    public ComputerMenuWithoutInventory( MenuType<? extends ContainerComputerBase> type, int id, Inventory player, ComputerContainerData menuData )
     {
-        super( type, id, player, data );
+        super( type, id, p -> true, menuData.family(), null, menuData );
         addSlots( player );
     }
 

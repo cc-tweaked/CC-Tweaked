@@ -21,6 +21,6 @@ CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles a
 [[dependencies.computercraft]]
     modId="forge"
     mandatory=true
-    versionRange="[43.1.1,44)"
+    versionRange="[${forgeVersion},44)"
     ordering="NONE"
     side="BOTH"

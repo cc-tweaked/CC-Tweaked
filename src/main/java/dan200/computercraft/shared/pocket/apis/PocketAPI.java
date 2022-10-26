@@ -21,7 +21,7 @@ import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 /**
  * Control the current pocket computer, adding or removing upgrades.
- *
+ * <p>
  * This API is only available on pocket computers. As such, you may use its presence to determine what kind of computer
  * you are using:
  *
@@ -52,7 +52,7 @@ public class PocketAPI implements ILuaAPI
 
     /**
      * Search the player's inventory for another upgrade, replacing the existing one with that item if found.
-     *
+     * <p>
      * This inventory search starts from the player's currently selected slot, allowing you to prioritise upgrades.
      *
      * @return The result of equipping.

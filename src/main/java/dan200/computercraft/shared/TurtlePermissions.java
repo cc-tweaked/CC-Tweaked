@@ -16,7 +16,7 @@ public final class TurtlePermissions
     public static boolean isBlockEnterable( Level world, BlockPos pos, Player player )
     {
         MinecraftServer server = world.getServer();
-        return server == null || world.isClientSide || (world instanceof ServerLevel && !server.isUnderSpawnProtection( (ServerLevel) world, pos, player ));
+        return server == null || world.isClientSide || (world instanceof ServerLevel serverLevel && !server.isUnderSpawnProtection( serverLevel, pos, player ));
     }
 
     public static boolean isBlockEditable( Level world, BlockPos pos, Player player )

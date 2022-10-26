@@ -8,6 +8,7 @@ package dan200.computercraft.api.client;
 import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
+import dan200.computercraft.impl.client.ComputerCraftAPIClientService;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 import javax.annotation.Nonnull;
@@ -20,7 +21,7 @@ public final class ComputerCraftAPIClient
 
     /**
      * Register a {@link TurtleUpgradeModeller} for a class of turtle upgrades.
-     *
+     * <p>
      * This may be called at any point after registry creation, though it is recommended to call it within {@link FMLClientSetupEvent}.
      *
      * @param serialiser The turtle upgrade serialiser.
@@ -32,26 +33,9 @@ public final class ComputerCraftAPIClient
         getInstance().registerTurtleUpgradeModeller( serialiser, modeller );
     }
 
-    private static IComputerCraftAPIClient instance;
-
     @Nonnull
-    private static IComputerCraftAPIClient getInstance()
+    private static ComputerCraftAPIClientService getInstance()
     {
-        if( instance != null ) return instance;
-
-        try
-        {
-            return instance = (IComputerCraftAPIClient) Class.forName( "dan200.computercraft.client.ComputerCraftAPIClientImpl" )
-                .getField( "INSTANCE" ).get( null );
-        }
-        catch( ReflectiveOperationException e )
-        {
-            throw new IllegalStateException( "Cannot find ComputerCraft API", e );
-        }
-    }
-
-    public interface IComputerCraftAPIClient
-    {
-        <T extends ITurtleUpgrade> void registerTurtleUpgradeModeller( @Nonnull TurtleUpgradeSerialiser<T> serialiser, @Nonnull TurtleUpgradeModeller<T> modeller );
+        return ComputerCraftAPIClientService.get();
     }
 }

@@ -18,7 +18,7 @@ import java.util.function.BiFunction;
 
 /**
  * Simple serialiser which returns a constant upgrade with a custom crafting item.
- *
+ * <p>
  * Do <strong>NOT</strong> directly reference this class. It exists for internal use by the API.
  *
  * @param <T> The upgrade that this class can serialise and deserialise.

@@ -52,8 +52,7 @@ public final class MonitorWatcher
             ServerMonitor serverMonitor = getMonitor( monitor );
             if( serverMonitor == null || monitor.enqueued ) continue;
 
-            TerminalState state = monitor.cached;
-            if( state == null ) state = monitor.cached = serverMonitor.write();
+            TerminalState state = getState( monitor, serverMonitor );
             NetworkHandler.sendToPlayer( event.getPlayer(), new MonitorClientMessage( monitor.getBlockPos(), state ) );
         }
     }
@@ -100,7 +99,7 @@ public final class MonitorWatcher
     private static TerminalState getState( TileMonitor tile, ServerMonitor monitor )
     {
         TerminalState state = tile.cached;
-        if( state == null ) state = tile.cached = monitor.write();
+        if( state == null ) state = tile.cached = new TerminalState( monitor.getTerminal() );
         return state;
     }
 }

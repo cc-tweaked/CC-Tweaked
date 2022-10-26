@@ -10,7 +10,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 /**
  * Represents a Lua object which is stored as a global variable on computer startup. This must either provide
  * {@link LuaFunction} annotated functions or implement {@link IDynamicLuaObject}.
- *
+ * <p>
  * Before implementing this interface, consider alternative methods of providing methods. It is generally preferred
  * to use peripherals to provide functionality to users.
  *
@@ -28,7 +28,7 @@ public interface ILuaAPI
 
     /**
      * Called when the computer is turned on.
-     *
+     * <p>
      * One should only interact with the file system.
      */
     default void startup()
@@ -44,7 +44,7 @@ public interface ILuaAPI
 
     /**
      * Called when the computer is turned off or unloaded.
-     *
+     * <p>
      * This should reset the state of the object, disposing any remaining file handles, or other resources.
      */
     default void shutdown()

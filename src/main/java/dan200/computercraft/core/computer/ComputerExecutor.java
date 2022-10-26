@@ -10,14 +10,16 @@ import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaAPIFactory;
+import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.apis.*;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
-import dan200.computercraft.core.lua.CobaltLuaMachine;
 import dan200.computercraft.core.lua.ILuaMachine;
+import dan200.computercraft.core.lua.MachineEnvironment;
 import dan200.computercraft.core.lua.MachineResult;
+import dan200.computercraft.core.metrics.Metrics;
+import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.core.tracking.Tracking;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.IoUtil;
 
@@ -34,31 +36,33 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * The main task queue and executor for a single computer. This handles turning on and off a computer, as well as
  * running events.
- *
+ * <p>
  * When the computer is instructed to turn on or off, or handle an event, we queue a task and register this to be
  * executed on the {@link ComputerThread}. Note, as we may be starting many events in a single tick, the external
  * cannot lock on anything which may be held for a long time.
- *
+ * <p>
  * The executor is effectively composed of two separate queues. Firstly, we have a "single element" queue
  * {@link #command} which determines which state the computer should transition too. This is set by
  * {@link #queueStart()} and {@link #queueStop(boolean, boolean)}.
- *
+ * <p>
  * When a computer is on, we simply push any events onto to the {@link #eventQueue}.
- *
+ * <p>
  * Both queues are run from the {@link #work()} method, which tries to execute a command if one exists, or resumes the
  * machine with an event otherwise.
- *
+ * <p>
  * One final responsibility for the executor is calling {@link ILuaAPI#update()} every tick, via the {@link #tick()}
  * method. This should only be called when the computer is actually on ({@link #isOn}).
  */
 final class ComputerExecutor
 {
-    static ILuaMachine.Factory luaFactory = CobaltLuaMachine::new;
     private static final int QUEUE_LIMIT = 256;
 
     private final Computer computer;
+    private final ComputerEnvironment computerEnvironment;
+    private final MetricsObserver metrics;
     private final List<ILuaAPI> apis = new ArrayList<>();
-    final TimeoutState timeout = new TimeoutState();
+    private final ComputerThread scheduler;
+    final TimeoutState timeout;
 
     private FileSystem fileSystem;
 
@@ -74,7 +78,7 @@ final class ComputerExecutor
 
     /**
      * The lock to acquire when you need to modify the "on state" of a computer.
-     *
+     * <p>
      * We hold this lock when running any command, and attempt to hold it when updating APIs. This ensures you don't
      * update APIs while also starting/stopping them.
      *
@@ -116,10 +120,10 @@ final class ComputerExecutor
 
     /**
      * The command that {@link #work()} should execute on the computer thread.
-     *
+     * <p>
      * One sets the command with {@link #queueStart()} and {@link #queueStop(boolean, boolean)}. Neither of these will
      * queue a new event if there is an existing one in the queue.
-     *
+     * <p>
      * Note, if command is not {@code null}, then some command is scheduled to be executed. Otherwise it is not
      * currently in the queue (or is currently being executed).
      */
@@ -127,7 +131,7 @@ final class ComputerExecutor
 
     /**
      * The queue of events which should be executed when this computer is on.
-     *
+     * <p>
      * Note, this should be empty if this computer is off - it is cleared on shutdown and when turning on again.
      */
     private final Queue<Event> eventQueue = new ArrayDeque<>( 4 );
@@ -157,12 +161,16 @@ final class ComputerExecutor
      */
     final AtomicReference<Thread> executingThread = new AtomicReference<>();
 
-    ComputerExecutor( Computer computer )
-    {
-        // Ensure the computer thread is running as required.
-        ComputerThread.start();
+    private final ILuaMachine.Factory luaFactory;
 
+    ComputerExecutor( Computer computer, ComputerEnvironment computerEnvironment, ComputerContext context )
+    {
         this.computer = computer;
+        this.computerEnvironment = computerEnvironment;
+        metrics = computerEnvironment.getMetrics();
+        luaFactory = context.luaFactory();
+        scheduler = context.computerScheduler();
+        timeout = new TimeoutState( scheduler );
 
         Environment environment = computer.getEnvironment();
 
@@ -308,7 +316,7 @@ final class ComputerExecutor
     {
         synchronized( queueLock )
         {
-            if( !onComputerQueue ) ComputerThread.queue( this );
+            if( !onComputerQueue ) scheduler.queue( this );
         }
     }
 
@@ -340,18 +348,12 @@ final class ComputerExecutor
 
     private IMount getRomMount()
     {
-        return computer.getComputerEnvironment().createResourceMount( "computercraft", "lua/rom" );
+        return computer.getGlobalEnvironment().createResourceMount( "computercraft", "lua/rom" );
     }
 
     private IWritableMount getRootMount()
     {
-        if( rootMount == null )
-        {
-            rootMount = computer.getComputerEnvironment().createSaveDirMount(
-                "computer/" + computer.assignID(),
-                computer.getComputerEnvironment().getComputerSpaceLimit()
-            );
-        }
+        if( rootMount == null ) rootMount = computerEnvironment.createRootMount();
         return rootMount;
     }
 
@@ -388,7 +390,7 @@ final class ComputerExecutor
         InputStream biosStream = null;
         try
         {
-            biosStream = computer.getComputerEnvironment().createResourceFile( "computercraft", "lua/bios.lua" );
+            biosStream = computer.getGlobalEnvironment().createResourceFile( "computercraft", "lua/bios.lua" );
         }
         catch( Exception ignored )
         {
@@ -401,10 +403,12 @@ final class ComputerExecutor
         }
 
         // Create the lua machine
-        ILuaMachine machine = luaFactory.create( computer, timeout );
+        ILuaMachine machine = luaFactory.create( new MachineEnvironment(
+            new LuaContext( computer ), metrics, timeout, computer.getGlobalEnvironment().getHostString()
+        ) );
 
         // Add the APIs. We unwrap them (yes, this is horrible) to get access to the underlying object.
-        for( ILuaAPI api : apis ) machine.addAPI( api instanceof ApiWrapper ? ((ApiWrapper) api).getDelegate() : api );
+        for( ILuaAPI api : apis ) machine.addAPI( api instanceof ApiWrapper wrapper ? wrapper.getDelegate() : api );
 
         // Start the machine running the bios resource
         MachineResult result = machine.loadBios( biosStream );
@@ -528,7 +532,7 @@ final class ComputerExecutor
             timeout.stopTimer();
         }
 
-        Tracking.addTaskTiming( getComputer(), timeout.nanoCurrent() );
+        metrics.observe( Metrics.COMPUTER_TASKS, timeout.nanoCurrent() );
 
         if( interruptedEvent ) return true;
 
@@ -541,7 +545,7 @@ final class ComputerExecutor
 
     /**
      * The main worker function, called by {@link ComputerThread}.
-     *
+     * <p>
      * This either executes a {@link StateCommand} or attempts to run an event
      *
      * @throws InterruptedException If various locks could not be acquired.
@@ -550,7 +554,7 @@ final class ComputerExecutor
      */
     void work() throws InterruptedException
     {
-        if( interruptedEvent )
+        if( interruptedEvent && !closed )
         {
             interruptedEvent = false;
             if( machine != null )
@@ -637,11 +641,10 @@ final class ComputerExecutor
     private void displayFailure( String message, String extra )
     {
         Terminal terminal = computer.getTerminal();
-        boolean colour = computer.getComputerEnvironment().isColour();
         terminal.reset();
 
         // Display our primary error message
-        if( colour ) terminal.setTextColour( 15 - Colour.RED.ordinal() );
+        if( terminal.isColour() ) terminal.setTextColour( 15 - Colour.RED.ordinal() );
         terminal.write( message );
 
         if( extra != null )
@@ -654,7 +657,7 @@ final class ComputerExecutor
 
         // And display our generic "CC may be installed incorrectly" message.
         terminal.setCursorPos( 0, terminal.getCursorY() + 1 );
-        if( colour ) terminal.setTextColour( 15 - Colour.WHITE.ordinal() );
+        if( terminal.isColour() ) terminal.setTextColour( 15 - Colour.WHITE.ordinal() );
         terminal.write( "ComputerCraft may be installed incorrectly" );
     }
 
@@ -677,15 +680,7 @@ final class ComputerExecutor
         ERROR,
     }
 
-    private static final class Event
+    private record Event(String name, Object[] args)
     {
-        final String name;
-        final Object[] args;
-
-        private Event( String name, Object[] args )
-        {
-            this.name = name;
-            this.args = args;
-        }
     }
 }

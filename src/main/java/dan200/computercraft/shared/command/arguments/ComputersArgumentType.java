@@ -12,9 +12,9 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.core.ServerContext;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
@@ -26,7 +26,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static dan200.computercraft.shared.command.CommandUtils.suggest;
 import static dan200.computercraft.shared.command.CommandUtils.suggestOnServer;
@@ -91,7 +90,7 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
         {
             int instance = reader.readInt();
             computers = s -> {
-                ServerComputer computer = ComputerCraft.serverComputerRegistry.get( instance );
+                ServerComputer computer = ServerContext.get( s.getServer() ).registry().get( instance );
                 return computer == null ? Collections.emptyList() : Collections.singletonList( computer );
             };
         }
@@ -126,18 +125,18 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
         return suggestOnServer( context, s -> {
             if( remaining.startsWith( "@" ) )
             {
-                suggestComputers( builder, remaining, x -> {
+                suggestComputers( s.getSource(), builder, remaining, x -> {
                     String label = x.getLabel();
                     return label == null ? null : "@" + label;
                 } );
             }
             else if( remaining.startsWith( "#" ) )
             {
-                suggestComputers( builder, remaining, c -> "#" + c.getID() );
+                suggestComputers( s.getSource(), builder, remaining, c -> "#" + c.getID() );
             }
             else
             {
-                suggestComputers( builder, remaining, c -> Integer.toString( c.getInstanceID() ) );
+                suggestComputers( s.getSource(), builder, remaining, c -> Integer.toString( c.getInstanceID() ) );
             }
 
             return builder.buildFuture();
@@ -150,10 +149,10 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
         return EXAMPLES;
     }
 
-    private static void suggestComputers( SuggestionsBuilder builder, String remaining, Function<ServerComputer, String> renderer )
+    private static void suggestComputers( CommandSourceStack source, SuggestionsBuilder builder, String remaining, Function<ServerComputer, String> renderer )
     {
         remaining = remaining.toLowerCase( Locale.ROOT );
-        for( ServerComputer computer : ComputerCraft.serverComputerRegistry.getComputers() )
+        for( ServerComputer computer : ServerContext.get( source.getServer() ).registry().getComputers() )
         {
             String converted = renderer.apply( computer );
             if( converted != null && converted.toLowerCase( Locale.ROOT ).startsWith( remaining ) )
@@ -165,12 +164,11 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
 
     private static ComputersSupplier getComputers( Predicate<ServerComputer> predicate )
     {
-        return s -> Collections.unmodifiableList( ComputerCraft.serverComputerRegistry
+        return s -> ServerContext.get( s.getServer() ).registry()
             .getComputers()
             .stream()
             .filter( predicate )
-            .collect( Collectors.toList() )
-        );
+            .toList();
     }
 
     public static class Info implements ArgumentTypeInfo<ComputersArgumentType, Template>

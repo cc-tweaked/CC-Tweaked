@@ -207,7 +207,7 @@ public class HTTPAPI implements ILuaAPI
 
         if( !headers.contains( HttpHeaderNames.USER_AGENT ) )
         {
-            headers.set( HttpHeaderNames.USER_AGENT, apiEnvironment.getComputerEnvironment().getUserAgent() );
+            headers.set( HttpHeaderNames.USER_AGENT, apiEnvironment.getGlobalEnvironment().getUserAgent() );
         }
         return headers;
     }

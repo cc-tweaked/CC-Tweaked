@@ -1,0 +1,70 @@
+[versions]
+
+# Minecraft
+# MC version is specified in gradle.properties, as we need that in settings.gradle.
+forge = "43.1.1"
+parchment = "2022.10.16"
+parchmentMc = "1.19.2"
+
+autoService = "1.0.1"
+cobalt = { strictly = "[0.5.7,0.6.0)", prefer = "0.5.7" }
+jetbrainsAnnotations = "23.0.0"
+kotlin = "1.7.10"
+kotlin-coroutines = "1.6.0"
+
+# Testing
+hamcrest = "2.2"
+jqwik = "1.7.0"
+junit = "5.9.1"
+
+# Build tools
+cctJavadoc = "1.5.1"
+checkstyle = "10.3.4"
+curseForgeGradle = "1.0.11"
+forgeGradle = "5.1.+"
+githubRelease = "2.2.12"
+illuaminate = "0.1.0-3-g0f40379"
+librarian = "1.+"
+minotaur = "2.+"
+mixinGradle = "0.7.+"
+shadow = "7.1.2"
+spotless = "6.8.0"
+taskTree = "2.1.0"
+
+[libraries]
+autoService = { module = "com.google.auto.service:auto-service", version.ref = "autoService" }
+cobalt = { module = "org.squiddev:Cobalt", version.ref = "cobalt" }
+jetbrainsAnnotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsAnnotations" }
+kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
+
+# Testing
+hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
+jqwik-api = { module = "net.jqwik:jqwik-api", version.ref = "jqwik" }
+jqwik-engine = { module = "net.jqwik:jqwik-engine", version.ref = "jqwik" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
+
+# Build tools
+cctJavadoc = { module = "cc.tweaked:cct-javadoc", version.ref = "cctJavadoc" }
+checkstyle = { module = "com.puppycrawl.tools:checkstyle", version.ref = "checkstyle" }
+spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
+
+[plugins]
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+taskTree = { id = "com.dorongold.task-tree", version.ref = "taskTree" }
+curseForgeGradle = { id = "net.darkhax.curseforgegradle", version.ref = "curseForgeGradle" }
+mixinGradle = { id = "org.spongepowered.mixin", version.ref = "mixinGradle" }
+minotaur = { id = "com.modrinth.minotaur", version.ref = "minotaur" }
+githubRelease = { id = "com.github.breadmoirai.github-release", version.ref = "githubRelease" }
+forgeGradle = { id = "net.minecraftforge.gradle", version.ref = "forgeGradle" }
+librarian = { id = "org.parchmentmc.librarian.forgegradle", version.ref = "librarian" }
+shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+
+[bundles]
+kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
+
+# Testing
+test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]
+testRuntime = ["junit-jupiter-engine", "jqwik-engine"]

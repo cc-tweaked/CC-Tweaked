@@ -24,7 +24,7 @@ import { DataExport, WithExport } from "./components/WithExport.js";
 const glob = promisify(globModule);
 
 (async () => {
-    const base = "build/docs/lua";
+    const base = "build/illuaminate";
 
     const processor = unified()
         .use(rehypeParse, { emitParseErrors: true })
@@ -46,7 +46,7 @@ const glob = promisify(globModule);
 
         const { result } = await processor.process(contents);
 
-        const outputPath = path.resolve("build/docs/site", path.relative(base, file));
+        const outputPath = path.resolve("build/jsxDocs", path.relative(base, file));
         await fs.mkdir(path.dirname(outputPath), { recursive: true });
         await fs.writeFile(outputPath, "<!doctype HTML>" + renderToStaticMarkup(<WithExport data={dataExport}>{result}</WithExport>));
     }

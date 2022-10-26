@@ -14,7 +14,7 @@ import java.util.Objects;
 
 /**
  * Fired when a turtle attempts to refuel from an item.
- *
+ * <p>
  * One may use {@link #setHandler(Handler)} to register a custom fuel provider for a given item.
  */
 public class TurtleRefuelEvent extends TurtleEvent
@@ -32,7 +32,7 @@ public class TurtleRefuelEvent extends TurtleEvent
 
     /**
      * Get the stack we are attempting to refuel from.
-     *
+     * <p>
      * Do not modify the returned stack - all modifications should be done within the {@link Handler}.
      *
      * @return The stack to refuel from.
@@ -56,7 +56,7 @@ public class TurtleRefuelEvent extends TurtleEvent
 
     /**
      * Set the refuel handler for this stack.
-     *
+     * <p>
      * You should call this if you can actually refuel from this item, and ideally only if there are no existing
      * handlers.
      *

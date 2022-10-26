@@ -12,6 +12,7 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,7 +27,7 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade>
 {
     /**
      * Obtain the model to be used when rendering a turtle peripheral.
-     *
+     * <p>
      * When the current turtle is {@literal null}, this function should be constant for a given upgrade and side.
      *
      * @param upgrade The upgrade that you're getting the model for.
@@ -40,7 +41,7 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade>
     /**
      * A basic {@link TurtleUpgradeModeller} which renders using the upgrade's {@linkplain ITurtleUpgrade#getCraftingItem()
      * crafting item}.
-     *
+     * <p>
      * This uses appropriate transformations for "flat" items, namely those extending the {@literal minecraft:item/generated}
      * model type. It will not appear correct for 3D models with additional depth, such as blocks.
      *
@@ -62,6 +63,19 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade>
      * @return The constructed modeller.
      */
     static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> sided( ModelResourceLocation left, ModelResourceLocation right )
+    {
+        return ( upgrade, turtle, side ) -> TransformedModel.of( side == TurtleSide.LEFT ? left : right );
+    }
+
+    /**
+     * Construct a {@link TurtleUpgradeModeller} which has a single model for the left and right side.
+     *
+     * @param left  The model to use on the left.
+     * @param right The model to use on the right.
+     * @param <T>   The type of the turtle upgrade.
+     * @return The constructed modeller.
+     */
+    static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> sided( ResourceLocation left, ResourceLocation right )
     {
         return ( upgrade, turtle, side ) -> TransformedModel.of( side == TurtleSide.LEFT ? left : right );
     }

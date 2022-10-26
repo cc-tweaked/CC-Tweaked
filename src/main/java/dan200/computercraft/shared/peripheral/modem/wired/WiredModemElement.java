@@ -5,11 +5,11 @@
  */
 package dan200.computercraft.shared.peripheral.modem.wired;
 
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNetworkChange;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.wired.WiredNode;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ import java.util.Map;
 
 public abstract class WiredModemElement implements IWiredElement
 {
-    private final IWiredNode node = new WiredNode( this );
+    private final IWiredNode node = ComputerCraftAPI.createWiredNodeForElement( this );
     private final Map<String, IPeripheral> remotePeripherals = new HashMap<>();
 
     @Nonnull

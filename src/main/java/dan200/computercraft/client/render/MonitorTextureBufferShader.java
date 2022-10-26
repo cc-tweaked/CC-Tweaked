@@ -98,7 +98,7 @@ public class MonitorTextureBufferShader extends ShaderInstance
         buffer.limit( pos );
     }
 
-    public static void setUniformData( ByteBuffer buffer, Terminal terminal, boolean greyscale )
+    public static void setUniformData( ByteBuffer buffer, Terminal terminal )
     {
         int pos = 0;
         var palette = terminal.getPalette();
@@ -106,7 +106,7 @@ public class MonitorTextureBufferShader extends ShaderInstance
         {
             {
                 double[] colour = palette.getColour( i );
-                if( greyscale )
+                if( !terminal.isColour() )
                 {
                     float f = FixedWidthFontRenderer.toGreyscale( colour );
                     buffer.putFloat( pos, f ).putFloat( pos + 4, f ).putFloat( pos + 8, f );

@@ -28,10 +28,10 @@ import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
 /**
  * This peripheral allows you to interact with command blocks.
- *
+ * <p>
  * Command blocks are only wrapped as peripherals if the {@code enable_command_block} option is true within the
  * config.
- *
+ * <p>
  * This API is <em>not</em> the same as the {@link CommandAPI} API, which is exposed on command computers.
  *
  * @cc.module command
@@ -128,9 +128,9 @@ public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
     public static void onCapability( AttachCapabilitiesEvent<BlockEntity> event )
     {
         BlockEntity tile = event.getObject();
-        if( ComputerCraft.enableCommandBlock && tile instanceof CommandBlockEntity )
+        if( ComputerCraft.enableCommandBlock && tile instanceof CommandBlockEntity commandBlock )
         {
-            CommandBlockPeripheral peripheral = new CommandBlockPeripheral( (CommandBlockEntity) tile );
+            CommandBlockPeripheral peripheral = new CommandBlockPeripheral( commandBlock );
             event.addCapability( CAP_ID, peripheral );
             event.addListener( peripheral::invalidate );
         }

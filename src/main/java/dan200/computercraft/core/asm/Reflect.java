@@ -52,7 +52,7 @@ final class Reflect
         Type underlying = root;
         while( true )
         {
-            if( underlying instanceof Class<?> ) return (Class<?>) underlying;
+            if( underlying instanceof Class<?> klass ) return klass;
 
             if( underlying instanceof ParameterizedType type )
             {
@@ -61,7 +61,7 @@ final class Reflect
                     for( java.lang.reflect.Type arg : type.getActualTypeArguments() )
                     {
                         if( arg instanceof WildcardType ) continue;
-                        if( arg instanceof TypeVariable && ((TypeVariable<?>) arg).getName().startsWith( "capture#" ) )
+                        if( arg instanceof TypeVariable<?> var && var.getName().startsWith( "capture#" ) )
                         {
                             continue;
                         }

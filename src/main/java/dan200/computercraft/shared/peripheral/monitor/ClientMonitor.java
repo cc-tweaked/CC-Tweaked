@@ -8,7 +8,8 @@ package dan200.computercraft.shared.peripheral.monitor;
 import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.client.util.DirectBuffers;
 import dan200.computercraft.client.util.DirectVertexBuffer;
-import dan200.computercraft.shared.common.ClientTerminal;
+import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.shared.network.client.TerminalState;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -21,7 +22,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-public final class ClientMonitor extends ClientTerminal
+public final class ClientMonitor
 {
     private static final Set<ClientMonitor> allMonitors = new HashSet<>();
 
@@ -35,10 +36,11 @@ public final class ClientMonitor extends ClientTerminal
     public int tboUniform;
     public DirectVertexBuffer backgroundBuffer;
     public DirectVertexBuffer foregroundBuffer;
+    private Terminal terminal;
+    private boolean terminalChanged;
 
-    public ClientMonitor( boolean colour, TileMonitor origin )
+    public ClientMonitor( TileMonitor origin )
     {
-        super( colour );
         this.origin = origin;
     }
 
@@ -160,6 +162,36 @@ public final class ClientMonitor extends ClientTerminal
                 monitor.deleteBuffers();
 
                 iterator.remove();
+            }
+        }
+    }
+
+    public boolean pollTerminalChanged()
+    {
+        boolean changed = terminalChanged;
+        terminalChanged = false;
+        return changed;
+    }
+
+    public Terminal getTerminal()
+    {
+        return terminal;
+    }
+
+    void read( TerminalState state )
+    {
+        if( state.hasTerminal() )
+        {
+            if( terminal == null ) terminal = new Terminal( state.width, state.height, state.colour );
+            state.apply( terminal );
+            terminalChanged = true;
+        }
+        else
+        {
+            if( terminal != null )
+            {
+                terminal = null;
+                terminalChanged = true;
             }
         }
     }

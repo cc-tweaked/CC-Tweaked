@@ -30,6 +30,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Inventory;
@@ -44,6 +45,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -53,7 +55,6 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
-import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 
 public class TileTurtle extends TileComputerBase implements ITurtleTile, DefaultInventory
 {
@@ -88,10 +89,10 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    protected ServerComputer createComputer( int instanceID, int id )
+    protected ServerComputer createComputer( int id )
     {
         ServerComputer computer = new ServerComputer(
-            getLevel(), id, label, instanceID, getFamily(),
+            (ServerLevel) getLevel(), id, label, getFamily(),
             ComputerCraft.turtleTermWidth, ComputerCraft.turtleTermHeight
         );
         computer.setPosition( getBlockPos() );
@@ -561,7 +562,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     @Override
     public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable Direction side )
     {
-        if( cap == ITEM_HANDLER_CAPABILITY )
+        if( cap == ForgeCapabilities.ITEM_HANDLER )
         {
             if( itemHandlerCap == null ) itemHandlerCap = LazyOptional.of( () -> new InvWrapper( this ) );
             return itemHandlerCap.cast();
@@ -584,6 +585,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     @Override
     public AbstractContainerMenu createMenu( int id, @Nonnull Inventory inventory, @Nonnull Player player )
     {
-        return new ContainerTurtle( id, inventory, brain );
+        return ContainerTurtle.ofBrain( id, inventory, brain );
     }
 }

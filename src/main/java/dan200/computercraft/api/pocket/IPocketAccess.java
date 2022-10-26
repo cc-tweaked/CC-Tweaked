@@ -21,7 +21,7 @@ public interface IPocketAccess
 {
     /**
      * Gets the entity holding this item.
-     *
+     * <p>
      * This must be called on the server thread.
      *
      * @return The holding entity, or {@code null} if none exists.
@@ -67,7 +67,7 @@ public interface IPocketAccess
 
     /**
      * Get the upgrade-specific NBT.
-     *
+     * <p>
      * This is persisted between computer reboots and chunk loads.
      *
      * @return The upgrade's NBT.

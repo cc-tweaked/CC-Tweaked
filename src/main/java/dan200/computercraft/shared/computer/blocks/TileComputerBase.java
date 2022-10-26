@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.computer.blocks;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.BundledRedstone;
@@ -14,8 +14,10 @@ import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.util.DirectionUtil;
+import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.util.RedstoneUtil;
 import joptsimple.internal.Strings;
 import net.minecraft.core.BlockPos;
@@ -74,11 +76,11 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     protected void unload()
     {
-        if( instanceID >= 0 )
-        {
-            if( !getLevel().isClientSide ) ComputerCraft.serverComputerRegistry.remove( instanceID );
-            instanceID = -1;
-        }
+        if( getLevel().isClientSide ) return;
+
+        ServerComputer computer = getServerComputer();
+        if( computer != null ) computer.close();
+        instanceID = -1;
     }
 
     @Override
@@ -135,8 +137,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             // Regular right click to activate computer
             if( !getLevel().isClientSide && isUsable( player ) )
             {
-                createServerComputer().turnOn();
-                new ComputerContainerData( createServerComputer() ).open( player, this );
+                ServerComputer computer = createServerComputer();
+                computer.turnOn();
+                new ComputerContainerData( computer ).open( player, this );
             }
             return InteractionResult.SUCCESS;
         }
@@ -157,6 +160,9 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     protected void serverTick()
     {
+        if( getLevel().isClientSide ) return;
+        if( computerID < 0 && !startOn ) return; // Don't tick if we don't need a computer!
+
         ServerComputer computer = createServerComputer();
 
         if( invalidSides != 0 )
@@ -264,7 +270,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
 
     /**
      * Update all redstone and peripherals.
-     *
+     * <p>
      * This should only be really be called when the computer is being ticked (though there are some cases where it
      * won't be), as peripheral scanning requires adjacent tiles to be in a "correct" state - which may not be the case
      * if they're still updating!
@@ -316,7 +322,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         }
     }
 
-    protected abstract ServerComputer createComputer( int instanceID, int id );
+    protected abstract ServerComputer createComputer( int id );
 
     @Override
     public final int getComputerID()
@@ -336,8 +342,6 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         if( getLevel().isClientSide || computerID == id ) return;
 
         computerID = id;
-        ServerComputer computer = getServerComputer();
-        if( computer != null ) computer.setID( computerID );
         setChanged();
     }
 
@@ -359,22 +363,23 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     }
 
     @Nonnull
-    public ServerComputer createServerComputer()
+    public final ServerComputer createServerComputer()
     {
         if( getLevel().isClientSide ) throw new IllegalStateException( "Cannot access server computer on the client." );
 
         boolean changed = false;
-        if( instanceID < 0 )
-        {
-            instanceID = ComputerCraft.serverComputerRegistry.getUnusedInstanceID();
-            changed = true;
-        }
 
-        ServerComputer computer = ComputerCraft.serverComputerRegistry.get( instanceID );
+        ServerComputer computer = ServerContext.get( getLevel().getServer() ).registry().get( instanceID );
         if( computer == null )
         {
-            computer = createComputer( instanceID, computerID );
-            ComputerCraft.serverComputerRegistry.add( instanceID, computer );
+            if( computerID < 0 )
+            {
+                computerID = ComputerCraftAPI.createUniqueNumberedSaveDir( level, IDAssigner.COMPUTER );
+                updateBlock();
+            }
+
+            computer = createComputer( computerID );
+            instanceID = computer.register();
             fresh = true;
             changed = true;
         }
@@ -386,7 +391,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     @Nullable
     public ServerComputer getServerComputer()
     {
-        return getLevel().isClientSide ? null : ComputerCraft.serverComputerRegistry.get( instanceID );
+        return getLevel().isClientSide ? null : ServerContext.get( getLevel().getServer() ).registry().get( instanceID );
     }
 
     // Networking stuff

@@ -8,6 +8,7 @@ package dan200.computercraft.shared;
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.detail.DetailRegistries;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -42,10 +43,12 @@ import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.network.container.HeldItemContainerData;
-import dan200.computercraft.shared.network.container.ViewComputerContainerData;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.ContainerDiskDrive;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
+import dan200.computercraft.shared.peripheral.generic.data.BlockData;
+import dan200.computercraft.shared.peripheral.generic.data.FluidData;
+import dan200.computercraft.shared.peripheral.generic.data.ItemData;
 import dan200.computercraft.shared.peripheral.generic.methods.EnergyMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.FluidMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
@@ -90,15 +93,13 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
-import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.registries.*;
 
 import java.util.function.BiFunction;
@@ -298,7 +299,7 @@ public final class Registry
             () -> ContainerData.toType( ComputerContainerData::new, ComputerMenuWithoutInventory::new ) );
 
         public static final RegistryObject<MenuType<ContainerTurtle>> TURTLE = CONTAINERS.register( "turtle",
-            () -> ContainerData.toType( ComputerContainerData::new, ContainerTurtle::new ) );
+            () -> ContainerData.toType( ComputerContainerData::new, ContainerTurtle::ofMenuData ) );
 
         public static final RegistryObject<MenuType<ContainerDiskDrive>> DISK_DRIVE = CONTAINERS.register( "disk_drive",
             () -> new MenuType<>( ContainerDiskDrive::new ) );
@@ -310,7 +311,7 @@ public final class Registry
             () -> ContainerData.toType( HeldItemContainerData::new, ContainerHeldItem::createPrintout ) );
 
         public static final RegistryObject<MenuType<ContainerViewComputer>> VIEW_COMPUTER = CONTAINERS.register( "view_computer",
-            () -> ContainerData.toType( ViewComputerContainerData::new, ContainerViewComputer::new ) );
+            () -> ContainerData.toType( ComputerContainerData::new, ContainerViewComputer::new ) );
     }
 
     static class ModArgumentTypes
@@ -335,7 +336,7 @@ public final class Registry
 
         static
         {
-            register( "tracking_field", TrackingFieldArgumentType.class, TrackingFieldArgumentType.trackingField() );
+            register( "tracking_field", TrackingFieldArgumentType.class, TrackingFieldArgumentType.metric() );
             register( "computer", ComputerArgumentType.class, ComputerArgumentType.oneComputer() );
             register( "computers", ComputersArgumentType.class, new ComputersArgumentType.Info() );
             registerUnsafe( "repeat", RepeatArgumentType.class, new RepeatArgumentType.Info() );
@@ -401,16 +402,20 @@ public final class Registry
         // Register media providers
         ComputerCraftAPI.registerMediaProvider( stack -> {
             Item item = stack.getItem();
-            if( item instanceof IMedia ) return (IMedia) item;
+            if( item instanceof IMedia media ) return media;
             if( item instanceof RecordItem ) return RecordMedia.INSTANCE;
             return null;
         } );
 
         // Register generic capabilities. This can technically be done off-thread, but we need it to happen
         // after Forge's common setup, so this is easiest.
-        ComputerCraftAPI.registerGenericCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY );
-        ComputerCraftAPI.registerGenericCapability( CapabilityEnergy.ENERGY );
-        ComputerCraftAPI.registerGenericCapability( CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY );
+        ComputerCraftAPI.registerGenericCapability( ForgeCapabilities.ITEM_HANDLER );
+        ComputerCraftAPI.registerGenericCapability( ForgeCapabilities.ENERGY );
+        ComputerCraftAPI.registerGenericCapability( ForgeCapabilities.FLUID_HANDLER );
+
+        DetailRegistries.ITEM_STACK.addProvider( ItemData::fill );
+        DetailRegistries.BLOCK_IN_WORLD.addProvider( BlockData::fill );
+        DetailRegistries.FLUID_STACK.addProvider( FluidData::fill );
 
         CauldronInteraction.WATER.put( ModItems.TURTLE_NORMAL.get(), ItemTurtle.CAULDRON_INTERACTION );
         CauldronInteraction.WATER.put( ModItems.TURTLE_ADVANCED.get(), ItemTurtle.CAULDRON_INTERACTION );

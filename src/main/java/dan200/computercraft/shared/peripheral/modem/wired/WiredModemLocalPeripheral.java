@@ -8,7 +8,7 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.Registry;
-import dan200.computercraft.shared.util.IDAssigner;
+import dan200.computercraft.shared.computer.core.ServerContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -24,7 +24,7 @@ import java.util.Map;
 
 /**
  * Represents a local peripheral exposed on the wired network.
- *
+ * <p>
  * This is responsible for getting the peripheral in world, tracking id and type and determining whether
  * it has changed.
  */
@@ -74,7 +74,7 @@ public final class WiredModemLocalPeripheral
             else if( id < 0 || !type.equals( this.type ) )
             {
                 this.type = type;
-                this.id = IDAssigner.getNextId( "peripheral." + type );
+                this.id = ServerContext.get( world.getServer() ).getNextId( "peripheral." + type );
             }
 
             return oldPeripheral == null || !oldPeripheral.equals( peripheral );
