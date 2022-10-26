@@ -1,34 +1,15 @@
 {
   "parent": "minecraft:recipes/root",
-  "rewards": {
-    "recipes": [
-      "computercraft:turtle_normal"
-    ]
-  },
   "criteria": {
     "has_computer": {
-      "trigger": "minecraft:inventory_changed",
-      "conditions": {
-        "items": [
-          {
-            "items": [
-              "computercraft:computer_normal"
-            ]
-          }
-        ]
-      }
+      "conditions": {"items": [{"items": ["computercraft:computer_normal"]}]},
+      "trigger": "minecraft:inventory_changed"
     },
     "has_the_recipe": {
-      "trigger": "minecraft:recipe_unlocked",
-      "conditions": {
-        "recipe": "computercraft:turtle_normal"
-      }
+      "conditions": {"recipe": "computercraft:turtle_normal"},
+      "trigger": "minecraft:recipe_unlocked"
     }
   },
-  "requirements": [
-    [
-      "has_computer",
-      "has_the_recipe"
-    ]
-  ]
+  "requirements": [["has_computer", "has_the_recipe"]],
+  "rewards": {"recipes": ["computercraft:turtle_normal"]}
 }

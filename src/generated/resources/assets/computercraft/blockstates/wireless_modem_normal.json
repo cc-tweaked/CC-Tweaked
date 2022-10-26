@@ -1,16 +1,16 @@
 {
   "variants": {
-    "facing=down,on=false": {"y": 0, "x": 90, "model": "computercraft:block/wireless_modem_normal_off"},
-    "facing=down,on=true": {"y": 0, "x": 90, "model": "computercraft:block/wireless_modem_normal_on"},
-    "facing=east,on=false": {"y": 90, "x": 0, "model": "computercraft:block/wireless_modem_normal_off"},
-    "facing=east,on=true": {"y": 90, "x": 0, "model": "computercraft:block/wireless_modem_normal_on"},
-    "facing=north,on=false": {"y": 0, "x": 0, "model": "computercraft:block/wireless_modem_normal_off"},
-    "facing=north,on=true": {"y": 0, "x": 0, "model": "computercraft:block/wireless_modem_normal_on"},
-    "facing=south,on=false": {"y": 180, "x": 0, "model": "computercraft:block/wireless_modem_normal_off"},
-    "facing=south,on=true": {"y": 180, "x": 0, "model": "computercraft:block/wireless_modem_normal_on"},
-    "facing=up,on=false": {"y": 0, "x": 270, "model": "computercraft:block/wireless_modem_normal_off"},
-    "facing=up,on=true": {"y": 0, "x": 270, "model": "computercraft:block/wireless_modem_normal_on"},
-    "facing=west,on=false": {"y": 270, "x": 0, "model": "computercraft:block/wireless_modem_normal_off"},
-    "facing=west,on=true": {"y": 270, "x": 0, "model": "computercraft:block/wireless_modem_normal_on"}
+    "facing=down,on=false": {"model": "computercraft:block/wireless_modem_normal_off", "x": 90, "y": 0},
+    "facing=down,on=true": {"model": "computercraft:block/wireless_modem_normal_on", "x": 90, "y": 0},
+    "facing=east,on=false": {"model": "computercraft:block/wireless_modem_normal_off", "x": 0, "y": 90},
+    "facing=east,on=true": {"model": "computercraft:block/wireless_modem_normal_on", "x": 0, "y": 90},
+    "facing=north,on=false": {"model": "computercraft:block/wireless_modem_normal_off", "x": 0, "y": 0},
+    "facing=north,on=true": {"model": "computercraft:block/wireless_modem_normal_on", "x": 0, "y": 0},
+    "facing=south,on=false": {"model": "computercraft:block/wireless_modem_normal_off", "x": 0, "y": 180},
+    "facing=south,on=true": {"model": "computercraft:block/wireless_modem_normal_on", "x": 0, "y": 180},
+    "facing=up,on=false": {"model": "computercraft:block/wireless_modem_normal_off", "x": 270, "y": 0},
+    "facing=up,on=true": {"model": "computercraft:block/wireless_modem_normal_on", "x": 270, "y": 0},
+    "facing=west,on=false": {"model": "computercraft:block/wireless_modem_normal_off", "x": 0, "y": 270},
+    "facing=west,on=true": {"model": "computercraft:block/wireless_modem_normal_on", "x": 0, "y": 270}
   }
 }

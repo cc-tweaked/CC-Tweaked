@@ -1,22 +1,10 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "###",
-    "#R#",
-    "#G#"
-  ],
   "key": {
-    "#": {
-      "tag": "forge:ingots/gold"
-    },
-    "R": {
-      "tag": "forge:dusts/redstone"
-    },
-    "G": {
-      "tag": "forge:glass_panes"
-    }
+    "#": {"tag": "forge:ingots/gold"},
+    "G": {"tag": "forge:glass_panes"},
+    "R": {"tag": "forge:dusts/redstone"}
   },
-  "result": {
-    "item": "computercraft:computer_advanced"
-  }
+  "pattern": ["###", "#R#", "#G#"],
+  "result": {"item": "computercraft:computer_advanced"}
 }

@@ -1,18 +1,11 @@
 {
   "type": "computercraft:impostor_shaped",
   "group": "computercraft:pocket_normal",
-  "pattern": [
-    "#",
-    "P"
-  ],
   "key": {
-    "P": {
-      "item": "computercraft:pocket_computer_normal"
-    },
-    "#": {
-      "item": "computercraft:wireless_modem_normal"
-    }
+    "#": {"item": "computercraft:wireless_modem_normal"},
+    "P": {"item": "computercraft:pocket_computer_normal"}
   },
+  "pattern": ["#", "P"],
   "result": {
     "item": "computercraft:pocket_computer_normal",
     "nbt": "{Upgrade:\"computercraft:wireless_modem_normal\"}"

@@ -1,17 +1,5 @@
 {
   "type": "computercraft:impostor_shapeless",
-  "ingredients": [
-    {
-      "tag": "forge:leather"
-    },
-    {
-      "item": "computercraft:printed_page"
-    },
-    {
-      "tag": "forge:string"
-    }
-  ],
-  "result": {
-    "item": "computercraft:printed_book"
-  }
+  "ingredients": [{"tag": "forge:leather"}, {"item": "computercraft:printed_page"}, {"tag": "forge:string"}],
+  "result": {"item": "computercraft:printed_book"}
 }

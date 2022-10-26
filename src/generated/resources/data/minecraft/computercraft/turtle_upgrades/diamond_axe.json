@@ -1,5 +1,1 @@
-{
-  "type": "computercraft:tool",
-  "item": "minecraft:diamond_axe",
-  "damageMultiplier": 6.0
-}
+{"type": "computercraft:tool", "damageMultiplier": 6.0, "item": "minecraft:diamond_axe"}

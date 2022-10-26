@@ -1,22 +1,10 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "###",
-    "#A#",
-    "#G#"
-  ],
   "key": {
-    "#": {
-      "tag": "forge:ingots/gold"
-    },
-    "A": {
-      "item": "minecraft:golden_apple"
-    },
-    "G": {
-      "tag": "forge:glass_panes"
-    }
+    "#": {"tag": "forge:ingots/gold"},
+    "A": {"item": "minecraft:golden_apple"},
+    "G": {"tag": "forge:glass_panes"}
   },
-  "result": {
-    "item": "computercraft:pocket_computer_advanced"
-  }
+  "pattern": ["###", "#A#", "#G#"],
+  "result": {"item": "computercraft:pocket_computer_advanced"}
 }

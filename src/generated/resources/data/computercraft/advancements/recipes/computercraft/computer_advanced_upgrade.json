@@ -1,37 +1,15 @@
 {
   "parent": "minecraft:recipes/root",
-  "rewards": {
-    "recipes": [
-      "computercraft:computer_advanced_upgrade"
-    ]
-  },
   "criteria": {
     "has_components": {
-      "trigger": "minecraft:inventory_changed",
-      "conditions": {
-        "items": [
-          {
-            "items": [
-              "computercraft:computer_normal"
-            ]
-          },
-          {
-            "tag": "forge:ingots/gold"
-          }
-        ]
-      }
+      "conditions": {"items": [{"items": ["computercraft:computer_normal"]}, {"tag": "forge:ingots/gold"}]},
+      "trigger": "minecraft:inventory_changed"
     },
     "has_the_recipe": {
-      "trigger": "minecraft:recipe_unlocked",
-      "conditions": {
-        "recipe": "computercraft:computer_advanced_upgrade"
-      }
+      "conditions": {"recipe": "computercraft:computer_advanced_upgrade"},
+      "trigger": "minecraft:recipe_unlocked"
     }
   },
-  "requirements": [
-    [
-      "has_components",
-      "has_the_recipe"
-    ]
-  ]
+  "requirements": [["has_components", "has_the_recipe"]],
+  "rewards": {"recipes": ["computercraft:computer_advanced_upgrade"]}
 }

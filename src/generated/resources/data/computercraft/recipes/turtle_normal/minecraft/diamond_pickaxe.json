@@ -1,19 +1,7 @@
 {
   "type": "computercraft:impostor_shaped",
   "group": "computercraft:turtle_normal",
-  "pattern": [
-    "#T"
-  ],
-  "key": {
-    "T": {
-      "item": "computercraft:turtle_normal"
-    },
-    "#": {
-      "item": "minecraft:diamond_pickaxe"
-    }
-  },
-  "result": {
-    "item": "computercraft:turtle_normal",
-    "nbt": "{RightUpgrade:\"minecraft:diamond_pickaxe\"}"
-  }
+  "key": {"#": {"item": "minecraft:diamond_pickaxe"}, "T": {"item": "computercraft:turtle_normal"}},
+  "pattern": ["#T"],
+  "result": {"item": "computercraft:turtle_normal", "nbt": "{RightUpgrade:\"minecraft:diamond_pickaxe\"}"}
 }

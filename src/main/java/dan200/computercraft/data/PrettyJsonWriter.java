@@ -11,6 +11,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonWriter;
+import net.minecraft.data.DataProvider;
+import net.minecraft.util.GsonHelper;
 
 import javax.annotation.Nullable;
 import java.io.*;
@@ -85,7 +87,7 @@ public class PrettyJsonWriter extends JsonWriter
         var out = new ByteArrayOutputStream();
         try( var writer = new PrettyJsonWriter( new OutputStreamWriter( out, StandardCharsets.UTF_8 ) ) )
         {
-            GSON.toJson( object, writer );
+            GsonHelper.writeValue( writer, object, DataProvider.KEY_COMPARATOR );
         }
         catch( IOException e )
         {

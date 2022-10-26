@@ -1,39 +1,17 @@
 {
   "parent": "minecraft:recipes/root",
-  "rewards": {
-    "recipes": [
-      "computercraft:turtle_advanced/minecraft/diamond_hoe"
-    ]
-  },
   "criteria": {
     "has_items": {
-      "trigger": "minecraft:inventory_changed",
       "conditions": {
-        "items": [
-          {
-            "items": [
-              "computercraft:turtle_advanced"
-            ]
-          },
-          {
-            "items": [
-              "minecraft:diamond_hoe"
-            ]
-          }
-        ]
-      }
+        "items": [{"items": ["computercraft:turtle_advanced"]}, {"items": ["minecraft:diamond_hoe"]}]
+      },
+      "trigger": "minecraft:inventory_changed"
     },
     "has_the_recipe": {
-      "trigger": "minecraft:recipe_unlocked",
-      "conditions": {
-        "recipe": "computercraft:turtle_advanced/minecraft/diamond_hoe"
-      }
+      "conditions": {"recipe": "computercraft:turtle_advanced/minecraft/diamond_hoe"},
+      "trigger": "minecraft:recipe_unlocked"
     }
   },
-  "requirements": [
-    [
-      "has_items",
-      "has_the_recipe"
-    ]
-  ]
+  "requirements": [["has_items", "has_the_recipe"]],
+  "rewards": {"recipes": ["computercraft:turtle_advanced/minecraft/diamond_hoe"]}
 }

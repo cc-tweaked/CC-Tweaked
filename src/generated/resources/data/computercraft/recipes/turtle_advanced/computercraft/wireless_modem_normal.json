@@ -1,19 +1,7 @@
 {
   "type": "computercraft:impostor_shaped",
   "group": "computercraft:turtle_advanced",
-  "pattern": [
-    "#T"
-  ],
-  "key": {
-    "T": {
-      "item": "computercraft:turtle_advanced"
-    },
-    "#": {
-      "item": "computercraft:wireless_modem_normal"
-    }
-  },
-  "result": {
-    "item": "computercraft:turtle_advanced",
-    "nbt": "{RightUpgrade:\"computercraft:wireless_modem_normal\"}"
-  }
+  "key": {"#": {"item": "computercraft:wireless_modem_normal"}, "T": {"item": "computercraft:turtle_advanced"}},
+  "pattern": ["#T"],
+  "result": {"item": "computercraft:turtle_advanced", "nbt": "{RightUpgrade:\"computercraft:wireless_modem_normal\"}"}
 }

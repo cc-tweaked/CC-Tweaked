@@ -1,22 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "###",
-    "#R#",
-    "#D#"
-  ],
-  "key": {
-    "#": {
-      "tag": "forge:stone"
-    },
-    "R": {
-      "tag": "forge:dusts/redstone"
-    },
-    "D": {
-      "tag": "forge:dyes"
-    }
-  },
-  "result": {
-    "item": "computercraft:printer"
-  }
+  "key": {"#": {"tag": "forge:stone"}, "D": {"tag": "forge:dyes"}, "R": {"tag": "forge:dusts/redstone"}},
+  "pattern": ["###", "#R#", "#D#"],
+  "result": {"item": "computercraft:printer"}
 }

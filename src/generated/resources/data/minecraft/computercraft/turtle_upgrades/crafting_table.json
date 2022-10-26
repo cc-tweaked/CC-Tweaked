@@ -1,4 +1,1 @@
-{
-  "type": "computercraft:workbench",
-  "item": "minecraft:crafting_table"
-}
+{"type": "computercraft:workbench", "item": "minecraft:crafting_table"}

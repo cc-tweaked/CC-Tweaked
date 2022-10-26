@@ -1,7 +1,1 @@
-{
-  "replace": false,
-  "values": [
-    "#minecraft:wool",
-    "minecraft:cobweb"
-  ]
-}
+{"values": ["#minecraft:wool", "minecraft:cobweb"]}

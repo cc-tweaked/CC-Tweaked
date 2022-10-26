@@ -2,19 +2,10 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "rolls": 1.0,
       "bonus_rolls": 0.0,
-      "entries": [
-        {
-          "type": "minecraft:item",
-          "name": "computercraft:speaker"
-        }
-      ],
-      "conditions": [
-        {
-          "condition": "minecraft:survives_explosion"
-        }
-      ]
+      "conditions": [{"condition": "minecraft:survives_explosion"}],
+      "entries": [{"type": "minecraft:item", "name": "computercraft:speaker"}],
+      "rolls": 1.0
     }
   ]
 }

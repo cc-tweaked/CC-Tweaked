@@ -1,34 +1,15 @@
 {
   "parent": "minecraft:recipes/root",
-  "rewards": {
-    "recipes": [
-      "computercraft:printed_pages"
-    ]
-  },
   "criteria": {
     "has_printer": {
-      "trigger": "minecraft:inventory_changed",
-      "conditions": {
-        "items": [
-          {
-            "items": [
-              "computercraft:printer"
-            ]
-          }
-        ]
-      }
+      "conditions": {"items": [{"items": ["computercraft:printer"]}]},
+      "trigger": "minecraft:inventory_changed"
     },
     "has_the_recipe": {
-      "trigger": "minecraft:recipe_unlocked",
-      "conditions": {
-        "recipe": "computercraft:printed_pages"
-      }
+      "conditions": {"recipe": "computercraft:printed_pages"},
+      "trigger": "minecraft:recipe_unlocked"
     }
   },
-  "requirements": [
-    [
-      "has_printer",
-      "has_the_recipe"
-    ]
-  ]
+  "requirements": [["has_printer", "has_the_recipe"]],
+  "rewards": {"recipes": ["computercraft:printed_pages"]}
 }

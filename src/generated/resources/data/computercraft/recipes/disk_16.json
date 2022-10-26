@@ -1,19 +1,6 @@
 {
   "type": "computercraft:impostor_shapeless",
   "group": "computercraft:disk",
-  "ingredients": [
-    {
-      "tag": "forge:dusts/redstone"
-    },
-    {
-      "item": "minecraft:paper"
-    },
-    {
-      "item": "minecraft:white_dye"
-    }
-  ],
-  "result": {
-    "item": "computercraft:disk",
-    "nbt": "{Color:15790320}"
-  }
+  "ingredients": [{"tag": "forge:dusts/redstone"}, {"item": "minecraft:paper"}, {"item": "minecraft:white_dye"}],
+  "result": {"item": "computercraft:disk", "nbt": "{Color:15790320}"}
 }

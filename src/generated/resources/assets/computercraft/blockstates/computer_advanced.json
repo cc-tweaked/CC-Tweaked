@@ -1,16 +1,16 @@
 {
   "variants": {
-    "facing=east,state=blinking": {"y": 90, "model": "computercraft:block/computer_advanced_blinking"},
-    "facing=east,state=off": {"y": 90, "model": "computercraft:block/computer_advanced_off"},
-    "facing=east,state=on": {"y": 90, "model": "computercraft:block/computer_advanced_on"},
-    "facing=north,state=blinking": {"y": 0, "model": "computercraft:block/computer_advanced_blinking"},
-    "facing=north,state=off": {"y": 0, "model": "computercraft:block/computer_advanced_off"},
-    "facing=north,state=on": {"y": 0, "model": "computercraft:block/computer_advanced_on"},
-    "facing=south,state=blinking": {"y": 180, "model": "computercraft:block/computer_advanced_blinking"},
-    "facing=south,state=off": {"y": 180, "model": "computercraft:block/computer_advanced_off"},
-    "facing=south,state=on": {"y": 180, "model": "computercraft:block/computer_advanced_on"},
-    "facing=west,state=blinking": {"y": 270, "model": "computercraft:block/computer_advanced_blinking"},
-    "facing=west,state=off": {"y": 270, "model": "computercraft:block/computer_advanced_off"},
-    "facing=west,state=on": {"y": 270, "model": "computercraft:block/computer_advanced_on"}
+    "facing=east,state=blinking": {"model": "computercraft:block/computer_advanced_blinking", "y": 90},
+    "facing=east,state=off": {"model": "computercraft:block/computer_advanced_off", "y": 90},
+    "facing=east,state=on": {"model": "computercraft:block/computer_advanced_on", "y": 90},
+    "facing=north,state=blinking": {"model": "computercraft:block/computer_advanced_blinking", "y": 0},
+    "facing=north,state=off": {"model": "computercraft:block/computer_advanced_off", "y": 0},
+    "facing=north,state=on": {"model": "computercraft:block/computer_advanced_on", "y": 0},
+    "facing=south,state=blinking": {"model": "computercraft:block/computer_advanced_blinking", "y": 180},
+    "facing=south,state=off": {"model": "computercraft:block/computer_advanced_off", "y": 180},
+    "facing=south,state=on": {"model": "computercraft:block/computer_advanced_on", "y": 180},
+    "facing=west,state=blinking": {"model": "computercraft:block/computer_advanced_blinking", "y": 270},
+    "facing=west,state=off": {"model": "computercraft:block/computer_advanced_off", "y": 270},
+    "facing=west,state=on": {"model": "computercraft:block/computer_advanced_on", "y": 270}
   }
 }

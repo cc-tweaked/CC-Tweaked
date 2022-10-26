@@ -1,23 +1,11 @@
 {
   "type": "computercraft:turtle",
-  "pattern": [
-    "###",
-    "#C#",
-    "#I#"
-  ],
+  "family": "ADVANCED",
   "key": {
-    "#": {
-      "tag": "forge:ingots/gold"
-    },
-    "C": {
-      "item": "computercraft:computer_advanced"
-    },
-    "I": {
-      "tag": "forge:chests/wooden"
-    }
+    "#": {"tag": "forge:ingots/gold"},
+    "C": {"item": "computercraft:computer_advanced"},
+    "I": {"tag": "forge:chests/wooden"}
   },
-  "result": {
-    "item": "computercraft:turtle_advanced"
-  },
-  "family": "ADVANCED"
+  "pattern": ["###", "#C#", "#I#"],
+  "result": {"item": "computercraft:turtle_advanced"}
 }

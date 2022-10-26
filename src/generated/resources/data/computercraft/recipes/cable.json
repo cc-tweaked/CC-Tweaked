@@ -1,20 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    " # ",
-    "#R#",
-    " # "
-  ],
-  "key": {
-    "#": {
-      "tag": "forge:stone"
-    },
-    "R": {
-      "tag": "forge:dusts/redstone"
-    }
-  },
-  "result": {
-    "item": "computercraft:cable",
-    "count": 6
-  }
+  "key": {"#": {"tag": "forge:stone"}, "R": {"tag": "forge:dusts/redstone"}},
+  "pattern": [" # ", "#R#", " # "],
+  "result": {"count": 6, "item": "computercraft:cable"}
 }

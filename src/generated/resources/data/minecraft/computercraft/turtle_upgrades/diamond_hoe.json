@@ -1,5 +1,1 @@
-{
-  "type": "computercraft:tool",
-  "item": "minecraft:diamond_hoe",
-  "breakable": "computercraft:turtle_hoe_harvestable"
-}
+{"type": "computercraft:tool", "breakable": "computercraft:turtle_hoe_harvestable", "item": "minecraft:diamond_hoe"}

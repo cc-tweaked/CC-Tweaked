@@ -1,20 +1,7 @@
 {
   "type": "computercraft:computer_upgrade",
-  "pattern": [
-    "###",
-    "#C#",
-    "# #"
-  ],
-  "key": {
-    "#": {
-      "tag": "forge:ingots/gold"
-    },
-    "C": {
-      "item": "computercraft:pocket_computer_normal"
-    }
-  },
-  "result": {
-    "item": "computercraft:pocket_computer_advanced"
-  },
-  "family": "ADVANCED"
+  "family": "ADVANCED",
+  "key": {"#": {"tag": "forge:ingots/gold"}, "C": {"item": "computercraft:pocket_computer_normal"}},
+  "pattern": ["###", "#C#", "# #"],
+  "result": {"item": "computercraft:pocket_computer_advanced"}
 }

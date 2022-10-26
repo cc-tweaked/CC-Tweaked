@@ -1,32 +1,15 @@
 {
   "parent": "minecraft:recipes/root",
-  "rewards": {
-    "recipes": [
-      "computercraft:wireless_modem_normal"
-    ]
-  },
   "criteria": {
     "has_computer": {
-      "trigger": "minecraft:inventory_changed",
-      "conditions": {
-        "items": [
-          {
-            "tag": "computercraft:computer"
-          }
-        ]
-      }
+      "conditions": {"items": [{"tag": "computercraft:computer"}]},
+      "trigger": "minecraft:inventory_changed"
     },
     "has_the_recipe": {
-      "trigger": "minecraft:recipe_unlocked",
-      "conditions": {
-        "recipe": "computercraft:wireless_modem_normal"
-      }
+      "conditions": {"recipe": "computercraft:wireless_modem_normal"},
+      "trigger": "minecraft:recipe_unlocked"
     }
   },
-  "requirements": [
-    [
-      "has_computer",
-      "has_the_recipe"
-    ]
-  ]
+  "requirements": [["has_computer", "has_the_recipe"]],
+  "rewards": {"recipes": ["computercraft:wireless_modem_normal"]}
 }

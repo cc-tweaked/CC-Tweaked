@@ -1,23 +1,11 @@
 {
   "type": "computercraft:turtle",
-  "pattern": [
-    "###",
-    "#C#",
-    "#I#"
-  ],
+  "family": "NORMAL",
   "key": {
-    "#": {
-      "tag": "forge:ingots/iron"
-    },
-    "C": {
-      "item": "computercraft:computer_normal"
-    },
-    "I": {
-      "tag": "forge:chests/wooden"
-    }
+    "#": {"tag": "forge:ingots/iron"},
+    "C": {"item": "computercraft:computer_normal"},
+    "I": {"tag": "forge:chests/wooden"}
   },
-  "result": {
-    "item": "computercraft:turtle_normal"
-  },
-  "family": "NORMAL"
+  "pattern": ["###", "#C#", "#I#"],
+  "result": {"item": "computercraft:turtle_normal"}
 }

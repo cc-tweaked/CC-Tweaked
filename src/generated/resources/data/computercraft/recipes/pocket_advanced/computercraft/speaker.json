@@ -1,20 +1,7 @@
 {
   "type": "computercraft:impostor_shaped",
   "group": "computercraft:pocket_advanced",
-  "pattern": [
-    "#",
-    "P"
-  ],
-  "key": {
-    "P": {
-      "item": "computercraft:pocket_computer_advanced"
-    },
-    "#": {
-      "item": "computercraft:speaker"
-    }
-  },
-  "result": {
-    "item": "computercraft:pocket_computer_advanced",
-    "nbt": "{Upgrade:\"computercraft:speaker\"}"
-  }
+  "key": {"#": {"item": "computercraft:speaker"}, "P": {"item": "computercraft:pocket_computer_advanced"}},
+  "pattern": ["#", "P"],
+  "result": {"item": "computercraft:pocket_computer_advanced", "nbt": "{Upgrade:\"computercraft:speaker\"}"}
 }
