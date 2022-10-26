@@ -82,6 +82,8 @@ public final class ComputerCraft
     public static int monitorWidth = 8;
     public static int monitorHeight = 6;
 
+    public static int uploadNagDelay = 5;
+
     public static final class TurtleUpgrades
     {
         public static TurtleModem wirelessModemNormal;

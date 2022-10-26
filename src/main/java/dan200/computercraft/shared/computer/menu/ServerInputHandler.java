@@ -46,12 +46,4 @@ public interface ServerInputHandler extends InputHandler
      * @param uploadId The unique ID of this upload.
      */
     void finishUpload( ServerPlayerEntity uploader, UUID uploadId );
-
-    /**
-     * Continue an upload.
-     *
-     * @param uploader  The player uploading files.
-     * @param overwrite Whether the files should be overwritten or not.
-     */
-    void confirmUpload( ServerPlayerEntity uploader, boolean overwrite );
 }
