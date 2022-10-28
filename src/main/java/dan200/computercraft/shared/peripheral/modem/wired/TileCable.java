@@ -89,8 +89,9 @@ public class TileCable extends TileGeneric
     private final WiredModemElement cable = new CableElement();
     private LazyOptional<IWiredElement> elementCap;
     private final IWiredNode node = cable.getNode();
+    private final TickScheduler.Token tickToken = new TickScheduler.Token( this );
     private final WiredModemPeripheral modem = new WiredModemPeripheral(
-        new ModemState( () -> TickScheduler.schedule( this ) ),
+        new ModemState( () -> TickScheduler.schedule( tickToken ) ),
         cable
     )
     {
@@ -170,7 +171,7 @@ public class TileCable extends TileGeneric
     public void onLoad()
     {
         super.onLoad();
-        TickScheduler.schedule( this );
+        TickScheduler.schedule( tickToken );
     }
 
     @Override
@@ -246,7 +247,7 @@ public class TileCable extends TileGeneric
     {
         if( invalidPeripheral ) return;
         invalidPeripheral = true;
-        TickScheduler.schedule( this );
+        TickScheduler.schedule( tickToken );
     }
 
     private void refreshPeripheral()

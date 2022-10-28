@@ -32,7 +32,7 @@ public class TileWirelessModem extends TileGeneric
 
         Peripheral( TileWirelessModem entity )
         {
-            super( new ModemState( () -> TickScheduler.schedule( entity ) ), entity.advanced );
+            super( new ModemState( () -> TickScheduler.schedule( entity.tickToken ) ), entity.advanced );
             this.entity = entity;
         }
 
@@ -71,6 +71,7 @@ public class TileWirelessModem extends TileGeneric
     private final ModemPeripheral modem;
     private boolean destroyed = false;
     private LazyOptional<IPeripheral> modemCap;
+    private final TickScheduler.Token tickToken = new TickScheduler.Token( this );
 
     public TileWirelessModem( TileEntityType<? extends TileWirelessModem> type, boolean advanced )
     {
@@ -83,7 +84,7 @@ public class TileWirelessModem extends TileGeneric
     public void onLoad()
     {
         super.onLoad();
-        TickScheduler.schedule( this );
+        TickScheduler.schedule( tickToken );
     }
 
     @Override

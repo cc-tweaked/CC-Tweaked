@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.common.TileGeneric;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ITickList;
 import net.minecraft.world.World;
@@ -16,6 +16,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A thread-safe version of {@link ITickList#scheduleTick(BlockPos, Object, int)}.
@@ -29,12 +30,12 @@ public final class TickScheduler
     {
     }
 
-    private static final Queue<TileGeneric> toTick = new ConcurrentLinkedDeque<>();
+    private static final Queue<Token> toTick = new ConcurrentLinkedDeque<>();
 
-    public static void schedule( TileGeneric tile )
+    public static void schedule( Token token )
     {
-        World world = tile.getLevel();
-        if( world != null && !world.isClientSide && !tile.scheduled.getAndSet( true ) ) toTick.add( tile );
+        World world = token.owner.getLevel();
+        if( world != null && !world.isClientSide && !token.scheduled.getAndSet( true ) ) toTick.add( token );
     }
 
     @SubscribeEvent
@@ -42,19 +43,37 @@ public final class TickScheduler
     {
         if( event.phase != TickEvent.Phase.START ) return;
 
-        TileGeneric tile;
-        while( (tile = toTick.poll()) != null )
+        Token token;
+        while( (token = toTick.poll()) != null )
         {
-            tile.scheduled.set( false );
-            if( tile.isRemoved() ) continue;
+            token.scheduled.set( false );
+            TileEntity blockEntity = token.owner;
+            if( blockEntity.isRemoved() ) continue;
 
-            World world = tile.getLevel();
-            BlockPos pos = tile.getBlockPos();
+            World world = blockEntity.getLevel();
+            BlockPos pos = blockEntity.getBlockPos();
 
-            if( world != null && pos != null && world.isAreaLoaded( pos, 0 ) && world.getBlockEntity( pos ) == tile )
+            if( world != null && world.isAreaLoaded( pos, 0 ) && world.getBlockEntity( pos ) == blockEntity )
             {
-                world.getBlockTicks().scheduleTick( pos, tile.getBlockState().getBlock(), 0 );
+                world.getBlockTicks().scheduleTick( pos, blockEntity.getBlockState().getBlock(), 0 );
             }
+        }
+    }
+
+    /**
+     * An item which can be scheduled for future ticking.
+     * <p>
+     * This tracks whether the {@link TileEntity} is queued or not, as this is more efficient than maintaining a set.
+     * As such, it should be unique per {@link TileEntity} instance to avoid it being queued multiple times.
+     */
+    public static class Token
+    {
+        final TileEntity owner;
+        final AtomicBoolean scheduled = new AtomicBoolean();
+
+        public Token( TileEntity owner )
+        {
+            this.owner = owner;
         }
     }
 }
