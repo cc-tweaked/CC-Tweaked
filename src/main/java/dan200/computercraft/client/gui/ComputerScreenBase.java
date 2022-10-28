@@ -95,7 +95,8 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
 
         if( uploadNagDeadline != Long.MAX_VALUE && Util.getNanos() >= uploadNagDeadline )
         {
-            minecraft.getToasts().addToast( new ItemToast( minecraft, displayStack, NO_RESPONSE_TITLE, NO_RESPONSE_MSG ) );
+            new ItemToast( minecraft, displayStack, NO_RESPONSE_TITLE, NO_RESPONSE_MSG, ItemToast.TRANSFER_NO_RESPONSE_TOKEN )
+                .showOrReplace( minecraft.getToasts() );
             uploadNagDeadline = Long.MAX_VALUE;
         }
     }
@@ -215,7 +216,10 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
         {
             case QUEUED:
             {
-                uploadNagDeadline = Util.getNanos() + TimeUnit.SECONDS.toNanos( ComputerCraft.uploadNagDelay );
+                if( ComputerCraft.uploadNagDelay > 0 )
+                {
+                    uploadNagDeadline = Util.getNanos() + TimeUnit.SECONDS.toNanos( ComputerCraft.uploadNagDelay );
+                }
                 break;
             }
             case CONSUMED:

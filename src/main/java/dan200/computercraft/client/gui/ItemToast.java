@@ -23,6 +23,8 @@ import java.util.List;
  */
 public class ItemToast implements IToast
 {
+    public static final Object TRANSFER_NO_RESPONSE_TOKEN = new Object();
+
     private static final long DISPLAY_TIME = 7000L;
     private static final int MAX_LINE_SIZE = 200;
 
@@ -33,19 +35,34 @@ public class ItemToast implements IToast
     private final ItemStack stack;
     private final ITextComponent title;
     private final List<IReorderingProcessor> message;
+    private final Object token;
     private final int width;
 
     private boolean isNew = true;
     private long firstDisplay;
 
-    public ItemToast( Minecraft minecraft, ItemStack stack, ITextComponent title, ITextComponent message )
+    public ItemToast( Minecraft minecraft, ItemStack stack, ITextComponent title, ITextComponent message, Object token )
     {
         this.stack = stack;
         this.title = title;
+        this.token = token;
 
         FontRenderer font = minecraft.font;
         this.message = font.split( message, MAX_LINE_SIZE );
         width = Math.max( MAX_LINE_SIZE, this.message.stream().mapToInt( font::width ).max().orElse( MAX_LINE_SIZE ) ) + MARGIN * 3 + IMAGE_SIZE;
+    }
+
+    public void showOrReplace( ToastGui toasts )
+    {
+        ItemToast existing = toasts.getToast( ItemToast.class, getToken() );
+        if( existing != null )
+        {
+            existing.isNew = true;
+        }
+        else
+        {
+            toasts.addToast( this );
+        }
     }
 
     @Override
@@ -58,6 +75,13 @@ public class ItemToast implements IToast
     public int height()
     {
         return MARGIN * 2 + LINE_SPACING + message.size() * LINE_SPACING;
+    }
+
+    @Nonnull
+    @Override
+    public Object getToken()
+    {
+        return token;
     }
 
     @Nonnull

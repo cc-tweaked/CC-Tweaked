@@ -15,9 +15,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A list of files which have been transferred to this computer.
+ * A list of files that have been transferred to this computer.
+ *
+ * @cc.module [kind=event] file_transfer.TransferredFiles
  */
-public class FileTransfer
+public class TransferredFiles
 {
     private final ServerPlayerEntity player;
     private final Container container;
@@ -25,15 +27,20 @@ public class FileTransfer
 
     private final List<TransferredFile> files;
 
-    public FileTransfer( ServerPlayerEntity player, Container container, List<TransferredFile> files )
+    public TransferredFiles( ServerPlayerEntity player, Container container, List<TransferredFile> files )
     {
         this.player = player;
         this.container = container;
         this.files = files;
     }
 
+    /**
+     * All the files that are being transferred to this computer.
+     *
+     * @return The list of files.
+     */
     @LuaFunction
-    public final List<?> getFiles()
+    public final List<TransferredFile> getFiles()
     {
         consumed();
         return files;

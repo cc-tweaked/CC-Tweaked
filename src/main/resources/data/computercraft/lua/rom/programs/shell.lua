@@ -10,7 +10,6 @@
 --
 -- @module[module] shell
 
-local expect = dofile("rom/modules/main/cc/expect.lua").expect
 local make_package = dofile("rom/modules/main/cc/require.lua").make
 
 local multishell = multishell
@@ -34,6 +33,14 @@ local function createShellEnv(dir)
     env.require, env.package = make_package(env, dir)
     return env
 end
+
+-- Set up a dummy require based on the current shell, for loading some of our internal dependencies.
+local require
+do
+    local env = setmetatable(createShellEnv("/rom/modules/internal"), { __index = _ENV })
+    require = env.require
+end
+local expect = require("cc.expect").expect
 
 -- Colours
 local promptColour, textColour, bgColour
@@ -591,6 +598,13 @@ if #tArgs > 0 then
     shell.run(...)
 
 else
+    local function show_prompt()
+        term.setBackgroundColor(bgColour)
+        term.setTextColour(promptColour)
+        write(shell.dir() .. "> ")
+        term.setTextColour(textColour)
+    end
+
     -- "shell"
     -- Print the header
     term.setBackgroundColor(bgColour)
@@ -607,21 +621,49 @@ else
     local tCommandHistory = {}
     while not bExit do
         term.redirect(parentTerm)
-        term.setBackgroundColor(bgColour)
-        term.setTextColour(promptColour)
-        write(shell.dir() .. "> ")
-        term.setTextColour(textColour)
+        show_prompt()
 
 
-        local sLine
-        if settings.get("shell.autocomplete") then
-            sLine = read(nil, tCommandHistory, shell.complete)
-        else
-            sLine = read(nil, tCommandHistory)
+        local complete
+        if settings.get("shell.autocomplete") then complete = shell.complete end
+
+        local ok, result
+        local co = coroutine.create(read)
+        assert(coroutine.resume(co, nil, tCommandHistory, complete))
+
+        while coroutine.status(co) ~= "dead" do
+            local event = table.pack(os.pullEvent())
+            if event[1] == "file_transfer" then
+                -- Abandon the current prompt
+                local _, h = term.getSize()
+                local _, y = term.getCursorPos()
+                if y == h then
+                    term.scroll(1)
+                    term.setCursorPos(1, y)
+                else
+                    term.setCursorPos(1, y + 1)
+                end
+                term.setCursorBlink(false)
+
+                -- Run the import script with the provided files
+                local ok, err = require("cc.import")(event[2].getFiles())
+                if not ok and err then printError(err) end
+
+                -- And attempt to restore the prompt.
+                show_prompt()
+                term.setCursorBlink(true)
+                event = { "term_resize", n = 1 } -- Nasty hack to force read() to redraw.
+            end
+
+            if result == nil or event[1] == result or event[1] == "terminate" then
+                ok, result = coroutine.resume(co, table.unpack(event, 1, event.n))
+                if not ok then error(result, 0) end
+            end
         end
-        if sLine:match("%S") and tCommandHistory[#tCommandHistory] ~= sLine then
-            table.insert(tCommandHistory, sLine)
+
+        if result:match("%S") and tCommandHistory[#tCommandHistory] ~= result then
+            table.insert(tCommandHistory, result)
         end
-        shell.run(sLine)
+        shell.run(result)
     end
 end

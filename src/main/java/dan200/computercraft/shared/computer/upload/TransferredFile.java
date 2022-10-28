@@ -12,13 +12,15 @@ import dan200.computercraft.core.asm.ObjectSource;
 
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import java.util.Optional;
 
 /**
- * A binary file handle which as been transferred to this computer.
+ * A binary file handle that has been transferred to this computer.
  * <p>
- * This inherits all methods of {@link BinaryReadableHandle binary file handles}.
- * // TODO: @cc.module [kind=event] file_transfer.TransferredFile
+ * This inherits all methods of {@link BinaryReadableHandle binary file handles}, meaning you can use the standard
+ * {@link BinaryReadableHandle#read(Optional) read functions} to access the contents of the file.
  *
+ * @cc.module [kind=event] file_transfer.TransferredFile
  * @see BinaryReadableHandle
  */
 public class TransferredFile implements ObjectSource
@@ -33,7 +35,7 @@ public class TransferredFile implements ObjectSource
     }
 
     /**
-     * Get the name of this file. This will just be a file name, so does not contain any slashes ("/" or "\").
+     * Get the name of this file being transferred.
      *
      * @return The file's name.
      */

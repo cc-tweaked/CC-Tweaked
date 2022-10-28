@@ -174,7 +174,7 @@ public class ServerInputState<T extends Container & ComputerMenu> implements Ser
         }
 
         computer.queueEvent( "file_transfer", new Object[] {
-            new FileTransfer( player, owner, toUpload.stream().map( x -> new TransferredFile( x.getName(), x.getBytes() ) ).collect( Collectors.toList() ) ),
+            new TransferredFiles( player, owner, toUpload.stream().map( x -> new TransferredFile( x.getName(), x.getBytes() ) ).collect( Collectors.toList() ) ),
         } );
         return UploadResultMessage.queued( owner );
     }
