@@ -9,6 +9,7 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
+import dan200.computercraft.shared.computer.menu.ServerInputHandler;
 import dan200.computercraft.shared.computer.menu.ServerInputState;
 import dan200.computercraft.shared.network.client.TerminalState;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
@@ -16,6 +17,7 @@ import dan200.computercraft.shared.util.SingleIntArray;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIntArray;
 import net.minecraft.util.IntArray;
 
@@ -30,9 +32,11 @@ public abstract class ContainerComputerBase extends Container implements Compute
     private final IIntArray data;
 
     private final @Nullable ServerComputer computer;
-    private final @Nullable ServerInputState input;
+    private final @Nullable ServerInputState<ContainerComputerBase> input;
 
     private final @Nullable Terminal terminal;
+
+    private final ItemStack displayStack;
 
     public ContainerComputerBase(
         ContainerType<? extends ContainerComputerBase> type, int id, Predicate<PlayerEntity> canUse,
@@ -46,8 +50,9 @@ public abstract class ContainerComputerBase extends Container implements Compute
         addDataSlots( data );
 
         this.computer = computer;
-        input = computer == null ? null : new ServerInputState( this );
+        input = computer == null ? null : new ServerInputState<>( this );
         terminal = containerData == null ? null : containerData.terminal().create();
+        displayStack = containerData == null ? null : containerData.displayStack();
     }
 
     @Override
@@ -75,7 +80,7 @@ public abstract class ContainerComputerBase extends Container implements Compute
     }
 
     @Override
-    public ServerInputState getInput()
+    public ServerInputHandler getInput()
     {
         if( input == null ) throw new UnsupportedOperationException( "Cannot access server computer on the client" );
         return input;
@@ -105,5 +110,16 @@ public abstract class ContainerComputerBase extends Container implements Compute
     {
         super.removed( player );
         if( input != null ) input.close();
+    }
+
+    /**
+     * Get the stack associated with this container.
+     *
+     * @return The current stack.
+     */
+    @Nonnull
+    public ItemStack getDisplayStack()
+    {
+        return displayStack;
     }
 }

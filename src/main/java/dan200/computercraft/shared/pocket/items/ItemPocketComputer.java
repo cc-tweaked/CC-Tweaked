@@ -168,7 +168,7 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
             if( !stop )
             {
                 boolean isTypingOnly = hand == Hand.OFF_HAND;
-                new ComputerContainerData( computer ).open( player, new PocketComputerMenuProvider( computer, stack, this, hand, isTypingOnly ) );
+                new ComputerContainerData( computer, stack ).open( player, new PocketComputerMenuProvider( computer, stack, this, hand, isTypingOnly ) );
             }
         }
         return new ActionResult<>( ActionResultType.SUCCESS, stack );

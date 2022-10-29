@@ -28,6 +28,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPlayerPositionLookPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.IFormattableTextComponent;
@@ -225,7 +226,7 @@ public final class CommandComputerCraft
                 .executes( context -> {
                     ServerPlayerEntity player = context.getSource().getPlayerOrException();
                     ServerComputer computer = getComputerArgument( context, "computer" );
-                    new ComputerContainerData( computer ).open( player, new INamedContainerProvider()
+                    new ComputerContainerData( computer, ItemStack.EMPTY ).open( player, new INamedContainerProvider()
                     {
                         @Nonnull
                         @Override

@@ -211,6 +211,8 @@ local function tabulateCommon(bPaged, ...)
         end
         print()
     end
+
+    local previous_colour = term.getTextColour()
     for _, t in ipairs(tAll) do
         if type(t) == "table" then
             if #t > 0 then
@@ -220,6 +222,7 @@ local function tabulateCommon(bPaged, ...)
             term.setTextColor(t)
         end
     end
+    term.setTextColor(previous_colour)
 end
 
 --[[- Prints tables in a structured form.

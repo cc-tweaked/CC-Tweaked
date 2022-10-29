@@ -18,12 +18,12 @@ jqwik = "1.7.0"
 junit = "5.9.1"
 
 # Build tools
-cctJavadoc = "1.5.1"
+cctJavadoc = "1.5.2"
 checkstyle = "8.25" # There's a reason we're pinned on an ancient version, but I can't remember what it is.
 curseForgeGradle = "1.0.11"
 forgeGradle = "5.1.+"
 githubRelease = "2.2.12"
-illuaminate = "0.1.0-3-g0f40379"
+illuaminate = "0.1.0-7-g2a5a89c"
 librarian = "1.+"
 minotaur = "2.+"
 mixinGradle = "0.7.+"

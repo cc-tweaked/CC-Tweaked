@@ -6,12 +6,11 @@
 package dan200.computercraft.support;
 
 import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static org.hamcrest.Matchers.contains;
 
 public class CustomMatchers
 {
@@ -27,6 +26,7 @@ public class CustomMatchers
      */
     public static <T> Matcher<Iterable<? extends T>> containsWith( List<T> items, Function<T, Matcher<? super T>> matcher )
     {
-        return contains( items.stream().map( matcher ).collect( Collectors.toList() ) );
+        // The explicit type argument should be redundant, but it appears some Java compilers require it.
+        return Matchers.<T>contains( items.stream().map( matcher ).collect( Collectors.toList() ) );
     }
 }

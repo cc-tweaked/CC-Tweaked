@@ -146,7 +146,11 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
             {
                 ServerComputer computer = createServerComputer();
                 computer.turnOn();
-                new ComputerContainerData( computer ).open( player, this );
+
+                ItemStack stack = getBlockState().getBlock() instanceof BlockComputerBase<?>
+                    ? ((BlockComputerBase<?>) getBlockState().getBlock()).getItem( this )
+                    : ItemStack.EMPTY;
+                new ComputerContainerData( computer, stack ).open( player, this );
             }
             return ActionResultType.SUCCESS;
         }
