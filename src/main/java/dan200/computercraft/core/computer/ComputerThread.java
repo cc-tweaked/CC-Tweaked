@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.core.computer;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.ComputerContext;
@@ -443,7 +444,8 @@ public final class ComputerThread
      *
      * @return If we have work queued up.
      */
-    boolean hasPendingWork()
+    @VisibleForTesting
+    public boolean hasPendingWork()
     {
         // FIXME: See comment in scaledPeriod. Again, we access this in multiple threads but not clear if it matters!
         return !computerQueue.isEmpty();

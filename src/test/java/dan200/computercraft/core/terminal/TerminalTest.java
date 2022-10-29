@@ -7,7 +7,8 @@ package dan200.computercraft.core.terminal;
 
 import dan200.computercraft.api.lua.LuaValues;
 import dan200.computercraft.shared.util.Colour;
-import dan200.computercraft.support.CallCounter;
+import dan200.computercraft.test.core.CallCounter;
+import dan200.computercraft.test.core.terminal.TerminalMatchers;
 import io.netty.buffer.Unpooled;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
@@ -16,7 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
-import static dan200.computercraft.core.terminal.TerminalMatchers.*;
+import static dan200.computercraft.test.core.terminal.TerminalMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;

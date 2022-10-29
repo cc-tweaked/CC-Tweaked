@@ -1,0 +1,87 @@
+package dan200.computercraft.test.core.computer
+
+import dan200.computercraft.api.lua.ILuaAPI
+import dan200.computercraft.api.lua.ILuaContext
+import dan200.computercraft.api.lua.MethodResult
+import dan200.computercraft.api.lua.ObjectArguments
+import dan200.computercraft.core.apis.PeripheralAPI
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.suspendCancellableCoroutine
+
+/**
+ * The context for tasks which consume Lua objects.
+ *
+ * This provides helpers for converting CC's callback-based code into a more direct style based on Kotlin coroutines.
+ */
+interface LuaTaskContext {
+    /** The current Lua context, to be passed to method calls. */
+    val context: ILuaContext
+
+    /** Get a registered API. */
+    fun <T : ILuaAPI> getApi(api: Class<T>): T
+
+    /** Pull a Lua event */
+    suspend fun pullEvent(event: String? = null): Array<out Any?>
+
+    /** Resolve a [MethodResult] until completion, returning the resulting values. */
+    suspend fun MethodResult.await(): Array<out Any?>? {
+        var result = this
+        while (true) {
+            val callback = result.callback
+            val values = result.result
+
+            if (callback == null) return values
+
+            val filter = if (values == null) null else values[0] as String?
+            result = callback.resume(pullEvent(filter))
+        }
+    }
+
+    /** Call a peripheral method. */
+    suspend fun LuaTaskContext.callPeripheral(name: String, method: String, vararg args: Any?): Array<out Any?>? =
+        getApi<PeripheralAPI>().call(context, ObjectArguments(name, method, *args)).await()
+}
+
+/** Get a registered API. */
+inline fun <reified T : ILuaAPI> LuaTaskContext.getApi(): T = getApi(T::class.java)
+
+abstract class AbstractLuaTaskContext : LuaTaskContext, AutoCloseable {
+    private val pullEvents = mutableListOf<PullEvent>()
+    private val apis = mutableMapOf<Class<out ILuaAPI>, ILuaAPI>()
+
+    protected fun addApi(api: ILuaAPI) {
+        apis[api.javaClass] = api
+    }
+
+    protected val hasEventListeners
+        get() = pullEvents.isNotEmpty()
+
+    protected fun queueEvent(eventName: String?, arguments: Array<out Any?>?) {
+        val fullEvent: Array<out Any?> = when {
+            eventName == null && arguments == null -> arrayOf()
+            eventName != null && arguments == null -> arrayOf(eventName)
+            eventName == null && arguments != null -> arguments
+            else -> arrayOf(eventName, *arguments!!)
+        }
+        for (i in pullEvents.size - 1 downTo 0) {
+            val puller = pullEvents[i]
+            if (puller.name == null || puller.name == eventName || eventName == "terminate") {
+                pullEvents.removeAt(i)
+                puller.cont.resumeWith(Result.success(fullEvent))
+            }
+        }
+    }
+
+    override fun close() {
+        for (pullEvent in pullEvents) pullEvent.cont.cancel()
+        pullEvents.clear()
+    }
+
+    final override fun <T : ILuaAPI> getApi(api: Class<T>): T =
+        api.cast(apis[api] ?: throw IllegalStateException("No API of type ${api.name}"))
+
+    final override suspend fun pullEvent(event: String?): Array<out Any?> =
+        suspendCancellableCoroutine { cont -> pullEvents.add(PullEvent(event, cont)) }
+
+    private class PullEvent(val name: String?, val cont: CancellableContinuation<Array<out Any?>>)
+}

@@ -8,6 +8,7 @@ package dan200.computercraft.core.computer;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.lua.MachineResult;
 import dan200.computercraft.support.ConcurrentHelpers;
+import dan200.computercraft.test.core.computer.KotlinComputerManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,12 +26,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @Execution( ExecutionMode.CONCURRENT )
 public class ComputerThreadTest
 {
-    private FakeComputerManager manager;
+    private KotlinComputerManager manager;
 
     @BeforeEach
     public void before()
     {
-        manager = new FakeComputerManager();
+        manager = new KotlinComputerManager();
     }
 
     @AfterEach

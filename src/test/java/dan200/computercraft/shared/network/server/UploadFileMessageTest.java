@@ -7,7 +7,7 @@ package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.shared.computer.upload.FileSlice;
 import dan200.computercraft.shared.computer.upload.FileUpload;
-import dan200.computercraft.support.ArbitraryByteBuffer;
+import dan200.computercraft.test.core.ArbitraryByteBuffer;
 import dan200.computercraft.support.FakeContainer;
 import io.netty.buffer.Unpooled;
 import net.jqwik.api.*;
@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static dan200.computercraft.shared.network.server.UploadFileMessage.*;
-import static dan200.computercraft.support.ByteBufferMatcher.bufferEqual;
-import static dan200.computercraft.support.ContramapMatcher.contramap;
-import static dan200.computercraft.support.CustomMatchers.containsWith;
+import static dan200.computercraft.test.core.ByteBufferMatcher.bufferEqual;
+import static dan200.computercraft.test.core.ContramapMatcher.contramap;
+import static dan200.computercraft.test.core.CustomMatchers.containsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;

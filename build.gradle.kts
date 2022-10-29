@@ -1,9 +1,9 @@
 import cc.tweaked.gradle.*
 import net.darkhax.curseforgegradle.TaskPublishCurseForge
+import net.minecraftforge.gradle.common.util.RunConfig
 
 plugins {
     // Build
-    alias(libs.plugins.kotlin)
     alias(libs.plugins.forgeGradle)
     alias(libs.plugins.mixinGradle)
     alias(libs.plugins.librarian)
@@ -18,7 +18,7 @@ plugins {
 
     id("cc-tweaked.illuaminate")
     id("cc-tweaked.node")
-    id("cc-tweaked.java-convention")
+    id("cc-tweaked.gametest")
     id("cc-tweaked")
 }
 
@@ -36,8 +36,6 @@ sourceSets {
     main {
         resources.srcDir("src/generated/resources")
     }
-
-    register("testMod")
 }
 
 minecraft {
@@ -76,21 +74,26 @@ minecraft {
             property("cct.pretty-json", "true")
         }
 
+        fun RunConfig.configureForGameTest() {
+            mods.register("cctest") {
+                source(sourceSets["testMod"])
+                source(sourceSets["testFixtures"])
+            }
+        }
+
         val testClient by registering {
             workingDirectory(file("run/testClient"))
             parent(client.get())
-
-            mods.register("cctest") { source(sourceSets["testMod"]) }
+            configureForGameTest()
         }
 
         val testServer by registering {
             workingDirectory(file("run/testServer"))
             parent(server.get())
+            configureForGameTest()
 
             property("cctest.run", "true")
             property("forge.logging.console.level", "info")
-
-            mods.register("cctest") { source(sourceSets["testMod"]) }
         }
     }
 
@@ -113,8 +116,6 @@ configurations {
     val shade by registering { isTransitive = false }
     implementation { extendsFrom(shade.get()) }
     register("cctJavadoc")
-
-    named("testModImplementation") { extendsFrom(implementation.get(), testImplementation.get()) }
 }
 
 dependencies {
@@ -132,11 +133,12 @@ dependencies {
 
     "shade"(libs.cobalt)
 
+    testFixturesApi(libs.bundles.test)
+    testFixturesApi(libs.bundles.kotlin)
+
     testImplementation(libs.bundles.test)
     testImplementation(libs.bundles.kotlin)
     testRuntimeOnly(libs.bundles.testRuntime)
-
-    "testModImplementation"(sourceSets.main.get().output)
 
     "cctJavadoc"(libs.cctJavadoc)
 }
@@ -205,7 +207,7 @@ tasks.jar {
             "Specification-Title" to "computercraft",
             "Specification-Vendor" to "SquidDev",
             "Specification-Version" to "1",
-            "specificationVersion" to "cctweaked",
+            "Implementation-Title" to "cctweaked",
             "Implementation-Version" to modVersion,
             "Implementation-Vendor" to "SquidDev",
         )

@@ -3,9 +3,11 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.core.terminal;
+package dan200.computercraft.test.core.terminal;
 
-import dan200.computercraft.support.ContramapMatcher;
+import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.terminal.TextBuffer;
+import dan200.computercraft.test.core.ContramapMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
