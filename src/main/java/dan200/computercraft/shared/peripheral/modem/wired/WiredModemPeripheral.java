@@ -72,6 +72,13 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     protected abstract WiredModemLocalPeripheral getLocalPeripheral();
     //endregion
 
+    @Nonnull
+    @Override
+    public Set<String> getAdditionalTypes()
+    {
+        return Collections.singleton( "peripheral_hub" );
+    }
+
     //region Peripheral methods
 
     /**
