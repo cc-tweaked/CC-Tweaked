@@ -719,6 +719,8 @@ function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs)
     expect(3, bIncludeFiles, "boolean", "nil")
     expect(4, bIncludeDirs, "boolean", "nil")
 
+    local bShowHidden = settings.get("list.show_hidden")
+
     bIncludeFiles = bIncludeFiles ~= false
     bIncludeDirs = bIncludeDirs ~= false
     local sDir = sLocation
@@ -758,14 +760,16 @@ function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs)
             if #sFile >= #sName and string.sub(sFile, 1, #sName) == sName then
                 local bIsDir = fs.isDir(fs.combine(sDir, sFile))
                 local sResult = string.sub(sFile, #sName + 1)
-                if bIsDir then
-                    table.insert(tResults, sResult .. "/")
-                    if bIncludeDirs and #sResult > 0 then
-                        table.insert(tResults, sResult)
-                    end
-                else
-                    if bIncludeFiles and #sResult > 0 then
-                        table.insert(tResults, sResult)
+                if bShowHidden or string.sub(sResult, 1,1) ~= "." then
+                    if bIsDir then
+                        table.insert(tResults, sResult .. "/")
+                        if bIncludeDirs and #sResult > 0 then
+                            table.insert(tResults, sResult)
+                        end
+                    else
+                        if bIncludeFiles and #sResult > 0 then
+                            table.insert(tResults, sResult)
+                        end
                     end
                 end
             end
