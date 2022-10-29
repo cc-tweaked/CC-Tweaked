@@ -424,6 +424,8 @@ local tests_locked = false
 local test_list = {}
 local test_map, test_count = {}, 0
 
+local function format_loc(info) return ("%s:%d"):format(info.short_src, info.currentline) end
+
 --- Add a new test to our queue.
 --
 -- @param test The descriptor of this test
@@ -432,7 +434,7 @@ local function do_test(test)
     if not test.name then test.name = table.concat(test_stack, "\0", 1, test_stack.n) end
     test_count = test_count + 1
     test_list[test_count] = test
-    test_map[test.name] = test_count
+    test_map[test.name] = { idx = test_count, definition = test.definition }
 end
 
 --- Get the "friendly" name of this test.
@@ -456,7 +458,7 @@ local function describe(name, body)
     local ok, err = try(body)
 
     -- We count errors as a (failing) test.
-    if not ok then do_test { error = err } end
+    if not ok then do_test { error = err, definition = format_loc(debug.getinfo(2, "Sl")) } end
 
     test_stack.n = n - 1
 end
@@ -475,7 +477,7 @@ local function it(name, body)
     local n = test_stack.n + 1
     test_stack[n], test_stack.n, tests_locked = name, n, true
 
-    do_test { action = body }
+    do_test { action = body, definition = format_loc(debug.getinfo(2, "Sl")) }
 
     -- Pop the test from the stack
     test_stack.n, tests_locked = n - 1, false
@@ -488,12 +490,11 @@ local function pending(name)
     check('it', 1, 'string', name)
     if tests_locked then error("Cannot create test while running tests", 2) end
 
-    local _, loc = pcall(error, "", 3)
-    loc = loc:gsub(":%s*$", "")
+    local trace = format_loc(debug.getinfo(2, "Sl"))
 
     local n = test_stack.n + 1
     test_stack[n], test_stack.n = name, n
-    do_test { pending = true, trace = loc }
+    do_test { pending = true, trace = trace, definition = trace }
     test_stack.n = n - 1
 end
 
@@ -667,7 +668,7 @@ if cct_test then
     while true do
         local _, name = os.pullEvent("cct_test_run")
         if not name then break end
-        do_run(test_list[test_map[name]])
+        do_run(test_list[test_map[name].idx])
     end
 else
     for _, test in pairs(test_list) do do_run(test) end

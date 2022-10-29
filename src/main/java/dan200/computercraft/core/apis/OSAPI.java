@@ -494,7 +494,9 @@ public class OSAPI implements ILuaAPI
 
         DateTimeFormatterBuilder formatter = new DateTimeFormatterBuilder();
         LuaDateTime.format( formatter, format );
-        return formatter.toFormatter( Locale.ROOT ).format( date );
+        // ROOT would be more sensible, but US appears more consistent with the default C locale
+        // on Linux.
+        return formatter.toFormatter( Locale.US ).format( date );
     }
 
 }

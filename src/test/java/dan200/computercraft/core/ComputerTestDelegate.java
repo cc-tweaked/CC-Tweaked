@@ -28,8 +28,10 @@ import org.opentest4j.AssertionFailedError;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.net.URI;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
@@ -42,8 +44,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-
-import static dan200.computercraft.api.lua.LuaValues.getType;
 
 /**
  * Loads tests from {@code test-rom/spec} and executes them.
@@ -195,36 +195,45 @@ public class ComputerTestDelegate
     private static class DynamicNodeBuilder
     {
         private final String name;
+        private final URI uri;
         private final Map<String, DynamicNodeBuilder> children;
         private final Executable executor;
 
-        DynamicNodeBuilder( String name )
+        DynamicNodeBuilder( String name, String path )
         {
             this.name = name;
+            this.uri = getUri( path );
             this.children = new HashMap<>();
             this.executor = null;
         }
 
-        DynamicNodeBuilder( String name, Executable executor )
+        DynamicNodeBuilder( String name, String path, Executable executor )
         {
             this.name = name;
+            this.uri = getUri( path );
             this.children = Collections.emptyMap();
             this.executor = executor;
+        }
+
+        private static URI getUri( String path )
+        {
+            // Unfortunately ?line=xxx doesn't appear to work with IntelliJ, so don't worry about getting it working.
+            return path == null ? null : new File( "src/test/resources" + path.substring( 0, path.indexOf( ':' ) ) ).toURI();
         }
 
         DynamicNodeBuilder get( String name )
         {
             DynamicNodeBuilder child = children.get( name );
-            if( child == null ) children.put( name, child = new DynamicNodeBuilder( name ) );
+            if( child == null ) children.put( name, child = new DynamicNodeBuilder( name, null ) );
             return child;
         }
 
-        void runs( String name, Executable executor )
+        void runs( String name, String uri, Executable executor )
         {
             if( this.executor != null ) throw new IllegalStateException( name + " is leaf node" );
             if( children.containsKey( name ) ) throw new IllegalStateException( "Duplicate key for " + name );
 
-            children.put( name, new DynamicNodeBuilder( name, executor ) );
+            children.put( name, new DynamicNodeBuilder( name, uri, executor ) );
         }
 
         boolean isActive()
@@ -241,8 +250,8 @@ public class ComputerTestDelegate
         DynamicNode build()
         {
             return executor == null
-                ? DynamicContainer.dynamicContainer( name, buildChildren() )
-                : DynamicTest.dynamicTest( name, executor );
+                ? DynamicContainer.dynamicContainer( name, uri, buildChildren() )
+                : DynamicTest.dynamicTest( name, uri, executor );
         }
 
         Stream<DynamicNode> buildChildren()
@@ -376,16 +385,17 @@ public class ComputerTestDelegate
         {
             // Submit several tests and signal for #get to run
             LOG.info( "Received tests from computer" );
-            DynamicNodeBuilder root = new DynamicNodeBuilder( "" );
-            for( Object key : tests.keySet() )
+            DynamicNodeBuilder root = new DynamicNodeBuilder( "", null );
+            for( Map.Entry<?, ?> entry : tests.entrySet() )
             {
-                if( !(key instanceof String) ) throw new LuaException( "Non-key string " + getType( key ) );
+                String name = (String) entry.getKey();
+                Map<?, ?> details = (Map<?, ?>) entry.getValue();
+                String def = (String) details.get( "definition" );
 
-                String name = (String) key;
                 String[] parts = name.split( "\0" );
                 DynamicNodeBuilder builder = root;
                 for( int i = 0; i < parts.length - 1; i++ ) builder = builder.get( parts[i] );
-                builder.runs( parts[parts.length - 1], () -> {
+                builder.runs( parts[parts.length - 1], def, () -> {
                     // Run it
                     lock.lockInterruptibly();
                     try
