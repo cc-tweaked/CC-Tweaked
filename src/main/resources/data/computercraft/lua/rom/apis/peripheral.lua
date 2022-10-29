@@ -217,7 +217,7 @@ function getMethods(name)
     end
     for n = 1, #sides do
         local side = sides[n]
-        if native.hasType(side, "peripheral_hub") and native.call(side, "isPresentRemote", peripheral) then
+        if native.hasType(side, "peripheral_hub") and native.call(side, "isPresentRemote", name) then
             return native.call(side, "getMethodsRemote", name)
         end
     end
@@ -257,7 +257,7 @@ function call(name, method, ...)
 
     for n = 1, #sides do
         local side = sides[n]
-        if native.hasType(side, "peripheral_hub") and native.call(side, "isPresentRemote", peripheral) then
+        if native.hasType(side, "peripheral_hub") and native.call(side, "isPresentRemote", name) then
             return native.call(side, "callRemote", name, method, ...)
         end
     end

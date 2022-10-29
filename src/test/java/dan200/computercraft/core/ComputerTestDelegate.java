@@ -16,13 +16,9 @@ import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.FileSystemException;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.shared.peripheral.modem.ModemState;
-import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral;
 import dan200.computercraft.support.TestFiles;
 import dan200.computercraft.test.core.computer.BasicEnvironment;
 import dan200.computercraft.test.core.computer.FakeMainThreadScheduler;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
@@ -118,6 +114,7 @@ public class ComputerTestDelegate
         context = new ComputerContext( environment, 1, new FakeMainThreadScheduler() );
         computer = new Computer( context, environment, term, 0 );
         computer.getEnvironment().setPeripheral( ComputerSide.TOP, new FakeModem() );
+        computer.getEnvironment().setPeripheral( ComputerSide.BOTTOM, new FakePeripheralHub() );
         computer.addApi( new CctTestAPI() );
 
         computer.turnOn();
@@ -282,32 +279,71 @@ public class ComputerTestDelegate
         return name.replace( "\0", " -> " );
     }
 
-    private static class FakeModem extends WirelessModemPeripheral
+    public static class FakeModem implements IPeripheral
     {
-        FakeModem()
-        {
-            super( new ModemState(), true );
-        }
-
         @Nonnull
         @Override
-        @SuppressWarnings( "ConstantConditions" )
-        public World getWorld()
+        public String getType()
         {
-            return null;
-        }
-
-        @Nonnull
-        @Override
-        public Vector3d getPosition()
-        {
-            return Vector3d.ZERO;
+            return "modem";
         }
 
         @Override
         public boolean equals( @Nullable IPeripheral other )
         {
             return this == other;
+        }
+
+        @LuaFunction
+        public final boolean isOpen( int channel )
+        {
+            return false;
+        }
+    }
+
+    public static class FakePeripheralHub implements IPeripheral
+    {
+        @Nonnull
+        @Override
+        public String getType()
+        {
+            return "peripheral_hub";
+        }
+
+        @Override
+        public boolean equals( @Nullable IPeripheral other )
+        {
+            return this == other;
+        }
+
+        @LuaFunction
+        public final Collection<String> getNamesRemote()
+        {
+            return Collections.singleton( "remote_1" );
+        }
+
+        @LuaFunction
+        public final boolean isPresentRemote( String name )
+        {
+            return name.equals( "remote_1" );
+        }
+
+        @LuaFunction
+        public final Object[] getTypeRemote( String name )
+        {
+            return name.equals( "remote_1" ) ? new Object[] { "remote", "other_type" } : null;
+        }
+
+        @LuaFunction
+        public final Object[] hasTypeRemote( String name, String type )
+        {
+            return name.equals( "remote_1" ) ? new Object[] { type.equals( "remote" ) || type.equals( "other_type" ) } : null;
+        }
+
+        @LuaFunction
+        public final Object[] getMethodsRemote( String name )
+        {
+            return name.equals( "remote_1" ) ? new Object[] { Collections.singletonList( "func" ) } : null;
         }
     }
 

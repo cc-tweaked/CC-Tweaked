@@ -300,7 +300,7 @@ val docWebsite by tasks.registering(Copy::class) {
 // Check tasks
 
 tasks.test {
-    systemProperty("cct.test-files", buildDir.resolve("tmp/test-files").absolutePath)
+    systemProperty("cct.test-files", buildDir.resolve("tmp/testFiles").absolutePath)
 }
 
 val lintLua by tasks.registering(IlluaminateExec::class) {
