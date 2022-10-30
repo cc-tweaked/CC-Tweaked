@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -181,7 +182,7 @@ public final class NBTUtil
         {
             MessageDigest digest = MessageDigest.getInstance( "MD5" );
             DataOutput output = new DataOutputStream( new DigestOutputStream( digest ) );
-            CompressedStreamTools.write( tag, output );
+            writeTag( output, "", tag );
             byte[] hash = digest.digest();
             return ENCODING.encode( hash );
         }
@@ -189,6 +190,38 @@ public final class NBTUtil
         {
             ComputerCraft.log.error( "Cannot hash NBT", e );
             return null;
+        }
+    }
+
+    /**
+     * An alternative version of {@link CompressedStreamTools#write(CompoundNBT, DataOutput)}, which sorts keys. This
+     * should make the output slightly more deterministic.
+     *
+     * @param output The output to write to.
+     * @param name   The name of the key we're writing. Should be {@code ""} for the root node.
+     * @param tag    The tag to write.
+     * @throws IOException If the underlying stream throws.
+     * @see CompressedStreamTools#write(CompoundNBT, DataOutput)
+     * @see CompoundNBT#write(DataOutput)
+     */
+    private static void writeTag( DataOutput output, String name, INBT tag ) throws IOException
+    {
+        output.writeByte( tag.getId() );
+        if( tag.getId() == 0 ) return;
+        output.writeUTF( name );
+
+        if( tag instanceof CompoundNBT )
+        {
+            CompoundNBT compound = (CompoundNBT) tag;
+            String[] keys = compound.getAllKeys().toArray( new String[0] );
+            Arrays.sort( keys );
+            for( String key : keys ) writeTag( output, key, compound.get( key ) );
+
+            output.writeByte( 0 );
+        }
+        else
+        {
+            tag.write( output );
         }
     }
 
