@@ -7,7 +7,7 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.apis.http.NetworkUtils;
-import dan200.computercraft.core.filesystem.ResourceMount;
+import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.metrics.ComputerMBean;

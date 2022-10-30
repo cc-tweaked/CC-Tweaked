@@ -9,9 +9,6 @@ import dan200.computercraft.api.lua.LuaValues;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.test.core.CallCounter;
 import dan200.computercraft.test.core.terminal.TerminalMatchers;
-import io.netty.buffer.Unpooled;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 
@@ -595,92 +592,6 @@ class TerminalTest
         terminal.clearLine();
         assertThat( terminal, old.matches() );
         callCounter.assertNotCalled();
-    }
-
-    @Test
-    void testPacketBufferRoundtrip()
-    {
-        Terminal writeTerminal = new Terminal( 2, 1, true );
-
-        blit( writeTerminal, "hi", "11", "ee" );
-        writeTerminal.setCursorPos( 2, 5 );
-        writeTerminal.setTextColour( 3 );
-        writeTerminal.setBackgroundColour( 5 );
-
-        FriendlyByteBuf packetBuffer = new FriendlyByteBuf( Unpooled.buffer() );
-        writeTerminal.write( packetBuffer );
-
-        CallCounter callCounter = new CallCounter();
-        Terminal readTerminal = new Terminal( 2, 1, true, callCounter );
-        packetBuffer.writeBytes( packetBuffer );
-        readTerminal.read( packetBuffer );
-
-        assertThat( readTerminal, allOf(
-            textMatches( new String[] { "hi", } ),
-            textColourMatches( new String[] { "11", } ),
-            backgroundColourMatches( new String[] { "ee", } )
-        ) );
-
-        assertEquals( 2, readTerminal.getCursorX() );
-        assertEquals( 5, readTerminal.getCursorY() );
-        assertEquals( 3, readTerminal.getTextColour() );
-        assertEquals( 5, readTerminal.getBackgroundColour() );
-        callCounter.assertCalledTimes( 1 );
-    }
-
-    @Test
-    void testNbtRoundtrip()
-    {
-        Terminal writeTerminal = new Terminal( 10, 5, true );
-        blit( writeTerminal, "hi", "11", "ee" );
-        writeTerminal.setCursorPos( 2, 5 );
-        writeTerminal.setTextColour( 3 );
-        writeTerminal.setBackgroundColour( 5 );
-
-        CompoundTag nbt = new CompoundTag();
-        writeTerminal.writeToNBT( nbt );
-
-        CallCounter callCounter = new CallCounter();
-        Terminal readTerminal = new Terminal( 2, 1, true, callCounter );
-
-        readTerminal.readFromNBT( nbt );
-
-        assertThat( readTerminal, allOf(
-            textMatches( new String[] { "hi", } ),
-            textColourMatches( new String[] { "11", } ),
-            backgroundColourMatches( new String[] { "ee", } )
-        ) );
-
-        assertEquals( 2, readTerminal.getCursorX() );
-        assertEquals( 5, readTerminal.getCursorY() );
-        assertEquals( 3, readTerminal.getTextColour() );
-        assertEquals( 5, readTerminal.getBackgroundColour() );
-        callCounter.assertCalledTimes( 1 );
-    }
-
-    @Test
-    void testReadWriteNBTEmpty()
-    {
-        Terminal terminal = new Terminal( 0, 0, true );
-
-        CompoundTag nbt = new CompoundTag();
-        terminal.writeToNBT( nbt );
-
-        CallCounter callCounter = new CallCounter();
-        terminal = new Terminal( 0, 1, true, callCounter );
-        terminal.readFromNBT( nbt );
-
-        assertThat( terminal, allOf(
-            textMatches( new String[] { "", } ),
-            textColourMatches( new String[] { "", } ),
-            backgroundColourMatches( new String[] { "", } )
-        ) );
-
-        assertEquals( 0, terminal.getCursorX() );
-        assertEquals( 0, terminal.getCursorY() );
-        assertEquals( 0, terminal.getTextColour() );
-        assertEquals( 15, terminal.getBackgroundColour() );
-        callCounter.assertCalledTimes( 1 );
     }
 
     @Test

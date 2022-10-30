@@ -3,7 +3,7 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.core.filesystem;
+package dan200.computercraft.shared.computer.core;
 
 import dan200.computercraft.api.filesystem.IMount;
 import net.minecraft.Util;

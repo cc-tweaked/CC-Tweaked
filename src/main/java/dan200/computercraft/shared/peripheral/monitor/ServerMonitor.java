@@ -7,6 +7,7 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import com.google.common.annotations.VisibleForTesting;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
 import dan200.computercraft.shared.util.TickScheduler;
 
 import javax.annotation.Nullable;
@@ -18,7 +19,7 @@ public class ServerMonitor
 
     private final boolean colour;
     private int textScale = 2;
-    private @Nullable Terminal terminal;
+    private @Nullable NetworkedTerminal terminal;
     private final AtomicBoolean resized = new AtomicBoolean( false );
     private final AtomicBoolean changed = new AtomicBoolean( false );
 
@@ -46,7 +47,7 @@ public class ServerMonitor
 
         if( terminal == null )
         {
-            terminal = new Terminal( termWidth, termHeight, colour, this::markChanged );
+            terminal = new NetworkedTerminal( termWidth, termHeight, colour, this::markChanged );
             markChanged();
         }
         else
@@ -91,7 +92,7 @@ public class ServerMonitor
 
     @Nullable
     @VisibleForTesting
-    public Terminal getTerminal()
+    public NetworkedTerminal getTerminal()
     {
         return terminal;
     }

@@ -3,7 +3,7 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.core.filesystem;
+package dan200.computercraft.shared.computer.core;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -11,6 +11,7 @@ import com.google.common.io.ByteStreams;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
+import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.shared.util.IoUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;

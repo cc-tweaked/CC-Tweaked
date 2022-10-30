@@ -8,7 +8,7 @@ package dan200.computercraft.shared.peripheral.monitor;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.MonitorClientMessage;
-import dan200.computercraft.shared.network.client.TerminalState;
+import dan200.computercraft.shared.computer.terminal.TerminalState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;

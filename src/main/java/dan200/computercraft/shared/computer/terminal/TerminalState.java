@@ -3,9 +3,8 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.shared.network.client;
+package dan200.computercraft.shared.computer.terminal;
 
-import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.util.IoUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -42,12 +41,12 @@ public class TerminalState
 
     private ByteBuf compressed;
 
-    public TerminalState( @Nullable Terminal terminal )
+    public TerminalState( @Nullable NetworkedTerminal terminal )
     {
         this( terminal, true );
     }
 
-    public TerminalState( @Nullable Terminal terminal, boolean compress )
+    public TerminalState( @Nullable NetworkedTerminal terminal, boolean compress )
     {
         this.compress = compress;
 
@@ -115,17 +114,17 @@ public class TerminalState
         return buffer == null ? 0 : buffer.readableBytes();
     }
 
-    public void apply( Terminal terminal )
+    public void apply( NetworkedTerminal terminal )
     {
         if( buffer == null ) throw new NullPointerException( "buffer" );
         terminal.resize( width, height );
         terminal.read( new FriendlyByteBuf( buffer ) );
     }
 
-    public Terminal create()
+    public NetworkedTerminal create()
     {
         if( buffer == null ) throw new NullPointerException( "Terminal does not exist" );
-        Terminal terminal = new Terminal( width, height, colour );
+        NetworkedTerminal terminal = new NetworkedTerminal( width, height, colour );
         terminal.read( new FriendlyByteBuf( buffer ) );
         return terminal;
     }

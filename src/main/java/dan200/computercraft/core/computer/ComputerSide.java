@@ -5,14 +5,11 @@
  */
 package dan200.computercraft.core.computer;
 
-import net.minecraft.core.Direction;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * A side on a computer. Unlike {@link Direction}, this is relative to the direction the computer is
- * facing..
+ * A side on a computer. This is relative to the direction the computer is facing.
  */
 public enum ComputerSide
 {

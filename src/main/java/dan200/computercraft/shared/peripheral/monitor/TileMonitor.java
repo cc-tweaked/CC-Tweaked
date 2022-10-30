@@ -11,7 +11,7 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.TileGeneric;
-import dan200.computercraft.shared.network.client.TerminalState;
+import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.core.BlockPos;

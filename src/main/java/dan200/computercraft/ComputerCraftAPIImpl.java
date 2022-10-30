@@ -22,7 +22,7 @@ import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import dan200.computercraft.core.apis.ApiFactories;
 import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.core.filesystem.FileMount;
-import dan200.computercraft.core.filesystem.ResourceMount;
+import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.impl.ComputerCraftAPIService;
 import dan200.computercraft.impl.detail.DetailRegistryImpl;
 import dan200.computercraft.shared.BundledRedstone;

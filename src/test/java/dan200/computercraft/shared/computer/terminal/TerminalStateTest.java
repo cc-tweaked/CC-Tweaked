@@ -3,7 +3,7 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.shared.network.client;
+package dan200.computercraft.shared.computer.terminal;
 
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
@@ -23,7 +23,7 @@ public class TerminalStateTest
     @RepeatedTest( 5 )
     public void testCompressed()
     {
-        Terminal terminal = randomTerminal();
+        var terminal = randomTerminal();
 
         FriendlyByteBuf buffer = new FriendlyByteBuf( Unpooled.directBuffer() );
         new TerminalState( terminal, true ).write( buffer );
@@ -35,7 +35,7 @@ public class TerminalStateTest
     @RepeatedTest( 5 )
     public void testUncompressed()
     {
-        Terminal terminal = randomTerminal();
+        var terminal = randomTerminal();
 
         FriendlyByteBuf buffer = new FriendlyByteBuf( Unpooled.directBuffer() );
         new TerminalState( terminal, false ).write( buffer );
@@ -44,10 +44,10 @@ public class TerminalStateTest
         assertEquals( 0, buffer.readableBytes() );
     }
 
-    private static Terminal randomTerminal()
+    private static NetworkedTerminal randomTerminal()
     {
         Random random = new Random();
-        Terminal terminal = new Terminal( 10, 5, true );
+        NetworkedTerminal terminal = new NetworkedTerminal( 10, 5, true );
         for( int y = 0; y < terminal.getHeight(); y++ )
         {
             TextBuffer buffer = terminal.getLine( y );
@@ -70,14 +70,14 @@ public class TerminalStateTest
         }
     }
 
-    private static Terminal read( FriendlyByteBuf buffer )
+    private static NetworkedTerminal read( FriendlyByteBuf buffer )
     {
         TerminalState state = new TerminalState( buffer );
         assertTrue( state.colour );
 
         if( !state.hasTerminal() ) return null;
 
-        Terminal other = new Terminal( state.width, state.height, true );
+        var other = new NetworkedTerminal( state.width, state.height, true );
         state.apply( other );
         return other;
     }
