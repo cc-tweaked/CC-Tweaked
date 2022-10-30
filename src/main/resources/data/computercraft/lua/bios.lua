@@ -713,14 +713,14 @@ end
 
 -- Install the lua part of the FS api
 local tEmpty = {}
-function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs)
+function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs, bIncludeHidden)
     expect(1, sPath, "string")
     expect(2, sLocation, "string")
     expect(3, bIncludeFiles, "boolean", "nil")
     expect(4, bIncludeDirs, "boolean", "nil")
+    expect(5, bIncludeHidden, "boolean", "nil")
 
-    local bShowHidden = settings.get("fs.autocomplete_hidden")
-
+    bIncludeHidden = bIncludeHidden ~= false
     bIncludeFiles = bIncludeFiles ~= false
     bIncludeDirs = bIncludeDirs ~= false
     local sDir = sLocation
@@ -760,7 +760,7 @@ function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs)
             if #sFile >= #sName and string.sub(sFile, 1, #sName) == sName then
                 local bIsDir = fs.isDir(fs.combine(sDir, sFile))
                 local sResult = string.sub(sFile, #sName + 1)
-                if bShowHidden or string.sub(sResult, 1, 1) ~= "." then
+                if bIncludeHidden or string.sub(sFile, 1, 1) ~= "." or string.sub(sResult, 1, 1) ~= "." then
                     if bIsDir then
                         table.insert(tResults, sResult .. "/")
                         if bIncludeDirs and #sResult > 0 then
@@ -941,7 +941,7 @@ settings.define("bios.strict_globals", {
     description = "Prevents assigning variables into a program's environment. Make sure you use the local keyword or assign to _G explicitly.",
     type = "boolean",
 })
-settings.define("fs.autocomplete_hidden", {
+settings.define("shell.autocomplete_hidden", {
     default = false,
     description = [[Autocomplete hidden files and folders (those starting with ".")]],
     type = "boolean",
