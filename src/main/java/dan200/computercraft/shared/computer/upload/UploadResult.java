@@ -14,8 +14,6 @@ public enum UploadResult
     CONSUMED,
     ERROR;
 
-    public static final ITextComponent SUCCESS_TITLE = new TranslationTextComponent( "gui.computercraft.upload.success" );
-
     public static final ITextComponent FAILED_TITLE = new TranslationTextComponent( "gui.computercraft.upload.failed" );
     public static final ITextComponent COMPUTER_OFF_MSG = new TranslationTextComponent( "gui.computercraft.upload.failed.computer_off" );
     public static final ITextComponent TOO_MUCH_MSG = new TranslationTextComponent( "gui.computercraft.upload.failed.too_much" );
