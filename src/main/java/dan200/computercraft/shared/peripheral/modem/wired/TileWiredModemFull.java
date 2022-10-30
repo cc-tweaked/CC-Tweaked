@@ -100,7 +100,8 @@ public class TileWiredModemFull extends TileGeneric
     private boolean destroyed = false;
     private boolean connectionsFormed = false;
 
-    private final ModemState modemState = new ModemState( () -> TickScheduler.schedule( this ) );
+    private final TickScheduler.Token tickToken = new TickScheduler.Token( this );
+    private final ModemState modemState = new ModemState( () -> TickScheduler.schedule( tickToken ) );
     private final WiredModemElement element = new FullElement( this );
     private LazyOptional<IWiredElement> elementCap;
     private final IWiredNode node = element.getNode();
@@ -181,7 +182,7 @@ public class TileWiredModemFull extends TileGeneric
 
     private void queueRefreshPeripheral( @Nonnull Direction facing )
     {
-        if( invalidSides == 0 ) TickScheduler.schedule( this );
+        if( invalidSides == 0 ) TickScheduler.schedule( tickToken );
         invalidSides |= 1 << facing.ordinal();
     }
 
@@ -262,7 +263,7 @@ public class TileWiredModemFull extends TileGeneric
     public void clearRemoved()
     {
         super.clearRemoved(); // TODO: Replace with onLoad
-        TickScheduler.schedule( this );
+        TickScheduler.schedule( tickToken );
     }
 
     @Override

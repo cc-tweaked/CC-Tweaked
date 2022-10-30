@@ -3,7 +3,7 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.support;
+package dan200.computercraft.test.core;
 
 import org.hamcrest.Matcher;
 

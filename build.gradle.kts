@@ -1,9 +1,9 @@
 import cc.tweaked.gradle.*
 import net.darkhax.curseforgegradle.TaskPublishCurseForge
+import net.minecraftforge.gradle.common.util.RunConfig
 
 plugins {
     // Build
-    alias(libs.plugins.kotlin)
     alias(libs.plugins.forgeGradle)
     alias(libs.plugins.mixinGradle)
     alias(libs.plugins.librarian)
@@ -18,7 +18,7 @@ plugins {
 
     id("cc-tweaked.illuaminate")
     id("cc-tweaked.node")
-    id("cc-tweaked.java-convention")
+    id("cc-tweaked.gametest")
     id("cc-tweaked")
 }
 
@@ -36,8 +36,6 @@ sourceSets {
     main {
         resources.srcDir("src/generated/resources")
     }
-
-    register("testMod")
 }
 
 minecraft {
@@ -80,29 +78,36 @@ minecraft {
             property("cct.pretty-json", "true")
         }
 
+        fun RunConfig.configureForGameTest() {
+            val old = lazyTokens.get("minecraft_classpath")
+            lazyToken("minecraft_classpath") {
+                // We do some terrible hacks here to basically find all things not already on the runtime classpath
+                // and add them. /Except/ for our source sets, as those need to load inside the Minecraft classpath.
+                val testMod = configurations["testModRuntimeClasspath"].resolve()
+                val implementation = configurations.runtimeClasspath.get().resolve()
+                val new = (testMod - implementation)
+                    .asSequence().filter { it.isFile }.map { it.absolutePath }
+                    .joinToString(File.pathSeparator)
+                if (old == null) new else old.get() + File.pathSeparator + new
+            }
+
+            mods.register("cctest") {
+                source(sourceSets["testMod"])
+                source(sourceSets["testFixtures"])
+            }
+        }
+
         val testClient by registering {
             workingDirectory(file("run/testClient"))
             parent(client.get())
-
-            mods.register("cctest") { source(sourceSets["testMod"]) }
-
-            lazyToken("minecraft_classpath") {
-                (configurations["shade"].copyRecursive().resolve() + configurations["testModExtra"].copyRecursive().resolve())
-                    .joinToString(File.pathSeparator) { it.absolutePath }
-            }
+            configureForGameTest()
         }
 
         val gameTestServer by registering {
             workingDirectory(file("run/testServer"))
+            configureForGameTest()
 
             property("forge.logging.console.level", "info")
-
-            mods.register("cctest") { source(sourceSets["testMod"]) }
-
-            lazyToken("minecraft_classpath") {
-                (configurations["shade"].copyRecursive().resolve() + configurations["testModExtra"].copyRecursive().resolve())
-                    .joinToString(File.pathSeparator) { it.absolutePath }
-            }
         }
     }
 
@@ -125,9 +130,6 @@ configurations {
     val shade by registering { isTransitive = false }
     implementation { extendsFrom(shade.get()) }
     register("cctJavadoc")
-
-    val testModExtra by registering
-    named("testModImplementation") { extendsFrom(implementation.get(), testModExtra.get()) }
 }
 
 dependencies {
@@ -143,14 +145,12 @@ dependencies {
 
     "shade"(libs.cobalt)
 
+    testFixturesApi(libs.bundles.test)
+    testFixturesApi(libs.bundles.kotlin)
+
     testImplementation(libs.bundles.test)
     testImplementation(libs.bundles.kotlin)
     testRuntimeOnly(libs.bundles.testRuntime)
-
-    "testModImplementation"(sourceSets.main.get().output)
-    "testModExtra"(libs.bundles.kotlin) {
-        exclude("org.jetbrains", "annotations")
-    }
 
     "cctJavadoc"(libs.cctJavadoc)
 }
@@ -189,7 +189,7 @@ val luaJavadoc by tasks.registering(Javadoc::class) {
 
     javadocTool.set(
         javaToolchains.javadocToolFor {
-            languageVersion.set(JavaLanguageVersion.of(17))
+            languageVersion.set(cc.tweaked.gradle.CCTweakedPlugin.JAVA_VERSION)
         },
     )
 }
@@ -219,7 +219,7 @@ tasks.jar {
             "Specification-Title" to "computercraft",
             "Specification-Vendor" to "SquidDev",
             "Specification-Version" to "1",
-            "specificationVersion" to "cctweaked",
+            "Implementation-Title" to "cctweaked",
             "Implementation-Version" to modVersion,
             "Implementation-Vendor" to "SquidDev",
         )
@@ -312,7 +312,7 @@ val docWebsite by tasks.registering(Copy::class) {
 // Check tasks
 
 tasks.test {
-    systemProperty("cct.test-files", buildDir.resolve("tmp/test-files").absolutePath)
+    systemProperty("cct.test-files", buildDir.resolve("tmp/testFiles").absolutePath)
 }
 
 val lintLua by tasks.registering(IlluaminateExec::class) {

@@ -13,35 +13,53 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class UploadResultMessage implements NetworkMessage
 {
-    public static final UploadResultMessage COMPUTER_OFF = new UploadResultMessage( UploadResult.ERROR, UploadResult.COMPUTER_OFF_MSG );
-    public static final UploadResultMessage OUT_OF_SPACE = new UploadResultMessage( UploadResult.ERROR, UploadResult.OUT_OF_SPACE_MSG );
-
+    private final int containerId;
     private final UploadResult result;
-    private final Component message;
+    private final Component errorMessage;
 
-    public UploadResultMessage( UploadResult result, Component message )
+    private UploadResultMessage( AbstractContainerMenu container, UploadResult result, @Nullable Component errorMessage )
     {
+        containerId = container.containerId;
         this.result = result;
-        this.message = message;
+        this.errorMessage = errorMessage;
+    }
+
+    public static UploadResultMessage queued( AbstractContainerMenu container )
+    {
+        return new UploadResultMessage( container, UploadResult.QUEUED, null );
+    }
+
+    public static UploadResultMessage consumed( AbstractContainerMenu container )
+    {
+        return new UploadResultMessage( container, UploadResult.CONSUMED, null );
+    }
+
+    public static UploadResultMessage error( AbstractContainerMenu container, Component errorMessage )
+    {
+        return new UploadResultMessage( container, UploadResult.ERROR, errorMessage );
     }
 
     public UploadResultMessage( @Nonnull FriendlyByteBuf buf )
     {
+        containerId = buf.readVarInt();
         result = buf.readEnum( UploadResult.class );
-        message = buf.readComponent();
+        errorMessage = result == UploadResult.ERROR ? buf.readComponent() : null;
     }
 
     @Override
     public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
+        buf.writeVarInt( containerId );
         buf.writeEnum( result );
-        buf.writeComponent( message );
+        if( result == UploadResult.ERROR ) buf.writeComponent( errorMessage );
     }
 
     @Override
@@ -50,9 +68,9 @@ public class UploadResultMessage implements NetworkMessage
         Minecraft minecraft = Minecraft.getInstance();
 
         Screen screen = OptionScreen.unwrap( minecraft.screen );
-        if( screen instanceof ComputerScreenBase<?> )
+        if( screen instanceof ComputerScreenBase<?> && ((ComputerScreenBase<?>) screen).getMenu().containerId == containerId )
         {
-            ((ComputerScreenBase<?>) screen).uploadResult( result, message );
+            ((ComputerScreenBase<?>) screen).uploadResult( result, errorMessage );
         }
     }
 }

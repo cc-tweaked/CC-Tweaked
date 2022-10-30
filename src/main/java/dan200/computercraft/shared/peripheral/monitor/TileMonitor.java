@@ -75,6 +75,8 @@ public class TileMonitor extends TileGeneric
     private int bbX, bbY, bbWidth, bbHeight;
     private AABB boundingBox;
 
+    TickScheduler.Token tickToken = new TickScheduler.Token( this );
+
     public TileMonitor( BlockEntityType<? extends TileMonitor> type, BlockPos pos, BlockState state, boolean advanced )
     {
         super( type, pos, state );
@@ -86,7 +88,7 @@ public class TileMonitor extends TileGeneric
     {
         super.clearRemoved();
         needsValidating = true; // Same, tbh
-        TickScheduler.schedule( this );
+        TickScheduler.schedule( tickToken );
     }
 
     @Override

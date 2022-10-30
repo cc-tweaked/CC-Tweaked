@@ -211,6 +211,8 @@ local function tabulateCommon(bPaged, ...)
         end
         print()
     end
+
+    local previous_colour = term.getTextColour()
     for _, t in ipairs(tAll) do
         if type(t) == "table" then
             if #t > 0 then
@@ -220,6 +222,7 @@ local function tabulateCommon(bPaged, ...)
             term.setTextColor(t)
         end
     end
+    term.setTextColor(previous_colour)
 end
 
 --[[- Prints tables in a structured form.
@@ -685,6 +688,7 @@ do
     @treturn[2] nil If the object could not be deserialised.
     @treturn string A message describing why the JSON string is invalid.
     @since 1.87.0
+    @changed 1.100.6 Added `parse_empty_array` option
     @see textutils.json_null Use to serialize a JSON `null` value.
     @see textutils.empty_json_array Use to serialize a JSON empty array.
     @usage Unserialise a basic JSON object

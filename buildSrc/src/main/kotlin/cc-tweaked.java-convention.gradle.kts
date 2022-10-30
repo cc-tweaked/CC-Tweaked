@@ -1,3 +1,4 @@
+import cc.tweaked.gradle.CCTweakedPlugin
 import cc.tweaked.gradle.LicenseHeader
 import com.diffplug.gradle.spotless.FormatExtension
 import com.diffplug.spotless.LineEnding
@@ -12,7 +13,7 @@ plugins {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(CCTweakedPlugin.JAVA_VERSION)
     }
 
     withSourcesJar()

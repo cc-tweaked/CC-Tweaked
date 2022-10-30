@@ -17,30 +17,35 @@ import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.upload.FileUpload;
 import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.NetworkHandler;
-import dan200.computercraft.shared.network.server.ContinueUploadMessage;
 import dan200.computercraft.shared.network.server.UploadFileMessage;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public abstract class ComputerScreenBase<T extends ContainerComputerBase> extends AbstractContainerScreen<T>
 {
     private static final Component OK = new TranslatableComponent( "gui.ok" );
-    private static final Component CANCEL = new TranslatableComponent( "gui.cancel" );
-    private static final Component OVERWRITE = new TranslatableComponent( "gui.computercraft.upload.overwrite_button" );
+    private static final Component NO_RESPONSE_TITLE = new TranslatableComponent( "gui.computercraft.upload.no_response" );
+    private static final Component NO_RESPONSE_MSG = new TranslatableComponent( "gui.computercraft.upload.no_response.msg",
+        new TextComponent( "import" ).withStyle( ChatFormatting.DARK_GRAY ) );
 
     protected WidgetTerminal terminal;
     protected Terminal terminalData;
@@ -49,11 +54,15 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
 
     protected final int sidebarYOffset;
 
+    private long uploadNagDeadline = Long.MAX_VALUE;
+    private final ItemStack displayStack;
+
     public ComputerScreenBase( T container, Inventory player, Component title, int sidebarYOffset )
     {
         super( container, player, title );
         terminalData = container.getTerminal();
         family = container.getFamily();
+        displayStack = container.getDisplayStack();
         input = new ClientInputHandler( menu );
         this.sidebarYOffset = sidebarYOffset;
     }
@@ -83,6 +92,13 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
     {
         super.containerTick();
         terminal.update();
+
+        if( uploadNagDeadline != Long.MAX_VALUE && Util.getNanos() >= uploadNagDeadline )
+        {
+            new ItemToast( minecraft, displayStack, NO_RESPONSE_TITLE, NO_RESPONSE_MSG, ItemToast.TRANSFER_NO_RESPONSE_TOKEN )
+                .showOrReplace( minecraft.getToasts() );
+            uploadNagDeadline = Long.MAX_VALUE;
+        }
     }
 
     @Override
@@ -194,39 +210,27 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
         if( toUpload.size() > 0 ) UploadFileMessage.send( menu, toUpload, NetworkHandler::sendToServer );
     }
 
-    public void uploadResult( UploadResult result, Component message )
+    public void uploadResult( UploadResult result, @Nullable Component message )
     {
         switch( result )
         {
-            case SUCCESS:
-                alert( UploadResult.SUCCESS_TITLE, message );
+            case QUEUED:
+            {
+                if( ComputerCraft.uploadNagDelay > 0 )
+                {
+                    uploadNagDeadline = Util.getNanos() + TimeUnit.SECONDS.toNanos( ComputerCraft.uploadNagDelay );
+                }
                 break;
+            }
+            case CONSUMED:
+            {
+                uploadNagDeadline = Long.MAX_VALUE;
+                break;
+            }
             case ERROR:
                 alert( UploadResult.FAILED_TITLE, message );
                 break;
-            case CONFIRM_OVERWRITE:
-                OptionScreen.show(
-                    minecraft, UploadResult.UPLOAD_OVERWRITE, message,
-                    Arrays.asList(
-                        OptionScreen.newButton( CANCEL, b -> cancelUpload() ),
-                        OptionScreen.newButton( OVERWRITE, b -> continueUpload() )
-                    ),
-                    this::cancelUpload
-                );
-                break;
         }
-    }
-
-    private void continueUpload()
-    {
-        if( minecraft.screen instanceof OptionScreen screen ) screen.disable();
-        NetworkHandler.sendToServer( new ContinueUploadMessage( menu, true ) );
-    }
-
-    private void cancelUpload()
-    {
-        minecraft.setScreen( this );
-        NetworkHandler.sendToServer( new ContinueUploadMessage( menu, false ) );
     }
 
     private void alert( Component title, Component message )

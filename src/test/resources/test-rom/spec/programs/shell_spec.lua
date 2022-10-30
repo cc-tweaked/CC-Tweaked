@@ -1,3 +1,5 @@
+local with_window = require "test_helpers".with_window
+
 describe("The shell", function()
     describe("require", function()
         it("validates arguments", function()
@@ -99,6 +101,50 @@ describe("The shell", function()
     describe("shell.switchTab", function()
         it("validates arguments", function()
             expect.error(shell.switchTab, nil):eq("bad argument #1 (expected number, got nil)")
+        end)
+    end)
+
+    describe("file uploads", function()
+        local function create_file(name, contents)
+            local did_read = false
+            return {
+                getName = function() return name end,
+                read = function()
+                    if did_read then return end
+                    did_read = true
+                    return contents
+                end,
+                close = function() end,
+            }
+        end
+        local function create_files(files) return { getFiles = function() return files end } end
+
+        it("suspends the read prompt", function()
+            fs.delete("tmp.txt")
+
+            local win = with_window(32, 5, function()
+                local queue = {
+                    { "shell" },
+                    { "paste", "xyz" },
+                    { "file_transfer", create_files { create_file("transfer.txt", "empty file") } },
+                }
+                local co = coroutine.create(shell.run)
+                for _, event in pairs(queue) do assert(coroutine.resume(co, table.unpack(event))) end
+            end)
+
+            expect(win.getCursorBlink()):eq(true)
+
+            local lines = {}
+            for i = 1, 5 do lines[i] = win.getLine(i):gsub(" +$", "") end
+            expect(lines):same {
+                "CraftOS 1.8",
+                "> xyz",
+                "Transferring transfer.txt",
+                "> xyz",
+                "",
+            }
+
+            expect({ win.getCursorPos() }):same { 6, 4 }
         end)
     end)
 end)

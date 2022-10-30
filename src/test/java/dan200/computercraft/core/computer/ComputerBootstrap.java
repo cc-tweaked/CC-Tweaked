@@ -13,8 +13,9 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.computer.mainthread.MainThread;
-import dan200.computercraft.core.filesystem.MemoryMount;
 import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.test.core.computer.BasicEnvironment;
+import dan200.computercraft.test.core.filesystem.MemoryMount;
 import org.junit.jupiter.api.Assertions;
 
 import java.util.Arrays;
