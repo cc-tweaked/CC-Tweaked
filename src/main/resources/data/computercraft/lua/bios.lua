@@ -760,7 +760,7 @@ function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs)
             if #sFile >= #sName and string.sub(sFile, 1, #sName) == sName then
                 local bIsDir = fs.isDir(fs.combine(sDir, sFile))
                 local sResult = string.sub(sFile, #sName + 1)
-                if bShowHidden or string.sub(sResult, 1,1) ~= "." then
+                if bShowHidden or string.sub(sResult, 1, 1) ~= "." then
                     if bIsDir then
                         table.insert(tResults, sResult .. "/")
                         if bIncludeDirs and #sResult > 0 then
