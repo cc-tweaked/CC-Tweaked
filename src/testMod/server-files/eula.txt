@@ -1,2 +1,0 @@
-# Automatically generated EULA. Please don't use this for a real server.
-eula=true

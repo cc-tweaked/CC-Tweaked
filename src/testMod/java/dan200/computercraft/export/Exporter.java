@@ -10,8 +10,11 @@ import com.google.common.io.RecursiveDeleteOption;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.ingame.mod.TestMod;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.TextComponent;
@@ -19,10 +22,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ClientChatEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.io.File;
@@ -37,19 +36,24 @@ import java.util.Set;
 /**
  * Provides a {@literal /ccexport <path>} command which exports icons and recipes for all ComputerCraft items.
  */
-@Mod.EventBusSubscriber( modid = TestMod.MOD_ID, value = Dist.CLIENT )
 public class Exporter
 {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-    @SubscribeEvent
-    public static void onClientCommands( ClientChatEvent event )
+    public static <S> void register( CommandDispatcher<S> dispatcher )
     {
-        String prefix = "/ccexport";
-        if( !event.getMessage().startsWith( prefix ) ) return;
-        event.setCanceled( true );
+        dispatcher.register(
+            LiteralArgumentBuilder.<S>literal( "ccexport" )
+                .then( RequiredArgumentBuilder.<S, String>argument( "path", StringArgumentType.string() )
+                    .executes( c -> {
+                        run( c.getArgument( "name", String.class ) );
+                        return 0;
+                    } ) ) );
+    }
 
-        Path output = new File( event.getMessage().substring( prefix.length() ).trim() ).getAbsoluteFile().toPath();
+    private static void run( String path )
+    {
+        Path output = new File( path ).getAbsoluteFile().toPath();
         if( !Files.isDirectory( output ) )
         {
             Minecraft.getInstance().gui.getChat().addMessage( new TextComponent( "Output path does not exist" ) );
