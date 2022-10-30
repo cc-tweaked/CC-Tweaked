@@ -719,7 +719,7 @@ function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs)
     expect(3, bIncludeFiles, "boolean", "nil")
     expect(4, bIncludeDirs, "boolean", "nil")
 
-    local bShowHidden = settings.get("list.show_hidden")
+    local bShowHidden = settings.get("fs.autocomplete_hidden")
 
     bIncludeFiles = bIncludeFiles ~= false
     bIncludeDirs = bIncludeDirs ~= false
@@ -939,6 +939,11 @@ settings.define("lua.function_source", {
 settings.define("bios.strict_globals", {
     default = false,
     description = "Prevents assigning variables into a program's environment. Make sure you use the local keyword or assign to _G explicitly.",
+    type = "boolean",
+})
+settings.define("fs.autocomplete_hidden", {
+    default = false,
+    description = [[Autocomplete hidden files and folders (those starting with ".")]],
     type = "boolean",
 })
 
