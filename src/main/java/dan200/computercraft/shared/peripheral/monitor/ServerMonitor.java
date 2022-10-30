@@ -64,7 +64,7 @@ public class ServerMonitor
 
     private void markChanged()
     {
-        if( !changed.getAndSet( true ) ) TickScheduler.schedule( origin );
+        if( !changed.getAndSet( true ) ) TickScheduler.schedule( origin.tickToken );
     }
 
     int getTextScale()

@@ -33,6 +33,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
@@ -218,7 +219,7 @@ public final class CommandComputerCraft
                 .executes( context -> {
                     ServerPlayer player = context.getSource().getPlayerOrException();
                     ServerComputer computer = getComputerArgument( context, "computer" );
-                    new ComputerContainerData( computer ).open( player, new MenuProvider()
+                    new ComputerContainerData( computer, ItemStack.EMPTY ).open( player, new MenuProvider()
                     {
                         @Nonnull
                         @Override

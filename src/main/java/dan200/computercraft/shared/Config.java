@@ -12,7 +12,6 @@ import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRuleConfig;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.Builder;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -79,6 +78,7 @@ public final class Config
 
     private static final ConfigValue<MonitorRenderer> monitorRenderer;
     private static final ConfigValue<Integer> monitorDistance;
+    private static final ConfigValue<Integer> uploadNagDelay;
 
     private static final ForgeConfigSpec serverSpec;
     private static final ForgeConfigSpec clientSpec;
@@ -87,7 +87,7 @@ public final class Config
 
     static
     {
-        Builder builder = new Builder();
+        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
         { // General computers
             computerSpaceLimit = builder
@@ -271,13 +271,17 @@ public final class Config
 
         serverSpec = builder.build();
 
-        Builder clientBuilder = new Builder();
+        ForgeConfigSpec.Builder clientBuilder = new ForgeConfigSpec.Builder();
         monitorRenderer = clientBuilder
             .comment( "The renderer to use for monitors. Generally this should be kept at \"best\" - if\nmonitors have performance issues, you may wish to experiment with alternative\nrenderers." )
             .defineEnum( "monitor_renderer", MonitorRenderer.BEST );
         monitorDistance = clientBuilder
             .comment( "The maximum distance monitors will render at. This defaults to the standard tile\nentity limit, but may be extended if you wish to build larger monitors." )
             .defineInRange( "monitor_distance", 64, 16, 1024 );
+        uploadNagDelay = clientBuilder
+            .comment( "The delay in seconds after which we'll notify about unhandled imports. Set to 0 to disable." )
+            .defineInRange( "upload_nag_delay", ComputerCraft.uploadNagDelay, 0, 60 );
+
         clientSpec = clientBuilder.build();
     }
 
@@ -345,6 +349,7 @@ public final class Config
     {
         ComputerCraft.monitorRenderer = monitorRenderer.get();
         ComputerCraft.monitorDistance = monitorDistance.get();
+        ComputerCraft.uploadNagDelay = uploadNagDelay.get();
     }
 
     private static void sync( ModConfig config )

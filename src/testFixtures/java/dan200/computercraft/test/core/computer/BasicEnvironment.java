@@ -3,16 +3,18 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.core.computer;
+package dan200.computercraft.test.core.computer;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.core.computer.ComputerEnvironment;
+import dan200.computercraft.core.computer.GlobalEnvironment;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
-import dan200.computercraft.core.filesystem.MemoryMount;
 import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.MetricsObserver;
+import dan200.computercraft.test.core.filesystem.MemoryMount;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -24,7 +26,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
- * A very basic environment.
+ * A basic implementation of {@link ComputerEnvironment} and {@link GlobalEnvironment}, suitable for a context which
+ * will only run a single computer.
  */
 public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment, MetricsObserver
 {

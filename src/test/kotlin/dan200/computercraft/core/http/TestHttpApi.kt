@@ -1,8 +1,10 @@
-package dan200.computercraft.core.apis.http.options
+package dan200.computercraft.core.http
 
 import dan200.computercraft.ComputerCraft
-import dan200.computercraft.core.apis.AsyncRunner
 import dan200.computercraft.core.apis.HTTPAPI
+import dan200.computercraft.core.apis.http.options.Action
+import dan200.computercraft.core.apis.http.options.AddressRule
+import dan200.computercraft.test.core.computer.LuaTaskRunner
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -36,15 +38,15 @@ class TestHttpApi {
 
     @Test
     fun `Connects to websocket`() {
-        AsyncRunner.runTest {
-            val httpApi = addApi(HTTPAPI(this))
+        LuaTaskRunner.runTest {
+            val httpApi = addApi(HTTPAPI(environment))
 
             val result = httpApi.websocket(WS_ADDRESS, Optional.empty())
             assertArrayEquals(arrayOf(true), result, "Should have created websocket")
 
             val event = pullEvent()
-            assertEquals("websocket_success", event.name) {
-                "Websocket failed to connect: ${event.args.contentToString()}"
+            assertEquals("websocket_success", event[0]) {
+                "Websocket failed to connect: ${event.contentToString()}"
             }
         }
     }

@@ -1,5 +1,6 @@
 describe("The peripheral library", function()
     local it_modem = peripheral.getType("top") == "modem" and it or pending
+    local it_remote = peripheral.getType("bottom") == "peripheral_hub" and it or pending
 
     local multitype_peripheral = setmetatable({}, {
         __name = "peripheral",
@@ -13,6 +14,16 @@ describe("The peripheral library", function()
             peripheral.isPresent("")
             expect.error(peripheral.isPresent, nil):eq("bad argument #1 (expected string, got nil)")
         end)
+
+        it_modem("asserts the presence of local peripherals", function()
+            expect(peripheral.isPresent("top")):eq(true)
+            expect(peripheral.isPresent("left")):eq(false)
+        end)
+
+        it_remote("asserts the presence of remote peripherals", function()
+            expect(peripheral.isPresent("remote_1")):eq(true)
+            expect(peripheral.isPresent("remote_2")):eq(false)
+        end)
     end)
 
     describe("peripheral.getName", function()
@@ -24,6 +35,10 @@ describe("The peripheral library", function()
         it_modem("can get the name of a wrapped peripheral", function()
             expect(peripheral.getName(peripheral.wrap("top"))):eq("top")
         end)
+
+        it("can get the name of a fake peripheral", function()
+            expect(peripheral.getName(multitype_peripheral)):eq("top")
+        end)
     end)
 
     describe("peripheral.getType", function()
@@ -34,11 +49,16 @@ describe("The peripheral library", function()
         end)
 
         it("returns nil when no peripheral is present", function()
-            expect(peripheral.getType("bottom")):eq(nil)
+            expect(peripheral.getType("left")):eq(nil)
+            expect(peripheral.getType("remote_2")):eq(nil)
         end)
 
-        it_modem("can get the type of a peripheral by side", function()
+        it_modem("can get the type of a local peripheral", function()
             expect(peripheral.getType("top")):eq("modem")
+        end)
+
+        it_remote("can get the type of a remote peripheral", function()
+            expect(peripheral.getType("remote_1")):eq("remote")
         end)
 
         it_modem("can get the type of a wrapped peripheral", function()
@@ -59,7 +79,8 @@ describe("The peripheral library", function()
         end)
 
         it("returns nil when no peripherals are present", function()
-            expect(peripheral.hasType("bottom", "modem")):eq(nil)
+            expect(peripheral.hasType("left", "modem")):eq(nil)
+            expect(peripheral.hasType("remote_2", "remote")):eq(nil)
         end)
 
         it_modem("can check type of a peripheral by side", function()
@@ -75,6 +96,10 @@ describe("The peripheral library", function()
             expect(peripheral.hasType(multitype_peripheral, "modem")):eq(true)
             expect(peripheral.hasType(multitype_peripheral, "inventory")):eq(true)
             expect(peripheral.hasType(multitype_peripheral, "something else")):eq(false)
+        end)
+
+        it_remote("can check type of a remote peripheral", function()
+            expect(peripheral.hasType("remote_1", "remote")):eq(true)
         end)
     end)
 
@@ -103,6 +128,18 @@ describe("The peripheral library", function()
             peripheral.wrap("")
             expect.error(peripheral.wrap, nil):eq("bad argument #1 (expected string, got nil)")
         end)
+
+        it_modem("wraps a local peripheral", function()
+            local p = peripheral.wrap("top")
+            expect(type(p)):eq("table")
+            expect(type(next(p))):eq("string")
+        end)
+
+        it_remote("wraps a remote peripheral", function()
+            local p = peripheral.wrap("remote_1")
+            expect(type(p)):eq("table")
+            expect(next(p)):eq("func")
+        end)
     end)
 
     describe("peripheral.find", function()
@@ -112,6 +149,18 @@ describe("The peripheral library", function()
             end)
             expect.error(peripheral.find, nil):eq("bad argument #1 (expected string, got nil)")
             expect.error(peripheral.find, "", false):eq("bad argument #2 (expected function, got boolean)")
+        end)
+
+        it_modem("finds a local peripheral", function()
+            local p = peripheral.find("modem")
+            expect(type(p)):eq("table")
+            expect(peripheral.getName(p)):eq("top")
+        end)
+
+        it_modem("finds a local peripheral", function()
+            local p = peripheral.find("remote")
+            expect(type(p)):eq("table")
+            expect(peripheral.getName(p)):eq("remote_1")
         end)
     end)
 end)

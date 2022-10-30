@@ -292,6 +292,7 @@ public final class ResourceMount implements IMount
             try
             {
                 for( ResourceMount mount : MOUNT_CACHE.values() ) mount.load( manager );
+                CONTENTS_CACHE.invalidateAll();
             }
             finally
             {
