@@ -16,6 +16,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
@@ -56,9 +57,8 @@ public final class ComputerSidebar
             () -> isOn.getAsBoolean() ? Arrays.asList(
                 new TranslationTextComponent( "gui.computercraft.tooltip.turn_off" ),
                 new TranslationTextComponent( "gui.computercraft.tooltip.turn_off.key" ).withStyle( TextFormatting.GRAY )
-            ) : Arrays.asList(
-                new TranslationTextComponent( "gui.computercraft.tooltip.turn_on" ),
-                new TranslationTextComponent( "gui.computercraft.tooltip.turn_off.key" ).withStyle( TextFormatting.GRAY )
+            ) : Collections.singletonList(
+                new TranslationTextComponent( "gui.computercraft.tooltip.turn_on" )
             )
         ) );
 
