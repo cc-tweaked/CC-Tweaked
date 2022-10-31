@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.concurrent.TimeUnit;
 
 @Mod( ComputerCraft.MOD_ID )
@@ -37,8 +38,8 @@ public final class ComputerCraft
     public static boolean httpEnabled = true;
     public static boolean httpWebsocketEnabled = true;
     public static List<AddressRule> httpRules = List.of(
-        AddressRule.parse( "$private", null, Action.DENY.toPartial() ),
-        AddressRule.parse( "*", null, Action.ALLOW.toPartial() )
+        AddressRule.parse( "$private", OptionalInt.empty(), Action.DENY.toPartial() ),
+        AddressRule.parse( "*", OptionalInt.empty(), Action.ALLOW.toPartial() )
     );
 
     public static int httpMaxRequests = 16;

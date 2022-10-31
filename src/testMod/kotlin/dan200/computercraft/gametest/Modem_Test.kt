@@ -13,7 +13,6 @@ import dan200.computercraft.shared.peripheral.modem.wired.BlockCable
 import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.LuaTaskContext
 import dan200.computercraft.test.core.computer.getApi
-import kotlinx.coroutines.delay
 import net.minecraft.core.BlockPos
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
@@ -60,7 +59,7 @@ class Modem_Test {
             val modem = findPeripheral("modem") ?: throw IllegalStateException("Cannot find modem")
             while (true) {
                 callPeripheral(modem, "transmit", 12, 34, "Hello")
-                delay(50.milliseconds)
+                sleep(50.milliseconds)
             }
         }
         thenOnComputer("receive") {

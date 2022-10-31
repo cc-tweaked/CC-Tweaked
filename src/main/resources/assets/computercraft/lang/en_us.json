@@ -116,8 +116,6 @@
     "gui.computercraft.tooltip.turn_off.key": "Hold Ctrl+S",
     "gui.computercraft.tooltip.terminate": "Stop the currently running code",
     "gui.computercraft.tooltip.terminate.key": "Hold Ctrl+T",
-    "gui.computercraft.upload.success": "Upload Succeeded",
-    "gui.computercraft.upload.success.msg": "%d files uploaded.",
     "gui.computercraft.upload.failed": "Upload Failed",
     "gui.computercraft.upload.failed.computer_off": "You must turn the computer on before uploading files.",
     "gui.computercraft.upload.failed.too_much": "Your files are too large to be uploaded.",

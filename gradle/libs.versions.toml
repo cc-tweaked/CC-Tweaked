@@ -7,7 +7,7 @@ parchment = "2022.03.13"
 parchmentMc = "1.18.2"
 
 autoService = "1.0.1"
-cobalt = { strictly = "[0.5.7,0.6.0)", prefer = "0.5.7" }
+cobalt = { strictly = "[0.5.8,0.6.0)", prefer = "0.5.8" }
 jetbrainsAnnotations = "23.0.0"
 kotlin = "1.7.10"
 kotlin-coroutines = "1.6.0"

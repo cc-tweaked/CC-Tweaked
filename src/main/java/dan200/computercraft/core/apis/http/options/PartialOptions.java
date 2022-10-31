@@ -5,21 +5,25 @@
  */
 package dan200.computercraft.core.apis.http.options;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 public final class PartialOptions
 {
-    static final PartialOptions DEFAULT = new PartialOptions( null, null, null, null, null );
+    public static final PartialOptions DEFAULT = new PartialOptions(
+        null, OptionalLong.empty(), OptionalLong.empty(), OptionalInt.empty(), OptionalInt.empty()
+    );
 
-    Action action;
-    Long maxUpload;
-    Long maxDownload;
-    Integer timeout;
-    Integer websocketMessage;
+    private final @Nullable Action action;
+    private final OptionalLong maxUpload;
+    private final OptionalLong maxDownload;
+    private final OptionalInt timeout;
+    private final OptionalInt websocketMessage;
 
-    Options options;
+    private @Nullable Options options;
 
-    PartialOptions( Action action, Long maxUpload, Long maxDownload, Integer timeout, Integer websocketMessage )
+    public PartialOptions( @Nullable Action action, OptionalLong maxUpload, OptionalLong maxDownload, OptionalInt timeout, OptionalInt websocketMessage )
     {
         this.action = action;
         this.maxUpload = maxUpload;
@@ -28,31 +32,36 @@ public final class PartialOptions
         this.websocketMessage = websocketMessage;
     }
 
-    @Nonnull
     Options toOptions()
     {
         if( options != null ) return options;
 
         return options = new Options(
             action == null ? Action.DENY : action,
-            maxUpload == null ? AddressRule.MAX_UPLOAD : maxUpload,
-            maxDownload == null ? AddressRule.MAX_DOWNLOAD : maxDownload,
-            timeout == null ? AddressRule.TIMEOUT : timeout,
-            websocketMessage == null ? AddressRule.WEBSOCKET_MESSAGE : websocketMessage
+            maxUpload.orElse( AddressRule.MAX_UPLOAD ),
+            maxDownload.orElse( AddressRule.MAX_DOWNLOAD ),
+            timeout.orElse( AddressRule.TIMEOUT ),
+            websocketMessage.orElse( AddressRule.WEBSOCKET_MESSAGE )
         );
     }
 
-    void merge( @Nonnull PartialOptions other )
+    /**
+     * Perform a left-biased union of two {@link PartialOptions}.
+     *
+     * @param other The other partial options to combine with.
+     * @return The merged options map.
+     */
+    PartialOptions merge( PartialOptions other )
     {
-        if( action == null && other.action != null ) action = other.action;
-        if( maxUpload == null && other.maxUpload != null ) maxUpload = other.maxUpload;
-        if( maxDownload == null && other.maxDownload != null ) maxDownload = other.maxDownload;
-        if( timeout == null && other.timeout != null ) timeout = other.timeout;
-        if( websocketMessage == null && other.websocketMessage != null ) websocketMessage = other.websocketMessage;
-    }
+        // Short circuit for DEFAULT. This has no effect on the outcome, but avoids an allocation.
+        if( this == DEFAULT ) return other;
 
-    PartialOptions copy()
-    {
-        return new PartialOptions( action, maxUpload, maxDownload, timeout, websocketMessage );
+        return new PartialOptions(
+            action == null && other.action != null ? other.action : action,
+            maxUpload.isPresent() ? maxUpload : other.maxUpload,
+            maxDownload.isPresent() ? maxDownload : other.maxDownload,
+            timeout.isPresent() ? timeout : other.timeout,
+            websocketMessage.isPresent() ? websocketMessage : other.websocketMessage
+        );
     }
 }

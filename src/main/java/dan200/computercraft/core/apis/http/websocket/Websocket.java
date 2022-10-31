@@ -26,7 +26,6 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
-import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import io.netty.handler.ssl.SslContext;
 
@@ -152,7 +151,7 @@ public class Websocket extends Resource<Websocket>
                         }
 
                         String subprotocol = headers.get( HttpHeaderNames.SEC_WEBSOCKET_PROTOCOL );
-                        WebSocketClientHandshaker handshaker = WebSocketClientHandshakerFactory.newHandshaker(
+                        WebSocketClientHandshaker handshaker = new NoOriginWebSocketHanshakder(
                             uri, WebSocketVersion.V13, subprotocol, true, headers,
                             options.websocketMessage <= 0 ? MAX_MESSAGE_SIZE : options.websocketMessage
                         );
