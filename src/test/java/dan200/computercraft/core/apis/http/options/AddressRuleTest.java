@@ -12,6 +12,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.InetSocketAddress;
 import java.util.Collections;
+import java.util.OptionalInt;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -21,8 +22,8 @@ public class AddressRuleTest
     public void matchesPort()
     {
         Iterable<AddressRule> rules = Collections.singletonList( AddressRule.parse(
-            "127.0.0.1", 8080,
-            new PartialOptions( Action.ALLOW, null, null, null, null )
+            "127.0.0.1", OptionalInt.of( 8080 ),
+            Action.ALLOW.toPartial()
         ) );
 
         assertEquals( apply( rules, "localhost", 8080 ).action, Action.ALLOW );
