@@ -329,10 +329,14 @@ function shell.programs(include_hidden)
 end
 
 local function completeProgram(sLine)
-    bIncludeHidden = settings.get("shell.autocomplete_hidden")
+    local bIncludeHidden = settings.get("shell.autocomplete_hidden")
     if #sLine > 0 and (sLine:find("/") or sLine:find("\\")) then
         -- Add programs from the root
-        return fs.complete(sLine, sDir, true, false, bIncludeHidden)
+        return fs.complete(sLine, sDir, {
+            include_files = true,
+            include_dirs = false,
+            include_hidden = bIncludeHidden
+        })
 
     else
         local tResults = {}
@@ -350,7 +354,11 @@ local function completeProgram(sLine)
         end
 
         -- Add all subdirectories. We don't include files as they will be added in the block below
-        local tDirs = fs.complete(sLine, sDir, false, false, bIncludeHidden)
+        local tDirs = fs.complete(sLine, sDir, {
+            include_files = false,
+            include_dirs = false,
+            include_hidden = bIncludeHidden
+        })
         for i = 1, #tDirs do
             local sResult = tDirs[i]
             if not tSeen[sResult] then

@@ -713,12 +713,17 @@ end
 
 -- Install the lua part of the FS api
 local tEmpty = {}
-function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs, bIncludeHidden)
+function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs)
     expect(1, sPath, "string")
     expect(2, sLocation, "string")
-    expect(3, bIncludeFiles, "boolean", "nil")
-    expect(4, bIncludeDirs, "boolean", "nil")
-    expect(5, bIncludeHidden, "boolean", "nil")
+    if type(bIncludeFiles) == "table" then
+        bIncludeDirs = bIncludeFiles.include_dirs
+        bIncludeHidden = bIncludeFiles.include_hidden
+        bIncludeFiles = bIncludeFiles.include_files
+    else
+        expect(3, bIncludeFiles, "boolean", "nil")
+        expect(4, bIncludeDirs, "boolean", "nil")
+    end
 
     bIncludeHidden = bIncludeHidden ~= false
     bIncludeFiles = bIncludeFiles ~= false
@@ -760,7 +765,7 @@ function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs, bIncludeHidd
             if #sFile >= #sName and string.sub(sFile, 1, #sName) == sName then
                 local bIsDir = fs.isDir(fs.combine(sDir, sFile))
                 local sResult = string.sub(sFile, #sName + 1)
-                if bIncludeHidden or string.sub(sFile, 1, 1) ~= "." or string.sub(sResult, 1, 1) ~= "." then
+                if bIncludeHidden or string.sub(sFile, 1, 1) ~= "." or string.sub(sResult, 1, 1) ~= "." or sResult ~= sFile then
                     if bIsDir then
                         table.insert(tResults, sResult .. "/")
                         if bIncludeDirs and #sResult > 0 then
