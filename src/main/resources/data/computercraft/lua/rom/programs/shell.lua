@@ -335,7 +335,7 @@ local function completeProgram(sLine)
         return fs.complete(sLine, sDir, {
             include_files = true,
             include_dirs = false,
-            include_hidden = bIncludeHidden
+            include_hidden = bIncludeHidden,
         })
 
     else
@@ -357,7 +357,7 @@ local function completeProgram(sLine)
         local tDirs = fs.complete(sLine, sDir, {
             include_files = false,
             include_dirs = false,
-            include_hidden = bIncludeHidden
+            include_hidden = bIncludeHidden,
         })
         for i = 1, #tDirs do
             local sResult = tDirs[i]

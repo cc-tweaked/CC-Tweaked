@@ -716,6 +716,7 @@ local tEmpty = {}
 function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs)
     expect(1, sPath, "string")
     expect(2, sLocation, "string")
+    local bIncludeHidden = nil
     if type(bIncludeFiles) == "table" then
         bIncludeDirs = bIncludeFiles.include_dirs
         bIncludeHidden = bIncludeFiles.include_hidden

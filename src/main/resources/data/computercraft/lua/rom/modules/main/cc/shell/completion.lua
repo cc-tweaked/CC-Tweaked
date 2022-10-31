@@ -37,7 +37,7 @@ local function file(shell, text)
     return fs.complete(text, shell.dir(), {
         include_files = true,
         include_dirs = false,
-        include_hidden = settings.get("shell.autocomplete_hidden")
+        include_hidden = settings.get("shell.autocomplete_hidden"),
     })
 end
 
@@ -50,7 +50,7 @@ local function dir(shell, text)
     return fs.complete(text, shell.dir(), {
         include_files = false,
         include_dirs = true,
-        include_hidden = settings.get("shell.autocomplete_hidden")
+        include_hidden = settings.get("shell.autocomplete_hidden"),
     })
 end
 
@@ -66,7 +66,7 @@ local function dirOrFile(shell, text, previous, add_space)
     local results = fs.complete(text, shell.dir(), {
         include_files = true,
         include_dirs = true,
-        include_hidden = settings.get("shell.autocomplete_hidden")
+        include_hidden = settings.get("shell.autocomplete_hidden"),
     })
     if add_space then
         for n = 1, #results do
