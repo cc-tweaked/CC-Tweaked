@@ -36,6 +36,7 @@ import static dan200.computercraft.shared.peripheral.generic.methods.ArgumentHel
  * Methods for interacting with inventories.
  *
  * @cc.module inventory
+ * @cc.since 1.94.0
  */
 public class InventoryMethods implements GenericPeripheral
 {
@@ -168,6 +169,7 @@ public class InventoryMethods implements GenericPeripheral
      * end
      * print(total)
      * }</pre>
+     * @cc.since 1.96.0
      */
     @LuaFunction( mainThread = true )
     public static int getItemLimit( IItemHandler inventory, int slot ) throws LuaException

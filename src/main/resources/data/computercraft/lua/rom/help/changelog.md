@@ -222,7 +222,7 @@ And several bug fixes:
 # New features in CC: Tweaked 1.96.0
 
 * Use lightGrey for folders within the "list" program.
-* Add getLimit to inventory peripherals.
+* Add `getItemLimit` to inventory peripherals.
 * Expose the generic peripheral system to the public API.
 * Add cc.expect.range (Lupus590).
 * Allow calling cc.expect directly (MCJack123).
