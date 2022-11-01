@@ -9,7 +9,7 @@ import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.detail.BlockReference;
-import dan200.computercraft.api.detail.DetailRegistries;
+import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.util.NBTUtil;
@@ -77,7 +77,7 @@ public class CommandAPI implements ILuaAPI
     {
         // Get the details of the block
         BlockReference block = new BlockReference( world, pos );
-        Map<String, Object> table = DetailRegistries.BLOCK_IN_WORLD.getDetails( block );
+        Map<String, Object> table = VanillaDetailRegistries.BLOCK_IN_WORLD.getDetails( block );
 
         BlockEntity tile = block.blockEntity();
         if( tile != null ) table.put( "nbt", NBTUtil.toLua( tile.saveWithFullMetadata() ) );

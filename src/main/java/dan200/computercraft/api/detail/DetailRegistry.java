@@ -14,7 +14,7 @@ import java.util.Map;
  * <p>
  * These are used by computer methods such as {@code turtle.getItemDetail()} or {@code turtle.inspect()}.
  * <p>
- * Specific instances of this registry are available from {@link DetailRegistries} and loader-specific versions
+ * Specific instances of this registry are available from {@link VanillaDetailRegistries} and loader-specific versions
  * also in this package.
  *
  * @param <T> The type of object that this registry provides details for.

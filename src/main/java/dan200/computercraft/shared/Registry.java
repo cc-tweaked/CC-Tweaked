@@ -8,7 +8,9 @@ package dan200.computercraft.shared;
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.detail.DetailRegistries;
+import dan200.computercraft.api.ForgeComputerCraftAPI;
+import dan200.computercraft.api.detail.ForgeDetailRegistries;
+import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -409,13 +411,13 @@ public final class Registry
 
         // Register generic capabilities. This can technically be done off-thread, but we need it to happen
         // after Forge's common setup, so this is easiest.
-        ComputerCraftAPI.registerGenericCapability( ForgeCapabilities.ITEM_HANDLER );
-        ComputerCraftAPI.registerGenericCapability( ForgeCapabilities.ENERGY );
-        ComputerCraftAPI.registerGenericCapability( ForgeCapabilities.FLUID_HANDLER );
+        ForgeComputerCraftAPI.registerGenericCapability( ForgeCapabilities.ITEM_HANDLER );
+        ForgeComputerCraftAPI.registerGenericCapability( ForgeCapabilities.ENERGY );
+        ForgeComputerCraftAPI.registerGenericCapability( ForgeCapabilities.FLUID_HANDLER );
 
-        DetailRegistries.ITEM_STACK.addProvider( ItemData::fill );
-        DetailRegistries.BLOCK_IN_WORLD.addProvider( BlockData::fill );
-        DetailRegistries.FLUID_STACK.addProvider( FluidData::fill );
+        VanillaDetailRegistries.ITEM_STACK.addProvider( ItemData::fill );
+        VanillaDetailRegistries.BLOCK_IN_WORLD.addProvider( BlockData::fill );
+        ForgeDetailRegistries.FLUID_STACK.addProvider( FluidData::fill );
 
         CauldronInteraction.WATER.put( ModItems.TURTLE_NORMAL.get(), ItemTurtle.CAULDRON_INTERACTION );
         CauldronInteraction.WATER.put( ModItems.TURTLE_ADVANCED.get(), ItemTurtle.CAULDRON_INTERACTION );

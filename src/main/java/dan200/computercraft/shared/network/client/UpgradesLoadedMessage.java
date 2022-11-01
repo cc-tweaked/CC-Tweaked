@@ -72,8 +72,8 @@ public class UpgradesLoadedMessage implements NetworkMessage
     @Override
     public void toBytes( @Nonnull FriendlyByteBuf buf )
     {
-        toBytes( buf, TurtleUpgradeSerialiser.registry(), turtleUpgrades );
-        toBytes( buf, PocketUpgradeSerialiser.registry(), pocketUpgrades );
+        toBytes( buf, RegistryManager.ACTIVE.getRegistry( TurtleUpgradeSerialiser.REGISTRY_ID ), turtleUpgrades );
+        toBytes( buf, RegistryManager.ACTIVE.getRegistry( PocketUpgradeSerialiser.REGISTRY_ID ), pocketUpgrades );
     }
 
     private <R extends UpgradeSerialiser<? extends T>, T extends IUpgradeBase> void toBytes(

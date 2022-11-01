@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.base.Objects;
-import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.ForgeComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -346,7 +346,7 @@ public class TileCable extends TileGeneric
             BlockPos offset = current.relative( facing );
             if( !world.isLoaded( offset ) ) continue;
 
-            LazyOptional<IWiredElement> element = ComputerCraftAPI.getWiredElementAt( world, offset, facing.getOpposite() );
+            LazyOptional<IWiredElement> element = ForgeComputerCraftAPI.getWiredElementAt( world, offset, facing.getOpposite() );
             if( !element.isPresent() ) continue;
 
             element.addListener( connectedNodeChanged );

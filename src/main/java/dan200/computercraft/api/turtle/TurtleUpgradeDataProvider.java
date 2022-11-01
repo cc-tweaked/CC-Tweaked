@@ -35,7 +35,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
 
     public TurtleUpgradeDataProvider( DataGenerator generator )
     {
-        super( generator, "Turtle Upgrades", "computercraft/turtle_upgrades", TurtleUpgradeSerialiser.registry() );
+        super( generator, "Turtle Upgrades", "computercraft/turtle_upgrades", TurtleUpgradeSerialiser.REGISTRY_ID );
     }
 
     /**

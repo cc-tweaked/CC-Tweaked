@@ -7,11 +7,8 @@ package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.shared.TurtleUpgrades;
-import dan200.computercraft.shared.util.InventoryUtil;
-import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.core.BlockPos;
+import dan200.computercraft.shared.turtle.TurtleUtil;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 
@@ -31,8 +28,7 @@ public class TurtleEquipCommand implements ITurtleCommand
         // Determine the upgrade to equipLeft
         ITurtleUpgrade newUpgrade;
         ItemStack newUpgradeStack;
-        IItemHandler inventory = turtle.getItemHandler();
-        ItemStack selectedStack = inventory.getStackInSlot( turtle.getSelectedSlot() );
+        ItemStack selectedStack = turtle.getInventory().getItem( turtle.getSelectedSlot() );
         if( !selectedStack.isEmpty() )
         {
             newUpgradeStack = selectedStack.copy();
@@ -59,22 +55,8 @@ public class TurtleEquipCommand implements ITurtleCommand
         }
 
         // Do the swapping:
-        if( newUpgradeStack != null )
-        {
-            // Consume new upgrades item
-            InventoryUtil.takeItems( 1, inventory, turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
-        }
-        if( oldUpgradeStack != null )
-        {
-            // Store old upgrades item
-            ItemStack remainder = InventoryUtil.storeItems( oldUpgradeStack, inventory, turtle.getSelectedSlot() );
-            if( !remainder.isEmpty() )
-            {
-                // If there's no room for the items, drop them
-                BlockPos position = turtle.getPosition();
-                WorldUtil.dropItemStack( remainder, turtle.getLevel(), position, turtle.getDirection() );
-            }
-        }
+        if( newUpgradeStack != null ) turtle.getInventory().removeItem( turtle.getSelectedSlot(), 1 );
+        if( oldUpgradeStack != null ) TurtleUtil.storeItemOrDrop( turtle, oldUpgradeStack );
         turtle.setUpgrade( side, newUpgrade );
 
         // Animate

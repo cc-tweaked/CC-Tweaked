@@ -45,11 +45,12 @@ public class TurtleDropCommand implements ITurtleCommand
         Direction direction = this.direction.toWorldDir( turtle );
 
         // Get things to drop
-        ItemStack stack = InventoryUtil.takeItems( quantity, turtle.getItemHandler(), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
+        ItemStack stack = turtle.getInventory().removeItem( turtle.getSelectedSlot(), quantity );
         if( stack.isEmpty() )
         {
             return TurtleCommandResult.failure( "No items to drop" );
         }
+        turtle.getInventory().setChanged();
 
         // Get inventory for thing in front
         Level world = turtle.getLevel();

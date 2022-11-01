@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.detail.BlockReference;
-import dan200.computercraft.api.detail.DetailRegistries;
+import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
@@ -41,7 +41,7 @@ public class TurtleInspectCommand implements ITurtleCommand
         BlockReference block = new BlockReference( world, newPosition );
         if( block.state().isAir() ) return TurtleCommandResult.failure( "No block to inspect" );
 
-        Map<String, Object> table = DetailRegistries.BLOCK_IN_WORLD.getDetails( block );
+        Map<String, Object> table = VanillaDetailRegistries.BLOCK_IN_WORLD.getDetails( block );
 
         return TurtleCommandResult.success( new Object[] { table } );
 

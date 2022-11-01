@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.turtle.apis;
 
-import dan200.computercraft.api.detail.DetailRegistries;
+import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
@@ -820,7 +820,7 @@ public class TurtleAPI implements ILuaAPI
         if( stack.isEmpty() ) return new Object[] { null };
 
         Map<String, Object> table = detailed
-            ? DetailRegistries.ITEM_STACK.getDetails( stack )
+            ? VanillaDetailRegistries.ITEM_STACK.getDetails( stack )
             : ItemData.fillBasicSafe( new HashMap<>(), stack );
 
         return new Object[] { table };

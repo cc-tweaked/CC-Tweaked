@@ -40,8 +40,6 @@ public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends Upgra
      * <p>
      * This is largely intended for use with Forge Registry methods/classes, such as {@link DeferredRegister} and
      * {@link RegistryManager#getRegistry(ResourceKey)}.
-     *
-     * @see #registry()
      */
     ResourceKey<Registry<PocketUpgradeSerialiser<?>>> REGISTRY_ID = ResourceKey.createRegistryKey( new ResourceLocation( ComputerCraft.MOD_ID, "pocket_upgrade_serialiser" ) );
 
@@ -50,7 +48,9 @@ public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends Upgra
      *
      * @return The registry for pocket upgrade serialisers.
      * @see #REGISTRY_ID
+     * @deprecated Use {@link #REGISTRY_ID} directly.
      */
+    @Deprecated( forRemoval = true )
     static IForgeRegistry<PocketUpgradeSerialiser<?>> registry()
     {
         return RegistryManager.ACTIVE.getRegistry( REGISTRY_ID );

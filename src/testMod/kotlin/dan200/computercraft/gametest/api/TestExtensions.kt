@@ -174,7 +174,7 @@ fun GameTestHelper.assertContainerExactly(pos: BlockPos, items: List<ItemStack>)
     }
 }
 
-private fun getName(type: BlockEntityType<*>): ResourceLocation = ForgeRegistries.BLOCK_ENTITIES.getKey(type)!!
+private fun getName(type: BlockEntityType<*>): ResourceLocation = ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(type)!!
 
 /**
  * Get a [BlockEntity] of a specific type.

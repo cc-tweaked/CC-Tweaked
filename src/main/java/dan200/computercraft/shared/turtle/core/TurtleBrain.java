@@ -288,6 +288,12 @@ public class TurtleBrain implements ITurtleAccess
     }
 
     @Override
+    public boolean isRemoved()
+    {
+        return owner.isRemoved();
+    }
+
+    @Override
     public boolean teleportTo( @Nonnull Level world, @Nonnull BlockPos pos )
     {
         if( world.isClientSide || getLevel().isClientSide )

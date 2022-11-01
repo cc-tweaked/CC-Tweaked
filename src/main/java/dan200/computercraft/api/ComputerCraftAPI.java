@@ -21,6 +21,7 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
+import dan200.computercraft.api.turtle.TurtleRefuelHandler;
 import dan200.computercraft.impl.ComputerCraftAPIService;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -37,7 +38,7 @@ import javax.annotation.Nullable;
 /**
  * The static entry point to the ComputerCraft API.
  * <p>
- * Members in this class must be called after mod_ComputerCraft has been initialised, but may be called before it is
+ * Members in this class must be called after ComputerCraft has been initialised, but may be called before it is
  * fully loaded.
  */
 public final class ComputerCraftAPI
@@ -122,7 +123,9 @@ public final class ComputerCraftAPI
      * @param provider The peripheral provider to register.
      * @see IPeripheral
      * @see IPeripheralProvider
+     * @deprecated Use {@link ForgeComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)} instead.
      */
+    @Deprecated( forRemoval = true )
     public static void registerPeripheralProvider( @Nonnull IPeripheralProvider provider )
     {
         getInstance().registerPeripheralProvider( provider );
@@ -144,7 +147,9 @@ public final class ComputerCraftAPI
      *
      * @param capability The capability to register.
      * @see GenericSource
+     * @deprecated Use {@link ForgeComputerCraftAPI} instead.
      */
+    @Deprecated( forRemoval = true )
     public static void registerGenericCapability( @Nonnull Capability<?> capability )
     {
         getInstance().registerGenericCapability( capability );
@@ -212,7 +217,7 @@ public final class ComputerCraftAPI
      * @param <T>      The type of object that this provider can provide details for.
      * @deprecated Use {@link DetailRegistry#addProvider(IDetailProvider)} to register your provider.
      */
-    @Deprecated
+    @Deprecated( forRemoval = true )
     public static <T> void registerDetailProvider( @Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider )
     {
         getInstance().registerDetailProvider( type, provider );
@@ -239,11 +244,18 @@ public final class ComputerCraftAPI
      * @param side  The side to extract the network element from
      * @return The element's node
      * @see IWiredElement#getNode()
+     * @deprecated Use {@link ForgeComputerCraftAPI#getWiredElementAt(BlockGetter, BlockPos, Direction)}
      */
     @Nonnull
+    @Deprecated( forRemoval = true )
     public static LazyOptional<IWiredElement> getWiredElementAt( @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side )
     {
         return getInstance().getWiredElementAt( world, pos, side );
+    }
+
+    public static void registerRefuelHandler( @Nonnull TurtleRefuelHandler handler )
+    {
+        getInstance().registerRefuelHandler( handler );
     }
 
     @Nonnull

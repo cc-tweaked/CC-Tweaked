@@ -6,6 +6,7 @@
 package dan200.computercraft.api.lua;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.ForgeComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.core.asm.LuaMethod;
@@ -42,7 +43,7 @@ import javax.annotation.Nonnull;
  * }</pre>
  *
  * @see ComputerCraftAPI#registerGenericSource(GenericSource)
- * @see ComputerCraftAPI#registerGenericCapability(Capability) New capabilities (those not built into Forge) must be
+ * @see ForgeComputerCraftAPI#registerGenericCapability(Capability) New capabilities (those not built into Forge) must be
  * explicitly given to the generic peripheral system, as there is no way to enumerate all capabilities.
  */
 public interface GenericSource

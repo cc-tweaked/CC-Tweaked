@@ -30,7 +30,7 @@ public class TurtleTransferToCommand implements ITurtleCommand
     public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
     {
         // Take stack
-        ItemStack stack = InventoryUtil.takeItems( quantity, turtle.getItemHandler(), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot() );
+        ItemStack stack = turtle.getInventory().removeItem( turtle.getSelectedSlot(), quantity );
         if( stack.isEmpty() )
         {
             turtle.playAnimation( TurtleAnimation.WAIT );

@@ -8,12 +8,11 @@ package dan200.computercraft.api.detail;
 import dan200.computercraft.impl.ComputerCraftAPIService;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.fluids.FluidStack;
 
 /**
  * {@link DetailRegistry}s for built-in Minecraft types.
  */
-public class DetailRegistries
+public class VanillaDetailRegistries
 {
     /**
      * Provides details for {@link ItemStack}s.
@@ -25,8 +24,4 @@ public class DetailRegistries
      */
     public static final DetailRegistry<BlockReference> BLOCK_IN_WORLD = ComputerCraftAPIService.get().getBlockInWorldDetailRegistry();
 
-    /**
-     * Provides details for {@link FluidStack}.
-     */
-    public static final DetailRegistry<FluidStack> FLUID_STACK = ComputerCraftAPIService.get().getFluidStackDetailRegistry();
 }

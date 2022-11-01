@@ -16,7 +16,10 @@ import java.util.Objects;
  * so sever specific methods on {@link ITurtleAccess} are safe to use.
  * <p>
  * You should generally not need to subscribe to this event, preferring one of the more specific classes.
+ *
+ * @deprecated No longer needed, see {@link TurtleRefuelEvent}.
  */
+@Deprecated( forRemoval = true )
 public abstract class TurtleEvent extends Event
 {
     private final ITurtleAccess turtle;

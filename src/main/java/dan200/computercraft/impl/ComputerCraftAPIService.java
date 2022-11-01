@@ -19,6 +19,7 @@ import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
+import dan200.computercraft.api.turtle.TurtleRefuelHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -82,6 +83,8 @@ public interface ComputerCraftAPIService
 
     @Nonnull
     LazyOptional<IWiredElement> getWiredElementAt( @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side );
+
+    void registerRefuelHandler( @Nonnull TurtleRefuelHandler handler );
 
     DetailRegistry<ItemStack> getItemStackDetailRegistry();
 

@@ -6,7 +6,7 @@
 package dan200.computercraft.gametest
 
 import dan200.computercraft.api.detail.BasicItemDetailProvider
-import dan200.computercraft.api.detail.DetailRegistries
+import dan200.computercraft.api.detail.VanillaDetailRegistries
 import dan200.computercraft.api.lua.ObjectArguments
 import dan200.computercraft.core.apis.PeripheralAPI
 import dan200.computercraft.gametest.api.*
@@ -172,7 +172,7 @@ class Turtle_Test {
     fun Item_detail_provider(helper: GameTestHelper) = helper.sequence {
         // Register a dummy provider for printout items
         thenExecute {
-            DetailRegistries.ITEM_STACK.addProvider(
+            VanillaDetailRegistries.ITEM_STACK.addProvider(
                 object :
                     BasicItemDetailProvider<ItemPrintout>("printout", ItemPrintout::class.java) {
                     override fun provideDetails(data: MutableMap<in String, Any>, stack: ItemStack, item: ItemPrintout) {

@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.peripheral.generic.methods;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.detail.DetailRegistries;
+import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -99,7 +99,7 @@ public class InventoryMethods implements GenericPeripheral
         for( int i = 0; i < size; i++ )
         {
             ItemStack stack = inventory.getStackInSlot( i );
-            if( !stack.isEmpty() ) result.put( i + 1, DetailRegistries.ITEM_STACK.getBasicDetails( stack ) );
+            if( !stack.isEmpty() ) result.put( i + 1, VanillaDetailRegistries.ITEM_STACK.getBasicDetails( stack ) );
         }
 
         return result;
@@ -149,7 +149,7 @@ public class InventoryMethods implements GenericPeripheral
         assertBetween( slot, 1, inventory.getSlots(), "Slot out of range (%s)" );
 
         ItemStack stack = inventory.getStackInSlot( slot - 1 );
-        return stack.isEmpty() ? null : DetailRegistries.ITEM_STACK.getDetails( stack );
+        return stack.isEmpty() ? null : VanillaDetailRegistries.ITEM_STACK.getDetails( stack );
     }
 
     /**

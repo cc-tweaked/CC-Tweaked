@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.peripheral.generic.methods;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.detail.DetailRegistries;
+import dan200.computercraft.api.detail.ForgeDetailRegistries;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.GenericPeripheral;
@@ -74,7 +74,7 @@ public class FluidMethods implements GenericPeripheral
         for( int i = 0; i < size; i++ )
         {
             FluidStack stack = fluids.getFluidInTank( i );
-            if( !stack.isEmpty() ) result.put( i + 1, DetailRegistries.FLUID_STACK.getBasicDetails( stack ) );
+            if( !stack.isEmpty() ) result.put( i + 1, ForgeDetailRegistries.FLUID_STACK.getBasicDetails( stack ) );
         }
 
         return result;

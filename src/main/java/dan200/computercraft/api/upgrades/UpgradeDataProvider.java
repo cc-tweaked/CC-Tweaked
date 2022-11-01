@@ -10,13 +10,15 @@ import com.google.gson.JsonParseException;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.internal.upgrades.SerialiserWithCraftingItem;
 import dan200.computercraft.internal.upgrades.SimpleSerialiser;
+import net.minecraft.core.Registry;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegistryManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,8 +30,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * A data generator/provider for turtle and pocket computer upgrades. This should not be extended direclty, instead see
- * the other sub-classes.
+ * A data generator/provider for turtle and pocket computer upgrades. This should not be extended directly, instead see
+ * the other subclasses.
  *
  * @param <T> The base class of upgrades.
  * @param <R> The upgrade serialiser to register for.
@@ -41,11 +43,11 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
     private final DataGenerator generator;
     private final String name;
     private final String folder;
-    private final IForgeRegistry<R> registry;
+    private final ResourceKey<Registry<R>> registry;
 
     private List<T> upgrades;
 
-    protected UpgradeDataProvider( @Nonnull DataGenerator generator, @Nonnull String name, @Nonnull String folder, @Nonnull IForgeRegistry<R> registry )
+    protected UpgradeDataProvider( @Nonnull DataGenerator generator, @Nonnull String name, @Nonnull String folder, @Nonnull ResourceKey<Registry<R>> registry )
     {
         this.generator = generator;
         this.name = name;
@@ -94,7 +96,7 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
 
     /**
      * Add all turtle or pocket computer upgrades.
-     *
+     * <p>
      * <strong>Example usage:</strong>
      * <pre>{@code
      * protected void addUpgrades(@Nonnull Consumer<Upgrade<TurtleUpgradeSerialiser<?>>> addUpgrade) {
@@ -109,6 +111,7 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
     @Override
     public final void run( @Nonnull CachedOutput cache ) throws IOException
     {
+        var registry = RegistryManager.ACTIVE.getRegistry( this.registry );
         Path base = generator.getOutputFolder().resolve( "data" );
 
         Set<ResourceLocation> seen = new HashSet<>();
@@ -153,7 +156,7 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
     @Nonnull
     public final R existingSerialiser( @Nonnull ResourceLocation id )
     {
-        var result = registry.getValue( id );
+        var result = RegistryManager.ACTIVE.getRegistry( registry ).getValue( id );
         if( result == null ) throw new IllegalArgumentException( "No such serialiser " + registry );
         return result;
     }

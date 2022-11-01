@@ -11,6 +11,7 @@ import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.TurtlePermissions;
+import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
@@ -124,7 +125,6 @@ public class TurtlePlaceCommand implements ITurtleCommand
     {
         // See if there is an entity present
         final Level world = turtle.getLevel();
-        final BlockPos position = turtle.getPosition();
         Vec3 turtlePos = turtlePlayer.position();
         Vec3 rayDir = turtlePlayer.getViewVector( 1.0f );
         Pair<Entity, Vec3> hit = WorldUtil.rayTraceEntities( world, turtlePos, rayDir, 1.5 );
@@ -139,7 +139,7 @@ public class TurtlePlaceCommand implements ITurtleCommand
 
         boolean placed = doDeployOnEntity( stack, turtlePlayer, hitEntity, hitPos );
 
-        DropConsumer.clearAndDrop( world, position, turtle.getDirection().getOpposite() );
+        TurtleUtil.stopConsuming( turtle );
         return placed;
     }
 

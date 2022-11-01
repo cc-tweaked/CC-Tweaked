@@ -19,15 +19,17 @@ import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
+import dan200.computercraft.api.turtle.TurtleRefuelHandler;
 import dan200.computercraft.core.apis.ApiFactories;
 import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.core.filesystem.FileMount;
-import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.impl.ComputerCraftAPIService;
+import dan200.computercraft.impl.TurtleRefuelHandlers;
 import dan200.computercraft.impl.detail.DetailRegistryImpl;
 import dan200.computercraft.shared.BundledRedstone;
 import dan200.computercraft.shared.MediaProviders;
 import dan200.computercraft.shared.Peripherals;
+import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.peripheral.generic.GenericPeripheralProvider;
 import dan200.computercraft.shared.peripheral.generic.data.BlockData;
@@ -203,6 +205,12 @@ public final class ComputerCraftAPIImpl implements ComputerCraftAPIService
     {
         BlockEntity tile = world.getBlockEntity( pos );
         return tile == null ? LazyOptional.empty() : tile.getCapability( CAPABILITY_WIRED_ELEMENT, side );
+    }
+
+    @Override
+    public void registerRefuelHandler( @Nonnull TurtleRefuelHandler handler )
+    {
+        TurtleRefuelHandlers.register( handler );
     }
 
     @Override

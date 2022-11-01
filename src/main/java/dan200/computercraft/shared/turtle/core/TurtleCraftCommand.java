@@ -9,9 +9,8 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
+import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.turtle.upgrades.TurtleInventoryCrafting;
-import dan200.computercraft.shared.util.InventoryUtil;
-import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -36,14 +35,7 @@ public class TurtleCraftCommand implements ITurtleCommand
         if( results == null ) return TurtleCommandResult.failure( "No matching recipes" );
 
         // Store or drop any remainders
-        for( ItemStack stack : results )
-        {
-            ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
-            if( !remainder.isEmpty() )
-            {
-                WorldUtil.dropItemStack( remainder, turtle.getLevel(), turtle.getPosition(), turtle.getDirection() );
-            }
-        }
+        for( ItemStack stack : results ) TurtleUtil.storeItemOrDrop( turtle, stack );
 
         if( !results.isEmpty() ) turtle.playAnimation( TurtleAnimation.WAIT );
         return TurtleCommandResult.success();

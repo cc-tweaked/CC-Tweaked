@@ -8,9 +8,8 @@ package dan200.computercraft.shared.turtle.core;
 import com.mojang.authlib.GameProfile;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleAccess;
+import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.util.DirectionUtil;
-import dan200.computercraft.shared.util.InventoryUtil;
-import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -157,39 +156,33 @@ public final class TurtlePlayer extends FakePlayer
         getInventory().clearContent();
 
         int currentSlot = turtle.getSelectedSlot();
-        int slots = turtle.getItemHandler().getSlots();
+        int slots = turtle.getInventory().getContainerSize();
 
         // Load up the fake inventory
         getInventory().selected = 0;
         for( int i = 0; i < slots; i++ )
         {
-            getInventory().setItem( i, turtle.getItemHandler().getStackInSlot( (currentSlot + i) % slots ) );
+            getInventory().setItem( i, turtle.getInventory().getItem( (currentSlot + i) % slots ) );
         }
     }
 
     public void unloadInventory( ITurtleAccess turtle )
     {
         int currentSlot = turtle.getSelectedSlot();
-        int slots = turtle.getItemHandler().getSlots();
+        int slots = turtle.getInventory().getContainerSize();
 
         // Load up the fake inventory
         getInventory().selected = 0;
         for( int i = 0; i < slots; i++ )
         {
-            turtle.getItemHandler().setStackInSlot( (currentSlot + i) % slots, getInventory().getItem( i ) );
+            turtle.getInventory().setItem( (currentSlot + i) % slots, getInventory().getItem( i ) );
         }
 
         // Store (or drop) anything else we found
-        BlockPos dropPosition = turtle.getPosition();
-        Direction dropDirection = turtle.getDirection().getOpposite();
         int totalSize = getInventory().getContainerSize();
         for( int i = slots; i < totalSize; i++ )
         {
-            ItemStack remainder = InventoryUtil.storeItems( getInventory().getItem( i ), turtle.getItemHandler(), turtle.getSelectedSlot() );
-            if( !remainder.isEmpty() )
-            {
-                WorldUtil.dropItemStack( remainder, turtle.getLevel(), dropPosition, dropDirection );
-            }
+            TurtleUtil.storeItemOrDrop( turtle, getInventory().getItem( i ) );
         }
 
         getInventory().setChanged();

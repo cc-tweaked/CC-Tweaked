@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.collect.ImmutableMap;
-import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.ForgeComputerCraftAPI;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.util.WaterloggableHelpers;
@@ -86,7 +86,7 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock
     {
         if( !state.getValue( CABLE ) ) return false;
         if( state.getValue( MODEM ).getFacing() == direction ) return true;
-        return ComputerCraftAPI.getWiredElementAt( world, pos.relative( direction ), direction.getOpposite() ).isPresent();
+        return ForgeComputerCraftAPI.getWiredElementAt( world, pos.relative( direction ), direction.getOpposite() ).isPresent();
     }
 
     @Nonnull

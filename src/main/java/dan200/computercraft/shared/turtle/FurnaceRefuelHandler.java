@@ -5,20 +5,15 @@
  */
 package dan200.computercraft.shared.turtle;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.ITurtleAccess;
-import dan200.computercraft.api.turtle.event.TurtleRefuelEvent;
-import dan200.computercraft.shared.util.InventoryUtil;
-import dan200.computercraft.shared.util.WorldUtil;
+import dan200.computercraft.api.turtle.TurtleRefuelHandler;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nonnull;
+import java.util.OptionalInt;
 
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )
-public final class FurnaceRefuelHandler implements TurtleRefuelEvent.Handler
+public final class FurnaceRefuelHandler implements TurtleRefuelHandler
 {
     private static final FurnaceRefuelHandler INSTANCE = new FurnaceRefuelHandler();
 
@@ -27,37 +22,29 @@ public final class FurnaceRefuelHandler implements TurtleRefuelEvent.Handler
     }
 
     @Override
-    public int refuel( @Nonnull ITurtleAccess turtle, @Nonnull ItemStack currentStack, int slot, int limit )
+    public OptionalInt refuel( @Nonnull ITurtleAccess turtle, @Nonnull ItemStack currentStack, int slot, int limit )
     {
+        int fuelPerItem = getFuelPerItem( currentStack );
+        if( fuelPerItem <= 0 ) return OptionalInt.empty();
+        if( limit == 0 ) return OptionalInt.of( 0 );
+
         int fuelSpaceLeft = turtle.getFuelLimit() - turtle.getFuelLevel();
-        int fuelPerItem = getFuelPerItem( turtle.getItemHandler().getStackInSlot( slot ) );
         int fuelItemLimit = (int) Math.ceil( fuelSpaceLeft / (double) fuelPerItem );
         if( limit > fuelItemLimit ) limit = fuelItemLimit;
 
-        ItemStack stack = turtle.getItemHandler().extractItem( slot, limit, false );
+        ItemStack stack = turtle.getInventory().removeItem( slot, limit );
         int fuelToGive = fuelPerItem * stack.getCount();
         // Store the replacement item in the inventory
         ItemStack replacementStack = ForgeHooks.getCraftingRemainingItem( stack );
-        if( !replacementStack.isEmpty() )
-        {
-            ItemStack remainder = InventoryUtil.storeItems( replacementStack, turtle.getItemHandler(), turtle.getSelectedSlot() );
-            if( !remainder.isEmpty() )
-            {
-                WorldUtil.dropItemStack( remainder, turtle.getLevel(), turtle.getPosition(), turtle.getDirection().getOpposite() );
-            }
-        }
+        if( !replacementStack.isEmpty() ) TurtleUtil.storeItemOrDrop( turtle, replacementStack );
 
-        return fuelToGive;
+        turtle.getInventory().setChanged();
+
+        return OptionalInt.of( fuelToGive );
     }
 
     private static int getFuelPerItem( @Nonnull ItemStack stack )
     {
         return (ForgeHooks.getBurnTime( stack, null ) * 5) / 100;
-    }
-
-    @SubscribeEvent
-    public static void onTurtleRefuel( TurtleRefuelEvent event )
-    {
-        if( event.getHandler() == null && getFuelPerItem( event.getStack() ) > 0 ) event.setHandler( INSTANCE );
     }
 }

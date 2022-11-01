@@ -45,6 +45,20 @@ public interface ITurtleAccess
     BlockPos getPosition();
 
     /**
+     * Determine if this turtle has been removed.
+     * <p>
+     * It's possible for a turtle to be removed while a {@link ITurtleCommand} is executed, for instance if interacting
+     * with a block causes the turtle to be blown up. It's recommended you check the turtle is still present before
+     * trying to interact with it again.
+     * <p>
+     * If a turtle has been removed {@link #getLevel()} and {@link #getPosition()} will continue to function as before.
+     * All other methods will fail.
+     *
+     * @return Whether this turtle has been removed.
+     */
+    boolean isRemoved();
+
+    /**
      * Attempt to move this turtle to a new position.
      * <p>
      * This will preserve the turtle's internal state, such as it's inventory, computer and upgrades. It should
@@ -161,9 +175,10 @@ public interface ITurtleAccess
      * @return This turtle's inventory
      * @see #getInventory()
      * @see IItemHandlerModifiable
-     * @see net.minecraftforge.items.CapabilityItemHandler#ITEM_HANDLER_CAPABILITY
+     * @deprecated Use {@link #getInventory()} directly.
      */
     @Nonnull
+    @Deprecated( forRemoval = true )
     IItemHandlerModifiable getItemHandler();
 
     /**

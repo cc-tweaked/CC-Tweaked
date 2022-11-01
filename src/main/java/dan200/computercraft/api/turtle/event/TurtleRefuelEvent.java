@@ -6,6 +6,7 @@
 package dan200.computercraft.api.turtle.event;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
+import dan200.computercraft.api.turtle.TurtleRefuelHandler;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -16,7 +17,10 @@ import java.util.Objects;
  * Fired when a turtle attempts to refuel from an item.
  * <p>
  * One may use {@link #setHandler(Handler)} to register a custom fuel provider for a given item.
+ *
+ * @deprecated Use {@link TurtleRefuelHandler} instead.
  */
+@Deprecated( forRemoval = true )
 public class TurtleRefuelEvent extends TurtleEvent
 {
     private final ItemStack stack;

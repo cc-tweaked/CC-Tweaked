@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.api.peripheral;
 
+import dan200.computercraft.api.ForgeComputerCraftAPI;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -31,7 +32,7 @@ public interface IPeripheralProvider
      * @param pos   The position the block is at.
      * @param side  The side to get the peripheral from.
      * @return A peripheral, or {@link LazyOptional#empty()} if there is not a peripheral here you'd like to handle.
-     * @see dan200.computercraft.api.ComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)
+     * @see ForgeComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)
      */
     @Nonnull
     LazyOptional<IPeripheral> getPeripheral( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side );

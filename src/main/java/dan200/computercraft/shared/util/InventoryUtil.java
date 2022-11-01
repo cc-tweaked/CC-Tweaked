@@ -128,12 +128,6 @@ public final class InventoryUtil
     // Methods for taking out of inventories
 
     @Nonnull
-    public static ItemStack takeItems( int count, IItemHandler inventory, int begin )
-    {
-        return takeItems( count, inventory, 0, inventory.getSlots(), begin );
-    }
-
-    @Nonnull
     public static ItemStack takeItems( int count, IItemHandler inventory )
     {
         return takeItems( count, inventory, 0, inventory.getSlots(), 0 );

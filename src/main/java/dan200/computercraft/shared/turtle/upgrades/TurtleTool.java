@@ -9,11 +9,10 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.shared.TurtlePermissions;
-import dan200.computercraft.shared.turtle.core.TurtleBrain;
+import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import dan200.computercraft.shared.util.DropConsumer;
-import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -42,7 +41,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.function.Function;
 
 import static net.minecraft.nbt.Tag.TAG_COMPOUND;
 import static net.minecraft.nbt.Tag.TAG_LIST;
@@ -117,8 +115,6 @@ public class TurtleTool extends AbstractTurtleUpgrade
         // Create a fake player, and orient it appropriately
         Level world = turtle.getLevel();
         BlockPos position = turtle.getPosition();
-        BlockEntity turtleTile = turtle instanceof TurtleBrain ? ((TurtleBrain) turtle).getOwner() : world.getBlockEntity( position );
-        if( turtleTile == null ) return TurtleCommandResult.failure( "Turtle has vanished from existence." );
 
         final TurtlePlayer turtlePlayer = TurtlePlayer.getWithPosition( turtle, position, direction );
 
@@ -141,7 +137,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
             }
 
             // Start claiming entity drops
-            DropConsumer.set( hitEntity, turtleDropConsumer( turtleTile, turtle ) );
+            DropConsumer.set( hitEntity, TurtleUtil.dropConsumer( turtle ) );
 
             // Attack the entity
             boolean attacked = false;
@@ -166,7 +162,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
             }
 
             // Stop claiming drops
-            stopConsuming( turtleTile, turtle );
+            TurtleUtil.stopConsuming( turtle );
 
             // Put everything we collected into the turtles inventory, then return
             if( attacked )
@@ -181,8 +177,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
 
     private TurtleCommandResult dig( ITurtleAccess turtle, Direction direction )
     {
-        // TODO: HOE_TILL really, if it's ever implemented
-        if( item.canPerformAction( ToolActions.SHOVEL_FLATTEN ) || item.canPerformAction( ToolActions.HOE_DIG ) )
+        if( item.canPerformAction( ToolActions.SHOVEL_FLATTEN ) || item.canPerformAction( ToolActions.HOE_TILL ) )
         {
             if( TurtlePlaceCommand.deployCopiedItem( item.copy(), turtle, direction, null, null ) )
             {
@@ -193,8 +188,6 @@ public class TurtleTool extends AbstractTurtleUpgrade
         // Get ready to dig
         Level world = turtle.getLevel();
         BlockPos turtlePosition = turtle.getPosition();
-        BlockEntity turtleTile = turtle instanceof TurtleBrain ? ((TurtleBrain) turtle).getOwner() : world.getBlockEntity( turtlePosition );
-        if( turtleTile == null ) return TurtleCommandResult.failure( "Turtle has vanished from existence." );
 
         BlockPos blockPosition = turtlePosition.relative( direction );
         if( world.isEmptyBlock( blockPosition ) || WorldUtil.isLiquidBlock( world, blockPosition ) )
@@ -227,7 +220,7 @@ public class TurtleTool extends AbstractTurtleUpgrade
         if( !breakable.isSuccess() ) return breakable;
 
         // Consume the items the block drops
-        DropConsumer.set( world, blockPosition, turtleDropConsumer( turtleTile, turtle ) );
+        DropConsumer.set( world, blockPosition, TurtleUtil.dropConsumer( turtle ) );
 
         BlockEntity tile = world.getBlockEntity( blockPosition );
 
@@ -246,21 +239,10 @@ public class TurtleTool extends AbstractTurtleUpgrade
             state.getBlock().playerDestroy( world, turtlePlayer, blockPosition, state, tile, turtlePlayer.getMainHandItem() );
         }
 
-        stopConsuming( turtleTile, turtle );
+        TurtleUtil.stopConsuming( turtle );
 
         return TurtleCommandResult.success();
 
-    }
-
-    private static Function<ItemStack, ItemStack> turtleDropConsumer( BlockEntity tile, ITurtleAccess turtle )
-    {
-        return drop -> tile.isRemoved() ? drop : InventoryUtil.storeItems( drop, turtle.getItemHandler(), turtle.getSelectedSlot() );
-    }
-
-    private static void stopConsuming( BlockEntity tile, ITurtleAccess turtle )
-    {
-        Direction direction = tile.isRemoved() ? null : turtle.getDirection().getOpposite();
-        DropConsumer.clearAndDrop( turtle.getLevel(), turtle.getPosition(), direction );
     }
 
     protected boolean isTriviallyBreakable( BlockGetter reader, BlockPos pos, BlockState state )
