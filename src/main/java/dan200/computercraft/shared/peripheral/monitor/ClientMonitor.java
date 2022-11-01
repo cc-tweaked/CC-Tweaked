@@ -9,7 +9,8 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import dan200.computercraft.client.util.DirectBuffers;
 import dan200.computercraft.client.util.DirectVertexBuffer;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.shared.network.client.TerminalState;
+import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
+import dan200.computercraft.shared.computer.terminal.TerminalState;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -36,7 +37,7 @@ public final class ClientMonitor
     public int tboUniform;
     public DirectVertexBuffer backgroundBuffer;
     public DirectVertexBuffer foregroundBuffer;
-    private Terminal terminal;
+    private NetworkedTerminal terminal;
     private boolean terminalChanged;
 
     public ClientMonitor( TileMonitor origin )
@@ -182,7 +183,7 @@ public final class ClientMonitor
     {
         if( state.hasTerminal() )
         {
-            if( terminal == null ) terminal = new Terminal( state.width, state.height, state.colour );
+            if( terminal == null ) terminal = new NetworkedTerminal( state.width, state.height, state.colour );
             state.apply( terminal );
             terminalChanged = true;
         }

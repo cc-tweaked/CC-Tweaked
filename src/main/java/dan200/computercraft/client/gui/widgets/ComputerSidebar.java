@@ -16,6 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
@@ -56,9 +57,8 @@ public final class ComputerSidebar
             () -> isOn.getAsBoolean() ? Arrays.asList(
                 Component.translatable( "gui.computercraft.tooltip.turn_off" ),
                 Component.translatable( "gui.computercraft.tooltip.turn_off.key" ).withStyle( ChatFormatting.GRAY )
-            ) : Arrays.asList(
-                Component.translatable( "gui.computercraft.tooltip.turn_on" ),
-                Component.translatable( "gui.computercraft.tooltip.turn_off.key" ).withStyle( ChatFormatting.GRAY )
+            ) : Collections.singletonList(
+                Component.translatable( "gui.computercraft.tooltip.turn_on" )
             )
         ) );
 

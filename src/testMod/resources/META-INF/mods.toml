@@ -16,3 +16,10 @@ displayName="CC: Tweaked test framework"
 description='''
 A test framework for ensuring CC: Tweaked works correctly.
 '''
+
+[[dependencies.cctest]]
+modId="computercraft"
+mandatory=true
+versionRange="[1.0,)"
+ordering="AFTER"
+side="BOTH"

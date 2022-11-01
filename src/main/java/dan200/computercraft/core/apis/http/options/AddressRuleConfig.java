@@ -14,6 +14,8 @@ import dan200.computercraft.ComputerCraft;
 import javax.annotation.Nullable;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -48,7 +50,7 @@ public class AddressRuleConfig
     public static boolean checkRule( UnmodifiableConfig builder )
     {
         String hostObj = get( builder, "host", String.class ).orElse( null );
-        Integer port = get( builder, "port", Number.class ).map( Number::intValue ).orElse( null );
+        OptionalInt port = unboxOptInt( get( builder, "port", Number.class ) );
         return hostObj != null && checkEnum( builder, "action", Action.class )
             && check( builder, "port", Number.class )
             && check( builder, "timeout", Number.class )
@@ -65,11 +67,11 @@ public class AddressRuleConfig
         if( hostObj == null ) return null;
 
         Action action = getEnum( builder, "action", Action.class ).orElse( null );
-        Integer port = get( builder, "port", Number.class ).map( Number::intValue ).orElse( null );
-        Integer timeout = get( builder, "timeout", Number.class ).map( Number::intValue ).orElse( null );
-        Long maxUpload = get( builder, "max_upload", Number.class ).map( Number::longValue ).orElse( null );
-        Long maxDownload = get( builder, "max_download", Number.class ).map( Number::longValue ).orElse( null );
-        Integer websocketMessage = get( builder, "websocket_message", Number.class ).map( Number::intValue ).orElse( null );
+        OptionalInt port = unboxOptInt( get( builder, "port", Number.class ) );
+        OptionalInt timeout = unboxOptInt( get( builder, "timeout", Number.class ) );
+        OptionalLong maxUpload = unboxOptLong( get( builder, "max_upload", Number.class ).map( Number::longValue ) );
+        OptionalLong maxDownload = unboxOptLong( get( builder, "max_download", Number.class ).map( Number::longValue ) );
+        OptionalInt websocketMessage = unboxOptInt( get( builder, "websocket_message", Number.class ).map( Number::intValue ) );
 
         PartialOptions options = new PartialOptions(
             action,
@@ -120,6 +122,16 @@ public class AddressRuleConfig
     private static <T extends Enum<T>> Optional<T> getEnum( UnmodifiableConfig config, String field, Class<T> klass )
     {
         return get( config, field, String.class ).map( x -> parseEnum( klass, x ) );
+    }
+
+    private static OptionalLong unboxOptLong( Optional<? extends Number> value )
+    {
+        return value.map( Number::intValue ).map( OptionalLong::of ).orElse( OptionalLong.empty() );
+    }
+
+    private static OptionalInt unboxOptInt( Optional<? extends Number> value )
+    {
+        return value.map( Number::intValue ).map( OptionalInt::of ).orElse( OptionalInt.empty() );
     }
 
     @Nullable

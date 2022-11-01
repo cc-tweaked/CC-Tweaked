@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.network.client;
 
+import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import net.minecraft.client.Minecraft;

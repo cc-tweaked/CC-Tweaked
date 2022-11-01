@@ -16,6 +16,7 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.OptionalInt;
 import java.util.regex.Pattern;
 
 /**
@@ -29,10 +30,10 @@ public final class AddressRule
     public static final int WEBSOCKET_MESSAGE = 128 * 1024;
 
     private final AddressPredicate predicate;
-    private final Integer port;
+    private final OptionalInt port;
     private final PartialOptions partial;
 
-    private AddressRule( @Nonnull AddressPredicate predicate, @Nullable Integer port, @Nonnull PartialOptions partial )
+    private AddressRule( @Nonnull AddressPredicate predicate, OptionalInt port, @Nonnull PartialOptions partial )
     {
         this.predicate = predicate;
         this.partial = partial;
@@ -40,7 +41,7 @@ public final class AddressRule
     }
 
     @Nullable
-    public static AddressRule parse( String filter, @Nullable Integer port, @Nonnull PartialOptions partial )
+    public static AddressRule parse( String filter, OptionalInt port, @Nonnull PartialOptions partial )
     {
         int cidr = filter.indexOf( '/' );
         if( cidr >= 0 )
@@ -72,7 +73,7 @@ public final class AddressRule
      */
     private boolean matches( String domain, int port, InetAddress address, Inet4Address ipv4Address )
     {
-        if( this.port != null && this.port != port ) return false;
+        if( this.port.isPresent() && this.port.getAsInt() != port ) return false;
         return predicate.matches( domain )
             || predicate.matches( address )
             || (ipv4Address != null && predicate.matches( ipv4Address ));
@@ -80,8 +81,7 @@ public final class AddressRule
 
     public static Options apply( Iterable<? extends AddressRule> rules, String domain, InetSocketAddress socketAddress )
     {
-        PartialOptions options = null;
-        boolean hasMany = false;
+        PartialOptions options = PartialOptions.DEFAULT;
 
         int port = socketAddress.getPort();
         InetAddress address = socketAddress.getAddress();
@@ -91,24 +91,9 @@ public final class AddressRule
         for( AddressRule rule : rules )
         {
             if( !rule.matches( domain, port, address, ipv4Address ) ) continue;
-
-            if( options == null )
-            {
-                options = rule.partial;
-            }
-            else
-            {
-
-                if( !hasMany )
-                {
-                    options = options.copy();
-                    hasMany = true;
-                }
-
-                options.merge( rule.partial );
-            }
+            options = options.merge( rule.partial );
         }
 
-        return (options == null ? PartialOptions.DEFAULT : options).toOptions();
+        return options.toOptions();
     }
 }

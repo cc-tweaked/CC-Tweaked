@@ -4,9 +4,11 @@ import dan200.computercraft.api.lua.ILuaAPI
 import dan200.computercraft.api.lua.ILuaContext
 import dan200.computercraft.api.lua.MethodResult
 import dan200.computercraft.api.lua.ObjectArguments
+import dan200.computercraft.core.apis.OSAPI
 import dan200.computercraft.core.apis.PeripheralAPI
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.time.Duration
 
 /**
  * The context for tasks which consume Lua objects.
@@ -40,6 +42,19 @@ interface LuaTaskContext {
     /** Call a peripheral method. */
     suspend fun LuaTaskContext.callPeripheral(name: String, method: String, vararg args: Any?): Array<out Any?>? =
         getApi<PeripheralAPI>().call(context, ObjectArguments(name, method, *args)).await()
+
+    /**
+     * Sleep for the given duration. This uses the internal computer clock, so won't be accurate.
+     */
+    suspend fun LuaTaskContext.sleep(duration: Duration) {
+        val timer = getApi<OSAPI>().startTimer(duration.inWholeMilliseconds / 1000.0)
+        while (true) {
+            val event = pullEvent("timer")
+            if (event[0] == "timer" && event[1] is Number && (event[1] as Number).toInt() == timer) {
+                return
+            }
+        }
+    }
 }
 
 /** Get a registered API. */

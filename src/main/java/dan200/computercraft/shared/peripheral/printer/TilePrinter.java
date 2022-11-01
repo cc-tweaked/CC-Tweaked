@@ -8,6 +8,7 @@ package dan200.computercraft.shared.peripheral.printer;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.TileGeneric;
+import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import dan200.computercraft.shared.util.*;
 import net.minecraft.core.BlockPos;
@@ -62,7 +63,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         SidedCaps.ofNullable( facing -> facing == null ? new InvWrapper( this ) : new SidedInvWrapper( this, facing ) );
     private LazyOptional<IPeripheral> peripheralCap;
 
-    private final Terminal page = new Terminal( ItemPrintout.LINE_MAX_LENGTH, ItemPrintout.LINES_PER_PAGE, true );
+    private final NetworkedTerminal page = new NetworkedTerminal( ItemPrintout.LINE_MAX_LENGTH, ItemPrintout.LINES_PER_PAGE, true );
     private String pageTitle = "";
     private boolean printing = false;
 

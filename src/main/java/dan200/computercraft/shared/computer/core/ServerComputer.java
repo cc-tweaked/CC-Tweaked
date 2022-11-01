@@ -15,12 +15,12 @@ import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerEnvironment;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.metrics.MetricsObserver;
-import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
+import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
+import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
-import dan200.computercraft.shared.network.client.TerminalState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -41,7 +41,7 @@ public class ServerComputer implements InputHandler, ComputerEnvironment
     private final MetricsObserver metrics;
     private final Computer computer;
 
-    private final Terminal terminal;
+    private final NetworkedTerminal terminal;
     private final AtomicBoolean terminalChanged = new AtomicBoolean( false );
 
     private boolean changedLastFrame;
@@ -54,7 +54,7 @@ public class ServerComputer implements InputHandler, ComputerEnvironment
 
         ServerContext context = ServerContext.get( level.getServer() );
         instanceID = context.registry().getUnusedInstanceID();
-        terminal = new Terminal( terminalWidth, terminalHeight, family != ComputerFamily.NORMAL, this::markTerminalChanged );
+        terminal = new NetworkedTerminal( terminalWidth, terminalHeight, family != ComputerFamily.NORMAL, this::markTerminalChanged );
         metrics = context.metrics().createMetricObserver( this );
 
         computer = new Computer( context.computerContext(), this, terminal, computerID );

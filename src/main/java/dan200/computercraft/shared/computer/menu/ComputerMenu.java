@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.computer.menu;
 
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.network.client.TerminalState;
+import dan200.computercraft.shared.computer.terminal.TerminalState;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
 /**

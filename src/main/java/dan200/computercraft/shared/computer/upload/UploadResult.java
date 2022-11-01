@@ -13,8 +13,6 @@ public enum UploadResult
     CONSUMED,
     ERROR;
 
-    public static final Component SUCCESS_TITLE = Component.translatable( "gui.computercraft.upload.success" );
-
     public static final Component FAILED_TITLE = Component.translatable( "gui.computercraft.upload.failed" );
     public static final Component COMPUTER_OFF_MSG = Component.translatable( "gui.computercraft.upload.failed.computer_off" );
     public static final Component TOO_MUCH_MSG = Component.translatable( "gui.computercraft.upload.failed.too_much" );

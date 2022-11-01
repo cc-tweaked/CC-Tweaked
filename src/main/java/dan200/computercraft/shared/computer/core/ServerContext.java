@@ -5,13 +5,17 @@
  */
 package dan200.computercraft.shared.computer.core;
 
+import com.google.common.annotations.VisibleForTesting;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.ComputerCraftAPIImpl;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.ComputerContext;
+import dan200.computercraft.core.computer.ComputerThread;
 import dan200.computercraft.core.computer.GlobalEnvironment;
 import dan200.computercraft.core.computer.mainthread.MainThread;
+import dan200.computercraft.core.lua.CobaltLuaMachine;
+import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.computer.metrics.GlobalMetrics;
 import dan200.computercraft.shared.util.IDAssigner;
@@ -41,6 +45,9 @@ public final class ServerContext
 {
     private static final LevelResource FOLDER = new LevelResource( ComputerCraft.MOD_ID );
 
+    @VisibleForTesting
+    public static ILuaMachine.Factory luaMachine = CobaltLuaMachine::new;
+
     private static @Nullable ServerContext instance;
 
     private final MinecraftServer server;
@@ -57,7 +64,11 @@ public final class ServerContext
         this.server = server;
         storageDir = server.getWorldPath( FOLDER );
         mainThread = new MainThread();
-        context = new ComputerContext( new Environment( server ), ComputerCraft.computerThreads, mainThread );
+        context = new ComputerContext(
+            new Environment( server ),
+            new ComputerThread( ComputerCraft.computerThreads ),
+            mainThread, luaMachine
+        );
         idAssigner = new IDAssigner( storageDir.resolve( "ids.json" ) );
     }
 

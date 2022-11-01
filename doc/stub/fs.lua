@@ -22,13 +22,43 @@ directory exist) and one without it (meaning this entry is an immediate
 completion candidate). `include_dirs` can be set to @{false} to only include
 those with a trailing slash.
 
-@tparam string path The path to complete.
-@tparam string location The location where paths are resolved from.
-@tparam[opt] boolean include_files When @{false}, only directories will be
-included in the returned list.
-@tparam[opt] boolean include_dirs When @{false}, "raw" directories will not be
-included in the returned list.
+@tparam[1] string path The path to complete.
+@tparam[1] string location The location where paths are resolved from.
+@tparam[1,opt=true] boolean include_files When @{false}, only directories will
+be included in the returned list.
+@tparam[1,opt=true] boolean include_dirs When @{false}, "raw" directories will
+not be included in the returned list.
+
+@tparam[2] string path The path to complete.
+@tparam[2] string location The location where paths are resolved from.
+@tparam[2] {
+    include_dirs? = boolean, include_files? = boolean,
+    include_hidden? = boolean
+} options
+This table form is an expanded version of the previous syntax. The
+`include_files` and `include_dirs` arguments from above are passed in as fields.
+
+This table also accepts the following options:
+ - `include_hidden`: Whether to include hidden files (those starting with `.`)
+   by default. They will still be shown when typing a `.`.
+
 @treturn { string... } A list of possible completion candidates.
 @since 1.74
+@changed 1.101.0
+@usage Complete files in the root directory.
+
+    read(nil, nil, function(str)
+        return fs.complete(str, "", true, false)
+    end)
+
+@usage Complete files in the root directory, hiding hidden files by default.
+
+    read(nil, nil, function(str)
+        return fs.complete(str, "", {
+            include_files = true,
+            include_dirs = false,
+            included_hidden = false,
+        })
+    end)
 ]]
 function complete(path, location, include_files, include_dirs) end

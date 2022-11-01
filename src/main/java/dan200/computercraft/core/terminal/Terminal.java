@@ -7,8 +7,6 @@ package dan200.computercraft.core.terminal;
 
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.Palette;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -16,23 +14,23 @@ import java.nio.ByteBuffer;
 
 public class Terminal
 {
-    private static final String BASE_16 = "0123456789abcdef";
+    protected static final String BASE_16 = "0123456789abcdef";
 
-    private int width;
-    private int height;
-    private final boolean colour;
+    protected int width;
+    protected int height;
+    protected final boolean colour;
 
-    private int cursorX = 0;
-    private int cursorY = 0;
-    private boolean cursorBlink = false;
-    private int cursorColour = 0;
-    private int cursorBackgroundColour = 15;
+    protected int cursorX = 0;
+    protected int cursorY = 0;
+    protected boolean cursorBlink = false;
+    protected int cursorColour = 0;
+    protected int cursorBackgroundColour = 15;
 
-    private TextBuffer[] text;
-    private TextBuffer[] textColour;
-    private TextBuffer[] backgroundColour;
+    protected TextBuffer[] text;
+    protected TextBuffer[] textColour;
+    protected TextBuffer[] backgroundColour;
 
-    private final Palette palette;
+    protected final Palette palette;
 
     private final @Nullable Runnable onChanged;
 
@@ -318,110 +316,6 @@ public class Terminal
     public final void setChanged()
     {
         if( onChanged != null ) onChanged.run();
-    }
-
-    public synchronized void write( FriendlyByteBuf buffer )
-    {
-        buffer.writeInt( cursorX );
-        buffer.writeInt( cursorY );
-        buffer.writeBoolean( cursorBlink );
-        buffer.writeByte( cursorBackgroundColour << 4 | cursorColour );
-
-        for( int y = 0; y < height; y++ )
-        {
-            TextBuffer text = this.text[y];
-            TextBuffer textColour = this.textColour[y];
-            TextBuffer backColour = backgroundColour[y];
-
-            for( int x = 0; x < width; x++ ) buffer.writeByte( text.charAt( x ) & 0xFF );
-            for( int x = 0; x < width; x++ )
-            {
-                buffer.writeByte( getColour(
-                    backColour.charAt( x ), Colour.BLACK ) << 4 |
-                    getColour( textColour.charAt( x ), Colour.WHITE )
-                );
-            }
-        }
-
-        palette.write( buffer );
-    }
-
-    public synchronized void read( FriendlyByteBuf buffer )
-    {
-        cursorX = buffer.readInt();
-        cursorY = buffer.readInt();
-        cursorBlink = buffer.readBoolean();
-
-        byte cursorColour = buffer.readByte();
-        cursorBackgroundColour = (cursorColour >> 4) & 0xF;
-        this.cursorColour = cursorColour & 0xF;
-
-        for( int y = 0; y < height; y++ )
-        {
-            TextBuffer text = this.text[y];
-            TextBuffer textColour = this.textColour[y];
-            TextBuffer backColour = backgroundColour[y];
-
-            for( int x = 0; x < width; x++ ) text.setChar( x, (char) (buffer.readByte() & 0xFF) );
-            for( int x = 0; x < width; x++ )
-            {
-                byte colour = buffer.readByte();
-                backColour.setChar( x, BASE_16.charAt( (colour >> 4) & 0xF ) );
-                textColour.setChar( x, BASE_16.charAt( colour & 0xF ) );
-            }
-        }
-
-        palette.read( buffer );
-        setChanged();
-    }
-
-    public synchronized CompoundTag writeToNBT( CompoundTag nbt )
-    {
-        nbt.putInt( "term_cursorX", cursorX );
-        nbt.putInt( "term_cursorY", cursorY );
-        nbt.putBoolean( "term_cursorBlink", cursorBlink );
-        nbt.putInt( "term_textColour", cursorColour );
-        nbt.putInt( "term_bgColour", cursorBackgroundColour );
-        for( int n = 0; n < height; n++ )
-        {
-            nbt.putString( "term_text_" + n, text[n].toString() );
-            nbt.putString( "term_textColour_" + n, textColour[n].toString() );
-            nbt.putString( "term_textBgColour_" + n, backgroundColour[n].toString() );
-        }
-
-        palette.writeToNBT( nbt );
-        return nbt;
-    }
-
-    public synchronized void readFromNBT( CompoundTag nbt )
-    {
-        cursorX = nbt.getInt( "term_cursorX" );
-        cursorY = nbt.getInt( "term_cursorY" );
-        cursorBlink = nbt.getBoolean( "term_cursorBlink" );
-        cursorColour = nbt.getInt( "term_textColour" );
-        cursorBackgroundColour = nbt.getInt( "term_bgColour" );
-
-        for( int n = 0; n < height; n++ )
-        {
-            text[n].fill( ' ' );
-            if( nbt.contains( "term_text_" + n ) )
-            {
-                text[n].write( nbt.getString( "term_text_" + n ) );
-            }
-            textColour[n].fill( BASE_16.charAt( cursorColour ) );
-            if( nbt.contains( "term_textColour_" + n ) )
-            {
-                textColour[n].write( nbt.getString( "term_textColour_" + n ) );
-            }
-            backgroundColour[n].fill( BASE_16.charAt( cursorBackgroundColour ) );
-            if( nbt.contains( "term_textBgColour_" + n ) )
-            {
-                backgroundColour[n].write( nbt.getString( "term_textBgColour_" + n ) );
-            }
-        }
-
-        palette.readFromNBT( nbt );
-        setChanged();
     }
 
     public static int getColour( char c, Colour def )

@@ -61,9 +61,9 @@ describe("The os library", function()
 
             -- TODO: Java 16 apparently no longer treats TextStyle.FULL as full and will render Sun instead of Sunday.
             exp_code("%a", "Sun")
-            -- exp_code("%A", "Sunday")
+            exp_code("%A", "Sunday")
             exp_code("%b", "Oct")
-            -- exp_code("%B", "October")
+            exp_code("%B", "October")
             exp_code("%c", "Sun Oct  1 23:12:17 2000")
             exp_code("%C", "20")
             exp_code("%d", "01")

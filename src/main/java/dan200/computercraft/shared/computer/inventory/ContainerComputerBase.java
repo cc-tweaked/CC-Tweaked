@@ -11,7 +11,8 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import dan200.computercraft.shared.computer.menu.ServerInputHandler;
 import dan200.computercraft.shared.computer.menu.ServerInputState;
-import dan200.computercraft.shared.network.client.TerminalState;
+import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
+import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
 import dan200.computercraft.shared.util.SingleIntArray;
 import net.minecraft.world.entity.player.Player;
@@ -34,7 +35,7 @@ public abstract class ContainerComputerBase extends AbstractContainerMenu implem
     private final @Nullable ServerComputer computer;
     private final @Nullable ServerInputState<ContainerComputerBase> input;
 
-    private final @Nullable Terminal terminal;
+    private final @Nullable NetworkedTerminal terminal;
 
     private final ItemStack displayStack;
 

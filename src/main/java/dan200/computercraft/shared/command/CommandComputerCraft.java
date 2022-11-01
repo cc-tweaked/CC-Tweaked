@@ -365,8 +365,7 @@ public final class CommandComputerCraft
     private static final List<AggregatedMetric> DEFAULT_FIELDS = Arrays.asList(
         new AggregatedMetric( Metrics.COMPUTER_TASKS, Aggregate.COUNT ),
         new AggregatedMetric( Metrics.COMPUTER_TASKS, Aggregate.NONE ),
-        new AggregatedMetric( Metrics.COMPUTER_TASKS, Aggregate.AVG ),
-        new AggregatedMetric( Metrics.COMPUTER_TASKS, Aggregate.MAX )
+        new AggregatedMetric( Metrics.COMPUTER_TASKS, Aggregate.AVG )
     );
 
     private static int displayTimings( CommandSourceStack source, AggregatedMetric sortField, List<AggregatedMetric> fields ) throws CommandSyntaxException

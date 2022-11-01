@@ -34,7 +34,11 @@ local completion = require "cc.completion"
 -- @tparam string text Current text to complete.
 -- @treturn { string... } A list of suffixes of matching files.
 local function file(shell, text)
-    return fs.complete(text, shell.dir(), true, false)
+    return fs.complete(text, shell.dir(), {
+        include_files = true,
+        include_dirs = false,
+        include_hidden = settings.get("shell.autocomplete_hidden"),
+    })
 end
 
 --- Complete the name of a directory relative to the current working directory.
@@ -43,7 +47,11 @@ end
 -- @tparam string text Current text to complete.
 -- @treturn { string... } A list of suffixes of matching directories.
 local function dir(shell, text)
-    return fs.complete(text, shell.dir(), false, true)
+    return fs.complete(text, shell.dir(), {
+        include_files = false,
+        include_dirs = true,
+        include_hidden = settings.get("shell.autocomplete_hidden"),
+    })
 end
 
 --- Complete the name of a file or directory relative to the current working
@@ -55,7 +63,11 @@ end
 -- @tparam[opt] boolean add_space Whether to add a space after the completed item.
 -- @treturn { string... } A list of suffixes of matching files and directories.
 local function dirOrFile(shell, text, previous, add_space)
-    local results = fs.complete(text, shell.dir(), true, true)
+    local results = fs.complete(text, shell.dir(), {
+        include_files = true,
+        include_dirs = true,
+        include_hidden = settings.get("shell.autocomplete_hidden"),
+    })
     if add_space then
         for n = 1, #results do
             local result = results[n]

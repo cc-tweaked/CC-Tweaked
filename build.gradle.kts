@@ -86,10 +86,16 @@ minecraft {
                 val testMod = configurations["testModRuntimeClasspath"].resolve()
                 val implementation = configurations.runtimeClasspath.get().resolve()
                 val new = (testMod - implementation)
-                    .asSequence().filter { it.isFile }.map { it.absolutePath }
+                    .asSequence()
+                    .filter { it.isFile && !it.name.endsWith("-test-fixtures.jar") }
+                    .map { it.absolutePath }
                     .joinToString(File.pathSeparator)
                 if (old == null) new else old.get() + File.pathSeparator + new
             }
+
+            property("cctest.sources", file("src/testMod/resources/data/cctest").absolutePath)
+
+            arg("--mixin.config=computercraft-gametest.mixins.json")
 
             mods.register("cctest") {
                 source(sourceSets["testMod"])
@@ -114,7 +120,6 @@ minecraft {
     mappings("parchment", "${libs.versions.parchmentMc.get()}-${libs.versions.parchment.get()}-$mcVersion")
 
     accessTransformer(file("src/main/resources/META-INF/accesstransformer.cfg"))
-    accessTransformer(file("src/testMod/resources/META-INF/accesstransformer.cfg"))
 }
 
 mixin {

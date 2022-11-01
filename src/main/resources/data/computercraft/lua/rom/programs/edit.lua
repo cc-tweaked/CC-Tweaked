@@ -55,19 +55,22 @@ term.redirect(current)
 term.setTextColor(term.isColour() and colours.yellow or colours.white)
 term.setBackgroundColor(colours.black)
 term.setCursorBlink(false)
-local _, y = term.getCursorPos()
-local _, h = term.getSize()
 if not ok then
     printError(err)
 end
-if ok and y >= h then
-    term.scroll(1)
+
+local message = "Press any key to continue."
+if ok then message = "Program finished. " .. message end
+local _, y = term.getCursorPos()
+local w, h = term.getSize()
+local wrapped = require("cc.strings").wrap(message, w)
+
+local start_y = h - #wrapped + 1
+if y >= start_y then term.scroll(y - start_y + 1) end
+for i = 1, #wrapped do
+    term.setCursorPos(1, start_y + i - 1)
+    term.write(wrapped[i])
 end
-term.setCursorPos(1, h)
-if ok then
-    write("Program finished. ")
-end
-write("Press any key to continue")
 os.pullEvent('key')
 ]]
 

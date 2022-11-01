@@ -8,7 +8,8 @@ package dan200.computercraft.client.pocket;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ComputerState;
-import dan200.computercraft.shared.network.client.TerminalState;
+import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
+import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 
 import javax.annotation.Nonnull;
@@ -25,13 +26,13 @@ import javax.annotation.Nonnull;
  */
 public class PocketComputerData
 {
-    private final Terminal terminal;
+    private final NetworkedTerminal terminal;
     private ComputerState state = ComputerState.OFF;
     private int lightColour = -1;
 
     public PocketComputerData( boolean colour )
     {
-        terminal = new Terminal( ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight, colour );
+        terminal = new NetworkedTerminal( ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight, colour );
     }
 
     public int getLightState()

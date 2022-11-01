@@ -1,0 +1,39 @@
+{
+    DataVersion: 2975,
+    size: [3, 3, 3],
+    data: [
+        {pos: [0, 0, 0], state: "minecraft:polished_andesite"},
+        {pos: [0, 0, 1], state: "minecraft:polished_andesite"},
+        {pos: [0, 0, 2], state: "minecraft:polished_andesite"},
+        {pos: [1, 0, 0], state: "minecraft:polished_andesite"},
+        {pos: [1, 0, 1], state: "minecraft:polished_andesite"},
+        {pos: [1, 0, 2], state: "minecraft:polished_andesite"},
+        {pos: [2, 0, 0], state: "minecraft:polished_andesite"},
+        {pos: [2, 0, 1], state: "minecraft:polished_andesite"},
+        {pos: [2, 0, 2], state: "minecraft:polished_andesite"},
+        {pos: [0, 1, 0], state: "minecraft:air"},
+        {pos: [0, 1, 1], state: "minecraft:air"},
+        {pos: [0, 1, 2], state: "minecraft:air"},
+        {pos: [1, 1, 0], state: "computercraft:turtle_normal{facing:south,waterlogged:false}", nbt: {ComputerId: 1, Fuel: 0, Items: [{Count: 1b, Slot: 0b, id: "computercraft:printed_page", tag: {Color0: "fffffffffffffffffffffffff", Color1: "fffffffffffffffffffffffff", Color10: "fffffffffffffffffffffffff", Color11: "fffffffffffffffffffffffff", Color12: "fffffffffffffffffffffffff", Color13: "fffffffffffffffffffffffff", Color14: "fffffffffffffffffffffffff", Color15: "fffffffffffffffffffffffff", Color16: "fffffffffffffffffffffffff", Color17: "fffffffffffffffffffffffff", Color18: "fffffffffffffffffffffffff", Color19: "fffffffffffffffffffffffff", Color2: "fffffffffffffffffffffffff", Color20: "fffffffffffffffffffffffff", Color3: "fffffffffffffffffffffffff", Color4: "fffffffffffffffffffffffff", Color5: "fffffffffffffffffffffffff", Color6: "fffffffffffffffffffffffff", Color7: "fffffffffffffffffffffffff", Color8: "fffffffffffffffffffffffff", Color9: "fffffffffffffffffffffffff", Pages: 1, Text0: "Example                  ", Text1: "                         ", Text10: "                         ", Text11: "                         ", Text12: "                         ", Text13: "                         ", Text14: "                         ", Text15: "                         ", Text16: "                         ", Text17: "                         ", Text18: "                         ", Text19: "                         ", Text2: "                         ", Text20: "                         ", Text3: "                         ", Text4: "                         ", Text5: "                         ", Text6: "                         ", Text7: "                         ", Text8: "                         ", Text9: "                         ", Title: "Example page"}}], Label: "turtle_test.item_detail_provider", On: 1b, Owner: {LowerId: -6876936588741668278L, Name: "Dev", UpperId: 4039158846114182220L}, Slot: 0, id: "computercraft:turtle_normal"}},
+        {pos: [1, 1, 1], state: "minecraft:air"},
+        {pos: [1, 1, 2], state: "minecraft:air"},
+        {pos: [2, 1, 0], state: "minecraft:air"},
+        {pos: [2, 1, 1], state: "minecraft:air"},
+        {pos: [2, 1, 2], state: "minecraft:air"},
+        {pos: [0, 2, 0], state: "minecraft:air"},
+        {pos: [0, 2, 1], state: "minecraft:air"},
+        {pos: [0, 2, 2], state: "minecraft:air"},
+        {pos: [1, 2, 0], state: "minecraft:air"},
+        {pos: [1, 2, 1], state: "minecraft:air"},
+        {pos: [1, 2, 2], state: "minecraft:air"},
+        {pos: [2, 2, 0], state: "minecraft:air"},
+        {pos: [2, 2, 1], state: "minecraft:air"},
+        {pos: [2, 2, 2], state: "minecraft:air"}
+    ],
+    entities: [],
+    palette: [
+        "minecraft:polished_andesite",
+        "minecraft:air",
+        "computercraft:turtle_normal{facing:south,waterlogged:false}"
+    ]
+}
