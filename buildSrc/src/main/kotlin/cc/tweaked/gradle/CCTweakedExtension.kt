@@ -26,12 +26,12 @@ abstract class CCTweakedExtension(
 ) {
     /** Get the hash of the latest git commit. */
     val gitHash: Provider<String> = gitProvider(project, "<no git hash>") {
-        ProcessHelpers.captureOut("git", "-C", project.projectDir.absolutePath, "rev-parse", "HEAD")
+        ProcessHelpers.captureOut("git", "-C", project.projectDir.absolutePath, "rev-parse", "HEAD").trim()
     }
 
     /** Get the current git branch. */
     val gitBranch: Provider<String> = gitProvider(project, "<no git branch>") {
-        ProcessHelpers.captureOut("git", "-C", project.projectDir.absolutePath, "rev-parse", "--abbrev-ref", "HEAD")
+        ProcessHelpers.captureOut("git", "-C", project.projectDir.absolutePath, "rev-parse", "--abbrev-ref", "HEAD").trim()
     }
 
     /** Get a list of all contributors to the project. */
