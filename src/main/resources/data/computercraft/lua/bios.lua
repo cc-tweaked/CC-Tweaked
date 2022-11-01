@@ -763,19 +763,19 @@ function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs)
         local tFiles = fs.list(sDir)
         for n = 1, #tFiles do
             local sFile = tFiles[n]
-            if #sFile >= #sName and string.sub(sFile, 1, #sName) == sName then
+            if #sFile >= #sName and string.sub(sFile, 1, #sName) == sName and (
+                bIncludeHidden or sFile:sub(1, 1) ~= "." or sName:sub(1, 1) == "."
+            ) then
                 local bIsDir = fs.isDir(fs.combine(sDir, sFile))
                 local sResult = string.sub(sFile, #sName + 1)
-                if bIncludeHidden or string.sub(sFile, 1, 1) ~= "." or string.sub(sResult, 1, 1) ~= "." or sResult ~= sFile then
-                    if bIsDir then
-                        table.insert(tResults, sResult .. "/")
-                        if bIncludeDirs and #sResult > 0 then
-                            table.insert(tResults, sResult)
-                        end
-                    else
-                        if bIncludeFiles and #sResult > 0 then
-                            table.insert(tResults, sResult)
-                        end
+                if bIsDir then
+                    table.insert(tResults, sResult .. "/")
+                    if bIncludeDirs and #sResult > 0 then
+                        table.insert(tResults, sResult)
+                    end
+                else
+                    if bIncludeFiles and #sResult > 0 then
+                        table.insert(tResults, sResult)
                     end
                 end
             end
@@ -912,7 +912,7 @@ settings.define("paint.default_extension", {
 
 settings.define("list.show_hidden", {
     default = false,
-    description = [[Show hidden files (those starting with "." in the Lua REPL)]],
+    description = [[Show hidden files (those starting with "." in the Lua REPL).]],
     type = "boolean",
 })
 
@@ -949,7 +949,7 @@ settings.define("bios.strict_globals", {
 })
 settings.define("shell.autocomplete_hidden", {
     default = false,
-    description = [[Autocomplete hidden files and folders (those starting with ".")]],
+    description = [[Autocomplete hidden files and folders (those starting with ".").]],
     type = "boolean",
 })
 
