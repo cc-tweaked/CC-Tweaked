@@ -3,7 +3,7 @@
 -- Ideally we'd use require, but that is part of the shell, and so is not
 -- available to the BIOS or any APIs. All APIs load this using dofile, but that
 -- has not been defined at this point.
-local expect
+local expect, field
 
 do
     local h = fs.open("rom/modules/main/cc/expect.lua", "r")
@@ -11,7 +11,8 @@ do
     h.close()
 
     if not f then error(err) end
-    expect = f().expect
+    local res = f()
+    expect, field = res.expect, res.field
 end
 
 if _VERSION == "Lua 5.1" then
@@ -718,9 +719,9 @@ function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs)
     expect(2, sLocation, "string")
     local bIncludeHidden = nil
     if type(bIncludeFiles) == "table" then
-        bIncludeDirs = bIncludeFiles.include_dirs
-        bIncludeHidden = bIncludeFiles.include_hidden
-        bIncludeFiles = bIncludeFiles.include_files
+        bIncludeDirs = field(bIncludeFiles, "include_dirs", "boolean", "nil")
+        bIncludeHidden = field(bIncludeFiles, "include_hidden", "boolean", "nil")
+        bIncludeFiles = field(bIncludeFiles, "include_files", "boolean", "nil")
     else
         expect(3, bIncludeFiles, "boolean", "nil")
         expect(4, bIncludeDirs, "boolean", "nil")

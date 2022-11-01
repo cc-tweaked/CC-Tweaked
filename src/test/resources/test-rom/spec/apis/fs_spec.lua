@@ -10,6 +10,46 @@ describe("The fs library", function()
             expect.error(fs.complete, "", "", 1):eq("bad argument #3 (expected boolean, got number)")
             expect.error(fs.complete, "", "", true, 1):eq("bad argument #4 (expected boolean, got number)")
         end)
+
+        describe("include_hidden", function()
+            local dir = "tmp/hidden"
+            local function setup_tree()
+                fs.delete(dir)
+                fs.makeDir(dir)
+                fs.open(dir .. "/file.txt", "w").close()
+                fs.open(dir .. "/.hidden.txt", "w").close()
+            end
+
+            it("hides hidden files", function()
+                setup_tree()
+                local opts = { include_files = true, include_dirs = false, include_hidden = false }
+
+                expect(fs.complete("", dir, opts)):same { "../", "file.txt" }
+                expect(fs.complete(dir .. "/", "", opts)):same { "file.txt" }
+            end)
+
+            it("shows hidden files when typing a dot", function()
+                setup_tree()
+                local opts = { include_files = true, include_dirs = false, include_hidden = false }
+
+                expect(fs.complete(".", dir, opts)):same { "./", "hidden.txt" }
+                expect(fs.complete(dir .. "/.", "", opts)):same { "hidden.txt" }
+
+                -- Also test
+                expect(fs.complete(dir .. "/file", "", opts)):same { ".txt" }
+                expect(fs.complete(dir .. "/file.", "", opts)):same { "txt" }
+                expect(fs.complete("file", dir, opts)):same { ".txt" }
+                expect(fs.complete("file.", dir, opts)):same { "txt" }
+            end)
+
+            it("shows hidden files when include_hidden is true", function()
+                setup_tree()
+                local opts = { include_files = true, include_dirs = false, include_hidden = true }
+
+                expect(fs.complete("", dir, opts)):same { "../", ".hidden.txt", "file.txt" }
+                expect(fs.complete(dir .. "/", "", opts)):same { ".hidden.txt", "file.txt" }
+            end)
+        end)
     end)
 
     describe("fs.isDriveRoot", function()
