@@ -716,9 +716,17 @@ local tEmpty = {}
 function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs)
     expect(1, sPath, "string")
     expect(2, sLocation, "string")
-    expect(3, bIncludeFiles, "boolean", "nil")
-    expect(4, bIncludeDirs, "boolean", "nil")
+    local bIncludeHidden = nil
+    if type(bIncludeFiles) == "table" then
+        bIncludeDirs = bIncludeFiles.include_dirs
+        bIncludeHidden = bIncludeFiles.include_hidden
+        bIncludeFiles = bIncludeFiles.include_files
+    else
+        expect(3, bIncludeFiles, "boolean", "nil")
+        expect(4, bIncludeDirs, "boolean", "nil")
+    end
 
+    bIncludeHidden = bIncludeHidden ~= false
     bIncludeFiles = bIncludeFiles ~= false
     bIncludeDirs = bIncludeDirs ~= false
     local sDir = sLocation
@@ -755,7 +763,9 @@ function fs.complete(sPath, sLocation, bIncludeFiles, bIncludeDirs)
         local tFiles = fs.list(sDir)
         for n = 1, #tFiles do
             local sFile = tFiles[n]
-            if #sFile >= #sName and string.sub(sFile, 1, #sName) == sName then
+            if #sFile >= #sName and string.sub(sFile, 1, #sName) == sName and (
+                bIncludeHidden or sFile:sub(1, 1) ~= "." or sName:sub(1, 1) == "."
+            ) then
                 local bIsDir = fs.isDir(fs.combine(sDir, sFile))
                 local sResult = string.sub(sFile, #sName + 1)
                 if bIsDir then
@@ -902,7 +912,7 @@ settings.define("paint.default_extension", {
 
 settings.define("list.show_hidden", {
     default = false,
-    description = [[Show hidden files (those starting with "." in the Lua REPL)]],
+    description = [[Show hidden files (those starting with "." in the Lua REPL).]],
     type = "boolean",
 })
 
@@ -935,6 +945,11 @@ settings.define("lua.function_source", {
 settings.define("bios.strict_globals", {
     default = false,
     description = "Prevents assigning variables into a program's environment. Make sure you use the local keyword or assign to _G explicitly.",
+    type = "boolean",
+})
+settings.define("shell.autocomplete_hidden", {
+    default = false,
+    description = [[Autocomplete hidden files and folders (those starting with ".").]],
     type = "boolean",
 })
 
