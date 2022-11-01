@@ -25,6 +25,7 @@ import javax.annotation.Nonnull;
  * :::
  *
  * @cc.module energy_storage
+ * @cc.since 1.94.0
  */
 public class EnergyMethods implements GenericPeripheral
 {

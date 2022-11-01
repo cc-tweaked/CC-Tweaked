@@ -35,6 +35,7 @@ import static dan200.computercraft.shared.peripheral.generic.methods.ArgumentHel
  * Methods for interacting with tanks and other fluid storage blocks.
  *
  * @cc.module fluid_storage
+ * @cc.since 1.94.0
  */
 public class FluidMethods implements GenericPeripheral
 {
