@@ -370,7 +370,7 @@ val publishCurseForge by tasks.registering(TaskPublishCurseForge::class) {
     apiToken = findProperty("curseForgeApiKey") ?: ""
     enabled = apiToken != ""
 
-    val mainFile = upload("282001", tasks.shadowJar)
+    val mainFile = upload("282001", tasks.shadowJar.get().archiveFile)
     dependsOn(tasks.shadowJar) // Ughr.
     mainFile.changelog = "Release notes can be found on the [GitHub repository](https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v$mcVersion-$modVersion)."
     mainFile.changelogType = "markdown"
@@ -451,6 +451,8 @@ publishing {
     repositories {
         maven("https://squiddev.cc/maven") {
             name = "SquidDev"
+
+            credentials(PasswordCredentials::class)
         }
     }
 }
