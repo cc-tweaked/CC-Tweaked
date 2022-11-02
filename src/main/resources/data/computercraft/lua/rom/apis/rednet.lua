@@ -462,6 +462,7 @@ function run()
             local modem, channel, reply_channel, message = p1, p2, p3, p4
             if channel == id_as_channel() or channel == CHANNEL_BROADCAST then
                 if type(message) == "table" and type(message.nMessageID) == "number"
+                    and type(message.nSender) == "number" and message.nSender == message.nSender
                     and message.nMessageID == message.nMessageID and not received_messages[message.nMessageID]
                     and ((message.nRecipient and message.nRecipient == os.getComputerID()) or channel == CHANNEL_BROADCAST)
                     and isOpen(modem)
