@@ -1,6 +1,6 @@
 New features in CC: Tweaked 1.101.0
 
-* Improvee Dutch translation (Quezler)
+* Improve Dutch translation (Quezler)
 * Better reporting of fatal computer timeouts in the server log.
 * Convert detail providers into a registry, allowing peripheral mods to read item/block details.
 * Redesign the metrics system. `/computercraft track` now allows computing aggregates (total, max, avg) on any metric, not just computer time.
