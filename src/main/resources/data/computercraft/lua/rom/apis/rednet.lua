@@ -463,7 +463,7 @@ function run()
             if channel == id_as_channel() or channel == CHANNEL_BROADCAST then
                 if type(message) == "table" and type(message.nMessageID) == "number"
                     and message.nMessageID == message.nMessageID and not received_messages[message.nMessageID]
-                    and type(message.nSender) == "nil" or (type(message.nSender) == "number" and message.nSender == message.nSender)
+                    and (type(message.nSender) == "nil" or (type(message.nSender) == "number" and message.nSender == message.nSender))
                     and ((message.nRecipient and message.nRecipient == os.getComputerID()) or channel == CHANNEL_BROADCAST)
                     and isOpen(modem)
                 then
