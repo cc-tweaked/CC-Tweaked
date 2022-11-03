@@ -68,6 +68,7 @@ import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.pocket.peripherals.PocketModem;
 import dan200.computercraft.shared.pocket.peripherals.PocketSpeaker;
 import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
+import dan200.computercraft.shared.turtle.FurnaceRefuelHandler;
 import dan200.computercraft.shared.turtle.blocks.BlockTurtle;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
@@ -394,6 +395,8 @@ public final class Registry
         ComputerCraftAPI.registerGenericSource( new InventoryMethods() );
         ComputerCraftAPI.registerGenericSource( new FluidMethods() );
         ComputerCraftAPI.registerGenericSource( new EnergyMethods() );
+
+        ComputerCraftAPI.registerRefuelHandler( new FurnaceRefuelHandler() );
     }
 
     private static void registerProviders()

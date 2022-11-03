@@ -15,12 +15,6 @@ import java.util.OptionalInt;
 
 public final class FurnaceRefuelHandler implements TurtleRefuelHandler
 {
-    private static final FurnaceRefuelHandler INSTANCE = new FurnaceRefuelHandler();
-
-    private FurnaceRefuelHandler()
-    {
-    }
-
     @Override
     public OptionalInt refuel( @Nonnull ITurtleAccess turtle, @Nonnull ItemStack currentStack, int slot, int limit )
     {

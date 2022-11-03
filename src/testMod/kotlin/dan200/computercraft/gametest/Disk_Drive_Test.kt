@@ -5,14 +5,17 @@
  */
 package dan200.computercraft.gametest
 
+import dan200.computercraft.core.apis.FSAPI
 import dan200.computercraft.gametest.api.GameTestHolder
 import dan200.computercraft.gametest.api.sequence
 import dan200.computercraft.gametest.api.thenOnComputer
 import dan200.computercraft.test.core.assertArrayEquals
+import dan200.computercraft.test.core.computer.getApi
 import net.minecraft.core.BlockPos
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.world.item.Items
+import org.junit.jupiter.api.Assertions.assertEquals
 
 @GameTestHolder
 class Disk_Drive_Test {
@@ -39,5 +42,14 @@ class Disk_Drive_Test {
         thenWaitUntil { helper.assertItemEntityPresent(Items.MUSIC_DISC_13, stackAt, 0.0) }
     }
 
-    // TODO: Ejecting disk unmounts and closes files
+    @GameTest
+    fun Adds_removes_mount(helper: GameTestHelper) = helper.sequence {
+        thenIdle(2)
+        thenOnComputer {
+            getApi<FSAPI>().getDrive("disk").assertArrayEquals("right")
+            callPeripheral("right", "ejectDisk")
+        }
+        thenIdle(2)
+        thenOnComputer { assertEquals(null, getApi<FSAPI>().getDrive("disk")) }
+    }
 }

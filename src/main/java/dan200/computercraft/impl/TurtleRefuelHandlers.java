@@ -39,7 +39,7 @@ public final class TurtleRefuelHandlers
     {
     }
 
-    public static void register( TurtleRefuelHandler handler )
+    public static synchronized void register( TurtleRefuelHandler handler )
     {
         Objects.requireNonNull( handler, "handler cannot be null" );
         handlers.add( handler );

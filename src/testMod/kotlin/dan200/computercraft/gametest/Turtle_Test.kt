@@ -15,6 +15,7 @@ import dan200.computercraft.shared.media.items.ItemPrintout
 import dan200.computercraft.shared.peripheral.monitor.BlockMonitor
 import dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState
 import dan200.computercraft.shared.turtle.apis.TurtleAPI
+import dan200.computercraft.shared.util.WaterloggableHelpers
 import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.LuaTaskContext
 import dan200.computercraft.test.core.computer.getApi
@@ -24,6 +25,7 @@ import net.minecraft.gametest.framework.GameTestHelper
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.item.PrimedTnt
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.FenceBlock
 import org.hamcrest.MatcherAssert.assertThat
@@ -39,7 +41,7 @@ class Turtle_Test {
     fun Unequip_refreshes_peripheral(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
             getApi<PeripheralAPI>().getType("right").assertArrayEquals("modem", message = "Starts with a modem")
-            getApi<TurtleAPI>().equipRight().await()
+            turtle.equipRight().await()
             getApi<PeripheralAPI>().getType("right").assertArrayEquals("drive", message = "Unequipping gives a drive")
         }
     }
@@ -52,7 +54,7 @@ class Turtle_Test {
     @GameTest
     fun Shears_sheep(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            getApi<TurtleAPI>().placeDown(ObjectArguments()).await()
+            turtle.placeDown(ObjectArguments()).await()
                 .assertArrayEquals(true, message = "Shears the sheep")
 
             assertEquals("minecraft:white_wool", getTurtleItemDetail(2)["name"])
@@ -67,7 +69,7 @@ class Turtle_Test {
     @GameTest
     fun Place_lava(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            getApi<TurtleAPI>().placeDown(ObjectArguments()).await()
+            turtle.placeDown(ObjectArguments()).await()
                 .assertArrayEquals(true, message = "Placed lava")
         }
         thenExecute { helper.assertBlockPresent(Blocks.LAVA, BlockPos(2, 2, 2)) }
@@ -81,7 +83,7 @@ class Turtle_Test {
     @GameTest
     fun Place_waterlogged(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            getApi<TurtleAPI>().place(ObjectArguments()).await()
+            turtle.place(ObjectArguments()).await()
                 .assertArrayEquals(true, message = "Placed oak fence")
         }
         thenExecute {
@@ -97,7 +99,7 @@ class Turtle_Test {
     @GameTest
     fun Gather_lava(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            getApi<TurtleAPI>().placeDown(ObjectArguments()).await()
+            turtle.placeDown(ObjectArguments()).await()
                 .assertArrayEquals(true, message = "Picked up lava")
 
             assertEquals("minecraft:lava_bucket", getTurtleItemDetail()["name"])
@@ -113,7 +115,7 @@ class Turtle_Test {
     @GameTest
     fun Hoe_dirt(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            getApi<TurtleAPI>().dig(Optional.empty()).await()
+            turtle.dig(Optional.empty()).await()
                 .assertArrayEquals(true, message = "Dug with hoe")
         }
         thenExecute { helper.assertBlockPresent(Blocks.FARMLAND, BlockPos(1, 2, 1)) }
@@ -127,7 +129,7 @@ class Turtle_Test {
     @GameTest
     fun Place_monitor(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            getApi<TurtleAPI>().place(ObjectArguments()).await()
+            turtle.place(ObjectArguments()).await()
                 .assertArrayEquals(true, message = "Block was placed")
         }
         thenIdle(1)
@@ -141,9 +143,9 @@ class Turtle_Test {
     @GameTest
     fun Use_compostors(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
-            getApi<TurtleAPI>().dropDown(Optional.empty()).await()
+            turtle.dropDown(Optional.empty()).await()
                 .assertArrayEquals(true, message = "Item was dropped")
-            assertEquals(63, getApi<TurtleAPI>().getItemCount(Optional.of(1)), "Only dropped one item")
+            assertEquals(63, turtle.getItemCount(Optional.of(1)), "Only dropped one item")
         }
     }
 
@@ -156,7 +158,7 @@ class Turtle_Test {
     fun Cleaned_with_cauldrons(helper: GameTestHelper) = helper.sequence {
         thenOnComputer {
             val details = getTurtleItemDetail(1, true)
-            getApi<TurtleAPI>().place(ObjectArguments()).await()
+            turtle.place(ObjectArguments()).await()
                 .assertArrayEquals(true, message = "Used item on cauldron")
             val newDetails = getTurtleItemDetail(1, true)
 
@@ -224,27 +226,159 @@ class Turtle_Test {
      * Test calling `turtle.drop` into an inventory.
      */
     @GameTest
-    fun Drop_to_chest(helper: GameTestHelper) = helper.sequence {
-        val turtle = BlockPos(2, 2, 2)
+    fun Drop_into_chest(helper: GameTestHelper) = helper.sequence {
+        val turtlePos = BlockPos(2, 2, 2)
         val chest = BlockPos(2, 2, 3)
 
         thenOnComputer {
-            getApi<TurtleAPI>().drop(Optional.of(32)).await()
+            turtle.drop(Optional.of(32)).await()
                 .assertArrayEquals(true, message = "Could not drop items")
         }
         thenExecute {
-            helper.assertContainerExactly(turtle, listOf(ItemStack(Blocks.DIRT, 32), ItemStack.EMPTY, ItemStack(Blocks.DIRT, 32)))
+            helper.assertContainerExactly(turtlePos, listOf(ItemStack(Blocks.DIRT, 32), ItemStack.EMPTY, ItemStack(Blocks.DIRT, 32)))
             helper.assertContainerExactly(chest, listOf(ItemStack(Blocks.DIRT, 48)))
         }
     }
 
+    /**
+     * Test calling `turtle.drop` into an entity with an inventory
+     */
+    @GameTest
+    fun Drop_into_entity(helper: GameTestHelper) = helper.sequence {
+        // When running /test runthis, the previous items pop from the chest. Remove them first!
+        thenExecute { for (it in helper.getEntities(EntityType.ITEM)) it.discard() }
+
+        thenOnComputer {
+            turtle.drop(Optional.of(32)).await()
+                .assertArrayEquals(true, message = "Could not drop items")
+        }
+        thenExecute {
+            helper.assertContainerExactly(BlockPos(2, 2, 2), listOf(ItemStack(Blocks.DIRT, 32)))
+            helper.assertContainerExactly(helper.getEntity(EntityType.CHEST_MINECART), listOf(ItemStack(Blocks.DIRT, 48)))
+            helper.assertEntityNotPresent(EntityType.ITEM)
+        }
+    }
+
+    /**
+     * Test calling `turtle.refuel` on solid fuels (coal, blaze powder)
+     */
+    @GameTest
+    fun Refuel_basic(helper: GameTestHelper) = helper.sequence {
+        val turtlePos = BlockPos(2, 2, 2)
+
+        // Test refueling from slot 1 with no limit.
+        thenOnComputer {
+            assertEquals(0, turtle.fuelLevel)
+            turtle.refuel(Optional.empty()).await().assertArrayEquals(true)
+            assertEquals(160, turtle.fuelLevel)
+        }
+        thenExecute {
+            helper.assertContainerExactly(turtlePos, listOf(ItemStack.EMPTY, ItemStack(Items.BLAZE_ROD, 2)))
+        }
+
+        // Test refueling from slot 2 with a limit.
+        thenOnComputer {
+            turtle.select(2)
+            turtle.refuel(Optional.of(1)).await().assertArrayEquals(true)
+            assertEquals(280, turtle.fuelLevel)
+        }
+        thenExecute {
+            helper.assertContainerExactly(turtlePos, listOf(ItemStack.EMPTY, ItemStack(Items.BLAZE_ROD, 1)))
+        }
+    }
+
+    /**
+     * Test calling `turtle.refuel` with a bucket of lava
+     */
+    @GameTest
+    fun Refuel_container(helper: GameTestHelper) = helper.sequence {
+        val turtlePos = BlockPos(2, 2, 2)
+
+        // Test refueling from slot 1 with no limit.
+        thenOnComputer {
+            assertEquals(0, turtle.fuelLevel)
+            turtle.refuel(Optional.empty()).await().assertArrayEquals(true)
+            assertEquals(1000, turtle.fuelLevel)
+        }
+        thenExecute {
+            helper.assertContainerExactly(turtlePos, listOf(ItemStack(Items.BUCKET)))
+        }
+    }
+
+    /**
+     * Test turtles are not obstructed by plants and instead replace them.
+     */
+    @GameTest
+    fun Move_replace(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer { turtle.forward().await().assertArrayEquals(true, message = "Turtle moved forward") }
+        thenExecute { helper.assertBlockPresent(Registry.ModBlocks.TURTLE_NORMAL.get(), BlockPos(2, 2, 3)) }
+    }
+
+    /**
+     * Test turtles become waterlogged when moving through liquid.
+     */
+    @GameTest
+    fun Move_water(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer { turtle.forward().await().assertArrayEquals(true, message = "Turtle moved forward") }
+        thenExecute {
+            // Assert we're waterlogged.
+            helper.assertBlockHas(BlockPos(2, 2, 2), WaterloggableHelpers.WATERLOGGED, true)
+        }
+        thenOnComputer { turtle.forward().await().assertArrayEquals(true, message = "Turtle moved forward") }
+        thenExecute {
+            // Assert we're no longer waterlogged and we've left a source block.
+            helper.assertBlockIs(BlockPos(2, 2, 2), { it.block == Blocks.WATER && it.fluidState.isSource })
+            helper.assertBlockHas(BlockPos(2, 2, 3), WaterloggableHelpers.WATERLOGGED, false)
+        }
+    }
+
+    /**
+     * Test turtles can't move through solid blocks.
+     */
+    @GameTest
+    fun Move_obstruct(helper: GameTestHelper) = helper.sequence {
+        thenOnComputer { turtle.forward().await().assertArrayEquals(false, "Movement obstructed") }
+        thenExecute {
+            helper.assertBlockPresent(Registry.ModBlocks.TURTLE_NORMAL.get(), BlockPos(2, 2, 2))
+            helper.assertBlockPresent(Blocks.DIRT, BlockPos(2, 2, 3))
+        }
+    }
+
+    /**
+     * Test a turtle can attack an entity and capture its drops.
+     */
+    @GameTest
+    fun Attack_entity(helper: GameTestHelper) = helper.sequence {
+        val turtlePos = BlockPos(2, 2, 2)
+        thenOnComputer {
+            turtle.attack(Optional.empty()).await().assertArrayEquals(true, message = "Attacked entity")
+        }
+        thenExecute {
+            helper.assertEntityNotPresent(EntityType.SHEEP)
+            val count = helper.getBlockEntity(turtlePos, Registry.ModBlockEntities.TURTLE_NORMAL.get()).countItem(Items.WHITE_WOOL)
+            if (count == 0) helper.fail("Expected turtle to have white wool", turtlePos)
+        }
+    }
+
+    /**
+     * Test a turtle can be destroyed while performing an action.
+     *
+     * @see [#585](https://github.com/cc-tweaked/CC-Tweaked/issues/585)
+     */
+    @GameTest
+    fun Attack_entity_destroy(helper: GameTestHelper) = helper.sequence {
+        thenStartComputer { turtle.attack(Optional.empty()) }
+        thenWaitUntil { helper.assertBlockPresent(Blocks.AIR, BlockPos(2, 2, 2)) }
+    }
+
     // TODO: Ghost peripherals?
-    // TODO: Dropping into minecarts
     // TODO: Turtle sucking from items
 }
 
+private val LuaTaskContext.turtle get() = getApi<TurtleAPI>()
+
 private suspend fun LuaTaskContext.getTurtleItemDetail(slot: Int = 1, detailed: Boolean = false): Map<String, *> {
-    val item = getApi<TurtleAPI>().getItemDetail(context, Optional.of(slot), Optional.of(detailed)).await()
+    val item = turtle.getItemDetail(context, Optional.of(slot), Optional.of(detailed)).await()
     assertThat("Returns details", item, array(instanceOf(Map::class.java)))
 
     @Suppress("UNCHECKED_CAST")

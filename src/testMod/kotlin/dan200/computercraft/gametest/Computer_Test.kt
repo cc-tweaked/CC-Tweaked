@@ -62,6 +62,11 @@ class Computer_Test {
         thenExecute { context.assertBlockHas(lamp, RedstoneLampBlock.LIT, false, "Lamp should not be lit") }
     }
 
-    // TODO: More redstone connectivity tests!
-    // TODO: Computer peripherals (including command computers)
+    @GameTest
+    fun Computer_peripheral(context: GameTestHelper) = context.sequence {
+        thenExecute {
+            context.assertPeripheral(BlockPos(3, 2, 2), type = "computer")
+            context.assertPeripheral(BlockPos(1, 2, 2), type = "turtle")
+        }
+    }
 }

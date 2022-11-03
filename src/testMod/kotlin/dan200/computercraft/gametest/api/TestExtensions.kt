@@ -8,9 +8,11 @@ package dan200.computercraft.gametest.api
 import dan200.computercraft.gametest.core.ManagedComputers
 import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
 import dan200.computercraft.mixin.gametest.GameTestSequenceAccessor
+import dan200.computercraft.shared.Peripherals
 import dan200.computercraft.test.core.computer.LuaTaskContext
 import net.minecraft.commands.arguments.blocks.BlockInput
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
 import net.minecraft.gametest.framework.*
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.Container
@@ -151,12 +153,23 @@ fun <T : Comparable<T>> GameTestHelper.assertBlockHas(pos: BlockPos, property: P
  * @param items The list of items this container must contain. This should be equal to the expected contents of the
  * first `n` slots - the remaining are required to be empty.
  */
-fun GameTestHelper.assertContainerExactly(pos: BlockPos, items: List<ItemStack>) {
-    val container = getBlockEntity(pos) ?: failVerbose("Expected a container at $pos, found nothing", pos)
-    if (container !is Container) {
-        failVerbose("Expected a container at $pos, found ${getName(container.type)}", pos)
+fun GameTestHelper.assertContainerExactly(pos: BlockPos, items: List<ItemStack>) =
+    when (val container = getBlockEntity(pos) ?: failVerbose("Expected a container at $pos, found nothing", pos)) {
+        is Container -> assertContainerExactlyImpl(pos, container, items)
+        else -> failVerbose("Expected a container at $pos, found ${getName(container.type)}", pos)
     }
 
+/**
+ * Assert an container contains exactly these items and no more.
+ *
+ * @param entity The entity containing these items.
+ * @param items The list of items this container must contain. This should be equal to the expected contents of the
+ * first `n` slots - the remaining are required to be empty.
+ */
+fun <T> GameTestHelper.assertContainerExactly(entity: T, items: List<ItemStack>) where T : Entity, T : Container =
+    assertContainerExactlyImpl(entity.blockPosition(), entity, items)
+
+private fun GameTestHelper.assertContainerExactlyImpl(pos: BlockPos, container: Container, items: List<ItemStack>) {
     val slot = (0 until container.containerSize).indexOfFirst { slot ->
         val expected = if (slot >= items.size) ItemStack.EMPTY else items[slot]
         !ItemStack.matches(container.getItem(slot), expected)
@@ -172,6 +185,19 @@ fun GameTestHelper.assertContainerExactly(pos: BlockPos, items: List<ItemStack>)
             pos,
         )
     }
+}
+
+fun GameTestHelper.assertPeripheral(pos: BlockPos, direction: Direction = Direction.UP, type: String) {
+    val peripheral = Peripherals.getPeripheral(level, absolutePos(pos), direction) {}
+    when {
+        peripheral == null -> fail("No peripheral at position", pos)
+        peripheral.type != type -> fail("Peripheral is of type ${peripheral.type}, expected $type", pos)
+    }
+}
+
+fun GameTestHelper.assertNoPeripheral(pos: BlockPos, direction: Direction = Direction.UP) {
+    val peripheral = Peripherals.getPeripheral(level, absolutePos(pos), direction) {}
+    if (peripheral != null) fail("Expected no peripheral, got a ${peripheral.type}", pos)
 }
 
 private fun getName(type: BlockEntityType<*>): ResourceLocation = ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(type)!!
