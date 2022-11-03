@@ -17,24 +17,20 @@ import java.util.function.Consumer;
 import static dan200.computercraft.shared.Registry.ModItems;
 import static dan200.computercraft.shared.Registry.ModPocketUpgradeSerialisers;
 
-class PocketUpgradeGenerator extends PocketUpgradeDataProvider
-{
-    PocketUpgradeGenerator( DataGenerator generator )
-    {
-        super( generator );
+class PocketUpgradeGenerator extends PocketUpgradeDataProvider {
+    PocketUpgradeGenerator(DataGenerator generator) {
+        super(generator);
     }
 
     @Override
-    protected void addUpgrades( @Nonnull Consumer<Upgrade<PocketUpgradeSerialiser<?>>> addUpgrade )
-    {
-        addUpgrade.accept( simpleWithCustomItem( id( "speaker" ), ModPocketUpgradeSerialisers.SPEAKER.get(), ModItems.SPEAKER.get() ) );
-        simpleWithCustomItem( id( "wireless_modem_normal" ), ModPocketUpgradeSerialisers.WIRELESS_MODEM_NORMAL.get(), ModItems.WIRELESS_MODEM_NORMAL.get() ).add( addUpgrade );
-        simpleWithCustomItem( id( "wireless_modem_advanced" ), ModPocketUpgradeSerialisers.WIRELESS_MODEM_ADVANCED.get(), ModItems.WIRELESS_MODEM_ADVANCED.get() ).add( addUpgrade );
+    protected void addUpgrades(@Nonnull Consumer<Upgrade<PocketUpgradeSerialiser<?>>> addUpgrade) {
+        addUpgrade.accept(simpleWithCustomItem(id("speaker"), ModPocketUpgradeSerialisers.SPEAKER.get(), ModItems.SPEAKER.get()));
+        simpleWithCustomItem(id("wireless_modem_normal"), ModPocketUpgradeSerialisers.WIRELESS_MODEM_NORMAL.get(), ModItems.WIRELESS_MODEM_NORMAL.get()).add(addUpgrade);
+        simpleWithCustomItem(id("wireless_modem_advanced"), ModPocketUpgradeSerialisers.WIRELESS_MODEM_ADVANCED.get(), ModItems.WIRELESS_MODEM_ADVANCED.get()).add(addUpgrade);
     }
 
     @Nonnull
-    private static ResourceLocation id( @Nonnull String id )
-    {
-        return new ResourceLocation( ComputerCraft.MOD_ID, id );
+    private static ResourceLocation id(@Nonnull String id) {
+        return new ResourceLocation(ComputerCraft.MOD_ID, id);
     }
 }

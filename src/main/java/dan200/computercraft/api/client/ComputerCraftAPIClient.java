@@ -13,10 +13,8 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 import javax.annotation.Nonnull;
 
-public final class ComputerCraftAPIClient
-{
-    private ComputerCraftAPIClient()
-    {
+public final class ComputerCraftAPIClient {
+    private ComputerCraftAPIClient() {
     }
 
     /**
@@ -28,14 +26,12 @@ public final class ComputerCraftAPIClient
      * @param modeller   The upgrade modeller.
      * @param <T>        The type of the turtle upgrade.
      */
-    public static <T extends ITurtleUpgrade> void registerTurtleUpgradeModeller( @Nonnull TurtleUpgradeSerialiser<T> serialiser, @Nonnull TurtleUpgradeModeller<T> modeller )
-    {
-        getInstance().registerTurtleUpgradeModeller( serialiser, modeller );
+    public static <T extends ITurtleUpgrade> void registerTurtleUpgradeModeller(@Nonnull TurtleUpgradeSerialiser<T> serialiser, @Nonnull TurtleUpgradeModeller<T> modeller) {
+        getInstance().registerTurtleUpgradeModeller(serialiser, modeller);
     }
 
     @Nonnull
-    private static ComputerCraftAPIClientService getInstance()
-    {
+    private static ComputerCraftAPIClientService getInstance() {
         return ComputerCraftAPIClientService.get();
     }
 }

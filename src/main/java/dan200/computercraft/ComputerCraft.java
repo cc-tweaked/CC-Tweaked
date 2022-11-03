@@ -18,9 +18,8 @@ import java.util.List;
 import java.util.OptionalInt;
 import java.util.concurrent.TimeUnit;
 
-@Mod( ComputerCraft.MOD_ID )
-public final class ComputerCraft
-{
+@Mod(ComputerCraft.MOD_ID)
+public final class ComputerCraft {
     public static final String MOD_ID = "computercraft";
 
     public static int computerSpaceLimit = 1000 * 1000;
@@ -32,14 +31,14 @@ public final class ComputerCraft
     public static boolean commandRequireCreative = true;
 
     public static int computerThreads = 1;
-    public static long maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos( 10 );
-    public static long maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos( 5 );
+    public static long maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos(10);
+    public static long maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos(5);
 
     public static boolean httpEnabled = true;
     public static boolean httpWebsocketEnabled = true;
     public static List<AddressRule> httpRules = List.of(
-        AddressRule.parse( "$private", OptionalInt.empty(), Action.DENY.toPartial() ),
-        AddressRule.parse( "*", OptionalInt.empty(), Action.ALLOW.toPartial() )
+        AddressRule.parse("$private", OptionalInt.empty(), Action.DENY.toPartial()),
+        AddressRule.parse("*", OptionalInt.empty(), Action.ALLOW.toPartial())
     );
 
     public static int httpMaxRequests = 16;
@@ -77,10 +76,9 @@ public final class ComputerCraft
 
     public static int uploadNagDelay = 5;
 
-    public static final Logger log = LoggerFactory.getLogger( MOD_ID );
+    public static final Logger log = LoggerFactory.getLogger(MOD_ID);
 
-    public ComputerCraft()
-    {
+    public ComputerCraft() {
         Config.setup();
         Registry.setup();
     }

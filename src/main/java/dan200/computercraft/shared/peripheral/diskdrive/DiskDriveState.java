@@ -9,23 +9,20 @@ import net.minecraft.util.StringRepresentable;
 
 import javax.annotation.Nonnull;
 
-public enum DiskDriveState implements StringRepresentable
-{
-    EMPTY( "empty" ),
-    FULL( "full" ),
-    INVALID( "invalid" );
+public enum DiskDriveState implements StringRepresentable {
+    EMPTY("empty"),
+    FULL("full"),
+    INVALID("invalid");
 
     private final String name;
 
-    DiskDriveState( String name )
-    {
+    DiskDriveState(String name) {
         this.name = name;
     }
 
     @Override
     @Nonnull
-    public String getSerializedName()
-    {
+    public String getSerializedName() {
         return name;
     }
 }

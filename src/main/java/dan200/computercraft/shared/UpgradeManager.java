@@ -37,14 +37,14 @@ import java.util.stream.Collectors;
  * @see TurtleUpgrades
  * @see PocketUpgrades
  */
-public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends IUpgradeBase> extends SimpleJsonResourceReloadListener
-{
+public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends IUpgradeBase> extends SimpleJsonResourceReloadListener {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     public record UpgradeWrapper<R extends UpgradeSerialiser<? extends T>, T extends IUpgradeBase>(
         @Nonnull String id, @Nonnull T upgrade, @Nonnull R serialiser, @Nonnull String modId
-    ) {}
+    ) {
+    }
 
     private final String kind;
     private final ResourceKey<Registry<R>> registry;
@@ -52,43 +52,36 @@ public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends 
     private Map<String, UpgradeWrapper<R, T>> current = Collections.emptyMap();
     private Map<T, UpgradeWrapper<R, T>> currentWrappers = Collections.emptyMap();
 
-    public UpgradeManager( @Nonnull String kind, @Nonnull String path, @Nonnull ResourceKey<Registry<R>> registry )
-    {
-        super( GSON, path );
+    public UpgradeManager(@Nonnull String kind, @Nonnull String path, @Nonnull ResourceKey<Registry<R>> registry) {
+        super(GSON, path);
         this.kind = kind;
         this.registry = registry;
     }
 
     @Nullable
-    public T get( String id )
-    {
-        var wrapper = current.get( id );
+    public T get(String id) {
+        var wrapper = current.get(id);
         return wrapper == null ? null : wrapper.upgrade();
     }
 
     @Nullable
-    public UpgradeWrapper<R, T> getWrapper( @Nonnull T upgrade )
-    {
-        return currentWrappers.get( upgrade );
+    public UpgradeWrapper<R, T> getWrapper(@Nonnull T upgrade) {
+        return currentWrappers.get(upgrade);
     }
 
     @Nullable
-    public String getOwner( @Nonnull T upgrade )
-    {
-        var wrapper = currentWrappers.get( upgrade );
+    public String getOwner(@Nonnull T upgrade) {
+        var wrapper = currentWrappers.get(upgrade);
         return wrapper != null ? wrapper.modId() : null;
     }
 
     @Nullable
-    public T get( @Nonnull ItemStack stack )
-    {
-        if( stack.isEmpty() ) return null;
+    public T get(@Nonnull ItemStack stack) {
+        if (stack.isEmpty()) return null;
 
-        for( var wrapper : current.values() )
-        {
+        for (var wrapper : current.values()) {
             var craftingStack = wrapper.upgrade().getCraftingItem();
-            if( !craftingStack.isEmpty() && craftingStack.getItem() == stack.getItem() && wrapper.upgrade().isItemSuitable( stack ) )
-            {
+            if (!craftingStack.isEmpty() && craftingStack.getItem() == stack.getItem() && wrapper.upgrade().isItemSuitable(stack)) {
                 return wrapper.upgrade();
             }
         }
@@ -97,64 +90,54 @@ public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends 
     }
 
     @Nonnull
-    public Collection<T> getUpgrades()
-    {
+    public Collection<T> getUpgrades() {
         return currentWrappers.keySet();
     }
 
     @Nonnull
-    public Map<String, UpgradeWrapper<R, T>> getUpgradeWrappers()
-    {
+    public Map<String, UpgradeWrapper<R, T>> getUpgradeWrappers() {
         return current;
     }
 
     @Override
-    protected void apply( @Nonnull Map<ResourceLocation, JsonElement> upgrades, @Nonnull ResourceManager manager, @Nonnull ProfilerFiller profiler )
-    {
+    protected void apply(@Nonnull Map<ResourceLocation, JsonElement> upgrades, @Nonnull ResourceManager manager, @Nonnull ProfilerFiller profiler) {
         Map<String, UpgradeWrapper<R, T>> newUpgrades = new HashMap<>();
-        for( var element : upgrades.entrySet() )
-        {
-            try
-            {
-                loadUpgrade( newUpgrades, element.getKey(), element.getValue() );
-            }
-            catch( IllegalArgumentException | JsonParseException e )
-            {
-                LOGGER.error( "Error loading {} {} from JSON file", kind, element.getKey(), e );
+        for (var element : upgrades.entrySet()) {
+            try {
+                loadUpgrade(newUpgrades, element.getKey(), element.getValue());
+            } catch (IllegalArgumentException | JsonParseException e) {
+                LOGGER.error("Error loading {} {} from JSON file", kind, element.getKey(), e);
             }
         }
 
-        current = Collections.unmodifiableMap( newUpgrades );
-        currentWrappers = newUpgrades.values().stream().collect( Collectors.toUnmodifiableMap( UpgradeWrapper::upgrade, x -> x ) );
-        LOGGER.info( "Loaded {} {}s", current.size(), kind );
+        current = Collections.unmodifiableMap(newUpgrades);
+        currentWrappers = newUpgrades.values().stream().collect(Collectors.toUnmodifiableMap(UpgradeWrapper::upgrade, x -> x));
+        LOGGER.info("Loaded {} {}s", current.size(), kind);
     }
 
-    private void loadUpgrade( Map<String, UpgradeWrapper<R, T>> current, ResourceLocation id, JsonElement json )
-    {
-        var root = GsonHelper.convertToJsonObject( json, "top element" );
-        var serialiserId = new ResourceLocation( GsonHelper.getAsString( root, "type" ) );
+    private void loadUpgrade(Map<String, UpgradeWrapper<R, T>> current, ResourceLocation id, JsonElement json) {
+        var root = GsonHelper.convertToJsonObject(json, "top element");
+        var serialiserId = new ResourceLocation(GsonHelper.getAsString(root, "type"));
 
-        var serialiser = RegistryManager.ACTIVE.getRegistry( registry ).getValue( serialiserId );
-        if( serialiser == null ) throw new JsonSyntaxException( "Unknown upgrade type '" + serialiserId + "'" );
+        var serialiser = RegistryManager.ACTIVE.getRegistry(registry).getValue(serialiserId);
+        if (serialiser == null) throw new JsonSyntaxException("Unknown upgrade type '" + serialiserId + "'");
 
         // TODO: Can we track which mod this resource came from and use that instead? It's theoretically possible,
         //  but maybe not ideal for datapacks.
         var modId = id.getNamespace();
-        if( modId.equals( "minecraft" ) || modId.equals( "" ) ) modId = ComputerCraft.MOD_ID;
+        if (modId.equals("minecraft") || modId.equals("")) modId = ComputerCraft.MOD_ID;
 
-        var upgrade = serialiser.fromJson( id, root );
-        if( !upgrade.getUpgradeID().equals( id ) )
-        {
-            throw new IllegalArgumentException( "Upgrade " + id + " from " + serialiser + " was incorrectly given id " + upgrade.getUpgradeID() );
+        var upgrade = serialiser.fromJson(id, root);
+        if (!upgrade.getUpgradeID().equals(id)) {
+            throw new IllegalArgumentException("Upgrade " + id + " from " + serialiser + " was incorrectly given id " + upgrade.getUpgradeID());
         }
 
-        UpgradeWrapper<R, T> result = new UpgradeWrapper<>( id.toString(), upgrade, serialiser, modId );
-        current.put( result.id(), result );
+        var result = new UpgradeWrapper<R, T>(id.toString(), upgrade, serialiser, modId);
+        current.put(result.id(), result);
     }
 
-    public void loadFromNetwork( @Nonnull Map<String, UpgradeWrapper<R, T>> newUpgrades )
-    {
-        current = Collections.unmodifiableMap( newUpgrades );
-        currentWrappers = newUpgrades.values().stream().collect( Collectors.toUnmodifiableMap( UpgradeWrapper::upgrade, x -> x ) );
+    public void loadFromNetwork(@Nonnull Map<String, UpgradeWrapper<R, T>> newUpgrades) {
+        current = Collections.unmodifiableMap(newUpgrades);
+        currentWrappers = newUpgrades.values().stream().collect(Collectors.toUnmodifiableMap(UpgradeWrapper::upgrade, x -> x));
     }
 }

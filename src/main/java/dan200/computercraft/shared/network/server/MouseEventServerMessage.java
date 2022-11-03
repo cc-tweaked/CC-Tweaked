@@ -6,15 +6,13 @@
 package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
-import dan200.computercraft.shared.computer.menu.ServerInputHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
-public class MouseEventServerMessage extends ComputerServerMessage
-{
+public class MouseEventServerMessage extends ComputerServerMessage {
     public static final int TYPE_CLICK = 0;
     public static final int TYPE_DRAG = 1;
     public static final int TYPE_UP = 2;
@@ -25,18 +23,16 @@ public class MouseEventServerMessage extends ComputerServerMessage
     private final int y;
     private final int arg;
 
-    public MouseEventServerMessage( AbstractContainerMenu menu, int type, int arg, int x, int y )
-    {
-        super( menu );
+    public MouseEventServerMessage(AbstractContainerMenu menu, int type, int arg, int x, int y) {
+        super(menu);
         this.type = type;
         this.arg = arg;
         this.x = x;
         this.y = y;
     }
 
-    public MouseEventServerMessage( @Nonnull FriendlyByteBuf buf )
-    {
-        super( buf );
+    public MouseEventServerMessage(@Nonnull FriendlyByteBuf buf) {
+        super(buf);
         type = buf.readByte();
         arg = buf.readVarInt();
         x = buf.readVarInt();
@@ -44,33 +40,22 @@ public class MouseEventServerMessage extends ComputerServerMessage
     }
 
     @Override
-    public void toBytes( @Nonnull FriendlyByteBuf buf )
-    {
-        super.toBytes( buf );
-        buf.writeByte( type );
-        buf.writeVarInt( arg );
-        buf.writeVarInt( x );
-        buf.writeVarInt( y );
+    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+        super.toBytes(buf);
+        buf.writeByte(type);
+        buf.writeVarInt(arg);
+        buf.writeVarInt(x);
+        buf.writeVarInt(y);
     }
 
     @Override
-    protected void handle( NetworkEvent.Context context, @Nonnull ComputerMenu container )
-    {
-        ServerInputHandler input = container.getInput();
-        switch( type )
-        {
-            case TYPE_CLICK:
-                input.mouseClick( arg, x, y );
-                break;
-            case TYPE_DRAG:
-                input.mouseDrag( arg, x, y );
-                break;
-            case TYPE_UP:
-                input.mouseUp( arg, x, y );
-                break;
-            case TYPE_SCROLL:
-                input.mouseScroll( arg, x, y );
-                break;
+    protected void handle(NetworkEvent.Context context, @Nonnull ComputerMenu container) {
+        var input = container.getInput();
+        switch (type) {
+            case TYPE_CLICK -> input.mouseClick(arg, x, y);
+            case TYPE_DRAG -> input.mouseDrag(arg, x, y);
+            case TYPE_UP -> input.mouseUp(arg, x, y);
+            case TYPE_SCROLL -> input.mouseScroll(arg, x, y);
         }
     }
 }

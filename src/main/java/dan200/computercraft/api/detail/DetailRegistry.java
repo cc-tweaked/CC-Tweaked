@@ -20,15 +20,14 @@ import java.util.Map;
  * @param <T> The type of object that this registry provides details for.
  */
 @ApiStatus.NonExtendable
-public interface DetailRegistry<T>
-{
+public interface DetailRegistry<T> {
     /**
      * Registers a detail provider.
      *
      * @param provider The detail provider to register.
      * @see IDetailProvider
      */
-    void addProvider( IDetailProvider<T> provider );
+    void addProvider(IDetailProvider<T> provider);
 
     /**
      * Compute basic details about an object. This is cheaper than computing all details operation, and so is suitable
@@ -37,7 +36,7 @@ public interface DetailRegistry<T>
      * @param object The object to get details for.
      * @return The basic details.
      */
-    Map<String, Object> getBasicDetails( T object );
+    Map<String, Object> getBasicDetails(T object);
 
     /**
      * Compute all details about an object, using {@link #getBasicDetails(Object)} and any registered providers.
@@ -45,5 +44,5 @@ public interface DetailRegistry<T>
      * @param object The object to get details for.
      * @return The computed details.
      */
-    Map<String, Object> getDetails( T object );
+    Map<String, Object> getDetails(T object);
 }

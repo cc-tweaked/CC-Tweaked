@@ -27,8 +27,7 @@ import javax.annotation.Nullable;
  *
  * @see TurtleUpgradeSerialiser For how to register a turtle upgrade.
  */
-public interface ITurtleUpgrade extends IUpgradeBase
-{
+public interface ITurtleUpgrade extends IUpgradeBase {
     /**
      * Return whether this turtle adds a tool or a peripheral to the turtle.
      *
@@ -51,8 +50,7 @@ public interface ITurtleUpgrade extends IUpgradeBase
      * and this method is not expected to be called.
      */
     @Nullable
-    default IPeripheral createPeripheral( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side )
-    {
+    default IPeripheral createPeripheral(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side) {
         return null;
     }
 
@@ -75,8 +73,7 @@ public interface ITurtleUpgrade extends IUpgradeBase
      * to be called.
      */
     @Nonnull
-    default TurtleCommandResult useTool( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull Direction direction )
-    {
+    default TurtleCommandResult useTool(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull Direction direction) {
         return TurtleCommandResult.failure();
     }
 
@@ -86,7 +83,6 @@ public interface ITurtleUpgrade extends IUpgradeBase
      * @param turtle Access to the turtle that the upgrade resides on.
      * @param side   Which side of the turtle (left or right) the upgrade resides on.
      */
-    default void update( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side )
-    {
+    default void update(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side) {
     }
 }

@@ -22,30 +22,25 @@ import java.util.UUID;
  *
  * @see dan200.computercraft.shared.peripheral.speaker.TileSpeaker
  */
-public class SpeakerStopClientMessage implements NetworkMessage
-{
+public class SpeakerStopClientMessage implements NetworkMessage {
     private final UUID source;
 
-    public SpeakerStopClientMessage( UUID source )
-    {
+    public SpeakerStopClientMessage(UUID source) {
         this.source = source;
     }
 
-    public SpeakerStopClientMessage( FriendlyByteBuf buf )
-    {
+    public SpeakerStopClientMessage(FriendlyByteBuf buf) {
         source = buf.readUUID();
     }
 
     @Override
-    public void toBytes( @Nonnull FriendlyByteBuf buf )
-    {
-        buf.writeUUID( source );
+    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+        buf.writeUUID(source);
     }
 
     @Override
-    @OnlyIn( Dist.CLIENT )
-    public void handle( NetworkEvent.Context context )
-    {
-        SpeakerManager.stopSound( source );
+    @OnlyIn(Dist.CLIENT)
+    public void handle(NetworkEvent.Context context) {
+        SpeakerManager.stopSound(source);
     }
 }

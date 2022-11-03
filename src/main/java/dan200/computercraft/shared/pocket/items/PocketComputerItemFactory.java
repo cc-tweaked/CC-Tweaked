@@ -12,21 +12,16 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public final class PocketComputerItemFactory
-{
-    private PocketComputerItemFactory() {}
+public final class PocketComputerItemFactory {
+    private PocketComputerItemFactory() {
+    }
 
     @Nonnull
-    public static ItemStack create( int id, String label, int colour, ComputerFamily family, IPocketUpgrade upgrade )
-    {
-        switch( family )
-        {
-            case NORMAL:
-                return Registry.ModItems.POCKET_COMPUTER_NORMAL.get().create( id, label, colour, upgrade );
-            case ADVANCED:
-                return Registry.ModItems.POCKET_COMPUTER_ADVANCED.get().create( id, label, colour, upgrade );
-            default:
-                return ItemStack.EMPTY;
-        }
+    public static ItemStack create(int id, String label, int colour, ComputerFamily family, IPocketUpgrade upgrade) {
+        return switch (family) {
+            case NORMAL -> Registry.ModItems.POCKET_COMPUTER_NORMAL.get().create(id, label, colour, upgrade);
+            case ADVANCED -> Registry.ModItems.POCKET_COMPUTER_ADVANCED.get().create(id, label, colour, upgrade);
+            default -> ItemStack.EMPTY;
+        };
     }
 }

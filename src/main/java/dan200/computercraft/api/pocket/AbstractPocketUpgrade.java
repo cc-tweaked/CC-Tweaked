@@ -16,42 +16,36 @@ import javax.annotation.Nonnull;
  * <p>
  * One does not have to use this, but it does provide a convenient template.
  */
-public abstract class AbstractPocketUpgrade implements IPocketUpgrade
-{
+public abstract class AbstractPocketUpgrade implements IPocketUpgrade {
     private final ResourceLocation id;
     private final String adjective;
     private final ItemStack stack;
 
-    protected AbstractPocketUpgrade( ResourceLocation id, String adjective, ItemStack stack )
-    {
+    protected AbstractPocketUpgrade(ResourceLocation id, String adjective, ItemStack stack) {
         this.id = id;
         this.adjective = adjective;
         this.stack = stack;
     }
 
-    protected AbstractPocketUpgrade( ResourceLocation id, ItemStack stack )
-    {
-        this( id, IUpgradeBase.getDefaultAdjective( id ), stack );
+    protected AbstractPocketUpgrade(ResourceLocation id, ItemStack stack) {
+        this(id, IUpgradeBase.getDefaultAdjective(id), stack);
     }
 
     @Nonnull
     @Override
-    public final ResourceLocation getUpgradeID()
-    {
+    public final ResourceLocation getUpgradeID() {
         return id;
     }
 
     @Nonnull
     @Override
-    public final String getUnlocalisedAdjective()
-    {
+    public final String getUnlocalisedAdjective() {
         return adjective;
     }
 
     @Nonnull
     @Override
-    public final ItemStack getCraftingItem()
-    {
+    public final ItemStack getCraftingItem() {
         return stack;
     }
 }

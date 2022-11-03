@@ -21,10 +21,8 @@ import java.util.function.Consumer;
  * @see GatherDataEvent To register your data provider
  * @see PocketUpgradeSerialiser
  */
-public abstract class PocketUpgradeDataProvider extends UpgradeDataProvider<IPocketUpgrade, PocketUpgradeSerialiser<?>>
-{
-    public PocketUpgradeDataProvider( @Nonnull DataGenerator generator )
-    {
-        super( generator, "Pocket Computer Upgrades", "computercraft/pocket_upgrades", PocketUpgradeSerialiser.REGISTRY_ID );
+public abstract class PocketUpgradeDataProvider extends UpgradeDataProvider<IPocketUpgrade, PocketUpgradeSerialiser<?>> {
+    public PocketUpgradeDataProvider(@Nonnull DataGenerator generator) {
+        super(generator, "Pocket Computer Upgrades", "computercraft/pocket_upgrades", PocketUpgradeSerialiser.REGISTRY_ID);
     }
 }

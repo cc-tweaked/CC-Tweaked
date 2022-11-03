@@ -23,34 +23,29 @@ import java.util.UUID;
  *
  * @see dan200.computercraft.shared.peripheral.speaker.TileSpeaker
  */
-public class SpeakerMoveClientMessage implements NetworkMessage
-{
+public class SpeakerMoveClientMessage implements NetworkMessage {
     private final UUID source;
     private final SpeakerPosition.Message pos;
 
-    public SpeakerMoveClientMessage( UUID source, SpeakerPosition pos )
-    {
+    public SpeakerMoveClientMessage(UUID source, SpeakerPosition pos) {
         this.source = source;
         this.pos = pos.asMessage();
     }
 
-    public SpeakerMoveClientMessage( FriendlyByteBuf buf )
-    {
+    public SpeakerMoveClientMessage(FriendlyByteBuf buf) {
         source = buf.readUUID();
-        pos = SpeakerPosition.Message.read( buf );
+        pos = SpeakerPosition.Message.read(buf);
     }
 
     @Override
-    public void toBytes( @Nonnull FriendlyByteBuf buf )
-    {
-        buf.writeUUID( source );
-        pos.write( buf );
+    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+        buf.writeUUID(source);
+        pos.write(buf);
     }
 
     @Override
-    @OnlyIn( Dist.CLIENT )
-    public void handle( NetworkEvent.Context context )
-    {
-        SpeakerManager.moveSound( source, pos.reify() );
+    @OnlyIn(Dist.CLIENT)
+    public void handle(NetworkEvent.Context context) {
+        SpeakerManager.moveSound(source, pos.reify());
     }
 }

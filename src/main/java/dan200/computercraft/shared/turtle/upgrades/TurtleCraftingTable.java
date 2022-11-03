@@ -15,16 +15,13 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public class TurtleCraftingTable extends AbstractTurtleUpgrade
-{
-    public TurtleCraftingTable( ResourceLocation id, ItemStack stack )
-    {
-        super( id, TurtleUpgradeType.PERIPHERAL, "upgrade.minecraft.crafting_table.adjective", stack );
+public class TurtleCraftingTable extends AbstractTurtleUpgrade {
+    public TurtleCraftingTable(ResourceLocation id, ItemStack stack) {
+        super(id, TurtleUpgradeType.PERIPHERAL, "upgrade.minecraft.crafting_table.adjective", stack);
     }
 
     @Override
-    public IPeripheral createPeripheral( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side )
-    {
-        return new CraftingTablePeripheral( turtle );
+    public IPeripheral createPeripheral(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side) {
+        return new CraftingTablePeripheral(turtle);
     }
 }

@@ -21,30 +21,25 @@ import javax.annotation.Nullable;
  * Do <strong>NOT</strong> directly reference this class. It exists for internal use by the API.
  */
 @ApiStatus.Internal
-public interface ComputerCraftAPIClientService
-{
-    static ComputerCraftAPIClientService get()
-    {
-        ComputerCraftAPIClientService instance = Instance.INSTANCE;
-        return instance == null ? Services.raise( ComputerCraftAPIClientService.class, Instance.ERROR ) : instance;
+public interface ComputerCraftAPIClientService {
+    static ComputerCraftAPIClientService get() {
+        var instance = Instance.INSTANCE;
+        return instance == null ? Services.raise(ComputerCraftAPIClientService.class, Instance.ERROR) : instance;
     }
 
-    <T extends ITurtleUpgrade> void registerTurtleUpgradeModeller( @Nonnull TurtleUpgradeSerialiser<T> serialiser, @Nonnull TurtleUpgradeModeller<T> modeller );
+    <T extends ITurtleUpgrade> void registerTurtleUpgradeModeller(@Nonnull TurtleUpgradeSerialiser<T> serialiser, @Nonnull TurtleUpgradeModeller<T> modeller);
 
-    final class Instance
-    {
+    final class Instance {
         static final @Nullable ComputerCraftAPIClientService INSTANCE;
         static final @Nullable Throwable ERROR;
 
-        static
-        {
-            Services.LoadedService<ComputerCraftAPIClientService> helper = Services.tryLoad( ComputerCraftAPIClientService.class );
+        static {
+            var helper = Services.tryLoad(ComputerCraftAPIClientService.class);
             INSTANCE = helper.instance();
             ERROR = helper.error();
         }
 
-        private Instance()
-        {
+        private Instance() {
         }
     }
 }

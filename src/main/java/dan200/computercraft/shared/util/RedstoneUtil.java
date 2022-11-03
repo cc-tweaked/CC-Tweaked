@@ -16,10 +16,8 @@ import net.minecraftforge.event.ForgeEventFactory;
 
 import java.util.EnumSet;
 
-public final class RedstoneUtil
-{
-    private RedstoneUtil()
-    {
+public final class RedstoneUtil {
+    private RedstoneUtil() {
     }
 
     /**
@@ -31,25 +29,23 @@ public final class RedstoneUtil
      * @return The effective redstone power
      * @see DiodeBlock#getInputSignal(Level, BlockPos, BlockState)
      */
-    public static int getRedstoneInput( Level world, BlockPos pos, Direction side )
-    {
-        int power = world.getSignal( pos, side );
-        if( power >= 15 ) return power;
+    public static int getRedstoneInput(Level world, BlockPos pos, Direction side) {
+        var power = world.getSignal(pos, side);
+        if (power >= 15) return power;
 
-        BlockState neighbour = world.getBlockState( pos );
+        var neighbour = world.getBlockState(pos);
         return neighbour.getBlock() == Blocks.REDSTONE_WIRE
-            ? Math.max( power, neighbour.getValue( RedStoneWireBlock.POWER ) )
+            ? Math.max(power, neighbour.getValue(RedStoneWireBlock.POWER))
             : power;
     }
 
-    public static void propagateRedstoneOutput( Level world, BlockPos pos, Direction side )
-    {
+    public static void propagateRedstoneOutput(Level world, BlockPos pos, Direction side) {
         // Propagate ordinary output. See BlockRedstoneDiode.notifyNeighbors
-        BlockState block = world.getBlockState( pos );
-        if( ForgeEventFactory.onNeighborNotify( world, pos, block, EnumSet.of( side ), false ).isCanceled() ) return;
+        var block = world.getBlockState(pos);
+        if (ForgeEventFactory.onNeighborNotify(world, pos, block, EnumSet.of(side), false).isCanceled()) return;
 
-        BlockPos neighbourPos = pos.relative( side );
-        world.neighborChanged( neighbourPos, block.getBlock(), pos );
-        world.updateNeighborsAtExceptFromFacing( neighbourPos, block.getBlock(), side.getOpposite() );
+        var neighbourPos = pos.relative(side);
+        world.neighborChanged(neighbourPos, block.getBlock(), pos);
+        world.updateNeighborsAtExceptFromFacing(neighbourPos, block.getBlock(), side.getOpposite());
     }
 }

@@ -21,7 +21,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -43,56 +42,47 @@ import static dan200.computercraft.shared.Capabilities.CAPABILITY_WIRED_ELEMENT;
 import static dan200.computercraft.shared.peripheral.modem.wired.BlockWiredModemFull.MODEM_ON;
 import static dan200.computercraft.shared.peripheral.modem.wired.BlockWiredModemFull.PERIPHERAL_ON;
 
-public class TileWiredModemFull extends TileGeneric
-{
+public class TileWiredModemFull extends TileGeneric {
     private static final String NBT_PERIPHERAL_ENABLED = "PeripheralAccess";
 
-    private static final class FullElement extends WiredModemElement
-    {
+    private static final class FullElement extends WiredModemElement {
         private final TileWiredModemFull entity;
 
-        private FullElement( TileWiredModemFull entity )
-        {
+        private FullElement(TileWiredModemFull entity) {
             this.entity = entity;
         }
 
         @Override
-        protected void attachPeripheral( String name, IPeripheral peripheral )
-        {
-            for( int i = 0; i < 6; i++ )
-            {
-                WiredModemPeripheral modem = entity.modems[i];
-                if( modem != null ) modem.attachPeripheral( name, peripheral );
+        protected void attachPeripheral(String name, IPeripheral peripheral) {
+            for (var i = 0; i < 6; i++) {
+                var modem = entity.modems[i];
+                if (modem != null) modem.attachPeripheral(name, peripheral);
             }
         }
 
         @Override
-        protected void detachPeripheral( String name )
-        {
-            for( int i = 0; i < 6; i++ )
-            {
-                WiredModemPeripheral modem = entity.modems[i];
-                if( modem != null ) modem.detachPeripheral( name );
+        protected void detachPeripheral(String name) {
+            for (var i = 0; i < 6; i++) {
+                var modem = entity.modems[i];
+                if (modem != null) modem.detachPeripheral(name);
             }
         }
 
         @Nonnull
         @Override
-        public Level getLevel()
-        {
+        public Level getLevel() {
             return entity.getLevel();
         }
 
         @Nonnull
         @Override
-        public Vec3 getPosition()
-        {
-            return Vec3.atCenterOf( entity.getBlockPos() );
+        public Vec3 getPosition() {
+            return Vec3.atCenterOf(entity.getBlockPos());
         }
     }
 
     private final WiredModemPeripheral[] modems = new WiredModemPeripheral[6];
-    private final SidedCaps<IPeripheral> modemCaps = SidedCaps.ofNonNull( this::getPeripheral );
+    private final SidedCaps<IPeripheral> modemCaps = SidedCaps.ofNonNull(this::getPeripheral);
 
     private boolean peripheralAccessAllowed = false;
     private final WiredModemLocalPeripheral[] peripherals = new WiredModemLocalPeripheral[6];
@@ -100,9 +90,9 @@ public class TileWiredModemFull extends TileGeneric
     private boolean destroyed = false;
     private boolean connectionsFormed = false;
 
-    private final TickScheduler.Token tickToken = new TickScheduler.Token( this );
-    private final ModemState modemState = new ModemState( () -> TickScheduler.schedule( tickToken ) );
-    private final WiredModemElement element = new FullElement( this );
+    private final TickScheduler.Token tickToken = new TickScheduler.Token(this);
+    private final ModemState modemState = new ModemState(() -> TickScheduler.schedule(tickToken));
+    private final WiredModemElement element = new FullElement(this);
     private LazyOptional<IWiredElement> elementCap;
     private final IWiredNode node = element.getNode();
 
@@ -110,30 +100,24 @@ public class TileWiredModemFull extends TileGeneric
 
     private int invalidSides = 0;
 
-    public TileWiredModemFull( BlockEntityType<TileWiredModemFull> type, BlockPos pos, BlockState state )
-    {
-        super( type, pos, state );
-        for( int i = 0; i < peripherals.length; i++ )
-        {
-            Direction facing = Direction.from3DDataValue( i );
-            peripherals[i] = new WiredModemLocalPeripheral( () -> queueRefreshPeripheral( facing ) );
+    public TileWiredModemFull(BlockEntityType<TileWiredModemFull> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
+        for (var i = 0; i < peripherals.length; i++) {
+            var facing = Direction.from3DDataValue(i);
+            peripherals[i] = new WiredModemLocalPeripheral(() -> queueRefreshPeripheral(facing));
         }
     }
 
-    private void doRemove()
-    {
-        if( level == null || !level.isClientSide )
-        {
+    private void doRemove() {
+        if (level == null || !level.isClientSide) {
             node.remove();
             connectionsFormed = false;
         }
     }
 
     @Override
-    public void destroy()
-    {
-        if( !destroyed )
-        {
+    public void destroy() {
+        if (!destroyed) {
             destroyed = true;
             doRemove();
         }
@@ -141,290 +125,246 @@ public class TileWiredModemFull extends TileGeneric
     }
 
     @Override
-    public void onChunkUnloaded()
-    {
+    public void onChunkUnloaded() {
         super.onChunkUnloaded();
         doRemove();
     }
 
     @Override
-    public void invalidateCaps()
-    {
+    public void invalidateCaps() {
         super.invalidateCaps();
-        elementCap = CapabilityUtil.invalidate( elementCap );
+        elementCap = CapabilityUtil.invalidate(elementCap);
         modemCaps.invalidate();
     }
 
     @Override
-    public void setRemoved()
-    {
+    public void setRemoved() {
         super.setRemoved();
         doRemove();
     }
 
     @Override
-    public void onNeighbourChange( @Nonnull BlockPos neighbour )
-    {
-        onNeighbourTileEntityChange( neighbour );
+    public void onNeighbourChange(@Nonnull BlockPos neighbour) {
+        onNeighbourTileEntityChange(neighbour);
     }
 
     @Override
-    public void onNeighbourTileEntityChange( @Nonnull BlockPos neighbour )
-    {
-        if( !level.isClientSide && peripheralAccessAllowed )
-        {
-            for( Direction facing : DirectionUtil.FACINGS )
-            {
-                if( getBlockPos().relative( facing ).equals( neighbour ) ) queueRefreshPeripheral( facing );
+    public void onNeighbourTileEntityChange(@Nonnull BlockPos neighbour) {
+        if (!level.isClientSide && peripheralAccessAllowed) {
+            for (var facing : DirectionUtil.FACINGS) {
+                if (getBlockPos().relative(facing).equals(neighbour)) queueRefreshPeripheral(facing);
             }
         }
     }
 
-    private void queueRefreshPeripheral( @Nonnull Direction facing )
-    {
-        if( invalidSides == 0 ) TickScheduler.schedule( tickToken );
+    private void queueRefreshPeripheral(@Nonnull Direction facing) {
+        if (invalidSides == 0) TickScheduler.schedule(tickToken);
         invalidSides |= 1 << facing.ordinal();
     }
 
-    private void refreshPeripheral( @Nonnull Direction facing )
-    {
+    private void refreshPeripheral(@Nonnull Direction facing) {
         invalidSides &= ~(1 << facing.ordinal());
-        WiredModemLocalPeripheral peripheral = peripherals[facing.ordinal()];
-        if( level != null && !isRemoved() && peripheral.attach( level, getBlockPos(), facing ) )
-        {
+        var peripheral = peripherals[facing.ordinal()];
+        if (level != null && !isRemoved() && peripheral.attach(level, getBlockPos(), facing)) {
             updateConnectedPeripherals();
         }
     }
 
     @Nonnull
     @Override
-    public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
-    {
-        if( player.isCrouching() || !player.mayBuild() ) return InteractionResult.PASS;
-        if( getLevel().isClientSide ) return InteractionResult.SUCCESS;
+    public InteractionResult onActivate(Player player, InteractionHand hand, BlockHitResult hit) {
+        if (player.isCrouching() || !player.mayBuild()) return InteractionResult.PASS;
+        if (getLevel().isClientSide) return InteractionResult.SUCCESS;
 
         // On server, we interacted if a peripheral was found
-        Set<String> oldPeriphNames = getConnectedPeripheralNames();
+        var oldPeriphNames = getConnectedPeripheralNames();
         togglePeripheralAccess();
-        Set<String> periphNames = getConnectedPeripheralNames();
+        var periphNames = getConnectedPeripheralNames();
 
-        if( !Objects.equal( periphNames, oldPeriphNames ) )
-        {
-            sendPeripheralChanges( player, "chat.computercraft.wired_modem.peripheral_disconnected", oldPeriphNames );
-            sendPeripheralChanges( player, "chat.computercraft.wired_modem.peripheral_connected", periphNames );
+        if (!Objects.equal(periphNames, oldPeriphNames)) {
+            sendPeripheralChanges(player, "chat.computercraft.wired_modem.peripheral_disconnected", oldPeriphNames);
+            sendPeripheralChanges(player, "chat.computercraft.wired_modem.peripheral_connected", periphNames);
         }
 
         return InteractionResult.SUCCESS;
     }
 
-    private static void sendPeripheralChanges( Player player, String kind, Collection<String> peripherals )
-    {
-        if( peripherals.isEmpty() ) return;
+    private static void sendPeripheralChanges(Player player, String kind, Collection<String> peripherals) {
+        if (peripherals.isEmpty()) return;
 
-        List<String> names = new ArrayList<>( peripherals );
-        names.sort( Comparator.naturalOrder() );
+        List<String> names = new ArrayList<>(peripherals);
+        names.sort(Comparator.naturalOrder());
 
-        MutableComponent base = Component.literal( "" );
-        for( int i = 0; i < names.size(); i++ )
-        {
-            if( i > 0 ) base.append( ", " );
-            base.append( ChatHelpers.copy( names.get( i ) ) );
+        var base = Component.literal("");
+        for (var i = 0; i < names.size(); i++) {
+            if (i > 0) base.append(", ");
+            base.append(ChatHelpers.copy(names.get(i)));
         }
 
-        player.displayClientMessage( Component.translatable( kind, base ), false );
+        player.displayClientMessage(Component.translatable(kind, base), false);
     }
 
     @Override
-    public void load( @Nonnull CompoundTag nbt )
-    {
-        super.load( nbt );
-        peripheralAccessAllowed = nbt.getBoolean( NBT_PERIPHERAL_ENABLED );
-        for( int i = 0; i < peripherals.length; i++ ) peripherals[i].read( nbt, Integer.toString( i ) );
+    public void load(@Nonnull CompoundTag nbt) {
+        super.load(nbt);
+        peripheralAccessAllowed = nbt.getBoolean(NBT_PERIPHERAL_ENABLED);
+        for (var i = 0; i < peripherals.length; i++) peripherals[i].read(nbt, Integer.toString(i));
     }
 
     @Override
-    public void saveAdditional( CompoundTag nbt )
-    {
-        nbt.putBoolean( NBT_PERIPHERAL_ENABLED, peripheralAccessAllowed );
-        for( int i = 0; i < peripherals.length; i++ ) peripherals[i].write( nbt, Integer.toString( i ) );
-        super.saveAdditional( nbt );
+    public void saveAdditional(CompoundTag nbt) {
+        nbt.putBoolean(NBT_PERIPHERAL_ENABLED, peripheralAccessAllowed);
+        for (var i = 0; i < peripherals.length; i++) peripherals[i].write(nbt, Integer.toString(i));
+        super.saveAdditional(nbt);
     }
 
-    private void updateBlockState()
-    {
-        BlockState state = getBlockState();
+    private void updateBlockState() {
+        var state = getBlockState();
         boolean modemOn = modemState.isOpen(), peripheralOn = peripheralAccessAllowed;
-        if( state.getValue( MODEM_ON ) == modemOn && state.getValue( PERIPHERAL_ON ) == peripheralOn ) return;
+        if (state.getValue(MODEM_ON) == modemOn && state.getValue(PERIPHERAL_ON) == peripheralOn) return;
 
-        getLevel().setBlockAndUpdate( getBlockPos(), state.setValue( MODEM_ON, modemOn ).setValue( PERIPHERAL_ON, peripheralOn ) );
+        getLevel().setBlockAndUpdate(getBlockPos(), state.setValue(MODEM_ON, modemOn).setValue(PERIPHERAL_ON, peripheralOn));
     }
 
     @Override
-    public void clearRemoved()
-    {
+    public void clearRemoved() {
         super.clearRemoved(); // TODO: Replace with onLoad
-        TickScheduler.schedule( tickToken );
+        TickScheduler.schedule(tickToken);
     }
 
     @Override
-    public void blockTick()
-    {
-        if( getLevel().isClientSide ) return;
+    public void blockTick() {
+        if (getLevel().isClientSide) return;
 
-        if( invalidSides != 0 )
-        {
-            for( Direction direction : DirectionUtil.FACINGS )
-            {
-                if( (invalidSides & (1 << direction.ordinal())) != 0 ) refreshPeripheral( direction );
+        if (invalidSides != 0) {
+            for (var direction : DirectionUtil.FACINGS) {
+                if ((invalidSides & (1 << direction.ordinal())) != 0) refreshPeripheral(direction);
             }
         }
 
-        if( modemState.pollChanged() ) updateBlockState();
+        if (modemState.pollChanged()) updateBlockState();
 
-        if( !connectionsFormed )
-        {
+        if (!connectionsFormed) {
             connectionsFormed = true;
 
             connectionsChanged();
-            if( peripheralAccessAllowed )
-            {
-                for( Direction facing : DirectionUtil.FACINGS )
-                {
-                    peripherals[facing.ordinal()].attach( level, getBlockPos(), facing );
+            if (peripheralAccessAllowed) {
+                for (var facing : DirectionUtil.FACINGS) {
+                    peripherals[facing.ordinal()].attach(level, getBlockPos(), facing);
                 }
                 updateConnectedPeripherals();
             }
         }
     }
 
-    private void connectionsChanged()
-    {
-        if( getLevel().isClientSide ) return;
+    private void connectionsChanged() {
+        if (getLevel().isClientSide) return;
 
-        Level world = getLevel();
-        BlockPos current = getBlockPos();
-        for( Direction facing : DirectionUtil.FACINGS )
-        {
-            BlockPos offset = current.relative( facing );
-            if( !world.isLoaded( offset ) ) continue;
+        var world = getLevel();
+        var current = getBlockPos();
+        for (var facing : DirectionUtil.FACINGS) {
+            var offset = current.relative(facing);
+            if (!world.isLoaded(offset)) continue;
 
-            LazyOptional<IWiredElement> element = ForgeComputerCraftAPI.getWiredElementAt( world, offset, facing.getOpposite() );
-            if( !element.isPresent() ) continue;
+            var element = ForgeComputerCraftAPI.getWiredElementAt(world, offset, facing.getOpposite());
+            if (!element.isPresent()) continue;
 
-            element.addListener( connectedNodeChanged );
-            node.connectTo( element.orElseThrow( NullPointerException::new ).getNode() );
+            element.addListener(connectedNodeChanged);
+            node.connectTo(element.orElseThrow(NullPointerException::new).getNode());
         }
     }
 
-    private void togglePeripheralAccess()
-    {
-        if( !peripheralAccessAllowed )
-        {
-            boolean hasAny = false;
-            for( Direction facing : DirectionUtil.FACINGS )
-            {
-                WiredModemLocalPeripheral peripheral = peripherals[facing.ordinal()];
-                peripheral.attach( level, getBlockPos(), facing );
+    private void togglePeripheralAccess() {
+        if (!peripheralAccessAllowed) {
+            var hasAny = false;
+            for (var facing : DirectionUtil.FACINGS) {
+                var peripheral = peripherals[facing.ordinal()];
+                peripheral.attach(level, getBlockPos(), facing);
                 hasAny |= peripheral.hasPeripheral();
             }
 
-            if( !hasAny ) return;
+            if (!hasAny) return;
 
             peripheralAccessAllowed = true;
-            node.updatePeripherals( getConnectedPeripherals() );
-        }
-        else
-        {
+            node.updatePeripherals(getConnectedPeripherals());
+        } else {
             peripheralAccessAllowed = false;
 
-            for( WiredModemLocalPeripheral peripheral : peripherals ) peripheral.detach();
-            node.updatePeripherals( Collections.emptyMap() );
+            for (var peripheral : peripherals) peripheral.detach();
+            node.updatePeripherals(Collections.emptyMap());
         }
 
         updateBlockState();
     }
 
-    private Set<String> getConnectedPeripheralNames()
-    {
-        if( !peripheralAccessAllowed ) return Collections.emptySet();
+    private Set<String> getConnectedPeripheralNames() {
+        if (!peripheralAccessAllowed) return Collections.emptySet();
 
-        Set<String> peripherals = new HashSet<>( 6 );
-        for( WiredModemLocalPeripheral peripheral : this.peripherals )
-        {
-            String name = peripheral.getConnectedName();
-            if( name != null ) peripherals.add( name );
+        Set<String> peripherals = new HashSet<>(6);
+        for (var peripheral : this.peripherals) {
+            var name = peripheral.getConnectedName();
+            if (name != null) peripherals.add(name);
         }
         return peripherals;
     }
 
-    private Map<String, IPeripheral> getConnectedPeripherals()
-    {
-        if( !peripheralAccessAllowed ) return Collections.emptyMap();
+    private Map<String, IPeripheral> getConnectedPeripherals() {
+        if (!peripheralAccessAllowed) return Collections.emptyMap();
 
-        Map<String, IPeripheral> peripherals = new HashMap<>( 6 );
-        for( WiredModemLocalPeripheral peripheral : this.peripherals ) peripheral.extendMap( peripherals );
+        Map<String, IPeripheral> peripherals = new HashMap<>(6);
+        for (var peripheral : this.peripherals) peripheral.extendMap(peripherals);
         return peripherals;
     }
 
-    private void updateConnectedPeripherals()
-    {
-        Map<String, IPeripheral> peripherals = getConnectedPeripherals();
-        if( peripherals.isEmpty() )
-        {
+    private void updateConnectedPeripherals() {
+        var peripherals = getConnectedPeripherals();
+        if (peripherals.isEmpty()) {
             // If there are no peripherals then disable access and update the display state.
             peripheralAccessAllowed = false;
             updateBlockState();
         }
 
-        node.updatePeripherals( peripherals );
+        node.updatePeripherals(peripherals);
     }
 
     @Nonnull
     @Override
-    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> capability, @Nullable Direction side )
-    {
-        if( capability == CAPABILITY_WIRED_ELEMENT )
-        {
-            if( elementCap == null ) elementCap = LazyOptional.of( () -> element );
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable Direction side) {
+        if (capability == CAPABILITY_WIRED_ELEMENT) {
+            if (elementCap == null) elementCap = LazyOptional.of(() -> element);
             return elementCap.cast();
         }
 
-        if( capability == CAPABILITY_PERIPHERAL ) return modemCaps.get( side ).cast();
+        if (capability == CAPABILITY_PERIPHERAL) return modemCaps.get(side).cast();
 
-        return super.getCapability( capability, side );
+        return super.getCapability(capability, side);
     }
 
-    public IWiredElement getElement()
-    {
+    public IWiredElement getElement() {
         return element;
     }
 
-    private WiredModemPeripheral getPeripheral( @Nonnull Direction side )
-    {
-        WiredModemPeripheral peripheral = modems[side.ordinal()];
-        if( peripheral != null ) return peripheral;
+    private WiredModemPeripheral getPeripheral(@Nonnull Direction side) {
+        var peripheral = modems[side.ordinal()];
+        if (peripheral != null) return peripheral;
 
-        WiredModemLocalPeripheral localPeripheral = peripherals[side.ordinal()];
-        return modems[side.ordinal()] = new WiredModemPeripheral( modemState, element )
-        {
+        var localPeripheral = peripherals[side.ordinal()];
+        return modems[side.ordinal()] = new WiredModemPeripheral(modemState, element) {
             @Nonnull
             @Override
-            protected WiredModemLocalPeripheral getLocalPeripheral()
-            {
+            protected WiredModemLocalPeripheral getLocalPeripheral() {
                 return localPeripheral;
             }
 
             @Nonnull
             @Override
-            public Vec3 getPosition()
-            {
-                return Vec3.atCenterOf( getBlockPos().relative( side ) );
+            public Vec3 getPosition() {
+                return Vec3.atCenterOf(getBlockPos().relative(side));
             }
 
             @Nonnull
             @Override
-            public Object getTarget()
-            {
+            public Object getTarget() {
                 return TileWiredModemFull.this;
             }
         };

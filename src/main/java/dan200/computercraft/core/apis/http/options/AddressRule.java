@@ -22,8 +22,7 @@ import java.util.regex.Pattern;
 /**
  * A pattern which matches an address, and controls whether it is accessible or not.
  */
-public final class AddressRule
-{
+public final class AddressRule {
     public static final long MAX_DOWNLOAD = 16 * 1024 * 1024;
     public static final long MAX_UPLOAD = 4 * 1024 * 1024;
     public static final int TIMEOUT = 30_000;
@@ -33,32 +32,25 @@ public final class AddressRule
     private final OptionalInt port;
     private final PartialOptions partial;
 
-    private AddressRule( @Nonnull AddressPredicate predicate, OptionalInt port, @Nonnull PartialOptions partial )
-    {
+    private AddressRule(@Nonnull AddressPredicate predicate, OptionalInt port, @Nonnull PartialOptions partial) {
         this.predicate = predicate;
         this.partial = partial;
         this.port = port;
     }
 
     @Nullable
-    public static AddressRule parse( String filter, OptionalInt port, @Nonnull PartialOptions partial )
-    {
-        int cidr = filter.indexOf( '/' );
-        if( cidr >= 0 )
-        {
-            String addressStr = filter.substring( 0, cidr );
-            String prefixSizeStr = filter.substring( cidr + 1 );
-            HostRange range = HostRange.parse( addressStr, prefixSizeStr );
-            return range == null ? null : new AddressRule( range, port, partial );
-        }
-        else if( filter.equalsIgnoreCase( "$private" ) )
-        {
-            return new AddressRule( PrivatePattern.INSTANCE, port, partial );
-        }
-        else
-        {
-            Pattern pattern = Pattern.compile( "^\\Q" + filter.replaceAll( "\\*", "\\\\E.*\\\\Q" ) + "\\E$", Pattern.CASE_INSENSITIVE );
-            return new AddressRule( new DomainPattern( pattern ), port, partial );
+    public static AddressRule parse(String filter, OptionalInt port, @Nonnull PartialOptions partial) {
+        var cidr = filter.indexOf('/');
+        if (cidr >= 0) {
+            var addressStr = filter.substring(0, cidr);
+            var prefixSizeStr = filter.substring(cidr + 1);
+            var range = HostRange.parse(addressStr, prefixSizeStr);
+            return range == null ? null : new AddressRule(range, port, partial);
+        } else if (filter.equalsIgnoreCase("$private")) {
+            return new AddressRule(PrivatePattern.INSTANCE, port, partial);
+        } else {
+            var pattern = Pattern.compile("^\\Q" + filter.replaceAll("\\*", "\\\\E.*\\\\Q") + "\\E$", Pattern.CASE_INSENSITIVE);
+            return new AddressRule(new DomainPattern(pattern), port, partial);
         }
     }
 
@@ -71,27 +63,24 @@ public final class AddressRule
      * @param ipv4Address An ipv4 version of the address, if the original was an ipv6 address.
      * @return Whether it matches any of these patterns.
      */
-    private boolean matches( String domain, int port, InetAddress address, Inet4Address ipv4Address )
-    {
-        if( this.port.isPresent() && this.port.getAsInt() != port ) return false;
-        return predicate.matches( domain )
-            || predicate.matches( address )
-            || (ipv4Address != null && predicate.matches( ipv4Address ));
+    private boolean matches(String domain, int port, InetAddress address, Inet4Address ipv4Address) {
+        if (this.port.isPresent() && this.port.getAsInt() != port) return false;
+        return predicate.matches(domain)
+            || predicate.matches(address)
+            || (ipv4Address != null && predicate.matches(ipv4Address));
     }
 
-    public static Options apply( Iterable<? extends AddressRule> rules, String domain, InetSocketAddress socketAddress )
-    {
-        PartialOptions options = PartialOptions.DEFAULT;
+    public static Options apply(Iterable<? extends AddressRule> rules, String domain, InetSocketAddress socketAddress) {
+        var options = PartialOptions.DEFAULT;
 
-        int port = socketAddress.getPort();
-        InetAddress address = socketAddress.getAddress();
-        Inet4Address ipv4Address = address instanceof Inet6Address inet6 && InetAddresses.is6to4Address( inet6 )
-            ? InetAddresses.get6to4IPv4Address( inet6 ) : null;
+        var port = socketAddress.getPort();
+        var address = socketAddress.getAddress();
+        var ipv4Address = address instanceof Inet6Address inet6 && InetAddresses.is6to4Address(inet6)
+            ? InetAddresses.get6to4IPv4Address(inet6) : null;
 
-        for( AddressRule rule : rules )
-        {
-            if( !rule.matches( domain, port, address, ipv4Address ) ) continue;
-            options = options.merge( rule.partial );
+        for (AddressRule rule : rules) {
+            if (!rule.matches(domain, port, address, ipv4Address)) continue;
+            options = options.merge(rule.partial);
         }
 
         return options.toOptions();

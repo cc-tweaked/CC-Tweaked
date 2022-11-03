@@ -24,41 +24,34 @@ import javax.annotation.Nonnull;
  * @see ClientPocketComputers The registry which holds pocket computers.
  * @see PocketServerComputer The server-side pocket computer.
  */
-public class PocketComputerData
-{
+public class PocketComputerData {
     private final NetworkedTerminal terminal;
     private ComputerState state = ComputerState.OFF;
     private int lightColour = -1;
 
-    public PocketComputerData( boolean colour )
-    {
-        terminal = new NetworkedTerminal( ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight, colour );
+    public PocketComputerData(boolean colour) {
+        terminal = new NetworkedTerminal(ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight, colour);
     }
 
-    public int getLightState()
-    {
+    public int getLightState() {
         return state != ComputerState.OFF ? lightColour : -1;
     }
 
     @Nonnull
-    public Terminal getTerminal()
-    {
+    public Terminal getTerminal() {
         return terminal;
     }
 
-    public ComputerState getState()
-    {
+    public ComputerState getState() {
         return state;
     }
 
-    public void setState( ComputerState state, int lightColour )
-    {
+    public void setState(ComputerState state, int lightColour) {
         this.state = state;
         this.lightColour = lightColour;
     }
 
-    public void setTerminal( TerminalState state )
-    {
-        state.apply( terminal );
+    public void setTerminal(TerminalState state) {
+        state.apply(terminal);
     }
 }

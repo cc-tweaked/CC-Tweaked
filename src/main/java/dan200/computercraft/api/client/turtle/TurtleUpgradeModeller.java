@@ -23,8 +23,7 @@ import javax.annotation.Nullable;
  * @param <T> The type of turtle upgrade this modeller applies to.
  * @see ComputerCraftAPIClient#registerTurtleUpgradeModeller(TurtleUpgradeSerialiser, TurtleUpgradeModeller) To register a modeller.
  */
-public interface TurtleUpgradeModeller<T extends ITurtleUpgrade>
-{
+public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
     /**
      * Obtain the model to be used when rendering a turtle peripheral.
      * <p>
@@ -36,7 +35,7 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade>
      * @return The model that you wish to be used to render your upgrade.
      */
     @Nonnull
-    TransformedModel getModel( @Nonnull T upgrade, @Nullable ITurtleAccess turtle, @Nonnull TurtleSide side );
+    TransformedModel getModel(@Nonnull T upgrade, @Nullable ITurtleAccess turtle, @Nonnull TurtleSide side);
 
     /**
      * A basic {@link TurtleUpgradeModeller} which renders using the upgrade's {@linkplain ITurtleUpgrade#getCraftingItem()
@@ -48,9 +47,8 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade>
      * @param <T> The type of the turtle upgrade.
      * @return The constructed modeller.
      */
-    @SuppressWarnings( "unchecked" )
-    static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> flatItem()
-    {
+    @SuppressWarnings("unchecked")
+    static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> flatItem() {
         return (TurtleUpgradeModeller<T>) TurtleUpgradeModellers.FLAT_ITEM;
     }
 
@@ -62,9 +60,8 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade>
      * @param <T>   The type of the turtle upgrade.
      * @return The constructed modeller.
      */
-    static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> sided( ModelResourceLocation left, ModelResourceLocation right )
-    {
-        return ( upgrade, turtle, side ) -> TransformedModel.of( side == TurtleSide.LEFT ? left : right );
+    static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> sided(ModelResourceLocation left, ModelResourceLocation right) {
+        return (upgrade, turtle, side) -> TransformedModel.of(side == TurtleSide.LEFT ? left : right);
     }
 
     /**
@@ -75,8 +72,7 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade>
      * @param <T>   The type of the turtle upgrade.
      * @return The constructed modeller.
      */
-    static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> sided( ResourceLocation left, ResourceLocation right )
-    {
-        return ( upgrade, turtle, side ) -> TransformedModel.of( side == TurtleSide.LEFT ? left : right );
+    static <T extends ITurtleUpgrade> TurtleUpgradeModeller<T> sided(ResourceLocation left, ResourceLocation right) {
+        return (upgrade, turtle, side) -> TransformedModel.of(side == TurtleSide.LEFT ? left : right);
     }
 }

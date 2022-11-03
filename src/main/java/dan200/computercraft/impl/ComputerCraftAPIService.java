@@ -39,52 +39,50 @@ import javax.annotation.Nullable;
  * Do <strong>NOT</strong> directly reference this class. It exists for internal use by the API.
  */
 @ApiStatus.Internal
-public interface ComputerCraftAPIService
-{
-    static ComputerCraftAPIService get()
-    {
-        ComputerCraftAPIService instance = Instance.INSTANCE;
-        return instance == null ? Services.raise( ComputerCraftAPIService.class, Instance.ERROR ) : instance;
+public interface ComputerCraftAPIService {
+    static ComputerCraftAPIService get() {
+        var instance = Instance.INSTANCE;
+        return instance == null ? Services.raise(ComputerCraftAPIService.class, Instance.ERROR) : instance;
     }
 
     @Nonnull
     String getInstalledVersion();
 
-    int createUniqueNumberedSaveDir( @Nonnull Level world, @Nonnull String parentSubPath );
+    int createUniqueNumberedSaveDir(@Nonnull Level world, @Nonnull String parentSubPath);
 
     @Nullable
-    IWritableMount createSaveDirMount( @Nonnull Level world, @Nonnull String subPath, long capacity );
+    IWritableMount createSaveDirMount(@Nonnull Level world, @Nonnull String subPath, long capacity);
 
     @Nullable
-    IMount createResourceMount( @Nonnull String domain, @Nonnull String subPath );
+    IMount createResourceMount(@Nonnull String domain, @Nonnull String subPath);
 
-    void registerPeripheralProvider( @Nonnull IPeripheralProvider provider );
+    void registerPeripheralProvider(@Nonnull IPeripheralProvider provider);
 
-    void registerGenericSource( @Nonnull GenericSource source );
+    void registerGenericSource(@Nonnull GenericSource source);
 
-    void registerGenericCapability( @Nonnull Capability<?> capability );
+    void registerGenericCapability(@Nonnull Capability<?> capability);
 
-    void registerBundledRedstoneProvider( @Nonnull IBundledRedstoneProvider provider );
+    void registerBundledRedstoneProvider(@Nonnull IBundledRedstoneProvider provider);
 
-    int getBundledRedstoneOutput( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side );
+    int getBundledRedstoneOutput(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side);
 
-    void registerMediaProvider( @Nonnull IMediaProvider provider );
+    void registerMediaProvider(@Nonnull IMediaProvider provider);
 
     @Nonnull
     IPacketNetwork getWirelessNetwork();
 
-    void registerAPIFactory( @Nonnull ILuaAPIFactory factory );
+    void registerAPIFactory(@Nonnull ILuaAPIFactory factory);
 
     @Deprecated
-    <T> void registerDetailProvider( @Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider );
+    <T> void registerDetailProvider(@Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider);
 
     @Nonnull
-    IWiredNode createWiredNodeForElement( @Nonnull IWiredElement element );
+    IWiredNode createWiredNodeForElement(@Nonnull IWiredElement element);
 
     @Nonnull
-    LazyOptional<IWiredElement> getWiredElementAt( @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side );
+    LazyOptional<IWiredElement> getWiredElementAt(@Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side);
 
-    void registerRefuelHandler( @Nonnull TurtleRefuelHandler handler );
+    void registerRefuelHandler(@Nonnull TurtleRefuelHandler handler);
 
     DetailRegistry<ItemStack> getItemStackDetailRegistry();
 
@@ -92,20 +90,17 @@ public interface ComputerCraftAPIService
 
     DetailRegistry<FluidStack> getFluidStackDetailRegistry();
 
-    final class Instance
-    {
+    final class Instance {
         static final @Nullable ComputerCraftAPIService INSTANCE;
         static final @Nullable Throwable ERROR;
 
-        static
-        {
-            Services.LoadedService<ComputerCraftAPIService> helper = Services.tryLoad( ComputerCraftAPIService.class );
+        static {
+            var helper = Services.tryLoad(ComputerCraftAPIService.class);
             INSTANCE = helper.instance();
             ERROR = helper.error();
         }
 
-        private Instance()
-        {
+        private Instance() {
         }
     }
 }

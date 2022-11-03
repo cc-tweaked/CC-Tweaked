@@ -17,29 +17,24 @@ import javax.annotation.Nonnull;
  * @see ContainerHeldItem
  * @see dan200.computercraft.shared.media.items.ItemPrintout
  */
-public class HeldItemContainerData implements ContainerData
-{
+public class HeldItemContainerData implements ContainerData {
     private final InteractionHand hand;
 
-    public HeldItemContainerData( InteractionHand hand )
-    {
+    public HeldItemContainerData(InteractionHand hand) {
         this.hand = hand;
     }
 
-    public HeldItemContainerData( FriendlyByteBuf buffer )
-    {
-        hand = buffer.readEnum( InteractionHand.class );
+    public HeldItemContainerData(FriendlyByteBuf buffer) {
+        hand = buffer.readEnum(InteractionHand.class);
     }
 
     @Override
-    public void toBytes( FriendlyByteBuf buf )
-    {
-        buf.writeEnum( hand );
+    public void toBytes(FriendlyByteBuf buf) {
+        buf.writeEnum(hand);
     }
 
     @Nonnull
-    public InteractionHand getHand()
-    {
+    public InteractionHand getHand() {
         return hand;
     }
 }

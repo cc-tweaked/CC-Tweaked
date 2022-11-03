@@ -21,31 +21,26 @@ import java.util.function.Function;
  *
  * @param <T> The upgrade that this class can serialise and deserialise.
  */
-public abstract class SimpleSerialiser<T extends IUpgradeBase> implements UpgradeSerialiser<T>
-{
+public abstract class SimpleSerialiser<T extends IUpgradeBase> implements UpgradeSerialiser<T> {
     private final Function<ResourceLocation, T> constructor;
 
-    public SimpleSerialiser( Function<ResourceLocation, T> constructor )
-    {
+    public SimpleSerialiser(Function<ResourceLocation, T> constructor) {
         this.constructor = constructor;
     }
 
     @Nonnull
     @Override
-    public final T fromJson( @Nonnull ResourceLocation id, @Nonnull JsonObject object )
-    {
-        return constructor.apply( id );
+    public final T fromJson(@Nonnull ResourceLocation id, @Nonnull JsonObject object) {
+        return constructor.apply(id);
     }
 
     @Nonnull
     @Override
-    public final T fromNetwork( @Nonnull ResourceLocation id, @Nonnull FriendlyByteBuf buffer )
-    {
-        return constructor.apply( id );
+    public final T fromNetwork(@Nonnull ResourceLocation id, @Nonnull FriendlyByteBuf buffer) {
+        return constructor.apply(id);
     }
 
     @Override
-    public final void toNetwork( @Nonnull FriendlyByteBuf buffer, @Nonnull T upgrade )
-    {
+    public final void toNetwork(@Nonnull FriendlyByteBuf buffer, @Nonnull T upgrade) {
     }
 }

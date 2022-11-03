@@ -22,8 +22,7 @@ import java.util.Set;
  * Peripherals should provide a series of methods to the user, either using {@link LuaFunction} or by implementing
  * {@link IDynamicPeripheral}.
  */
-public interface IPeripheral
-{
+public interface IPeripheral {
     /**
      * Should return a string that uniquely identifies this type of peripheral.
      * This can be queried from lua by calling {@code peripheral.getType()}
@@ -40,8 +39,7 @@ public interface IPeripheral
      * @see PeripheralType#getAdditionalTypes()
      */
     @Nonnull
-    default Set<String> getAdditionalTypes()
-    {
+    default Set<String> getAdditionalTypes() {
         return Collections.emptySet();
     }
 
@@ -63,8 +61,7 @@ public interface IPeripheral
      *                 attached to a peripheral at once.
      * @see #detach
      */
-    default void attach( @Nonnull IComputerAccess computer )
-    {
+    default void attach(@Nonnull IComputerAccess computer) {
     }
 
     /**
@@ -84,8 +81,7 @@ public interface IPeripheral
      *                 attached to a peripheral at once.
      * @see #attach
      */
-    default void detach( @Nonnull IComputerAccess computer )
-    {
+    default void detach(@Nonnull IComputerAccess computer) {
     }
 
     /**
@@ -95,8 +91,7 @@ public interface IPeripheral
      * @return The object this peripheral targets
      */
     @Nullable
-    default Object getTarget()
-    {
+    default Object getTarget() {
         return null;
     }
 
@@ -109,5 +104,5 @@ public interface IPeripheral
      * @param other The peripheral to compare against. This may be {@code null}.
      * @return Whether these peripherals are equivalent.
      */
-    boolean equals( @Nullable IPeripheral other );
+    boolean equals(@Nullable IPeripheral other);
 }

@@ -13,39 +13,33 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 
-public class PocketModemPeripheral extends WirelessModemPeripheral
-{
+public class PocketModemPeripheral extends WirelessModemPeripheral {
     private Level world = null;
     private Vec3 position = Vec3.ZERO;
 
-    public PocketModemPeripheral( boolean advanced )
-    {
-        super( new ModemState(), advanced );
+    public PocketModemPeripheral(boolean advanced) {
+        super(new ModemState(), advanced);
     }
 
-    void setLocation( Level world, Vec3 position )
-    {
+    void setLocation(Level world, Vec3 position) {
         this.position = position;
         this.world = world;
     }
 
     @Nonnull
     @Override
-    public Level getLevel()
-    {
+    public Level getLevel() {
         return world;
     }
 
     @Nonnull
     @Override
-    public Vec3 getPosition()
-    {
+    public Vec3 getPosition() {
         return position;
     }
 
     @Override
-    public boolean equals( IPeripheral other )
-    {
+    public boolean equals(IPeripheral other) {
         return other instanceof PocketModemPeripheral;
     }
 }

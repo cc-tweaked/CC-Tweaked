@@ -20,67 +20,55 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nonnull;
 
-public abstract class TileGeneric extends BlockEntity
-{
-    public TileGeneric( BlockEntityType<? extends TileGeneric> type, BlockPos pos, BlockState state )
-    {
-        super( type, pos, state );
+public abstract class TileGeneric extends BlockEntity {
+    public TileGeneric(BlockEntityType<? extends TileGeneric> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
-    public void destroy()
-    {
+    public void destroy() {
     }
 
-    public final void updateBlock()
-    {
+    public final void updateBlock() {
         setChanged();
-        BlockPos pos = getBlockPos();
-        BlockState state = getBlockState();
-        getLevel().sendBlockUpdated( pos, state, state, Block.UPDATE_ALL );
+        var pos = getBlockPos();
+        var state = getBlockState();
+        getLevel().sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
     }
 
     @Nonnull
-    public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
-    {
+    public InteractionResult onActivate(Player player, InteractionHand hand, BlockHitResult hit) {
         return InteractionResult.PASS;
     }
 
-    public void onNeighbourChange( @Nonnull BlockPos neighbour )
-    {
+    public void onNeighbourChange(@Nonnull BlockPos neighbour) {
     }
 
-    public void onNeighbourTileEntityChange( @Nonnull BlockPos neighbour )
-    {
+    public void onNeighbourTileEntityChange(@Nonnull BlockPos neighbour) {
     }
 
-    protected void blockTick()
-    {
+    protected void blockTick() {
     }
 
-    protected double getInteractRange( Player player )
-    {
+    protected double getInteractRange(Player player) {
         return 8.0;
     }
 
-    public boolean isUsable( Player player )
-    {
-        if( player == null || !player.isAlive() || getLevel().getBlockEntity( getBlockPos() ) != this ) return false;
+    public boolean isUsable(Player player) {
+        if (player == null || !player.isAlive() || getLevel().getBlockEntity(getBlockPos()) != this) return false;
 
-        double range = getInteractRange( player );
-        BlockPos pos = getBlockPos();
+        var range = getInteractRange(player);
+        var pos = getBlockPos();
         return player.getCommandSenderWorld() == getLevel() &&
-            player.distanceToSqr( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 ) <= range * range;
+            player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= range * range;
     }
 
     @Override
-    public final void onDataPacket( Connection net, ClientboundBlockEntityDataPacket packet )
-    {
+    public final void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
         var tag = packet.getTag();
-        if( tag != null ) handleUpdateTag( tag );
+        if (tag != null) handleUpdateTag(tag);
     }
 
     @Override
-    public void handleUpdateTag( @Nonnull CompoundTag tag )
-    {
+    public void handleUpdateTag(@Nonnull CompoundTag tag) {
     }
 }

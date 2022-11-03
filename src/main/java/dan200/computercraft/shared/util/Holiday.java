@@ -5,8 +5,7 @@
  */
 package dan200.computercraft.shared.util;
 
-public enum Holiday
-{
+public enum Holiday {
     NONE,
     VALENTINES,
     APRIL_FOOLS_DAY,

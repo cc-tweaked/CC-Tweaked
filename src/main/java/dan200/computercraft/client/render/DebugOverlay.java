@@ -6,12 +6,10 @@
 package dan200.computercraft.client.render;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,38 +19,32 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.List;
 
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
-public class DebugOverlay
-{
+@Mod.EventBusSubscriber(modid = ComputerCraft.MOD_ID, value = Dist.CLIENT)
+public class DebugOverlay {
     @SubscribeEvent
-    public static void onRenderText( CustomizeGuiOverlayEvent.DebugText event )
-    {
-        Minecraft minecraft = Minecraft.getInstance();
-        if( !minecraft.options.renderDebug || minecraft.level == null ) return;
-        if( minecraft.hitResult == null || minecraft.hitResult.getType() != HitResult.Type.BLOCK ) return;
+    public static void onRenderText(CustomizeGuiOverlayEvent.DebugText event) {
+        var minecraft = Minecraft.getInstance();
+        if (!minecraft.options.renderDebug || minecraft.level == null) return;
+        if (minecraft.hitResult == null || minecraft.hitResult.getType() != HitResult.Type.BLOCK) return;
 
-        BlockEntity tile = minecraft.level.getBlockEntity( ((BlockHitResult) minecraft.hitResult).getBlockPos() );
+        var tile = minecraft.level.getBlockEntity(((BlockHitResult) minecraft.hitResult).getBlockPos());
 
-        if( tile instanceof TileMonitor monitor )
-        {
-            event.getRight().add( "" );
+        if (tile instanceof TileMonitor monitor) {
+            event.getRight().add("");
             event.getRight().add(
-                String.format( "Targeted monitor: (%d, %d), %d x %d", monitor.getXIndex(), monitor.getYIndex(), monitor.getWidth(), monitor.getHeight() )
+                String.format("Targeted monitor: (%d, %d), %d x %d", monitor.getXIndex(), monitor.getYIndex(), monitor.getWidth(), monitor.getHeight())
             );
-        }
-        else if( tile instanceof TileTurtle turtle )
-        {
-            event.getRight().add( "" );
-            event.getRight().add( "Targeted turtle:" );
-            event.getRight().add( String.format( "Id: %d", turtle.getComputerID() ) );
-            addTurtleUpgrade( event.getRight(), turtle, TurtleSide.LEFT );
-            addTurtleUpgrade( event.getRight(), turtle, TurtleSide.RIGHT );
+        } else if (tile instanceof TileTurtle turtle) {
+            event.getRight().add("");
+            event.getRight().add("Targeted turtle:");
+            event.getRight().add(String.format("Id: %d", turtle.getComputerID()));
+            addTurtleUpgrade(event.getRight(), turtle, TurtleSide.LEFT);
+            addTurtleUpgrade(event.getRight(), turtle, TurtleSide.RIGHT);
         }
     }
 
-    private static void addTurtleUpgrade( List<String> out, TileTurtle turtle, TurtleSide side )
-    {
-        ITurtleUpgrade upgrade = turtle.getUpgrade( side );
-        if( upgrade != null ) out.add( String.format( "Upgrade[%s]: %s", side, upgrade.getUpgradeID() ) );
+    private static void addTurtleUpgrade(List<String> out, TileTurtle turtle, TurtleSide side) {
+        var upgrade = turtle.getUpgrade(side);
+        if (upgrade != null) out.add(String.format("Upgrade[%s]: %s", side, upgrade.getUpgradeID()));
     }
 }

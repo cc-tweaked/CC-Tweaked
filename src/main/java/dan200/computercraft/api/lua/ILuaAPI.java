@@ -17,8 +17,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
  * @see ILuaAPIFactory
  * @see ComputerCraftAPI#registerAPIFactory(ILuaAPIFactory)
  */
-public interface ILuaAPI
-{
+public interface ILuaAPI {
     /**
      * Get the globals this API will be assigned to. This will override any other global, so you should
      *
@@ -31,15 +30,13 @@ public interface ILuaAPI
      * <p>
      * One should only interact with the file system.
      */
-    default void startup()
-    {
+    default void startup() {
     }
 
     /**
      * Called every time the computer is ticked. This can be used to process various.
      */
-    default void update()
-    {
+    default void update() {
     }
 
     /**
@@ -47,7 +44,6 @@ public interface ILuaAPI
      * <p>
      * This should reset the state of the object, disposing any remaining file handles, or other resources.
      */
-    default void shutdown()
-    {
+    default void shutdown() {
     }
 }

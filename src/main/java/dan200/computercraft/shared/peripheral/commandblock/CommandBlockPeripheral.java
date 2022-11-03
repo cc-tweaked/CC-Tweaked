@@ -37,22 +37,19 @@ import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
  * @cc.module command
  */
 @Mod.EventBusSubscriber
-public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
-{
-    private static final ResourceLocation CAP_ID = new ResourceLocation( ComputerCraft.MOD_ID, "command_block" );
+public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider {
+    private static final ResourceLocation CAP_ID = new ResourceLocation(ComputerCraft.MOD_ID, "command_block");
 
     private final CommandBlockEntity commandBlock;
     private LazyOptional<IPeripheral> self;
 
-    public CommandBlockPeripheral( CommandBlockEntity commandBlock )
-    {
+    public CommandBlockPeripheral(CommandBlockEntity commandBlock) {
         this.commandBlock = commandBlock;
     }
 
     @Nonnull
     @Override
-    public String getType()
-    {
+    public String getType() {
         return "command";
     }
 
@@ -61,9 +58,8 @@ public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
      *
      * @return The current command.
      */
-    @LuaFunction( mainThread = true )
-    public final String getCommand()
-    {
+    @LuaFunction(mainThread = true)
+    public final String getCommand() {
         return commandBlock.getCommandBlock().getCommand();
     }
 
@@ -72,10 +68,9 @@ public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
      *
      * @param command The new command.
      */
-    @LuaFunction( mainThread = true )
-    public final void setCommand( String command )
-    {
-        commandBlock.getCommandBlock().setCommand( command );
+    @LuaFunction(mainThread = true)
+    public final void setCommand(String command) {
+        commandBlock.getCommandBlock().setCommand(command);
         commandBlock.getCommandBlock().onUpdated();
     }
 
@@ -86,53 +81,45 @@ public class CommandBlockPeripheral implements IPeripheral, ICapabilityProvider
      * @cc.treturn boolean If the command completed successfully.
      * @cc.treturn string|nil A failure message.
      */
-    @LuaFunction( mainThread = true )
-    public final Object[] runCommand()
-    {
-        commandBlock.getCommandBlock().performCommand( commandBlock.getLevel() );
-        int result = commandBlock.getCommandBlock().getSuccessCount();
-        return result > 0 ? new Object[] { true } : new Object[] { false, "Command failed" };
+    @LuaFunction(mainThread = true)
+    public final Object[] runCommand() {
+        commandBlock.getCommandBlock().performCommand(commandBlock.getLevel());
+        var result = commandBlock.getCommandBlock().getSuccessCount();
+        return result > 0 ? new Object[]{ true } : new Object[]{ false, "Command failed" };
     }
 
     @Override
-    public boolean equals( IPeripheral other )
-    {
+    public boolean equals(IPeripheral other) {
         return other != null && other.getClass() == getClass();
     }
 
     @Nonnull
     @Override
-    public Object getTarget()
-    {
+    public Object getTarget() {
         return commandBlock;
     }
 
     @Nonnull
     @Override
-    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable Direction side )
-    {
-        if( cap == CAPABILITY_PERIPHERAL )
-        {
-            if( self == null ) self = LazyOptional.of( () -> this );
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
+        if (cap == CAPABILITY_PERIPHERAL) {
+            if (self == null) self = LazyOptional.of(() -> this);
             return self.cast();
         }
         return LazyOptional.empty();
     }
 
-    private void invalidate()
-    {
-        self = CapabilityUtil.invalidate( self );
+    private void invalidate() {
+        self = CapabilityUtil.invalidate(self);
     }
 
     @SubscribeEvent
-    public static void onCapability( AttachCapabilitiesEvent<BlockEntity> event )
-    {
-        BlockEntity tile = event.getObject();
-        if( ComputerCraft.enableCommandBlock && tile instanceof CommandBlockEntity commandBlock )
-        {
-            CommandBlockPeripheral peripheral = new CommandBlockPeripheral( commandBlock );
-            event.addCapability( CAP_ID, peripheral );
-            event.addListener( peripheral::invalidate );
+    public static void onCapability(AttachCapabilitiesEvent<BlockEntity> event) {
+        var tile = event.getObject();
+        if (ComputerCraft.enableCommandBlock && tile instanceof CommandBlockEntity commandBlock) {
+            var peripheral = new CommandBlockPeripheral(commandBlock);
+            event.addCapability(CAP_ID, peripheral);
+            event.addListener(peripheral::invalidate);
         }
     }
 }

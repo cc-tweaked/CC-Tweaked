@@ -12,36 +12,29 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 
 import javax.annotation.Nonnull;
 
-public class TurtleTurnCommand implements ITurtleCommand
-{
+public class TurtleTurnCommand implements ITurtleCommand {
     private final TurnDirection direction;
 
-    public TurtleTurnCommand( TurnDirection direction )
-    {
+    public TurtleTurnCommand(TurnDirection direction) {
         this.direction = direction;
     }
 
     @Nonnull
     @Override
-    public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
-    {
-        switch( direction )
-        {
-            case LEFT:
-            {
-                turtle.setDirection( turtle.getDirection().getCounterClockWise() );
-                turtle.playAnimation( TurtleAnimation.TURN_LEFT );
+    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
+        switch (direction) {
+            case LEFT -> {
+                turtle.setDirection(turtle.getDirection().getCounterClockWise());
+                turtle.playAnimation(TurtleAnimation.TURN_LEFT);
                 return TurtleCommandResult.success();
             }
-            case RIGHT:
-            {
-                turtle.setDirection( turtle.getDirection().getClockWise() );
-                turtle.playAnimation( TurtleAnimation.TURN_RIGHT );
+            case RIGHT -> {
+                turtle.setDirection(turtle.getDirection().getClockWise());
+                turtle.playAnimation(TurtleAnimation.TURN_RIGHT);
                 return TurtleCommandResult.success();
             }
-            default:
-            {
-                return TurtleCommandResult.failure( "Unknown direction" );
+            default -> {
+                return TurtleCommandResult.failure("Unknown direction");
             }
         }
     }

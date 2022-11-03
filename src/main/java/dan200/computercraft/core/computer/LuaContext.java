@@ -12,56 +12,42 @@ import dan200.computercraft.api.lua.LuaException;
 
 import javax.annotation.Nonnull;
 
-class LuaContext implements ILuaContext
-{
+class LuaContext implements ILuaContext {
     private final Computer computer;
 
-    LuaContext( Computer computer )
-    {
+    LuaContext(Computer computer) {
         this.computer = computer;
     }
 
     @Override
-    public long issueMainThreadTask( @Nonnull final ILuaTask task ) throws LuaException
-    {
+    public long issueMainThreadTask(@Nonnull final ILuaTask task) throws LuaException {
         // Issue command
-        final long taskID = computer.getUniqueTaskId();
+        final var taskID = computer.getUniqueTaskId();
         final Runnable iTask = () -> {
-            try
-            {
-                Object[] results = task.execute();
-                if( results != null )
-                {
-                    Object[] eventArguments = new Object[results.length + 2];
+            try {
+                var results = task.execute();
+                if (results != null) {
+                    var eventArguments = new Object[results.length + 2];
                     eventArguments[0] = taskID;
                     eventArguments[1] = true;
-                    System.arraycopy( results, 0, eventArguments, 2, results.length );
-                    computer.queueEvent( "task_complete", eventArguments );
+                    System.arraycopy(results, 0, eventArguments, 2, results.length);
+                    computer.queueEvent("task_complete", eventArguments);
+                } else {
+                    computer.queueEvent("task_complete", new Object[]{ taskID, true });
                 }
-                else
-                {
-                    computer.queueEvent( "task_complete", new Object[] { taskID, true } );
-                }
-            }
-            catch( LuaException e )
-            {
-                computer.queueEvent( "task_complete", new Object[] { taskID, false, e.getMessage() } );
-            }
-            catch( Exception t )
-            {
-                if( ComputerCraft.logComputerErrors ) ComputerCraft.log.error( "Error running task", t );
-                computer.queueEvent( "task_complete", new Object[] {
+            } catch (LuaException e) {
+                computer.queueEvent("task_complete", new Object[]{ taskID, false, e.getMessage() });
+            } catch (Exception t) {
+                if (ComputerCraft.logComputerErrors) ComputerCraft.log.error("Error running task", t);
+                computer.queueEvent("task_complete", new Object[]{
                     taskID, false, "Java Exception Thrown: " + t,
-                } );
+                });
             }
         };
-        if( computer.queueMainThread( iTask ) )
-        {
+        if (computer.queueMainThread(iTask)) {
             return taskID;
-        }
-        else
-        {
-            throw new LuaException( "Task limit exceeded" );
+        } else {
+            throw new LuaException("Task limit exceeded");
         }
     }
 }

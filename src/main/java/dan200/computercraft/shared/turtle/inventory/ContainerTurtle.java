@@ -27,8 +27,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Predicate;
 
-public final class ContainerTurtle extends ContainerComputerBase
-{
+public final class ContainerTurtle extends ContainerComputerBase {
     public static final int BORDER = 8;
     public static final int PLAYER_START_Y = 134;
     public static final int TURTLE_START_X = ComputerSidebar.WIDTH + 175;
@@ -39,87 +38,69 @@ public final class ContainerTurtle extends ContainerComputerBase
     private ContainerTurtle(
         int id, Predicate<Player> canUse, ComputerFamily family, @Nullable ServerComputer computer, @Nullable ComputerContainerData menuData,
         Inventory playerInventory, Container inventory, ContainerData data
-    )
-    {
-        super( Registry.ModContainers.TURTLE.get(), id, canUse, family, computer, menuData );
+    ) {
+        super(Registry.ModContainers.TURTLE.get(), id, canUse, family, computer, menuData);
         this.data = data;
-        addDataSlots( data );
+        addDataSlots(data);
 
         // Turtle inventory
-        for( int y = 0; y < 4; y++ )
-        {
-            for( int x = 0; x < 4; x++ )
-            {
-                addSlot( new Slot( inventory, x + y * 4, TURTLE_START_X + 1 + x * 18, PLAYER_START_Y + 1 + y * 18 ) );
+        for (var y = 0; y < 4; y++) {
+            for (var x = 0; x < 4; x++) {
+                addSlot(new Slot(inventory, x + y * 4, TURTLE_START_X + 1 + x * 18, PLAYER_START_Y + 1 + y * 18));
             }
         }
 
         // Player inventory
-        for( int y = 0; y < 3; y++ )
-        {
-            for( int x = 0; x < 9; x++ )
-            {
-                addSlot( new Slot( playerInventory, x + y * 9 + 9, PLAYER_START_X + x * 18, PLAYER_START_Y + 1 + y * 18 ) );
+        for (var y = 0; y < 3; y++) {
+            for (var x = 0; x < 9; x++) {
+                addSlot(new Slot(playerInventory, x + y * 9 + 9, PLAYER_START_X + x * 18, PLAYER_START_Y + 1 + y * 18));
             }
         }
 
         // Player hotbar
-        for( int x = 0; x < 9; x++ )
-        {
-            addSlot( new Slot( playerInventory, x, PLAYER_START_X + x * 18, PLAYER_START_Y + 3 * 18 + 5 ) );
+        for (var x = 0; x < 9; x++) {
+            addSlot(new Slot(playerInventory, x, PLAYER_START_X + x * 18, PLAYER_START_Y + 3 * 18 + 5));
         }
     }
 
-    public static ContainerTurtle ofBrain( int id, Inventory player, TurtleBrain turtle )
-    {
+    public static ContainerTurtle ofBrain(int id, Inventory player, TurtleBrain turtle) {
         return new ContainerTurtle(
             // Laziness in turtle.getOwner() is important here!
-            id, p -> turtle.getOwner().stillValid( p ), turtle.getFamily(), turtle.getOwner().createServerComputer(), null,
+            id, p -> turtle.getOwner().stillValid(p), turtle.getFamily(), turtle.getOwner().createServerComputer(), null,
             player, turtle.getInventory(), (SingleIntArray) turtle::getSelectedSlot
         );
     }
 
-    public static ContainerTurtle ofMenuData( int id, Inventory player, ComputerContainerData data )
-    {
+    public static ContainerTurtle ofMenuData(int id, Inventory player, ComputerContainerData data) {
         return new ContainerTurtle(
-            id, x -> true, data.family(), null, data, player, new SimpleContainer( TileTurtle.INVENTORY_SIZE ), new SimpleContainerData( 1 )
+            id, x -> true, data.family(), null, data, player, new SimpleContainer(TileTurtle.INVENTORY_SIZE), new SimpleContainerData(1)
         );
     }
 
-    public int getSelectedSlot()
-    {
-        return data.get( 0 );
+    public int getSelectedSlot() {
+        return data.get(0);
     }
 
     @Nonnull
-    private ItemStack tryItemMerge( Player player, int slotNum, int firstSlot, int lastSlot, boolean reverse )
-    {
-        Slot slot = slots.get( slotNum );
-        ItemStack originalStack = ItemStack.EMPTY;
-        if( slot != null && slot.hasItem() )
-        {
-            ItemStack clickedStack = slot.getItem();
+    private ItemStack tryItemMerge(Player player, int slotNum, int firstSlot, int lastSlot, boolean reverse) {
+        var slot = slots.get(slotNum);
+        var originalStack = ItemStack.EMPTY;
+        if (slot != null && slot.hasItem()) {
+            var clickedStack = slot.getItem();
             originalStack = clickedStack.copy();
-            if( !moveItemStackTo( clickedStack, firstSlot, lastSlot, reverse ) )
-            {
+            if (!moveItemStackTo(clickedStack, firstSlot, lastSlot, reverse)) {
                 return ItemStack.EMPTY;
             }
 
-            if( clickedStack.isEmpty() )
-            {
-                slot.set( ItemStack.EMPTY );
-            }
-            else
-            {
+            if (clickedStack.isEmpty()) {
+                slot.set(ItemStack.EMPTY);
+            } else {
                 slot.setChanged();
             }
 
-            if( clickedStack.getCount() != originalStack.getCount() )
-            {
-                slot.onTake( player, clickedStack );
-            }
-            else
-            {
+            if (clickedStack.getCount() != originalStack.getCount()) {
+                slot.onTake(player, clickedStack);
+            } else {
                 return ItemStack.EMPTY;
             }
         }
@@ -128,15 +109,11 @@ public final class ContainerTurtle extends ContainerComputerBase
 
     @Nonnull
     @Override
-    public ItemStack quickMoveStack( @Nonnull Player player, int slotNum )
-    {
-        if( slotNum >= 0 && slotNum < 16 )
-        {
-            return tryItemMerge( player, slotNum, 16, 52, true );
-        }
-        else if( slotNum >= 16 )
-        {
-            return tryItemMerge( player, slotNum, 0, 16, false );
+    public ItemStack quickMoveStack(@Nonnull Player player, int slotNum) {
+        if (slotNum >= 0 && slotNum < 16) {
+            return tryItemMerge(player, slotNum, 16, 52, true);
+        } else if (slotNum >= 16) {
+            return tryItemMerge(player, slotNum, 0, 16, false);
         }
         return ItemStack.EMPTY;
     }

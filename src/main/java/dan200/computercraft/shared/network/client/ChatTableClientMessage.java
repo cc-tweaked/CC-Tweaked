@@ -14,68 +14,57 @@ import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
-public class ChatTableClientMessage implements NetworkMessage
-{
+public class ChatTableClientMessage implements NetworkMessage {
     private static final int MAX_LEN = 16;
     private final TableBuilder table;
 
-    public ChatTableClientMessage( TableBuilder table )
-    {
-        if( table.getColumns() < 0 ) throw new IllegalStateException( "Cannot send an empty table" );
+    public ChatTableClientMessage(TableBuilder table) {
+        if (table.getColumns() < 0) throw new IllegalStateException("Cannot send an empty table");
         this.table = table;
     }
 
-    public ChatTableClientMessage( @Nonnull FriendlyByteBuf buf )
-    {
-        String id = buf.readUtf( MAX_LEN );
-        int columns = buf.readVarInt();
+    public ChatTableClientMessage(@Nonnull FriendlyByteBuf buf) {
+        var id = buf.readUtf(MAX_LEN);
+        var columns = buf.readVarInt();
         TableBuilder table;
-        if( buf.readBoolean() )
-        {
-            Component[] headers = new Component[columns];
-            for( int i = 0; i < columns; i++ ) headers[i] = buf.readComponent();
-            table = new TableBuilder( id, headers );
-        }
-        else
-        {
-            table = new TableBuilder( id );
+        if (buf.readBoolean()) {
+            var headers = new Component[columns];
+            for (var i = 0; i < columns; i++) headers[i] = buf.readComponent();
+            table = new TableBuilder(id, headers);
+        } else {
+            table = new TableBuilder(id);
         }
 
-        int rows = buf.readVarInt();
-        for( int i = 0; i < rows; i++ )
-        {
-            Component[] row = new Component[columns];
-            for( int j = 0; j < columns; j++ ) row[j] = buf.readComponent();
-            table.row( row );
+        var rows = buf.readVarInt();
+        for (var i = 0; i < rows; i++) {
+            var row = new Component[columns];
+            for (var j = 0; j < columns; j++) row[j] = buf.readComponent();
+            table.row(row);
         }
 
-        table.setAdditional( buf.readVarInt() );
+        table.setAdditional(buf.readVarInt());
         this.table = table;
     }
 
     @Override
-    public void toBytes( @Nonnull FriendlyByteBuf buf )
-    {
-        buf.writeUtf( table.getId(), MAX_LEN );
-        buf.writeVarInt( table.getColumns() );
-        buf.writeBoolean( table.getHeaders() != null );
-        if( table.getHeaders() != null )
-        {
-            for( Component header : table.getHeaders() ) buf.writeComponent( header );
+    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+        buf.writeUtf(table.getId(), MAX_LEN);
+        buf.writeVarInt(table.getColumns());
+        buf.writeBoolean(table.getHeaders() != null);
+        if (table.getHeaders() != null) {
+            for (var header : table.getHeaders()) buf.writeComponent(header);
         }
 
-        buf.writeVarInt( table.getRows().size() );
-        for( Component[] row : table.getRows() )
-        {
-            for( Component column : row ) buf.writeComponent( column );
+        buf.writeVarInt(table.getRows().size());
+        for (var row : table.getRows()) {
+            for (var column : row) buf.writeComponent(column);
         }
 
-        buf.writeVarInt( table.getAdditional() );
+        buf.writeVarInt(table.getAdditional());
     }
 
     @Override
-    public void handle( NetworkEvent.Context context )
-    {
-        ClientTableFormatter.INSTANCE.display( table );
+    public void handle(NetworkEvent.Context context) {
+        ClientTableFormatter.INSTANCE.display(table);
     }
 }

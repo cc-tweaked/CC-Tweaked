@@ -11,82 +11,65 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 
-public class TurtleDropCommand implements ITurtleCommand
-{
+public class TurtleDropCommand implements ITurtleCommand {
     private final InteractDirection direction;
     private final int quantity;
 
-    public TurtleDropCommand( InteractDirection direction, int quantity )
-    {
+    public TurtleDropCommand(InteractDirection direction, int quantity) {
         this.direction = direction;
         this.quantity = quantity;
     }
 
     @Nonnull
     @Override
-    public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
-    {
+    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
         // Dropping nothing is easy
-        if( quantity == 0 )
-        {
-            turtle.playAnimation( TurtleAnimation.WAIT );
+        if (quantity == 0) {
+            turtle.playAnimation(TurtleAnimation.WAIT);
             return TurtleCommandResult.success();
         }
 
         // Get world direction from direction
-        Direction direction = this.direction.toWorldDir( turtle );
+        var direction = this.direction.toWorldDir(turtle);
 
         // Get things to drop
-        ItemStack stack = turtle.getInventory().removeItem( turtle.getSelectedSlot(), quantity );
-        if( stack.isEmpty() )
-        {
-            return TurtleCommandResult.failure( "No items to drop" );
+        var stack = turtle.getInventory().removeItem(turtle.getSelectedSlot(), quantity);
+        if (stack.isEmpty()) {
+            return TurtleCommandResult.failure("No items to drop");
         }
         turtle.getInventory().setChanged();
 
         // Get inventory for thing in front
-        Level world = turtle.getLevel();
-        BlockPos oldPosition = turtle.getPosition();
-        BlockPos newPosition = oldPosition.relative( direction );
-        Direction side = direction.getOpposite();
+        var world = turtle.getLevel();
+        var oldPosition = turtle.getPosition();
+        var newPosition = oldPosition.relative(direction);
+        var side = direction.getOpposite();
 
-        IItemHandler inventory = InventoryUtil.getInventory( world, newPosition, side );
+        var inventory = InventoryUtil.getInventory(world, newPosition, side);
 
-        if( inventory != null )
-        {
+        if (inventory != null) {
             // Drop the item into the inventory
-            ItemStack remainder = InventoryUtil.storeItems( stack, inventory );
-            if( !remainder.isEmpty() )
-            {
+            var remainder = InventoryUtil.storeItems(stack, inventory);
+            if (!remainder.isEmpty()) {
                 // Put the remainder back in the turtle
-                InventoryUtil.storeItems( remainder, turtle.getItemHandler(), turtle.getSelectedSlot() );
+                InventoryUtil.storeItems(remainder, turtle.getItemHandler(), turtle.getSelectedSlot());
             }
 
             // Return true if we stored anything
-            if( remainder != stack )
-            {
-                turtle.playAnimation( TurtleAnimation.WAIT );
+            if (remainder != stack) {
+                turtle.playAnimation(TurtleAnimation.WAIT);
                 return TurtleCommandResult.success();
+            } else {
+                return TurtleCommandResult.failure("No space for items");
             }
-            else
-            {
-                return TurtleCommandResult.failure( "No space for items" );
-            }
-        }
-        else
-        {
+        } else {
             // Drop the item into the world
-            WorldUtil.dropItemStack( stack, world, oldPosition, direction );
-            world.globalLevelEvent( 1000, newPosition, 0 );
-            turtle.playAnimation( TurtleAnimation.WAIT );
+            WorldUtil.dropItemStack(stack, world, oldPosition, direction);
+            world.globalLevelEvent(1000, newPosition, 0);
+            turtle.playAnimation(TurtleAnimation.WAIT);
             return TurtleCommandResult.success();
         }
     }

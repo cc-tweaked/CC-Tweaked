@@ -9,18 +9,15 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class IntCacheTest
-{
+public class IntCacheTest {
     @Test
-    public void testCache()
-    {
-        IntCache<Object> c = new IntCache<>( i -> new Object() );
-        assertEquals( c.get( 0 ), c.get( 0 ) );
+    public void testCache() {
+        var c = new IntCache<Object>(i -> new Object());
+        assertEquals(c.get(0), c.get(0));
     }
 
     @Test
-    public void testMassive()
-    {
-        assertEquals( 40, new IntCache<>( i -> i ).get( 40 ) );
+    public void testMassive() {
+        assertEquals(40, new IntCache<>(i -> i).get(40));
     }
 }

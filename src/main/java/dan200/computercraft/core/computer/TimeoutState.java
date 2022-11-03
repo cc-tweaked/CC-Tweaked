@@ -32,17 +32,16 @@ import java.util.concurrent.TimeUnit;
  * @see ILuaMachine
  * @see MachineResult#isPause()
  */
-public final class TimeoutState
-{
+public final class TimeoutState {
     /**
      * The total time a task is allowed to run before aborting in nanoseconds.
      */
-    static final long TIMEOUT = TimeUnit.MILLISECONDS.toNanos( 7000 );
+    static final long TIMEOUT = TimeUnit.MILLISECONDS.toNanos(7000);
 
     /**
      * The time the task is allowed to run after each abort in nanoseconds.
      */
-    static final long ABORT_TIMEOUT = TimeUnit.MILLISECONDS.toNanos( 1500 );
+    static final long ABORT_TIMEOUT = TimeUnit.MILLISECONDS.toNanos(1500);
 
     /**
      * The error message to display when we trigger an abort.
@@ -75,31 +74,27 @@ public final class TimeoutState
      */
     private long currentDeadline;
 
-    public TimeoutState( ComputerThread scheduler )
-    {
+    public TimeoutState(ComputerThread scheduler) {
         this.scheduler = scheduler;
     }
 
-    long nanoCumulative()
-    {
+    long nanoCumulative() {
         return System.nanoTime() - cumulativeStart;
     }
 
-    long nanoCurrent()
-    {
+    long nanoCurrent() {
         return System.nanoTime() - currentStart;
     }
 
     /**
      * Recompute the {@link #isSoftAborted()} and {@link #isPaused()} flags.
      */
-    public synchronized void refresh()
-    {
+    public synchronized void refresh() {
         // Important: The weird arithmetic here is important, as nanoTime may return negative values, and so we
         // need to handle overflow.
-        long now = System.nanoTime();
-        if( !paused ) paused = currentDeadline - now <= 0 && scheduler.hasPendingWork(); // now >= currentDeadline
-        if( !softAbort ) softAbort = now - cumulativeStart - TIMEOUT >= 0; // now - cumulativeStart >= TIMEOUT
+        var now = System.nanoTime();
+        if (!paused) paused = currentDeadline - now <= 0 && scheduler.hasPendingWork(); // now >= currentDeadline
+        if (!softAbort) softAbort = now - cumulativeStart - TIMEOUT >= 0; // now - cumulativeStart >= TIMEOUT
     }
 
     /**
@@ -110,8 +105,7 @@ public final class TimeoutState
      *
      * @return Whether we should pause execution.
      */
-    public boolean isPaused()
-    {
+    public boolean isPaused() {
         return paused;
     }
 
@@ -120,8 +114,7 @@ public final class TimeoutState
      *
      * @return {@code true} if we should throw a timeout error.
      */
-    public boolean isSoftAborted()
-    {
+    public boolean isSoftAborted() {
         return softAbort;
     }
 
@@ -130,25 +123,22 @@ public final class TimeoutState
      *
      * @return {@code true} if the machine should be forcibly shut down.
      */
-    public boolean isHardAborted()
-    {
+    public boolean isHardAborted() {
         return hardAbort;
     }
 
     /**
      * If the machine should be forcibly aborted.
      */
-    void hardAbort()
-    {
+    void hardAbort() {
         softAbort = hardAbort = true;
     }
 
     /**
      * Start the current and cumulative timers again.
      */
-    void startTimer()
-    {
-        long now = System.nanoTime();
+    void startTimer() {
+        var now = System.nanoTime();
         currentStart = now;
         currentDeadline = now + scheduler.scaledPeriod();
         // Compute the "nominal start time".
@@ -160,8 +150,7 @@ public final class TimeoutState
      *
      * @see #nanoCumulative()
      */
-    synchronized void pauseTimer()
-    {
+    synchronized void pauseTimer() {
         // We set the cumulative time to difference between current time and "nominal start time".
         cumulativeElapsed = System.nanoTime() - cumulativeStart;
         paused = false;
@@ -170,8 +159,7 @@ public final class TimeoutState
     /**
      * Resets the cumulative time and resets the abort flags.
      */
-    synchronized void stopTimer()
-    {
+    synchronized void stopTimer() {
         cumulativeElapsed = 0;
         paused = softAbort = hardAbort = false;
     }

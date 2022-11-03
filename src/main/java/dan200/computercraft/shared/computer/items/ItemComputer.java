@@ -12,26 +12,22 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public class ItemComputer extends ItemComputerBase
-{
-    public ItemComputer( BlockComputer<?> block, Properties settings )
-    {
-        super( block, settings );
+public class ItemComputer extends ItemComputerBase {
+    public ItemComputer(BlockComputer<?> block, Properties settings) {
+        super(block, settings);
     }
 
-    public ItemStack create( int id, String label )
-    {
-        ItemStack result = new ItemStack( this );
-        if( id >= 0 ) result.getOrCreateTag().putInt( NBT_ID, id );
-        if( label != null ) result.setHoverName( Component.literal( label ) );
+    public ItemStack create(int id, String label) {
+        var result = new ItemStack(this);
+        if (id >= 0) result.getOrCreateTag().putInt(NBT_ID, id);
+        if (label != null) result.setHoverName(Component.literal(label));
         return result;
     }
 
     @Override
-    public ItemStack withFamily( @Nonnull ItemStack stack, @Nonnull ComputerFamily family )
-    {
-        ItemStack result = ComputerItemFactory.create( getComputerID( stack ), null, family );
-        if( stack.hasCustomHoverName() ) result.setHoverName( stack.getHoverName() );
+    public ItemStack withFamily(@Nonnull ItemStack stack, @Nonnull ComputerFamily family) {
+        var result = ComputerItemFactory.create(getComputerID(stack), null, family);
+        if (stack.hasCustomHoverName()) result.setHoverName(stack.getHoverName());
         return result;
     }
 }

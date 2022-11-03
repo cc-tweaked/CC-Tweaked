@@ -13,8 +13,7 @@ import javax.annotation.Nonnull;
  * @see ITurtleAccess#executeCommand(ITurtleCommand)
  */
 @FunctionalInterface
-public interface ITurtleCommand
-{
+public interface ITurtleCommand {
     /**
      * Will be called by the turtle on the main thread when it is time to execute the custom command.
      * <p>
@@ -29,5 +28,5 @@ public interface ITurtleCommand
      * @see TurtleCommandResult
      */
     @Nonnull
-    TurtleCommandResult execute( @Nonnull ITurtleAccess turtle );
+    TurtleCommandResult execute(@Nonnull ITurtleAccess turtle);
 }

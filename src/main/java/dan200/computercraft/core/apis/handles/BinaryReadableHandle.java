@@ -24,30 +24,26 @@ import java.util.Optional;
  *
  * @cc.module fs.BinaryReadHandle
  */
-public class BinaryReadableHandle extends HandleGeneric
-{
+public class BinaryReadableHandle extends HandleGeneric {
     private static final int BUFFER_SIZE = 8192;
 
     private final ReadableByteChannel reader;
     final SeekableByteChannel seekable;
-    private final ByteBuffer single = ByteBuffer.allocate( 1 );
+    private final ByteBuffer single = ByteBuffer.allocate(1);
 
-    BinaryReadableHandle( ReadableByteChannel reader, SeekableByteChannel seekable, TrackingCloseable closeable )
-    {
-        super( closeable );
+    BinaryReadableHandle(ReadableByteChannel reader, SeekableByteChannel seekable, TrackingCloseable closeable) {
+        super(closeable);
         this.reader = reader;
         this.seekable = seekable;
     }
 
-    public static BinaryReadableHandle of( ReadableByteChannel channel, TrackingCloseable closeable )
-    {
-        SeekableByteChannel seekable = asSeekable( channel );
-        return seekable == null ? new BinaryReadableHandle( channel, null, closeable ) : new Seekable( seekable, closeable );
+    public static BinaryReadableHandle of(ReadableByteChannel channel, TrackingCloseable closeable) {
+        var seekable = asSeekable(channel);
+        return seekable == null ? new BinaryReadableHandle(channel, null, closeable) : new Seekable(seekable, closeable);
     }
 
-    public static BinaryReadableHandle of( ReadableByteChannel channel )
-    {
-        return of( channel, new TrackingCloseable.Impl( channel ) );
+    public static BinaryReadableHandle of(ReadableByteChannel channel) {
+        return of(channel, new TrackingCloseable.Impl(channel));
     }
 
     /**
@@ -64,78 +60,64 @@ public class BinaryReadableHandle extends HandleGeneric
      * @cc.changed 1.80pr1 Now accepts an integer argument to read multiple bytes, returning a string instead of a number.
      */
     @LuaFunction
-    public final Object[] read( Optional<Integer> countArg ) throws LuaException
-    {
+    public final Object[] read(Optional<Integer> countArg) throws LuaException {
         checkOpen();
-        try
-        {
-            if( countArg.isPresent() )
-            {
+        try {
+            if (countArg.isPresent()) {
                 int count = countArg.get();
-                if( count < 0 ) throw new LuaException( "Cannot read a negative number of bytes" );
-                if( count == 0 && seekable != null )
-                {
-                    return seekable.position() >= seekable.size() ? null : new Object[] { "" };
+                if (count < 0) throw new LuaException("Cannot read a negative number of bytes");
+                if (count == 0 && seekable != null) {
+                    return seekable.position() >= seekable.size() ? null : new Object[]{ "" };
                 }
 
-                if( count <= BUFFER_SIZE )
-                {
-                    ByteBuffer buffer = ByteBuffer.allocate( count );
+                if (count <= BUFFER_SIZE) {
+                    var buffer = ByteBuffer.allocate(count);
 
-                    int read = reader.read( buffer );
-                    if( read < 0 ) return null;
+                    var read = reader.read(buffer);
+                    if (read < 0) return null;
                     buffer.flip();
-                    return new Object[] { buffer };
-                }
-                else
-                {
+                    return new Object[]{ buffer };
+                } else {
                     // Read the initial set of characters, failing if none are read.
-                    ByteBuffer buffer = ByteBuffer.allocate( BUFFER_SIZE );
-                    int read = reader.read( buffer );
-                    if( read < 0 ) return null;
+                    var buffer = ByteBuffer.allocate(BUFFER_SIZE);
+                    var read = reader.read(buffer);
+                    if (read < 0) return null;
 
                     // If we failed to read "enough" here, let's just abort
-                    if( read >= count || read < BUFFER_SIZE )
-                    {
+                    if (read >= count || read < BUFFER_SIZE) {
                         buffer.flip();
-                        return new Object[] { buffer };
+                        return new Object[]{ buffer };
                     }
 
                     // Build up an array of ByteBuffers. Hopefully this means we can perform less allocation
                     // than doubling up the buffer each time.
-                    int totalRead = read;
-                    List<ByteBuffer> parts = new ArrayList<>( 4 );
-                    parts.add( buffer );
-                    while( read >= BUFFER_SIZE && totalRead < count )
-                    {
-                        buffer = ByteBuffer.allocate( Math.min( BUFFER_SIZE, count - totalRead ) );
-                        read = reader.read( buffer );
-                        if( read < 0 ) break;
+                    var totalRead = read;
+                    List<ByteBuffer> parts = new ArrayList<>(4);
+                    parts.add(buffer);
+                    while (read >= BUFFER_SIZE && totalRead < count) {
+                        buffer = ByteBuffer.allocate(Math.min(BUFFER_SIZE, count - totalRead));
+                        read = reader.read(buffer);
+                        if (read < 0) break;
 
                         totalRead += read;
-                        parts.add( buffer );
+                        parts.add(buffer);
                     }
 
                     // Now just copy all the bytes across!
-                    byte[] bytes = new byte[totalRead];
-                    int pos = 0;
-                    for( ByteBuffer part : parts )
-                    {
-                        System.arraycopy( part.array(), 0, bytes, pos, part.position() );
+                    var bytes = new byte[totalRead];
+                    var pos = 0;
+                    for (var part : parts) {
+                        System.arraycopy(part.array(), 0, bytes, pos, part.position());
                         pos += part.position();
                     }
-                    return new Object[] { bytes };
+                    return new Object[]{ bytes };
                 }
-            }
-            else
-            {
+            } else {
                 single.clear();
-                int b = reader.read( single );
-                return b == -1 ? null : new Object[] { single.get( 0 ) & 0xFF };
+                var b = reader.read(single);
+                return b == -1 ? null : new Object[]{ single.get(0) & 0xFF };
             }
-        }
-        catch( IOException e )
-        {
+        } catch (IOException e) {
             return null;
         }
     }
@@ -149,30 +131,25 @@ public class BinaryReadableHandle extends HandleGeneric
      * @cc.since 1.80pr1
      */
     @LuaFunction
-    public final Object[] readAll() throws LuaException
-    {
+    public final Object[] readAll() throws LuaException {
         checkOpen();
-        try
-        {
-            int expected = 32;
-            if( seekable != null ) expected = Math.max( expected, (int) (seekable.size() - seekable.position()) );
-            ByteArrayOutputStream stream = new ByteArrayOutputStream( expected );
+        try {
+            var expected = 32;
+            if (seekable != null) expected = Math.max(expected, (int) (seekable.size() - seekable.position()));
+            var stream = new ByteArrayOutputStream(expected);
 
-            ByteBuffer buf = ByteBuffer.allocate( 8192 );
-            boolean readAnything = false;
-            while( true )
-            {
+            var buf = ByteBuffer.allocate(8192);
+            var readAnything = false;
+            while (true) {
                 buf.clear();
-                int r = reader.read( buf );
-                if( r == -1 ) break;
+                var r = reader.read(buf);
+                if (r == -1) break;
 
                 readAnything = true;
-                stream.write( buf.array(), 0, r );
+                stream.write(buf.array(), 0, r);
             }
-            return readAnything ? new Object[] { stream.toByteArray() } : null;
-        }
-        catch( IOException e )
-        {
+            return readAnything ? new Object[]{ stream.toByteArray() } : null;
+        } catch (IOException e) {
             return null;
         }
     }
@@ -188,62 +165,50 @@ public class BinaryReadableHandle extends HandleGeneric
      * @cc.changed 1.81.0 `\r` is now stripped.
      */
     @LuaFunction
-    public final Object[] readLine( Optional<Boolean> withTrailingArg ) throws LuaException
-    {
+    public final Object[] readLine(Optional<Boolean> withTrailingArg) throws LuaException {
         checkOpen();
-        boolean withTrailing = withTrailingArg.orElse( false );
-        try
-        {
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        boolean withTrailing = withTrailingArg.orElse(false);
+        try {
+            var stream = new ByteArrayOutputStream();
 
             boolean readAnything = false, readRc = false;
-            while( true )
-            {
+            while (true) {
                 single.clear();
-                int read = reader.read( single );
-                if( read <= 0 )
-                {
+                var read = reader.read(single);
+                if (read <= 0) {
                     // Nothing else to read, and we saw no \n. Return the array. If we saw a \r, then add it
                     // back.
-                    if( readRc ) stream.write( '\r' );
-                    return readAnything ? new Object[] { stream.toByteArray() } : null;
+                    if (readRc) stream.write('\r');
+                    return readAnything ? new Object[]{ stream.toByteArray() } : null;
                 }
 
                 readAnything = true;
 
-                byte chr = single.get( 0 );
-                if( chr == '\n' )
-                {
-                    if( withTrailing )
-                    {
-                        if( readRc ) stream.write( '\r' );
-                        stream.write( chr );
+                var chr = single.get(0);
+                if (chr == '\n') {
+                    if (withTrailing) {
+                        if (readRc) stream.write('\r');
+                        stream.write(chr);
                     }
-                    return new Object[] { stream.toByteArray() };
-                }
-                else
-                {
+                    return new Object[]{ stream.toByteArray() };
+                } else {
                     // We want to skip \r\n, but obviously need to include cases where \r is not followed by \n.
                     // Note, this behaviour is non-standard compliant (strictly speaking we should have no
                     // special logic for \r), but we preserve compatibility with EncodedReadableHandle and
                     // previous behaviour of the io library.
-                    if( readRc ) stream.write( '\r' );
+                    if (readRc) stream.write('\r');
                     readRc = chr == '\r';
-                    if( !readRc ) stream.write( chr );
+                    if (!readRc) stream.write(chr);
                 }
             }
-        }
-        catch( IOException e )
-        {
+        } catch (IOException e) {
             return null;
         }
     }
 
-    public static class Seekable extends BinaryReadableHandle
-    {
-        Seekable( SeekableByteChannel seekable, TrackingCloseable closeable )
-        {
-            super( seekable, seekable, closeable );
+    public static class Seekable extends BinaryReadableHandle {
+        Seekable(SeekableByteChannel seekable, TrackingCloseable closeable) {
+            super(seekable, seekable, closeable);
         }
 
         /**
@@ -266,10 +231,9 @@ public class BinaryReadableHandle extends HandleGeneric
          * @cc.since 1.80pr1.9
          */
         @LuaFunction
-        public final Object[] seek( Optional<String> whence, Optional<Long> offset ) throws LuaException
-        {
+        public final Object[] seek(Optional<String> whence, Optional<Long> offset) throws LuaException {
             checkOpen();
-            return handleSeek( seekable, whence, offset );
+            return handleSeek(seekable, whence, offset);
         }
     }
 }

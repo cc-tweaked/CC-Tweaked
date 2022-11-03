@@ -21,6 +21,6 @@ import dan200.computercraft.core.metrics.MetricsObserver;
  * @param hostString A {@linkplain GlobalEnvironment#getHostString() host string} to identify the current environment.
  * @see ILuaMachine.Factory
  */
-public record MachineEnvironment(ILuaContext context, MetricsObserver metrics, TimeoutState timeout, String hostString)
-{
+public record MachineEnvironment(ILuaContext context, MetricsObserver metrics, TimeoutState timeout,
+                                 String hostString) {
 }

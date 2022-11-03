@@ -16,8 +16,7 @@ import javax.annotation.Nonnull;
  * @see dan200.computercraft.shared.network.client
  * @see dan200.computercraft.shared.network.server
  */
-public interface NetworkMessage
-{
+public interface NetworkMessage {
     /**
      * Write this packet to a buffer.
      * <p>
@@ -25,12 +24,12 @@ public interface NetworkMessage
      *
      * @param buf The buffer to write data to.
      */
-    void toBytes( @Nonnull FriendlyByteBuf buf );
+    void toBytes(@Nonnull FriendlyByteBuf buf);
 
     /**
      * Handle this {@link NetworkMessage}.
      *
      * @param context The context with which to handle this message
      */
-    void handle( NetworkEvent.Context context );
+    void handle(NetworkEvent.Context context);
 }

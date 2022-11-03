@@ -12,7 +12,6 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.ComputerAccess;
 import dan200.computercraft.core.apis.IAPIEnvironment;
-import dan200.computercraft.core.filesystem.FileSystem;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,50 +25,43 @@ import java.util.Map;
  * @see ILuaAPIFactory
  * @see ApiWrapper
  */
-public class ComputerSystem extends ComputerAccess implements IComputerSystem
-{
+public class ComputerSystem extends ComputerAccess implements IComputerSystem {
     private final IAPIEnvironment environment;
 
-    ComputerSystem( IAPIEnvironment environment )
-    {
-        super( environment );
+    ComputerSystem(IAPIEnvironment environment) {
+        super(environment);
         this.environment = environment;
     }
 
     @Nonnull
     @Override
-    public String getAttachmentName()
-    {
+    public String getAttachmentName() {
         return "computer";
     }
 
     @Nullable
     @Override
-    public IFileSystem getFileSystem()
-    {
-        FileSystem fs = environment.getFileSystem();
+    public IFileSystem getFileSystem() {
+        var fs = environment.getFileSystem();
         return fs == null ? null : fs.getMountWrapper();
     }
 
     @Nullable
     @Override
-    public String getLabel()
-    {
+    public String getLabel() {
         return environment.getLabel();
     }
 
     @Nonnull
     @Override
-    public Map<String, IPeripheral> getAvailablePeripherals()
-    {
+    public Map<String, IPeripheral> getAvailablePeripherals() {
         // TODO: Should this return peripherals on the current computer?
         return Collections.emptyMap();
     }
 
     @Nullable
     @Override
-    public IPeripheral getAvailablePeripheral( @Nonnull String name )
-    {
+    public IPeripheral getAvailablePeripheral(@Nonnull String name) {
         return null;
     }
 }

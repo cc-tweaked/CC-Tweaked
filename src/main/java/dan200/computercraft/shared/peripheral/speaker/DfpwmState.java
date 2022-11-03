@@ -20,9 +20,8 @@ import static dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral.S
 /**
  * Internal state of the DFPWM decoder and the state of playback.
  */
-class DfpwmState
-{
-    private static final long SECOND = TimeUnit.SECONDS.toNanos( 1 );
+class DfpwmState {
+    private static final long SECOND = TimeUnit.SECONDS.toNanos(1);
 
     /**
      * The minimum size of the client's audio buffer. Once we have less than this on the client, we should send another
@@ -41,38 +40,34 @@ class DfpwmState
     private float pendingVolume = 1.0f;
     private ByteBuffer pendingAudio;
 
-    synchronized boolean pushBuffer( LuaTable<?, ?> table, int size, @Nonnull Optional<Double> volume ) throws LuaException
-    {
-        if( pendingAudio != null ) return false;
+    synchronized boolean pushBuffer(LuaTable<?, ?> table, int size, @Nonnull Optional<Double> volume) throws LuaException {
+        if (pendingAudio != null) return false;
 
-        int outSize = size / 8;
-        ByteBuffer buffer = ByteBuffer.allocate( outSize );
+        var outSize = size / 8;
+        var buffer = ByteBuffer.allocate(outSize);
 
-        for( int i = 0; i < outSize; i++ )
-        {
-            int thisByte = 0;
-            for( int j = 1; j <= 8; j++ )
-            {
-                int level = table.getInt( i * 8 + j );
-                if( level < -128 || level > 127 )
-                {
-                    throw new LuaException( "table item #" + (i * 8 + j) + " must be between -128 and 127" );
+        for (var i = 0; i < outSize; i++) {
+            var thisByte = 0;
+            for (var j = 1; j <= 8; j++) {
+                var level = table.getInt(i * 8 + j);
+                if (level < -128 || level > 127) {
+                    throw new LuaException("table item #" + (i * 8 + j) + " must be between -128 and 127");
                 }
 
-                boolean currentBit = level > charge || (level == charge && charge == 127);
+                var currentBit = level > charge || (level == charge && charge == 127);
 
                 // Identical to DfpwmStream. Not happy with this, but saves some inheritance.
-                int target = currentBit ? 127 : -128;
+                var target = currentBit ? 127 : -128;
 
                 // q' <- q + (s * (t - q) + 128)/256
-                int nextCharge = charge + ((strength * (target - charge) + (1 << (PREC - 1))) >> PREC);
-                if( nextCharge == charge && nextCharge != target ) nextCharge += currentBit ? 1 : -1;
+                var nextCharge = charge + ((strength * (target - charge) + (1 << (PREC - 1))) >> PREC);
+                if (nextCharge == charge && nextCharge != target) nextCharge += currentBit ? 1 : -1;
 
-                int z = currentBit == previousBit ? (1 << PREC) - 1 : 0;
+                var z = currentBit == previousBit ? (1 << PREC) - 1 : 0;
 
-                int nextStrength = strength;
-                if( strength != z ) nextStrength += currentBit == previousBit ? 1 : -1;
-                if( nextStrength < 2 << (PREC - 8) ) nextStrength = 2 << (PREC - 8);
+                var nextStrength = strength;
+                if (strength != z) nextStrength += currentBit == previousBit ? 1 : -1;
+                if (nextStrength < 2 << (PREC - 8)) nextStrength = 2 << (PREC - 8);
 
                 charge = nextCharge;
                 strength = nextStrength;
@@ -81,38 +76,34 @@ class DfpwmState
                 thisByte = (thisByte >> 1) + (currentBit ? 128 : 0);
             }
 
-            buffer.put( (byte) thisByte );
+            buffer.put((byte) thisByte);
         }
 
         buffer.flip();
 
         pendingAudio = buffer;
-        pendingVolume = Mth.clamp( volume.orElse( (double) pendingVolume ).floatValue(), 0.0f, 3.0f );
+        pendingVolume = Mth.clamp(volume.orElse((double) pendingVolume).floatValue(), 0.0f, 3.0f);
         return true;
     }
 
-    boolean shouldSendPending( long now )
-    {
+    boolean shouldSendPending(long now) {
         return pendingAudio != null && now >= clientEndTime - CLIENT_BUFFER;
     }
 
-    ByteBuffer pullPending( long now )
-    {
-        ByteBuffer audio = pendingAudio;
+    ByteBuffer pullPending(long now) {
+        var audio = pendingAudio;
         pendingAudio = null;
         // Compute when we should consider sending the next packet.
-        clientEndTime = Math.max( now, clientEndTime ) + (audio.remaining() * SECOND * 8 / SAMPLE_RATE);
+        clientEndTime = Math.max(now, clientEndTime) + (audio.remaining() * SECOND * 8 / SAMPLE_RATE);
         unplayed = false;
         return audio;
     }
 
-    boolean isPlaying()
-    {
+    boolean isPlaying() {
         return unplayed || clientEndTime >= PauseAwareTimer.getTime();
     }
 
-    float getVolume()
-    {
+    float getVolume() {
         return pendingVolume;
     }
 }

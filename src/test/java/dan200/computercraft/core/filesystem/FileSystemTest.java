@@ -13,7 +13,6 @@ import dan200.computercraft.core.apis.handles.EncodedWritableHandle;
 import dan200.computercraft.support.TestFiles;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -21,15 +20,13 @@ import java.nio.charset.StandardCharsets;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class FileSystemTest
-{
-    private static final File ROOT = TestFiles.get( "filesystem" ).toFile();
+public class FileSystemTest {
+    private static final File ROOT = TestFiles.get("filesystem").toFile();
     private static final long CAPACITY = 1000000;
 
-    private static FileSystem mkFs() throws FileSystemException
-    {
-        IWritableMount writableMount = new FileMount( ROOT, CAPACITY );
-        return new FileSystem( "hdd", writableMount );
+    private static FileSystem mkFs() throws FileSystemException {
+        IWritableMount writableMount = new FileMount(ROOT, CAPACITY);
+        return new FileSystem("hdd", writableMount);
 
     }
 
@@ -41,42 +38,40 @@ public class FileSystemTest
      * @throws IOException         When reading and writing from strings
      */
     @Test
-    public void testWriteTruncates() throws FileSystemException, LuaException, IOException
-    {
-        FileSystem fs = mkFs();
+    public void testWriteTruncates() throws FileSystemException, LuaException, IOException {
+        var fs = mkFs();
 
         {
-            FileSystemWrapper<BufferedWriter> writer = fs.openForWrite( "out.txt", false, EncodedWritableHandle::openUtf8 );
-            ObjectWrapper wrapper = new ObjectWrapper( new EncodedWritableHandle( writer.get(), writer ) );
-            wrapper.call( "write", "This is a long line" );
-            wrapper.call( "close" );
+            var writer = fs.openForWrite("out.txt", false, EncodedWritableHandle::openUtf8);
+            var wrapper = new ObjectWrapper(new EncodedWritableHandle(writer.get(), writer));
+            wrapper.call("write", "This is a long line");
+            wrapper.call("close");
         }
 
-        assertEquals( "This is a long line", Files.asCharSource( new File( ROOT, "out.txt" ), StandardCharsets.UTF_8 ).read() );
+        assertEquals("This is a long line", Files.asCharSource(new File(ROOT, "out.txt"), StandardCharsets.UTF_8).read());
 
         {
-            FileSystemWrapper<BufferedWriter> writer = fs.openForWrite( "out.txt", false, EncodedWritableHandle::openUtf8 );
-            ObjectWrapper wrapper = new ObjectWrapper( new EncodedWritableHandle( writer.get(), writer ) );
-            wrapper.call( "write", "Tiny line" );
-            wrapper.call( "close" );
+            var writer = fs.openForWrite("out.txt", false, EncodedWritableHandle::openUtf8);
+            var wrapper = new ObjectWrapper(new EncodedWritableHandle(writer.get(), writer));
+            wrapper.call("write", "Tiny line");
+            wrapper.call("close");
         }
 
-        assertEquals( "Tiny line", Files.asCharSource( new File( ROOT, "out.txt" ), StandardCharsets.UTF_8 ).read() );
+        assertEquals("Tiny line", Files.asCharSource(new File(ROOT, "out.txt"), StandardCharsets.UTF_8).read());
     }
 
     @Test
-    public void testUnmountCloses() throws FileSystemException
-    {
-        FileSystem fs = mkFs();
-        IWritableMount mount = new FileMount( new File( ROOT, "child" ), CAPACITY );
-        fs.mountWritable( "disk", "disk", mount );
+    public void testUnmountCloses() throws FileSystemException {
+        var fs = mkFs();
+        IWritableMount mount = new FileMount(new File(ROOT, "child"), CAPACITY);
+        fs.mountWritable("disk", "disk", mount);
 
-        FileSystemWrapper<BufferedWriter> writer = fs.openForWrite( "disk/out.txt", false, EncodedWritableHandle::openUtf8 );
-        ObjectWrapper wrapper = new ObjectWrapper( new EncodedWritableHandle( writer.get(), writer ) );
+        var writer = fs.openForWrite("disk/out.txt", false, EncodedWritableHandle::openUtf8);
+        var wrapper = new ObjectWrapper(new EncodedWritableHandle(writer.get(), writer));
 
-        fs.unmount( "disk" );
+        fs.unmount("disk");
 
-        LuaException err = assertThrows( LuaException.class, () -> wrapper.call( "write", "Tiny line" ) );
-        assertEquals( "attempt to use a closed file", err.getMessage() );
+        var err = assertThrows(LuaException.class, () -> wrapper.call("write", "Tiny line"));
+        assertEquals("attempt to use a closed file", err.getMessage());
     }
 }

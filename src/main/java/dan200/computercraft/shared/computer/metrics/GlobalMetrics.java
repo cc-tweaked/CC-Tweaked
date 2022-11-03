@@ -21,8 +21,7 @@ import java.util.UUID;
  *
  * @see ServerContext#metrics() To obtain an instance of this system.
  */
-public final class GlobalMetrics
-{
+public final class GlobalMetrics {
     volatile boolean enabled = false;
     final Object lock = new Object();
     final List<ComputerMetricsObserver> trackers = new ArrayList<>();
@@ -36,12 +35,10 @@ public final class GlobalMetrics
      * @param uuid The player's UUID.
      * @return The metrics instance for this player.
      */
-    public BasicComputerMetricsObserver getMetricsInstance( UUID uuid )
-    {
-        synchronized( lock )
-        {
-            BasicComputerMetricsObserver context = instances.get( uuid );
-            if( context == null ) instances.put( uuid, context = new BasicComputerMetricsObserver( this ) );
+    public BasicComputerMetricsObserver getMetricsInstance(UUID uuid) {
+        synchronized (lock) {
+            var context = instances.get(uuid);
+            if (context == null) instances.put(uuid, context = new BasicComputerMetricsObserver(this));
             return context;
         }
     }
@@ -51,12 +48,10 @@ public final class GlobalMetrics
      *
      * @param tracker The observer to add.
      */
-    public void addObserver( ComputerMetricsObserver tracker )
-    {
-        synchronized( lock )
-        {
-            if( trackers.contains( tracker ) ) return;
-            trackers.add( tracker );
+    public void addObserver(ComputerMetricsObserver tracker) {
+        synchronized (lock) {
+            if (trackers.contains(tracker)) return;
+            trackers.add(tracker);
             enabled = true;
         }
     }
@@ -66,11 +61,9 @@ public final class GlobalMetrics
      *
      * @param tracker The observer to add.
      */
-    public void removeObserver( ComputerMetricsObserver tracker )
-    {
-        synchronized( lock )
-        {
-            trackers.remove( tracker );
+    public void removeObserver(ComputerMetricsObserver tracker) {
+        synchronized (lock) {
+            trackers.remove(tracker);
             enabled = !trackers.isEmpty();
         }
     }
@@ -81,40 +74,33 @@ public final class GlobalMetrics
      * @param computer The computer to create the observer for.
      * @return The instantiated observer.
      */
-    public MetricsObserver createMetricObserver( ServerComputer computer )
-    {
-        return new DispatchObserver( computer );
+    public MetricsObserver createMetricObserver(ServerComputer computer) {
+        return new DispatchObserver(computer);
     }
 
-    private final class DispatchObserver implements MetricsObserver
-    {
+    private final class DispatchObserver implements MetricsObserver {
         private final ServerComputer computer;
 
-        private DispatchObserver( ServerComputer computer )
-        {
+        private DispatchObserver(ServerComputer computer) {
             this.computer = computer;
         }
 
         @Override
-        public void observe( Metric.Counter counter )
-        {
-            if( !enabled ) return;
-            synchronized( lock )
-            {
+        public void observe(Metric.Counter counter) {
+            if (!enabled) return;
+            synchronized (lock) {
                 // TODO: The lock here is nasty and aggressive. However, in my benchmarks I've found it has about
                 //  equivalent performance to a CoW list and atomics. Would be good to drill into this, as locks do not
                 //  scale well.
-                for( ComputerMetricsObserver observer : trackers ) observer.observe( computer, counter );
+                for (var observer : trackers) observer.observe(computer, counter);
             }
         }
 
         @Override
-        public void observe( Metric.Event event, long value )
-        {
-            if( !enabled ) return;
-            synchronized( lock )
-            {
-                for( ComputerMetricsObserver observer : trackers ) observer.observe( computer, event, value );
+        public void observe(Metric.Event event, long value) {
+            if (!enabled) return;
+            synchronized (lock) {
+                for (var observer : trackers) observer.observe(computer, event, value);
             }
         }
     }

@@ -19,8 +19,7 @@ import javax.annotation.Nonnull;
  * Elements are generally tied to a block or tile entity in world. In such as case, one should provide the
  * {@link IWiredElement} capability for the appropriate sides.
  */
-public interface IWiredElement extends IWiredSender
-{
+public interface IWiredElement extends IWiredSender {
     /**
      * Called when objects on the network change. This may occur when network nodes are added or removed, or when
      * peripherals change.
@@ -28,7 +27,6 @@ public interface IWiredElement extends IWiredSender
      * @param change The change which occurred.
      * @see IWiredNetworkChange
      */
-    default void networkChanged( @Nonnull IWiredNetworkChange change )
-    {
+    default void networkChanged(@Nonnull IWiredNetworkChange change) {
     }
 }

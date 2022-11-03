@@ -6,7 +6,6 @@
 package dan200.computercraft.shared.peripheral.generic.data;
 
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraftforge.registries.IForgeRegistry;
 
@@ -16,26 +15,22 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public final class DataHelpers
-{
-    private DataHelpers()
-    {}
+public final class DataHelpers {
+    private DataHelpers() {
+    }
 
-    public static <T> Map<String, Boolean> getTags( Holder.Reference<T> object )
-    {
-        return getTags( object.tags() );
+    public static <T> Map<String, Boolean> getTags(Holder.Reference<T> object) {
+        return getTags(object.tags());
     }
 
     @Nonnull
-    public static <T> Map<String, Boolean> getTags( @Nonnull Stream<TagKey<T>> tags )
-    {
-        return tags.collect( Collectors.toMap( x -> x.location().toString(), x -> true ) );
+    public static <T> Map<String, Boolean> getTags(@Nonnull Stream<TagKey<T>> tags) {
+        return tags.collect(Collectors.toMap(x -> x.location().toString(), x -> true));
     }
 
     @Nullable
-    public static <T> String getId( @Nonnull IForgeRegistry<T> registry, T entry )
-    {
-        ResourceLocation id = registry.getKey( entry );
+    public static <T> String getId(@Nonnull IForgeRegistry<T> registry, T entry) {
+        var id = registry.getKey(entry);
         return id == null ? null : id.toString();
     }
 }

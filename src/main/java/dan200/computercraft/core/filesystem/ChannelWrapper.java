@@ -18,32 +18,25 @@ import java.nio.channels.Channel;
  *
  * @param <T> The type of the closeable object to write.
  */
-class ChannelWrapper<T extends Closeable> implements Closeable
-{
+class ChannelWrapper<T extends Closeable> implements Closeable {
     private final T wrapper;
     private final Channel channel;
 
-    ChannelWrapper( T wrapper, Channel channel )
-    {
+    ChannelWrapper(T wrapper, Channel channel) {
         this.wrapper = wrapper;
         this.channel = channel;
     }
 
     @Override
-    public void close() throws IOException
-    {
-        try
-        {
+    public void close() throws IOException {
+        try {
             wrapper.close();
-        }
-        finally
-        {
+        } finally {
             channel.close();
         }
     }
 
-    T get()
-    {
+    T get() {
         return wrapper;
     }
 }

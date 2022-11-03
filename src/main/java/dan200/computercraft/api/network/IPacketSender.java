@@ -13,8 +13,7 @@ import javax.annotation.Nonnull;
 /**
  * An object on a {@link IPacketNetwork}, capable of sending packets.
  */
-public interface IPacketSender
-{
+public interface IPacketSender {
     /**
      * Get the world in which this packet sender exists.
      *

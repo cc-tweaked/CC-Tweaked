@@ -26,17 +26,11 @@
         <module name="EmptyCatchBlock">
             <property name="exceptionVariableName" value="ignored" />
         </module>
-        <module name="LeftCurly">
-            <property name="option" value="nl" />
-            <!-- The defaults, minus lambdas. -->
-            <property name="tokens" value="ANNOTATION_DEF,CLASS_DEF,CTOR_DEF,ENUM_CONSTANT_DEF,ENUM_DEF,INTERFACE_DEF,LITERAL_CASE,LITERAL_CATCH,LITERAL_DEFAULT,LITERAL_DO,LITERAL_ELSE,LITERAL_FINALLY,LITERAL_FOR,LITERAL_IF,LITERAL_SWITCH,LITERAL_SYNCHRONIZED,LITERAL_TRY,LITERAL_WHILE,METHOD_DEF,OBJBLOCK,STATIC_INIT" />
-        </module>
+        <module name="LeftCurly" />
         <module name="NeedBraces">
             <property name="allowSingleLineStatement" value="true"/>
         </module>
-        <module name="RightCurly">
-            <property name="option" value="alone" />
-        </module>
+        <module name="RightCurly" />
 
         <!-- Class design. As if we've ever followed good practice here. -->
         <module name="FinalClass" />
@@ -131,18 +125,11 @@
         <module name="MethodParamPad" />
         <module name="NoLineWrap" />
         <module name="NoWhitespaceAfter">
-            <property name="tokens" value="AT,INC,DEC,UNARY_MINUS,UNARY_PLUS,BNOT,LNOT,DOT,ARRAY_DECLARATOR,INDEX_OP" />
+            <property name="tokens" value="AT,INC,DEC,UNARY_MINUS,UNARY_PLUS,BNOT,LNOT,DOT,ARRAY_DECLARATOR,INDEX_OP,METHOD_REF" />
         </module>
         <module name="NoWhitespaceBefore" />
         <!-- TODO: Decide on an OperatorWrap style. -->
-        <module name="ParenPad">
-            <property name="option" value="space" />
-            <property name="tokens" value="ANNOTATION,ANNOTATION_FIELD_DEF,CTOR_CALL,CTOR_DEF,ENUM_CONSTANT_DEF,LITERAL_CATCH,LITERAL_DO,LITERAL_FOR,LITERAL_IF,LITERAL_NEW,LITERAL_SWITCH,LITERAL_SYNCHRONIZED,LITERAL_WHILE,METHOD_CALL,METHOD_DEF,RESOURCE_SPECIFICATION,SUPER_CTOR_CALL,LAMBDA" />
-        </module>
-        <module name="ParenPad">
-            <property name="option" value="nospace" />
-            <property name="tokens" value="DOT,EXPR,QUESTION" />
-        </module>
+        <module name="ParenPad" />
         <module name="SeparatorWrap">
             <property name="option" value="eol" />
             <property name="tokens" value="COMMA,SEMI,ELLIPSIS,ARRAY_DECLARATOR,RBRACK,METHOD_REF" />

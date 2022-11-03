@@ -7,17 +7,15 @@ package dan200.computercraft.shared.util;
 
 import java.util.Collection;
 
-public class LuaUtil
-{
-    public static Object[] consArray( Object value, Collection<?> rest )
-    {
-        if( rest.isEmpty() ) return new Object[] { value };
+public class LuaUtil {
+    public static Object[] consArray(Object value, Collection<?> rest) {
+        if (rest.isEmpty()) return new Object[]{ value };
 
         // I'm not proud of this code.
-        Object[] out = new Object[rest.size() + 1];
+        var out = new Object[rest.size() + 1];
         out[0] = value;
-        int i = 1;
-        for( Object additionalType : rest ) out[i++] = additionalType;
+        var i = 1;
+        for (Object additionalType : rest) out[i++] = additionalType;
         return out;
     }
 }

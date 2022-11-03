@@ -17,8 +17,7 @@ import javax.annotation.Nullable;
  * @see ComputerCraftAPI#registerAPIFactory(ILuaAPIFactory)
  */
 @FunctionalInterface
-public interface ILuaAPIFactory
-{
+public interface ILuaAPIFactory {
     /**
      * Create a new API instance for a given computer.
      *
@@ -26,5 +25,5 @@ public interface ILuaAPIFactory
      * @return The created API, or {@code null} if one should not be injected.
      */
     @Nullable
-    ILuaAPI create( @Nonnull IComputerSystem computer );
+    ILuaAPI create(@Nonnull IComputerSystem computer);
 }

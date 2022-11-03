@@ -23,71 +23,59 @@ import javax.annotation.Nullable;
 
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
-public class TileSpeaker extends TileGeneric
-{
+public class TileSpeaker extends TileGeneric {
     private final SpeakerPeripheral peripheral;
     private LazyOptional<IPeripheral> peripheralCap;
 
-    public TileSpeaker( BlockEntityType<TileSpeaker> type, BlockPos pos, BlockState state )
-    {
-        super( type, pos, state );
-        peripheral = new Peripheral( this );
+    public TileSpeaker(BlockEntityType<TileSpeaker> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
+        peripheral = new Peripheral(this);
     }
 
-    protected void serverTick()
-    {
+    protected void serverTick() {
         peripheral.update();
     }
 
     @Override
-    public void setRemoved()
-    {
+    public void setRemoved() {
         super.setRemoved();
-        if( level != null && !level.isClientSide )
-        {
-            NetworkHandler.sendToAllPlayers( new SpeakerStopClientMessage( peripheral.getSource() ) );
+        if (level != null && !level.isClientSide) {
+            NetworkHandler.sendToAllPlayers(new SpeakerStopClientMessage(peripheral.getSource()));
         }
     }
 
     @Nonnull
     @Override
-    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable Direction side )
-    {
-        if( cap == CAPABILITY_PERIPHERAL )
-        {
-            if( peripheralCap == null ) peripheralCap = LazyOptional.of( () -> peripheral );
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
+        if (cap == CAPABILITY_PERIPHERAL) {
+            if (peripheralCap == null) peripheralCap = LazyOptional.of(() -> peripheral);
             return peripheralCap.cast();
         }
 
-        return super.getCapability( cap, side );
+        return super.getCapability(cap, side);
     }
 
     @Override
-    public void invalidateCaps()
-    {
+    public void invalidateCaps() {
         super.invalidateCaps();
-        peripheralCap = CapabilityUtil.invalidate( peripheralCap );
+        peripheralCap = CapabilityUtil.invalidate(peripheralCap);
     }
 
-    private static final class Peripheral extends SpeakerPeripheral
-    {
+    private static final class Peripheral extends SpeakerPeripheral {
         private final TileSpeaker speaker;
 
-        private Peripheral( TileSpeaker speaker )
-        {
+        private Peripheral(TileSpeaker speaker) {
             this.speaker = speaker;
         }
 
         @Nonnull
         @Override
-        public SpeakerPosition getPosition()
-        {
-            return SpeakerPosition.of( speaker.getLevel(), Vec3.atCenterOf( speaker.getBlockPos() ) );
+        public SpeakerPosition getPosition() {
+            return SpeakerPosition.of(speaker.getLevel(), Vec3.atCenterOf(speaker.getBlockPos()));
         }
 
         @Override
-        public boolean equals( @Nullable IPeripheral other )
-        {
+        public boolean equals(@Nullable IPeripheral other) {
             return this == other || (other instanceof Peripheral && speaker == ((Peripheral) other).speaker);
         }
     }

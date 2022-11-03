@@ -24,7 +24,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -32,8 +31,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public class PocketServerComputer extends ServerComputer implements IPocketAccess
-{
+public class PocketServerComputer extends ServerComputer implements IPocketAccess {
     private IPocketUpgrade upgrade;
     private Entity entity;
     private ItemStack stack;
@@ -43,95 +41,77 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
     private final Set<ServerPlayer> tracking = new HashSet<>();
 
-    public PocketServerComputer( ServerLevel world, int computerID, String label, ComputerFamily family )
-    {
-        super( world, computerID, label, family, ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight );
+    public PocketServerComputer(ServerLevel world, int computerID, String label, ComputerFamily family) {
+        super(world, computerID, label, family, ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight);
     }
 
     @Nullable
     @Override
-    public Entity getEntity()
-    {
-        Entity entity = this.entity;
-        if( entity == null || stack == null || !entity.isAlive() ) return null;
+    public Entity getEntity() {
+        var entity = this.entity;
+        if (entity == null || stack == null || !entity.isAlive()) return null;
 
-        if( entity instanceof Player )
-        {
-            Inventory inventory = ((Player) entity).getInventory();
-            return inventory.items.contains( stack ) || inventory.offhand.contains( stack ) ? entity : null;
-        }
-        else if( entity instanceof LivingEntity living )
-        {
+        if (entity instanceof Player) {
+            var inventory = ((Player) entity).getInventory();
+            return inventory.items.contains(stack) || inventory.offhand.contains(stack) ? entity : null;
+        } else if (entity instanceof LivingEntity living) {
             return living.getMainHandItem() == stack || living.getOffhandItem() == stack ? entity : null;
-        }
-        else if( entity instanceof ItemEntity itemEntity )
-        {
+        } else if (entity instanceof ItemEntity itemEntity) {
             return itemEntity.getItem() == stack ? entity : null;
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 
     @Override
-    public int getColour()
-    {
-        return IColouredItem.getColourBasic( stack );
+    public int getColour() {
+        return IColouredItem.getColourBasic(stack);
     }
 
     @Override
-    public void setColour( int colour )
-    {
-        IColouredItem.setColourBasic( stack, colour );
+    public void setColour(int colour) {
+        IColouredItem.setColourBasic(stack, colour);
         updateUpgradeNBTData();
     }
 
     @Override
-    public int getLight()
-    {
+    public int getLight() {
         return lightColour;
     }
 
     @Override
-    public void setLight( int colour )
-    {
-        if( colour < 0 || colour > 0xFFFFFF ) colour = -1;
+    public void setLight(int colour) {
+        if (colour < 0 || colour > 0xFFFFFF) colour = -1;
 
-        if( lightColour == colour ) return;
+        if (lightColour == colour) return;
         lightColour = colour;
         lightChanged = true;
     }
 
     @Nonnull
     @Override
-    public CompoundTag getUpgradeNBTData()
-    {
-        return ItemPocketComputer.getUpgradeInfo( stack );
+    public CompoundTag getUpgradeNBTData() {
+        return ItemPocketComputer.getUpgradeInfo(stack);
     }
 
     @Override
-    public void updateUpgradeNBTData()
-    {
-        if( entity instanceof Player player ) player.getInventory().setChanged();
+    public void updateUpgradeNBTData() {
+        if (entity instanceof Player player) player.getInventory().setChanged();
     }
 
     @Override
-    public void invalidatePeripheral()
-    {
-        IPeripheral peripheral = upgrade == null ? null : upgrade.createPeripheral( this );
-        setPeripheral( ComputerSide.BACK, peripheral );
+    public void invalidatePeripheral() {
+        var peripheral = upgrade == null ? null : upgrade.createPeripheral(this);
+        setPeripheral(ComputerSide.BACK, peripheral);
     }
 
     @Nonnull
     @Override
-    public Map<ResourceLocation, IPeripheral> getUpgrades()
-    {
-        return upgrade == null ? Collections.emptyMap() : Collections.singletonMap( upgrade.getUpgradeID(), getPeripheral( ComputerSide.BACK ) );
+    public Map<ResourceLocation, IPeripheral> getUpgrades() {
+        return upgrade == null ? Collections.emptyMap() : Collections.singletonMap(upgrade.getUpgradeID(), getPeripheral(ComputerSide.BACK));
     }
 
-    public IPocketUpgrade getUpgrade()
-    {
+    public IPocketUpgrade getUpgrade() {
         return upgrade;
     }
 
@@ -142,88 +122,74 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
      *
      * @param upgrade The new upgrade to set it to, may be {@code null}.
      */
-    public void setUpgrade( IPocketUpgrade upgrade )
-    {
-        if( this.upgrade == upgrade ) return;
+    public void setUpgrade(IPocketUpgrade upgrade) {
+        if (this.upgrade == upgrade) return;
 
-        synchronized( this )
-        {
-            ItemPocketComputer.setUpgrade( stack, upgrade );
+        synchronized (this) {
+            ItemPocketComputer.setUpgrade(stack, upgrade);
             updateUpgradeNBTData();
             this.upgrade = upgrade;
             invalidatePeripheral();
         }
     }
 
-    public synchronized void updateValues( Entity entity, @Nonnull ItemStack stack, IPocketUpgrade upgrade )
-    {
-        if( entity != null )
-        {
-            setLevel( (ServerLevel) entity.getCommandSenderWorld() );
-            setPosition( entity.blockPosition() );
+    public synchronized void updateValues(Entity entity, @Nonnull ItemStack stack, IPocketUpgrade upgrade) {
+        if (entity != null) {
+            setLevel((ServerLevel) entity.getCommandSenderWorld());
+            setPosition(entity.blockPosition());
         }
 
         // If a new entity has picked it up then rebroadcast the terminal to them
-        if( entity != this.entity && entity instanceof ServerPlayer ) markTerminalChanged();
+        if (entity != this.entity && entity instanceof ServerPlayer) markTerminalChanged();
 
         this.entity = entity;
         this.stack = stack;
 
-        if( this.upgrade != upgrade )
-        {
+        if (this.upgrade != upgrade) {
             this.upgrade = upgrade;
             invalidatePeripheral();
         }
     }
 
     @Override
-    public void tickServer()
-    {
+    public void tickServer() {
         super.tickServer();
 
         // Find any players which have gone missing and remove them from the tracking list.
-        tracking.removeIf( player -> !player.isAlive() || player.level != getLevel() );
+        tracking.removeIf(player -> !player.isAlive() || player.level != getLevel());
 
         // And now find any new players, add them to the tracking list, and broadcast state where appropriate.
-        boolean sendState = hasOutputChanged() || lightChanged;
+        var sendState = hasOutputChanged() || lightChanged;
         lightChanged = false;
-        if( sendState )
-        {
+        if (sendState) {
             // Broadcast the state to all players
-            tracking.addAll( getLevel().players() );
-            NetworkHandler.sendToPlayers( new PocketComputerDataMessage( this, false ), tracking );
-        }
-        else
-        {
+            tracking.addAll(getLevel().players());
+            NetworkHandler.sendToPlayers(new PocketComputerDataMessage(this, false), tracking);
+        } else {
             // Broadcast the state to new players.
             List<ServerPlayer> added = new ArrayList<>();
-            for( ServerPlayer player : getLevel().players() )
-            {
-                if( tracking.add( player ) ) added.add( player );
+            for (var player : getLevel().players()) {
+                if (tracking.add(player)) added.add(player);
             }
-            if( !added.isEmpty() )
-            {
-                NetworkHandler.sendToPlayers( new PocketComputerDataMessage( this, false ), added );
+            if (!added.isEmpty()) {
+                NetworkHandler.sendToPlayers(new PocketComputerDataMessage(this, false), added);
             }
         }
     }
 
     @Override
-    protected void onTerminalChanged()
-    {
+    protected void onTerminalChanged() {
         super.onTerminalChanged();
 
-        if( entity instanceof ServerPlayer player && entity.isAlive() )
-        {
+        if (entity instanceof ServerPlayer player && entity.isAlive()) {
             // Broadcast the terminal to the current player.
-            NetworkHandler.sendToPlayer( player, new PocketComputerDataMessage( this, true ) );
+            NetworkHandler.sendToPlayer(player, new PocketComputerDataMessage(this, true));
         }
     }
 
     @Override
-    protected void onRemoved()
-    {
+    protected void onRemoved() {
         super.onRemoved();
-        NetworkHandler.sendToAllPlayers( new PocketComputerDeletedClientMessage( getInstanceID() ) );
+        NetworkHandler.sendToAllPlayers(new PocketComputerDeletedClientMessage(getInstanceID()));
     }
 }

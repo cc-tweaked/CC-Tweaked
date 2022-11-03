@@ -12,19 +12,18 @@ import dan200.computercraft.shared.computer.blocks.IComputerTile;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
-public interface ITurtleTile extends IComputerTile
-{
+public interface ITurtleTile extends IComputerTile {
     int getColour();
 
     ResourceLocation getOverlay();
 
-    ITurtleUpgrade getUpgrade( TurtleSide side );
+    ITurtleUpgrade getUpgrade(TurtleSide side);
 
     ITurtleAccess getAccess();
 
-    Vec3 getRenderOffset( float f );
+    Vec3 getRenderOffset(float f);
 
-    float getRenderYaw( float f );
+    float getRenderYaw(float f);
 
-    float getToolRenderAngle( TurtleSide side, float f );
+    float getToolRenderAngle(TurtleSide side, float f);
 }

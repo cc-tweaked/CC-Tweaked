@@ -9,8 +9,7 @@ import javax.annotation.Nullable;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
-public final class PartialOptions
-{
+public final class PartialOptions {
     public static final PartialOptions DEFAULT = new PartialOptions(
         null, OptionalLong.empty(), OptionalLong.empty(), OptionalInt.empty(), OptionalInt.empty()
     );
@@ -23,8 +22,7 @@ public final class PartialOptions
 
     private @Nullable Options options;
 
-    public PartialOptions( @Nullable Action action, OptionalLong maxUpload, OptionalLong maxDownload, OptionalInt timeout, OptionalInt websocketMessage )
-    {
+    public PartialOptions(@Nullable Action action, OptionalLong maxUpload, OptionalLong maxDownload, OptionalInt timeout, OptionalInt websocketMessage) {
         this.action = action;
         this.maxUpload = maxUpload;
         this.maxDownload = maxDownload;
@@ -32,16 +30,15 @@ public final class PartialOptions
         this.websocketMessage = websocketMessage;
     }
 
-    Options toOptions()
-    {
-        if( options != null ) return options;
+    Options toOptions() {
+        if (options != null) return options;
 
         return options = new Options(
             action == null ? Action.DENY : action,
-            maxUpload.orElse( AddressRule.MAX_UPLOAD ),
-            maxDownload.orElse( AddressRule.MAX_DOWNLOAD ),
-            timeout.orElse( AddressRule.TIMEOUT ),
-            websocketMessage.orElse( AddressRule.WEBSOCKET_MESSAGE )
+            maxUpload.orElse(AddressRule.MAX_UPLOAD),
+            maxDownload.orElse(AddressRule.MAX_DOWNLOAD),
+            timeout.orElse(AddressRule.TIMEOUT),
+            websocketMessage.orElse(AddressRule.WEBSOCKET_MESSAGE)
         );
     }
 
@@ -51,10 +48,9 @@ public final class PartialOptions
      * @param other The other partial options to combine with.
      * @return The merged options map.
      */
-    PartialOptions merge( PartialOptions other )
-    {
+    PartialOptions merge(PartialOptions other) {
         // Short circuit for DEFAULT. This has no effect on the outcome, but avoids an allocation.
-        if( this == DEFAULT ) return other;
+        if (this == DEFAULT) return other;
 
         return new PartialOptions(
             action == null && other.action != null ? other.action : action,

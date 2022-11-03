@@ -20,21 +20,17 @@ import java.lang.annotation.Target;
 /**
  * Bootstrap Minecraft before running these tests.
  */
-@Target( ElementType.TYPE )
-@Retention( RetentionPolicy.RUNTIME )
-@ExtendWith( WithMinecraft.Setup.class )
-public @interface WithMinecraft
-{
-    class Setup implements Extension, BeforeAllCallback
-    {
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@ExtendWith(WithMinecraft.Setup.class)
+public @interface WithMinecraft {
+    class Setup implements Extension, BeforeAllCallback {
         @Override
-        public void beforeAll( ExtensionContext context )
-        {
+        public void beforeAll(ExtensionContext context) {
             bootstrap();
         }
 
-        public static void bootstrap()
-        {
+        public static void bootstrap() {
             SharedConstants.tryDetectVersion();
             Bootstrap.bootStrap();
         }

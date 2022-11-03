@@ -41,13 +41,11 @@ import javax.annotation.Nullable;
  * Members in this class must be called after ComputerCraft has been initialised, but may be called before it is
  * fully loaded.
  */
-public final class ComputerCraftAPI
-{
+public final class ComputerCraftAPI {
     public static final String MOD_ID = "computercraft";
 
     @Nonnull
-    public static String getInstalledVersion()
-    {
+    public static String getInstalledVersion() {
         return getInstance().getInstalledVersion();
     }
 
@@ -64,9 +62,8 @@ public final class ComputerCraftAPI
      * available for writing.
      * @see #createSaveDirMount(Level, String, long)
      */
-    public static int createUniqueNumberedSaveDir( @Nonnull Level world, @Nonnull String parentSubPath )
-    {
-        return getInstance().createUniqueNumberedSaveDir( world, parentSubPath );
+    public static int createUniqueNumberedSaveDir(@Nonnull Level world, @Nonnull String parentSubPath) {
+        return getInstance().createUniqueNumberedSaveDir(world, parentSubPath);
     }
 
     /**
@@ -88,9 +85,8 @@ public final class ComputerCraftAPI
      * @see IWritableMount
      */
     @Nullable
-    public static IWritableMount createSaveDirMount( @Nonnull Level world, @Nonnull String subPath, long capacity )
-    {
-        return getInstance().createSaveDirMount( world, subPath, capacity );
+    public static IWritableMount createSaveDirMount(@Nonnull Level world, @Nonnull String subPath, long capacity) {
+        return getInstance().createSaveDirMount(world, subPath, capacity);
     }
 
     /**
@@ -112,9 +108,8 @@ public final class ComputerCraftAPI
      * @see IMount
      */
     @Nullable
-    public static IMount createResourceMount( @Nonnull String domain, @Nonnull String subPath )
-    {
-        return getInstance().createResourceMount( domain, subPath );
+    public static IMount createResourceMount(@Nonnull String domain, @Nonnull String subPath) {
+        return getInstance().createResourceMount(domain, subPath);
     }
 
     /**
@@ -125,10 +120,9 @@ public final class ComputerCraftAPI
      * @see IPeripheralProvider
      * @deprecated Use {@link ForgeComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)} instead.
      */
-    @Deprecated( forRemoval = true )
-    public static void registerPeripheralProvider( @Nonnull IPeripheralProvider provider )
-    {
-        getInstance().registerPeripheralProvider( provider );
+    @Deprecated(forRemoval = true)
+    public static void registerPeripheralProvider(@Nonnull IPeripheralProvider provider) {
+        getInstance().registerPeripheralProvider(provider);
     }
 
     /**
@@ -137,9 +131,8 @@ public final class ComputerCraftAPI
      * @param source The method source to register.
      * @see GenericSource
      */
-    public static void registerGenericSource( @Nonnull GenericSource source )
-    {
-        getInstance().registerGenericSource( source );
+    public static void registerGenericSource(@Nonnull GenericSource source) {
+        getInstance().registerGenericSource(source);
     }
 
     /**
@@ -149,10 +142,9 @@ public final class ComputerCraftAPI
      * @see GenericSource
      * @deprecated Use {@link ForgeComputerCraftAPI} instead.
      */
-    @Deprecated( forRemoval = true )
-    public static void registerGenericCapability( @Nonnull Capability<?> capability )
-    {
-        getInstance().registerGenericCapability( capability );
+    @Deprecated(forRemoval = true)
+    public static void registerGenericCapability(@Nonnull Capability<?> capability) {
+        getInstance().registerGenericCapability(capability);
     }
 
     /**
@@ -161,9 +153,8 @@ public final class ComputerCraftAPI
      * @param provider The bundled redstone provider to register.
      * @see IBundledRedstoneProvider
      */
-    public static void registerBundledRedstoneProvider( @Nonnull IBundledRedstoneProvider provider )
-    {
-        getInstance().registerBundledRedstoneProvider( provider );
+    public static void registerBundledRedstoneProvider(@Nonnull IBundledRedstoneProvider provider) {
+        getInstance().registerBundledRedstoneProvider(provider);
     }
 
     /**
@@ -176,9 +167,8 @@ public final class ComputerCraftAPI
      * If there is no block capable of emitting bundled redstone at the location, -1 will be returned.
      * @see IBundledRedstoneProvider
      */
-    public static int getBundledRedstoneOutput( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side )
-    {
-        return getInstance().getBundledRedstoneOutput( world, pos, side );
+    public static int getBundledRedstoneOutput(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side) {
+        return getInstance().getBundledRedstoneOutput(world, pos, side);
     }
 
     /**
@@ -187,9 +177,8 @@ public final class ComputerCraftAPI
      * @param provider The media provider to register.
      * @see IMediaProvider
      */
-    public static void registerMediaProvider( @Nonnull IMediaProvider provider )
-    {
-        getInstance().registerMediaProvider( provider );
+    public static void registerMediaProvider(@Nonnull IMediaProvider provider) {
+        getInstance().registerMediaProvider(provider);
     }
 
     /**
@@ -197,14 +186,12 @@ public final class ComputerCraftAPI
      *
      * @return The global wireless network, or {@code null} if it could not be fetched.
      */
-    public static IPacketNetwork getWirelessNetwork()
-    {
+    public static IPacketNetwork getWirelessNetwork() {
         return getInstance().getWirelessNetwork();
     }
 
-    public static void registerAPIFactory( @Nonnull ILuaAPIFactory factory )
-    {
-        getInstance().registerAPIFactory( factory );
+    public static void registerAPIFactory(@Nonnull ILuaAPIFactory factory) {
+        getInstance().registerAPIFactory(factory);
     }
 
     /**
@@ -217,10 +204,9 @@ public final class ComputerCraftAPI
      * @param <T>      The type of object that this provider can provide details for.
      * @deprecated Use {@link DetailRegistry#addProvider(IDetailProvider)} to register your provider.
      */
-    @Deprecated( forRemoval = true )
-    public static <T> void registerDetailProvider( @Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider )
-    {
-        getInstance().registerDetailProvider( type, provider );
+    @Deprecated(forRemoval = true)
+    public static <T> void registerDetailProvider(@Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider) {
+        getInstance().registerDetailProvider(type, provider);
     }
 
     /**
@@ -231,9 +217,8 @@ public final class ComputerCraftAPI
      * @see IWiredElement#getNode()
      */
     @Nonnull
-    public static IWiredNode createWiredNodeForElement( @Nonnull IWiredElement element )
-    {
-        return getInstance().createWiredNodeForElement( element );
+    public static IWiredNode createWiredNodeForElement(@Nonnull IWiredElement element) {
+        return getInstance().createWiredNodeForElement(element);
     }
 
     /**
@@ -247,20 +232,17 @@ public final class ComputerCraftAPI
      * @deprecated Use {@link ForgeComputerCraftAPI#getWiredElementAt(BlockGetter, BlockPos, Direction)}
      */
     @Nonnull
-    @Deprecated( forRemoval = true )
-    public static LazyOptional<IWiredElement> getWiredElementAt( @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side )
-    {
-        return getInstance().getWiredElementAt( world, pos, side );
+    @Deprecated(forRemoval = true)
+    public static LazyOptional<IWiredElement> getWiredElementAt(@Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side) {
+        return getInstance().getWiredElementAt(world, pos, side);
     }
 
-    public static void registerRefuelHandler( @Nonnull TurtleRefuelHandler handler )
-    {
-        getInstance().registerRefuelHandler( handler );
+    public static void registerRefuelHandler(@Nonnull TurtleRefuelHandler handler) {
+        getInstance().registerRefuelHandler(handler);
     }
 
     @Nonnull
-    private static ComputerCraftAPIService getInstance()
-    {
+    private static ComputerCraftAPIService getInstance() {
         return ComputerCraftAPIService.get();
     }
 }

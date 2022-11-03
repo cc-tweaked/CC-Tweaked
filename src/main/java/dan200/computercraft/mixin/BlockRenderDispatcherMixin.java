@@ -17,7 +17,6 @@ import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -37,9 +36,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  *
  * @see BlockRenderDispatcher#renderBreakingTexture(BlockState, BlockPos, BlockAndTintGetter, PoseStack, VertexConsumer, ModelData)
  */
-@Mixin( BlockRenderDispatcher.class )
-public class BlockRenderDispatcherMixin
-{
+@Mixin(BlockRenderDispatcher.class)
+public class BlockRenderDispatcherMixin {
     @Shadow
     @Final
     private RandomSource random;
@@ -54,37 +52,35 @@ public class BlockRenderDispatcherMixin
 
     @Inject(
         method = "name=/^renderBreakingTexture/ desc=/ModelData;\\)V$/",
-        at = @At( "HEAD" ),
+        at = @At("HEAD"),
         cancellable = true,
         require = 0 // This isn't critical functionality, so don't worry if we can't apply it.
     )
     public void renderBlockDamage(
         BlockState state, BlockPos pos, BlockAndTintGetter world, PoseStack pose, VertexConsumer buffers, ModelData modelData,
         CallbackInfo info
-    )
-    {
+    ) {
         // Only apply to cables which have both a cable and modem
-        if( state.getBlock() != Registry.ModBlocks.CABLE.get()
-            || !state.getValue( BlockCable.CABLE )
-            || state.getValue( BlockCable.MODEM ) == CableModemVariant.None
-        )
-        {
+        if (state.getBlock() != Registry.ModBlocks.CABLE.get()
+            || !state.getValue(BlockCable.CABLE)
+            || state.getValue(BlockCable.MODEM) == CableModemVariant.None
+        ) {
             return;
         }
 
-        HitResult hit = Minecraft.getInstance().hitResult;
-        if( hit == null || hit.getType() != HitResult.Type.BLOCK ) return;
-        BlockPos hitPos = ((BlockHitResult) hit).getBlockPos();
+        var hit = Minecraft.getInstance().hitResult;
+        if (hit == null || hit.getType() != HitResult.Type.BLOCK) return;
+        var hitPos = ((BlockHitResult) hit).getBlockPos();
 
-        if( !hitPos.equals( pos ) ) return;
+        if (!hitPos.equals(pos)) return;
 
         info.cancel();
-        BlockState newState = WorldUtil.isVecInside( CableShapes.getModemShape( state ), hit.getLocation().subtract( pos.getX(), pos.getY(), pos.getZ() ) )
-            ? state.getBlock().defaultBlockState().setValue( BlockCable.MODEM, state.getValue( BlockCable.MODEM ) )
-            : state.setValue( BlockCable.MODEM, CableModemVariant.None );
+        var newState = WorldUtil.isVecInside(CableShapes.getModemShape(state), hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))
+            ? state.getBlock().defaultBlockState().setValue(BlockCable.MODEM, state.getValue(BlockCable.MODEM))
+            : state.setValue(BlockCable.MODEM, CableModemVariant.None);
 
-        BakedModel model = blockModelShaper.getBlockModel( newState );
-        long seed = newState.getSeed( pos );
-        modelRenderer.tesselateBlock( world, model, newState, pos, pose, buffers, true, random, seed, OverlayTexture.NO_OVERLAY, modelData, null );
+        var model = blockModelShaper.getBlockModel(newState);
+        var seed = newState.getSeed(pos);
+        modelRenderer.tesselateBlock(world, model, newState, pos, pose, buffers, true, random, seed, OverlayTexture.NO_OVERLAY, modelData, null);
     }
 }

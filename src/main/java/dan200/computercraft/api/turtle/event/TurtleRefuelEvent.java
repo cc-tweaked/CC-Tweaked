@@ -20,17 +20,15 @@ import java.util.Objects;
  *
  * @deprecated Use {@link TurtleRefuelHandler} instead.
  */
-@Deprecated( forRemoval = true )
-public class TurtleRefuelEvent extends TurtleEvent
-{
+@Deprecated(forRemoval = true)
+public class TurtleRefuelEvent extends TurtleEvent {
     private final ItemStack stack;
     private Handler handler;
 
-    public TurtleRefuelEvent( @Nonnull ITurtleAccess turtle, @Nonnull ItemStack stack )
-    {
-        super( turtle );
+    public TurtleRefuelEvent(@Nonnull ITurtleAccess turtle, @Nonnull ItemStack stack) {
+        super(turtle);
 
-        Objects.requireNonNull( turtle, "turtle cannot be null" );
+        Objects.requireNonNull(turtle, "turtle cannot be null");
         this.stack = stack;
     }
 
@@ -41,8 +39,7 @@ public class TurtleRefuelEvent extends TurtleEvent
      *
      * @return The stack to refuel from.
      */
-    public ItemStack getStack()
-    {
+    public ItemStack getStack() {
         return stack;
     }
 
@@ -53,8 +50,7 @@ public class TurtleRefuelEvent extends TurtleEvent
      * @see #setHandler(Handler)
      */
     @Nullable
-    public Handler getHandler()
-    {
+    public Handler getHandler() {
         return handler;
     }
 
@@ -67,8 +63,7 @@ public class TurtleRefuelEvent extends TurtleEvent
      * @param handler The new refuel handler.
      * @see #getHandler()
      */
-    public void setHandler( @Nullable Handler handler )
-    {
+    public void setHandler(@Nullable Handler handler) {
         this.handler = handler;
     }
 
@@ -76,8 +71,7 @@ public class TurtleRefuelEvent extends TurtleEvent
      * Handles refuelling a turtle from a specific item.
      */
     @FunctionalInterface
-    public interface Handler
-    {
+    public interface Handler {
         /**
          * Refuel a turtle using an item.
          *
@@ -88,6 +82,6 @@ public class TurtleRefuelEvent extends TurtleEvent
          *               items to consume.
          * @return The amount of fuel gained.
          */
-        int refuel( @Nonnull ITurtleAccess turtle, @Nonnull ItemStack stack, int slot, int limit );
+        int refuel(@Nonnull ITurtleAccess turtle, @Nonnull ItemStack stack, int slot, int limit);
     }
 }

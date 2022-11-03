@@ -27,22 +27,19 @@ import static dan200.computercraft.shared.media.items.ItemPrintout.LINE_MAX_LENG
 /**
  * Emulates map and item-frame rendering for printouts.
  */
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
-public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
-{
+@Mod.EventBusSubscriber(modid = ComputerCraft.MOD_ID, value = Dist.CLIENT)
+public final class ItemPrintoutRenderer extends ItemMapLikeRenderer {
     private static final ItemPrintoutRenderer INSTANCE = new ItemPrintoutRenderer();
 
-    private ItemPrintoutRenderer()
-    {
+    private ItemPrintoutRenderer() {
     }
 
     @SubscribeEvent
-    public static void onRenderInHand( RenderHandEvent event )
-    {
-        ItemStack stack = event.getItemStack();
-        if( !(stack.getItem() instanceof ItemPrintout) ) return;
+    public static void onRenderInHand(RenderHandEvent event) {
+        var stack = event.getItemStack();
+        if (!(stack.getItem() instanceof ItemPrintout)) return;
 
-        event.setCanceled( true );
+        event.setCanceled(true);
         INSTANCE.renderItemFirstPerson(
             event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(),
             event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack()
@@ -50,65 +47,61 @@ public final class ItemPrintoutRenderer extends ItemMapLikeRenderer
     }
 
     @Override
-    protected void renderItem( PoseStack transform, MultiBufferSource render, ItemStack stack, int light )
-    {
-        transform.mulPose( Vector3f.XP.rotationDegrees( 180f ) );
-        transform.scale( 0.42f, 0.42f, -0.42f );
-        transform.translate( -0.5f, -0.48f, 0.0f );
+    protected void renderItem(PoseStack transform, MultiBufferSource render, ItemStack stack, int light) {
+        transform.mulPose(Vector3f.XP.rotationDegrees(180f));
+        transform.scale(0.42f, 0.42f, -0.42f);
+        transform.translate(-0.5f, -0.48f, 0.0f);
 
-        drawPrintout( transform, render, stack, light );
+        drawPrintout(transform, render, stack, light);
     }
 
     @SubscribeEvent
-    public static void onRenderInFrame( RenderItemInFrameEvent event )
-    {
-        ItemStack stack = event.getItemStack();
-        if( !(stack.getItem() instanceof ItemPrintout) ) return;
-        event.setCanceled( true );
+    public static void onRenderInFrame(RenderItemInFrameEvent event) {
+        var stack = event.getItemStack();
+        if (!(stack.getItem() instanceof ItemPrintout)) return;
+        event.setCanceled(true);
 
-        PoseStack transform = event.getPoseStack();
+        var transform = event.getPoseStack();
 
         // Move a little bit forward to ensure we're not clipping with the frame
-        transform.translate( 0.0f, 0.0f, -0.001f );
-        transform.mulPose( Vector3f.ZP.rotationDegrees( 180f ) );
-        transform.scale( 0.95f, 0.95f, -0.95f );
-        transform.translate( -0.5f, -0.5f, 0.0f );
+        transform.translate(0.0f, 0.0f, -0.001f);
+        transform.mulPose(Vector3f.ZP.rotationDegrees(180f));
+        transform.scale(0.95f, 0.95f, -0.95f);
+        transform.translate(-0.5f, -0.5f, 0.0f);
 
-        int light = event.getItemFrameEntity().getType() == EntityType.GLOW_ITEM_FRAME ? 0xf000d2 : event.getPackedLight(); // See getLightVal.
-        drawPrintout( transform, event.getMultiBufferSource(), stack, light );
+        var light = event.getItemFrameEntity().getType() == EntityType.GLOW_ITEM_FRAME ? 0xf000d2 : event.getPackedLight(); // See getLightVal.
+        drawPrintout(transform, event.getMultiBufferSource(), stack, light);
     }
 
-    private static void drawPrintout( PoseStack transform, MultiBufferSource render, ItemStack stack, int light )
-    {
-        int pages = ItemPrintout.getPageCount( stack );
-        boolean book = ((ItemPrintout) stack.getItem()).getType() == ItemPrintout.Type.BOOK;
+    private static void drawPrintout(PoseStack transform, MultiBufferSource render, ItemStack stack, int light) {
+        var pages = ItemPrintout.getPageCount(stack);
+        var book = ((ItemPrintout) stack.getItem()).getType() == ItemPrintout.Type.BOOK;
 
         double width = LINE_MAX_LENGTH * FONT_WIDTH + X_TEXT_MARGIN * 2;
         double height = LINES_PER_PAGE * FONT_HEIGHT + Y_TEXT_MARGIN * 2;
 
         // Non-books will be left aligned
-        if( !book ) width += offsetAt( pages - 1 );
+        if (!book) width += offsetAt(pages - 1);
 
         double visualWidth = width, visualHeight = height;
 
         // Meanwhile books will be centred
-        if( book )
-        {
-            visualWidth += 2 * COVER_SIZE + 2 * offsetAt( pages );
+        if (book) {
+            visualWidth += 2 * COVER_SIZE + 2 * offsetAt(pages);
             visualHeight += 2 * COVER_SIZE;
         }
 
-        double max = Math.max( visualHeight, visualWidth );
+        var max = Math.max(visualHeight, visualWidth);
 
         // Scale the printout to fit correctly.
-        float scale = (float) (1.0 / max);
-        transform.scale( scale, scale, scale );
-        transform.translate( (max - width) / 2.0, (max - height) / 2.0, 0.0 );
+        var scale = (float) (1.0 / max);
+        transform.scale(scale, scale, scale);
+        transform.translate((max - width) / 2.0, (max - height) / 2.0, 0.0);
 
-        drawBorder( transform, render, 0, 0, -0.01f, 0, pages, book, light );
+        drawBorder(transform, render, 0, 0, -0.01f, 0, pages, book, light);
         drawText(
             transform, render, X_TEXT_MARGIN, Y_TEXT_MARGIN, 0, light,
-            ItemPrintout.getText( stack ), ItemPrintout.getColours( stack )
+            ItemPrintout.getText(stack), ItemPrintout.getColours(stack)
         );
     }
 }

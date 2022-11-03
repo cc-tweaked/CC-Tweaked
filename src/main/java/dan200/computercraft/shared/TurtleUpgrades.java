@@ -11,23 +11,21 @@ import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 
 import java.util.stream.Stream;
 
-public final class TurtleUpgrades
-{
+public final class TurtleUpgrades {
     private static final UpgradeManager<TurtleUpgradeSerialiser<?>, ITurtleUpgrade> registry = new UpgradeManager<>(
         "turtle upgrade", "computercraft/turtle_upgrades", TurtleUpgradeSerialiser.REGISTRY_ID
     );
 
-    private TurtleUpgrades() {}
+    private TurtleUpgrades() {
+    }
 
-    public static UpgradeManager<TurtleUpgradeSerialiser<?>, ITurtleUpgrade> instance()
-    {
+    public static UpgradeManager<TurtleUpgradeSerialiser<?>, ITurtleUpgrade> instance() {
         return registry;
     }
 
-    public static Stream<ITurtleUpgrade> getVanillaUpgrades()
-    {
+    public static Stream<ITurtleUpgrade> getVanillaUpgrades() {
         return instance().getUpgradeWrappers().values().stream()
-            .filter( x -> x.modId().equals( ComputerCraft.MOD_ID ) )
-            .map( UpgradeManager.UpgradeWrapper::upgrade );
+            .filter(x -> x.modId().equals(ComputerCraft.MOD_ID))
+            .map(UpgradeManager.UpgradeWrapper::upgrade);
     }
 }

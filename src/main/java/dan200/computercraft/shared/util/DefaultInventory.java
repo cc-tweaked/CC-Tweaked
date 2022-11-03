@@ -11,27 +11,22 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public interface DefaultInventory extends Container
-{
+public interface DefaultInventory extends Container {
     @Override
-    default int getMaxStackSize()
-    {
+    default int getMaxStackSize() {
         return 64;
     }
 
     @Override
-    default void startOpen( @Nonnull Player player )
-    {
+    default void startOpen(@Nonnull Player player) {
     }
 
     @Override
-    default void stopOpen( @Nonnull Player player )
-    {
+    default void stopOpen(@Nonnull Player player) {
     }
 
     @Override
-    default boolean canPlaceItem( int slot, @Nonnull ItemStack stack )
-    {
+    default boolean canPlaceItem(int slot, @Nonnull ItemStack stack) {
         return true;
     }
 }

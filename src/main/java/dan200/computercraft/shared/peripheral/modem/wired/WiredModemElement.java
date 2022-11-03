@@ -15,50 +15,42 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class WiredModemElement implements IWiredElement
-{
-    private final IWiredNode node = ComputerCraftAPI.createWiredNodeForElement( this );
+public abstract class WiredModemElement implements IWiredElement {
+    private final IWiredNode node = ComputerCraftAPI.createWiredNodeForElement(this);
     private final Map<String, IPeripheral> remotePeripherals = new HashMap<>();
 
     @Nonnull
     @Override
-    public IWiredNode getNode()
-    {
+    public IWiredNode getNode() {
         return node;
     }
 
     @Nonnull
     @Override
-    public String getSenderID()
-    {
+    public String getSenderID() {
         return "modem";
     }
 
     @Override
-    public void networkChanged( @Nonnull IWiredNetworkChange change )
-    {
-        synchronized( remotePeripherals )
-        {
-            remotePeripherals.keySet().removeAll( change.peripheralsRemoved().keySet() );
-            for( String name : change.peripheralsRemoved().keySet() )
-            {
-                detachPeripheral( name );
+    public void networkChanged(@Nonnull IWiredNetworkChange change) {
+        synchronized (remotePeripherals) {
+            remotePeripherals.keySet().removeAll(change.peripheralsRemoved().keySet());
+            for (var name : change.peripheralsRemoved().keySet()) {
+                detachPeripheral(name);
             }
 
-            for( Map.Entry<String, IPeripheral> peripheral : change.peripheralsAdded().entrySet() )
-            {
-                attachPeripheral( peripheral.getKey(), peripheral.getValue() );
+            for (var peripheral : change.peripheralsAdded().entrySet()) {
+                attachPeripheral(peripheral.getKey(), peripheral.getValue());
             }
-            remotePeripherals.putAll( change.peripheralsAdded() );
+            remotePeripherals.putAll(change.peripheralsAdded());
         }
     }
 
-    public Map<String, IPeripheral> getRemotePeripherals()
-    {
+    public Map<String, IPeripheral> getRemotePeripherals() {
         return remotePeripherals;
     }
 
-    protected abstract void attachPeripheral( String name, IPeripheral peripheral );
+    protected abstract void attachPeripheral(String name, IPeripheral peripheral);
 
-    protected abstract void detachPeripheral( String name );
+    protected abstract void detachPeripheral(String name);
 }

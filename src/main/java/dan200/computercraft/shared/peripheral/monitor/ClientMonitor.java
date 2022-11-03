@@ -20,11 +20,9 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
-public final class ClientMonitor
-{
+public final class ClientMonitor {
     private static final Set<ClientMonitor> allMonitors = new HashSet<>();
 
     private final TileMonitor origin;
@@ -40,13 +38,11 @@ public final class ClientMonitor
     private NetworkedTerminal terminal;
     private boolean terminalChanged;
 
-    public ClientMonitor( TileMonitor origin )
-    {
+    public ClientMonitor(TileMonitor origin) {
         this.origin = origin;
     }
 
-    public TileMonitor getOrigin()
-    {
+    public TileMonitor getOrigin() {
         return origin;
     }
 
@@ -57,33 +53,30 @@ public final class ClientMonitor
      * @return If a buffer was created. This will return {@code false} if we already have an appropriate buffer,
      * or this mode does not require one.
      */
-    @OnlyIn( Dist.CLIENT )
-    public boolean createBuffer( MonitorRenderer renderer )
-    {
-        switch( renderer )
-        {
-            case TBO:
-            {
-                if( tboBuffer != 0 ) return false;
+    @OnlyIn(Dist.CLIENT)
+    public boolean createBuffer(MonitorRenderer renderer) {
+        switch (renderer) {
+            case TBO: {
+                if (tboBuffer != 0) return false;
 
                 deleteBuffers();
 
                 tboBuffer = DirectBuffers.createBuffer();
-                DirectBuffers.setEmptyBufferData( GL31.GL_TEXTURE_BUFFER, tboBuffer, GL15.GL_STATIC_DRAW );
+                DirectBuffers.setEmptyBufferData(GL31.GL_TEXTURE_BUFFER, tboBuffer, GL15.GL_STATIC_DRAW);
                 tboTexture = GlStateManager._genTexture();
-                GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, tboTexture );
-                GL31.glTexBuffer( GL31.GL_TEXTURE_BUFFER, GL30.GL_R8UI, tboBuffer );
-                GL11.glBindTexture( GL31.GL_TEXTURE_BUFFER, 0 );
+                GL11.glBindTexture(GL31.GL_TEXTURE_BUFFER, tboTexture);
+                GL31.glTexBuffer(GL31.GL_TEXTURE_BUFFER, GL30.GL_R8UI, tboBuffer);
+                GL11.glBindTexture(GL31.GL_TEXTURE_BUFFER, 0);
 
                 tboUniform = DirectBuffers.createBuffer();
-                DirectBuffers.setEmptyBufferData( GL31.GL_UNIFORM_BUFFER, tboUniform, GL15.GL_STATIC_DRAW );
+                DirectBuffers.setEmptyBufferData(GL31.GL_UNIFORM_BUFFER, tboUniform, GL15.GL_STATIC_DRAW);
 
                 addMonitor();
                 return true;
             }
 
             case VBO:
-                if( backgroundBuffer != null ) return false;
+                if (backgroundBuffer != null) return false;
 
                 deleteBuffers();
                 backgroundBuffer = new DirectVertexBuffer();
@@ -96,70 +89,56 @@ public final class ClientMonitor
         }
     }
 
-    private void addMonitor()
-    {
-        synchronized( allMonitors )
-        {
-            allMonitors.add( this );
+    private void addMonitor() {
+        synchronized (allMonitors) {
+            allMonitors.add(this);
         }
     }
 
-    private void deleteBuffers()
-    {
+    private void deleteBuffers() {
 
-        if( tboBuffer != 0 )
-        {
-            DirectBuffers.deleteBuffer( GL31.GL_TEXTURE_BUFFER, tboBuffer );
+        if (tboBuffer != 0) {
+            DirectBuffers.deleteBuffer(GL31.GL_TEXTURE_BUFFER, tboBuffer);
             tboBuffer = 0;
         }
 
-        if( tboTexture != 0 )
-        {
-            GlStateManager._deleteTexture( tboTexture );
+        if (tboTexture != 0) {
+            GlStateManager._deleteTexture(tboTexture);
             tboTexture = 0;
         }
 
-        if( tboUniform != 0 )
-        {
-            DirectBuffers.deleteBuffer( GL31.GL_UNIFORM_BUFFER, tboUniform );
+        if (tboUniform != 0) {
+            DirectBuffers.deleteBuffer(GL31.GL_UNIFORM_BUFFER, tboUniform);
             tboUniform = 0;
         }
 
-        if( backgroundBuffer != null )
-        {
+        if (backgroundBuffer != null) {
             backgroundBuffer.close();
             backgroundBuffer = null;
         }
 
-        if( foregroundBuffer != null )
-        {
+        if (foregroundBuffer != null) {
             foregroundBuffer.close();
             foregroundBuffer = null;
         }
     }
 
-    @OnlyIn( Dist.CLIENT )
-    public void destroy()
-    {
-        if( tboBuffer != 0 || backgroundBuffer != null )
-        {
-            synchronized( allMonitors )
-            {
-                allMonitors.remove( this );
+    @OnlyIn(Dist.CLIENT)
+    public void destroy() {
+        if (tboBuffer != 0 || backgroundBuffer != null) {
+            synchronized (allMonitors) {
+                allMonitors.remove(this);
             }
 
             deleteBuffers();
         }
     }
 
-    @OnlyIn( Dist.CLIENT )
-    public static void destroyAll()
-    {
-        synchronized( allMonitors )
-        {
-            for( Iterator<ClientMonitor> iterator = allMonitors.iterator(); iterator.hasNext(); )
-            {
-                ClientMonitor monitor = iterator.next();
+    @OnlyIn(Dist.CLIENT)
+    public static void destroyAll() {
+        synchronized (allMonitors) {
+            for (var iterator = allMonitors.iterator(); iterator.hasNext(); ) {
+                var monitor = iterator.next();
                 monitor.deleteBuffers();
 
                 iterator.remove();
@@ -167,30 +146,23 @@ public final class ClientMonitor
         }
     }
 
-    public boolean pollTerminalChanged()
-    {
-        boolean changed = terminalChanged;
+    public boolean pollTerminalChanged() {
+        var changed = terminalChanged;
         terminalChanged = false;
         return changed;
     }
 
-    public Terminal getTerminal()
-    {
+    public Terminal getTerminal() {
         return terminal;
     }
 
-    void read( TerminalState state )
-    {
-        if( state.hasTerminal() )
-        {
-            if( terminal == null ) terminal = new NetworkedTerminal( state.width, state.height, state.colour );
-            state.apply( terminal );
+    void read(TerminalState state) {
+        if (state.hasTerminal()) {
+            if (terminal == null) terminal = new NetworkedTerminal(state.width, state.height, state.colour);
+            state.apply(terminal);
             terminalChanged = true;
-        }
-        else
-        {
-            if( terminal != null )
-            {
+        } else {
+            if (terminal != null) {
                 terminal = null;
                 terminalChanged = true;
             }

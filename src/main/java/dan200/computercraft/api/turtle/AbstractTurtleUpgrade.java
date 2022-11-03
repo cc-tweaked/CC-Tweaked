@@ -16,51 +16,44 @@ import javax.annotation.Nonnull;
  * <p>
  * One does not have to use this, but it does provide a convenient template.
  */
-public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade
-{
+public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade {
     private final ResourceLocation id;
     private final TurtleUpgradeType type;
     private final String adjective;
     private final ItemStack stack;
 
-    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, String adjective, ItemStack stack )
-    {
+    protected AbstractTurtleUpgrade(ResourceLocation id, TurtleUpgradeType type, String adjective, ItemStack stack) {
         this.id = id;
         this.type = type;
         this.adjective = adjective;
         this.stack = stack;
     }
 
-    protected AbstractTurtleUpgrade( ResourceLocation id, TurtleUpgradeType type, ItemStack stack )
-    {
-        this( id, type, IUpgradeBase.getDefaultAdjective( id ), stack );
+    protected AbstractTurtleUpgrade(ResourceLocation id, TurtleUpgradeType type, ItemStack stack) {
+        this(id, type, IUpgradeBase.getDefaultAdjective(id), stack);
     }
 
     @Nonnull
     @Override
-    public final ResourceLocation getUpgradeID()
-    {
+    public final ResourceLocation getUpgradeID() {
         return id;
     }
 
     @Nonnull
     @Override
-    public final String getUnlocalisedAdjective()
-    {
+    public final String getUnlocalisedAdjective() {
         return adjective;
     }
 
     @Nonnull
     @Override
-    public final TurtleUpgradeType getType()
-    {
+    public final TurtleUpgradeType getType() {
         return type;
     }
 
     @Nonnull
     @Override
-    public final ItemStack getCraftingItem()
-    {
+    public final ItemStack getCraftingItem() {
         return stack;
     }
 }

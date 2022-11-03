@@ -25,52 +25,45 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class BlockSpeaker extends BlockGeneric
-{
+public class BlockSpeaker extends BlockGeneric {
     private static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    private static final BlockEntityTicker<TileSpeaker> serverTicker = ( level, pos, state, drive ) -> drive.serverTick();
+    private static final BlockEntityTicker<TileSpeaker> serverTicker = (level, pos, state, drive) -> drive.serverTick();
 
-    public BlockSpeaker( Properties settings )
-    {
-        super( settings, Registry.ModBlockEntities.SPEAKER );
-        registerDefaultState( getStateDefinition().any()
-            .setValue( FACING, Direction.NORTH ) );
+    public BlockSpeaker(Properties settings) {
+        super(settings, Registry.ModBlockEntities.SPEAKER);
+        registerDefaultState(getStateDefinition().any()
+            .setValue(FACING, Direction.NORTH));
     }
 
     @Override
-    protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> properties )
-    {
-        properties.add( FACING );
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public BlockState mirror( BlockState state, Mirror mirrorIn )
-    {
-        return state.rotate( mirrorIn.getRotation( state.getValue( FACING ) ) );
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> properties) {
+        properties.add(FACING);
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public BlockState rotate( BlockState state, Rotation rot )
-    {
-        return state.setValue( FACING, rot.rotate( state.getValue( FACING ) ) );
+    public BlockState mirror(BlockState state, Mirror mirrorIn) {
+        return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public BlockState rotate(BlockState state, Rotation rot) {
+        return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
     }
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement( BlockPlaceContext placement )
-    {
-        return defaultBlockState().setValue( FACING, placement.getHorizontalDirection().getOpposite() );
+    public BlockState getStateForPlacement(BlockPlaceContext placement) {
+        return defaultBlockState().setValue(FACING, placement.getHorizontalDirection().getOpposite());
     }
 
     @Override
     @Nullable
-    public <U extends BlockEntity> BlockEntityTicker<U> getTicker( @Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<U> type )
-    {
-        return level.isClientSide ? null : BaseEntityBlock.createTickerHelper( type, Registry.ModBlockEntities.SPEAKER.get(), serverTicker );
+    public <U extends BlockEntity> BlockEntityTicker<U> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<U> type) {
+        return level.isClientSide ? null : BaseEntityBlock.createTickerHelper(type, Registry.ModBlockEntities.SPEAKER.get(), serverTicker);
     }
 }

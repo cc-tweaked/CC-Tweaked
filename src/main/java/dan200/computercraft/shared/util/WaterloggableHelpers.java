@@ -18,12 +18,10 @@ import net.minecraft.world.level.material.Fluids;
 /**
  * Helpers for working with waterlogged blocks.
  */
-public final class WaterloggableHelpers
-{
+public final class WaterloggableHelpers {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    private WaterloggableHelpers()
-    {
+    private WaterloggableHelpers() {
     }
 
     /**
@@ -32,9 +30,8 @@ public final class WaterloggableHelpers
      * @param state The current state
      * @return This waterlogged block's current fluid
      */
-    public static FluidState getFluidState( BlockState state )
-    {
-        return state.getValue( WATERLOGGED ) ? Fluids.WATER.getSource( false ) : Fluids.EMPTY.defaultFluidState();
+    public static FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : Fluids.EMPTY.defaultFluidState();
     }
 
     /**
@@ -44,16 +41,13 @@ public final class WaterloggableHelpers
      * @param world The position of this block
      * @param pos   The world this block exists in
      */
-    public static void updateShape( BlockState state, LevelAccessor world, BlockPos pos )
-    {
-        if( state.getValue( WATERLOGGED ) )
-        {
-            world.scheduleTick( pos, Fluids.WATER, Fluids.WATER.getTickDelay( world ) );
+    public static void updateShape(BlockState state, LevelAccessor world, BlockPos pos) {
+        if (state.getValue(WATERLOGGED)) {
+            world.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
     }
 
-    public static boolean getFluidStateForPlacement( BlockPlaceContext context )
-    {
-        return context.getLevel().getFluidState( context.getClickedPos() ).getType() == Fluids.WATER;
+    public static boolean getFluidStateForPlacement(BlockPlaceContext context) {
+        return context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER;
     }
 }

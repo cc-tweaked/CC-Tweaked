@@ -36,10 +36,9 @@ import java.util.Optional;
  * {@link MethodResult#of(Object...)}.
  */
 @Documented
-@Retention( RetentionPolicy.RUNTIME )
-@Target( ElementType.METHOD )
-public @interface LuaFunction
-{
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface LuaFunction {
     /**
      * Explicitly specify the method names of this function. If not given, it uses the name of the annotated method.
      *

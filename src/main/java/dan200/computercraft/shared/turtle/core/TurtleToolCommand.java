@@ -11,14 +11,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Locale;
 
-public class TurtleToolCommand implements ITurtleCommand
-{
+public class TurtleToolCommand implements ITurtleCommand {
     private final TurtleVerb verb;
     private final InteractDirection direction;
     private final TurtleSide side;
 
-    public TurtleToolCommand( TurtleVerb verb, InteractDirection direction, TurtleSide side )
-    {
+    public TurtleToolCommand(TurtleVerb verb, InteractDirection direction, TurtleSide side) {
         this.verb = verb;
         this.direction = direction;
         this.side = side;
@@ -26,49 +24,35 @@ public class TurtleToolCommand implements ITurtleCommand
 
     @Nonnull
     @Override
-    public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
-    {
+    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
         TurtleCommandResult firstFailure = null;
-        for( TurtleSide side : TurtleSide.values() )
-        {
-            if( this.side != null && this.side != side ) continue;
+        for (var side : TurtleSide.values()) {
+            if (this.side != null && this.side != side) continue;
 
-            ITurtleUpgrade upgrade = turtle.getUpgrade( side );
-            if( upgrade == null || !upgrade.getType().isTool() ) continue;
+            var upgrade = turtle.getUpgrade(side);
+            if (upgrade == null || !upgrade.getType().isTool()) continue;
 
-            TurtleCommandResult result = upgrade.useTool( turtle, side, verb, direction.toWorldDir( turtle ) );
-            if( result.isSuccess() )
-            {
-                switch( side )
-                {
-                    case LEFT:
-                        turtle.playAnimation( TurtleAnimation.SWING_LEFT_TOOL );
-                        break;
-                    case RIGHT:
-                        turtle.playAnimation( TurtleAnimation.SWING_RIGHT_TOOL );
-                        break;
-                    default:
-                        turtle.playAnimation( TurtleAnimation.WAIT );
-                        break;
+            var result = upgrade.useTool(turtle, side, verb, direction.toWorldDir(turtle));
+            if (result.isSuccess()) {
+                switch (side) {
+                    case LEFT -> turtle.playAnimation(TurtleAnimation.SWING_LEFT_TOOL);
+                    case RIGHT -> turtle.playAnimation(TurtleAnimation.SWING_RIGHT_TOOL);
+                    default -> turtle.playAnimation(TurtleAnimation.WAIT);
                 }
                 return result;
-            }
-            else if( firstFailure == null )
-            {
+            } else if (firstFailure == null) {
                 firstFailure = result;
             }
         }
         return firstFailure != null ? firstFailure
-            : TurtleCommandResult.failure( "No tool to " + verb.name().toLowerCase( Locale.ROOT ) + " with" );
+            : TurtleCommandResult.failure("No tool to " + verb.name().toLowerCase(Locale.ROOT) + " with");
     }
 
-    public static TurtleToolCommand attack( InteractDirection direction, @Nullable TurtleSide side )
-    {
-        return new TurtleToolCommand( TurtleVerb.ATTACK, direction, side );
+    public static TurtleToolCommand attack(InteractDirection direction, @Nullable TurtleSide side) {
+        return new TurtleToolCommand(TurtleVerb.ATTACK, direction, side);
     }
 
-    public static TurtleToolCommand dig( InteractDirection direction, @Nullable TurtleSide side )
-    {
-        return new TurtleToolCommand( TurtleVerb.DIG, direction, side );
+    public static TurtleToolCommand dig(InteractDirection direction, @Nullable TurtleSide side) {
+        return new TurtleToolCommand(TurtleVerb.DIG, direction, side);
     }
 }

@@ -24,18 +24,17 @@ import java.util.TreeSet;
  * Next tick, we add {@link ComputerCraft#maxMainGlobalTime} to our budget (clamp it to that value too). If we're still
  * over budget, then we should not execute <em>any</em> work (either as part of {@link MainThread} or externally).
  */
-public final class MainThread implements MainThreadScheduler
-{
+public final class MainThread implements MainThreadScheduler {
     /**
      * The queue of {@link MainThreadExecutor}s with tasks to perform.
      */
-    private final TreeSet<MainThreadExecutor> executors = new TreeSet<>( ( a, b ) -> {
-        if( a == b ) return 0; // Should never happen, but let's be consistent here
+    private final TreeSet<MainThreadExecutor> executors = new TreeSet<>((a, b) -> {
+        if (a == b) return 0; // Should never happen, but let's be consistent here
 
         long at = a.virtualTime, bt = b.virtualTime;
-        if( at == bt ) return Integer.compare( a.hashCode(), b.hashCode() );
+        if (at == bt) return Integer.compare(a.hashCode(), b.hashCode());
         return at < bt ? -1 : 1;
-    } );
+    });
 
     /**
      * The set of executors which went over budget in a previous tick, and are waiting for their time to run down.
@@ -67,107 +66,94 @@ public final class MainThread implements MainThreadScheduler
 
     private long minimumTime = 0;
 
-    public MainThread()
-    {
+    public MainThread() {
     }
 
-    void queue( MainThreadExecutor executor )
-    {
-        synchronized( executors )
-        {
-            if( executor.onQueue ) throw new IllegalStateException( "Cannot queue already queued executor" );
+    void queue(MainThreadExecutor executor) {
+        synchronized (executors) {
+            if (executor.onQueue) throw new IllegalStateException("Cannot queue already queued executor");
             executor.onQueue = true;
             executor.updateTime();
 
             // We're not currently on the queue, so update its current execution time to
             // ensure it's at least as high as the minimum.
-            long newRuntime = minimumTime;
+            var newRuntime = minimumTime;
 
             // Slow down new computers a little bit.
-            if( executor.virtualTime == 0 ) newRuntime += ComputerCraft.maxMainComputerTime;
+            if (executor.virtualTime == 0) newRuntime += ComputerCraft.maxMainComputerTime;
 
-            executor.virtualTime = Math.max( newRuntime, executor.virtualTime );
+            executor.virtualTime = Math.max(newRuntime, executor.virtualTime);
 
-            executors.add( executor );
+            executors.add(executor);
         }
     }
 
-    void cooling( MainThreadExecutor executor )
-    {
-        cooling.add( executor );
+    void cooling(MainThreadExecutor executor) {
+        cooling.add(executor);
     }
 
-    void consumeTime( long time )
-    {
+    void consumeTime(long time) {
         budget -= time;
     }
 
-    boolean canExecute()
-    {
+    boolean canExecute() {
         return canExecute;
     }
 
-    int currentTick()
-    {
+    int currentTick() {
         return currentTick;
     }
 
-    public void tick()
-    {
+    public void tick() {
         // Move onto the next tick and cool down the global executor. We're allowed to execute if we have _any_ time
         // allocated for this tick. This means we'll stick much closer to doing MAX_TICK_TIME work every tick.
         //
         // Of course, we'll go over the MAX_TICK_TIME most of the time, but eventually that overrun will accumulate
         // and we'll skip a whole tick - bringing the average back down again.
         currentTick++;
-        budget = Math.min( budget + ComputerCraft.maxMainGlobalTime, ComputerCraft.maxMainGlobalTime );
+        budget = Math.min(budget + ComputerCraft.maxMainGlobalTime, ComputerCraft.maxMainGlobalTime);
         canExecute = budget > 0;
 
         // Cool down any warm computers.
-        cooling.removeIf( MainThreadExecutor::tickCooling );
+        cooling.removeIf(MainThreadExecutor::tickCooling);
 
-        if( !canExecute ) return;
+        if (!canExecute) return;
 
         // Run until we meet the deadline.
-        long start = System.nanoTime();
-        long deadline = start + budget;
-        while( true )
-        {
+        var start = System.nanoTime();
+        var deadline = start + budget;
+        while (true) {
             MainThreadExecutor executor;
-            synchronized( executors )
-            {
+            synchronized (executors) {
                 executor = executors.pollFirst();
             }
-            if( executor == null ) break;
+            if (executor == null) break;
 
-            long taskStart = System.nanoTime();
+            var taskStart = System.nanoTime();
             executor.execute();
 
-            long taskStop = System.nanoTime();
-            synchronized( executors )
-            {
-                if( executor.afterExecute( taskStop - taskStart ) ) executors.add( executor );
+            var taskStop = System.nanoTime();
+            synchronized (executors) {
+                if (executor.afterExecute(taskStop - taskStart)) executors.add(executor);
 
                 // Compute the new minimum time (including the next task on the queue too). Note that this may also include
                 // time spent in external tasks.
-                long newMinimum = executor.virtualTime;
-                if( !executors.isEmpty() )
-                {
-                    MainThreadExecutor next = executors.first();
-                    if( next.virtualTime < newMinimum ) newMinimum = next.virtualTime;
+                var newMinimum = executor.virtualTime;
+                if (!executors.isEmpty()) {
+                    var next = executors.first();
+                    if (next.virtualTime < newMinimum) newMinimum = next.virtualTime;
                 }
-                minimumTime = Math.max( minimumTime, newMinimum );
+                minimumTime = Math.max(minimumTime, newMinimum);
             }
 
-            if( taskStop >= deadline ) break;
+            if (taskStop >= deadline) break;
         }
 
-        consumeTime( System.nanoTime() - start );
+        consumeTime(System.nanoTime() - start);
     }
 
     @Override
-    public Executor createExecutor( MetricsObserver metrics )
-    {
-        return new MainThreadExecutor( metrics, this );
+    public Executor createExecutor(MetricsObserver metrics) {
+        return new MainThreadExecutor(metrics, this);
     }
 }

@@ -6,8 +6,6 @@
 package dan200.computercraft.shared.integration;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.api.pocket.IPocketUpgrade;
-import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -23,12 +21,10 @@ import java.util.List;
 /**
  * Utilities for recipe mod plugins (such as JEI).
  */
-public final class RecipeModHelpers
-{
-    static final List<ComputerFamily> MAIN_FAMILIES = Arrays.asList( ComputerFamily.NORMAL, ComputerFamily.ADVANCED );
+public final class RecipeModHelpers {
+    static final List<ComputerFamily> MAIN_FAMILIES = Arrays.asList(ComputerFamily.NORMAL, ComputerFamily.ADVANCED);
 
-    private RecipeModHelpers()
-    {
+    private RecipeModHelpers() {
     }
 
     /**
@@ -38,13 +34,12 @@ public final class RecipeModHelpers
      * @param id The recipe ID.
      * @return Whether it should be removed.
      */
-    public static boolean shouldRemoveRecipe( ResourceLocation id )
-    {
-        if( !id.getNamespace().equals( ComputerCraft.MOD_ID ) ) return false;
+    public static boolean shouldRemoveRecipe(ResourceLocation id) {
+        if (!id.getNamespace().equals(ComputerCraft.MOD_ID)) return false;
 
-        String path = id.getPath();
-        return path.startsWith( "turtle_normal/" ) || path.startsWith( "turtle_advanced/" )
-            || path.startsWith( "pocket_normal/" ) || path.startsWith( "pocket_advanced/" );
+        var path = id.getPath();
+        return path.startsWith("turtle_normal/") || path.startsWith("turtle_advanced/")
+            || path.startsWith("pocket_normal/") || path.startsWith("pocket_advanced/");
     }
 
     /**
@@ -53,19 +48,15 @@ public final class RecipeModHelpers
      *
      * @return The additional stacks to show.
      */
-    public static List<ItemStack> getExtraStacks()
-    {
+    public static List<ItemStack> getExtraStacks() {
         List<ItemStack> upgradeItems = new ArrayList<>();
-        for( ComputerFamily family : MAIN_FAMILIES )
-        {
-            for( ITurtleUpgrade upgrade : TurtleUpgrades.instance().getUpgrades() )
-            {
-                upgradeItems.add( TurtleItemFactory.create( -1, null, -1, family, null, upgrade, 0, null ) );
+        for (var family : MAIN_FAMILIES) {
+            for (var upgrade : TurtleUpgrades.instance().getUpgrades()) {
+                upgradeItems.add(TurtleItemFactory.create(-1, null, -1, family, null, upgrade, 0, null));
             }
 
-            for( IPocketUpgrade upgrade : PocketUpgrades.instance().getUpgrades() )
-            {
-                upgradeItems.add( PocketComputerItemFactory.create( -1, null, -1, family, upgrade ) );
+            for (var upgrade : PocketUpgrades.instance().getUpgrades()) {
+                upgradeItems.add(PocketComputerItemFactory.create(-1, null, -1, family, upgrade));
             }
         }
 

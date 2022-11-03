@@ -10,40 +10,33 @@ import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
 
-public class TurtleInspectCommand implements ITurtleCommand
-{
+public class TurtleInspectCommand implements ITurtleCommand {
     private final InteractDirection direction;
 
-    public TurtleInspectCommand( InteractDirection direction )
-    {
+    public TurtleInspectCommand(InteractDirection direction) {
         this.direction = direction;
     }
 
     @Nonnull
     @Override
-    public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
-    {
+    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
         // Get world direction from direction
-        Direction direction = this.direction.toWorldDir( turtle );
+        var direction = this.direction.toWorldDir(turtle);
 
         // Check if thing in front is air or not
-        Level world = turtle.getLevel();
-        BlockPos oldPosition = turtle.getPosition();
-        BlockPos newPosition = oldPosition.relative( direction );
+        var world = turtle.getLevel();
+        var oldPosition = turtle.getPosition();
+        var newPosition = oldPosition.relative(direction);
 
-        BlockReference block = new BlockReference( world, newPosition );
-        if( block.state().isAir() ) return TurtleCommandResult.failure( "No block to inspect" );
+        var block = new BlockReference(world, newPosition);
+        if (block.state().isAir()) return TurtleCommandResult.failure("No block to inspect");
 
-        Map<String, Object> table = VanillaDetailRegistries.BLOCK_IN_WORLD.getDetails( block );
+        var table = VanillaDetailRegistries.BLOCK_IN_WORLD.getDetails(block);
 
-        return TurtleCommandResult.success( new Object[] { table } );
+        return TurtleCommandResult.success(new Object[]{ table });
 
     }
 }

@@ -21,8 +21,7 @@ import java.util.function.IntSupplier;
  * Version of {@link net.minecraft.client.gui.components.ImageButton} which allows changing some properties
  * dynamically.
  */
-public class DynamicImageButton extends Button
-{
+public class DynamicImageButton extends Button {
     private final Screen screen;
     private final ResourceLocation texture;
     private final IntSupplier xTexStart;
@@ -36,8 +35,7 @@ public class DynamicImageButton extends Button
         Screen screen, int x, int y, int width, int height, int xTexStart, int yTexStart, int yDiffTex,
         ResourceLocation texture, int textureWidth, int textureHeight,
         OnPress onPress, List<Component> tooltip
-    )
-    {
+    ) {
         this(
             screen, x, y, width, height, () -> xTexStart, yTexStart, yDiffTex,
             texture, textureWidth, textureHeight,
@@ -50,9 +48,8 @@ public class DynamicImageButton extends Button
         Screen screen, int x, int y, int width, int height, IntSupplier xTexStart, int yTexStart, int yDiffTex,
         ResourceLocation texture, int textureWidth, int textureHeight,
         OnPress onPress, NonNullSupplier<List<Component>> tooltip
-    )
-    {
-        super( x, y, width, height, Component.empty(), onPress );
+    ) {
+        super(x, y, width, height, Component.empty(), onPress);
         this.screen = screen;
         this.textureWidth = textureWidth;
         this.textureHeight = textureHeight;
@@ -64,35 +61,31 @@ public class DynamicImageButton extends Button
     }
 
     @Override
-    public void renderButton( @Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks )
-    {
-        RenderSystem.setShaderTexture( 0, texture );
+    public void renderButton(@Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks) {
+        RenderSystem.setShaderTexture(0, texture);
         RenderSystem.disableDepthTest();
 
-        int yTex = yTexStart;
-        if( isHoveredOrFocused() ) yTex += yDiffTex;
+        var yTex = yTexStart;
+        if (isHoveredOrFocused()) yTex += yDiffTex;
 
-        blit( stack, x, y, xTexStart.getAsInt(), yTex, width, height, textureWidth, textureHeight );
+        blit(stack, x, y, xTexStart.getAsInt(), yTex, width, height, textureWidth, textureHeight);
         RenderSystem.enableDepthTest();
 
-        if( isHovered ) renderToolTip( stack, mouseX, mouseY );
+        if (isHovered) renderToolTip(stack, mouseX, mouseY);
     }
 
     @Nonnull
     @Override
-    public Component getMessage()
-    {
-        List<Component> tooltip = this.tooltip.get();
-        return tooltip.isEmpty() ? Component.empty() : tooltip.get( 0 );
+    public Component getMessage() {
+        var tooltip = this.tooltip.get();
+        return tooltip.isEmpty() ? Component.empty() : tooltip.get(0);
     }
 
     @Override
-    public void renderToolTip( @Nonnull PoseStack stack, int mouseX, int mouseY )
-    {
-        List<Component> tooltip = this.tooltip.get();
-        if( !tooltip.isEmpty() )
-        {
-            screen.renderComponentTooltip( stack, tooltip, mouseX, mouseY );
+    public void renderToolTip(@Nonnull PoseStack stack, int mouseX, int mouseY) {
+        var tooltip = this.tooltip.get();
+        if (!tooltip.isEmpty()) {
+            screen.renderComponentTooltip(stack, tooltip, mouseX, mouseY);
         }
     }
 }

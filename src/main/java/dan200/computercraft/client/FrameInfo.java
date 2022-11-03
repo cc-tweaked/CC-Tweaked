@@ -11,35 +11,29 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
-public final class FrameInfo
-{
+@Mod.EventBusSubscriber(modid = ComputerCraft.MOD_ID, value = Dist.CLIENT)
+public final class FrameInfo {
     private static int tick;
     private static long renderFrame;
 
-    private FrameInfo()
-    {
+    private FrameInfo() {
     }
 
-    public static boolean getGlobalCursorBlink()
-    {
+    public static boolean getGlobalCursorBlink() {
         return (tick / 8) % 2 == 0;
     }
 
-    public static long getRenderFrame()
-    {
+    public static long getRenderFrame() {
         return renderFrame;
     }
 
     @SubscribeEvent
-    public static void onTick( TickEvent.ClientTickEvent event )
-    {
-        if( event.phase == TickEvent.Phase.START ) tick++;
+    public static void onTick(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.START) tick++;
     }
 
     @SubscribeEvent
-    public static void onRenderTick( TickEvent.RenderTickEvent event )
-    {
-        if( event.phase == TickEvent.Phase.START ) renderFrame++;
+    public static void onRenderTick(TickEvent.RenderTickEvent event) {
+        if (event.phase == TickEvent.Phase.START) renderFrame++;
     }
 }

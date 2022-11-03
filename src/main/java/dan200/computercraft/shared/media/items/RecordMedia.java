@@ -8,7 +8,6 @@ package dan200.computercraft.shared.media.items;
 import dan200.computercraft.api.media.IMedia;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.RecordItem;
 
@@ -17,34 +16,29 @@ import javax.annotation.Nonnull;
 /**
  * An implementation of IMedia for ItemRecords.
  */
-public final class RecordMedia implements IMedia
-{
+public final class RecordMedia implements IMedia {
     public static final RecordMedia INSTANCE = new RecordMedia();
 
-    private RecordMedia()
-    {
+    private RecordMedia() {
     }
 
     @Override
-    public String getLabel( @Nonnull ItemStack stack )
-    {
-        return getAudioTitle( stack );
+    public String getLabel(@Nonnull ItemStack stack) {
+        return getAudioTitle(stack);
     }
 
     @Override
-    public String getAudioTitle( @Nonnull ItemStack stack )
-    {
-        Item item = stack.getItem();
-        if( !(item instanceof RecordItem) ) return null;
+    public String getAudioTitle(@Nonnull ItemStack stack) {
+        var item = stack.getItem();
+        if (!(item instanceof RecordItem)) return null;
 
-        return Component.translatable( item.getDescriptionId() + ".desc" ).getString();
+        return Component.translatable(item.getDescriptionId() + ".desc").getString();
     }
 
     @Override
-    public SoundEvent getAudio( @Nonnull ItemStack stack )
-    {
-        Item item = stack.getItem();
-        if( !(item instanceof RecordItem) ) return null;
+    public SoundEvent getAudio(@Nonnull ItemStack stack) {
+        var item = stack.getItem();
+        if (!(item instanceof RecordItem)) return null;
 
         return ((RecordItem) item).getSound();
     }

@@ -11,21 +11,17 @@ import java.nio.file.Paths;
 /**
  * Location for temporary test files.
  */
-public final class TestFiles
-{
-    private static final Path ROOT = Paths.get( System.getProperty( "cct.test-files", "build/tmp/testFiles" ) );
+public final class TestFiles {
+    private static final Path ROOT = Paths.get(System.getProperty("cct.test-files", "build/tmp/testFiles"));
 
-    private TestFiles()
-    {
+    private TestFiles() {
     }
 
-    public static Path get()
-    {
+    public static Path get() {
         return ROOT;
     }
 
-    public static Path get( String path )
-    {
-        return ROOT.resolve( path );
+    public static Path get(String path) {
+        return ROOT.resolve(path);
     }
 }

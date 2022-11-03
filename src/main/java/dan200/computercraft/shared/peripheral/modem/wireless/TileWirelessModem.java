@@ -25,42 +25,35 @@ import javax.annotation.Nullable;
 
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
-public class TileWirelessModem extends TileGeneric
-{
-    private static class Peripheral extends WirelessModemPeripheral
-    {
+public class TileWirelessModem extends TileGeneric {
+    private static class Peripheral extends WirelessModemPeripheral {
         private final TileWirelessModem entity;
 
-        Peripheral( TileWirelessModem entity )
-        {
-            super( new ModemState( () -> TickScheduler.schedule( entity.tickToken ) ), entity.advanced );
+        Peripheral(TileWirelessModem entity) {
+            super(new ModemState(() -> TickScheduler.schedule(entity.tickToken)), entity.advanced);
             this.entity = entity;
         }
 
         @Nonnull
         @Override
-        public Level getLevel()
-        {
+        public Level getLevel() {
             return entity.getLevel();
         }
 
         @Nonnull
         @Override
-        public Vec3 getPosition()
-        {
-            return Vec3.atLowerCornerOf( entity.getBlockPos().relative( entity.getDirection() ) );
+        public Vec3 getPosition() {
+            return Vec3.atLowerCornerOf(entity.getBlockPos().relative(entity.getDirection()));
         }
 
         @Override
-        public boolean equals( IPeripheral other )
-        {
+        public boolean equals(IPeripheral other) {
             return this == other || (other instanceof Peripheral && entity == ((Peripheral) other).entity);
         }
 
         @Nonnull
         @Override
-        public Object getTarget()
-        {
+        public Object getTarget() {
             return entity;
         }
     }
@@ -70,27 +63,23 @@ public class TileWirelessModem extends TileGeneric
     private final ModemPeripheral modem;
     private boolean destroyed = false;
     private LazyOptional<IPeripheral> modemCap;
-    private final TickScheduler.Token tickToken = new TickScheduler.Token( this );
+    private final TickScheduler.Token tickToken = new TickScheduler.Token(this);
 
-    public TileWirelessModem( BlockEntityType<? extends TileWirelessModem> type, BlockPos pos, BlockState state, boolean advanced )
-    {
-        super( type, pos, state );
+    public TileWirelessModem(BlockEntityType<? extends TileWirelessModem> type, BlockPos pos, BlockState state, boolean advanced) {
+        super(type, pos, state);
         this.advanced = advanced;
-        modem = new Peripheral( this );
+        modem = new Peripheral(this);
     }
 
     @Override
-    public void clearRemoved()
-    {
+    public void clearRemoved() {
         super.clearRemoved(); // TODO: Replace with onLoad
-        TickScheduler.schedule( tickToken );
+        TickScheduler.schedule(tickToken);
     }
 
     @Override
-    public void destroy()
-    {
-        if( !destroyed )
-        {
+    public void destroy() {
+        if (!destroyed) {
             modem.destroy();
             destroyed = true;
         }
@@ -98,46 +87,39 @@ public class TileWirelessModem extends TileGeneric
 
     @Override
     @Deprecated
-    public void setBlockState( @Nonnull BlockState state )
-    {
-        Direction direction = getDirection();
-        super.setBlockState( state );
-        if( getDirection() != direction ) modemCap = CapabilityUtil.invalidate( modemCap );
+    public void setBlockState(@Nonnull BlockState state) {
+        var direction = getDirection();
+        super.setBlockState(state);
+        if (getDirection() != direction) modemCap = CapabilityUtil.invalidate(modemCap);
     }
 
     @Override
-    public void blockTick()
-    {
-        if( modem.getModemState().pollChanged() ) updateBlockState();
+    public void blockTick() {
+        if (modem.getModemState().pollChanged()) updateBlockState();
     }
 
     @Nonnull
-    private Direction getDirection()
-    {
-        return getBlockState().getValue( BlockWirelessModem.FACING );
+    private Direction getDirection() {
+        return getBlockState().getValue(BlockWirelessModem.FACING);
     }
 
-    private void updateBlockState()
-    {
-        boolean on = modem.getModemState().isOpen();
-        BlockState state = getBlockState();
-        if( state.getValue( BlockWirelessModem.ON ) != on )
-        {
-            getLevel().setBlockAndUpdate( getBlockPos(), state.setValue( BlockWirelessModem.ON, on ) );
+    private void updateBlockState() {
+        var on = modem.getModemState().isOpen();
+        var state = getBlockState();
+        if (state.getValue(BlockWirelessModem.ON) != on) {
+            getLevel().setBlockAndUpdate(getBlockPos(), state.setValue(BlockWirelessModem.ON, on));
         }
     }
 
     @Nonnull
     @Override
-    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> cap, @Nullable Direction side )
-    {
-        if( cap == CAPABILITY_PERIPHERAL )
-        {
-            if( side != null && getDirection() != side ) return LazyOptional.empty();
-            if( modemCap == null ) modemCap = LazyOptional.of( () -> modem );
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
+        if (cap == CAPABILITY_PERIPHERAL) {
+            if (side != null && getDirection() != side) return LazyOptional.empty();
+            if (modemCap == null) modemCap = LazyOptional.of(() -> modem);
             return modemCap.cast();
         }
 
-        return super.getCapability( cap, side );
+        return super.getCapability(cap, side);
     }
 }

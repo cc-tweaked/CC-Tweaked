@@ -8,46 +8,36 @@ package dan200.computercraft.api.lua;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 
-final class TaskCallback implements ILuaCallback
-{
-    private final MethodResult pull = MethodResult.pullEvent( "task_complete", this );
+final class TaskCallback implements ILuaCallback {
+    private final MethodResult pull = MethodResult.pullEvent("task_complete", this);
     private final long task;
 
-    private TaskCallback( long task )
-    {
+    private TaskCallback(long task) {
         this.task = task;
     }
 
     @Nonnull
     @Override
-    public MethodResult resume( Object[] response ) throws LuaException
-    {
-        if( response.length < 3 || !(response[1] instanceof Number) || !(response[2] instanceof Boolean) )
-        {
+    public MethodResult resume(Object[] response) throws LuaException {
+        if (response.length < 3 || !(response[1] instanceof Number) || !(response[2] instanceof Boolean)) {
             return pull;
         }
 
-        if( ((Number) response[1]).longValue() != task ) return pull;
+        if (((Number) response[1]).longValue() != task) return pull;
 
-        if( (Boolean) response[2] )
-        {
+        if ((Boolean) response[2]) {
             // Extract the return values from the event and return them
-            return MethodResult.of( Arrays.copyOfRange( response, 3, response.length ) );
-        }
-        else if( response.length >= 4 && response[3] instanceof String )
-        {
+            return MethodResult.of(Arrays.copyOfRange(response, 3, response.length));
+        } else if (response.length >= 4 && response[3] instanceof String) {
             // Extract the error message from the event and raise it
-            throw new LuaException( (String) response[3] );
-        }
-        else
-        {
-            throw new LuaException( "error" );
+            throw new LuaException((String) response[3]);
+        } else {
+            throw new LuaException("error");
         }
     }
 
-    static MethodResult make( ILuaContext context, ILuaTask func ) throws LuaException
-    {
-        long task = context.issueMainThreadTask( func );
-        return new TaskCallback( task ).pull;
+    static MethodResult make(ILuaContext context, ILuaTask func) throws LuaException {
+        var task = context.issueMainThreadTask(func);
+        return new TaskCallback(task).pull;
     }
 }

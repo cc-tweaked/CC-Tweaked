@@ -12,8 +12,7 @@ import javax.annotation.Nonnull;
  *
  * @see MethodResult#yield(Object[], ILuaCallback)
  */
-public interface ILuaCallback
-{
+public interface ILuaCallback {
     /**
      * Resume this coroutine.
      *
@@ -23,5 +22,5 @@ public interface ILuaCallback
      * @throws LuaException On an error.
      */
     @Nonnull
-    MethodResult resume( Object[] args ) throws LuaException;
+    MethodResult resume(Object[] args) throws LuaException;
 }

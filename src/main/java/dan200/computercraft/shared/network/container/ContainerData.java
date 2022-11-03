@@ -24,50 +24,41 @@ import java.util.function.Function;
  * An extension over the basic {@link IForgeMenuType}/{@link NetworkHooks#openGui(ServerPlayer, MenuProvider, Consumer)}
  * hooks, with a more convenient way of reading and writing data.
  */
-public interface ContainerData
-{
-    void toBytes( FriendlyByteBuf buf );
+public interface ContainerData {
+    void toBytes(FriendlyByteBuf buf);
 
-    default void open( Player player, MenuProvider owner )
-    {
-        NetworkHooks.openScreen( (ServerPlayer) player, owner, this::toBytes );
+    default void open(Player player, MenuProvider owner) {
+        NetworkHooks.openScreen((ServerPlayer) player, owner, this::toBytes);
     }
 
-    static <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> toType( Function<FriendlyByteBuf, T> reader, Factory<C, T> factory )
-    {
-        return IForgeMenuType.create( ( id, player, data ) -> factory.create( id, player, reader.apply( data ) ) );
+    static <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> toType(Function<FriendlyByteBuf, T> reader, Factory<C, T> factory) {
+        return IForgeMenuType.create((id, player, data) -> factory.create(id, player, reader.apply(data)));
     }
 
-    static <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> toType( Function<FriendlyByteBuf, T> reader, FixedFactory<C, T> factory )
-    {
-        return new FixedPointContainerFactory<>( reader, factory ).type;
+    static <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> toType(Function<FriendlyByteBuf, T> reader, FixedFactory<C, T> factory) {
+        return new FixedPointContainerFactory<>(reader, factory).type;
     }
 
-    interface Factory<C extends AbstractContainerMenu, T extends ContainerData>
-    {
-        C create( int id, @Nonnull Inventory inventory, T data );
+    interface Factory<C extends AbstractContainerMenu, T extends ContainerData> {
+        C create(int id, @Nonnull Inventory inventory, T data);
     }
 
-    interface FixedFactory<C extends AbstractContainerMenu, T extends ContainerData>
-    {
-        C create( MenuType<C> type, int id, @Nonnull Inventory inventory, T data );
+    interface FixedFactory<C extends AbstractContainerMenu, T extends ContainerData> {
+        C create(MenuType<C> type, int id, @Nonnull Inventory inventory, T data);
     }
 
-    final class FixedPointContainerFactory<C extends AbstractContainerMenu, T extends ContainerData> implements IContainerFactory<C>
-    {
+    final class FixedPointContainerFactory<C extends AbstractContainerMenu, T extends ContainerData> implements IContainerFactory<C> {
         private final IContainerFactory<C> impl;
         private final MenuType<C> type;
 
-        private FixedPointContainerFactory( Function<FriendlyByteBuf, T> reader, FixedFactory<C, T> factory )
-        {
-            MenuType<C> type = this.type = IForgeMenuType.create( this );
-            impl = ( id, player, data ) -> factory.create( type, id, player, reader.apply( data ) );
+        private FixedPointContainerFactory(Function<FriendlyByteBuf, T> reader, FixedFactory<C, T> factory) {
+            var type = this.type = IForgeMenuType.create(this);
+            impl = (id, player, data) -> factory.create(type, id, player, reader.apply(data));
         }
 
         @Override
-        public C create( int windowId, Inventory inv, FriendlyByteBuf data )
-        {
-            return impl.create( windowId, inv, data );
+        public C create(int windowId, Inventory inv, FriendlyByteBuf data) {
+            return impl.create(windowId, inv, data);
         }
     }
 }

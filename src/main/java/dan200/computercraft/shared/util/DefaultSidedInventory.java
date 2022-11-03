@@ -12,17 +12,14 @@ import net.minecraft.world.item.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public interface DefaultSidedInventory extends DefaultInventory, WorldlyContainer
-{
+public interface DefaultSidedInventory extends DefaultInventory, WorldlyContainer {
     @Override
-    default boolean canPlaceItemThroughFace( int slot, @Nonnull ItemStack stack, @Nullable Direction side )
-    {
-        return canPlaceItem( slot, stack );
+    default boolean canPlaceItemThroughFace(int slot, @Nonnull ItemStack stack, @Nullable Direction side) {
+        return canPlaceItem(slot, stack);
     }
 
     @Override
-    default boolean canTakeItemThroughFace( int slot, @Nonnull ItemStack stack, @Nonnull Direction side )
-    {
+    default boolean canTakeItemThroughFace(int slot, @Nonnull ItemStack stack, @Nonnull Direction side) {
         return true;
     }
 }

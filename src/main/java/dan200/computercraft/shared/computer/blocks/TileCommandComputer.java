@@ -13,7 +13,6 @@ import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
@@ -26,108 +25,89 @@ import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TileCommandComputer extends TileComputer
-{
-    public class CommandReceiver implements CommandSource
-    {
+public class TileCommandComputer extends TileComputer {
+    public class CommandReceiver implements CommandSource {
         private final Map<Integer, String> output = new HashMap<>();
 
-        public void clearOutput()
-        {
+        public void clearOutput() {
             output.clear();
         }
 
-        public Map<Integer, String> getOutput()
-        {
+        public Map<Integer, String> getOutput() {
             return output;
         }
 
-        public Map<Integer, String> copyOutput()
-        {
-            return new HashMap<>( output );
+        public Map<Integer, String> copyOutput() {
+            return new HashMap<>(output);
         }
 
         @Override
-        public void sendSystemMessage( @Nonnull Component textComponent )
-        {
-            output.put( output.size() + 1, textComponent.getString() );
+        public void sendSystemMessage(@Nonnull Component textComponent) {
+            output.put(output.size() + 1, textComponent.getString());
         }
 
         @Override
-        public boolean acceptsSuccess()
-        {
+        public boolean acceptsSuccess() {
             return true;
         }
 
         @Override
-        public boolean acceptsFailure()
-        {
+        public boolean acceptsFailure() {
             return true;
         }
 
         @Override
-        public boolean shouldInformAdmins()
-        {
-            return getLevel().getGameRules().getBoolean( GameRules.RULE_COMMANDBLOCKOUTPUT );
+        public boolean shouldInformAdmins() {
+            return getLevel().getGameRules().getBoolean(GameRules.RULE_COMMANDBLOCKOUTPUT);
         }
     }
 
     private final CommandReceiver receiver;
 
-    public TileCommandComputer( BlockEntityType<? extends TileComputer> type, BlockPos pos, BlockState state )
-    {
-        super( type, pos, state, ComputerFamily.COMMAND );
+    public TileCommandComputer(BlockEntityType<? extends TileComputer> type, BlockPos pos, BlockState state) {
+        super(type, pos, state, ComputerFamily.COMMAND);
         receiver = new CommandReceiver();
     }
 
-    public CommandReceiver getReceiver()
-    {
+    public CommandReceiver getReceiver() {
         return receiver;
     }
 
-    public CommandSourceStack getSource()
-    {
-        ServerComputer computer = getServerComputer();
-        String name = "@";
-        if( computer != null )
-        {
-            String label = computer.getLabel();
-            if( label != null ) name = label;
+    public CommandSourceStack getSource() {
+        var computer = getServerComputer();
+        var name = "@";
+        if (computer != null) {
+            var label = computer.getLabel();
+            if (label != null) name = label;
         }
 
-        return new CommandSourceStack( receiver,
-            Vec3.atCenterOf( worldPosition ), Vec2.ZERO,
+        return new CommandSourceStack(receiver,
+            Vec3.atCenterOf(worldPosition), Vec2.ZERO,
             (ServerLevel) getLevel(), 2,
-            name, Component.literal( name ),
+            name, Component.literal(name),
             getLevel().getServer(), null
         );
     }
 
     @Override
-    protected ServerComputer createComputer( int id )
-    {
-        ServerComputer computer = super.createComputer( id );
-        computer.addAPI( new CommandAPI( this ) );
+    protected ServerComputer createComputer(int id) {
+        var computer = super.createComputer(id);
+        computer.addAPI(new CommandAPI(this));
         return computer;
     }
 
     @Override
-    public boolean isUsable( Player player )
-    {
-        return isCommandUsable( player ) && super.isUsable( player );
+    public boolean isUsable(Player player) {
+        return isCommandUsable(player) && super.isUsable(player);
     }
 
-    public static boolean isCommandUsable( Player player )
-    {
-        MinecraftServer server = player.getServer();
-        if( server == null || !server.isCommandBlockEnabled() )
-        {
-            player.displayClientMessage( Component.translatable( "advMode.notEnabled" ), true );
+    public static boolean isCommandUsable(Player player) {
+        var server = player.getServer();
+        if (server == null || !server.isCommandBlockEnabled()) {
+            player.displayClientMessage(Component.translatable("advMode.notEnabled"), true);
             return false;
-        }
-        else if( ComputerCraft.commandRequireCreative ? !player.canUseGameMasterBlocks() : !server.getPlayerList().isOp( player.getGameProfile() ) )
-        {
-            player.displayClientMessage( Component.translatable( "advMode.notAllowed" ), true );
+        } else if (ComputerCraft.commandRequireCreative ? !player.canUseGameMasterBlocks() : !server.getPlayerList().isOp(player.getGameProfile())) {
+            player.displayClientMessage(Component.translatable("advMode.notAllowed"), true);
             return false;
         }
 

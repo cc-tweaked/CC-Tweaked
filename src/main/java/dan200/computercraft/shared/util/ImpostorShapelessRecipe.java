@@ -22,95 +22,82 @@ import net.minecraftforge.common.crafting.CraftingHelper;
 
 import javax.annotation.Nonnull;
 
-public final class ImpostorShapelessRecipe extends ShapelessRecipe
-{
+public final class ImpostorShapelessRecipe extends ShapelessRecipe {
     private final String group;
 
-    private ImpostorShapelessRecipe( @Nonnull ResourceLocation id, @Nonnull String group, @Nonnull ItemStack result, NonNullList<Ingredient> ingredients )
-    {
-        super( id, group, result, ingredients );
+    private ImpostorShapelessRecipe(@Nonnull ResourceLocation id, @Nonnull String group, @Nonnull ItemStack result, NonNullList<Ingredient> ingredients) {
+        super(id, group, result, ingredients);
         this.group = group;
     }
 
     @Nonnull
     @Override
-    public String getGroup()
-    {
+    public String getGroup() {
         return group;
     }
 
     @Override
-    public boolean matches( @Nonnull CraftingContainer inv, @Nonnull Level world )
-    {
+    public boolean matches(@Nonnull CraftingContainer inv, @Nonnull Level world) {
         return false;
     }
 
     @Nonnull
     @Override
-    public ItemStack assemble( @Nonnull CraftingContainer inventory )
-    {
+    public ItemStack assemble(@Nonnull CraftingContainer inventory) {
         return ItemStack.EMPTY;
     }
 
     @Nonnull
     @Override
-    public RecipeSerializer<?> getSerializer()
-    {
+    public RecipeSerializer<?> getSerializer() {
         return SERIALIZER;
     }
 
-    public static final RecipeSerializer<ImpostorShapelessRecipe> SERIALIZER = new RecipeSerializer<ImpostorShapelessRecipe>()
-    {
+    public static final RecipeSerializer<ImpostorShapelessRecipe> SERIALIZER = new RecipeSerializer<ImpostorShapelessRecipe>() {
         @Nonnull
         @Override
-        public ImpostorShapelessRecipe fromJson( @Nonnull ResourceLocation id, @Nonnull JsonObject json )
-        {
-            String s = GsonHelper.getAsString( json, "group", "" );
-            NonNullList<Ingredient> ingredients = readIngredients( GsonHelper.getAsJsonArray( json, "ingredients" ) );
+        public ImpostorShapelessRecipe fromJson(@Nonnull ResourceLocation id, @Nonnull JsonObject json) {
+            var s = GsonHelper.getAsString(json, "group", "");
+            var ingredients = readIngredients(GsonHelper.getAsJsonArray(json, "ingredients"));
 
-            if( ingredients.isEmpty() ) throw new JsonParseException( "No ingredients for shapeless recipe" );
-            if( ingredients.size() > 9 )
-            {
-                throw new JsonParseException( "Too many ingredients for shapeless recipe the max is 9" );
+            if (ingredients.isEmpty()) throw new JsonParseException("No ingredients for shapeless recipe");
+            if (ingredients.size() > 9) {
+                throw new JsonParseException("Too many ingredients for shapeless recipe the max is 9");
             }
 
-            ItemStack itemstack = CraftingHelper.getItemStack( GsonHelper.getAsJsonObject( json, "result" ), true );
-            return new ImpostorShapelessRecipe( id, s, itemstack, ingredients );
+            var itemstack = CraftingHelper.getItemStack(GsonHelper.getAsJsonObject(json, "result"), true);
+            return new ImpostorShapelessRecipe(id, s, itemstack, ingredients);
         }
 
-        private NonNullList<Ingredient> readIngredients( JsonArray arrays )
-        {
+        private NonNullList<Ingredient> readIngredients(JsonArray arrays) {
             NonNullList<Ingredient> items = NonNullList.create();
-            for( int i = 0; i < arrays.size(); ++i )
-            {
-                Ingredient ingredient = Ingredient.fromJson( arrays.get( i ) );
-                if( !ingredient.isEmpty() ) items.add( ingredient );
+            for (var i = 0; i < arrays.size(); ++i) {
+                var ingredient = Ingredient.fromJson(arrays.get(i));
+                if (!ingredient.isEmpty()) items.add(ingredient);
             }
 
             return items;
         }
 
         @Override
-        public ImpostorShapelessRecipe fromNetwork( @Nonnull ResourceLocation id, FriendlyByteBuf buffer )
-        {
-            String s = buffer.readUtf( 32767 );
-            int i = buffer.readVarInt();
-            NonNullList<Ingredient> items = NonNullList.withSize( i, Ingredient.EMPTY );
+        public ImpostorShapelessRecipe fromNetwork(@Nonnull ResourceLocation id, FriendlyByteBuf buffer) {
+            var s = buffer.readUtf(32767);
+            var i = buffer.readVarInt();
+            var items = NonNullList.withSize(i, Ingredient.EMPTY);
 
-            for( int j = 0; j < items.size(); j++ ) items.set( j, Ingredient.fromNetwork( buffer ) );
-            ItemStack result = buffer.readItem();
+            for (var j = 0; j < items.size(); j++) items.set(j, Ingredient.fromNetwork(buffer));
+            var result = buffer.readItem();
 
-            return new ImpostorShapelessRecipe( id, s, result, items );
+            return new ImpostorShapelessRecipe(id, s, result, items);
         }
 
         @Override
-        public void toNetwork( @Nonnull FriendlyByteBuf buffer, @Nonnull ImpostorShapelessRecipe recipe )
-        {
-            buffer.writeUtf( recipe.getGroup() );
-            buffer.writeVarInt( recipe.getIngredients().size() );
+        public void toNetwork(@Nonnull FriendlyByteBuf buffer, @Nonnull ImpostorShapelessRecipe recipe) {
+            buffer.writeUtf(recipe.getGroup());
+            buffer.writeVarInt(recipe.getIngredients().size());
 
-            for( Ingredient ingredient : recipe.getIngredients() ) ingredient.toNetwork( buffer );
-            buffer.writeItem( recipe.getResultItem() );
+            for (var ingredient : recipe.getIngredients()) ingredient.toNetwork(buffer);
+            buffer.writeItem(recipe.getResultItem());
         }
     };
 }

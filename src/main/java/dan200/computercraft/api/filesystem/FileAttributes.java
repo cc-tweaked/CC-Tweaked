@@ -15,49 +15,41 @@ import java.time.Instant;
  * @param isDirectory Whether this filesystem entry is a directory.
  * @param size        The size of the file.
  */
-record FileAttributes(boolean isDirectory, long size) implements BasicFileAttributes
-{
-    private static final FileTime EPOCH = FileTime.from( Instant.EPOCH );
+record FileAttributes(boolean isDirectory, long size) implements BasicFileAttributes {
+    private static final FileTime EPOCH = FileTime.from(Instant.EPOCH);
 
     @Override
-    public FileTime lastModifiedTime()
-    {
+    public FileTime lastModifiedTime() {
         return EPOCH;
     }
 
     @Override
-    public FileTime lastAccessTime()
-    {
+    public FileTime lastAccessTime() {
         return EPOCH;
     }
 
     @Override
-    public FileTime creationTime()
-    {
+    public FileTime creationTime() {
         return EPOCH;
     }
 
     @Override
-    public boolean isRegularFile()
-    {
+    public boolean isRegularFile() {
         return !isDirectory;
     }
 
     @Override
-    public boolean isSymbolicLink()
-    {
+    public boolean isSymbolicLink() {
         return false;
     }
 
     @Override
-    public boolean isOther()
-    {
+    public boolean isOther() {
         return false;
     }
 
     @Override
-    public Object fileKey()
-    {
+    public Object fileKey() {
         return null;
     }
 }

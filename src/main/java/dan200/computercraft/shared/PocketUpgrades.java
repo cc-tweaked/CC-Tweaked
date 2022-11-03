@@ -11,23 +11,21 @@ import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 
 import java.util.stream.Stream;
 
-public final class PocketUpgrades
-{
+public final class PocketUpgrades {
     private static final UpgradeManager<PocketUpgradeSerialiser<?>, IPocketUpgrade> registry = new UpgradeManager<>(
         "pocket computer upgrade", "computercraft/pocket_upgrades", PocketUpgradeSerialiser.REGISTRY_ID
     );
 
-    private PocketUpgrades() {}
+    private PocketUpgrades() {
+    }
 
-    public static UpgradeManager<PocketUpgradeSerialiser<?>, IPocketUpgrade> instance()
-    {
+    public static UpgradeManager<PocketUpgradeSerialiser<?>, IPocketUpgrade> instance() {
         return registry;
     }
 
-    public static Stream<IPocketUpgrade> getVanillaUpgrades()
-    {
+    public static Stream<IPocketUpgrade> getVanillaUpgrades() {
         return instance().getUpgradeWrappers().values().stream()
-            .filter( x -> x.modId().equals( ComputerCraft.MOD_ID ) )
-            .map( UpgradeManager.UpgradeWrapper::upgrade );
+            .filter(x -> x.modId().equals(ComputerCraft.MOD_ID))
+            .map(UpgradeManager.UpgradeWrapper::upgrade);
     }
 }

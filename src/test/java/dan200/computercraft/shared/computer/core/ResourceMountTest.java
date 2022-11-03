@@ -24,61 +24,54 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ResourceMountTest
-{
+public class ResourceMountTest {
     private IMount mount;
 
     @BeforeEach
-    public void before()
-    {
-        ReloadableResourceManager manager = new ReloadableResourceManager( PackType.SERVER_DATA );
-        CompletableFuture<Unit> done = new CompletableFuture<>();
-        manager.createReload( Util.backgroundExecutor(), Util.backgroundExecutor(), done, List.of(
-            new FolderPackResources( new File( "src/main/resources" ) )
-        ) );
+    public void before() {
+        var manager = new ReloadableResourceManager(PackType.SERVER_DATA);
+        var done = new CompletableFuture<Unit>();
+        manager.createReload(Util.backgroundExecutor(), Util.backgroundExecutor(), done, List.of(
+            new FolderPackResources(new File("src/main/resources"))
+        ));
 
-        mount = ResourceMount.get( "computercraft", "lua/rom", manager );
+        mount = ResourceMount.get("computercraft", "lua/rom", manager);
     }
 
     @Test
-    public void testList() throws IOException
-    {
+    public void testList() throws IOException {
         List<String> files = new ArrayList<>();
-        mount.list( "", files );
-        files.sort( Comparator.naturalOrder() );
+        mount.list("", files);
+        files.sort(Comparator.naturalOrder());
 
         assertEquals(
-            Arrays.asList( "apis", "autorun", "help", "modules", "motd.txt", "programs", "startup.lua" ),
+            Arrays.asList("apis", "autorun", "help", "modules", "motd.txt", "programs", "startup.lua"),
             files
         );
     }
 
     @Test
-    public void testExists() throws IOException
-    {
-        assertTrue( mount.exists( "" ) );
-        assertTrue( mount.exists( "startup.lua" ) );
-        assertTrue( mount.exists( "programs/fun/advanced/paint.lua" ) );
+    public void testExists() throws IOException {
+        assertTrue(mount.exists(""));
+        assertTrue(mount.exists("startup.lua"));
+        assertTrue(mount.exists("programs/fun/advanced/paint.lua"));
 
-        assertFalse( mount.exists( "programs/fun/advance/paint.lua" ) );
-        assertFalse( mount.exists( "programs/fun/advanced/paint.lu" ) );
+        assertFalse(mount.exists("programs/fun/advance/paint.lua"));
+        assertFalse(mount.exists("programs/fun/advanced/paint.lu"));
     }
 
     @Test
-    public void testIsDir() throws IOException
-    {
-        assertTrue( mount.isDirectory( "" ) );
+    public void testIsDir() throws IOException {
+        assertTrue(mount.isDirectory(""));
     }
 
     @Test
-    public void testIsFile() throws IOException
-    {
-        assertFalse( mount.isDirectory( "startup.lua" ) );
+    public void testIsFile() throws IOException {
+        assertFalse(mount.isDirectory("startup.lua"));
     }
 
     @Test
-    public void testSize() throws IOException
-    {
-        assertNotEquals( mount.getSize( "startup.lua" ), 0 );
+    public void testSize() throws IOException {
+        assertNotEquals(mount.getSize("startup.lua"), 0);
     }
 }

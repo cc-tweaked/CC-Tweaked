@@ -21,8 +21,6 @@ import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
@@ -43,145 +41,128 @@ import javax.annotation.Nullable;
 
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
-public final class TilePrinter extends TileGeneric implements DefaultSidedInventory, Nameable, MenuProvider
-{
+public final class TilePrinter extends TileGeneric implements DefaultSidedInventory, Nameable, MenuProvider {
     private static final String NBT_NAME = "CustomName";
     private static final String NBT_PRINTING = "Printing";
     private static final String NBT_PAGE_TITLE = "PageTitle";
 
     static final int SLOTS = 13;
 
-    private static final int[] BOTTOM_SLOTS = new int[] { 7, 8, 9, 10, 11, 12 };
-    private static final int[] TOP_SLOTS = new int[] { 1, 2, 3, 4, 5, 6 };
-    private static final int[] SIDE_SLOTS = new int[] { 0 };
+    private static final int[] BOTTOM_SLOTS = new int[]{ 7, 8, 9, 10, 11, 12 };
+    private static final int[] TOP_SLOTS = new int[]{ 1, 2, 3, 4, 5, 6 };
+    private static final int[] SIDE_SLOTS = new int[]{ 0 };
 
     Component customName;
     private LockCode lockCode = LockCode.NO_LOCK;
 
-    private final NonNullList<ItemStack> inventory = NonNullList.withSize( SLOTS, ItemStack.EMPTY );
+    private final NonNullList<ItemStack> inventory = NonNullList.withSize(SLOTS, ItemStack.EMPTY);
     private final SidedCaps<IItemHandler> itemHandlerCaps =
-        SidedCaps.ofNullable( facing -> facing == null ? new InvWrapper( this ) : new SidedInvWrapper( this, facing ) );
+        SidedCaps.ofNullable(facing -> facing == null ? new InvWrapper(this) : new SidedInvWrapper(this, facing));
     private LazyOptional<IPeripheral> peripheralCap;
 
-    private final NetworkedTerminal page = new NetworkedTerminal( ItemPrintout.LINE_MAX_LENGTH, ItemPrintout.LINES_PER_PAGE, true );
+    private final NetworkedTerminal page = new NetworkedTerminal(ItemPrintout.LINE_MAX_LENGTH, ItemPrintout.LINES_PER_PAGE, true);
     private String pageTitle = "";
     private boolean printing = false;
 
-    public TilePrinter( BlockEntityType<TilePrinter> type, BlockPos pos, BlockState state )
-    {
-        super( type, pos, state );
+    public TilePrinter(BlockEntityType<TilePrinter> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
     @Override
-    public void destroy()
-    {
+    public void destroy() {
         ejectContents();
     }
 
     @Override
-    public void invalidateCaps()
-    {
+    public void invalidateCaps() {
         super.invalidateCaps();
         itemHandlerCaps.invalidate();
-        peripheralCap = CapabilityUtil.invalidate( peripheralCap );
+        peripheralCap = CapabilityUtil.invalidate(peripheralCap);
     }
 
     @Override
-    public boolean isUsable( Player player )
-    {
-        return super.isUsable( player ) && BaseContainerBlockEntity.canUnlock( player, lockCode, getDisplayName() );
+    public boolean isUsable(Player player) {
+        return super.isUsable(player) && BaseContainerBlockEntity.canUnlock(player, lockCode, getDisplayName());
     }
 
     @Nonnull
     @Override
-    public InteractionResult onActivate( Player player, InteractionHand hand, BlockHitResult hit )
-    {
-        if( player.isCrouching() ) return InteractionResult.PASS;
+    public InteractionResult onActivate(Player player, InteractionHand hand, BlockHitResult hit) {
+        if (player.isCrouching()) return InteractionResult.PASS;
 
-        if( !getLevel().isClientSide && isUsable( player ) )
-        {
-            NetworkHooks.openScreen( (ServerPlayer) player, this );
+        if (!getLevel().isClientSide && isUsable(player)) {
+            NetworkHooks.openScreen((ServerPlayer) player, this);
         }
         return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void load( @Nonnull CompoundTag nbt )
-    {
-        super.load( nbt );
+    public void load(@Nonnull CompoundTag nbt) {
+        super.load(nbt);
 
-        customName = nbt.contains( NBT_NAME ) ? Component.Serializer.fromJson( nbt.getString( NBT_NAME ) ) : null;
+        customName = nbt.contains(NBT_NAME) ? Component.Serializer.fromJson(nbt.getString(NBT_NAME)) : null;
 
         // Read page
-        synchronized( page )
-        {
-            printing = nbt.getBoolean( NBT_PRINTING );
-            pageTitle = nbt.getString( NBT_PAGE_TITLE );
-            page.readFromNBT( nbt );
+        synchronized (page) {
+            printing = nbt.getBoolean(NBT_PRINTING);
+            pageTitle = nbt.getString(NBT_PAGE_TITLE);
+            page.readFromNBT(nbt);
         }
 
         // Read inventory
-        ContainerHelper.loadAllItems( nbt, inventory );
+        ContainerHelper.loadAllItems(nbt, inventory);
 
-        lockCode = LockCode.fromTag( nbt );
+        lockCode = LockCode.fromTag(nbt);
     }
 
     @Override
-    public void saveAdditional( @Nonnull CompoundTag nbt )
-    {
-        if( customName != null ) nbt.putString( NBT_NAME, Component.Serializer.toJson( customName ) );
+    public void saveAdditional(@Nonnull CompoundTag nbt) {
+        if (customName != null) nbt.putString(NBT_NAME, Component.Serializer.toJson(customName));
 
         // Write page
-        synchronized( page )
-        {
-            nbt.putBoolean( NBT_PRINTING, printing );
-            nbt.putString( NBT_PAGE_TITLE, pageTitle );
-            page.writeToNBT( nbt );
+        synchronized (page) {
+            nbt.putBoolean(NBT_PRINTING, printing);
+            nbt.putString(NBT_PAGE_TITLE, pageTitle);
+            page.writeToNBT(nbt);
         }
 
         // Write inventory
-        ContainerHelper.saveAllItems( nbt, inventory );
+        ContainerHelper.saveAllItems(nbt, inventory);
 
-        lockCode.addToTag( nbt );
+        lockCode.addToTag(nbt);
 
-        super.saveAdditional( nbt );
+        super.saveAdditional(nbt);
     }
 
-    boolean isPrinting()
-    {
+    boolean isPrinting() {
         return printing;
     }
 
     // IInventory implementation
     @Override
-    public int getContainerSize()
-    {
+    public int getContainerSize() {
         return inventory.size();
     }
 
     @Override
-    public boolean isEmpty()
-    {
-        for( ItemStack stack : inventory )
-        {
-            if( !stack.isEmpty() ) return false;
+    public boolean isEmpty() {
+        for (var stack : inventory) {
+            if (!stack.isEmpty()) return false;
         }
         return true;
     }
 
     @Nonnull
     @Override
-    public ItemStack getItem( int slot )
-    {
-        return inventory.get( slot );
+    public ItemStack getItem(int slot) {
+        return inventory.get(slot);
     }
 
     @Nonnull
     @Override
-    public ItemStack removeItemNoUpdate( int slot )
-    {
-        ItemStack result = inventory.get( slot );
-        inventory.set( slot, ItemStack.EMPTY );
+    public ItemStack removeItemNoUpdate(int slot) {
+        var result = inventory.get(slot);
+        inventory.set(slot, ItemStack.EMPTY);
         setChanged();
         updateBlockState();
         return result;
@@ -189,21 +170,18 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
 
     @Nonnull
     @Override
-    public ItemStack removeItem( int slot, int count )
-    {
-        ItemStack stack = inventory.get( slot );
-        if( stack.isEmpty() ) return ItemStack.EMPTY;
+    public ItemStack removeItem(int slot, int count) {
+        var stack = inventory.get(slot);
+        if (stack.isEmpty()) return ItemStack.EMPTY;
 
-        if( stack.getCount() <= count )
-        {
-            setItem( slot, ItemStack.EMPTY );
+        if (stack.getCount() <= count) {
+            setItem(slot, ItemStack.EMPTY);
             return stack;
         }
 
-        ItemStack part = stack.split( count );
-        if( inventory.get( slot ).isEmpty() )
-        {
-            inventory.set( slot, ItemStack.EMPTY );
+        var part = stack.split(count);
+        if (inventory.get(slot).isEmpty()) {
+            inventory.set(slot, ItemStack.EMPTY);
             updateBlockState();
         }
         setChanged();
@@ -211,171 +189,136 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     }
 
     @Override
-    public void setItem( int slot, @Nonnull ItemStack stack )
-    {
-        inventory.set( slot, stack );
+    public void setItem(int slot, @Nonnull ItemStack stack) {
+        inventory.set(slot, stack);
         setChanged();
         updateBlockState();
     }
 
     @Override
-    public void clearContent()
-    {
-        for( int i = 0; i < inventory.size(); i++ ) inventory.set( i, ItemStack.EMPTY );
+    public void clearContent() {
+        for (var i = 0; i < inventory.size(); i++) inventory.set(i, ItemStack.EMPTY);
         setChanged();
         updateBlockState();
     }
 
     @Override
-    public boolean canPlaceItem( int slot, @Nonnull ItemStack stack )
-    {
-        if( slot == 0 )
-        {
-            return isInk( stack );
-        }
-        else if( slot >= TOP_SLOTS[0] && slot <= TOP_SLOTS[TOP_SLOTS.length - 1] )
-        {
-            return isPaper( stack );
-        }
-        else
-        {
+    public boolean canPlaceItem(int slot, @Nonnull ItemStack stack) {
+        if (slot == 0) {
+            return isInk(stack);
+        } else if (slot >= TOP_SLOTS[0] && slot <= TOP_SLOTS[TOP_SLOTS.length - 1]) {
+            return isPaper(stack);
+        } else {
             return false;
         }
     }
 
     @Override
-    public boolean stillValid( @Nonnull Player playerEntity )
-    {
-        return isUsable( playerEntity );
+    public boolean stillValid(@Nonnull Player playerEntity) {
+        return isUsable(playerEntity);
     }
 
     // ISidedInventory implementation
 
     @Nonnull
     @Override
-    public int[] getSlotsForFace( @Nonnull Direction side )
-    {
-        switch( side )
-        {
-            case DOWN: // Bottom (Out tray)
-                return BOTTOM_SLOTS;
-            case UP: // Top (In tray)
-                return TOP_SLOTS;
-            default: // Sides (Ink)
-                return SIDE_SLOTS;
-        }
+    public int[] getSlotsForFace(@Nonnull Direction side) {
+        return switch (side) {
+            case DOWN -> BOTTOM_SLOTS; // Out tray
+            case UP -> TOP_SLOTS; // In tray
+            default -> SIDE_SLOTS; // Ink
+        };
     }
 
     @Nullable
-    Terminal getCurrentPage()
-    {
-        synchronized( page )
-        {
+    Terminal getCurrentPage() {
+        synchronized (page) {
             return printing ? page : null;
         }
     }
 
-    boolean startNewPage()
-    {
-        synchronized( page )
-        {
-            if( !canInputPage() ) return false;
-            if( printing && !outputPage() ) return false;
+    boolean startNewPage() {
+        synchronized (page) {
+            if (!canInputPage()) return false;
+            if (printing && !outputPage()) return false;
             return inputPage();
         }
     }
 
-    boolean endCurrentPage()
-    {
-        synchronized( page )
-        {
+    boolean endCurrentPage() {
+        synchronized (page) {
             return printing && outputPage();
         }
     }
 
-    int getInkLevel()
-    {
-        ItemStack inkStack = inventory.get( 0 );
-        return isInk( inkStack ) ? inkStack.getCount() : 0;
+    int getInkLevel() {
+        var inkStack = inventory.get(0);
+        return isInk(inkStack) ? inkStack.getCount() : 0;
     }
 
-    int getPaperLevel()
-    {
-        int count = 0;
-        for( int i = 1; i < 7; i++ )
-        {
-            ItemStack paperStack = inventory.get( i );
-            if( isPaper( paperStack ) ) count += paperStack.getCount();
+    int getPaperLevel() {
+        var count = 0;
+        for (var i = 1; i < 7; i++) {
+            var paperStack = inventory.get(i);
+            if (isPaper(paperStack)) count += paperStack.getCount();
         }
         return count;
     }
 
-    void setPageTitle( String title )
-    {
-        synchronized( page )
-        {
-            if( printing ) pageTitle = title;
+    void setPageTitle(String title) {
+        synchronized (page) {
+            if (printing) pageTitle = title;
         }
     }
 
-    static boolean isInk( @Nonnull ItemStack stack )
-    {
-        return ColourUtils.getStackColour( stack ) != null;
+    static boolean isInk(@Nonnull ItemStack stack) {
+        return ColourUtils.getStackColour(stack) != null;
     }
 
-    static boolean isPaper( @Nonnull ItemStack stack )
-    {
-        Item item = stack.getItem();
+    static boolean isPaper(@Nonnull ItemStack stack) {
+        var item = stack.getItem();
         return item == Items.PAPER
             || (item instanceof ItemPrintout printout && printout.getType() == ItemPrintout.Type.PAGE);
     }
 
-    private boolean canInputPage()
-    {
-        ItemStack inkStack = inventory.get( 0 );
-        return !inkStack.isEmpty() && isInk( inkStack ) && getPaperLevel() > 0;
+    private boolean canInputPage() {
+        var inkStack = inventory.get(0);
+        return !inkStack.isEmpty() && isInk(inkStack) && getPaperLevel() > 0;
     }
 
-    private boolean inputPage()
-    {
-        ItemStack inkStack = inventory.get( 0 );
-        DyeColor dye = ColourUtils.getStackColour( inkStack );
-        if( dye == null ) return false;
+    private boolean inputPage() {
+        var inkStack = inventory.get(0);
+        var dye = ColourUtils.getStackColour(inkStack);
+        if (dye == null) return false;
 
-        for( int i = 1; i < 7; i++ )
-        {
-            ItemStack paperStack = inventory.get( i );
-            if( paperStack.isEmpty() || !isPaper( paperStack ) ) continue;
+        for (var i = 1; i < 7; i++) {
+            var paperStack = inventory.get(i);
+            if (paperStack.isEmpty() || !isPaper(paperStack)) continue;
 
             // Setup the new page
-            page.setTextColour( dye.getId() );
+            page.setTextColour(dye.getId());
 
             page.clear();
-            if( paperStack.getItem() instanceof ItemPrintout )
-            {
-                pageTitle = ItemPrintout.getTitle( paperStack );
-                String[] text = ItemPrintout.getText( paperStack );
-                String[] textColour = ItemPrintout.getColours( paperStack );
-                for( int y = 0; y < page.getHeight(); y++ )
-                {
-                    page.setLine( y, text[y], textColour[y], "" );
+            if (paperStack.getItem() instanceof ItemPrintout) {
+                pageTitle = ItemPrintout.getTitle(paperStack);
+                var text = ItemPrintout.getText(paperStack);
+                var textColour = ItemPrintout.getColours(paperStack);
+                for (var y = 0; y < page.getHeight(); y++) {
+                    page.setLine(y, text[y], textColour[y], "");
                 }
-            }
-            else
-            {
+            } else {
                 pageTitle = "";
             }
-            page.setCursorPos( 0, 0 );
+            page.setCursorPos(0, 0);
 
             // Decrement ink
-            inkStack.shrink( 1 );
-            if( inkStack.isEmpty() ) inventory.set( 0, ItemStack.EMPTY );
+            inkStack.shrink(1);
+            if (inkStack.isEmpty()) inventory.set(0, ItemStack.EMPTY);
 
             // Decrement paper
-            paperStack.shrink( 1 );
-            if( paperStack.isEmpty() )
-            {
-                inventory.set( i, ItemStack.EMPTY );
+            paperStack.shrink(1);
+            if (paperStack.isEmpty()) {
+                inventory.set(i, ItemStack.EMPTY);
                 updateBlockState();
             }
 
@@ -386,23 +329,19 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         return false;
     }
 
-    private boolean outputPage()
-    {
-        int height = page.getHeight();
-        String[] lines = new String[height];
-        String[] colours = new String[height];
-        for( int i = 0; i < height; i++ )
-        {
-            lines[i] = page.getLine( i ).toString();
-            colours[i] = page.getTextColourLine( i ).toString();
+    private boolean outputPage() {
+        var height = page.getHeight();
+        var lines = new String[height];
+        var colours = new String[height];
+        for (var i = 0; i < height; i++) {
+            lines[i] = page.getLine(i).toString();
+            colours[i] = page.getTextColourLine(i).toString();
         }
 
-        ItemStack stack = ItemPrintout.createSingleFromTitleAndText( pageTitle, lines, colours );
-        for( int slot : BOTTOM_SLOTS )
-        {
-            if( inventory.get( slot ).isEmpty() )
-            {
-                setItem( slot, stack );
+        var stack = ItemPrintout.createSingleFromTitleAndText(pageTitle, lines, colours);
+        for (var slot : BOTTOM_SLOTS) {
+            if (inventory.get(slot).isEmpty()) {
+                setItem(slot, stack);
                 printing = false;
                 return true;
             }
@@ -410,102 +349,86 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         return false;
     }
 
-    private void ejectContents()
-    {
-        for( int i = 0; i < 13; i++ )
-        {
-            ItemStack stack = inventory.get( i );
-            if( !stack.isEmpty() )
-            {
+    private void ejectContents() {
+        for (var i = 0; i < 13; i++) {
+            var stack = inventory.get(i);
+            if (!stack.isEmpty()) {
                 // Remove the stack from the inventory
-                setItem( i, ItemStack.EMPTY );
+                setItem(i, ItemStack.EMPTY);
 
                 // Spawn the item in the world
-                WorldUtil.dropItemStack( stack, getLevel(), Vec3.atLowerCornerOf( getBlockPos() ).add( 0.5, 0.75, 0.5 ) );
+                WorldUtil.dropItemStack(stack, getLevel(), Vec3.atLowerCornerOf(getBlockPos()).add(0.5, 0.75, 0.5));
             }
         }
     }
 
-    private void updateBlockState()
-    {
+    private void updateBlockState() {
         boolean top = false, bottom = false;
-        for( int i = 1; i < 7; i++ )
-        {
-            ItemStack stack = inventory.get( i );
-            if( !stack.isEmpty() && isPaper( stack ) )
-            {
+        for (var i = 1; i < 7; i++) {
+            var stack = inventory.get(i);
+            if (!stack.isEmpty() && isPaper(stack)) {
                 top = true;
                 break;
             }
         }
-        for( int i = 7; i < 13; i++ )
-        {
-            ItemStack stack = inventory.get( i );
-            if( !stack.isEmpty() && isPaper( stack ) )
-            {
+        for (var i = 7; i < 13; i++) {
+            var stack = inventory.get(i);
+            if (!stack.isEmpty() && isPaper(stack)) {
                 bottom = true;
                 break;
             }
         }
 
-        updateBlockState( top, bottom );
+        updateBlockState(top, bottom);
     }
 
-    private void updateBlockState( boolean top, boolean bottom )
-    {
-        if( remove || level == null ) return;
+    private void updateBlockState(boolean top, boolean bottom) {
+        if (remove || level == null) return;
 
-        BlockState state = getBlockState();
-        if( state.getValue( BlockPrinter.TOP ) == top & state.getValue( BlockPrinter.BOTTOM ) == bottom ) return;
+        var state = getBlockState();
+        if (state.getValue(BlockPrinter.TOP) == top & state.getValue(BlockPrinter.BOTTOM) == bottom) return;
 
-        getLevel().setBlockAndUpdate( getBlockPos(), state.setValue( BlockPrinter.TOP, top ).setValue( BlockPrinter.BOTTOM, bottom ) );
+        getLevel().setBlockAndUpdate(getBlockPos(), state.setValue(BlockPrinter.TOP, top).setValue(BlockPrinter.BOTTOM, bottom));
     }
 
     @Nonnull
     @Override
-    public <T> LazyOptional<T> getCapability( @Nonnull Capability<T> capability, @Nullable Direction facing )
-    {
-        if( capability == ForgeCapabilities.ITEM_HANDLER ) return itemHandlerCaps.get( facing ).cast();
-        if( capability == CAPABILITY_PERIPHERAL )
-        {
-            if( peripheralCap == null ) peripheralCap = LazyOptional.of( () -> new PrinterPeripheral( this ) );
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable Direction facing) {
+        if (capability == ForgeCapabilities.ITEM_HANDLER) return itemHandlerCaps.get(facing).cast();
+        if (capability == CAPABILITY_PERIPHERAL) {
+            if (peripheralCap == null) peripheralCap = LazyOptional.of(() -> new PrinterPeripheral(this));
             return peripheralCap.cast();
         }
 
-        return super.getCapability( capability, facing );
+        return super.getCapability(capability, facing);
     }
 
     @Override
-    public boolean hasCustomName()
-    {
+    public boolean hasCustomName() {
         return customName != null;
     }
 
     @Nullable
     @Override
-    public Component getCustomName()
-    {
+    public Component getCustomName() {
         return customName;
     }
 
     @Nonnull
     @Override
-    public Component getName()
-    {
-        return customName != null ? customName : Component.translatable( getBlockState().getBlock().getDescriptionId() );
+    public Component getName() {
+        return customName != null ? customName : Component.translatable(getBlockState().getBlock().getDescriptionId());
     }
 
     @Nonnull
     @Override
-    public Component getDisplayName()
-    {
+    public Component getDisplayName() {
         return Nameable.super.getDisplayName();
     }
 
     @Nonnull
     @Override
-    public AbstractContainerMenu createMenu( int id, @Nonnull Inventory inventory, @Nonnull Player player )
-    {
-        return new ContainerPrinter( id, inventory, this );
+    public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) {
+        return new ContainerPrinter(id, inventory, this);
     }
 }

@@ -6,8 +6,6 @@
 package dan200.computercraft.shared.command;
 
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.function.Predicate;
@@ -15,8 +13,7 @@ import java.util.function.Predicate;
 /**
  * The level a user must be at in order to execute a command.
  */
-public enum UserLevel implements Predicate<CommandSourceStack>
-{
+public enum UserLevel implements Predicate<CommandSourceStack> {
     /**
      * Only can be used by the owner of the server: namely the server console or the player in SSP.
      */
@@ -37,36 +34,27 @@ public enum UserLevel implements Predicate<CommandSourceStack>
      */
     ANYONE;
 
-    public int toLevel()
-    {
-        switch( this )
-        {
-            case OWNER:
-                return 4;
-            case OP:
-            case OWNER_OP:
-                return 2;
-            case ANYONE:
-            default:
-                return 0;
-        }
+    public int toLevel() {
+        return switch (this) {
+            case OWNER -> 4;
+            case OP, OWNER_OP -> 2;
+            case ANYONE -> 0;
+        };
     }
 
     @Override
-    public boolean test( CommandSourceStack source )
-    {
-        if( this == ANYONE ) return true;
-        if( this == OWNER ) return isOwner( source );
-        if( this == OWNER_OP && isOwner( source ) ) return true;
-        return source.hasPermission( toLevel() );
+    public boolean test(CommandSourceStack source) {
+        if (this == ANYONE) return true;
+        if (this == OWNER) return isOwner(source);
+        if (this == OWNER_OP && isOwner(source)) return true;
+        return source.hasPermission(toLevel());
     }
 
-    private static boolean isOwner( CommandSourceStack source )
-    {
-        MinecraftServer server = source.getServer();
-        Entity sender = source.getEntity();
+    private static boolean isOwner(CommandSourceStack source) {
+        var server = source.getServer();
+        var sender = source.getEntity();
         return server.isDedicatedServer()
-            ? source.getEntity() == null && source.hasPermission( 4 ) && source.getTextName().equals( "Server" )
-            : sender instanceof Player player && player.getGameProfile().getName().equalsIgnoreCase( server.getServerModName() );
+            ? source.getEntity() == null && source.hasPermission(4) && source.getTextName().equals("Server")
+            : sender instanceof Player player && player.getGameProfile().getName().equalsIgnoreCase(server.getServerModName());
     }
 }

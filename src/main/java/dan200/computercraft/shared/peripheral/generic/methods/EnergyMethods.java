@@ -27,20 +27,17 @@ import javax.annotation.Nonnull;
  * @cc.module energy_storage
  * @cc.since 1.94.0
  */
-public class EnergyMethods implements GenericPeripheral
-{
+public class EnergyMethods implements GenericPeripheral {
     @Nonnull
     @Override
-    public PeripheralType getType()
-    {
-        return PeripheralType.ofAdditional( "energy_storage" );
+    public PeripheralType getType() {
+        return PeripheralType.ofAdditional("energy_storage");
     }
 
     @Nonnull
     @Override
-    public ResourceLocation id()
-    {
-        return new ResourceLocation( ComputerCraft.MOD_ID, "energy" );
+    public ResourceLocation id() {
+        return new ResourceLocation(ComputerCraft.MOD_ID, "energy");
     }
 
     /**
@@ -49,9 +46,8 @@ public class EnergyMethods implements GenericPeripheral
      * @param energy The current energy storage.
      * @return The energy stored in this block, in FE.
      */
-    @LuaFunction( mainThread = true )
-    public static int getEnergy( IEnergyStorage energy )
-    {
+    @LuaFunction(mainThread = true)
+    public static int getEnergy(IEnergyStorage energy) {
         return energy.getEnergyStored();
     }
 
@@ -61,9 +57,8 @@ public class EnergyMethods implements GenericPeripheral
      * @param energy The current energy storage.
      * @return The energy capacity of this block.
      */
-    @LuaFunction( mainThread = true )
-    public static int getEnergyCapacity( IEnergyStorage energy )
-    {
+    @LuaFunction(mainThread = true)
+    public static int getEnergyCapacity(IEnergyStorage energy) {
         return energy.getMaxEnergyStored();
     }
 }

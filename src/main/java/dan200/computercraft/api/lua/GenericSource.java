@@ -46,8 +46,7 @@ import javax.annotation.Nonnull;
  * @see ForgeComputerCraftAPI#registerGenericCapability(Capability) New capabilities (those not built into Forge) must be
  * explicitly given to the generic peripheral system, as there is no way to enumerate all capabilities.
  */
-public interface GenericSource
-{
+public interface GenericSource {
     /**
      * A unique identifier for this generic source.
      * <p>

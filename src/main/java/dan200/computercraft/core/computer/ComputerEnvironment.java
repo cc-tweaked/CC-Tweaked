@@ -11,8 +11,7 @@ import dan200.computercraft.core.metrics.MetricsObserver;
 
 import javax.annotation.Nullable;
 
-public interface ComputerEnvironment
-{
+public interface ComputerEnvironment {
     /**
      * Get the current in-game day.
      *

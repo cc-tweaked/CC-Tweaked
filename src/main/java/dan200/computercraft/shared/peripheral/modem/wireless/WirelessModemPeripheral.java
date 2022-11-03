@@ -10,50 +10,38 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.IPacketNetwork;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 
-public abstract class WirelessModemPeripheral extends ModemPeripheral
-{
+public abstract class WirelessModemPeripheral extends ModemPeripheral {
     public static final String NORMAL_ADJECTIVE = "upgrade.computercraft.wireless_modem_normal.adjective";
     public static final String ADVANCED_ADJECTIVE = "upgrade.computercraft.wireless_modem_advanced.adjective";
 
     private final boolean advanced;
 
-    public WirelessModemPeripheral( ModemState state, boolean advanced )
-    {
-        super( state );
+    public WirelessModemPeripheral(ModemState state, boolean advanced) {
+        super(state);
         this.advanced = advanced;
     }
 
     @Override
-    public boolean isInterdimensional()
-    {
+    public boolean isInterdimensional() {
         return advanced;
     }
 
     @Override
-    public double getRange()
-    {
-        if( advanced )
-        {
+    public double getRange() {
+        if (advanced) {
             return Integer.MAX_VALUE;
-        }
-        else
-        {
-            Level world = getLevel();
-            if( world != null )
-            {
-                Vec3 position = getPosition();
+        } else {
+            var world = getLevel();
+            if (world != null) {
+                var position = getPosition();
                 double minRange = ComputerCraft.modemRange;
                 double maxRange = ComputerCraft.modemHighAltitudeRange;
-                if( world.isRaining() && world.isThundering() )
-                {
+                if (world.isRaining() && world.isThundering()) {
                     minRange = ComputerCraft.modemRangeDuringStorm;
                     maxRange = ComputerCraft.modemHighAltitudeRangeDuringStorm;
                 }
-                if( position.y > 96.0 && maxRange > minRange )
-                {
+                if (position.y > 96.0 && maxRange > minRange) {
                     return minRange + (position.y - 96.0) * ((maxRange - minRange) / ((world.getMaxBuildHeight() - 1) - 96.0));
                 }
                 return minRange;
@@ -63,8 +51,7 @@ public abstract class WirelessModemPeripheral extends ModemPeripheral
     }
 
     @Override
-    protected IPacketNetwork getNetwork()
-    {
+    protected IPacketNetwork getNetwork() {
         return ComputerCraftAPI.getWirelessNetwork();
     }
 }

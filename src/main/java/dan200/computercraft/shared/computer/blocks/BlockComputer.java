@@ -25,53 +25,46 @@ import net.minecraftforge.registries.RegistryObject;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class BlockComputer<T extends TileComputer> extends BlockComputerBase<T>
-{
-    public static final EnumProperty<ComputerState> STATE = EnumProperty.create( "state", ComputerState.class );
+public class BlockComputer<T extends TileComputer> extends BlockComputerBase<T> {
+    public static final EnumProperty<ComputerState> STATE = EnumProperty.create("state", ComputerState.class);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    public BlockComputer( Properties settings, ComputerFamily family, RegistryObject<BlockEntityType<T>> type )
-    {
-        super( settings, family, type );
-        registerDefaultState( defaultBlockState()
-            .setValue( FACING, Direction.NORTH )
-            .setValue( STATE, ComputerState.OFF )
+    public BlockComputer(Properties settings, ComputerFamily family, RegistryObject<BlockEntityType<T>> type) {
+        super(settings, family, type);
+        registerDefaultState(defaultBlockState()
+            .setValue(FACING, Direction.NORTH)
+            .setValue(STATE, ComputerState.OFF)
         );
     }
 
     @Override
-    protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> builder )
-    {
-        builder.add( FACING, STATE );
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING, STATE);
     }
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement( BlockPlaceContext placement )
-    {
-        return defaultBlockState().setValue( FACING, placement.getHorizontalDirection().getOpposite() );
+    public BlockState getStateForPlacement(BlockPlaceContext placement) {
+        return defaultBlockState().setValue(FACING, placement.getHorizontalDirection().getOpposite());
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public BlockState mirror( BlockState state, Mirror mirrorIn )
-    {
-        return state.rotate( mirrorIn.getRotation( state.getValue( FACING ) ) );
+    public BlockState mirror(BlockState state, Mirror mirrorIn) {
+        return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public BlockState rotate( BlockState state, Rotation rot )
-    {
-        return state.setValue( FACING, rot.rotate( state.getValue( FACING ) ) );
+    public BlockState rotate(BlockState state, Rotation rot) {
+        return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
     }
 
     @Nonnull
     @Override
-    protected ItemStack getItem( TileComputerBase tile )
-    {
-        return tile instanceof TileComputer ? ComputerItemFactory.create( (TileComputer) tile ) : ItemStack.EMPTY;
+    protected ItemStack getItem(TileComputerBase tile) {
+        return tile instanceof TileComputer ? ComputerItemFactory.create((TileComputer) tile) : ItemStack.EMPTY;
     }
 }

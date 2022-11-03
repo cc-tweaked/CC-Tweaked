@@ -22,15 +22,14 @@ import java.util.UUID;
  * @see ComputerServerMessage Packets which consume this interface.
  * @see ComputerMenu
  */
-public interface ServerInputHandler extends InputHandler
-{
+public interface ServerInputHandler extends InputHandler {
     /**
      * Start a file upload into this container.
      *
      * @param uploadId The unique ID of this upload.
      * @param files    The files to upload.
      */
-    void startUpload( @Nonnull UUID uploadId, @Nonnull List<FileUpload> files );
+    void startUpload(@Nonnull UUID uploadId, @Nonnull List<FileUpload> files);
 
     /**
      * Append more data to partially uploaded files.
@@ -38,7 +37,7 @@ public interface ServerInputHandler extends InputHandler
      * @param uploadId The unique ID of this upload.
      * @param slices   Additional parts of file data to upload.
      */
-    void continueUpload( @Nonnull UUID uploadId, @Nonnull List<FileSlice> slices );
+    void continueUpload(@Nonnull UUID uploadId, @Nonnull List<FileSlice> slices);
 
     /**
      * Finish off an upload. This either writes the uploaded files or informs the user that files will be overwritten.
@@ -46,5 +45,5 @@ public interface ServerInputHandler extends InputHandler
      * @param uploader The player uploading files.
      * @param uploadId The unique ID of this upload.
      */
-    void finishUpload( @Nonnull ServerPlayer uploader, @Nonnull UUID uploadId );
+    void finishUpload(@Nonnull ServerPlayer uploader, @Nonnull UUID uploadId);
 }

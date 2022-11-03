@@ -30,138 +30,116 @@ import java.util.function.LongSupplier;
 /**
  * An MBean which exposes aggregate statistics about all computers on the server.
  */
-public final class ComputerMBean implements DynamicMBean, ComputerMetricsObserver
-{
+public final class ComputerMBean implements DynamicMBean, ComputerMetricsObserver {
     private static @Nullable ComputerMBean instance;
 
     private final Map<String, LongSupplier> attributes = new HashMap<>();
     private final Int2ObjectMap<Counter> values = new Int2ObjectOpenHashMap<>();
     private final MBeanInfo info;
 
-    private ComputerMBean()
-    {
+    private ComputerMBean() {
         Metrics.init();
 
         List<MBeanAttributeInfo> attributes = new ArrayList<>();
-        for( Map.Entry<String, Metric> field : Metric.metrics().entrySet() )
-        {
-            String name = CaseFormat.LOWER_UNDERSCORE.to( CaseFormat.LOWER_CAMEL, field.getKey() );
-            add( name, field.getValue(), attributes );
+        for (var field : Metric.metrics().entrySet()) {
+            var name = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, field.getKey());
+            add(name, field.getValue(), attributes);
         }
 
         info = new MBeanInfo(
             ComputerMBean.class.getSimpleName(),
             "metrics about all computers on the server",
-            attributes.toArray( new MBeanAttributeInfo[0] ), null, null, null
+            attributes.toArray(new MBeanAttributeInfo[0]), null, null, null
         );
     }
 
-    public static void register()
-    {
-        if( instance != null ) return;
+    public static void register() {
+        if (instance != null) return;
 
-        try
-        {
-            ManagementFactory.getPlatformMBeanServer().registerMBean( instance = new ComputerMBean(), new ObjectName( "dan200.computercraft:type=Computers" ) );
-        }
-        catch( InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException |
-               MalformedObjectNameException e )
-        {
-            ComputerCraft.log.warn( "Failed to register JMX bean", e );
+        try {
+            ManagementFactory.getPlatformMBeanServer().registerMBean(instance = new ComputerMBean(), new ObjectName("dan200.computercraft:type=Computers"));
+        } catch (InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException |
+                 MalformedObjectNameException e) {
+            ComputerCraft.log.warn("Failed to register JMX bean", e);
         }
     }
 
-    public static void start( MinecraftServer server )
-    {
-        if( instance != null ) ServerContext.get( server ).metrics().addObserver( instance );
+    public static void start(MinecraftServer server) {
+        if (instance != null) ServerContext.get(server).metrics().addObserver(instance);
     }
 
     @Override
-    public Object getAttribute( String attribute ) throws AttributeNotFoundException
-    {
-        LongSupplier value = attributes.get( attribute );
-        if( value == null ) throw new AttributeNotFoundException();
+    public Object getAttribute(String attribute) throws AttributeNotFoundException {
+        var value = attributes.get(attribute);
+        if (value == null) throw new AttributeNotFoundException();
         return value.getAsLong();
     }
 
     @Override
-    public void setAttribute( Attribute attribute ) throws InvalidAttributeValueException
-    {
-        throw new InvalidAttributeValueException( "Cannot set attribute" );
+    public void setAttribute(Attribute attribute) throws InvalidAttributeValueException {
+        throw new InvalidAttributeValueException("Cannot set attribute");
     }
 
     @Override
-    public AttributeList getAttributes( String[] names )
-    {
-        AttributeList result = new AttributeList( names.length );
-        for( String name : names )
-        {
-            LongSupplier value = attributes.get( name );
-            if( value != null ) result.add( new Attribute( name, value.getAsLong() ) );
+    public AttributeList getAttributes(String[] names) {
+        var result = new AttributeList(names.length);
+        for (var name : names) {
+            var value = attributes.get(name);
+            if (value != null) result.add(new Attribute(name, value.getAsLong()));
         }
         return result;
     }
 
     @Override
-    public AttributeList setAttributes( AttributeList attributes )
-    {
+    public AttributeList setAttributes(AttributeList attributes) {
         return new AttributeList();
     }
 
     @Nullable
     @Override
-    public Object invoke( String actionName, Object[] params, String[] signature )
-    {
+    public Object invoke(String actionName, Object[] params, String[] signature) {
         return null;
     }
 
     @Override
-    public MBeanInfo getMBeanInfo()
-    {
+    public MBeanInfo getMBeanInfo() {
         return info;
     }
 
-    private void observe( Metric field, long change )
-    {
-        Counter counter = values.get( field.id() );
-        counter.value.addAndGet( change );
+    private void observe(Metric field, long change) {
+        var counter = values.get(field.id());
+        counter.value.addAndGet(change);
         counter.count.incrementAndGet();
     }
 
     @Override
-    public void observe( ServerComputer computer, Metric.Counter counter )
-    {
-        observe( counter, 1 );
+    public void observe(ServerComputer computer, Metric.Counter counter) {
+        observe(counter, 1);
     }
 
     @Override
-    public void observe( ServerComputer computer, Metric.Event event, long value )
-    {
-        observe( event, value );
+    public void observe(ServerComputer computer, Metric.Event event, long value) {
+        observe(event, value);
     }
 
-    private MBeanAttributeInfo addAttribute( String name, String description, LongSupplier value )
-    {
-        attributes.put( name, value );
-        return new MBeanAttributeInfo( name, "long", description, true, false, false );
+    private MBeanAttributeInfo addAttribute(String name, String description, LongSupplier value) {
+        attributes.put(name, value);
+        return new MBeanAttributeInfo(name, "long", description, true, false, false);
     }
 
-    private void add( String name, Metric field, List<MBeanAttributeInfo> attributes )
-    {
-        Counter counter = new Counter();
-        values.put( field.id(), counter );
+    private void add(String name, Metric field, List<MBeanAttributeInfo> attributes) {
+        var counter = new Counter();
+        values.put(field.id(), counter);
 
-        String prettyName = new AggregatedMetric( field, Aggregate.NONE ).displayName().getString();
-        attributes.add( addAttribute( name, prettyName, counter.value::longValue ) );
-        if( field instanceof Metric.Event )
-        {
-            String countName = new AggregatedMetric( field, Aggregate.COUNT ).displayName().getString();
-            attributes.add( addAttribute( name + "Count", countName, counter.count::longValue ) );
+        var prettyName = new AggregatedMetric(field, Aggregate.NONE).displayName().getString();
+        attributes.add(addAttribute(name, prettyName, counter.value::longValue));
+        if (field instanceof Metric.Event) {
+            var countName = new AggregatedMetric(field, Aggregate.COUNT).displayName().getString();
+            attributes.add(addAttribute(name + "Count", countName, counter.count::longValue));
         }
     }
 
-    private static class Counter
-    {
+    private static class Counter {
         final AtomicLong value = new AtomicLong();
         final AtomicLong count = new AtomicLong();
     }

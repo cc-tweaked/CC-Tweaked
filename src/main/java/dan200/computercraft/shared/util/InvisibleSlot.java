@@ -12,28 +12,23 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public class InvisibleSlot extends Slot
-{
-    public InvisibleSlot( Container container, int slot )
-    {
-        super( container, slot, 0, 0 );
+public class InvisibleSlot extends Slot {
+    public InvisibleSlot(Container container, int slot) {
+        super(container, slot, 0, 0);
     }
 
     @Override
-    public boolean mayPlace( @Nonnull ItemStack stack )
-    {
+    public boolean mayPlace(@Nonnull ItemStack stack) {
         return false;
     }
 
     @Override
-    public boolean mayPickup( @Nonnull Player player )
-    {
+    public boolean mayPickup(@Nonnull Player player) {
         return false;
     }
 
     @Override
-    public boolean isActive()
-    {
+    public boolean isActive() {
         return false;
     }
 }

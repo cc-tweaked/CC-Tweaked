@@ -8,8 +8,7 @@ package dan200.computercraft.api.turtle;
 /**
  * An enum representing the two sides of the turtle that a turtle turtle might reside.
  */
-public enum TurtleSide
-{
+public enum TurtleSide {
     /**
      * The turtle's left side (where the pickaxe usually is on a Wireless Mining Turtle).
      */

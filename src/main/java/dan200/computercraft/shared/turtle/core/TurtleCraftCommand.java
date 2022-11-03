@@ -11,33 +11,28 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.turtle.upgrades.TurtleInventoryCrafting;
-import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
-public class TurtleCraftCommand implements ITurtleCommand
-{
+public class TurtleCraftCommand implements ITurtleCommand {
     private final int limit;
 
-    public TurtleCraftCommand( int limit )
-    {
+    public TurtleCraftCommand(int limit) {
         this.limit = limit;
     }
 
     @Nonnull
     @Override
-    public TurtleCommandResult execute( @Nonnull ITurtleAccess turtle )
-    {
+    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
         // Craft the item
-        TurtleInventoryCrafting crafting = new TurtleInventoryCrafting( turtle );
-        List<ItemStack> results = crafting.doCrafting( turtle.getLevel(), limit );
-        if( results == null ) return TurtleCommandResult.failure( "No matching recipes" );
+        var crafting = new TurtleInventoryCrafting(turtle);
+        var results = crafting.doCrafting(turtle.getLevel(), limit);
+        if (results == null) return TurtleCommandResult.failure("No matching recipes");
 
         // Store or drop any remainders
-        for( ItemStack stack : results ) TurtleUtil.storeItemOrDrop( turtle, stack );
+        for (var stack : results) TurtleUtil.storeItemOrDrop(turtle, stack);
 
-        if( !results.isEmpty() ) turtle.playAnimation( TurtleAnimation.WAIT );
+        if (!results.isEmpty()) turtle.playAnimation(TurtleAnimation.WAIT);
         return TurtleCommandResult.success();
     }
 }

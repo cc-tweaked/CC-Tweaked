@@ -9,8 +9,7 @@ import javax.annotation.Nonnull;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
-public enum Action
-{
+public enum Action {
     ALLOW,
     DENY;
 
@@ -19,8 +18,7 @@ public enum Action
     );
 
     @Nonnull
-    public PartialOptions toPartial()
-    {
+    public PartialOptions toPartial() {
         return partial;
     }
 }

@@ -14,52 +14,44 @@ import net.minecraftforge.common.util.NonNullConsumer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public final class CapabilityUtil
-{
-    private CapabilityUtil()
-    {
+public final class CapabilityUtil {
+    private CapabilityUtil() {
     }
 
     @Nullable
-    public static <T> LazyOptional<T> invalidate( @Nullable LazyOptional<T> cap )
-    {
-        if( cap != null ) cap.invalidate();
+    public static <T> LazyOptional<T> invalidate(@Nullable LazyOptional<T> cap) {
+        if (cap != null) cap.invalidate();
         return null;
     }
 
-    public static <T> void invalidate( @Nullable LazyOptional<T>[] caps )
-    {
-        if( caps == null ) return;
+    public static <T> void invalidate(@Nullable LazyOptional<T>[] caps) {
+        if (caps == null) return;
 
-        for( int i = 0; i < caps.length; i++ )
-        {
-            LazyOptional<T> cap = caps[i];
-            if( cap != null ) cap.invalidate();
+        for (var i = 0; i < caps.length; i++) {
+            var cap = caps[i];
+            if (cap != null) cap.invalidate();
             caps[i] = null;
         }
     }
 
-    public static <T> void addListener( LazyOptional<T> p, NonNullConsumer<? super LazyOptional<T>> invalidate )
-    {
+    public static <T> void addListener(LazyOptional<T> p, NonNullConsumer<? super LazyOptional<T>> invalidate) {
         // We can make this safe with invalidate::accept, but then we're allocating it's just kind of absurd.
-        @SuppressWarnings( "unchecked" )
-        NonNullConsumer<LazyOptional<T>> safeInvalidate = (NonNullConsumer<LazyOptional<T>>) invalidate;
-        p.addListener( safeInvalidate );
+        @SuppressWarnings("unchecked")
+        var safeInvalidate = (NonNullConsumer<LazyOptional<T>>) invalidate;
+        p.addListener(safeInvalidate);
     }
 
     @Nullable
-    public static <T> T unwrap( LazyOptional<T> p, NonNullConsumer<? super LazyOptional<T>> invalidate )
-    {
-        if( !p.isPresent() ) return null;
+    public static <T> T unwrap(LazyOptional<T> p, NonNullConsumer<? super LazyOptional<T>> invalidate) {
+        if (!p.isPresent()) return null;
 
-        addListener( p, invalidate );
-        return p.orElseThrow( NullPointerException::new );
+        addListener(p, invalidate);
+        return p.orElseThrow(NullPointerException::new);
     }
 
     @Nullable
-    public static <T> T unwrapUnsafe( LazyOptional<T> p )
-    {
-        return !p.isPresent() ? null : p.orElseThrow( NullPointerException::new );
+    public static <T> T unwrapUnsafe(LazyOptional<T> p) {
+        return !p.isPresent() ? null : p.orElseThrow(NullPointerException::new);
     }
 
     /**
@@ -73,9 +65,8 @@ public final class CapabilityUtil
      * @return The extracted capability, if present.
      */
     @Nonnull
-    public static <T> LazyOptional<T> getCapability( ICapabilityProvider provider, Capability<T> capability, Direction side )
-    {
-        LazyOptional<T> cap = provider.getCapability( capability );
-        return cap.isPresent() ? cap : provider.getCapability( capability, side );
+    public static <T> LazyOptional<T> getCapability(ICapabilityProvider provider, Capability<T> capability, Direction side) {
+        var cap = provider.getCapability(capability);
+        return cap.isPresent() ? cap : provider.getCapability(capability, side);
     }
 }

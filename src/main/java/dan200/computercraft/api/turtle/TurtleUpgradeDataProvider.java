@@ -29,13 +29,11 @@ import java.util.function.Consumer;
  * @see GatherDataEvent To register your data provider
  * @see TurtleUpgradeSerialiser
  */
-public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITurtleUpgrade, TurtleUpgradeSerialiser<?>>
-{
-    private static final ResourceLocation TOOL_ID = new ResourceLocation( ComputerCraftAPI.MOD_ID, "tool" );
+public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITurtleUpgrade, TurtleUpgradeSerialiser<?>> {
+    private static final ResourceLocation TOOL_ID = new ResourceLocation(ComputerCraftAPI.MOD_ID, "tool");
 
-    public TurtleUpgradeDataProvider( DataGenerator generator )
-    {
-        super( generator, "Turtle Upgrades", "computercraft/turtle_upgrades", TurtleUpgradeSerialiser.REGISTRY_ID );
+    public TurtleUpgradeDataProvider(DataGenerator generator) {
+        super(generator, "Turtle Upgrades", "computercraft/turtle_upgrades", TurtleUpgradeSerialiser.REGISTRY_ID);
     }
 
     /**
@@ -47,9 +45,8 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
      * @return A tool builder,
      */
     @Nonnull
-    public final ToolBuilder tool( @Nonnull ResourceLocation id, @Nonnull Item item )
-    {
-        return new ToolBuilder( id, existingSerialiser( TOOL_ID ), item );
+    public final ToolBuilder tool(@Nonnull ResourceLocation id, @Nonnull Item item) {
+        return new ToolBuilder(id, existingSerialiser(TOOL_ID), item);
     }
 
     /**
@@ -57,8 +54,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
      *
      * @see #tool(ResourceLocation, Item)
      */
-    public static class ToolBuilder
-    {
+    public static class ToolBuilder {
         private final ResourceLocation id;
         private final TurtleUpgradeSerialiser<?> serialiser;
         private final Item toolItem;
@@ -67,8 +63,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
         private Float damageMultiplier = null;
         private TagKey<Block> breakable;
 
-        ToolBuilder( ResourceLocation id, TurtleUpgradeSerialiser<?> serialiser, Item toolItem )
-        {
+        ToolBuilder(ResourceLocation id, TurtleUpgradeSerialiser<?> serialiser, Item toolItem) {
             this.id = id;
             this.serialiser = serialiser;
             this.toolItem = toolItem;
@@ -82,8 +77,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
          * @return The tool builder, for further use.
          */
         @Nonnull
-        public ToolBuilder adjective( @Nonnull String adjective )
-        {
+        public ToolBuilder adjective(@Nonnull String adjective) {
             this.adjective = adjective;
             return this;
         }
@@ -96,8 +90,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
          * @return The tool builder, for further use.
          */
         @Nonnull
-        public ToolBuilder craftingItem( @Nonnull Item craftingItem )
-        {
+        public ToolBuilder craftingItem(@Nonnull Item craftingItem) {
             this.craftingItem = craftingItem;
             return this;
         }
@@ -109,8 +102,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
          * @param damageMultiplier The damage multiplier.
          * @return The tool builder, for futher use.
          */
-        public ToolBuilder damageMultiplier( float damageMultiplier )
-        {
+        public ToolBuilder damageMultiplier(float damageMultiplier) {
             this.damageMultiplier = damageMultiplier;
             return this;
         }
@@ -124,8 +116,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
          * @return The tool builder, for further use.
          * @see ComputerCraftTags.Blocks
          */
-        public ToolBuilder breakable( @Nonnull TagKey<Block> breakable )
-        {
+        public ToolBuilder breakable(@Nonnull TagKey<Block> breakable) {
             this.breakable = breakable;
             return this;
         }
@@ -135,18 +126,16 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
          *
          * @param add The callback given to {@link #addUpgrades(Consumer)}.
          */
-        public void add( @Nonnull Consumer<Upgrade<TurtleUpgradeSerialiser<?>>> add )
-        {
-            add.accept( new Upgrade<>( id, serialiser, s -> {
-                s.addProperty( "item", ForgeRegistries.ITEMS.getKey( toolItem ).toString() );
-                if( adjective != null ) s.addProperty( "adjective", adjective );
-                if( craftingItem != null )
-                {
-                    s.addProperty( "craftItem", ForgeRegistries.ITEMS.getKey( craftingItem ).toString() );
+        public void add(@Nonnull Consumer<Upgrade<TurtleUpgradeSerialiser<?>>> add) {
+            add.accept(new Upgrade<>(id, serialiser, s -> {
+                s.addProperty("item", ForgeRegistries.ITEMS.getKey(toolItem).toString());
+                if (adjective != null) s.addProperty("adjective", adjective);
+                if (craftingItem != null) {
+                    s.addProperty("craftItem", ForgeRegistries.ITEMS.getKey(craftingItem).toString());
                 }
-                if( damageMultiplier != null ) s.addProperty( "damageMultiplier", damageMultiplier );
-                if( breakable != null ) s.addProperty( "breakable", breakable.location().toString() );
-            } ) );
+                if (damageMultiplier != null) s.addProperty("damageMultiplier", damageMultiplier);
+                if (breakable != null) s.addProperty("breakable", breakable.location().toString());
+            }));
         }
     }
 }

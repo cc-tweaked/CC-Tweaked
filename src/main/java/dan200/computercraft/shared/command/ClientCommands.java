@@ -22,41 +22,34 @@ import java.io.File;
  * <p>
  * Simply hooks into client chat messages and intercepts matching strings.
  */
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
-public final class ClientCommands
-{
+@Mod.EventBusSubscriber(modid = ComputerCraft.MOD_ID, value = Dist.CLIENT)
+public final class ClientCommands {
     public static final String OPEN_COMPUTER = "/computercraft open-computer ";
 
-    private ClientCommands()
-    {
+    private ClientCommands() {
     }
 
     @SubscribeEvent
-    public static void onClientSendMessage( ClientChatEvent event )
-    {
+    public static void onClientSendMessage(ClientChatEvent event) {
         // Emulate the command on the client side
-        if( event.getMessage().startsWith( OPEN_COMPUTER ) )
-        {
+        if (event.getMessage().startsWith(OPEN_COMPUTER)) {
             MinecraftServer server = Minecraft.getInstance().getSingleplayerServer();
-            if( server == null ) return;
+            if (server == null) return;
 
-            event.setCanceled( true );
+            event.setCanceled(true);
 
-            String idStr = event.getMessage().substring( OPEN_COMPUTER.length() ).trim();
+            var idStr = event.getMessage().substring(OPEN_COMPUTER.length()).trim();
             int id;
-            try
-            {
-                id = Integer.parseInt( idStr );
-            }
-            catch( NumberFormatException ignore )
-            {
+            try {
+                id = Integer.parseInt(idStr);
+            } catch (NumberFormatException ignore) {
                 return;
             }
 
-            File file = new File( ServerContext.get( server ).storageDir().toFile(), "computer/" + id );
-            if( !file.isDirectory() ) return;
+            var file = new File(ServerContext.get(server).storageDir().toFile(), "computer/" + id);
+            if (!file.isDirectory()) return;
 
-            Util.getPlatform().openFile( file );
+            Util.getPlatform().openFile(file);
         }
     }
 

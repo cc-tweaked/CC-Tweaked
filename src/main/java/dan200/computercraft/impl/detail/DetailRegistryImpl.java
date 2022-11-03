@@ -15,41 +15,36 @@ import java.util.*;
  *
  * @param <T> The type of object that this registry provides details for.
  */
-public class DetailRegistryImpl<T> implements DetailRegistry<T>
-{
+public class DetailRegistryImpl<T> implements DetailRegistry<T> {
     private final Collection<IDetailProvider<T>> providers = new ArrayList<>();
     private final IDetailProvider<T> basic;
 
-    public DetailRegistryImpl( IDetailProvider<T> basic )
-    {
+    public DetailRegistryImpl(IDetailProvider<T> basic) {
         this.basic = basic;
-        providers.add( basic );
+        providers.add(basic);
     }
 
     @Override
-    public synchronized void addProvider( IDetailProvider<T> provider )
-    {
-        Objects.requireNonNull( provider, "provider cannot be null" );
-        if( !providers.contains( provider ) ) providers.add( provider );
+    public synchronized void addProvider(IDetailProvider<T> provider) {
+        Objects.requireNonNull(provider, "provider cannot be null");
+        if (!providers.contains(provider)) providers.add(provider);
     }
 
     @Override
-    public Map<String, Object> getBasicDetails( T object )
-    {
-        Objects.requireNonNull( object, "object cannot be null" );
+    public Map<String, Object> getBasicDetails(T object) {
+        Objects.requireNonNull(object, "object cannot be null");
 
-        Map<String, Object> map = new HashMap<>( 4 );
-        basic.provideDetails( map, object );
+        Map<String, Object> map = new HashMap<>(4);
+        basic.provideDetails(map, object);
         return map;
     }
 
     @Override
-    public Map<String, Object> getDetails( T object )
-    {
-        Objects.requireNonNull( object, "object cannot be null" );
+    public Map<String, Object> getDetails(T object) {
+        Objects.requireNonNull(object, "object cannot be null");
 
         Map<String, Object> map = new HashMap<>();
-        for( IDetailProvider<T> provider : providers ) provider.provideDetails( map, object );
+        for (var provider : providers) provider.provideDetails(map, object);
         return map;
     }
 }

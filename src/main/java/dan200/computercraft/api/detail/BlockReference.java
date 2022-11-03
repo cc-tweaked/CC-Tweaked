@@ -26,10 +26,8 @@ public record BlockReference(
     @Nonnull BlockPos pos,
     @Nonnull BlockState state,
     @Nullable BlockEntity blockEntity
-)
-{
-    public BlockReference( Level level, BlockPos pos )
-    {
-        this( level, pos, level.getBlockState( pos ), level.getBlockEntity( pos ) );
+) {
+    public BlockReference(Level level, BlockPos pos) {
+        this(level, pos, level.getBlockState(pos), level.getBlockEntity(pos));
     }
 }

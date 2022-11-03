@@ -23,34 +23,29 @@ import java.util.function.BiFunction;
  *
  * @param <T> The upgrade that this class can serialise and deserialise.
  */
-public abstract class SerialiserWithCraftingItem<T extends IUpgradeBase> implements UpgradeSerialiser<T>
-{
+public abstract class SerialiserWithCraftingItem<T extends IUpgradeBase> implements UpgradeSerialiser<T> {
     private final BiFunction<ResourceLocation, ItemStack, T> factory;
 
-    protected SerialiserWithCraftingItem( BiFunction<ResourceLocation, ItemStack, T> factory )
-    {
+    protected SerialiserWithCraftingItem(BiFunction<ResourceLocation, ItemStack, T> factory) {
         this.factory = factory;
     }
 
     @Nonnull
     @Override
-    public final T fromJson( @Nonnull ResourceLocation id, @Nonnull JsonObject object )
-    {
-        var item = GsonHelper.getAsItem( object, "item" );
-        return factory.apply( id, new ItemStack( item ) );
+    public final T fromJson(@Nonnull ResourceLocation id, @Nonnull JsonObject object) {
+        var item = GsonHelper.getAsItem(object, "item");
+        return factory.apply(id, new ItemStack(item));
     }
 
     @Nonnull
     @Override
-    public final T fromNetwork( @Nonnull ResourceLocation id, @Nonnull FriendlyByteBuf buffer )
-    {
-        ItemStack item = buffer.readItem();
-        return factory.apply( id, item );
+    public final T fromNetwork(@Nonnull ResourceLocation id, @Nonnull FriendlyByteBuf buffer) {
+        var item = buffer.readItem();
+        return factory.apply(id, item);
     }
 
     @Override
-    public final void toNetwork( @Nonnull FriendlyByteBuf buffer, @Nonnull T upgrade )
-    {
-        buffer.writeItem( upgrade.getCraftingItem() );
+    public final void toNetwork(@Nonnull FriendlyByteBuf buffer, @Nonnull T upgrade) {
+        buffer.writeItem(upgrade.getCraftingItem());
     }
 }

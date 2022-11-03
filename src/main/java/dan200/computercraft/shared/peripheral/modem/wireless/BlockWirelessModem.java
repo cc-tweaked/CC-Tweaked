@@ -35,83 +35,73 @@ import javax.annotation.Nullable;
 import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
 import static dan200.computercraft.shared.util.WaterloggableHelpers.getFluidStateForPlacement;
 
-public class BlockWirelessModem extends BlockGeneric implements SimpleWaterloggedBlock
-{
+public class BlockWirelessModem extends BlockGeneric implements SimpleWaterloggedBlock {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
-    public static final BooleanProperty ON = BooleanProperty.create( "on" );
+    public static final BooleanProperty ON = BooleanProperty.create("on");
 
-    public BlockWirelessModem( Properties settings, RegistryObject<? extends BlockEntityType<? extends TileWirelessModem>> type )
-    {
-        super( settings, type );
-        registerDefaultState( getStateDefinition().any()
-            .setValue( FACING, Direction.NORTH )
-            .setValue( ON, false )
-            .setValue( WATERLOGGED, false ) );
+    public BlockWirelessModem(Properties settings, RegistryObject<? extends BlockEntityType<? extends TileWirelessModem>> type) {
+        super(settings, type);
+        registerDefaultState(getStateDefinition().any()
+            .setValue(FACING, Direction.NORTH)
+            .setValue(ON, false)
+            .setValue(WATERLOGGED, false));
     }
 
     @Override
-    protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> builder )
-    {
-        builder.add( FACING, ON, WATERLOGGED );
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public VoxelShape getShape( BlockState blockState, @Nonnull BlockGetter blockView, @Nonnull BlockPos blockPos, @Nonnull CollisionContext context )
-    {
-        return ModemShapes.getBounds( blockState.getValue( FACING ) );
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING, ON, WATERLOGGED);
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public FluidState getFluidState( @Nonnull BlockState state )
-    {
-        return WaterloggableHelpers.getFluidState( state );
+    public VoxelShape getShape(BlockState blockState, @Nonnull BlockGetter blockView, @Nonnull BlockPos blockPos, @Nonnull CollisionContext context) {
+        return ModemShapes.getBounds(blockState.getValue(FACING));
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public BlockState updateShape( @Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull LevelAccessor world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos )
-    {
-        WaterloggableHelpers.updateShape( state, world, pos );
-        return side == state.getValue( FACING ) && !state.canSurvive( world, pos )
+    public FluidState getFluidState(@Nonnull BlockState state) {
+        return WaterloggableHelpers.getFluidState(state);
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public BlockState updateShape(@Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull LevelAccessor world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos) {
+        WaterloggableHelpers.updateShape(state, world, pos);
+        return side == state.getValue(FACING) && !state.canSurvive(world, pos)
             ? state.getFluidState().createLegacyBlock()
             : state;
     }
 
     @Override
     @Deprecated
-    public boolean canSurvive( BlockState state, @Nonnull LevelReader world, BlockPos pos )
-    {
-        Direction facing = state.getValue( FACING );
-        return canSupportCenter( world, pos.relative( facing ), facing.getOpposite() );
+    public boolean canSurvive(BlockState state, @Nonnull LevelReader world, BlockPos pos) {
+        var facing = state.getValue(FACING);
+        return canSupportCenter(world, pos.relative(facing), facing.getOpposite());
     }
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement( BlockPlaceContext placement )
-    {
+    public BlockState getStateForPlacement(BlockPlaceContext placement) {
         return defaultBlockState()
-            .setValue( FACING, placement.getClickedFace().getOpposite() )
-            .setValue( WATERLOGGED, getFluidStateForPlacement( placement ) );
+            .setValue(FACING, placement.getClickedFace().getOpposite())
+            .setValue(WATERLOGGED, getFluidStateForPlacement(placement));
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public BlockState mirror( BlockState state, Mirror mirrorIn )
-    {
-        return state.rotate( mirrorIn.getRotation( state.getValue( FACING ) ) );
+    public BlockState mirror(BlockState state, Mirror mirrorIn) {
+        return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public BlockState rotate( BlockState state, Rotation rot )
-    {
-        return state.setValue( FACING, rot.rotate( state.getValue( FACING ) ) );
+    public BlockState rotate(BlockState state, Rotation rot) {
+        return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
     }
 }

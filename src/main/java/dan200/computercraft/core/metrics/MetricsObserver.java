@@ -17,14 +17,13 @@ import dan200.computercraft.core.computer.ComputerEnvironment;
  * @see ComputerEnvironment#getMetrics()
  * @see Metrics Built-in metrics which will be reported.
  */
-public interface MetricsObserver
-{
+public interface MetricsObserver {
     /**
      * Increment a counter by 1.
      *
      * @param counter The counter to observe.
      */
-    void observe( Metric.Counter counter );
+    void observe(Metric.Counter counter);
 
     /**
      * Observe a single instance of an event.
@@ -32,5 +31,5 @@ public interface MetricsObserver
      * @param event The event to observe.
      * @param value The value corresponding to this event.
      */
-    void observe( Metric.Event event, long value );
+    void observe(Metric.Event event, long value);
 }

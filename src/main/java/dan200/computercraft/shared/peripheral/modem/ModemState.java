@@ -11,77 +11,62 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ModemState
-{
+public class ModemState {
     private final Runnable onChanged;
-    private final AtomicBoolean changed = new AtomicBoolean( true );
+    private final AtomicBoolean changed = new AtomicBoolean(true);
 
     private boolean open = false;
     private final IntSet channels = new IntOpenHashSet();
 
-    public ModemState()
-    {
+    public ModemState() {
         onChanged = null;
     }
 
-    public ModemState( Runnable onChanged )
-    {
+    public ModemState(Runnable onChanged) {
         this.onChanged = onChanged;
     }
 
-    private void setOpen( boolean open )
-    {
-        if( this.open == open ) return;
+    private void setOpen(boolean open) {
+        if (this.open == open) return;
         this.open = open;
-        if( !changed.getAndSet( true ) && onChanged != null ) onChanged.run();
+        if (!changed.getAndSet(true) && onChanged != null) onChanged.run();
     }
 
-    public boolean pollChanged()
-    {
-        return changed.getAndSet( false );
+    public boolean pollChanged() {
+        return changed.getAndSet(false);
     }
 
-    public boolean isOpen()
-    {
+    public boolean isOpen() {
         return open;
     }
 
-    public boolean isOpen( int channel )
-    {
-        synchronized( channels )
-        {
-            return channels.contains( channel );
+    public boolean isOpen(int channel) {
+        synchronized (channels) {
+            return channels.contains(channel);
         }
     }
 
-    public void open( int channel ) throws LuaException
-    {
-        synchronized( channels )
-        {
-            if( !channels.contains( channel ) )
-            {
-                if( channels.size() >= 128 ) throw new LuaException( "Too many open channels" );
-                channels.add( channel );
-                setOpen( true );
+    public void open(int channel) throws LuaException {
+        synchronized (channels) {
+            if (!channels.contains(channel)) {
+                if (channels.size() >= 128) throw new LuaException("Too many open channels");
+                channels.add(channel);
+                setOpen(true);
             }
         }
     }
 
-    public void close( int channel )
-    {
-        synchronized( channels )
-        {
-            channels.remove( channel );
-            if( channels.isEmpty() ) setOpen( false );
+    public void close(int channel) {
+        synchronized (channels) {
+            channels.remove(channel);
+            if (channels.isEmpty()) setOpen(false);
         }
     }
 
-    public void closeAll()
-    {
-        synchronized( channels )
-        {
+    public void closeAll() {
+        synchronized (channels) {
             channels.clear();
-            setOpen( false );
+            setOpen(false);
         }
     }
 }

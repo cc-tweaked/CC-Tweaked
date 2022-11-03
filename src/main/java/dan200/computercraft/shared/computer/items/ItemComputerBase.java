@@ -22,68 +22,54 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class ItemComputerBase extends BlockItem implements IComputerItem, IMedia
-{
+public abstract class ItemComputerBase extends BlockItem implements IComputerItem, IMedia {
     private final ComputerFamily family;
 
-    public ItemComputerBase( BlockComputerBase<?> block, Properties settings )
-    {
-        super( block, settings );
+    public ItemComputerBase(BlockComputerBase<?> block, Properties settings) {
+        super(block, settings);
         family = block.getFamily();
     }
 
     @Override
-    public void appendHoverText( @Nonnull ItemStack stack, @Nullable Level world, @Nonnull List<Component> list, @Nonnull TooltipFlag options )
-    {
-        if( options.isAdvanced() || getLabel( stack ) == null )
-        {
-            int id = getComputerID( stack );
-            if( id >= 0 )
-            {
-                list.add( Component.translatable( "gui.computercraft.tooltip.computer_id", id )
-                    .withStyle( ChatFormatting.GRAY ) );
+    public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level world, @Nonnull List<Component> list, @Nonnull TooltipFlag options) {
+        if (options.isAdvanced() || getLabel(stack) == null) {
+            var id = getComputerID(stack);
+            if (id >= 0) {
+                list.add(Component.translatable("gui.computercraft.tooltip.computer_id", id)
+                    .withStyle(ChatFormatting.GRAY));
             }
         }
     }
 
     @Override
-    public String getLabel( @Nonnull ItemStack stack )
-    {
-        return IComputerItem.super.getLabel( stack );
+    public String getLabel(@Nonnull ItemStack stack) {
+        return IComputerItem.super.getLabel(stack);
     }
 
     @Override
-    public final ComputerFamily getFamily()
-    {
+    public final ComputerFamily getFamily() {
         return family;
     }
 
     // IMedia implementation
 
     @Override
-    public boolean setLabel( @Nonnull ItemStack stack, String label )
-    {
-        if( label != null )
-        {
-            stack.setHoverName( Component.literal( label ) );
-        }
-        else
-        {
+    public boolean setLabel(@Nonnull ItemStack stack, String label) {
+        if (label != null) {
+            stack.setHoverName(Component.literal(label));
+        } else {
             stack.resetHoverName();
         }
         return true;
     }
 
     @Override
-    public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull Level world )
-    {
-        ComputerFamily family = getFamily();
-        if( family != ComputerFamily.COMMAND )
-        {
-            int id = getComputerID( stack );
-            if( id >= 0 )
-            {
-                return ComputerCraftAPI.createSaveDirMount( world, "computer/" + id, ComputerCraft.computerSpaceLimit );
+    public IMount createDataMount(@Nonnull ItemStack stack, @Nonnull Level world) {
+        var family = getFamily();
+        if (family != ComputerFamily.COMMAND) {
+            var id = getComputerID(stack);
+            if (id >= 0) {
+                return ComputerCraftAPI.createSaveDirMount(world, "computer/" + id, ComputerCraft.computerSpaceLimit);
             }
         }
         return null;

@@ -12,8 +12,7 @@ import java.util.function.Function;
 
 import static org.hamcrest.Matchers.contains;
 
-public class CustomMatchers
-{
+public class CustomMatchers {
     /**
      * Assert two lists are equal according to some matcher.
      * <p>
@@ -24,8 +23,7 @@ public class CustomMatchers
      * @param <T>     The type to compare against.
      * @return A matcher which compares against a list of items.
      */
-    public static <T> Matcher<Iterable<? extends T>> containsWith( List<T> items, Function<T, Matcher<? super T>> matcher )
-    {
-        return contains( items.stream().map( matcher ).toList() );
+    public static <T> Matcher<Iterable<? extends T>> containsWith(List<T> items, Function<T, Matcher<? super T>> matcher) {
+        return contains(items.stream().map(matcher).toList());
     }
 }

@@ -7,15 +7,14 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.apis.http.NetworkUtils;
-import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.command.CommandComputerCraft;
+import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.metrics.ComputerMBean;
 import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.UpgradesLoadedMessage;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -41,58 +40,49 @@ import java.util.Set;
  *
  * @see dan200.computercraft.client.ClientHooks For client-specific ones.
  */
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )
-public final class CommonHooks
-{
-    private CommonHooks()
-    {
+@Mod.EventBusSubscriber(modid = ComputerCraft.MOD_ID)
+public final class CommonHooks {
+    private CommonHooks() {
     }
 
     @SubscribeEvent
-    public static void onServerTick( TickEvent.ServerTickEvent event )
-    {
-        if( event.phase == TickEvent.Phase.START )
-        {
-            ServerContext.get( ServerLifecycleHooks.getCurrentServer() ).tick();
+    public static void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase == TickEvent.Phase.START) {
+            ServerContext.get(ServerLifecycleHooks.getCurrentServer()).tick();
         }
     }
 
     @SubscribeEvent
-    public static void onRegisterCommand( RegisterCommandsEvent event )
-    {
-        CommandComputerCraft.register( event.getDispatcher() );
+    public static void onRegisterCommand(RegisterCommandsEvent event) {
+        CommandComputerCraft.register(event.getDispatcher());
     }
 
     @SubscribeEvent
-    public static void onServerStarting( ServerStartingEvent event )
-    {
-        MinecraftServer server = event.getServer();
-        if( server instanceof DedicatedServer dediServer && dediServer.getProperties().enableJmxMonitoring )
-        {
+    public static void onServerStarting(ServerStartingEvent event) {
+        var server = event.getServer();
+        if (server instanceof DedicatedServer dediServer && dediServer.getProperties().enableJmxMonitoring) {
             ComputerMBean.register();
         }
 
         resetState();
-        ServerContext.create( server );
-        ComputerMBean.start( server );
+        ServerContext.create(server);
+        ComputerMBean.start(server);
     }
 
     @SubscribeEvent
-    public static void onServerStopped( ServerStoppedEvent event )
-    {
+    public static void onServerStopped(ServerStoppedEvent event) {
         resetState();
     }
 
-    private static void resetState()
-    {
+    private static void resetState() {
         ServerContext.close();
         WirelessNetwork.resetNetworks();
         NetworkUtils.reset();
     }
 
-    public static final ResourceLocation LOOT_TREASURE_DISK = new ResourceLocation( ComputerCraft.MOD_ID, "treasure_disk" );
+    public static final ResourceLocation LOOT_TREASURE_DISK = new ResourceLocation(ComputerCraft.MOD_ID, "treasure_disk");
 
-    private static final Set<ResourceLocation> TABLES = new HashSet<>( Arrays.asList(
+    private static final Set<ResourceLocation> TABLES = new HashSet<>(Arrays.asList(
         BuiltInLootTables.SIMPLE_DUNGEON,
         BuiltInLootTables.ABANDONED_MINESHAFT,
         BuiltInLootTables.STRONGHOLD_CORRIDOR,
@@ -103,50 +93,42 @@ public final class CommonHooks
         BuiltInLootTables.IGLOO_CHEST,
         BuiltInLootTables.WOODLAND_MANSION,
         BuiltInLootTables.VILLAGE_CARTOGRAPHER
-    ) );
+    ));
 
     @SubscribeEvent
-    public static void lootLoad( LootTableLoadEvent event )
-    {
-        ResourceLocation name = event.getName();
-        if( !name.getNamespace().equals( "minecraft" ) || !TABLES.contains( name ) ) return;
+    public static void lootLoad(LootTableLoadEvent event) {
+        var name = event.getName();
+        if (!name.getNamespace().equals("minecraft") || !TABLES.contains(name)) return;
 
-        event.getTable().addPool( LootPool.lootPool()
-            .add( LootTableReference.lootTableReference( LOOT_TREASURE_DISK ) )
-            .setRolls( ConstantValue.exactly( 1 ) )
-            .name( "computercraft_treasure" )
-            .build() );
+        event.getTable().addPool(LootPool.lootPool()
+            .add(LootTableReference.lootTableReference(LOOT_TREASURE_DISK))
+            .setRolls(ConstantValue.exactly(1))
+            .name("computercraft_treasure")
+            .build());
     }
 
     @SubscribeEvent
-    public static void onAddReloadListeners( AddReloadListenerEvent event )
-    {
-        event.addListener( ResourceMount.RELOAD_LISTENER );
-        event.addListener( TurtleUpgrades.instance() );
-        event.addListener( PocketUpgrades.instance() );
+    public static void onAddReloadListeners(AddReloadListenerEvent event) {
+        event.addListener(ResourceMount.RELOAD_LISTENER);
+        event.addListener(TurtleUpgrades.instance());
+        event.addListener(PocketUpgrades.instance());
     }
 
     @SubscribeEvent
-    public static void onDatapackSync( OnDatapackSyncEvent event )
-    {
+    public static void onDatapackSync(OnDatapackSyncEvent event) {
         var packet = new UpgradesLoadedMessage();
-        if( event.getPlayer() == null )
-        {
-            NetworkHandler.sendToAllPlayers( packet );
-        }
-        else
-        {
-            NetworkHandler.sendToPlayer( event.getPlayer(), packet );
+        if (event.getPlayer() == null) {
+            NetworkHandler.sendToAllPlayers(packet);
+        } else {
+            NetworkHandler.sendToPlayer(event.getPlayer(), packet);
         }
     }
 
     @SubscribeEvent
-    public static void onMissingEntityMappingsEvent( MissingMappingsEvent event )
-    {
-        ResourceLocation id = new ResourceLocation( ComputerCraft.MOD_ID, "turtle_player" );
-        for( var mapping : event.getMappings( ForgeRegistries.BLOCKS.getRegistryKey(), ComputerCraft.MOD_ID ) )
-        {
-            if( mapping.getKey().equals( id ) ) mapping.ignore();
+    public static void onMissingEntityMappingsEvent(MissingMappingsEvent event) {
+        var id = new ResourceLocation(ComputerCraft.MOD_ID, "turtle_player");
+        for (var mapping : event.getMappings(ForgeRegistries.BLOCKS.getRegistryKey(), ComputerCraft.MOD_ID)) {
+            if (mapping.getKey().equals(id)) mapping.ignore();
         }
     }
 }

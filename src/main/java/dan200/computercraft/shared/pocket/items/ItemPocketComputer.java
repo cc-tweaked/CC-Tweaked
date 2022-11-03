@@ -15,7 +15,6 @@ import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.core.ServerComputerRegistry;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
@@ -46,8 +45,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class ItemPocketComputer extends Item implements IComputerItem, IMedia, IColouredItem
-{
+public class ItemPocketComputer extends Item implements IComputerItem, IMedia, IColouredItem {
     private static final String NBT_UPGRADE = "Upgrade";
     private static final String NBT_UPGRADE_INFO = "UpgradeInfo";
     public static final String NBT_LIGHT = "Light";
@@ -58,315 +56,268 @@ public class ItemPocketComputer extends Item implements IComputerItem, IMedia, I
 
     private final ComputerFamily family;
 
-    public ItemPocketComputer( Properties settings, ComputerFamily family )
-    {
-        super( settings );
+    public ItemPocketComputer(Properties settings, ComputerFamily family) {
+        super(settings);
         this.family = family;
     }
 
-    public ItemStack create( int id, String label, int colour, IPocketUpgrade upgrade )
-    {
-        ItemStack result = new ItemStack( this );
-        if( id >= 0 ) result.getOrCreateTag().putInt( NBT_ID, id );
-        if( label != null ) result.setHoverName( Component.literal( label ) );
-        if( upgrade != null ) result.getOrCreateTag().putString( NBT_UPGRADE, upgrade.getUpgradeID().toString() );
-        if( colour != -1 ) result.getOrCreateTag().putInt( NBT_COLOUR, colour );
+    public ItemStack create(int id, String label, int colour, IPocketUpgrade upgrade) {
+        var result = new ItemStack(this);
+        if (id >= 0) result.getOrCreateTag().putInt(NBT_ID, id);
+        if (label != null) result.setHoverName(Component.literal(label));
+        if (upgrade != null) result.getOrCreateTag().putString(NBT_UPGRADE, upgrade.getUpgradeID().toString());
+        if (colour != -1) result.getOrCreateTag().putInt(NBT_COLOUR, colour);
         return result;
     }
 
     @Override
-    public void fillItemCategory( @Nonnull CreativeModeTab group, @Nonnull NonNullList<ItemStack> stacks )
-    {
-        if( !allowedIn( group ) ) return;
-        stacks.add( create( -1, null, -1, null ) );
-        PocketUpgrades.getVanillaUpgrades().map( x -> create( -1, null, -1, x ) ).forEach( stacks::add );
+    public void fillItemCategory(@Nonnull CreativeModeTab group, @Nonnull NonNullList<ItemStack> stacks) {
+        if (!allowedIn(group)) return;
+        stacks.add(create(-1, null, -1, null));
+        PocketUpgrades.getVanillaUpgrades().map(x -> create(-1, null, -1, x)).forEach(stacks::add);
     }
 
-    private boolean tick( @Nonnull ItemStack stack, @Nonnull Level world, @Nonnull Entity entity, @Nonnull PocketServerComputer computer )
-    {
-        IPocketUpgrade upgrade = getUpgrade( stack );
+    private boolean tick(@Nonnull ItemStack stack, @Nonnull Level world, @Nonnull Entity entity, @Nonnull PocketServerComputer computer) {
+        var upgrade = getUpgrade(stack);
 
-        computer.setLevel( (ServerLevel) world );
-        computer.updateValues( entity, stack, upgrade );
+        computer.setLevel((ServerLevel) world);
+        computer.updateValues(entity, stack, upgrade);
 
-        boolean changed = false;
+        var changed = false;
 
         // Sync ID
-        int id = computer.getID();
-        if( id != getComputerID( stack ) )
-        {
+        var id = computer.getID();
+        if (id != getComputerID(stack)) {
             changed = true;
-            setComputerID( stack, id );
+            setComputerID(stack, id);
         }
 
         // Sync label
-        String label = computer.getLabel();
-        if( !Objects.equal( label, getLabel( stack ) ) )
-        {
+        var label = computer.getLabel();
+        if (!Objects.equal(label, getLabel(stack))) {
             changed = true;
-            setLabel( stack, label );
+            setLabel(stack, label);
         }
 
-        boolean on = computer.isOn();
-        if( on != isMarkedOn( stack ) )
-        {
+        var on = computer.isOn();
+        if (on != isMarkedOn(stack)) {
             changed = true;
-            stack.getOrCreateTag().putBoolean( NBT_ON, on );
+            stack.getOrCreateTag().putBoolean(NBT_ON, on);
         }
 
         // Update pocket upgrade
-        if( upgrade != null ) upgrade.update( computer, computer.getPeripheral( ComputerSide.BACK ) );
+        if (upgrade != null) upgrade.update(computer, computer.getPeripheral(ComputerSide.BACK));
 
         return changed;
     }
 
     @Override
-    public void inventoryTick( @Nonnull ItemStack stack, Level world, @Nonnull Entity entity, int slotNum, boolean selected )
-    {
-        if( world.isClientSide ) return;
+    public void inventoryTick(@Nonnull ItemStack stack, Level world, @Nonnull Entity entity, int slotNum, boolean selected) {
+        if (world.isClientSide) return;
         Container inventory = entity instanceof Player player ? player.getInventory() : null;
-        PocketServerComputer computer = createServerComputer( (ServerLevel) world, entity, inventory, stack );
+        var computer = createServerComputer((ServerLevel) world, entity, inventory, stack);
         computer.keepAlive();
 
-        boolean changed = tick( stack, world, entity, computer );
-        if( changed && inventory != null ) inventory.setChanged();
+        var changed = tick(stack, world, entity, computer);
+        if (changed && inventory != null) inventory.setChanged();
     }
 
     @Override
-    public boolean onEntityItemUpdate( ItemStack stack, ItemEntity entity )
-    {
-        if( entity.level.isClientSide ) return false;
+    public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
+        if (entity.level.isClientSide) return false;
 
-        PocketServerComputer computer = getServerComputer( entity.level.getServer(), stack );
-        if( computer != null && tick( stack, entity.level, entity, computer ) ) entity.setItem( stack.copy() );
+        var computer = getServerComputer(entity.level.getServer(), stack);
+        if (computer != null && tick(stack, entity.level, entity, computer)) entity.setItem(stack.copy());
         return false;
     }
 
     @Nonnull
     @Override
-    public InteractionResultHolder<ItemStack> use( Level world, Player player, @Nonnull InteractionHand hand )
-    {
-        ItemStack stack = player.getItemInHand( hand );
-        if( !world.isClientSide )
-        {
-            PocketServerComputer computer = createServerComputer( (ServerLevel) world, player, player.getInventory(), stack );
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, @Nonnull InteractionHand hand) {
+        var stack = player.getItemInHand(hand);
+        if (!world.isClientSide) {
+            var computer = createServerComputer((ServerLevel) world, player, player.getInventory(), stack);
             computer.turnOn();
 
-            boolean stop = false;
-            IPocketUpgrade upgrade = getUpgrade( stack );
-            if( upgrade != null )
-            {
-                computer.updateValues( player, stack, upgrade );
-                stop = upgrade.onRightClick( world, computer, computer.getPeripheral( ComputerSide.BACK ) );
+            var stop = false;
+            var upgrade = getUpgrade(stack);
+            if (upgrade != null) {
+                computer.updateValues(player, stack, upgrade);
+                stop = upgrade.onRightClick(world, computer, computer.getPeripheral(ComputerSide.BACK));
             }
 
-            if( !stop )
-            {
-                boolean isTypingOnly = hand == InteractionHand.OFF_HAND;
-                new ComputerContainerData( computer, stack ).open( player, new PocketComputerMenuProvider( computer, stack, this, hand, isTypingOnly ) );
+            if (!stop) {
+                var isTypingOnly = hand == InteractionHand.OFF_HAND;
+                new ComputerContainerData(computer, stack).open(player, new PocketComputerMenuProvider(computer, stack, this, hand, isTypingOnly));
             }
         }
-        return new InteractionResultHolder<>( InteractionResult.SUCCESS, stack );
+        return new InteractionResultHolder<>(InteractionResult.SUCCESS, stack);
     }
 
     @Nonnull
     @Override
-    public Component getName( @Nonnull ItemStack stack )
-    {
-        String baseString = getDescriptionId( stack );
-        IPocketUpgrade upgrade = getUpgrade( stack );
-        if( upgrade != null )
-        {
-            return Component.translatable( baseString + ".upgraded",
-                Component.translatable( upgrade.getUnlocalisedAdjective() )
+    public Component getName(@Nonnull ItemStack stack) {
+        var baseString = getDescriptionId(stack);
+        var upgrade = getUpgrade(stack);
+        if (upgrade != null) {
+            return Component.translatable(baseString + ".upgraded",
+                Component.translatable(upgrade.getUnlocalisedAdjective())
             );
-        }
-        else
-        {
-            return super.getName( stack );
+        } else {
+            return super.getName(stack);
         }
     }
 
 
     @Override
-    public void appendHoverText( @Nonnull ItemStack stack, @Nullable Level world, @Nonnull List<Component> list, TooltipFlag flag )
-    {
-        if( flag.isAdvanced() || getLabel( stack ) == null )
-        {
-            int id = getComputerID( stack );
-            if( id >= 0 )
-            {
-                list.add( Component.translatable( "gui.computercraft.tooltip.computer_id", id )
-                    .withStyle( ChatFormatting.GRAY ) );
+    public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level world, @Nonnull List<Component> list, TooltipFlag flag) {
+        if (flag.isAdvanced() || getLabel(stack) == null) {
+            var id = getComputerID(stack);
+            if (id >= 0) {
+                list.add(Component.translatable("gui.computercraft.tooltip.computer_id", id)
+                    .withStyle(ChatFormatting.GRAY));
             }
         }
     }
 
     @Nullable
     @Override
-    public String getCreatorModId( ItemStack stack )
-    {
-        IPocketUpgrade upgrade = getUpgrade( stack );
-        if( upgrade != null )
-        {
+    public String getCreatorModId(ItemStack stack) {
+        var upgrade = getUpgrade(stack);
+        if (upgrade != null) {
             // If we're a non-vanilla, non-CC upgrade then return whichever mod this upgrade
             // belongs to.
-            String mod = PocketUpgrades.instance().getOwner( upgrade );
-            if( mod != null && !mod.equals( ComputerCraft.MOD_ID ) ) return mod;
+            var mod = PocketUpgrades.instance().getOwner(upgrade);
+            if (mod != null && !mod.equals(ComputerCraft.MOD_ID)) return mod;
         }
 
-        return super.getCreatorModId( stack );
+        return super.getCreatorModId(stack);
     }
 
     @Nonnull
-    public PocketServerComputer createServerComputer( ServerLevel world, Entity entity, @Nullable Container inventory, @Nonnull ItemStack stack )
-    {
-        if( world.isClientSide ) throw new IllegalStateException( "Cannot call createServerComputer on the client" );
+    public PocketServerComputer createServerComputer(ServerLevel world, Entity entity, @Nullable Container inventory, @Nonnull ItemStack stack) {
+        if (world.isClientSide) throw new IllegalStateException("Cannot call createServerComputer on the client");
 
-        int sessionID = getSessionID( stack );
+        var sessionID = getSessionID(stack);
 
-        ServerComputerRegistry registry = ServerContext.get( world.getServer() ).registry();
-        PocketServerComputer computer = (PocketServerComputer) registry.get( sessionID, getInstanceID( stack ) );
-        if( computer == null )
-        {
-            int computerID = getComputerID( stack );
-            if( computerID < 0 )
-            {
-                computerID = ComputerCraftAPI.createUniqueNumberedSaveDir( world, IDAssigner.COMPUTER );
-                setComputerID( stack, computerID );
+        var registry = ServerContext.get(world.getServer()).registry();
+        var computer = (PocketServerComputer) registry.get(sessionID, getInstanceID(stack));
+        if (computer == null) {
+            var computerID = getComputerID(stack);
+            if (computerID < 0) {
+                computerID = ComputerCraftAPI.createUniqueNumberedSaveDir(world, IDAssigner.COMPUTER);
+                setComputerID(stack, computerID);
             }
 
-            computer = new PocketServerComputer( world, getComputerID( stack ), getLabel( stack ), getFamily() );
+            computer = new PocketServerComputer(world, getComputerID(stack), getLabel(stack), getFamily());
 
-            setInstanceID( stack, computer.register() );
-            setSessionID( stack, registry.getSessionID() );
+            setInstanceID(stack, computer.register());
+            setSessionID(stack, registry.getSessionID());
 
-            computer.updateValues( entity, stack, getUpgrade( stack ) );
-            computer.addAPI( new PocketAPI( computer ) );
+            computer.updateValues(entity, stack, getUpgrade(stack));
+            computer.addAPI(new PocketAPI(computer));
 
             // Only turn on when initially creating the computer, rather than each tick.
-            if( isMarkedOn( stack ) && entity instanceof Player ) computer.turnOn();
+            if (isMarkedOn(stack) && entity instanceof Player) computer.turnOn();
 
-            if( inventory != null ) inventory.setChanged();
+            if (inventory != null) inventory.setChanged();
         }
-        computer.setLevel( world );
+        computer.setLevel(world);
         return computer;
     }
 
     @Nullable
-    public static PocketServerComputer getServerComputer( MinecraftServer server, @Nonnull ItemStack stack )
-    {
-        return (PocketServerComputer) ServerContext.get( server ).registry().get( getSessionID( stack ), getInstanceID( stack ) );
+    public static PocketServerComputer getServerComputer(MinecraftServer server, @Nonnull ItemStack stack) {
+        return (PocketServerComputer) ServerContext.get(server).registry().get(getSessionID(stack), getInstanceID(stack));
     }
 
     // IComputerItem implementation
 
-    private static void setComputerID( @Nonnull ItemStack stack, int computerID )
-    {
-        stack.getOrCreateTag().putInt( NBT_ID, computerID );
+    private static void setComputerID(@Nonnull ItemStack stack, int computerID) {
+        stack.getOrCreateTag().putInt(NBT_ID, computerID);
     }
 
     @Override
-    public String getLabel( @Nonnull ItemStack stack )
-    {
-        return IComputerItem.super.getLabel( stack );
+    public String getLabel(@Nonnull ItemStack stack) {
+        return IComputerItem.super.getLabel(stack);
     }
 
     @Override
-    public ComputerFamily getFamily()
-    {
+    public ComputerFamily getFamily() {
         return family;
     }
 
     @Override
-    public ItemStack withFamily( @Nonnull ItemStack stack, @Nonnull ComputerFamily family )
-    {
+    public ItemStack withFamily(@Nonnull ItemStack stack, @Nonnull ComputerFamily family) {
         return PocketComputerItemFactory.create(
-            getComputerID( stack ), getLabel( stack ), getColour( stack ),
-            family, getUpgrade( stack )
+            getComputerID(stack), getLabel(stack), getColour(stack),
+            family, getUpgrade(stack)
         );
     }
 
     // IMedia
 
     @Override
-    public boolean setLabel( @Nonnull ItemStack stack, String label )
-    {
-        if( label != null )
-        {
-            stack.setHoverName( Component.literal( label ) );
-        }
-        else
-        {
+    public boolean setLabel(@Nonnull ItemStack stack, String label) {
+        if (label != null) {
+            stack.setHoverName(Component.literal(label));
+        } else {
             stack.resetHoverName();
         }
         return true;
     }
 
     @Override
-    public IMount createDataMount( @Nonnull ItemStack stack, @Nonnull Level world )
-    {
-        int id = getComputerID( stack );
-        if( id >= 0 )
-        {
-            return ComputerCraftAPI.createSaveDirMount( world, "computer/" + id, ComputerCraft.computerSpaceLimit );
+    public IMount createDataMount(@Nonnull ItemStack stack, @Nonnull Level world) {
+        var id = getComputerID(stack);
+        if (id >= 0) {
+            return ComputerCraftAPI.createSaveDirMount(world, "computer/" + id, ComputerCraft.computerSpaceLimit);
         }
         return null;
     }
 
-    public static int getInstanceID( @Nonnull ItemStack stack )
-    {
-        CompoundTag nbt = stack.getTag();
-        return nbt != null && nbt.contains( NBT_INSTANCE ) ? nbt.getInt( NBT_INSTANCE ) : -1;
+    public static int getInstanceID(@Nonnull ItemStack stack) {
+        var nbt = stack.getTag();
+        return nbt != null && nbt.contains(NBT_INSTANCE) ? nbt.getInt(NBT_INSTANCE) : -1;
     }
 
-    private static void setInstanceID( @Nonnull ItemStack stack, int instanceID )
-    {
-        stack.getOrCreateTag().putInt( NBT_INSTANCE, instanceID );
+    private static void setInstanceID(@Nonnull ItemStack stack, int instanceID) {
+        stack.getOrCreateTag().putInt(NBT_INSTANCE, instanceID);
     }
 
-    private static int getSessionID( @Nonnull ItemStack stack )
-    {
-        CompoundTag nbt = stack.getTag();
-        return nbt != null && nbt.contains( NBT_SESSION ) ? nbt.getInt( NBT_SESSION ) : -1;
+    private static int getSessionID(@Nonnull ItemStack stack) {
+        var nbt = stack.getTag();
+        return nbt != null && nbt.contains(NBT_SESSION) ? nbt.getInt(NBT_SESSION) : -1;
     }
 
-    private static void setSessionID( @Nonnull ItemStack stack, int sessionID )
-    {
-        stack.getOrCreateTag().putInt( NBT_SESSION, sessionID );
+    private static void setSessionID(@Nonnull ItemStack stack, int sessionID) {
+        stack.getOrCreateTag().putInt(NBT_SESSION, sessionID);
     }
 
-    private static boolean isMarkedOn( @Nonnull ItemStack stack )
-    {
-        CompoundTag nbt = stack.getTag();
-        return nbt != null && nbt.getBoolean( NBT_ON );
+    private static boolean isMarkedOn(@Nonnull ItemStack stack) {
+        var nbt = stack.getTag();
+        return nbt != null && nbt.getBoolean(NBT_ON);
     }
 
-    public static IPocketUpgrade getUpgrade( @Nonnull ItemStack stack )
-    {
-        CompoundTag compound = stack.getTag();
-        return compound != null && compound.contains( NBT_UPGRADE )
-            ? PocketUpgrades.instance().get( compound.getString( NBT_UPGRADE ) ) : null;
+    public static IPocketUpgrade getUpgrade(@Nonnull ItemStack stack) {
+        var compound = stack.getTag();
+        return compound != null && compound.contains(NBT_UPGRADE)
+            ? PocketUpgrades.instance().get(compound.getString(NBT_UPGRADE)) : null;
     }
 
-    public static void setUpgrade( @Nonnull ItemStack stack, IPocketUpgrade upgrade )
-    {
-        CompoundTag compound = stack.getOrCreateTag();
+    public static void setUpgrade(@Nonnull ItemStack stack, IPocketUpgrade upgrade) {
+        var compound = stack.getOrCreateTag();
 
-        if( upgrade == null )
-        {
-            compound.remove( NBT_UPGRADE );
-        }
-        else
-        {
-            compound.putString( NBT_UPGRADE, upgrade.getUpgradeID().toString() );
+        if (upgrade == null) {
+            compound.remove(NBT_UPGRADE);
+        } else {
+            compound.putString(NBT_UPGRADE, upgrade.getUpgradeID().toString());
         }
 
-        compound.remove( NBT_UPGRADE_INFO );
+        compound.remove(NBT_UPGRADE_INFO);
     }
 
-    public static CompoundTag getUpgradeInfo( @Nonnull ItemStack stack )
-    {
-        return stack.getOrCreateTagElement( NBT_UPGRADE_INFO );
+    public static CompoundTag getUpgradeInfo(@Nonnull ItemStack stack) {
+        return stack.getOrCreateTagElement(NBT_UPGRADE_INFO);
     }
 }

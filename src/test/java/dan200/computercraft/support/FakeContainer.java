@@ -11,23 +11,19 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public class FakeContainer extends AbstractContainerMenu
-{
-    public FakeContainer()
-    {
-        super( null, 0 );
+public class FakeContainer extends AbstractContainerMenu {
+    public FakeContainer() {
+        super(null, 0);
     }
 
     @Override
-    public boolean stillValid( @Nonnull Player player )
-    {
+    public boolean stillValid(@Nonnull Player player) {
         return true;
     }
 
     @Nonnull
     @Override
-    public ItemStack quickMoveStack( @Nonnull Player player, int index )
-    {
+    public ItemStack quickMoveStack(@Nonnull Player player, int index) {
         return ItemStack.EMPTY;
     }
 }

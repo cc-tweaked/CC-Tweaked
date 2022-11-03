@@ -21,19 +21,17 @@ import javax.annotation.Nonnull;
 
 import static dan200.computercraft.shared.turtle.inventory.ContainerTurtle.*;
 
-public class GuiTurtle extends ComputerScreenBase<ContainerTurtle>
-{
-    private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/turtle_normal.png" );
-    private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation( ComputerCraft.MOD_ID, "textures/gui/turtle_advanced.png" );
+public class GuiTurtle extends ComputerScreenBase<ContainerTurtle> {
+    private static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation(ComputerCraft.MOD_ID, "textures/gui/turtle_normal.png");
+    private static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation(ComputerCraft.MOD_ID, "textures/gui/turtle_advanced.png");
 
     private static final int TEX_WIDTH = 254;
     private static final int TEX_HEIGHT = 217;
 
     private final ComputerFamily family;
 
-    public GuiTurtle( ContainerTurtle container, Inventory player, Component title )
-    {
-        super( container, player, title, BORDER );
+    public GuiTurtle(ContainerTurtle container, Inventory player, Component title) {
+        super(container, player, title, BORDER);
         family = container.getFamily();
 
         imageWidth = TEX_WIDTH + ComputerSidebar.WIDTH;
@@ -41,31 +39,28 @@ public class GuiTurtle extends ComputerScreenBase<ContainerTurtle>
     }
 
     @Override
-    protected WidgetTerminal createTerminal()
-    {
-        return new WidgetTerminal( terminalData, input, leftPos + BORDER + ComputerSidebar.WIDTH, topPos + BORDER );
+    protected WidgetTerminal createTerminal() {
+        return new WidgetTerminal(terminalData, input, leftPos + BORDER + ComputerSidebar.WIDTH, topPos + BORDER);
     }
 
     @Override
-    protected void renderBg( @Nonnull PoseStack transform, float partialTicks, int mouseX, int mouseY )
-    {
-        boolean advanced = family == ComputerFamily.ADVANCED;
-        RenderSystem.setShaderTexture( 0, advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL );
-        blit( transform, leftPos + ComputerSidebar.WIDTH, topPos, 0, 0, TEX_WIDTH, TEX_HEIGHT );
+    protected void renderBg(@Nonnull PoseStack transform, float partialTicks, int mouseX, int mouseY) {
+        var advanced = family == ComputerFamily.ADVANCED;
+        RenderSystem.setShaderTexture(0, advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL);
+        blit(transform, leftPos + ComputerSidebar.WIDTH, topPos, 0, 0, TEX_WIDTH, TEX_HEIGHT);
 
-        int slot = getMenu().getSelectedSlot();
-        if( slot >= 0 )
-        {
-            RenderSystem.setShaderColor( 1.0F, 1.0F, 1.0F, 1.0F );
-            int slotX = slot % 4;
-            int slotY = slot / 4;
-            blit( transform,
+        var slot = getMenu().getSelectedSlot();
+        if (slot >= 0) {
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            var slotX = slot % 4;
+            var slotY = slot / 4;
+            blit(transform,
                 leftPos + TURTLE_START_X - 2 + slotX * 18, topPos + PLAYER_START_Y - 2 + slotY * 18,
                 0, 217, 24, 24
             );
         }
 
-        RenderSystem.setShaderTexture( 0, advanced ? ComputerBorderRenderer.BACKGROUND_ADVANCED : ComputerBorderRenderer.BACKGROUND_NORMAL );
-        ComputerSidebar.renderBackground( transform, leftPos, topPos + sidebarYOffset );
+        RenderSystem.setShaderTexture(0, advanced ? ComputerBorderRenderer.BACKGROUND_ADVANCED : ComputerBorderRenderer.BACKGROUND_NORMAL);
+        ComputerSidebar.renderBackground(transform, leftPos, topPos + sidebarYOffset);
     }
 }

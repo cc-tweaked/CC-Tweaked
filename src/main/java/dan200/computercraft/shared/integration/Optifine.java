@@ -8,32 +8,25 @@ package dan200.computercraft.shared.integration;
 /**
  * Detect whether Optifine is installed.
  */
-public final class Optifine
-{
+public final class Optifine {
     private static final boolean LOADED;
 
-    static
-    {
+    static {
         boolean loaded;
-        try
-        {
-            Class.forName( "optifine.Installer", false, Optifine.class.getClassLoader() );
+        try {
+            Class.forName("optifine.Installer", false, Optifine.class.getClassLoader());
             loaded = true;
-        }
-        catch( ReflectiveOperationException | LinkageError ignore )
-        {
+        } catch (ReflectiveOperationException | LinkageError ignore) {
             loaded = false;
         }
 
         LOADED = loaded;
     }
 
-    private Optifine()
-    {
+    private Optifine() {
     }
 
-    public static boolean isLoaded()
-    {
+    public static boolean isLoaded() {
         return LOADED;
     }
 }

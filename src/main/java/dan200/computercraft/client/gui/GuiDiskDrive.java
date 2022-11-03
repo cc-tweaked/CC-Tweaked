@@ -15,28 +15,24 @@ import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
 
-public class GuiDiskDrive extends AbstractContainerScreen<ContainerDiskDrive>
-{
-    private static final ResourceLocation BACKGROUND = new ResourceLocation( "computercraft", "textures/gui/disk_drive.png" );
+public class GuiDiskDrive extends AbstractContainerScreen<ContainerDiskDrive> {
+    private static final ResourceLocation BACKGROUND = new ResourceLocation("computercraft", "textures/gui/disk_drive.png");
 
-    public GuiDiskDrive( ContainerDiskDrive container, Inventory player, Component title )
-    {
-        super( container, player, title );
+    public GuiDiskDrive(ContainerDiskDrive container, Inventory player, Component title) {
+        super(container, player, title);
     }
 
     @Override
-    protected void renderBg( @Nonnull PoseStack transform, float partialTicks, int mouseX, int mouseY )
-    {
-        RenderSystem.setShaderColor( 1.0F, 1.0F, 1.0F, 1.0F );
-        RenderSystem.setShaderTexture( 0, BACKGROUND );
-        blit( transform, leftPos, topPos, 0, 0, imageWidth, imageHeight );
+    protected void renderBg(@Nonnull PoseStack transform, float partialTicks, int mouseX, int mouseY) {
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, BACKGROUND);
+        blit(transform, leftPos, topPos, 0, 0, imageWidth, imageHeight);
     }
 
     @Override
-    public void render( @Nonnull PoseStack transform, int mouseX, int mouseY, float partialTicks )
-    {
-        renderBackground( transform );
-        super.render( transform, mouseX, mouseY, partialTicks );
-        renderTooltip( transform, mouseX, mouseY );
+    public void render(@Nonnull PoseStack transform, int mouseX, int mouseY, float partialTicks) {
+        renderBackground(transform);
+        super.render(transform, mouseX, mouseY, partialTicks);
+        renderTooltip(transform, mouseX, mouseY);
     }
 }

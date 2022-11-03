@@ -24,8 +24,7 @@ import java.util.Map;
  *
  * @see IWiredNode#getNetwork()
  */
-public interface IWiredNetwork
-{
+public interface IWiredNetwork {
     /**
      * Create a connection between two nodes.
      * <p>
@@ -39,7 +38,7 @@ public interface IWiredNetwork
      * @see IWiredNode#connectTo(IWiredNode)
      * @see IWiredNetwork#connect(IWiredNode, IWiredNode)
      */
-    boolean connect( @Nonnull IWiredNode left, @Nonnull IWiredNode right );
+    boolean connect(@Nonnull IWiredNode left, @Nonnull IWiredNode right);
 
     /**
      * Destroy a connection between this node and another.
@@ -54,7 +53,7 @@ public interface IWiredNetwork
      * @see IWiredNode#disconnectFrom(IWiredNode)
      * @see IWiredNetwork#connect(IWiredNode, IWiredNode)
      */
-    boolean disconnect( @Nonnull IWiredNode left, @Nonnull IWiredNode right );
+    boolean disconnect(@Nonnull IWiredNode left, @Nonnull IWiredNode right);
 
     /**
      * Sever all connections this node has, removing it from this network.
@@ -68,7 +67,7 @@ public interface IWiredNetwork
      * @throws IllegalArgumentException If the node is not in the network.
      * @see IWiredNode#remove()
      */
-    boolean remove( @Nonnull IWiredNode node );
+    boolean remove(@Nonnull IWiredNode node);
 
     /**
      * Update the peripherals a node provides.
@@ -81,5 +80,5 @@ public interface IWiredNetwork
      * @throws IllegalArgumentException If the node is not in the network.
      * @see IWiredNode#updatePeripherals(Map)
      */
-    void updatePeripherals( @Nonnull IWiredNode node, @Nonnull Map<String, IPeripheral> peripherals );
+    void updatePeripherals(@Nonnull IWiredNode node, @Nonnull Map<String, IPeripheral> peripherals);
 }

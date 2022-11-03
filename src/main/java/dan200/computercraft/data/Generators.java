@@ -6,34 +6,30 @@
 package dan200.computercraft.data;
 
 import dan200.computercraft.shared.Registry;
-import net.minecraft.data.DataGenerator;
-import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber( bus = Mod.EventBusSubscriber.Bus.MOD )
-public class Generators
-{
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+public class Generators {
     @SubscribeEvent
-    public static void gather( GatherDataEvent event )
-    {
+    public static void gather(GatherDataEvent event) {
         Registry.registerLoot();
 
-        DataGenerator generator = event.getGenerator();
-        ExistingFileHelper existingFiles = event.getExistingFileHelper();
+        var generator = event.getGenerator();
+        var existingFiles = event.getExistingFileHelper();
 
-        var turtleUpgrades = new TurtleUpgradeGenerator( generator );
-        var pocketUpgrades = new PocketUpgradeGenerator( generator );
-        generator.addProvider( event.includeServer(), turtleUpgrades );
-        generator.addProvider( event.includeServer(), pocketUpgrades );
+        var turtleUpgrades = new TurtleUpgradeGenerator(generator);
+        var pocketUpgrades = new PocketUpgradeGenerator(generator);
+        generator.addProvider(event.includeServer(), turtleUpgrades);
+        generator.addProvider(event.includeServer(), pocketUpgrades);
 
-        generator.addProvider( event.includeServer(), new RecipeGenerator( generator, turtleUpgrades, pocketUpgrades ) );
-        generator.addProvider( event.includeServer(), new LootTableGenerator( generator ) );
-        generator.addProvider( event.includeClient(), new ModelProvider( generator, BlockModelGenerator::addBlockModels, ItemModelGenerator::addItemModels ) );
+        generator.addProvider(event.includeServer(), new RecipeGenerator(generator, turtleUpgrades, pocketUpgrades));
+        generator.addProvider(event.includeServer(), new LootTableGenerator(generator));
+        generator.addProvider(event.includeClient(), new ModelProvider(generator, BlockModelGenerator::addBlockModels, ItemModelGenerator::addItemModels));
 
-        BlockTagsGenerator blockTags = new BlockTagsGenerator( generator, existingFiles );
-        generator.addProvider( event.includeServer(), blockTags );
-        generator.addProvider( event.includeServer(), new ItemTagsGenerator( generator, blockTags, existingFiles ) );
+        var blockTags = new BlockTagsGenerator(generator, existingFiles);
+        generator.addProvider(event.includeServer(), blockTags);
+        generator.addProvider(event.includeServer(), new ItemTagsGenerator(generator, blockTags, existingFiles));
     }
 }

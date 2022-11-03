@@ -23,70 +23,60 @@ import java.util.Optional;
  *
  * @see TestExtensionsKt#thenComputerOk(GameTestSequence, String, String)   To check tests on the computer have passed.
  */
-public class TestAPI extends ComputerState implements ILuaAPI
-{
+public class TestAPI extends ComputerState implements ILuaAPI {
     private final IComputerSystem system;
     private String label;
 
-    TestAPI( IComputerSystem system )
-    {
+    TestAPI(IComputerSystem system) {
         this.system = system;
     }
 
     @Override
-    public void startup()
-    {
-        if( label == null ) label = system.getLabel();
-        if( label == null )
-        {
+    public void startup() {
+        if (label == null) label = system.getLabel();
+        if (label == null) {
             label = "#" + system.getID();
-            ComputerCraft.log.warn( "Computer {} has no label", label );
+            ComputerCraft.log.warn("Computer {} has no label", label);
         }
 
-        ComputerCraft.log.info( "Computer '{}' has turned on.", label );
+        ComputerCraft.log.info("Computer '{}' has turned on.", label);
         markers.clear();
         error = null;
-        lookup.put( label, this );
+        lookup.put(label, this);
     }
 
     @Override
-    public void shutdown()
-    {
-        ComputerCraft.log.info( "Computer '{}' has shut down.", label );
-        if( lookup.get( label ) == this ) lookup.remove( label );
+    public void shutdown() {
+        ComputerCraft.log.info("Computer '{}' has shut down.", label);
+        if (lookup.get(label) == this) lookup.remove(label);
     }
 
     @Override
-    public String[] getNames()
-    {
-        return new String[] { "test" };
+    public String[] getNames() {
+        return new String[]{ "test" };
     }
 
     @LuaFunction
-    public final void fail( String message ) throws LuaException
-    {
-        ComputerCraft.log.error( "Computer '{}' failed with {}", label, message );
-        if( markers.contains( ComputerState.DONE ) ) throw new LuaException( "Cannot call fail/ok multiple times." );
-        markers.add( ComputerState.DONE );
+    public final void fail(String message) throws LuaException {
+        ComputerCraft.log.error("Computer '{}' failed with {}", label, message);
+        if (markers.contains(ComputerState.DONE)) throw new LuaException("Cannot call fail/ok multiple times.");
+        markers.add(ComputerState.DONE);
         error = message;
-        throw new LuaException( message );
+        throw new LuaException(message);
     }
 
     @LuaFunction
-    public final void ok( Optional<String> marker ) throws LuaException
-    {
-        String actualMarker = marker.orElse( ComputerState.DONE );
-        if( markers.contains( ComputerState.DONE ) || markers.contains( actualMarker ) )
-        {
-            throw new LuaException( "Cannot call fail/ok multiple times." );
+    public final void ok(Optional<String> marker) throws LuaException {
+        var actualMarker = marker.orElse(ComputerState.DONE);
+        if (markers.contains(ComputerState.DONE) || markers.contains(actualMarker)) {
+            throw new LuaException("Cannot call fail/ok multiple times.");
         }
 
-        markers.add( actualMarker );
+        markers.add(actualMarker);
     }
 
     @LuaFunction
-    public final void log( String message )
-    {
-        ComputerCraft.log.info( "[Computer '{}'] {}", label, message );
+    public final void log(String message) {
+        ComputerCraft.log.info("[Computer '{}'] {}", label, message);
     }
 }

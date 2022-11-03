@@ -11,16 +11,15 @@ import javax.annotation.Nullable;
 /**
  * A side on a computer. This is relative to the direction the computer is facing.
  */
-public enum ComputerSide
-{
-    BOTTOM( "bottom" ),
-    TOP( "top" ),
-    BACK( "back" ),
-    FRONT( "front" ),
-    RIGHT( "right" ),
-    LEFT( "left" );
+public enum ComputerSide {
+    BOTTOM("bottom"),
+    TOP("top"),
+    BACK("back"),
+    FRONT("front"),
+    RIGHT("right"),
+    LEFT("left");
 
-    public static final String[] NAMES = new String[] { "bottom", "top", "back", "front", "right", "left" };
+    public static final String[] NAMES = new String[]{ "bottom", "top", "back", "front", "right", "left" };
 
     public static final int COUNT = 6;
 
@@ -28,30 +27,25 @@ public enum ComputerSide
 
     private final String name;
 
-    ComputerSide( String name )
-    {
+    ComputerSide(String name) {
         this.name = name;
     }
 
     @Nonnull
-    public static ComputerSide valueOf( int side )
-    {
+    public static ComputerSide valueOf(int side) {
         return VALUES[side];
     }
 
     @Nullable
-    public static ComputerSide valueOfInsensitive( @Nonnull String name )
-    {
-        for( ComputerSide side : VALUES )
-        {
-            if( side.name.equalsIgnoreCase( name ) ) return side;
+    public static ComputerSide valueOfInsensitive(@Nonnull String name) {
+        for (var side : VALUES) {
+            if (side.name.equalsIgnoreCase(name)) return side;
         }
 
         return null;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 }

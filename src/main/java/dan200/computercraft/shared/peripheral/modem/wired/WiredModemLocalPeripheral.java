@@ -14,7 +14,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
@@ -28,8 +27,7 @@ import java.util.Map;
  * This is responsible for getting the peripheral in world, tracking id and type and determining whether
  * it has changed.
  */
-public final class WiredModemLocalPeripheral
-{
+public final class WiredModemLocalPeripheral {
     private static final String NBT_PERIPHERAL_TYPE = "PeripheralType";
     private static final String NBT_PERIPHERAL_ID = "PeripheralId";
 
@@ -39,8 +37,7 @@ public final class WiredModemLocalPeripheral
     private IPeripheral peripheral;
     private final NonNullConsumer<Object> invalidate;
 
-    public WiredModemLocalPeripheral( @Nonnull Runnable invalidate )
-    {
+    public WiredModemLocalPeripheral(@Nonnull Runnable invalidate) {
         this.invalidate = x -> invalidate.run();
     }
 
@@ -52,32 +49,25 @@ public final class WiredModemLocalPeripheral
      * @param direction The direction so search in
      * @return Whether the peripheral changed.
      */
-    public boolean attach( @Nonnull Level world, @Nonnull BlockPos origin, @Nonnull Direction direction )
-    {
-        IPeripheral oldPeripheral = peripheral;
-        IPeripheral peripheral = this.peripheral = getPeripheralFrom( world, origin, direction );
+    public boolean attach(@Nonnull Level world, @Nonnull BlockPos origin, @Nonnull Direction direction) {
+        var oldPeripheral = peripheral;
+        var peripheral = this.peripheral = getPeripheralFrom(world, origin, direction);
 
-        if( peripheral == null )
-        {
+        if (peripheral == null) {
             return oldPeripheral != null;
-        }
-        else
-        {
-            String type = peripheral.getType();
-            int id = this.id;
+        } else {
+            var type = peripheral.getType();
+            var id = this.id;
 
-            if( id > 0 && this.type == null )
-            {
+            if (id > 0 && this.type == null) {
                 // If we had an ID but no type, then just set the type.
                 this.type = type;
-            }
-            else if( id < 0 || !type.equals( this.type ) )
-            {
+            } else if (id < 0 || !type.equals(this.type)) {
                 this.type = type;
-                this.id = ServerContext.get( world.getServer() ).getNextId( "peripheral." + type );
+                this.id = ServerContext.get(world.getServer()).getNextId("peripheral." + type);
             }
 
-            return oldPeripheral == null || !oldPeripheral.equals( peripheral );
+            return oldPeripheral == null || !oldPeripheral.equals(peripheral);
         }
     }
 
@@ -86,66 +76,57 @@ public final class WiredModemLocalPeripheral
      *
      * @return Whether the peripheral changed
      */
-    public boolean detach()
-    {
-        if( peripheral == null ) return false;
+    public boolean detach() {
+        if (peripheral == null) return false;
         peripheral = null;
         return true;
     }
 
     @Nullable
-    public String getConnectedName()
-    {
+    public String getConnectedName() {
         return peripheral != null ? type + "_" + id : null;
     }
 
     @Nullable
-    public IPeripheral getPeripheral()
-    {
+    public IPeripheral getPeripheral() {
         return peripheral;
     }
 
-    public boolean hasPeripheral()
-    {
+    public boolean hasPeripheral() {
         return peripheral != null;
     }
 
-    public void extendMap( @Nonnull Map<String, IPeripheral> peripherals )
-    {
-        if( peripheral != null ) peripherals.put( type + "_" + id, peripheral );
+    public void extendMap(@Nonnull Map<String, IPeripheral> peripherals) {
+        if (peripheral != null) peripherals.put(type + "_" + id, peripheral);
     }
 
-    public Map<String, IPeripheral> toMap()
-    {
+    public Map<String, IPeripheral> toMap() {
         return peripheral == null
             ? Collections.emptyMap()
-            : Collections.singletonMap( type + "_" + id, peripheral );
+            : Collections.singletonMap(type + "_" + id, peripheral);
     }
 
-    public void write( @Nonnull CompoundTag tag, @Nonnull String suffix )
-    {
-        if( id >= 0 ) tag.putInt( NBT_PERIPHERAL_ID + suffix, id );
-        if( type != null ) tag.putString( NBT_PERIPHERAL_TYPE + suffix, type );
+    public void write(@Nonnull CompoundTag tag, @Nonnull String suffix) {
+        if (id >= 0) tag.putInt(NBT_PERIPHERAL_ID + suffix, id);
+        if (type != null) tag.putString(NBT_PERIPHERAL_TYPE + suffix, type);
     }
 
-    public void read( @Nonnull CompoundTag tag, @Nonnull String suffix )
-    {
-        id = tag.contains( NBT_PERIPHERAL_ID + suffix, Tag.TAG_ANY_NUMERIC )
-            ? tag.getInt( NBT_PERIPHERAL_ID + suffix ) : -1;
+    public void read(@Nonnull CompoundTag tag, @Nonnull String suffix) {
+        id = tag.contains(NBT_PERIPHERAL_ID + suffix, Tag.TAG_ANY_NUMERIC)
+            ? tag.getInt(NBT_PERIPHERAL_ID + suffix) : -1;
 
-        type = tag.contains( NBT_PERIPHERAL_TYPE + suffix, Tag.TAG_STRING )
-            ? tag.getString( NBT_PERIPHERAL_TYPE + suffix ) : null;
+        type = tag.contains(NBT_PERIPHERAL_TYPE + suffix, Tag.TAG_STRING)
+            ? tag.getString(NBT_PERIPHERAL_TYPE + suffix) : null;
     }
 
     @Nullable
-    private IPeripheral getPeripheralFrom( Level world, BlockPos pos, Direction direction )
-    {
-        BlockPos offset = pos.relative( direction );
+    private IPeripheral getPeripheralFrom(Level world, BlockPos pos, Direction direction) {
+        var offset = pos.relative(direction);
 
-        Block block = world.getBlockState( offset ).getBlock();
-        if( block == Registry.ModBlocks.WIRED_MODEM_FULL.get() || block == Registry.ModBlocks.CABLE.get() ) return null;
+        var block = world.getBlockState(offset).getBlock();
+        if (block == Registry.ModBlocks.WIRED_MODEM_FULL.get() || block == Registry.ModBlocks.CABLE.get()) return null;
 
-        IPeripheral peripheral = Peripherals.getPeripheral( world, offset, direction.getOpposite(), invalidate );
+        var peripheral = Peripherals.getPeripheral(world, offset, direction.getOpposite(), invalidate);
         return peripheral instanceof WiredModemPeripheral ? null : peripheral;
     }
 }

@@ -41,9 +41,8 @@ import java.util.concurrent.TimeUnit;
  *
  * @see CommonHooks for where the context is created and torn down.
  */
-public final class ServerContext
-{
-    private static final LevelResource FOLDER = new LevelResource( ComputerCraft.MOD_ID );
+public final class ServerContext {
+    private static final LevelResource FOLDER = new LevelResource(ComputerCraft.MOD_ID);
 
     @VisibleForTesting
     public static ILuaMachine.Factory luaMachine = CobaltLuaMachine::new;
@@ -59,17 +58,16 @@ public final class ServerContext
     private final IDAssigner idAssigner;
     private final Path storageDir;
 
-    private ServerContext( MinecraftServer server )
-    {
+    private ServerContext(MinecraftServer server) {
         this.server = server;
-        storageDir = server.getWorldPath( FOLDER );
+        storageDir = server.getWorldPath(FOLDER);
         mainThread = new MainThread();
         context = new ComputerContext(
-            new Environment( server ),
-            new ComputerThread( ComputerCraft.computerThreads ),
+            new Environment(server),
+            new ComputerThread(ComputerCraft.computerThreads),
             mainThread, luaMachine
         );
-        idAssigner = new IDAssigner( storageDir.resolve( "ids.json" ) );
+        idAssigner = new IDAssigner(storageDir.resolve("ids.json"));
     }
 
     /**
@@ -78,31 +76,25 @@ public final class ServerContext
      * @param server The currently running Minecraft server.
      * @throws IllegalStateException If a context is already present.
      */
-    public static void create( MinecraftServer server )
-    {
-        if( ServerContext.instance != null ) throw new IllegalStateException( "ServerContext already exists!" );
-        ServerContext.instance = new ServerContext( server );
+    public static void create(MinecraftServer server) {
+        if (ServerContext.instance != null) throw new IllegalStateException("ServerContext already exists!");
+        ServerContext.instance = new ServerContext(server);
     }
 
     /**
      * Stops the current server context, resetting any state and terminating all computers.
      */
-    public static void close()
-    {
-        ServerContext instance = ServerContext.instance;
-        if( instance == null ) return;
+    public static void close() {
+        var instance = ServerContext.instance;
+        if (instance == null) return;
 
         instance.registry.close();
-        try
-        {
-            if( !instance.context.close( 1, TimeUnit.SECONDS ) )
-            {
-                ComputerCraft.log.error( "Failed to stop computers under deadline." );
+        try {
+            if (!instance.context.close(1, TimeUnit.SECONDS)) {
+                ComputerCraft.log.error("Failed to stop computers under deadline.");
             }
-        }
-        catch( InterruptedException e )
-        {
-            ComputerCraft.log.error( "Failed to stop computers.", e );
+        } catch (InterruptedException e) {
+            ComputerCraft.log.error("Failed to stop computers.", e);
             Thread.currentThread().interrupt();
         }
 
@@ -115,15 +107,13 @@ public final class ServerContext
      * @param server The current server.
      * @return The current server context.
      */
-    public static ServerContext get( MinecraftServer server )
-    {
-        Objects.requireNonNull( server, "Server cannot be null" );
+    public static ServerContext get(MinecraftServer server) {
+        Objects.requireNonNull(server, "Server cannot be null");
 
-        ServerContext instance = ServerContext.instance;
-        if( instance == null ) throw new IllegalStateException( "ServerContext has not been started yet" );
-        if( instance.server != server )
-        {
-            throw new IllegalStateException( "Incorrect server given. Did ServerContext shutdown correctly?" );
+        var instance = ServerContext.instance;
+        if (instance == null) throw new IllegalStateException("ServerContext has not been started yet");
+        if (instance.server != server) {
+            throw new IllegalStateException("Incorrect server given. Did ServerContext shutdown correctly?");
         }
 
         return instance;
@@ -134,16 +124,14 @@ public final class ServerContext
      *
      * @return The current {@link ComputerContext}.
      */
-    ComputerContext computerContext()
-    {
+    ComputerContext computerContext() {
         return context;
     }
 
     /**
      * Tick all components of this server context. This should <em>NOT</em> be called outside of {@link CommonHooks}.
      */
-    public void tick()
-    {
+    public void tick() {
         registry.update();
         mainThread.tick();
     }
@@ -153,8 +141,7 @@ public final class ServerContext
      *
      * @return The global computer registry.
      */
-    public ServerComputerRegistry registry()
-    {
+    public ServerComputerRegistry registry() {
         return registry;
     }
 
@@ -168,9 +155,8 @@ public final class ServerContext
      * @return The next available ID.
      * @see ComputerCraftAPI#createUniqueNumberedSaveDir(Level, String)
      */
-    public int getNextId( String kind )
-    {
-        return idAssigner.getNextId( kind );
+    public int getNextId(String kind) {
+        return idAssigner.getNextId(kind);
     }
 
     /**
@@ -179,8 +165,7 @@ public final class ServerContext
      *
      * @return The storge directory for ComputerCraft.
      */
-    public Path storageDir()
-    {
+    public Path storageDir() {
         return storageDir;
     }
 
@@ -189,36 +174,30 @@ public final class ServerContext
      *
      * @return The current metrics store.
      */
-    public GlobalMetrics metrics()
-    {
+    public GlobalMetrics metrics() {
         return metrics;
     }
 
-    private record Environment(MinecraftServer server) implements GlobalEnvironment
-    {
+    private record Environment(MinecraftServer server) implements GlobalEnvironment {
         @Override
-        public IMount createResourceMount( String domain, String subPath )
-        {
-            return ComputerCraftAPI.createResourceMount( domain, subPath );
+        public IMount createResourceMount(String domain, String subPath) {
+            return ComputerCraftAPI.createResourceMount(domain, subPath);
         }
 
         @Override
-        public InputStream createResourceFile( String domain, String subPath )
-        {
-            return ComputerCraftAPIImpl.getResourceFile( server, domain, subPath );
+        public InputStream createResourceFile(String domain, String subPath) {
+            return ComputerCraftAPIImpl.getResourceFile(server, domain, subPath);
         }
 
         @Nonnull
         @Override
-        public String getHostString()
-        {
-            return String.format( "ComputerCraft %s (Minecraft %s)", ComputerCraftAPI.getInstalledVersion(), MCPVersion.getMCVersion() );
+        public String getHostString() {
+            return String.format("ComputerCraft %s (Minecraft %s)", ComputerCraftAPI.getInstalledVersion(), MCPVersion.getMCVersion());
         }
 
         @Nonnull
         @Override
-        public String getUserAgent()
-        {
+        public String getUserAgent() {
             return ComputerCraft.MOD_ID + "/" + ComputerCraftAPI.getInstalledVersion();
         }
     }

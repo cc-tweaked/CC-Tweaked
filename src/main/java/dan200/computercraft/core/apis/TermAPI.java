@@ -20,19 +20,16 @@ import javax.annotation.Nonnull;
  *
  * @cc.module term
  */
-public class TermAPI extends TermMethods implements ILuaAPI
-{
+public class TermAPI extends TermMethods implements ILuaAPI {
     private final Terminal terminal;
 
-    public TermAPI( IAPIEnvironment environment )
-    {
+    public TermAPI(IAPIEnvironment environment) {
         terminal = environment.getTerminal();
     }
 
     @Override
-    public String[] getNames()
-    {
-        return new String[] { "term" };
+    public String[] getNames() {
+        return new String[]{ "term" };
     }
 
     /**
@@ -47,18 +44,16 @@ public class TermAPI extends TermMethods implements ILuaAPI
      * @cc.since 1.81.0
      * @see TermMethods#setPaletteColour(IArguments) To change the palette colour.
      */
-    @LuaFunction( { "nativePaletteColour", "nativePaletteColor" } )
-    public final Object[] nativePaletteColour( int colour ) throws LuaException
-    {
-        int actualColour = 15 - parseColour( colour );
-        Colour c = Colour.fromInt( actualColour );
-        return new Object[] { c.getR(), c.getG(), c.getB() };
+    @LuaFunction({ "nativePaletteColour", "nativePaletteColor" })
+    public final Object[] nativePaletteColour(int colour) throws LuaException {
+        var actualColour = 15 - parseColour(colour);
+        var c = Colour.fromInt(actualColour);
+        return new Object[]{ c.getR(), c.getG(), c.getB() };
     }
 
     @Nonnull
     @Override
-    public Terminal getTerminal()
-    {
+    public Terminal getTerminal() {
         return terminal;
     }
 }

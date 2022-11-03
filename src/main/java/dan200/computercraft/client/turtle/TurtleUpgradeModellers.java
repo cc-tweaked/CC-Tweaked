@@ -22,10 +22,9 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class TurtleUpgradeModellers
-{
-    private static final TurtleUpgradeModeller<ITurtleUpgrade> NULL_TURTLE_MODELLER = ( upgrade, turtle, side ) ->
-        new TransformedModel( Minecraft.getInstance().getModelManager().getMissingModel(), Transformation.identity() );
+public final class TurtleUpgradeModellers {
+    private static final TurtleUpgradeModeller<ITurtleUpgrade> NULL_TURTLE_MODELLER = (upgrade, turtle, side) ->
+        new TransformedModel(Minecraft.getInstance().getModelManager().getMissingModel(), Transformation.identity());
 
     private static final Map<TurtleUpgradeSerialiser<?>, TurtleUpgradeModeller<?>> turtleModels = new ConcurrentHashMap<>();
 
@@ -37,36 +36,30 @@ public final class TurtleUpgradeModellers
      */
     private static final WeakHashMap<ITurtleUpgrade, TurtleUpgradeModeller<?>> modelCache = new WeakHashMap<>();
 
-    private TurtleUpgradeModellers()
-    {
+    private TurtleUpgradeModellers() {
     }
 
-    public static <T extends ITurtleUpgrade> void register( @Nonnull TurtleUpgradeSerialiser<T> serialiser, @Nonnull TurtleUpgradeModeller<T> modeller )
-    {
-        synchronized( turtleModels )
-        {
-            if( turtleModels.containsKey( serialiser ) )
-            {
-                throw new IllegalStateException( "Modeller already registered for serialiser" );
+    public static <T extends ITurtleUpgrade> void register(@Nonnull TurtleUpgradeSerialiser<T> serialiser, @Nonnull TurtleUpgradeModeller<T> modeller) {
+        synchronized (turtleModels) {
+            if (turtleModels.containsKey(serialiser)) {
+                throw new IllegalStateException("Modeller already registered for serialiser");
             }
 
-            turtleModels.put( serialiser, modeller );
+            turtleModels.put(serialiser, modeller);
         }
     }
 
-    public static TransformedModel getModel( @Nonnull ITurtleUpgrade upgrade, @Nullable ITurtleAccess access, @Nonnull TurtleSide side )
-    {
-        @SuppressWarnings( "unchecked" )
-        var modeller = (TurtleUpgradeModeller<ITurtleUpgrade>) modelCache.computeIfAbsent( upgrade, TurtleUpgradeModellers::getModeller );
-        return modeller.getModel( upgrade, access, side );
+    public static TransformedModel getModel(@Nonnull ITurtleUpgrade upgrade, @Nullable ITurtleAccess access, @Nonnull TurtleSide side) {
+        @SuppressWarnings("unchecked")
+        var modeller = (TurtleUpgradeModeller<ITurtleUpgrade>) modelCache.computeIfAbsent(upgrade, TurtleUpgradeModellers::getModeller);
+        return modeller.getModel(upgrade, access, side);
     }
 
-    private static TurtleUpgradeModeller<?> getModeller( ITurtleUpgrade upgradeA )
-    {
-        var wrapper = TurtleUpgrades.instance().getWrapper( upgradeA );
-        if( wrapper == null ) return NULL_TURTLE_MODELLER;
+    private static TurtleUpgradeModeller<?> getModeller(ITurtleUpgrade upgradeA) {
+        var wrapper = TurtleUpgrades.instance().getWrapper(upgradeA);
+        if (wrapper == null) return NULL_TURTLE_MODELLER;
 
-        var modeller = turtleModels.get( wrapper.serialiser() );
+        var modeller = turtleModels.get(wrapper.serialiser());
         return modeller == null ? NULL_TURTLE_MODELLER : modeller;
     }
 }

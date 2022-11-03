@@ -24,44 +24,39 @@ import java.util.UUID;
  *
  * @see dan200.computercraft.shared.peripheral.speaker.TileSpeaker
  */
-public class SpeakerAudioClientMessage implements NetworkMessage
-{
+public class SpeakerAudioClientMessage implements NetworkMessage {
     private final UUID source;
     private final SpeakerPosition.Message pos;
     private final ByteBuffer content;
     private final float volume;
 
-    public SpeakerAudioClientMessage( UUID source, SpeakerPosition pos, float volume, ByteBuffer content )
-    {
+    public SpeakerAudioClientMessage(UUID source, SpeakerPosition pos, float volume, ByteBuffer content) {
         this.source = source;
         this.pos = pos.asMessage();
         this.content = content;
         this.volume = volume;
     }
 
-    public SpeakerAudioClientMessage( FriendlyByteBuf buf )
-    {
+    public SpeakerAudioClientMessage(FriendlyByteBuf buf) {
         source = buf.readUUID();
-        pos = SpeakerPosition.Message.read( buf );
+        pos = SpeakerPosition.Message.read(buf);
         volume = buf.readFloat();
 
-        SpeakerManager.getSound( source ).pushAudio( buf );
+        SpeakerManager.getSound(source).pushAudio(buf);
         content = null;
     }
 
     @Override
-    public void toBytes( @Nonnull FriendlyByteBuf buf )
-    {
-        buf.writeUUID( source );
-        pos.write( buf );
-        buf.writeFloat( volume );
-        buf.writeBytes( content.duplicate() );
+    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+        buf.writeUUID(source);
+        pos.write(buf);
+        buf.writeFloat(volume);
+        buf.writeBytes(content.duplicate());
     }
 
     @Override
-    @OnlyIn( Dist.CLIENT )
-    public void handle( NetworkEvent.Context context )
-    {
-        SpeakerManager.getSound( source ).playAudio( pos.reify(), volume );
+    @OnlyIn(Dist.CLIENT)
+    public void handle(NetworkEvent.Context context) {
+        SpeakerManager.getSound(source).playAudio(pos.reify(), volume);
     }
 }

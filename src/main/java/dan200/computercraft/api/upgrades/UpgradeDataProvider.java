@@ -24,7 +24,6 @@ import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -36,8 +35,7 @@ import java.util.function.Function;
  * @param <T> The base class of upgrades.
  * @param <R> The upgrade serialiser to register for.
  */
-public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends UpgradeSerialiser<? extends T>> implements DataProvider
-{
+public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends UpgradeSerialiser<? extends T>> implements DataProvider {
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final DataGenerator generator;
@@ -47,8 +45,7 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
 
     private List<T> upgrades;
 
-    protected UpgradeDataProvider( @Nonnull DataGenerator generator, @Nonnull String name, @Nonnull String folder, @Nonnull ResourceKey<Registry<R>> registry )
-    {
+    protected UpgradeDataProvider(@Nonnull DataGenerator generator, @Nonnull String name, @Nonnull String folder, @Nonnull ResourceKey<Registry<R>> registry) {
         this.generator = generator;
         this.name = name;
         this.folder = folder;
@@ -63,14 +60,13 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
      * @return The constructed upgrade, ready to be passed off to {@link #addUpgrades(Consumer)}'s consumer.
      */
     @Nonnull
-    public final Upgrade<R> simple( @Nonnull ResourceLocation id, @Nonnull R serialiser )
-    {
-        if( !(serialiser instanceof SimpleSerialiser) )
-        {
-            throw new IllegalStateException( serialiser + " must be a simple() seriaiser." );
+    public final Upgrade<R> simple(@Nonnull ResourceLocation id, @Nonnull R serialiser) {
+        if (!(serialiser instanceof SimpleSerialiser)) {
+            throw new IllegalStateException(serialiser + " must be a simple() seriaiser.");
         }
 
-        return new Upgrade<>( id, serialiser, s -> {} );
+        return new Upgrade<>(id, serialiser, s -> {
+        });
     }
 
     /**
@@ -82,15 +78,13 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
      * @return The constructed upgrade, ready to be passed off to {@link #addUpgrades(Consumer)}'s consumer.
      */
     @Nonnull
-    public final Upgrade<R> simpleWithCustomItem( @Nonnull ResourceLocation id, @Nonnull R serialiser, @Nonnull Item item )
-    {
-        if( !(serialiser instanceof SerialiserWithCraftingItem) )
-        {
-            throw new IllegalStateException( serialiser + " must be a simpleWithCustomItem() serialiser." );
+    public final Upgrade<R> simpleWithCustomItem(@Nonnull ResourceLocation id, @Nonnull R serialiser, @Nonnull Item item) {
+        if (!(serialiser instanceof SerialiserWithCraftingItem)) {
+            throw new IllegalStateException(serialiser + " must be a simpleWithCustomItem() serialiser.");
         }
 
-        return new Upgrade<>( id, serialiser, s ->
-            s.addProperty( "item", Objects.requireNonNull( ForgeRegistries.ITEMS.getKey( item ), "Item is not registered" ).toString() )
+        return new Upgrade<>(id, serialiser, s ->
+            s.addProperty("item", Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item), "Item is not registered").toString())
         );
     }
 
@@ -106,65 +100,55 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
      *
      * @param addUpgrade A callback used to register an upgrade.
      */
-    protected abstract void addUpgrades( @Nonnull Consumer<Upgrade<R>> addUpgrade );
+    protected abstract void addUpgrades(@Nonnull Consumer<Upgrade<R>> addUpgrade);
 
     @Override
-    public final void run( @Nonnull CachedOutput cache ) throws IOException
-    {
-        var registry = RegistryManager.ACTIVE.getRegistry( this.registry );
-        Path base = generator.getOutputFolder().resolve( "data" );
+    public final void run(@Nonnull CachedOutput cache) throws IOException {
+        var registry = RegistryManager.ACTIVE.getRegistry(this.registry);
+        var base = generator.getOutputFolder().resolve("data");
 
         Set<ResourceLocation> seen = new HashSet<>();
         List<T> upgrades = new ArrayList<>();
-        addUpgrades( upgrade -> {
-            if( !seen.add( upgrade.id() ) ) throw new IllegalStateException( "Duplicate upgrade " + upgrade.id() );
+        addUpgrades(upgrade -> {
+            if (!seen.add(upgrade.id())) throw new IllegalStateException("Duplicate upgrade " + upgrade.id());
 
             var json = new JsonObject();
-            json.addProperty( "type", Objects.requireNonNull( registry.getKey( upgrade.serialiser() ), "Serialiser has not been registered" ).toString() );
-            upgrade.serialise().accept( json );
+            json.addProperty("type", Objects.requireNonNull(registry.getKey(upgrade.serialiser()), "Serialiser has not been registered").toString());
+            upgrade.serialise().accept(json);
 
-            try
-            {
-                DataProvider.saveStable( cache, json, base.resolve( upgrade.id().getNamespace() + "/" + folder + "/" + upgrade.id().getPath() + ".json" ) );
-            }
-            catch( IOException e )
-            {
-                LOGGER.error( "Failed to save {} {}", name, upgrade.id(), e );
+            try {
+                DataProvider.saveStable(cache, json, base.resolve(upgrade.id().getNamespace() + "/" + folder + "/" + upgrade.id().getPath() + ".json"));
+            } catch (IOException e) {
+                LOGGER.error("Failed to save {} {}", name, upgrade.id(), e);
             }
 
-            try
-            {
-                var result = upgrade.serialiser().fromJson( upgrade.id(), json );
-                upgrades.add( result );
+            try {
+                var result = upgrade.serialiser().fromJson(upgrade.id(), json);
+                upgrades.add(result);
+            } catch (IllegalArgumentException | JsonParseException e) {
+                LOGGER.error("Failed to parse {} {}", name, upgrade.id(), e);
             }
-            catch( IllegalArgumentException | JsonParseException e )
-            {
-                LOGGER.error( "Failed to parse {} {}", name, upgrade.id(), e );
-            }
-        } );
+        });
 
         this.upgrades = upgrades;
     }
 
     @Nonnull
     @Override
-    public final String getName()
-    {
+    public final String getName() {
         return name;
     }
 
     @Nonnull
-    public final R existingSerialiser( @Nonnull ResourceLocation id )
-    {
-        var result = RegistryManager.ACTIVE.getRegistry( registry ).getValue( id );
-        if( result == null ) throw new IllegalArgumentException( "No such serialiser " + registry );
+    public final R existingSerialiser(@Nonnull ResourceLocation id) {
+        var result = RegistryManager.ACTIVE.getRegistry(registry).getValue(id);
+        if (result == null) throw new IllegalArgumentException("No such serialiser " + registry);
         return result;
     }
 
     @Nonnull
-    public List<T> getGeneratedUpgrades()
-    {
-        if( upgrades == null ) throw new IllegalStateException( "Upgrades have not beeen generated yet" );
+    public List<T> getGeneratedUpgrades() {
+        if (upgrades == null) throw new IllegalStateException("Upgrades have not beeen generated yet");
         return upgrades;
     }
 
@@ -178,16 +162,14 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
      */
     public record Upgrade<R extends UpgradeSerialiser<?>>(
         ResourceLocation id, R serialiser, Consumer<JsonObject> serialise
-    )
-    {
+    ) {
         /**
          * Convenience method for registering an upgrade.
          *
          * @param add The callback given to {@link #addUpgrades(Consumer)}
          */
-        public void add( @Nonnull Consumer<Upgrade<R>> add )
-        {
-            add.accept( this );
+        public void add(@Nonnull Consumer<Upgrade<R>> add) {
+            add.accept(this);
         }
     }
 }

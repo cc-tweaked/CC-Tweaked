@@ -27,8 +27,7 @@ import java.util.zip.GZIPOutputStream;
  * complete and accurate description of a terminal, which avoids a lot of complexities with resizing terminals, dirty
  * states, etc...
  */
-public class TerminalState
-{
+public class TerminalState {
     public final boolean colour;
 
     public final int width;
@@ -41,150 +40,119 @@ public class TerminalState
 
     private ByteBuf compressed;
 
-    public TerminalState( @Nullable NetworkedTerminal terminal )
-    {
-        this( terminal, true );
+    public TerminalState(@Nullable NetworkedTerminal terminal) {
+        this(terminal, true);
     }
 
-    public TerminalState( @Nullable NetworkedTerminal terminal, boolean compress )
-    {
+    public TerminalState(@Nullable NetworkedTerminal terminal, boolean compress) {
         this.compress = compress;
 
-        if( terminal == null )
-        {
+        if (terminal == null) {
             colour = false;
             width = height = 0;
             buffer = null;
-        }
-        else
-        {
+        } else {
             colour = terminal.isColour();
             width = terminal.getWidth();
             height = terminal.getHeight();
 
-            ByteBuf buf = buffer = Unpooled.buffer();
-            terminal.write( new FriendlyByteBuf( buf ) );
+            var buf = buffer = Unpooled.buffer();
+            terminal.write(new FriendlyByteBuf(buf));
         }
     }
 
-    public TerminalState( FriendlyByteBuf buf )
-    {
+    public TerminalState(FriendlyByteBuf buf) {
         colour = buf.readBoolean();
         compress = buf.readBoolean();
 
-        if( buf.readBoolean() )
-        {
+        if (buf.readBoolean()) {
             width = buf.readVarInt();
             height = buf.readVarInt();
 
-            int length = buf.readVarInt();
-            buffer = readCompressed( buf, length, compress );
-        }
-        else
-        {
+            var length = buf.readVarInt();
+            buffer = readCompressed(buf, length, compress);
+        } else {
             width = height = 0;
             buffer = null;
         }
     }
 
-    public void write( FriendlyByteBuf buf )
-    {
-        buf.writeBoolean( colour );
-        buf.writeBoolean( compress );
+    public void write(FriendlyByteBuf buf) {
+        buf.writeBoolean(colour);
+        buf.writeBoolean(compress);
 
-        buf.writeBoolean( buffer != null );
-        if( buffer != null )
-        {
-            buf.writeVarInt( width );
-            buf.writeVarInt( height );
+        buf.writeBoolean(buffer != null);
+        if (buffer != null) {
+            buf.writeVarInt(width);
+            buf.writeVarInt(height);
 
-            ByteBuf sendBuffer = getCompressed();
-            buf.writeVarInt( sendBuffer.readableBytes() );
-            buf.writeBytes( sendBuffer, sendBuffer.readerIndex(), sendBuffer.readableBytes() );
+            var sendBuffer = getCompressed();
+            buf.writeVarInt(sendBuffer.readableBytes());
+            buf.writeBytes(sendBuffer, sendBuffer.readerIndex(), sendBuffer.readableBytes());
         }
     }
 
-    public boolean hasTerminal()
-    {
+    public boolean hasTerminal() {
         return buffer != null;
     }
 
-    public int size()
-    {
+    public int size() {
         return buffer == null ? 0 : buffer.readableBytes();
     }
 
-    public void apply( NetworkedTerminal terminal )
-    {
-        if( buffer == null ) throw new NullPointerException( "buffer" );
-        terminal.resize( width, height );
-        terminal.read( new FriendlyByteBuf( buffer ) );
+    public void apply(NetworkedTerminal terminal) {
+        if (buffer == null) throw new NullPointerException("buffer");
+        terminal.resize(width, height);
+        terminal.read(new FriendlyByteBuf(buffer));
     }
 
-    public NetworkedTerminal create()
-    {
-        if( buffer == null ) throw new NullPointerException( "Terminal does not exist" );
-        NetworkedTerminal terminal = new NetworkedTerminal( width, height, colour );
-        terminal.read( new FriendlyByteBuf( buffer ) );
+    public NetworkedTerminal create() {
+        if (buffer == null) throw new NullPointerException("Terminal does not exist");
+        var terminal = new NetworkedTerminal(width, height, colour);
+        terminal.read(new FriendlyByteBuf(buffer));
         return terminal;
     }
 
-    private ByteBuf getCompressed()
-    {
-        if( buffer == null ) throw new NullPointerException( "buffer" );
-        if( !compress ) return buffer;
-        if( compressed != null ) return compressed;
+    private ByteBuf getCompressed() {
+        if (buffer == null) throw new NullPointerException("buffer");
+        if (!compress) return buffer;
+        if (compressed != null) return compressed;
 
-        ByteBuf compressed = Unpooled.buffer();
+        var compressed = Unpooled.buffer();
         OutputStream stream = null;
-        try
-        {
-            stream = new GZIPOutputStream( new ByteBufOutputStream( compressed ) );
-            stream.write( buffer.array(), buffer.arrayOffset(), buffer.readableBytes() );
-        }
-        catch( IOException e )
-        {
-            throw new UncheckedIOException( e );
-        }
-        finally
-        {
-            IoUtil.closeQuietly( stream );
+        try {
+            stream = new GZIPOutputStream(new ByteBufOutputStream(compressed));
+            stream.write(buffer.array(), buffer.arrayOffset(), buffer.readableBytes());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } finally {
+            IoUtil.closeQuietly(stream);
         }
 
         return this.compressed = compressed;
     }
 
-    private static ByteBuf readCompressed( ByteBuf buf, int length, boolean compress )
-    {
-        if( compress )
-        {
-            ByteBuf buffer = Unpooled.buffer();
+    private static ByteBuf readCompressed(ByteBuf buf, int length, boolean compress) {
+        if (compress) {
+            var buffer = Unpooled.buffer();
             InputStream stream = null;
-            try
-            {
-                stream = new GZIPInputStream( new ByteBufInputStream( buf, length ) );
-                byte[] swap = new byte[8192];
-                while( true )
-                {
-                    int bytes = stream.read( swap );
-                    if( bytes == -1 ) break;
-                    buffer.writeBytes( swap, 0, bytes );
+            try {
+                stream = new GZIPInputStream(new ByteBufInputStream(buf, length));
+                var swap = new byte[8192];
+                while (true) {
+                    var bytes = stream.read(swap);
+                    if (bytes == -1) break;
+                    buffer.writeBytes(swap, 0, bytes);
                 }
-            }
-            catch( IOException e )
-            {
-                throw new UncheckedIOException( e );
-            }
-            finally
-            {
-                IoUtil.closeQuietly( stream );
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            } finally {
+                IoUtil.closeQuietly(stream);
             }
             return buffer;
-        }
-        else
-        {
-            ByteBuf buffer = Unpooled.buffer( length );
-            buf.readBytes( buffer, length );
+        } else {
+            var buffer = Unpooled.buffer(length);
+            buf.readBytes(buffer, length);
             return buffer;
         }
     }

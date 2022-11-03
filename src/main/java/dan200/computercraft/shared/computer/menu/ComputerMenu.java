@@ -13,8 +13,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
  * An instance of {@link AbstractContainerMenu} which provides a computer. You should implement this if you provide
  * custom computer GUIs.
  */
-public interface ComputerMenu
-{
+public interface ComputerMenu {
     /**
      * Get the computer you are interacting with.
      *
@@ -38,5 +37,5 @@ public interface ComputerMenu
      * @param state The new terminal state.
      * @throws UnsupportedOperationException When used on the server.
      */
-    void updateTerminal( TerminalState state );
+    void updateTerminal(TerminalState state);
 }

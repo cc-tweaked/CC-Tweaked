@@ -12,7 +12,6 @@ import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -21,16 +20,14 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 
-class GenericPeripheral implements IDynamicPeripheral
-{
+class GenericPeripheral implements IDynamicPeripheral {
     private final String type;
     private final Set<String> additionalTypes;
     private final BlockEntity tile;
     private final List<SaturatedMethod> methods;
 
-    GenericPeripheral( BlockEntity tile, String name, Set<String> additionalTypes, List<SaturatedMethod> methods )
-    {
-        ResourceLocation type = ForgeRegistries.BLOCK_ENTITY_TYPES.getKey( tile.getType() );
+    GenericPeripheral(BlockEntity tile, String name, Set<String> additionalTypes, List<SaturatedMethod> methods) {
+        var type = ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(tile.getType());
         this.tile = tile;
         this.type = name != null ? name : (type != null ? type.toString() : "unknown");
         this.additionalTypes = additionalTypes;
@@ -39,47 +36,41 @@ class GenericPeripheral implements IDynamicPeripheral
 
     @Nonnull
     @Override
-    public String[] getMethodNames()
-    {
-        String[] names = new String[methods.size()];
-        for( int i = 0; i < methods.size(); i++ ) names[i] = methods.get( i ).getName();
+    public String[] getMethodNames() {
+        var names = new String[methods.size()];
+        for (var i = 0; i < methods.size(); i++) names[i] = methods.get(i).getName();
         return names;
     }
 
     @Nonnull
     @Override
-    public MethodResult callMethod( @Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull IArguments arguments ) throws LuaException
-    {
-        return methods.get( method ).apply( context, computer, arguments );
+    public MethodResult callMethod(@Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull IArguments arguments) throws LuaException {
+        return methods.get(method).apply(context, computer, arguments);
     }
 
     @Nonnull
     @Override
-    public String getType()
-    {
+    public String getType() {
         return type;
     }
 
     @Nonnull
     @Override
-    public Set<String> getAdditionalTypes()
-    {
+    public Set<String> getAdditionalTypes() {
         return additionalTypes;
     }
 
     @Nullable
     @Override
-    public Object getTarget()
-    {
+    public Object getTarget() {
         return tile;
     }
 
     @Override
-    public boolean equals( @Nullable IPeripheral other )
-    {
-        if( other == this ) return true;
-        if( !(other instanceof GenericPeripheral generic) ) return false;
+    public boolean equals(@Nullable IPeripheral other) {
+        if (other == this) return true;
+        if (!(other instanceof GenericPeripheral generic)) return false;
 
-        return tile == generic.tile && methods.equals( generic.methods );
+        return tile == generic.tile && methods.equals(generic.methods);
     }
 }

@@ -13,8 +13,6 @@ import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 import dan200.computercraft.shared.util.InventoryUtil;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.NonNullList;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
@@ -35,19 +33,16 @@ import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
  *
  * @cc.module pocket
  */
-public class PocketAPI implements ILuaAPI
-{
+public class PocketAPI implements ILuaAPI {
     private final PocketServerComputer computer;
 
-    public PocketAPI( PocketServerComputer computer )
-    {
+    public PocketAPI(PocketServerComputer computer) {
         this.computer = computer;
     }
 
     @Override
-    public String[] getNames()
-    {
-        return new String[] { "pocket" };
+    public String[] getNames() {
+        return new String[]{ "pocket" };
     }
 
     /**
@@ -59,41 +54,36 @@ public class PocketAPI implements ILuaAPI
      * @cc.treturn boolean If an item was equipped.
      * @cc.treturn string|nil The reason an item was not equipped.
      */
-    @LuaFunction( mainThread = true )
-    public final Object[] equipBack()
-    {
-        Entity entity = computer.getEntity();
-        if( !(entity instanceof Player player) ) return new Object[] { false, "Cannot find player" };
-        Inventory inventory = player.getInventory();
-        IPocketUpgrade previousUpgrade = computer.getUpgrade();
+    @LuaFunction(mainThread = true)
+    public final Object[] equipBack() {
+        var entity = computer.getEntity();
+        if (!(entity instanceof Player player)) return new Object[]{ false, "Cannot find player" };
+        var inventory = player.getInventory();
+        var previousUpgrade = computer.getUpgrade();
 
         // Attempt to find the upgrade, starting in the main segment, and then looking in the opposite
         // one. We start from the position the item is currently in and loop round to the start.
-        IPocketUpgrade newUpgrade = findUpgrade( inventory.items, inventory.selected, previousUpgrade );
-        if( newUpgrade == null )
-        {
-            newUpgrade = findUpgrade( inventory.offhand, 0, previousUpgrade );
+        var newUpgrade = findUpgrade(inventory.items, inventory.selected, previousUpgrade);
+        if (newUpgrade == null) {
+            newUpgrade = findUpgrade(inventory.offhand, 0, previousUpgrade);
         }
-        if( newUpgrade == null ) return new Object[] { false, "Cannot find a valid upgrade" };
+        if (newUpgrade == null) return new Object[]{ false, "Cannot find a valid upgrade" };
 
         // Remove the current upgrade
-        if( previousUpgrade != null )
-        {
-            ItemStack stack = previousUpgrade.getCraftingItem();
-            if( !stack.isEmpty() )
-            {
-                stack = InventoryUtil.storeItems( stack, new PlayerMainInvWrapper( inventory ), inventory.selected );
-                if( !stack.isEmpty() )
-                {
-                    WorldUtil.dropItemStack( stack, player.getCommandSenderWorld(), player.position() );
+        if (previousUpgrade != null) {
+            var stack = previousUpgrade.getCraftingItem();
+            if (!stack.isEmpty()) {
+                stack = InventoryUtil.storeItems(stack, new PlayerMainInvWrapper(inventory), inventory.selected);
+                if (!stack.isEmpty()) {
+                    WorldUtil.dropItemStack(stack, player.getCommandSenderWorld(), player.position());
                 }
             }
         }
 
         // Set the new upgrade
-        computer.setUpgrade( newUpgrade );
+        computer.setUpgrade(newUpgrade);
 
-        return new Object[] { true };
+        return new Object[]{ true };
     }
 
     /**
@@ -103,46 +93,39 @@ public class PocketAPI implements ILuaAPI
      * @cc.treturn boolean If the upgrade was unequipped.
      * @cc.treturn string|nil The reason an upgrade was not unequipped.
      */
-    @LuaFunction( mainThread = true )
-    public final Object[] unequipBack()
-    {
-        Entity entity = computer.getEntity();
-        if( !(entity instanceof Player player) ) return new Object[] { false, "Cannot find player" };
-        Inventory inventory = player.getInventory();
-        IPocketUpgrade previousUpgrade = computer.getUpgrade();
+    @LuaFunction(mainThread = true)
+    public final Object[] unequipBack() {
+        var entity = computer.getEntity();
+        if (!(entity instanceof Player player)) return new Object[]{ false, "Cannot find player" };
+        var inventory = player.getInventory();
+        var previousUpgrade = computer.getUpgrade();
 
-        if( previousUpgrade == null ) return new Object[] { false, "Nothing to unequip" };
+        if (previousUpgrade == null) return new Object[]{ false, "Nothing to unequip" };
 
-        computer.setUpgrade( null );
+        computer.setUpgrade(null);
 
-        ItemStack stack = previousUpgrade.getCraftingItem();
-        if( !stack.isEmpty() )
-        {
-            stack = InventoryUtil.storeItems( stack, new PlayerMainInvWrapper( inventory ), inventory.selected );
-            if( stack.isEmpty() )
-            {
-                WorldUtil.dropItemStack( stack, player.getCommandSenderWorld(), player.position() );
+        var stack = previousUpgrade.getCraftingItem();
+        if (!stack.isEmpty()) {
+            stack = InventoryUtil.storeItems(stack, new PlayerMainInvWrapper(inventory), inventory.selected);
+            if (stack.isEmpty()) {
+                WorldUtil.dropItemStack(stack, player.getCommandSenderWorld(), player.position());
             }
         }
 
-        return new Object[] { true };
+        return new Object[]{ true };
     }
 
-    private static IPocketUpgrade findUpgrade( NonNullList<ItemStack> inv, int start, IPocketUpgrade previous )
-    {
-        for( int i = 0; i < inv.size(); i++ )
-        {
-            ItemStack invStack = inv.get( (i + start) % inv.size() );
-            if( !invStack.isEmpty() )
-            {
-                IPocketUpgrade newUpgrade = PocketUpgrades.instance().get( invStack );
+    private static IPocketUpgrade findUpgrade(NonNullList<ItemStack> inv, int start, IPocketUpgrade previous) {
+        for (var i = 0; i < inv.size(); i++) {
+            var invStack = inv.get((i + start) % inv.size());
+            if (!invStack.isEmpty()) {
+                var newUpgrade = PocketUpgrades.instance().get(invStack);
 
-                if( newUpgrade != null && newUpgrade != previous )
-                {
+                if (newUpgrade != null && newUpgrade != previous) {
                     // Consume an item from this stack and exit the loop
                     invStack = invStack.copy();
-                    invStack.shrink( 1 );
-                    inv.set( (i + start) % inv.size(), invStack.isEmpty() ? ItemStack.EMPTY : invStack );
+                    invStack.shrink(1);
+                    inv.set((i + start) % inv.size(), invStack.isEmpty() ? ItemStack.EMPTY : invStack);
 
                     return newUpgrade;
                 }

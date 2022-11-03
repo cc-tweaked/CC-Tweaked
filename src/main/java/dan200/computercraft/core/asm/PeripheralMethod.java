@@ -15,16 +15,15 @@ import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 
-public interface PeripheralMethod
-{
-    Generator<PeripheralMethod> GENERATOR = new Generator<>( PeripheralMethod.class, Arrays.asList( ILuaContext.class, IComputerAccess.class ),
-        m -> ( target, context, computer, args ) -> context.executeMainThreadTask( () -> ResultHelpers.checkNormalResult( m.apply( target, context, computer, args ) ) )
+public interface PeripheralMethod {
+    Generator<PeripheralMethod> GENERATOR = new Generator<>(PeripheralMethod.class, Arrays.asList(ILuaContext.class, IComputerAccess.class),
+        m -> (target, context, computer, args) -> context.executeMainThreadTask(() -> ResultHelpers.checkNormalResult(m.apply(target, context, computer, args)))
     );
 
     IntCache<PeripheralMethod> DYNAMIC = new IntCache<>(
-        method -> ( instance, context, computer, args ) -> ((IDynamicPeripheral) instance).callMethod( computer, context, method, args )
+        method -> (instance, context, computer, args) -> ((IDynamicPeripheral) instance).callMethod(computer, context, method, args)
     );
 
     @Nonnull
-    MethodResult apply( @Nonnull Object target, @Nonnull ILuaContext context, @Nonnull IComputerAccess computer, @Nonnull IArguments args ) throws LuaException;
+    MethodResult apply(@Nonnull Object target, @Nonnull ILuaContext context, @Nonnull IComputerAccess computer, @Nonnull IArguments args) throws LuaException;
 }

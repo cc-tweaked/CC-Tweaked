@@ -25,72 +25,63 @@ import net.minecraftforge.registries.RegistryObject;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class BlockGeneric extends BaseEntityBlock
-{
+public abstract class BlockGeneric extends BaseEntityBlock {
     private final RegistryObject<? extends BlockEntityType<? extends TileGeneric>> type;
 
-    public BlockGeneric( Properties settings, RegistryObject<? extends BlockEntityType<? extends TileGeneric>> type )
-    {
-        super( settings );
+    public BlockGeneric(Properties settings, RegistryObject<? extends BlockEntityType<? extends TileGeneric>> type) {
+        super(settings);
         this.type = type;
     }
 
     @Override
     @Deprecated
-    public final void onRemove( @Nonnull BlockState block, @Nonnull Level world, @Nonnull BlockPos pos, BlockState replace, boolean bool )
-    {
-        if( block.getBlock() == replace.getBlock() ) return;
+    public final void onRemove(@Nonnull BlockState block, @Nonnull Level world, @Nonnull BlockPos pos, BlockState replace, boolean bool) {
+        if (block.getBlock() == replace.getBlock()) return;
 
-        BlockEntity tile = world.getBlockEntity( pos );
-        super.onRemove( block, world, pos, replace, bool );
-        world.removeBlockEntity( pos );
-        if( tile instanceof TileGeneric generic ) generic.destroy();
+        var tile = world.getBlockEntity(pos);
+        super.onRemove(block, world, pos, replace, bool);
+        world.removeBlockEntity(pos);
+        if (tile instanceof TileGeneric generic) generic.destroy();
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public final InteractionResult use( @Nonnull BlockState state, Level world, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult hit )
-    {
-        BlockEntity tile = world.getBlockEntity( pos );
-        return tile instanceof TileGeneric generic ? generic.onActivate( player, hand, hit ) : InteractionResult.PASS;
+    public final InteractionResult use(@Nonnull BlockState state, Level world, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult hit) {
+        var tile = world.getBlockEntity(pos);
+        return tile instanceof TileGeneric generic ? generic.onActivate(player, hand, hit) : InteractionResult.PASS;
     }
 
     @Override
     @Deprecated
-    public final void neighborChanged( @Nonnull BlockState state, Level world, @Nonnull BlockPos pos, @Nonnull Block neighbourBlock, @Nonnull BlockPos neighbourPos, boolean isMoving )
-    {
-        BlockEntity tile = world.getBlockEntity( pos );
-        if( tile instanceof TileGeneric generic ) generic.onNeighbourChange( neighbourPos );
+    public final void neighborChanged(@Nonnull BlockState state, Level world, @Nonnull BlockPos pos, @Nonnull Block neighbourBlock, @Nonnull BlockPos neighbourPos, boolean isMoving) {
+        var tile = world.getBlockEntity(pos);
+        if (tile instanceof TileGeneric generic) generic.onNeighbourChange(neighbourPos);
     }
 
     @Override
-    public final void onNeighborChange( BlockState state, LevelReader world, BlockPos pos, BlockPos neighbour )
-    {
-        BlockEntity tile = world.getBlockEntity( pos );
-        if( tile instanceof TileGeneric generic ) generic.onNeighbourTileEntityChange( neighbour );
+    public final void onNeighborChange(BlockState state, LevelReader world, BlockPos pos, BlockPos neighbour) {
+        var tile = world.getBlockEntity(pos);
+        if (tile instanceof TileGeneric generic) generic.onNeighbourTileEntityChange(neighbour);
     }
 
     @Override
     @Deprecated
-    public void tick( @Nonnull BlockState state, ServerLevel world, @Nonnull BlockPos pos, @Nonnull RandomSource rand )
-    {
-        BlockEntity te = world.getBlockEntity( pos );
-        if( te instanceof TileGeneric generic ) generic.blockTick();
+    public void tick(@Nonnull BlockState state, ServerLevel world, @Nonnull BlockPos pos, @Nonnull RandomSource rand) {
+        var te = world.getBlockEntity(pos);
+        if (te instanceof TileGeneric generic) generic.blockTick();
     }
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity( @Nonnull BlockPos pos, @Nonnull BlockState state )
-    {
-        return type.get().create( pos, state );
+    public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
+        return type.get().create(pos, state);
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public RenderShape getRenderShape( @Nonnull BlockState state )
-    {
+    public RenderShape getRenderShape(@Nonnull BlockState state) {
         return RenderShape.MODEL;
     }
 }

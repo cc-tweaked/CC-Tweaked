@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.network.server;
 
-import dan200.computercraft.shared.computer.upload.FileSlice;
 import dan200.computercraft.shared.computer.upload.FileUpload;
 import dan200.computercraft.support.FakeContainer;
 import dan200.computercraft.support.WithMinecraft;
@@ -30,20 +29,18 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @WithMinecraft
-public class UploadFileMessageTest
-{
+public class UploadFileMessageTest {
     /**
      * Sends packets on a roundtrip, ensuring that their contents are reassembled on the other end.
      *
      * @param sentFiles The files to send.
      */
-    @Property( tries = 200 )
-    @Tag( "slow" )
-    public void testRoundTrip( @ForAll( "fileUploads" ) List<FileUpload> sentFiles )
-    {
+    @Property(tries = 200)
+    @Tag("slow")
+    public void testRoundTrip(@ForAll("fileUploads") List<FileUpload> sentFiles) {
         WithMinecraft.Setup.bootstrap();
-        List<FileUpload> receivedFiles = receive( roundtripPackets( send( sentFiles ) ) );
-        assertThat( receivedFiles, containsWith( sentFiles, UploadFileMessageTest::uploadEqual ) );
+        var receivedFiles = receive(roundtripPackets(send(sentFiles)));
+        assertThat(receivedFiles, containsWith(sentFiles, UploadFileMessageTest::uploadEqual));
     }
 
     /**
@@ -52,10 +49,9 @@ public class UploadFileMessageTest
      * @param uploads The files to send.
      * @return The list of packets.
      */
-    private static List<UploadFileMessage> send( List<FileUpload> uploads )
-    {
+    private static List<UploadFileMessage> send(List<FileUpload> uploads) {
         List<UploadFileMessage> packets = new ArrayList<>();
-        UploadFileMessage.send( new FakeContainer(), uploads, packets::add );
+        UploadFileMessage.send(new FakeContainer(), uploads, packets::add);
         return packets;
     }
 
@@ -65,30 +61,28 @@ public class UploadFileMessageTest
      * @param packets The packets to roundtrip.
      * @return The
      */
-    private static List<UploadFileMessage> roundtripPackets( List<UploadFileMessage> packets )
-    {
-        return packets.stream().map( packet -> {
-            FriendlyByteBuf buffer = new FriendlyByteBuf( Unpooled.directBuffer() );
-            packet.toBytes( buffer );
+    private static List<UploadFileMessage> roundtripPackets(List<UploadFileMessage> packets) {
+        return packets.stream().map(packet -> {
+            var buffer = new FriendlyByteBuf(Unpooled.directBuffer());
+            packet.toBytes(buffer);
             // We include things like file size in the packet, but not in the count, so grant a slightly larger threshold.
-            assertThat( "Packet is too large", buffer.writerIndex(), lessThanOrEqualTo( MAX_PACKET_SIZE + 128 ) );
-            if( (packet.flag & FLAG_LAST) == 0 )
-            {
-                int expectedSize = (packet.flag & FLAG_FIRST) != 0
+            assertThat("Packet is too large", buffer.writerIndex(), lessThanOrEqualTo(MAX_PACKET_SIZE + 128));
+            if ((packet.flag & FLAG_LAST) == 0) {
+                var expectedSize = (packet.flag & FLAG_FIRST) != 0
                     ? MAX_PACKET_SIZE - MAX_FILE_NAME * MAX_FILES
                     : MAX_PACKET_SIZE;
                 assertThat(
-                    "Non-final packets should be efficiently packed", buffer.writerIndex(), greaterThanOrEqualTo( expectedSize )
+                    "Non-final packets should be efficiently packed", buffer.writerIndex(), greaterThanOrEqualTo(expectedSize)
                 );
             }
 
-            UploadFileMessage result = new UploadFileMessage( buffer );
+            var result = new UploadFileMessage(buffer);
 
             buffer.release();
-            assertEquals( 0, buffer.refCnt(), "Buffer should have no references" );
+            assertEquals(0, buffer.refCnt(), "Buffer should have no references");
 
             return result;
-        } ).collect( Collectors.toList() );
+        }).collect(Collectors.toList());
     }
 
     /**
@@ -98,58 +92,52 @@ public class UploadFileMessageTest
      *                so you may want to copy (or {@linkplain #roundtripPackets(List) roundtrip} first.
      * @return The consumed file uploads.
      */
-    private static List<FileUpload> receive( List<UploadFileMessage> packets )
-    {
-        List<FileUpload> files = packets.get( 0 ).files;
-        for( int i = 0; i < packets.size(); i++ )
-        {
-            UploadFileMessage packet = packets.get( i );
-            boolean isFirst = i == 0;
-            boolean isLast = i == packets.size() - 1;
-            assertEquals( isFirst, (packet.flag & FLAG_FIRST) != 0, "FLAG_FIRST" );
-            assertEquals( isLast, (packet.flag & FLAG_LAST) != 0, "FLAG_LAST" );
+    private static List<FileUpload> receive(List<UploadFileMessage> packets) {
+        var files = packets.get(0).files;
+        for (var i = 0; i < packets.size(); i++) {
+            var packet = packets.get(i);
+            var isFirst = i == 0;
+            var isLast = i == packets.size() - 1;
+            assertEquals(isFirst, (packet.flag & FLAG_FIRST) != 0, "FLAG_FIRST");
+            assertEquals(isLast, (packet.flag & FLAG_LAST) != 0, "FLAG_LAST");
 
-            for( FileSlice slice : packet.slices ) slice.apply( files );
+            for (var slice : packet.slices) slice.apply(files);
         }
 
         return files;
     }
 
     @Provide
-    Arbitrary<FileUpload> fileUpload()
-    {
+    Arbitrary<FileUpload> fileUpload() {
         return Combinators.combine(
-            Arbitraries.oneOf( Arrays.asList(
+            Arbitraries.oneOf(Arrays.asList(
                 // 1.16 doesn't correctly handle unicode file names. We'll be generous in our tests here.
-                Arbitraries.strings().ofMinLength( 1 ).ascii().ofMaxLength( MAX_FILE_NAME ),
-                Arbitraries.strings().ofMinLength( 1 ).ofMaxLength( MAX_FILE_NAME / 4 )
-            ) ),
-            ArbitraryByteBuffer.bytes().ofMaxSize( MAX_SIZE )
-        ).as( UploadFileMessageTest::file );
+                Arbitraries.strings().ofMinLength(1).ascii().ofMaxLength(MAX_FILE_NAME),
+                Arbitraries.strings().ofMinLength(1).ofMaxLength(MAX_FILE_NAME / 4)
+            )),
+            ArbitraryByteBuffer.bytes().ofMaxSize(MAX_SIZE)
+        ).as(UploadFileMessageTest::file);
     }
 
     @Provide
-    Arbitrary<List<FileUpload>> fileUploads()
-    {
+    Arbitrary<List<FileUpload>> fileUploads() {
         return fileUpload().list()
-            .ofMinSize( 1 ).ofMaxSize( MAX_FILES )
-            .filter( us -> us.stream().mapToInt( u -> u.getBytes().remaining() ).sum() <= MAX_SIZE );
+            .ofMinSize(1).ofMaxSize(MAX_FILES)
+            .filter(us -> us.stream().mapToInt(u -> u.getBytes().remaining()).sum() <= MAX_SIZE);
     }
 
-    private static FileUpload file( String name, ByteBuffer buffer )
-    {
-        byte[] checksum = FileUpload.getDigest( buffer );
-        if( checksum == null ) throw new IllegalStateException( "Failed to compute checksum" );
+    private static FileUpload file(String name, ByteBuffer buffer) {
+        var checksum = FileUpload.getDigest(buffer);
+        if (checksum == null) throw new IllegalStateException("Failed to compute checksum");
 
-        return new FileUpload( name, buffer, checksum );
+        return new FileUpload(name, buffer, checksum);
     }
 
-    public static Matcher<FileUpload> uploadEqual( FileUpload upload )
-    {
+    public static Matcher<FileUpload> uploadEqual(FileUpload upload) {
         return allOf(
-            contramap( equalTo( upload.getName() ), "name", FileUpload::getName ),
-            contramap( equalTo( upload.getChecksum() ), "checksum", FileUpload::getChecksum ),
-            contramap( bufferEqual( upload.getBytes() ), "bytes", FileUpload::getBytes )
+            contramap(equalTo(upload.getName()), "name", FileUpload::getName),
+            contramap(equalTo(upload.getChecksum()), "checksum", FileUpload::getChecksum),
+            contramap(bufferEqual(upload.getBytes()), "bytes", FileUpload::getBytes)
         );
     }
 }

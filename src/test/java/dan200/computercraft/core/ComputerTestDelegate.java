@@ -27,13 +27,10 @@ import org.opentest4j.AssertionFailedError;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
 import java.net.URI;
 import java.nio.channels.Channels;
-import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,7 +38,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -56,21 +52,20 @@ import java.util.stream.Stream;
  * <p>
  * Once all tests are done, we invoke {@code cct_test.finish} in order to mark everything as complete.
  */
-public class ComputerTestDelegate
-{
-    private static final Path REPORT_PATH = TestFiles.get( "luacov.report.out" );
+public class ComputerTestDelegate {
+    private static final Path REPORT_PATH = TestFiles.get("luacov.report.out");
 
-    private static final Logger LOG = LogManager.getLogger( ComputerTestDelegate.class );
+    private static final Logger LOG = LogManager.getLogger(ComputerTestDelegate.class);
 
-    private static final long TICK_TIME = TimeUnit.MILLISECONDS.toNanos( 50 );
+    private static final long TICK_TIME = TimeUnit.MILLISECONDS.toNanos(50);
 
-    private static final long TIMEOUT = TimeUnit.SECONDS.toNanos( 10 );
+    private static final long TIMEOUT = TimeUnit.SECONDS.toNanos(10);
 
     private static final Set<String> SKIP_KEYWORDS = new HashSet<>(
-        Arrays.asList( System.getProperty( "cc.skip_keywords", "" ).split( "," ) )
+        Arrays.asList(System.getProperty("cc.skip_keywords", "").split(","))
     );
 
-    private static final Pattern KEYWORD = Pattern.compile( ":([a-z_]+)" );
+    private static final Pattern KEYWORD = Pattern.compile(":([a-z_]+)");
 
     private final ReentrantLock lock = new ReentrantLock();
     private ComputerContext context;
@@ -89,463 +84,381 @@ public class ComputerTestDelegate
     private Map<String, Map<Double, Double>> finishedWith;
 
     @BeforeEach
-    public void before() throws IOException
-    {
+    public void before() throws IOException {
         ComputerCraft.logComputerErrors = true;
 
-        if( Files.deleteIfExists( REPORT_PATH ) ) ComputerCraft.log.info( "Deleted previous coverage report." );
+        if (Files.deleteIfExists(REPORT_PATH)) ComputerCraft.log.info("Deleted previous coverage report.");
 
-        Terminal term = new Terminal( 80, 100, true );
-        IWritableMount mount = new FileMount( TestFiles.get( "mount" ).toFile(), 10_000_000 );
+        var term = new Terminal(80, 100, true);
+        IWritableMount mount = new FileMount(TestFiles.get("mount").toFile(), 10_000_000);
 
         // Remove any existing files
         List<String> children = new ArrayList<>();
-        mount.list( "", children );
-        for( String child : children ) mount.delete( child );
+        mount.list("", children);
+        for (var child : children) mount.delete(child);
 
         // And add our startup file
-        try( WritableByteChannel channel = mount.openForWrite( "startup.lua" );
-             Writer writer = Channels.newWriter( channel, StandardCharsets.UTF_8.newEncoder(), -1 ) )
-        {
-            writer.write( "loadfile('test-rom/mcfly.lua', nil, _ENV)('test-rom/spec') cct_test.finish()" );
+        try (var channel = mount.openForWrite("startup.lua");
+             var writer = Channels.newWriter(channel, StandardCharsets.UTF_8.newEncoder(), -1)) {
+            writer.write("loadfile('test-rom/mcfly.lua', nil, _ENV)('test-rom/spec') cct_test.finish()");
         }
 
-        BasicEnvironment environment = new BasicEnvironment( mount );
-        context = new ComputerContext( environment, 1, new NoWorkMainThreadScheduler() );
-        computer = new Computer( context, environment, term, 0 );
-        computer.getEnvironment().setPeripheral( ComputerSide.TOP, new FakeModem() );
-        computer.getEnvironment().setPeripheral( ComputerSide.BOTTOM, new FakePeripheralHub() );
-        computer.addApi( new CctTestAPI() );
+        var environment = new BasicEnvironment(mount);
+        context = new ComputerContext(environment, 1, new NoWorkMainThreadScheduler());
+        computer = new Computer(context, environment, term, 0);
+        computer.getEnvironment().setPeripheral(ComputerSide.TOP, new FakeModem());
+        computer.getEnvironment().setPeripheral(ComputerSide.BOTTOM, new FakePeripheralHub());
+        computer.addApi(new CctTestAPI());
 
         computer.turnOn();
     }
 
     @AfterEach
-    public void after() throws InterruptedException, IOException
-    {
-        try
-        {
-            LOG.info( "Finished execution" );
-            computer.queueEvent( "cct_test_run", null );
+    public void after() throws InterruptedException, IOException {
+        try {
+            LOG.info("Finished execution");
+            computer.queueEvent("cct_test_run", null);
 
             // Wait for test execution to fully finish
             lock.lockInterruptibly();
-            try
-            {
-                long remaining = TIMEOUT;
-                while( remaining > 0 && !finished )
-                {
+            try {
+                var remaining = TIMEOUT;
+                while (remaining > 0 && !finished) {
                     tick();
-                    if( hasFinished.awaitNanos( TICK_TIME ) > 0 ) break;
+                    if (hasFinished.awaitNanos(TICK_TIME) > 0) break;
                     remaining -= TICK_TIME;
                 }
 
-                if( remaining <= 0 ) throw new IllegalStateException( "Timed out waiting for finish." + dump() );
-                if( !finished ) throw new IllegalStateException( "Computer did not finish." + dump() );
-            }
-            finally
-            {
+                if (remaining <= 0) throw new IllegalStateException("Timed out waiting for finish." + dump());
+                if (!finished) throw new IllegalStateException("Computer did not finish." + dump());
+            } finally {
                 lock.unlock();
             }
-        }
-        finally
-        {
+        } finally {
             // Show a dump of computer output
-            System.out.println( dump() );
+            System.out.println(dump());
 
             // And shutdown
             computer.shutdown();
         }
 
-        if( finishedWith != null )
-        {
-            Files.createDirectories( REPORT_PATH.getParent() );
-            try( BufferedWriter writer = Files.newBufferedWriter( REPORT_PATH ) )
-            {
-                new LuaCoverage( finishedWith ).write( writer );
+        if (finishedWith != null) {
+            Files.createDirectories(REPORT_PATH.getParent());
+            try (var writer = Files.newBufferedWriter(REPORT_PATH)) {
+                new LuaCoverage(finishedWith).write(writer);
             }
         }
     }
 
     @TestFactory
-    public Stream<DynamicNode> get() throws InterruptedException
-    {
+    public Stream<DynamicNode> get() throws InterruptedException {
         lock.lockInterruptibly();
-        try
-        {
-            long remaining = TIMEOUT;
-            while( remaining > 0 & tests == null )
-            {
+        try {
+            var remaining = TIMEOUT;
+            while (remaining > 0 & tests == null) {
                 tick();
-                if( hasTests.awaitNanos( TICK_TIME ) > 0 ) break;
+                if (hasTests.awaitNanos(TICK_TIME) > 0) break;
                 remaining -= TICK_TIME;
             }
 
-            if( remaining <= 0 ) throw new IllegalStateException( "Timed out waiting for tests. " + dump() );
-            if( tests == null ) throw new IllegalStateException( "Computer did not provide any tests. " + dump() );
-        }
-        finally
-        {
+            if (remaining <= 0) throw new IllegalStateException("Timed out waiting for tests. " + dump());
+            if (tests == null) throw new IllegalStateException("Computer did not provide any tests. " + dump());
+        } finally {
             lock.unlock();
         }
 
         return tests.buildChildren();
     }
 
-    private static class DynamicNodeBuilder
-    {
+    private static class DynamicNodeBuilder {
         private final String name;
         private final URI uri;
         private final Map<String, DynamicNodeBuilder> children;
         private final Executable executor;
 
-        DynamicNodeBuilder( String name, String path )
-        {
+        DynamicNodeBuilder(String name, String path) {
             this.name = name;
-            this.uri = getUri( path );
+            this.uri = getUri(path);
             this.children = new HashMap<>();
             this.executor = null;
         }
 
-        DynamicNodeBuilder( String name, String path, Executable executor )
-        {
+        DynamicNodeBuilder(String name, String path, Executable executor) {
             this.name = name;
-            this.uri = getUri( path );
+            this.uri = getUri(path);
             this.children = Collections.emptyMap();
             this.executor = executor;
         }
 
-        private static URI getUri( String path )
-        {
+        private static URI getUri(String path) {
             // Unfortunately ?line=xxx doesn't appear to work with IntelliJ, so don't worry about getting it working.
-            return path == null ? null : new File( "src/test/resources" + path.substring( 0, path.indexOf( ':' ) ) ).toURI();
+            return path == null ? null : new File("src/test/resources" + path.substring(0, path.indexOf(':'))).toURI();
         }
 
-        DynamicNodeBuilder get( String name )
-        {
-            DynamicNodeBuilder child = children.get( name );
-            if( child == null ) children.put( name, child = new DynamicNodeBuilder( name, null ) );
+        DynamicNodeBuilder get(String name) {
+            var child = children.get(name);
+            if (child == null) children.put(name, child = new DynamicNodeBuilder(name, null));
             return child;
         }
 
-        void runs( String name, String uri, Executable executor )
-        {
-            if( this.executor != null ) throw new IllegalStateException( name + " is leaf node" );
-            if( children.containsKey( name ) ) throw new IllegalStateException( "Duplicate key for " + name );
+        void runs(String name, String uri, Executable executor) {
+            if (this.executor != null) throw new IllegalStateException(name + " is leaf node");
+            if (children.containsKey(name)) throw new IllegalStateException("Duplicate key for " + name);
 
-            children.put( name, new DynamicNodeBuilder( name, uri, executor ) );
+            children.put(name, new DynamicNodeBuilder(name, uri, executor));
         }
 
-        boolean isActive()
-        {
-            Matcher matcher = KEYWORD.matcher( name );
-            while( matcher.find() )
-            {
-                if( SKIP_KEYWORDS.contains( matcher.group( 1 ) ) ) return false;
+        boolean isActive() {
+            var matcher = KEYWORD.matcher(name);
+            while (matcher.find()) {
+                if (SKIP_KEYWORDS.contains(matcher.group(1))) return false;
             }
 
             return true;
         }
 
-        DynamicNode build()
-        {
+        DynamicNode build() {
             return executor == null
-                ? DynamicContainer.dynamicContainer( name, uri, buildChildren() )
-                : DynamicTest.dynamicTest( name, uri, executor );
+                ? DynamicContainer.dynamicContainer(name, uri, buildChildren())
+                : DynamicTest.dynamicTest(name, uri, executor);
         }
 
-        Stream<DynamicNode> buildChildren()
-        {
+        Stream<DynamicNode> buildChildren() {
             return children.values().stream()
-                .filter( DynamicNodeBuilder::isActive )
-                .map( DynamicNodeBuilder::build );
+                .filter(DynamicNodeBuilder::isActive)
+                .map(DynamicNodeBuilder::build);
         }
     }
 
-    private String dump()
-    {
-        if( !computer.isOn() ) return "Computer is currently off.";
+    private String dump() {
+        if (!computer.isOn()) return "Computer is currently off.";
 
-        Terminal term = computer.getAPIEnvironment().getTerminal();
-        StringBuilder builder = new StringBuilder().append( "Computer is currently on.\n" );
+        var term = computer.getAPIEnvironment().getTerminal();
+        var builder = new StringBuilder().append("Computer is currently on.\n");
 
-        for( int line = 0; line < term.getHeight(); line++ )
-        {
-            builder.append( String.format( "%2d | %" + term.getWidth() + "s |\n", line + 1, term.getLine( line ) ) );
+        for (var line = 0; line < term.getHeight(); line++) {
+            builder.append(String.format("%2d | %" + term.getWidth() + "s |\n", line + 1, term.getLine(line)));
         }
 
         computer.shutdown();
         return builder.toString();
     }
 
-    private void tick()
-    {
+    private void tick() {
         computer.tick();
     }
 
-    private static String formatName( String name )
-    {
-        return name.replace( "\0", " -> " );
+    private static String formatName(String name) {
+        return name.replace("\0", " -> ");
     }
 
-    public static class FakeModem implements IPeripheral
-    {
+    public static class FakeModem implements IPeripheral {
         @Nonnull
         @Override
-        public String getType()
-        {
+        public String getType() {
             return "modem";
         }
 
         @Override
-        public boolean equals( @Nullable IPeripheral other )
-        {
+        public boolean equals(@Nullable IPeripheral other) {
             return this == other;
         }
 
         @LuaFunction
-        public final boolean isOpen( int channel )
-        {
+        public final boolean isOpen(int channel) {
             return false;
         }
     }
 
-    public static class FakePeripheralHub implements IPeripheral
-    {
+    public static class FakePeripheralHub implements IPeripheral {
         @Nonnull
         @Override
-        public String getType()
-        {
+        public String getType() {
             return "peripheral_hub";
         }
 
         @Override
-        public boolean equals( @Nullable IPeripheral other )
-        {
+        public boolean equals(@Nullable IPeripheral other) {
             return this == other;
         }
 
         @LuaFunction
-        public final Collection<String> getNamesRemote()
-        {
-            return Collections.singleton( "remote_1" );
+        public final Collection<String> getNamesRemote() {
+            return Collections.singleton("remote_1");
         }
 
         @LuaFunction
-        public final boolean isPresentRemote( String name )
-        {
-            return name.equals( "remote_1" );
+        public final boolean isPresentRemote(String name) {
+            return name.equals("remote_1");
         }
 
         @LuaFunction
-        public final Object[] getTypeRemote( String name )
-        {
-            return name.equals( "remote_1" ) ? new Object[] { "remote", "other_type" } : null;
+        public final Object[] getTypeRemote(String name) {
+            return name.equals("remote_1") ? new Object[]{ "remote", "other_type" } : null;
         }
 
         @LuaFunction
-        public final Object[] hasTypeRemote( String name, String type )
-        {
-            return name.equals( "remote_1" ) ? new Object[] { type.equals( "remote" ) || type.equals( "other_type" ) } : null;
+        public final Object[] hasTypeRemote(String name, String type) {
+            return name.equals("remote_1") ? new Object[]{ type.equals("remote") || type.equals("other_type") } : null;
         }
 
         @LuaFunction
-        public final Object[] getMethodsRemote( String name )
-        {
-            return name.equals( "remote_1" ) ? new Object[] { Collections.singletonList( "func" ) } : null;
+        public final Object[] getMethodsRemote(String name) {
+            return name.equals("remote_1") ? new Object[]{ Collections.singletonList("func") } : null;
         }
     }
 
-    public class CctTestAPI implements ILuaAPI
-    {
+    public class CctTestAPI implements ILuaAPI {
         @Override
-        public String[] getNames()
-        {
-            return new String[] { "cct_test" };
+        public String[] getNames() {
+            return new String[]{ "cct_test" };
         }
 
         @Override
-        public void startup()
-        {
-            try
-            {
+        public void startup() {
+            try {
                 computer.getAPIEnvironment().getFileSystem().mount(
                     "test-rom", "test-rom",
-                    BasicEnvironment.createMount( ComputerTestDelegate.class, "test-rom", "test" )
+                    BasicEnvironment.createMount(ComputerTestDelegate.class, "test-rom", "test")
                 );
-            }
-            catch( FileSystemException e )
-            {
-                throw new IllegalStateException( e );
+            } catch (FileSystemException e) {
+                throw new IllegalStateException(e);
             }
         }
 
         @LuaFunction
-        public final void start( Map<?, ?> tests ) throws LuaException
-        {
+        public final void start(Map<?, ?> tests) throws LuaException {
             // Submit several tests and signal for #get to run
-            LOG.info( "Received tests from computer" );
-            DynamicNodeBuilder root = new DynamicNodeBuilder( "", null );
-            for( Map.Entry<?, ?> entry : tests.entrySet() )
-            {
-                String name = (String) entry.getKey();
-                Map<?, ?> details = (Map<?, ?>) entry.getValue();
-                String def = (String) details.get( "definition" );
+            LOG.info("Received tests from computer");
+            var root = new DynamicNodeBuilder("", null);
+            for (Map.Entry<?, ?> entry : tests.entrySet()) {
+                var name = (String) entry.getKey();
+                var details = (Map<?, ?>) entry.getValue();
+                var def = (String) details.get("definition");
 
-                String[] parts = name.split( "\0" );
-                DynamicNodeBuilder builder = root;
-                for( int i = 0; i < parts.length - 1; i++ ) builder = builder.get( parts[i] );
-                builder.runs( parts[parts.length - 1], def, () -> {
+                var parts = name.split("\0");
+                var builder = root;
+                for (var i = 0; i < parts.length - 1; i++) builder = builder.get(parts[i]);
+                builder.runs(parts[parts.length - 1], def, () -> {
                     // Run it
                     lock.lockInterruptibly();
-                    try
-                    {
+                    try {
                         // Set the current test
                         runResult = null;
                         runFinished = false;
                         currentTest = name;
 
                         // Tell the computer to run it
-                        LOG.info( "Starting '{}'", formatName( name ) );
-                        computer.queueEvent( "cct_test_run", new Object[] { name } );
+                        LOG.info("Starting '{}'", formatName(name));
+                        computer.queueEvent("cct_test_run", new Object[]{ name });
 
-                        long remaining = TIMEOUT;
-                        while( remaining > 0 && computer.isOn() && !runFinished )
-                        {
+                        var remaining = TIMEOUT;
+                        while (remaining > 0 && computer.isOn() && !runFinished) {
                             tick();
 
-                            long waiting = hasRun.awaitNanos( TICK_TIME );
-                            if( waiting > 0 ) break;
+                            var waiting = hasRun.awaitNanos(TICK_TIME);
+                            if (waiting > 0) break;
                             remaining -= TICK_TIME;
                         }
 
-                        LOG.info( "Finished '{}'", formatName( name ) );
+                        LOG.info("Finished '{}'", formatName(name));
 
-                        if( remaining <= 0 )
-                        {
-                            throw new IllegalStateException( "Timed out waiting for test" );
-                        }
-                        else if( !computer.isOn() )
-                        {
-                            throw new IllegalStateException( "Computer turned off mid-execution" );
+                        if (remaining <= 0) {
+                            throw new IllegalStateException("Timed out waiting for test");
+                        } else if (!computer.isOn()) {
+                            throw new IllegalStateException("Computer turned off mid-execution");
                         }
 
-                        if( runResult != null ) throw runResult;
-                    }
-                    finally
-                    {
+                        if (runResult != null) throw runResult;
+                    } finally {
                         lock.unlock();
                         currentTest = null;
                     }
-                } );
+                });
             }
 
-            try
-            {
+            try {
                 lock.lockInterruptibly();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-            catch( InterruptedException e )
-            {
-                throw new RuntimeException( e );
-            }
-            try
-            {
+            try {
                 ComputerTestDelegate.this.tests = root;
                 hasTests.signal();
-            }
-            finally
-            {
+            } finally {
                 lock.unlock();
             }
         }
 
         @LuaFunction
-        public final void submit( Map<?, ?> tbl )
-        {
+        public final void submit(Map<?, ?> tbl) {
             //  Submit the result of a test, allowing the test executor to continue
-            String name = (String) tbl.get( "name" );
-            if( name == null )
-            {
-                ComputerCraft.log.error( "Oh no: {}", tbl );
+            var name = (String) tbl.get("name");
+            if (name == null) {
+                ComputerCraft.log.error("Oh no: {}", tbl);
             }
-            String status = (String) tbl.get( "status" );
-            String message = (String) tbl.get( "message" );
-            String trace = (String) tbl.get( "trace" );
+            var status = (String) tbl.get("status");
+            var message = (String) tbl.get("message");
+            var trace = (String) tbl.get("trace");
 
-            StringBuilder wholeMessage = new StringBuilder();
-            if( message != null ) wholeMessage.append( message );
-            if( trace != null )
-            {
-                if( wholeMessage.length() != 0 ) wholeMessage.append( '\n' );
-                wholeMessage.append( trace );
+            var wholeMessage = new StringBuilder();
+            if (message != null) wholeMessage.append(message);
+            if (trace != null) {
+                if (wholeMessage.length() != 0) wholeMessage.append('\n');
+                wholeMessage.append(trace);
             }
 
-            try
-            {
+            try {
                 lock.lockInterruptibly();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-            catch( InterruptedException e )
-            {
-                throw new RuntimeException( e );
-            }
-            try
-            {
-                LOG.info( "'{}' finished with {}", formatName( name ), status );
+            try {
+                LOG.info("'{}' finished with {}", formatName(name), status);
 
                 // Skip if a test mismatch
-                if( !name.equals( currentTest ) )
-                {
-                    LOG.warn( "Skipping test '{}', as we're currently executing '{}'", formatName( name ), formatName( currentTest ) );
+                if (!name.equals(currentTest)) {
+                    LOG.warn("Skipping test '{}', as we're currently executing '{}'", formatName(name), formatName(currentTest));
                     return;
                 }
 
-                switch( status )
-                {
+                switch (status) {
                     case "ok":
                     case "pending":
                         break;
                     case "fail":
-                        runResult = new AssertionFailedError( wholeMessage.toString() );
+                        runResult = new AssertionFailedError(wholeMessage.toString());
                         break;
                     case "error":
-                        runResult = new IllegalStateException( wholeMessage.toString() );
+                        runResult = new IllegalStateException(wholeMessage.toString());
                         break;
                 }
 
                 runFinished = true;
                 hasRun.signal();
-            }
-            finally
-            {
+            } finally {
                 lock.unlock();
             }
         }
 
         @LuaFunction
-        public final void finish( Optional<Map<?, ?>> result )
-        {
-            @SuppressWarnings( "unchecked" )
-            Map<String, Map<Double, Double>> finishedResult = (Map<String, Map<Double, Double>>) result.orElse( null );
-            LOG.info( "Finished" );
+        public final void finish(Optional<Map<?, ?>> result) {
+            @SuppressWarnings("unchecked")
+            var finishedResult = (Map<String, Map<Double, Double>>) result.orElse(null);
+            LOG.info("Finished");
 
             // Signal to after that execution has finished
-            try
-            {
+            try {
                 lock.lockInterruptibly();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-            catch( InterruptedException e )
-            {
-                throw new RuntimeException( e );
-            }
-            try
-            {
+            try {
                 finished = true;
-                if( finishedResult != null ) finishedWith = finishedResult;
+                if (finishedResult != null) finishedWith = finishedResult;
 
                 hasFinished.signal();
-            }
-            finally
-            {
+            } finally {
                 lock.unlock();
             }
         }

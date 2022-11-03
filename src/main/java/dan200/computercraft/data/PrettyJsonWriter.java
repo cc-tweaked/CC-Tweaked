@@ -27,9 +27,8 @@ import java.util.List;
  * <p>
  * Yes, this is at least a little deranged.
  */
-public class PrettyJsonWriter extends JsonWriter
-{
-    public static final boolean ENABLED = System.getProperty( "cct.pretty-json" ) != null;
+public class PrettyJsonWriter extends JsonWriter {
+    public static final boolean ENABLED = System.getProperty("cct.pretty-json") != null;
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     private static final int MAX_WIDTH = 120;
@@ -42,9 +41,8 @@ public class PrettyJsonWriter extends JsonWriter
      */
     private final Deque<Object> stack = new ArrayDeque<>();
 
-    public PrettyJsonWriter( Writer out )
-    {
-        super( out );
+    public PrettyJsonWriter(Writer out) {
+        super(out);
         this.out = out;
     }
 
@@ -55,9 +53,8 @@ public class PrettyJsonWriter extends JsonWriter
      * @param out The writer to emit to.
      * @return The constructed JSON writer.
      */
-    public static JsonWriter createWriter( Writer out )
-    {
-        return ENABLED ? new PrettyJsonWriter( out ) : new JsonWriter( out );
+    public static JsonWriter createWriter(Writer out) {
+        return ENABLED ? new PrettyJsonWriter(out) : new JsonWriter(out);
     }
 
     /**
@@ -66,154 +63,125 @@ public class PrettyJsonWriter extends JsonWriter
      * @param contents The string to reformat.
      * @return The reformatted string.
      */
-    public static byte[] reformat( byte[] contents )
-    {
-        if( !ENABLED ) return contents;
+    public static byte[] reformat(byte[] contents) {
+        if (!ENABLED) return contents;
 
         JsonElement object;
-        try( var reader = new InputStreamReader( new ByteArrayInputStream( contents ), StandardCharsets.UTF_8 ) )
-        {
-            object = GSON.fromJson( reader, JsonElement.class );
-        }
-        catch( IOException e )
-        {
-            throw new UncheckedIOException( e );
-        }
-        catch( JsonSyntaxException e )
-        {
+        try (var reader = new InputStreamReader(new ByteArrayInputStream(contents), StandardCharsets.UTF_8)) {
+            object = GSON.fromJson(reader, JsonElement.class);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (JsonSyntaxException e) {
             return contents;
         }
 
         var out = new ByteArrayOutputStream();
-        try( var writer = new PrettyJsonWriter( new OutputStreamWriter( out, StandardCharsets.UTF_8 ) ) )
-        {
-            GsonHelper.writeValue( writer, object, DataProvider.KEY_COMPARATOR );
+        try (var writer = new PrettyJsonWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8))) {
+            GsonHelper.writeValue(writer, object, DataProvider.KEY_COMPARATOR);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        catch( IOException e )
-        {
-            throw new UncheckedIOException( e );
-        }
-        out.write( '\n' );
+        out.write('\n');
 
         return out.toByteArray();
     }
 
-    private void pushValue( Object object ) throws IOException
-    {
+    private void pushValue(Object object) throws IOException {
         // We've popped our top object, just write a value.
-        if( stack.isEmpty() )
-        {
-            write( out, object, MAX_WIDTH, 0 );
+        if (stack.isEmpty()) {
+            write(out, object, MAX_WIDTH, 0);
             return;
         }
 
         // Otherwise we either need to push to our list or finish a record pair.
-        Object head = stack.getLast();
-        if( head instanceof DocList )
-        {
-            ((DocList) head).add( object );
-        }
-        else
-        {
+        var head = stack.getLast();
+        if (head instanceof DocList) {
+            ((DocList) head).add(object);
+        } else {
             stack.removeLast();
-            ((DocList) stack.getLast()).add( new Pair( (String) head, object ) );
+            ((DocList) stack.getLast()).add(new Pair((String) head, object));
         }
     }
 
     @Override
-    public JsonWriter beginArray()
-    {
-        stack.add( new DocList( "[", "]" ) );
+    public JsonWriter beginArray() {
+        stack.add(new DocList("[", "]"));
         return this;
     }
 
     @Override
-    public JsonWriter endArray() throws IOException
-    {
-        DocList list = (DocList) stack.removeLast();
-        pushValue( list );
+    public JsonWriter endArray() throws IOException {
+        var list = (DocList) stack.removeLast();
+        pushValue(list);
         return this;
     }
 
     @Override
-    public JsonWriter beginObject()
-    {
-        stack.add( new DocList( "{", "}" ) );
+    public JsonWriter beginObject() {
+        stack.add(new DocList("{", "}"));
         return this;
     }
 
     @Override
-    public JsonWriter endObject() throws IOException
-    {
+    public JsonWriter endObject() throws IOException {
         return endArray();
     }
 
     @Override
-    public JsonWriter name( String name ) throws IOException
-    {
-        stack.add( escapeString( name ) );
+    public JsonWriter name(String name) throws IOException {
+        stack.add(escapeString(name));
         return this;
     }
 
     @Override
-    public JsonWriter jsonValue( String value ) throws IOException
-    {
-        pushValue( value );
+    public JsonWriter jsonValue(String value) throws IOException {
+        pushValue(value);
         return this;
     }
 
     @Override
-    public JsonWriter value( @Nullable String value ) throws IOException
-    {
-        return value == null ? nullValue() : jsonValue( escapeString( value ) );
+    public JsonWriter value(@Nullable String value) throws IOException {
+        return value == null ? nullValue() : jsonValue(escapeString(value));
     }
 
     @Override
-    public JsonWriter nullValue() throws IOException
-    {
-        if( !getSerializeNulls() && stack.peekLast() instanceof String )
-        {
+    public JsonWriter nullValue() throws IOException {
+        if (!getSerializeNulls() && stack.peekLast() instanceof String) {
             stack.removeLast();
             return this;
         }
 
-        return jsonValue( "null" );
+        return jsonValue("null");
     }
 
     @Override
-    public JsonWriter value( boolean value ) throws IOException
-    {
-        return jsonValue( Boolean.toString( value ) );
+    public JsonWriter value(boolean value) throws IOException {
+        return jsonValue(Boolean.toString(value));
     }
 
     @Override
-    public JsonWriter value( @Nullable Boolean value ) throws IOException
-    {
-        return value == null ? nullValue() : jsonValue( Boolean.toString( value ) );
+    public JsonWriter value(@Nullable Boolean value) throws IOException {
+        return value == null ? nullValue() : jsonValue(Boolean.toString(value));
     }
 
     @Override
-    public JsonWriter value( double value ) throws IOException
-    {
-        return jsonValue( Double.toString( value ) );
+    public JsonWriter value(double value) throws IOException {
+        return jsonValue(Double.toString(value));
     }
 
     @Override
-    public JsonWriter value( long value ) throws IOException
-    {
-        return jsonValue( Long.toString( value ) );
+    public JsonWriter value(long value) throws IOException {
+        return jsonValue(Long.toString(value));
     }
 
     @Override
-    public JsonWriter value( @Nullable Number value ) throws IOException
-    {
-        return value == null ? nullValue() : jsonValue( value.toString() );
+    public JsonWriter value(@Nullable Number value) throws IOException {
+        return value == null ? nullValue() : jsonValue(value.toString());
     }
 
     @Override
-    public void close() throws IOException
-    {
-        if( !stack.isEmpty() ) throw new IllegalArgumentException( "Object is remaining on the stack" );
+    public void close() throws IOException {
+        if (!stack.isEmpty()) throw new IllegalArgumentException("Object is remaining on the stack");
         out.close();
     }
 
@@ -223,88 +191,74 @@ public class PrettyJsonWriter extends JsonWriter
      * @param key   The escaped object key.
      * @param value The object value.
      */
-    private record Pair(String key, Object value)
-    {
-        int width()
-        {
-            return key.length() + 2 + PrettyJsonWriter.width( value );
+    private record Pair(String key, Object value) {
+        int width() {
+            return key.length() + 2 + PrettyJsonWriter.width(value);
         }
 
-        int write( Writer out, int space, int indent ) throws IOException
-        {
-            out.write( key );
-            out.write( ": " );
-            return PrettyJsonWriter.write( out, value, space - key.length() - 2, indent );
+        int write(Writer out, int space, int indent) throws IOException {
+            out.write(key);
+            out.write(": ");
+            return PrettyJsonWriter.write(out, value, space - key.length() - 2, indent);
         }
     }
 
     /**
      * A list of terms inside a JSON document. Either an array or a JSON object.
      */
-    private static class DocList
-    {
+    private static class DocList {
         final String prefix;
         final String suffix;
         final List<Object> contents = new ArrayList<>();
         int width;
 
-        DocList( String prefix, String suffix )
-        {
+        DocList(String prefix, String suffix) {
             this.prefix = prefix;
             this.suffix = suffix;
             width = prefix.length() + suffix.length();
         }
 
-        void add( Object value )
-        {
-            contents.add( value );
-            width += width( value ) + (contents.isEmpty() ? 0 : 2);
+        void add(Object value) {
+            contents.add(value);
+            width += width(value) + (contents.isEmpty() ? 0 : 2);
         }
 
-        int write( Writer writer, int space, int indent ) throws IOException
-        {
-            writer.append( prefix );
-            if( width <= space )
-            {
+        int write(Writer writer, int space, int indent) throws IOException {
+            writer.append(prefix);
+            if (width <= space) {
                 // We've sufficient room on this line, so write everything on one line.
 
                 // Take into account the suffix length here, as we ignore it the case we wrap.
                 space -= prefix.length() + suffix.length();
 
-                boolean comma = false;
-                for( Object value : contents )
-                {
-                    if( comma )
-                    {
-                        writer.append( ", " );
+                var comma = false;
+                for (var value : contents) {
+                    if (comma) {
+                        writer.append(", ");
                         space -= 2;
                     }
                     comma = true;
 
-                    space = PrettyJsonWriter.write( writer, value, space, indent );
+                    space = PrettyJsonWriter.write(writer, value, space, indent);
                 }
-            }
-            else
-            {
+            } else {
                 // We've run out of room, so write each value on separate lines.
-                String indentStr = Strings.repeat( " ", indent );
-                writer.append( "\n  " ).append( indentStr );
+                var indentStr = Strings.repeat(" ", indent);
+                writer.append("\n  ").append(indentStr);
 
-                boolean comma = false;
-                for( Object value : contents )
-                {
-                    if( comma )
-                    {
-                        writer.append( ",\n  " ).append( indentStr );
+                var comma = false;
+                for (var value : contents) {
+                    if (comma) {
+                        writer.append(",\n  ").append(indentStr);
                     }
                     comma = true;
 
-                    PrettyJsonWriter.write( writer, value, MAX_WIDTH - indent - 2, indent + 2 );
+                    PrettyJsonWriter.write(writer, value, MAX_WIDTH - indent - 2, indent + 2);
                 }
-                writer.append( "\n" ).append( indentStr );
+                writer.append("\n").append(indentStr);
             }
 
-            writer.append( suffix );
+            writer.append(suffix);
             return space;
         }
     }
@@ -315,12 +269,11 @@ public class PrettyJsonWriter extends JsonWriter
      * @param object The object to emit.
      * @return The computed width.
      */
-    private static int width( Object object )
-    {
-        if( object instanceof String string ) return string.length();
-        if( object instanceof DocList list ) return list.width;
-        if( object instanceof Pair pair ) return pair.width();
-        throw new IllegalArgumentException( "Not a valid document" );
+    private static int width(Object object) {
+        if (object instanceof String string) return string.length();
+        if (object instanceof DocList list) return list.width;
+        if (object instanceof Pair pair) return pair.width();
+        throw new IllegalArgumentException("Not a valid document");
     }
 
     /**
@@ -333,69 +286,50 @@ public class PrettyJsonWriter extends JsonWriter
      * @return The new amount of space left on this line. This is undefined if the writer wraps.
      * @throws IOException If the underlying writer fails.
      */
-    private static int write( Writer writer, Object object, int space, int indent ) throws IOException
-    {
-        if( object instanceof String str )
-        {
-            writer.write( str );
+    private static int write(Writer writer, Object object, int space, int indent) throws IOException {
+        if (object instanceof String str) {
+            writer.write(str);
             return space - str.length();
-        }
-        else if( object instanceof DocList list )
-        {
-            return list.write( writer, space, indent );
-        }
-        else if( object instanceof Pair pair )
-        {
-            return pair.write( writer, space, indent );
-        }
-        else
-        {
-            throw new IllegalArgumentException( "Not a valid document" );
+        } else if (object instanceof DocList list) {
+            return list.write(writer, space, indent);
+        } else if (object instanceof Pair pair) {
+            return pair.write(writer, space, indent);
+        } else {
+            throw new IllegalArgumentException("Not a valid document");
         }
     }
 
-    private static String escapeString( String value )
-    {
-        StringBuilder builder = new StringBuilder();
-        builder.append( '\"' );
+    private static String escapeString(String value) {
+        var builder = new StringBuilder();
+        builder.append('\"');
 
-        int length = value.length();
-        for( int i = 0; i < length; i++ )
-        {
-            char c = value.charAt( i );
+        var length = value.length();
+        for (var i = 0; i < length; i++) {
+            var c = value.charAt(i);
             String replacement = null;
-            if( c < STRING_REPLACE.length )
-            {
+            if (c < STRING_REPLACE.length) {
                 replacement = STRING_REPLACE[c];
-            }
-            else if( c == '\u2028' )
-            {
+            } else if (c == '\u2028') {
                 replacement = "\\u2028";
-            }
-            else if( c == '\u2029' )
-            {
+            } else if (c == '\u2029') {
                 replacement = "\\u2029";
             }
 
-            if( replacement == null )
-            {
-                builder.append( c );
-            }
-            else
-            {
-                builder.append( replacement );
+            if (replacement == null) {
+                builder.append(c);
+            } else {
+                builder.append(replacement);
             }
         }
 
-        builder.append( '\"' );
+        builder.append('\"');
         return builder.toString();
     }
 
     private static final String[] STRING_REPLACE = new String[128];
 
-    static
-    {
-        for( int i = 0; i <= 0x1f; i++ ) STRING_REPLACE[i] = String.format( "\\u%04x", i );
+    static {
+        for (var i = 0; i <= 0x1f; i++) STRING_REPLACE[i] = String.format("\\u%04x", i);
         STRING_REPLACE['"'] = "\\\"";
         STRING_REPLACE['\\'] = "\\\\";
         STRING_REPLACE['\t'] = "\\t";

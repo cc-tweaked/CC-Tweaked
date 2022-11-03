@@ -25,6 +25,5 @@ public record Packet(
     int replyChannel,
     Object payload,
     IPacketSender sender
-)
-{
+) {
 }

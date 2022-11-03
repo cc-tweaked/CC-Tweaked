@@ -25,63 +25,51 @@ import javax.annotation.Nonnull;
  *
  * @see dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive
  */
-public class PlayRecordClientMessage implements NetworkMessage
-{
+public class PlayRecordClientMessage implements NetworkMessage {
     private final BlockPos pos;
     private final String name;
     private final SoundEvent soundEvent;
 
-    public PlayRecordClientMessage( BlockPos pos, SoundEvent event, String name )
-    {
+    public PlayRecordClientMessage(BlockPos pos, SoundEvent event, String name) {
         this.pos = pos;
         this.name = name;
         soundEvent = event;
     }
 
-    public PlayRecordClientMessage( BlockPos pos )
-    {
+    public PlayRecordClientMessage(BlockPos pos) {
         this.pos = pos;
         name = null;
         soundEvent = null;
     }
 
-    public PlayRecordClientMessage( FriendlyByteBuf buf )
-    {
+    public PlayRecordClientMessage(FriendlyByteBuf buf) {
         pos = buf.readBlockPos();
-        if( buf.readBoolean() )
-        {
-            name = buf.readUtf( Short.MAX_VALUE );
-            soundEvent = buf.readRegistryIdSafe( SoundEvent.class );
-        }
-        else
-        {
+        if (buf.readBoolean()) {
+            name = buf.readUtf(Short.MAX_VALUE);
+            soundEvent = buf.readRegistryIdSafe(SoundEvent.class);
+        } else {
             name = null;
             soundEvent = null;
         }
     }
 
     @Override
-    public void toBytes( @Nonnull FriendlyByteBuf buf )
-    {
-        buf.writeBlockPos( pos );
-        if( soundEvent == null )
-        {
-            buf.writeBoolean( false );
-        }
-        else
-        {
-            buf.writeBoolean( true );
-            buf.writeUtf( name );
-            buf.writeRegistryId( ForgeRegistries.SOUND_EVENTS, soundEvent );
+    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+        buf.writeBlockPos(pos);
+        if (soundEvent == null) {
+            buf.writeBoolean(false);
+        } else {
+            buf.writeBoolean(true);
+            buf.writeUtf(name);
+            buf.writeRegistryId(ForgeRegistries.SOUND_EVENTS, soundEvent);
         }
     }
 
     @Override
-    @OnlyIn( Dist.CLIENT )
-    public void handle( NetworkEvent.Context context )
-    {
-        Minecraft mc = Minecraft.getInstance();
-        mc.levelRenderer.playStreamingMusic( soundEvent, pos, null );
-        if( name != null ) mc.gui.setNowPlaying( Component.literal( name ) );
+    @OnlyIn(Dist.CLIENT)
+    public void handle(NetworkEvent.Context context) {
+        var mc = Minecraft.getInstance();
+        mc.levelRenderer.playStreamingMusic(soundEvent, pos, null);
+        if (name != null) mc.gui.setNowPlaying(Component.literal(name));
     }
 }

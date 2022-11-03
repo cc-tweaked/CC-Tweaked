@@ -11,17 +11,15 @@ import java.util.Map;
 
 import static dan200.computercraft.api.lua.LuaValues.*;
 
-public interface LuaTable<K, V> extends Map<K, V>
-{
+public interface LuaTable<K, V> extends Map<K, V> {
     /**
      * Compute the length of the array part of this table.
      *
      * @return This table's length.
      */
-    default int length()
-    {
-        int size = 0;
-        while( containsKey( (double) (size + 1) ) ) size++;
+    default int length() {
+        var size = 0;
+        while (containsKey((double) (size + 1))) size++;
         return size;
     }
 
@@ -32,13 +30,12 @@ public interface LuaTable<K, V> extends Map<K, V>
      * @return The table's value.
      * @throws LuaException If the value is not an integer.
      */
-    default long getLong( int index ) throws LuaException
-    {
-        Object value = get( (double) index );
-        if( !(value instanceof Number number) ) throw badTableItem( index, "number", getType( value ) );
+    default long getLong(int index) throws LuaException {
+        Object value = get((double) index);
+        if (!(value instanceof Number number)) throw badTableItem(index, "number", getType(value));
 
-        double asDouble = number.doubleValue();
-        if( !Double.isFinite( asDouble ) ) throw badTableItem( index, "number", getNumericType( asDouble ) );
+        var asDouble = number.doubleValue();
+        if (!Double.isFinite(asDouble)) throw badTableItem(index, "number", getNumericType(asDouble));
         return number.longValue();
     }
 
@@ -49,13 +46,12 @@ public interface LuaTable<K, V> extends Map<K, V>
      * @return The table's value.
      * @throws LuaException If the value is not an integer.
      */
-    default long getLong( String key ) throws LuaException
-    {
-        Object value = get( key );
-        if( !(value instanceof Number number) ) throw badField( key, "number", getType( value ) );
+    default long getLong(String key) throws LuaException {
+        Object value = get(key);
+        if (!(value instanceof Number number)) throw badField(key, "number", getType(value));
 
-        double asDouble = number.doubleValue();
-        if( !Double.isFinite( asDouble ) ) throw badField( key, "number", getNumericType( asDouble ) );
+        var asDouble = number.doubleValue();
+        if (!Double.isFinite(asDouble)) throw badField(key, "number", getNumericType(asDouble));
         return number.longValue();
     }
 
@@ -66,9 +62,8 @@ public interface LuaTable<K, V> extends Map<K, V>
      * @return The table's value.
      * @throws LuaException If the value is not an integer.
      */
-    default int getInt( int index ) throws LuaException
-    {
-        return (int) getLong( index );
+    default int getInt(int index) throws LuaException {
+        return (int) getLong(index);
     }
 
     /**
@@ -78,34 +73,29 @@ public interface LuaTable<K, V> extends Map<K, V>
      * @return The table's value.
      * @throws LuaException If the value is not an integer.
      */
-    default int getInt( String key ) throws LuaException
-    {
-        return (int) getLong( key );
+    default int getInt(String key) throws LuaException {
+        return (int) getLong(key);
     }
 
 
     @Nullable
     @Override
-    default V put( K o, V o2 )
-    {
-        throw new UnsupportedOperationException( "Cannot modify LuaTable" );
+    default V put(K o, V o2) {
+        throw new UnsupportedOperationException("Cannot modify LuaTable");
     }
 
     @Override
-    default V remove( Object o )
-    {
-        throw new UnsupportedOperationException( "Cannot modify LuaTable" );
+    default V remove(Object o) {
+        throw new UnsupportedOperationException("Cannot modify LuaTable");
     }
 
     @Override
-    default void putAll( @Nonnull Map<? extends K, ? extends V> map )
-    {
-        throw new UnsupportedOperationException( "Cannot modify LuaTable" );
+    default void putAll(@Nonnull Map<? extends K, ? extends V> map) {
+        throw new UnsupportedOperationException("Cannot modify LuaTable");
     }
 
     @Override
-    default void clear()
-    {
-        throw new UnsupportedOperationException( "Cannot modify LuaTable" );
+    default void clear() {
+        throw new UnsupportedOperationException("Cannot modify LuaTable");
     }
 }

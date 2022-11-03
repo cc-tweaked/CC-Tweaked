@@ -26,45 +26,39 @@ import java.lang.ref.WeakReference;
  *
  * @param <T> The type of writer or channel to wrap.
  */
-public class FileSystemWrapper<T extends Closeable> implements TrackingCloseable
-{
+public class FileSystemWrapper<T extends Closeable> implements TrackingCloseable {
     private final FileSystem fileSystem;
     final MountWrapper mount;
     private final ChannelWrapper<T> closeable;
     final WeakReference<FileSystemWrapper<?>> self;
     private boolean isOpen = true;
 
-    FileSystemWrapper( FileSystem fileSystem, MountWrapper mount, ChannelWrapper<T> closeable, ReferenceQueue<FileSystemWrapper<?>> queue )
-    {
+    FileSystemWrapper(FileSystem fileSystem, MountWrapper mount, ChannelWrapper<T> closeable, ReferenceQueue<FileSystemWrapper<?>> queue) {
         this.fileSystem = fileSystem;
         this.mount = mount;
         this.closeable = closeable;
-        self = new WeakReference<>( this, queue );
+        self = new WeakReference<>(this, queue);
     }
 
     @Override
-    public void close() throws IOException
-    {
+    public void close() throws IOException {
         isOpen = false;
-        fileSystem.removeFile( this );
+        fileSystem.removeFile(this);
         closeable.close();
     }
 
-    void closeExternally()
-    {
+    void closeExternally() {
         isOpen = false;
-        IoUtil.closeQuietly( closeable );
+        IoUtil.closeQuietly(closeable);
     }
 
     @Override
-    public boolean isOpen()
-    {
+    public boolean isOpen() {
         return isOpen;
     }
 
     @Nonnull
-    public T get()
-    {
+    public T get() {
         return closeable.get();
     }
 }

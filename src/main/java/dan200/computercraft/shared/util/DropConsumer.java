@@ -23,11 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID )
-public final class DropConsumer
-{
-    private DropConsumer()
-    {
+@Mod.EventBusSubscriber(modid = ComputerCraft.MOD_ID)
+public final class DropConsumer {
+    private DropConsumer() {
     }
 
     private static Function<ItemStack, ItemStack> dropConsumer;
@@ -36,27 +34,24 @@ public final class DropConsumer
     private static AABB dropBounds;
     private static Entity dropEntity;
 
-    public static void set( Entity entity, Function<ItemStack, ItemStack> consumer )
-    {
+    public static void set(Entity entity, Function<ItemStack, ItemStack> consumer) {
         dropConsumer = consumer;
         remainingDrops = new ArrayList<>();
         dropEntity = entity;
         dropWorld = entity.level;
-        dropBounds = new AABB( entity.blockPosition() ).inflate( 2, 2, 2 );
+        dropBounds = new AABB(entity.blockPosition()).inflate(2, 2, 2);
     }
 
-    public static void set( Level world, BlockPos pos, Function<ItemStack, ItemStack> consumer )
-    {
+    public static void set(Level world, BlockPos pos, Function<ItemStack, ItemStack> consumer) {
         dropConsumer = consumer;
-        remainingDrops = new ArrayList<>( 2 );
+        remainingDrops = new ArrayList<>(2);
         dropEntity = null;
         dropWorld = world;
-        dropBounds = new AABB( pos ).inflate( 2, 2, 2 );
+        dropBounds = new AABB(pos).inflate(2, 2, 2);
     }
 
-    public static List<ItemStack> clear()
-    {
-        List<ItemStack> remainingStacks = remainingDrops;
+    public static List<ItemStack> clear() {
+        var remainingStacks = remainingDrops;
 
         dropConsumer = null;
         remainingDrops = null;
@@ -67,37 +62,32 @@ public final class DropConsumer
         return remainingStacks;
     }
 
-    public static void clearAndDrop( Level world, BlockPos pos, Direction direction )
-    {
-        List<ItemStack> remainingDrops = clear();
-        for( ItemStack remaining : remainingDrops ) WorldUtil.dropItemStack( remaining, world, pos, direction );
+    public static void clearAndDrop(Level world, BlockPos pos, Direction direction) {
+        var remainingDrops = clear();
+        for (var remaining : remainingDrops) WorldUtil.dropItemStack(remaining, world, pos, direction);
     }
 
-    private static void handleDrops( ItemStack stack )
-    {
-        ItemStack remaining = dropConsumer.apply( stack );
-        if( !remaining.isEmpty() ) remainingDrops.add( remaining );
+    private static void handleDrops(ItemStack stack) {
+        var remaining = dropConsumer.apply(stack);
+        if (!remaining.isEmpty()) remainingDrops.add(remaining);
     }
 
-    @SubscribeEvent( priority = EventPriority.HIGHEST )
-    public static void onEntitySpawn( EntityJoinLevelEvent event )
-    {
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onEntitySpawn(EntityJoinLevelEvent event) {
         // Capture any nearby item spawns
-        if( dropWorld == event.getLevel() && event.getEntity() instanceof ItemEntity
-            && dropBounds.contains( event.getEntity().position() ) )
-        {
-            handleDrops( ((ItemEntity) event.getEntity()).getItem() );
-            event.setCanceled( true );
+        if (dropWorld == event.getLevel() && event.getEntity() instanceof ItemEntity
+            && dropBounds.contains(event.getEntity().position())) {
+            handleDrops(((ItemEntity) event.getEntity()).getItem());
+            event.setCanceled(true);
         }
     }
 
-    @SubscribeEvent( priority = EventPriority.LOW )
-    public static void onLivingDrops( LivingDropsEvent drops )
-    {
-        if( dropEntity == null || drops.getEntity() != dropEntity ) return;
+    @SubscribeEvent(priority = EventPriority.LOW)
+    public static void onLivingDrops(LivingDropsEvent drops) {
+        if (dropEntity == null || drops.getEntity() != dropEntity) return;
 
-        for( ItemEntity drop : drops.getDrops() ) handleDrops( drop.getItem() );
+        for (var drop : drops.getDrops()) handleDrops(drop.getItem());
         drops.getDrops().clear();
-        drops.setCanceled( true );
+        drops.setCanceled(true);
     }
 }

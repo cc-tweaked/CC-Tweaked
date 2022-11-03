@@ -17,19 +17,16 @@ import java.net.URI;
  * A version of {@link WebSocketClientHandshaker13} which doesn't add the {@link HttpHeaderNames#ORIGIN} header to the
  * original HTTP request.
  */
-public class NoOriginWebSocketHanshakder extends WebSocketClientHandshaker13
-{
-    public NoOriginWebSocketHanshakder( URI webSocketURL, WebSocketVersion version, String subprotocol, boolean allowExtensions, HttpHeaders customHeaders, int maxFramePayloadLength )
-    {
-        super( webSocketURL, version, subprotocol, allowExtensions, customHeaders, maxFramePayloadLength );
+public class NoOriginWebSocketHanshakder extends WebSocketClientHandshaker13 {
+    public NoOriginWebSocketHanshakder(URI webSocketURL, WebSocketVersion version, String subprotocol, boolean allowExtensions, HttpHeaders customHeaders, int maxFramePayloadLength) {
+        super(webSocketURL, version, subprotocol, allowExtensions, customHeaders, maxFramePayloadLength);
     }
 
     @Override
-    protected FullHttpRequest newHandshakeRequest()
-    {
-        FullHttpRequest request = super.newHandshakeRequest();
-        HttpHeaders headers = request.headers();
-        if( !customHeaders.contains( HttpHeaderNames.ORIGIN ) ) headers.remove( HttpHeaderNames.ORIGIN );
+    protected FullHttpRequest newHandshakeRequest() {
+        var request = super.newHandshakeRequest();
+        var headers = request.headers();
+        if (!customHeaders.contains(HttpHeaderNames.ORIGIN)) headers.remove(HttpHeaderNames.ORIGIN);
         return request;
     }
 }

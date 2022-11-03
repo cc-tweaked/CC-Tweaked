@@ -23,8 +23,7 @@ import java.util.Map;
  * that they can call. This should not be implemented by your classes. Do not interact
  * with computers except via this interface.
  */
-public interface IComputerAccess
-{
+public interface IComputerAccess {
     /**
      * Mount a mount onto the computer's file system in a read only mode.
      *
@@ -41,9 +40,8 @@ public interface IComputerAccess
      * @see IMount
      */
     @Nullable
-    default String mount( @Nonnull String desiredLocation, @Nonnull IMount mount )
-    {
-        return mount( desiredLocation, mount, getAttachmentName() );
+    default String mount(@Nonnull String desiredLocation, @Nonnull IMount mount) {
+        return mount(desiredLocation, mount, getAttachmentName());
     }
 
     /**
@@ -63,7 +61,7 @@ public interface IComputerAccess
      * @see IMount
      */
     @Nullable
-    String mount( @Nonnull String desiredLocation, @Nonnull IMount mount, @Nonnull String driveName );
+    String mount(@Nonnull String desiredLocation, @Nonnull IMount mount, @Nonnull String driveName);
 
     /**
      * Mount a mount onto the computer's file system in a writable mode.
@@ -80,9 +78,8 @@ public interface IComputerAccess
      * @see IMount
      */
     @Nullable
-    default String mountWritable( @Nonnull String desiredLocation, @Nonnull IWritableMount mount )
-    {
-        return mountWritable( desiredLocation, mount, getAttachmentName() );
+    default String mountWritable(@Nonnull String desiredLocation, @Nonnull IWritableMount mount) {
+        return mountWritable(desiredLocation, mount, getAttachmentName());
     }
 
     /**
@@ -100,7 +97,7 @@ public interface IComputerAccess
      * @see #unmount(String)
      * @see IMount
      */
-    String mountWritable( @Nonnull String desiredLocation, @Nonnull IWritableMount mount, @Nonnull String driveName );
+    String mountWritable(@Nonnull String desiredLocation, @Nonnull IWritableMount mount, @Nonnull String driveName);
 
     /**
      * Unmounts a directory previously mounted onto the computers file system by {@link #mount(String, IMount)}
@@ -120,7 +117,7 @@ public interface IComputerAccess
      * @see #mount(String, IMount)
      * @see #mountWritable(String, IWritableMount)
      */
-    void unmount( @Nullable String location );
+    void unmount(@Nullable String location);
 
     /**
      * Returns the numerical ID of this computer.
@@ -150,7 +147,7 @@ public interface IComputerAccess
      * @throws NotAttachedException If the peripheral has been detached.
      * @see MethodResult#pullEvent(String, ILuaCallback)
      */
-    void queueEvent( @Nonnull String event, @Nullable Object... arguments );
+    void queueEvent(@Nonnull String event, @Nullable Object... arguments);
 
     /**
      * Get a string, unique to the computer, by which the computer refers to this peripheral.
@@ -187,7 +184,7 @@ public interface IComputerAccess
      * @see #getAvailablePeripherals()
      */
     @Nullable
-    IPeripheral getAvailablePeripheral( @Nonnull String name );
+    IPeripheral getAvailablePeripheral(@Nonnull String name);
 
     /**
      * Get a {@link IWorkMonitor} for tasks your peripheral might execute on the main (server) thread.

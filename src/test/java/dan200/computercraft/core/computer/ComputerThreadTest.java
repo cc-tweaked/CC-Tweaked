@@ -22,91 +22,84 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Timeout( value = 15 )
-@Execution( ExecutionMode.CONCURRENT )
-public class ComputerThreadTest
-{
+@Timeout(value = 15)
+@Execution(ExecutionMode.CONCURRENT)
+public class ComputerThreadTest {
     private KotlinComputerManager manager;
 
     @BeforeEach
-    public void before()
-    {
+    public void before() {
         manager = new KotlinComputerManager();
     }
 
     @AfterEach
-    public void after()
-    {
+    public void after() {
         manager.close();
     }
 
     @Test
-    public void testSoftAbort() throws Exception
-    {
-        Computer computer = manager.create();
-        manager.enqueue( computer, timeout -> {
-            assertFalse( timeout.isSoftAborted(), "Should not start soft-aborted" );
+    public void testSoftAbort() throws Exception {
+        var computer = manager.create();
+        manager.enqueue(computer, timeout -> {
+            assertFalse(timeout.isSoftAborted(), "Should not start soft-aborted");
 
-            long delay = ConcurrentHelpers.waitUntil( timeout::isSoftAborted );
-            assertThat( "Should be soft aborted", delay * 1e-9, closeTo( 7, 0.5 ) );
-            ComputerCraft.log.info( "Slept for {}", delay );
+            var delay = ConcurrentHelpers.waitUntil(timeout::isSoftAborted);
+            assertThat("Should be soft aborted", delay * 1e-9, closeTo(7, 0.5));
+            ComputerCraft.log.info("Slept for {}", delay);
 
             computer.shutdown();
             return MachineResult.OK;
-        } );
+        });
 
-        manager.startAndWait( computer );
+        manager.startAndWait(computer);
     }
 
     @Test
-    public void testHardAbort() throws Exception
-    {
-        Computer computer = manager.create();
-        manager.enqueue( computer, timeout -> {
-            assertFalse( timeout.isHardAborted(), "Should not start soft-aborted" );
+    public void testHardAbort() throws Exception {
+        var computer = manager.create();
+        manager.enqueue(computer, timeout -> {
+            assertFalse(timeout.isHardAborted(), "Should not start soft-aborted");
 
-            assertThrows( InterruptedException.class, () -> Thread.sleep( 11_000 ), "Sleep should be hard aborted" );
-            assertTrue( timeout.isHardAborted(), "Thread should be hard aborted" );
+            assertThrows(InterruptedException.class, () -> Thread.sleep(11_000), "Sleep should be hard aborted");
+            assertTrue(timeout.isHardAborted(), "Thread should be hard aborted");
 
             computer.shutdown();
             return MachineResult.OK;
-        } );
+        });
 
-        manager.startAndWait( computer );
+        manager.startAndWait(computer);
     }
 
     @Test
-    public void testNoPauseIfNoOtherMachines() throws Exception
-    {
-        Computer computer = manager.create();
-        manager.enqueue( computer, timeout -> {
-            boolean didPause = ConcurrentHelpers.waitUntil( timeout::isPaused, 5, TimeUnit.SECONDS );
-            assertFalse( didPause, "Machine shouldn't have paused within 5s" );
+    public void testNoPauseIfNoOtherMachines() throws Exception {
+        var computer = manager.create();
+        manager.enqueue(computer, timeout -> {
+            var didPause = ConcurrentHelpers.waitUntil(timeout::isPaused, 5, TimeUnit.SECONDS);
+            assertFalse(didPause, "Machine shouldn't have paused within 5s");
 
             computer.shutdown();
             return MachineResult.OK;
-        } );
+        });
 
-        manager.startAndWait( computer );
+        manager.startAndWait(computer);
     }
 
     @Test
-    public void testPauseIfSomeOtherMachine() throws Exception
-    {
-        Computer computer = manager.create();
-        manager.enqueue( computer, timeout -> {
-            long budget = manager.context().computerScheduler().scaledPeriod();
-            assertEquals( budget, TimeUnit.MILLISECONDS.toNanos( 25 ), "Budget should be 25ms" );
+    public void testPauseIfSomeOtherMachine() throws Exception {
+        var computer = manager.create();
+        manager.enqueue(computer, timeout -> {
+            var budget = manager.context().computerScheduler().scaledPeriod();
+            assertEquals(budget, TimeUnit.MILLISECONDS.toNanos(25), "Budget should be 25ms");
 
-            long delay = ConcurrentHelpers.waitUntil( timeout::isPaused );
-            assertThat( "Paused within 25ms", delay * 1e-9, closeTo( 0.025, 0.025 ) );
+            var delay = ConcurrentHelpers.waitUntil(timeout::isPaused);
+            assertThat("Paused within 25ms", delay * 1e-9, closeTo(0.025, 0.025));
 
             computer.shutdown();
             return MachineResult.OK;
-        } );
+        });
 
         manager.createLoopingComputer();
 
-        manager.startAndWait( computer );
+        manager.startAndWait(computer);
     }
 }

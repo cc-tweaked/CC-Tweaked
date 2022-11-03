@@ -12,8 +12,7 @@ import net.minecraft.world.level.block.Block;
 /**
  * {@link DetailRegistry}s for built-in Minecraft types.
  */
-public class VanillaDetailRegistries
-{
+public class VanillaDetailRegistries {
     /**
      * Provides details for {@link ItemStack}s.
      */

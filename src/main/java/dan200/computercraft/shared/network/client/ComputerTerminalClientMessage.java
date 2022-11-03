@@ -18,38 +18,32 @@ import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
-public class ComputerTerminalClientMessage implements NetworkMessage
-{
+public class ComputerTerminalClientMessage implements NetworkMessage {
     private final int containerId;
     private final TerminalState terminal;
 
-    public ComputerTerminalClientMessage( AbstractContainerMenu menu, TerminalState terminal )
-    {
+    public ComputerTerminalClientMessage(AbstractContainerMenu menu, TerminalState terminal) {
         containerId = menu.containerId;
         this.terminal = terminal;
     }
 
-    public ComputerTerminalClientMessage( @Nonnull FriendlyByteBuf buf )
-    {
+    public ComputerTerminalClientMessage(@Nonnull FriendlyByteBuf buf) {
         containerId = buf.readVarInt();
-        terminal = new TerminalState( buf );
+        terminal = new TerminalState(buf);
     }
 
     @Override
-    public void toBytes( @Nonnull FriendlyByteBuf buf )
-    {
-        buf.writeVarInt( containerId );
-        terminal.write( buf );
+    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+        buf.writeVarInt(containerId);
+        terminal.write(buf);
     }
 
     @Override
-    @OnlyIn( Dist.CLIENT )
-    public void handle( NetworkEvent.Context context )
-    {
+    @OnlyIn(Dist.CLIENT)
+    public void handle(NetworkEvent.Context context) {
         Player player = Minecraft.getInstance().player;
-        if( player != null && player.containerMenu.containerId == containerId && player.containerMenu instanceof ComputerMenu menu )
-        {
-            menu.updateTerminal( terminal );
+        if (player != null && player.containerMenu.containerId == containerId && player.containerMenu instanceof ComputerMenu menu) {
+            menu.updateTerminal(terminal);
         }
     }
 }

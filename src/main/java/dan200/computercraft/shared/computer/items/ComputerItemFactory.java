@@ -12,29 +12,21 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public final class ComputerItemFactory
-{
-    private ComputerItemFactory() {}
-
-    @Nonnull
-    public static ItemStack create( TileComputer tile )
-    {
-        return create( tile.getComputerID(), tile.getLabel(), tile.getFamily() );
+public final class ComputerItemFactory {
+    private ComputerItemFactory() {
     }
 
     @Nonnull
-    public static ItemStack create( int id, String label, ComputerFamily family )
-    {
-        switch( family )
-        {
-            case NORMAL:
-                return Registry.ModItems.COMPUTER_NORMAL.get().create( id, label );
-            case ADVANCED:
-                return Registry.ModItems.COMPUTER_ADVANCED.get().create( id, label );
-            case COMMAND:
-                return Registry.ModItems.COMPUTER_COMMAND.get().create( id, label );
-            default:
-                return ItemStack.EMPTY;
-        }
+    public static ItemStack create(TileComputer tile) {
+        return create(tile.getComputerID(), tile.getLabel(), tile.getFamily());
+    }
+
+    @Nonnull
+    public static ItemStack create(int id, String label, ComputerFamily family) {
+        return switch (family) {
+            case NORMAL -> Registry.ModItems.COMPUTER_NORMAL.get().create(id, label);
+            case ADVANCED -> Registry.ModItems.COMPUTER_ADVANCED.get().create(id, label);
+            case COMMAND -> Registry.ModItems.COMPUTER_COMMAND.get().create(id, label);
+        };
     }
 }

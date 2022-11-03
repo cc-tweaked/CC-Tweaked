@@ -15,43 +15,37 @@ import dan200.computercraft.core.asm.PeripheralMethod;
 
 import javax.annotation.Nonnull;
 
-final class SaturatedMethod
-{
+final class SaturatedMethod {
     private final Object target;
     private final String name;
     private final PeripheralMethod method;
 
-    SaturatedMethod( Object target, NamedMethod<PeripheralMethod> method )
-    {
+    SaturatedMethod(Object target, NamedMethod<PeripheralMethod> method) {
         this.target = target;
         name = method.getName();
         this.method = method.getMethod();
     }
 
     @Nonnull
-    MethodResult apply( @Nonnull ILuaContext context, @Nonnull IComputerAccess computer, @Nonnull IArguments args ) throws LuaException
-    {
-        return method.apply( target, context, computer, args );
+    MethodResult apply(@Nonnull ILuaContext context, @Nonnull IComputerAccess computer, @Nonnull IArguments args) throws LuaException {
+        return method.apply(target, context, computer, args);
     }
 
     @Nonnull
-    String getName()
-    {
+    String getName() {
         return name;
     }
 
     @Override
-    public boolean equals( Object obj )
-    {
-        if( obj == this ) return true;
-        if( !(obj instanceof SaturatedMethod other) ) return false;
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (!(obj instanceof SaturatedMethod other)) return false;
 
-        return method == other.method && target.equals( other.target );
+        return method == other.method && target.equals(other.target);
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return 31 * target.hashCode() + method.hashCode();
     }
 }

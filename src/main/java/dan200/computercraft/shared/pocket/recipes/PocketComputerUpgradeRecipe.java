@@ -20,48 +20,39 @@ import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 
-public final class PocketComputerUpgradeRecipe extends CustomRecipe
-{
-    private PocketComputerUpgradeRecipe( ResourceLocation identifier )
-    {
-        super( identifier );
+public final class PocketComputerUpgradeRecipe extends CustomRecipe {
+    private PocketComputerUpgradeRecipe(ResourceLocation identifier) {
+        super(identifier);
     }
 
     @Override
-    public boolean canCraftInDimensions( int x, int y )
-    {
+    public boolean canCraftInDimensions(int x, int y) {
         return x >= 2 && y >= 2;
     }
 
     @Nonnull
     @Override
-    public ItemStack getResultItem()
-    {
-        return PocketComputerItemFactory.create( -1, null, -1, ComputerFamily.NORMAL, null );
+    public ItemStack getResultItem() {
+        return PocketComputerItemFactory.create(-1, null, -1, ComputerFamily.NORMAL, null);
     }
 
     @Override
-    public boolean matches( @Nonnull CraftingContainer inventory, @Nonnull Level world )
-    {
-        return !assemble( inventory ).isEmpty();
+    public boolean matches(@Nonnull CraftingContainer inventory, @Nonnull Level world) {
+        return !assemble(inventory).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack assemble( @Nonnull CraftingContainer inventory )
-    {
+    public ItemStack assemble(@Nonnull CraftingContainer inventory) {
         // Scan the grid for a pocket computer
-        ItemStack computer = ItemStack.EMPTY;
-        int computerX = -1;
-        int computerY = -1;
+        var computer = ItemStack.EMPTY;
+        var computerX = -1;
+        var computerY = -1;
         computer:
-        for( int y = 0; y < inventory.getHeight(); y++ )
-        {
-            for( int x = 0; x < inventory.getWidth(); x++ )
-            {
-                ItemStack item = inventory.getItem( x + y * inventory.getWidth() );
-                if( !item.isEmpty() && item.getItem() instanceof ItemPocketComputer )
-                {
+        for (var y = 0; y < inventory.getHeight(); y++) {
+            for (var x = 0; x < inventory.getWidth(); x++) {
+                var item = inventory.getItem(x + y * inventory.getWidth());
+                if (!item.isEmpty() && item.getItem() instanceof ItemPocketComputer) {
                     computer = item;
                     computerX = x;
                     computerY = y;
@@ -70,48 +61,42 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe
             }
         }
 
-        if( computer.isEmpty() ) return ItemStack.EMPTY;
+        if (computer.isEmpty()) return ItemStack.EMPTY;
 
-        ItemPocketComputer itemComputer = (ItemPocketComputer) computer.getItem();
-        if( ItemPocketComputer.getUpgrade( computer ) != null ) return ItemStack.EMPTY;
+        var itemComputer = (ItemPocketComputer) computer.getItem();
+        if (ItemPocketComputer.getUpgrade(computer) != null) return ItemStack.EMPTY;
 
         // Check for upgrades around the item
         IPocketUpgrade upgrade = null;
-        for( int y = 0; y < inventory.getHeight(); y++ )
-        {
-            for( int x = 0; x < inventory.getWidth(); x++ )
-            {
-                ItemStack item = inventory.getItem( x + y * inventory.getWidth() );
-                if( x == computerX && y == computerY ) continue;
+        for (var y = 0; y < inventory.getHeight(); y++) {
+            for (var x = 0; x < inventory.getWidth(); x++) {
+                var item = inventory.getItem(x + y * inventory.getWidth());
+                if (x == computerX && y == computerY) continue;
 
-                if( x == computerX && y == computerY - 1 )
-                {
-                    upgrade = PocketUpgrades.instance().get( item );
-                    if( upgrade == null ) return ItemStack.EMPTY;
-                }
-                else if( !item.isEmpty() )
-                {
+                if (x == computerX && y == computerY - 1) {
+                    upgrade = PocketUpgrades.instance().get(item);
+                    if (upgrade == null) return ItemStack.EMPTY;
+                } else if (!item.isEmpty()) {
                     return ItemStack.EMPTY;
                 }
             }
         }
 
-        if( upgrade == null ) return ItemStack.EMPTY;
+        if (upgrade == null) return ItemStack.EMPTY;
 
         // Construct the new stack
-        ComputerFamily family = itemComputer.getFamily();
-        int computerID = itemComputer.getComputerID( computer );
-        String label = itemComputer.getLabel( computer );
-        int colour = itemComputer.getColour( computer );
-        return PocketComputerItemFactory.create( computerID, label, colour, family, upgrade );
+        var family = itemComputer.getFamily();
+        var computerID = itemComputer.getComputerID(computer);
+        var label = itemComputer.getLabel(computer);
+        var colour = itemComputer.getColour(computer);
+        return PocketComputerItemFactory.create(computerID, label, colour, family, upgrade);
     }
 
     @Nonnull
     @Override
-    public RecipeSerializer<?> getSerializer()
-    {
+    public RecipeSerializer<?> getSerializer() {
         return SERIALIZER;
     }
 
-    public static final SimpleRecipeSerializer<PocketComputerUpgradeRecipe> SERIALIZER = new SimpleRecipeSerializer<>( PocketComputerUpgradeRecipe::new );
+    public static final SimpleRecipeSerializer<PocketComputerUpgradeRecipe> SERIALIZER = new SimpleRecipeSerializer<>(PocketComputerUpgradeRecipe::new);
 }

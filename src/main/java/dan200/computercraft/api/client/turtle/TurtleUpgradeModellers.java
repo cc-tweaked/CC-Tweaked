@@ -11,21 +11,19 @@ import dan200.computercraft.api.client.TransformedModel;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
 
-class TurtleUpgradeModellers
-{
-    private static final Transformation leftTransform = getMatrixFor( -0.40625f );
-    private static final Transformation rightTransform = getMatrixFor( 0.40625f );
+class TurtleUpgradeModellers {
+    private static final Transformation leftTransform = getMatrixFor(-0.40625f);
+    private static final Transformation rightTransform = getMatrixFor(0.40625f);
 
-    private static Transformation getMatrixFor( float offset )
-    {
-        return new Transformation( new Matrix4f( new float[] {
+    private static Transformation getMatrixFor(float offset) {
+        return new Transformation(new Matrix4f(new float[]{
             0.0f, 0.0f, -1.0f, 1.0f + offset,
             1.0f, 0.0f, 0.0f, 0.0f,
             0.0f, -1.0f, 0.0f, 1.0f,
             0.0f, 0.0f, 0.0f, 1.0f,
-        } ) );
+        }));
     }
 
-    static final TurtleUpgradeModeller<ITurtleUpgrade> FLAT_ITEM = ( upgrade, turtle, side ) ->
-        TransformedModel.of( upgrade.getCraftingItem(), side == TurtleSide.LEFT ? leftTransform : rightTransform );
+    static final TurtleUpgradeModeller<ITurtleUpgrade> FLAT_ITEM = (upgrade, turtle, side) ->
+        TransformedModel.of(upgrade.getCraftingItem(), side == TurtleSide.LEFT ? leftTransform : rightTransform);
 }

@@ -23,8 +23,7 @@ import java.io.InputStream;
  * This should provide implementations of {@link dan200.computercraft.api.lua.ILuaContext}, and the ability to convert
  * {@link IDynamicLuaObject}s into something the VM understands, as well as handling method calls.
  */
-public interface ILuaMachine
-{
+public interface ILuaMachine {
     /**
      * Inject an API into the global environment of this machine. This should construct an object, as it would for any
      * {@link IDynamicLuaObject} and set it to all names in {@link ILuaAPI#getNames()}.
@@ -33,7 +32,7 @@ public interface ILuaMachine
      *
      * @param api The API to register.
      */
-    void addAPI( @Nonnull ILuaAPI api );
+    void addAPI(@Nonnull ILuaAPI api);
 
     /**
      * Create a function from the provided program, and set it up to run when {@link #handleEvent(String, Object[])} is
@@ -44,7 +43,7 @@ public interface ILuaMachine
      * @param bios The stream containing the boot program.
      * @return The result of loading this machine. Will either be OK, or the error message when loading the bios.
      */
-    MachineResult loadBios( @Nonnull InputStream bios );
+    MachineResult loadBios(@Nonnull InputStream bios);
 
     /**
      * Resume the machine, either starting or resuming the coroutine.
@@ -57,7 +56,7 @@ public interface ILuaMachine
      * @return The result of loading this machine. Will either be OK, or the error message that occurred when
      * executing.
      */
-    MachineResult handleEvent( @Nullable String eventName, @Nullable Object[] arguments );
+    MachineResult handleEvent(@Nullable String eventName, @Nullable Object[] arguments);
 
     /**
      * Print some information about the internal execution state.
@@ -66,15 +65,14 @@ public interface ILuaMachine
      *
      * @param out The buffer to write to.
      */
-    void printExecutionState( StringBuilder out );
+    void printExecutionState(StringBuilder out);
 
     /**
      * Close the Lua machine, aborting any running functions and deleting the internal state.
      */
     void close();
 
-    interface Factory
-    {
-        ILuaMachine create( MachineEnvironment environment );
+    interface Factory {
+        ILuaMachine create(MachineEnvironment environment);
     }
 }

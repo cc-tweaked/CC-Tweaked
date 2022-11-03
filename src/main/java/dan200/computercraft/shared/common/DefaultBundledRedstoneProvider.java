@@ -9,26 +9,20 @@ import dan200.computercraft.api.redstone.IBundledRedstoneProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 
 import javax.annotation.Nonnull;
 
-public class DefaultBundledRedstoneProvider implements IBundledRedstoneProvider
-{
+public class DefaultBundledRedstoneProvider implements IBundledRedstoneProvider {
     @Override
-    public int getBundledRedstoneOutput( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side )
-    {
-        return getDefaultBundledRedstoneOutput( world, pos, side );
+    public int getBundledRedstoneOutput(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side) {
+        return getDefaultBundledRedstoneOutput(world, pos, side);
     }
 
-    public static int getDefaultBundledRedstoneOutput( Level world, BlockPos pos, Direction side )
-    {
-        Block block = world.getBlockState( pos ).getBlock();
-        if( block instanceof IBundledRedstoneBlock generic )
-        {
-            if( generic.getBundledRedstoneConnectivity( world, pos, side ) )
-            {
-                return generic.getBundledRedstoneOutput( world, pos, side );
+    public static int getDefaultBundledRedstoneOutput(Level world, BlockPos pos, Direction side) {
+        var block = world.getBlockState(pos).getBlock();
+        if (block instanceof IBundledRedstoneBlock generic) {
+            if (generic.getBundledRedstoneConnectivity(world, pos, side)) {
+                return generic.getBundledRedstoneOutput(world, pos, side);
             }
         }
         return -1;

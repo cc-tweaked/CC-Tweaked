@@ -13,41 +13,35 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public class ComputerContainerData implements ContainerData
-{
+public class ComputerContainerData implements ContainerData {
     private final ComputerFamily family;
     private final TerminalState terminal;
     private final ItemStack displayStack;
 
-    public ComputerContainerData( ServerComputer computer, @Nonnull ItemStack displayStack )
-    {
+    public ComputerContainerData(ServerComputer computer, @Nonnull ItemStack displayStack) {
         family = computer.getFamily();
         terminal = computer.getTerminalState();
         this.displayStack = displayStack;
     }
 
-    public ComputerContainerData( FriendlyByteBuf buf )
-    {
-        family = buf.readEnum( ComputerFamily.class );
-        terminal = new TerminalState( buf );
+    public ComputerContainerData(FriendlyByteBuf buf) {
+        family = buf.readEnum(ComputerFamily.class);
+        terminal = new TerminalState(buf);
         displayStack = buf.readItem();
     }
 
     @Override
-    public void toBytes( FriendlyByteBuf buf )
-    {
-        buf.writeEnum( family );
-        terminal.write( buf );
-        buf.writeItemStack( displayStack, true );
+    public void toBytes(FriendlyByteBuf buf) {
+        buf.writeEnum(family);
+        terminal.write(buf);
+        buf.writeItemStack(displayStack, true);
     }
 
-    public ComputerFamily family()
-    {
+    public ComputerFamily family() {
         return family;
     }
 
-    public TerminalState terminal()
-    {
+    public TerminalState terminal() {
         return terminal;
     }
 
@@ -57,8 +51,7 @@ public class ComputerContainerData implements ContainerData
      * @return The stack associated with this menu.
      */
     @Nonnull
-    public ItemStack displayStack()
-    {
+    public ItemStack displayStack() {
         return displayStack;
     }
 }

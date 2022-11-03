@@ -19,44 +19,36 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Registry of {@link TurtleRefuelHandler}s.
  */
-public final class TurtleRefuelHandlers
-{
+public final class TurtleRefuelHandlers {
     private static final List<TurtleRefuelHandler> handlers = new CopyOnWriteArrayList<>();
 
-    static
-    {
+    static {
         // Register a fallback handler for our event.
-        handlers.add( ( turtle, stack, slot, limit ) -> {
-            @SuppressWarnings( "removal" ) TurtleRefuelEvent event = new TurtleRefuelEvent( turtle, stack );
-            MinecraftForge.EVENT_BUS.post( event );
-            if( event.getHandler() == null ) return OptionalInt.empty();
-            if( limit == 0 ) return OptionalInt.of( 0 );
-            return OptionalInt.of( event.getHandler().refuel( turtle, stack, slot, limit ) );
-        } );
+        handlers.add((turtle, stack, slot, limit) -> {
+            @SuppressWarnings("removal") var event = new TurtleRefuelEvent(turtle, stack);
+            MinecraftForge.EVENT_BUS.post(event);
+            if (event.getHandler() == null) return OptionalInt.empty();
+            if (limit == 0) return OptionalInt.of(0);
+            return OptionalInt.of(event.getHandler().refuel(turtle, stack, slot, limit));
+        });
     }
 
-    private TurtleRefuelHandlers()
-    {
+    private TurtleRefuelHandlers() {
     }
 
-    public static synchronized void register( TurtleRefuelHandler handler )
-    {
-        Objects.requireNonNull( handler, "handler cannot be null" );
-        handlers.add( handler );
+    public static synchronized void register(TurtleRefuelHandler handler) {
+        Objects.requireNonNull(handler, "handler cannot be null");
+        handlers.add(handler);
     }
 
-    public static OptionalInt refuel( ITurtleAccess turtle, ItemStack stack, int slot, int limit )
-    {
-        for( var handler : handlers )
-        {
-            var fuel = handler.refuel( turtle, stack, slot, limit );
-            if( fuel.isPresent() )
-            {
+    public static OptionalInt refuel(ITurtleAccess turtle, ItemStack stack, int slot, int limit) {
+        for (var handler : handlers) {
+            var fuel = handler.refuel(turtle, stack, slot, limit);
+            if (fuel.isPresent()) {
                 var refuelled = fuel.getAsInt();
-                if( refuelled < 0 ) throw new IllegalStateException( handler + " returned a negative value" );
-                if( limit == 0 && refuelled != 0 )
-                {
-                    throw new IllegalStateException( handler + " refuelled despite given a limit of 0" );
+                if (refuelled < 0) throw new IllegalStateException(handler + " returned a negative value");
+                if (limit == 0 && refuelled != 0) {
+                    throw new IllegalStateException(handler + " refuelled despite given a limit of 0");
                 }
 
                 return fuel;

@@ -26,8 +26,7 @@ import javax.annotation.Nullable;
  * This should not be implemented by your classes. Do not interact with turtles except via this interface and
  * {@link ITurtleUpgrade}.
  */
-public interface ITurtleAccess
-{
+public interface ITurtleAccess {
     /**
      * Returns the world in which the turtle resides.
      *
@@ -70,7 +69,7 @@ public interface ITurtleAccess
      * was cancelled.
      * @throws UnsupportedOperationException When attempting to teleport on the client side.
      */
-    boolean teleportTo( @Nonnull Level world, @Nonnull BlockPos pos );
+    boolean teleportTo(@Nonnull Level world, @Nonnull BlockPos pos);
 
     /**
      * Returns a vector containing the floating point co-ordinates at which the turtle is rendered.
@@ -81,7 +80,7 @@ public interface ITurtleAccess
      * @see #getVisualYaw(float)
      */
     @Nonnull
-    Vec3 getVisualPosition( float f );
+    Vec3 getVisualPosition(float f);
 
     /**
      * Returns the yaw the turtle is facing when it is rendered.
@@ -90,7 +89,7 @@ public interface ITurtleAccess
      * @return The yaw the turtle is facing.
      * @see #getVisualPosition(float)
      */
-    float getVisualYaw( float f );
+    float getVisualYaw(float f);
 
     /**
      * Returns the world direction the turtle is currently facing.
@@ -108,7 +107,7 @@ public interface ITurtleAccess
      * @param dir The new direction to set. This should be on either the x or z axis (so north, south, east or west).
      * @see #getDirection()
      */
-    void setDirection( @Nonnull Direction dir );
+    void setDirection(@Nonnull Direction dir);
 
     /**
      * Get the currently selected slot in the turtle's inventory.
@@ -128,7 +127,7 @@ public interface ITurtleAccess
      * @see #getInventory()
      * @see #getSelectedSlot()
      */
-    void setSelectedSlot( int slot );
+    void setSelectedSlot(int slot);
 
     /**
      * Set the colour of the turtle to a RGB number.
@@ -137,7 +136,7 @@ public interface ITurtleAccess
      *               and {@code 0xFFFFFF} or -1 to reset to the default colour.
      * @see #getColour()
      */
-    void setColour( int colour );
+    void setColour(int colour);
 
     /**
      * Get the colour of this turtle as a RGB number.
@@ -178,7 +177,7 @@ public interface ITurtleAccess
      * @deprecated Use {@link #getInventory()} directly.
      */
     @Nonnull
-    @Deprecated( forRemoval = true )
+    @Deprecated(forRemoval = true)
     IItemHandlerModifiable getItemHandler();
 
     /**
@@ -209,7 +208,7 @@ public interface ITurtleAccess
      * @see #addFuel(int)
      * @see #consumeFuel(int)
      */
-    void setFuelLevel( int fuel );
+    void setFuelLevel(int fuel);
 
     /**
      * Get the maximum amount of fuel a turtle can hold.
@@ -226,7 +225,7 @@ public interface ITurtleAccess
      * greater than the current fuel level of the turtle. No fuel will be consumed if {@code false} is returned.
      * @throws UnsupportedOperationException When attempting to consume fuel on the client side.
      */
-    boolean consumeFuel( int fuel );
+    boolean consumeFuel(int fuel);
 
     /**
      * Increase the turtle's fuel level by the given amount.
@@ -234,7 +233,7 @@ public interface ITurtleAccess
      * @param fuel The amount to refuel with.
      * @throws UnsupportedOperationException When attempting to refuel on the client side.
      */
-    void addFuel( int fuel );
+    void addFuel(int fuel);
 
     /**
      * Adds a custom command to the turtles command queue. Unlike peripheral methods, these custom commands will be executed
@@ -251,7 +250,7 @@ public interface ITurtleAccess
      * @see MethodResult#pullEvent(String, ILuaCallback)
      */
     @Nonnull
-    MethodResult executeCommand( @Nonnull ITurtleCommand command );
+    MethodResult executeCommand(@Nonnull ITurtleCommand command);
 
     /**
      * Start playing a specific animation. This will prevent other turtle commands from executing until
@@ -261,7 +260,7 @@ public interface ITurtleAccess
      * @throws UnsupportedOperationException When attempting to execute play an animation on the client side.
      * @see TurtleAnimation
      */
-    void playAnimation( @Nonnull TurtleAnimation animation );
+    void playAnimation(@Nonnull TurtleAnimation animation);
 
     /**
      * Returns the turtle on the specified side of the turtle, if there is one.
@@ -271,7 +270,7 @@ public interface ITurtleAccess
      * @see #setUpgrade(TurtleSide, ITurtleUpgrade)
      */
     @Nullable
-    ITurtleUpgrade getUpgrade( @Nonnull TurtleSide side );
+    ITurtleUpgrade getUpgrade(@Nonnull TurtleSide side);
 
     /**
      * Set the upgrade for a given side, resetting peripherals and clearing upgrade specific data.
@@ -280,7 +279,7 @@ public interface ITurtleAccess
      * @param upgrade The upgrade to set, may be {@code null} to clear.
      * @see #getUpgrade(TurtleSide)
      */
-    void setUpgrade( @Nonnull TurtleSide side, @Nullable ITurtleUpgrade upgrade );
+    void setUpgrade(@Nonnull TurtleSide side, @Nullable ITurtleUpgrade upgrade);
 
     /**
      * Returns the peripheral created by the upgrade on the specified side of the turtle, if there is one.
@@ -289,7 +288,7 @@ public interface ITurtleAccess
      * @return The peripheral created by the upgrade on the specified side of the turtle, {@code null} if none exists.
      */
     @Nullable
-    IPeripheral getPeripheral( @Nonnull TurtleSide side );
+    IPeripheral getPeripheral(@Nonnull TurtleSide side);
 
     /**
      * Get an upgrade-specific NBT compound, which can be used to store arbitrary data.
@@ -302,7 +301,7 @@ public interface ITurtleAccess
      * @see #updateUpgradeNBTData(TurtleSide)
      */
     @Nonnull
-    CompoundTag getUpgradeNBTData( @Nullable TurtleSide side );
+    CompoundTag getUpgradeNBTData(@Nullable TurtleSide side);
 
     /**
      * Mark the upgrade-specific data as dirty on a specific side. This is required for the data to be synced to the
@@ -311,5 +310,5 @@ public interface ITurtleAccess
      * @param side The side to mark dirty.
      * @see #updateUpgradeNBTData(TurtleSide)
      */
-    void updateUpgradeNBTData( @Nonnull TurtleSide side );
+    void updateUpgradeNBTData(@Nonnull TurtleSide side);
 }

@@ -11,8 +11,7 @@ import net.minecraftforge.fluids.FluidStack;
 /**
  * {@link DetailRegistry}s for Forge-specific types.
  */
-public class ForgeDetailRegistries
-{
+public class ForgeDetailRegistries {
     /**
      * Provides details for {@link FluidStack}.
      */

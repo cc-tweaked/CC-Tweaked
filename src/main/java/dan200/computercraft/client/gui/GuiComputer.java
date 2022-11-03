@@ -18,30 +18,26 @@ import javax.annotation.Nonnull;
 import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
 import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
 
-public final class GuiComputer<T extends ContainerComputerBase> extends ComputerScreenBase<T>
-{
-    public GuiComputer( T container, Inventory player, Component title )
-    {
-        super( container, player, title, BORDER );
+public final class GuiComputer<T extends ContainerComputerBase> extends ComputerScreenBase<T> {
+    public GuiComputer(T container, Inventory player, Component title) {
+        super(container, player, title, BORDER);
 
-        imageWidth = WidgetTerminal.getWidth( terminalData.getWidth() ) + BORDER * 2 + ComputerSidebar.WIDTH;
-        imageHeight = WidgetTerminal.getHeight( terminalData.getHeight() ) + BORDER * 2;
+        imageWidth = WidgetTerminal.getWidth(terminalData.getWidth()) + BORDER * 2 + ComputerSidebar.WIDTH;
+        imageHeight = WidgetTerminal.getHeight(terminalData.getHeight()) + BORDER * 2;
     }
 
     @Override
-    protected WidgetTerminal createTerminal()
-    {
-        return new WidgetTerminal( terminalData, input, leftPos + ComputerSidebar.WIDTH + BORDER, topPos + BORDER );
+    protected WidgetTerminal createTerminal() {
+        return new WidgetTerminal(terminalData, input, leftPos + ComputerSidebar.WIDTH + BORDER, topPos + BORDER);
     }
 
     @Override
-    public void renderBg( @Nonnull PoseStack stack, float partialTicks, int mouseX, int mouseY )
-    {
+    public void renderBg(@Nonnull PoseStack stack, float partialTicks, int mouseX, int mouseY) {
         // Draw a border around the terminal
         ComputerBorderRenderer.render(
-            stack.last().pose(), ComputerBorderRenderer.getTexture( family ), terminal.x, terminal.y, getBlitOffset(),
+            stack.last().pose(), ComputerBorderRenderer.getTexture(family), terminal.x, terminal.y, getBlitOffset(),
             FULL_BRIGHT_LIGHTMAP, terminal.getWidth(), terminal.getHeight()
         );
-        ComputerSidebar.renderBackground( stack, leftPos, topPos + sidebarYOffset );
+        ComputerSidebar.renderBackground(stack, leftPos, topPos + sidebarYOffset);
     }
 }

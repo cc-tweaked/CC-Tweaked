@@ -18,36 +18,30 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 /**
  * A packet, which performs an action on the currently open {@link ComputerMenu}.
  */
-public abstract class ComputerServerMessage implements NetworkMessage
-{
+public abstract class ComputerServerMessage implements NetworkMessage {
     private final int containerId;
 
-    protected ComputerServerMessage( AbstractContainerMenu menu )
-    {
+    protected ComputerServerMessage(AbstractContainerMenu menu) {
         containerId = menu.containerId;
     }
 
-    public ComputerServerMessage( @Nonnull FriendlyByteBuf buffer )
-    {
+    public ComputerServerMessage(@Nonnull FriendlyByteBuf buffer) {
         containerId = buffer.readVarInt();
     }
 
     @Override
     @OverridingMethodsMustInvokeSuper
-    public void toBytes( @Nonnull FriendlyByteBuf buf )
-    {
-        buf.writeVarInt( containerId );
+    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+        buf.writeVarInt(containerId);
     }
 
     @Override
-    public void handle( NetworkEvent.Context context )
-    {
+    public void handle(NetworkEvent.Context context) {
         Player player = context.getSender();
-        if( player.containerMenu.containerId == containerId && player.containerMenu instanceof ComputerMenu )
-        {
-            handle( context, (ComputerMenu) player.containerMenu );
+        if (player.containerMenu.containerId == containerId && player.containerMenu instanceof ComputerMenu) {
+            handle(context, (ComputerMenu) player.containerMenu);
         }
     }
 
-    protected abstract void handle( NetworkEvent.Context context, @Nonnull ComputerMenu container );
+    protected abstract void handle(NetworkEvent.Context context, @Nonnull ComputerMenu container);
 }

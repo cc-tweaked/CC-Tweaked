@@ -17,8 +17,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * The global context under which computers run.
  */
-public final class ComputerContext
-{
+public final class ComputerContext {
     private final GlobalEnvironment globalEnvironment;
     private final ComputerThread computerScheduler;
     private final MainThreadScheduler mainThreadScheduler;
@@ -27,8 +26,7 @@ public final class ComputerContext
     public ComputerContext(
         GlobalEnvironment globalEnvironment, ComputerThread computerScheduler,
         MainThreadScheduler mainThreadScheduler, ILuaMachine.Factory factory
-    )
-    {
+    ) {
         this.globalEnvironment = globalEnvironment;
         this.computerScheduler = computerScheduler;
         this.mainThreadScheduler = mainThreadScheduler;
@@ -42,9 +40,8 @@ public final class ComputerContext
      * @param threads             The number of threads to use for the {@link #computerScheduler()}
      * @param mainThreadScheduler The main thread scheduler to use.
      */
-    public ComputerContext( GlobalEnvironment environment, int threads, MainThreadScheduler mainThreadScheduler )
-    {
-        this( environment, new ComputerThread( threads ), mainThreadScheduler, CobaltLuaMachine::new );
+    public ComputerContext(GlobalEnvironment environment, int threads, MainThreadScheduler mainThreadScheduler) {
+        this(environment, new ComputerThread(threads), mainThreadScheduler, CobaltLuaMachine::new);
     }
 
     /**
@@ -52,8 +49,7 @@ public final class ComputerContext
      *
      * @return The current global environment.
      */
-    public GlobalEnvironment globalEnvironment()
-    {
+    public GlobalEnvironment globalEnvironment() {
         return globalEnvironment;
     }
 
@@ -63,8 +59,7 @@ public final class ComputerContext
      *
      * @return The current computer thread manager.
      */
-    public ComputerThread computerScheduler()
-    {
+    public ComputerThread computerScheduler() {
         return computerScheduler;
     }
 
@@ -73,8 +68,7 @@ public final class ComputerContext
      *
      * @return The current main thread scheduler.
      */
-    public MainThreadScheduler mainThreadScheduler()
-    {
+    public MainThreadScheduler mainThreadScheduler() {
         return mainThreadScheduler;
     }
 
@@ -83,8 +77,7 @@ public final class ComputerContext
      *
      * @return The current Lua machine factory.
      */
-    public ILuaMachine.Factory luaFactory()
-    {
+    public ILuaMachine.Factory luaFactory() {
         return factory;
     }
 
@@ -97,9 +90,8 @@ public final class ComputerContext
      * @throws InterruptedException If interrupted while waiting.
      */
     @CheckReturnValue
-    public boolean close( long timeout, TimeUnit unit ) throws InterruptedException
-    {
-        return computerScheduler().stop( timeout, unit );
+    public boolean close(long timeout, TimeUnit unit) throws InterruptedException {
+        return computerScheduler().stop(timeout, unit);
     }
 
     /**
@@ -110,11 +102,9 @@ public final class ComputerContext
      * @throws IllegalStateException If the computer thread was not shut down in time.
      * @throws InterruptedException  If interrupted while waiting.
      */
-    public void ensureClosed( long timeout, TimeUnit unit ) throws InterruptedException
-    {
-        if( !computerScheduler().stop( timeout, unit ) )
-        {
-            throw new IllegalStateException( "Failed to shutdown ComputerContext in time." );
+    public void ensureClosed(long timeout, TimeUnit unit) throws InterruptedException {
+        if (!computerScheduler().stop(timeout, unit)) {
+            throw new IllegalStateException("Failed to shutdown ComputerContext in time.");
         }
     }
 }

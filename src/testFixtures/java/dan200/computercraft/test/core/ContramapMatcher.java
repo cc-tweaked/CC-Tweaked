@@ -17,29 +17,24 @@ import java.util.function.Function;
  * @param <T> The type of the object to be matched.
  * @param <U> The type of the projection/field to be matched.
  */
-public final class ContramapMatcher<T, U> extends FeatureMatcher<T, U>
-{
+public final class ContramapMatcher<T, U> extends FeatureMatcher<T, U> {
     private final Function<T, U> convert;
 
-    public ContramapMatcher( String desc, Function<T, U> convert, Matcher<U> matcher )
-    {
-        super( matcher, desc, desc );
+    public ContramapMatcher(String desc, Function<T, U> convert, Matcher<U> matcher) {
+        super(matcher, desc, desc);
         this.convert = convert;
     }
 
     @Override
-    protected U featureValueOf( T actual )
-    {
-        return convert.apply( actual );
+    protected U featureValueOf(T actual) {
+        return convert.apply(actual);
     }
 
-    public static <T, U> Matcher<T> contramap( Matcher<U> matcher, String desc, Function<T, U> convert )
-    {
-        return new ContramapMatcher<>( desc, convert, matcher );
+    public static <T, U> Matcher<T> contramap(Matcher<U> matcher, String desc, Function<T, U> convert) {
+        return new ContramapMatcher<>(desc, convert, matcher);
     }
 
-    public static <T, U> Matcher<T> contramap( Matcher<U> matcher, Function<T, U> convert )
-    {
-        return new ContramapMatcher<>( "-f(_)->", convert, matcher );
+    public static <T, U> Matcher<T> contramap(Matcher<U> matcher, Function<T, U> convert) {
+        return new ContramapMatcher<>("-f(_)->", convert, matcher);
     }
 }

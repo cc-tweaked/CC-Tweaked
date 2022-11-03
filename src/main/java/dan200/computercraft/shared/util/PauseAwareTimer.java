@@ -15,37 +15,30 @@ import net.minecraftforge.fml.common.Mod;
 /**
  * A monotonically increasing clock which accounts for the game being paused.
  */
-@Mod.EventBusSubscriber( Dist.CLIENT )
-public final class PauseAwareTimer
-{
+@Mod.EventBusSubscriber(Dist.CLIENT)
+public final class PauseAwareTimer {
     private static boolean paused;
     private static long pauseTime;
     private static long pauseOffset;
 
-    private PauseAwareTimer()
-    {
+    private PauseAwareTimer() {
     }
 
-    public static long getTime()
-    {
+    public static long getTime() {
         return (paused ? pauseTime : Util.getNanos()) - pauseOffset;
     }
 
     @SubscribeEvent
-    public static void tick( TickEvent.RenderTickEvent event )
-    {
-        if( event.phase != TickEvent.Phase.START ) return;
+    public static void tick(TickEvent.RenderTickEvent event) {
+        if (event.phase != TickEvent.Phase.START) return;
 
-        boolean isPaused = Minecraft.getInstance().isPaused();
-        if( isPaused == paused ) return;
+        var isPaused = Minecraft.getInstance().isPaused();
+        if (isPaused == paused) return;
 
-        if( isPaused )
-        {
+        if (isPaused) {
             pauseTime = Util.getNanos();
             paused = true;
-        }
-        else
-        {
+        } else {
             pauseOffset += Util.getNanos() - pauseTime;
             paused = false;
         }

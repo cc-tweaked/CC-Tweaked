@@ -15,8 +15,7 @@ import javax.annotation.Nonnull;
  * Unlike a regular {@link IPacketSender}, this must be associated with the node you are attempting to
  * to send the packet from.
  */
-public interface IWiredSender extends IPacketSender
-{
+public interface IWiredSender extends IPacketSender {
     /**
      * The node in the network representing this object.
      * <p>

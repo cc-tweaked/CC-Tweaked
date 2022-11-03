@@ -15,10 +15,8 @@ import java.util.Map;
  *
  * @see IArguments
  */
-public final class LuaValues
-{
-    private LuaValues()
-    {
+public final class LuaValues {
+    private LuaValues() {
     }
 
     /**
@@ -28,16 +26,14 @@ public final class LuaValues
      * @return The encoded string.
      */
     @Nonnull
-    public static ByteBuffer encode( @Nonnull String string )
-    {
-        byte[] chars = new byte[string.length()];
-        for( int i = 0; i < chars.length; i++ )
-        {
-            char c = string.charAt( i );
+    public static ByteBuffer encode(@Nonnull String string) {
+        var chars = new byte[string.length()];
+        for (var i = 0; i < chars.length; i++) {
+            var c = string.charAt(i);
             chars[i] = c < 256 ? (byte) c : 63;
         }
 
-        return ByteBuffer.wrap( chars ).asReadOnlyBuffer();
+        return ByteBuffer.wrap(chars).asReadOnlyBuffer();
     }
 
     /**
@@ -48,11 +44,10 @@ public final class LuaValues
      * @return This value's numeric type.
      */
     @Nonnull
-    public static String getNumericType( double value )
-    {
-        if( Double.isNaN( value ) ) return "nan";
-        if( value == Double.POSITIVE_INFINITY ) return "inf";
-        if( value == Double.NEGATIVE_INFINITY ) return "-inf";
+    public static String getNumericType(double value) {
+        if (Double.isNaN(value)) return "nan";
+        if (value == Double.POSITIVE_INFINITY) return "inf";
+        if (value == Double.NEGATIVE_INFINITY) return "-inf";
         return "number";
     }
 
@@ -64,13 +59,12 @@ public final class LuaValues
      * {@code type} function.
      */
     @Nonnull
-    public static String getType( @Nullable Object value )
-    {
-        if( value == null ) return "nil";
-        if( value instanceof String ) return "string";
-        if( value instanceof Boolean ) return "boolean";
-        if( value instanceof Number ) return "number";
-        if( value instanceof Map ) return "table";
+    public static String getType(@Nullable Object value) {
+        if (value == null) return "nil";
+        if (value instanceof String) return "string";
+        if (value instanceof Boolean) return "boolean";
+        if (value instanceof Number) return "number";
+        if (value instanceof Map) return "table";
         return "userdata";
     }
 
@@ -83,9 +77,8 @@ public final class LuaValues
      * @return The constructed exception, which should be thrown immediately.
      */
     @Nonnull
-    public static LuaException badArgumentOf( int index, @Nonnull String expected, @Nullable Object actual )
-    {
-        return badArgument( index, expected, getType( actual ) );
+    public static LuaException badArgumentOf(int index, @Nonnull String expected, @Nullable Object actual) {
+        return badArgument(index, expected, getType(actual));
     }
 
     /**
@@ -97,9 +90,8 @@ public final class LuaValues
      * @return The constructed exception, which should be thrown immediately.
      */
     @Nonnull
-    public static LuaException badArgument( int index, @Nonnull String expected, @Nonnull String actual )
-    {
-        return new LuaException( "bad argument #" + (index + 1) + " (" + expected + " expected, got " + actual + ")" );
+    public static LuaException badArgument(int index, @Nonnull String expected, @Nonnull String actual) {
+        return new LuaException("bad argument #" + (index + 1) + " (" + expected + " expected, got " + actual + ")");
     }
 
     /**
@@ -111,9 +103,8 @@ public final class LuaValues
      * @return The constructed exception, which should be thrown immediately.
      */
     @Nonnull
-    public static LuaException badTableItem( int index, @Nonnull String expected, @Nonnull String actual )
-    {
-        return new LuaException( "table item #" + index + " is not " + expected + " (got " + actual + ")" );
+    public static LuaException badTableItem(int index, @Nonnull String expected, @Nonnull String actual) {
+        return new LuaException("table item #" + index + " is not " + expected + " (got " + actual + ")");
     }
 
     /**
@@ -125,9 +116,8 @@ public final class LuaValues
      * @return The constructed exception, which should be thrown immediately.
      */
     @Nonnull
-    public static LuaException badField( String key, @Nonnull String expected, @Nonnull String actual )
-    {
-        return new LuaException( "field " + key + " is not " + expected + " (got " + actual + ")" );
+    public static LuaException badField(String key, @Nonnull String expected, @Nonnull String actual) {
+        return new LuaException("field " + key + " is not " + expected + " (got " + actual + ")");
     }
 
     /**
@@ -138,9 +128,8 @@ public final class LuaValues
      * @return The input {@code value}.
      * @throws LuaException If this is not a finite number.
      */
-    public static Number checkFiniteNum( int index, Number value ) throws LuaException
-    {
-        checkFinite( index, value.doubleValue() );
+    public static Number checkFiniteNum(int index, Number value) throws LuaException {
+        checkFinite(index, value.doubleValue());
         return value;
     }
 
@@ -152,9 +141,8 @@ public final class LuaValues
      * @return The input {@code value}.
      * @throws LuaException If this is not a finite number.
      */
-    public static double checkFinite( int index, double value ) throws LuaException
-    {
-        if( !Double.isFinite( value ) ) throw badArgument( index, "number", getNumericType( value ) );
+    public static double checkFinite(int index, double value) throws LuaException {
+        if (!Double.isFinite(value)) throw badArgument(index, "number", getNumericType(value));
         return value;
     }
 
@@ -168,13 +156,11 @@ public final class LuaValues
      * @return The parsed enum value.
      * @throws LuaException If this is not a known enum value.
      */
-    public static <T extends Enum<T>> T checkEnum( int index, Class<T> klass, String value ) throws LuaException
-    {
-        for( T possibility : klass.getEnumConstants() )
-        {
-            if( possibility.name().equalsIgnoreCase( value ) ) return possibility;
+    public static <T extends Enum<T>> T checkEnum(int index, Class<T> klass, String value) throws LuaException {
+        for (var possibility : klass.getEnumConstants()) {
+            if (possibility.name().equalsIgnoreCase(value)) return possibility;
         }
 
-        throw new LuaException( "bad argument #" + (index + 1) + " (unknown option " + value + ")" );
+        throw new LuaException("bad argument #" + (index + 1) + " (unknown option " + value + ")");
     }
 }

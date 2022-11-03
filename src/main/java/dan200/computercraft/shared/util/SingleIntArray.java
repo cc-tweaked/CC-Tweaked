@@ -8,24 +8,20 @@ package dan200.computercraft.shared.util;
 import net.minecraft.world.inventory.ContainerData;
 
 @FunctionalInterface
-public interface SingleIntArray extends ContainerData
-{
+public interface SingleIntArray extends ContainerData {
     int get();
 
     @Override
-    default int get( int property )
-    {
+    default int get(int property) {
         return property == 0 ? get() : 0;
     }
 
     @Override
-    default void set( int property, int value )
-    {
+    default void set(int property, int value) {
     }
 
     @Override
-    default int getCount()
-    {
+    default int getCount() {
         return 1;
     }
 }

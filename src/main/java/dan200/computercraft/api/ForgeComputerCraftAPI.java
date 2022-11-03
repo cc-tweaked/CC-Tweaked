@@ -21,10 +21,8 @@ import javax.annotation.Nonnull;
 /**
  * The forge-specific entrypoint for ComputerCraft's API.
  */
-public final class ForgeComputerCraftAPI
-{
-    private ForgeComputerCraftAPI()
-    {
+public final class ForgeComputerCraftAPI {
+    private ForgeComputerCraftAPI() {
     }
 
     /**
@@ -34,9 +32,8 @@ public final class ForgeComputerCraftAPI
      * @see IPeripheral
      * @see IPeripheralProvider
      */
-    public static void registerPeripheralProvider( @Nonnull IPeripheralProvider provider )
-    {
-        getInstance().registerPeripheralProvider( provider );
+    public static void registerPeripheralProvider(@Nonnull IPeripheralProvider provider) {
+        getInstance().registerPeripheralProvider(provider);
     }
 
     /**
@@ -45,9 +42,8 @@ public final class ForgeComputerCraftAPI
      * @param capability The capability to register.
      * @see GenericSource
      */
-    public static void registerGenericCapability( @Nonnull Capability<?> capability )
-    {
-        getInstance().registerGenericCapability( capability );
+    public static void registerGenericCapability(@Nonnull Capability<?> capability) {
+        getInstance().registerGenericCapability(capability);
     }
 
     /**
@@ -60,14 +56,12 @@ public final class ForgeComputerCraftAPI
      * @see IWiredElement#getNode()
      */
     @Nonnull
-    public static LazyOptional<IWiredElement> getWiredElementAt( @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side )
-    {
-        return getInstance().getWiredElementAt( world, pos, side );
+    public static LazyOptional<IWiredElement> getWiredElementAt(@Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side) {
+        return getInstance().getWiredElementAt(world, pos, side);
     }
 
     @Nonnull
-    private static ComputerCraftAPIService getInstance()
-    {
+    private static ComputerCraftAPIService getInstance() {
         return ComputerCraftAPIService.get();
     }
 }

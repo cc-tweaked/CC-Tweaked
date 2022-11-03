@@ -40,19 +40,16 @@ import javax.annotation.Nullable;
  * monitor.write("Hello, world!")
  * }</pre>
  */
-public class MonitorPeripheral extends TermMethods implements IPeripheral
-{
+public class MonitorPeripheral extends TermMethods implements IPeripheral {
     private final TileMonitor monitor;
 
-    public MonitorPeripheral( TileMonitor monitor )
-    {
+    public MonitorPeripheral(TileMonitor monitor) {
         this.monitor = monitor;
     }
 
     @Nonnull
     @Override
-    public String getType()
-    {
+    public String getType() {
         return "monitor";
     }
 
@@ -65,11 +62,10 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral
      * @see #getTextScale()
      */
     @LuaFunction
-    public final void setTextScale( double scaleArg ) throws LuaException
-    {
-        int scale = (int) (LuaValues.checkFinite( 0, scaleArg ) * 2.0);
-        if( scale < 1 || scale > 10 ) throw new LuaException( "Expected number in range 0.5-5" );
-        getMonitor().setTextScale( scale );
+    public final void setTextScale(double scaleArg) throws LuaException {
+        var scale = (int) (LuaValues.checkFinite(0, scaleArg) * 2.0);
+        if (scale < 1 || scale > 10) throw new LuaException("Expected number in range 0.5-5");
+        getMonitor().setTextScale(scale);
     }
 
     /**
@@ -80,50 +76,43 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral
      * @cc.since 1.81.0
      */
     @LuaFunction
-    public final double getTextScale() throws LuaException
-    {
+    public final double getTextScale() throws LuaException {
         return getMonitor().getTextScale() / 2.0;
     }
 
     @Override
-    public void attach( @Nonnull IComputerAccess computer )
-    {
-        monitor.addComputer( computer );
+    public void attach(@Nonnull IComputerAccess computer) {
+        monitor.addComputer(computer);
     }
 
     @Override
-    public void detach( @Nonnull IComputerAccess computer )
-    {
-        monitor.removeComputer( computer );
+    public void detach(@Nonnull IComputerAccess computer) {
+        monitor.removeComputer(computer);
     }
 
     @Override
-    public boolean equals( IPeripheral other )
-    {
+    public boolean equals(IPeripheral other) {
         return other instanceof MonitorPeripheral && monitor == ((MonitorPeripheral) other).monitor;
     }
 
     @Nonnull
-    private ServerMonitor getMonitor() throws LuaException
-    {
-        ServerMonitor monitor = this.monitor.getCachedServerMonitor();
-        if( monitor == null ) throw new LuaException( "Monitor has been detached" );
+    private ServerMonitor getMonitor() throws LuaException {
+        var monitor = this.monitor.getCachedServerMonitor();
+        if (monitor == null) throw new LuaException("Monitor has been detached");
         return monitor;
     }
 
     @Nonnull
     @Override
-    public Terminal getTerminal() throws LuaException
-    {
+    public Terminal getTerminal() throws LuaException {
         Terminal terminal = getMonitor().getTerminal();
-        if( terminal == null ) throw new LuaException( "Monitor has been detached" );
+        if (terminal == null) throw new LuaException("Monitor has been detached");
         return terminal;
     }
 
     @Nullable
     @Override
-    public Object getTarget()
-    {
+    public Object getTarget() {
         return monitor;
     }
 }

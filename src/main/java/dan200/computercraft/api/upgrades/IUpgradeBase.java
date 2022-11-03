@@ -8,7 +8,6 @@ package dan200.computercraft.api.upgrades;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import net.minecraft.Util;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -17,8 +16,7 @@ import javax.annotation.Nonnull;
 /**
  * Common functionality between {@link ITurtleUpgrade} and {@link IPocketUpgrade}.
  */
-public interface IUpgradeBase
-{
+public interface IUpgradeBase {
     /**
      * Gets a unique identifier representing this type of turtle upgrade. eg: "computercraft:wireless_modem"
      * or "my_mod:my_upgrade".
@@ -71,18 +69,17 @@ public interface IUpgradeBase
      * @see net.minecraftforge.common.crafting.StrictNBTIngredient#test(ItemStack) For the implementation of the default
      * check.
      */
-    default boolean isItemSuitable( @Nonnull ItemStack stack )
-    {
-        ItemStack crafting = getCraftingItem();
+    default boolean isItemSuitable(@Nonnull ItemStack stack) {
+        var crafting = getCraftingItem();
 
         // A more expanded form of ItemStack.areShareTagsEqual, but allowing an empty tag to be equal to a
         // null one.
-        CompoundTag shareTag = stack.getItem().getShareTag( stack );
-        CompoundTag craftingShareTag = crafting.getItem().getShareTag( crafting );
-        if( shareTag == craftingShareTag ) return true;
-        if( shareTag == null ) return craftingShareTag.isEmpty();
-        if( craftingShareTag == null ) return shareTag.isEmpty();
-        return shareTag.equals( craftingShareTag );
+        var shareTag = stack.getItem().getShareTag(stack);
+        var craftingShareTag = crafting.getItem().getShareTag(crafting);
+        if (shareTag == craftingShareTag) return true;
+        if (shareTag == null) return craftingShareTag.isEmpty();
+        if (craftingShareTag == null) return shareTag.isEmpty();
+        return shareTag.equals(craftingShareTag);
     }
 
     /**
@@ -94,8 +91,7 @@ public interface IUpgradeBase
      * @see #getUnlocalisedAdjective()
      */
     @Nonnull
-    static String getDefaultAdjective( @Nonnull ResourceLocation id )
-    {
-        return Util.makeDescriptionId( "upgrade", id ) + ".adjective";
+    static String getDefaultAdjective(@Nonnull ResourceLocation id) {
+        return Util.makeDescriptionId("upgrade", id) + ".adjective";
     }
 }

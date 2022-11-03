@@ -20,70 +20,61 @@ import java.util.Map;
  * <p>
  * Note that this will retain timings for computers which have been deleted.
  */
-public class BasicComputerMetricsObserver implements ComputerMetricsObserver
-{
+public class BasicComputerMetricsObserver implements ComputerMetricsObserver {
     private final GlobalMetrics owner;
     private boolean tracking = false;
 
     private final List<ComputerMetrics> timings = new ArrayList<>();
     private final Map<ServerComputer, ComputerMetrics> timingLookup = new MapMaker().weakKeys().makeMap();
 
-    public BasicComputerMetricsObserver( GlobalMetrics owner )
-    {
+    public BasicComputerMetricsObserver(GlobalMetrics owner) {
         this.owner = owner;
     }
 
-    public synchronized void start()
-    {
-        if( !tracking ) owner.addObserver( this );
+    public synchronized void start() {
+        if (!tracking) owner.addObserver(this);
         tracking = true;
 
         timings.clear();
         timingLookup.clear();
     }
 
-    public synchronized boolean stop()
-    {
-        if( !tracking ) return false;
+    public synchronized boolean stop() {
+        if (!tracking) return false;
 
-        owner.removeObserver( this );
+        owner.removeObserver(this);
         tracking = false;
         timingLookup.clear();
         return true;
     }
 
-    public synchronized List<ComputerMetrics> getSnapshot()
-    {
-        ArrayList<ComputerMetrics> timings = new ArrayList<>( this.timings.size() );
-        for( ComputerMetrics timing : this.timings ) timings.add( new ComputerMetrics( timing ) );
+    public synchronized List<ComputerMetrics> getSnapshot() {
+        var timings = new ArrayList<ComputerMetrics>(this.timings.size());
+        for (var timing : this.timings) timings.add(new ComputerMetrics(timing));
         return timings;
     }
 
-    public synchronized List<ComputerMetrics> getTimings()
-    {
-        return new ArrayList<>( timings );
+    public synchronized List<ComputerMetrics> getTimings() {
+        return new ArrayList<>(timings);
     }
 
-    private ComputerMetrics getMetrics( ServerComputer computer )
-    {
-        ComputerMetrics existing = timingLookup.get( computer );
-        if( existing != null ) return existing;
+    private ComputerMetrics getMetrics(ServerComputer computer) {
+        var existing = timingLookup.get(computer);
+        if (existing != null) return existing;
 
-        ComputerMetrics metrics = new ComputerMetrics( computer );
-        timingLookup.put( computer, metrics );
-        timings.add( metrics );
+        var metrics = new ComputerMetrics(computer);
+        timingLookup.put(computer, metrics);
+        timings.add(metrics);
         return metrics;
     }
 
     @Override
-    public synchronized void observe( ServerComputer computer, Metric.Counter counter )
-    {
-        getMetrics( computer ).observe( counter );
+    public synchronized void observe(ServerComputer computer, Metric.Counter counter) {
+        getMetrics(computer).observe(counter);
     }
 
     @Override
-    public synchronized void observe( ServerComputer computer, Metric.Event event, long value )
-    {
-        getMetrics( computer ).observe( event, value );
+    public synchronized void observe(ServerComputer computer, Metric.Event event, long value) {
+        getMetrics(computer).observe(event, value);
     }
 }

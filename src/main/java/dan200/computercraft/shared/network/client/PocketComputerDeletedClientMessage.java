@@ -12,29 +12,24 @@ import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
-public class PocketComputerDeletedClientMessage implements NetworkMessage
-{
+public class PocketComputerDeletedClientMessage implements NetworkMessage {
     private final int instanceId;
 
-    public PocketComputerDeletedClientMessage( int instanceId )
-    {
+    public PocketComputerDeletedClientMessage(int instanceId) {
         this.instanceId = instanceId;
     }
 
-    public PocketComputerDeletedClientMessage( FriendlyByteBuf buffer )
-    {
+    public PocketComputerDeletedClientMessage(FriendlyByteBuf buffer) {
         instanceId = buffer.readVarInt();
     }
 
     @Override
-    public void toBytes( @Nonnull FriendlyByteBuf buf )
-    {
-        buf.writeVarInt( instanceId );
+    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+        buf.writeVarInt(instanceId);
     }
 
     @Override
-    public void handle( NetworkEvent.Context context )
-    {
-        ClientPocketComputers.remove( instanceId );
+    public void handle(NetworkEvent.Context context) {
+        ClientPocketComputers.remove(instanceId);
     }
 }

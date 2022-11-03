@@ -71,15 +71,14 @@ import java.util.function.Function;
  * @see TurtleUpgradeDataProvider
  * @see TurtleUpgradeModeller
  */
-public interface TurtleUpgradeSerialiser<T extends ITurtleUpgrade> extends UpgradeSerialiser<T>
-{
+public interface TurtleUpgradeSerialiser<T extends ITurtleUpgrade> extends UpgradeSerialiser<T> {
     /**
      * The ID for the associated registry.
      * <p>
      * This is largely intended for use with Forge Registry methods/classes, such as {@link DeferredRegister} and
      * {@link RegistryManager#getRegistry(ResourceKey)}.
      */
-    ResourceKey<Registry<TurtleUpgradeSerialiser<?>>> REGISTRY_ID = ResourceKey.createRegistryKey( new ResourceLocation( ComputerCraft.MOD_ID, "turtle_upgrade_serialiser" ) );
+    ResourceKey<Registry<TurtleUpgradeSerialiser<?>>> REGISTRY_ID = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraft.MOD_ID, "turtle_upgrade_serialiser"));
 
     /**
      * The associated registry.
@@ -88,10 +87,9 @@ public interface TurtleUpgradeSerialiser<T extends ITurtleUpgrade> extends Upgra
      * @see #REGISTRY_ID
      * @deprecated Use {@link #REGISTRY_ID} directly.
      */
-    @Deprecated( forRemoval = true )
-    static IForgeRegistry<TurtleUpgradeSerialiser<?>> registry()
-    {
-        return RegistryManager.ACTIVE.getRegistry( REGISTRY_ID );
+    @Deprecated(forRemoval = true)
+    static IForgeRegistry<TurtleUpgradeSerialiser<?>> registry() {
+        return RegistryManager.ACTIVE.getRegistry(REGISTRY_ID);
     }
 
     /**
@@ -105,17 +103,14 @@ public interface TurtleUpgradeSerialiser<T extends ITurtleUpgrade> extends Upgra
      * @return The serialiser for this upgrade
      */
     @Nonnull
-    static <T extends ITurtleUpgrade> TurtleUpgradeSerialiser<T> simple( @Nonnull Function<ResourceLocation, T> factory )
-    {
-        final class Impl extends SimpleSerialiser<T> implements TurtleUpgradeSerialiser<T>
-        {
-            private Impl( Function<ResourceLocation, T> constructor )
-            {
-                super( constructor );
+    static <T extends ITurtleUpgrade> TurtleUpgradeSerialiser<T> simple(@Nonnull Function<ResourceLocation, T> factory) {
+        final class Impl extends SimpleSerialiser<T> implements TurtleUpgradeSerialiser<T> {
+            private Impl(Function<ResourceLocation, T> constructor) {
+                super(constructor);
             }
         }
 
-        return new Impl( factory );
+        return new Impl(factory);
     }
 
     /**
@@ -128,16 +123,13 @@ public interface TurtleUpgradeSerialiser<T extends ITurtleUpgrade> extends Upgra
      * @see #simple(Function)  For upgrades whose crafting stack should not vary.
      */
     @Nonnull
-    static <T extends ITurtleUpgrade> TurtleUpgradeSerialiser<T> simpleWithCustomItem( @Nonnull BiFunction<ResourceLocation, ItemStack, T> factory )
-    {
-        final class Impl extends SerialiserWithCraftingItem<T> implements TurtleUpgradeSerialiser<T>
-        {
-            private Impl( BiFunction<ResourceLocation, ItemStack, T> factory )
-            {
-                super( factory );
+    static <T extends ITurtleUpgrade> TurtleUpgradeSerialiser<T> simpleWithCustomItem(@Nonnull BiFunction<ResourceLocation, ItemStack, T> factory) {
+        final class Impl extends SerialiserWithCraftingItem<T> implements TurtleUpgradeSerialiser<T> {
+            private Impl(BiFunction<ResourceLocation, ItemStack, T> factory) {
+                super(factory);
             }
         }
 
-        return new Impl( factory );
+        return new Impl(factory);
     }
 }

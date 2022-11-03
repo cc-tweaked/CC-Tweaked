@@ -21,8 +21,7 @@ import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-public class SpeakerSound extends AbstractSoundInstance implements TickableSoundInstance
-{
+public class SpeakerSound extends AbstractSoundInstance implements TickableSoundInstance {
     Channel channel;
     Executor executor;
     DfpwmStream stream;
@@ -31,18 +30,16 @@ public class SpeakerSound extends AbstractSoundInstance implements TickableSound
 
     private boolean stopped = false;
 
-    SpeakerSound( ResourceLocation sound, DfpwmStream stream, SpeakerPosition position, float volume, float pitch )
-    {
-        super( sound, SoundSource.RECORDS, SoundInstance.createUnseededRandom() );
-        setPosition( position );
+    SpeakerSound(ResourceLocation sound, DfpwmStream stream, SpeakerPosition position, float volume, float pitch) {
+        super(sound, SoundSource.RECORDS, SoundInstance.createUnseededRandom());
+        setPosition(position);
         this.stream = stream;
         this.volume = volume;
         this.pitch = pitch;
         attenuation = Attenuation.LINEAR;
     }
 
-    void setPosition( SpeakerPosition position )
-    {
+    void setPosition(SpeakerPosition position) {
         x = position.position().x;
         y = position.position().y;
         z = position.position().z;
@@ -50,22 +47,17 @@ public class SpeakerSound extends AbstractSoundInstance implements TickableSound
     }
 
     @Override
-    public boolean isStopped()
-    {
+    public boolean isStopped() {
         return stopped;
     }
 
     @Override
-    public void tick()
-    {
-        if( entity == null ) return;
-        if( !entity.isAlive() )
-        {
+    public void tick() {
+        if (entity == null) return;
+        if (!entity.isAlive()) {
             stopped = true;
             looping = false;
-        }
-        else
-        {
+        } else {
             x = entity.getX();
             y = entity.getY();
             z = entity.getZ();
@@ -74,8 +66,7 @@ public class SpeakerSound extends AbstractSoundInstance implements TickableSound
 
     @Nonnull
     @Override
-    public CompletableFuture<AudioStream> getStream( @Nonnull SoundBufferLibrary soundBuffers, @Nonnull Sound sound, boolean looping )
-    {
-        return stream != null ? CompletableFuture.completedFuture( stream ) : super.getStream( soundBuffers, sound, looping );
+    public CompletableFuture<AudioStream> getStream(@Nonnull SoundBufferLibrary soundBuffers, @Nonnull Sound sound, boolean looping) {
+        return stream != null ? CompletableFuture.completedFuture(stream) : super.getStream(soundBuffers, sound, looping);
     }
 }

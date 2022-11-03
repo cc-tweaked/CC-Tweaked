@@ -23,8 +23,7 @@ import javax.annotation.Nonnull;
  * @see TurtleUpgradeSerialiser
  * @see PocketUpgradeSerialiser
  */
-public interface UpgradeSerialiser<T extends IUpgradeBase>
-{
+public interface UpgradeSerialiser<T extends IUpgradeBase> {
     /**
      * Read this upgrade from a JSON file in a datapack.
      *
@@ -34,7 +33,7 @@ public interface UpgradeSerialiser<T extends IUpgradeBase>
      * @see net.minecraft.util.GsonHelper For additional JSON helper methods.
      */
     @Nonnull
-    T fromJson( @Nonnull ResourceLocation id, @Nonnull JsonObject object );
+    T fromJson(@Nonnull ResourceLocation id, @Nonnull JsonObject object);
 
     /**
      * Read this upgrade from a network packet, sent from the server.
@@ -44,7 +43,7 @@ public interface UpgradeSerialiser<T extends IUpgradeBase>
      * @return The constructed upgrade, with a {@link IUpgradeBase#getUpgradeID()} equal to {@code id}.
      */
     @Nonnull
-    T fromNetwork( @Nonnull ResourceLocation id, @Nonnull FriendlyByteBuf buffer );
+    T fromNetwork(@Nonnull ResourceLocation id, @Nonnull FriendlyByteBuf buffer);
 
     /**
      * Write this upgrade to a network packet, to be sent to the client.
@@ -52,6 +51,6 @@ public interface UpgradeSerialiser<T extends IUpgradeBase>
      * @param buffer  The buffer object to write this upgrade to
      * @param upgrade The upgrade to write.
      */
-    void toNetwork( @Nonnull FriendlyByteBuf buffer, @Nonnull T upgrade );
+    void toNetwork(@Nonnull FriendlyByteBuf buffer, @Nonnull T upgrade);
 
 }

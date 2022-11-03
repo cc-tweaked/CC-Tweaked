@@ -19,54 +19,46 @@ import net.minecraft.world.item.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class ContainerHeldItem extends AbstractContainerMenu
-{
+public class ContainerHeldItem extends AbstractContainerMenu {
     private final ItemStack stack;
     private final InteractionHand hand;
 
-    public ContainerHeldItem( MenuType<? extends ContainerHeldItem> type, int id, Player player, InteractionHand hand )
-    {
-        super( type, id );
+    public ContainerHeldItem(MenuType<? extends ContainerHeldItem> type, int id, Player player, InteractionHand hand) {
+        super(type, id);
 
         this.hand = hand;
-        stack = player.getItemInHand( hand ).copy();
+        stack = player.getItemInHand(hand).copy();
     }
 
-    public static ContainerHeldItem createPrintout( int id, Inventory inventory, HeldItemContainerData data )
-    {
-        return new ContainerHeldItem( Registry.ModContainers.PRINTOUT.get(), id, inventory.player, data.getHand() );
+    public static ContainerHeldItem createPrintout(int id, Inventory inventory, HeldItemContainerData data) {
+        return new ContainerHeldItem(Registry.ModContainers.PRINTOUT.get(), id, inventory.player, data.getHand());
     }
 
     @Nonnull
-    public ItemStack getStack()
-    {
+    public ItemStack getStack() {
         return stack;
     }
 
     @Nonnull
     @Override
-    public ItemStack quickMoveStack( @Nonnull Player player, int slot )
-    {
+    public ItemStack quickMoveStack(@Nonnull Player player, int slot) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public boolean stillValid( @Nonnull Player player )
-    {
-        if( !player.isAlive() ) return false;
+    public boolean stillValid(@Nonnull Player player) {
+        if (!player.isAlive()) return false;
 
-        ItemStack stack = player.getItemInHand( hand );
+        var stack = player.getItemInHand(hand);
         return stack == this.stack || !stack.isEmpty() && !this.stack.isEmpty() && stack.getItem() == this.stack.getItem();
     }
 
-    public static class Factory implements MenuProvider
-    {
+    public static class Factory implements MenuProvider {
         private final MenuType<ContainerHeldItem> type;
         private final Component name;
         private final InteractionHand hand;
 
-        public Factory( MenuType<ContainerHeldItem> type, ItemStack stack, InteractionHand hand )
-        {
+        public Factory(MenuType<ContainerHeldItem> type, ItemStack stack, InteractionHand hand) {
             this.type = type;
             name = stack.getHoverName();
             this.hand = hand;
@@ -74,16 +66,14 @@ public class ContainerHeldItem extends AbstractContainerMenu
 
         @Nonnull
         @Override
-        public Component getDisplayName()
-        {
+        public Component getDisplayName() {
             return name;
         }
 
         @Nullable
         @Override
-        public AbstractContainerMenu createMenu( int id, @Nonnull Inventory inventory, @Nonnull Player player )
-        {
-            return new ContainerHeldItem( type, id, player, hand );
+        public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) {
+            return new ContainerHeldItem(type, id, player, hand);
         }
     }
 }

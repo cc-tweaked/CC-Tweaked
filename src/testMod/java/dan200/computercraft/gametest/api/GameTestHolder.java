@@ -17,8 +17,7 @@ import java.lang.annotation.Target;
  * <p>
  * This is used by Forge to automatically load and test classes.
  */
-@Target( ElementType.TYPE )
-@Retention( RetentionPolicy.RUNTIME )
-public @interface GameTestHolder
-{
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface GameTestHolder {
 }

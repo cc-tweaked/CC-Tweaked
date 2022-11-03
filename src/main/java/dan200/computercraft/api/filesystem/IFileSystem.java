@@ -12,8 +12,7 @@ import java.io.IOException;
  * <p>
  * This exists for use by various APIs - one should not attempt to mount it.
  */
-public interface IFileSystem extends IWritableMount
-{
+public interface IFileSystem extends IWritableMount {
     /**
      * Combine two paths together, reducing them into a normalised form.
      *
@@ -21,7 +20,7 @@ public interface IFileSystem extends IWritableMount
      * @param child The path to append.
      * @return The combined, normalised path.
      */
-    String combine( String path, String child );
+    String combine(String path, String child);
 
     /**
      * Copy files from one location to another.
@@ -30,7 +29,7 @@ public interface IFileSystem extends IWritableMount
      * @param to   The location to copy to. This should not exist.
      * @throws IOException If the copy failed.
      */
-    void copy( String from, String to ) throws IOException;
+    void copy(String from, String to) throws IOException;
 
     /**
      * Move files from one location to another.
@@ -39,5 +38,5 @@ public interface IFileSystem extends IWritableMount
      * @param to   The location to move to. This should not exist.
      * @throws IOException If the move failed.
      */
-    void move( String from, String to ) throws IOException;
+    void move(String from, String to) throws IOException;
 }

@@ -11,7 +11,6 @@ import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CustomRecipe;
@@ -22,37 +21,27 @@ import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nonnull;
 
-public class DiskRecipe extends CustomRecipe
-{
-    public DiskRecipe( ResourceLocation id )
-    {
-        super( id );
+public class DiskRecipe extends CustomRecipe {
+    public DiskRecipe(ResourceLocation id) {
+        super(id);
     }
 
     @Override
-    public boolean matches( @Nonnull CraftingContainer inv, @Nonnull Level world )
-    {
-        boolean paperFound = false;
-        boolean redstoneFound = false;
+    public boolean matches(@Nonnull CraftingContainer inv, @Nonnull Level world) {
+        var paperFound = false;
+        var redstoneFound = false;
 
-        for( int i = 0; i < inv.getContainerSize(); i++ )
-        {
-            ItemStack stack = inv.getItem( i );
+        for (var i = 0; i < inv.getContainerSize(); i++) {
+            var stack = inv.getItem(i);
 
-            if( !stack.isEmpty() )
-            {
-                if( stack.getItem() == Items.PAPER )
-                {
-                    if( paperFound ) return false;
+            if (!stack.isEmpty()) {
+                if (stack.getItem() == Items.PAPER) {
+                    if (paperFound) return false;
                     paperFound = true;
-                }
-                else if( stack.is( Tags.Items.DUSTS_REDSTONE ) )
-                {
-                    if( redstoneFound ) return false;
+                } else if (stack.is(Tags.Items.DUSTS_REDSTONE)) {
+                    if (redstoneFound) return false;
                     redstoneFound = true;
-                }
-                else if( ColourUtils.getStackColour( stack ) == null )
-                {
+                } else if (ColourUtils.getStackColour(stack) == null) {
                     return false;
                 }
             }
@@ -63,45 +52,39 @@ public class DiskRecipe extends CustomRecipe
 
     @Nonnull
     @Override
-    public ItemStack assemble( @Nonnull CraftingContainer inv )
-    {
-        ColourTracker tracker = new ColourTracker();
+    public ItemStack assemble(@Nonnull CraftingContainer inv) {
+        var tracker = new ColourTracker();
 
-        for( int i = 0; i < inv.getContainerSize(); i++ )
-        {
-            ItemStack stack = inv.getItem( i );
+        for (var i = 0; i < inv.getContainerSize(); i++) {
+            var stack = inv.getItem(i);
 
-            if( stack.isEmpty() ) continue;
+            if (stack.isEmpty()) continue;
 
-            if( stack.getItem() != Items.PAPER && !stack.is( Tags.Items.DUSTS_REDSTONE ) )
-            {
-                DyeColor dye = ColourUtils.getStackColour( stack );
-                if( dye != null ) tracker.addColour( dye );
+            if (stack.getItem() != Items.PAPER && !stack.is(Tags.Items.DUSTS_REDSTONE)) {
+                var dye = ColourUtils.getStackColour(stack);
+                if (dye != null) tracker.addColour(dye);
             }
         }
 
-        return ItemDisk.createFromIDAndColour( -1, null, tracker.hasColour() ? tracker.getColour() : Colour.BLUE.getHex() );
+        return ItemDisk.createFromIDAndColour(-1, null, tracker.hasColour() ? tracker.getColour() : Colour.BLUE.getHex());
     }
 
     @Override
-    public boolean canCraftInDimensions( int x, int y )
-    {
+    public boolean canCraftInDimensions(int x, int y) {
         return x >= 2 && y >= 2;
     }
 
     @Nonnull
     @Override
-    public ItemStack getResultItem()
-    {
-        return ItemDisk.createFromIDAndColour( -1, null, Colour.BLUE.getHex() );
+    public ItemStack getResultItem() {
+        return ItemDisk.createFromIDAndColour(-1, null, Colour.BLUE.getHex());
     }
 
     @Nonnull
     @Override
-    public RecipeSerializer<?> getSerializer()
-    {
+    public RecipeSerializer<?> getSerializer() {
         return SERIALIZER;
     }
 
-    public static final SimpleRecipeSerializer<DiskRecipe> SERIALIZER = new SimpleRecipeSerializer<>( DiskRecipe::new );
+    public static final SimpleRecipeSerializer<DiskRecipe> SERIALIZER = new SimpleRecipeSerializer<>(DiskRecipe::new);
 }

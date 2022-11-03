@@ -12,48 +12,35 @@ import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
-public class ComputerActionServerMessage extends ComputerServerMessage
-{
+public class ComputerActionServerMessage extends ComputerServerMessage {
     private final Action action;
 
-    public ComputerActionServerMessage( AbstractContainerMenu menu, Action action )
-    {
-        super( menu );
+    public ComputerActionServerMessage(AbstractContainerMenu menu, Action action) {
+        super(menu);
         this.action = action;
     }
 
-    public ComputerActionServerMessage( @Nonnull FriendlyByteBuf buf )
-    {
-        super( buf );
-        action = buf.readEnum( Action.class );
+    public ComputerActionServerMessage(@Nonnull FriendlyByteBuf buf) {
+        super(buf);
+        action = buf.readEnum(Action.class);
     }
 
     @Override
-    public void toBytes( @Nonnull FriendlyByteBuf buf )
-    {
-        super.toBytes( buf );
-        buf.writeEnum( action );
+    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+        super.toBytes(buf);
+        buf.writeEnum(action);
     }
 
     @Override
-    protected void handle( NetworkEvent.Context context, @Nonnull ComputerMenu container )
-    {
-        switch( action )
-        {
-            case TURN_ON:
-                container.getInput().turnOn();
-                break;
-            case REBOOT:
-                container.getInput().reboot();
-                break;
-            case SHUTDOWN:
-                container.getInput().shutdown();
-                break;
+    protected void handle(NetworkEvent.Context context, @Nonnull ComputerMenu container) {
+        switch (action) {
+            case TURN_ON -> container.getInput().turnOn();
+            case REBOOT -> container.getInput().reboot();
+            case SHUTDOWN -> container.getInput().shutdown();
         }
     }
 
-    public enum Action
-    {
+    public enum Action {
         TURN_ON,
         SHUTDOWN,
         REBOOT

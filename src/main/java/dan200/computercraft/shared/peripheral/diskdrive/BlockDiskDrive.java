@@ -32,82 +32,69 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class BlockDiskDrive extends BlockGeneric
-{
+public class BlockDiskDrive extends BlockGeneric {
     static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    public static final EnumProperty<DiskDriveState> STATE = EnumProperty.create( "state", DiskDriveState.class );
+    public static final EnumProperty<DiskDriveState> STATE = EnumProperty.create("state", DiskDriveState.class);
 
-    private static final BlockEntityTicker<TileDiskDrive> serverTicker = ( level, pos, state, drive ) -> drive.serverTick();
+    private static final BlockEntityTicker<TileDiskDrive> serverTicker = (level, pos, state, drive) -> drive.serverTick();
 
-    public BlockDiskDrive( Properties settings )
-    {
-        super( settings, Registry.ModBlockEntities.DISK_DRIVE );
-        registerDefaultState( getStateDefinition().any()
-            .setValue( FACING, Direction.NORTH )
-            .setValue( STATE, DiskDriveState.EMPTY ) );
+    public BlockDiskDrive(Properties settings) {
+        super(settings, Registry.ModBlockEntities.DISK_DRIVE);
+        registerDefaultState(getStateDefinition().any()
+            .setValue(FACING, Direction.NORTH)
+            .setValue(STATE, DiskDriveState.EMPTY));
     }
 
 
     @Override
-    protected void createBlockStateDefinition( StateDefinition.Builder<Block, BlockState> properties )
-    {
-        properties.add( FACING, STATE );
-    }
-
-    @Nonnull
-    @Override
-    @Deprecated
-    public BlockState mirror( BlockState state, Mirror mirrorIn )
-    {
-        return state.rotate( mirrorIn.getRotation( state.getValue( FACING ) ) );
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> properties) {
+        properties.add(FACING, STATE);
     }
 
     @Nonnull
     @Override
     @Deprecated
-    public BlockState rotate( BlockState state, Rotation rot )
-    {
-        return state.setValue( FACING, rot.rotate( state.getValue( FACING ) ) );
+    public BlockState mirror(BlockState state, Mirror mirrorIn) {
+        return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
+    }
+
+    @Nonnull
+    @Override
+    @Deprecated
+    public BlockState rotate(BlockState state, Rotation rot) {
+        return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
     }
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement( BlockPlaceContext placement )
-    {
-        return defaultBlockState().setValue( FACING, placement.getHorizontalDirection().getOpposite() );
+    public BlockState getStateForPlacement(BlockPlaceContext placement) {
+        return defaultBlockState().setValue(FACING, placement.getHorizontalDirection().getOpposite());
     }
 
     @Override
-    public void playerDestroy( @Nonnull Level world, @Nonnull Player player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack )
-    {
-        if( te instanceof Nameable nameable && nameable.hasCustomName() )
-        {
-            player.awardStat( Stats.BLOCK_MINED.get( this ) );
-            player.causeFoodExhaustion( 0.005F );
+    public void playerDestroy(@Nonnull Level world, @Nonnull Player player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack) {
+        if (te instanceof Nameable nameable && nameable.hasCustomName()) {
+            player.awardStat(Stats.BLOCK_MINED.get(this));
+            player.causeFoodExhaustion(0.005F);
 
-            ItemStack result = new ItemStack( this );
-            result.setHoverName( nameable.getCustomName() );
-            popResource( world, pos, result );
-        }
-        else
-        {
-            super.playerDestroy( world, player, pos, state, te, stack );
+            var result = new ItemStack(this);
+            result.setHoverName(nameable.getCustomName());
+            popResource(world, pos, result);
+        } else {
+            super.playerDestroy(world, player, pos, state, te, stack);
         }
     }
 
     @Override
-    public void setPlacedBy( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, ItemStack stack )
-    {
-        if( stack.hasCustomHoverName() && world.getBlockEntity( pos ) instanceof TileDiskDrive drive )
-        {
+    public void setPlacedBy(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, ItemStack stack) {
+        if (stack.hasCustomHoverName() && world.getBlockEntity(pos) instanceof TileDiskDrive drive) {
             drive.customName = stack.getHoverName();
         }
     }
 
     @Override
     @Nullable
-    public <U extends BlockEntity> BlockEntityTicker<U> getTicker( @Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<U> type )
-    {
-        return level.isClientSide ? null : BaseEntityBlock.createTickerHelper( type, Registry.ModBlockEntities.DISK_DRIVE.get(), serverTicker );
+    public <U extends BlockEntity> BlockEntityTicker<U> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<U> type) {
+        return level.isClientSide ? null : BaseEntityBlock.createTickerHelper(type, Registry.ModBlockEntities.DISK_DRIVE.get(), serverTicker);
     }
 }

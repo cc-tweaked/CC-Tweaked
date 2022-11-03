@@ -18,63 +18,56 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 
 import javax.annotation.Nonnull;
 
-public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe
-{
+public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe {
     private final ComputerFamily family;
 
-    public ComputerFamilyRecipe( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family )
-    {
-        super( identifier, group, width, height, ingredients, result );
+    public ComputerFamilyRecipe(ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family) {
+        super(identifier, group, width, height, ingredients, result);
         this.family = family;
     }
 
-    public ComputerFamily getFamily()
-    {
+    public ComputerFamily getFamily() {
         return family;
     }
 
-    public abstract static class Serializer<T extends ComputerFamilyRecipe> implements RecipeSerializer<T>
-    {
-        protected abstract T create( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family );
+    public abstract static class Serializer<T extends ComputerFamilyRecipe> implements RecipeSerializer<T> {
+        protected abstract T create(ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family);
 
         @Nonnull
         @Override
-        public T fromJson( @Nonnull ResourceLocation identifier, @Nonnull JsonObject json )
-        {
-            String group = GsonHelper.getAsString( json, "group", "" );
-            ComputerFamily family = RecipeUtil.getFamily( json, "family" );
+        public T fromJson(@Nonnull ResourceLocation identifier, @Nonnull JsonObject json) {
+            var group = GsonHelper.getAsString(json, "group", "");
+            var family = RecipeUtil.getFamily(json, "family");
 
-            RecipeUtil.ShapedTemplate template = RecipeUtil.getTemplate( json );
-            ItemStack result = itemStackFromJson( GsonHelper.getAsJsonObject( json, "result" ) );
+            var template = RecipeUtil.getTemplate(json);
+            var result = itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"));
 
-            return create( identifier, group, template.width(), template.height(), template.ingredients(), result, family );
+            return create(identifier, group, template.width(), template.height(), template.ingredients(), result, family);
         }
 
         @Nonnull
         @Override
-        public T fromNetwork( @Nonnull ResourceLocation identifier, @Nonnull FriendlyByteBuf buf )
-        {
-            int width = buf.readVarInt();
-            int height = buf.readVarInt();
-            String group = buf.readUtf( Short.MAX_VALUE );
+        public T fromNetwork(@Nonnull ResourceLocation identifier, @Nonnull FriendlyByteBuf buf) {
+            var width = buf.readVarInt();
+            var height = buf.readVarInt();
+            var group = buf.readUtf(Short.MAX_VALUE);
 
-            NonNullList<Ingredient> ingredients = NonNullList.withSize( width * height, Ingredient.EMPTY );
-            for( int i = 0; i < ingredients.size(); i++ ) ingredients.set( i, Ingredient.fromNetwork( buf ) );
+            var ingredients = NonNullList.withSize(width * height, Ingredient.EMPTY);
+            for (var i = 0; i < ingredients.size(); i++) ingredients.set(i, Ingredient.fromNetwork(buf));
 
-            ItemStack result = buf.readItem();
-            ComputerFamily family = buf.readEnum( ComputerFamily.class );
-            return create( identifier, group, width, height, ingredients, result, family );
+            var result = buf.readItem();
+            var family = buf.readEnum(ComputerFamily.class);
+            return create(identifier, group, width, height, ingredients, result, family);
         }
 
         @Override
-        public void toNetwork( @Nonnull FriendlyByteBuf buf, @Nonnull T recipe )
-        {
-            buf.writeVarInt( recipe.getWidth() );
-            buf.writeVarInt( recipe.getHeight() );
-            buf.writeUtf( recipe.getGroup() );
-            for( Ingredient ingredient : recipe.getIngredients() ) ingredient.toNetwork( buf );
-            buf.writeItem( recipe.getResultItem() );
-            buf.writeEnum( recipe.getFamily() );
+        public void toNetwork(@Nonnull FriendlyByteBuf buf, @Nonnull T recipe) {
+            buf.writeVarInt(recipe.getWidth());
+            buf.writeVarInt(recipe.getHeight());
+            buf.writeUtf(recipe.getGroup());
+            for (var ingredient : recipe.getIngredients()) ingredient.toNetwork(buf);
+            buf.writeItem(recipe.getResultItem());
+            buf.writeEnum(recipe.getFamily());
         }
     }
 }

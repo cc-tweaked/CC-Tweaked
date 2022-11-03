@@ -19,143 +19,119 @@ import dan200.computercraft.test.core.computer.BasicEnvironment;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class BasicApiEnvironment implements IAPIEnvironment
-{
+public abstract class BasicApiEnvironment implements IAPIEnvironment {
     private final BasicEnvironment environment;
     private @Nullable String label;
 
-    public BasicApiEnvironment( BasicEnvironment environment )
-    {
+    public BasicApiEnvironment(BasicEnvironment environment) {
         this.environment = environment;
     }
 
     @Override
-    public int getComputerID()
-    {
+    public int getComputerID() {
         return 0;
     }
 
     @Nonnull
     @Override
-    public ComputerEnvironment getComputerEnvironment()
-    {
+    public ComputerEnvironment getComputerEnvironment() {
         return environment;
     }
 
     @Nonnull
     @Override
-    public GlobalEnvironment getGlobalEnvironment()
-    {
+    public GlobalEnvironment getGlobalEnvironment() {
         return environment;
     }
 
     @Nonnull
     @Override
-    public IWorkMonitor getMainThreadMonitor()
-    {
-        throw new IllegalStateException( "Main thread monitor not available" );
+    public IWorkMonitor getMainThreadMonitor() {
+        throw new IllegalStateException("Main thread monitor not available");
     }
 
     @Nonnull
     @Override
-    public Terminal getTerminal()
-    {
-        throw new IllegalStateException( "Terminal not available" );
+    public Terminal getTerminal() {
+        throw new IllegalStateException("Terminal not available");
     }
 
     @Override
-    public FileSystem getFileSystem()
-    {
-        throw new IllegalStateException( "Filesystem not available" );
+    public FileSystem getFileSystem() {
+        throw new IllegalStateException("Filesystem not available");
     }
 
     @Override
-    public void shutdown()
-    {
+    public void shutdown() {
     }
 
     @Override
-    public void reboot()
-    {
+    public void reboot() {
     }
 
     @Override
-    public void setOutput( ComputerSide side, int output )
-    {
+    public void setOutput(ComputerSide side, int output) {
     }
 
     @Override
-    public int getOutput( ComputerSide side )
-    {
+    public int getOutput(ComputerSide side) {
         return 0;
     }
 
     @Override
-    public int getInput( ComputerSide side )
-    {
+    public int getInput(ComputerSide side) {
         return 0;
     }
 
     @Override
-    public void setBundledOutput( ComputerSide side, int output )
-    {
+    public void setBundledOutput(ComputerSide side, int output) {
     }
 
     @Override
-    public int getBundledOutput( ComputerSide side )
-    {
+    public int getBundledOutput(ComputerSide side) {
         return 0;
     }
 
     @Override
-    public int getBundledInput( ComputerSide side )
-    {
+    public int getBundledInput(ComputerSide side) {
         return 0;
     }
 
     @Override
-    public void setPeripheralChangeListener( @Nullable IPeripheralChangeListener listener )
-    {
+    public void setPeripheralChangeListener(@Nullable IPeripheralChangeListener listener) {
     }
 
     @Nullable
     @Override
-    public IPeripheral getPeripheral( ComputerSide side )
-    {
+    public IPeripheral getPeripheral(ComputerSide side) {
         return null;
     }
 
     @Nullable
     @Override
-    public String getLabel()
-    {
+    public String getLabel() {
         return label;
     }
 
     @Override
-    public void setLabel( @Nullable String label )
-    {
+    public void setLabel(@Nullable String label) {
         this.label = label;
     }
 
     @Override
-    public int startTimer( long ticks )
-    {
-        throw new IllegalStateException( "Cannot start timers" );
+    public int startTimer(long ticks) {
+        throw new IllegalStateException("Cannot start timers");
     }
 
     @Override
-    public void cancelTimer( int id )
-    {
+    public void cancelTimer(int id) {
     }
 
     @Override
-    public void observe( @Nonnull Metric.Event summary, long value )
-    {
+    public void observe(@Nonnull Metric.Event summary, long value) {
     }
 
     @Override
-    public void observe( @Nonnull Metric.Counter counter )
-    {
+    public void observe(@Nonnull Metric.Counter counter) {
     }
 }

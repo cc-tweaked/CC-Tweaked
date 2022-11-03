@@ -33,15 +33,14 @@ import java.util.function.Function;
  * @see IPocketUpgrade
  * @see PocketUpgradeDataProvider
  */
-public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends UpgradeSerialiser<T>
-{
+public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends UpgradeSerialiser<T> {
     /**
      * The ID for the associated registry.
      * <p>
      * This is largely intended for use with Forge Registry methods/classes, such as {@link DeferredRegister} and
      * {@link RegistryManager#getRegistry(ResourceKey)}.
      */
-    ResourceKey<Registry<PocketUpgradeSerialiser<?>>> REGISTRY_ID = ResourceKey.createRegistryKey( new ResourceLocation( ComputerCraft.MOD_ID, "pocket_upgrade_serialiser" ) );
+    ResourceKey<Registry<PocketUpgradeSerialiser<?>>> REGISTRY_ID = ResourceKey.createRegistryKey(new ResourceLocation(ComputerCraft.MOD_ID, "pocket_upgrade_serialiser"));
 
     /**
      * The associated registry.
@@ -50,10 +49,9 @@ public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends Upgra
      * @see #REGISTRY_ID
      * @deprecated Use {@link #REGISTRY_ID} directly.
      */
-    @Deprecated( forRemoval = true )
-    static IForgeRegistry<PocketUpgradeSerialiser<?>> registry()
-    {
-        return RegistryManager.ACTIVE.getRegistry( REGISTRY_ID );
+    @Deprecated(forRemoval = true)
+    static IForgeRegistry<PocketUpgradeSerialiser<?>> registry() {
+        return RegistryManager.ACTIVE.getRegistry(REGISTRY_ID);
     }
 
     /**
@@ -67,17 +65,14 @@ public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends Upgra
      * @return The serialiser for this upgrade
      */
     @Nonnull
-    static <T extends IPocketUpgrade> PocketUpgradeSerialiser<T> simple( @Nonnull Function<ResourceLocation, T> factory )
-    {
-        final class Impl extends SimpleSerialiser<T> implements PocketUpgradeSerialiser<T>
-        {
-            private Impl( Function<ResourceLocation, T> constructor )
-            {
-                super( constructor );
+    static <T extends IPocketUpgrade> PocketUpgradeSerialiser<T> simple(@Nonnull Function<ResourceLocation, T> factory) {
+        final class Impl extends SimpleSerialiser<T> implements PocketUpgradeSerialiser<T> {
+            private Impl(Function<ResourceLocation, T> constructor) {
+                super(constructor);
             }
         }
 
-        return new Impl( factory );
+        return new Impl(factory);
     }
 
     /**
@@ -90,16 +85,13 @@ public interface PocketUpgradeSerialiser<T extends IPocketUpgrade> extends Upgra
      * @see #simple(Function)  For upgrades whose crafting stack should not vary.
      */
     @Nonnull
-    static <T extends IPocketUpgrade> PocketUpgradeSerialiser<T> simpleWithCustomItem( @Nonnull BiFunction<ResourceLocation, ItemStack, T> factory )
-    {
-        final class Impl extends SerialiserWithCraftingItem<T> implements PocketUpgradeSerialiser<T>
-        {
-            private Impl( BiFunction<ResourceLocation, ItemStack, T> factory )
-            {
-                super( factory );
+    static <T extends IPocketUpgrade> PocketUpgradeSerialiser<T> simpleWithCustomItem(@Nonnull BiFunction<ResourceLocation, ItemStack, T> factory) {
+        final class Impl extends SerialiserWithCraftingItem<T> implements PocketUpgradeSerialiser<T> {
+            private Impl(BiFunction<ResourceLocation, ItemStack, T> factory) {
+                super(factory);
             }
         }
 
-        return new Impl( factory );
+        return new Impl(factory);
     }
 }

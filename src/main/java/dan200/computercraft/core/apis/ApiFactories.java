@@ -13,23 +13,19 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 
-public final class ApiFactories
-{
-    private ApiFactories()
-    {
+public final class ApiFactories {
+    private ApiFactories() {
     }
 
     private static final Collection<ILuaAPIFactory> factories = new LinkedHashSet<>();
-    private static final Collection<ILuaAPIFactory> factoriesView = Collections.unmodifiableCollection( factories );
+    private static final Collection<ILuaAPIFactory> factoriesView = Collections.unmodifiableCollection(factories);
 
-    public static synchronized void register( @Nonnull ILuaAPIFactory factory )
-    {
-        Objects.requireNonNull( factory, "provider cannot be null" );
-        factories.add( factory );
+    public static synchronized void register(@Nonnull ILuaAPIFactory factory) {
+        Objects.requireNonNull(factory, "provider cannot be null");
+        factories.add(factory);
     }
 
-    public static Iterable<ILuaAPIFactory> getAll()
-    {
+    public static Iterable<ILuaAPIFactory> getAll() {
         return factoriesView;
     }
 }

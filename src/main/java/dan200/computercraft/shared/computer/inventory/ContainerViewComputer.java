@@ -16,29 +16,23 @@ import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
 
-public class ContainerViewComputer extends ComputerMenuWithoutInventory
-{
-    public ContainerViewComputer( int id, Inventory player, ServerComputer computer )
-    {
-        super( Registry.ModContainers.VIEW_COMPUTER.get(), id, player, p -> canInteractWith( computer, p ), computer, computer.getFamily() );
+public class ContainerViewComputer extends ComputerMenuWithoutInventory {
+    public ContainerViewComputer(int id, Inventory player, ServerComputer computer) {
+        super(Registry.ModContainers.VIEW_COMPUTER.get(), id, player, p -> canInteractWith(computer, p), computer, computer.getFamily());
     }
 
-    public ContainerViewComputer( int id, Inventory player, ComputerContainerData data )
-    {
-        super( Registry.ModContainers.VIEW_COMPUTER.get(), id, player, data );
+    public ContainerViewComputer(int id, Inventory player, ComputerContainerData data) {
+        super(Registry.ModContainers.VIEW_COMPUTER.get(), id, player, data);
     }
 
-    private static boolean canInteractWith( @Nonnull ServerComputer computer, @Nonnull Player player )
-    {
+    private static boolean canInteractWith(@Nonnull ServerComputer computer, @Nonnull Player player) {
         // If this computer no longer exists then discard it.
-        if( ServerContext.get( computer.getLevel().getServer() ).registry().get( computer.getInstanceID() ) != computer )
-        {
+        if (ServerContext.get(computer.getLevel().getServer()).registry().get(computer.getInstanceID()) != computer) {
             return false;
         }
 
         // If we're a command computer then ensure we're in creative
-        if( computer.getFamily() == ComputerFamily.COMMAND && !TileCommandComputer.isCommandUsable( player ) )
-        {
+        if (computer.getFamily() == ComputerFamily.COMMAND && !TileCommandComputer.isCommandUsable(player)) {
             return false;
         }
 

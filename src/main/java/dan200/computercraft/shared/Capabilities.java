@@ -11,13 +11,13 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 
-public final class Capabilities
-{
-    public static final Capability<IPeripheral> CAPABILITY_PERIPHERAL = CapabilityManager.get( new CapabilityToken<>() {} );
+public final class Capabilities {
+    public static final Capability<IPeripheral> CAPABILITY_PERIPHERAL = CapabilityManager.get(new CapabilityToken<>() {
+    });
 
-    public static final Capability<IWiredElement> CAPABILITY_WIRED_ELEMENT = CapabilityManager.get( new CapabilityToken<>() {} );
+    public static final Capability<IWiredElement> CAPABILITY_WIRED_ELEMENT = CapabilityManager.get(new CapabilityToken<>() {
+    });
 
-    private Capabilities()
-    {
+    private Capabilities() {
     }
 }

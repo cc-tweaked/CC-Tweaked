@@ -16,8 +16,7 @@ import javax.annotation.Nullable;
  * @see dan200.computercraft.api.ComputerCraftAPI#registerMediaProvider(IMediaProvider)
  */
 @FunctionalInterface
-public interface IMediaProvider
-{
+public interface IMediaProvider {
     /**
      * Produce an IMedia implementation from an ItemStack.
      *
@@ -26,5 +25,5 @@ public interface IMediaProvider
      * @see dan200.computercraft.api.ComputerCraftAPI#registerMediaProvider(IMediaProvider)
      */
     @Nullable
-    IMedia getMedia( @Nonnull ItemStack stack );
+    IMedia getMedia(@Nonnull ItemStack stack);
 }

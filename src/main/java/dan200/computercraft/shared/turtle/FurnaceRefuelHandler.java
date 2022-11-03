@@ -13,32 +13,29 @@ import net.minecraftforge.common.ForgeHooks;
 import javax.annotation.Nonnull;
 import java.util.OptionalInt;
 
-public final class FurnaceRefuelHandler implements TurtleRefuelHandler
-{
+public final class FurnaceRefuelHandler implements TurtleRefuelHandler {
     @Override
-    public OptionalInt refuel( @Nonnull ITurtleAccess turtle, @Nonnull ItemStack currentStack, int slot, int limit )
-    {
-        int fuelPerItem = getFuelPerItem( currentStack );
-        if( fuelPerItem <= 0 ) return OptionalInt.empty();
-        if( limit == 0 ) return OptionalInt.of( 0 );
+    public OptionalInt refuel(@Nonnull ITurtleAccess turtle, @Nonnull ItemStack currentStack, int slot, int limit) {
+        var fuelPerItem = getFuelPerItem(currentStack);
+        if (fuelPerItem <= 0) return OptionalInt.empty();
+        if (limit == 0) return OptionalInt.of(0);
 
-        int fuelSpaceLeft = turtle.getFuelLimit() - turtle.getFuelLevel();
-        int fuelItemLimit = (int) Math.ceil( fuelSpaceLeft / (double) fuelPerItem );
-        if( limit > fuelItemLimit ) limit = fuelItemLimit;
+        var fuelSpaceLeft = turtle.getFuelLimit() - turtle.getFuelLevel();
+        var fuelItemLimit = (int) Math.ceil(fuelSpaceLeft / (double) fuelPerItem);
+        if (limit > fuelItemLimit) limit = fuelItemLimit;
 
-        ItemStack stack = turtle.getInventory().removeItem( slot, limit );
-        int fuelToGive = fuelPerItem * stack.getCount();
+        var stack = turtle.getInventory().removeItem(slot, limit);
+        var fuelToGive = fuelPerItem * stack.getCount();
         // Store the replacement item in the inventory
-        ItemStack replacementStack = ForgeHooks.getCraftingRemainingItem( stack );
-        if( !replacementStack.isEmpty() ) TurtleUtil.storeItemOrDrop( turtle, replacementStack );
+        var replacementStack = ForgeHooks.getCraftingRemainingItem(stack);
+        if (!replacementStack.isEmpty()) TurtleUtil.storeItemOrDrop(turtle, replacementStack);
 
         turtle.getInventory().setChanged();
 
-        return OptionalInt.of( fuelToGive );
+        return OptionalInt.of(fuelToGive);
     }
 
-    private static int getFuelPerItem( @Nonnull ItemStack stack )
-    {
-        return (ForgeHooks.getBurnTime( stack, null ) * 5) / 100;
+    private static int getFuelPerItem(@Nonnull ItemStack stack) {
+        return (ForgeHooks.getBurnTime(stack, null) * 5) / 100;
     }
 }

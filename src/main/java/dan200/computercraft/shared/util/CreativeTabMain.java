@@ -12,17 +12,14 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-public class CreativeTabMain extends CreativeModeTab
-{
-    public CreativeTabMain()
-    {
-        super( ComputerCraft.MOD_ID );
+public class CreativeTabMain extends CreativeModeTab {
+    public CreativeTabMain() {
+        super(ComputerCraft.MOD_ID);
     }
 
     @Nonnull
     @Override
-    public ItemStack makeIcon()
-    {
-        return new ItemStack( Registry.ModBlocks.COMPUTER_NORMAL.get() );
+    public ItemStack makeIcon() {
+        return new ItemStack(Registry.ModBlocks.COMPUTER_NORMAL.get());
     }
 }

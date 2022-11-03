@@ -21,22 +21,18 @@ import javax.annotation.Nonnull;
  * <p>
  * This is populated by {@link PocketComputerDataMessage} and accessed when rendering pocket computers
  */
-public final class ClientPocketComputers
-{
+public final class ClientPocketComputers {
     private static final Int2ObjectMap<PocketComputerData> instances = new Int2ObjectOpenHashMap<>();
 
-    private ClientPocketComputers()
-    {
+    private ClientPocketComputers() {
     }
 
-    public static void reset()
-    {
+    public static void reset() {
         instances.clear();
     }
 
-    public static void remove( int id )
-    {
-        instances.remove( id );
+    public static void remove(int id) {
+        instances.remove(id);
     }
 
     /**
@@ -47,17 +43,15 @@ public final class ClientPocketComputers
      * @return The pocket computer data.
      */
     @Nonnull
-    public static PocketComputerData get( int instanceId, boolean advanced )
-    {
-        PocketComputerData computer = instances.get( instanceId );
-        if( computer == null ) instances.put( instanceId, computer = new PocketComputerData( advanced ) );
+    public static PocketComputerData get(int instanceId, boolean advanced) {
+        var computer = instances.get(instanceId);
+        if (computer == null) instances.put(instanceId, computer = new PocketComputerData(advanced));
         return computer;
     }
 
     @Nonnull
-    public static PocketComputerData get( ItemStack stack )
-    {
-        ComputerFamily family = stack.getItem() instanceof ItemComputer computer ? computer.getFamily() : ComputerFamily.NORMAL;
-        return get( ItemPocketComputer.getInstanceID( stack ), family != ComputerFamily.NORMAL );
+    public static PocketComputerData get(ItemStack stack) {
+        var family = stack.getItem() instanceof ItemComputer computer ? computer.getFamily() : ComputerFamily.NORMAL;
+        return get(ItemPocketComputer.getInstanceID(stack), family != ComputerFamily.NORMAL);
     }
 }

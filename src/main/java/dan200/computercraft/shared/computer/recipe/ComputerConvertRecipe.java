@@ -19,27 +19,23 @@ import javax.annotation.Nonnull;
 /**
  * Represents a recipe which converts a computer from one form into another.
  */
-public abstract class ComputerConvertRecipe extends ShapedRecipe
-{
+public abstract class ComputerConvertRecipe extends ShapedRecipe {
     private final String group;
 
-    public ComputerConvertRecipe( ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result )
-    {
-        super( identifier, group, width, height, ingredients, result );
+    public ComputerConvertRecipe(ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result) {
+        super(identifier, group, width, height, ingredients, result);
         this.group = group;
     }
 
     @Nonnull
-    protected abstract ItemStack convert( @Nonnull IComputerItem item, @Nonnull ItemStack stack );
+    protected abstract ItemStack convert(@Nonnull IComputerItem item, @Nonnull ItemStack stack);
 
     @Override
-    public boolean matches( @Nonnull CraftingContainer inventory, @Nonnull Level world )
-    {
-        if( !super.matches( inventory, world ) ) return false;
+    public boolean matches(@Nonnull CraftingContainer inventory, @Nonnull Level world) {
+        if (!super.matches(inventory, world)) return false;
 
-        for( int i = 0; i < inventory.getContainerSize(); i++ )
-        {
-            if( inventory.getItem( i ).getItem() instanceof IComputerItem ) return true;
+        for (var i = 0; i < inventory.getContainerSize(); i++) {
+            if (inventory.getItem(i).getItem() instanceof IComputerItem) return true;
         }
 
         return false;
@@ -47,13 +43,11 @@ public abstract class ComputerConvertRecipe extends ShapedRecipe
 
     @Nonnull
     @Override
-    public ItemStack assemble( @Nonnull CraftingContainer inventory )
-    {
+    public ItemStack assemble(@Nonnull CraftingContainer inventory) {
         // Find our computer item and convert it.
-        for( int i = 0; i < inventory.getContainerSize(); i++ )
-        {
-            ItemStack stack = inventory.getItem( i );
-            if( stack.getItem() instanceof IComputerItem ) return convert( (IComputerItem) stack.getItem(), stack );
+        for (var i = 0; i < inventory.getContainerSize(); i++) {
+            var stack = inventory.getItem(i);
+            if (stack.getItem() instanceof IComputerItem) return convert((IComputerItem) stack.getItem(), stack);
         }
 
         return ItemStack.EMPTY;
@@ -61,8 +55,7 @@ public abstract class ComputerConvertRecipe extends ShapedRecipe
 
     @Nonnull
     @Override
-    public String getGroup()
-    {
+    public String getGroup() {
         return group;
     }
 }

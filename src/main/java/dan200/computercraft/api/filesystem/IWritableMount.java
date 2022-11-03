@@ -27,15 +27,14 @@ import java.util.OptionalLong;
  * @see IComputerAccess#mountWritable(String, IWritableMount)
  * @see IMount
  */
-public interface IWritableMount extends IMount
-{
+public interface IWritableMount extends IMount {
     /**
      * Creates a directory at a given path inside the virtual file system.
      *
      * @param path A file path in normalised format, relative to the mount location. ie: "programs/mynewprograms".
      * @throws IOException If the directory already exists or could not be created.
      */
-    void makeDirectory( @Nonnull String path ) throws IOException;
+    void makeDirectory(@Nonnull String path) throws IOException;
 
     /**
      * Deletes a directory at a given path inside the virtual file system.
@@ -43,7 +42,7 @@ public interface IWritableMount extends IMount
      * @param path A file path in normalised format, relative to the mount location. ie: "programs/myoldprograms".
      * @throws IOException If the file does not exist or could not be deleted.
      */
-    void delete( @Nonnull String path ) throws IOException;
+    void delete(@Nonnull String path) throws IOException;
 
     /**
      * Opens a file with a given path, and returns an {@link OutputStream} for writing to it.
@@ -54,7 +53,7 @@ public interface IWritableMount extends IMount
      * @throws IOException If the file could not be opened for writing.
      */
     @Nonnull
-    WritableByteChannel openForWrite( @Nonnull String path ) throws IOException;
+    WritableByteChannel openForWrite(@Nonnull String path) throws IOException;
 
     /**
      * Opens a file with a given path, and returns an {@link OutputStream} for appending to it.
@@ -65,7 +64,7 @@ public interface IWritableMount extends IMount
      * @throws IOException If the file could not be opened for writing.
      */
     @Nonnull
-    WritableByteChannel openForAppend( @Nonnull String path ) throws IOException;
+    WritableByteChannel openForAppend(@Nonnull String path) throws IOException;
 
     /**
      * Get the amount of free space on the mount, in bytes. You should decrease this value as the user writes to the
@@ -83,8 +82,7 @@ public interface IWritableMount extends IMount
      * @return The capacity of this mount, in bytes.
      */
     @Nonnull
-    default OptionalLong getCapacity()
-    {
+    default OptionalLong getCapacity() {
         return OptionalLong.empty();
     }
 }

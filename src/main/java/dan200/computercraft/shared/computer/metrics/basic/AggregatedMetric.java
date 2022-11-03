@@ -18,28 +18,24 @@ import java.util.stream.Stream;
  * @param metric    The metric we're aggregating.
  * @param aggregate The aggregate to use.
  */
-public record AggregatedMetric(Metric metric, Aggregate aggregate)
-{
+public record AggregatedMetric(Metric metric, Aggregate aggregate) {
     private static final String TRANSLATION_PREFIX = "tracking_field.computercraft.";
 
-    public static Stream<AggregatedMetric> aggregatedMetrics()
-    {
+    public static Stream<AggregatedMetric> aggregatedMetrics() {
         Metrics.init();
         return Metric.metrics().values().stream()
-            .flatMap( m -> m instanceof Metric.Counter
-                ? Stream.of( new AggregatedMetric( m, Aggregate.NONE ) )
-                : Arrays.stream( Aggregate.values() ).map( a -> new AggregatedMetric( m, a ) )
+            .flatMap(m -> m instanceof Metric.Counter
+                ? Stream.of(new AggregatedMetric(m, Aggregate.NONE))
+                : Arrays.stream(Aggregate.values()).map(a -> new AggregatedMetric(m, a))
             );
     }
 
-    public String name()
-    {
+    public String name() {
         return aggregate() == Aggregate.NONE ? metric.name() : metric().name() + "_" + aggregate().id();
     }
 
-    public Component displayName()
-    {
-        Component name = Component.translatable( TRANSLATION_PREFIX + metric().name() + ".name" );
-        return aggregate() == Aggregate.NONE ? name : Component.translatable( TRANSLATION_PREFIX + aggregate().id(), name );
+    public Component displayName() {
+        Component name = Component.translatable(TRANSLATION_PREFIX + metric().name() + ".name");
+        return aggregate() == Aggregate.NONE ? name : Component.translatable(TRANSLATION_PREFIX + aggregate().id(), name);
     }
 }

@@ -32,56 +32,47 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.function.Consumer;
 
-@Mod( "cctest" )
-public class TestMod
-{
-    public TestMod()
-    {
+@Mod("cctest")
+public class TestMod {
+    public TestMod() {
         TestHooks.init();
 
         var bus = MinecraftForge.EVENT_BUS;
-        bus.addListener( EventPriority.LOW, ( ServerStartedEvent e ) -> TestHooks.onServerStarted( e.getServer() ) );
-        bus.addListener( ( RegisterCommandsEvent e ) -> CCTestCommand.register( e.getDispatcher() ) );
-        bus.addListener( ( RegisterClientCommandsEvent e ) -> Exporter.register( e.getDispatcher() ) );
+        bus.addListener(EventPriority.LOW, (ServerStartedEvent e) -> TestHooks.onServerStarted(e.getServer()));
+        bus.addListener((RegisterCommandsEvent e) -> CCTestCommand.register(e.getDispatcher()));
+        bus.addListener((RegisterClientCommandsEvent e) -> Exporter.register(e.getDispatcher()));
 
         var modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modBus.addListener( ( RegisterGameTestsEvent event ) -> {
-            var holder = Type.getType( GameTestHolder.class );
+        modBus.addListener((RegisterGameTestsEvent event) -> {
+            var holder = Type.getType(GameTestHolder.class);
             ModList.get().getAllScanData().stream()
-                .map( ModFileScanData::getAnnotations )
-                .flatMap( Collection::stream )
-                .filter( a -> holder.equals( a.annotationType() ) )
-                .forEach( x -> registerClass( x.clazz().getClassName(), event::register ) );
-        } );
+                .map(ModFileScanData::getAnnotations)
+                .flatMap(Collection::stream)
+                .filter(a -> holder.equals(a.annotationType()))
+                .forEach(x -> registerClass(x.clazz().getClassName(), event::register));
+        });
     }
 
 
-    private static Class<?> loadClass( String name )
-    {
-        try
-        {
-            return Class.forName( name, true, TestMod.class.getClassLoader() );
-        }
-        catch( ReflectiveOperationException e )
-        {
-            throw new RuntimeException( e );
+    private static Class<?> loadClass(String name) {
+        try {
+            return Class.forName(name, true, TestMod.class.getClassLoader());
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private static void registerClass( String className, Consumer<Method> fallback )
-    {
-        var klass = loadClass( className );
-        for( var method : klass.getDeclaredMethods() )
-        {
-            var testInfo = method.getAnnotation( GameTest.class );
-            if( testInfo == null )
-            {
-                fallback.accept( method );
+    private static void registerClass(String className, Consumer<Method> fallback) {
+        var klass = loadClass(className);
+        for (var method : klass.getDeclaredMethods()) {
+            var testInfo = method.getAnnotation(GameTest.class);
+            if (testInfo == null) {
+                fallback.accept(method);
                 continue;
             }
 
-            GameTestRegistry.getAllTestFunctions().add( turnMethodIntoTestFunction( method, testInfo ) );
-            GameTestRegistry.getAllTestClassNames().add( className );
+            GameTestRegistry.getAllTestFunctions().add(turnMethodIntoTestFunction(method, testInfo));
+            GameTestRegistry.getAllTestClassNames().add(className);
         }
     }
 
@@ -97,47 +88,36 @@ public class TestMod
      * @param testInfo The test info.
      * @return The constructed test function.
      */
-    private static TestFunction turnMethodIntoTestFunction( Method method, GameTest testInfo )
-    {
-        var className = method.getDeclaringClass().getSimpleName().toLowerCase( Locale.ROOT );
-        var testName = className + "." + method.getName().toLowerCase( Locale.ROOT );
+    private static TestFunction turnMethodIntoTestFunction(Method method, GameTest testInfo) {
+        var className = method.getDeclaringClass().getSimpleName().toLowerCase(Locale.ROOT);
+        var testName = className + "." + method.getName().toLowerCase(Locale.ROOT);
         return new TestFunction(
             testInfo.batch(),
             testName,
             testInfo.template().isEmpty() ? testName : testInfo.template(),
-            StructureUtils.getRotationForRotationSteps( testInfo.rotationSteps() ), testInfo.timeoutTicks(), testInfo.setupTicks(),
+            StructureUtils.getRotationForRotationSteps(testInfo.rotationSteps()), testInfo.timeoutTicks(), testInfo.setupTicks(),
             testInfo.required(), testInfo.requiredSuccesses(), testInfo.attempts(),
-            turnMethodIntoConsumer( method )
+            turnMethodIntoConsumer(method)
         );
     }
 
-    private static <T> Consumer<T> turnMethodIntoConsumer( Method method )
-    {
+    private static <T> Consumer<T> turnMethodIntoConsumer(Method method) {
         return value -> {
-            try
-            {
+            try {
                 Object instance = null;
-                if( !Modifier.isStatic( method.getModifiers() ) )
-                {
+                if (!Modifier.isStatic(method.getModifiers())) {
                     instance = method.getDeclaringClass().getConstructor().newInstance();
                 }
 
-                method.invoke( instance, value );
-            }
-            catch( InvocationTargetException e )
-            {
-                if( e.getCause() instanceof RuntimeException )
-                {
+                method.invoke(instance, value);
+            } catch (InvocationTargetException e) {
+                if (e.getCause() instanceof RuntimeException) {
                     throw (RuntimeException) e.getCause();
+                } else {
+                    throw new RuntimeException(e.getCause());
                 }
-                else
-                {
-                    throw new RuntimeException( e.getCause() );
-                }
-            }
-            catch( ReflectiveOperationException e )
-            {
-                throw new RuntimeException( e );
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
             }
         };
     }

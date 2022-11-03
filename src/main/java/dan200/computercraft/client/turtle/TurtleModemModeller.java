@@ -11,50 +11,42 @@ import dan200.computercraft.api.client.turtle.TurtleUpgradeModeller;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.turtle.upgrades.TurtleModem;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
-public class TurtleModemModeller implements TurtleUpgradeModeller<TurtleModem>
-{
+public class TurtleModemModeller implements TurtleUpgradeModeller<TurtleModem> {
     private final ResourceLocation leftOffModel;
     private final ResourceLocation rightOffModel;
     private final ResourceLocation leftOnModel;
     private final ResourceLocation rightOnModel;
 
-    public TurtleModemModeller( boolean advanced )
-    {
-        if( advanced )
-        {
-            leftOffModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_advanced_off_left" );
-            rightOffModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_advanced_off_right" );
-            leftOnModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_advanced_on_left" );
-            rightOnModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_advanced_on_right" );
-        }
-        else
-        {
-            leftOffModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_normal_off_left" );
-            rightOffModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_normal_off_right" );
-            leftOnModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_normal_on_left" );
-            rightOnModel = new ResourceLocation( ComputerCraft.MOD_ID, "block/turtle_modem_normal_on_right" );
+    public TurtleModemModeller(boolean advanced) {
+        if (advanced) {
+            leftOffModel = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_modem_advanced_off_left");
+            rightOffModel = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_modem_advanced_off_right");
+            leftOnModel = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_modem_advanced_on_left");
+            rightOnModel = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_modem_advanced_on_right");
+        } else {
+            leftOffModel = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_modem_normal_off_left");
+            rightOffModel = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_modem_normal_off_right");
+            leftOnModel = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_modem_normal_on_left");
+            rightOnModel = new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_modem_normal_on_right");
         }
     }
 
     @Nonnull
     @Override
-    public TransformedModel getModel( @Nonnull TurtleModem upgrade, @Nullable ITurtleAccess turtle, @Nonnull TurtleSide side )
-    {
-        boolean active = false;
-        if( turtle != null )
-        {
-            CompoundTag turtleNBT = turtle.getUpgradeNBTData( side );
-            active = turtleNBT.contains( "active" ) && turtleNBT.getBoolean( "active" );
+    public TransformedModel getModel(@Nonnull TurtleModem upgrade, @Nullable ITurtleAccess turtle, @Nonnull TurtleSide side) {
+        var active = false;
+        if (turtle != null) {
+            var turtleNBT = turtle.getUpgradeNBTData(side);
+            active = turtleNBT.contains("active") && turtleNBT.getBoolean("active");
         }
 
         return side == TurtleSide.LEFT
-            ? TransformedModel.of( active ? leftOnModel : leftOffModel )
-            : TransformedModel.of( active ? rightOnModel : rightOffModel );
+            ? TransformedModel.of(active ? leftOnModel : leftOffModel)
+            : TransformedModel.of(active ? rightOnModel : rightOffModel);
     }
 }

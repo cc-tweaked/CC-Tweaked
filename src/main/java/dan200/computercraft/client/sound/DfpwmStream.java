@@ -18,49 +18,44 @@ import java.nio.ByteOrder;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-class DfpwmStream implements AudioStream
-{
+class DfpwmStream implements AudioStream {
     private static final int PREC = 10;
     private static final int LPF_STRENGTH = 140;
 
-    private static final AudioFormat MONO_8 = new AudioFormat( SpeakerPeripheral.SAMPLE_RATE, 8, 1, true, false );
+    private static final AudioFormat MONO_8 = new AudioFormat(SpeakerPeripheral.SAMPLE_RATE, 8, 1, true, false);
 
-    private final Queue<ByteBuffer> buffers = new ArrayDeque<>( 2 );
+    private final Queue<ByteBuffer> buffers = new ArrayDeque<>(2);
 
     private int charge = 0; // q
     private int strength = 0; // s
     private int lowPassCharge;
     private boolean previousBit = false;
 
-    DfpwmStream()
-    {
+    DfpwmStream() {
     }
 
-    void push( @Nonnull ByteBuf input )
-    {
-        int readable = input.readableBytes();
-        ByteBuffer output = ByteBuffer.allocate( readable * 8 ).order( ByteOrder.nativeOrder() );
+    void push(@Nonnull ByteBuf input) {
+        var readable = input.readableBytes();
+        var output = ByteBuffer.allocate(readable * 8).order(ByteOrder.nativeOrder());
 
-        for( int i = 0; i < readable; i++ )
-        {
-            byte inputByte = input.readByte();
-            for( int j = 0; j < 8; j++ )
-            {
-                boolean currentBit = (inputByte & 1) != 0;
-                int target = currentBit ? 127 : -128;
+        for (var i = 0; i < readable; i++) {
+            var inputByte = input.readByte();
+            for (var j = 0; j < 8; j++) {
+                var currentBit = (inputByte & 1) != 0;
+                var target = currentBit ? 127 : -128;
 
                 // q' <- q + (s * (t - q) + 128)/256
-                int nextCharge = charge + ((strength * (target - charge) + (1 << (PREC - 1))) >> PREC);
-                if( nextCharge == charge && nextCharge != target ) nextCharge += currentBit ? 1 : -1;
+                var nextCharge = charge + ((strength * (target - charge) + (1 << (PREC - 1))) >> PREC);
+                if (nextCharge == charge && nextCharge != target) nextCharge += currentBit ? 1 : -1;
 
-                int z = currentBit == previousBit ? (1 << PREC) - 1 : 0;
+                var z = currentBit == previousBit ? (1 << PREC) - 1 : 0;
 
-                int nextStrength = strength;
-                if( strength != z ) nextStrength += currentBit == previousBit ? 1 : -1;
-                if( nextStrength < 2 << (PREC - 8) ) nextStrength = 2 << (PREC - 8);
+                var nextStrength = strength;
+                if (strength != z) nextStrength += currentBit == previousBit ? 1 : -1;
+                if (nextStrength < 2 << (PREC - 8)) nextStrength = 2 << (PREC - 8);
 
                 // Apply antijerk
-                int chargeWithAntijerk = currentBit == previousBit
+                var chargeWithAntijerk = currentBit == previousBit
                     ? nextCharge
                     : nextCharge + charge + 1 >> 1;
 
@@ -73,42 +68,38 @@ class DfpwmStream implements AudioStream
 
                 // OpenAL expects signed data ([0, 255]) while we produce unsigned ([-128, 127]). Do some bit twiddling
                 // magic to convert.
-                output.put( (byte) ((lowPassCharge & 0xFF) ^ 0x80) );
+                output.put((byte) ((lowPassCharge & 0xFF) ^ 0x80));
 
                 inputByte >>= 1;
             }
         }
 
         output.flip();
-        synchronized( this )
-        {
-            buffers.add( output );
+        synchronized (this) {
+            buffers.add(output);
         }
     }
 
     @Nonnull
     @Override
-    public AudioFormat getFormat()
-    {
+    public AudioFormat getFormat() {
         return MONO_8;
     }
 
     @Nonnull
     @Override
-    public synchronized ByteBuffer read( int capacity )
-    {
-        ByteBuffer result = BufferUtils.createByteBuffer( capacity );
-        while( result.hasRemaining() )
-        {
-            ByteBuffer head = buffers.peek();
-            if( head == null ) break;
+    public synchronized ByteBuffer read(int capacity) {
+        var result = BufferUtils.createByteBuffer(capacity);
+        while (result.hasRemaining()) {
+            var head = buffers.peek();
+            if (head == null) break;
 
-            int toRead = Math.min( head.remaining(), result.remaining() );
-            result.put( result.position(), head, head.position(), toRead );
-            result.position( result.position() + toRead );
-            head.position( head.position() + toRead );
+            var toRead = Math.min(head.remaining(), result.remaining());
+            result.put(result.position(), head, head.position(), toRead);
+            result.position(result.position() + toRead);
+            head.position(head.position() + toRead);
 
-            if( head.hasRemaining() ) break;
+            if (head.hasRemaining()) break;
             buffers.remove();
         }
 
@@ -119,13 +110,11 @@ class DfpwmStream implements AudioStream
     }
 
     @Override
-    public void close() throws IOException
-    {
+    public void close() throws IOException {
         buffers.clear();
     }
 
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return buffers.isEmpty();
     }
 }

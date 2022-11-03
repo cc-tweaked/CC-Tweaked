@@ -12,79 +12,61 @@ import java.util.function.Supplier;
 /**
  * A proxy object for computer objects, delegating to {@link ServerComputer} or {@link TileComputer} where appropriate.
  */
-public final class ComputerProxy
-{
+public final class ComputerProxy {
     private final Supplier<TileComputerBase> get;
 
-    public ComputerProxy( Supplier<TileComputerBase> get )
-    {
+    public ComputerProxy(Supplier<TileComputerBase> get) {
         this.get = get;
     }
 
-    TileComputerBase getTile()
-    {
+    TileComputerBase getTile() {
         return get.get();
     }
 
-    public void turnOn()
-    {
-        TileComputerBase tile = getTile();
-        ServerComputer computer = tile.getServerComputer();
-        if( computer == null )
-        {
+    public void turnOn() {
+        var tile = getTile();
+        var computer = tile.getServerComputer();
+        if (computer == null) {
             tile.startOn = true;
-        }
-        else
-        {
+        } else {
             computer.turnOn();
         }
     }
 
-    public void shutdown()
-    {
-        TileComputerBase tile = getTile();
-        ServerComputer computer = tile.getServerComputer();
-        if( computer == null )
-        {
+    public void shutdown() {
+        var tile = getTile();
+        var computer = tile.getServerComputer();
+        if (computer == null) {
             tile.startOn = false;
-        }
-        else
-        {
+        } else {
             computer.shutdown();
         }
     }
 
-    public void reboot()
-    {
-        TileComputerBase tile = getTile();
-        ServerComputer computer = tile.getServerComputer();
-        if( computer == null )
-        {
+    public void reboot() {
+        var tile = getTile();
+        var computer = tile.getServerComputer();
+        if (computer == null) {
             tile.startOn = true;
-        }
-        else
-        {
+        } else {
             computer.reboot();
         }
     }
 
-    public int getID()
-    {
-        TileComputerBase tile = getTile();
-        ServerComputer computer = tile.getServerComputer();
+    public int getID() {
+        var tile = getTile();
+        var computer = tile.getServerComputer();
         return computer == null ? tile.getComputerID() : computer.getID();
     }
 
-    public boolean isOn()
-    {
-        ServerComputer computer = getTile().getServerComputer();
+    public boolean isOn() {
+        var computer = getTile().getServerComputer();
         return computer != null && computer.isOn();
     }
 
-    public String getLabel()
-    {
-        TileComputerBase tile = getTile();
-        ServerComputer computer = tile.getServerComputer();
+    public String getLabel() {
+        var tile = getTile();
+        var computer = tile.getServerComputer();
         return computer == null ? tile.getLabel() : computer.getLabel();
     }
 }

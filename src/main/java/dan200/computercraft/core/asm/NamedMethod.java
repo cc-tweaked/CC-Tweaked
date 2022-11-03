@@ -10,16 +10,14 @@ import dan200.computercraft.api.peripheral.PeripheralType;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public final class NamedMethod<T>
-{
+public final class NamedMethod<T> {
     private final String name;
     private final T method;
     private final boolean nonYielding;
 
     private final PeripheralType genericType;
 
-    NamedMethod( String name, T method, boolean nonYielding, PeripheralType genericType )
-    {
+    NamedMethod(String name, T method, boolean nonYielding, PeripheralType genericType) {
         this.name = name;
         this.method = method;
         this.nonYielding = nonYielding;
@@ -27,25 +25,21 @@ public final class NamedMethod<T>
     }
 
     @Nonnull
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     @Nonnull
-    public T getMethod()
-    {
+    public T getMethod() {
         return method;
     }
 
-    public boolean nonYielding()
-    {
+    public boolean nonYielding() {
         return nonYielding;
     }
 
     @Nullable
-    public PeripheralType getGenericType()
-    {
+    public PeripheralType getGenericType() {
         return genericType;
     }
 }

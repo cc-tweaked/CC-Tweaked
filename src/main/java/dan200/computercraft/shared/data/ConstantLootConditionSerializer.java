@@ -14,29 +14,24 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
 import javax.annotation.Nonnull;
 
-public final class ConstantLootConditionSerializer<T extends LootItemCondition> implements Serializer<T>
-{
+public final class ConstantLootConditionSerializer<T extends LootItemCondition> implements Serializer<T> {
     private final T instance;
 
-    public ConstantLootConditionSerializer( T instance )
-    {
+    public ConstantLootConditionSerializer(T instance) {
         this.instance = instance;
     }
 
-    public static <T extends LootItemCondition> LootItemConditionType type( T condition )
-    {
-        return new LootItemConditionType( new ConstantLootConditionSerializer<>( condition ) );
+    public static <T extends LootItemCondition> LootItemConditionType type(T condition) {
+        return new LootItemConditionType(new ConstantLootConditionSerializer<>(condition));
     }
 
     @Override
-    public void serialize( @Nonnull JsonObject json, @Nonnull T object, @Nonnull JsonSerializationContext context )
-    {
+    public void serialize(@Nonnull JsonObject json, @Nonnull T object, @Nonnull JsonSerializationContext context) {
     }
 
     @Nonnull
     @Override
-    public T deserialize( @Nonnull JsonObject json, @Nonnull JsonDeserializationContext context )
-    {
+    public T deserialize(@Nonnull JsonObject json, @Nonnull JsonDeserializationContext context) {
         return instance;
     }
 }

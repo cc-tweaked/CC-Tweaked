@@ -32,8 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * <li>Passes main thread tasks to the {@link MainThreadScheduler.Executor}.</li>
  * </ul>
  */
-public class Computer
-{
+public class Computer {
     private static final int START_DELAY = 50;
 
     // Various properties of the computer
@@ -62,71 +61,59 @@ public class Computer
     private boolean startRequested;
     private int ticksSinceStart = -1;
 
-    public Computer( ComputerContext context, ComputerEnvironment environment, Terminal terminal, int id )
-    {
-        if( id < 0 ) throw new IllegalStateException( "Id has not been assigned" );
+    public Computer(ComputerContext context, ComputerEnvironment environment, Terminal terminal, int id) {
+        if (id < 0) throw new IllegalStateException("Id has not been assigned");
         this.id = id;
         globalEnvironment = context.globalEnvironment();
         this.terminal = terminal;
 
-        internalEnvironment = new Environment( this, environment );
-        executor = new ComputerExecutor( this, environment, context );
-        serverExecutor = context.mainThreadScheduler().createExecutor( environment.getMetrics() );
+        internalEnvironment = new Environment(this, environment);
+        executor = new ComputerExecutor(this, environment, context);
+        serverExecutor = context.mainThreadScheduler().createExecutor(environment.getMetrics());
     }
 
-    GlobalEnvironment getGlobalEnvironment()
-    {
+    GlobalEnvironment getGlobalEnvironment() {
         return globalEnvironment;
     }
 
-    FileSystem getFileSystem()
-    {
+    FileSystem getFileSystem() {
         return executor.getFileSystem();
     }
 
-    Terminal getTerminal()
-    {
+    Terminal getTerminal() {
         return terminal;
     }
 
-    public Environment getEnvironment()
-    {
+    public Environment getEnvironment() {
         return internalEnvironment;
     }
 
-    public IAPIEnvironment getAPIEnvironment()
-    {
+    public IAPIEnvironment getAPIEnvironment() {
         return internalEnvironment;
     }
 
-    public boolean isOn()
-    {
+    public boolean isOn() {
         return executor.isOn();
     }
 
-    public void turnOn()
-    {
+    public void turnOn() {
         startRequested = true;
     }
 
-    public void shutdown()
-    {
-        executor.queueStop( false, false );
+    public void shutdown() {
+        executor.queueStop(false, false);
     }
 
-    public void reboot()
-    {
-        executor.queueStop( true, false );
+    public void reboot() {
+        executor.queueStop(true, false);
     }
 
-    public void unload()
-    {
-        executor.queueStop( false, true );
+    public void unload() {
+        executor.queueStop(false, true);
     }
 
-    public void queueEvent( String event, Object[] args )
-    {
-        executor.queueEvent( event, args );
+    public void queueEvent(String event, Object[] args) {
+        executor.queueEvent(event, args);
     }
 
     /**
@@ -135,45 +122,36 @@ public class Computer
      * @param runnable The task to run
      * @return If the task was successfully queued (namely, whether there is space on it).
      */
-    public boolean queueMainThread( Runnable runnable )
-    {
-        return serverExecutor.enqueue( runnable );
+    public boolean queueMainThread(Runnable runnable) {
+        return serverExecutor.enqueue(runnable);
     }
 
-    public IWorkMonitor getMainThreadMonitor()
-    {
+    public IWorkMonitor getMainThreadMonitor() {
         return serverExecutor;
     }
 
-    public int getID()
-    {
+    public int getID() {
         return id;
     }
 
-    public String getLabel()
-    {
+    public String getLabel() {
         return label;
     }
 
-    public void setLabel( String label )
-    {
-        if( !Objects.equal( label, this.label ) )
-        {
+    public void setLabel(String label) {
+        if (!Objects.equal(label, this.label)) {
             this.label = label;
-            externalOutputChanged.set( true );
+            externalOutputChanged.set(true);
         }
     }
 
-    public void tick()
-    {
+    public void tick() {
         // We keep track of the number of ticks since the last start, only
-        if( ticksSinceStart >= 0 && ticksSinceStart <= START_DELAY ) ticksSinceStart++;
+        if (ticksSinceStart >= 0 && ticksSinceStart <= START_DELAY) ticksSinceStart++;
 
-        if( startRequested && (ticksSinceStart < 0 || ticksSinceStart > START_DELAY) )
-        {
+        if (startRequested && (ticksSinceStart < 0 || ticksSinceStart > START_DELAY)) {
             startRequested = false;
-            if( !executor.isOn() )
-            {
+            if (!executor.isOn()) {
                 ticksSinceStart = 0;
                 executor.queueStart();
             }
@@ -185,41 +163,35 @@ public class Computer
         internalEnvironment.tick();
 
         // Propagate the environment's output to the world.
-        if( internalEnvironment.updateOutput() ) externalOutputChanged.set( true );
+        if (internalEnvironment.updateOutput()) externalOutputChanged.set(true);
 
         // Set output changed if the terminal has changed from blinking to not
-        boolean blinking = terminal.getCursorBlink() &&
+        var blinking = terminal.getCursorBlink() &&
             terminal.getCursorX() >= 0 && terminal.getCursorX() < terminal.getWidth() &&
             terminal.getCursorY() >= 0 && terminal.getCursorY() < terminal.getHeight();
-        if( blinking != this.blinking )
-        {
+        if (blinking != this.blinking) {
             this.blinking = blinking;
-            externalOutputChanged.set( true );
+            externalOutputChanged.set(true);
         }
     }
 
-    void markChanged()
-    {
-        externalOutputChanged.set( true );
+    void markChanged() {
+        externalOutputChanged.set(true);
     }
 
-    public boolean pollAndResetChanged()
-    {
-        return externalOutputChanged.getAndSet( false );
+    public boolean pollAndResetChanged() {
+        return externalOutputChanged.getAndSet(false);
     }
 
-    public boolean isBlinking()
-    {
+    public boolean isBlinking() {
         return isOn() && blinking;
     }
 
-    public void addApi( ILuaAPI api )
-    {
-        executor.addApi( api );
+    public void addApi(ILuaAPI api) {
+        executor.addApi(api);
     }
 
-    long getUniqueTaskId()
-    {
+    long getUniqueTaskId() {
         return lastTaskId.incrementAndGet();
     }
 }

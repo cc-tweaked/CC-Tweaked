@@ -11,10 +11,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.Tags;
 
-public final class ColourUtils
-{
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
-    private static final TagKey<Item>[] DYES = new TagKey[] {
+public final class ColourUtils {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private static final TagKey<Item>[] DYES = new TagKey[]{
         Tags.Items.DYES_WHITE,
         Tags.Items.DYES_ORANGE,
         Tags.Items.DYES_MAGENTA,
@@ -33,16 +32,15 @@ public final class ColourUtils
         Tags.Items.DYES_BLACK,
     };
 
-    private ColourUtils() {}
+    private ColourUtils() {
+    }
 
-    public static DyeColor getStackColour( ItemStack stack )
-    {
-        if( stack.isEmpty() ) return null;
+    public static DyeColor getStackColour(ItemStack stack) {
+        if (stack.isEmpty()) return null;
 
-        for( int i = 0; i < DYES.length; i++ )
-        {
-            TagKey<Item> dye = DYES[i];
-            if( stack.is( dye ) ) return DyeColor.byId( i );
+        for (var i = 0; i < DYES.length; i++) {
+            var dye = DYES[i];
+            if (stack.is(dye)) return DyeColor.byId(i);
         }
 
         return null;

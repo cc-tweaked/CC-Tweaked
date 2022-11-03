@@ -23,8 +23,7 @@ import javax.annotation.Nonnull;
  * @see dan200.computercraft.api.ComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)
  */
 @FunctionalInterface
-public interface IPeripheralProvider
-{
+public interface IPeripheralProvider {
     /**
      * Produce an peripheral implementation from a block location.
      *
@@ -35,5 +34,5 @@ public interface IPeripheralProvider
      * @see ForgeComputerCraftAPI#registerPeripheralProvider(IPeripheralProvider)
      */
     @Nonnull
-    LazyOptional<IPeripheral> getPeripheral( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side );
+    LazyOptional<IPeripheral> getPeripheral(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side);
 }

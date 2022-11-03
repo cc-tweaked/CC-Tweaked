@@ -24,8 +24,7 @@ import javax.annotation.Nullable;
  *
  * @see PocketUpgradeSerialiser For how to register a pocket computer upgrade.
  */
-public interface IPocketUpgrade extends IUpgradeBase
-{
+public interface IPocketUpgrade extends IUpgradeBase {
     /**
      * Creates a peripheral for the pocket computer.
      * <p>
@@ -38,7 +37,7 @@ public interface IPocketUpgrade extends IUpgradeBase
      * @see #update(IPocketAccess, IPeripheral)
      */
     @Nullable
-    IPeripheral createPeripheral( @Nonnull IPocketAccess access );
+    IPeripheral createPeripheral(@Nonnull IPocketAccess access);
 
     /**
      * Called when the pocket computer item stack updates.
@@ -47,8 +46,7 @@ public interface IPocketUpgrade extends IUpgradeBase
      * @param peripheral The peripheral for this upgrade.
      * @see #createPeripheral(IPocketAccess)
      */
-    default void update( @Nonnull IPocketAccess access, @Nullable IPeripheral peripheral )
-    {
+    default void update(@Nonnull IPocketAccess access, @Nullable IPeripheral peripheral) {
     }
 
     /**
@@ -62,8 +60,7 @@ public interface IPocketUpgrade extends IUpgradeBase
      * access the GUI.
      * @see #createPeripheral(IPocketAccess)
      */
-    default boolean onRightClick( @Nonnull Level world, @Nonnull IPocketAccess access, @Nullable IPeripheral peripheral )
-    {
+    default boolean onRightClick(@Nonnull Level world, @Nonnull IPocketAccess access, @Nullable IPeripheral peripheral) {
         return false;
     }
 }

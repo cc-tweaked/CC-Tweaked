@@ -19,14 +19,12 @@ import java.util.Objects;
  *
  * @deprecated No longer needed, see {@link TurtleRefuelEvent}.
  */
-@Deprecated( forRemoval = true )
-public abstract class TurtleEvent extends Event
-{
+@Deprecated(forRemoval = true)
+public abstract class TurtleEvent extends Event {
     private final ITurtleAccess turtle;
 
-    protected TurtleEvent( @Nonnull ITurtleAccess turtle )
-    {
-        Objects.requireNonNull( turtle, "turtle cannot be null" );
+    protected TurtleEvent(@Nonnull ITurtleAccess turtle) {
+        Objects.requireNonNull(turtle, "turtle cannot be null");
         this.turtle = turtle;
     }
 
@@ -36,8 +34,7 @@ public abstract class TurtleEvent extends Event
      * @return The access for this turtle.
      */
     @Nonnull
-    public ITurtleAccess getTurtle()
-    {
+    public ITurtleAccess getTurtle() {
         return turtle;
     }
 }

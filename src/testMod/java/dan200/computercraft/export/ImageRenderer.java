@@ -20,60 +20,54 @@ import java.nio.file.Path;
 /**
  * Utilities for saving OpenGL output to an image rather than displaying it on the screen.
  */
-public class ImageRenderer implements AutoCloseable
-{
+public class ImageRenderer implements AutoCloseable {
     public static final int WIDTH = 64;
     public static final int HEIGHT = 64;
 
-    private final TextureTarget framebuffer = new TextureTarget( WIDTH, HEIGHT, true, Minecraft.ON_OSX );
-    private final NativeImage image = new NativeImage( WIDTH, HEIGHT, Minecraft.ON_OSX );
+    private final TextureTarget framebuffer = new TextureTarget(WIDTH, HEIGHT, true, Minecraft.ON_OSX);
+    private final NativeImage image = new NativeImage(WIDTH, HEIGHT, Minecraft.ON_OSX);
 
     private Matrix4f projectionMatrix;
 
-    public ImageRenderer()
-    {
-        framebuffer.setClearColor( 0, 0, 0, 0 );
-        framebuffer.clear( Minecraft.ON_OSX );
+    public ImageRenderer() {
+        framebuffer.setClearColor(0, 0, 0, 0);
+        framebuffer.clear(Minecraft.ON_OSX);
     }
 
-    public void setupState()
-    {
+    public void setupState() {
         projectionMatrix = RenderSystem.getProjectionMatrix();
-        RenderSystem.setProjectionMatrix( Matrix4f.orthographic( 0, 16, 0, 16, 1000, 3000 ) );
+        RenderSystem.setProjectionMatrix(Matrix4f.orthographic(0, 16, 0, 16, 1000, 3000));
 
         var transform = RenderSystem.getModelViewStack();
         transform.setIdentity();
-        transform.translate( 0.0f, 0.0f, -2000.0f );
+        transform.translate(0.0f, 0.0f, -2000.0f);
 
         FogRenderer.setupNoFog();
     }
 
-    public void clearState()
-    {
-        RenderSystem.setProjectionMatrix( projectionMatrix );
+    public void clearState() {
+        RenderSystem.setProjectionMatrix(projectionMatrix);
         RenderSystem.getModelViewStack().popPose();
     }
 
-    public void captureRender( Path output, Runnable render ) throws IOException
-    {
-        Files.createDirectories( output.getParent() );
+    public void captureRender(Path output, Runnable render) throws IOException {
+        Files.createDirectories(output.getParent());
 
-        framebuffer.bindWrite( true );
-        RenderSystem.clear( GL12.GL_COLOR_BUFFER_BIT | GL12.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX );
+        framebuffer.bindWrite(true);
+        RenderSystem.clear(GL12.GL_COLOR_BUFFER_BIT | GL12.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
         render.run();
         framebuffer.unbindWrite();
 
         framebuffer.bindRead();
-        image.downloadTexture( 0, false );
+        image.downloadTexture(0, false);
         image.flipY();
         framebuffer.unbindRead();
 
-        image.writeToFile( output );
+        image.writeToFile(output);
     }
 
     @Override
-    public void close()
-    {
+    public void close() {
         image.close();
         framebuffer.destroyBuffers();
     }

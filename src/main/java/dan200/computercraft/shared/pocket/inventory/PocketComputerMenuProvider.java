@@ -20,16 +20,14 @@ import net.minecraft.world.item.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class PocketComputerMenuProvider implements MenuProvider
-{
+public class PocketComputerMenuProvider implements MenuProvider {
     private final ServerComputer computer;
     private final Component name;
     private final ItemPocketComputer item;
     private final InteractionHand hand;
     private final boolean isTypingOnly;
 
-    public PocketComputerMenuProvider( ServerComputer computer, ItemStack stack, ItemPocketComputer item, InteractionHand hand, boolean isTypingOnly )
-    {
+    public PocketComputerMenuProvider(ServerComputer computer, ItemStack stack, ItemPocketComputer item, InteractionHand hand, boolean isTypingOnly) {
         this.computer = computer;
         name = stack.getHoverName();
         this.item = item;
@@ -40,20 +38,18 @@ public class PocketComputerMenuProvider implements MenuProvider
 
     @Nonnull
     @Override
-    public Component getDisplayName()
-    {
+    public Component getDisplayName() {
         return name;
     }
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu( int id, @Nonnull Inventory inventory, @Nonnull Player entity )
-    {
+    public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player entity) {
         return new ComputerMenuWithoutInventory(
             isTypingOnly ? Registry.ModContainers.POCKET_COMPUTER_NO_TERM.get() : Registry.ModContainers.POCKET_COMPUTER.get(), id, inventory,
             p -> {
-                ItemStack stack = p.getItemInHand( hand );
-                return stack.getItem() == item && ItemPocketComputer.getServerComputer( entity.level.getServer(), stack ) == computer;
+                var stack = p.getItemInHand(hand);
+                return stack.getItem() == item && ItemPocketComputer.getServerComputer(entity.level.getServer(), stack) == computer;
             },
             computer, item.getFamily()
         );

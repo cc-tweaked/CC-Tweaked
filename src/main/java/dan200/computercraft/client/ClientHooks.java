@@ -15,28 +15,23 @@ import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber( modid = ComputerCraft.MOD_ID, value = Dist.CLIENT )
-public class ClientHooks
-{
+@Mod.EventBusSubscriber(modid = ComputerCraft.MOD_ID, value = Dist.CLIENT)
+public class ClientHooks {
     @SubscribeEvent
-    public static void onWorldUnload( LevelEvent.Unload event )
-    {
-        if( event.getLevel().isClientSide() )
-        {
+    public static void onWorldUnload(LevelEvent.Unload event) {
+        if (event.getLevel().isClientSide()) {
             ClientMonitor.destroyAll();
             SpeakerManager.reset();
         }
     }
 
     @SubscribeEvent
-    public static void onLogIn( ClientPlayerNetworkEvent.LoggingIn event )
-    {
+    public static void onLogIn(ClientPlayerNetworkEvent.LoggingIn event) {
         ClientPocketComputers.reset();
     }
 
     @SubscribeEvent
-    public static void onLogOut( ClientPlayerNetworkEvent.LoggingOut event )
-    {
+    public static void onLogOut(ClientPlayerNetworkEvent.LoggingOut event) {
         ClientPocketComputers.reset();
     }
 }

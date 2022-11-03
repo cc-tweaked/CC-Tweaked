@@ -20,8 +20,7 @@ import javax.annotation.Nullable;
  * Implement this interface on your {@link Item} class to allow it to be used in the drive. Alternatively, register
  * a {@link IMediaProvider}.
  */
-public interface IMedia
-{
+public interface IMedia {
     /**
      * Get a string representing the label of this item. Will be called via {@code disk.getLabel()} in lua.
      *
@@ -29,7 +28,7 @@ public interface IMedia
      * @return The label. ie: "Dan's Programs".
      */
     @Nullable
-    String getLabel( @Nonnull ItemStack stack );
+    String getLabel(@Nonnull ItemStack stack);
 
     /**
      * Set a string representing the label of this item. Will be called vi {@code disk.setLabel()} in lua.
@@ -38,8 +37,7 @@ public interface IMedia
      * @param label The string to set the label to.
      * @return true if the label was updated, false if the label may not be modified.
      */
-    default boolean setLabel( @Nonnull ItemStack stack, @Nullable String label )
-    {
+    default boolean setLabel(@Nonnull ItemStack stack, @Nullable String label) {
         return false;
     }
 
@@ -51,8 +49,7 @@ public interface IMedia
      * @return The name, or null if this item does not represent an item with audio.
      */
     @Nullable
-    default String getAudioTitle( @Nonnull ItemStack stack )
-    {
+    default String getAudioTitle(@Nonnull ItemStack stack) {
         return null;
     }
 
@@ -63,8 +60,7 @@ public interface IMedia
      * @return The name, or null if this item does not represent an item with audio.
      */
     @Nullable
-    default SoundEvent getAudio( @Nonnull ItemStack stack )
-    {
+    default SoundEvent getAudio(@Nonnull ItemStack stack) {
         return null;
     }
 
@@ -82,8 +78,7 @@ public interface IMedia
      * @see dan200.computercraft.api.ComputerCraftAPI#createResourceMount(String, String)
      */
     @Nullable
-    default IMount createDataMount( @Nonnull ItemStack stack, @Nonnull Level world )
-    {
+    default IMount createDataMount(@Nonnull ItemStack stack, @Nonnull Level world) {
         return null;
     }
 }

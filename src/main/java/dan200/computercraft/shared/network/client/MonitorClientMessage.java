@@ -9,50 +9,43 @@ import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
-public class MonitorClientMessage implements NetworkMessage
-{
+public class MonitorClientMessage implements NetworkMessage {
     private final BlockPos pos;
     private final TerminalState state;
 
-    public MonitorClientMessage( BlockPos pos, TerminalState state )
-    {
+    public MonitorClientMessage(BlockPos pos, TerminalState state) {
         this.pos = pos;
         this.state = state;
     }
 
-    public MonitorClientMessage( @Nonnull FriendlyByteBuf buf )
-    {
+    public MonitorClientMessage(@Nonnull FriendlyByteBuf buf) {
         pos = buf.readBlockPos();
-        state = new TerminalState( buf );
+        state = new TerminalState(buf);
     }
 
     @Override
-    public void toBytes( @Nonnull FriendlyByteBuf buf )
-    {
-        buf.writeBlockPos( pos );
-        state.write( buf );
+    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+        buf.writeBlockPos(pos);
+        state.write(buf);
     }
 
     @Override
-    @OnlyIn( Dist.CLIENT )
-    public void handle( NetworkEvent.Context context )
-    {
-        LocalPlayer player = Minecraft.getInstance().player;
-        if( player == null || player.level == null ) return;
+    @OnlyIn(Dist.CLIENT)
+    public void handle(NetworkEvent.Context context) {
+        var player = Minecraft.getInstance().player;
+        if (player == null || player.level == null) return;
 
-        BlockEntity te = player.level.getBlockEntity( pos );
-        if( !(te instanceof TileMonitor) ) return;
+        var te = player.level.getBlockEntity(pos);
+        if (!(te instanceof TileMonitor)) return;
 
-        ((TileMonitor) te).read( state );
+        ((TileMonitor) te).read(state);
     }
 }

@@ -16,8 +16,7 @@ import java.util.OptionalInt;
  *
  * @see ComputerCraftAPI#registerRefuelHandler(TurtleRefuelHandler)
  */
-public interface TurtleRefuelHandler
-{
+public interface TurtleRefuelHandler {
     /**
      * Refuel a turtle using an item.
      *
@@ -31,5 +30,5 @@ public interface TurtleRefuelHandler
      *               {@code OptionalInt#of(0)} if so), but should <em>NOT</em> modify the stack or inventory.
      * @return The amount of fuel gained, or {@link OptionalInt#empty()} if this handler does not accept the given item.
      */
-    OptionalInt refuel( ITurtleAccess turtle, ItemStack stack, int slot, int limit );
+    OptionalInt refuel(ITurtleAccess turtle, ItemStack stack, int slot, int limit);
 }

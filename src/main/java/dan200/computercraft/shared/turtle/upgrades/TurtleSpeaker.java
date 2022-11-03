@@ -18,46 +18,38 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 
-public class TurtleSpeaker extends AbstractTurtleUpgrade
-{
-    private static class Peripheral extends UpgradeSpeakerPeripheral
-    {
+public class TurtleSpeaker extends AbstractTurtleUpgrade {
+    private static class Peripheral extends UpgradeSpeakerPeripheral {
         final ITurtleAccess turtle;
 
-        Peripheral( ITurtleAccess turtle )
-        {
+        Peripheral(ITurtleAccess turtle) {
             this.turtle = turtle;
         }
 
         @Nonnull
         @Override
-        public SpeakerPosition getPosition()
-        {
-            return SpeakerPosition.of( turtle.getLevel(), Vec3.atCenterOf( turtle.getPosition() ) );
+        public SpeakerPosition getPosition() {
+            return SpeakerPosition.of(turtle.getLevel(), Vec3.atCenterOf(turtle.getPosition()));
         }
 
         @Override
-        public boolean equals( IPeripheral other )
-        {
+        public boolean equals(IPeripheral other) {
             return this == other || (other instanceof Peripheral speaker && turtle == speaker.turtle);
         }
     }
 
-    public TurtleSpeaker( ResourceLocation id, ItemStack item )
-    {
-        super( id, TurtleUpgradeType.PERIPHERAL, UpgradeSpeakerPeripheral.ADJECTIVE, item );
+    public TurtleSpeaker(ResourceLocation id, ItemStack item) {
+        super(id, TurtleUpgradeType.PERIPHERAL, UpgradeSpeakerPeripheral.ADJECTIVE, item);
     }
 
     @Override
-    public IPeripheral createPeripheral( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side )
-    {
-        return new TurtleSpeaker.Peripheral( turtle );
+    public IPeripheral createPeripheral(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side) {
+        return new TurtleSpeaker.Peripheral(turtle);
     }
 
     @Override
-    public void update( @Nonnull ITurtleAccess turtle, @Nonnull TurtleSide turtleSide )
-    {
-        IPeripheral peripheral = turtle.getPeripheral( turtleSide );
-        if( peripheral instanceof Peripheral speaker ) speaker.update();
+    public void update(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide turtleSide) {
+        var peripheral = turtle.getPeripheral(turtleSide);
+        if (peripheral instanceof Peripheral speaker) speaker.update();
     }
 }

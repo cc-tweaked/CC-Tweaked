@@ -20,23 +20,20 @@ import java.util.Objects;
  * Method results either return a value immediately ({@link #of(Object...)} or yield control to the parent coroutine.
  * When the current coroutine is resumed, we invoke the provided {@link ILuaCallback#resume(Object[])} callback.
  */
-public final class MethodResult
-{
-    private static final MethodResult empty = new MethodResult( null, null );
+public final class MethodResult {
+    private static final MethodResult empty = new MethodResult(null, null);
 
     private final Object[] result;
     private final ILuaCallback callback;
     private final int adjust;
 
-    private MethodResult( Object[] arguments, ILuaCallback callback )
-    {
+    private MethodResult(Object[] arguments, ILuaCallback callback) {
         result = arguments;
         this.callback = callback;
         adjust = 0;
     }
 
-    private MethodResult( Object[] arguments, ILuaCallback callback, int adjust )
-    {
+    private MethodResult(Object[] arguments, ILuaCallback callback, int adjust) {
         result = arguments;
         this.callback = callback;
         this.adjust = adjust;
@@ -48,8 +45,7 @@ public final class MethodResult
      * @return A method result which returns immediately with no values.
      */
     @Nonnull
-    public static MethodResult of()
-    {
+    public static MethodResult of() {
         return empty;
     }
 
@@ -67,9 +63,8 @@ public final class MethodResult
      * @return A method result which returns immediately with the given value.
      */
     @Nonnull
-    public static MethodResult of( @Nullable Object value )
-    {
-        return new MethodResult( new Object[] { value }, null );
+    public static MethodResult of(@Nullable Object value) {
+        return new MethodResult(new Object[]{ value }, null);
     }
 
     /**
@@ -79,9 +74,8 @@ public final class MethodResult
      * @return A method result which returns immediately with the given values.
      */
     @Nonnull
-    public static MethodResult of( @Nullable Object... values )
-    {
-        return values == null || values.length == 0 ? empty : new MethodResult( values, null );
+    public static MethodResult of(@Nullable Object... values) {
+        return values == null || values.length == 0 ? empty : new MethodResult(values, null);
     }
 
     /**
@@ -94,16 +88,14 @@ public final class MethodResult
      * @see IComputerAccess#queueEvent(String, Object[])
      */
     @Nonnull
-    public static MethodResult pullEvent( @Nullable String filter, @Nonnull ILuaCallback callback )
-    {
-        Objects.requireNonNull( callback, "callback cannot be null" );
-        return new MethodResult( new Object[] { filter }, results -> {
-            if( results.length >= 1 && Objects.equals( results[0], "terminate" ) )
-            {
-                throw new LuaException( "Terminated", 0 );
+    public static MethodResult pullEvent(@Nullable String filter, @Nonnull ILuaCallback callback) {
+        Objects.requireNonNull(callback, "callback cannot be null");
+        return new MethodResult(new Object[]{ filter }, results -> {
+            if (results.length >= 1 && Objects.equals(results[0], "terminate")) {
+                throw new LuaException("Terminated", 0);
             }
-            return callback.resume( results );
-        } );
+            return callback.resume(results);
+        });
     }
 
     /**
@@ -117,10 +109,9 @@ public final class MethodResult
      * @see #pullEvent(String, ILuaCallback)
      */
     @Nonnull
-    public static MethodResult pullEventRaw( @Nullable String filter, @Nonnull ILuaCallback callback )
-    {
-        Objects.requireNonNull( callback, "callback cannot be null" );
-        return new MethodResult( new Object[] { filter }, callback );
+    public static MethodResult pullEventRaw(@Nullable String filter, @Nonnull ILuaCallback callback) {
+        Objects.requireNonNull(callback, "callback cannot be null");
+        return new MethodResult(new Object[]{ filter }, callback);
     }
 
     /**
@@ -133,26 +124,22 @@ public final class MethodResult
      * @see #pullEvent(String, ILuaCallback)
      */
     @Nonnull
-    public static MethodResult yield( @Nullable Object[] arguments, @Nonnull ILuaCallback callback )
-    {
-        Objects.requireNonNull( callback, "callback cannot be null" );
-        return new MethodResult( arguments, callback );
+    public static MethodResult yield(@Nullable Object[] arguments, @Nonnull ILuaCallback callback) {
+        Objects.requireNonNull(callback, "callback cannot be null");
+        return new MethodResult(arguments, callback);
     }
 
     @Nullable
-    public Object[] getResult()
-    {
+    public Object[] getResult() {
         return result;
     }
 
     @Nullable
-    public ILuaCallback getCallback()
-    {
+    public ILuaCallback getCallback() {
         return callback;
     }
 
-    public int getErrorAdjust()
-    {
+    public int getErrorAdjust() {
         return adjust;
     }
 
@@ -164,10 +151,9 @@ public final class MethodResult
      * @return The new {@link MethodResult} with an adjusted error. This has no effect on immediate results.
      */
     @Nonnull
-    public MethodResult adjustError( int adjust )
-    {
-        if( adjust < 0 ) throw new IllegalArgumentException( "cannot adjust by a negative amount" );
-        if( adjust == 0 || callback == null ) return this;
-        return new MethodResult( result, callback, this.adjust + adjust );
+    public MethodResult adjustError(int adjust) {
+        if (adjust < 0) throw new IllegalArgumentException("cannot adjust by a negative amount");
+        if (adjust == 0 || callback == null) return this;
+        return new MethodResult(result, callback, this.adjust + adjust);
     }
 }

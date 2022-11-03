@@ -17,8 +17,7 @@ import javax.annotation.Nonnull;
  * Unlike a {@link GenericSource}, all methods <strong>should</strong> target the same type, for instance a
  * {@link BlockEntity} subclass or a capability interface. This is not currently enforced.
  */
-public interface GenericPeripheral extends GenericSource
-{
+public interface GenericPeripheral extends GenericSource {
     /**
      * Get the type of the exposed peripheral.
      * <p>
@@ -38,8 +37,7 @@ public interface GenericPeripheral extends GenericSource
      * @see IPeripheral#getType()
      */
     @Nonnull
-    default PeripheralType getType()
-    {
+    default PeripheralType getType() {
         return PeripheralType.untyped();
     }
 }

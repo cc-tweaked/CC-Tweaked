@@ -17,8 +17,7 @@ import javax.annotation.Nonnull;
  * @see dan200.computercraft.api.ComputerCraftAPI#registerBundledRedstoneProvider(IBundledRedstoneProvider)
  */
 @FunctionalInterface
-public interface IBundledRedstoneProvider
-{
+public interface IBundledRedstoneProvider {
     /**
      * Produce an bundled redstone output from a block location.
      *
@@ -29,5 +28,5 @@ public interface IBundledRedstoneProvider
      * handle this block.
      * @see dan200.computercraft.api.ComputerCraftAPI#registerBundledRedstoneProvider(IBundledRedstoneProvider)
      */
-    int getBundledRedstoneOutput( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side );
+    int getBundledRedstoneOutput(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side);
 }

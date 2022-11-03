@@ -26,8 +26,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Predicate;
 
-public abstract class ContainerComputerBase extends AbstractContainerMenu implements ComputerMenu
-{
+public abstract class ContainerComputerBase extends AbstractContainerMenu implements ComputerMenu {
     private final Predicate<Player> canUse;
     private final ComputerFamily family;
     private final ContainerData data;
@@ -42,56 +41,49 @@ public abstract class ContainerComputerBase extends AbstractContainerMenu implem
     public ContainerComputerBase(
         MenuType<? extends ContainerComputerBase> type, int id, Predicate<Player> canUse,
         ComputerFamily family, @Nullable ServerComputer computer, @Nullable ComputerContainerData containerData
-    )
-    {
-        super( type, id );
+    ) {
+        super(type, id);
         this.canUse = canUse;
         this.family = family;
-        data = computer == null ? new SimpleContainerData( 1 ) : (SingleIntArray) () -> computer.isOn() ? 1 : 0;
-        addDataSlots( data );
+        data = computer == null ? new SimpleContainerData(1) : (SingleIntArray) () -> computer.isOn() ? 1 : 0;
+        addDataSlots(data);
 
         this.computer = computer;
-        input = computer == null ? null : new ServerInputState<>( this );
+        input = computer == null ? null : new ServerInputState<>(this);
         terminal = containerData == null ? null : containerData.terminal().create();
         displayStack = containerData == null ? null : containerData.displayStack();
     }
 
     @Override
-    public boolean stillValid( @Nonnull Player player )
-    {
-        return canUse.test( player );
+    public boolean stillValid(@Nonnull Player player) {
+        return canUse.test(player);
     }
 
     @Nonnull
-    public ComputerFamily getFamily()
-    {
+    public ComputerFamily getFamily() {
         return family;
     }
 
-    public boolean isOn()
-    {
-        return data.get( 0 ) != 0;
+    public boolean isOn() {
+        return data.get(0) != 0;
     }
 
     @Override
-    public ServerComputer getComputer()
-    {
-        if( computer == null ) throw new UnsupportedOperationException( "Cannot access server computer on the client" );
+    public ServerComputer getComputer() {
+        if (computer == null) throw new UnsupportedOperationException("Cannot access server computer on the client");
         return computer;
     }
 
     @Override
-    public ServerInputHandler getInput()
-    {
-        if( input == null ) throw new UnsupportedOperationException( "Cannot access server computer on the client" );
+    public ServerInputHandler getInput() {
+        if (input == null) throw new UnsupportedOperationException("Cannot access server computer on the client");
         return input;
     }
 
     @Override
-    public void updateTerminal( TerminalState state )
-    {
-        if( terminal == null ) throw new UnsupportedOperationException( "Cannot update terminal on the server" );
-        state.apply( terminal );
+    public void updateTerminal(TerminalState state) {
+        if (terminal == null) throw new UnsupportedOperationException("Cannot update terminal on the server");
+        state.apply(terminal);
     }
 
     /**
@@ -100,17 +92,15 @@ public abstract class ContainerComputerBase extends AbstractContainerMenu implem
      * @return The current terminal state.
      * @throws IllegalStateException When accessed on the server.
      */
-    public Terminal getTerminal()
-    {
-        if( terminal == null ) throw new IllegalStateException( "Cannot update terminal on the server" );
+    public Terminal getTerminal() {
+        if (terminal == null) throw new IllegalStateException("Cannot update terminal on the server");
         return terminal;
     }
 
     @Override
-    public void removed( @Nonnull Player player )
-    {
-        super.removed( player );
-        if( input != null ) input.close();
+    public void removed(@Nonnull Player player) {
+        super.removed(player);
+        if (input != null) input.close();
     }
 
     /**
@@ -119,8 +109,7 @@ public abstract class ContainerComputerBase extends AbstractContainerMenu implem
      * @return The current stack.
      */
     @Nonnull
-    public ItemStack getDisplayStack()
-    {
+    public ItemStack getDisplayStack() {
         return displayStack;
     }
 }

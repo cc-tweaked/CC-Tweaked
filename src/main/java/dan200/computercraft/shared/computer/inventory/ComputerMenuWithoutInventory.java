@@ -22,32 +22,27 @@ import java.util.function.Predicate;
  * <p>
  * This adds invisible versions of the player's hotbars slots, to ensure they're synced to the client when changed.
  */
-public class ComputerMenuWithoutInventory extends ContainerComputerBase
-{
+public class ComputerMenuWithoutInventory extends ContainerComputerBase {
     public ComputerMenuWithoutInventory(
         MenuType<? extends ContainerComputerBase> type, int id, Inventory player, Predicate<Player> canUse,
         ServerComputer computer, ComputerFamily family
-    )
-    {
-        super( type, id, canUse, family, computer, null );
-        addSlots( player );
+    ) {
+        super(type, id, canUse, family, computer, null);
+        addSlots(player);
     }
 
-    public ComputerMenuWithoutInventory( MenuType<? extends ContainerComputerBase> type, int id, Inventory player, ComputerContainerData menuData )
-    {
-        super( type, id, p -> true, menuData.family(), null, menuData );
-        addSlots( player );
+    public ComputerMenuWithoutInventory(MenuType<? extends ContainerComputerBase> type, int id, Inventory player, ComputerContainerData menuData) {
+        super(type, id, p -> true, menuData.family(), null, menuData);
+        addSlots(player);
     }
 
-    private void addSlots( Inventory player )
-    {
-        for( int i = 0; i < 9; i++ ) addSlot( new InvisibleSlot( player, i ) );
+    private void addSlots(Inventory player) {
+        for (var i = 0; i < 9; i++) addSlot(new InvisibleSlot(player, i));
     }
 
     @Nonnull
     @Override
-    public ItemStack quickMoveStack( @Nonnull Player player, int slot )
-    {
+    public ItemStack quickMoveStack(@Nonnull Player player, int slot) {
         return ItemStack.EMPTY;
     }
 }

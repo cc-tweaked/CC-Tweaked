@@ -18,8 +18,7 @@ import javax.annotation.Nonnull;
  * @see TileEntityMonitorRenderer
  * @see ClientMonitor
  */
-public enum MonitorRenderer
-{
+public enum MonitorRenderer {
     /**
      * Determine the best monitor backend.
      */
@@ -45,24 +44,20 @@ public enum MonitorRenderer
      * @return The current renderer. Will not return {@link MonitorRenderer#BEST}.
      */
     @Nonnull
-    public static MonitorRenderer current()
-    {
-        MonitorRenderer current = ComputerCraft.monitorRenderer;
-        if( current == BEST ) current = ComputerCraft.monitorRenderer = best();
+    public static MonitorRenderer current() {
+        var current = ComputerCraft.monitorRenderer;
+        if (current == BEST) current = ComputerCraft.monitorRenderer = best();
         return current;
     }
 
-    private static MonitorRenderer best()
-    {
-        if( !GL.getCapabilities().OpenGL31 )
-        {
-            ComputerCraft.log.warn( "Texture buffers are not supported on your graphics card. Falling back to VBO monitor renderer." );
+    private static MonitorRenderer best() {
+        if (!GL.getCapabilities().OpenGL31) {
+            ComputerCraft.log.warn("Texture buffers are not supported on your graphics card. Falling back to VBO monitor renderer.");
             return VBO;
         }
 
-        if( ShaderMod.INSTANCE.isShaderMod() )
-        {
-            ComputerCraft.log.warn( "Optifine is loaded, assuming shaders are being used. Falling back to VBO monitor renderer." );
+        if (ShaderMod.INSTANCE.isShaderMod()) {
+            ComputerCraft.log.warn("Optifine is loaded, assuming shaders are being used. Falling back to VBO monitor renderer.");
             return VBO;
         }
 

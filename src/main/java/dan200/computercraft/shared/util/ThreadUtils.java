@@ -13,12 +13,10 @@ import java.util.concurrent.ThreadFactory;
 /**
  * Provides some utilities to create thread groups.
  */
-public final class ThreadUtils
-{
-    private static final ThreadGroup baseGroup = new ThreadGroup( "ComputerCraft" );
+public final class ThreadUtils {
+    private static final ThreadGroup baseGroup = new ThreadGroup("ComputerCraft");
 
-    private ThreadUtils()
-    {
+    private ThreadUtils() {
     }
 
     /**
@@ -26,8 +24,7 @@ public final class ThreadUtils
      *
      * @return The ComputerCraft group.
      */
-    public static ThreadGroup group()
-    {
+    public static ThreadGroup group() {
         return baseGroup;
     }
 
@@ -37,9 +34,8 @@ public final class ThreadUtils
      * @param name The group's name. This will be prefixed with "ComputerCraft-".
      * @return The constructed thread group.
      */
-    public static ThreadGroup group( String name )
-    {
-        return new ThreadGroup( baseGroup, baseGroup.getName() + "-" + name );
+    public static ThreadGroup group(String name) {
+        return new ThreadGroup(baseGroup, baseGroup.getName() + "-" + name);
     }
 
     /**
@@ -52,14 +48,13 @@ public final class ThreadUtils
      * @return The constructed thread factory builder, which may be extended with other properties.
      * @see #factory(String)
      */
-    public static ThreadFactoryBuilder builder( String name )
-    {
-        ThreadGroup group = group( name );
+    public static ThreadFactoryBuilder builder(String name) {
+        var group = group(name);
         return new ThreadFactoryBuilder()
-            .setDaemon( true )
-            .setNameFormat( group.getName().replace( "%", "%%" ) + "-%d" )
-            .setUncaughtExceptionHandler( ( t, e ) -> ComputerCraft.log.error( "Exception in thread " + t.getName(), e ) )
-            .setThreadFactory( x -> new Thread( group, x ) );
+            .setDaemon(true)
+            .setNameFormat(group.getName().replace("%", "%%") + "-%d")
+            .setUncaughtExceptionHandler((t, e) -> ComputerCraft.log.error("Exception in thread " + t.getName(), e))
+            .setThreadFactory(x -> new Thread(group, x));
     }
 
     /**
@@ -72,8 +67,7 @@ public final class ThreadUtils
      * @return The constructed thread factory.
      * @see #builder(String)
      */
-    public static ThreadFactory factory( String name )
-    {
-        return builder( name ).build();
+    public static ThreadFactory factory(String name) {
+        return builder(name).build();
     }
 }

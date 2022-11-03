@@ -15,24 +15,20 @@ import net.minecraft.world.item.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class PocketSpeaker extends AbstractPocketUpgrade
-{
-    public PocketSpeaker( ResourceLocation id, ItemStack item )
-    {
-        super( id, UpgradeSpeakerPeripheral.ADJECTIVE, item );
+public class PocketSpeaker extends AbstractPocketUpgrade {
+    public PocketSpeaker(ResourceLocation id, ItemStack item) {
+        super(id, UpgradeSpeakerPeripheral.ADJECTIVE, item);
     }
 
     @Nullable
     @Override
-    public IPeripheral createPeripheral( @Nonnull IPocketAccess access )
-    {
-        return new PocketSpeakerPeripheral( access );
+    public IPeripheral createPeripheral(@Nonnull IPocketAccess access) {
+        return new PocketSpeakerPeripheral(access);
     }
 
     @Override
-    public void update( @Nonnull IPocketAccess access, @Nullable IPeripheral peripheral )
-    {
-        if( !(peripheral instanceof PocketSpeakerPeripheral) ) return;
+    public void update(@Nonnull IPocketAccess access, @Nullable IPeripheral peripheral) {
+        if (!(peripheral instanceof PocketSpeakerPeripheral)) return;
         ((PocketSpeakerPeripheral) peripheral).update();
     }
 }

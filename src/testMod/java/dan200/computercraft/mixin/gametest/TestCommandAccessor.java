@@ -10,12 +10,10 @@ import net.minecraft.gametest.framework.TestCommand;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin( TestCommand.class )
-public interface TestCommandAccessor
-{
+@Mixin(TestCommand.class)
+public interface TestCommandAccessor {
     @Invoker
-    static int callExportTestStructure( CommandSourceStack source, String structure )
-    {
+    static int callExportTestStructure(CommandSourceStack source, String structure) {
         return 0;
     }
 }

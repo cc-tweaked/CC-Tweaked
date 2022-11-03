@@ -9,7 +9,6 @@ import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -18,34 +17,25 @@ import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 
-public final class ColourableRecipe extends CustomRecipe
-{
-    private ColourableRecipe( ResourceLocation id )
-    {
-        super( id );
+public final class ColourableRecipe extends CustomRecipe {
+    private ColourableRecipe(ResourceLocation id) {
+        super(id);
     }
 
     @Override
-    public boolean matches( @Nonnull CraftingContainer inv, @Nonnull Level world )
-    {
-        boolean hasColourable = false;
-        boolean hasDye = false;
-        for( int i = 0; i < inv.getContainerSize(); i++ )
-        {
-            ItemStack stack = inv.getItem( i );
-            if( stack.isEmpty() ) continue;
+    public boolean matches(@Nonnull CraftingContainer inv, @Nonnull Level world) {
+        var hasColourable = false;
+        var hasDye = false;
+        for (var i = 0; i < inv.getContainerSize(); i++) {
+            var stack = inv.getItem(i);
+            if (stack.isEmpty()) continue;
 
-            if( stack.getItem() instanceof IColouredItem )
-            {
-                if( hasColourable ) return false;
+            if (stack.getItem() instanceof IColouredItem) {
+                if (hasColourable) return false;
                 hasColourable = true;
-            }
-            else if( ColourUtils.getStackColour( stack ) != null )
-            {
+            } else if (ColourUtils.getStackColour(stack) != null) {
                 hasDye = true;
-            }
-            else
-            {
+            } else {
                 return false;
             }
         }
@@ -55,48 +45,41 @@ public final class ColourableRecipe extends CustomRecipe
 
     @Nonnull
     @Override
-    public ItemStack assemble( @Nonnull CraftingContainer inv )
-    {
-        ItemStack colourable = ItemStack.EMPTY;
+    public ItemStack assemble(@Nonnull CraftingContainer inv) {
+        var colourable = ItemStack.EMPTY;
 
-        ColourTracker tracker = new ColourTracker();
+        var tracker = new ColourTracker();
 
-        for( int i = 0; i < inv.getContainerSize(); i++ )
-        {
-            ItemStack stack = inv.getItem( i );
+        for (var i = 0; i < inv.getContainerSize(); i++) {
+            var stack = inv.getItem(i);
 
-            if( stack.isEmpty() ) continue;
+            if (stack.isEmpty()) continue;
 
-            if( stack.getItem() instanceof IColouredItem )
-            {
+            if (stack.getItem() instanceof IColouredItem) {
                 colourable = stack;
-            }
-            else
-            {
-                DyeColor dye = ColourUtils.getStackColour( stack );
-                if( dye != null ) tracker.addColour( dye );
+            } else {
+                var dye = ColourUtils.getStackColour(stack);
+                if (dye != null) tracker.addColour(dye);
             }
         }
 
-        if( colourable.isEmpty() ) return ItemStack.EMPTY;
+        if (colourable.isEmpty()) return ItemStack.EMPTY;
 
-        ItemStack stack = ((IColouredItem) colourable.getItem()).withColour( colourable, tracker.getColour() );
-        stack.setCount( 1 );
+        var stack = ((IColouredItem) colourable.getItem()).withColour(colourable, tracker.getColour());
+        stack.setCount(1);
         return stack;
     }
 
     @Override
-    public boolean canCraftInDimensions( int x, int y )
-    {
+    public boolean canCraftInDimensions(int x, int y) {
         return x >= 2 && y >= 2;
     }
 
     @Override
     @Nonnull
-    public RecipeSerializer<?> getSerializer()
-    {
+    public RecipeSerializer<?> getSerializer() {
         return SERIALIZER;
     }
 
-    public static final SimpleRecipeSerializer<?> SERIALIZER = new SimpleRecipeSerializer<>( ColourableRecipe::new );
+    public static final SimpleRecipeSerializer<?> SERIALIZER = new SimpleRecipeSerializer<>(ColourableRecipe::new);
 }

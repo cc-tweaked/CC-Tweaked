@@ -22,16 +22,13 @@ import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
-public class ServerComputer implements InputHandler, ComputerEnvironment
-{
+public class ServerComputer implements InputHandler, ComputerEnvironment {
     private final int instanceID;
 
     private ServerLevel level;
@@ -42,250 +39,207 @@ public class ServerComputer implements InputHandler, ComputerEnvironment
     private final Computer computer;
 
     private final NetworkedTerminal terminal;
-    private final AtomicBoolean terminalChanged = new AtomicBoolean( false );
+    private final AtomicBoolean terminalChanged = new AtomicBoolean(false);
 
     private boolean changedLastFrame;
     private int ticksSincePing;
 
-    public ServerComputer( ServerLevel level, int computerID, String label, ComputerFamily family, int terminalWidth, int terminalHeight )
-    {
+    public ServerComputer(ServerLevel level, int computerID, String label, ComputerFamily family, int terminalWidth, int terminalHeight) {
         this.level = level;
         this.family = family;
 
-        ServerContext context = ServerContext.get( level.getServer() );
+        var context = ServerContext.get(level.getServer());
         instanceID = context.registry().getUnusedInstanceID();
-        terminal = new NetworkedTerminal( terminalWidth, terminalHeight, family != ComputerFamily.NORMAL, this::markTerminalChanged );
-        metrics = context.metrics().createMetricObserver( this );
+        terminal = new NetworkedTerminal(terminalWidth, terminalHeight, family != ComputerFamily.NORMAL, this::markTerminalChanged);
+        metrics = context.metrics().createMetricObserver(this);
 
-        computer = new Computer( context.computerContext(), this, terminal, computerID );
-        computer.setLabel( label );
+        computer = new Computer(context.computerContext(), this, terminal, computerID);
+        computer.setLabel(label);
     }
 
-    public ComputerFamily getFamily()
-    {
+    public ComputerFamily getFamily() {
         return family;
     }
 
-    public ServerLevel getLevel()
-    {
+    public ServerLevel getLevel() {
         return level;
     }
 
-    public void setLevel( ServerLevel level )
-    {
+    public void setLevel(ServerLevel level) {
         this.level = level;
     }
 
-    public BlockPos getPosition()
-    {
+    public BlockPos getPosition() {
         return position;
     }
 
-    public void setPosition( BlockPos pos )
-    {
-        position = new BlockPos( pos );
+    public void setPosition(BlockPos pos) {
+        position = new BlockPos(pos);
     }
 
-    public IAPIEnvironment getAPIEnvironment()
-    {
+    public IAPIEnvironment getAPIEnvironment() {
         return computer.getAPIEnvironment();
     }
 
-    public Computer getComputer()
-    {
+    public Computer getComputer() {
         return computer;
     }
 
-    protected void markTerminalChanged()
-    {
-        terminalChanged.set( true );
+    protected void markTerminalChanged() {
+        terminalChanged.set(true);
     }
 
 
-    public void tickServer()
-    {
+    public void tickServer() {
         ticksSincePing++;
 
         computer.tick();
 
         changedLastFrame = computer.pollAndResetChanged();
-        if( terminalChanged.getAndSet( false ) ) onTerminalChanged();
+        if (terminalChanged.getAndSet(false)) onTerminalChanged();
     }
 
-    protected void onTerminalChanged()
-    {
-        sendToAllInteracting( c -> new ComputerTerminalClientMessage( c, getTerminalState() ) );
+    protected void onTerminalChanged() {
+        sendToAllInteracting(c -> new ComputerTerminalClientMessage(c, getTerminalState()));
     }
 
-    public TerminalState getTerminalState()
-    {
-        return new TerminalState( terminal );
+    public TerminalState getTerminalState() {
+        return new TerminalState(terminal);
     }
 
-    public void keepAlive()
-    {
+    public void keepAlive() {
         ticksSincePing = 0;
     }
 
-    public boolean hasTimedOut()
-    {
+    public boolean hasTimedOut() {
         return ticksSincePing > 100;
     }
 
-    public boolean hasOutputChanged()
-    {
+    public boolean hasOutputChanged() {
         return changedLastFrame;
     }
 
-    public int register()
-    {
-        ServerContext.get( level.getServer() ).registry().add( instanceID, this );
+    public int register() {
+        ServerContext.get(level.getServer()).registry().add(instanceID, this);
         return instanceID;
     }
 
-    void unload()
-    {
+    void unload() {
         computer.unload();
     }
 
-    public void close()
-    {
+    public void close() {
         unload();
-        ServerContext.get( level.getServer() ).registry().remove( instanceID );
+        ServerContext.get(level.getServer()).registry().remove(instanceID);
     }
 
-    private void sendToAllInteracting( Function<AbstractContainerMenu, NetworkMessage> createPacket )
-    {
-        MinecraftServer server = level.getServer();
+    private void sendToAllInteracting(Function<AbstractContainerMenu, NetworkMessage> createPacket) {
+        var server = level.getServer();
 
-        for( ServerPlayer player : server.getPlayerList().getPlayers() )
-        {
-            if( player.containerMenu instanceof ComputerMenu && ((ComputerMenu) player.containerMenu).getComputer() == this )
-            {
-                NetworkHandler.sendToPlayer( player, createPacket.apply( player.containerMenu ) );
+        for (var player : server.getPlayerList().getPlayers()) {
+            if (player.containerMenu instanceof ComputerMenu && ((ComputerMenu) player.containerMenu).getComputer() == this) {
+                NetworkHandler.sendToPlayer(player, createPacket.apply(player.containerMenu));
             }
         }
     }
 
-    protected void onRemoved()
-    {
+    protected void onRemoved() {
     }
 
-    public int getInstanceID()
-    {
+    public int getInstanceID() {
         return instanceID;
     }
 
-    public int getID()
-    {
+    public int getID() {
         return computer.getID();
     }
 
-    public String getLabel()
-    {
+    public String getLabel() {
         return computer.getLabel();
     }
 
-    public boolean isOn()
-    {
+    public boolean isOn() {
         return computer.isOn();
     }
 
-    public ComputerState getState()
-    {
-        if( !isOn() ) return ComputerState.OFF;
+    public ComputerState getState() {
+        if (!isOn()) return ComputerState.OFF;
         return computer.isBlinking() ? ComputerState.BLINKING : ComputerState.ON;
     }
 
     @Override
-    public void turnOn()
-    {
+    public void turnOn() {
         // Turn on
         computer.turnOn();
     }
 
     @Override
-    public void shutdown()
-    {
+    public void shutdown() {
         // Shutdown
         computer.shutdown();
     }
 
     @Override
-    public void reboot()
-    {
+    public void reboot() {
         // Reboot
         computer.reboot();
     }
 
     @Override
-    public void queueEvent( String event, Object[] arguments )
-    {
+    public void queueEvent(String event, Object[] arguments) {
         // Queue event
-        computer.queueEvent( event, arguments );
+        computer.queueEvent(event, arguments);
     }
 
-    public int getRedstoneOutput( ComputerSide side )
-    {
-        return computer.getEnvironment().getExternalRedstoneOutput( side );
+    public int getRedstoneOutput(ComputerSide side) {
+        return computer.getEnvironment().getExternalRedstoneOutput(side);
     }
 
-    public void setRedstoneInput( ComputerSide side, int level )
-    {
-        computer.getEnvironment().setRedstoneInput( side, level );
+    public void setRedstoneInput(ComputerSide side, int level) {
+        computer.getEnvironment().setRedstoneInput(side, level);
     }
 
-    public int getBundledRedstoneOutput( ComputerSide side )
-    {
-        return computer.getEnvironment().getExternalBundledRedstoneOutput( side );
+    public int getBundledRedstoneOutput(ComputerSide side) {
+        return computer.getEnvironment().getExternalBundledRedstoneOutput(side);
     }
 
-    public void setBundledRedstoneInput( ComputerSide side, int combination )
-    {
-        computer.getEnvironment().setBundledRedstoneInput( side, combination );
+    public void setBundledRedstoneInput(ComputerSide side, int combination) {
+        computer.getEnvironment().setBundledRedstoneInput(side, combination);
     }
 
-    public void addAPI( ILuaAPI api )
-    {
-        computer.addApi( api );
+    public void addAPI(ILuaAPI api) {
+        computer.addApi(api);
     }
 
-    public void setPeripheral( ComputerSide side, IPeripheral peripheral )
-    {
-        computer.getEnvironment().setPeripheral( side, peripheral );
+    public void setPeripheral(ComputerSide side, IPeripheral peripheral) {
+        computer.getEnvironment().setPeripheral(side, peripheral);
     }
 
-    public IPeripheral getPeripheral( ComputerSide side )
-    {
-        return computer.getEnvironment().getPeripheral( side );
+    public IPeripheral getPeripheral(ComputerSide side) {
+        return computer.getEnvironment().getPeripheral(side);
     }
 
-    public void setLabel( String label )
-    {
-        computer.setLabel( label );
+    public void setLabel(String label) {
+        computer.setLabel(label);
     }
 
     @Override
-    public double getTimeOfDay()
-    {
+    public double getTimeOfDay() {
         return (level.getDayTime() + 6000) % 24000 / 1000.0;
     }
 
     @Override
-    public int getDay()
-    {
+    public int getDay() {
         return (int) ((level.getDayTime() + 6000) / 24000) + 1;
     }
 
     @Override
-    public MetricsObserver getMetrics()
-    {
+    public MetricsObserver getMetrics() {
         return metrics;
     }
 
     @Override
-    public IWritableMount createRootMount()
-    {
-        return ComputerCraftAPI.createSaveDirMount( level, "computer/" + computer.getID(), ComputerCraft.computerSpaceLimit );
+    public IWritableMount createRootMount() {
+        return ComputerCraftAPI.createSaveDirMount(level, "computer/" + computer.getID(), ComputerCraft.computerSpaceLimit);
     }
 }

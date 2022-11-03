@@ -13,38 +13,33 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.function.Function;
 
-public class TurtleUtil
-{
+public class TurtleUtil {
     /**
      * Store an item in this turtle, or drop it if there is room remaining.
      *
      * @param turtle The turtle to store items into.
      * @param stack  The stack to store.
      */
-    public static void storeItemOrDrop( ITurtleAccess turtle, ItemStack stack )
-    {
-        if( stack.isEmpty() ) return;
-        if( turtle.isRemoved() )
-        {
-            WorldUtil.dropItemStack( stack, turtle.getLevel(), turtle.getPosition(), null );
+    public static void storeItemOrDrop(ITurtleAccess turtle, ItemStack stack) {
+        if (stack.isEmpty()) return;
+        if (turtle.isRemoved()) {
+            WorldUtil.dropItemStack(stack, turtle.getLevel(), turtle.getPosition(), null);
             return;
         }
 
         // Put the remainder back in the turtle
-        ItemStack remainder = InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
-        if( remainder.isEmpty() ) return;
+        var remainder = InventoryUtil.storeItems(stack, turtle.getItemHandler(), turtle.getSelectedSlot());
+        if (remainder.isEmpty()) return;
 
-        WorldUtil.dropItemStack( remainder, turtle.getLevel(), turtle.getPosition(), turtle.getDirection().getOpposite() );
+        WorldUtil.dropItemStack(remainder, turtle.getLevel(), turtle.getPosition(), turtle.getDirection().getOpposite());
     }
 
-    public static Function<ItemStack, ItemStack> dropConsumer( ITurtleAccess turtle )
-    {
-        return stack -> turtle.isRemoved() ? stack : InventoryUtil.storeItems( stack, turtle.getItemHandler(), turtle.getSelectedSlot() );
+    public static Function<ItemStack, ItemStack> dropConsumer(ITurtleAccess turtle) {
+        return stack -> turtle.isRemoved() ? stack : InventoryUtil.storeItems(stack, turtle.getItemHandler(), turtle.getSelectedSlot());
     }
 
-    public static void stopConsuming( ITurtleAccess turtle )
-    {
+    public static void stopConsuming(ITurtleAccess turtle) {
         var direction = turtle.isRemoved() ? null : turtle.getDirection().getOpposite();
-        DropConsumer.clearAndDrop( turtle.getLevel(), turtle.getPosition(), direction );
+        DropConsumer.clearAndDrop(turtle.getLevel(), turtle.getPosition(), direction);
     }
 }

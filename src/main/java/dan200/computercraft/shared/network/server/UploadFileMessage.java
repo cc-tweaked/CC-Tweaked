@@ -7,12 +7,10 @@ package dan200.computercraft.shared.network.server;
 
 import com.google.common.annotations.VisibleForTesting;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
-import dan200.computercraft.shared.computer.menu.ServerInputHandler;
 import dan200.computercraft.shared.computer.upload.FileSlice;
 import dan200.computercraft.shared.computer.upload.FileUpload;
 import io.netty.handler.codec.DecoderException;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -23,8 +21,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class UploadFileMessage extends ComputerServerMessage
-{
+public class UploadFileMessage extends ComputerServerMessage {
     public static final int MAX_SIZE = 512 * 1024;
     static final int MAX_PACKET_SIZE = 30 * 1024; // Max packet size is 32767.
 
@@ -39,150 +36,132 @@ public class UploadFileMessage extends ComputerServerMessage
     final @VisibleForTesting List<FileUpload> files;
     final @VisibleForTesting List<FileSlice> slices;
 
-    UploadFileMessage( AbstractContainerMenu menu, UUID uuid, int flag, List<FileUpload> files, List<FileSlice> slices )
-    {
-        super( menu );
+    UploadFileMessage(AbstractContainerMenu menu, UUID uuid, int flag, List<FileUpload> files, List<FileSlice> slices) {
+        super(menu);
         this.uuid = uuid;
         this.flag = flag;
         this.files = files;
         this.slices = slices;
     }
 
-    public UploadFileMessage( @Nonnull FriendlyByteBuf buf )
-    {
-        super( buf );
+    public UploadFileMessage(@Nonnull FriendlyByteBuf buf) {
+        super(buf);
         uuid = buf.readUUID();
-        int flag = this.flag = buf.readByte();
+        var flag = this.flag = buf.readByte();
 
-        int totalSize = 0;
-        if( (flag & FLAG_FIRST) != 0 )
-        {
-            int nFiles = buf.readVarInt();
-            if( nFiles > MAX_FILES ) throw new DecoderException( "Too many files" );
+        var totalSize = 0;
+        if ((flag & FLAG_FIRST) != 0) {
+            var nFiles = buf.readVarInt();
+            if (nFiles > MAX_FILES) throw new DecoderException("Too many files");
 
-            List<FileUpload> files = this.files = new ArrayList<>( nFiles );
-            for( int i = 0; i < nFiles; i++ )
-            {
-                String name = buf.readUtf( MAX_FILE_NAME );
-                int size = buf.readVarInt();
-                if( size > MAX_SIZE || (totalSize += size) > MAX_SIZE )
-                {
-                    throw new DecoderException( "Files are too large" );
+            var files = this.files = new ArrayList<>(nFiles);
+            for (var i = 0; i < nFiles; i++) {
+                var name = buf.readUtf(MAX_FILE_NAME);
+                var size = buf.readVarInt();
+                if (size > MAX_SIZE || (totalSize += size) > MAX_SIZE) {
+                    throw new DecoderException("Files are too large");
                 }
 
-                byte[] digest = new byte[FileUpload.CHECKSUM_LENGTH];
-                buf.readBytes( digest );
+                var digest = new byte[FileUpload.CHECKSUM_LENGTH];
+                buf.readBytes(digest);
 
-                files.add( new FileUpload( name, ByteBuffer.allocateDirect( size ), digest ) );
+                files.add(new FileUpload(name, ByteBuffer.allocateDirect(size), digest));
             }
-        }
-        else
-        {
+        } else {
             files = null;
         }
 
-        int nSlices = buf.readVarInt();
-        List<FileSlice> slices = this.slices = new ArrayList<>( nSlices );
-        for( int i = 0; i < nSlices; i++ )
-        {
+        var nSlices = buf.readVarInt();
+        var slices = this.slices = new ArrayList<>(nSlices);
+        for (var i = 0; i < nSlices; i++) {
             int fileId = buf.readUnsignedByte();
-            int offset = buf.readVarInt();
+            var offset = buf.readVarInt();
 
-            int size = buf.readUnsignedShort();
-            if( size > MAX_PACKET_SIZE ) throw new DecoderException( "File is too large" );
+            var size = buf.readUnsignedShort();
+            if (size > MAX_PACKET_SIZE) throw new DecoderException("File is too large");
 
-            ByteBuffer buffer = ByteBuffer.allocateDirect( size );
-            buf.readBytes( buffer );
+            var buffer = ByteBuffer.allocateDirect(size);
+            buf.readBytes(buffer);
             buffer.flip();
 
-            slices.add( new FileSlice( fileId, offset, buffer ) );
+            slices.add(new FileSlice(fileId, offset, buffer));
         }
     }
 
     @Override
-    public void toBytes( @Nonnull FriendlyByteBuf buf )
-    {
-        super.toBytes( buf );
-        buf.writeUUID( uuid );
-        buf.writeByte( flag );
+    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+        super.toBytes(buf);
+        buf.writeUUID(uuid);
+        buf.writeByte(flag);
 
-        if( (flag & FLAG_FIRST) != 0 )
-        {
-            buf.writeVarInt( files.size() );
-            for( FileUpload file : files )
-            {
-                buf.writeUtf( file.getName(), MAX_FILE_NAME );
-                buf.writeVarInt( file.getLength() );
-                buf.writeBytes( file.getChecksum() );
+        if ((flag & FLAG_FIRST) != 0) {
+            buf.writeVarInt(files.size());
+            for (var file : files) {
+                buf.writeUtf(file.getName(), MAX_FILE_NAME);
+                buf.writeVarInt(file.getLength());
+                buf.writeBytes(file.getChecksum());
             }
         }
 
-        buf.writeVarInt( slices.size() );
-        for( FileSlice slice : slices )
-        {
-            buf.writeByte( slice.fileId() );
-            buf.writeVarInt( slice.offset() );
+        buf.writeVarInt(slices.size());
+        for (var slice : slices) {
+            buf.writeByte(slice.fileId());
+            buf.writeVarInt(slice.offset());
 
-            ByteBuffer bytes = slice.bytes().duplicate();
-            buf.writeShort( bytes.remaining() );
-            buf.writeBytes( bytes );
+            var bytes = slice.bytes().duplicate();
+            buf.writeShort(bytes.remaining());
+            buf.writeBytes(bytes);
         }
     }
 
-    public static void send( AbstractContainerMenu container, List<FileUpload> files, Consumer<UploadFileMessage> send )
-    {
-        UUID uuid = UUID.randomUUID();
+    public static void send(AbstractContainerMenu container, List<FileUpload> files, Consumer<UploadFileMessage> send) {
+        var uuid = UUID.randomUUID();
 
-        int remaining = MAX_PACKET_SIZE;
-        for( FileUpload file : files ) remaining -= file.getName().length() * 4 + FileUpload.CHECKSUM_LENGTH;
+        var remaining = MAX_PACKET_SIZE;
+        for (var file : files) remaining -= file.getName().length() * 4 + FileUpload.CHECKSUM_LENGTH;
 
-        boolean first = true;
-        List<FileSlice> slices = new ArrayList<>( files.size() );
-        for( int fileId = 0; fileId < files.size(); fileId++ )
-        {
-            FileUpload file = files.get( fileId );
-            ByteBuffer contents = file.getBytes();
-            int capacity = contents.limit();
+        var first = true;
+        List<FileSlice> slices = new ArrayList<>(files.size());
+        for (var fileId = 0; fileId < files.size(); fileId++) {
+            var file = files.get(fileId);
+            var contents = file.getBytes();
+            var capacity = contents.limit();
 
-            int currentOffset = 0;
-            while( currentOffset < capacity )
-            {
-                if( remaining <= 0 )
-                {
-                    send.accept( first
-                        ? new UploadFileMessage( container, uuid, FLAG_FIRST, files, new ArrayList<>( slices ) )
-                        : new UploadFileMessage( container, uuid, 0, null, new ArrayList<>( slices ) ) );
+            var currentOffset = 0;
+            while (currentOffset < capacity) {
+                if (remaining <= 0) {
+                    send.accept(first
+                        ? new UploadFileMessage(container, uuid, FLAG_FIRST, files, new ArrayList<>(slices))
+                        : new UploadFileMessage(container, uuid, 0, null, new ArrayList<>(slices)));
                     slices.clear();
                     remaining = MAX_PACKET_SIZE;
                     first = false;
                 }
 
-                int canWrite = Math.min( remaining, capacity - currentOffset );
+                var canWrite = Math.min(remaining, capacity - currentOffset);
 
-                contents.position( currentOffset ).limit( currentOffset + canWrite );
-                slices.add( new FileSlice( fileId, currentOffset, contents.slice() ) );
+                contents.position(currentOffset).limit(currentOffset + canWrite);
+                slices.add(new FileSlice(fileId, currentOffset, contents.slice()));
                 currentOffset += canWrite;
                 remaining -= canWrite;
             }
 
-            contents.position( 0 ).limit( capacity );
+            contents.position(0).limit(capacity);
         }
 
-        send.accept( first
-            ? new UploadFileMessage( container, uuid, FLAG_FIRST | FLAG_LAST, files, new ArrayList<>( slices ) )
-            : new UploadFileMessage( container, uuid, FLAG_LAST, null, new ArrayList<>( slices ) ) );
+        send.accept(first
+            ? new UploadFileMessage(container, uuid, FLAG_FIRST | FLAG_LAST, files, new ArrayList<>(slices))
+            : new UploadFileMessage(container, uuid, FLAG_LAST, null, new ArrayList<>(slices)));
     }
 
     @Override
-    protected void handle( NetworkEvent.Context context, @Nonnull ComputerMenu container )
-    {
-        ServerPlayer player = context.getSender();
-        if( player != null )
-        {
-            ServerInputHandler input = container.getInput();
-            if( (flag & FLAG_FIRST) != 0 ) input.startUpload( uuid, files );
-            input.continueUpload( uuid, slices );
-            if( (flag & FLAG_LAST) != 0 ) input.finishUpload( player, uuid );
+    protected void handle(NetworkEvent.Context context, @Nonnull ComputerMenu container) {
+        var player = context.getSender();
+        if (player != null) {
+            var input = container.getInput();
+            if ((flag & FLAG_FIRST) != 0) input.startUpload(uuid, files);
+            input.continueUpload(uuid, slices);
+            if ((flag & FLAG_LAST) != 0) input.finishUpload(player, uuid);
         }
     }
 }

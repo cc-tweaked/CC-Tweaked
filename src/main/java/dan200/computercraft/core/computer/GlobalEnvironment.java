@@ -13,8 +13,7 @@ import java.io.InputStream;
 /**
  * The global environment in which computers reside.
  */
-public interface GlobalEnvironment
-{
+public interface GlobalEnvironment {
     /**
      * Get a "host" string describing the program hosting CC. It should be of the form {@literal ComputerCraft
      * $CC_VERSION ($HOST)}, where {@literal $HOST} is a user-defined string such as {@literal Minecraft 1.19}.
@@ -39,7 +38,7 @@ public interface GlobalEnvironment
      * @return The created mount or {@code null} if it could not be created.
      */
     @Nullable
-    IMount createResourceMount( String domain, String subPath );
+    IMount createResourceMount(String domain, String subPath);
 
     /**
      * Open a single mod-provided file.
@@ -49,5 +48,5 @@ public interface GlobalEnvironment
      * @return The opened file or {@code null} if it could not be opened.
      */
     @Nullable
-    InputStream createResourceFile( String domain, String subPath );
+    InputStream createResourceFile(String domain, String subPath);
 }

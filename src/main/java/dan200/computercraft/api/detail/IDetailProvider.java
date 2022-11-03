@@ -18,8 +18,7 @@ import java.util.Map;
  * @see DetailRegistry
  */
 @FunctionalInterface
-public interface IDetailProvider<T>
-{
+public interface IDetailProvider<T> {
     /**
      * Provide additional details for the given object. This method is called by functions such as
      * {@code turtle.getItemDetail()} and {@code turtle.inspect()}. New properties should be added to the given
@@ -31,5 +30,5 @@ public interface IDetailProvider<T>
      * @param data   The full details to be returned. New properties should be added to this map.
      * @param object The object to provide details for.
      */
-    void provideDetails( @Nonnull Map<? super String, Object> data, @Nonnull T object );
+    void provideDetails(@Nonnull Map<? super String, Object> data, @Nonnull T object);
 }

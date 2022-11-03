@@ -15,127 +15,109 @@ import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 
-final class VarargArguments implements IArguments
-{
-    private static final VarargArguments EMPTY = new VarargArguments( Constants.NONE );
+final class VarargArguments implements IArguments {
+    private static final VarargArguments EMPTY = new VarargArguments(Constants.NONE);
 
     boolean closed;
     private final Varargs varargs;
     private Object[] cache;
 
-    private VarargArguments( Varargs varargs )
-    {
+    private VarargArguments(Varargs varargs) {
         this.varargs = varargs;
     }
 
-    static VarargArguments of( Varargs values )
-    {
-        return values == Constants.NONE ? EMPTY : new VarargArguments( values );
+    static VarargArguments of(Varargs values) {
+        return values == Constants.NONE ? EMPTY : new VarargArguments(values);
     }
 
     @Override
-    public int count()
-    {
+    public int count() {
         return varargs.count();
     }
 
     @Nullable
     @Override
-    public Object get( int index )
-    {
-        if( index < 0 || index >= varargs.count() ) return null;
+    public Object get(int index) {
+        if (index < 0 || index >= varargs.count()) return null;
 
-        Object[] cache = this.cache;
-        if( cache == null )
-        {
+        var cache = this.cache;
+        if (cache == null) {
             cache = this.cache = new Object[varargs.count()];
-        }
-        else
-        {
-            Object existing = cache[index];
-            if( existing != null ) return existing;
+        } else {
+            var existing = cache[index];
+            if (existing != null) return existing;
         }
 
-        return cache[index] = CobaltLuaMachine.toObject( varargs.arg( index + 1 ), null );
+        return cache[index] = CobaltLuaMachine.toObject(varargs.arg(index + 1), null);
     }
 
     @Override
-    public IArguments drop( int count )
-    {
-        if( count < 0 ) throw new IllegalStateException( "count cannot be negative" );
-        if( count == 0 ) return this;
-        return new VarargArguments( varargs.subargs( count + 1 ) );
+    public IArguments drop(int count) {
+        if (count < 0) throw new IllegalStateException("count cannot be negative");
+        if (count == 0) return this;
+        return new VarargArguments(varargs.subargs(count + 1));
     }
 
     @Override
-    public double getDouble( int index ) throws LuaException
-    {
-        LuaValue value = varargs.arg( index + 1 );
-        if( !(value instanceof LuaNumber) ) throw LuaValues.badArgument( index, "number", value.typeName() );
+    public double getDouble(int index) throws LuaException {
+        var value = varargs.arg(index + 1);
+        if (!(value instanceof LuaNumber)) throw LuaValues.badArgument(index, "number", value.typeName());
         return value.toDouble();
     }
 
     @Override
-    public long getLong( int index ) throws LuaException
-    {
-        LuaValue value = varargs.arg( index + 1 );
-        if( !(value instanceof LuaNumber) ) throw LuaValues.badArgument( index, "number", value.typeName() );
-        return value instanceof LuaInteger ? value.toInteger() : (long) LuaValues.checkFinite( index, value.toDouble() );
+    public long getLong(int index) throws LuaException {
+        var value = varargs.arg(index + 1);
+        if (!(value instanceof LuaNumber)) throw LuaValues.badArgument(index, "number", value.typeName());
+        return value instanceof LuaInteger ? value.toInteger() : (long) LuaValues.checkFinite(index, value.toDouble());
     }
 
     @Nonnull
     @Override
-    public ByteBuffer getBytes( int index ) throws LuaException
-    {
-        LuaValue value = varargs.arg( index + 1 );
-        if( !(value instanceof LuaBaseString) ) throw LuaValues.badArgument( index, "string", value.typeName() );
+    public ByteBuffer getBytes(int index) throws LuaException {
+        var value = varargs.arg(index + 1);
+        if (!(value instanceof LuaBaseString)) throw LuaValues.badArgument(index, "string", value.typeName());
 
-        LuaString str = ((LuaBaseString) value).strvalue();
-        return ByteBuffer.wrap( str.bytes, str.offset, str.length ).asReadOnlyBuffer();
+        var str = ((LuaBaseString) value).strvalue();
+        return ByteBuffer.wrap(str.bytes, str.offset, str.length).asReadOnlyBuffer();
     }
 
     @Override
-    public Optional<ByteBuffer> optBytes( int index ) throws LuaException
-    {
-        LuaValue value = varargs.arg( index + 1 );
-        if( value.isNil() ) return Optional.empty();
-        if( !(value instanceof LuaBaseString) ) throw LuaValues.badArgument( index, "string", value.typeName() );
+    public Optional<ByteBuffer> optBytes(int index) throws LuaException {
+        var value = varargs.arg(index + 1);
+        if (value.isNil()) return Optional.empty();
+        if (!(value instanceof LuaBaseString)) throw LuaValues.badArgument(index, "string", value.typeName());
 
-        LuaString str = ((LuaBaseString) value).strvalue();
-        return Optional.of( ByteBuffer.wrap( str.bytes, str.offset, str.length ).asReadOnlyBuffer() );
+        var str = ((LuaBaseString) value).strvalue();
+        return Optional.of(ByteBuffer.wrap(str.bytes, str.offset, str.length).asReadOnlyBuffer());
     }
 
     @Nonnull
     @Override
-    public dan200.computercraft.api.lua.LuaTable<?, ?> getTableUnsafe( int index ) throws LuaException
-    {
-        if( closed )
-        {
-            throw new IllegalStateException( "Cannot use getTableUnsafe after IArguments has been closed." );
+    public dan200.computercraft.api.lua.LuaTable<?, ?> getTableUnsafe(int index) throws LuaException {
+        if (closed) {
+            throw new IllegalStateException("Cannot use getTableUnsafe after IArguments has been closed.");
         }
 
-        LuaValue value = varargs.arg( index + 1 );
-        if( !(value instanceof LuaTable) ) throw LuaValues.badArgument( index, "table", value.typeName() );
-        return new TableImpl( this, (LuaTable) value );
+        var value = varargs.arg(index + 1);
+        if (!(value instanceof LuaTable)) throw LuaValues.badArgument(index, "table", value.typeName());
+        return new TableImpl(this, (LuaTable) value);
     }
 
     @Nonnull
     @Override
-    public Optional<dan200.computercraft.api.lua.LuaTable<?, ?>> optTableUnsafe( int index ) throws LuaException
-    {
-        if( closed )
-        {
-            throw new IllegalStateException( "Cannot use optTableUnsafe after IArguments has been closed." );
+    public Optional<dan200.computercraft.api.lua.LuaTable<?, ?>> optTableUnsafe(int index) throws LuaException {
+        if (closed) {
+            throw new IllegalStateException("Cannot use optTableUnsafe after IArguments has been closed.");
         }
 
-        LuaValue value = varargs.arg( index + 1 );
-        if( value.isNil() ) return Optional.empty();
-        if( !(value instanceof LuaTable) ) throw LuaValues.badArgument( index, "table", value.typeName() );
-        return Optional.of( new TableImpl( this, (LuaTable) value ) );
+        var value = varargs.arg(index + 1);
+        if (value.isNil()) return Optional.empty();
+        if (!(value instanceof LuaTable)) throw LuaValues.badArgument(index, "table", value.typeName());
+        return Optional.of(new TableImpl(this, (LuaTable) value));
     }
 
-    public void close()
-    {
+    public void close() {
         closed = true;
     }
 }

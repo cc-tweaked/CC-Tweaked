@@ -21,110 +21,80 @@ import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 
-public final class TurtleUpgradeRecipe extends CustomRecipe
-{
-    private TurtleUpgradeRecipe( ResourceLocation id )
-    {
-        super( id );
+public final class TurtleUpgradeRecipe extends CustomRecipe {
+    private TurtleUpgradeRecipe(ResourceLocation id) {
+        super(id);
     }
 
     @Override
-    public boolean canCraftInDimensions( int x, int y )
-    {
+    public boolean canCraftInDimensions(int x, int y) {
         return x >= 3 && y >= 1;
     }
 
     @Nonnull
     @Override
-    public ItemStack getResultItem()
-    {
-        return TurtleItemFactory.create( -1, null, -1, ComputerFamily.NORMAL, null, null, 0, null );
+    public ItemStack getResultItem() {
+        return TurtleItemFactory.create(-1, null, -1, ComputerFamily.NORMAL, null, null, 0, null);
     }
 
     @Override
-    public boolean matches( @Nonnull CraftingContainer inventory, @Nonnull Level world )
-    {
-        return !assemble( inventory ).isEmpty();
+    public boolean matches(@Nonnull CraftingContainer inventory, @Nonnull Level world) {
+        return !assemble(inventory).isEmpty();
     }
 
     @Nonnull
     @Override
-    public ItemStack assemble( @Nonnull CraftingContainer inventory )
-    {
+    public ItemStack assemble(@Nonnull CraftingContainer inventory) {
         // Scan the grid for a row containing a turtle and 1 or 2 items
-        ItemStack leftItem = ItemStack.EMPTY;
-        ItemStack turtle = ItemStack.EMPTY;
-        ItemStack rightItem = ItemStack.EMPTY;
+        var leftItem = ItemStack.EMPTY;
+        var turtle = ItemStack.EMPTY;
+        var rightItem = ItemStack.EMPTY;
 
-        for( int y = 0; y < inventory.getHeight(); y++ )
-        {
-            if( turtle.isEmpty() )
-            {
+        for (var y = 0; y < inventory.getHeight(); y++) {
+            if (turtle.isEmpty()) {
                 // Search this row for potential turtles
-                boolean finishedRow = false;
-                for( int x = 0; x < inventory.getWidth(); x++ )
-                {
-                    ItemStack item = inventory.getItem( x + y * inventory.getWidth() );
-                    if( !item.isEmpty() )
-                    {
-                        if( finishedRow )
-                        {
+                var finishedRow = false;
+                for (var x = 0; x < inventory.getWidth(); x++) {
+                    var item = inventory.getItem(x + y * inventory.getWidth());
+                    if (!item.isEmpty()) {
+                        if (finishedRow) {
                             return ItemStack.EMPTY;
                         }
 
-                        if( item.getItem() instanceof ITurtleItem )
-                        {
+                        if (item.getItem() instanceof ITurtleItem) {
                             // Item is a turtle
-                            if( turtle.isEmpty() )
-                            {
+                            if (turtle.isEmpty()) {
                                 turtle = item;
-                            }
-                            else
-                            {
+                            } else {
                                 return ItemStack.EMPTY;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             // Item is not a turtle
-                            if( turtle.isEmpty() && leftItem.isEmpty() )
-                            {
+                            if (turtle.isEmpty() && leftItem.isEmpty()) {
                                 leftItem = item;
-                            }
-                            else if( !turtle.isEmpty() && rightItem.isEmpty() )
-                            {
+                            } else if (!turtle.isEmpty() && rightItem.isEmpty()) {
                                 rightItem = item;
-                            }
-                            else
-                            {
+                            } else {
                                 return ItemStack.EMPTY;
                             }
                         }
-                    }
-                    else
-                    {
+                    } else {
                         // Item is empty
-                        if( !leftItem.isEmpty() || !turtle.isEmpty() )
-                        {
+                        if (!leftItem.isEmpty() || !turtle.isEmpty()) {
                             finishedRow = true;
                         }
                     }
                 }
 
                 // If we found anything, check we found a turtle too
-                if( turtle.isEmpty() && (!leftItem.isEmpty() || !rightItem.isEmpty()) )
-                {
+                if (turtle.isEmpty() && (!leftItem.isEmpty() || !rightItem.isEmpty())) {
                     return ItemStack.EMPTY;
                 }
-            }
-            else
-            {
+            } else {
                 // Turtle is already found, just check this row is empty
-                for( int x = 0; x < inventory.getWidth(); x++ )
-                {
-                    ItemStack item = inventory.getItem( x + y * inventory.getWidth() );
-                    if( !item.isEmpty() )
-                    {
+                for (var x = 0; x < inventory.getWidth(); x++) {
+                    var item = inventory.getItem(x + y * inventory.getWidth());
+                    if (!item.isEmpty()) {
                         return ItemStack.EMPTY;
                     }
                 }
@@ -132,47 +102,43 @@ public final class TurtleUpgradeRecipe extends CustomRecipe
         }
 
         // See if we found a turtle + one or more items
-        if( turtle.isEmpty() || leftItem.isEmpty() && rightItem.isEmpty() )
-        {
+        if (turtle.isEmpty() || leftItem.isEmpty() && rightItem.isEmpty()) {
             return ItemStack.EMPTY;
         }
 
         // At this point we have a turtle + 1 or 2 items
         // Get the turtle we already have
-        ITurtleItem itemTurtle = (ITurtleItem) turtle.getItem();
-        ComputerFamily family = itemTurtle.getFamily();
-        ITurtleUpgrade[] upgrades = new ITurtleUpgrade[] {
-            itemTurtle.getUpgrade( turtle, TurtleSide.LEFT ),
-            itemTurtle.getUpgrade( turtle, TurtleSide.RIGHT ),
+        var itemTurtle = (ITurtleItem) turtle.getItem();
+        var family = itemTurtle.getFamily();
+        var upgrades = new ITurtleUpgrade[]{
+            itemTurtle.getUpgrade(turtle, TurtleSide.LEFT),
+            itemTurtle.getUpgrade(turtle, TurtleSide.RIGHT),
         };
 
         // Get the upgrades for the new items
-        ItemStack[] items = new ItemStack[] { rightItem, leftItem };
-        for( int i = 0; i < 2; i++ )
-        {
-            if( !items[i].isEmpty() )
-            {
-                ITurtleUpgrade itemUpgrade = TurtleUpgrades.instance().get( items[i] );
-                if( itemUpgrade == null || upgrades[i] != null ) return ItemStack.EMPTY;
+        var items = new ItemStack[]{ rightItem, leftItem };
+        for (var i = 0; i < 2; i++) {
+            if (!items[i].isEmpty()) {
+                var itemUpgrade = TurtleUpgrades.instance().get(items[i]);
+                if (itemUpgrade == null || upgrades[i] != null) return ItemStack.EMPTY;
                 upgrades[i] = itemUpgrade;
             }
         }
 
         // Construct the new stack
-        int computerID = itemTurtle.getComputerID( turtle );
-        String label = itemTurtle.getLabel( turtle );
-        int fuelLevel = itemTurtle.getFuelLevel( turtle );
-        int colour = itemTurtle.getColour( turtle );
-        ResourceLocation overlay = itemTurtle.getOverlay( turtle );
-        return TurtleItemFactory.create( computerID, label, colour, family, upgrades[0], upgrades[1], fuelLevel, overlay );
+        var computerID = itemTurtle.getComputerID(turtle);
+        var label = itemTurtle.getLabel(turtle);
+        var fuelLevel = itemTurtle.getFuelLevel(turtle);
+        var colour = itemTurtle.getColour(turtle);
+        var overlay = itemTurtle.getOverlay(turtle);
+        return TurtleItemFactory.create(computerID, label, colour, family, upgrades[0], upgrades[1], fuelLevel, overlay);
     }
 
     @Nonnull
     @Override
-    public RecipeSerializer<?> getSerializer()
-    {
+    public RecipeSerializer<?> getSerializer() {
         return SERIALIZER;
     }
 
-    public static final SimpleRecipeSerializer<TurtleUpgradeRecipe> SERIALIZER = new SimpleRecipeSerializer<>( TurtleUpgradeRecipe::new );
+    public static final SimpleRecipeSerializer<TurtleUpgradeRecipe> SERIALIZER = new SimpleRecipeSerializer<>(TurtleUpgradeRecipe::new);
 }

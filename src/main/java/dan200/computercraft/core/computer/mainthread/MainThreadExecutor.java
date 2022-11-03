@@ -48,8 +48,7 @@ import java.util.concurrent.TimeUnit;
  * @see Computer#getMainThreadMonitor()
  * @see Computer#queueMainThread(Runnable)
  */
-final class MainThreadExecutor implements MainThreadScheduler.Executor
-{
+final class MainThreadExecutor implements MainThreadScheduler.Executor {
     /**
      * The maximum number of {@link MainThread} tasks allowed on the queue.
      */
@@ -68,7 +67,7 @@ final class MainThreadExecutor implements MainThreadScheduler.Executor
      *
      * @see #queueLock
      */
-    private final Queue<Runnable> tasks = new ArrayDeque<>( 4 );
+    private final Queue<Runnable> tasks = new ArrayDeque<>(4);
 
     /**
      * Determines if this executor is currently present on the queue.
@@ -110,8 +109,7 @@ final class MainThreadExecutor implements MainThreadScheduler.Executor
 
     private final MainThread scheduler;
 
-    MainThreadExecutor( MetricsObserver metrics, MainThread scheduler )
-    {
+    MainThreadExecutor(MetricsObserver metrics, MainThread scheduler) {
         this.metrics = metrics;
         this.scheduler = scheduler;
     }
@@ -123,27 +121,23 @@ final class MainThreadExecutor implements MainThreadScheduler.Executor
      * @return Whether this task was enqueued (namely, was there space).
      */
     @Override
-    public boolean enqueue( Runnable runnable )
-    {
-        synchronized( queueLock )
-        {
-            if( tasks.size() >= MAX_TASKS || !tasks.offer( runnable ) ) return false;
-            if( !onQueue && state == State.COOL ) scheduler.queue( this );
+    public boolean enqueue(Runnable runnable) {
+        synchronized (queueLock) {
+            if (tasks.size() >= MAX_TASKS || !tasks.offer(runnable)) return false;
+            if (!onQueue && state == State.COOL) scheduler.queue(this);
             return true;
         }
     }
 
-    void execute()
-    {
-        if( state != State.COOL ) return;
+    void execute() {
+        if (state != State.COOL) return;
 
         Runnable task;
-        synchronized( queueLock )
-        {
+        synchronized (queueLock) {
             task = tasks.poll();
         }
 
-        if( task != null ) task.run();
+        if (task != null) task.run();
     }
 
     /**
@@ -152,15 +146,13 @@ final class MainThreadExecutor implements MainThreadScheduler.Executor
      * @param time The time some task took to run.
      * @return Whether this should be added back to the queue.
      */
-    boolean afterExecute( long time )
-    {
-        consumeTime( time );
+    boolean afterExecute(long time) {
+        consumeTime(time);
 
-        synchronized( queueLock )
-        {
+        synchronized (queueLock) {
             virtualTime += time;
             updateTime();
-            if( state != State.COOL || tasks.isEmpty() ) return onQueue = false;
+            if (state != State.COOL || tasks.isEmpty()) return onQueue = false;
             return true;
         }
     }
@@ -171,38 +163,32 @@ final class MainThreadExecutor implements MainThreadScheduler.Executor
      * @return Whether we can execute external tasks.
      */
     @Override
-    public boolean canWork()
-    {
+    public boolean canWork() {
         return state != State.COOLING && scheduler.canExecute();
     }
 
     @Override
-    public boolean shouldWork()
-    {
+    public boolean shouldWork() {
         return state == State.COOL && scheduler.canExecute();
     }
 
     @Override
-    public void trackWork( long time, TimeUnit unit )
-    {
-        long nanoTime = unit.toNanos( time );
-        synchronized( queueLock )
-        {
+    public void trackWork(long time, TimeUnit unit) {
+        var nanoTime = unit.toNanos(time);
+        synchronized (queueLock) {
             pendingTime += nanoTime;
         }
 
-        consumeTime( nanoTime );
-        scheduler.consumeTime( nanoTime );
+        consumeTime(nanoTime);
+        scheduler.consumeTime(nanoTime);
     }
 
-    private void consumeTime( long time )
-    {
-        metrics.observe( Metrics.SERVER_TASKS, time );
+    private void consumeTime(long time) {
+        metrics.observe(Metrics.SERVER_TASKS, time);
 
         // Reset the budget if moving onto a new tick. We know this is safe, as this will only have happened if
         // #tickCooling() isn't called, and so we didn't overrun the previous tick.
-        if( currentTick != scheduler.currentTick() )
-        {
+        if (currentTick != scheduler.currentTick()) {
             currentTick = scheduler.currentTick();
             budget = ComputerCraft.maxMainComputerTime;
         }
@@ -210,10 +196,9 @@ final class MainThreadExecutor implements MainThreadScheduler.Executor
         budget -= time;
 
         // If we've gone over our limit, mark us as having to cool down.
-        if( budget < 0 && state == State.COOL )
-        {
+        if (budget < 0 && state == State.COOL) {
             state = State.HOT;
-            scheduler.cooling( this );
+            scheduler.cooling(this);
         }
     }
 
@@ -222,29 +207,25 @@ final class MainThreadExecutor implements MainThreadScheduler.Executor
      *
      * @return Whether this executor has cooled down, and so is safe to run again.
      */
-    boolean tickCooling()
-    {
+    boolean tickCooling() {
         state = State.COOLING;
         currentTick = scheduler.currentTick();
-        budget = Math.min( budget + ComputerCraft.maxMainComputerTime, ComputerCraft.maxMainComputerTime );
-        if( budget < ComputerCraft.maxMainComputerTime ) return false;
+        budget = Math.min(budget + ComputerCraft.maxMainComputerTime, ComputerCraft.maxMainComputerTime);
+        if (budget < ComputerCraft.maxMainComputerTime) return false;
 
         state = State.COOL;
-        synchronized( queueLock )
-        {
-            if( !tasks.isEmpty() && !onQueue ) scheduler.queue( this );
+        synchronized (queueLock) {
+            if (!tasks.isEmpty() && !onQueue) scheduler.queue(this);
         }
         return true;
     }
 
-    void updateTime()
-    {
+    void updateTime() {
         virtualTime += pendingTime;
         pendingTime = 0;
     }
 
-    private enum State
-    {
+    private enum State {
         COOL,
         HOT,
         COOLING,

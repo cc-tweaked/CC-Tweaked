@@ -16,8 +16,7 @@ import javax.annotation.Nonnull;
  * annotated with {@link LuaFunction}. {@link IDynamicLuaObject} is useful when you wish your available methods to
  * change at runtime.
  */
-public interface IDynamicLuaObject
-{
+public interface IDynamicLuaObject {
     /**
      * Get the names of the methods that this object implements. This should not change over the course of the object's
      * lifetime.
@@ -41,5 +40,5 @@ public interface IDynamicLuaObject
      * @throws LuaException If the function threw an exception.
      */
     @Nonnull
-    MethodResult callMethod( @Nonnull ILuaContext context, int method, @Nonnull IArguments arguments ) throws LuaException;
+    MethodResult callMethod(@Nonnull ILuaContext context, int method, @Nonnull IArguments arguments) throws LuaException;
 }

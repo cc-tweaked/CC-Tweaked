@@ -14,29 +14,24 @@ import java.io.IOException;
  * This is a quick (though racey) way of providing more friendly (and more similar to Lua)
  * error messages to the user.
  */
-public interface TrackingCloseable extends Closeable
-{
+public interface TrackingCloseable extends Closeable {
     boolean isOpen();
 
-    class Impl implements TrackingCloseable
-    {
+    class Impl implements TrackingCloseable {
         private final Closeable object;
         private boolean isOpen = true;
 
-        public Impl( Closeable object )
-        {
+        public Impl(Closeable object) {
             this.object = object;
         }
 
         @Override
-        public boolean isOpen()
-        {
+        public boolean isOpen() {
             return isOpen;
         }
 
         @Override
-        public void close() throws IOException
-        {
+        public void close() throws IOException {
             isOpen = false;
             object.close();
         }

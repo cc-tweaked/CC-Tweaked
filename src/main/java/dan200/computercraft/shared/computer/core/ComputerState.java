@@ -9,37 +9,32 @@ import net.minecraft.util.StringRepresentable;
 
 import javax.annotation.Nonnull;
 
-public enum ComputerState implements StringRepresentable
-{
-    OFF( "off", "" ),
-    ON( "on", "_on" ),
-    BLINKING( "blinking", "_blink" );
+public enum ComputerState implements StringRepresentable {
+    OFF("off", ""),
+    ON("on", "_on"),
+    BLINKING("blinking", "_blink");
 
     private final String name;
     private final String texture;
 
-    ComputerState( String name, String texture )
-    {
+    ComputerState(String name, String texture) {
         this.name = name;
         this.texture = texture;
     }
 
     @Nonnull
     @Override
-    public String getSerializedName()
-    {
+    public String getSerializedName() {
         return name;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return name;
     }
 
     @Nonnull
-    public String getTexture()
-    {
+    public String getTexture() {
         return texture;
     }
 }

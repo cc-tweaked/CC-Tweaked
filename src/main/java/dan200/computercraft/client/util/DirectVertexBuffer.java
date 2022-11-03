@@ -22,65 +22,56 @@ import java.nio.ByteBuffer;
  * <p>
  * This should probably be its own class (rather than subclassing), but I need access to {@link VertexBuffer#drawWithShader}.
  */
-public class DirectVertexBuffer extends VertexBuffer
-{
+public class DirectVertexBuffer extends VertexBuffer {
     private int actualIndexCount;
 
-    public DirectVertexBuffer()
-    {
-        if( DirectBuffers.HAS_DSA )
-        {
-            RenderSystem.glDeleteBuffers( vertexBufferId );
-            if( DirectBuffers.ON_LINUX ) BufferUploader.reset(); // See comment on DirectBuffers.deleteBuffer.
+    public DirectVertexBuffer() {
+        if (DirectBuffers.HAS_DSA) {
+            RenderSystem.glDeleteBuffers(vertexBufferId);
+            if (DirectBuffers.ON_LINUX) BufferUploader.reset(); // See comment on DirectBuffers.deleteBuffer.
             vertexBufferId = GL45C.glCreateBuffers();
         }
     }
 
-    public void upload( int vertexCount, VertexFormat.Mode mode, VertexFormat format, ByteBuffer buffer )
-    {
+    public void upload(int vertexCount, VertexFormat.Mode mode, VertexFormat format, ByteBuffer buffer) {
         bind();
 
         this.mode = mode;
-        actualIndexCount = indexCount = mode.indexCount( vertexCount );
+        actualIndexCount = indexCount = mode.indexCount(vertexCount);
         indexType = VertexFormat.IndexType.SHORT;
 
         RenderSystem.assertOnRenderThread();
 
-        DirectBuffers.setBufferData( GL15.GL_ARRAY_BUFFER, vertexBufferId, buffer, GL15.GL_STATIC_DRAW );
-        if( format != this.format )
-        {
-            if( this.format != null ) this.format.clearBufferState();
+        DirectBuffers.setBufferData(GL15.GL_ARRAY_BUFFER, vertexBufferId, buffer, GL15.GL_STATIC_DRAW);
+        if (format != this.format) {
+            if (this.format != null) this.format.clearBufferState();
             this.format = format;
 
-            GL15C.glBindBuffer( GL15C.GL_ARRAY_BUFFER, vertexBufferId );
+            GL15C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, vertexBufferId);
             format.setupBufferState();
-            GL15C.glBindBuffer( GL15C.GL_ARRAY_BUFFER, 0 );
+            GL15C.glBindBuffer(GL15C.GL_ARRAY_BUFFER, 0);
         }
 
-        RenderSystem.AutoStorageIndexBuffer indexBuffer = RenderSystem.getSequentialBuffer( mode );
-        if( indexBuffer != sequentialIndices || !indexBuffer.hasStorage( indexCount ) )
-        {
-            indexBuffer.bind( indexCount );
+        var indexBuffer = RenderSystem.getSequentialBuffer(mode);
+        if (indexBuffer != sequentialIndices || !indexBuffer.hasStorage(indexCount)) {
+            indexBuffer.bind(indexCount);
             sequentialIndices = indexBuffer;
         }
     }
 
-    public void drawWithShader( Matrix4f modelView, Matrix4f projection, ShaderInstance shader, int indexCount )
-    {
+    public void drawWithShader(Matrix4f modelView, Matrix4f projection, ShaderInstance shader, int indexCount) {
         this.indexCount = indexCount;
-        drawWithShader( modelView, projection, shader );
+        drawWithShader(modelView, projection, shader);
         this.indexCount = actualIndexCount;
     }
 
-    public int getIndexCount()
-    {
+    public int getIndexCount() {
         return actualIndexCount;
     }
 
     @Override
-    public void close()
-    {
+    public void close() {
         super.close();
-        if( DirectBuffers.ON_LINUX ) BufferUploader.reset(); // See comment on DirectBuffers.deleteBuffer.
+        if (DirectBuffers.ON_LINUX) BufferUploader.reset(); // See comment on DirectBuffers.deleteBuffer.
     }
 }

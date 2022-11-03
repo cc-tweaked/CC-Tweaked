@@ -26,8 +26,7 @@ import java.nio.ByteBuffer;
 
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.getColour;
 
-public class MonitorTextureBufferShader extends ShaderInstance
-{
+public class MonitorTextureBufferShader extends ShaderInstance {
     public static final int UNIFORM_SIZE = 4 * 4 * 16 + 4 + 4 + 2 * 4 + 4;
 
     static final int TEXTURE_INDEX = GL13.GL_TEXTURE3;
@@ -39,94 +38,81 @@ public class MonitorTextureBufferShader extends ShaderInstance
 
     private final Uniform cursorBlink;
 
-    public MonitorTextureBufferShader( ResourceProvider provider, ResourceLocation location, VertexFormat format ) throws IOException
-    {
-        super( provider, location, format );
-        monitorData = GL31.glGetUniformBlockIndex( getId(), "MonitorData" );
-        if( monitorData == -1 ) throw new IllegalStateException( "Could not find MonitorData uniform." );
+    public MonitorTextureBufferShader(ResourceProvider provider, ResourceLocation location, VertexFormat format) throws IOException {
+        super(provider, location, format);
+        monitorData = GL31.glGetUniformBlockIndex(getId(), "MonitorData");
+        if (monitorData == -1) throw new IllegalStateException("Could not find MonitorData uniform.");
 
-        cursorBlink = getUniformChecked( "CursorBlink" );
+        cursorBlink = getUniformChecked("CursorBlink");
 
-        Uniform tbo = getUniformChecked( "Tbo" );
-        if( tbo != null ) tbo.set( TEXTURE_INDEX - GL13.GL_TEXTURE0 );
+        var tbo = getUniformChecked("Tbo");
+        if (tbo != null) tbo.set(TEXTURE_INDEX - GL13.GL_TEXTURE0);
     }
 
-    public void setupUniform( int buffer )
-    {
+    public void setupUniform(int buffer) {
         uniformBuffer = buffer;
 
-        int cursorAlpha = FrameInfo.getGlobalCursorBlink() ? 1 : 0;
-        if( cursorBlink != null && cursorBlink.getIntBuffer().get( 0 ) != cursorAlpha ) cursorBlink.set( cursorAlpha );
+        var cursorAlpha = FrameInfo.getGlobalCursorBlink() ? 1 : 0;
+        if (cursorBlink != null && cursorBlink.getIntBuffer().get(0) != cursorAlpha) cursorBlink.set(cursorAlpha);
     }
 
     @Override
-    public void apply()
-    {
+    public void apply() {
         super.apply();
-        GL31.glBindBufferBase( GL31.GL_UNIFORM_BUFFER, monitorData, uniformBuffer );
+        GL31.glBindBufferBase(GL31.GL_UNIFORM_BUFFER, monitorData, uniformBuffer);
     }
 
     @Nullable
-    private Uniform getUniformChecked( String name )
-    {
-        Uniform uniform = getUniform( name );
-        if( uniform == null )
-        {
-            LOGGER.warn( "Monitor shader {} should have uniform {}, but it was not present.", getName(), name );
+    private Uniform getUniformChecked(String name) {
+        var uniform = getUniform(name);
+        if (uniform == null) {
+            LOGGER.warn("Monitor shader {} should have uniform {}, but it was not present.", getName(), name);
         }
 
         return uniform;
     }
 
-    public static void setTerminalData( ByteBuffer buffer, Terminal terminal )
-    {
+    public static void setTerminalData(ByteBuffer buffer, Terminal terminal) {
         int width = terminal.getWidth(), height = terminal.getHeight();
 
-        int pos = 0;
-        for( int y = 0; y < height; y++ )
-        {
-            TextBuffer text = terminal.getLine( y ), textColour = terminal.getTextColourLine( y ), background = terminal.getBackgroundColourLine( y );
-            for( int x = 0; x < width; x++ )
-            {
-                buffer.put( pos, (byte) (text.charAt( x ) & 0xFF) );
-                buffer.put( pos + 1, (byte) getColour( textColour.charAt( x ), Colour.WHITE ) );
-                buffer.put( pos + 2, (byte) getColour( background.charAt( x ), Colour.BLACK ) );
+        var pos = 0;
+        for (var y = 0; y < height; y++) {
+            TextBuffer text = terminal.getLine(y), textColour = terminal.getTextColourLine(y), background = terminal.getBackgroundColourLine(y);
+            for (var x = 0; x < width; x++) {
+                buffer.put(pos, (byte) (text.charAt(x) & 0xFF));
+                buffer.put(pos + 1, (byte) getColour(textColour.charAt(x), Colour.WHITE));
+                buffer.put(pos + 2, (byte) getColour(background.charAt(x), Colour.BLACK));
                 pos += 3;
             }
         }
 
-        buffer.limit( pos );
+        buffer.limit(pos);
     }
 
-    public static void setUniformData( ByteBuffer buffer, Terminal terminal )
-    {
-        int pos = 0;
+    public static void setUniformData(ByteBuffer buffer, Terminal terminal) {
+        var pos = 0;
         var palette = terminal.getPalette();
-        for( int i = 0; i < 16; i++ )
-        {
+        for (var i = 0; i < 16; i++) {
             {
-                double[] colour = palette.getColour( i );
-                if( !terminal.isColour() )
-                {
-                    float f = FixedWidthFontRenderer.toGreyscale( colour );
-                    buffer.putFloat( pos, f ).putFloat( pos + 4, f ).putFloat( pos + 8, f );
-                }
-                else
-                {
-                    buffer.putFloat( pos, (float) colour[0] ).putFloat( pos + 4, (float) colour[1] ).putFloat( pos + 8, (float) colour[2] );
+                var colour = palette.getColour(i);
+                if (!terminal.isColour()) {
+                    var f = FixedWidthFontRenderer.toGreyscale(colour);
+                    buffer.putFloat(pos, f).putFloat(pos + 4, f).putFloat(pos + 8, f);
+                } else {
+                    buffer.putFloat(pos, (float) colour[0]).putFloat(pos + 4, (float) colour[1]).putFloat(pos + 8, (float) colour[2]);
                 }
             }
 
             pos += 4 * 4; // std140 requires these are 4-wide
         }
 
-        boolean showCursor = FixedWidthFontRenderer.isCursorVisible( terminal );
+        var showCursor = FixedWidthFontRenderer.isCursorVisible(terminal);
         buffer
-            .putInt( pos, terminal.getWidth() ).putInt( pos + 4, terminal.getHeight() )
-            .putInt( pos + 8, showCursor ? terminal.getCursorX() : -2 )
-            .putInt( pos + 12, showCursor ? terminal.getCursorY() : -2 )
-            .putInt( pos + 16, 15 - terminal.getTextColour() );
+            .putInt(pos, terminal.getWidth()).putInt(pos + 4, terminal.getHeight())
+            .putInt(pos + 8, showCursor ? terminal.getCursorX() : -2)
+            .putInt(pos + 12, showCursor ? terminal.getCursorY() : -2)
+            .putInt(pos + 16, 15 - terminal.getTextColour());
 
-        buffer.limit( UNIFORM_SIZE );
+        buffer.limit(UNIFORM_SIZE);
     }
 }

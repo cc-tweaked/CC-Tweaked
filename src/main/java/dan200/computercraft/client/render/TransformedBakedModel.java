@@ -22,39 +22,33 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class TransformedBakedModel extends BakedModelWrapper<BakedModel>
-{
+public class TransformedBakedModel extends BakedModelWrapper<BakedModel> {
     private final Transformation transformation;
     private final boolean isIdentity;
 
-    public TransformedBakedModel( BakedModel model, Transformation transformation )
-    {
-        super( model );
+    public TransformedBakedModel(BakedModel model, Transformation transformation) {
+        super(model);
         this.transformation = transformation;
         isIdentity = transformation.isIdentity();
     }
 
-    public TransformedBakedModel( TransformedModel model )
-    {
-        this( model.getModel(), model.getMatrix() );
+    public TransformedBakedModel(TransformedModel model) {
+        this(model.getModel(), model.getMatrix());
     }
 
     @Nonnull
     @Override
-    public List<BakedQuad> getQuads( @Nullable BlockState state, @Nullable Direction side, @Nonnull RandomSource rand )
-    {
-        return getQuads( state, side, rand, ModelData.EMPTY, null );
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull RandomSource rand) {
+        return getQuads(state, side, rand, ModelData.EMPTY, null);
     }
 
     @Override
-    public @NotNull List<BakedQuad> getQuads( @Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData extraData, @Nullable RenderType renderType )
-    {
-        List<BakedQuad> quads = originalModel.getQuads( state, side, rand, extraData, renderType );
-        return isIdentity ? quads : QuadTransformers.applying( transformation ).process( quads );
+    public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData extraData, @Nullable RenderType renderType) {
+        var quads = originalModel.getQuads(state, side, rand, extraData, renderType);
+        return isIdentity ? quads : QuadTransformers.applying(transformation).process(quads);
     }
 
-    public TransformedBakedModel composeWith( Transformation other )
-    {
-        return new TransformedBakedModel( originalModel, other.compose( transformation ) );
+    public TransformedBakedModel composeWith(Transformation other) {
+        return new TransformedBakedModel(originalModel, other.compose(transformation));
     }
 }

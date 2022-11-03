@@ -17,14 +17,12 @@ import dan200.computercraft.core.terminal.Terminal;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public interface IAPIEnvironment
-{
+public interface IAPIEnvironment {
     String TIMER_EVENT = "timer";
 
     @FunctionalInterface
-    interface IPeripheralChangeListener
-    {
-        void onPeripheralChanged( ComputerSide side, @Nullable IPeripheral newPeripheral );
+    interface IPeripheralChangeListener {
+        void onPeripheralChanged(ComputerSide side, @Nullable IPeripheral newPeripheral);
     }
 
     int getComputerID();
@@ -47,35 +45,35 @@ public interface IAPIEnvironment
 
     void reboot();
 
-    void queueEvent( String event, Object... args );
+    void queueEvent(String event, Object... args);
 
-    void setOutput( ComputerSide side, int output );
+    void setOutput(ComputerSide side, int output);
 
-    int getOutput( ComputerSide side );
+    int getOutput(ComputerSide side);
 
-    int getInput( ComputerSide side );
+    int getInput(ComputerSide side);
 
-    void setBundledOutput( ComputerSide side, int output );
+    void setBundledOutput(ComputerSide side, int output);
 
-    int getBundledOutput( ComputerSide side );
+    int getBundledOutput(ComputerSide side);
 
-    int getBundledInput( ComputerSide side );
+    int getBundledInput(ComputerSide side);
 
-    void setPeripheralChangeListener( @Nullable IPeripheralChangeListener listener );
+    void setPeripheralChangeListener(@Nullable IPeripheralChangeListener listener);
 
     @Nullable
-    IPeripheral getPeripheral( ComputerSide side );
+    IPeripheral getPeripheral(ComputerSide side);
 
     @Nullable
     String getLabel();
 
-    void setLabel( @Nullable String label );
+    void setLabel(@Nullable String label);
 
-    int startTimer( long ticks );
+    int startTimer(long ticks);
 
-    void cancelTimer( int id );
+    void cancelTimer(int id);
 
-    void observe( @Nonnull Metric.Event event, long change );
+    void observe(@Nonnull Metric.Event event, long change);
 
-    void observe( @Nonnull Metric.Counter counter );
+    void observe(@Nonnull Metric.Counter counter);
 }

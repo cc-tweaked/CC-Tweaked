@@ -24,16 +24,14 @@ import java.util.UUID;
  *
  * @see dan200.computercraft.shared.peripheral.speaker.TileSpeaker
  */
-public class SpeakerPlayClientMessage implements NetworkMessage
-{
+public class SpeakerPlayClientMessage implements NetworkMessage {
     private final UUID source;
     private final SpeakerPosition.Message pos;
     private final ResourceLocation sound;
     private final float volume;
     private final float pitch;
 
-    public SpeakerPlayClientMessage( UUID source, SpeakerPosition pos, ResourceLocation event, float volume, float pitch )
-    {
+    public SpeakerPlayClientMessage(UUID source, SpeakerPosition pos, ResourceLocation event, float volume, float pitch) {
         this.source = source;
         this.pos = pos.asMessage();
         sound = event;
@@ -41,29 +39,26 @@ public class SpeakerPlayClientMessage implements NetworkMessage
         this.pitch = pitch;
     }
 
-    public SpeakerPlayClientMessage( FriendlyByteBuf buf )
-    {
+    public SpeakerPlayClientMessage(FriendlyByteBuf buf) {
         source = buf.readUUID();
-        pos = SpeakerPosition.Message.read( buf );
+        pos = SpeakerPosition.Message.read(buf);
         sound = buf.readResourceLocation();
         volume = buf.readFloat();
         pitch = buf.readFloat();
     }
 
     @Override
-    public void toBytes( @Nonnull FriendlyByteBuf buf )
-    {
-        buf.writeUUID( source );
-        pos.write( buf );
-        buf.writeResourceLocation( sound );
-        buf.writeFloat( volume );
-        buf.writeFloat( pitch );
+    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+        buf.writeUUID(source);
+        pos.write(buf);
+        buf.writeResourceLocation(sound);
+        buf.writeFloat(volume);
+        buf.writeFloat(pitch);
     }
 
     @Override
-    @OnlyIn( Dist.CLIENT )
-    public void handle( NetworkEvent.Context context )
-    {
-        SpeakerManager.getSound( source ).playSound( pos.reify(), sound, volume, pitch );
+    @OnlyIn(Dist.CLIENT)
+    public void handle(NetworkEvent.Context context) {
+        SpeakerManager.getSound(source).playSound(pos.reify(), sound, volume, pitch);
     }
 }

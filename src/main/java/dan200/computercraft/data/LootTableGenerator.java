@@ -42,91 +42,82 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-class LootTableGenerator extends LootTableProvider
-{
-    LootTableGenerator( DataGenerator generator )
-    {
-        super( generator );
+class LootTableGenerator extends LootTableProvider {
+    LootTableGenerator(DataGenerator generator) {
+        super(generator);
     }
 
     @Nonnull
     @Override
-    public List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootContextParamSet>> getTables()
-    {
+    public List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootContextParamSet>> getTables() {
         return List.of(
-            Pair.of( () -> LootTableGenerator::registerBlocks, LootContextParamSets.BLOCK ),
-            Pair.of( () -> LootTableGenerator::registerGeneric, LootContextParamSets.ALL_PARAMS )
+            Pair.of(() -> LootTableGenerator::registerBlocks, LootContextParamSets.BLOCK),
+            Pair.of(() -> LootTableGenerator::registerGeneric, LootContextParamSets.ALL_PARAMS)
         );
     }
 
     @Override
-    protected void validate( Map<ResourceLocation, LootTable> map, @Nonnull ValidationContext validationtracker )
-    {
-        map.forEach( ( id, table ) -> LootTables.validate( validationtracker, id, table ) );
+    protected void validate(Map<ResourceLocation, LootTable> map, @Nonnull ValidationContext validationtracker) {
+        map.forEach((id, table) -> LootTables.validate(validationtracker, id, table));
     }
 
-    private static void registerBlocks( BiConsumer<ResourceLocation, LootTable.Builder> add )
-    {
-        namedBlockDrop( add, Registry.ModBlocks.DISK_DRIVE );
-        selfDrop( add, Registry.ModBlocks.MONITOR_NORMAL );
-        selfDrop( add, Registry.ModBlocks.MONITOR_ADVANCED );
-        namedBlockDrop( add, Registry.ModBlocks.PRINTER );
-        selfDrop( add, Registry.ModBlocks.SPEAKER );
-        selfDrop( add, Registry.ModBlocks.WIRED_MODEM_FULL );
-        selfDrop( add, Registry.ModBlocks.WIRELESS_MODEM_NORMAL );
-        selfDrop( add, Registry.ModBlocks.WIRELESS_MODEM_ADVANCED );
+    private static void registerBlocks(BiConsumer<ResourceLocation, LootTable.Builder> add) {
+        namedBlockDrop(add, Registry.ModBlocks.DISK_DRIVE);
+        selfDrop(add, Registry.ModBlocks.MONITOR_NORMAL);
+        selfDrop(add, Registry.ModBlocks.MONITOR_ADVANCED);
+        namedBlockDrop(add, Registry.ModBlocks.PRINTER);
+        selfDrop(add, Registry.ModBlocks.SPEAKER);
+        selfDrop(add, Registry.ModBlocks.WIRED_MODEM_FULL);
+        selfDrop(add, Registry.ModBlocks.WIRELESS_MODEM_NORMAL);
+        selfDrop(add, Registry.ModBlocks.WIRELESS_MODEM_ADVANCED);
 
-        computerDrop( add, Registry.ModBlocks.COMPUTER_NORMAL );
-        computerDrop( add, Registry.ModBlocks.COMPUTER_ADVANCED );
-        computerDrop( add, Registry.ModBlocks.COMPUTER_COMMAND );
-        computerDrop( add, Registry.ModBlocks.TURTLE_NORMAL );
-        computerDrop( add, Registry.ModBlocks.TURTLE_ADVANCED );
+        computerDrop(add, Registry.ModBlocks.COMPUTER_NORMAL);
+        computerDrop(add, Registry.ModBlocks.COMPUTER_ADVANCED);
+        computerDrop(add, Registry.ModBlocks.COMPUTER_COMMAND);
+        computerDrop(add, Registry.ModBlocks.TURTLE_NORMAL);
+        computerDrop(add, Registry.ModBlocks.TURTLE_ADVANCED);
 
-        add.accept( Registry.ModBlocks.CABLE.get().getLootTable(), LootTable
+        add.accept(Registry.ModBlocks.CABLE.get().getLootTable(), LootTable
             .lootTable()
-            .withPool( LootPool.lootPool()
-                .setRolls( ConstantValue.exactly( 1 ) )
-                .add( LootItem.lootTableItem( Registry.ModItems.CABLE.get() ) )
-                .when( ExplosionCondition.survivesExplosion() )
-                .when( LootItemBlockStatePropertyCondition.hasBlockStateProperties( Registry.ModBlocks.CABLE.get() )
-                    .setProperties( StatePropertiesPredicate.Builder.properties().hasProperty( BlockCable.CABLE, true ) )
+            .withPool(LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1))
+                .add(LootItem.lootTableItem(Registry.ModItems.CABLE.get()))
+                .when(ExplosionCondition.survivesExplosion())
+                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(Registry.ModBlocks.CABLE.get())
+                    .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(BlockCable.CABLE, true))
                 )
             )
-            .withPool( LootPool.lootPool()
-                .setRolls( ConstantValue.exactly( 1 ) )
-                .add( LootItem.lootTableItem( Registry.ModItems.WIRED_MODEM.get() ) )
-                .when( ExplosionCondition.survivesExplosion() )
-                .when( LootItemBlockStatePropertyCondition.hasBlockStateProperties( Registry.ModBlocks.CABLE.get() )
-                    .setProperties( StatePropertiesPredicate.Builder.properties().hasProperty( BlockCable.MODEM, CableModemVariant.None ) )
+            .withPool(LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1))
+                .add(LootItem.lootTableItem(Registry.ModItems.WIRED_MODEM.get()))
+                .when(ExplosionCondition.survivesExplosion())
+                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(Registry.ModBlocks.CABLE.get())
+                    .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(BlockCable.MODEM, CableModemVariant.None))
                     .invert()
                 )
-            ) );
+            ));
     }
 
-    private static void registerGeneric( BiConsumer<ResourceLocation, LootTable.Builder> add )
-    {
-        add.accept( CommonHooks.LOOT_TREASURE_DISK, LootTable.lootTable() );
+    private static void registerGeneric(BiConsumer<ResourceLocation, LootTable.Builder> add) {
+        add.accept(CommonHooks.LOOT_TREASURE_DISK, LootTable.lootTable());
     }
 
-    private static void selfDrop( BiConsumer<ResourceLocation, LootTable.Builder> add, Supplier<? extends Block> wrapper )
-    {
-        blockDrop( add, wrapper, LootItem.lootTableItem( wrapper.get() ), ExplosionCondition.survivesExplosion() );
+    private static void selfDrop(BiConsumer<ResourceLocation, LootTable.Builder> add, Supplier<? extends Block> wrapper) {
+        blockDrop(add, wrapper, LootItem.lootTableItem(wrapper.get()), ExplosionCondition.survivesExplosion());
     }
 
-    private static void namedBlockDrop( BiConsumer<ResourceLocation, LootTable.Builder> add, Supplier<? extends Block> wrapper )
-    {
+    private static void namedBlockDrop(BiConsumer<ResourceLocation, LootTable.Builder> add, Supplier<? extends Block> wrapper) {
         blockDrop(
             add, wrapper,
-            LootItem.lootTableItem( wrapper.get() ).apply( CopyNameFunction.copyName( CopyNameFunction.NameSource.BLOCK_ENTITY ) ),
+            LootItem.lootTableItem(wrapper.get()).apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY)),
             ExplosionCondition.survivesExplosion()
         );
     }
 
-    private static void computerDrop( BiConsumer<ResourceLocation, LootTable.Builder> add, Supplier<? extends Block> block )
-    {
+    private static void computerDrop(BiConsumer<ResourceLocation, LootTable.Builder> add, Supplier<? extends Block> block) {
         blockDrop(
             add, block,
-            DynamicLoot.dynamicEntry( new ResourceLocation( ComputerCraft.MOD_ID, "computer" ) ),
+            DynamicLoot.dynamicEntry(new ResourceLocation(ComputerCraft.MOD_ID, "computer")),
             AlternativeLootItemCondition.alternative(
                 BlockNamedEntityLootCondition.BUILDER,
                 HasComputerIdLootCondition.BUILDER,
@@ -139,15 +130,14 @@ class LootTableGenerator extends LootTableProvider
         BiConsumer<ResourceLocation, LootTable.Builder> add, Supplier<? extends Block> wrapper,
         LootPoolEntryContainer.Builder<?> drop,
         LootItemCondition.Builder condition
-    )
-    {
+    ) {
         var block = wrapper.get();
-        add.accept( block.getLootTable(), LootTable
+        add.accept(block.getLootTable(), LootTable
             .lootTable()
-            .withPool( LootPool.lootPool()
-                .setRolls( ConstantValue.exactly( 1 ) )
-                .add( drop )
-                .when( condition )
+            .withPool(LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1))
+                .add(drop)
+                .when(condition)
             )
         );
     }

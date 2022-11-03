@@ -19,16 +19,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @cc.module [kind=event] file_transfer.TransferredFiles
  */
-public class TransferredFiles
-{
+public class TransferredFiles {
     private final ServerPlayer player;
     private final AbstractContainerMenu container;
-    private final AtomicBoolean consumed = new AtomicBoolean( false );
+    private final AtomicBoolean consumed = new AtomicBoolean(false);
 
     private final List<TransferredFile> files;
 
-    public TransferredFiles( ServerPlayer player, AbstractContainerMenu container, List<TransferredFile> files )
-    {
+    public TransferredFiles(ServerPlayer player, AbstractContainerMenu container, List<TransferredFile> files) {
         this.player = player;
         this.container = container;
         this.files = files;
@@ -40,19 +38,16 @@ public class TransferredFiles
      * @return The list of files.
      */
     @LuaFunction
-    public final List<TransferredFile> getFiles()
-    {
+    public final List<TransferredFile> getFiles() {
         consumed();
         return files;
     }
 
-    private void consumed()
-    {
-        if( consumed.getAndSet( true ) ) return;
+    private void consumed() {
+        if (consumed.getAndSet(true)) return;
 
-        if( player.isAlive() && player.containerMenu == container )
-        {
-            NetworkHandler.sendToPlayer( player, UploadResultMessage.consumed( container ) );
+        if (player.isAlive() && player.containerMenu == container) {
+            NetworkHandler.sendToPlayer(player, UploadResultMessage.consumed(container));
         }
     }
 }

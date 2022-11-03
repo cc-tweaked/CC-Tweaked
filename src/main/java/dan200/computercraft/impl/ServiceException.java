@@ -15,12 +15,10 @@ import javax.annotation.Nullable;
  * Do <strong>NOT</strong> directly reference this class. It exists for internal use by the API.
  */
 @ApiStatus.Internal
-class ServiceException extends RuntimeException
-{
+class ServiceException extends RuntimeException {
     private static final long serialVersionUID = -8392300691666423882L;
 
-    ServiceException( String message, @Nullable Throwable cause )
-    {
-        super( message, cause );
+    ServiceException(String message, @Nullable Throwable cause) {
+        super(message, cause);
     }
 }

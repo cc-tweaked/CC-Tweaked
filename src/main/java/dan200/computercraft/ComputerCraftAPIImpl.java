@@ -41,11 +41,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
@@ -59,175 +57,141 @@ import java.io.InputStream;
 
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_WIRED_ELEMENT;
 
-@AutoService( ComputerCraftAPIService.class )
-public final class ComputerCraftAPIImpl implements ComputerCraftAPIService
-{
-    private final DetailRegistry<ItemStack> itemStackDetails = new DetailRegistryImpl<>( ItemData::fillBasic );
-    private final DetailRegistry<BlockReference> blockDetails = new DetailRegistryImpl<>( BlockData::fillBasic );
-    private final DetailRegistry<FluidStack> fluidStackDetails = new DetailRegistryImpl<>( FluidData::fillBasic );
+@AutoService(ComputerCraftAPIService.class)
+public final class ComputerCraftAPIImpl implements ComputerCraftAPIService {
+    private final DetailRegistry<ItemStack> itemStackDetails = new DetailRegistryImpl<>(ItemData::fillBasic);
+    private final DetailRegistry<BlockReference> blockDetails = new DetailRegistryImpl<>(BlockData::fillBasic);
+    private final DetailRegistry<FluidStack> fluidStackDetails = new DetailRegistryImpl<>(FluidData::fillBasic);
 
     private String version;
 
-    public static InputStream getResourceFile( MinecraftServer server, String domain, String subPath )
-    {
-        ResourceManager manager = server.getResourceManager();
-        var resource = manager.getResource( new ResourceLocation( domain, subPath ) ).orElse( null );
-        if( resource == null ) return null;
-        try
-        {
+    public static InputStream getResourceFile(MinecraftServer server, String domain, String subPath) {
+        var manager = server.getResourceManager();
+        var resource = manager.getResource(new ResourceLocation(domain, subPath)).orElse(null);
+        if (resource == null) return null;
+        try {
             return resource.open();
-        }
-        catch( IOException ignored )
-        {
+        } catch (IOException ignored) {
             return null;
         }
     }
 
     @Nonnull
     @Override
-    public String getInstalledVersion()
-    {
-        if( version != null ) return version;
-        return version = ModList.get().getModContainerById( ComputerCraft.MOD_ID )
-            .map( x -> x.getModInfo().getVersion().toString() )
-            .orElse( "unknown" );
+    public String getInstalledVersion() {
+        if (version != null) return version;
+        return version = ModList.get().getModContainerById(ComputerCraft.MOD_ID)
+            .map(x -> x.getModInfo().getVersion().toString())
+            .orElse("unknown");
     }
 
     @Override
-    public int createUniqueNumberedSaveDir( @Nonnull Level world, @Nonnull String parentSubPath )
-    {
-        return ServerContext.get( world.getServer() ).getNextId( parentSubPath );
+    public int createUniqueNumberedSaveDir(@Nonnull Level world, @Nonnull String parentSubPath) {
+        return ServerContext.get(world.getServer()).getNextId(parentSubPath);
     }
 
     @Override
-    public IWritableMount createSaveDirMount( @Nonnull Level world, @Nonnull String subPath, long capacity )
-    {
-        try
-        {
-            return new FileMount( new File( ServerContext.get( world.getServer() ).storageDir().toFile(), subPath ), capacity );
-        }
-        catch( Exception e )
-        {
+    public IWritableMount createSaveDirMount(@Nonnull Level world, @Nonnull String subPath, long capacity) {
+        try {
+            return new FileMount(new File(ServerContext.get(world.getServer()).storageDir().toFile(), subPath), capacity);
+        } catch (Exception e) {
             return null;
         }
     }
 
     @Override
-    public IMount createResourceMount( @Nonnull String domain, @Nonnull String subPath )
-    {
-        ResourceManager manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
-        ResourceMount mount = ResourceMount.get( domain, subPath, manager );
-        return mount.exists( "" ) ? mount : null;
+    public IMount createResourceMount(@Nonnull String domain, @Nonnull String subPath) {
+        var manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
+        var mount = ResourceMount.get(domain, subPath, manager);
+        return mount.exists("") ? mount : null;
     }
 
     @Override
-    public void registerPeripheralProvider( @Nonnull IPeripheralProvider provider )
-    {
-        Peripherals.register( provider );
+    public void registerPeripheralProvider(@Nonnull IPeripheralProvider provider) {
+        Peripherals.register(provider);
     }
 
     @Override
-    public void registerGenericSource( @Nonnull GenericSource source )
-    {
-        GenericMethod.register( source );
+    public void registerGenericSource(@Nonnull GenericSource source) {
+        GenericMethod.register(source);
     }
 
     @Override
-    public void registerGenericCapability( @Nonnull Capability<?> capability )
-    {
-        GenericPeripheralProvider.addCapability( capability );
+    public void registerGenericCapability(@Nonnull Capability<?> capability) {
+        GenericPeripheralProvider.addCapability(capability);
     }
 
     @Override
-    public void registerBundledRedstoneProvider( @Nonnull IBundledRedstoneProvider provider )
-    {
-        BundledRedstone.register( provider );
+    public void registerBundledRedstoneProvider(@Nonnull IBundledRedstoneProvider provider) {
+        BundledRedstone.register(provider);
     }
 
     @Override
-    public int getBundledRedstoneOutput( @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side )
-    {
-        return BundledRedstone.getDefaultOutput( world, pos, side );
+    public int getBundledRedstoneOutput(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side) {
+        return BundledRedstone.getDefaultOutput(world, pos, side);
     }
 
     @Override
-    public void registerMediaProvider( @Nonnull IMediaProvider provider )
-    {
-        MediaProviders.register( provider );
+    public void registerMediaProvider(@Nonnull IMediaProvider provider) {
+        MediaProviders.register(provider);
     }
 
     @Nonnull
     @Override
-    public IPacketNetwork getWirelessNetwork()
-    {
+    public IPacketNetwork getWirelessNetwork() {
         return WirelessNetwork.getUniversal();
     }
 
     @Override
-    public void registerAPIFactory( @Nonnull ILuaAPIFactory factory )
-    {
-        ApiFactories.register( factory );
+    public void registerAPIFactory(@Nonnull ILuaAPIFactory factory) {
+        ApiFactories.register(factory);
     }
 
     @Override
     @Deprecated
-    @SuppressWarnings( "unchecked" )
-    public <T> void registerDetailProvider( @Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider )
-    {
-        if( type == ItemStack.class )
-        {
-            itemStackDetails.addProvider( (IDetailProvider<ItemStack>) provider );
-        }
-        else if( type == BlockReference.class )
-        {
-            blockDetails.addProvider( (IDetailProvider<BlockReference>) provider );
-        }
-        else if( type == FluidStack.class )
-        {
-            itemStackDetails.addProvider( (IDetailProvider<ItemStack>) provider );
-        }
-        else
-        {
-            throw new IllegalArgumentException( "Unknown detail provider " + type );
+    @SuppressWarnings("unchecked")
+    public <T> void registerDetailProvider(@Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider) {
+        if (type == ItemStack.class) {
+            itemStackDetails.addProvider((IDetailProvider<ItemStack>) provider);
+        } else if (type == BlockReference.class) {
+            blockDetails.addProvider((IDetailProvider<BlockReference>) provider);
+        } else if (type == FluidStack.class) {
+            itemStackDetails.addProvider((IDetailProvider<ItemStack>) provider);
+        } else {
+            throw new IllegalArgumentException("Unknown detail provider " + type);
         }
     }
 
     @Nonnull
     @Override
-    public IWiredNode createWiredNodeForElement( @Nonnull IWiredElement element )
-    {
-        return new WiredNode( element );
+    public IWiredNode createWiredNodeForElement(@Nonnull IWiredElement element) {
+        return new WiredNode(element);
     }
 
     @Nonnull
     @Override
-    public LazyOptional<IWiredElement> getWiredElementAt( @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side )
-    {
-        BlockEntity tile = world.getBlockEntity( pos );
-        return tile == null ? LazyOptional.empty() : tile.getCapability( CAPABILITY_WIRED_ELEMENT, side );
+    public LazyOptional<IWiredElement> getWiredElementAt(@Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side) {
+        var tile = world.getBlockEntity(pos);
+        return tile == null ? LazyOptional.empty() : tile.getCapability(CAPABILITY_WIRED_ELEMENT, side);
     }
 
     @Override
-    public void registerRefuelHandler( @Nonnull TurtleRefuelHandler handler )
-    {
-        TurtleRefuelHandlers.register( handler );
+    public void registerRefuelHandler(@Nonnull TurtleRefuelHandler handler) {
+        TurtleRefuelHandlers.register(handler);
     }
 
     @Override
-    public DetailRegistry<ItemStack> getItemStackDetailRegistry()
-    {
+    public DetailRegistry<ItemStack> getItemStackDetailRegistry() {
         return itemStackDetails;
     }
 
     @Override
-    public DetailRegistry<BlockReference> getBlockInWorldDetailRegistry()
-    {
+    public DetailRegistry<BlockReference> getBlockInWorldDetailRegistry() {
         return blockDetails;
     }
 
     @Override
-    public DetailRegistry<FluidStack> getFluidStackDetailRegistry()
-    {
+    public DetailRegistry<FluidStack> getFluidStackDetailRegistry() {
         return fluidStackDetails;
     }
 }

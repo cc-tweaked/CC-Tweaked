@@ -10,8 +10,7 @@ package dan200.computercraft.api.turtle;
  *
  * @see ITurtleUpgrade#getType()
  */
-public enum TurtleUpgradeType
-{
+public enum TurtleUpgradeType {
     /**
      * A tool is rendered as an item on the side of the turtle, and responds to the {@code turtle.dig()}
      * and {@code turtle.attack()} methods (Such as pickaxe or sword on Mining and Melee turtles).
@@ -31,13 +30,11 @@ public enum TurtleUpgradeType
      */
     BOTH;
 
-    public boolean isTool()
-    {
+    public boolean isTool() {
         return this == TOOL || this == BOTH;
     }
 
-    public boolean isPeripheral()
-    {
+    public boolean isPeripheral() {
         return this == PERIPHERAL || this == BOTH;
     }
 }

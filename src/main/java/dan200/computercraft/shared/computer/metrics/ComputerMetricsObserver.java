@@ -12,8 +12,7 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 /**
  * A global version of {@link MetricsObserver}, which monitors multiple computers.
  */
-public interface ComputerMetricsObserver
-{
+public interface ComputerMetricsObserver {
     /**
      * Increment a computer's counter by 1.
      *
@@ -21,7 +20,7 @@ public interface ComputerMetricsObserver
      * @param counter  The counter to observe.
      * @see MetricsObserver#observe(Metric.Counter)
      */
-    void observe( ServerComputer computer, Metric.Counter counter );
+    void observe(ServerComputer computer, Metric.Counter counter);
 
     /**
      * Observe a single instance of an event.
@@ -31,5 +30,5 @@ public interface ComputerMetricsObserver
      * @param value    The value corresponding to this event.
      * @see MetricsObserver#observe(Metric.Event, long)
      */
-    void observe( ServerComputer computer, Metric.Event event, long value );
+    void observe(ServerComputer computer, Metric.Event event, long value);
 }
