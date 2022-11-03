@@ -3,9 +3,8 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.test.core.computer;
+package dan200.computercraft.core.computer.mainthread;
 
-import dan200.computercraft.core.computer.mainthread.MainThreadScheduler;
 import dan200.computercraft.core.metrics.MetricsObserver;
 
 import javax.annotation.Nonnull;
@@ -13,8 +12,10 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A {@link MainThreadScheduler} which fails when a computer tries to enqueue work.
+ * <p>
+ * This is useful for emulators, where we'll never make any main thread calls.
  */
-public class FakeMainThreadScheduler implements MainThreadScheduler
+public class NoWorkMainThreadScheduler implements MainThreadScheduler
 {
     @Override
     public Executor createExecutor( MetricsObserver observer )

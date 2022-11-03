@@ -10,6 +10,7 @@ import dan200.computercraft.core.ComputerContext
 import dan200.computercraft.core.computer.Computer
 import dan200.computercraft.core.computer.ComputerThread
 import dan200.computercraft.core.computer.TimeoutState
+import dan200.computercraft.core.computer.mainthread.NoWorkMainThreadScheduler
 import dan200.computercraft.core.lua.MachineEnvironment
 import dan200.computercraft.core.lua.MachineResult
 import dan200.computercraft.core.terminal.Terminal
@@ -27,7 +28,7 @@ typealias FakeComputerTask = (state: TimeoutState) -> MachineResult
 class KotlinComputerManager : AutoCloseable {
 
     private val machines: MutableMap<Computer, Queue<FakeComputerTask>> = HashMap()
-    private val context = ComputerContext(BasicEnvironment(), ComputerThread(1), FakeMainThreadScheduler()) { DummyLuaMachine(it) }
+    private val context = ComputerContext(BasicEnvironment(), ComputerThread(1), NoWorkMainThreadScheduler()) { DummyLuaMachine(it) }
     private val errorLock: Lock = ReentrantLock()
     private val hasError = errorLock.newCondition()
 

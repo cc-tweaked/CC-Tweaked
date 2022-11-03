@@ -7,9 +7,9 @@ package dan200.computercraft.shared.network.server;
 
 import dan200.computercraft.shared.computer.upload.FileSlice;
 import dan200.computercraft.shared.computer.upload.FileUpload;
-import dan200.computercraft.test.core.ArbitraryByteBuffer;
 import dan200.computercraft.support.FakeContainer;
 import dan200.computercraft.support.WithMinecraft;
+import dan200.computercraft.test.core.ArbitraryByteBuffer;
 import io.netty.buffer.Unpooled;
 import net.jqwik.api.*;
 import net.minecraft.network.FriendlyByteBuf;
