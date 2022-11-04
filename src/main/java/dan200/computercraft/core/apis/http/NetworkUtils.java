@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.core.apis.http;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.core.apis.http.options.Options;
@@ -22,6 +22,8 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.handler.traffic.AbstractTrafficShapingHandler;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.net.ssl.SSLException;
@@ -37,6 +39,8 @@ import java.util.concurrent.TimeUnit;
  * Just a shared object for executing simple HTTP related tasks.
  */
 public final class NetworkUtils {
+    private static final Logger LOG = LoggerFactory.getLogger(NetworkUtils.class);
+
     public static final ScheduledThreadPoolExecutor EXECUTOR = new ScheduledThreadPoolExecutor(
         4,
         ThreadUtils.builder("Network")
@@ -50,7 +54,7 @@ public final class NetworkUtils {
     );
 
     public static final AbstractTrafficShapingHandler SHAPING_HANDLER = new GlobalTrafficShapingHandler(
-        EXECUTOR, ComputerCraft.httpUploadBandwidth, ComputerCraft.httpDownloadBandwidth
+        EXECUTOR, CoreConfig.httpUploadBandwidth, CoreConfig.httpDownloadBandwidth
     );
 
     static {
@@ -75,7 +79,7 @@ public final class NetworkUtils {
                 tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
                 tmf.init((KeyStore) null);
             } catch (Exception e) {
-                ComputerCraft.log.error("Cannot setup trust manager", e);
+                LOG.error("Cannot setup trust manager", e);
             }
 
             return trustManager = tmf;
@@ -92,7 +96,7 @@ public final class NetworkUtils {
                     .trustManager(getTrustManager())
                     .build();
             } catch (SSLException e) {
-                ComputerCraft.log.error("Cannot construct SSL context", e);
+                LOG.error("Cannot construct SSL context", e);
                 triedSslContext = true;
                 sslContext = null;
 
@@ -102,7 +106,7 @@ public final class NetworkUtils {
     }
 
     public static void reloadConfig() {
-        SHAPING_HANDLER.configure(ComputerCraft.httpUploadBandwidth, ComputerCraft.httpDownloadBandwidth);
+        SHAPING_HANDLER.configure(CoreConfig.httpUploadBandwidth, CoreConfig.httpDownloadBandwidth);
     }
 
     public static void reset() {
@@ -150,7 +154,7 @@ public final class NetworkUtils {
      * @throws HTTPRequestException If the host is not permitted
      */
     public static Options getOptions(String host, InetSocketAddress address) throws HTTPRequestException {
-        var options = AddressRule.apply(ComputerCraft.httpRules, host, address);
+        var options = AddressRule.apply(CoreConfig.httpRules, host, address);
         if (options.action == Action.DENY) throw new HTTPRequestException("Domain not permitted");
         return options;
     }

@@ -1,6 +1,6 @@
 package dan200.computercraft.core.http
 
-import dan200.computercraft.ComputerCraft
+import dan200.computercraft.core.CoreConfig
 import dan200.computercraft.core.apis.HTTPAPI
 import dan200.computercraft.core.apis.http.options.Action
 import dan200.computercraft.core.apis.http.options.AddressRule
@@ -21,13 +21,13 @@ class TestHttpApi {
         @JvmStatic
         @BeforeAll
         fun before() {
-            ComputerCraft.httpRules = listOf(AddressRule.parse("*", null, Action.ALLOW.toPartial()))
+            CoreConfig.httpRules = listOf(AddressRule.parse("*", null, Action.ALLOW.toPartial()))
         }
 
         @JvmStatic
         @AfterAll
         fun after() {
-            ComputerCraft.httpRules = Collections.unmodifiableList(
+            CoreConfig.httpRules = Collections.unmodifiableList(
                 listOf(
                     AddressRule.parse("\$private", null, Action.DENY.toPartial()),
                     AddressRule.parse("*", null, Action.ALLOW.toPartial()),

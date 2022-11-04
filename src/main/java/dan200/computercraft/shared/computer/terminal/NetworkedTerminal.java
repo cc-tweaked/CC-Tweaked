@@ -7,6 +7,7 @@ package dan200.computercraft.shared.computer.terminal;
 
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.util.Colour;
+import dan200.computercraft.shared.util.Palette;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 
@@ -39,7 +40,9 @@ public class NetworkedTerminal extends Terminal {
             }
         }
 
-        palette.write(buffer);
+        for (var i = 0; i < Palette.PALETTE_SIZE; i++) {
+            for (var channel : palette.getColour(i)) buffer.writeByte((int) (channel * 0xFF) & 0xFF);
+        }
     }
 
     public synchronized void read(FriendlyByteBuf buffer) {
@@ -64,7 +67,12 @@ public class NetworkedTerminal extends Terminal {
             }
         }
 
-        palette.read(buffer);
+        for (var i = 0; i < Palette.PALETTE_SIZE; i++) {
+            var r = (buffer.readByte() & 0xFF) / 255.0;
+            var g = (buffer.readByte() & 0xFF) / 255.0;
+            var b = (buffer.readByte() & 0xFF) / 255.0;
+            palette.setColour(i, r, g, b);
+        }
         setChanged();
     }
 
@@ -80,7 +88,10 @@ public class NetworkedTerminal extends Terminal {
             nbt.putString("term_textBgColour_" + n, backgroundColour[n].toString());
         }
 
-        palette.writeToNBT(nbt);
+        var rgb8 = new int[Palette.PALETTE_SIZE];
+        for (var i = 0; i < Palette.PALETTE_SIZE; i++) rgb8[i] = Palette.encodeRGB8(palette.getColour(i));
+        nbt.putIntArray("term_palette", rgb8);
+
         return nbt;
     }
 
@@ -106,7 +117,16 @@ public class NetworkedTerminal extends Terminal {
             }
         }
 
-        palette.readFromNBT(nbt);
+        if (nbt.contains("term_palette")) {
+            var rgb8 = nbt.getIntArray("term_palette");
+            if (rgb8.length == Palette.PALETTE_SIZE) {
+                for (var i = 0; i < Palette.PALETTE_SIZE; i++) {
+                    var colours = Palette.decodeRGB8(rgb8[i]);
+                    palette.setColour(i, colours[0], colours[1], colours[2]);
+                }
+            }
+
+        }
         setChanged();
     }
 }

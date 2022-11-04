@@ -5,11 +5,12 @@
  */
 package dan200.computercraft.core.asm;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.GenericSource;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Method;
@@ -24,6 +25,8 @@ import java.util.stream.Stream;
  * A generic method is a method belonging to a {@link GenericSource} with a known target.
  */
 public class GenericMethod {
+    private static final Logger LOG = LoggerFactory.getLogger(GenericMethod.class);
+
     final Method method;
     final LuaFunction annotation;
     final Class<?> target;
@@ -53,7 +56,7 @@ public class GenericMethod {
         Objects.requireNonNull(source, "Source cannot be null");
 
         if (cache != null) {
-            ComputerCraft.log.warn("Registering a generic source {} after cache has been built. This source will be ignored.", cache);
+            LOG.warn("Registering a generic source {} after cache has been built. This source will be ignored.", cache);
         }
 
         sources.add(source);
@@ -69,13 +72,13 @@ public class GenericMethod {
                 if (annotation == null) return null;
 
                 if (!Modifier.isStatic(method.getModifiers())) {
-                    ComputerCraft.log.error("GenericSource method {}.{} should be static.", method.getDeclaringClass(), method.getName());
+                    LOG.error("GenericSource method {}.{} should be static.", method.getDeclaringClass(), method.getName());
                     return null;
                 }
 
                 var types = method.getGenericParameterTypes();
                 if (types.length == 0) {
-                    ComputerCraft.log.error("GenericSource method {}.{} has no parameters.", method.getDeclaringClass(), method.getName());
+                    LOG.error("GenericSource method {}.{} has no parameters.", method.getDeclaringClass(), method.getName());
                     return null;
                 }
 

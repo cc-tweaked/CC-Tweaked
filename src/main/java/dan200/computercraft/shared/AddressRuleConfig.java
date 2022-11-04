@@ -3,12 +3,15 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.core.apis.http.options;
+package dan200.computercraft.shared;
 
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.core.InMemoryCommentedFormat;
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.apis.http.options.Action;
+import dan200.computercraft.core.apis.http.options.AddressRule;
+import dan200.computercraft.core.apis.http.options.PartialOptions;
 
 import javax.annotation.Nullable;
 import java.util.Locale;

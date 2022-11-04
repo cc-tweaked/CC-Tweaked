@@ -5,11 +5,11 @@
  */
 package dan200.computercraft.core.apis;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.apis.http.*;
 import dan200.computercraft.core.apis.http.request.HttpRequest;
 import dan200.computercraft.core.apis.http.websocket.Websocket;
@@ -36,8 +36,8 @@ public class HTTPAPI implements ILuaAPI {
     private final IAPIEnvironment apiEnvironment;
 
     private final ResourceGroup<CheckUrl> checkUrls = new ResourceGroup<>(ResourceGroup.DEFAULT);
-    private final ResourceGroup<HttpRequest> requests = new ResourceQueue<>(() -> ComputerCraft.httpMaxRequests);
-    private final ResourceGroup<Websocket> websockets = new ResourceGroup<>(() -> ComputerCraft.httpMaxWebsockets);
+    private final ResourceGroup<HttpRequest> requests = new ResourceQueue<>(() -> CoreConfig.httpMaxRequests);
+    private final ResourceGroup<Websocket> websockets = new ResourceGroup<>(() -> CoreConfig.httpMaxWebsockets);
 
     public HTTPAPI(IAPIEnvironment environment) {
         apiEnvironment = environment;
@@ -137,7 +137,7 @@ public class HTTPAPI implements ILuaAPI {
 
     @LuaFunction
     public final Object[] websocket(String address, Optional<Map<?, ?>> headerTbl) throws LuaException {
-        if (!ComputerCraft.httpWebsocketEnabled) {
+        if (!CoreConfig.httpWebsocketEnabled) {
             throw new LuaException("Websocket connections are disabled");
         }
 

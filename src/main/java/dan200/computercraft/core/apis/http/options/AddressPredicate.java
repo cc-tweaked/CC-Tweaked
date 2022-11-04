@@ -6,7 +6,8 @@
 package dan200.computercraft.core.apis.http.options;
 
 import com.google.common.net.InetAddresses;
-import dan200.computercraft.ComputerCraft;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -18,6 +19,8 @@ import java.util.regex.Pattern;
  * @see AddressRule#apply(Iterable, String, InetSocketAddress) for the actual handling of this rule.
  */
 interface AddressPredicate {
+    Logger LOG = LoggerFactory.getLogger(AddressPredicate.class);
+
     default boolean matches(String domain) {
         return false;
     }
@@ -53,7 +56,7 @@ interface AddressPredicate {
             try {
                 prefixSize = Integer.parseInt(prefixSizeStr);
             } catch (NumberFormatException e) {
-                ComputerCraft.log.error(
+                LOG.error(
                     "Malformed http whitelist/blacklist entry '{}': Cannot extract size of CIDR mask from '{}'.",
                     addressStr + '/' + prefixSizeStr, prefixSizeStr
                 );
@@ -64,7 +67,7 @@ interface AddressPredicate {
             try {
                 address = InetAddresses.forString(addressStr);
             } catch (IllegalArgumentException e) {
-                ComputerCraft.log.error(
+                LOG.error(
                     "Malformed http whitelist/blacklist entry '{}': Cannot extract IP address from '{}'.",
                     addressStr + '/' + prefixSizeStr, prefixSizeStr
                 );

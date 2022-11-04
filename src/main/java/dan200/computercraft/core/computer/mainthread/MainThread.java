@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.core.computer.mainthread;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.metrics.MetricsObserver;
 
 import java.util.HashSet;
@@ -21,7 +21,7 @@ import java.util.TreeSet;
  * {@link MainThread} starts cool, and runs as many tasks as it can in the current {@link #budget}ns. Any external tasks
  * (those run by tile entities, etc...) will also consume the budget
  * <p>
- * Next tick, we add {@link ComputerCraft#maxMainGlobalTime} to our budget (clamp it to that value too). If we're still
+ * Next tick, we add {@link CoreConfig#maxMainGlobalTime} to our budget (clamp it to that value too). If we're still
  * over budget, then we should not execute <em>any</em> work (either as part of {@link MainThread} or externally).
  */
 public final class MainThread implements MainThreadScheduler {
@@ -80,7 +80,7 @@ public final class MainThread implements MainThreadScheduler {
             var newRuntime = minimumTime;
 
             // Slow down new computers a little bit.
-            if (executor.virtualTime == 0) newRuntime += ComputerCraft.maxMainComputerTime;
+            if (executor.virtualTime == 0) newRuntime += CoreConfig.maxMainComputerTime;
 
             executor.virtualTime = Math.max(newRuntime, executor.virtualTime);
 
@@ -111,7 +111,7 @@ public final class MainThread implements MainThreadScheduler {
         // Of course, we'll go over the MAX_TICK_TIME most of the time, but eventually that overrun will accumulate
         // and we'll skip a whole tick - bringing the average back down again.
         currentTick++;
-        budget = Math.min(budget + ComputerCraft.maxMainGlobalTime, ComputerCraft.maxMainGlobalTime);
+        budget = Math.min(budget + CoreConfig.maxMainGlobalTime, CoreConfig.maxMainGlobalTime);
         canExecute = budget > 0;
 
         // Cool down any warm computers.

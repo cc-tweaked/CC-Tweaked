@@ -11,6 +11,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.detail.BlockReference;
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.*;
+import dan200.computercraft.core.Logging;
 import dan200.computercraft.shared.computer.blocks.TileCommandComputer;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.commands.CommandSourceStack;
@@ -56,7 +57,7 @@ public class CommandAPI implements ILuaAPI {
             var result = commandManager.performPrefixedCommand(computer.getSource(), command);
             return new Object[]{ result > 0, receiver.copyOutput(), result };
         } catch (Throwable t) {
-            if (ComputerCraft.logComputerErrors) ComputerCraft.log.error("Error running command.", t);
+            ComputerCraft.log.error(Logging.JAVA_ERROR, "Error running command.", t);
             return new Object[]{ false, createOutput("Java Exception Thrown: " + t) };
         }
     }

@@ -6,10 +6,10 @@
 package dan200.computercraft.core.filesystem;
 
 import com.google.common.io.ByteStreams;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IFileSystem;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.shared.util.IoUtil;
 
 import javax.annotation.Nonnull;
@@ -329,8 +329,8 @@ public class FileSystem {
 
     private synchronized <T extends Closeable> FileSystemWrapper<T> openFile(@Nonnull MountWrapper mount, @Nonnull Channel channel, @Nonnull T file) throws FileSystemException {
         synchronized (openFiles) {
-            if (ComputerCraft.maximumFilesOpen > 0 &&
-                openFiles.size() >= ComputerCraft.maximumFilesOpen) {
+            if (CoreConfig.maximumFilesOpen > 0 &&
+                openFiles.size() >= CoreConfig.maximumFilesOpen) {
                 IoUtil.closeQuietly(file);
                 IoUtil.closeQuietly(channel);
                 throw new FileSystemException("Too many files already open");

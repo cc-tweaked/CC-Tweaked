@@ -5,9 +5,10 @@
  */
 package dan200.computercraft.core.asm;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.LuaTable;
 import org.objectweb.asm.MethodVisitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.*;
@@ -18,6 +19,7 @@ import java.util.Optional;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 
 final class Reflect {
+    private static final Logger LOG = LoggerFactory.getLogger(Reflect.class);
     static final java.lang.reflect.Type OPTIONAL_IN = Optional.class.getTypeParameters()[0];
 
     private Reflect() {
@@ -54,7 +56,7 @@ final class Reflect {
                             continue;
                         }
 
-                        ComputerCraft.log.error("Method {}.{} has generic type {} with non-wildcard argument {}.", method.getDeclaringClass(), method.getName(), root, arg);
+                        LOG.error("Method {}.{} has generic type {} with non-wildcard argument {}.", method.getDeclaringClass(), method.getName(), root, arg);
                         return null;
                     }
                 }
@@ -64,7 +66,7 @@ final class Reflect {
                 continue;
             }
 
-            ComputerCraft.log.error("Method {}.{} has unknown generic type {}.", method.getDeclaringClass(), method.getName(), root);
+            LOG.error("Method {}.{} has unknown generic type {}.", method.getDeclaringClass(), method.getName(), root);
             return null;
         }
     }

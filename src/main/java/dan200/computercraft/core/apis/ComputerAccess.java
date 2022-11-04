@@ -5,12 +5,13 @@
  */
 package dan200.computercraft.core.apis;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IWorkMonitor;
 import dan200.computercraft.core.filesystem.FileSystemException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.HashSet;
@@ -18,6 +19,8 @@ import java.util.Objects;
 import java.util.Set;
 
 public abstract class ComputerAccess implements IComputerAccess {
+    private static final Logger LOG = LoggerFactory.getLogger(ComputerAccess.class);
+
     private final IAPIEnvironment environment;
     private final Set<String> mounts = new HashSet<>();
 
@@ -28,7 +31,7 @@ public abstract class ComputerAccess implements IComputerAccess {
     public void unmountAll() {
         var fileSystem = environment.getFileSystem();
         if (!mounts.isEmpty()) {
-            ComputerCraft.log.warn("Peripheral or API called mount but did not call unmount for {}", mounts);
+            LOG.warn("Peripheral or API called mount but did not call unmount for {}", mounts);
         }
 
         for (var mount : mounts) {

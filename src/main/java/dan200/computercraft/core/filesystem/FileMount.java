@@ -6,9 +6,10 @@
 package dan200.computercraft.core.filesystem;
 
 import com.google.common.collect.Sets;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.api.filesystem.IWritableMount;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -23,6 +24,7 @@ import java.util.OptionalLong;
 import java.util.Set;
 
 public class FileMount implements IWritableMount {
+    private static final Logger LOG = LoggerFactory.getLogger(FileMount.class);
     private static final int MINIMUM_FILE_SIZE = 500;
     private static final Set<OpenOption> READ_OPTIONS = Collections.singleton(StandardOpenOption.READ);
     private static final Set<OpenOption> WRITE_OPTIONS = Sets.newHashSet(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -330,7 +332,7 @@ public class FileMount implements IWritableMount {
 
         @Override
         public FileVisitResult visitFileFailed(Path file, IOException exc) {
-            ComputerCraft.log.error("Error computing file size for {}", file, exc);
+            LOG.error("Error computing file size for {}", file, exc);
             return FileVisitResult.CONTINUE;
         }
     }
@@ -343,7 +345,7 @@ public class FileMount implements IWritableMount {
             Files.walkFileTree(file.toPath(), visitor);
             return visitor.size;
         } catch (IOException e) {
-            ComputerCraft.log.error("Error computing file size for {}", file, e);
+            LOG.error("Error computing file size for {}", file, e);
             return 0;
         }
     }

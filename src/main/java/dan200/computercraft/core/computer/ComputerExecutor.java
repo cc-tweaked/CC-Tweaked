@@ -5,11 +5,11 @@
  */
 package dan200.computercraft.core.computer;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.core.ComputerContext;
+import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.apis.*;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
@@ -19,6 +19,8 @@ import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.shared.util.Colour;
 import dan200.computercraft.shared.util.IoUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -51,6 +53,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * method. This should only be called when the computer is actually on ({@link #isOn}).
  */
 final class ComputerExecutor {
+    private static final Logger LOG = LoggerFactory.getLogger(ComputerExecutor.class);
     private static final int QUEUE_LIMIT = 256;
 
     private final Computer computer;
@@ -175,7 +178,7 @@ final class ComputerExecutor {
         apis.add(new FSAPI(environment));
         apis.add(new PeripheralAPI(environment));
         apis.add(new OSAPI(environment));
-        if (ComputerCraft.httpEnabled) apis.add(new HTTPAPI(environment));
+        if (CoreConfig.httpEnabled) apis.add(new HTTPAPI(environment));
 
         // Load in the externally registered APIs.
         for (var factory : ApiFactories.getAll()) {
@@ -341,7 +344,7 @@ final class ComputerExecutor {
             return filesystem;
         } catch (FileSystemException e) {
             if (filesystem != null) filesystem.close();
-            ComputerCraft.log.error("Cannot mount computer filesystem", e);
+            LOG.error("Cannot mount computer filesystem", e);
 
             displayFailure("Cannot mount computer system", null);
             return null;

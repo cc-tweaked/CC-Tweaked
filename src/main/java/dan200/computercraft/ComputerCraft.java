@@ -5,8 +5,6 @@
  */
 package dan200.computercraft;
 
-import dan200.computercraft.core.apis.http.options.Action;
-import dan200.computercraft.core.apis.http.options.AddressRule;
 import dan200.computercraft.shared.Config;
 import dan200.computercraft.shared.Registry;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
@@ -14,37 +12,15 @@ import net.minecraftforge.fml.common.Mod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.OptionalInt;
-import java.util.concurrent.TimeUnit;
-
 @Mod(ComputerCraft.MOD_ID)
 public final class ComputerCraft {
     public static final String MOD_ID = "computercraft";
 
     public static int computerSpaceLimit = 1000 * 1000;
     public static int floppySpaceLimit = 125 * 1000;
-    public static int maximumFilesOpen = 128;
-    public static boolean disableLua51Features = false;
-    public static String defaultComputerSettings = "";
-    public static boolean logComputerErrors = true;
     public static boolean commandRequireCreative = true;
 
     public static int computerThreads = 1;
-    public static long maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos(10);
-    public static long maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos(5);
-
-    public static boolean httpEnabled = true;
-    public static boolean httpWebsocketEnabled = true;
-    public static List<AddressRule> httpRules = List.of(
-        AddressRule.parse("$private", OptionalInt.empty(), Action.DENY.toPartial()),
-        AddressRule.parse("*", OptionalInt.empty(), Action.ALLOW.toPartial())
-    );
-
-    public static int httpMaxRequests = 16;
-    public static int httpMaxWebsockets = 4;
-    public static int httpDownloadBandwidth = 32 * 1024 * 1024;
-    public static int httpUploadBandwidth = 32 * 1024 * 1024;
 
     public static boolean enableCommandBlock = false;
     public static int modemRange = 64;

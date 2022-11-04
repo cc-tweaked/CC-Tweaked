@@ -7,9 +7,10 @@ package dan200.computercraft.shared;
 
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.CoreConfig;
+import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.http.NetworkUtils;
 import dan200.computercraft.core.apis.http.options.Action;
-import dan200.computercraft.core.apis.http.options.AddressRuleConfig;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
@@ -18,6 +19,9 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.filter.MarkerFilter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -82,10 +86,14 @@ public final class Config {
     private static final ForgeConfigSpec serverSpec;
     private static final ForgeConfigSpec clientSpec;
 
+    private static MarkerFilter logFilter = MarkerFilter.createFilter(Logging.COMPUTER_ERROR.getName(), Filter.Result.ACCEPT, Filter.Result.NEUTRAL);
+
     private Config() {
     }
 
     static {
+        LoggerContext.getContext().addFilter(logFilter);
+
         var builder = new ForgeConfigSpec.Builder();
 
         { // General computers
@@ -102,27 +110,27 @@ public final class Config {
             maximumFilesOpen = builder
                 .comment("Set how many files a computer can have open at the same time. Set to 0 for unlimited.")
                 .translation(TRANSLATION_PREFIX + "maximum_open_files")
-                .defineInRange("maximum_open_files", ComputerCraft.maximumFilesOpen, 0, Integer.MAX_VALUE);
+                .defineInRange("maximum_open_files", CoreConfig.maximumFilesOpen, 0, Integer.MAX_VALUE);
 
             disableLua51Features = builder
                 .comment("""
                     Set this to true to disable Lua 5.1 functions that will be removed in a future
                     update. Useful for ensuring forward compatibility of your programs now.""")
-                .define("disable_lua51_features", ComputerCraft.disableLua51Features);
+                .define("disable_lua51_features", CoreConfig.disableLua51Features);
 
             defaultComputerSettings = builder
                 .comment("""
                     A comma separated list of default system settings to set on new computers.
                     Example: "shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false"
                     will disable all autocompletion.""")
-                .define("default_computer_settings", ComputerCraft.defaultComputerSettings);
+                .define("default_computer_settings", CoreConfig.defaultComputerSettings);
 
             logComputerErrors = builder
                 .comment("""
                     Log exceptions thrown by peripherals and other Lua objects. This makes it easier
                     for mod authors to debug problems, but may result in log spam should people use
                     buggy methods.""")
-                .define("log_computer_errors", ComputerCraft.logComputerErrors);
+                .define("log_computer_errors", true);
 
             commandRequireCreative = builder
                 .comment("""
@@ -151,14 +159,14 @@ public final class Config {
                     milliseconds.
                     Note, we will quite possibly go over this limit, as there's no way to tell how
                     long a will take - this aims to be the upper bound of the average time.""")
-                .defineInRange("max_main_global_time", (int) TimeUnit.NANOSECONDS.toMillis(ComputerCraft.maxMainGlobalTime), 1, Integer.MAX_VALUE);
+                .defineInRange("max_main_global_time", (int) TimeUnit.NANOSECONDS.toMillis(CoreConfig.maxMainGlobalTime), 1, Integer.MAX_VALUE);
 
             maxMainComputerTime = builder
                 .comment("""
                     The ideal maximum time a computer can execute for in a tick, in milliseconds.
                     Note, we will quite possibly go over this limit, as there's no way to tell how
                     long a will take - this aims to be the upper bound of the average time.""")
-                .defineInRange("max_main_computer_time", (int) TimeUnit.NANOSECONDS.toMillis(ComputerCraft.maxMainComputerTime), 1, Integer.MAX_VALUE);
+                .defineInRange("max_main_computer_time", (int) TimeUnit.NANOSECONDS.toMillis(CoreConfig.maxMainComputerTime), 1, Integer.MAX_VALUE);
 
             builder.pop();
         }
@@ -172,11 +180,11 @@ public final class Config {
                     Enable the "http" API on Computers. This also disables the "pastebin" and "wget"
                     programs, that many users rely on. It's recommended to leave this on and use the
                     "rules" config option to impose more fine-grained control.""")
-                .define("enabled", ComputerCraft.httpEnabled);
+                .define("enabled", CoreConfig.httpEnabled);
 
             httpWebsocketEnabled = builder
                 .comment("Enable use of http websockets. This requires the \"http_enable\" option to also be true.")
-                .define("websocket_enabled", ComputerCraft.httpWebsocketEnabled);
+                .define("websocket_enabled", CoreConfig.httpWebsocketEnabled);
 
             httpRules = builder
                 .comment("""
@@ -197,11 +205,11 @@ public final class Config {
                     The number of http requests a computer can make at one time. Additional requests
                     will be queued, and sent when the running requests have finished. Set to 0 for
                     unlimited.""")
-                .defineInRange("max_requests", ComputerCraft.httpMaxRequests, 0, Integer.MAX_VALUE);
+                .defineInRange("max_requests", CoreConfig.httpMaxRequests, 0, Integer.MAX_VALUE);
 
             httpMaxWebsockets = builder
                 .comment("The number of websockets a computer can have open at one time. Set to 0 for unlimited.")
-                .defineInRange("max_websockets", ComputerCraft.httpMaxWebsockets, 1, Integer.MAX_VALUE);
+                .defineInRange("max_websockets", CoreConfig.httpMaxWebsockets, 1, Integer.MAX_VALUE);
 
             builder
                 .comment("Limits bandwidth used by computers.")
@@ -209,11 +217,11 @@ public final class Config {
 
             httpDownloadBandwidth = builder
                 .comment("The number of bytes which can be downloaded in a second. This is shared across all computers. (bytes/s).")
-                .defineInRange("global_download", ComputerCraft.httpDownloadBandwidth, 1, Integer.MAX_VALUE);
+                .defineInRange("global_download", CoreConfig.httpDownloadBandwidth, 1, Integer.MAX_VALUE);
 
             httpUploadBandwidth = builder
                 .comment("The number of bytes which can be uploaded in a second. This is shared across all computers. (bytes/s).")
-                .defineInRange("global_upload", ComputerCraft.httpUploadBandwidth, 1, Integer.MAX_VALUE);
+                .defineInRange("global_upload", CoreConfig.httpUploadBandwidth, 1, Integer.MAX_VALUE);
 
             builder.pop();
 
@@ -349,28 +357,38 @@ public final class Config {
         // General
         ComputerCraft.computerSpaceLimit = computerSpaceLimit.get();
         ComputerCraft.floppySpaceLimit = floppySpaceLimit.get();
-        ComputerCraft.maximumFilesOpen = maximumFilesOpen.get();
-        ComputerCraft.disableLua51Features = disableLua51Features.get();
-        ComputerCraft.defaultComputerSettings = defaultComputerSettings.get();
+        CoreConfig.maximumFilesOpen = maximumFilesOpen.get();
+        CoreConfig.disableLua51Features = disableLua51Features.get();
+        CoreConfig.defaultComputerSettings = defaultComputerSettings.get();
         ComputerCraft.computerThreads = computerThreads.get();
-        ComputerCraft.logComputerErrors = logComputerErrors.get();
         ComputerCraft.commandRequireCreative = commandRequireCreative.get();
 
         // Execution
         ComputerCraft.computerThreads = computerThreads.get();
-        ComputerCraft.maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos(maxMainGlobalTime.get());
-        ComputerCraft.maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos(maxMainComputerTime.get());
+        CoreConfig.maxMainGlobalTime = TimeUnit.MILLISECONDS.toNanos(maxMainGlobalTime.get());
+        CoreConfig.maxMainComputerTime = TimeUnit.MILLISECONDS.toNanos(maxMainComputerTime.get());
+
+        // Update our log filter if needed.
+        var logFilter = MarkerFilter.createFilter(
+            Logging.COMPUTER_ERROR.getName(),
+            logComputerErrors.get() ? Filter.Result.ACCEPT : Filter.Result.DENY,
+            Filter.Result.NEUTRAL
+        );
+        if (!logFilter.equals(Config.logFilter)) {
+            LoggerContext.getContext().removeFilter(Config.logFilter);
+            LoggerContext.getContext().addFilter(Config.logFilter = logFilter);
+        }
 
         // HTTP
-        ComputerCraft.httpEnabled = httpEnabled.get();
-        ComputerCraft.httpWebsocketEnabled = httpWebsocketEnabled.get();
-        ComputerCraft.httpRules = httpRules.get().stream()
+        CoreConfig.httpEnabled = httpEnabled.get();
+        CoreConfig.httpWebsocketEnabled = httpWebsocketEnabled.get();
+        CoreConfig.httpRules = httpRules.get().stream()
             .map(AddressRuleConfig::parseRule).filter(Objects::nonNull).toList();
 
-        ComputerCraft.httpMaxRequests = httpMaxRequests.get();
-        ComputerCraft.httpMaxWebsockets = httpMaxWebsockets.get();
-        ComputerCraft.httpDownloadBandwidth = httpDownloadBandwidth.get();
-        ComputerCraft.httpUploadBandwidth = httpUploadBandwidth.get();
+        CoreConfig.httpMaxRequests = httpMaxRequests.get();
+        CoreConfig.httpMaxWebsockets = httpMaxWebsockets.get();
+        CoreConfig.httpDownloadBandwidth = httpDownloadBandwidth.get();
+        CoreConfig.httpUploadBandwidth = httpUploadBandwidth.get();
         NetworkUtils.reloadConfig();
 
         // Peripheral

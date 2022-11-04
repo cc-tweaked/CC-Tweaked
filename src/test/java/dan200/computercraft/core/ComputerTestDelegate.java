@@ -85,8 +85,6 @@ public class ComputerTestDelegate {
 
     @BeforeEach
     public void before() throws IOException {
-        ComputerCraft.logComputerErrors = true;
-
         if (Files.deleteIfExists(REPORT_PATH)) ComputerCraft.log.info("Deleted previous coverage report.");
 
         var term = new Terminal(80, 100, true);

@@ -5,16 +5,19 @@
  */
 package dan200.computercraft.core.lua;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.IDynamicLuaObject;
 import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.ILuaFunction;
+import dan200.computercraft.core.CoreConfig;
+import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.asm.LuaMethod;
 import dan200.computercraft.core.asm.ObjectSource;
 import dan200.computercraft.core.computer.TimeoutState;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.shared.util.ThreadUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.squiddev.cobalt.*;
 import org.squiddev.cobalt.compiler.CompileException;
 import org.squiddev.cobalt.compiler.LoadState;
@@ -39,6 +42,8 @@ import static org.squiddev.cobalt.debug.DebugFrame.FLAG_HOOKED;
 import static org.squiddev.cobalt.debug.DebugFrame.FLAG_HOOKYIELD;
 
 public class CobaltLuaMachine implements ILuaMachine {
+    private static final Logger LOG = LoggerFactory.getLogger(CobaltLuaMachine.class);
+
     private static final ThreadPoolExecutor COROUTINES = new ThreadPoolExecutor(
         0, Integer.MAX_VALUE,
         5L, TimeUnit.MINUTES,
@@ -102,8 +107,8 @@ public class CobaltLuaMachine implements ILuaMachine {
         // Add version globals
         globals.rawset("_VERSION", valueOf("Lua 5.1"));
         globals.rawset("_HOST", valueOf(environment.hostString()));
-        globals.rawset("_CC_DEFAULT_SETTINGS", valueOf(ComputerCraft.defaultComputerSettings));
-        if (ComputerCraft.disableLua51Features) {
+        globals.rawset("_CC_DEFAULT_SETTINGS", valueOf(CoreConfig.defaultComputerSettings));
+        if (CoreConfig.disableLua51Features) {
             globals.rawset("_CC_DISABLE_LUA51_FEATURES", Constants.TRUE);
         }
     }
@@ -113,7 +118,7 @@ public class CobaltLuaMachine implements ILuaMachine {
         // Add the methods of an API to the global table
         var table = wrapLuaObject(api);
         if (table == null) {
-            ComputerCraft.log.warn("API {} does not provide any methods", api);
+            LOG.warn("API {} does not provide any methods", api);
             table = new LuaTable();
         }
 
@@ -134,7 +139,7 @@ public class CobaltLuaMachine implements ILuaMachine {
             close();
             return MachineResult.error(e);
         } catch (Exception e) {
-            ComputerCraft.log.warn("Could not load bios.lua", e);
+            LOG.warn("Could not load bios.lua", e);
             close();
             return MachineResult.GENERIC_ERROR;
         }
@@ -180,7 +185,7 @@ public class CobaltLuaMachine implements ILuaMachine {
             return MachineResult.TIMEOUT;
         } catch (LuaError e) {
             close();
-            ComputerCraft.log.warn("Top level coroutine errored", e);
+            LOG.warn("Top level coroutine errored", e);
             return MachineResult.error(e);
         }
     }
@@ -294,9 +299,7 @@ public class CobaltLuaMachine implements ILuaMachine {
             return wrapped;
         }
 
-        if (ComputerCraft.logComputerErrors) {
-            ComputerCraft.log.warn("Received unknown type '{}', returning nil.", object.getClass().getName());
-        }
+        LOG.warn(Logging.JAVA_ERROR, "Received unknown type '{}', returning nil.", object.getClass().getName());
         return Constants.NIL;
     }
 

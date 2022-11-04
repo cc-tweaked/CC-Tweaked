@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.core.apis.http.options;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.CoreConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -35,7 +35,7 @@ public class AddressRuleTest {
         "172.17.0.1", "192.168.1.114", "[0:0:0:0:0:ffff:c0a8:172]", "10.0.0.1"
     })
     public void blocksLocalDomains(String domain) {
-        assertEquals(apply(ComputerCraft.httpRules, domain, 80).action, Action.DENY);
+        assertEquals(apply(CoreConfig.httpRules, domain, 80).action, Action.DENY);
     }
 
     private Options apply(Iterable<AddressRule> rules, String host, int port) {

@@ -5,11 +5,13 @@
  */
 package dan200.computercraft.core.lua;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.MethodResult;
+import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.asm.LuaMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.squiddev.cobalt.LuaError;
 import org.squiddev.cobalt.LuaState;
 import org.squiddev.cobalt.Varargs;
@@ -21,6 +23,7 @@ import org.squiddev.cobalt.function.VarArgFunction;
  * As we never yield, we do not need to push a function to the stack, which removes a small amount of overhead.
  */
 class BasicFunction extends VarArgFunction {
+    private static final Logger LOG = LoggerFactory.getLogger(BasicFunction.class);
     private final CobaltLuaMachine machine;
     private final LuaMethod method;
     private final Object instance;
@@ -44,9 +47,7 @@ class BasicFunction extends VarArgFunction {
         } catch (LuaException e) {
             throw wrap(e);
         } catch (Throwable t) {
-            if (ComputerCraft.logComputerErrors) {
-                ComputerCraft.log.error("Error calling " + name + " on " + instance, t);
-            }
+            LOG.error(Logging.JAVA_ERROR, "Error calling {} on {}", name, instance, t);
             throw new LuaError("Java Exception Thrown: " + t, 0);
         } finally {
             arguments.close();

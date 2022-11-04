@@ -10,7 +10,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.primitives.Primitives;
 import com.google.common.reflect.TypeToken;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
@@ -19,6 +18,8 @@ import dan200.computercraft.api.peripheral.PeripheralType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,6 +36,8 @@ import java.util.function.Function;
 import static org.objectweb.asm.Opcodes.*;
 
 public final class Generator<T> {
+    private static final Logger LOG = LoggerFactory.getLogger(Generator.class);
+
     private static final AtomicInteger METHOD_ID = new AtomicInteger();
 
     private static final String METHOD_NAME = "apply";
@@ -79,7 +82,7 @@ public final class Generator<T> {
         try {
             return classCache.get(klass);
         } catch (ExecutionException e) {
-            ComputerCraft.log.error("Error getting methods for {}.", klass.getName(), e.getCause());
+            LOG.error("Error getting methods for {}.", klass.getName(), e.getCause());
             return Collections.emptyList();
         }
     }
@@ -92,7 +95,7 @@ public final class Generator<T> {
             if (annotation == null) continue;
 
             if (Modifier.isStatic(method.getModifiers())) {
-                ComputerCraft.log.warn("LuaFunction method {}.{} should be an instance method.", method.getDeclaringClass(), method.getName());
+                LOG.warn("LuaFunction method {}.{} should be an instance method.", method.getDeclaringClass(), method.getName());
                 continue;
             }
 
@@ -137,32 +140,32 @@ public final class Generator<T> {
 
         // Instance methods must be final - this prevents them being overridden and potentially exposed twice.
         if (!Modifier.isStatic(modifiers) && !Modifier.isFinal(modifiers)) {
-            ComputerCraft.log.warn("Lua Method {} should be final.", name);
+            LOG.warn("Lua Method {} should be final.", name);
         }
 
         if (!Modifier.isPublic(modifiers)) {
-            ComputerCraft.log.error("Lua Method {} should be a public method.", name);
+            LOG.error("Lua Method {} should be a public method.", name);
             return Optional.empty();
         }
 
         if (!Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
-            ComputerCraft.log.error("Lua Method {} should be on a public class.", name);
+            LOG.error("Lua Method {} should be on a public class.", name);
             return Optional.empty();
         }
 
-        ComputerCraft.log.debug("Generating method wrapper for {}.", name);
+        LOG.debug("Generating method wrapper for {}.", name);
 
         var exceptions = method.getExceptionTypes();
         for (var exception : exceptions) {
             if (exception != LuaException.class) {
-                ComputerCraft.log.error("Lua Method {} cannot throw {}.", name, exception.getName());
+                LOG.error("Lua Method {} cannot throw {}.", name, exception.getName());
                 return Optional.empty();
             }
         }
 
         var annotation = method.getAnnotation(LuaFunction.class);
         if (annotation.unsafe() && annotation.mainThread()) {
-            ComputerCraft.log.error("Lua Method {} cannot use unsafe and mainThread", name);
+            LOG.error("Lua Method {} cannot use unsafe and mainThread", name);
             return Optional.empty();
         }
 
@@ -180,7 +183,7 @@ public final class Generator<T> {
             var instance = klass.asSubclass(base).getDeclaredConstructor().newInstance();
             return Optional.of(annotation.mainThread() ? wrap.apply(instance) : instance);
         } catch (ReflectiveOperationException | ClassFormatError | RuntimeException e) {
-            ComputerCraft.log.error("Error generating wrapper for {}.", name, e);
+            LOG.error("Error generating wrapper for {}.", name, e);
             return Optional.empty();
         }
 
@@ -317,7 +320,7 @@ public final class Generator<T> {
             return true;
         }
 
-        ComputerCraft.log.error("Unknown parameter type {} for method {}.{}.",
+        LOG.error("Unknown parameter type {} for method {}.{}.",
             arg.getName(), method.getDeclaringClass().getName(), method.getName());
         return null;
     }
@@ -330,7 +333,7 @@ public final class Generator<T> {
             } catch (Exception | LinkageError e) {
                 // LinkageError due to possible codegen bugs and NoClassDefFoundError. The latter occurs when fetching
                 // methods on a class which references non-existent (i.e. client-only) types.
-                ComputerCraft.log.error("Error generating @LuaFunctions", e);
+                LOG.error("Error generating @LuaFunctions", e);
                 return def;
             }
         };

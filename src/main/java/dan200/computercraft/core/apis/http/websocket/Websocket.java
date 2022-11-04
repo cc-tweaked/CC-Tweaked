@@ -6,7 +6,7 @@
 package dan200.computercraft.core.apis.http.websocket;
 
 import com.google.common.base.Strings;
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.NetworkUtils;
@@ -26,6 +26,8 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
 import java.net.URI;
@@ -36,6 +38,8 @@ import java.util.concurrent.Future;
  * Provides functionality to verify and connect to a remote websocket.
  */
 public class Websocket extends Resource<Websocket> {
+    private static final Logger LOG = LoggerFactory.getLogger(Websocket.class);
+
     /**
      * We declare the maximum size to be 2^30 bytes. While messages can be much longer, we set an arbitrary limit as
      * working with larger messages (especially within a Lua VM) is absurd.
@@ -151,7 +155,7 @@ public class Websocket extends Resource<Websocket> {
             failure(e.getMessage());
         } catch (Exception e) {
             failure(NetworkUtils.toFriendlyError(e));
-            if (ComputerCraft.logComputerErrors) ComputerCraft.log.error("Error in websocket", e);
+            LOG.error(Logging.HTTP_ERROR, "Error in websocket", e);
         }
     }
 

@@ -5,14 +5,17 @@
  */
 package dan200.computercraft.core.computer;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.ILuaTask;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.core.Logging;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 
 class LuaContext implements ILuaContext {
+    private static final Logger LOG = LoggerFactory.getLogger(LuaContext.class);
     private final Computer computer;
 
     LuaContext(Computer computer) {
@@ -38,7 +41,7 @@ class LuaContext implements ILuaContext {
             } catch (LuaException e) {
                 computer.queueEvent("task_complete", new Object[]{ taskID, false, e.getMessage() });
             } catch (Exception t) {
-                if (ComputerCraft.logComputerErrors) ComputerCraft.log.error("Error running task", t);
+                LOG.error(Logging.JAVA_ERROR, "Error running task", t);
                 computer.queueEvent("task_complete", new Object[]{
                     taskID, false, "Java Exception Thrown: " + t,
                 });

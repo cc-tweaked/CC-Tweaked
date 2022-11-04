@@ -5,13 +5,10 @@
  */
 package dan200.computercraft.shared.util;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-
 import javax.annotation.Nonnull;
 
 public class Palette {
-    private static final int PALETTE_SIZE = 16;
+    public static final int PALETTE_SIZE = 16;
 
     private final boolean colour;
     private final double[][] colours = new double[PALETTE_SIZE][3];
@@ -27,7 +24,7 @@ public class Palette {
     }
 
     public void setColour(int i, double r, double g, double b) {
-        if (i < 0 || i >= colours.length) return;
+        if (i < 0 || i >= PALETTE_SIZE) return;
         colours[i][0] = r;
         colours[i][1] = g;
         colours[i][2] = b;
@@ -47,7 +44,7 @@ public class Palette {
     }
 
     public double[] getColour(int i) {
-        return i >= 0 && i < colours.length ? colours[i] : null;
+        return i >= 0 && i < PALETTE_SIZE ? colours[i] : null;
     }
 
     /**
@@ -65,7 +62,7 @@ public class Palette {
     }
 
     public void resetColour(int i) {
-        if (i >= 0 && i < colours.length) setColour(i, Colour.VALUES[i]);
+        if (i >= 0 && i < PALETTE_SIZE) setColour(i, Colour.VALUES[i]);
     }
 
     public void resetColours() {
@@ -88,43 +85,5 @@ public class Palette {
             ((rgb >> 8) & 0xFF) / 255.0f,
             (rgb & 0xFF) / 255.0f,
         };
-    }
-
-    public void write(FriendlyByteBuf buffer) {
-        for (var colour : colours) {
-            for (var channel : colour) buffer.writeByte((int) (channel * 0xFF) & 0xFF);
-        }
-    }
-
-    public void read(FriendlyByteBuf buffer) {
-        for (var i = 0; i < PALETTE_SIZE; i++) {
-            var r = (buffer.readByte() & 0xFF) / 255.0;
-            var g = (buffer.readByte() & 0xFF) / 255.0;
-            var b = (buffer.readByte() & 0xFF) / 255.0;
-            setColour(i, r, g, b);
-        }
-    }
-
-    public CompoundTag writeToNBT(CompoundTag nbt) {
-        var rgb8 = new int[colours.length];
-
-        for (var i = 0; i < colours.length; i++) {
-            rgb8[i] = encodeRGB8(colours[i]);
-        }
-
-        nbt.putIntArray("term_palette", rgb8);
-        return nbt;
-    }
-
-    public void readFromNBT(CompoundTag nbt) {
-        if (!nbt.contains("term_palette")) return;
-        var rgb8 = nbt.getIntArray("term_palette");
-
-        if (rgb8.length != colours.length) return;
-
-        for (var i = 0; i < colours.length; i++) {
-            var colours = decodeRGB8(rgb8[i]);
-            setColour(i, colours[0], colours[1], colours[2]);
-        }
     }
 }

@@ -7,9 +7,11 @@ package dan200.computercraft.core.computer;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.ComputerContext;
+import dan200.computercraft.core.Logging;
 import dan200.computercraft.shared.util.ThreadUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -52,6 +54,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @see ComputerExecutor For how computers actually do execution.
  */
 public final class ComputerThread {
+    private static final Logger LOG = LoggerFactory.getLogger(ComputerThread.class);
     private static final ThreadFactory monitorFactory = ThreadUtils.factory("Computer-Monitor");
     private static final ThreadFactory workerFactory = ThreadUtils.factory("Computer-Worker");
 
@@ -160,7 +163,7 @@ public final class ComputerThread {
 
     @GuardedBy("threadLock")
     private void addWorker(int index) {
-        ComputerCraft.log.trace("Spawning new worker {}.", index);
+        LOG.trace("Spawning new worker {}.", index);
         (workers[index] = new Worker(index)).owner.start();
         workerCount++;
     }
@@ -176,7 +179,7 @@ public final class ComputerThread {
 
         threadLock.lock();
         try {
-            ComputerCraft.log.trace("Possibly spawning a worker or monitor.");
+            LOG.trace("Possibly spawning a worker or monitor.");
 
             if (monitor == null || !monitor.isAlive()) (monitor = monitorFactory.newThread(new Monitor())).start();
             if (idleWorkers.get() == 0 || workerCount < workers.length) {
@@ -355,7 +358,7 @@ public final class ComputerThread {
         var currentThread = executor.executingThread.getAndSet(null);
         if (currentThread != runner.owner) {
 
-            ComputerCraft.log.error(
+            LOG.error(
                 "Expected computer #{} to be running on {}, but already running on {}. This is a SERIOUS bug, please report with your debug.log.",
                 executor.getComputer().getID(),
                 runner.owner.getName(),
@@ -422,7 +425,7 @@ public final class ComputerThread {
         // worker finishes normally.
         if (!worker.running.getAndSet(false)) return;
 
-        ComputerCraft.log.trace("Worker {} finished.", worker.index);
+        LOG.trace("Worker {} finished.", worker.index);
 
         var executor = worker.currentExecutor.getAndSet(null);
         if (executor != null) executor.afterWork();
@@ -432,7 +435,7 @@ public final class ComputerThread {
             workerCount--;
 
             if (workers[worker.index] != worker) {
-                ComputerCraft.log.error("Worker {} closed, but new runner has been spawned.", worker.index);
+                LOG.error("Worker {} closed, but new runner has been spawned.", worker.index);
             } else if (state.get() == RUNNING || (state.get() == STOPPING && hasPendingWork())) {
                 addWorker(worker.index);
                 workerCount++;
@@ -453,11 +456,11 @@ public final class ComputerThread {
     private final class Monitor implements Runnable {
         @Override
         public void run() {
-            ComputerCraft.log.trace("Monitor starting.");
+            LOG.trace("Monitor starting.");
             try {
                 runImpl();
             } finally {
-                ComputerCraft.log.trace("Monitor shutting down. Current state is {}.", state.get());
+                LOG.trace("Monitor shutting down. Current state is {}.", state.get());
             }
         }
 
@@ -470,7 +473,7 @@ public final class ComputerThread {
                     // flags, which are far less granular.
                     monitorWakeup.awaitNanos(isBusy() ? scaledPeriod() : MONITOR_WAKEUP);
                 } catch (InterruptedException e) {
-                    ComputerCraft.log.error("Monitor thread interrupted. Computers may behave very badly!", e);
+                    LOG.error("Monitor thread interrupted. Computers may behave very badly!", e);
                     break;
                 } finally {
                     computerLock.unlock();
@@ -592,7 +595,7 @@ public final class ComputerThread {
                 while (!executor.executingThread.compareAndSet(null, owner)) {
                     var existing = executor.executingThread.get();
                     if (existing != null) {
-                        ComputerCraft.log.error(
+                        LOG.error(
                             "Trying to run computer #{} on thread {}, but already running on {}. This is a SERIOUS bug, please report with your debug.log.",
                             executor.getComputer().getID(), owner.getName(), existing.getName()
                         );
@@ -614,7 +617,7 @@ public final class ComputerThread {
                 try {
                     executor.work();
                 } catch (Exception | LinkageError | VirtualMachineError e) {
-                    ComputerCraft.log.error("Error running task on computer #" + executor.getComputer().getID(), e);
+                    LOG.error("Error running task on computer #" + executor.getComputer().getID(), e);
                     // Tear down the computer immediately. There's no guarantee it's well-behaved from now on.
                     executor.fastFail();
                 } finally {
@@ -625,7 +628,7 @@ public final class ComputerThread {
         }
 
         private void reportTimeout(ComputerExecutor executor, long time) {
-            if (!ComputerCraft.logComputerErrors) return;
+            if (!LOG.isErrorEnabled(Logging.COMPUTER_ERROR)) return;
 
             // Attempt to debounce stack trace reporting, limiting ourselves to one every second. There's no need to be
             // ultra-precise in our atomics, as long as one of them wins!
@@ -654,7 +657,7 @@ public final class ComputerThread {
 
             executor.printState(builder);
 
-            ComputerCraft.log.warn(builder.toString());
+            LOG.warn(builder.toString());
         }
     }
 }

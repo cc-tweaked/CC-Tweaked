@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.core.apis.http.request;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.core.apis.handles.BinaryReadableHandle;
 import dan200.computercraft.core.apis.handles.EncodedReadableHandle;
@@ -17,6 +17,8 @@ import io.netty.buffer.CompositeByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.net.URI;
@@ -29,6 +31,8 @@ import java.util.Map;
 import static dan200.computercraft.core.apis.http.request.HttpRequest.getHeaderSize;
 
 public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpObject> implements Closeable {
+    private static final Logger LOG = LoggerFactory.getLogger(HttpRequestHandler.class);
+
     /**
      * Same as {@link io.netty.handler.codec.MessageAggregator}.
      */
@@ -158,7 +162,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        if (ComputerCraft.logComputerErrors) ComputerCraft.log.error("Error handling HTTP response", cause);
+        LOG.error(Logging.HTTP_ERROR, "Error handling HTTP response", cause);
         request.failure(NetworkUtils.toFriendlyError(cause));
     }
 

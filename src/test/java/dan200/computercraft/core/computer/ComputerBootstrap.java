@@ -12,6 +12,7 @@ import dan200.computercraft.api.lua.ILuaAPI;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.ComputerContext;
+import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.computer.mainthread.MainThread;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.test.core.computer.BasicEnvironment;
@@ -43,8 +44,7 @@ public class ComputerBootstrap {
     }
 
     public static void run(IWritableMount mount, Consumer<Computer> setup, int maxTicks) {
-        ComputerCraft.logComputerErrors = true;
-        ComputerCraft.maxMainComputerTime = ComputerCraft.maxMainGlobalTime = Integer.MAX_VALUE;
+        CoreConfig.maxMainComputerTime = CoreConfig.maxMainGlobalTime = Integer.MAX_VALUE;
 
         var term = new Terminal(ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight, true);
         var mainThread = new MainThread();

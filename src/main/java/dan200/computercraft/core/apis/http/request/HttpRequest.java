@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.core.apis.http.request;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.apis.http.HTTPRequestException;
 import dan200.computercraft.core.apis.http.NetworkUtils;
@@ -21,6 +21,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,6 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Represents an in-progress HTTP request.
  */
 public class HttpRequest extends Resource<HttpRequest> {
+    private static final Logger LOG = LoggerFactory.getLogger(HttpRequest.class);
     private static final String SUCCESS_EVENT = "http_success";
     private static final String FAILURE_EVENT = "http_failure";
 
@@ -171,7 +174,7 @@ public class HttpRequest extends Resource<HttpRequest> {
             failure(e.getMessage());
         } catch (Exception e) {
             failure(NetworkUtils.toFriendlyError(e));
-            if (ComputerCraft.logComputerErrors) ComputerCraft.log.error("Error in HTTP request", e);
+            LOG.error(Logging.HTTP_ERROR, "Error in HTTP request", e);
         }
     }
 

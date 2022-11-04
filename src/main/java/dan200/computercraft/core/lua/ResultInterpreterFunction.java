@@ -5,12 +5,14 @@
  */
 package dan200.computercraft.core.lua;
 
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.lua.ILuaCallback;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.MethodResult;
+import dan200.computercraft.core.Logging;
 import dan200.computercraft.core.asm.LuaMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.squiddev.cobalt.*;
 import org.squiddev.cobalt.debug.DebugFrame;
 import org.squiddev.cobalt.function.ResumableVarArgFunction;
@@ -22,6 +24,8 @@ import javax.annotation.Nonnull;
  * and resuming the supplied continuation.
  */
 class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterpreterFunction.Container> {
+    private static final Logger LOG = LoggerFactory.getLogger(ResultInterpreterFunction.class);
+
     @Nonnull
     static class Container {
         ILuaCallback callback;
@@ -56,9 +60,7 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
         } catch (LuaException e) {
             throw wrap(e, 0);
         } catch (Throwable t) {
-            if (ComputerCraft.logComputerErrors) {
-                ComputerCraft.log.error("Error calling " + name + " on " + instance, t);
-            }
+            LOG.error(Logging.JAVA_ERROR, "Error calling {} on {}", name, instance, t);
             throw new LuaError("Java Exception Thrown: " + t, 0);
         } finally {
             arguments.close();
@@ -82,9 +84,7 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
         } catch (LuaException e) {
             throw wrap(e, container.errorAdjust);
         } catch (Throwable t) {
-            if (ComputerCraft.logComputerErrors) {
-                ComputerCraft.log.error("Error calling " + name + " on " + container.callback, t);
-            }
+            LOG.error(Logging.JAVA_ERROR, "Error calling {} on {}", name, container.callback, t);
             throw new LuaError("Java Exception Thrown: " + t, 0);
         }
 
