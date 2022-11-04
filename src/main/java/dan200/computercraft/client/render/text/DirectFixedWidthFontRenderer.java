@@ -12,8 +12,8 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
-import dan200.computercraft.shared.util.Colour;
-import dan200.computercraft.shared.util.Palette;
+import dan200.computercraft.core.util.Colour;
+import dan200.computercraft.core.terminal.Palette;
 import org.lwjgl.system.MemoryUtil;
 
 import javax.annotation.Nonnull;

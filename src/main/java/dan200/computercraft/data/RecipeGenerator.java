@@ -21,7 +21,7 @@ import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
 import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
 import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
-import dan200.computercraft.shared.util.Colour;
+import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.util.ImpostorRecipe;
 import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;

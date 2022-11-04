@@ -11,7 +11,7 @@ import dan200.computercraft.client.FrameInfo;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
-import dan200.computercraft.shared.util.Colour;
+import dan200.computercraft.core.util.Colour;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceProvider;

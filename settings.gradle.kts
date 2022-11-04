@@ -18,6 +18,7 @@ rootProject.name = "cc-tweaked-$mcVersion"
 
 include(":mc-stubs")
 include(":core-api")
+include(":core")
 
 for (project in rootProject.children) {
     project.projectDir = file("projects/${project.name}")

@@ -32,7 +32,7 @@ public class ResourceMountTest {
         var manager = new ReloadableResourceManager(PackType.SERVER_DATA);
         var done = new CompletableFuture<Unit>();
         manager.createReload(Util.backgroundExecutor(), Util.backgroundExecutor(), done, List.of(
-            new FolderPackResources(new File("src/main/resources"))
+            new FolderPackResources(new File("projects/core/src/main/resources"))
         ));
 
         mount = ResourceMount.get("computercraft", "lua/rom", manager);

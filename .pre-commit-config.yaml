@@ -49,8 +49,7 @@ repos:
 exclude: |
   (?x)^(
     src/generated|
-    src/test/resources/test-rom/data/json-parsing/|
+    projects/core/src/test/resources/test-rom/data/json-parsing/|
     src/testMod/server-files/|
-    config/idea/|
     .*\.dfpwm
   )

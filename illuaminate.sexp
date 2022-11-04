@@ -3,9 +3,9 @@
 (sources
   /doc/
   /build/docs/luaJavadoc/
-  /src/main/resources/*/computercraft/lua/bios.lua
-  /src/main/resources/*/computercraft/lua/rom/
-  /src/test/resources/test-rom
+  /projects/core/src/main/resources/data/computercraft/lua/bios.lua
+  /projects/core/src/main/resources/data/computercraft/lua/rom/
+  /projects/core/src/test/resources/test-rom
   /src/web/mount)
 
 
@@ -34,13 +34,13 @@
     /doc/stub/
     /build/docs/luaJavadoc/
 
-    /src/main/resources/*/computercraft/lua/rom/apis/
-    /src/main/resources/*/computercraft/lua/rom/apis/command/
-    /src/main/resources/*/computercraft/lua/rom/apis/turtle/
+    /projects/core/src/main/resources/data/computercraft/lua/rom/apis/
+    /projects/core/src/main/resources/data/computercraft/lua/rom/apis/command/
+    /projects/core/src/main/resources/data/computercraft/lua/rom/apis/turtle/
 
-    /src/main/resources/*/computercraft/lua/rom/modules/main/
-    /src/main/resources/*/computercraft/lua/rom/modules/command/
-    /src/main/resources/*/computercraft/lua/rom/modules/turtle/))
+    /projects/core/src/main/resources/data/computercraft/lua/rom/modules/main/
+    /projects/core/src/main/resources/data/computercraft/lua/rom/modules/command/
+    /projects/core/src/main/resources/data/computercraft/lua/rom/modules/turtle/))
 
 (at /
   (linters
@@ -80,8 +80,8 @@
 ;; We disable the unused global linter in bios.lua and the APIs. In the future
 ;; hopefully we'll get illuaminate to handle this.
 (at
-  (/src/main/resources/*/computercraft/lua/bios.lua
-   /src/main/resources/*/computercraft/lua/rom/apis/)
+  (/projects/core/src/main/resources/data/computercraft/lua/bios.lua
+   /projects/core/src/main/resources/data/computercraft/lua/rom/apis/)
   (linters -var:unused-global)
   (lint (allow-toplevel-global true)))
 
@@ -93,18 +93,18 @@
 ;; Suppress warnings for currently undocumented modules.
 (at
   (; Lua APIs
-   /src/main/resources/*/computercraft/lua/rom/apis/io.lua
-   /src/main/resources/*/computercraft/lua/rom/apis/window.lua)
+   /projects/core/src/main/resources/data/computercraft/lua/rom/apis/io.lua
+   /projects/core/src/main/resources/data/computercraft/lua/rom/apis/window.lua)
 
   (linters -doc:undocumented -doc:undocumented-arg -doc:undocumented-return))
 
 ;; Suppress warnings for various APIs using its own deprecated members.
 (at
-  (/src/main/resources/*/computercraft/lua/bios.lua
-   /src/main/resources/*/computercraft/lua/rom/apis/turtle/turtle.lua)
+  (/projects/core/src/main/resources/data/computercraft/lua/bios.lua
+   /projects/core/src/main/resources/data/computercraft/lua/rom/apis/turtle/turtle.lua)
   (linters -var:deprecated))
 
-(at /src/test/resources/test-rom
+(at /projects/core/src/test/resources/test-rom
   ; We should still be able to test deprecated members.
   (linters -var:deprecated)
 

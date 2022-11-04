@@ -13,7 +13,7 @@ import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
-import dan200.computercraft.shared.util.Colour;
+import dan200.computercraft.core.util.Colour;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;

@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.computer.terminal;
 
-import dan200.computercraft.shared.util.IoUtil;
+import dan200.computercraft.core.util.IoUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;

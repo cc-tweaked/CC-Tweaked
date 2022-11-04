@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.util;
 
+import dan200.computercraft.core.util.Colour;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.crafting.ArmorDyeRecipe;
 

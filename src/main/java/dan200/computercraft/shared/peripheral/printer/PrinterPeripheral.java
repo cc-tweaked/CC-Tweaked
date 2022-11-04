@@ -10,7 +10,7 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.shared.util.StringUtil;
+import dan200.computercraft.core.util.StringUtil;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;

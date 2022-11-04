@@ -10,7 +10,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.TextBuffer;
-import dan200.computercraft.shared.util.Palette;
+import dan200.computercraft.core.terminal.Palette;
 import net.minecraft.client.renderer.MultiBufferSource;
 
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;

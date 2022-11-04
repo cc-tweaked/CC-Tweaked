@@ -21,7 +21,7 @@ import dan200.computercraft.core.apis.PeripheralAPI;
 import dan200.computercraft.core.asm.PeripheralMethod;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
-import dan200.computercraft.shared.util.LuaUtil;
+import dan200.computercraft.core.util.LuaUtil;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;

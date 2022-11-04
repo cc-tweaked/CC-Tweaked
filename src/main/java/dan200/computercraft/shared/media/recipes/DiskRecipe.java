@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.media.recipes;
 
 import dan200.computercraft.shared.media.items.ItemDisk;
-import dan200.computercraft.shared.util.Colour;
+import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
 import net.minecraft.resources.ResourceLocation;

@@ -26,12 +26,15 @@ val isStable = true
 val modVersion: String by extra
 val mcVersion: String by extra
 
-val allProjects = listOf(":core-api").map { evaluationDependsOn(it) }
+val allProjects = listOf(":core-api", ":core").map { evaluationDependsOn(it) }
 cct {
     allProjects.forEach { externalSources(it) }
 }
 
-java.registerFeature("extraMods") { usingSourceSet(sourceSets.main.get()) }
+java {
+    withJavadocJar()
+    registerFeature("extraMods") { usingSourceSet(sourceSets.main.get()) }
+}
 
 sourceSets {
     main {
@@ -154,16 +157,19 @@ dependencies {
     "extraModsRuntimeOnly"(fg.deobf("mezz.jei:jei-1.19.2-forge:11.3.0.262"))
     "extraModsCompileOnly"(fg.deobf("maven.modrinth:oculus:1.2.5"))
 
-    implementation(project(":core-api"))
+    implementation(project(":core"))
     "shade"(libs.cobalt)
-    "shade"("io.netty:netty-codec-http:4.1.76.Final")
+    "shade"(libs.netty.http)
 
     testFixturesApi(libs.bundles.test)
     testFixturesApi(libs.bundles.kotlin)
 
+    testImplementation(testFixtures(project(":core")))
     testImplementation(libs.bundles.test)
     testImplementation(libs.bundles.kotlin)
     testRuntimeOnly(libs.bundles.testRuntime)
+
+    testModImplementation(testFixtures(project(":core")))
 
     "cctJavadoc"(libs.cctJavadoc)
 }
@@ -192,6 +198,8 @@ val luaJavadoc by tasks.registering(Javadoc::class) {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
 
     source(sourceSets.main.get().java)
+    source(project(":core").sourceSets.main.get().java)
+
     setDestinationDir(buildDir.resolve("docs/luaJavadoc"))
     classpath = sourceSets.main.get().compileClasspath
 
@@ -209,11 +217,6 @@ val luaJavadoc by tasks.registering(Javadoc::class) {
 tasks.processResources {
     inputs.property("modVersion", modVersion)
     inputs.property("forgeVersion", libs.versions.forge.get())
-    inputs.property("gitHash", cct.gitHash)
-
-    filesMatching("data/computercraft/lua/rom/help/credits.txt") {
-        expand(mapOf("gitContributors" to cct.gitContributors.get().joinToString("\n")))
-    }
 
     filesMatching("META-INF/mods.toml") {
         expand(mapOf("forgeVersion" to libs.versions.forge.get(), "file" to mapOf("jarVersion" to modVersion)))
@@ -229,11 +232,14 @@ tasks.jar {
 
 tasks.shadowJar {
     finalizedBy("reobfShadowJar")
-
     archiveClassifier.set("")
+
+    from(allProjects.map { zipTree(it.tasks.jar.get().archiveFile) })
+
     configurations = listOf(project.configurations["shade"])
     relocate("org.squiddev.cobalt", "cc.tweaked.internal.cobalt")
-    minimize()
+    relocate("io.netty.handler.codec.http", "cc.tweaked.internal.netty")
+    // TODO: minimize(): Would be good to support once our build scripts are stabilised.
 }
 
 tasks.assemble { dependsOn("shadowJar") }
@@ -350,14 +356,6 @@ cct.jacoco(runGametest)
 tasks.check { dependsOn(runGametest) }
 
 // Upload tasks
-
-val checkChangelog by tasks.registering(CheckChangelog::class) {
-    version.set(modVersion)
-    whatsNew.set(file("src/main/resources/data/computercraft/lua/rom/help/whatsnew.md"))
-    changelog.set(file("src/main/resources/data/computercraft/lua/rom/help/changelog.md"))
-}
-
-tasks.check { dependsOn(checkChangelog) }
 
 val publishCurseForge by tasks.registering(TaskPublishCurseForge::class) {
     group = PublishingPlugin.PUBLISH_TASK_GROUP
