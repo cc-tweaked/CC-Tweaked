@@ -8,6 +8,7 @@ package dan200.computercraft.api.filesystem;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.io.Serial;
 import java.util.Objects;
 
 /**
@@ -16,6 +17,7 @@ import java.util.Objects;
  * This may be thrown from a {@link IMount} or {@link IWritableMount} to give more information about a failure.
  */
 public class FileOperationException extends IOException {
+    @Serial
     private static final long serialVersionUID = -8809108200853029849L;
 
     private final String filename;

@@ -5,7 +5,10 @@
  */
 package dan200.computercraft.core.apis.http;
 
+import java.io.Serial;
+
 public class HTTPRequestException extends Exception {
+    @Serial
     private static final long serialVersionUID = 7591208619422744652L;
 
     public HTTPRequestException(String s) {

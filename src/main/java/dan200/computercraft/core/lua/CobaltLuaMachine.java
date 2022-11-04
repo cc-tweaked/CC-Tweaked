@@ -30,6 +30,7 @@ import org.squiddev.cobalt.lib.platform.VoidResourceManipulator;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStream;
+import java.io.Serial;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.SynchronousQueue;
@@ -444,6 +445,7 @@ public class CobaltLuaMachine implements ILuaMachine {
     }
 
     private static final class HardAbortError extends Error {
+        @Serial
         private static final long serialVersionUID = 7954092008586367501L;
 
         static final HardAbortError INSTANCE = new HardAbortError();

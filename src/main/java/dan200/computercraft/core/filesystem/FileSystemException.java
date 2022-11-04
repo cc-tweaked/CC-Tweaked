@@ -5,7 +5,10 @@
  */
 package dan200.computercraft.core.filesystem;
 
+import java.io.Serial;
+
 public class FileSystemException extends Exception {
+    @Serial
     private static final long serialVersionUID = -2500631644868104029L;
 
     FileSystemException(String s) {

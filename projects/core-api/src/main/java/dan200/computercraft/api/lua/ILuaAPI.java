@@ -5,8 +5,6 @@
  */
 package dan200.computercraft.api.lua;
 
-import dan200.computercraft.api.ComputerCraftAPI;
-
 /**
  * Represents a Lua object which is stored as a global variable on computer startup. This must either provide
  * {@link LuaFunction} annotated functions or implement {@link IDynamicLuaObject}.
@@ -14,8 +12,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
  * Before implementing this interface, consider alternative methods of providing methods. It is generally preferred
  * to use peripherals to provide functionality to users.
  *
- * @see ILuaAPIFactory
- * @see ComputerCraftAPI#registerAPIFactory(ILuaAPIFactory)
+ * @see ILuaAPIFactory For providing custom APIs to computers.
  */
 public interface ILuaAPI {
     /**

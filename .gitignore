@@ -2,11 +2,12 @@
 /classes
 /logs
 /build
+/projects/*/build
 /buildSrc/build
 /out
 /doc/out/
 /node_modules
-/.jqwik-database
+.jqwik-database
 
 # Runtime directories
 /run

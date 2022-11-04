@@ -5,6 +5,7 @@ import org.gradle.api.Project
 import org.gradle.api.attributes.TestSuiteType
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.reporting.ReportingExtension
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.SourceSetContainer
@@ -31,7 +32,8 @@ abstract class CCTweakedExtension(
 
     /** Get the current git branch. */
     val gitBranch: Provider<String> = gitProvider(project, "<no git branch>") {
-        ProcessHelpers.captureOut("git", "-C", project.projectDir.absolutePath, "rev-parse", "--abbrev-ref", "HEAD").trim()
+        ProcessHelpers.captureOut("git", "-C", project.projectDir.absolutePath, "rev-parse", "--abbrev-ref", "HEAD")
+            .trim()
     }
 
     /** Get a list of all contributors to the project. */
@@ -62,6 +64,30 @@ abstract class CCTweakedExtension(
         }
 
         contributors.sortedWith(String.CASE_INSENSITIVE_ORDER)
+    }
+
+    /**
+     * References to other sources
+     */
+    val sourceDirectories: SetProperty<SourceSetReference> =
+        project.objects.setProperty(SourceSetReference::class.java)
+
+    /** All source sets referenced by this project. */
+    val sourceSets = sourceDirectories.map { x -> x.map { it.sourceSet } }
+
+    init {
+        sourceDirectories.finalizeValueOnRead()
+    }
+
+    /**
+     * Mark this project as consuming another project. Its [sourceDirectories] are added, ensuring tasks are set up
+     * correctly.
+     */
+    fun externalSources(project: Project) {
+        val otherCct = project.extensions.getByType(CCTweakedExtension::class.java)
+        for (sourceSet in otherCct.sourceSets.get()) {
+            sourceDirectories.add(SourceSetReference.external(sourceSet))
+        }
     }
 
     fun jacoco(task: NamedDomainObjectProvider<JavaExec>) {

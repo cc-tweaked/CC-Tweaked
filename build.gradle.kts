@@ -9,7 +9,6 @@ plugins {
     alias(libs.plugins.librarian)
     alias(libs.plugins.shadow)
     // Publishing
-    `maven-publish`
     alias(libs.plugins.curseForgeGradle)
     alias(libs.plugins.githubRelease)
     alias(libs.plugins.minotaur)
@@ -19,6 +18,7 @@ plugins {
     id("cc-tweaked.illuaminate")
     id("cc-tweaked.node")
     id("cc-tweaked.gametest")
+    id("cc-tweaked.publishing")
     id("cc-tweaked")
 }
 
@@ -26,9 +26,10 @@ val isStable = true
 val modVersion: String by extra
 val mcVersion: String by extra
 
-group = "org.squiddev"
-version = modVersion
-base.archivesName.set("cc-tweaked-$mcVersion")
+val allProjects = listOf(":core-api").map { evaluationDependsOn(it) }
+cct {
+    allProjects.forEach { externalSources(it) }
+}
 
 java.registerFeature("extraMods") { usingSourceSet(sourceSets.main.get()) }
 
@@ -52,7 +53,11 @@ minecraft {
 
             forceExit = false
 
-            mods.register("computercraft") { source(sourceSets.main.get()) }
+            mods.register("computercraft") {
+                cct.sourceDirectories.get().forEach {
+                    if (it.classes) sources(it.sourceSet)
+                }
+            }
         }
 
         val client by registering {
@@ -149,6 +154,7 @@ dependencies {
     "extraModsRuntimeOnly"(fg.deobf("mezz.jei:jei-1.19.2-forge:11.3.0.262"))
     "extraModsCompileOnly"(fg.deobf("maven.modrinth:oculus:1.2.5"))
 
+    implementation(project(":core-api"))
     "shade"(libs.cobalt)
     "shade"("io.netty:netty-codec-http:4.1.76.Final")
 
@@ -170,7 +176,6 @@ illuaminate {
 
 tasks.javadoc {
     include("dan200/computercraft/api/**/*.java")
-    (options as StandardJavadocDocletOptions).links("https://docs.oracle.com/en/java/javase/17/docs/api/")
 }
 
 val apiJar by tasks.registering(Jar::class) {
@@ -216,21 +221,10 @@ tasks.processResources {
 }
 
 tasks.jar {
-    isReproducibleFileOrder = true
-    isPreserveFileTimestamps = false
     finalizedBy("reobfJar")
     archiveClassifier.set("slim")
 
-    manifest {
-        attributes(
-            "Specification-Title" to "computercraft",
-            "Specification-Vendor" to "SquidDev",
-            "Specification-Version" to "1",
-            "Implementation-Title" to "cctweaked",
-            "Implementation-Version" to modVersion,
-            "Implementation-Vendor" to "SquidDev",
-        )
-    }
+    from(allProjects.map { zipTree(it.tasks.jar.get().archiveFile) })
 }
 
 tasks.shadowJar {
@@ -374,7 +368,8 @@ val publishCurseForge by tasks.registering(TaskPublishCurseForge::class) {
 
     val mainFile = upload("282001", tasks.shadowJar.get().archiveFile)
     dependsOn(tasks.shadowJar) // Ughr.
-    mainFile.changelog = "Release notes can be found on the [GitHub repository](https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v$mcVersion-$modVersion)."
+    mainFile.changelog =
+        "Release notes can be found on the [GitHub repository](https://github.com/cc-tweaked/CC-Tweaked/releases/tag/v$mcVersion-$modVersion)."
     mainFile.changelogType = "markdown"
     mainFile.releaseType = if (isStable) "release" else "alpha"
     mainFile.gameVersions.add(mcVersion)
@@ -420,41 +415,9 @@ tasks.publish { dependsOn(tasks.githubRelease) }
 
 publishing {
     publications {
-        register<MavenPublication>("maven") {
-            artifactId = base.archivesName.get()
-            from(components["java"])
+        named("maven", MavenPublication::class) {
             artifact(apiJar)
             fg.component(this)
-
-            pom {
-                name.set("CC: Tweaked")
-                description.set("CC: Tweaked is a fork of ComputerCraft, adding programmable computers, turtles and more to Minecraft.")
-                url.set("https://github.com/cc-tweaked/CC-Tweaked")
-
-                scm {
-                    url.set("https://github.com/cc-tweaked/CC-Tweaked.git")
-                }
-
-                issueManagement {
-                    system.set("github")
-                    url.set("https://github.com/cc-tweaked/CC-Tweaked/issues")
-                }
-
-                licenses {
-                    license {
-                        name.set("ComputerCraft Public License, Version 1.0")
-                        url.set("https://github.com/cc-tweaked/CC-Tweaked/blob/HEAD/LICENSE")
-                    }
-                }
-            }
-        }
-    }
-
-    repositories {
-        maven("https://squiddev.cc/maven") {
-            name = "SquidDev"
-
-            credentials(PasswordCredentials::class)
         }
     }
 }

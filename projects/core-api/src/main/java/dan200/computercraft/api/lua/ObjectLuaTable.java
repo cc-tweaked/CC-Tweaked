@@ -11,6 +11,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * An implementation of {@link LuaTable} based on a standard Java {@link Map}.
+ */
 public class ObjectLuaTable implements LuaTable<Object, Object> {
     private final Map<Object, Object> map;
 

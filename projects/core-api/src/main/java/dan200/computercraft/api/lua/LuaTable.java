@@ -11,6 +11,13 @@ import java.util.Map;
 
 import static dan200.computercraft.api.lua.LuaValues.*;
 
+/**
+ * A view of a Lua table, which may be able to access table elements in a more optimised manner than
+ * {@link IArguments#getTable(int)}.
+ *
+ * @param <K> The type of keys in a table, will typically be a wildcard.
+ * @param <V> The type of values in a table, will typically be a wildcard.
+ */
 public interface LuaTable<K, V> extends Map<K, V> {
     /**
      * Compute the length of the array part of this table.
@@ -76,7 +83,6 @@ public interface LuaTable<K, V> extends Map<K, V> {
     default int getInt(String key) throws LuaException {
         return (int) getLong(key);
     }
-
 
     @Nullable
     @Override

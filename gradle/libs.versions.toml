@@ -6,11 +6,20 @@ forge = "43.1.1"
 parchment = "2022.10.16"
 parchmentMc = "1.19.2"
 
+asm = "9.3"
 autoService = "1.0.1"
+checkerFramework = "3.12.0"
 cobalt = { strictly = "[0.5.8,0.6.0)", prefer = "0.5.8" }
+fastutil = "8.5.6"
+guava = "31.0.1-jre"
 jetbrainsAnnotations = "23.0.0"
+jsr305 = "3.0.2"
 kotlin = "1.7.10"
 kotlin-coroutines = "1.6.0"
+logback = "1.2.11"
+netty = { strictly = "[4.1.77.Final,5.0)", prefer = "4.1.77.Final" }
+nightConfig = "3.6.5"
+slf4j = "1.7.36"
 
 # Testing
 hamcrest = "2.2"
@@ -32,11 +41,18 @@ spotless = "6.8.0"
 taskTree = "2.1.0"
 
 [libraries]
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
 autoService = { module = "com.google.auto.service:auto-service", version.ref = "autoService" }
+checkerFramework = { module = "org.checkerframework:checker-qual", version.ref = "checkerFramework" }
 cobalt = { module = "org.squiddev:Cobalt", version.ref = "cobalt" }
+fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
 jetbrainsAnnotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsAnnotations" }
+jsr305 = { module = "com.google.code.findbugs:jsr305", version.ref = "jsr305" }
 kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
+netty-http = { module = "io.netty:netty-codec-http", version.ref = "netty" }
+slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 
 # Testing
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }

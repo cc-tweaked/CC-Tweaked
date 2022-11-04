@@ -11,6 +11,17 @@ plugins {
     id("com.diffplug.spotless")
 }
 
+val modVersion: String by extra
+val mcVersion: String by extra
+
+group = "cc.tweaked"
+version = modVersion
+
+base.archivesName.convention(
+    // TODO: Remove this (and the one below) once we've no longer got a root project!
+    if (project.path == rootProject.path) "cc-tweaked-$mcVersion" else "cc-tweaked-$mcVersion-${project.name}",
+)
+
 java {
     toolchain {
         languageVersion.set(CCTweakedPlugin.JAVA_VERSION)
@@ -53,6 +64,31 @@ tasks.withType(JavaCompile::class.java).configureEach {
     options.encoding = "UTF-8"
 }
 
+tasks.jar {
+    isReproducibleFileOrder = true
+    isPreserveFileTimestamps = false
+    archiveClassifier.set("slim")
+
+    manifest {
+        attributes(
+            "Specification-Title" to "computercraft",
+            "Specification-Vendor" to "SquidDev",
+            "Specification-Version" to "1",
+            "Implementation-Title" to (if (project.path == rootProject.path) "cctweaked" else "cctweaked-${project.name}"),
+            "Implementation-Version" to modVersion,
+            "Implementation-Vendor" to "SquidDev",
+        )
+    }
+}
+
+tasks.javadoc {
+    options {
+        val stdOptions = this as StandardJavadocDocletOptions
+        stdOptions.addBooleanOption("Xdoclint:all,-missing", true)
+        stdOptions.links("https://docs.oracle.com/en/java/javase/17/docs/api/")
+    }
+}
+
 tasks.test {
     finalizedBy("jacocoTestReport")
 
@@ -78,8 +114,8 @@ spotless {
     }
 
     val licenser = LicenseHeader.create(
-        api = file("config/license/api.txt"),
-        main = file("config/license/main.txt"),
+        api = rootProject.file("config/license/api.txt"),
+        main = rootProject.file("config/license/main.txt"),
     )
 
     java {

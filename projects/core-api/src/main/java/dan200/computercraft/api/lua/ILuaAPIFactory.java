@@ -5,8 +5,6 @@
  */
 package dan200.computercraft.api.lua;
 
-import dan200.computercraft.api.ComputerCraftAPI;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -14,7 +12,7 @@ import javax.annotation.Nullable;
  * Construct an {@link ILuaAPI} for a specific computer.
  *
  * @see ILuaAPI
- * @see ComputerCraftAPI#registerAPIFactory(ILuaAPIFactory)
+ * @see dan200.computercraft.api.ComputerCraftAPI#registerAPIFactory(ILuaAPIFactory)
  */
 @FunctionalInterface
 public interface ILuaAPIFactory {

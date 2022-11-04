@@ -5,9 +5,6 @@
  */
 package dan200.computercraft.api.peripheral;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -29,8 +26,8 @@ public final class PeripheralType {
     public PeripheralType(String type, Set<String> additionalTypes) {
         this.type = type;
         this.additionalTypes = additionalTypes;
-        if (additionalTypes.contains(null)) {
-            throw new IllegalArgumentException("All additional types must be non-null");
+        for (var item : additionalTypes) {
+            if (item == null) throw new NullPointerException("All additional types must be non-null");
         }
     }
 
@@ -50,7 +47,7 @@ public final class PeripheralType {
      * @return The constructed peripheral type.
      */
     public static PeripheralType ofType(@Nonnull String type) {
-        if (Strings.isNullOrEmpty(type)) throw new IllegalArgumentException("type cannot be null or empty");
+        checkTypeName("type cannot be null or empty");
         return new PeripheralType(type, Collections.emptySet());
     }
 
@@ -62,8 +59,8 @@ public final class PeripheralType {
      * @return The constructed peripheral type.
      */
     public static PeripheralType ofType(@Nonnull String type, Collection<String> additionalTypes) {
-        if (Strings.isNullOrEmpty(type)) throw new IllegalArgumentException("type cannot be null or empty");
-        return new PeripheralType(type, ImmutableSet.copyOf(additionalTypes));
+        checkTypeName("type cannot be null or empty");
+        return new PeripheralType(type, getTypes(additionalTypes));
     }
 
     /**
@@ -74,8 +71,8 @@ public final class PeripheralType {
      * @return The constructed peripheral type.
      */
     public static PeripheralType ofType(@Nonnull String type, @Nonnull String... additionalTypes) {
-        if (Strings.isNullOrEmpty(type)) throw new IllegalArgumentException("type cannot be null or empty");
-        return new PeripheralType(type, ImmutableSet.copyOf(additionalTypes));
+        checkTypeName(type);
+        return new PeripheralType(type, Set.of(additionalTypes));
     }
 
     /**
@@ -85,7 +82,7 @@ public final class PeripheralType {
      * @return The constructed peripheral type.
      */
     public static PeripheralType ofAdditional(Collection<String> additionalTypes) {
-        return new PeripheralType(null, ImmutableSet.copyOf(additionalTypes));
+        return new PeripheralType(null, getTypes(additionalTypes));
     }
 
     /**
@@ -95,7 +92,7 @@ public final class PeripheralType {
      * @return The constructed peripheral type.
      */
     public static PeripheralType ofAdditional(@Nonnull String... additionalTypes) {
-        return new PeripheralType(null, ImmutableSet.copyOf(additionalTypes));
+        return new PeripheralType(null, Set.of(additionalTypes));
     }
 
     /**
@@ -116,5 +113,15 @@ public final class PeripheralType {
      */
     public Set<String> getAdditionalTypes() {
         return additionalTypes;
+    }
+
+    private static void checkTypeName(@Nullable String type) {
+        if (type == null || type.isEmpty()) throw new IllegalArgumentException("type cannot be null or empty");
+    }
+
+    private static Set<String> getTypes(Collection<String> types) {
+        if (types.isEmpty()) return Collections.emptySet();
+        if (types.size() == 1) return Collections.singleton(types.iterator().next());
+        return Set.copyOf(types);
     }
 }

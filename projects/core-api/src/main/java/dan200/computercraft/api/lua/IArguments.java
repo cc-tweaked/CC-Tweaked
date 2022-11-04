@@ -11,8 +11,6 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Optional;
 
-import static dan200.computercraft.api.lua.LuaValues.checkFinite;
-
 /**
  * The arguments passed to a function.
  */
@@ -102,7 +100,7 @@ public interface IArguments {
      * @throws LuaException If the value is not finite.
      */
     default double getFiniteDouble(int index) throws LuaException {
-        return checkFinite(index, getDouble(index));
+        return LuaValues.checkFinite(index, getDouble(index));
     }
 
     /**

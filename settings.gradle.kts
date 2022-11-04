@@ -15,3 +15,10 @@ pluginManagement {
 
 val mcVersion: String by settings
 rootProject.name = "cc-tweaked-$mcVersion"
+
+include(":mc-stubs")
+include(":core-api")
+
+for (project in rootProject.children) {
+    project.projectDir = file("projects/${project.name}")
+}

@@ -6,7 +6,6 @@
 package dan200.computercraft.api.peripheral;
 
 import dan200.computercraft.api.lua.LuaFunction;
-import net.minecraftforge.common.capabilities.Capability;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -16,8 +15,8 @@ import java.util.Set;
 /**
  * The interface that defines a peripheral.
  * <p>
- * In order to expose a peripheral for your block or tile entity, you may either attach a {@link Capability}, or
- * register a {@link IPeripheralProvider}. This <em>cannot</em> be implemented {@link IPeripheral} directly on the tile.
+ * In order to expose a peripheral for your block or block entity, you should either attach a capability (Forge) or
+ * use the block lookup API (Fabric). This interface <em>cannot</em> be implemented directly on the block entity.
  * <p>
  * Peripherals should provide a series of methods to the user, either using {@link LuaFunction} or by implementing
  * {@link IDynamicPeripheral}.

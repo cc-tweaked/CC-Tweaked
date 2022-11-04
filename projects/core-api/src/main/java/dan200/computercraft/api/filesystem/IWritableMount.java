@@ -5,9 +5,7 @@
  */
 package dan200.computercraft.api.filesystem;
 
-import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -19,10 +17,9 @@ import java.util.OptionalLong;
  * Represents a part of a virtual filesystem that can be mounted onto a computer using {@link IComputerAccess#mount(String, IMount)}
  * or {@link IComputerAccess#mountWritable(String, IWritableMount)}, that can also be written to.
  * <p>
- * Ready made implementations of this interface can be created using
- * {@link ComputerCraftAPI#createSaveDirMount(Level, String, long)}, or you're free to implement it yourselves!
+ * Typically you will not need to implement this interface yourself, and can use the factory methods from the
+ * {@linkplain dan200.computercraft.api.ComputerCraftAPI the main ComputerCraft API}.
  *
- * @see ComputerCraftAPI#createSaveDirMount(Level, String, long)
  * @see IComputerAccess#mount(String, IMount)
  * @see IComputerAccess#mountWritable(String, IWritableMount)
  * @see IMount

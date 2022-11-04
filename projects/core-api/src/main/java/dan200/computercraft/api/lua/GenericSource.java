@@ -5,31 +5,26 @@
  */
 package dan200.computercraft.api.lua;
 
-import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.ForgeComputerCraftAPI;
+import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.api.peripheral.IPeripheralProvider;
-import dan200.computercraft.core.asm.LuaMethod;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 
 /**
- * A generic source of {@link LuaMethod} functions.
+ * A generic source of {@link LuaFunction} functions.
  * <p>
  * Unlike normal objects ({@link IDynamicLuaObject} or {@link IPeripheral}), methods do not target this object but
  * instead are defined as {@code static} and accept their target as the first parameter. This allows you to inject
- * methods onto objects you do not own, as well as declaring methods for a specific "trait" (for instance, a
- * {@link Capability}).
+ * methods onto objects you do not own, as well as declaring methods for a specific "trait" (for instance, a Forge
+ * capability or Fabric block lookup interface).
  * <p>
- * Currently the "generic peripheral" system is incompatible with normal peripherals. Normal {@link IPeripheralProvider}
- * or {@link IPeripheral} implementations take priority. Tile entities which use this system are given a peripheral name
- * determined by their id, rather than any peripheral provider. This will hopefully change in the future, once a suitable
- * design has been established.
+ * Currently the "generic peripheral" system is incompatible with normal peripherals. Peripherals explicitly provided
+ * by capabilities/the block lookup API take priority. Block entities which use this system are given a peripheral name
+ * determined by their id, rather than any peripheral provider, though additional types may be provided by overriding
+ * {@link GenericPeripheral#getType()}.
  * <p>
- * For example, the main CC: Tweaked mod defines a generic source for inventories, which works on {@link IItemHandler}s:
+ * For example, the main CC: Tweaked mod defines a generic source for inventories, which works on {@code IItemHandler}s:
  *
  * <pre>{@code
  * public class InventoryMethods implements GenericSource {
@@ -42,9 +37,10 @@ import javax.annotation.Nonnull;
  * }
  * }</pre>
  *
- * @see ComputerCraftAPI#registerGenericSource(GenericSource)
- * @see ForgeComputerCraftAPI#registerGenericCapability(Capability) New capabilities (those not built into Forge) must be
- * explicitly given to the generic peripheral system, as there is no way to enumerate all capabilities.
+ * @see dan200.computercraft.api.ComputerCraftAPI#registerGenericSource(GenericSource)
+ * @see dan200.computercraft.api.ForgeComputerCraftAPI#registerGenericCapability New capabilities (those not
+ * built into Forge) must be explicitly given to the generic peripheral system, as there is no way to enumerate all
+ * capabilities.
  */
 public interface GenericSource {
     /**
