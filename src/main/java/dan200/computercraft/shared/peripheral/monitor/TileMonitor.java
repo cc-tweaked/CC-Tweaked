@@ -12,7 +12,6 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
-import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,16 +24,12 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
 public class TileMonitor extends TileGeneric {
     public static final double RENDER_BORDER = 2.0 / 16.0;
@@ -51,7 +46,6 @@ public class TileMonitor extends TileGeneric {
     private ServerMonitor serverMonitor;
     private ClientMonitor clientMonitor;
     private MonitorPeripheral peripheral;
-    private LazyOptional<IPeripheral> peripheralCap;
     private final Set<IComputerAccess> computers = new HashSet<>();
 
     private boolean needsUpdate = false;
@@ -158,24 +152,6 @@ public class TileMonitor extends TileGeneric {
 
         if (serverMonitor.pollResized()) eachComputer(c -> c.queueEvent("monitor_resize", c.getAttachmentName()));
         if (serverMonitor.pollTerminalChanged()) MonitorWatcher.enqueue(this);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        peripheralCap = CapabilityUtil.invalidate(peripheralCap);
-    }
-
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if (cap == CAPABILITY_PERIPHERAL) {
-            createServerMonitor(); // Ensure the monitor is created before doing anything else.
-            if (peripheral == null) peripheral = new MonitorPeripheral(this);
-            if (peripheralCap == null) peripheralCap = LazyOptional.of(() -> peripheral);
-            return peripheralCap.cast();
-        }
-        return super.getCapability(cap, side);
     }
 
     @Nullable
@@ -540,6 +516,11 @@ public class TileMonitor extends TileGeneric {
                 for (var computer : monitor.computers) fun.accept(computer);
             }
         }
+    }
+
+    public IPeripheral peripheral() {
+        if (peripheral != null) return peripheral;
+        return peripheral = new MonitorPeripheral(this);
     }
 
     void addComputer(IComputerAccess computer) {

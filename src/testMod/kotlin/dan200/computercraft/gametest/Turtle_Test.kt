@@ -29,8 +29,7 @@ import net.minecraft.world.item.Items
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.FenceBlock
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.array
-import org.hamcrest.Matchers.instanceOf
+import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import java.util.*
@@ -355,7 +354,8 @@ class Turtle_Test {
         }
         thenExecute {
             helper.assertEntityNotPresent(EntityType.SHEEP)
-            val count = helper.getBlockEntity(turtlePos, ModRegistry.BlockEntities.TURTLE_NORMAL.get()).countItem(Items.WHITE_WOOL)
+            val count = helper.getBlockEntity(turtlePos, ModRegistry.BlockEntities.TURTLE_NORMAL.get())
+                .countItem(Items.WHITE_WOOL)
             if (count == 0) helper.fail("Expected turtle to have white wool", turtlePos)
         }
     }
@@ -371,7 +371,56 @@ class Turtle_Test {
         thenWaitUntil { helper.assertBlockPresent(Blocks.AIR, BlockPos(2, 2, 2)) }
     }
 
-    // TODO: Ghost peripherals?
+    /**
+     * Ensure a turtle never sees itself as a peripheral.
+     *
+     * @see <https://github.com/dan200/ComputerCraft/issues/131>
+     */
+    @GameTest
+    fun No_ghost_peripheral(helper: GameTestHelper) = helper.sequence {
+        val events = mutableListOf<String>()
+        thenOnComputer {
+            for (i in 0 until 3) {
+                if ((i % 2) == 0) turtle.up() else turtle.down()
+
+                do {
+                    val event = pullEvent()[0] as String
+                    events.add(event)
+                } while (event != "turtle_response")
+            }
+        }
+    }
+
+    /**
+     * Ensure a turtle attaches and detaches peripherals as it moves.
+     */
+    @GameTest
+    fun Peripheral_change(helper: GameTestHelper) = helper.sequence {
+        val events = mutableListOf<Pair<String, String>>()
+        thenStartComputer("listen") {
+            while (true) {
+                val event = pullEvent()
+                if (event[0] == "peripheral" || event[0] == "peripheral_detach") {
+                    events.add((event[0] as String) to (event[1] as String))
+                }
+            }
+        }
+        thenOnComputer("turtle") {
+            turtle.forward().await().assertArrayEquals(true, message = "Moved turtle forward")
+            turtle.back().await().assertArrayEquals(true, message = "Moved turtle forward")
+        }
+        thenIdle(1)
+        thenExecute {
+            assertEquals(
+                listOf(
+                    "peripheral_detach" to "right",
+                    "peripheral" to "right",
+                ),
+                events,
+            )
+        }
+    }
+
     // TODO: Turtle sucking from items
 }
 

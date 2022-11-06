@@ -9,7 +9,6 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
-import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,13 +16,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
 public class TileWirelessModem extends TileGeneric {
     private static class Peripheral extends WirelessModemPeripheral {
@@ -62,7 +57,7 @@ public class TileWirelessModem extends TileGeneric {
 
     private final ModemPeripheral modem;
     private boolean destroyed = false;
-    private LazyOptional<IPeripheral> modemCap;
+    private @Nullable Runnable modemChanged;
     private final TickScheduler.Token tickToken = new TickScheduler.Token(this);
 
     public TileWirelessModem(BlockEntityType<? extends TileWirelessModem> type, BlockPos pos, BlockState state, boolean advanced) {
@@ -90,7 +85,7 @@ public class TileWirelessModem extends TileGeneric {
     public void setBlockState(@Nonnull BlockState state) {
         var direction = getDirection();
         super.setBlockState(state);
-        if (getDirection() != direction) modemCap = CapabilityUtil.invalidate(modemCap);
+        if (getDirection() != direction && modemChanged != null) modemChanged.run();
     }
 
     @Override
@@ -111,15 +106,13 @@ public class TileWirelessModem extends TileGeneric {
         }
     }
 
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if (cap == CAPABILITY_PERIPHERAL) {
-            if (side != null && getDirection() != side) return LazyOptional.empty();
-            if (modemCap == null) modemCap = LazyOptional.of(() -> modem);
-            return modemCap.cast();
-        }
+    @Nullable
+    public IPeripheral getPeripheral(@Nullable Direction direction) {
+        if (destroyed) return null;
+        return direction == null || getDirection() == direction ? modem : null;
+    }
 
-        return super.getCapability(cap, side);
+    public void onModemChanged(Runnable callback) {
+        modemChanged = callback;
     }
 }

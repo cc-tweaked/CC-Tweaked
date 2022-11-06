@@ -22,11 +22,11 @@ import javax.annotation.Nullable;
  */
 public class ComputerPeripheral implements IPeripheral {
     private final String type;
-    private final ComputerProxy computer;
+    private final TileComputerBase owner;
 
-    public ComputerPeripheral(String type, ComputerProxy computer) {
+    public ComputerPeripheral(String type, TileComputerBase owner) {
         this.type = type;
-        this.computer = computer;
+        this.owner = owner;
     }
 
     @Nonnull
@@ -40,7 +40,12 @@ public class ComputerPeripheral implements IPeripheral {
      */
     @LuaFunction
     public final void turnOn() {
-        computer.turnOn();
+        var computer = owner.getServerComputer();
+        if (computer == null) {
+            owner.startOn = true;
+        } else {
+            computer.turnOn();
+        }
     }
 
     /**
@@ -48,7 +53,12 @@ public class ComputerPeripheral implements IPeripheral {
      */
     @LuaFunction
     public final void shutdown() {
-        computer.shutdown();
+        var computer = owner.getServerComputer();
+        if (computer == null) {
+            owner.startOn = false;
+        } else {
+            computer.shutdown();
+        }
     }
 
     /**
@@ -56,7 +66,12 @@ public class ComputerPeripheral implements IPeripheral {
      */
     @LuaFunction
     public final void reboot() {
-        computer.reboot();
+        var computer = owner.getServerComputer();
+        if (computer == null) {
+            owner.startOn = true;
+        } else {
+            computer.reboot();
+        }
     }
 
     /**
@@ -67,7 +82,8 @@ public class ComputerPeripheral implements IPeripheral {
      */
     @LuaFunction
     public final int getID() {
-        return computer.getID();
+        var computer = owner.getServerComputer();
+        return computer == null ? owner.getComputerID() : computer.getID();
     }
 
     /**
@@ -77,7 +93,8 @@ public class ComputerPeripheral implements IPeripheral {
      */
     @LuaFunction
     public final boolean isOn() {
-        return computer.isOn();
+        var computer = owner.getServerComputer();
+        return computer != null && computer.isOn();
     }
 
     /**
@@ -89,17 +106,18 @@ public class ComputerPeripheral implements IPeripheral {
     @Nullable
     @LuaFunction
     public final String getLabel() {
-        return computer.getLabel();
+        var computer = owner.getServerComputer();
+        return computer == null ? owner.getLabel() : computer.getLabel();
     }
 
     @Override
     public boolean equals(IPeripheral other) {
-        return other instanceof ComputerPeripheral && computer == ((ComputerPeripheral) other).computer;
+        return other instanceof ComputerPeripheral computerPeripheral && owner == computerPeripheral.owner;
     }
 
     @Nonnull
     @Override
     public Object getTarget() {
-        return computer.getTile();
+        return owner;
     }
 }

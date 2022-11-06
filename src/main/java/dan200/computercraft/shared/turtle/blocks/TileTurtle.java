@@ -14,7 +14,6 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.blocks.ComputerPeripheral;
-import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
@@ -43,17 +42,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
-
-import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
 public class TileTurtle extends TileComputerBase implements ITurtleTile, DefaultInventory {
     public static final int INVENTORY_SIZE = 16;
@@ -68,12 +60,11 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
     private final NonNullList<ItemStack> inventory = NonNullList.withSize(INVENTORY_SIZE, ItemStack.EMPTY);
     private final NonNullList<ItemStack> previousInventory = NonNullList.withSize(INVENTORY_SIZE, ItemStack.EMPTY);
-    private final IItemHandlerModifiable itemHandler = new InvWrapper(this);
-    private LazyOptional<IItemHandlerModifiable> itemHandlerCap;
     private boolean inventoryChanged = false;
     private TurtleBrain brain = new TurtleBrain(this);
     private MoveState moveState = MoveState.NOT_MOVED;
-    private LazyOptional<IPeripheral> peripheral;
+    private IPeripheral peripheral;
+    private Runnable onMoved;
 
     public TileTurtle(BlockEntityType<? extends TileGeneric> type, BlockPos pos, BlockState state, ComputerFamily family) {
         super(type, pos, state, family);
@@ -93,10 +84,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         computer.addAPI(new TurtleAPI(computer.getAPIEnvironment(), getAccess()));
         brain.setupComputer(computer);
         return computer;
-    }
-
-    public ComputerProxy createProxy() {
-        return brain.getProxy();
     }
 
     @Override
@@ -128,13 +115,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         if (!hasMoved()) {
             super.unload();
         }
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        itemHandlerCap = CapabilityUtil.invalidate(itemHandlerCap);
-        peripheral = CapabilityUtil.invalidate(peripheral);
     }
 
     @Nonnull
@@ -469,30 +449,18 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
         // Mark the other turtle as having moved, and so its peripheral is dead.
         copy.moveState = MoveState.MOVED;
-        copy.peripheral = CapabilityUtil.invalidate(copy.peripheral);
+        if (onMoved != null) onMoved.run();
     }
 
-    public IItemHandlerModifiable getItemHandler() {
-        return itemHandler;
+    @Nullable
+    public IPeripheral peripheral() {
+        if (hasMoved()) return null;
+        if (peripheral != null) return peripheral;
+        return peripheral = new ComputerPeripheral("turtle", this);
     }
 
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            if (itemHandlerCap == null) itemHandlerCap = LazyOptional.of(() -> new InvWrapper(this));
-            return itemHandlerCap.cast();
-        }
-
-        if (cap == CAPABILITY_PERIPHERAL) {
-            if (hasMoved()) return LazyOptional.empty();
-            if (peripheral == null) {
-                peripheral = LazyOptional.of(() -> new ComputerPeripheral("turtle", createProxy()));
-            }
-            return peripheral.cast();
-        }
-
-        return super.getCapability(cap, side);
+    public void onMoved(Runnable onMoved) {
+        this.onMoved = onMoved;
     }
 
     @Nullable

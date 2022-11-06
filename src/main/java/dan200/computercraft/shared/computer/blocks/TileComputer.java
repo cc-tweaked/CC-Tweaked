@@ -13,7 +13,6 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.inventory.ComputerMenuWithoutInventory;
-import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -22,17 +21,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
-
 public class TileComputer extends TileComputerBase {
-    private ComputerProxy proxy;
-    private LazyOptional<IPeripheral> peripheral;
+    private IPeripheral peripheral;
 
     public TileComputer(BlockEntityType<? extends TileComputer> type, BlockPos pos, BlockState state, ComputerFamily family) {
         super(type, pos, state, family);
@@ -81,25 +75,8 @@ public class TileComputer extends TileComputerBase {
         return new ComputerMenuWithoutInventory(ModRegistry.Menus.COMPUTER.get(), id, inventory, this::isUsableByPlayer, createServerComputer(), getFamily());
     }
 
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if (cap == CAPABILITY_PERIPHERAL) {
-            if (peripheral == null) {
-                peripheral = LazyOptional.of(() -> {
-                    if (proxy == null) proxy = new ComputerProxy(() -> this);
-                    return new ComputerPeripheral("computer", proxy);
-                });
-            }
-            return peripheral.cast();
-        }
-
-        return super.getCapability(cap, side);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        peripheral = CapabilityUtil.invalidate(peripheral);
+    public IPeripheral peripheral() {
+        if (peripheral != null) return peripheral;
+        return peripheral = new ComputerPeripheral("computer", this);
     }
 }

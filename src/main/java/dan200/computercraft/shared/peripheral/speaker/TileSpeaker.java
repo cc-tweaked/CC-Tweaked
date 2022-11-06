@@ -9,23 +9,16 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
 import dan200.computercraft.shared.platform.PlatformHelper;
-import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
-
 public class TileSpeaker extends TileGeneric {
     private final SpeakerPeripheral peripheral;
-    private LazyOptional<IPeripheral> peripheralCap;
 
     public TileSpeaker(BlockEntityType<TileSpeaker> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -44,21 +37,8 @@ public class TileSpeaker extends TileGeneric {
         }
     }
 
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if (cap == CAPABILITY_PERIPHERAL) {
-            if (peripheralCap == null) peripheralCap = LazyOptional.of(() -> peripheral);
-            return peripheralCap.cast();
-        }
-
-        return super.getCapability(cap, side);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        peripheralCap = CapabilityUtil.invalidate(peripheralCap);
+    public IPeripheral peripheral() {
+        return peripheral;
     }
 
     private static final class Peripheral extends SpeakerPeripheral {

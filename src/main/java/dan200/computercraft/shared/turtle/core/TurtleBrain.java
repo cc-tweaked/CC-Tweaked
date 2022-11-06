@@ -15,7 +15,6 @@ import dan200.computercraft.api.turtle.*;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.TurtleUpgrades;
-import dan200.computercraft.shared.computer.blocks.ComputerProxy;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
@@ -65,7 +64,6 @@ public class TurtleBrain implements ITurtleAccess {
     public static final Predicate<Entity> PUSHABLE_ENTITY = entity -> !entity.isSpectator() && entity.getPistonPushReaction() != PushReaction.IGNORE;
 
     private TileTurtle owner;
-    private ComputerProxy proxy;
     private GameProfile owningPlayer;
 
     private final Container inventory = (InventoryDelegate) () -> owner;
@@ -99,11 +97,6 @@ public class TurtleBrain implements ITurtleAccess {
 
     public TileTurtle getOwner() {
         return owner;
-    }
-
-    public ComputerProxy getProxy() {
-        if (proxy == null) proxy = new ComputerProxy(() -> owner);
-        return proxy;
     }
 
     public ComputerFamily getFamily() {

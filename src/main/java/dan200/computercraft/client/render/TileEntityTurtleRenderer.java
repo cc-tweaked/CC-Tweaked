@@ -64,7 +64,7 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
     @Override
     public void render(@Nonnull TileTurtle turtle, float partialTicks, @Nonnull PoseStack transform, @Nonnull MultiBufferSource buffers, int lightmapCoord, int overlayLight) {
         // Render the label
-        var label = turtle.createProxy().getLabel();
+        var label = turtle.getLabel();
         var hit = renderer.cameraHitResult;
         if (label != null && hit.getType() == HitResult.Type.BLOCK && turtle.getBlockPos().equals(((BlockHitResult) hit).getBlockPos())) {
             var mc = Minecraft.getInstance();

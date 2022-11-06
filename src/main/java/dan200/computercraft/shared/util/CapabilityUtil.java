@@ -49,11 +49,6 @@ public final class CapabilityUtil {
         return p.orElseThrow(NullPointerException::new);
     }
 
-    @Nullable
-    public static <T> T unwrapUnsafe(LazyOptional<T> p) {
-        return !p.isPresent() ? null : p.orElseThrow(NullPointerException::new);
-    }
-
     /**
      * Find a capability, preferring the internal/null side but falling back to a given side if a mod doesn't support
      * the internal one.

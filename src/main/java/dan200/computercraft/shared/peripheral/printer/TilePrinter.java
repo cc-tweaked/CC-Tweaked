@@ -10,7 +10,9 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import dan200.computercraft.shared.util.*;
+import dan200.computercraft.shared.util.ColourUtils;
+import dan200.computercraft.shared.util.DefaultSidedInventory;
+import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -27,17 +29,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
-import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 
 public final class TilePrinter extends TileGeneric implements DefaultSidedInventory, Nameable, MenuProvider {
     private static final String NBT_NAME = "CustomName";
@@ -54,9 +48,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     private LockCode lockCode = LockCode.NO_LOCK;
 
     private final NonNullList<ItemStack> inventory = NonNullList.withSize(SLOTS, ItemStack.EMPTY);
-    private final SidedCaps<IItemHandler> itemHandlerCaps =
-        SidedCaps.ofNullable(facing -> facing == null ? new InvWrapper(this) : new SidedInvWrapper(this, facing));
-    private LazyOptional<IPeripheral> peripheralCap;
+    private @Nullable IPeripheral peripheral;
 
     private final NetworkedTerminal page = new NetworkedTerminal(ItemPrintout.LINE_MAX_LENGTH, ItemPrintout.LINES_PER_PAGE, true);
     private String pageTitle = "";
@@ -69,13 +61,6 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     @Override
     public void destroy() {
         ejectContents();
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        itemHandlerCaps.invalidate();
-        peripheralCap = CapabilityUtil.invalidate(peripheralCap);
     }
 
     @Override
@@ -387,16 +372,9 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
         getLevel().setBlockAndUpdate(getBlockPos(), state.setValue(BlockPrinter.TOP, top).setValue(BlockPrinter.BOTTOM, bottom));
     }
 
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable Direction facing) {
-        if (capability == ForgeCapabilities.ITEM_HANDLER) return itemHandlerCaps.get(facing).cast();
-        if (capability == CAPABILITY_PERIPHERAL) {
-            if (peripheralCap == null) peripheralCap = LazyOptional.of(() -> new PrinterPeripheral(this));
-            return peripheralCap.cast();
-        }
-
-        return super.getCapability(capability, facing);
+    public IPeripheral peripheral() {
+        if (peripheral == null) peripheral = new PrinterPeripheral(this);
+        return peripheral;
     }
 
     @Override

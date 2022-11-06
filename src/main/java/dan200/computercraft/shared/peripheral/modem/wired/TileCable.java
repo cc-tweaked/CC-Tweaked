@@ -14,7 +14,6 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
-import dan200.computercraft.shared.util.CapabilityUtil;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.core.BlockPos;
@@ -31,16 +30,12 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
-
-import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
-import static dan200.computercraft.shared.Capabilities.CAPABILITY_WIRED_ELEMENT;
 
 public class TileCable extends TileGeneric {
     private static final String NBT_PERIPHERAL_ENABLED = "PeirpheralAccess";
@@ -72,13 +67,13 @@ public class TileCable extends TileGeneric {
     private boolean invalidPeripheral;
     private boolean peripheralAccessAllowed;
     private final WiredModemLocalPeripheral peripheral = new WiredModemLocalPeripheral(this::queueRefreshPeripheral);
+    private @Nullable Runnable modemChanged;
 
     private boolean destroyed = false;
 
     private boolean connectionsFormed = false;
 
     private final WiredModemElement cable = new CableElement();
-    private LazyOptional<IWiredElement> elementCap;
     private final IWiredNode node = cable.getNode();
     private final TickScheduler.Token tickToken = new TickScheduler.Token(this);
     private final WiredModemPeripheral modem = new WiredModemPeripheral(
@@ -103,7 +98,6 @@ public class TileCable extends TileGeneric {
             return TileCable.this;
         }
     };
-    private LazyOptional<IPeripheral> modemCap;
 
     private final NonNullConsumer<LazyOptional<IWiredElement>> connectedNodeChanged = x -> connectionsChanged();
 
@@ -140,13 +134,6 @@ public class TileCable extends TileGeneric {
     }
 
     @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        elementCap = CapabilityUtil.invalidate(elementCap);
-        modemCap = CapabilityUtil.invalidate(modemCap);
-    }
-
-    @Override
     public void clearRemoved() {
         super.clearRemoved(); // TODO: Replace with onLoad
         TickScheduler.schedule(tickToken);
@@ -157,11 +144,9 @@ public class TileCable extends TileGeneric {
     public void setBlockState(@Nonnull BlockState state) {
         var direction = getMaybeDirection();
         super.setBlockState(state);
-        if (getMaybeDirection() != direction) {
-            // We invalidate both the modem and element if the modem's direction is different.
-            modemCap = CapabilityUtil.invalidate(modemCap);
-            elementCap = CapabilityUtil.invalidate(elementCap);
-        }
+
+        // We invalidate both the modem and element if the modem's direction is different.
+        if (getMaybeDirection() != direction && modemChanged != null) modemChanged.run();
     }
 
     @Nullable
@@ -316,7 +301,7 @@ public class TileCable extends TileGeneric {
 
     void modemChanged() {
         // Tell anyone who cares that the connection state has changed
-        elementCap = CapabilityUtil.invalidate(elementCap);
+        if (modemChanged != null) modemChanged.run();
 
         if (getLevel().isClientSide) return;
 
@@ -359,22 +344,20 @@ public class TileCable extends TileGeneric {
         node.updatePeripherals(peripherals);
     }
 
-    @Nonnull
-    @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable Direction side) {
-        if (capability == CAPABILITY_WIRED_ELEMENT) {
-            if (destroyed || !BlockCable.canConnectIn(getBlockState(), side)) return LazyOptional.empty();
-            if (elementCap == null) elementCap = LazyOptional.of(() -> cable);
-            return elementCap.cast();
-        }
+    @Nullable
+    public IWiredElement getWiredElement(@Nullable Direction direction) {
+        if (destroyed) return null;
+        return direction == null || BlockCable.canConnectIn(getBlockState(), direction) ? cable : null;
+    }
 
-        if (capability == CAPABILITY_PERIPHERAL) {
-            if (side != null && getMaybeDirection() != side) return LazyOptional.empty();
-            if (modemCap == null) modemCap = LazyOptional.of(() -> modem);
-            return modemCap.cast();
-        }
+    @Nullable
+    public IPeripheral getPeripheral(@Nullable Direction direction) {
+        if (destroyed) return null;
+        return direction == null || getMaybeDirection() == direction ? modem : null;
+    }
 
-        return super.getCapability(capability, side);
+    public void onModemChanged(Runnable callback) {
+        modemChanged = callback;
     }
 
     boolean hasCable() {
