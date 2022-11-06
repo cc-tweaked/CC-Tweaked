@@ -27,6 +27,6 @@
         "allowSyntheticDefaultImports": true,
     },
     "include": [
-        "src/web",
+        "src",
     ]
 }

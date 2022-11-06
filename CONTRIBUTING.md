@@ -52,7 +52,7 @@ complexity is hidden by Gradle, but you will need to perform some initial setup:
  - Run `npm ci` to install our Node dependencies.
 
 You can now run `./gradlew docWebsite`. This generates documentation from our Lua and Java code, writing the resulting
-HTML into `./build/docs/site`.
+HTML into `./projects/web/build/site`.
 
 #### Writing documentation
 illuaminate's documentation system is not currently documented (somewhat ironic), but is _largely_ the same as

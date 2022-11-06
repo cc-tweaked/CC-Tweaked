@@ -6,11 +6,12 @@
   /projects/core/src/main/resources/data/computercraft/lua/bios.lua
   /projects/core/src/main/resources/data/computercraft/lua/rom/
   /projects/core/src/test/resources/test-rom
-  /src/web/mount)
+  /projects/web/src/mount)
 
 
 (doc
-  (destination build/illuaminate)
+  ; Also defined in projects/web/build.gradle.kts
+  (destination /projects/web/build/illuaminate)
   (index doc/index.md)
 
   (site
@@ -19,8 +20,8 @@
     (url https://tweaked.cc/)
     (source-link https://github.com/cc-tweaked/CC-Tweaked/blob/${commit}/${path}#L${line})
 
-    (styles src/web/styles.css)
-    (scripts build/rollup/index.js)
+    (styles /projects/web/src/styles.css)
+    (scripts /projects/web/build/rollup/index.js)
     (head doc/head.html))
 
   (module-kinds
@@ -113,4 +114,4 @@
       :max sleep write
       cct_test describe expect howlci fail it pending stub)))
 
-(at /src/web/mount/expr_template.lua (lint (globals :max __expr__)))
+(at /projects/web/src/mount/expr_template.lua (lint (globals :max __expr__)))

@@ -11,7 +11,6 @@
 
 # Runtime directories
 /run
-/run-*
 
 *.ipr
 *.iws
@@ -24,8 +23,6 @@
 /.project
 /.settings
 /.vscode
-bin/
 *.launch
 
 /src/generated/resources/.cache
-/src/web/mount/*.d.ts

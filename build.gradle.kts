@@ -19,7 +19,6 @@ plugins {
     alias(libs.plugins.ideaExt)
 
     id("cc-tweaked.illuaminate")
-    id("cc-tweaked.node")
     id("cc-tweaked.gametest")
     id("cc-tweaked.publishing")
     id("cc-tweaked")
@@ -246,78 +245,6 @@ tasks.shadowJar {
 }
 
 tasks.assemble { dependsOn("shadowJar") }
-
-// Web tasks
-
-val rollup by tasks.registering(NpxExecToDir::class) {
-    group = LifecycleBasePlugin.BUILD_GROUP
-    description = "Bundles JS into rollup"
-
-    // Sources
-    inputs.files(fileTree("src/web")).withPropertyName("sources")
-    // Config files
-    inputs.file("tsconfig.json").withPropertyName("Typescript config")
-    inputs.file("rollup.config.js").withPropertyName("Rollup config")
-
-    // Output directory. Also defined in illuaminate.sexp and rollup.config.js
-    output.set(buildDir.resolve("rollup"))
-
-    args = listOf("rollup", "--config", "rollup.config.js")
-}
-
-val illuaminateDocs by tasks.registering(IlluaminateExecToDir::class) {
-    group = JavaBasePlugin.DOCUMENTATION_GROUP
-    description = "Generates docs using Illuaminate"
-
-    // Config files
-    inputs.file("illuaminate.sexp").withPropertyName("illuaminate.sexp")
-    // Sources
-    inputs.files(fileTree("doc")).withPropertyName("docs")
-    inputs.files(fileTree("src/main/resources/data/computercraft/lua")).withPropertyName("lua rom")
-    inputs.files(luaJavadoc)
-    // Additional assets
-    inputs.files(rollup)
-    inputs.file("src/web/styles.css").withPropertyName("styles")
-
-    // Output directory. Also defined in illuaminate.sexp and transform.tsx
-    output.set(buildDir.resolve("illuaminate"))
-
-    args = listOf("doc-gen")
-}
-
-val jsxDocs by tasks.registering(NpxExecToDir::class) {
-    group = JavaBasePlugin.DOCUMENTATION_GROUP
-    description = "Post-processes documentation to statically render some dynamic content."
-
-    // Config files
-    inputs.file("tsconfig.json").withPropertyName("Typescript config")
-    // Sources
-    inputs.files(fileTree("src/web")).withPropertyName("sources")
-    inputs.file("src/generated/export/index.json").withPropertyName("export")
-    inputs.files(illuaminateDocs)
-
-    // Output directory. Also defined in src/web/transform.tsx
-    output.set(buildDir.resolve("jsxDocs"))
-
-    args = listOf("ts-node", "-T", "--esm", "src/web/transform.tsx")
-}
-
-val docWebsite by tasks.registering(Copy::class) {
-    group = JavaBasePlugin.DOCUMENTATION_GROUP
-    description = "Assemble docs and assets together into the documentation website."
-
-    from(jsxDocs)
-
-    from("doc") {
-        include("logo.png")
-        include("images/**")
-    }
-    from(rollup) { exclude("index.js") }
-    from(illuaminateDocs) { exclude("**/*.html") }
-    from("src/generated/export/items") { into("images/items") }
-
-    into(buildDir.resolve("docs/site"))
-}
 
 // Check tasks
 

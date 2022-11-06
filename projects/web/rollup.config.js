@@ -5,13 +5,15 @@ import typescript from "@rollup/plugin-typescript";
 import url from '@rollup/plugin-url';
 import { terser } from "rollup-plugin-terser";
 
-const input = "src/web";
-const requirejs = readFileSync("node_modules/requirejs/require.js");
+const input = "src";
+const requirejs = readFileSync("../../node_modules/requirejs/require.js");
 
 export default {
     input: [`${input}/index.tsx`],
     output: {
+        // Also defined in build.gradle.kts
         dir: "build/rollup/",
+
         // We bundle requirejs (and config) into the header. It's rather gross
         // but also works reasonably well.
         // Also suffix a ?v=${date} onto the end in the event we need to require a specific copy-cat version.
