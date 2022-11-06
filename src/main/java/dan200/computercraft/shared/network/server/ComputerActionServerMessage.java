@@ -8,7 +8,6 @@ package dan200.computercraft.shared.network.server;
 import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
@@ -32,7 +31,7 @@ public class ComputerActionServerMessage extends ComputerServerMessage {
     }
 
     @Override
-    protected void handle(NetworkEvent.Context context, @Nonnull ComputerMenu container) {
+    protected void handle(ServerNetworkContext context, @Nonnull ComputerMenu container) {
         switch (action) {
             case TURN_ON -> container.getInput().turnOn();
             case REBOOT -> container.getInput().reboot();

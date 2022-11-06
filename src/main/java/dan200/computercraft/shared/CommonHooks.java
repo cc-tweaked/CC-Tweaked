@@ -11,9 +11,9 @@ import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.metrics.ComputerMBean;
-import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.UpgradesLoadedMessage;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
@@ -116,9 +116,9 @@ public final class CommonHooks {
     public static void onDatapackSync(OnDatapackSyncEvent event) {
         var packet = new UpgradesLoadedMessage();
         if (event.getPlayer() == null) {
-            NetworkHandler.sendToAllPlayers(packet);
+            PlatformHelper.get().sendToAllPlayers(packet, event.getPlayerList().getServer());
         } else {
-            NetworkHandler.sendToPlayer(event.getPlayer(), packet);
+            PlatformHelper.get().sendToPlayer(packet, event.getPlayer());
         }
     }
 }

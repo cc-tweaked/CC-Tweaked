@@ -5,14 +5,12 @@
  */
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
-public class PocketComputerDeletedClientMessage implements NetworkMessage {
+public class PocketComputerDeletedClientMessage implements NetworkMessage<ClientNetworkContext> {
     private final int instanceId;
 
     public PocketComputerDeletedClientMessage(int instanceId) {
@@ -29,7 +27,7 @@ public class PocketComputerDeletedClientMessage implements NetworkMessage {
     }
 
     @Override
-    public void handle(NetworkEvent.Context context) {
-        ClientPocketComputers.remove(instanceId);
+    public void handle(ClientNetworkContext context) {
+        context.handlePocketComputerDeleted(instanceId);
     }
 }

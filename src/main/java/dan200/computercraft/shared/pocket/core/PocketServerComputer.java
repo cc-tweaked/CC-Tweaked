@@ -13,9 +13,9 @@ import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
-import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
 import dan200.computercraft.shared.network.client.PocketComputerDeletedClientMessage;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -164,7 +164,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         if (sendState) {
             // Broadcast the state to all players
             tracking.addAll(getLevel().players());
-            NetworkHandler.sendToPlayers(new PocketComputerDataMessage(this, false), tracking);
+            PlatformHelper.get().sendToPlayers(new PocketComputerDataMessage(this, false), tracking);
         } else {
             // Broadcast the state to new players.
             List<ServerPlayer> added = new ArrayList<>();
@@ -172,7 +172,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
                 if (tracking.add(player)) added.add(player);
             }
             if (!added.isEmpty()) {
-                NetworkHandler.sendToPlayers(new PocketComputerDataMessage(this, false), added);
+                PlatformHelper.get().sendToPlayers(new PocketComputerDataMessage(this, false), added);
             }
         }
     }
@@ -183,13 +183,13 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
 
         if (entity instanceof ServerPlayer player && entity.isAlive()) {
             // Broadcast the terminal to the current player.
-            NetworkHandler.sendToPlayer(player, new PocketComputerDataMessage(this, true));
+            PlatformHelper.get().sendToPlayer(new PocketComputerDataMessage(this, true), player);
         }
     }
 
     @Override
     protected void onRemoved() {
         super.onRemoved();
-        NetworkHandler.sendToAllPlayers(new PocketComputerDeletedClientMessage(getInstanceID()));
+        PlatformHelper.get().sendToAllPlayers(new PocketComputerDeletedClientMessage(getInstanceID()), getLevel().getServer());
     }
 }

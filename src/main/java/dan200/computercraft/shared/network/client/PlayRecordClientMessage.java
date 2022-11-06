@@ -7,14 +7,9 @@ package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.platform.Registries;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
@@ -25,7 +20,7 @@ import javax.annotation.Nonnull;
  *
  * @see dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive
  */
-public class PlayRecordClientMessage implements NetworkMessage {
+public class PlayRecordClientMessage implements NetworkMessage<ClientNetworkContext> {
     private final BlockPos pos;
     private final String name;
     private final SoundEvent soundEvent;
@@ -66,10 +61,7 @@ public class PlayRecordClientMessage implements NetworkMessage {
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void handle(NetworkEvent.Context context) {
-        var mc = Minecraft.getInstance();
-        mc.levelRenderer.playStreamingMusic(soundEvent, pos, null);
-        if (name != null) mc.gui.setNowPlaying(Component.literal(name));
+    public void handle(ClientNetworkContext context) {
+        context.handlePlayRecord(pos, soundEvent, name);
     }
 }

@@ -7,26 +7,43 @@ package dan200.computercraft.shared.platform;
 
 import com.google.auto.service.AutoService;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.shared.network.NetworkMessage;
+import dan200.computercraft.shared.network.client.ClientNetworkContext;
+import dan200.computercraft.shared.network.container.ContainerData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistry;
 import net.minecraftforge.registries.RegistryManager;
 import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 @AutoService(dan200.computercraft.impl.PlatformHelper.class)
@@ -64,6 +81,41 @@ public class PlatformHelperImpl implements PlatformHelper {
     @Override
     public <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BiFunction<BlockPos, BlockState, T> factory, Block block) {
         return new BlockEntityType<>(factory::apply, Set.of(block), null);
+    }
+
+    @Override
+    public <C extends AbstractContainerMenu, T extends ContainerData> MenuType<C> createMenuType(Function<FriendlyByteBuf, T> reader, ContainerData.Factory<C, T> factory) {
+        return IForgeMenuType.create((id, player, data) -> factory.create(id, player, reader.apply(data)));
+    }
+
+    @Override
+    public void openMenu(Player player, MenuProvider owner, ContainerData menu) {
+        NetworkHooks.openScreen((ServerPlayer) player, owner, menu::toBytes);
+    }
+
+    @Override
+    public void sendToPlayer(NetworkMessage<ClientNetworkContext> message, ServerPlayer player) {
+        NetworkHandler.sendToPlayer(message, player);
+    }
+
+    @Override
+    public void sendToPlayers(NetworkMessage<ClientNetworkContext> message, Collection<ServerPlayer> players) {
+        NetworkHandler.sendToPlayers(message, players);
+    }
+
+    @Override
+    public void sendToAllPlayers(NetworkMessage<ClientNetworkContext> message, MinecraftServer server) {
+        NetworkHandler.sendToAllPlayers(message);
+    }
+
+    @Override
+    public void sendToAllAround(NetworkMessage<ClientNetworkContext> message, ServerLevel level, Vec3 pos, float distance) {
+        NetworkHandler.sendToAllAround(message, level, pos, distance);
+    }
+
+    @Override
+    public void sendToAllTracking(NetworkMessage<ClientNetworkContext> message, LevelChunk chunk) {
+        NetworkHandler.sendToAllTracking(message, chunk);
     }
 
     @Nullable

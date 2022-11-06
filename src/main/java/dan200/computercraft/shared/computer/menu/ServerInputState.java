@@ -7,9 +7,8 @@ package dan200.computercraft.shared.computer.menu;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.computer.upload.*;
-import dan200.computercraft.shared.network.NetworkHandler;
-import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.UploadResultMessage;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.network.chat.Component;
@@ -133,8 +132,7 @@ public class ServerInputState<T extends AbstractContainerMenu & ComputerMenu> im
             return;
         }
 
-        NetworkMessage message = finishUpload(uploader);
-        NetworkHandler.sendToPlayer(uploader, message);
+        PlatformHelper.get().sendToPlayer(finishUpload(uploader), uploader);
     }
 
     private UploadResultMessage finishUpload(ServerPlayer player) {

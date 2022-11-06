@@ -5,16 +5,14 @@
  */
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.client.ClientTableFormatter;
 import dan200.computercraft.shared.command.text.TableBuilder;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
-public class ChatTableClientMessage implements NetworkMessage {
+public class ChatTableClientMessage implements NetworkMessage<ClientNetworkContext> {
     private static final int MAX_LEN = 16;
     private final TableBuilder table;
 
@@ -64,7 +62,7 @@ public class ChatTableClientMessage implements NetworkMessage {
     }
 
     @Override
-    public void handle(NetworkEvent.Context context) {
-        ClientTableFormatter.INSTANCE.display(table);
+    public void handle(ClientNetworkContext context) {
+        context.handleChatTable(table);
     }
 }

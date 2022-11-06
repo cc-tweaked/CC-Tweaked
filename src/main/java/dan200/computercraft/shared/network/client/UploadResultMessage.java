@@ -5,20 +5,16 @@
  */
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.client.gui.ComputerScreenBase;
-import dan200.computercraft.client.gui.OptionScreen;
 import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.NetworkMessage;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class UploadResultMessage implements NetworkMessage {
+public class UploadResultMessage implements NetworkMessage<ClientNetworkContext> {
     private final int containerId;
     private final UploadResult result;
     private final Component errorMessage;
@@ -55,12 +51,7 @@ public class UploadResultMessage implements NetworkMessage {
     }
 
     @Override
-    public void handle(NetworkEvent.Context context) {
-        var minecraft = Minecraft.getInstance();
-
-        var screen = OptionScreen.unwrap(minecraft.screen);
-        if (screen instanceof ComputerScreenBase<?> && ((ComputerScreenBase<?>) screen).getMenu().containerId == containerId) {
-            ((ComputerScreenBase<?>) screen).uploadResult(result, errorMessage);
-        }
+    public void handle(ClientNetworkContext context) {
+        context.handleUploadResult(containerId, result, errorMessage);
     }
 }

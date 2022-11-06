@@ -20,7 +20,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -36,7 +35,6 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -105,9 +103,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
             return InteractionResult.SUCCESS;
         } else {
             // Open the GUI
-            if (!getLevel().isClientSide && isUsable(player)) {
-                NetworkHooks.openScreen((ServerPlayer) player, this);
-            }
+            if (!getLevel().isClientSide && isUsable(player)) player.openMenu(this);
             return InteractionResult.SUCCESS;
         }
     }

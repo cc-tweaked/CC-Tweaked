@@ -11,7 +11,6 @@ import dan200.computercraft.shared.computer.menu.ServerInputHandler;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -47,7 +46,7 @@ public class QueueEventServerMessage extends ComputerServerMessage {
     }
 
     @Override
-    protected void handle(NetworkEvent.Context context, @Nonnull ComputerMenu container) {
+    protected void handle(ServerNetworkContext context, @Nonnull ComputerMenu container) {
         container.getInput().queueEvent(event, args);
     }
 }

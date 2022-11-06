@@ -6,8 +6,8 @@
 package dan200.computercraft.shared.computer.upload;
 
 import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.UploadResultMessage;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
@@ -47,7 +47,7 @@ public class TransferredFiles {
         if (consumed.getAndSet(true)) return;
 
         if (player.isAlive() && player.containerMenu == container) {
-            NetworkHandler.sendToPlayer(player, UploadResultMessage.consumed(container));
+            PlatformHelper.get().sendToPlayer(UploadResultMessage.consumed(container), player);
         }
     }
 }

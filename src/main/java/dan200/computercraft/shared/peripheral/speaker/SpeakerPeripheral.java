@@ -12,17 +12,18 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.LuaTable;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.SpeakerAudioClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerMoveClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerPlayClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.platform.Registries;
 import dan200.computercraft.shared.util.PauseAwareTimer;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 
@@ -112,22 +113,22 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         // Stop the speaker and nuke the position, so we don't update it again.
         if (shouldStop && lastPosition != null) {
             lastPosition = null;
-            NetworkHandler.sendToAllPlayers(new SpeakerStopClientMessage(getSource()));
+            PlatformHelper.get().sendToAllPlayers(new SpeakerStopClientMessage(getSource()), level.getServer());
             return;
         }
 
         var now = PauseAwareTimer.getTime();
         if (sound != null) {
             lastPlayTime = clock;
-            NetworkHandler.sendToAllAround(
+            PlatformHelper.get().sendToAllAround(
                 new SpeakerPlayClientMessage(getSource(), position, sound.location, sound.volume, sound.pitch),
-                level, pos, sound.volume * 16
+                (ServerLevel) level, pos, sound.volume * 16
             );
             syncedPosition(position);
         } else if (dfpwmState != null && dfpwmState.shouldSendPending(now)) {
             // If clients need to receive another batch of audio, send it and then notify computers our internal buffer is
             // free again.
-            NetworkHandler.sendToAllTracking(
+            PlatformHelper.get().sendToAllTracking(
                 new SpeakerAudioClientMessage(getSource(), position, dfpwmState.getVolume(), dfpwmState.pullPending(now)),
                 level.getChunkAt(new BlockPos(pos))
             );
@@ -146,7 +147,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         // in the last second.
         if (lastPosition != null && (clock - lastPositionTime) >= 20 && !lastPosition.withinDistance(position, 0.1)) {
             // TODO: What to do when entities move away? How do we notify people left behind that they're gone.
-            NetworkHandler.sendToAllTracking(
+            PlatformHelper.get().sendToAllTracking(
                 new SpeakerMoveClientMessage(getSource(), position),
                 level.getChunkAt(new BlockPos(pos))
             );

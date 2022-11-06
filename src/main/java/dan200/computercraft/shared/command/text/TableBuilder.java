@@ -6,8 +6,8 @@
 package dan200.computercraft.shared.command.text;
 
 import dan200.computercraft.shared.command.CommandUtils;
-import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.ChatTableClientMessage;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -106,7 +106,7 @@ public class TableBuilder {
     public void display(CommandSourceStack source) {
         if (CommandUtils.isPlayer(source)) {
             trim(18);
-            NetworkHandler.sendToPlayer((ServerPlayer) source.getEntity(), new ChatTableClientMessage(this));
+            PlatformHelper.get().sendToPlayer(new ChatTableClientMessage(this), (ServerPlayer) source.getEntity());
         } else {
             trim(100);
             new ServerTableFormatter(source).display(this);

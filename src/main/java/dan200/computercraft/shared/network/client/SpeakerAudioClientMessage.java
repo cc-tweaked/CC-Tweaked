@@ -5,13 +5,9 @@
  */
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.client.sound.SpeakerManager;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
@@ -24,7 +20,7 @@ import java.util.UUID;
  *
  * @see dan200.computercraft.shared.peripheral.speaker.TileSpeaker
  */
-public class SpeakerAudioClientMessage implements NetworkMessage {
+public class SpeakerAudioClientMessage implements NetworkMessage<ClientNetworkContext> {
     private final UUID source;
     private final SpeakerPosition.Message pos;
     private final ByteBuffer content;
@@ -42,7 +38,9 @@ public class SpeakerAudioClientMessage implements NetworkMessage {
         pos = SpeakerPosition.Message.read(buf);
         volume = buf.readFloat();
 
-        SpeakerManager.getSound(source).pushAudio(buf);
+        // TODO: Remove this, so we no longer need a getter for ClientNetworkContext. However, doing so without
+        //  leaking or redundantly copying the buffer is hard.
+        ClientNetworkContext.get().handleSpeakerAudioPush(source, buf);
         content = null;
     }
 
@@ -55,8 +53,7 @@ public class SpeakerAudioClientMessage implements NetworkMessage {
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void handle(NetworkEvent.Context context) {
-        SpeakerManager.getSound(source).playAudio(pos.reify(), volume);
+    public void handle(ClientNetworkContext context) {
+        context.handleSpeakerAudio(source, pos, volume);
     }
 }

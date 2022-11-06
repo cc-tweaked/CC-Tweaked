@@ -10,13 +10,13 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
 import dan200.computercraft.client.gui.widgets.DynamicImageButton;
 import dan200.computercraft.client.gui.widgets.WidgetTerminal;
+import dan200.computercraft.client.platform.ClientPlatformHelper;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.InputHandler;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.upload.FileUpload;
 import dan200.computercraft.shared.computer.upload.UploadResult;
-import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.server.UploadFileMessage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -182,7 +182,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
             return;
         }
 
-        if (toUpload.size() > 0) UploadFileMessage.send(menu, toUpload, NetworkHandler::sendToServer);
+        if (toUpload.size() > 0) UploadFileMessage.send(menu, toUpload, ClientPlatformHelper.get()::sendToServer);
     }
 
     public void uploadResult(UploadResult result, @Nullable Component message) {

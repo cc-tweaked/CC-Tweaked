@@ -16,7 +16,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -34,7 +33,6 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
-import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -90,9 +88,7 @@ public final class TilePrinter extends TileGeneric implements DefaultSidedInvent
     public InteractionResult onActivate(Player player, InteractionHand hand, BlockHitResult hit) {
         if (player.isCrouching()) return InteractionResult.PASS;
 
-        if (!getLevel().isClientSide && isUsable(player)) {
-            NetworkHooks.openScreen((ServerPlayer) player, this);
-        }
+        if (!getLevel().isClientSide && isUsable(player)) player.openMenu(this);
         return InteractionResult.SUCCESS;
     }
 

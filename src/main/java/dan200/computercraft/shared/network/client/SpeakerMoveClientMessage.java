@@ -5,13 +5,9 @@
  */
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.client.sound.SpeakerManager;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
@@ -23,7 +19,7 @@ import java.util.UUID;
  *
  * @see dan200.computercraft.shared.peripheral.speaker.TileSpeaker
  */
-public class SpeakerMoveClientMessage implements NetworkMessage {
+public class SpeakerMoveClientMessage implements NetworkMessage<ClientNetworkContext> {
     private final UUID source;
     private final SpeakerPosition.Message pos;
 
@@ -44,8 +40,7 @@ public class SpeakerMoveClientMessage implements NetworkMessage {
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void handle(NetworkEvent.Context context) {
-        SpeakerManager.moveSound(source, pos.reify());
+    public void handle(ClientNetworkContext context) {
+        context.handleSpeakerMove(source, pos);
     }
 }

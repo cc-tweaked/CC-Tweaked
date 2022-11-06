@@ -275,13 +275,13 @@ public final class ModRegistry {
         static final RegistrationHelper<MenuType<?>> REGISTRY = PlatformHelper.get().createRegistrationHelper(Registry.MENU_REGISTRY);
 
         public static final RegistryEntry<MenuType<ContainerComputerBase>> COMPUTER = REGISTRY.register("computer",
-            () -> ContainerData.toType(ComputerContainerData::new, ComputerMenuWithoutInventory::new));
+            () -> ContainerData.toType(ComputerContainerData::new, (id, inv, data) -> new ComputerMenuWithoutInventory(Menus.COMPUTER.get(), id, inv, data)));
 
         public static final RegistryEntry<MenuType<ContainerComputerBase>> POCKET_COMPUTER = REGISTRY.register("pocket_computer",
-            () -> ContainerData.toType(ComputerContainerData::new, ComputerMenuWithoutInventory::new));
+            () -> ContainerData.toType(ComputerContainerData::new, (id, inv, data) -> new ComputerMenuWithoutInventory(Menus.POCKET_COMPUTER.get(), id, inv, data)));
 
         public static final RegistryEntry<MenuType<ContainerComputerBase>> POCKET_COMPUTER_NO_TERM = REGISTRY.register("pocket_computer_no_term",
-            () -> ContainerData.toType(ComputerContainerData::new, ComputerMenuWithoutInventory::new));
+            () -> ContainerData.toType(ComputerContainerData::new, (id, inv, data) -> new ComputerMenuWithoutInventory(Menus.POCKET_COMPUTER_NO_TERM.get(), id, inv, data)));
 
         public static final RegistryEntry<MenuType<ContainerTurtle>> TURTLE = REGISTRY.register("turtle",
             () -> ContainerData.toType(ComputerContainerData::new, ContainerTurtle::ofMenuData));

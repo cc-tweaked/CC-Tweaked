@@ -7,17 +7,12 @@ package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.network.NetworkMessage;
-import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
-public class MonitorClientMessage implements NetworkMessage {
+public class MonitorClientMessage implements NetworkMessage<ClientNetworkContext> {
     private final BlockPos pos;
     private final TerminalState state;
 
@@ -38,14 +33,7 @@ public class MonitorClientMessage implements NetworkMessage {
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void handle(NetworkEvent.Context context) {
-        var player = Minecraft.getInstance().player;
-        if (player == null || player.level == null) return;
-
-        var te = player.level.getBlockEntity(pos);
-        if (!(te instanceof TileMonitor)) return;
-
-        ((TileMonitor) te).read(state);
+    public void handle(ClientNetworkContext context) {
+        context.handleMonitorData(pos, state);
     }
 }

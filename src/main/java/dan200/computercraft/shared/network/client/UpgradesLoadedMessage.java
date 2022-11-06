@@ -20,7 +20,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -30,7 +29,7 @@ import java.util.Objects;
 /**
  * Syncs turtle and pocket upgrades to the client.
  */
-public class UpgradesLoadedMessage implements NetworkMessage {
+public class UpgradesLoadedMessage implements NetworkMessage<ClientNetworkContext> {
     private final Map<String, UpgradeManager.UpgradeWrapper<TurtleUpgradeSerialiser<?>, ITurtleUpgrade>> turtleUpgrades;
     private final Map<String, UpgradeManager.UpgradeWrapper<PocketUpgradeSerialiser<?>, IPocketUpgrade>> pocketUpgrades;
 
@@ -94,7 +93,7 @@ public class UpgradesLoadedMessage implements NetworkMessage {
     }
 
     @Override
-    public void handle(NetworkEvent.Context context) {
+    public void handle(ClientNetworkContext context) {
         TurtleUpgrades.instance().loadFromNetwork(turtleUpgrades);
         PocketUpgrades.instance().loadFromNetwork(pocketUpgrades);
     }

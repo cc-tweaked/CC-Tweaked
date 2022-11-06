@@ -6,9 +6,8 @@
 package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.shared.network.NetworkHandler;
 import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import dan200.computercraft.shared.platform.PlatformHelper;
 
 import javax.annotation.Nonnull;
 
@@ -23,9 +22,11 @@ public abstract class UpgradeSpeakerPeripheral extends SpeakerPeripheral {
         super.detach(computer);
 
         // We could be in the process of shutting down the server, so we can't send packets in this case.
-        var server = ServerLifecycleHooks.getCurrentServer();
+        var level = getPosition().level();
+        if (level == null) return;
+        var server = level.getServer();
         if (server == null || server.isStopped()) return;
 
-        NetworkHandler.sendToAllPlayers(new SpeakerStopClientMessage(getSource()));
+        PlatformHelper.get().sendToAllPlayers(new SpeakerStopClientMessage(getSource()), server);
     }
 }

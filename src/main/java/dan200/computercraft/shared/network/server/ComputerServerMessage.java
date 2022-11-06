@@ -10,7 +10,6 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -18,7 +17,7 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 /**
  * A packet, which performs an action on the currently open {@link ComputerMenu}.
  */
-public abstract class ComputerServerMessage implements NetworkMessage {
+public abstract class ComputerServerMessage implements NetworkMessage<ServerNetworkContext> {
     private final int containerId;
 
     protected ComputerServerMessage(AbstractContainerMenu menu) {
@@ -36,12 +35,12 @@ public abstract class ComputerServerMessage implements NetworkMessage {
     }
 
     @Override
-    public void handle(NetworkEvent.Context context) {
+    public void handle(ServerNetworkContext context) {
         Player player = context.getSender();
         if (player.containerMenu.containerId == containerId && player.containerMenu instanceof ComputerMenu) {
             handle(context, (ComputerMenu) player.containerMenu);
         }
     }
 
-    protected abstract void handle(NetworkEvent.Context context, @Nonnull ComputerMenu container);
+    protected abstract void handle(ServerNetworkContext context, @Nonnull ComputerMenu container);
 }

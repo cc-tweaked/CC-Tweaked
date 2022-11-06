@@ -5,18 +5,20 @@
  */
 package dan200.computercraft.shared.network;
 
+import dan200.computercraft.shared.network.client.ClientNetworkContext;
+import dan200.computercraft.shared.network.server.ServerNetworkContext;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 
 /**
  * The base interface for any message which will be sent to the client or server.
  *
- * @see dan200.computercraft.shared.network.client
- * @see dan200.computercraft.shared.network.server
+ * @param <T> The context under which packets are evaluated.
+ * @see ClientNetworkContext
+ * @see ServerNetworkContext
  */
-public interface NetworkMessage {
+public interface NetworkMessage<T> {
     /**
      * Write this packet to a buffer.
      * <p>
@@ -31,5 +33,5 @@ public interface NetworkMessage {
      *
      * @param context The context with which to handle this message
      */
-    void handle(NetworkEvent.Context context);
+    void handle(T context);
 }

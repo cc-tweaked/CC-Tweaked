@@ -5,12 +5,8 @@
  */
 package dan200.computercraft.shared.network.client;
 
-import dan200.computercraft.client.sound.SpeakerManager;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkEvent;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
@@ -22,7 +18,7 @@ import java.util.UUID;
  *
  * @see dan200.computercraft.shared.peripheral.speaker.TileSpeaker
  */
-public class SpeakerStopClientMessage implements NetworkMessage {
+public class SpeakerStopClientMessage implements NetworkMessage<ClientNetworkContext> {
     private final UUID source;
 
     public SpeakerStopClientMessage(UUID source) {
@@ -39,8 +35,7 @@ public class SpeakerStopClientMessage implements NetworkMessage {
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void handle(NetworkEvent.Context context) {
-        SpeakerManager.stopSound(source);
+    public void handle(ClientNetworkContext context) {
+        context.handleSpeakerStop(source);
     }
 }
