@@ -35,20 +35,6 @@ class TerminalTest {
     }
 
     @Test
-    void testGetLineOutOfBounds() {
-        var terminal = new Terminal(16, 9, true);
-
-        assertNull(terminal.getLine(-5));
-        assertNull(terminal.getLine(12));
-
-        assertNull(terminal.getTextColourLine(-5));
-        assertNull(terminal.getTextColourLine(12));
-
-        assertNull(terminal.getBackgroundColourLine(-5));
-        assertNull(terminal.getBackgroundColourLine(12));
-    }
-
-    @Test
     void testDefaults() {
         var terminal = new Terminal(16, 9, true);
         assertEquals(0, terminal.getCursorX());

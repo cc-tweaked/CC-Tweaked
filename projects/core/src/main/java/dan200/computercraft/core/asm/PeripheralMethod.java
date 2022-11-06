@@ -12,7 +12,6 @@ import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 
 public interface PeripheralMethod {
@@ -24,6 +23,5 @@ public interface PeripheralMethod {
         method -> (instance, context, computer, args) -> ((IDynamicPeripheral) instance).callMethod(computer, context, method, args)
     );
 
-    @Nonnull
-    MethodResult apply(@Nonnull Object target, @Nonnull ILuaContext context, @Nonnull IComputerAccess computer, @Nonnull IArguments args) throws LuaException;
+    MethodResult apply(Object target, ILuaContext context, IComputerAccess computer, IArguments args) throws LuaException;
 }

@@ -24,6 +24,7 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -42,9 +43,9 @@ public class HttpRequest extends Resource<HttpRequest> {
 
     private static final int MAX_REDIRECTS = 16;
 
-    private Future<?> executorFuture;
-    private ChannelFuture connectFuture;
-    private HttpRequestHandler currentRequest;
+    private @Nullable Future<?> executorFuture;
+    private @Nullable ChannelFuture connectFuture;
+    private @Nullable HttpRequestHandler currentRequest;
 
     private final IAPIEnvironment environment;
 
@@ -55,7 +56,10 @@ public class HttpRequest extends Resource<HttpRequest> {
 
     final AtomicInteger redirects;
 
-    public HttpRequest(ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment, String address, String postText, HttpHeaders headers, boolean binary, boolean followRedirects) {
+    public HttpRequest(
+        ResourceGroup<HttpRequest> limiter, IAPIEnvironment environment, String address, @Nullable String postText,
+        HttpHeaders headers, boolean binary, boolean followRedirects
+    ) {
         super(limiter);
         this.environment = environment;
         this.address = address;
@@ -171,7 +175,7 @@ public class HttpRequest extends Resource<HttpRequest> {
             // Do an additional check for cancellation
             checkClosed();
         } catch (HTTPRequestException e) {
-            failure(e.getMessage());
+            failure(NetworkUtils.toFriendlyError(e));
         } catch (Exception e) {
             failure(NetworkUtils.toFriendlyError(e));
             LOG.error(Logging.HTTP_ERROR, "Error in HTTP request", e);

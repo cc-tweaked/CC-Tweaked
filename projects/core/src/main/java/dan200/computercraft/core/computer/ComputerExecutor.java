@@ -19,10 +19,10 @@ import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.core.util.IoUtil;
+import dan200.computercraft.core.util.Nullability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.util.ArrayDeque;
@@ -63,9 +63,9 @@ final class ComputerExecutor {
     private final ComputerThread scheduler;
     final TimeoutState timeout;
 
-    private FileSystem fileSystem;
+    private @Nullable FileSystem fileSystem;
 
-    private ILuaMachine machine;
+    private @Nullable ILuaMachine machine;
 
     /**
      * Whether the computer is currently on. This is set to false when a shutdown starts, or when turning on completes
@@ -126,7 +126,7 @@ final class ComputerExecutor {
      * Note, if command is not {@code null}, then some command is scheduled to be executed. Otherwise it is not
      * currently in the queue (or is currently being executed).
      */
-    private volatile StateCommand command;
+    private volatile @Nullable StateCommand command;
 
     /**
      * The queue of events which should be executed when this computer is on.
@@ -150,7 +150,7 @@ final class ComputerExecutor {
      */
     private boolean closed;
 
-    private IWritableMount rootMount;
+    private @Nullable IWritableMount rootMount;
 
     /**
      * The thread the executor is running on. This is non-null when performing work. We use this to ensure we're only
@@ -193,6 +193,8 @@ final class ComputerExecutor {
     }
 
     FileSystem getFileSystem() {
+        var fileSystem = this.fileSystem;
+        if (fileSystem == null) throw new IllegalStateException("FileSystem has not been created yet");
         return fileSystem;
     }
 
@@ -276,7 +278,7 @@ final class ComputerExecutor {
      * @param event The event's name
      * @param args  The event's arguments
      */
-    void queueEvent(@Nonnull String event, @Nullable Object[] args) {
+    void queueEvent(String event, @Nullable Object[] args) {
         // Events should be skipped if we're not on.
         if (!isOn) return;
 
@@ -320,19 +322,28 @@ final class ComputerExecutor {
         }
     }
 
+    @Nullable
     private IMount getRomMount() {
         return computer.getGlobalEnvironment().createResourceMount("computercraft", "lua/rom");
     }
 
+    @Nullable
     private IWritableMount getRootMount() {
         if (rootMount == null) rootMount = computerEnvironment.createRootMount();
         return rootMount;
     }
 
+    @Nullable
     private FileSystem createFileSystem() {
         FileSystem filesystem = null;
         try {
-            filesystem = new FileSystem("hdd", getRootMount());
+            var mount = getRootMount();
+            if (mount == null) {
+                displayFailure("Cannot mount computer mount", null);
+                return null;
+            }
+
+            filesystem = new FileSystem("hdd", mount);
 
             var romMount = getRomMount();
             if (romMount == null) {
@@ -351,12 +362,14 @@ final class ComputerExecutor {
         }
     }
 
+    @Nullable
     private ILuaMachine createLuaMachine() {
         // Load the bios resource
         InputStream biosStream = null;
         try {
             biosStream = computer.getGlobalEnvironment().createResourceFile("computercraft", "lua/bios.lua");
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            LOG.error("Failed to load BIOS", e);
         }
 
         if (biosStream == null) {
@@ -562,7 +575,7 @@ final class ComputerExecutor {
         if (machine != null) machine.printExecutionState(out);
     }
 
-    private void displayFailure(String message, String extra) {
+    private void displayFailure(String message, @Nullable String extra) {
         var terminal = computer.getTerminal();
         terminal.reset();
 
@@ -583,8 +596,8 @@ final class ComputerExecutor {
         terminal.write("ComputerCraft may be installed incorrectly");
     }
 
-    private void resumeMachine(String event, Object[] args) throws InterruptedException {
-        var result = machine.handleEvent(event, args);
+    private void resumeMachine(@Nullable String event, @Nullable Object[] args) throws InterruptedException {
+        var result = Nullability.assertNonNull(machine).handleEvent(event, args);
         interruptedEvent = result.isPause();
         if (!result.isError()) return;
 
@@ -600,6 +613,6 @@ final class ComputerExecutor {
         ERROR,
     }
 
-    private record Event(String name, Object[] args) {
+    private record Event(String name, @Nullable Object[] args) {
     }
 }

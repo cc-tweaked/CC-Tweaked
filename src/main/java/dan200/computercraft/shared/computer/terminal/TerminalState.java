@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.computer.terminal;
 
-import dan200.computercraft.core.util.IoUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
@@ -119,14 +118,10 @@ public class TerminalState {
         if (compressed != null) return compressed;
 
         var compressed = Unpooled.buffer();
-        OutputStream stream = null;
-        try {
-            stream = new GZIPOutputStream(new ByteBufOutputStream(compressed));
+        try (OutputStream stream = new GZIPOutputStream(new ByteBufOutputStream(compressed))) {
             stream.write(buffer.array(), buffer.arrayOffset(), buffer.readableBytes());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
-        } finally {
-            IoUtil.closeQuietly(stream);
         }
 
         return this.compressed = compressed;
@@ -135,9 +130,7 @@ public class TerminalState {
     private static ByteBuf readCompressed(ByteBuf buf, int length, boolean compress) {
         if (compress) {
             var buffer = Unpooled.buffer();
-            InputStream stream = null;
-            try {
-                stream = new GZIPInputStream(new ByteBufInputStream(buf, length));
+            try (InputStream stream = new GZIPInputStream(new ByteBufInputStream(buf, length))) {
                 var swap = new byte[8192];
                 while (true) {
                     var bytes = stream.read(swap);
@@ -146,8 +139,6 @@ public class TerminalState {
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
-            } finally {
-                IoUtil.closeQuietly(stream);
             }
             return buffer;
         } else {

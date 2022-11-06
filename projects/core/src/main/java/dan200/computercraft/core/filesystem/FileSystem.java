@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.core.filesystem;
 
+import com.google.common.base.Splitter;
 import com.google.common.io.ByteStreams;
 import dan200.computercraft.api.filesystem.IFileSystem;
 import dan200.computercraft.api.filesystem.IMount;
@@ -12,7 +13,6 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.util.IoUtil;
 
-import javax.annotation.Nonnull;
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.ref.Reference;
@@ -60,16 +60,15 @@ public class FileSystem {
     }
 
     public synchronized void mount(String label, String location, IMount mount) throws FileSystemException {
-        if (mount == null) throw new NullPointerException();
+        Objects.requireNonNull(mount, "mount cannot be null");
         location = sanitizePath(location);
         if (location.contains("..")) throw new FileSystemException("Cannot mount below the root");
         mount(new MountWrapper(label, location, mount));
     }
 
     public synchronized void mountWritable(String label, String location, IWritableMount mount) throws FileSystemException {
-        if (mount == null) {
-            throw new NullPointerException();
-        }
+        Objects.requireNonNull(mount, "mount cannot be null");
+
         location = sanitizePath(location);
         if (location.contains("..")) {
             throw new FileSystemException("Cannot mount below the root");
@@ -313,7 +312,7 @@ public class FileSystem {
             } catch (AccessDeniedException e) {
                 throw new FileSystemException("Access denied");
             } catch (IOException e) {
-                throw new FileSystemException(e.getMessage());
+                throw FileSystemException.of(e);
             }
         }
     }
@@ -327,7 +326,7 @@ public class FileSystem {
         }
     }
 
-    private synchronized <T extends Closeable> FileSystemWrapper<T> openFile(@Nonnull MountWrapper mount, @Nonnull Channel channel, @Nonnull T file) throws FileSystemException {
+    private synchronized <T extends Closeable> FileSystemWrapper<T> openFile(MountWrapper mount, Channel channel, T file) throws FileSystemException {
         synchronized (openFiles) {
             if (CoreConfig.maximumFilesOpen > 0 &&
                 openFiles.size() >= CoreConfig.maximumFilesOpen) {
@@ -355,7 +354,7 @@ public class FileSystem {
         path = sanitizePath(path);
         var mount = getMount(path);
         var channel = mount.openForRead(path);
-        return channel != null ? openFile(mount, channel, open.apply(channel)) : null;
+        return openFile(mount, channel, open.apply(channel));
     }
 
     public synchronized <T extends Closeable> FileSystemWrapper<T> openForWrite(String path, boolean append, Function<WritableByteChannel, T> open) throws FileSystemException {
@@ -364,7 +363,7 @@ public class FileSystem {
         path = sanitizePath(path);
         var mount = getMount(path);
         var channel = append ? mount.openForAppend(path) : mount.openForWrite(path);
-        return channel != null ? openFile(mount, channel, open.apply(channel)) : null;
+        return openFile(mount, channel, open.apply(channel));
     }
 
     public synchronized long getFreeSpace(String path) throws FileSystemException {
@@ -373,7 +372,6 @@ public class FileSystem {
         return mount.getFreeSpace();
     }
 
-    @Nonnull
     public synchronized OptionalLong getCapacity(String path) throws FileSystemException {
         path = sanitizePath(path);
         var mount = getMount(path);
@@ -430,9 +428,8 @@ public class FileSystem {
         path = cleanName.toString();
 
         // Collapse the string into its component parts, removing ..'s
-        var parts = path.split("/");
-        var outputParts = new Stack<String>();
-        for (var part : parts) {
+        var outputParts = new ArrayDeque<String>();
+        for (var part : Splitter.on('/').split(path)) {
             if (part.isEmpty() || part.equals(".") || threeDotsPattern.matcher(part).matches()) {
                 // . is redundant
                 // ... and more are treated as .
@@ -441,37 +438,26 @@ public class FileSystem {
 
             if (part.equals("..")) {
                 // .. can cancel out the last folder entered
-                if (!outputParts.empty()) {
-                    var top = outputParts.peek();
+                if (!outputParts.isEmpty()) {
+                    var top = outputParts.peekLast();
                     if (!top.equals("..")) {
-                        outputParts.pop();
+                        outputParts.removeLast();
                     } else {
-                        outputParts.push("..");
+                        outputParts.addLast("..");
                     }
                 } else {
-                    outputParts.push("..");
+                    outputParts.addLast("..");
                 }
             } else if (part.length() >= 255) {
                 // If part length > 255 and it is the last part
-                outputParts.push(part.substring(0, 255));
+                outputParts.addLast(part.substring(0, 255));
             } else {
                 // Anything else we add to the stack
-                outputParts.push(part);
+                outputParts.addLast(part);
             }
         }
 
-        // Recombine the output parts into a new string
-        var result = new StringBuilder();
-        var it = outputParts.iterator();
-        while (it.hasNext()) {
-            var part = it.next();
-            result.append(part);
-            if (it.hasNext()) {
-                result.append('/');
-            }
-        }
-
-        return result.toString();
+        return String.join("/", outputParts);
     }
 
     public static boolean contains(String pathA, String pathB) {

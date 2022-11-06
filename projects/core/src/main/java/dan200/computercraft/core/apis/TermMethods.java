@@ -12,7 +12,6 @@ import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.util.StringUtil;
 
-import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 
 /**
@@ -30,7 +29,6 @@ public abstract class TermMethods {
         return bit;
     }
 
-    @Nonnull
     public abstract Terminal getTerminal() throws LuaException;
 
     /**

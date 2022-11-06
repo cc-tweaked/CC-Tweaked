@@ -5,16 +5,17 @@
  */
 package dan200.computercraft.test.core.filesystem;
 
+import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 
-import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -30,7 +31,7 @@ public class MemoryMount implements IWritableMount {
 
 
     @Override
-    public void makeDirectory(@Nonnull String path) {
+    public void makeDirectory(String path) {
         var file = new File(path);
         while (file != null) {
             directories.add(file.getPath());
@@ -39,7 +40,7 @@ public class MemoryMount implements IWritableMount {
     }
 
     @Override
-    public void delete(@Nonnull String path) {
+    public void delete(String path) {
         if (files.containsKey(path)) {
             files.remove(path);
         } else {
@@ -55,9 +56,8 @@ public class MemoryMount implements IWritableMount {
         }
     }
 
-    @Nonnull
     @Override
-    public WritableByteChannel openForWrite(@Nonnull final String path) {
+    public WritableByteChannel openForWrite(final String path) {
         return Channels.newChannel(new ByteArrayOutputStream() {
             @Override
             public void close() throws IOException {
@@ -67,9 +67,8 @@ public class MemoryMount implements IWritableMount {
         });
     }
 
-    @Nonnull
     @Override
-    public WritableByteChannel openForAppend(@Nonnull final String path) throws IOException {
+    public WritableByteChannel openForAppend(final String path) throws IOException {
         var stream = new ByteArrayOutputStream() {
             @Override
             public void close() throws IOException {
@@ -90,35 +89,36 @@ public class MemoryMount implements IWritableMount {
     }
 
     @Override
-    public boolean exists(@Nonnull String path) {
+    public boolean exists(String path) {
         return files.containsKey(path) || directories.contains(path);
     }
 
     @Override
-    public boolean isDirectory(@Nonnull String path) {
+    public boolean isDirectory(String path) {
         return directories.contains(path);
     }
 
     @Override
-    public void list(@Nonnull String path, @Nonnull List<String> files) {
+    public void list(String path, List<String> files) {
         for (var file : this.files.keySet()) {
             if (file.startsWith(path)) files.add(file.substring(path.length() + 1));
         }
     }
 
     @Override
-    public long getSize(@Nonnull String path) {
+    public long getSize(String path) {
         throw new RuntimeException("Not implemented");
     }
 
-    @Nonnull
     @Override
-    public ReadableByteChannel openForRead(@Nonnull String path) {
-        return new ArrayByteChannel(files.get(path));
+    public ReadableByteChannel openForRead(String path) throws FileOperationException {
+        var file = files.get(path);
+        if (file == null) throw new FileOperationException(path, "File not found");
+        return new ArrayByteChannel(file);
     }
 
     public MemoryMount addFile(String file, String contents) {
-        files.put(file, contents.getBytes());
+        files.put(file, contents.getBytes(StandardCharsets.UTF_8));
         return this;
     }
 }

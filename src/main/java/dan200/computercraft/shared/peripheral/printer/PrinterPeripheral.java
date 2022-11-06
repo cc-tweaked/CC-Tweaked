@@ -135,7 +135,7 @@ public class PrinterPeripheral implements IPeripheral {
     @LuaFunction
     public final void setPageTitle(Optional<String> title) throws LuaException {
         getCurrentPage();
-        printer.setPageTitle(StringUtil.normaliseLabel(title.orElse("")));
+        printer.setPageTitle(title.map(StringUtil::normaliseLabel).orElse(null));
     }
 
     /**

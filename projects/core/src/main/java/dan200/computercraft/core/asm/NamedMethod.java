@@ -7,7 +7,6 @@ package dan200.computercraft.core.asm;
 
 import dan200.computercraft.api.peripheral.PeripheralType;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class NamedMethod<T> {
@@ -15,21 +14,19 @@ public final class NamedMethod<T> {
     private final T method;
     private final boolean nonYielding;
 
-    private final PeripheralType genericType;
+    private final @Nullable PeripheralType genericType;
 
-    NamedMethod(String name, T method, boolean nonYielding, PeripheralType genericType) {
+    NamedMethod(String name, T method, boolean nonYielding, @Nullable PeripheralType genericType) {
         this.name = name;
         this.method = method;
         this.nonYielding = nonYielding;
         this.genericType = genericType;
     }
 
-    @Nonnull
     public String getName() {
         return name;
     }
 
-    @Nonnull
     public T getMethod() {
         return method;
     }

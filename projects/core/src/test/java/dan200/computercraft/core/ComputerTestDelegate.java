@@ -23,7 +23,6 @@ import org.opentest4j.AssertionFailedError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
@@ -249,7 +248,6 @@ public class ComputerTestDelegate {
     }
 
     public static class FakeModem implements IPeripheral {
-        @Nonnull
         @Override
         public String getType() {
             return "modem";
@@ -267,7 +265,6 @@ public class ComputerTestDelegate {
     }
 
     public static class FakePeripheralHub implements IPeripheral {
-        @Nonnull
         @Override
         public String getType() {
             return "peripheral_hub";

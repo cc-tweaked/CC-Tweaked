@@ -16,7 +16,7 @@ import dan200.computercraft.core.terminal.Terminal;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -56,7 +56,7 @@ public final class Environment implements IAPIEnvironment {
     private final int[] bundledInput = new int[ComputerSide.COUNT];
 
     private final IPeripheral[] peripherals = new IPeripheral[ComputerSide.COUNT];
-    private IPeripheralChangeListener peripheralListener = null;
+    private @Nullable IPeripheralChangeListener peripheralListener = null;
 
     private final Int2ObjectMap<Timer> timers = new Int2ObjectOpenHashMap<>();
     private int nextTimerToken = 0;
@@ -72,25 +72,21 @@ public final class Environment implements IAPIEnvironment {
         return computer.getID();
     }
 
-    @Nonnull
     @Override
     public ComputerEnvironment getComputerEnvironment() {
         return environment;
     }
 
-    @Nonnull
     @Override
     public GlobalEnvironment getGlobalEnvironment() {
         return computer.getGlobalEnvironment();
     }
 
-    @Nonnull
     @Override
     public IWorkMonitor getMainThreadMonitor() {
         return computer.getMainThreadMonitor();
     }
 
-    @Nonnull
     @Override
     public Terminal getTerminal() {
         return computer.getTerminal();
@@ -112,7 +108,7 @@ public final class Environment implements IAPIEnvironment {
     }
 
     @Override
-    public void queueEvent(String event, Object... args) {
+    public void queueEvent(String event, @Nullable Object... args) {
         computer.queueEvent(event, args);
     }
 
@@ -262,6 +258,7 @@ public final class Environment implements IAPIEnvironment {
         }
     }
 
+    @Nullable
     @Override
     public IPeripheral getPeripheral(ComputerSide side) {
         synchronized (peripherals) {
@@ -269,7 +266,7 @@ public final class Environment implements IAPIEnvironment {
         }
     }
 
-    public void setPeripheral(ComputerSide side, IPeripheral peripheral) {
+    public void setPeripheral(ComputerSide side, @Nullable IPeripheral peripheral) {
         synchronized (peripherals) {
             var index = side.ordinal();
             var existing = peripherals[index];
@@ -283,19 +280,20 @@ public final class Environment implements IAPIEnvironment {
     }
 
     @Override
-    public void setPeripheralChangeListener(IPeripheralChangeListener listener) {
+    public void setPeripheralChangeListener(@Nullable IPeripheralChangeListener listener) {
         synchronized (peripherals) {
             peripheralListener = listener;
         }
     }
 
+    @Nullable
     @Override
     public String getLabel() {
         return computer.getLabel();
     }
 
     @Override
-    public void setLabel(String label) {
+    public void setLabel(@Nullable String label) {
         computer.setLabel(label);
     }
 
@@ -315,12 +313,12 @@ public final class Environment implements IAPIEnvironment {
     }
 
     @Override
-    public void observe(@Nonnull Metric.Event event, long change) {
+    public void observe(Metric.Event event, long change) {
         metrics.observe(event, change);
     }
 
     @Override
-    public void observe(@Nonnull Metric.Counter counter) {
+    public void observe(Metric.Counter counter) {
         metrics.observe(counter);
     }
 

@@ -12,8 +12,6 @@ public final class StringUtil {
     }
 
     public static String normaliseLabel(String label) {
-        if (label == null) return null;
-
         var length = Math.min(32, label.length());
         var builder = new StringBuilder(length);
         for (var i = 0; i < length; i++) {

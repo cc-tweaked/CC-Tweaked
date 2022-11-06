@@ -13,7 +13,6 @@ import dan200.computercraft.core.apis.handles.EncodedReadableHandle;
 import dan200.computercraft.core.apis.handles.HandleGeneric;
 import dan200.computercraft.core.asm.ObjectSource;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Map;
 
@@ -31,7 +30,7 @@ public class HttpResponseHandle implements ObjectSource {
     private final String responseStatus;
     private final Map<String, String> responseHeaders;
 
-    public HttpResponseHandle(@Nonnull HandleGeneric reader, int responseCode, String responseStatus, @Nonnull Map<String, String> responseHeaders) {
+    public HttpResponseHandle(HandleGeneric reader, int responseCode, String responseStatus, Map<String, String> responseHeaders) {
         this.reader = reader;
         this.responseCode = responseCode;
         this.responseStatus = responseStatus;

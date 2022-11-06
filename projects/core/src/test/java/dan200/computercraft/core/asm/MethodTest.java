@@ -13,7 +13,6 @@ import dan200.computercraft.core.computer.ComputerBootstrap;
 import dan200.computercraft.core.computer.ComputerSide;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 
@@ -99,7 +98,6 @@ public class MethodTest {
             return 123;
         }
 
-        @Nonnull
         @Override
         public String getType() {
             return "main_thread";
@@ -112,21 +110,18 @@ public class MethodTest {
     }
 
     public static class Dynamic implements IDynamicLuaObject, ILuaAPI, IDynamicPeripheral {
-        @Nonnull
         @Override
         public String[] getMethodNames() {
             return new String[]{ "foo" };
         }
 
-        @Nonnull
         @Override
-        public MethodResult callMethod(@Nonnull ILuaContext context, int method, @Nonnull IArguments arguments) {
+        public MethodResult callMethod(ILuaContext context, int method, IArguments arguments) {
             return MethodResult.of(123);
         }
 
-        @Nonnull
         @Override
-        public MethodResult callMethod(@Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull IArguments arguments) {
+        public MethodResult callMethod(IComputerAccess computer, ILuaContext context, int method, IArguments arguments) {
             return callMethod(context, method, arguments);
         }
 
@@ -140,7 +135,6 @@ public class MethodTest {
             return new String[]{ "dynamic" };
         }
 
-        @Nonnull
         @Override
         public String getType() {
             return "dynamic";
@@ -179,7 +173,6 @@ public class MethodTest {
             throw new LuaException("!");
         }
 
-        @Nonnull
         @Override
         public String getType() {
             return "throw";
@@ -192,7 +185,6 @@ public class MethodTest {
     }
 
     public static class ManyMethods implements IDynamicLuaObject, ILuaAPI {
-        @Nonnull
         @Override
         public String[] getMethodNames() {
             var methods = new String[40];
@@ -200,9 +192,8 @@ public class MethodTest {
             return methods;
         }
 
-        @Nonnull
         @Override
-        public MethodResult callMethod(@Nonnull ILuaContext context, int method, @Nonnull IArguments arguments) throws LuaException {
+        public MethodResult callMethod(ILuaContext context, int method, IArguments arguments) throws LuaException {
             return MethodResult.of();
         }
 

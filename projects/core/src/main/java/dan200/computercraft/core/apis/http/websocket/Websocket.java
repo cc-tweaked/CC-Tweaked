@@ -29,6 +29,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -51,9 +52,9 @@ public class Websocket extends Resource<Websocket> {
     static final String CLOSE_EVENT = "websocket_closed";
     static final String MESSAGE_EVENT = "websocket_message";
 
-    private Future<?> executorFuture;
-    private ChannelFuture connectFuture;
-    private WeakReference<WebsocketHandle> websocketHandle;
+    private @Nullable Future<?> executorFuture;
+    private @Nullable ChannelFuture connectFuture;
+    private @Nullable WeakReference<WebsocketHandle> websocketHandle;
 
     private final IAPIEnvironment environment;
     private final URI uri;
@@ -73,12 +74,14 @@ public class Websocket extends Resource<Websocket> {
         try {
             uri = new URI(address);
         } catch (URISyntaxException ignored) {
+            // Fall through to the case below
         }
 
         if (uri == null || uri.getHost() == null) {
             try {
                 uri = new URI("ws://" + address);
             } catch (URISyntaxException ignored) {
+                // Fall through to the case below
             }
         }
 
@@ -152,7 +155,7 @@ public class Websocket extends Resource<Websocket> {
             // Do an additional check for cancellation
             checkClosed();
         } catch (HTTPRequestException e) {
-            failure(e.getMessage());
+            failure(NetworkUtils.toFriendlyError(e));
         } catch (Exception e) {
             failure(NetworkUtils.toFriendlyError(e));
             LOG.error(Logging.HTTP_ERROR, "Error in websocket", e);

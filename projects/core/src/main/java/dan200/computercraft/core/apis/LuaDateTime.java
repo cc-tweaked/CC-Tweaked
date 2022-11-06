@@ -7,6 +7,7 @@ package dan200.computercraft.core.apis;
 
 import dan200.computercraft.api.lua.LuaException;
 
+import javax.annotation.Nullable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -117,6 +118,7 @@ final class LuaDateTime {
         return def;
     }
 
+    @Nullable
     private static Boolean getBoolField(Map<?, ?> table, String field) throws LuaException {
         var value = table.get(field);
         if (value instanceof Boolean || value == null) return (Boolean) value;

@@ -25,7 +25,7 @@ import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.TrustManagerFactory;
@@ -65,10 +65,11 @@ public final class NetworkUtils {
     }
 
     private static final Object sslLock = new Object();
-    private static TrustManagerFactory trustManager;
-    private static SslContext sslContext;
+    private static @Nullable TrustManagerFactory trustManager;
+    private static @Nullable SslContext sslContext;
     private static boolean triedSslContext = false;
 
+    @Nullable
     private static TrustManagerFactory getTrustManager() {
         if (trustManager != null) return trustManager;
         synchronized (sslLock) {
@@ -86,6 +87,7 @@ public final class NetworkUtils {
         }
     }
 
+    @Nullable
     public static SslContext getSslContext() throws HTTPRequestException {
         if (sslContext != null || triedSslContext) return sslContext;
         synchronized (sslLock) {
@@ -171,10 +173,10 @@ public final class NetworkUtils {
         return bytes;
     }
 
-    @Nonnull
-    public static String toFriendlyError(@Nonnull Throwable cause) {
+    public static String toFriendlyError(Throwable cause) {
         if (cause instanceof WebSocketHandshakeException || cause instanceof HTTPRequestException) {
-            return cause.getMessage();
+            var message = cause.getMessage();
+            return message == null ? "Could not connect" : message;
         } else if (cause instanceof TooLongFrameException) {
             return "Message is too large";
         } else if (cause instanceof ReadTimeoutException || cause instanceof ConnectTimeoutException) {

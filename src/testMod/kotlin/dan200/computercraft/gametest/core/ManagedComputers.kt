@@ -73,13 +73,15 @@ object ManagedComputers : ILuaMachine.Factory {
             apis.add(api)
 
             if (api is OSAPI) {
-                val newMachine = if (api.computerID != 1) {
-                    CobaltLuaMachine(environment)
-                } else if (api.computerLabel != null) {
-                    KotlinMachine(environment, api.computerLabel[0] as String)
-                } else {
-                    LOGGER.error("Kotlin Lua machine must have a label")
-                    CobaltLuaMachine(environment)
+                val id = api.computerID
+                val label = api.computerLabel
+                val newMachine = when {
+                    id != 1 -> CobaltLuaMachine(environment)
+                    label != null && label[0] != null -> KotlinMachine(environment, label[0] as String)
+                    else -> {
+                        LOGGER.error("Kotlin Lua machine must have a label")
+                        CobaltLuaMachine(environment)
+                    }
                 }
 
                 this.delegate = newMachine
@@ -106,7 +108,8 @@ object ManagedComputers : ILuaMachine.Factory {
         }
     }
 
-    private class KotlinMachine(environment: MachineEnvironment, private val label: String) : KotlinLuaMachine(environment) {
+    private class KotlinMachine(environment: MachineEnvironment, private val label: String) :
+        KotlinLuaMachine(environment) {
         override fun getTask(): (suspend KotlinLuaMachine.() -> Unit)? = computers[label]?.poll()
     }
 

@@ -5,20 +5,18 @@
  */
 package dan200.computercraft.core.apis.http.options;
 
-import javax.annotation.Nonnull;
 
 /**
  * Options about a specific domain.
  */
 public final class Options {
-    @Nonnull
     public final Action action;
     public final long maxUpload;
     public final long maxDownload;
     public final int timeout;
     public final int websocketMessage;
 
-    Options(@Nonnull Action action, long maxUpload, long maxDownload, int timeout, int websocketMessage) {
+    Options(Action action, long maxUpload, long maxDownload, int timeout, int websocketMessage) {
         this.action = action;
         this.maxUpload = maxUpload;
         this.maxDownload = maxDownload;

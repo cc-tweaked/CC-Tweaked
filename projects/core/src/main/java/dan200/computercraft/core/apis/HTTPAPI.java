@@ -18,7 +18,6 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
@@ -35,7 +34,7 @@ import static dan200.computercraft.core.apis.TableHelper.*;
 public class HTTPAPI implements ILuaAPI {
     private final IAPIEnvironment apiEnvironment;
 
-    private final ResourceGroup<CheckUrl> checkUrls = new ResourceGroup<>(ResourceGroup.DEFAULT);
+    private final ResourceGroup<CheckUrl> checkUrls = new ResourceGroup<>(() -> ResourceGroup.DEFAULT_LIMIT);
     private final ResourceGroup<HttpRequest> requests = new ResourceQueue<>(() -> CoreConfig.httpMaxRequests);
     private final ResourceGroup<Websocket> websockets = new ResourceGroup<>(() -> CoreConfig.httpMaxWebsockets);
 
@@ -155,8 +154,7 @@ public class HTTPAPI implements ILuaAPI {
         }
     }
 
-    @Nonnull
-    private HttpHeaders getHeaders(@Nonnull Map<?, ?> headerTable) throws LuaException {
+    private HttpHeaders getHeaders(Map<?, ?> headerTable) throws LuaException {
         HttpHeaders headers = new DefaultHttpHeaders();
         for (Map.Entry<?, ?> entry : headerTable.entrySet()) {
             var value = entry.getValue();

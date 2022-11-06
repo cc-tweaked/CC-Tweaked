@@ -13,7 +13,7 @@ import dan200.computercraft.core.util.StringUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -40,7 +40,7 @@ public class OSAPI implements ILuaAPI {
 
     private record Alarm(double time, int day) implements Comparable<Alarm> {
         @Override
-        public int compareTo(@Nonnull Alarm o) {
+        public int compareTo(Alarm o) {
             var t = day * 24.0 + time;
             var ot = day * 24.0 + time;
             return Double.compare(t, ot);
@@ -241,9 +241,10 @@ public class OSAPI implements ILuaAPI {
      * Returns the label of the computer, or {@code nil} if none is set.
      *
      * @return The label of the computer.
-     * @cc.treturn string The label of the computer.
+     * @cc.treturn string|nil The label of the computer.
      * @cc.since 1.3
      */
+    @Nullable
     @LuaFunction({ "getComputerLabel", "computerLabel" })
     public final Object[] getComputerLabel() {
         var label = apiEnvironment.getLabel();
@@ -258,7 +259,7 @@ public class OSAPI implements ILuaAPI {
      */
     @LuaFunction
     public final void setComputerLabel(Optional<String> label) {
-        apiEnvironment.setLabel(StringUtil.normaliseLabel(label.orElse(null)));
+        apiEnvironment.setLabel(label.map(StringUtil::normaliseLabel).orElse(null));
     }
 
     /**

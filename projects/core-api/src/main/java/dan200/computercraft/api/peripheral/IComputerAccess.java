@@ -86,6 +86,7 @@ public interface IComputerAccess {
      * @see #unmount(String)
      * @see IMount
      */
+    @Nullable
     String mountWritable(String desiredLocation, IWritableMount mount, String driveName);
 
     /**

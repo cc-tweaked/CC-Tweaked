@@ -17,6 +17,7 @@ public final class IoUtil {
         try {
             if (closeable != null) closeable.close();
         } catch (IOException ignored) {
+            // The whole point here is to suppress these exceptions!
         }
     }
 }

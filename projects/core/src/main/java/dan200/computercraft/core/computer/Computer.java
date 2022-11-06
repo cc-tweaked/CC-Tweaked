@@ -16,6 +16,7 @@ import dan200.computercraft.core.computer.mainthread.MainThreadScheduler;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.terminal.Terminal;
 
+import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -37,7 +38,7 @@ public class Computer {
 
     // Various properties of the computer
     private final int id;
-    private String label = null;
+    private @Nullable String label = null;
 
     // Read-only fields about the computer
     private final GlobalEnvironment globalEnvironment;
@@ -112,7 +113,7 @@ public class Computer {
         executor.queueStop(false, true);
     }
 
-    public void queueEvent(String event, Object[] args) {
+    public void queueEvent(String event, @Nullable Object[] args) {
         executor.queueEvent(event, args);
     }
 
@@ -134,11 +135,12 @@ public class Computer {
         return id;
     }
 
+    @Nullable
     public String getLabel() {
         return label;
     }
 
-    public void setLabel(String label) {
+    public void setLabel(@Nullable String label) {
         if (!Objects.equal(label, this.label)) {
             this.label = label;
             externalOutputChanged.set(true);

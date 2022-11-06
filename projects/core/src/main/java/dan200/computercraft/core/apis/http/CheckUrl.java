@@ -7,6 +7,7 @@ package dan200.computercraft.core.apis.http;
 
 import dan200.computercraft.core.apis.IAPIEnvironment;
 
+import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.concurrent.Future;
 
@@ -18,7 +19,7 @@ import java.util.concurrent.Future;
 public class CheckUrl extends Resource<CheckUrl> {
     private static final String EVENT = "http_check";
 
-    private Future<?> future;
+    private @Nullable Future<?> future;
 
     private final IAPIEnvironment environment;
     private final String address;
@@ -47,7 +48,7 @@ public class CheckUrl extends Resource<CheckUrl> {
 
             if (tryClose()) environment.queueEvent(EVENT, address, true);
         } catch (HTTPRequestException e) {
-            if (tryClose()) environment.queueEvent(EVENT, address, false, e.getMessage());
+            if (tryClose()) environment.queueEvent(EVENT, address, false, NetworkUtils.toFriendlyError(e));
         }
     }
 

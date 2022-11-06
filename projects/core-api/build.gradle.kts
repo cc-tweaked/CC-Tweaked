@@ -18,6 +18,7 @@ dependencies {
     compileOnly(project(":mc-stubs"))
     compileOnlyApi(libs.jsr305)
     compileOnlyApi(libs.checkerFramework)
+    compileOnlyApi(libs.jetbrainsAnnotations)
 
     "docApi"(project(":"))
 }

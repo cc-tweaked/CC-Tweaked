@@ -5,6 +5,8 @@
  */
 package dan200.computercraft.api.lua;
 
+import org.jetbrains.annotations.Contract;
+
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -387,7 +389,9 @@ public interface IArguments {
      * @return The argument's value, or {@code def} if none was provided.
      * @throws LuaException If the value is not a string.
      */
-    default String optString(int index, String def) throws LuaException {
+    @Nullable
+    @Contract("_, !null -> !null")
+    default String optString(int index, @Nullable String def) throws LuaException {
         return optString(index).orElse(def);
     }
 
@@ -399,7 +403,9 @@ public interface IArguments {
      * @return The argument's value, or {@code def} if none was provided.
      * @throws LuaException If the value is not a table.
      */
-    default Map<?, ?> optTable(int index, Map<Object, Object> def) throws LuaException {
+    @Nullable
+    @Contract("_, !null -> !null")
+    default Map<?, ?> optTable(int index, @Nullable Map<Object, Object> def) throws LuaException {
         return optTable(index).orElse(def);
     }
 }

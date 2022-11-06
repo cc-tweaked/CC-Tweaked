@@ -13,7 +13,7 @@ import dan200.computercraft.core.filesystem.FileSystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -40,8 +40,9 @@ public abstract class ComputerAccess implements IComputerAccess {
         mounts.clear();
     }
 
+    @Nullable
     @Override
-    public synchronized String mount(@Nonnull String desiredLoc, @Nonnull IMount mount, @Nonnull String driveName) {
+    public synchronized String mount(String desiredLoc, IMount mount, String driveName) {
         Objects.requireNonNull(desiredLoc, "desiredLocation cannot be null");
         Objects.requireNonNull(mount, "mount cannot be null");
         Objects.requireNonNull(driveName, "driveName cannot be null");
@@ -49,14 +50,14 @@ public abstract class ComputerAccess implements IComputerAccess {
         // Mount the location
         String location;
         var fileSystem = environment.getFileSystem();
-        if (fileSystem == null) throw new IllegalStateException("File system has not been created");
 
         synchronized (fileSystem) {
             location = findFreeLocation(desiredLoc);
             if (location != null) {
                 try {
                     fileSystem.mount(driveName, location, mount);
-                } catch (FileSystemException ignored) {
+                } catch (FileSystemException e) {
+                    throw new IllegalArgumentException(e.getMessage());
                 }
             }
         }
@@ -65,8 +66,9 @@ public abstract class ComputerAccess implements IComputerAccess {
         return location;
     }
 
+    @Nullable
     @Override
-    public synchronized String mountWritable(@Nonnull String desiredLoc, @Nonnull IWritableMount mount, @Nonnull String driveName) {
+    public synchronized String mountWritable(String desiredLoc, IWritableMount mount, String driveName) {
         Objects.requireNonNull(desiredLoc, "desiredLocation cannot be null");
         Objects.requireNonNull(mount, "mount cannot be null");
         Objects.requireNonNull(driveName, "driveName cannot be null");
@@ -74,14 +76,14 @@ public abstract class ComputerAccess implements IComputerAccess {
         // Mount the location
         String location;
         var fileSystem = environment.getFileSystem();
-        if (fileSystem == null) throw new IllegalStateException("File system has not been created");
 
         synchronized (fileSystem) {
             location = findFreeLocation(desiredLoc);
             if (location != null) {
                 try {
                     fileSystem.mountWritable(driveName, location, mount);
-                } catch (FileSystemException ignored) {
+                } catch (FileSystemException e) {
+                    throw new IllegalArgumentException(e.getMessage());
                 }
             }
         }
@@ -91,7 +93,7 @@ public abstract class ComputerAccess implements IComputerAccess {
     }
 
     @Override
-    public void unmount(String location) {
+    public void unmount(@Nullable String location) {
         if (location == null) return;
         if (!mounts.contains(location)) throw new IllegalStateException("You didn't mount this location");
 
@@ -105,17 +107,17 @@ public abstract class ComputerAccess implements IComputerAccess {
     }
 
     @Override
-    public void queueEvent(@Nonnull String event, Object... arguments) {
+    public void queueEvent(String event, @Nullable Object... arguments) {
         Objects.requireNonNull(event, "event cannot be null");
         environment.queueEvent(event, arguments);
     }
 
-    @Nonnull
     @Override
     public IWorkMonitor getMainThreadMonitor() {
         return environment.getMainThreadMonitor();
     }
 
+    @Nullable
     private String findFreeLocation(String desiredLoc) {
         try {
             var fileSystem = environment.getFileSystem();

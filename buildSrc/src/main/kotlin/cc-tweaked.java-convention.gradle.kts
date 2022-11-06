@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets
 
 plugins {
     `java-library`
+    idea
     jacoco
     checkstyle
     id("com.diffplug.spotless")
@@ -138,4 +139,13 @@ spotless {
         defaults()
         ktlint().editorConfigOverride(ktlintConfig)
     }
+}
+
+idea.module {
+    excludeDirs.addAll(project.files("run", "out", "logs").files)
+
+    // Force Gradle to write to inherit the output directory from the parent, instead of writing to out/xxx/classes.
+    // This is required for Loom, and we patch Forge's run configurations to work there.
+    // TODO: Submit a patch to Forge to support ProjectRootManager.
+    inheritOutputDirs = true
 }

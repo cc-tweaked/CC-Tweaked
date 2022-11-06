@@ -10,7 +10,6 @@ import dan200.computercraft.core.apis.http.options.AddressPredicate.DomainPatter
 import dan200.computercraft.core.apis.http.options.AddressPredicate.HostRange;
 import dan200.computercraft.core.apis.http.options.AddressPredicate.PrivatePattern;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -32,14 +31,14 @@ public final class AddressRule {
     private final OptionalInt port;
     private final PartialOptions partial;
 
-    private AddressRule(@Nonnull AddressPredicate predicate, OptionalInt port, @Nonnull PartialOptions partial) {
+    private AddressRule(AddressPredicate predicate, OptionalInt port, PartialOptions partial) {
         this.predicate = predicate;
         this.partial = partial;
         this.port = port;
     }
 
     @Nullable
-    public static AddressRule parse(String filter, OptionalInt port, @Nonnull PartialOptions partial) {
+    public static AddressRule parse(String filter, OptionalInt port, PartialOptions partial) {
         var cidr = filter.indexOf('/');
         if (cidr >= 0) {
             var addressStr = filter.substring(0, cidr);
@@ -63,7 +62,7 @@ public final class AddressRule {
      * @param ipv4Address An ipv4 version of the address, if the original was an ipv6 address.
      * @return Whether it matches any of these patterns.
      */
-    private boolean matches(String domain, int port, InetAddress address, Inet4Address ipv4Address) {
+    private boolean matches(String domain, int port, InetAddress address, @Nullable Inet4Address ipv4Address) {
         if (this.port.isPresent() && this.port.getAsInt() != port) return false;
         return predicate.matches(domain)
             || predicate.matches(address)

@@ -21,7 +21,6 @@ import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -77,8 +76,7 @@ public final class Generator<T> {
         this.methodDesc = methodDesc.toString();
     }
 
-    @Nonnull
-    public List<NamedMethod<T>> getMethods(@Nonnull Class<?> klass) {
+    public List<NamedMethod<T>> getMethods(Class<?> klass) {
         try {
             return classCache.get(klass);
         } catch (ExecutionException e) {
@@ -87,7 +85,6 @@ public final class Generator<T> {
         }
     }
 
-    @Nonnull
     private List<NamedMethod<T>> build(Class<?> klass) {
         ArrayList<NamedMethod<T>> methods = null;
         for (var method : klass.getMethods()) {
@@ -121,7 +118,7 @@ public final class Generator<T> {
         return Collections.unmodifiableList(methods);
     }
 
-    private void addMethod(List<NamedMethod<T>> methods, Method method, LuaFunction annotation, PeripheralType genericType, T instance) {
+    private void addMethod(List<NamedMethod<T>> methods, Method method, LuaFunction annotation, @Nullable PeripheralType genericType, T instance) {
         var names = annotation.value();
         var isSimple = method.getReturnType() != MethodResult.class && !annotation.mainThread();
         if (names.length == 0) {
@@ -133,7 +130,6 @@ public final class Generator<T> {
         }
     }
 
-    @Nonnull
     private Optional<T> build(Method method) {
         var name = method.getDeclaringClass().getName() + "." + method.getName();
         var modifiers = method.getModifiers();
@@ -259,6 +255,7 @@ public final class Generator<T> {
         return cw.toByteArray();
     }
 
+    @Nullable
     private Boolean loadArg(MethodVisitor mw, Class<?> target, Method method, boolean unsafe, java.lang.reflect.Type genericArg, int argIndex) {
         if (genericArg == target) {
             mw.visitVarInsn(ALOAD, 1);

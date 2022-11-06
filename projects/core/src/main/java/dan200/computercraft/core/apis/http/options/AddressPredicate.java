@@ -9,6 +9,7 @@ import com.google.common.net.InetAddresses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.regex.Pattern;
@@ -51,6 +52,7 @@ interface AddressPredicate {
             return true;
         }
 
+        @Nullable
         public static HostRange parse(String addressStr, String prefixSizeStr) {
             int prefixSize;
             try {
@@ -79,11 +81,11 @@ interface AddressPredicate {
             var size = prefixSize;
             for (var i = 0; i < minBytes.length; i++) {
                 if (size <= 0) {
-                    minBytes[i] &= 0;
-                    maxBytes[i] |= 0xFF;
+                    minBytes[i] = (byte) 0;
+                    maxBytes[i] = (byte) 0xFF;
                 } else if (size < 8) {
-                    minBytes[i] &= 0xFF << (8 - size);
-                    maxBytes[i] |= ~(0xFF << (8 - size));
+                    minBytes[i] = (byte) (minBytes[i] & 0xFF << (8 - size));
+                    maxBytes[i] = (byte) (maxBytes[i] | ~(0xFF << (8 - size)));
                 }
 
                 size -= 8;

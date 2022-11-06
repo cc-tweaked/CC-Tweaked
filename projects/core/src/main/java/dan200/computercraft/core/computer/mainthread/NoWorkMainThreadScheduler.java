@@ -7,7 +7,6 @@ package dan200.computercraft.core.computer.mainthread;
 
 import dan200.computercraft.core.metrics.MetricsObserver;
 
-import javax.annotation.Nonnull;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,7 +37,7 @@ public class NoWorkMainThreadScheduler implements MainThreadScheduler {
         }
 
         @Override
-        public void trackWork(long time, @Nonnull TimeUnit unit) {
+        public void trackWork(long time, TimeUnit unit) {
         }
     }
 }

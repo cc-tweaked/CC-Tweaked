@@ -8,7 +8,6 @@ package dan200.computercraft.test.core;
 import net.jqwik.api.*;
 import net.jqwik.api.arbitraries.SizableArbitrary;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -43,25 +42,21 @@ public final class ArbitraryByteBuffer implements SizableArbitrary<ByteBuffer> {
         return DEFAULT;
     }
 
-    @Nonnull
     @Override
     public SizableArbitrary<ByteBuffer> ofMinSize(int minSize) {
         return new ArbitraryByteBuffer(minSize, maxSize, distribution);
     }
 
-    @Nonnull
     @Override
     public SizableArbitrary<ByteBuffer> ofMaxSize(int maxSize) {
         return new ArbitraryByteBuffer(minSize, maxSize, distribution);
     }
 
-    @Nonnull
     @Override
-    public SizableArbitrary<ByteBuffer> withSizeDistribution(@Nonnull RandomDistribution distribution) {
+    public SizableArbitrary<ByteBuffer> withSizeDistribution(RandomDistribution distribution) {
         return new ArbitraryByteBuffer(minSize, maxSize, distribution);
     }
 
-    @Nonnull
     @Override
     public RandomGenerator<ByteBuffer> generator(int genSize) {
         var min = BigInteger.valueOf(minSize);
@@ -78,7 +73,6 @@ public final class ArbitraryByteBuffer implements SizableArbitrary<ByteBuffer> {
         };
     }
 
-    @Nonnull
     @Override
     public EdgeCases<ByteBuffer> edgeCases(int maxEdgeCases) {
         return EdgeCases.fromSuppliers(Arrays.asList(
@@ -133,13 +127,11 @@ public final class ArbitraryByteBuffer implements SizableArbitrary<ByteBuffer> {
             this.minSize = minSize;
         }
 
-        @Nonnull
         @Override
         public ByteBuffer value() {
             return value;
         }
 
-        @Nonnull
         @Override
         public Stream<Shrinkable<ByteBuffer>> shrink() {
             return StreamSupport.stream(new Spliterators.AbstractSpliterator<Shrinkable<ByteBuffer>>(3, 0) {
@@ -160,7 +152,6 @@ public final class ArbitraryByteBuffer implements SizableArbitrary<ByteBuffer> {
             }, false);
         }
 
-        @Nonnull
         @Override
         public ShrinkingDistance distance() {
             return ShrinkingDistance.of(value.remaining() - minSize);

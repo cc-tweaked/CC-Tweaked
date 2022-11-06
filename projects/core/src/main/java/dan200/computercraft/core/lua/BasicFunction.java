@@ -28,14 +28,14 @@ class BasicFunction extends VarArgFunction {
     private final LuaMethod method;
     private final Object instance;
     private final ILuaContext context;
-    private final String name;
+    private final String funcName;
 
     BasicFunction(CobaltLuaMachine machine, LuaMethod method, Object instance, ILuaContext context, String name) {
         this.machine = machine;
         this.method = method;
         this.instance = instance;
         this.context = context;
-        this.name = name;
+        funcName = name;
     }
 
     @Override
@@ -47,7 +47,7 @@ class BasicFunction extends VarArgFunction {
         } catch (LuaException e) {
             throw wrap(e);
         } catch (Throwable t) {
-            LOG.error(Logging.JAVA_ERROR, "Error calling {} on {}", name, instance, t);
+            LOG.error(Logging.JAVA_ERROR, "Error calling {} on {}", funcName, instance, t);
             throw new LuaError("Java Exception Thrown: " + t, 0);
         } finally {
             arguments.close();

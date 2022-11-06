@@ -10,16 +10,16 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.filesystem.TrackingCloseable;
 import dan200.computercraft.core.util.IoUtil;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.channels.Channel;
 import java.nio.channels.SeekableByteChannel;
 import java.util.Optional;
 
 public abstract class HandleGeneric {
-    private TrackingCloseable closeable;
+    private @Nullable TrackingCloseable closeable;
 
-    protected HandleGeneric(@Nonnull TrackingCloseable closeable) {
+    protected HandleGeneric(TrackingCloseable closeable) {
         this.closeable = closeable;
     }
 
@@ -57,6 +57,7 @@ public abstract class HandleGeneric {
      * @throws LuaException If the arguments were invalid
      * @see <a href="https://www.lua.org/manual/5.1/manual.html#pdf-file:seek">{@code file:seek} in the Lua manual.</a>
      */
+    @Nullable
     protected static Object[] handleSeek(SeekableByteChannel channel, Optional<String> whence, Optional<Long> offset) throws LuaException {
         long actualOffset = offset.orElse(0L);
         try {
@@ -75,6 +76,7 @@ public abstract class HandleGeneric {
         }
     }
 
+    @Nullable
     protected static SeekableByteChannel asSeekable(Channel channel) {
         if (!(channel instanceof SeekableByteChannel seekable)) return null;
 

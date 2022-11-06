@@ -14,7 +14,6 @@ import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.terminal.Terminal;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public interface IAPIEnvironment {
@@ -27,16 +26,12 @@ public interface IAPIEnvironment {
 
     int getComputerID();
 
-    @Nonnull
     ComputerEnvironment getComputerEnvironment();
 
-    @Nonnull
     GlobalEnvironment getGlobalEnvironment();
 
-    @Nonnull
     IWorkMonitor getMainThreadMonitor();
 
-    @Nonnull
     Terminal getTerminal();
 
     FileSystem getFileSystem();
@@ -45,7 +40,7 @@ public interface IAPIEnvironment {
 
     void reboot();
 
-    void queueEvent(String event, Object... args);
+    void queueEvent(String event, @Nullable Object... args);
 
     void setOutput(ComputerSide side, int output);
 
@@ -73,7 +68,7 @@ public interface IAPIEnvironment {
 
     void cancelTimer(int id);
 
-    void observe(@Nonnull Metric.Event event, long change);
+    void observe(Metric.Event event, long change);
 
-    void observe(@Nonnull Metric.Counter counter);
+    void observe(Metric.Counter counter);
 }

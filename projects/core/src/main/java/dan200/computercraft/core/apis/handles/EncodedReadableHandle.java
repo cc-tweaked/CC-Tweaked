@@ -9,7 +9,7 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.filesystem.TrackingCloseable;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.channels.Channels;
@@ -30,12 +30,12 @@ public class EncodedReadableHandle extends HandleGeneric {
 
     private final BufferedReader reader;
 
-    public EncodedReadableHandle(@Nonnull BufferedReader reader, @Nonnull TrackingCloseable closable) {
+    public EncodedReadableHandle(BufferedReader reader, TrackingCloseable closable) {
         super(closable);
         this.reader = reader;
     }
 
-    public EncodedReadableHandle(@Nonnull BufferedReader reader) {
+    public EncodedReadableHandle(BufferedReader reader) {
         this(reader, new TrackingCloseable.Impl(reader));
     }
 
@@ -48,6 +48,7 @@ public class EncodedReadableHandle extends HandleGeneric {
      * @cc.treturn string|nil The read line or {@code nil} if at the end of the file.
      * @cc.changed 1.81.0 Added option to return trailing newline.
      */
+    @Nullable
     @LuaFunction
     public final Object[] readLine(Optional<Boolean> withTrailingArg) throws LuaException {
         checkOpen();
@@ -73,6 +74,7 @@ public class EncodedReadableHandle extends HandleGeneric {
      * @throws LuaException If the file has been closed.
      * @cc.treturn nil|string The remaining contents of the file, or {@code nil} if we are at the end.
      */
+    @Nullable
     @LuaFunction
     public final Object[] readAll() throws LuaException {
         checkOpen();
@@ -102,6 +104,7 @@ public class EncodedReadableHandle extends HandleGeneric {
      * @cc.treturn string|nil The read characters, or {@code nil} if at the of the file.
      * @cc.since 1.80pr1.4
      */
+    @Nullable
     @LuaFunction
     public final Object[] read(Optional<Integer> countA) throws LuaException {
         checkOpen();

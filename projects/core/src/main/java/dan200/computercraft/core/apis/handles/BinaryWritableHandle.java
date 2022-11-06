@@ -10,7 +10,9 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.LuaValues;
 import dan200.computercraft.core.filesystem.TrackingCloseable;
+import dan200.computercraft.core.util.Nullability;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -26,10 +28,10 @@ import java.util.Optional;
  */
 public class BinaryWritableHandle extends HandleGeneric {
     private final WritableByteChannel writer;
-    final SeekableByteChannel seekable;
+    final @Nullable SeekableByteChannel seekable;
     private final ByteBuffer single = ByteBuffer.allocate(1);
 
-    protected BinaryWritableHandle(WritableByteChannel writer, SeekableByteChannel seekable, TrackingCloseable closeable) {
+    protected BinaryWritableHandle(WritableByteChannel writer, @Nullable SeekableByteChannel seekable, TrackingCloseable closeable) {
         super(closeable);
         this.writer = writer;
         this.seekable = seekable;
@@ -86,7 +88,8 @@ public class BinaryWritableHandle extends HandleGeneric {
         try {
             // Technically this is not needed
             if (writer instanceof FileChannel channel) channel.force(false);
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            throw new LuaException(e.getMessage());
         }
     }
 
@@ -114,10 +117,11 @@ public class BinaryWritableHandle extends HandleGeneric {
          * @cc.treturn string The reason seeking failed.
          * @cc.since 1.80pr1.9
          */
+        @Nullable
         @LuaFunction
         public final Object[] seek(Optional<String> whence, Optional<Long> offset) throws LuaException {
             checkOpen();
-            return handleSeek(seekable, whence, offset);
+            return handleSeek(Nullability.assertNonNull(seekable), whence, offset);
         }
     }
 }

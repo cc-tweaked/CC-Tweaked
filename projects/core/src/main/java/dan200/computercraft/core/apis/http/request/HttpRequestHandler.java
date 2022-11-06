@@ -20,6 +20,7 @@ import io.netty.handler.codec.http.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -27,6 +28,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static dan200.computercraft.core.apis.http.request.HttpRequest.getHeaderSize;
 
@@ -47,10 +49,10 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     private final HttpMethod method;
     private final Options options;
 
-    private Charset responseCharset;
+    private @Nullable Charset responseCharset;
     private final HttpHeaders responseHeaders = new DefaultHttpHeaders();
-    private HttpResponseStatus responseStatus;
-    private CompositeByteBuf responseBody;
+    private @Nullable HttpResponseStatus responseStatus;
+    private @Nullable CompositeByteBuf responseBody;
 
     HttpRequestHandler(HttpRequest request, URI uri, HttpMethod method, Options options) {
         this.request = request;
@@ -112,7 +114,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
                         HttpRequest.checkUri(redirect);
                     } catch (HTTPRequestException e) {
                         // If we cannot visit this uri, then fail.
-                        request.failure(e.getMessage());
+                        request.failure(NetworkUtils.toFriendlyError(e));
                         return;
                     }
 
@@ -167,6 +169,9 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
     }
 
     private void sendResponse() {
+        Objects.requireNonNull(responseStatus, "Status has not been set");
+        Objects.requireNonNull(responseCharset, "Charset has not been set");
+
         // Read the ByteBuf into a channel.
         var body = responseBody;
         var bytes = body == null ? EMPTY_BYTES : NetworkUtils.toBytes(body);
@@ -203,6 +208,7 @@ public final class HttpRequestHandler extends SimpleChannelInboundHandler<HttpOb
      * @param headers The headers of the HTTP response.
      * @return The URI to redirect to, or {@code null} if no redirect should occur.
      */
+    @Nullable
     private URI getRedirect(HttpResponseStatus status, HttpHeaders headers) {
         var code = status.code();
         if (code < 300 || code > 307 || code == 304 || code == 306) return null;

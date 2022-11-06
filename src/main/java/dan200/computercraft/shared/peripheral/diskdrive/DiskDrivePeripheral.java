@@ -9,9 +9,9 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.core.util.StringUtil;
 import dan200.computercraft.shared.MediaProviders;
 import dan200.computercraft.shared.media.items.ItemDisk;
-import dan200.computercraft.core.util.StringUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -79,17 +79,16 @@ public class DiskDrivePeripheral implements IPeripheral {
      * If the inserted disk's label can't be changed (for example, a record),
      * an error will be thrown.
      *
-     * @param labelA The new label of the disk, or {@code nil} to clear.
+     * @param label The new label of the disk, or {@code nil} to clear.
      * @throws LuaException If the disk's label can't be changed.
      */
     @LuaFunction(mainThread = true)
-    public final void setDiskLabel(Optional<String> labelA) throws LuaException {
-        var label = labelA.orElse(null);
+    public final void setDiskLabel(Optional<String> label) throws LuaException {
         var stack = diskDrive.getDiskStack();
         var media = MediaProviders.get(stack);
         if (media == null) return;
 
-        if (!media.setLabel(stack, StringUtil.normaliseLabel(label))) {
+        if (!media.setLabel(stack, label.map(StringUtil::normaliseLabel).orElse(null))) {
             throw new LuaException("Disk label cannot be changed");
         }
         diskDrive.setDiskStack(stack);

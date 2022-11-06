@@ -12,7 +12,7 @@ import dan200.computercraft.api.peripheral.PeripheralType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -30,12 +30,12 @@ public class GenericMethod {
     final Method method;
     final LuaFunction annotation;
     final Class<?> target;
-    final PeripheralType peripheralType;
+    final @Nullable PeripheralType peripheralType;
 
     private static final List<GenericSource> sources = new ArrayList<>();
-    private static List<GenericMethod> cache;
+    private static @Nullable List<GenericMethod> cache;
 
-    GenericMethod(Method method, LuaFunction annotation, Class<?> target, PeripheralType peripheralType) {
+    GenericMethod(Method method, LuaFunction annotation, Class<?> target, @Nullable PeripheralType peripheralType) {
         this.method = method;
         this.annotation = annotation;
         this.target = target;
@@ -52,7 +52,7 @@ public class GenericMethod {
         return cache = sources.stream().flatMap(GenericMethod::getMethods).toList();
     }
 
-    public static synchronized void register(@Nonnull GenericSource source) {
+    public static synchronized void register(GenericSource source) {
         Objects.requireNonNull(source, "Source cannot be null");
 
         if (cache != null) {

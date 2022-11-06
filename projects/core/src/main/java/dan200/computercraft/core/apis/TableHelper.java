@@ -8,7 +8,6 @@ package dan200.computercraft.core.apis;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaValues;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
@@ -22,17 +21,15 @@ public final class TableHelper {
         throw new IllegalStateException("Cannot instantiate singleton " + getClass().getName());
     }
 
-    @Nonnull
-    public static LuaException badKey(@Nonnull String key, @Nonnull String expected, @Nullable Object actual) {
+    public static LuaException badKey(String key, String expected, @Nullable Object actual) {
         return badKey(key, expected, LuaValues.getType(actual));
     }
 
-    @Nonnull
-    public static LuaException badKey(@Nonnull String key, @Nonnull String expected, @Nonnull String actual) {
+    public static LuaException badKey(String key, String expected, String actual) {
         return new LuaException("bad field '" + key + "' (" + expected + " expected, got " + actual + ")");
     }
 
-    public static double getNumberField(@Nonnull Map<?, ?> table, @Nonnull String key) throws LuaException {
+    public static double getNumberField(Map<?, ?> table, String key) throws LuaException {
         var value = table.get(key);
         if (value instanceof Number) {
             return ((Number) value).doubleValue();
@@ -41,7 +38,7 @@ public final class TableHelper {
         }
     }
 
-    public static int getIntField(@Nonnull Map<?, ?> table, @Nonnull String key) throws LuaException {
+    public static int getIntField(Map<?, ?> table, String key) throws LuaException {
         var value = table.get(key);
         if (value instanceof Number) {
             return (int) ((Number) value).longValue();
@@ -50,11 +47,11 @@ public final class TableHelper {
         }
     }
 
-    public static double getRealField(@Nonnull Map<?, ?> table, @Nonnull String key) throws LuaException {
+    public static double getRealField(Map<?, ?> table, String key) throws LuaException {
         return checkReal(key, getNumberField(table, key));
     }
 
-    public static boolean getBooleanField(@Nonnull Map<?, ?> table, @Nonnull String key) throws LuaException {
+    public static boolean getBooleanField(Map<?, ?> table, String key) throws LuaException {
         var value = table.get(key);
         if (value instanceof Boolean) {
             return (Boolean) value;
@@ -63,8 +60,7 @@ public final class TableHelper {
         }
     }
 
-    @Nonnull
-    public static String getStringField(@Nonnull Map<?, ?> table, @Nonnull String key) throws LuaException {
+    public static String getStringField(Map<?, ?> table, String key) throws LuaException {
         var value = table.get(key);
         if (value instanceof String) {
             return (String) value;
@@ -74,8 +70,7 @@ public final class TableHelper {
     }
 
     @SuppressWarnings("unchecked")
-    @Nonnull
-    public static Map<Object, Object> getTableField(@Nonnull Map<?, ?> table, @Nonnull String key) throws LuaException {
+    public static Map<Object, Object> getTableField(Map<?, ?> table, String key) throws LuaException {
         var value = table.get(key);
         if (value instanceof Map) {
             return (Map<Object, Object>) value;
@@ -84,7 +79,7 @@ public final class TableHelper {
         }
     }
 
-    public static double optNumberField(@Nonnull Map<?, ?> table, @Nonnull String key, double def) throws LuaException {
+    public static double optNumberField(Map<?, ?> table, String key, double def) throws LuaException {
         var value = table.get(key);
         if (value == null) {
             return def;
@@ -95,7 +90,7 @@ public final class TableHelper {
         }
     }
 
-    public static int optIntField(@Nonnull Map<?, ?> table, @Nonnull String key, int def) throws LuaException {
+    public static int optIntField(Map<?, ?> table, String key, int def) throws LuaException {
         var value = table.get(key);
         if (value == null) {
             return def;
@@ -106,11 +101,11 @@ public final class TableHelper {
         }
     }
 
-    public static double optRealField(@Nonnull Map<?, ?> table, @Nonnull String key, double def) throws LuaException {
+    public static double optRealField(Map<?, ?> table, String key, double def) throws LuaException {
         return checkReal(key, optNumberField(table, key, def));
     }
 
-    public static boolean optBooleanField(@Nonnull Map<?, ?> table, @Nonnull String key, boolean def) throws LuaException {
+    public static boolean optBooleanField(Map<?, ?> table, String key, boolean def) throws LuaException {
         var value = table.get(key);
         if (value == null) {
             return def;
@@ -121,7 +116,8 @@ public final class TableHelper {
         }
     }
 
-    public static String optStringField(@Nonnull Map<?, ?> table, @Nonnull String key, String def) throws LuaException {
+    @Nullable
+    public static String optStringField(Map<?, ?> table, String key, @Nullable String def) throws LuaException {
         var value = table.get(key);
         if (value == null) {
             return def;
@@ -133,7 +129,7 @@ public final class TableHelper {
     }
 
     @SuppressWarnings("unchecked")
-    public static Map<Object, Object> optTableField(@Nonnull Map<?, ?> table, @Nonnull String key, Map<Object, Object> def) throws LuaException {
+    public static Map<Object, Object> optTableField(Map<?, ?> table, String key, Map<Object, Object> def) throws LuaException {
         var value = table.get(key);
         if (value == null) {
             return def;
@@ -144,7 +140,7 @@ public final class TableHelper {
         }
     }
 
-    private static double checkReal(@Nonnull String key, double value) throws LuaException {
+    private static double checkReal(String key, double value) throws LuaException {
         if (!Double.isFinite(value)) throw badKey(key, "number", getNumericType(value));
         return value;
     }

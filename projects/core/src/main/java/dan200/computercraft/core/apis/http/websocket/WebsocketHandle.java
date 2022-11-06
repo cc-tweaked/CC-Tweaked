@@ -15,7 +15,7 @@ import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.util.Arrays;
 import java.util.Optional;
@@ -36,7 +36,7 @@ public class WebsocketHandle implements Closeable {
     private final Options options;
     private boolean closed = false;
 
-    private Channel channel;
+    private @Nullable Channel channel;
 
     public WebsocketHandle(Websocket websocket, Options options, Channel channel) {
         this.websocket = websocket;
@@ -127,7 +127,6 @@ public class WebsocketHandle implements Closeable {
             this.timeoutId = timeoutId;
         }
 
-        @Nonnull
         @Override
         public MethodResult resume(Object[] event) {
             if (event.length >= 3 && Objects.equal(event[0], MESSAGE_EVENT) && Objects.equal(event[1], websocket.address())) {

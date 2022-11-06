@@ -8,7 +8,9 @@ package dan200.computercraft.core.apis.handles;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.filesystem.TrackingCloseable;
+import dan200.computercraft.core.util.Nullability;
 
+import javax.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -28,10 +30,10 @@ public class BinaryReadableHandle extends HandleGeneric {
     private static final int BUFFER_SIZE = 8192;
 
     private final ReadableByteChannel reader;
-    final SeekableByteChannel seekable;
+    final @Nullable SeekableByteChannel seekable;
     private final ByteBuffer single = ByteBuffer.allocate(1);
 
-    BinaryReadableHandle(ReadableByteChannel reader, SeekableByteChannel seekable, TrackingCloseable closeable) {
+    BinaryReadableHandle(ReadableByteChannel reader, @Nullable SeekableByteChannel seekable, TrackingCloseable closeable) {
         super(closeable);
         this.reader = reader;
         this.seekable = seekable;
@@ -59,6 +61,7 @@ public class BinaryReadableHandle extends HandleGeneric {
      * @cc.treturn [3] string The bytes read as a string. This is returned when the {@code count} is given.
      * @cc.changed 1.80pr1 Now accepts an integer argument to read multiple bytes, returning a string instead of a number.
      */
+    @Nullable
     @LuaFunction
     public final Object[] read(Optional<Integer> countArg) throws LuaException {
         checkOpen();
@@ -130,6 +133,7 @@ public class BinaryReadableHandle extends HandleGeneric {
      * @cc.treturn string|nil The remaining contents of the file, or {@code nil} if we are at the end.
      * @cc.since 1.80pr1
      */
+    @Nullable
     @LuaFunction
     public final Object[] readAll() throws LuaException {
         checkOpen();
@@ -164,6 +168,7 @@ public class BinaryReadableHandle extends HandleGeneric {
      * @cc.since 1.80pr1.9
      * @cc.changed 1.81.0 `\r` is now stripped.
      */
+    @Nullable
     @LuaFunction
     public final Object[] readLine(Optional<Boolean> withTrailingArg) throws LuaException {
         checkOpen();
@@ -230,10 +235,11 @@ public class BinaryReadableHandle extends HandleGeneric {
          * @cc.treturn string The reason seeking failed.
          * @cc.since 1.80pr1.9
          */
+        @Nullable
         @LuaFunction
         public final Object[] seek(Optional<String> whence, Optional<Long> offset) throws LuaException {
             checkOpen();
-            return handleSeek(seekable, whence, offset);
+            return handleSeek(Nullability.assertNonNull(seekable), whence, offset);
         }
     }
 }

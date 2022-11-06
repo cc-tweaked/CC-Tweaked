@@ -7,7 +7,6 @@ package dan200.computercraft.core.lua;
 
 import dan200.computercraft.core.computer.TimeoutState;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStream;
 
@@ -42,19 +41,19 @@ public final class MachineResult {
 
     private final boolean error;
     private final boolean pause;
-    private final String message;
+    private final @Nullable String message;
 
-    private MachineResult(boolean error, boolean pause, String message) {
+    private MachineResult(boolean error, boolean pause, @Nullable String message) {
         this.pause = pause;
         this.message = message;
         this.error = error;
     }
 
-    public static MachineResult error(@Nonnull String error) {
+    public static MachineResult error(String error) {
         return new MachineResult(true, false, error);
     }
 
-    public static MachineResult error(@Nonnull Exception error) {
+    public static MachineResult error(Exception error) {
         return new MachineResult(true, false, error.getMessage());
     }
 

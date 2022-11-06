@@ -11,7 +11,6 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -25,7 +24,7 @@ import java.util.Set;
 
 public class FileMount implements IWritableMount {
     private static final Logger LOG = LoggerFactory.getLogger(FileMount.class);
-    private static final int MINIMUM_FILE_SIZE = 500;
+    private static final long MINIMUM_FILE_SIZE = 500;
     private static final Set<OpenOption> READ_OPTIONS = Collections.singleton(StandardOpenOption.READ);
     private static final Set<OpenOption> WRITE_OPTIONS = Sets.newHashSet(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     private static final Set<OpenOption> APPEND_OPTIONS = Sets.newHashSet(StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
@@ -41,7 +40,7 @@ public class FileMount implements IWritableMount {
         }
 
         @Override
-        public int write(@Nonnull ByteBuffer b) throws IOException {
+        public int write(ByteBuffer b) throws IOException {
             count(b.remaining());
             return inner.write(b);
         }
@@ -129,7 +128,7 @@ public class FileMount implements IWritableMount {
     // IMount implementation
 
     @Override
-    public boolean exists(@Nonnull String path) {
+    public boolean exists(String path) {
         if (!created()) return path.isEmpty();
 
         var file = getRealPath(path);
@@ -137,7 +136,7 @@ public class FileMount implements IWritableMount {
     }
 
     @Override
-    public boolean isDirectory(@Nonnull String path) {
+    public boolean isDirectory(String path) {
         if (!created()) return path.isEmpty();
 
         var file = getRealPath(path);
@@ -145,7 +144,7 @@ public class FileMount implements IWritableMount {
     }
 
     @Override
-    public void list(@Nonnull String path, @Nonnull List<String> contents) throws IOException {
+    public void list(String path, List<String> contents) throws IOException {
         if (!created()) {
             if (!path.isEmpty()) throw new FileOperationException(path, "Not a directory");
             return;
@@ -161,7 +160,7 @@ public class FileMount implements IWritableMount {
     }
 
     @Override
-    public long getSize(@Nonnull String path) throws IOException {
+    public long getSize(String path) throws IOException {
         if (!created()) {
             if (path.isEmpty()) return 0;
         } else {
@@ -172,9 +171,8 @@ public class FileMount implements IWritableMount {
         throw new FileOperationException(path, "No such file");
     }
 
-    @Nonnull
     @Override
-    public ReadableByteChannel openForRead(@Nonnull String path) throws IOException {
+    public ReadableByteChannel openForRead(String path) throws IOException {
         if (created()) {
             var file = getRealPath(path);
             if (file.exists() && !file.isDirectory()) return FileChannel.open(file.toPath(), READ_OPTIONS);
@@ -183,9 +181,8 @@ public class FileMount implements IWritableMount {
         throw new FileOperationException(path, "No such file");
     }
 
-    @Nonnull
     @Override
-    public BasicFileAttributes getAttributes(@Nonnull String path) throws IOException {
+    public BasicFileAttributes getAttributes(String path) throws IOException {
         if (created()) {
             var file = getRealPath(path);
             if (file.exists()) return Files.readAttributes(file.toPath(), BasicFileAttributes.class);
@@ -197,7 +194,7 @@ public class FileMount implements IWritableMount {
     // IWritableMount implementation
 
     @Override
-    public void makeDirectory(@Nonnull String path) throws IOException {
+    public void makeDirectory(String path) throws IOException {
         create();
         var file = getRealPath(path);
         if (file.exists()) {
@@ -224,7 +221,7 @@ public class FileMount implements IWritableMount {
     }
 
     @Override
-    public void delete(@Nonnull String path) throws IOException {
+    public void delete(String path) throws IOException {
         if (path.isEmpty()) throw new FileOperationException(path, "Access denied");
 
         if (created()) {
@@ -252,9 +249,8 @@ public class FileMount implements IWritableMount {
         }
     }
 
-    @Nonnull
     @Override
-    public WritableByteChannel openForWrite(@Nonnull String path) throws IOException {
+    public WritableByteChannel openForWrite(String path) throws IOException {
         create();
         var file = getRealPath(path);
         if (file.exists() && file.isDirectory()) throw new FileOperationException(path, "Cannot write to directory");
@@ -269,9 +265,8 @@ public class FileMount implements IWritableMount {
         return new SeekableCountingChannel(Files.newByteChannel(file.toPath(), WRITE_OPTIONS), MINIMUM_FILE_SIZE);
     }
 
-    @Nonnull
     @Override
-    public WritableByteChannel openForAppend(@Nonnull String path) throws IOException {
+    public WritableByteChannel openForAppend(String path) throws IOException {
         if (!created()) {
             throw new FileOperationException(path, "No such file");
         }
@@ -292,7 +287,6 @@ public class FileMount implements IWritableMount {
         return Math.max(capacity - usedSpace, 0);
     }
 
-    @Nonnull
     @Override
     public OptionalLong getCapacity() {
         return OptionalLong.of(capacity - MINIMUM_FILE_SIZE);

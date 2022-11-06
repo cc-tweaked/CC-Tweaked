@@ -27,7 +27,6 @@ import org.squiddev.cobalt.debug.DebugState;
 import org.squiddev.cobalt.lib.*;
 import org.squiddev.cobalt.lib.platform.VoidResourceManipulator;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.io.Serial;
@@ -58,11 +57,11 @@ public class CobaltLuaMachine implements ILuaMachine {
     private final TimeoutDebugHandler debug;
     private final ILuaContext context;
 
-    private LuaState state;
-    private LuaTable globals;
+    private @Nullable LuaState state;
+    private @Nullable LuaTable globals;
 
-    private LuaThread mainRoutine = null;
-    private String eventFilter = null;
+    private @Nullable LuaThread mainRoutine = null;
+    private @Nullable String eventFilter = null;
 
     public CobaltLuaMachine(MachineEnvironment environment) {
         timeout = environment.timeout();
@@ -115,7 +114,9 @@ public class CobaltLuaMachine implements ILuaMachine {
     }
 
     @Override
-    public void addAPI(@Nonnull ILuaAPI api) {
+    public void addAPI(ILuaAPI api) {
+        if (globals == null) throw new IllegalStateException("Machine has been closed");
+
         // Add the methods of an API to the global table
         var table = wrapLuaObject(api);
         if (table == null) {
@@ -128,9 +129,9 @@ public class CobaltLuaMachine implements ILuaMachine {
     }
 
     @Override
-    public MachineResult loadBios(@Nonnull InputStream bios) {
-        // Begin executing a file (ie, the bios)
-        if (mainRoutine != null) return MachineResult.OK;
+    public MachineResult loadBios(InputStream bios) {
+        if (mainRoutine != null) throw new IllegalStateException("Already set up the machine");
+        if (state == null || globals == null) throw new IllegalStateException("Machine has been destroyed.");
 
         try {
             var value = LoadState.load(state, bios, "@bios.lua", globals);
@@ -147,8 +148,8 @@ public class CobaltLuaMachine implements ILuaMachine {
     }
 
     @Override
-    public MachineResult handleEvent(String eventName, Object[] arguments) {
-        if (mainRoutine == null) return MachineResult.OK;
+    public MachineResult handleEvent(@Nullable String eventName, @Nullable Object[] arguments) {
+        if (mainRoutine == null || state == null) throw new IllegalStateException("Machine has been closed");
 
         if (eventFilter != null && eventName != null && !eventName.equals(eventFilter) && !eventName.equals("terminate")) {
             return MachineResult.OK;
@@ -232,13 +233,13 @@ public class CobaltLuaMachine implements ILuaMachine {
         try {
             if (table.keyCount() == 0) return null;
         } catch (LuaError ignored) {
+            // next should never throw on nil.
         }
 
         return table;
     }
 
-    @Nonnull
-    private LuaValue toValue(@Nullable Object object, @Nullable Map<Object, LuaValue> values) {
+    private LuaValue toValue(@Nullable Object object, @Nullable IdentityHashMap<Object, LuaValue> values) {
         if (object == null) return Constants.NIL;
         if (object instanceof Number num) return valueOf(num.doubleValue());
         if (object instanceof Boolean bool) return valueOf(bool);
@@ -304,11 +305,11 @@ public class CobaltLuaMachine implements ILuaMachine {
         return Constants.NIL;
     }
 
-    Varargs toValues(Object[] objects) {
+    Varargs toValues(@Nullable Object[] objects) {
         if (objects == null || objects.length == 0) return Constants.NONE;
         if (objects.length == 1) return toValue(objects[0], null);
 
-        Map<Object, LuaValue> result = new IdentityHashMap<>(0);
+        var result = new IdentityHashMap<Object, LuaValue>(0);
         var values = new LuaValue[objects.length];
         for (var i = 0; i < values.length; i++) {
             var object = objects[i];
@@ -317,7 +318,8 @@ public class CobaltLuaMachine implements ILuaMachine {
         return varargsOf(values);
     }
 
-    static Object toObject(LuaValue value, Map<LuaValue, Object> objects) {
+    @Nullable
+    static Object toObject(LuaValue value, @Nullable IdentityHashMap<LuaValue, Object> objects) {
         switch (value.type()) {
             case Constants.TNIL:
             case Constants.TNONE:
@@ -448,6 +450,7 @@ public class CobaltLuaMachine implements ILuaMachine {
         @Serial
         private static final long serialVersionUID = 7954092008586367501L;
 
+        @SuppressWarnings("StaticAssignmentOfThrowable")
         static final HardAbortError INSTANCE = new HardAbortError();
 
         private HardAbortError() {

@@ -8,12 +8,13 @@ package dan200.computercraft.core.filesystem;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.io.ByteStreams;
+import com.google.errorprone.annotations.concurrent.LazyInit;
 import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 import dan200.computercraft.core.util.IoUtil;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -100,6 +101,7 @@ public class JarMount implements IMount {
         }
     }
 
+    @Nullable
     private FileEntry get(String path) {
         var lastEntry = root;
         var lastIndex = 0;
@@ -139,18 +141,18 @@ public class JarMount implements IMount {
     }
 
     @Override
-    public boolean exists(@Nonnull String path) {
+    public boolean exists(String path) {
         return get(path) != null;
     }
 
     @Override
-    public boolean isDirectory(@Nonnull String path) {
+    public boolean isDirectory(String path) {
         var file = get(path);
         return file != null && file.isDirectory();
     }
 
     @Override
-    public void list(@Nonnull String path, @Nonnull List<String> contents) throws IOException {
+    public void list(String path, List<String> contents) throws IOException {
         var file = get(path);
         if (file == null || !file.isDirectory()) throw new FileOperationException(path, "Not a directory");
 
@@ -158,15 +160,14 @@ public class JarMount implements IMount {
     }
 
     @Override
-    public long getSize(@Nonnull String path) throws IOException {
+    public long getSize(String path) throws IOException {
         var file = get(path);
         if (file != null) return file.size;
         throw new FileOperationException(path, "No such file");
     }
 
-    @Nonnull
     @Override
-    public ReadableByteChannel openForRead(@Nonnull String path) throws IOException {
+    public ReadableByteChannel openForRead(String path) throws IOException {
         var file = get(path);
         if (file != null && !file.isDirectory()) {
             var contents = CONTENTS_CACHE.getIfPresent(file);
@@ -191,9 +192,8 @@ public class JarMount implements IMount {
         throw new FileOperationException(path, "No such file");
     }
 
-    @Nonnull
     @Override
-    public BasicFileAttributes getAttributes(@Nonnull String path) throws IOException {
+    public BasicFileAttributes getAttributes(String path) throws IOException {
         var file = get(path);
         if (file != null) {
             var entry = zip.getEntry(file.path);
@@ -204,8 +204,12 @@ public class JarMount implements IMount {
     }
 
     private static class FileEntry {
+        @LazyInit // TODO: Might be nicer to use @Initializer on setup(...)
         String path;
+
         long size;
+
+        @Nullable
         Map<String, FileEntry> children;
 
         void setup(ZipEntry entry) {
@@ -285,6 +289,7 @@ public class JarMount implements IMount {
             return entry.getSize();
         }
 
+        @Nullable
         @Override
         public Object fileKey() {
             return null;
@@ -292,7 +297,7 @@ public class JarMount implements IMount {
 
         private static final FileTime EPOCH = FileTime.from(Instant.EPOCH);
 
-        private static FileTime orEpoch(FileTime time) {
+        private static FileTime orEpoch(@Nullable FileTime time) {
             return time == null ? EPOCH : time;
         }
     }

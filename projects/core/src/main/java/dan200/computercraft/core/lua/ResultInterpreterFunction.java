@@ -17,7 +17,6 @@ import org.squiddev.cobalt.*;
 import org.squiddev.cobalt.debug.DebugFrame;
 import org.squiddev.cobalt.function.ResumableVarArgFunction;
 
-import javax.annotation.Nonnull;
 
 /**
  * Calls a {@link LuaMethod}, and interprets the resulting {@link MethodResult}, either returning the result or yielding
@@ -26,7 +25,6 @@ import javax.annotation.Nonnull;
 class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterpreterFunction.Container> {
     private static final Logger LOG = LoggerFactory.getLogger(ResultInterpreterFunction.class);
 
-    @Nonnull
     static class Container {
         ILuaCallback callback;
         final int errorAdjust;
@@ -41,14 +39,14 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
     private final LuaMethod method;
     private final Object instance;
     private final ILuaContext context;
-    private final String name;
+    private final String funcName;
 
     ResultInterpreterFunction(CobaltLuaMachine machine, LuaMethod method, Object instance, ILuaContext context, String name) {
         this.machine = machine;
         this.method = method;
         this.instance = instance;
         this.context = context;
-        this.name = name;
+        funcName = name;
     }
 
     @Override
@@ -60,7 +58,7 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
         } catch (LuaException e) {
             throw wrap(e, 0);
         } catch (Throwable t) {
-            LOG.error(Logging.JAVA_ERROR, "Error calling {} on {}", name, instance, t);
+            LOG.error(Logging.JAVA_ERROR, "Error calling {} on {}", funcName, instance, t);
             throw new LuaError("Java Exception Thrown: " + t, 0);
         } finally {
             arguments.close();
@@ -84,7 +82,7 @@ class ResultInterpreterFunction extends ResumableVarArgFunction<ResultInterprete
         } catch (LuaException e) {
             throw wrap(e, container.errorAdjust);
         } catch (Throwable t) {
-            LOG.error(Logging.JAVA_ERROR, "Error calling {} on {}", name, container.callback, t);
+            LOG.error(Logging.JAVA_ERROR, "Error calling {} on {}", funcName, container.callback, t);
             throw new LuaError("Java Exception Thrown: " + t, 0);
         }
 

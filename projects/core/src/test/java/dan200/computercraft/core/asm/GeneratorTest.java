@@ -11,7 +11,6 @@ import dan200.computercraft.core.computer.ComputerSide;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
@@ -241,7 +240,7 @@ public class GeneratorTest {
 
     private static final ILuaContext CONTEXT = new ILuaContext() {
         @Override
-        public long issueMainThreadTask(@Nonnull ILuaTask task) {
+        public long issueMainThreadTask(ILuaTask task) {
             return 0;
         }
     };

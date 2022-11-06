@@ -8,6 +8,7 @@ package dan200.computercraft.core.apis.http;
 import dan200.computercraft.core.util.IoUtil;
 import io.netty.channel.ChannelFuture;
 
+import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
@@ -94,12 +95,14 @@ public abstract class Resource<T extends Resource<T>> implements Closeable {
         return limiter.queue(thisT, () -> task.accept(thisT));
     }
 
-    protected static <T extends Closeable> T closeCloseable(T closeable) {
+    @Nullable
+    protected static <T extends Closeable> T closeCloseable(@Nullable T closeable) {
         IoUtil.closeQuietly(closeable);
         return null;
     }
 
-    protected static ChannelFuture closeChannel(ChannelFuture future) {
+    @Nullable
+    protected static ChannelFuture closeChannel(@Nullable ChannelFuture future) {
         if (future != null) {
             future.cancel(false);
             var channel = future.channel();
@@ -109,7 +112,8 @@ public abstract class Resource<T extends Resource<T>> implements Closeable {
         return null;
     }
 
-    protected static <T extends Future<?>> T closeFuture(T future) {
+    @Nullable
+    protected static <T extends Future<?>> T closeFuture(@Nullable T future) {
         if (future != null) future.cancel(true);
         return null;
     }

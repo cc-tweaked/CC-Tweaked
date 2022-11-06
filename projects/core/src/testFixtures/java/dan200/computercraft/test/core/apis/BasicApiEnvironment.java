@@ -16,7 +16,6 @@ import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.test.core.computer.BasicEnvironment;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public abstract class BasicApiEnvironment implements IAPIEnvironment {
@@ -32,25 +31,21 @@ public abstract class BasicApiEnvironment implements IAPIEnvironment {
         return 0;
     }
 
-    @Nonnull
     @Override
     public ComputerEnvironment getComputerEnvironment() {
         return environment;
     }
 
-    @Nonnull
     @Override
     public GlobalEnvironment getGlobalEnvironment() {
         return environment;
     }
 
-    @Nonnull
     @Override
     public IWorkMonitor getMainThreadMonitor() {
         throw new IllegalStateException("Main thread monitor not available");
     }
 
-    @Nonnull
     @Override
     public Terminal getTerminal() {
         throw new IllegalStateException("Terminal not available");
@@ -128,10 +123,10 @@ public abstract class BasicApiEnvironment implements IAPIEnvironment {
     }
 
     @Override
-    public void observe(@Nonnull Metric.Event summary, long value) {
+    public void observe(Metric.Event summary, long value) {
     }
 
     @Override
-    public void observe(@Nonnull Metric.Counter counter) {
+    public void observe(Metric.Counter counter) {
     }
 }

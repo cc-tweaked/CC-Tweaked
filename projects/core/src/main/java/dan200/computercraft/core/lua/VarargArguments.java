@@ -10,7 +10,6 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaValues;
 import org.squiddev.cobalt.*;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Optional;
@@ -20,7 +19,7 @@ final class VarargArguments implements IArguments {
 
     boolean closed;
     private final Varargs varargs;
-    private Object[] cache;
+    private @Nullable Object[] cache;
 
     private VarargArguments(Varargs varargs) {
         this.varargs = varargs;
@@ -72,7 +71,6 @@ final class VarargArguments implements IArguments {
         return value instanceof LuaInteger ? value.toInteger() : (long) LuaValues.checkFinite(index, value.toDouble());
     }
 
-    @Nonnull
     @Override
     public ByteBuffer getBytes(int index) throws LuaException {
         var value = varargs.arg(index + 1);
@@ -92,7 +90,6 @@ final class VarargArguments implements IArguments {
         return Optional.of(ByteBuffer.wrap(str.bytes, str.offset, str.length).asReadOnlyBuffer());
     }
 
-    @Nonnull
     @Override
     public dan200.computercraft.api.lua.LuaTable<?, ?> getTableUnsafe(int index) throws LuaException {
         if (closed) {
@@ -104,7 +101,6 @@ final class VarargArguments implements IArguments {
         return new TableImpl(this, (LuaTable) value);
     }
 
-    @Nonnull
     @Override
     public Optional<dan200.computercraft.api.lua.LuaTable<?, ?>> optTableUnsafe(int index) throws LuaException {
         if (closed) {

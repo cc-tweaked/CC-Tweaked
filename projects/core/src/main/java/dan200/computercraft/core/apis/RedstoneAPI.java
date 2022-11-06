@@ -10,6 +10,8 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.computer.ComputerSide;
 
+import java.util.List;
+
 /**
  * Get and set redstone signals adjacent to this computer.
  * <p>
@@ -72,7 +74,7 @@ public class RedstoneAPI implements ILuaAPI {
      * @cc.since 1.2
      */
     @LuaFunction
-    public final String[] getSides() {
+    public final List<String> getSides() {
         return ComputerSide.NAMES;
     }
 

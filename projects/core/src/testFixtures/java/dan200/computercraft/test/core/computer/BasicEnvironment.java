@@ -16,7 +16,6 @@ import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.MetricsObserver;
 import dan200.computercraft.test.core.filesystem.MemoryMount;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,13 +59,11 @@ public class BasicEnvironment implements ComputerEnvironment, GlobalEnvironment,
         return this;
     }
 
-    @Nonnull
     @Override
     public String getHostString() {
         return "ComputerCraft 1.0 (Test environment)";
     }
 
-    @Nonnull
     @Override
     public String getUserAgent() {
         return "ComputerCraft/1.0";

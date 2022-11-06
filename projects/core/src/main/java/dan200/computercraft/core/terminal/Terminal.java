@@ -7,7 +7,6 @@ package dan200.computercraft.core.terminal;
 
 import dan200.computercraft.core.util.Colour;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 
@@ -36,7 +35,7 @@ public class Terminal {
         this(width, height, colour, null);
     }
 
-    public Terminal(int width, int height, boolean colour, Runnable changedCallback) {
+    public Terminal(int width, int height, boolean colour, @Nullable Runnable changedCallback) {
         this.width = width;
         this.height = height;
         this.colour = colour;
@@ -163,7 +162,6 @@ public class Terminal {
         return cursorBackgroundColour;
     }
 
-    @Nonnull
     public Palette getPalette() {
         return palette;
     }
@@ -234,10 +232,7 @@ public class Terminal {
     }
 
     public synchronized TextBuffer getLine(int y) {
-        if (y >= 0 && y < height) {
-            return text[y];
-        }
-        return null;
+        return text[y];
     }
 
     public synchronized void setLine(int y, String text, String textColour, String backgroundColour) {
@@ -248,17 +243,11 @@ public class Terminal {
     }
 
     public synchronized TextBuffer getTextColourLine(int y) {
-        if (y >= 0 && y < height) {
-            return textColour[y];
-        }
-        return null;
+        return textColour[y];
     }
 
     public synchronized TextBuffer getBackgroundColourLine(int y) {
-        if (y >= 0 && y < height) {
-            return backgroundColour[y];
-        }
-        return null;
+        return backgroundColour[y];
     }
 
     public final void setChanged() {

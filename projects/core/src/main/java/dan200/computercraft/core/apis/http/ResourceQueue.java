@@ -21,9 +21,6 @@ public class ResourceQueue<T extends Resource<T>> extends ResourceGroup<T> {
         super(limit);
     }
 
-    public ResourceQueue() {
-    }
-
     @Override
     public synchronized void shutdown() {
         super.shutdown();

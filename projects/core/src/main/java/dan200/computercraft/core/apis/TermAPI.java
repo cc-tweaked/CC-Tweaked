@@ -12,7 +12,6 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.util.Colour;
 
-import javax.annotation.Nonnull;
 
 /**
  * Interact with a computer's terminal or monitors, writing text and drawing
@@ -51,7 +50,6 @@ public class TermAPI extends TermMethods implements ILuaAPI {
         return new Object[]{ c.getR(), c.getG(), c.getB() };
     }
 
-    @Nonnull
     @Override
     public Terminal getTerminal() {
         return terminal;

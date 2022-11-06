@@ -8,7 +8,6 @@ package dan200.computercraft.core.apis;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.asm.LuaMethod;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -51,7 +50,7 @@ public class ObjectWrapper implements ILuaContext {
     }
 
     @Override
-    public long issueMainThreadTask(@Nonnull ILuaTask task) {
+    public long issueMainThreadTask(ILuaTask task) {
         throw new IllegalStateException("Method should never queue events");
     }
 }

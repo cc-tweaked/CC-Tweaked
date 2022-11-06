@@ -9,7 +9,6 @@ import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
@@ -24,7 +23,7 @@ class MountWrapper {
     private final String location;
 
     private final IMount mount;
-    private final IWritableMount writableMount;
+    private final @Nullable IWritableMount writableMount;
 
     MountWrapper(String label, String location, IMount mount) {
         this.label = label;
@@ -107,7 +106,6 @@ class MountWrapper {
         }
     }
 
-    @Nonnull
     public BasicFileAttributes getAttributes(String path) throws FileSystemException {
         path = toLocal(path);
         try {
@@ -213,9 +211,9 @@ class MountWrapper {
         return FileSystem.toLocal(path, location);
     }
 
-    private FileSystemException localExceptionOf(@Nullable String localPath, @Nonnull IOException e) {
+    private FileSystemException localExceptionOf(@Nullable String localPath, IOException e) {
         if (!location.isEmpty() && e instanceof FileOperationException ex) {
-            if (ex.getFilename() != null) return localExceptionOf(ex.getFilename(), ex.getMessage());
+            if (ex.getFilename() != null) return localExceptionOf(ex.getFilename(), FileSystemException.getMessage(ex));
         }
 
         if (e instanceof java.nio.file.FileSystemException ex) {
@@ -225,7 +223,7 @@ class MountWrapper {
             return localPath == null ? new FileSystemException(message) : localExceptionOf(localPath, message);
         }
 
-        return new FileSystemException(e.getMessage());
+        return FileSystemException.of(e);
     }
 
     private FileSystemException localExceptionOf(String path, String message) {

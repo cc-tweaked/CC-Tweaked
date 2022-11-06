@@ -7,7 +7,6 @@ package dan200.computercraft.core.terminal;
 
 import dan200.computercraft.core.util.Colour;
 
-import javax.annotation.Nonnull;
 
 public class Palette {
     public static final int PALETTE_SIZE = 16;
@@ -46,7 +45,7 @@ public class Palette {
     }
 
     public double[] getColour(int i) {
-        return i >= 0 && i < PALETTE_SIZE ? colours[i] : null;
+        return colours[i];
     }
 
     /**
@@ -58,7 +57,6 @@ public class Palette {
      * @param i The colour index.
      * @return The number as a tuple of bytes.
      */
-    @Nonnull
     public byte[] getRenderColours(int i) {
         return byteColours[i];
     }

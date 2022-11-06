@@ -11,7 +11,6 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.core.filesystem.TrackingCloseable;
 import dan200.computercraft.core.util.StringUtil;
 
-import javax.annotation.Nonnull;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.channels.Channels;
@@ -28,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 public class EncodedWritableHandle extends HandleGeneric {
     private final BufferedWriter writer;
 
-    public EncodedWritableHandle(@Nonnull BufferedWriter writer, @Nonnull TrackingCloseable closable) {
+    public EncodedWritableHandle(BufferedWriter writer, TrackingCloseable closable) {
         super(closable);
         this.writer = writer;
     }
@@ -80,7 +79,8 @@ public class EncodedWritableHandle extends HandleGeneric {
         checkOpen();
         try {
             writer.flush();
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            throw new LuaException(e.getMessage());
         }
     }
 

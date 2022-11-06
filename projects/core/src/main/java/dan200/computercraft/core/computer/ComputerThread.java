@@ -13,7 +13,6 @@ import dan200.computercraft.core.util.ThreadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.TreeSet;
@@ -53,6 +52,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @see TimeoutState For how hard timeouts are handled.
  * @see ComputerExecutor For how computers actually do execution.
  */
+@SuppressWarnings("GuardedBy") // FIXME: Hard to know what the correct thing to do is.
 public final class ComputerThread {
     private static final Logger LOG = LoggerFactory.getLogger(ComputerThread.class);
     private static final ThreadFactory monitorFactory = ThreadUtils.factory("Computer-Monitor");
@@ -537,7 +537,7 @@ public final class ComputerThread {
         /**
          * The thread this runner runs on.
          */
-        final @Nonnull Thread owner;
+        final Thread owner;
 
         /**
          * Whether this runner is currently executing. This may be set to false when this worker terminates, or when

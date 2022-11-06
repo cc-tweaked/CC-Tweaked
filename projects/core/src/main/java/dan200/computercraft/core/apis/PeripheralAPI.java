@@ -18,7 +18,6 @@ import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.metrics.Metrics;
 import dan200.computercraft.core.util.LuaUtil;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
@@ -99,20 +98,23 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         }
 
         // IComputerAccess implementation
+
+        @Nullable
         @Override
-        public synchronized String mount(@Nonnull String desiredLoc, @Nonnull IMount mount, @Nonnull String driveName) {
+        public synchronized String mount(String desiredLoc, IMount mount, String driveName) {
             if (!attached) throw new NotAttachedException();
             return super.mount(desiredLoc, mount, driveName);
         }
 
+        @Nullable
         @Override
-        public synchronized String mountWritable(@Nonnull String desiredLoc, @Nonnull IWritableMount mount, @Nonnull String driveName) {
+        public synchronized String mountWritable(String desiredLoc, IWritableMount mount, String driveName) {
             if (!attached) throw new NotAttachedException();
             return super.mountWritable(desiredLoc, mount, driveName);
         }
 
         @Override
-        public synchronized void unmount(String location) {
+        public synchronized void unmount(@Nullable String location) {
             if (!attached) throw new NotAttachedException();
             super.unmount(location);
         }
@@ -124,19 +126,17 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         }
 
         @Override
-        public void queueEvent(@Nonnull String event, Object... arguments) {
+        public void queueEvent(String event, @Nullable Object... arguments) {
             if (!attached) throw new NotAttachedException();
             super.queueEvent(event, arguments);
         }
 
-        @Nonnull
         @Override
         public String getAttachmentName() {
             if (!attached) throw new NotAttachedException();
             return side;
         }
 
-        @Nonnull
         @Override
         public Map<String, IPeripheral> getAvailablePeripherals() {
             if (!attached) throw new NotAttachedException();
@@ -153,7 +153,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
 
         @Nullable
         @Override
-        public IPeripheral getAvailablePeripheral(@Nonnull String name) {
+        public IPeripheral getAvailablePeripheral(String name) {
             if (!attached) throw new NotAttachedException();
 
             for (var wrapper : peripherals) {
@@ -164,7 +164,6 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
             return null;
         }
 
-        @Nonnull
         @Override
         public IWorkMonitor getMainThreadMonitor() {
             if (!attached) throw new NotAttachedException();
@@ -185,7 +184,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
     // IPeripheralChangeListener
 
     @Override
-    public void onPeripheralChanged(ComputerSide side, IPeripheral newPeripheral) {
+    public void onPeripheralChanged(ComputerSide side, @Nullable IPeripheral newPeripheral) {
         synchronized (peripherals) {
             var index = side.ordinal();
             if (peripherals[index] != null) {
@@ -253,6 +252,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         return false;
     }
 
+    @Nullable
     @LuaFunction
     public final Object[] getType(String sideName) {
         var side = ComputerSide.valueOfInsensitive(sideName);
@@ -264,6 +264,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         }
     }
 
+    @Nullable
     @LuaFunction
     public final Object[] hasType(String sideName, String type) {
         var side = ComputerSide.valueOfInsensitive(sideName);
@@ -278,6 +279,7 @@ public class PeripheralAPI implements ILuaAPI, IAPIEnvironment.IPeripheralChange
         return null;
     }
 
+    @Nullable
     @LuaFunction
     public final Object[] getMethods(String sideName) {
         var side = ComputerSide.valueOfInsensitive(sideName);

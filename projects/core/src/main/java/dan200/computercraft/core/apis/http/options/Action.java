@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.core.apis.http.options;
 
-import javax.annotation.Nonnull;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
@@ -17,7 +16,6 @@ public enum Action {
         this, OptionalLong.empty(), OptionalLong.empty(), OptionalInt.empty(), OptionalInt.empty()
     );
 
-    @Nonnull
     public PartialOptions toPartial() {
         return partial;
     }

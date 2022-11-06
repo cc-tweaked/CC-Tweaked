@@ -9,7 +9,7 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaValues;
 import org.squiddev.cobalt.*;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 
 import static dan200.computercraft.api.lua.LuaValues.badTableItem;
@@ -18,7 +18,7 @@ import static dan200.computercraft.api.lua.LuaValues.getNumericType;
 class TableImpl implements dan200.computercraft.api.lua.LuaTable<Object, Object> {
     private final VarargArguments arguments;
     private final LuaTable table;
-    private Map<Object, Object> backingMap;
+    private @Nullable Map<Object, Object> backingMap;
 
     TableImpl(VarargArguments arguments, LuaTable table) {
         this.arguments = arguments;
@@ -61,7 +61,6 @@ class TableImpl implements dan200.computercraft.api.lua.LuaTable<Object, Object>
         }
     }
 
-    @Nonnull
     private LuaValue getImpl(Object o) {
         checkValid();
         if (o instanceof String) return table.rawget((String) o);
@@ -74,12 +73,12 @@ class TableImpl implements dan200.computercraft.api.lua.LuaTable<Object, Object>
         return !getImpl(o).isNil();
     }
 
+    @Nullable
     @Override
     public Object get(Object o) {
         return CobaltLuaMachine.toObject(getImpl(o), null);
     }
 
-    @Nonnull
     private Map<Object, Object> getBackingMap() {
         checkValid();
         if (backingMap != null) return backingMap;
@@ -93,19 +92,16 @@ class TableImpl implements dan200.computercraft.api.lua.LuaTable<Object, Object>
         return getBackingMap().containsKey(o);
     }
 
-    @Nonnull
     @Override
     public Set<Object> keySet() {
         return getBackingMap().keySet();
     }
 
-    @Nonnull
     @Override
     public Collection<Object> values() {
         return getBackingMap().values();
     }
 
-    @Nonnull
     @Override
     public Set<Entry<Object, Object>> entrySet() {
         return getBackingMap().entrySet();

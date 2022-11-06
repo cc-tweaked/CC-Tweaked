@@ -12,7 +12,6 @@ import dan200.computercraft.core.Logging;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
 
 class LuaContext implements ILuaContext {
     private static final Logger LOG = LoggerFactory.getLogger(LuaContext.class);
@@ -23,7 +22,7 @@ class LuaContext implements ILuaContext {
     }
 
     @Override
-    public long issueMainThreadTask(@Nonnull final ILuaTask task) throws LuaException {
+    public long issueMainThreadTask(final ILuaTask task) throws LuaException {
         // Issue command
         final var taskID = computer.getUniqueTaskId();
         final Runnable iTask = () -> {
