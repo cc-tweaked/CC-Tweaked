@@ -10,7 +10,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -22,9 +21,9 @@ import javax.annotation.Nullable;
  * @param blockEntity The block entity at this position, if it exists.
  */
 public record BlockReference(
-    @Nonnull Level level,
-    @Nonnull BlockPos pos,
-    @Nonnull BlockState state,
+    Level level,
+    BlockPos pos,
+    BlockState state,
     @Nullable BlockEntity blockEntity
 ) {
     public BlockReference(Level level, BlockPos pos) {

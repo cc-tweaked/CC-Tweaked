@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.api.detail;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 
 /**
@@ -30,5 +29,5 @@ public interface IDetailProvider<T> {
      * @param data   The full details to be returned. New properties should be added to this map.
      * @param object The object to provide details for.
      */
-    void provideDetails(@Nonnull Map<? super String, Object> data, @Nonnull T object);
+    void provideDetails(Map<? super String, Object> data, T object);
 }

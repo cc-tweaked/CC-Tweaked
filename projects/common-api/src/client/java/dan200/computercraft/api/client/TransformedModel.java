@@ -13,7 +13,6 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 
 /**
@@ -23,37 +22,35 @@ public final class TransformedModel {
     private final BakedModel model;
     private final Transformation matrix;
 
-    public TransformedModel(@Nonnull BakedModel model, @Nonnull Transformation matrix) {
+    public TransformedModel(BakedModel model, Transformation matrix) {
         this.model = Objects.requireNonNull(model);
         this.matrix = Objects.requireNonNull(matrix);
     }
 
-    public TransformedModel(@Nonnull BakedModel model) {
+    public TransformedModel(BakedModel model) {
         this.model = Objects.requireNonNull(model);
         matrix = Transformation.identity();
     }
 
-    public static TransformedModel of(@Nonnull ModelResourceLocation location) {
+    public static TransformedModel of(ModelResourceLocation location) {
         var modelManager = Minecraft.getInstance().getModelManager();
         return new TransformedModel(modelManager.getModel(location));
     }
 
-    public static TransformedModel of(@Nonnull ResourceLocation location) {
+    public static TransformedModel of(ResourceLocation location) {
         var modelManager = Minecraft.getInstance().getModelManager();
         return new TransformedModel(ClientPlatformHelper.get().getModel(modelManager, location));
     }
 
-    public static TransformedModel of(@Nonnull ItemStack item, @Nonnull Transformation transform) {
+    public static TransformedModel of(ItemStack item, Transformation transform) {
         var model = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getItemModel(item);
         return new TransformedModel(model, transform);
     }
 
-    @Nonnull
     public BakedModel getModel() {
         return model;
     }
 
-    @Nonnull
     public Transformation getMatrix() {
         return matrix;
     }

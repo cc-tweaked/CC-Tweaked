@@ -6,6 +6,7 @@ import cc.tweaked.gradle.MinecraftConfigurations
 
 plugins {
     id("cc-tweaked.java-convention")
+    id("cc-tweaked.errorprone")
     id("org.spongepowered.gradle.vanilla")
 }
 

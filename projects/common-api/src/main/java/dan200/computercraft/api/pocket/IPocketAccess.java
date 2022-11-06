@@ -10,7 +10,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
@@ -72,7 +71,6 @@ public interface IPocketAccess {
      * @return The upgrade's NBT.
      * @see #updateUpgradeNBTData()
      */
-    @Nonnull
     CompoundTag getUpgradeNBTData();
 
     /**
@@ -92,6 +90,5 @@ public interface IPocketAccess {
      *
      * @return A collection of all upgrade names.
      */
-    @Nonnull
     Map<ResourceLocation, IPeripheral> getUpgrades();
 }

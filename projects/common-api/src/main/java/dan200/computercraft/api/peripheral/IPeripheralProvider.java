@@ -11,7 +11,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.util.LazyOptional;
 
-import javax.annotation.Nonnull;
 
 /**
  * This interface is used to create peripheral implementations for blocks.
@@ -34,6 +33,5 @@ public interface IPeripheralProvider {
      * @param side  The side to get the peripheral from.
      * @return A peripheral, or {@link LazyOptional#empty()} if there is not a peripheral here you'd like to handle.
      */
-    @Nonnull
-    LazyOptional<IPeripheral> getPeripheral(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side);
+    LazyOptional<IPeripheral> getPeripheral(Level world, BlockPos pos, Direction side);
 }

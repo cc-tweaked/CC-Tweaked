@@ -9,7 +9,6 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.upgrades.IUpgradeBase;
 import net.minecraft.core.Direction;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -32,7 +31,6 @@ public interface ITurtleUpgrade extends IUpgradeBase {
      * @return The type of upgrade this is.
      * @see TurtleUpgradeType for the differences between them.
      */
-    @Nonnull
     TurtleUpgradeType getType();
 
     /**
@@ -48,7 +46,7 @@ public interface ITurtleUpgrade extends IUpgradeBase {
      * and this method is not expected to be called.
      */
     @Nullable
-    default IPeripheral createPeripheral(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side) {
+    default IPeripheral createPeripheral(ITurtleAccess turtle, TurtleSide side) {
         return null;
     }
 
@@ -70,8 +68,7 @@ public interface ITurtleUpgrade extends IUpgradeBase {
      * a swinging animation. You may return {@code null} if this turtle is a Peripheral  and this method is not expected
      * to be called.
      */
-    @Nonnull
-    default TurtleCommandResult useTool(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull Direction direction) {
+    default TurtleCommandResult useTool(ITurtleAccess turtle, TurtleSide side, TurtleVerb verb, Direction direction) {
         return TurtleCommandResult.failure();
     }
 
@@ -81,6 +78,6 @@ public interface ITurtleUpgrade extends IUpgradeBase {
      * @param turtle Access to the turtle that the upgrade resides on.
      * @param side   Which side of the turtle (left or right) the upgrade resides on.
      */
-    default void update(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side) {
+    default void update(ITurtleAccess turtle, TurtleSide side) {
     }
 }

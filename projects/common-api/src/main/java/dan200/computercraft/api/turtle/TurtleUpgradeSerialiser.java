@@ -19,7 +19,6 @@ import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryManager;
 
-import javax.annotation.Nonnull;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -95,8 +94,7 @@ public interface TurtleUpgradeSerialiser<T extends ITurtleUpgrade> extends Upgra
      * @param <T>     The type of the generated upgrade.
      * @return The serialiser for this upgrade
      */
-    @Nonnull
-    static <T extends ITurtleUpgrade> TurtleUpgradeSerialiser<T> simple(@Nonnull Function<ResourceLocation, T> factory) {
+    static <T extends ITurtleUpgrade> TurtleUpgradeSerialiser<T> simple(Function<ResourceLocation, T> factory) {
         final class Impl extends SimpleSerialiser<T> implements TurtleUpgradeSerialiser<T> {
             private Impl(Function<ResourceLocation, T> constructor) {
                 super(constructor);
@@ -115,8 +113,7 @@ public interface TurtleUpgradeSerialiser<T extends ITurtleUpgrade> extends Upgra
      * @return The serialiser for this upgrade.
      * @see #simple(Function)  For upgrades whose crafting stack should not vary.
      */
-    @Nonnull
-    static <T extends ITurtleUpgrade> TurtleUpgradeSerialiser<T> simpleWithCustomItem(@Nonnull BiFunction<ResourceLocation, ItemStack, T> factory) {
+    static <T extends ITurtleUpgrade> TurtleUpgradeSerialiser<T> simpleWithCustomItem(BiFunction<ResourceLocation, ItemStack, T> factory) {
         final class Impl extends SerialiserWithCraftingItem<T> implements TurtleUpgradeSerialiser<T> {
             private Impl(BiFunction<ResourceLocation, ItemStack, T> factory) {
                 super(factory);

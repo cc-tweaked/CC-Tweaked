@@ -7,7 +7,6 @@ package dan200.computercraft.api.network.wired;
 
 import dan200.computercraft.api.network.IPacketSender;
 
-import javax.annotation.Nonnull;
 
 /**
  * An object on a {@link IWiredNetwork} capable of sending packets.
@@ -24,6 +23,5 @@ public interface IWiredSender extends IPacketSender {
      *
      * @return The node for this element.
      */
-    @Nonnull
     IWiredNode getNode();
 }

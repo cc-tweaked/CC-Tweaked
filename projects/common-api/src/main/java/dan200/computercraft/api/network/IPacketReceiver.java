@@ -8,7 +8,6 @@ package dan200.computercraft.api.network;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nonnull;
 
 /**
  * An object on an {@link IPacketNetwork}, capable of receiving packets.
@@ -19,7 +18,6 @@ public interface IPacketReceiver {
      *
      * @return The receivers's world.
      */
-    @Nonnull
     Level getLevel();
 
     /**
@@ -27,7 +25,6 @@ public interface IPacketReceiver {
      *
      * @return The receiver's position.
      */
-    @Nonnull
     Vec3 getPosition();
 
     /**
@@ -67,7 +64,7 @@ public interface IPacketReceiver {
      * @see IPacketNetwork#transmitSameDimension(Packet, double)
      * @see IPacketNetwork#transmitInterdimensional(Packet)
      */
-    void receiveSameDimension(@Nonnull Packet packet, double distance);
+    void receiveSameDimension(Packet packet, double distance);
 
     /**
      * Receive a network packet from a different dimension.
@@ -79,5 +76,5 @@ public interface IPacketReceiver {
      * @see IPacketNetwork#transmitSameDimension(Packet, double)
      * @see #isInterdimensional()
      */
-    void receiveDifferentDimension(@Nonnull Packet packet);
+    void receiveDifferentDimension(Packet packet);
 }

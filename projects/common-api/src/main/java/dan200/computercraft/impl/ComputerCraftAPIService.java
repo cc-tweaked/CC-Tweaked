@@ -29,7 +29,6 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.ApiStatus;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -44,46 +43,42 @@ public interface ComputerCraftAPIService {
         return instance == null ? Services.raise(ComputerCraftAPIService.class, Instance.ERROR) : instance;
     }
 
-    @Nonnull
     String getInstalledVersion();
 
-    int createUniqueNumberedSaveDir(@Nonnull Level world, @Nonnull String parentSubPath);
+    int createUniqueNumberedSaveDir(Level world, String parentSubPath);
 
     @Nullable
-    IWritableMount createSaveDirMount(@Nonnull Level world, @Nonnull String subPath, long capacity);
+    IWritableMount createSaveDirMount(Level world, String subPath, long capacity);
 
     @Nullable
-    IMount createResourceMount(@Nonnull String domain, @Nonnull String subPath);
+    IMount createResourceMount(String domain, String subPath);
 
     @Deprecated
-    void registerPeripheralProvider(@Nonnull IPeripheralProvider provider);
+    void registerPeripheralProvider(IPeripheralProvider provider);
 
-    void registerGenericSource(@Nonnull GenericSource source);
+    void registerGenericSource(GenericSource source);
 
     @Deprecated
-    void registerGenericCapability(@Nonnull Capability<?> capability);
+    void registerGenericCapability(Capability<?> capability);
 
-    void registerBundledRedstoneProvider(@Nonnull IBundledRedstoneProvider provider);
+    void registerBundledRedstoneProvider(IBundledRedstoneProvider provider);
 
-    int getBundledRedstoneOutput(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side);
+    int getBundledRedstoneOutput(Level world, BlockPos pos, Direction side);
 
-    void registerMediaProvider(@Nonnull IMediaProvider provider);
+    void registerMediaProvider(IMediaProvider provider);
 
-    @Nonnull
     IPacketNetwork getWirelessNetwork();
 
-    void registerAPIFactory(@Nonnull ILuaAPIFactory factory);
+    void registerAPIFactory(ILuaAPIFactory factory);
 
     @Deprecated
-    <T> void registerDetailProvider(@Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider);
+    <T> void registerDetailProvider(Class<T> type, IDetailProvider<T> provider);
 
-    @Nonnull
-    IWiredNode createWiredNodeForElement(@Nonnull IWiredElement element);
+    IWiredNode createWiredNodeForElement(IWiredElement element);
 
-    @Nonnull
-    LazyOptional<IWiredElement> getWiredElementAt(@Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side);
+    LazyOptional<IWiredElement> getWiredElementAt(BlockGetter world, BlockPos pos, Direction side);
 
-    void registerRefuelHandler(@Nonnull TurtleRefuelHandler handler);
+    void registerRefuelHandler(TurtleRefuelHandler handler);
 
     DetailRegistry<ItemStack> getItemStackDetailRegistry();
 

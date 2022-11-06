@@ -17,7 +17,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 /**
@@ -43,8 +43,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
      *             to specify {@link ToolBuilder#damageMultiplier(float)} and {@link ToolBuilder#breakable(TagKey)}.
      * @return A tool builder,
      */
-    @Nonnull
-    public final ToolBuilder tool(@Nonnull ResourceLocation id, @Nonnull Item item) {
+    public final ToolBuilder tool(ResourceLocation id, Item item) {
         return new ToolBuilder(id, existingSerialiser(TOOL_ID), item);
     }
 
@@ -57,10 +56,10 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
         private final ResourceLocation id;
         private final TurtleUpgradeSerialiser<?> serialiser;
         private final Item toolItem;
-        private String adjective;
-        private Item craftingItem;
-        private Float damageMultiplier = null;
-        private TagKey<Block> breakable;
+        private @Nullable String adjective;
+        private @Nullable Item craftingItem;
+        private @Nullable Float damageMultiplier = null;
+        private @Nullable TagKey<Block> breakable;
 
         ToolBuilder(ResourceLocation id, TurtleUpgradeSerialiser<?> serialiser, Item toolItem) {
             this.id = id;
@@ -75,8 +74,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
          * @param adjective The new adjective to use.
          * @return The tool builder, for further use.
          */
-        @Nonnull
-        public ToolBuilder adjective(@Nonnull String adjective) {
+        public ToolBuilder adjective(String adjective) {
             this.adjective = adjective;
             return this;
         }
@@ -88,8 +86,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
          * @param craftingItem The item used to craft this upgrade.
          * @return The tool builder, for further use.
          */
-        @Nonnull
-        public ToolBuilder craftingItem(@Nonnull Item craftingItem) {
+        public ToolBuilder craftingItem(Item craftingItem) {
             this.craftingItem = craftingItem;
             return this;
         }
@@ -115,7 +112,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
          * @return The tool builder, for further use.
          * @see ComputerCraftTags.Blocks
          */
-        public ToolBuilder breakable(@Nonnull TagKey<Block> breakable) {
+        public ToolBuilder breakable(TagKey<Block> breakable) {
             this.breakable = breakable;
             return this;
         }
@@ -125,7 +122,7 @@ public abstract class TurtleUpgradeDataProvider extends UpgradeDataProvider<ITur
          *
          * @param add The callback given to {@link #addUpgrades(Consumer)}.
          */
-        public void add(@Nonnull Consumer<Upgrade<TurtleUpgradeSerialiser<?>>> add) {
+        public void add(Consumer<Upgrade<TurtleUpgradeSerialiser<?>>> add) {
             add.accept(new Upgrade<>(id, serialiser, s -> {
                 s.addProperty("item", PlatformHelper.get().getRegistryKey(Registry.ITEM_REGISTRY, toolItem).toString());
                 if (adjective != null) s.addProperty("adjective", adjective);

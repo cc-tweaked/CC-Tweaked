@@ -9,7 +9,6 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.upgrades.IUpgradeBase;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -37,7 +36,7 @@ public interface IPocketUpgrade extends IUpgradeBase {
      * @see #update(IPocketAccess, IPeripheral)
      */
     @Nullable
-    IPeripheral createPeripheral(@Nonnull IPocketAccess access);
+    IPeripheral createPeripheral(IPocketAccess access);
 
     /**
      * Called when the pocket computer item stack updates.
@@ -46,7 +45,7 @@ public interface IPocketUpgrade extends IUpgradeBase {
      * @param peripheral The peripheral for this upgrade.
      * @see #createPeripheral(IPocketAccess)
      */
-    default void update(@Nonnull IPocketAccess access, @Nullable IPeripheral peripheral) {
+    default void update(IPocketAccess access, @Nullable IPeripheral peripheral) {
     }
 
     /**
@@ -60,7 +59,7 @@ public interface IPocketUpgrade extends IUpgradeBase {
      * access the GUI.
      * @see #createPeripheral(IPocketAccess)
      */
-    default boolean onRightClick(@Nonnull Level world, @Nonnull IPocketAccess access, @Nullable IPeripheral peripheral) {
+    default boolean onRightClick(Level world, IPocketAccess access, @Nullable IPeripheral peripheral) {
         return false;
     }
 }

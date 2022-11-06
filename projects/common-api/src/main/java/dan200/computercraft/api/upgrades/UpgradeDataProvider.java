@@ -21,7 +21,7 @@ import net.minecraft.world.item.Item;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -45,9 +45,9 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
     private final String folder;
     private final ResourceKey<Registry<R>> registry;
 
-    private List<T> upgrades;
+    private @Nullable List<T> upgrades;
 
-    protected UpgradeDataProvider(@Nonnull DataGenerator generator, @Nonnull String name, @Nonnull String folder, @Nonnull ResourceKey<Registry<R>> registry) {
+    protected UpgradeDataProvider(DataGenerator generator, String name, String folder, ResourceKey<Registry<R>> registry) {
         this.generator = generator;
         this.name = name;
         this.folder = folder;
@@ -61,8 +61,7 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
      * @param serialiser The simple serialiser.
      * @return The constructed upgrade, ready to be passed off to {@link #addUpgrades(Consumer)}'s consumer.
      */
-    @Nonnull
-    public final Upgrade<R> simple(@Nonnull ResourceLocation id, @Nonnull R serialiser) {
+    public final Upgrade<R> simple(ResourceLocation id, R serialiser) {
         if (!(serialiser instanceof SimpleSerialiser)) {
             throw new IllegalStateException(serialiser + " must be a simple() seriaiser.");
         }
@@ -79,8 +78,7 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
      * @param item       The crafting upgrade for this item.
      * @return The constructed upgrade, ready to be passed off to {@link #addUpgrades(Consumer)}'s consumer.
      */
-    @Nonnull
-    public final Upgrade<R> simpleWithCustomItem(@Nonnull ResourceLocation id, @Nonnull R serialiser, @Nonnull Item item) {
+    public final Upgrade<R> simpleWithCustomItem(ResourceLocation id, R serialiser, Item item) {
         if (!(serialiser instanceof SerialiserWithCraftingItem)) {
             throw new IllegalStateException(serialiser + " must be a simpleWithCustomItem() serialiser.");
         }
@@ -95,17 +93,17 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
      * <p>
      * <strong>Example usage:</strong>
      * <pre>{@code
-     * protected void addUpgrades(@Nonnull Consumer<Upgrade<TurtleUpgradeSerialiser<?>>> addUpgrade) {
+     * protected void addUpgrades(Consumer<Upgrade<TurtleUpgradeSerialiser<?>>> addUpgrade) {
      *     simple(new ResourceLocation("mymod", "speaker"), SPEAKER_SERIALISER.get()).add(addUpgrade);
      * }
      * }</pre>
      *
      * @param addUpgrade A callback used to register an upgrade.
      */
-    protected abstract void addUpgrades(@Nonnull Consumer<Upgrade<R>> addUpgrade);
+    protected abstract void addUpgrades(Consumer<Upgrade<R>> addUpgrade);
 
     @Override
-    public final void run(@Nonnull CachedOutput cache) throws IOException {
+    public final void run(CachedOutput cache) throws IOException {
         var base = generator.getOutputFolder().resolve("data");
 
         Set<ResourceLocation> seen = new HashSet<>();
@@ -134,20 +132,17 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
         this.upgrades = upgrades;
     }
 
-    @Nonnull
     @Override
     public final String getName() {
         return name;
     }
 
-    @Nonnull
-    public final R existingSerialiser(@Nonnull ResourceLocation id) {
+    public final R existingSerialiser(ResourceLocation id) {
         var result = PlatformHelper.get().getRegistryObject(registry, id);
         if (result == null) throw new IllegalArgumentException("No such serialiser " + registry);
         return result;
     }
 
-    @Nonnull
     public List<T> getGeneratedUpgrades() {
         if (upgrades == null) throw new IllegalStateException("Upgrades have not beeen generated yet");
         return upgrades;
@@ -169,7 +164,7 @@ public abstract class UpgradeDataProvider<T extends IUpgradeBase, R extends Upgr
          *
          * @param add The callback given to {@link #addUpgrades(Consumer)}
          */
-        public void add(@Nonnull Consumer<Upgrade<R>> add) {
+        public void add(Consumer<Upgrade<R>> add) {
             add.accept(this);
         }
     }

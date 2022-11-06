@@ -9,7 +9,6 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleRefuelHandler;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
@@ -23,9 +22,9 @@ import java.util.Objects;
 @Deprecated(forRemoval = true)
 public class TurtleRefuelEvent extends TurtleEvent {
     private final ItemStack stack;
-    private Handler handler;
+    private @Nullable Handler handler;
 
-    public TurtleRefuelEvent(@Nonnull ITurtleAccess turtle, @Nonnull ItemStack stack) {
+    public TurtleRefuelEvent(ITurtleAccess turtle, ItemStack stack) {
         super(turtle);
 
         Objects.requireNonNull(turtle, "turtle cannot be null");
@@ -82,6 +81,6 @@ public class TurtleRefuelEvent extends TurtleEvent {
          *               items to consume.
          * @return The amount of fuel gained.
          */
-        int refuel(@Nonnull ITurtleAccess turtle, @Nonnull ItemStack stack, int slot, int limit);
+        int refuel(ITurtleAccess turtle, ItemStack stack, int slot, int limit);
     }
 }

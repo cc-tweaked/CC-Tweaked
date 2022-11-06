@@ -9,7 +9,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
 
 /**
  * This interface is used to provide bundled redstone output for blocks.
@@ -28,5 +27,5 @@ public interface IBundledRedstoneProvider {
      * handle this block.
      * @see dan200.computercraft.api.ComputerCraftAPI#registerBundledRedstoneProvider(IBundledRedstoneProvider)
      */
-    int getBundledRedstoneOutput(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side);
+    int getBundledRedstoneOutput(Level world, BlockPos pos, Direction side);
 }

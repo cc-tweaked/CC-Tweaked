@@ -8,7 +8,7 @@ package dan200.computercraft.api.detail;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -20,7 +20,7 @@ import java.util.Objects;
  */
 public abstract class BasicItemDetailProvider<T> implements IDetailProvider<ItemStack> {
     private final Class<T> itemType;
-    private final String namespace;
+    private final @Nullable String namespace;
 
     /**
      * Create a new item detail provider. Meta will be inserted into a new sub-map named as per {@code namespace}.
@@ -28,7 +28,7 @@ public abstract class BasicItemDetailProvider<T> implements IDetailProvider<Item
      * @param itemType  The type the stack's item must have.
      * @param namespace The namespace to use for this provider.
      */
-    public BasicItemDetailProvider(String namespace, @Nonnull Class<T> itemType) {
+    public BasicItemDetailProvider(@Nullable String namespace, Class<T> itemType) {
         Objects.requireNonNull(itemType);
         this.itemType = itemType;
         this.namespace = namespace;
@@ -39,7 +39,7 @@ public abstract class BasicItemDetailProvider<T> implements IDetailProvider<Item
      *
      * @param itemType The type the stack's item must have.
      */
-    public BasicItemDetailProvider(@Nonnull Class<T> itemType) {
+    public BasicItemDetailProvider(Class<T> itemType) {
         this(null, itemType);
     }
 
@@ -54,11 +54,12 @@ public abstract class BasicItemDetailProvider<T> implements IDetailProvider<Item
      * @param stack The item stack to provide details for.
      * @param item  The item to provide details for.
      */
-    public abstract void provideDetails(@Nonnull Map<? super String, Object> data, @Nonnull ItemStack stack,
-                                        @Nonnull T item);
+    public abstract void provideDetails(
+        Map<? super String, Object> data, ItemStack stack, T item
+    );
 
     @Override
-    public void provideDetails(@Nonnull Map<? super String, Object> data, @Nonnull ItemStack stack) {
+    public void provideDetails(Map<? super String, Object> data, ItemStack stack) {
         var item = stack.getItem();
         if (!itemType.isInstance(item)) return;
 

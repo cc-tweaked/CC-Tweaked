@@ -10,7 +10,6 @@ import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.impl.client.ComputerCraftAPIClientService;
 
-import javax.annotation.Nonnull;
 
 public final class ComputerCraftAPIClient {
     private ComputerCraftAPIClient() {
@@ -26,11 +25,10 @@ public final class ComputerCraftAPIClient {
      * @param modeller   The upgrade modeller.
      * @param <T>        The type of the turtle upgrade.
      */
-    public static <T extends ITurtleUpgrade> void registerTurtleUpgradeModeller(@Nonnull TurtleUpgradeSerialiser<T> serialiser, @Nonnull TurtleUpgradeModeller<T> modeller) {
+    public static <T extends ITurtleUpgrade> void registerTurtleUpgradeModeller(TurtleUpgradeSerialiser<T> serialiser, TurtleUpgradeModeller<T> modeller) {
         getInstance().registerTurtleUpgradeModeller(serialiser, modeller);
     }
 
-    @Nonnull
     private static ComputerCraftAPIClientService getInstance() {
         return ComputerCraftAPIClientService.get();
     }

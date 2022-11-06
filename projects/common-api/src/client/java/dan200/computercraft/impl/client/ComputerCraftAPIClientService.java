@@ -12,7 +12,6 @@ import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.impl.Services;
 import org.jetbrains.annotations.ApiStatus;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -27,7 +26,7 @@ public interface ComputerCraftAPIClientService {
         return instance == null ? Services.raise(ComputerCraftAPIClientService.class, Instance.ERROR) : instance;
     }
 
-    <T extends ITurtleUpgrade> void registerTurtleUpgradeModeller(@Nonnull TurtleUpgradeSerialiser<T> serialiser, @Nonnull TurtleUpgradeModeller<T> modeller);
+    <T extends ITurtleUpgrade> void registerTurtleUpgradeModeller(TurtleUpgradeSerialiser<T> serialiser, TurtleUpgradeModeller<T> modeller);
 
     final class Instance {
         static final @Nullable ComputerCraftAPIClientService INSTANCE;

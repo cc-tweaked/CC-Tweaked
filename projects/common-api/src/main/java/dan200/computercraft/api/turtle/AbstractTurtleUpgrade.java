@@ -9,7 +9,6 @@ import dan200.computercraft.api.upgrades.IUpgradeBase;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 
 /**
  * A base class for {@link ITurtleUpgrade}s.
@@ -33,25 +32,21 @@ public abstract class AbstractTurtleUpgrade implements ITurtleUpgrade {
         this(id, type, IUpgradeBase.getDefaultAdjective(id), stack);
     }
 
-    @Nonnull
     @Override
     public final ResourceLocation getUpgradeID() {
         return id;
     }
 
-    @Nonnull
     @Override
     public final String getUnlocalisedAdjective() {
         return adjective;
     }
 
-    @Nonnull
     @Override
     public final TurtleUpgradeType getType() {
         return type;
     }
 
-    @Nonnull
     @Override
     public final ItemStack getCraftingItem() {
         return stack;

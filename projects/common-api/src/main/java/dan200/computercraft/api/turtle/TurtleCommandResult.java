@@ -7,7 +7,6 @@ package dan200.computercraft.api.turtle;
 
 import net.minecraft.core.Direction;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -25,7 +24,6 @@ public final class TurtleCommandResult {
      *
      * @return A successful command result with no values.
      */
-    @Nonnull
     public static TurtleCommandResult success() {
         return EMPTY_SUCCESS;
     }
@@ -36,7 +34,6 @@ public final class TurtleCommandResult {
      * @param results The results of executing this command.
      * @return A successful command result with the given values.
      */
-    @Nonnull
     public static TurtleCommandResult success(@Nullable Object[] results) {
         if (results == null || results.length == 0) return EMPTY_SUCCESS;
         return new TurtleCommandResult(true, null, results);
@@ -47,7 +44,6 @@ public final class TurtleCommandResult {
      *
      * @return A failed command result with no message.
      */
-    @Nonnull
     public static TurtleCommandResult failure() {
         return EMPTY_FAILURE;
     }
@@ -58,17 +54,16 @@ public final class TurtleCommandResult {
      * @param errorMessage The error message to provide.
      * @return A failed command result with a message.
      */
-    @Nonnull
     public static TurtleCommandResult failure(@Nullable String errorMessage) {
         if (errorMessage == null) return EMPTY_FAILURE;
         return new TurtleCommandResult(false, errorMessage, null);
     }
 
     private final boolean success;
-    private final String errorMessage;
-    private final Object[] results;
+    private final @Nullable String errorMessage;
+    private final @Nullable Object[] results;
 
-    private TurtleCommandResult(boolean success, String errorMessage, Object[] results) {
+    private TurtleCommandResult(boolean success, @Nullable String errorMessage, @Nullable Object[] results) {
         this.success = success;
         this.errorMessage = errorMessage;
         this.results = results;

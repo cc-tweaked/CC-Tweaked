@@ -8,7 +8,6 @@ package dan200.computercraft.api.turtle.event;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import net.minecraftforge.eventbus.api.Event;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 
 /**
@@ -23,7 +22,7 @@ import java.util.Objects;
 public abstract class TurtleEvent extends Event {
     private final ITurtleAccess turtle;
 
-    protected TurtleEvent(@Nonnull ITurtleAccess turtle) {
+    protected TurtleEvent(ITurtleAccess turtle) {
         Objects.requireNonNull(turtle, "turtle cannot be null");
         this.turtle = turtle;
     }
@@ -33,7 +32,6 @@ public abstract class TurtleEvent extends Event {
      *
      * @return The access for this turtle.
      */
-    @Nonnull
     public ITurtleAccess getTurtle() {
         return turtle;
     }

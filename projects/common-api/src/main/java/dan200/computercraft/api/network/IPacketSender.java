@@ -8,7 +8,6 @@ package dan200.computercraft.api.network;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nonnull;
 
 /**
  * An object on a {@link IPacketNetwork}, capable of sending packets.
@@ -19,7 +18,6 @@ public interface IPacketSender {
      *
      * @return The sender's world.
      */
-    @Nonnull
     Level getLevel();
 
     /**
@@ -27,7 +25,6 @@ public interface IPacketSender {
      *
      * @return The sender's position.
      */
-    @Nonnull
     Vec3 getPosition();
 
     /**
@@ -36,6 +33,5 @@ public interface IPacketSender {
      *
      * @return This device's id.
      */
-    @Nonnull
     String getSenderID();
 }

@@ -12,7 +12,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
 
-import javax.annotation.Nonnull;
 import java.util.function.Function;
 
 /**
@@ -30,19 +29,17 @@ public abstract class SimpleSerialiser<T extends IUpgradeBase> implements Upgrad
         this.constructor = constructor;
     }
 
-    @Nonnull
     @Override
-    public final T fromJson(@Nonnull ResourceLocation id, @Nonnull JsonObject object) {
-        return constructor.apply(id);
-    }
-
-    @Nonnull
-    @Override
-    public final T fromNetwork(@Nonnull ResourceLocation id, @Nonnull FriendlyByteBuf buffer) {
+    public final T fromJson(ResourceLocation id, JsonObject object) {
         return constructor.apply(id);
     }
 
     @Override
-    public final void toNetwork(@Nonnull FriendlyByteBuf buffer, @Nonnull T upgrade) {
+    public final T fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
+        return constructor.apply(id);
+    }
+
+    @Override
+    public final void toNetwork(FriendlyByteBuf buffer, T upgrade) {
     }
 }

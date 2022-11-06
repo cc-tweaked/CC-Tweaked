@@ -14,7 +14,6 @@ import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -34,8 +33,7 @@ public interface TurtleUpgradeModeller<T extends ITurtleUpgrade> {
      * @param side    Which side of the turtle (left or right) the upgrade resides on.
      * @return The model that you wish to be used to render your upgrade.
      */
-    @Nonnull
-    TransformedModel getModel(@Nonnull T upgrade, @Nullable ITurtleAccess turtle, @Nonnull TurtleSide side);
+    TransformedModel getModel(T upgrade, @Nullable ITurtleAccess turtle, TurtleSide side);
 
     /**
      * A basic {@link TurtleUpgradeModeller} which renders using the upgrade's {@linkplain ITurtleUpgrade#getCraftingItem()

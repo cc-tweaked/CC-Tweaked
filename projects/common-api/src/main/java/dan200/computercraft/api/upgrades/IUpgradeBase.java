@@ -12,7 +12,7 @@ import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
+import java.util.Objects;
 
 /**
  * Common functionality between {@link ITurtleUpgrade} and {@link IPocketUpgrade}.
@@ -27,7 +27,6 @@ public interface IUpgradeBase {
      *
      * @return The unique ID for this upgrade.
      */
-    @Nonnull
     ResourceLocation getUpgradeID();
 
     /**
@@ -37,7 +36,6 @@ public interface IUpgradeBase {
      *
      * @return The localisation key for this upgrade's adjective.
      */
-    @Nonnull
     String getUnlocalisedAdjective();
 
     /**
@@ -51,7 +49,6 @@ public interface IUpgradeBase {
      *
      * @return The item stack to craft with, or {@link ItemStack#EMPTY} if it cannot be crafted.
      */
-    @Nonnull
     ItemStack getCraftingItem();
 
     /**
@@ -70,7 +67,7 @@ public interface IUpgradeBase {
      *              {@link #getCraftingItem()}.
      * @return If this stack may be used to equip this upgrade.
      */
-    default boolean isItemSuitable(@Nonnull ItemStack stack) {
+    default boolean isItemSuitable(ItemStack stack) {
         var crafting = getCraftingItem();
 
         // A more expanded form of ItemStack.areShareTagsEqual, but allowing an empty tag to be equal to a
@@ -78,7 +75,7 @@ public interface IUpgradeBase {
         var shareTag = PlatformHelper.get().getShareTag(stack);
         var craftingShareTag = PlatformHelper.get().getShareTag(crafting);
         if (shareTag == craftingShareTag) return true;
-        if (shareTag == null) return craftingShareTag.isEmpty();
+        if (shareTag == null) return Objects.requireNonNull(craftingShareTag).isEmpty();
         if (craftingShareTag == null) return shareTag.isEmpty();
         return shareTag.equals(craftingShareTag);
     }
@@ -91,8 +88,7 @@ public interface IUpgradeBase {
      * @return The  generated adjective.
      * @see #getUnlocalisedAdjective()
      */
-    @Nonnull
-    static String getDefaultAdjective(@Nonnull ResourceLocation id) {
+    static String getDefaultAdjective(ResourceLocation id) {
         return Util.makeDescriptionId("upgrade", id) + ".adjective";
     }
 }

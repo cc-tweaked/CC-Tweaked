@@ -8,7 +8,6 @@ package dan200.computercraft.api.pocket;
 import dan200.computercraft.api.upgrades.UpgradeDataProvider;
 import net.minecraft.data.DataGenerator;
 
-import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 /**
@@ -20,7 +19,7 @@ import java.util.function.Consumer;
  * @see PocketUpgradeSerialiser
  */
 public abstract class PocketUpgradeDataProvider extends UpgradeDataProvider<IPocketUpgrade, PocketUpgradeSerialiser<?>> {
-    public PocketUpgradeDataProvider(@Nonnull DataGenerator generator) {
+    public PocketUpgradeDataProvider(DataGenerator generator) {
         super(generator, "Pocket Computer Upgrades", "computercraft/pocket_upgrades", PocketUpgradeSerialiser.REGISTRY_ID);
     }
 }

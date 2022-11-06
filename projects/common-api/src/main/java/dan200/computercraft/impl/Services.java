@@ -71,6 +71,7 @@ public final class Services {
      * @see #tryLoad(Class)
      * @see LoadedService#error()
      */
+    @SuppressWarnings("DoNotCallSuggester")
     public static <T> T raise(Class<T> klass, @Nullable Throwable e) {
         // Throw a new exception so there's a useful stack trace there somewhere!
         throw new ServiceException("Failed to instantiate " + klass.getName(), e);

@@ -14,7 +14,6 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 
-import javax.annotation.Nonnull;
 import java.util.function.BiFunction;
 
 /**
@@ -32,22 +31,20 @@ public abstract class SerialiserWithCraftingItem<T extends IUpgradeBase> impleme
         this.factory = factory;
     }
 
-    @Nonnull
     @Override
-    public final T fromJson(@Nonnull ResourceLocation id, @Nonnull JsonObject object) {
+    public final T fromJson(ResourceLocation id, JsonObject object) {
         var item = GsonHelper.getAsItem(object, "item");
         return factory.apply(id, new ItemStack(item));
     }
 
-    @Nonnull
     @Override
-    public final T fromNetwork(@Nonnull ResourceLocation id, @Nonnull FriendlyByteBuf buffer) {
+    public final T fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
         var item = buffer.readItem();
         return factory.apply(id, item);
     }
 
     @Override
-    public final void toNetwork(@Nonnull FriendlyByteBuf buffer, @Nonnull T upgrade) {
+    public final void toNetwork(FriendlyByteBuf buffer, T upgrade) {
         buffer.writeItem(upgrade.getCraftingItem());
     }
 }

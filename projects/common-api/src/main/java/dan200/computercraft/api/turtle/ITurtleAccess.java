@@ -17,7 +17,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -32,7 +31,6 @@ public interface ITurtleAccess {
      *
      * @return the world in which the turtle resides.
      */
-    @Nonnull
     Level getLevel();
 
     /**
@@ -40,7 +38,6 @@ public interface ITurtleAccess {
      *
      * @return a vector containing the integer co-ordinates at which the turtle resides.
      */
-    @Nonnull
     BlockPos getPosition();
 
     /**
@@ -69,7 +66,7 @@ public interface ITurtleAccess {
      * was cancelled.
      * @throws UnsupportedOperationException When attempting to teleport on the client side.
      */
-    boolean teleportTo(@Nonnull Level world, @Nonnull BlockPos pos);
+    boolean teleportTo(Level world, BlockPos pos);
 
     /**
      * Returns a vector containing the floating point co-ordinates at which the turtle is rendered.
@@ -79,7 +76,6 @@ public interface ITurtleAccess {
      * @return A vector containing the floating point co-ordinates at which the turtle resides.
      * @see #getVisualYaw(float)
      */
-    @Nonnull
     Vec3 getVisualPosition(float f);
 
     /**
@@ -97,7 +93,6 @@ public interface ITurtleAccess {
      * @return The world direction the turtle is currently facing.
      * @see #setDirection(Direction)
      */
-    @Nonnull
     Direction getDirection();
 
     /**
@@ -107,7 +102,7 @@ public interface ITurtleAccess {
      * @param dir The new direction to set. This should be on either the x or z axis (so north, south, east or west).
      * @see #getDirection()
      */
-    void setDirection(@Nonnull Direction dir);
+    void setDirection(Direction dir);
 
     /**
      * Get the currently selected slot in the turtle's inventory.
@@ -163,7 +158,6 @@ public interface ITurtleAccess {
      * @return This turtle's inventory
      * @see #getItemHandler()
      */
-    @Nonnull
     Container getInventory();
 
     /**
@@ -176,7 +170,6 @@ public interface ITurtleAccess {
      * @see IItemHandlerModifiable
      * @deprecated Use {@link #getInventory()} directly.
      */
-    @Nonnull
     @Deprecated(forRemoval = true)
     IItemHandlerModifiable getItemHandler();
 
@@ -249,8 +242,7 @@ public interface ITurtleAccess {
      * @see ITurtleCommand
      * @see MethodResult#pullEvent(String, ILuaCallback)
      */
-    @Nonnull
-    MethodResult executeCommand(@Nonnull ITurtleCommand command);
+    MethodResult executeCommand(ITurtleCommand command);
 
     /**
      * Start playing a specific animation. This will prevent other turtle commands from executing until
@@ -260,7 +252,7 @@ public interface ITurtleAccess {
      * @throws UnsupportedOperationException When attempting to execute play an animation on the client side.
      * @see TurtleAnimation
      */
-    void playAnimation(@Nonnull TurtleAnimation animation);
+    void playAnimation(TurtleAnimation animation);
 
     /**
      * Returns the turtle on the specified side of the turtle, if there is one.
@@ -270,7 +262,7 @@ public interface ITurtleAccess {
      * @see #setUpgrade(TurtleSide, ITurtleUpgrade)
      */
     @Nullable
-    ITurtleUpgrade getUpgrade(@Nonnull TurtleSide side);
+    ITurtleUpgrade getUpgrade(TurtleSide side);
 
     /**
      * Set the upgrade for a given side, resetting peripherals and clearing upgrade specific data.
@@ -279,7 +271,7 @@ public interface ITurtleAccess {
      * @param upgrade The upgrade to set, may be {@code null} to clear.
      * @see #getUpgrade(TurtleSide)
      */
-    void setUpgrade(@Nonnull TurtleSide side, @Nullable ITurtleUpgrade upgrade);
+    void setUpgrade(TurtleSide side, @Nullable ITurtleUpgrade upgrade);
 
     /**
      * Returns the peripheral created by the upgrade on the specified side of the turtle, if there is one.
@@ -288,7 +280,7 @@ public interface ITurtleAccess {
      * @return The peripheral created by the upgrade on the specified side of the turtle, {@code null} if none exists.
      */
     @Nullable
-    IPeripheral getPeripheral(@Nonnull TurtleSide side);
+    IPeripheral getPeripheral(TurtleSide side);
 
     /**
      * Get an upgrade-specific NBT compound, which can be used to store arbitrary data.
@@ -300,7 +292,6 @@ public interface ITurtleAccess {
      * @return The upgrade-specific data.
      * @see #updateUpgradeNBTData(TurtleSide)
      */
-    @Nonnull
     CompoundTag getUpgradeNBTData(@Nullable TurtleSide side);
 
     /**
@@ -310,5 +301,5 @@ public interface ITurtleAccess {
      * @param side The side to mark dirty.
      * @see #updateUpgradeNBTData(TurtleSide)
      */
-    void updateUpgradeNBTData(@Nonnull TurtleSide side);
+    void updateUpgradeNBTData(TurtleSide side);
 }
