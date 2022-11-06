@@ -27,15 +27,27 @@ SOURCE_LOCATIONS = [
     "src/test/resources",
 ]
 
+PROJECT_LOCATIONS = [
+    ".",
+    "projects/core-api",
+    "projects/core",
+    "projects/common",
+    "projects/common-api",
+    "projects/forge-api",
+]
+
+TEST_REPORTS = []
+
 
 def find_file(path: str) -> Optional[str]:
-    while len(path) > 0 and path[0] == '/':
+    while len(path) > 0 and path[0] == "/":
         path = path[1:]
 
-    for source_dir in SOURCE_LOCATIONS:
-        child_path = os.path.join(source_dir, path)
-        if os.path.exists(child_path):
-            return child_path
+    for project in PROJECT_LOCATIONS:
+        for source_dir in SOURCE_LOCATIONS:
+            child_path = os.path.join(project, source_dir, path)
+            if os.path.exists(child_path):
+                return child_path
 
     return None
 
@@ -61,6 +73,35 @@ def find_location(message: str) -> Optional[Tuple[str, str]]:
     return None
 
 
+def _parse_junit_file(path: pathlib.Path):
+    for testcase in ET.parse(path).getroot():
+        if testcase.tag != "testcase":
+            continue
+
+        for result in testcase:
+            if result.tag != "failure":
+                continue
+
+            name = f'{testcase.attrib["classname"]}.{testcase.attrib["name"]}'
+            message = result.attrib.get("message")
+
+            location = find_location(result.text)
+            error = ERROR_MESSAGE.match(message)
+            if error:
+                error = error[1]
+            else:
+                error = message
+
+            if location:
+                print(f'## {location[0]}:{location[1]}: {name} failed: {SPACES.sub(" ", error)}')
+            else:
+                print(f"::error::{name} failed")
+
+            print("::group::Full error message")
+            print(result.text)
+            print("::endgroup")
+
+
 def parse_junit() -> None:
     """
     Scrape JUnit test reports for errors. We determine the location from the Lua
@@ -68,35 +109,22 @@ def parse_junit() -> None:
     """
     print("::add-matcher::.github/matchers/junit.json")
 
-    for path in pathlib.Path("build/test-results/test").glob("TEST-*.xml"):
-        for testcase in ET.parse(path).getroot():
-            if testcase.tag != "testcase":
-                continue
-
-            for result in testcase:
-                if result.tag != "failure":
-                    continue
-
-                name = f'{testcase.attrib["classname"]}.{testcase.attrib["name"]}'
-                message = result.attrib.get('message')
-
-                location = find_location(result.text)
-                error = ERROR_MESSAGE.match(message)
-                if error:
-                    error = error[1]
-                else:
-                    error = message
-
-                if location:
-                    print(f'## {location[0]}:{location[1]}: {name} failed: {SPACES.sub(" ", error)}')
-                else:
-                    print(f'::error::{name} failed')
-
-                print("::group::Full error message")
-                print(result.text)
-                print("::endgroup")
+    for project in PROJECT_LOCATIONS:
+        for path in pathlib.Path(os.path.join(project, "build/test-results/test")).glob("TEST-*.xml"):
+            _parse_junit_file(path)
 
     print("::remove-matcher owner=junit::")
+
+
+def _parse_checkstyle(path: pathlib.Path):
+    for file in ET.parse(path).getroot():
+        for error in file:
+            filename = os.path.relpath(file.attrib["name"])
+
+            attrib = error.attrib
+            print(
+                f'{attrib["severity"]} {filename}:{attrib["line"]}:{attrib.get("column", 1)}: {SPACES.sub(" ", attrib["message"])}'
+            )
 
 
 def parse_checkstyle() -> None:
@@ -106,16 +134,13 @@ def parse_checkstyle() -> None:
     """
     print("::add-matcher::.github/matchers/checkstyle.json")
 
-    for path in pathlib.Path("build/reports/checkstyle/").glob("*.xml"):
-        for file in ET.parse(path).getroot():
-            for error in file:
-                filename = os.path.relpath(file.attrib['name'])
-
-                attrib = error.attrib
-                print(f'{attrib["severity"]} {filename}:{attrib["line"]}:{attrib.get("column", 1)}: {SPACES.sub(" ", attrib["message"])}')
+    for project in PROJECT_LOCATIONS:
+        for path in pathlib.Path(os.path.join(project, "build/reports/checkstyle/")).glob("*.xml"):
+            _parse_checkstyle(path)
 
     print("::remove-matcher owner=checkstyle::")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     parse_junit()
     parse_checkstyle()
