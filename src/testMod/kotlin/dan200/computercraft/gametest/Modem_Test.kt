@@ -9,6 +9,7 @@ import dan200.computercraft.api.lua.ObjectArguments
 import dan200.computercraft.core.apis.PeripheralAPI
 import dan200.computercraft.core.computer.ComputerSide
 import dan200.computercraft.gametest.api.*
+import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable
 import dan200.computercraft.test.core.assertArrayEquals
 import dan200.computercraft.test.core.computer.LuaTaskContext
@@ -40,7 +41,7 @@ class Modem_Test {
                 BlockCable.correctConnections(
                     helper.level,
                     helper.absolutePos(position),
-                    dan200.computercraft.shared.Registry.ModBlocks.CABLE.get().defaultBlockState().setValue(BlockCable.CABLE, true),
+                    ModRegistry.Blocks.CABLE.get().defaultBlockState().setValue(BlockCable.CABLE, true),
                 ),
             )
         }

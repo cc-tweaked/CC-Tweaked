@@ -8,7 +8,7 @@ package dan200.computercraft.gametest
 import dan200.computercraft.gametest.api.GameTestHolder
 import dan200.computercraft.gametest.api.Structures
 import dan200.computercraft.gametest.api.sequence
-import dan200.computercraft.shared.Registry
+import dan200.computercraft.shared.ModRegistry
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestAssertException
 import net.minecraft.gametest.framework.GameTestHelper
@@ -36,7 +36,7 @@ class Recipe_Test {
         thenExecute {
             val container = CraftingContainer(DummyMenu, 3, 3)
             container.setItem(0, ItemStack(Items.SKELETON_SKULL))
-            container.setItem(1, ItemStack(Registry.ModItems.COMPUTER_ADVANCED.get()))
+            container.setItem(1, ItemStack(ModRegistry.Items.COMPUTER_ADVANCED.get()))
 
             val recipe: Optional<CraftingRecipe> = context.level.server.recipeManager
                 .getRecipeFor(RecipeType.CRAFTING, container, context.level)

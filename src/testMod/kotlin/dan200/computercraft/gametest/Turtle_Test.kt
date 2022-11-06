@@ -10,7 +10,7 @@ import dan200.computercraft.api.detail.VanillaDetailRegistries
 import dan200.computercraft.api.lua.ObjectArguments
 import dan200.computercraft.core.apis.PeripheralAPI
 import dan200.computercraft.gametest.api.*
-import dan200.computercraft.shared.Registry
+import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.media.items.ItemPrintout
 import dan200.computercraft.shared.peripheral.monitor.BlockMonitor
 import dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState
@@ -204,7 +204,7 @@ class Turtle_Test {
         }
         thenWaitUntil { helper.assertEntityNotPresent(EntityType.TNT) }
         thenExecute {
-            helper.assertBlockPresent(Registry.ModBlocks.TURTLE_ADVANCED.get(), BlockPos(2, 2, 2))
+            helper.assertBlockPresent(ModRegistry.Blocks.TURTLE_ADVANCED.get(), BlockPos(2, 2, 2))
             helper.assertBlockPresent(Blocks.AIR, BlockPos(2, 2, 1))
         }
     }
@@ -217,8 +217,8 @@ class Turtle_Test {
         thenExecute { helper.getEntity(EntityType.CREEPER).ignite() }
         thenWaitUntil { helper.assertEntityNotPresent(EntityType.CREEPER) }
         thenExecute {
-            helper.assertBlockPresent(Registry.ModBlocks.TURTLE_ADVANCED.get(), BlockPos(2, 2, 2))
-            helper.assertBlockPresent(Registry.ModBlocks.TURTLE_NORMAL.get(), BlockPos(2, 2, 1))
+            helper.assertBlockPresent(ModRegistry.Blocks.TURTLE_ADVANCED.get(), BlockPos(2, 2, 2))
+            helper.assertBlockPresent(ModRegistry.Blocks.TURTLE_NORMAL.get(), BlockPos(2, 2, 1))
         }
     }
 
@@ -311,7 +311,7 @@ class Turtle_Test {
     @GameTest
     fun Move_replace(helper: GameTestHelper) = helper.sequence {
         thenOnComputer { turtle.forward().await().assertArrayEquals(true, message = "Turtle moved forward") }
-        thenExecute { helper.assertBlockPresent(Registry.ModBlocks.TURTLE_NORMAL.get(), BlockPos(2, 2, 3)) }
+        thenExecute { helper.assertBlockPresent(ModRegistry.Blocks.TURTLE_NORMAL.get(), BlockPos(2, 2, 3)) }
     }
 
     /**
@@ -339,7 +339,7 @@ class Turtle_Test {
     fun Move_obstruct(helper: GameTestHelper) = helper.sequence {
         thenOnComputer { turtle.forward().await().assertArrayEquals(false, "Movement obstructed") }
         thenExecute {
-            helper.assertBlockPresent(Registry.ModBlocks.TURTLE_NORMAL.get(), BlockPos(2, 2, 2))
+            helper.assertBlockPresent(ModRegistry.Blocks.TURTLE_NORMAL.get(), BlockPos(2, 2, 2))
             helper.assertBlockPresent(Blocks.DIRT, BlockPos(2, 2, 3))
         }
     }
@@ -355,7 +355,7 @@ class Turtle_Test {
         }
         thenExecute {
             helper.assertEntityNotPresent(EntityType.SHEEP)
-            val count = helper.getBlockEntity(turtlePos, Registry.ModBlockEntities.TURTLE_NORMAL.get()).countItem(Items.WHITE_WOOL)
+            val count = helper.getBlockEntity(turtlePos, ModRegistry.BlockEntities.TURTLE_NORMAL.get()).countItem(Items.WHITE_WOOL)
             if (count == 0) helper.fail("Expected turtle to have white wool", turtlePos)
         }
     }

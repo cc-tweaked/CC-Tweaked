@@ -7,7 +7,7 @@ package dan200.computercraft.data;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftTags.Blocks;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.tags.ItemTags;
@@ -24,13 +24,13 @@ class ItemTagsGenerator extends ItemTagsProvider {
     protected void addTags() {
         copy(Blocks.COMPUTER, COMPUTER);
         copy(Blocks.TURTLE, TURTLE);
-        tag(WIRED_MODEM).add(Registry.ModItems.WIRED_MODEM.get(), Registry.ModItems.WIRED_MODEM_FULL.get());
+        tag(WIRED_MODEM).add(ModRegistry.Items.WIRED_MODEM.get(), ModRegistry.Items.WIRED_MODEM_FULL.get());
         copy(Blocks.MONITOR, MONITOR);
 
         tag(ItemTags.PIGLIN_LOVED).add(
-            Registry.ModItems.COMPUTER_ADVANCED.get(), Registry.ModItems.TURTLE_ADVANCED.get(),
-            Registry.ModItems.WIRELESS_MODEM_ADVANCED.get(), Registry.ModItems.POCKET_COMPUTER_ADVANCED.get(),
-            Registry.ModItems.MONITOR_ADVANCED.get()
+            ModRegistry.Items.COMPUTER_ADVANCED.get(), ModRegistry.Items.TURTLE_ADVANCED.get(),
+            ModRegistry.Items.WIRELESS_MODEM_ADVANCED.get(), ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get(),
+            ModRegistry.Items.MONITOR_ADVANCED.get()
         );
     }
 }

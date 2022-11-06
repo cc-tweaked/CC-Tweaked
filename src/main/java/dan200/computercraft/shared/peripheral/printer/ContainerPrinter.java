@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.printer;
 
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.util.SingleIntArray;
 import dan200.computercraft.shared.util.ValidatingSlot;
 import net.minecraft.world.Container;
@@ -25,7 +25,7 @@ public class ContainerPrinter extends AbstractContainerMenu {
     private final ContainerData properties;
 
     private ContainerPrinter(int id, Inventory player, Container inventory, ContainerData properties) {
-        super(Registry.ModContainers.PRINTER.get(), id);
+        super(ModRegistry.Menus.PRINTER.get(), id);
         this.properties = properties;
         this.inventory = inventory;
 

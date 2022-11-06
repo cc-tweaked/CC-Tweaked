@@ -8,7 +8,7 @@ package dan200.computercraft.shared.computer.blocks;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
@@ -78,7 +78,7 @@ public class TileComputer extends TileComputerBase {
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) {
-        return new ComputerMenuWithoutInventory(Registry.ModContainers.COMPUTER.get(), id, inventory, this::isUsableByPlayer, createServerComputer(), getFamily());
+        return new ComputerMenuWithoutInventory(ModRegistry.Menus.COMPUTER.get(), id, inventory, this::isUsableByPlayer, createServerComputer(), getFamily());
     }
 
     @Nonnull

@@ -8,7 +8,7 @@ package dan200.computercraft.data;
 import com.mojang.datafixers.util.Pair;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.CommonHooks;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.data.BlockNamedEntityLootCondition;
 import dan200.computercraft.shared.data.HasComputerIdLootCondition;
 import dan200.computercraft.shared.data.PlayerCreativeLootCondition;
@@ -62,36 +62,36 @@ class LootTableGenerator extends LootTableProvider {
     }
 
     private static void registerBlocks(BiConsumer<ResourceLocation, LootTable.Builder> add) {
-        namedBlockDrop(add, Registry.ModBlocks.DISK_DRIVE);
-        selfDrop(add, Registry.ModBlocks.MONITOR_NORMAL);
-        selfDrop(add, Registry.ModBlocks.MONITOR_ADVANCED);
-        namedBlockDrop(add, Registry.ModBlocks.PRINTER);
-        selfDrop(add, Registry.ModBlocks.SPEAKER);
-        selfDrop(add, Registry.ModBlocks.WIRED_MODEM_FULL);
-        selfDrop(add, Registry.ModBlocks.WIRELESS_MODEM_NORMAL);
-        selfDrop(add, Registry.ModBlocks.WIRELESS_MODEM_ADVANCED);
+        namedBlockDrop(add, ModRegistry.Blocks.DISK_DRIVE);
+        selfDrop(add, ModRegistry.Blocks.MONITOR_NORMAL);
+        selfDrop(add, ModRegistry.Blocks.MONITOR_ADVANCED);
+        namedBlockDrop(add, ModRegistry.Blocks.PRINTER);
+        selfDrop(add, ModRegistry.Blocks.SPEAKER);
+        selfDrop(add, ModRegistry.Blocks.WIRED_MODEM_FULL);
+        selfDrop(add, ModRegistry.Blocks.WIRELESS_MODEM_NORMAL);
+        selfDrop(add, ModRegistry.Blocks.WIRELESS_MODEM_ADVANCED);
 
-        computerDrop(add, Registry.ModBlocks.COMPUTER_NORMAL);
-        computerDrop(add, Registry.ModBlocks.COMPUTER_ADVANCED);
-        computerDrop(add, Registry.ModBlocks.COMPUTER_COMMAND);
-        computerDrop(add, Registry.ModBlocks.TURTLE_NORMAL);
-        computerDrop(add, Registry.ModBlocks.TURTLE_ADVANCED);
+        computerDrop(add, ModRegistry.Blocks.COMPUTER_NORMAL);
+        computerDrop(add, ModRegistry.Blocks.COMPUTER_ADVANCED);
+        computerDrop(add, ModRegistry.Blocks.COMPUTER_COMMAND);
+        computerDrop(add, ModRegistry.Blocks.TURTLE_NORMAL);
+        computerDrop(add, ModRegistry.Blocks.TURTLE_ADVANCED);
 
-        add.accept(Registry.ModBlocks.CABLE.get().getLootTable(), LootTable
+        add.accept(ModRegistry.Blocks.CABLE.get().getLootTable(), LootTable
             .lootTable()
             .withPool(LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1))
-                .add(LootItem.lootTableItem(Registry.ModItems.CABLE.get()))
+                .add(LootItem.lootTableItem(ModRegistry.Items.CABLE.get()))
                 .when(ExplosionCondition.survivesExplosion())
-                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(Registry.ModBlocks.CABLE.get())
+                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModRegistry.Blocks.CABLE.get())
                     .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(BlockCable.CABLE, true))
                 )
             )
             .withPool(LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1))
-                .add(LootItem.lootTableItem(Registry.ModItems.WIRED_MODEM.get()))
+                .add(LootItem.lootTableItem(ModRegistry.Items.WIRED_MODEM.get()))
                 .when(ExplosionCondition.survivesExplosion())
-                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(Registry.ModBlocks.CABLE.get())
+                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(ModRegistry.Blocks.CABLE.get())
                     .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(BlockCable.MODEM, CableModemVariant.None))
                     .invert()
                 )

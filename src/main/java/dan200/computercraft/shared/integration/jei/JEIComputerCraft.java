@@ -7,7 +7,7 @@ package dan200.computercraft.shared.integration.jei;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.integration.RecipeModHelpers;
 import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
@@ -36,13 +36,13 @@ public class JEIComputerCraft implements IModPlugin {
 
     @Override
     public void registerItemSubtypes(ISubtypeRegistration subtypeRegistry) {
-        subtypeRegistry.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, Registry.ModItems.TURTLE_NORMAL.get(), turtleSubtype);
-        subtypeRegistry.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, Registry.ModItems.TURTLE_ADVANCED.get(), turtleSubtype);
+        subtypeRegistry.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, ModRegistry.Items.TURTLE_NORMAL.get(), turtleSubtype);
+        subtypeRegistry.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, ModRegistry.Items.TURTLE_ADVANCED.get(), turtleSubtype);
 
-        subtypeRegistry.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, Registry.ModItems.POCKET_COMPUTER_NORMAL.get(), pocketSubtype);
-        subtypeRegistry.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, Registry.ModItems.POCKET_COMPUTER_ADVANCED.get(), pocketSubtype);
+        subtypeRegistry.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, ModRegistry.Items.POCKET_COMPUTER_NORMAL.get(), pocketSubtype);
+        subtypeRegistry.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get(), pocketSubtype);
 
-        subtypeRegistry.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, Registry.ModItems.DISK.get(), diskSubtype);
+        subtypeRegistry.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, ModRegistry.Items.DISK.get(), diskSubtype);
     }
 
     @Override

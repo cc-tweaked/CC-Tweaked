@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.util;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
@@ -20,6 +20,6 @@ public class CreativeTabMain extends CreativeModeTab {
     @Nonnull
     @Override
     public ItemStack makeIcon() {
-        return new ItemStack(Registry.ModBlocks.COMPUTER_NORMAL.get());
+        return new ItemStack(ModRegistry.Blocks.COMPUTER_NORMAL.get());
     }
 }

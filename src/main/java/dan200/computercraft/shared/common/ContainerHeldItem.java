@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.common;
 
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.network.container.HeldItemContainerData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -31,7 +31,7 @@ public class ContainerHeldItem extends AbstractContainerMenu {
     }
 
     public static ContainerHeldItem createPrintout(int id, Inventory inventory, HeldItemContainerData data) {
-        return new ContainerHeldItem(Registry.ModContainers.PRINTOUT.get(), id, inventory.player, data.getHand());
+        return new ContainerHeldItem(ModRegistry.Menus.PRINTOUT.get(), id, inventory.player, data.getHand());
     }
 
     @Nonnull

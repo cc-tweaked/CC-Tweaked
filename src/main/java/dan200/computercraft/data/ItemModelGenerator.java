@@ -6,7 +6,7 @@
 package dan200.computercraft.data;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.data.models.ItemModelGenerators;
 import net.minecraft.data.models.model.ModelTemplate;
 import net.minecraft.data.models.model.ModelTemplates;
@@ -24,16 +24,16 @@ public final class ItemModelGenerator {
     }
 
     public static void addItemModels(ItemModelGenerators generators) {
-        registerDisk(generators, Registry.ModItems.DISK.get());
-        registerDisk(generators, Registry.ModItems.TREASURE_DISK.get());
+        registerDisk(generators, ModRegistry.Items.DISK.get());
+        registerDisk(generators, ModRegistry.Items.TREASURE_DISK.get());
 
-        registerPocketComputer(generators, getModelLocation(Registry.ModItems.POCKET_COMPUTER_NORMAL.get()), false);
-        registerPocketComputer(generators, getModelLocation(Registry.ModItems.POCKET_COMPUTER_ADVANCED.get()), false);
+        registerPocketComputer(generators, getModelLocation(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get()), false);
+        registerPocketComputer(generators, getModelLocation(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get()), false);
         registerPocketComputer(generators, new ResourceLocation(ComputerCraft.MOD_ID, "item/pocket_computer_colour"), true);
 
-        generators.generateFlatItem(Registry.ModItems.PRINTED_BOOK.get(), ModelTemplates.FLAT_ITEM);
-        generators.generateFlatItem(Registry.ModItems.PRINTED_PAGE.get(), ModelTemplates.FLAT_ITEM);
-        generators.generateFlatItem(Registry.ModItems.PRINTED_PAGES.get(), ModelTemplates.FLAT_ITEM);
+        generators.generateFlatItem(ModRegistry.Items.PRINTED_BOOK.get(), ModelTemplates.FLAT_ITEM);
+        generators.generateFlatItem(ModRegistry.Items.PRINTED_PAGE.get(), ModelTemplates.FLAT_ITEM);
+        generators.generateFlatItem(ModRegistry.Items.PRINTED_PAGES.get(), ModelTemplates.FLAT_ITEM);
     }
 
     private static void registerPocketComputer(ItemModelGenerators generators, ResourceLocation id, boolean off) {

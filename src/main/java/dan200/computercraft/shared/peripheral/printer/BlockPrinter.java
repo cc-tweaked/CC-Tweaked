@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.printer;
 
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -35,7 +35,7 @@ public class BlockPrinter extends BlockGeneric {
     public static final BooleanProperty BOTTOM = BooleanProperty.create("bottom");
 
     public BlockPrinter(Properties settings) {
-        super(settings, Registry.ModBlockEntities.PRINTER);
+        super(settings, ModRegistry.BlockEntities.PRINTER);
         registerDefaultState(getStateDefinition().any()
             .setValue(FACING, Direction.NORTH)
             .setValue(TOP, false)

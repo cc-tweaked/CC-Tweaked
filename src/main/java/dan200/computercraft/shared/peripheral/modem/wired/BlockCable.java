@@ -7,7 +7,7 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.collect.ImmutableMap;
 import dan200.computercraft.api.ForgeComputerCraftAPI;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.util.WaterloggableHelpers;
 import dan200.computercraft.shared.util.WorldUtil;
@@ -55,7 +55,7 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock {
             .build());
 
     public BlockCable(Properties settings) {
-        super(settings, Registry.ModBlockEntities.CABLE);
+        super(settings, ModRegistry.BlockEntities.CABLE);
 
         registerDefaultState(getStateDefinition().any()
             .setValue(MODEM, CableModemVariant.None)
@@ -105,10 +105,10 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock {
 
                     if (WorldUtil.isVecInside(CableShapes.getModemShape(state), hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))) {
                         newState = state.setValue(MODEM, CableModemVariant.None);
-                        item = new ItemStack(Registry.ModItems.WIRED_MODEM.get());
+                        item = new ItemStack(ModRegistry.Items.WIRED_MODEM.get());
                     } else {
                         newState = state.setValue(CABLE, false);
-                        item = new ItemStack(Registry.ModItems.CABLE.get());
+                        item = new ItemStack(ModRegistry.Items.CABLE.get());
                     }
 
                     world.setBlock(pos, correctConnections(world, pos, newState), 3);
@@ -134,13 +134,13 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock {
         boolean cable = state.getValue(CABLE);
 
         // If we've only got one, just use that.
-        if (!cable) return new ItemStack(Registry.ModItems.WIRED_MODEM.get());
-        if (modem == null) return new ItemStack(Registry.ModItems.CABLE.get());
+        if (!cable) return new ItemStack(ModRegistry.Items.WIRED_MODEM.get());
+        if (modem == null) return new ItemStack(ModRegistry.Items.CABLE.get());
 
         // We've a modem and cable, so try to work out which one we're interacting with
         return hit != null && WorldUtil.isVecInside(CableShapes.getModemShape(state), hit.getLocation().subtract(pos.getX(), pos.getY(), pos.getZ()))
-            ? new ItemStack(Registry.ModItems.WIRED_MODEM.get())
-            : new ItemStack(Registry.ModItems.CABLE.get());
+            ? new ItemStack(ModRegistry.Items.WIRED_MODEM.get())
+            : new ItemStack(ModRegistry.Items.CABLE.get());
 
     }
 

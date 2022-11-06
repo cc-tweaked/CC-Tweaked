@@ -14,8 +14,8 @@ import net.minecraft.resources.ResourceLocation;
 import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
-import static dan200.computercraft.shared.Registry.ModItems;
-import static dan200.computercraft.shared.Registry.ModPocketUpgradeSerialisers;
+import static dan200.computercraft.shared.ModRegistry.Items;
+import static dan200.computercraft.shared.ModRegistry.PocketUpgradeSerialisers;
 
 class PocketUpgradeGenerator extends PocketUpgradeDataProvider {
     PocketUpgradeGenerator(DataGenerator generator) {
@@ -24,9 +24,9 @@ class PocketUpgradeGenerator extends PocketUpgradeDataProvider {
 
     @Override
     protected void addUpgrades(@Nonnull Consumer<Upgrade<PocketUpgradeSerialiser<?>>> addUpgrade) {
-        addUpgrade.accept(simpleWithCustomItem(id("speaker"), ModPocketUpgradeSerialisers.SPEAKER.get(), ModItems.SPEAKER.get()));
-        simpleWithCustomItem(id("wireless_modem_normal"), ModPocketUpgradeSerialisers.WIRELESS_MODEM_NORMAL.get(), ModItems.WIRELESS_MODEM_NORMAL.get()).add(addUpgrade);
-        simpleWithCustomItem(id("wireless_modem_advanced"), ModPocketUpgradeSerialisers.WIRELESS_MODEM_ADVANCED.get(), ModItems.WIRELESS_MODEM_ADVANCED.get()).add(addUpgrade);
+        addUpgrade.accept(simpleWithCustomItem(id("speaker"), PocketUpgradeSerialisers.SPEAKER.get(), Items.SPEAKER.get()));
+        simpleWithCustomItem(id("wireless_modem_normal"), PocketUpgradeSerialisers.WIRELESS_MODEM_NORMAL.get(), Items.WIRELESS_MODEM_NORMAL.get()).add(addUpgrade);
+        simpleWithCustomItem(id("wireless_modem_advanced"), PocketUpgradeSerialisers.WIRELESS_MODEM_ADVANCED.get(), Items.WIRELESS_MODEM_ADVANCED.get()).add(addUpgrade);
     }
 
     @Nonnull

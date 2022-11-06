@@ -7,7 +7,7 @@ package dan200.computercraft.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.peripheral.modem.wired.CableModemVariant;
 import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
@@ -61,7 +61,7 @@ public class BlockRenderDispatcherMixin {
         CallbackInfo info
     ) {
         // Only apply to cables which have both a cable and modem
-        if (state.getBlock() != Registry.ModBlocks.CABLE.get()
+        if (state.getBlock() != ModRegistry.Blocks.CABLE.get()
             || !state.getValue(BlockCable.CABLE)
             || state.getValue(BlockCable.MODEM) == CableModemVariant.None
         ) {

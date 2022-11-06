@@ -9,7 +9,7 @@ import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.core.filesystem.SubMount;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.core.util.Colour;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -76,7 +76,7 @@ public class ItemTreasureDisk extends Item implements IMedia {
     }
 
     public static ItemStack create(String subPath, int colourIndex) {
-        var result = new ItemStack(Registry.ModItems.TREASURE_DISK.get());
+        var result = new ItemStack(ModRegistry.Items.TREASURE_DISK.get());
         var nbt = result.getOrCreateTag();
         nbt.putString(NBT_SUB_PATH, subPath);
 

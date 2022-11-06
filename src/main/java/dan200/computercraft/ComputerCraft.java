@@ -6,7 +6,7 @@
 package dan200.computercraft;
 
 import dan200.computercraft.shared.Config;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import net.minecraftforge.fml.common.Mod;
 import org.slf4j.Logger;
@@ -56,6 +56,6 @@ public final class ComputerCraft {
 
     public ComputerCraft() {
         Config.setup();
-        Registry.setup();
+        ModRegistry.setup();
     }
 }

@@ -14,7 +14,7 @@ import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.client.render.TileEntityTurtleRenderer;
 import dan200.computercraft.client.render.TurtleModelLoader;
 import dan200.computercraft.client.turtle.TurtleModemModeller;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import dan200.computercraft.shared.computer.inventory.ContainerViewComputer;
@@ -81,19 +81,19 @@ public final class ClientRegistry {
 
     @SubscribeEvent
     public static void onItemColours(RegisterColorHandlersEvent.Item event) {
-        if (Registry.ModItems.DISK == null || Registry.ModBlocks.TURTLE_NORMAL == null) {
+        if (ModRegistry.Items.DISK == null || ModRegistry.Blocks.TURTLE_NORMAL == null) {
             ComputerCraft.log.warn("Block/item registration has failed. Skipping registration of item colours.");
             return;
         }
 
         event.register(
             (stack, layer) -> layer == 1 ? ((ItemDisk) stack.getItem()).getColour(stack) : 0xFFFFFF,
-            Registry.ModItems.DISK.get()
+            ModRegistry.Items.DISK.get()
         );
 
         event.register(
             (stack, layer) -> layer == 1 ? ItemTreasureDisk.getColour(stack) : 0xFFFFFF,
-            Registry.ModItems.TREASURE_DISK.get()
+            ModRegistry.Items.TREASURE_DISK.get()
         );
 
         event.register((stack, layer) -> {
@@ -108,45 +108,45 @@ public final class ClientRegistry {
                     return light == -1 ? Colour.BLACK.getHex() : light;
                 }
             }
-        }, Registry.ModItems.POCKET_COMPUTER_NORMAL.get(), Registry.ModItems.POCKET_COMPUTER_ADVANCED.get());
+        }, ModRegistry.Items.POCKET_COMPUTER_NORMAL.get(), ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get());
 
         // Setup turtle colours
         event.register(
             (stack, tintIndex) -> tintIndex == 0 ? ((IColouredItem) stack.getItem()).getColour(stack) : 0xFFFFFF,
-            Registry.ModBlocks.TURTLE_NORMAL.get(), Registry.ModBlocks.TURTLE_ADVANCED.get()
+            ModRegistry.Blocks.TURTLE_NORMAL.get(), ModRegistry.Blocks.TURTLE_ADVANCED.get()
         );
     }
 
     @SubscribeEvent
     public static void setupClient(FMLClientSetupEvent event) {
         // Setup TESRs
-        BlockEntityRenderers.register(Registry.ModBlockEntities.MONITOR_NORMAL.get(), TileEntityMonitorRenderer::new);
-        BlockEntityRenderers.register(Registry.ModBlockEntities.MONITOR_ADVANCED.get(), TileEntityMonitorRenderer::new);
-        BlockEntityRenderers.register(Registry.ModBlockEntities.TURTLE_NORMAL.get(), TileEntityTurtleRenderer::new);
-        BlockEntityRenderers.register(Registry.ModBlockEntities.TURTLE_ADVANCED.get(), TileEntityTurtleRenderer::new);
+        BlockEntityRenderers.register(ModRegistry.BlockEntities.MONITOR_NORMAL.get(), TileEntityMonitorRenderer::new);
+        BlockEntityRenderers.register(ModRegistry.BlockEntities.MONITOR_ADVANCED.get(), TileEntityMonitorRenderer::new);
+        BlockEntityRenderers.register(ModRegistry.BlockEntities.TURTLE_NORMAL.get(), TileEntityTurtleRenderer::new);
+        BlockEntityRenderers.register(ModRegistry.BlockEntities.TURTLE_ADVANCED.get(), TileEntityTurtleRenderer::new);
 
-        ComputerCraftAPIClient.registerTurtleUpgradeModeller(Registry.ModTurtleSerialisers.SPEAKER.get(), TurtleUpgradeModeller.sided(
+        ComputerCraftAPIClient.registerTurtleUpgradeModeller(ModRegistry.TurtleSerialisers.SPEAKER.get(), TurtleUpgradeModeller.sided(
             new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_speaker_left"),
             new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_speaker_right")
         ));
-        ComputerCraftAPIClient.registerTurtleUpgradeModeller(Registry.ModTurtleSerialisers.WORKBENCH.get(), TurtleUpgradeModeller.sided(
+        ComputerCraftAPIClient.registerTurtleUpgradeModeller(ModRegistry.TurtleSerialisers.WORKBENCH.get(), TurtleUpgradeModeller.sided(
             new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_crafting_table_left"),
             new ResourceLocation(ComputerCraft.MOD_ID, "block/turtle_crafting_table_right")
         ));
-        ComputerCraftAPIClient.registerTurtleUpgradeModeller(Registry.ModTurtleSerialisers.WIRELESS_MODEM_NORMAL.get(), new TurtleModemModeller(false));
-        ComputerCraftAPIClient.registerTurtleUpgradeModeller(Registry.ModTurtleSerialisers.WIRELESS_MODEM_ADVANCED.get(), new TurtleModemModeller(true));
-        ComputerCraftAPIClient.registerTurtleUpgradeModeller(Registry.ModTurtleSerialisers.TOOL.get(), TurtleUpgradeModeller.flatItem());
+        ComputerCraftAPIClient.registerTurtleUpgradeModeller(ModRegistry.TurtleSerialisers.WIRELESS_MODEM_NORMAL.get(), new TurtleModemModeller(false));
+        ComputerCraftAPIClient.registerTurtleUpgradeModeller(ModRegistry.TurtleSerialisers.WIRELESS_MODEM_ADVANCED.get(), new TurtleModemModeller(true));
+        ComputerCraftAPIClient.registerTurtleUpgradeModeller(ModRegistry.TurtleSerialisers.TOOL.get(), TurtleUpgradeModeller.flatItem());
 
         event.enqueueWork(() -> {
             registerContainers();
 
             registerItemProperty("state",
                 (stack, world, player, random) -> ClientPocketComputers.get(stack).getState().ordinal(),
-                Registry.ModItems.POCKET_COMPUTER_NORMAL, Registry.ModItems.POCKET_COMPUTER_ADVANCED
+                ModRegistry.Items.POCKET_COMPUTER_NORMAL, ModRegistry.Items.POCKET_COMPUTER_ADVANCED
             );
             registerItemProperty("coloured",
                 (stack, world, player, random) -> IColouredItem.getColourBasic(stack) != -1 ? 1 : 0,
-                Registry.ModItems.POCKET_COMPUTER_NORMAL, Registry.ModItems.POCKET_COMPUTER_ADVANCED
+                ModRegistry.Items.POCKET_COMPUTER_NORMAL, ModRegistry.Items.POCKET_COMPUTER_ADVANCED
             );
         });
     }
@@ -163,15 +163,15 @@ public final class ClientRegistry {
     private static void registerContainers() {
         // My IDE doesn't think so, but we do actually need these generics.
 
-        MenuScreens.<ContainerComputerBase, GuiComputer<ContainerComputerBase>>register(Registry.ModContainers.COMPUTER.get(), GuiComputer::new);
-        MenuScreens.<ContainerComputerBase, GuiComputer<ContainerComputerBase>>register(Registry.ModContainers.POCKET_COMPUTER.get(), GuiComputer::new);
-        MenuScreens.<ContainerComputerBase, NoTermComputerScreen<ContainerComputerBase>>register(Registry.ModContainers.POCKET_COMPUTER_NO_TERM.get(), NoTermComputerScreen::new);
-        MenuScreens.register(Registry.ModContainers.TURTLE.get(), GuiTurtle::new);
+        MenuScreens.<ContainerComputerBase, GuiComputer<ContainerComputerBase>>register(ModRegistry.Menus.COMPUTER.get(), GuiComputer::new);
+        MenuScreens.<ContainerComputerBase, GuiComputer<ContainerComputerBase>>register(ModRegistry.Menus.POCKET_COMPUTER.get(), GuiComputer::new);
+        MenuScreens.<ContainerComputerBase, NoTermComputerScreen<ContainerComputerBase>>register(ModRegistry.Menus.POCKET_COMPUTER_NO_TERM.get(), NoTermComputerScreen::new);
+        MenuScreens.register(ModRegistry.Menus.TURTLE.get(), GuiTurtle::new);
 
-        MenuScreens.register(Registry.ModContainers.PRINTER.get(), GuiPrinter::new);
-        MenuScreens.register(Registry.ModContainers.DISK_DRIVE.get(), GuiDiskDrive::new);
-        MenuScreens.register(Registry.ModContainers.PRINTOUT.get(), GuiPrintout::new);
+        MenuScreens.register(ModRegistry.Menus.PRINTER.get(), GuiPrinter::new);
+        MenuScreens.register(ModRegistry.Menus.DISK_DRIVE.get(), GuiDiskDrive::new);
+        MenuScreens.register(ModRegistry.Menus.PRINTOUT.get(), GuiPrintout::new);
 
-        MenuScreens.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>register(Registry.ModContainers.VIEW_COMPUTER.get(), GuiComputer::new);
+        MenuScreens.<ContainerViewComputer, GuiComputer<ContainerViewComputer>>register(ModRegistry.Menus.VIEW_COMPUTER.get(), GuiComputer::new);
     }
 }

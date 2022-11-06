@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.modem.wired;
 
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -82,7 +82,7 @@ public abstract class ItemBlockCable extends BlockItem {
             var existingState = world.getBlockState(pos);
 
             // Try to add a modem to a cable
-            if (existingState.getBlock() == Registry.ModBlocks.CABLE.get() && existingState.getValue(MODEM) == CableModemVariant.None) {
+            if (existingState.getBlock() == ModRegistry.Blocks.CABLE.get() && existingState.getValue(MODEM) == CableModemVariant.None) {
                 var side = context.getClickedFace().getOpposite();
                 var newState = existingState
                     .setValue(MODEM, CableModemVariant.from(side))
@@ -114,7 +114,7 @@ public abstract class ItemBlockCable extends BlockItem {
             // Try to add a cable to a modem inside the block we're clicking on.
             var insidePos = pos.relative(context.getClickedFace().getOpposite());
             var insideState = world.getBlockState(insidePos);
-            if (insideState.getBlock() == Registry.ModBlocks.CABLE.get() && !insideState.getValue(BlockCable.CABLE)
+            if (insideState.getBlock() == ModRegistry.Blocks.CABLE.get() && !insideState.getValue(BlockCable.CABLE)
                 && placeAtCorrected(world, insidePos, insideState.setValue(BlockCable.CABLE, true))) {
                 stack.shrink(1);
                 return InteractionResult.SUCCESS;
@@ -122,7 +122,7 @@ public abstract class ItemBlockCable extends BlockItem {
 
             // Try to add a cable to a modem adjacent to this block
             var existingState = world.getBlockState(pos);
-            if (existingState.getBlock() == Registry.ModBlocks.CABLE.get() && !existingState.getValue(BlockCable.CABLE)
+            if (existingState.getBlock() == ModRegistry.Blocks.CABLE.get() && !existingState.getValue(BlockCable.CABLE)
                 && placeAtCorrected(world, pos, existingState.setValue(BlockCable.CABLE, true))) {
                 stack.shrink(1);
                 return InteractionResult.SUCCESS;

@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.speaker;
 
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -31,7 +31,7 @@ public class BlockSpeaker extends BlockGeneric {
     private static final BlockEntityTicker<TileSpeaker> serverTicker = (level, pos, state, drive) -> drive.serverTick();
 
     public BlockSpeaker(Properties settings) {
-        super(settings, Registry.ModBlockEntities.SPEAKER);
+        super(settings, ModRegistry.BlockEntities.SPEAKER);
         registerDefaultState(getStateDefinition().any()
             .setValue(FACING, Direction.NORTH));
     }
@@ -64,6 +64,6 @@ public class BlockSpeaker extends BlockGeneric {
     @Override
     @Nullable
     public <U extends BlockEntity> BlockEntityTicker<U> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<U> type) {
-        return level.isClientSide ? null : BaseEntityBlock.createTickerHelper(type, Registry.ModBlockEntities.SPEAKER.get(), serverTicker);
+        return level.isClientSide ? null : BaseEntityBlock.createTickerHelper(type, ModRegistry.BlockEntities.SPEAKER.get(), serverTicker);
     }
 }

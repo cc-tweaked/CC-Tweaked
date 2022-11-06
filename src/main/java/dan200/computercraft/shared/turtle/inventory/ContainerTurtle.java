@@ -6,7 +6,7 @@
 package dan200.computercraft.shared.turtle.inventory;
 
 import dan200.computercraft.client.gui.widgets.ComputerSidebar;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
@@ -39,7 +39,7 @@ public final class ContainerTurtle extends ContainerComputerBase {
         int id, Predicate<Player> canUse, ComputerFamily family, @Nullable ServerComputer computer, @Nullable ComputerContainerData menuData,
         Inventory playerInventory, Container inventory, ContainerData data
     ) {
-        super(Registry.ModContainers.TURTLE.get(), id, canUse, family, computer, menuData);
+        super(ModRegistry.Menus.TURTLE.get(), id, canUse, family, computer, menuData);
         this.data = data;
         addDataSlots(data);
 

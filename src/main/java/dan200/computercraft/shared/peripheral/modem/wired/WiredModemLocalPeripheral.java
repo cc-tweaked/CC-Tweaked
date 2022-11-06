@@ -7,7 +7,7 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.Peripherals;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -124,7 +124,7 @@ public final class WiredModemLocalPeripheral {
         var offset = pos.relative(direction);
 
         var block = world.getBlockState(offset).getBlock();
-        if (block == Registry.ModBlocks.WIRED_MODEM_FULL.get() || block == Registry.ModBlocks.CABLE.get()) return null;
+        if (block == ModRegistry.Blocks.WIRED_MODEM_FULL.get() || block == ModRegistry.Blocks.CABLE.get()) return null;
 
         var peripheral = Peripherals.getPeripheral(world, offset, direction.getOpposite(), invalidate);
         return peripheral instanceof WiredModemPeripheral ? null : peripheral;

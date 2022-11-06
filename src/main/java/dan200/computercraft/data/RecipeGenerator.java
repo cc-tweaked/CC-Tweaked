@@ -9,7 +9,7 @@ import com.google.gson.JsonObject;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
 import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
@@ -35,7 +35,6 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -79,12 +78,12 @@ class RecipeGenerator extends RecipeProvider {
     private void diskColours(@Nonnull Consumer<FinishedRecipe> add) {
         for (var colour : Colour.VALUES) {
             ShapelessRecipeBuilder
-                .shapeless(Registry.ModItems.DISK.get())
+                .shapeless(ModRegistry.Items.DISK.get())
                 .requires(Tags.Items.DUSTS_REDSTONE)
-                .requires(Items.PAPER)
+                .requires(net.minecraft.world.item.Items.PAPER)
                 .requires(DyeItem.byColor(ofColour(colour)))
                 .group("computercraft:disk")
-                .unlockedBy("has_drive", inventoryChange(Registry.ModBlocks.DISK_DRIVE.get()))
+                .unlockedBy("has_drive", inventoryChange(ModRegistry.Blocks.DISK_DRIVE.get()))
                 .save(
                     RecipeWrapper.wrap(ImpostorShapelessRecipe.SERIALIZER, add)
                         .withResultTag(x -> x.putInt(IColouredItem.NBT_COLOUR, colour.getHex())),
@@ -160,7 +159,7 @@ class RecipeGenerator extends RecipeProvider {
 
     private void basicRecipes(@Nonnull Consumer<FinishedRecipe> add) {
         ShapedRecipeBuilder
-            .shaped(Registry.ModItems.CABLE.get(), 6)
+            .shaped(ModRegistry.Items.CABLE.get(), 6)
             .pattern(" # ")
             .pattern("#R#")
             .pattern(" # ")
@@ -171,7 +170,7 @@ class RecipeGenerator extends RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(Registry.ModBlocks.COMPUTER_NORMAL.get())
+            .shaped(ModRegistry.Blocks.COMPUTER_NORMAL.get())
             .pattern("###")
             .pattern("#R#")
             .pattern("#G#")
@@ -182,78 +181,78 @@ class RecipeGenerator extends RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(Registry.ModBlocks.COMPUTER_ADVANCED.get())
+            .shaped(ModRegistry.Blocks.COMPUTER_ADVANCED.get())
             .pattern("###")
             .pattern("#R#")
             .pattern("#G#")
             .define('#', Tags.Items.INGOTS_GOLD)
             .define('R', Tags.Items.DUSTS_REDSTONE)
             .define('G', Tags.Items.GLASS_PANES)
-            .unlockedBy("has_components", inventoryChange(Items.REDSTONE, Items.GOLD_INGOT))
+            .unlockedBy("has_components", inventoryChange(net.minecraft.world.item.Items.REDSTONE, net.minecraft.world.item.Items.GOLD_INGOT))
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(Registry.ModItems.COMPUTER_ADVANCED.get())
+            .shaped(ModRegistry.Items.COMPUTER_ADVANCED.get())
             .pattern("###")
             .pattern("#C#")
             .pattern("# #")
             .define('#', Tags.Items.INGOTS_GOLD)
-            .define('C', Registry.ModItems.COMPUTER_ADVANCED.get())
-            .unlockedBy("has_components", inventoryChange(itemPredicate(Registry.ModItems.COMPUTER_NORMAL.get()), itemPredicate(Tags.Items.INGOTS_GOLD)))
+            .define('C', ModRegistry.Items.COMPUTER_ADVANCED.get())
+            .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.COMPUTER_NORMAL.get()), itemPredicate(Tags.Items.INGOTS_GOLD)))
             .save(
                 RecipeWrapper.wrap(ComputerUpgradeRecipe.SERIALIZER, add).withExtraData(family(ComputerFamily.ADVANCED)),
                 new ResourceLocation(ComputerCraft.MOD_ID, "computer_advanced_upgrade")
             );
 
         ShapedRecipeBuilder
-            .shaped(Registry.ModBlocks.COMPUTER_COMMAND.get())
+            .shaped(ModRegistry.Blocks.COMPUTER_COMMAND.get())
             .pattern("###")
             .pattern("#R#")
             .pattern("#G#")
             .define('#', Tags.Items.INGOTS_GOLD)
-            .define('R', Blocks.COMMAND_BLOCK)
+            .define('R', net.minecraft.world.level.block.Blocks.COMMAND_BLOCK)
             .define('G', Tags.Items.GLASS_PANES)
-            .unlockedBy("has_components", inventoryChange(Blocks.COMMAND_BLOCK))
+            .unlockedBy("has_components", inventoryChange(net.minecraft.world.level.block.Blocks.COMMAND_BLOCK))
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(Registry.ModBlocks.TURTLE_NORMAL.get())
+            .shaped(ModRegistry.Blocks.TURTLE_NORMAL.get())
             .pattern("###")
             .pattern("#C#")
             .pattern("#I#")
             .define('#', Tags.Items.INGOTS_IRON)
-            .define('C', Registry.ModItems.COMPUTER_NORMAL.get())
+            .define('C', ModRegistry.Items.COMPUTER_NORMAL.get())
             .define('I', Tags.Items.CHESTS_WOODEN)
-            .unlockedBy("has_computer", inventoryChange(Registry.ModItems.COMPUTER_NORMAL.get()))
+            .unlockedBy("has_computer", inventoryChange(ModRegistry.Items.COMPUTER_NORMAL.get()))
             .save(RecipeWrapper.wrap(TurtleRecipe.SERIALIZER, add).withExtraData(family(ComputerFamily.NORMAL)));
 
         ShapedRecipeBuilder
-            .shaped(Registry.ModBlocks.TURTLE_ADVANCED.get())
+            .shaped(ModRegistry.Blocks.TURTLE_ADVANCED.get())
             .pattern("###")
             .pattern("#C#")
             .pattern("#I#")
             .define('#', Tags.Items.INGOTS_GOLD)
-            .define('C', Registry.ModItems.COMPUTER_ADVANCED.get())
+            .define('C', ModRegistry.Items.COMPUTER_ADVANCED.get())
             .define('I', Tags.Items.CHESTS_WOODEN)
-            .unlockedBy("has_computer", inventoryChange(Registry.ModItems.COMPUTER_NORMAL.get()))
+            .unlockedBy("has_computer", inventoryChange(ModRegistry.Items.COMPUTER_NORMAL.get()))
             .save(RecipeWrapper.wrap(TurtleRecipe.SERIALIZER, add).withExtraData(family(ComputerFamily.ADVANCED)));
 
         ShapedRecipeBuilder
-            .shaped(Registry.ModBlocks.TURTLE_ADVANCED.get())
+            .shaped(ModRegistry.Blocks.TURTLE_ADVANCED.get())
             .pattern("###")
             .pattern("#C#")
             .pattern(" B ")
             .define('#', Tags.Items.INGOTS_GOLD)
-            .define('C', Registry.ModItems.COMPUTER_ADVANCED.get())
+            .define('C', ModRegistry.Items.COMPUTER_ADVANCED.get())
             .define('B', Tags.Items.STORAGE_BLOCKS_GOLD)
-            .unlockedBy("has_components", inventoryChange(itemPredicate(Registry.ModItems.TURTLE_NORMAL.get()), itemPredicate(Tags.Items.INGOTS_GOLD)))
+            .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.TURTLE_NORMAL.get()), itemPredicate(Tags.Items.INGOTS_GOLD)))
             .save(
                 RecipeWrapper.wrap(ComputerUpgradeRecipe.SERIALIZER, add).withExtraData(family(ComputerFamily.ADVANCED)),
                 new ResourceLocation(ComputerCraft.MOD_ID, "turtle_advanced_upgrade")
             );
 
         ShapedRecipeBuilder
-            .shaped(Registry.ModBlocks.DISK_DRIVE.get())
+            .shaped(ModRegistry.Blocks.DISK_DRIVE.get())
             .pattern("###")
             .pattern("#R#")
             .pattern("#R#")
@@ -263,7 +262,7 @@ class RecipeGenerator extends RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(Registry.ModBlocks.MONITOR_NORMAL.get())
+            .shaped(ModRegistry.Blocks.MONITOR_NORMAL.get())
             .pattern("###")
             .pattern("#G#")
             .pattern("###")
@@ -273,7 +272,7 @@ class RecipeGenerator extends RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(Registry.ModBlocks.MONITOR_ADVANCED.get(), 4)
+            .shaped(ModRegistry.Blocks.MONITOR_ADVANCED.get(), 4)
             .pattern("###")
             .pattern("#G#")
             .pattern("###")
@@ -283,44 +282,44 @@ class RecipeGenerator extends RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(Registry.ModItems.POCKET_COMPUTER_NORMAL.get())
+            .shaped(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get())
             .pattern("###")
             .pattern("#A#")
             .pattern("#G#")
             .define('#', Tags.Items.STONE)
-            .define('A', Items.GOLDEN_APPLE)
+            .define('A', net.minecraft.world.item.Items.GOLDEN_APPLE)
             .define('G', Tags.Items.GLASS_PANES)
             .unlockedBy("has_computer", inventoryChange(COMPUTER))
-            .unlockedBy("has_apple", inventoryChange(Items.GOLDEN_APPLE))
+            .unlockedBy("has_apple", inventoryChange(net.minecraft.world.item.Items.GOLDEN_APPLE))
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(Registry.ModItems.POCKET_COMPUTER_ADVANCED.get())
+            .shaped(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get())
             .pattern("###")
             .pattern("#A#")
             .pattern("#G#")
             .define('#', Tags.Items.INGOTS_GOLD)
-            .define('A', Items.GOLDEN_APPLE)
+            .define('A', net.minecraft.world.item.Items.GOLDEN_APPLE)
             .define('G', Tags.Items.GLASS_PANES)
             .unlockedBy("has_computer", inventoryChange(COMPUTER))
-            .unlockedBy("has_apple", inventoryChange(Items.GOLDEN_APPLE))
+            .unlockedBy("has_apple", inventoryChange(net.minecraft.world.item.Items.GOLDEN_APPLE))
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(Registry.ModItems.POCKET_COMPUTER_ADVANCED.get())
+            .shaped(ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get())
             .pattern("###")
             .pattern("#C#")
             .pattern("# #")
             .define('#', Tags.Items.INGOTS_GOLD)
-            .define('C', Registry.ModItems.POCKET_COMPUTER_NORMAL.get())
-            .unlockedBy("has_components", inventoryChange(itemPredicate(Registry.ModItems.POCKET_COMPUTER_NORMAL.get()), itemPredicate(Tags.Items.INGOTS_GOLD)))
+            .define('C', ModRegistry.Items.POCKET_COMPUTER_NORMAL.get())
+            .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get()), itemPredicate(Tags.Items.INGOTS_GOLD)))
             .save(
                 RecipeWrapper.wrap(ComputerUpgradeRecipe.SERIALIZER, add).withExtraData(family(ComputerFamily.ADVANCED)),
                 new ResourceLocation(ComputerCraft.MOD_ID, "pocket_computer_advanced_upgrade")
             );
 
         ShapedRecipeBuilder
-            .shaped(Registry.ModBlocks.PRINTER.get())
+            .shaped(ModRegistry.Blocks.PRINTER.get())
             .pattern("###")
             .pattern("#R#")
             .pattern("#D#")
@@ -331,40 +330,40 @@ class RecipeGenerator extends RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(Registry.ModBlocks.SPEAKER.get())
+            .shaped(ModRegistry.Blocks.SPEAKER.get())
             .pattern("###")
             .pattern("#N#")
             .pattern("#R#")
             .define('#', Tags.Items.STONE)
-            .define('N', Blocks.NOTE_BLOCK)
+            .define('N', net.minecraft.world.level.block.Blocks.NOTE_BLOCK)
             .define('R', Tags.Items.DUSTS_REDSTONE)
             .unlockedBy("has_computer", inventoryChange(COMPUTER))
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(Registry.ModItems.WIRED_MODEM.get())
+            .shaped(ModRegistry.Items.WIRED_MODEM.get())
             .pattern("###")
             .pattern("#R#")
             .pattern("###")
             .define('#', Tags.Items.STONE)
             .define('R', Tags.Items.DUSTS_REDSTONE)
             .unlockedBy("has_computer", inventoryChange(COMPUTER))
-            .unlockedBy("has_cable", inventoryChange(Registry.ModItems.CABLE.get()))
+            .unlockedBy("has_cable", inventoryChange(ModRegistry.Items.CABLE.get()))
             .save(add);
 
         ShapelessRecipeBuilder
-            .shapeless(Registry.ModBlocks.WIRED_MODEM_FULL.get())
-            .requires(Registry.ModItems.WIRED_MODEM.get())
+            .shapeless(ModRegistry.Blocks.WIRED_MODEM_FULL.get())
+            .requires(ModRegistry.Items.WIRED_MODEM.get())
             .unlockedBy("has_modem", inventoryChange(WIRED_MODEM))
             .save(add, new ResourceLocation(ComputerCraft.MOD_ID, "wired_modem_full_from"));
         ShapelessRecipeBuilder
-            .shapeless(Registry.ModItems.WIRED_MODEM.get())
-            .requires(Registry.ModBlocks.WIRED_MODEM_FULL.get())
+            .shapeless(ModRegistry.Items.WIRED_MODEM.get())
+            .requires(ModRegistry.Blocks.WIRED_MODEM_FULL.get())
             .unlockedBy("has_modem", inventoryChange(WIRED_MODEM))
             .save(add, new ResourceLocation(ComputerCraft.MOD_ID, "wired_modem_full_to"));
 
         ShapedRecipeBuilder
-            .shaped(Registry.ModBlocks.WIRELESS_MODEM_NORMAL.get())
+            .shaped(ModRegistry.Blocks.WIRELESS_MODEM_NORMAL.get())
             .pattern("###")
             .pattern("#E#")
             .pattern("###")
@@ -374,21 +373,21 @@ class RecipeGenerator extends RecipeProvider {
             .save(add);
 
         ShapedRecipeBuilder
-            .shaped(Registry.ModBlocks.WIRELESS_MODEM_ADVANCED.get())
+            .shaped(ModRegistry.Blocks.WIRELESS_MODEM_ADVANCED.get())
             .pattern("###")
             .pattern("#E#")
             .pattern("###")
             .define('#', Tags.Items.INGOTS_GOLD)
-            .define('E', Items.ENDER_EYE)
+            .define('E', net.minecraft.world.item.Items.ENDER_EYE)
             .unlockedBy("has_computer", inventoryChange(COMPUTER))
-            .unlockedBy("has_wireless", inventoryChange(Registry.ModBlocks.WIRELESS_MODEM_NORMAL.get()))
+            .unlockedBy("has_wireless", inventoryChange(ModRegistry.Blocks.WIRELESS_MODEM_NORMAL.get()))
             .save(add);
 
         ShapelessRecipeBuilder
-            .shapeless(Items.PLAYER_HEAD)
+            .shapeless(net.minecraft.world.item.Items.PLAYER_HEAD)
             .requires(Tags.Items.HEADS)
-            .requires(Registry.ModItems.MONITOR_NORMAL.get())
-            .unlockedBy("has_monitor", inventoryChange(Registry.ModItems.MONITOR_NORMAL.get()))
+            .requires(ModRegistry.Items.MONITOR_NORMAL.get())
+            .unlockedBy("has_monitor", inventoryChange(ModRegistry.Items.MONITOR_NORMAL.get()))
             .save(
                 RecipeWrapper.wrap(RecipeSerializer.SHAPELESS_RECIPE, add)
                     .withResultTag(playerHead("Cloudhunter", "6d074736-b1e9-4378-a99b-bd8777821c9c")),
@@ -396,10 +395,10 @@ class RecipeGenerator extends RecipeProvider {
             );
 
         ShapelessRecipeBuilder
-            .shapeless(Items.PLAYER_HEAD)
+            .shapeless(net.minecraft.world.item.Items.PLAYER_HEAD)
             .requires(Tags.Items.HEADS)
-            .requires(Registry.ModItems.COMPUTER_ADVANCED.get())
-            .unlockedBy("has_computer", inventoryChange(Registry.ModItems.COMPUTER_ADVANCED.get()))
+            .requires(ModRegistry.Items.COMPUTER_ADVANCED.get())
+            .unlockedBy("has_computer", inventoryChange(ModRegistry.Items.COMPUTER_ADVANCED.get()))
             .save(
                 RecipeWrapper.wrap(RecipeSerializer.SHAPELESS_RECIPE, add)
                     .withResultTag(playerHead("dan200", "f3c8d69b-0776-4512-8434-d1b2165909eb")),
@@ -407,18 +406,18 @@ class RecipeGenerator extends RecipeProvider {
             );
 
         ShapelessRecipeBuilder
-            .shapeless(Registry.ModItems.PRINTED_PAGES.get())
-            .requires(Registry.ModItems.PRINTED_PAGE.get(), 2)
+            .shapeless(ModRegistry.Items.PRINTED_PAGES.get())
+            .requires(ModRegistry.Items.PRINTED_PAGE.get(), 2)
             .requires(Tags.Items.STRING)
-            .unlockedBy("has_printer", inventoryChange(Registry.ModBlocks.PRINTER.get()))
+            .unlockedBy("has_printer", inventoryChange(ModRegistry.Blocks.PRINTER.get()))
             .save(RecipeWrapper.wrap(ImpostorShapelessRecipe.SERIALIZER, add));
 
         ShapelessRecipeBuilder
-            .shapeless(Registry.ModItems.PRINTED_BOOK.get())
+            .shapeless(ModRegistry.Items.PRINTED_BOOK.get())
             .requires(Tags.Items.LEATHER)
-            .requires(Registry.ModItems.PRINTED_PAGE.get(), 1)
+            .requires(ModRegistry.Items.PRINTED_PAGE.get(), 1)
             .requires(Tags.Items.STRING)
-            .unlockedBy("has_printer", inventoryChange(Registry.ModBlocks.PRINTER.get()))
+            .unlockedBy("has_printer", inventoryChange(ModRegistry.Blocks.PRINTER.get()))
             .save(RecipeWrapper.wrap(ImpostorShapelessRecipe.SERIALIZER, add));
     }
 

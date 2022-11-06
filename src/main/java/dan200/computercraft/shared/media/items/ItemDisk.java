@@ -9,7 +9,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.media.IMedia;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.core.util.Colour;
 import net.minecraft.ChatFormatting;
@@ -37,9 +37,9 @@ public class ItemDisk extends Item implements IMedia, IColouredItem {
 
     @Nonnull
     public static ItemStack createFromIDAndColour(int id, String label, int colour) {
-        var stack = new ItemStack(Registry.ModItems.DISK.get());
+        var stack = new ItemStack(ModRegistry.Items.DISK.get());
         setDiskID(stack, id);
-        Registry.ModItems.DISK.get().setLabel(stack, label);
+        ModRegistry.Items.DISK.get().setLabel(stack, label);
         IColouredItem.setColourBasic(stack, colour);
         return stack;
     }

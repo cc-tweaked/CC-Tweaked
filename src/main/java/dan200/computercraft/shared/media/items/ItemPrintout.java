@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.media.items;
 
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.ContainerHeldItem;
 import dan200.computercraft.shared.network.container.HeldItemContainerData;
 import net.minecraft.network.chat.Component;
@@ -55,7 +55,7 @@ public class ItemPrintout extends Item {
     public InteractionResultHolder<ItemStack> use(Level world, @Nonnull Player player, @Nonnull InteractionHand hand) {
         if (!world.isClientSide) {
             new HeldItemContainerData(hand)
-                .open(player, new ContainerHeldItem.Factory(Registry.ModContainers.PRINTOUT.get(), player.getItemInHand(hand), hand));
+                .open(player, new ContainerHeldItem.Factory(ModRegistry.Menus.PRINTOUT.get(), player.getItemInHand(hand), hand));
         }
         return new InteractionResultHolder<>(InteractionResult.SUCCESS, player.getItemInHand(hand));
     }
@@ -86,17 +86,17 @@ public class ItemPrintout extends Item {
 
     @Nonnull
     public static ItemStack createSingleFromTitleAndText(String title, String[] text, String[] colours) {
-        return Registry.ModItems.PRINTED_PAGE.get().createFromTitleAndText(title, text, colours);
+        return ModRegistry.Items.PRINTED_PAGE.get().createFromTitleAndText(title, text, colours);
     }
 
     @Nonnull
     public static ItemStack createMultipleFromTitleAndText(String title, String[] text, String[] colours) {
-        return Registry.ModItems.PRINTED_PAGES.get().createFromTitleAndText(title, text, colours);
+        return ModRegistry.Items.PRINTED_PAGES.get().createFromTitleAndText(title, text, colours);
     }
 
     @Nonnull
     public static ItemStack createBookFromTitleAndText(String title, String[] text, String[] colours) {
-        return Registry.ModItems.PRINTED_BOOK.get().createFromTitleAndText(title, text, colours);
+        return ModRegistry.Items.PRINTED_BOOK.get().createFromTitleAndText(title, text, colours);
     }
 
     public Type getType() {

@@ -7,7 +7,7 @@ package dan200.computercraft.data;
 
 import com.google.gson.JsonObject;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.blocks.BlockComputer;
 import dan200.computercraft.shared.peripheral.diskdrive.BlockDiskDrive;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
@@ -65,22 +65,22 @@ class BlockModelGenerator {
     );
 
     public static void addBlockModels(BlockModelGenerators generators) {
-        registerComputer(generators, Registry.ModBlocks.COMPUTER_NORMAL.get());
-        registerComputer(generators, Registry.ModBlocks.COMPUTER_ADVANCED.get());
-        registerComputer(generators, Registry.ModBlocks.COMPUTER_COMMAND.get());
+        registerComputer(generators, ModRegistry.Blocks.COMPUTER_NORMAL.get());
+        registerComputer(generators, ModRegistry.Blocks.COMPUTER_ADVANCED.get());
+        registerComputer(generators, ModRegistry.Blocks.COMPUTER_COMMAND.get());
 
-        registerTurtle(generators, Registry.ModBlocks.TURTLE_NORMAL.get());
-        registerTurtle(generators, Registry.ModBlocks.TURTLE_ADVANCED.get());
+        registerTurtle(generators, ModRegistry.Blocks.TURTLE_NORMAL.get());
+        registerTurtle(generators, ModRegistry.Blocks.TURTLE_ADVANCED.get());
 
-        registerWirelessModem(generators, Registry.ModBlocks.WIRELESS_MODEM_NORMAL.get());
-        registerWirelessModem(generators, Registry.ModBlocks.WIRELESS_MODEM_ADVANCED.get());
+        registerWirelessModem(generators, ModRegistry.Blocks.WIRELESS_MODEM_NORMAL.get());
+        registerWirelessModem(generators, ModRegistry.Blocks.WIRELESS_MODEM_ADVANCED.get());
 
         registerWiredModems(generators);
 
-        registerMonitor(generators, Registry.ModBlocks.MONITOR_NORMAL.get());
-        registerMonitor(generators, Registry.ModBlocks.MONITOR_ADVANCED.get());
+        registerMonitor(generators, ModRegistry.Blocks.MONITOR_NORMAL.get());
+        registerMonitor(generators, ModRegistry.Blocks.MONITOR_ADVANCED.get());
 
-        generators.createHorizontallyRotatedBlock(Registry.ModBlocks.SPEAKER.get(), TexturedModel.ORIENTABLE_ONLY_TOP);
+        generators.createHorizontallyRotatedBlock(ModRegistry.Blocks.SPEAKER.get(), TexturedModel.ORIENTABLE_ONLY_TOP);
         registerDiskDrive(generators);
         registerPrinter(generators);
 
@@ -93,7 +93,7 @@ class BlockModelGenerator {
     }
 
     private static void registerDiskDrive(BlockModelGenerators generators) {
-        var diskDrive = Registry.ModBlocks.DISK_DRIVE.get();
+        var diskDrive = ModRegistry.Blocks.DISK_DRIVE.get();
         generators.blockStateOutput.accept(MultiVariantGenerator.multiVariant(diskDrive)
             .with(createHorizontalFacingDispatch())
             .with(createModelDispatch(BlockDiskDrive.STATE, value -> {
@@ -113,7 +113,7 @@ class BlockModelGenerator {
     }
 
     private static void registerPrinter(BlockModelGenerators generators) {
-        var printer = Registry.ModBlocks.PRINTER.get();
+        var printer = ModRegistry.Blocks.PRINTER.get();
         generators.blockStateOutput.accept(MultiVariantGenerator.multiVariant(printer)
             .with(createHorizontalFacingDispatch())
             .with(createModelDispatch(BlockPrinter.TOP, BlockPrinter.BOTTOM, (top, bottom) -> {
@@ -177,7 +177,7 @@ class BlockModelGenerator {
     }
 
     private static void registerWiredModems(BlockModelGenerators generators) {
-        var fullBlock = Registry.ModBlocks.WIRED_MODEM_FULL.get();
+        var fullBlock = ModRegistry.Blocks.WIRED_MODEM_FULL.get();
         generators.blockStateOutput.accept(MultiVariantGenerator.multiVariant(fullBlock)
             .with(createModelDispatch(BlockWiredModemFull.MODEM_ON, BlockWiredModemFull.PERIPHERAL_ON, (on, peripheral) -> {
                 var suffix = (on ? "_on" : "_off") + (peripheral ? "_peripheral" : "");
@@ -194,7 +194,7 @@ class BlockModelGenerator {
             })));
 
         generators.delegateItemModel(fullBlock, getModelLocation(fullBlock, "_off"));
-        generators.delegateItemModel(Registry.ModItems.WIRED_MODEM.get(), new ResourceLocation(ComputerCraft.MOD_ID, "block/wired_modem_off"));
+        generators.delegateItemModel(ModRegistry.Items.WIRED_MODEM.get(), new ResourceLocation(ComputerCraft.MOD_ID, "block/wired_modem_off"));
     }
 
     private static ResourceLocation modemModel(BlockModelGenerators generators, ResourceLocation name, ResourceLocation texture) {
@@ -246,7 +246,7 @@ class BlockModelGenerator {
     }
 
     private static void registerCable(BlockModelGenerators generators) {
-        var generator = MultiPartGenerator.multiPart(Registry.ModBlocks.CABLE.get());
+        var generator = MultiPartGenerator.multiPart(ModRegistry.Blocks.CABLE.get());
 
         // When a cable only has a neighbour in a single direction, we redirect the core to face that direction.
         var coreFacing = new ResourceLocation(ComputerCraft.MOD_ID, "block/cable_core_facing");

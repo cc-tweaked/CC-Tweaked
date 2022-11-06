@@ -9,7 +9,7 @@ import dan200.computercraft.gametest.api.GameTestHolder
 import dan200.computercraft.gametest.api.getBlockEntity
 import dan200.computercraft.gametest.api.sequence
 import dan200.computercraft.gametest.api.setBlock
-import dan200.computercraft.shared.Registry
+import dan200.computercraft.shared.ModRegistry
 import net.minecraft.commands.arguments.blocks.BlockInput
 import net.minecraft.core.BlockPos
 import net.minecraft.gametest.framework.GameTest
@@ -30,7 +30,7 @@ class Monitor_Test {
             tag.putInt("Height", 2)
 
             val toSet = BlockInput(
-                Registry.ModBlocks.MONITOR_ADVANCED.get().defaultBlockState(),
+                ModRegistry.Blocks.MONITOR_ADVANCED.get().defaultBlockState(),
                 Collections.emptySet(),
                 tag,
             )
@@ -40,7 +40,7 @@ class Monitor_Test {
         }
         thenIdle(2)
         thenExecute {
-            val tile = context.getBlockEntity(pos, Registry.ModBlockEntities.MONITOR_ADVANCED.get())
+            val tile = context.getBlockEntity(pos, ModRegistry.BlockEntities.MONITOR_ADVANCED.get())
 
             if (tile.width != 1 || tile.height != 1) {
                 context.fail("Tile has width and height of ${tile.width}x${tile.height}, but should be 1x1", pos)

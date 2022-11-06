@@ -7,7 +7,7 @@ package dan200.computercraft.shared.turtle.items;
 
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.blocks.ITurtleTile;
 import net.minecraft.resources.ResourceLocation;
@@ -34,9 +34,9 @@ public final class TurtleItemFactory {
     public static ItemStack create(int id, String label, int colour, ComputerFamily family, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, int fuelLevel, ResourceLocation overlay) {
         return switch (family) {
             case NORMAL ->
-                Registry.ModItems.TURTLE_NORMAL.get().create(id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay);
+                ModRegistry.Items.TURTLE_NORMAL.get().create(id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay);
             case ADVANCED ->
-                Registry.ModItems.TURTLE_ADVANCED.get().create(id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay);
+                ModRegistry.Items.TURTLE_ADVANCED.get().create(id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay);
             default -> ItemStack.EMPTY;
         };
     }

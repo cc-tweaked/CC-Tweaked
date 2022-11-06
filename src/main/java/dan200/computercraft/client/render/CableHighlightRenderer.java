@@ -6,7 +6,7 @@
 package dan200.computercraft.client.render;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.modem.wired.BlockCable;
 import dan200.computercraft.shared.peripheral.modem.wired.CableShapes;
 import dan200.computercraft.shared.util.WorldUtil;
@@ -38,7 +38,7 @@ public final class CableHighlightRenderer {
         var state = world.getBlockState(pos);
 
         // We only care about instances with both cable and modem.
-        if (state.getBlock() != Registry.ModBlocks.CABLE.get() || state.getValue(BlockCable.MODEM).getFacing() == null || !state.getValue(BlockCable.CABLE)) {
+        if (state.getBlock() != ModRegistry.Blocks.CABLE.get() || state.getValue(BlockCable.MODEM).getFacing() == null || !state.getValue(BlockCable.CABLE)) {
             return;
         }
 

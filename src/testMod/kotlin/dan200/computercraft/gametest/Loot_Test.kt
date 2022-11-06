@@ -8,7 +8,7 @@ package dan200.computercraft.gametest
 import dan200.computercraft.gametest.api.GameTestHolder
 import dan200.computercraft.gametest.api.Structures
 import dan200.computercraft.gametest.api.sequence
-import dan200.computercraft.shared.Registry
+import dan200.computercraft.shared.ModRegistry
 import net.minecraft.core.BlockPos
 import net.minecraft.gametest.framework.GameTest
 import net.minecraft.gametest.framework.GameTestHelper
@@ -31,7 +31,7 @@ class Loot_Test {
             chest.setLootTable(BuiltInLootTables.SIMPLE_DUNGEON, 123)
             chest.unpackLootTable(null)
 
-            context.assertContainerContains(pos, Registry.ModItems.TREASURE_DISK.get())
+            context.assertContainerContains(pos, ModRegistry.Items.TREASURE_DISK.get())
         }
     }
 }

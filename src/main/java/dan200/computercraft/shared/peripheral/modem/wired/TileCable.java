@@ -10,7 +10,7 @@ import dan200.computercraft.api.ForgeComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
@@ -181,13 +181,13 @@ public class TileCable extends TileGeneric {
         if (neighbour.equals(getBlockPos().relative(dir)) && hasModem() && !getBlockState().canSurvive(getLevel(), getBlockPos())) {
             if (hasCable()) {
                 // Drop the modem and convert to cable
-                Block.popResource(getLevel(), getBlockPos(), new ItemStack(Registry.ModItems.WIRED_MODEM.get()));
+                Block.popResource(getLevel(), getBlockPos(), new ItemStack(ModRegistry.Items.WIRED_MODEM.get()));
                 getLevel().setBlockAndUpdate(getBlockPos(), getBlockState().setValue(BlockCable.MODEM, CableModemVariant.None));
                 modemChanged();
                 connectionsChanged();
             } else {
                 // Drop everything and remove block
-                Block.popResource(getLevel(), getBlockPos(), new ItemStack(Registry.ModItems.WIRED_MODEM.get()));
+                Block.popResource(getLevel(), getBlockPos(), new ItemStack(ModRegistry.Items.WIRED_MODEM.get()));
                 getLevel().removeBlock(getBlockPos(), false);
                 // This'll call #destroy(), so we don't need to reset the network here.
             }

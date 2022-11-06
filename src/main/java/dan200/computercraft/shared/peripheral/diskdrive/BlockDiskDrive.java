@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.diskdrive;
 
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -39,7 +39,7 @@ public class BlockDiskDrive extends BlockGeneric {
     private static final BlockEntityTicker<TileDiskDrive> serverTicker = (level, pos, state, drive) -> drive.serverTick();
 
     public BlockDiskDrive(Properties settings) {
-        super(settings, Registry.ModBlockEntities.DISK_DRIVE);
+        super(settings, ModRegistry.BlockEntities.DISK_DRIVE);
         registerDefaultState(getStateDefinition().any()
             .setValue(FACING, Direction.NORTH)
             .setValue(STATE, DiskDriveState.EMPTY));
@@ -95,6 +95,6 @@ public class BlockDiskDrive extends BlockGeneric {
     @Override
     @Nullable
     public <U extends BlockEntity> BlockEntityTicker<U> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<U> type) {
-        return level.isClientSide ? null : BaseEntityBlock.createTickerHelper(type, Registry.ModBlockEntities.DISK_DRIVE.get(), serverTicker);
+        return level.isClientSide ? null : BaseEntityBlock.createTickerHelper(type, ModRegistry.BlockEntities.DISK_DRIVE.get(), serverTicker);
     }
 }

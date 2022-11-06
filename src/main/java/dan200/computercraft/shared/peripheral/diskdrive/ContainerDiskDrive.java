@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.shared.peripheral.diskdrive;
 
-import dan200.computercraft.shared.Registry;
+import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -20,7 +20,7 @@ public class ContainerDiskDrive extends AbstractContainerMenu {
     private final Container inventory;
 
     public ContainerDiskDrive(int id, Inventory player, Container inventory) {
-        super(Registry.ModContainers.DISK_DRIVE.get(), id);
+        super(ModRegistry.Menus.DISK_DRIVE.get(), id);
 
         this.inventory = inventory;
 
