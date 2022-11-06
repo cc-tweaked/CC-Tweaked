@@ -8,10 +8,42 @@ repositories {
     gradlePluginPortal()
 }
 
+// Duplicated in settings.gradle.kts
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+
+    maven("https://maven.minecraftforge.net") {
+        name = "Forge"
+        content {
+            includeGroup("net.minecraftforge")
+            includeGroup("net.minecraftforge.gradle")
+        }
+    }
+
+    maven("https://maven.parchmentmc.org") {
+        name = "Librarian"
+        content {
+            includeGroupByRegex("^org\\.parchmentmc.*")
+        }
+    }
+
+    maven("https://repo.spongepowered.org/repository/maven-public/") {
+        name = "Sponge"
+        content {
+            includeGroup("org.spongepowered")
+        }
+    }
+}
+
 dependencies {
     implementation(libs.errorProne.plugin)
     implementation(libs.kotlin.plugin)
     implementation(libs.spotless)
+
+    implementation(libs.vanillaGradle)
+    implementation(libs.forgeGradle)
+    implementation(libs.librarian)
 }
 
 gradlePlugin {

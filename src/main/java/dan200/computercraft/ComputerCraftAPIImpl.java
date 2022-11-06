@@ -23,6 +23,7 @@ import dan200.computercraft.api.turtle.TurtleRefuelHandler;
 import dan200.computercraft.core.apis.ApiFactories;
 import dan200.computercraft.core.asm.GenericMethod;
 import dan200.computercraft.core.filesystem.FileMount;
+import dan200.computercraft.impl.ComputerCraftAPIForgeService;
 import dan200.computercraft.impl.ComputerCraftAPIService;
 import dan200.computercraft.impl.TurtleRefuelHandlers;
 import dan200.computercraft.impl.detail.DetailRegistryImpl;
@@ -58,7 +59,7 @@ import java.io.InputStream;
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_WIRED_ELEMENT;
 
 @AutoService(ComputerCraftAPIService.class)
-public final class ComputerCraftAPIImpl implements ComputerCraftAPIService {
+public final class ComputerCraftAPIImpl implements ComputerCraftAPIForgeService {
     private final DetailRegistry<ItemStack> itemStackDetails = new DetailRegistryImpl<>(ItemData::fillBasic);
     private final DetailRegistry<BlockReference> blockDetails = new DetailRegistryImpl<>(BlockData::fillBasic);
     private final DetailRegistry<FluidStack> fluidStackDetails = new DetailRegistryImpl<>(FluidData::fillBasic);

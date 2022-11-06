@@ -6,9 +6,9 @@ import org.jetbrains.gradle.ext.settings
 
 plugins {
     // Build
-    alias(libs.plugins.forgeGradle)
+    id("net.minecraftforge.gradle")
     alias(libs.plugins.mixinGradle)
-    alias(libs.plugins.librarian)
+    id("org.parchmentmc.librarian.forgegradle")
     alias(libs.plugins.shadow)
     // Publishing
     alias(libs.plugins.curseForgeGradle)
@@ -16,7 +16,7 @@ plugins {
     alias(libs.plugins.minotaur)
     // Utility
     alias(libs.plugins.taskTree)
-    alias(libs.plugins.ideaExt)
+    id("org.jetbrains.gradle.plugin.idea-ext")
 
     id("cc-tweaked.illuaminate")
     id("cc-tweaked.gametest")
@@ -28,17 +28,20 @@ val isStable = true
 val modVersion: String by extra
 val mcVersion: String by extra
 
-val allProjects = listOf(":core-api", ":core").map { evaluationDependsOn(it) }
+val allProjects = listOf(":core-api", ":core", ":forge-api").map { evaluationDependsOn(it) }
 cct {
     allProjects.forEach { externalSources(it) }
 }
 
 java {
-    withJavadocJar()
     registerFeature("extraMods") { usingSourceSet(sourceSets.main.get()) }
 }
 
 sourceSets {
+    // ForgeGradle adds a dep on the clientClasses task, despite forge-api coming from a separate project. Register an
+    // empty one.
+    register("client")
+
     main {
         resources.srcDir("src/generated/resources")
     }
@@ -160,6 +163,8 @@ dependencies {
     "extraModsCompileOnly"(fg.deobf("maven.modrinth:oculus:1.2.5"))
 
     implementation(project(":core"))
+    implementation(commonClasses(project(":forge-api")))
+    implementation(clientClasses(project(":forge-api")))
     "shade"(libs.cobalt)
     "shade"(libs.netty.http)
 
@@ -181,19 +186,6 @@ illuaminate {
 }
 
 // Compile tasks
-
-tasks.javadoc {
-    include("dan200/computercraft/api/**/*.java")
-}
-
-val apiJar by tasks.registering(Jar::class) {
-    archiveClassifier.set("api")
-    from(sourceSets.main.get().output) {
-        include("dan200/computercraft/api/**/*")
-    }
-}
-
-tasks.assemble { dependsOn(apiJar) }
 
 val luaJavadoc by tasks.registering(Javadoc::class) {
     description = "Generates documentation for Java-side Lua functions."
@@ -344,7 +336,6 @@ tasks.publish { dependsOn(tasks.githubRelease) }
 publishing {
     publications {
         named("maven", MavenPublication::class) {
-            artifact(apiJar)
             fg.component(this)
         }
     }

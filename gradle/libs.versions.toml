@@ -43,6 +43,7 @@ nullAway = "0.9.9"
 shadow = "7.1.2"
 spotless = "6.8.0"
 taskTree = "2.1.0"
+vanillaGradle = "0.2.1-SNAPSHOT"
 
 [libraries]
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
@@ -74,9 +75,12 @@ errorProne-api = { module = "com.google.errorprone:error_prone_check_api", versi
 errorProne-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorProne-core" }
 errorProne-plugin = { module = "net.ltgt.gradle:gradle-errorprone-plugin", version.ref = "errorProne-plugin" }
 errorProne-testHelpers = { module = "com.google.errorprone:error_prone_test_helpers", version.ref = "errorProne-core" }
+forgeGradle = { module = "net.minecraftforge.gradle:ForgeGradle", version.ref = "forgeGradle" }
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+librarian = { module = "org.parchmentmc:librarian", version.ref = "librarian" }
 nullAway = { module = "com.uber.nullaway:nullaway", version.ref = "nullAway" }
 spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
+vanillaGradle = { module = "org.spongepowered:vanillagradle", version.ref = "vanillaGradle" }
 
 [plugins]
 curseForgeGradle = { id = "net.darkhax.curseforgegradle", version.ref = "curseForgeGradle" }

@@ -18,3 +18,14 @@ fun JavaExec.copyToFull(spec: JavaExec) {
     spec.javaLauncher.set(javaLauncher)
     spec.args = args
 }
+
+/**
+ * An alternative to [Nothing] with a more descriptive name. Use to enforce calling a function with named arguments:
+ *
+ * ```kotlin
+ * fun f(vararg unused: UseNamedArgs, arg1: Int, arg2: Int) {
+ *   // ...
+ * }
+ * ```
+ */
+class UseNamedArgs private constructor()

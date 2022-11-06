@@ -16,9 +16,14 @@ pluginManagement {
 val mcVersion: String by settings
 rootProject.name = "cc-tweaked-$mcVersion"
 
-include(":mc-stubs")
 include(":core-api")
 include(":core")
+
+include(":mc-stubs")
+include(":forge-stubs")
+include(":common-api")
+include(":forge-api")
+
 include(":web")
 
 for (project in rootProject.children) {
