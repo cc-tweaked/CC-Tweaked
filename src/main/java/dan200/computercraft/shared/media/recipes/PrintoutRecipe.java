@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.media.recipes;
 
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.media.items.ItemPrintout;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -12,14 +13,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.Tags;
 
 import javax.annotation.Nonnull;
 
 public final class PrintoutRecipe extends CustomRecipe {
-    private PrintoutRecipe(ResourceLocation id) {
+    public PrintoutRecipe(ResourceLocation id) {
         super(id);
     }
 
@@ -122,8 +122,6 @@ public final class PrintoutRecipe extends CustomRecipe {
     @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return SERIALIZER;
+        return ModRegistry.RecipeSerializers.PRINTOUT.get();
     }
-
-    public static final SimpleRecipeSerializer<?> SERIALIZER = new SimpleRecipeSerializer<>(PrintoutRecipe::new);
 }

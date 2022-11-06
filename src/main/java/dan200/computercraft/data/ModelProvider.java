@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.platform.Registries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
@@ -20,7 +21,6 @@ import net.minecraft.data.models.model.ModelLocationUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.nio.file.Path;
@@ -75,7 +75,7 @@ public class ModelProvider implements DataProvider {
         blocks.accept(new BlockModelGenerators(addBlockState, addModel, explicitItems::add));
         items.accept(new ItemModelGenerators(addModel));
 
-        for (var block : ForgeRegistries.BLOCKS) {
+        for (var block : Registries.BLOCKS) {
             if (!blockStates.containsKey(block)) continue;
 
             var item = Item.BY_BLOCK.get(block);
@@ -87,7 +87,7 @@ public class ModelProvider implements DataProvider {
             }
         }
 
-        saveCollection(output, blockStates, x -> blockStatePath.json(ForgeRegistries.BLOCKS.getKey(x)));
+        saveCollection(output, blockStates, x -> blockStatePath.json(Registries.BLOCKS.getKey(x)));
         saveCollection(output, models, modelPath::json);
     }
 

@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.shared.common.BlockGeneric;
+import dan200.computercraft.shared.platform.RegistryEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,7 +23,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,7 +35,7 @@ public class BlockMonitor extends BlockGeneric {
 
     public static final EnumProperty<MonitorEdgeState> STATE = EnumProperty.create("state", MonitorEdgeState.class);
 
-    public BlockMonitor(Properties settings, RegistryObject<? extends BlockEntityType<? extends TileMonitor>> type) {
+    public BlockMonitor(Properties settings, RegistryEntry<? extends BlockEntityType<? extends TileMonitor>> type) {
         super(settings, type);
         // TODO: Test underwater - do we need isSolid at all?
         registerDefaultState(getStateDefinition().any()

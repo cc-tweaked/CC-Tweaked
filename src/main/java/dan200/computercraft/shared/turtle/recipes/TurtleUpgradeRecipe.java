@@ -7,6 +7,7 @@ package dan200.computercraft.shared.turtle.recipes;
 
 import dan200.computercraft.api.turtle.ITurtleUpgrade;
 import dan200.computercraft.api.turtle.TurtleSide;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
@@ -16,13 +17,12 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 
 public final class TurtleUpgradeRecipe extends CustomRecipe {
-    private TurtleUpgradeRecipe(ResourceLocation id) {
+    public TurtleUpgradeRecipe(ResourceLocation id) {
         super(id);
     }
 
@@ -137,8 +137,6 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
     @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return SERIALIZER;
+        return ModRegistry.RecipeSerializers.TURTLE_UPGRADE.get();
     }
-
-    public static final SimpleRecipeSerializer<TurtleUpgradeRecipe> SERIALIZER = new SimpleRecipeSerializer<>(TurtleUpgradeRecipe::new);
 }

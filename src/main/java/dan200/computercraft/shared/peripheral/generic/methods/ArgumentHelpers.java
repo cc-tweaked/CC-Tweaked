@@ -6,9 +6,9 @@
 package dan200.computercraft.shared.peripheral.generic.methods;
 
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.shared.platform.Registries;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.IForgeRegistry;
 
 import javax.annotation.Nonnull;
 
@@ -35,7 +35,7 @@ final class ArgumentHelpers {
     }
 
     @Nonnull
-    public static <T> T getRegistryEntry(String name, String typeName, IForgeRegistry<T> registry) throws LuaException {
+    public static <T> T getRegistryEntry(String name, String typeName, Registries.RegistryWrapper<T> registry) throws LuaException {
         ResourceLocation id;
         try {
             id = new ResourceLocation(name);
@@ -43,10 +43,8 @@ final class ArgumentHelpers {
             id = null;
         }
 
-        T value;
-        if (id == null || !registry.containsKey(id) || (value = registry.getValue(id)) == null) {
-            throw new LuaException(String.format("Unknown %s '%s'", typeName, name));
-        }
+        var value = registry.tryGet(id);
+        if (id == null || value == null) throw new LuaException(String.format("Unknown %s '%s'", typeName, name));
 
         return value;
     }

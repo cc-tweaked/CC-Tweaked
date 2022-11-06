@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.common;
 
+import dan200.computercraft.shared.platform.RegistryEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -20,15 +21,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public abstract class BlockGeneric extends BaseEntityBlock {
-    private final RegistryObject<? extends BlockEntityType<? extends TileGeneric>> type;
+    private final RegistryEntry<? extends BlockEntityType<? extends TileGeneric>> type;
 
-    public BlockGeneric(Properties settings, RegistryObject<? extends BlockEntityType<? extends TileGeneric>> type) {
+    public BlockGeneric(Properties settings, RegistryEntry<? extends BlockEntityType<? extends TileGeneric>> type) {
         super(settings);
         this.type = type;
     }

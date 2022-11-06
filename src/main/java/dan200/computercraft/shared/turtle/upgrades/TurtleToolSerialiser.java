@@ -8,6 +8,7 @@ package dan200.computercraft.shared.turtle.upgrades;
 import com.google.gson.JsonObject;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.api.upgrades.IUpgradeBase;
+import dan200.computercraft.shared.platform.Registries;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -15,7 +16,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 
@@ -46,7 +46,7 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
     @Override
     public TurtleTool fromNetwork(@Nonnull ResourceLocation id, @Nonnull FriendlyByteBuf buffer) {
         var adjective = buffer.readUtf();
-        var craftingItem = buffer.readRegistryIdUnsafe(ForgeRegistries.ITEMS);
+        var craftingItem = Registries.readId(buffer, Registries.ITEMS);
         var toolItem = buffer.readItem();
         // damageMultiplier and breakable aren't used by the client, but we need to construct the upgrade exactly
         // as otherwise syncing on an SP world will overwrite the (shared) upgrade registry with an invalid upgrade!
@@ -59,7 +59,7 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
     @Override
     public void toNetwork(@Nonnull FriendlyByteBuf buffer, @Nonnull TurtleTool upgrade) {
         buffer.writeUtf(upgrade.getUnlocalisedAdjective());
-        buffer.writeRegistryIdUnsafe(ForgeRegistries.ITEMS, upgrade.getCraftingItem().getItem());
+        Registries.writeId(buffer, Registries.ITEMS, upgrade.getCraftingItem().getItem());
         buffer.writeItem(upgrade.item);
         buffer.writeFloat(upgrade.damageMulitiplier);
         buffer.writeBoolean(upgrade.breakable != null);

@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.peripheral.generic.data;
 
 import com.google.gson.JsonParseException;
+import dan200.computercraft.shared.platform.Registries;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -13,7 +14,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -25,7 +25,7 @@ import java.util.*;
 public class ItemData {
     @Nonnull
     public static <T extends Map<? super String, Object>> T fillBasicSafe(@Nonnull T data, @Nonnull ItemStack stack) {
-        data.put("name", DataHelpers.getId(ForgeRegistries.ITEMS, stack.getItem()));
+        data.put("name", DataHelpers.getId(Registries.ITEMS, stack.getItem()));
         data.put("count", stack.getCount());
         return data;
     }
@@ -154,7 +154,7 @@ public class ItemData {
             var enchantment = entry.getKey();
             var level = entry.getValue();
             var enchant = new HashMap<String, Object>(3);
-            enchant.put("name", DataHelpers.getId(ForgeRegistries.ENCHANTMENTS, enchantment));
+            enchant.put("name", DataHelpers.getId(Registries.ENCHANTMENTS, enchantment));
             enchant.put("level", level);
             enchant.put("displayName", enchantment.getFullname(level).getString());
             enchants.add(enchant);

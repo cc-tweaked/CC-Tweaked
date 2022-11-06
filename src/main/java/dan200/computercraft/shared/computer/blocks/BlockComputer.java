@@ -8,6 +8,7 @@ package dan200.computercraft.shared.computer.blocks;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.items.ComputerItemFactory;
+import dan200.computercraft.shared.platform.RegistryEntry;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -20,7 +21,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,7 +29,7 @@ public class BlockComputer<T extends TileComputer> extends BlockComputerBase<T> 
     public static final EnumProperty<ComputerState> STATE = EnumProperty.create("state", ComputerState.class);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    public BlockComputer(Properties settings, ComputerFamily family, RegistryObject<BlockEntityType<T>> type) {
+    public BlockComputer(Properties settings, ComputerFamily family, RegistryEntry<BlockEntityType<T>> type) {
         super(settings, family, type);
         registerDefaultState(defaultBlockState()
             .setValue(FACING, Direction.NORTH)

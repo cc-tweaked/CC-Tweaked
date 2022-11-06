@@ -9,6 +9,7 @@ import com.google.gson.*;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.upgrades.IUpgradeBase;
 import dan200.computercraft.api.upgrades.UpgradeSerialiser;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -17,7 +18,6 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.RegistryManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -119,7 +119,7 @@ public class UpgradeManager<R extends UpgradeSerialiser<? extends T>, T extends 
         var root = GsonHelper.convertToJsonObject(json, "top element");
         var serialiserId = new ResourceLocation(GsonHelper.getAsString(root, "type"));
 
-        var serialiser = RegistryManager.ACTIVE.getRegistry(registry).getValue(serialiserId);
+        var serialiser = PlatformHelper.get().tryGetRegistryObject(registry, serialiserId);
         if (serialiser == null) throw new JsonSyntaxException("Unknown upgrade type '" + serialiserId + "'");
 
         // TODO: Can we track which mod this resource came from and use that instead? It's theoretically possible,

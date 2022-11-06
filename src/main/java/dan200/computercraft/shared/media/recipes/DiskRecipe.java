@@ -5,8 +5,9 @@
  */
 package dan200.computercraft.shared.media.recipes;
 
-import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.core.util.Colour;
+import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.media.items.ItemDisk;
 import dan200.computercraft.shared.util.ColourTracker;
 import dan200.computercraft.shared.util.ColourUtils;
 import net.minecraft.resources.ResourceLocation;
@@ -15,7 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.Tags;
 
@@ -83,8 +83,6 @@ public class DiskRecipe extends CustomRecipe {
     @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return SERIALIZER;
+        return ModRegistry.RecipeSerializers.DISK.get();
     }
-
-    public static final SimpleRecipeSerializer<DiskRecipe> SERIALIZER = new SimpleRecipeSerializer<>(DiskRecipe::new);
 }

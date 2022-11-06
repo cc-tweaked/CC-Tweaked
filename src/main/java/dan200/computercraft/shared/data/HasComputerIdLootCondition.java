@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.data;
 
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.blocks.IComputerTile;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
@@ -17,11 +18,10 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * A loot condition which checks if the tile entity has has a non-0 ID.
+ * A loot condition which checks if the tile entity has a non-0 ID.
  */
 public final class HasComputerIdLootCondition implements LootItemCondition {
     public static final HasComputerIdLootCondition INSTANCE = new HasComputerIdLootCondition();
-    public static final LootItemConditionType TYPE = ConstantLootConditionSerializer.type(INSTANCE);
     public static final Builder BUILDER = () -> INSTANCE;
 
     private HasComputerIdLootCondition() {
@@ -42,6 +42,6 @@ public final class HasComputerIdLootCondition implements LootItemCondition {
     @Override
     @Nonnull
     public LootItemConditionType getType() {
-        return TYPE;
+        return ModRegistry.LootItemConditionTypes.HAS_ID.get();
     }
 }

@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.platform.Registries;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -18,7 +19,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 
@@ -61,7 +61,7 @@ public abstract class ItemBlockCable extends BlockItem {
     @Override
     public String getDescriptionId() {
         if (translationKey == null) {
-            translationKey = Util.makeDescriptionId("block", ForgeRegistries.ITEMS.getKey(this));
+            translationKey = Util.makeDescriptionId("block", Registries.ITEMS.getKey(this));
         }
         return translationKey;
     }

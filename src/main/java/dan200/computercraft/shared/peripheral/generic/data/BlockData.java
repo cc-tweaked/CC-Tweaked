@@ -6,8 +6,8 @@
 package dan200.computercraft.shared.peripheral.generic.data;
 
 import dan200.computercraft.api.detail.BlockReference;
+import dan200.computercraft.shared.platform.Registries;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ public class BlockData {
     public static void fillBasic(@Nonnull Map<? super String, Object> data, @Nonnull BlockReference block) {
         var state = block.state();
 
-        data.put("name", DataHelpers.getId(ForgeRegistries.BLOCKS, state.getBlock()));
+        data.put("name", DataHelpers.getId(Registries.BLOCKS, state.getBlock()));
 
         Map<Object, Object> stateTable = new HashMap<>();
         for (Map.Entry<Property<?>, ? extends Comparable<?>> entry : state.getValues().entrySet()) {

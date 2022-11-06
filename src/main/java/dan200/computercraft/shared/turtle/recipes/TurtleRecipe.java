@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.turtle.recipes;
 
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.IComputerItem;
 import dan200.computercraft.shared.computer.recipe.ComputerFamilyRecipe;
@@ -18,14 +19,14 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import javax.annotation.Nonnull;
 
 public final class TurtleRecipe extends ComputerFamilyRecipe {
-    private TurtleRecipe(ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family) {
+    public TurtleRecipe(ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family) {
         super(identifier, group, width, height, ingredients, result, family);
     }
 
     @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return SERIALIZER;
+        return ModRegistry.RecipeSerializers.TURTLE.get();
     }
 
     @Nonnull
@@ -37,10 +38,10 @@ public final class TurtleRecipe extends ComputerFamilyRecipe {
         return TurtleItemFactory.create(computerID, label, -1, getFamily(), null, null, 0, null);
     }
 
-    public static final RecipeSerializer<TurtleRecipe> SERIALIZER = new Serializer<>() {
+    public static class Serializer extends ComputerFamilyRecipe.Serializer<TurtleRecipe> {
         @Override
         protected TurtleRecipe create(ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family) {
             return new TurtleRecipe(identifier, group, width, height, ingredients, result, family);
         }
-    };
+    }
 }

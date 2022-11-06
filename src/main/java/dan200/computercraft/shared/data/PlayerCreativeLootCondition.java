@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.data;
 
+import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
@@ -21,7 +22,6 @@ import java.util.Set;
  */
 public final class PlayerCreativeLootCondition implements LootItemCondition {
     public static final PlayerCreativeLootCondition INSTANCE = new PlayerCreativeLootCondition();
-    public static final LootItemConditionType TYPE = ConstantLootConditionSerializer.type(INSTANCE);
     public static final Builder BUILDER = () -> INSTANCE;
 
     private PlayerCreativeLootCondition() {
@@ -42,6 +42,6 @@ public final class PlayerCreativeLootCondition implements LootItemCondition {
     @Override
     @Nonnull
     public LootItemConditionType getType() {
-        return TYPE;
+        return ModRegistry.LootItemConditionTypes.PLAYER_CREATIVE.get();
     }
 }

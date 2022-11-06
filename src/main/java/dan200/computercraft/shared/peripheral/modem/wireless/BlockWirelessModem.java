@@ -7,6 +7,7 @@ package dan200.computercraft.shared.peripheral.modem.wireless;
 
 import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemShapes;
+import dan200.computercraft.shared.platform.RegistryEntry;
 import dan200.computercraft.shared.util.WaterloggableHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,7 +28,6 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,7 +39,7 @@ public class BlockWirelessModem extends BlockGeneric implements SimpleWaterlogge
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty ON = BooleanProperty.create("on");
 
-    public BlockWirelessModem(Properties settings, RegistryObject<? extends BlockEntityType<? extends TileWirelessModem>> type) {
+    public BlockWirelessModem(Properties settings, RegistryEntry<? extends BlockEntityType<? extends TileWirelessModem>> type) {
         super(settings, type);
         registerDefaultState(getStateDefinition().any()
             .setValue(FACING, Direction.NORTH)

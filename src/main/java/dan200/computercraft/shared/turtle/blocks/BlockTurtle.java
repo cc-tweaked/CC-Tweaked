@@ -9,6 +9,7 @@ import dan200.computercraft.api.turtle.TurtleSide;
 import dan200.computercraft.shared.computer.blocks.BlockComputerBase;
 import dan200.computercraft.shared.computer.blocks.TileComputerBase;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
+import dan200.computercraft.shared.platform.RegistryEntry;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.items.ITurtleItem;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
@@ -37,7 +38,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -55,7 +55,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Simple
 
     private final BlockEntityTicker<TileTurtle> clientTicker = (level, pos, state, computer) -> computer.clientTick();
 
-    public BlockTurtle(Properties settings, ComputerFamily family, RegistryObject<BlockEntityType<TileTurtle>> type) {
+    public BlockTurtle(Properties settings, ComputerFamily family, RegistryEntry<BlockEntityType<TileTurtle>> type) {
         super(settings, family, type);
         registerDefaultState(getStateDefinition().any()
             .setValue(FACING, Direction.NORTH)

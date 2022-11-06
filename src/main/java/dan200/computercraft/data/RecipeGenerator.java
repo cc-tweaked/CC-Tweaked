@@ -9,21 +9,13 @@ import com.google.gson.JsonObject;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.pocket.PocketUpgradeDataProvider;
 import dan200.computercraft.api.turtle.TurtleUpgradeDataProvider;
+import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.common.ColourableRecipe;
 import dan200.computercraft.shared.common.IColouredItem;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
-import dan200.computercraft.shared.computer.recipe.ComputerUpgradeRecipe;
-import dan200.computercraft.shared.media.recipes.DiskRecipe;
-import dan200.computercraft.shared.media.recipes.PrintoutRecipe;
+import dan200.computercraft.shared.platform.Registries;
 import dan200.computercraft.shared.pocket.items.PocketComputerItemFactory;
-import dan200.computercraft.shared.pocket.recipes.PocketComputerUpgradeRecipe;
 import dan200.computercraft.shared.turtle.items.TurtleItemFactory;
-import dan200.computercraft.shared.turtle.recipes.TurtleRecipe;
-import dan200.computercraft.shared.turtle.recipes.TurtleUpgradeRecipe;
-import dan200.computercraft.core.util.Colour;
-import dan200.computercraft.shared.util.ImpostorRecipe;
-import dan200.computercraft.shared.util.ImpostorShapelessRecipe;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.data.DataGenerator;
@@ -31,12 +23,13 @@ import net.minecraft.data.recipes.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.Tags;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import java.util.Locale;
@@ -63,11 +56,11 @@ class RecipeGenerator extends RecipeProvider {
         pocketUpgrades(add);
         turtleUpgrades(add);
 
-        addSpecial(add, PrintoutRecipe.SERIALIZER);
-        addSpecial(add, DiskRecipe.SERIALIZER);
-        addSpecial(add, ColourableRecipe.SERIALIZER);
-        addSpecial(add, TurtleUpgradeRecipe.SERIALIZER);
-        addSpecial(add, PocketComputerUpgradeRecipe.SERIALIZER);
+        addSpecial(add, ModRegistry.RecipeSerializers.PRINTOUT.get());
+        addSpecial(add, ModRegistry.RecipeSerializers.DISK.get());
+        addSpecial(add, ModRegistry.RecipeSerializers.DYEABLE_ITEM.get());
+        addSpecial(add, ModRegistry.RecipeSerializers.TURTLE_UPGRADE.get());
+        addSpecial(add, ModRegistry.RecipeSerializers.POCKET_COMPUTER_UPGRADE.get());
     }
 
     /**
@@ -85,7 +78,7 @@ class RecipeGenerator extends RecipeProvider {
                 .group("computercraft:disk")
                 .unlockedBy("has_drive", inventoryChange(ModRegistry.Blocks.DISK_DRIVE.get()))
                 .save(
-                    RecipeWrapper.wrap(ImpostorShapelessRecipe.SERIALIZER, add)
+                    RecipeWrapper.wrap(ModRegistry.RecipeSerializers.IMPOSTOR_SHAPELESS.get(), add)
                         .withResultTag(x -> x.putInt(IColouredItem.NBT_COLOUR, colour.getHex())),
                     new ResourceLocation(ComputerCraft.MOD_ID, "disk_" + (colour.ordinal() + 1))
                 );
@@ -115,7 +108,7 @@ class RecipeGenerator extends RecipeProvider {
                     .unlockedBy("has_items",
                         inventoryChange(base.getItem(), upgrade.getCraftingItem().getItem()))
                     .save(
-                        RecipeWrapper.wrap(ImpostorRecipe.SERIALIZER, add).withResultTag(result.getTag()),
+                        RecipeWrapper.wrap(ModRegistry.RecipeSerializers.IMPOSTOR_SHAPED.get(), add).withResultTag(result.getTag()),
                         new ResourceLocation(ComputerCraft.MOD_ID, String.format("turtle_%s/%s/%s",
                             nameId, upgrade.getUpgradeID().getNamespace(), upgrade.getUpgradeID().getPath()
                         ))
@@ -148,7 +141,7 @@ class RecipeGenerator extends RecipeProvider {
                     .unlockedBy("has_items",
                         inventoryChange(base.getItem(), upgrade.getCraftingItem().getItem()))
                     .save(
-                        RecipeWrapper.wrap(ImpostorRecipe.SERIALIZER, add).withResultTag(result.getTag()),
+                        RecipeWrapper.wrap(ModRegistry.RecipeSerializers.IMPOSTOR_SHAPED.get(), add).withResultTag(result.getTag()),
                         new ResourceLocation(ComputerCraft.MOD_ID, String.format("pocket_%s/%s/%s",
                             nameId, upgrade.getUpgradeID().getNamespace(), upgrade.getUpgradeID().getPath()
                         ))
@@ -200,7 +193,7 @@ class RecipeGenerator extends RecipeProvider {
             .define('C', ModRegistry.Items.COMPUTER_ADVANCED.get())
             .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.COMPUTER_NORMAL.get()), itemPredicate(Tags.Items.INGOTS_GOLD)))
             .save(
-                RecipeWrapper.wrap(ComputerUpgradeRecipe.SERIALIZER, add).withExtraData(family(ComputerFamily.ADVANCED)),
+                RecipeWrapper.wrap(ModRegistry.RecipeSerializers.COMPUTER_UPGRADE.get(), add).withExtraData(family(ComputerFamily.ADVANCED)),
                 new ResourceLocation(ComputerCraft.MOD_ID, "computer_advanced_upgrade")
             );
 
@@ -224,7 +217,7 @@ class RecipeGenerator extends RecipeProvider {
             .define('C', ModRegistry.Items.COMPUTER_NORMAL.get())
             .define('I', Tags.Items.CHESTS_WOODEN)
             .unlockedBy("has_computer", inventoryChange(ModRegistry.Items.COMPUTER_NORMAL.get()))
-            .save(RecipeWrapper.wrap(TurtleRecipe.SERIALIZER, add).withExtraData(family(ComputerFamily.NORMAL)));
+            .save(RecipeWrapper.wrap(ModRegistry.RecipeSerializers.TURTLE.get(), add).withExtraData(family(ComputerFamily.NORMAL)));
 
         ShapedRecipeBuilder
             .shaped(ModRegistry.Blocks.TURTLE_ADVANCED.get())
@@ -235,7 +228,7 @@ class RecipeGenerator extends RecipeProvider {
             .define('C', ModRegistry.Items.COMPUTER_ADVANCED.get())
             .define('I', Tags.Items.CHESTS_WOODEN)
             .unlockedBy("has_computer", inventoryChange(ModRegistry.Items.COMPUTER_NORMAL.get()))
-            .save(RecipeWrapper.wrap(TurtleRecipe.SERIALIZER, add).withExtraData(family(ComputerFamily.ADVANCED)));
+            .save(RecipeWrapper.wrap(ModRegistry.RecipeSerializers.TURTLE.get(), add).withExtraData(family(ComputerFamily.ADVANCED)));
 
         ShapedRecipeBuilder
             .shaped(ModRegistry.Blocks.TURTLE_ADVANCED.get())
@@ -247,7 +240,7 @@ class RecipeGenerator extends RecipeProvider {
             .define('B', Tags.Items.STORAGE_BLOCKS_GOLD)
             .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.TURTLE_NORMAL.get()), itemPredicate(Tags.Items.INGOTS_GOLD)))
             .save(
-                RecipeWrapper.wrap(ComputerUpgradeRecipe.SERIALIZER, add).withExtraData(family(ComputerFamily.ADVANCED)),
+                RecipeWrapper.wrap(ModRegistry.RecipeSerializers.COMPUTER_UPGRADE.get(), add).withExtraData(family(ComputerFamily.ADVANCED)),
                 new ResourceLocation(ComputerCraft.MOD_ID, "turtle_advanced_upgrade")
             );
 
@@ -314,7 +307,7 @@ class RecipeGenerator extends RecipeProvider {
             .define('C', ModRegistry.Items.POCKET_COMPUTER_NORMAL.get())
             .unlockedBy("has_components", inventoryChange(itemPredicate(ModRegistry.Items.POCKET_COMPUTER_NORMAL.get()), itemPredicate(Tags.Items.INGOTS_GOLD)))
             .save(
-                RecipeWrapper.wrap(ComputerUpgradeRecipe.SERIALIZER, add).withExtraData(family(ComputerFamily.ADVANCED)),
+                RecipeWrapper.wrap(ModRegistry.RecipeSerializers.COMPUTER_UPGRADE.get(), add).withExtraData(family(ComputerFamily.ADVANCED)),
                 new ResourceLocation(ComputerCraft.MOD_ID, "pocket_computer_advanced_upgrade")
             );
 
@@ -410,7 +403,7 @@ class RecipeGenerator extends RecipeProvider {
             .requires(ModRegistry.Items.PRINTED_PAGE.get(), 2)
             .requires(Tags.Items.STRING)
             .unlockedBy("has_printer", inventoryChange(ModRegistry.Blocks.PRINTER.get()))
-            .save(RecipeWrapper.wrap(ImpostorShapelessRecipe.SERIALIZER, add));
+            .save(RecipeWrapper.wrap(ModRegistry.RecipeSerializers.IMPOSTOR_SHAPELESS.get(), add));
 
         ShapelessRecipeBuilder
             .shapeless(ModRegistry.Items.PRINTED_BOOK.get())
@@ -418,7 +411,7 @@ class RecipeGenerator extends RecipeProvider {
             .requires(ModRegistry.Items.PRINTED_PAGE.get(), 1)
             .requires(Tags.Items.STRING)
             .unlockedBy("has_printer", inventoryChange(ModRegistry.Blocks.PRINTER.get()))
-            .save(RecipeWrapper.wrap(ImpostorShapelessRecipe.SERIALIZER, add));
+            .save(RecipeWrapper.wrap(ModRegistry.RecipeSerializers.IMPOSTOR_SHAPELESS.get(), add));
     }
 
     private static DyeColor ofColour(Colour colour) {
@@ -460,6 +453,6 @@ class RecipeGenerator extends RecipeProvider {
     }
 
     private static void addSpecial(Consumer<FinishedRecipe> add, SimpleRecipeSerializer<?> special) {
-        SpecialRecipeBuilder.special(special).save(add, ForgeRegistries.RECIPE_SERIALIZERS.getKey(special).toString());
+        SpecialRecipeBuilder.special(special).save(add, Registries.RECIPE_SERIALIZERS.getKey(special).toString());
     }
 }

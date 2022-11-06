@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.pocket.recipes;
 
 import dan200.computercraft.api.pocket.IPocketUpgrade;
+import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
@@ -15,13 +16,12 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 
 public final class PocketComputerUpgradeRecipe extends CustomRecipe {
-    private PocketComputerUpgradeRecipe(ResourceLocation identifier) {
+    public PocketComputerUpgradeRecipe(ResourceLocation identifier) {
         super(identifier);
     }
 
@@ -95,8 +95,6 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
     @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return SERIALIZER;
+        return ModRegistry.RecipeSerializers.POCKET_COMPUTER_UPGRADE.get();
     }
-
-    public static final SimpleRecipeSerializer<PocketComputerUpgradeRecipe> SERIALIZER = new SimpleRecipeSerializer<>(PocketComputerUpgradeRecipe::new);
 }

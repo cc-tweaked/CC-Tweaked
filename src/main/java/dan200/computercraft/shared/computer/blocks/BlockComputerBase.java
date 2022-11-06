@@ -10,6 +10,7 @@ import dan200.computercraft.shared.common.BlockGeneric;
 import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.items.IComputerItem;
+import dan200.computercraft.shared.platform.RegistryEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -30,7 +31,6 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,10 +39,10 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     private static final ResourceLocation DROP = new ResourceLocation(ComputerCraft.MOD_ID, "computer");
 
     private final ComputerFamily family;
-    protected final RegistryObject<BlockEntityType<T>> type;
+    protected final RegistryEntry<BlockEntityType<T>> type;
     private final BlockEntityTicker<T> serverTicker = (level, pos, state, computer) -> computer.serverTick();
 
-    protected BlockComputerBase(Properties settings, ComputerFamily family, RegistryObject<BlockEntityType<T>> type) {
+    protected BlockComputerBase(Properties settings, ComputerFamily family, RegistryEntry<BlockEntityType<T>> type) {
         super(settings, type);
         this.family = family;
         this.type = type;

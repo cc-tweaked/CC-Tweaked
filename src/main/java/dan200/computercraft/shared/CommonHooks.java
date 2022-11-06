@@ -25,8 +25,6 @@ import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.MissingMappingsEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.Arrays;
@@ -121,14 +119,6 @@ public final class CommonHooks {
             NetworkHandler.sendToAllPlayers(packet);
         } else {
             NetworkHandler.sendToPlayer(event.getPlayer(), packet);
-        }
-    }
-
-    @SubscribeEvent
-    public static void onMissingEntityMappingsEvent(MissingMappingsEvent event) {
-        var id = new ResourceLocation(ComputerCraft.MOD_ID, "turtle_player");
-        for (var mapping : event.getMappings(ForgeRegistries.BLOCKS.getRegistryKey(), ComputerCraft.MOD_ID)) {
-            if (mapping.getKey().equals(id)) mapping.ignore();
         }
     }
 }

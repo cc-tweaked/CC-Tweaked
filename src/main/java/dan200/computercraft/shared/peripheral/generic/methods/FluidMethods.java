@@ -12,13 +12,13 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.PeripheralType;
+import dan200.computercraft.shared.platform.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -94,7 +94,7 @@ public class FluidMethods implements GenericPeripheral {
         String toName, Optional<Integer> limit, Optional<String> fluidName
     ) throws LuaException {
         var fluid = fluidName.isPresent()
-            ? getRegistryEntry(fluidName.get(), "fluid", ForgeRegistries.FLUIDS)
+            ? getRegistryEntry(fluidName.get(), "fluid", Registries.FLUIDS)
             : null;
 
         // Find location to transfer to
@@ -134,7 +134,7 @@ public class FluidMethods implements GenericPeripheral {
         String fromName, Optional<Integer> limit, Optional<String> fluidName
     ) throws LuaException {
         var fluid = fluidName.isPresent()
-            ? getRegistryEntry(fluidName.get(), "fluid", ForgeRegistries.FLUIDS)
+            ? getRegistryEntry(fluidName.get(), "fluid", Registries.FLUIDS)
             : null;
 
         // Find location to transfer to

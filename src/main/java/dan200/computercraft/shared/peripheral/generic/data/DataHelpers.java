@@ -5,12 +5,11 @@
  */
 package dan200.computercraft.shared.peripheral.generic.data;
 
+import dan200.computercraft.shared.platform.Registries;
 import net.minecraft.core.Holder;
 import net.minecraft.tags.TagKey;
-import net.minecraftforge.registries.IForgeRegistry;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,9 +27,7 @@ public final class DataHelpers {
         return tags.collect(Collectors.toMap(x -> x.location().toString(), x -> true));
     }
 
-    @Nullable
-    public static <T> String getId(@Nonnull IForgeRegistry<T> registry, T entry) {
-        var id = registry.getKey(entry);
-        return id == null ? null : id.toString();
+    public static <T> String getId(@Nonnull Registries.RegistryWrapper<T> registry, T entry) {
+        return registry.getKey(entry).toString();
     }
 }

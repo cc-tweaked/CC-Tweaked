@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.data;
 
-import dan200.computercraft.shared.ModRegistry;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -14,8 +13,6 @@ import net.minecraftforge.fml.common.Mod;
 public class Generators {
     @SubscribeEvent
     public static void gather(GatherDataEvent event) {
-        ModRegistry.registerLoot();
-
         var generator = event.getGenerator();
         var existingFiles = event.getExistingFileHelper();
 

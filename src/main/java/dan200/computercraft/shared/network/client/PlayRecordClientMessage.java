@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.network.client;
 
 import dan200.computercraft.shared.network.NetworkMessage;
+import dan200.computercraft.shared.platform.Registries;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -14,7 +15,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 
@@ -46,7 +46,7 @@ public class PlayRecordClientMessage implements NetworkMessage {
         pos = buf.readBlockPos();
         if (buf.readBoolean()) {
             name = buf.readUtf(Short.MAX_VALUE);
-            soundEvent = buf.readRegistryIdSafe(SoundEvent.class);
+            soundEvent = Registries.readKey(buf, Registries.SOUND_EVENTS);
         } else {
             name = null;
             soundEvent = null;
@@ -61,7 +61,7 @@ public class PlayRecordClientMessage implements NetworkMessage {
         } else {
             buf.writeBoolean(true);
             buf.writeUtf(name);
-            buf.writeRegistryId(ForgeRegistries.SOUND_EVENTS, soundEvent);
+            Registries.writeKey(buf, Registries.SOUND_EVENTS, soundEvent);
         }
     }
 

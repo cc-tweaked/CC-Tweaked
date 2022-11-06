@@ -8,6 +8,7 @@ package dan200.computercraft.shared.util;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -50,10 +51,10 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe {
     @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return SERIALIZER;
+        return ModRegistry.RecipeSerializers.IMPOSTOR_SHAPELESS.get();
     }
 
-    public static final RecipeSerializer<ImpostorShapelessRecipe> SERIALIZER = new RecipeSerializer<ImpostorShapelessRecipe>() {
+    public static final class Serializer implements RecipeSerializer<ImpostorShapelessRecipe> {
         @Nonnull
         @Override
         public ImpostorShapelessRecipe fromJson(@Nonnull ResourceLocation id, @Nonnull JsonObject json) {
@@ -99,5 +100,5 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe {
             for (var ingredient : recipe.getIngredients()) ingredient.toNetwork(buffer);
             buffer.writeItem(recipe.getResultItem());
         }
-    };
+    }
 }

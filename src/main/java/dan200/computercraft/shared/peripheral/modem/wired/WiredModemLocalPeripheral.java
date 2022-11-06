@@ -6,8 +6,8 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.ModRegistry;
+import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

@@ -5,9 +5,9 @@
  */
 package dan200.computercraft.shared.computer.terminal;
 
+import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.util.Colour;
-import dan200.computercraft.core.terminal.Palette;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 

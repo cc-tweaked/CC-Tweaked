@@ -10,10 +10,10 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import dan200.computercraft.client.FrameInfo;
+import dan200.computercraft.core.terminal.Palette;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
-import dan200.computercraft.core.terminal.Palette;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;

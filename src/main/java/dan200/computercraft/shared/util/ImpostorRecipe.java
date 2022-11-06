@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.util;
 
 import com.google.gson.JsonObject;
+import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -48,10 +49,10 @@ public final class ImpostorRecipe extends ShapedRecipe {
     @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return SERIALIZER;
+        return ModRegistry.RecipeSerializers.IMPOSTOR_SHAPED.get();
     }
 
-    public static final RecipeSerializer<ImpostorRecipe> SERIALIZER = new RecipeSerializer<ImpostorRecipe>() {
+    public static class Serializer implements RecipeSerializer<ImpostorRecipe> {
         @Nonnull
         @Override
         public ImpostorRecipe fromJson(@Nonnull ResourceLocation identifier, @Nonnull JsonObject json) {
@@ -80,5 +81,5 @@ public final class ImpostorRecipe extends ShapedRecipe {
             for (var ingredient : recipe.getIngredients()) ingredient.toNetwork(buf);
             buf.writeItem(recipe.getResultItem());
         }
-    };
+    }
 }
