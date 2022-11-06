@@ -7,7 +7,6 @@ package dan200.computercraft.api.filesystem;
 
 import dan200.computercraft.api.peripheral.IComputerAccess;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -31,7 +30,7 @@ public interface IMount {
      * @return If the file exists.
      * @throws IOException If an error occurs when checking the existence of the file.
      */
-    boolean exists(@Nonnull String path) throws IOException;
+    boolean exists(String path) throws IOException;
 
     /**
      * Returns whether a file with a given path is a directory or not.
@@ -40,7 +39,7 @@ public interface IMount {
      * @return If the file exists and is a directory
      * @throws IOException If an error occurs when checking whether the file is a directory.
      */
-    boolean isDirectory(@Nonnull String path) throws IOException;
+    boolean isDirectory(String path) throws IOException;
 
     /**
      * Returns the file names of all the files in a directory.
@@ -49,7 +48,7 @@ public interface IMount {
      * @param contents A list of strings. Add all the file names to this list.
      * @throws IOException If the file was not a directory, or could not be listed.
      */
-    void list(@Nonnull String path, @Nonnull List<String> contents) throws IOException;
+    void list(String path, List<String> contents) throws IOException;
 
     /**
      * Returns the size of a file with a given path, in bytes.
@@ -58,7 +57,7 @@ public interface IMount {
      * @return The size of the file, in bytes.
      * @throws IOException If the file does not exist, or its size could not be determined.
      */
-    long getSize(@Nonnull String path) throws IOException;
+    long getSize(String path) throws IOException;
 
     /**
      * Opens a file with a given path, and returns an {@link ReadableByteChannel} representing its contents.
@@ -69,8 +68,7 @@ public interface IMount {
      * mode.
      * @throws IOException If the file does not exist, or could not be opened.
      */
-    @Nonnull
-    ReadableByteChannel openForRead(@Nonnull String path) throws IOException;
+    ReadableByteChannel openForRead(String path) throws IOException;
 
     /**
      * Get attributes about the given file.
@@ -79,8 +77,7 @@ public interface IMount {
      * @return File attributes for the given file.
      * @throws IOException If the file does not exist, or attributes could not be fetched.
      */
-    @Nonnull
-    default BasicFileAttributes getAttributes(@Nonnull String path) throws IOException {
+    default BasicFileAttributes getAttributes(String path) throws IOException {
         if (!exists(path)) throw new FileOperationException(path, "No such file");
         return new FileAttributes(isDirectory(path), getSize(path));
     }

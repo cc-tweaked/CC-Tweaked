@@ -5,8 +5,6 @@
  */
 package dan200.computercraft.api.lua;
 
-import javax.annotation.Nonnull;
-
 /**
  * An interface passed to peripherals and {@link IDynamicLuaObject}s by computers or turtles, providing methods
  * that allow the peripheral call to interface with the computer.
@@ -25,7 +23,7 @@ public interface ILuaContext {
      * @throws LuaException If the task could not be queued.
      * @see LuaFunction#mainThread() To run functions on the main thread and return their results synchronously.
      */
-    long issueMainThreadTask(@Nonnull ILuaTask task) throws LuaException;
+    long issueMainThreadTask(ILuaTask task) throws LuaException;
 
     /**
      * Queue a task to be executed on the main server thread at the beginning of next tick, waiting for it to complete.
@@ -38,8 +36,7 @@ public interface ILuaContext {
      * @return The objects returned by {@code task}.
      * @throws LuaException If the task could not be queued, or if the task threw an exception.
      */
-    @Nonnull
-    default MethodResult executeMainThreadTask(@Nonnull ILuaTask task) throws LuaException {
+    default MethodResult executeMainThreadTask(ILuaTask task) throws LuaException {
         return TaskCallback.make(this, task);
     }
 }

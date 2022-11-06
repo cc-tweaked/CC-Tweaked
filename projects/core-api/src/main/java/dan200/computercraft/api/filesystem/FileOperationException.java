@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.api.filesystem;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serial;
@@ -20,14 +19,14 @@ public class FileOperationException extends IOException {
     @Serial
     private static final long serialVersionUID = -8809108200853029849L;
 
-    private final String filename;
+    private final @Nullable String filename;
 
-    public FileOperationException(@Nullable String filename, @Nonnull String message) {
+    public FileOperationException(@Nullable String filename, String message) {
         super(Objects.requireNonNull(message, "message cannot be null"));
         this.filename = filename;
     }
 
-    public FileOperationException(@Nonnull String message) {
+    public FileOperationException(String message) {
         super(Objects.requireNonNull(message, "message cannot be null"));
         filename = null;
     }

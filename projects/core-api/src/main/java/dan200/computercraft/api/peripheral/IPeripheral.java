@@ -7,7 +7,6 @@ package dan200.computercraft.api.peripheral;
 
 import dan200.computercraft.api.lua.LuaFunction;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Set;
@@ -28,7 +27,6 @@ public interface IPeripheral {
      *
      * @return A string identifying the type of peripheral.
      */
-    @Nonnull
     String getType();
 
     /**
@@ -37,7 +35,6 @@ public interface IPeripheral {
      * @return A collection of additional object traits.
      * @see PeripheralType#getAdditionalTypes()
      */
-    @Nonnull
     default Set<String> getAdditionalTypes() {
         return Collections.emptySet();
     }
@@ -60,7 +57,7 @@ public interface IPeripheral {
      *                 attached to a peripheral at once.
      * @see #detach
      */
-    default void attach(@Nonnull IComputerAccess computer) {
+    default void attach(IComputerAccess computer) {
     }
 
     /**
@@ -80,7 +77,7 @@ public interface IPeripheral {
      *                 attached to a peripheral at once.
      * @see #attach
      */
-    default void detach(@Nonnull IComputerAccess computer) {
+    default void detach(IComputerAccess computer) {
     }
 
     /**

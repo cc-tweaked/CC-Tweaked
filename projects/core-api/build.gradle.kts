@@ -1,6 +1,7 @@
 plugins {
     id("cc-tweaked.java-convention")
     id("cc-tweaked.publishing")
+    id("cc-tweaked.errorprone")
     id("cc-tweaked")
 }
 

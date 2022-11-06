@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.api.peripheral;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,10 +19,10 @@ import java.util.Set;
 public final class PeripheralType {
     private static final PeripheralType UNTYPED = new PeripheralType(null, Collections.emptySet());
 
-    private final String type;
+    private final @Nullable String type;
     private final Set<String> additionalTypes;
 
-    public PeripheralType(String type, Set<String> additionalTypes) {
+    public PeripheralType(@Nullable String type, Set<String> additionalTypes) {
         this.type = type;
         this.additionalTypes = additionalTypes;
         for (var item : additionalTypes) {
@@ -46,7 +45,7 @@ public final class PeripheralType {
      * @param type The name of the type.
      * @return The constructed peripheral type.
      */
-    public static PeripheralType ofType(@Nonnull String type) {
+    public static PeripheralType ofType(String type) {
         checkTypeName("type cannot be null or empty");
         return new PeripheralType(type, Collections.emptySet());
     }
@@ -58,7 +57,7 @@ public final class PeripheralType {
      * @param additionalTypes Additional types, or "traits" of this peripheral. For instance, {@code "inventory"}.
      * @return The constructed peripheral type.
      */
-    public static PeripheralType ofType(@Nonnull String type, Collection<String> additionalTypes) {
+    public static PeripheralType ofType(String type, Collection<String> additionalTypes) {
         checkTypeName("type cannot be null or empty");
         return new PeripheralType(type, getTypes(additionalTypes));
     }
@@ -70,7 +69,7 @@ public final class PeripheralType {
      * @param additionalTypes Additional types, or "traits" of this peripheral. For instance, {@code "inventory"}.
      * @return The constructed peripheral type.
      */
-    public static PeripheralType ofType(@Nonnull String type, @Nonnull String... additionalTypes) {
+    public static PeripheralType ofType(String type, String... additionalTypes) {
         checkTypeName(type);
         return new PeripheralType(type, Set.of(additionalTypes));
     }
@@ -91,7 +90,7 @@ public final class PeripheralType {
      * @param additionalTypes Additional types, or "traits" of this peripheral. For instance, {@code "inventory"}.
      * @return The constructed peripheral type.
      */
-    public static PeripheralType ofAdditional(@Nonnull String... additionalTypes) {
+    public static PeripheralType ofAdditional(String... additionalTypes) {
         return new PeripheralType(null, Set.of(additionalTypes));
     }
 

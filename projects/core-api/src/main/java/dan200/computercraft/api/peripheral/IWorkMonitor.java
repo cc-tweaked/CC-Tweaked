@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.api.peripheral;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +47,7 @@ public interface IWorkMonitor {
      * @param time The time some task took to run
      * @param unit The unit that {@code time} was measured in.
      */
-    void trackWork(long time, @Nonnull TimeUnit unit);
+    void trackWork(long time, TimeUnit unit);
 
     /**
      * Run a task if possible, and inform the monitor of how long it took.
@@ -56,7 +55,7 @@ public interface IWorkMonitor {
      * @param runnable The task to run.
      * @return If the task was actually run (namely, {@link #canWork()} returned {@code true}).
      */
-    default boolean runWork(@Nonnull Runnable runnable) {
+    default boolean runWork(Runnable runnable) {
         Objects.requireNonNull(runnable, "runnable should not be null");
         if (!canWork()) return false;
 

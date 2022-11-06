@@ -5,8 +5,6 @@
  */
 package dan200.computercraft.api.lua;
 
-import javax.annotation.Nonnull;
-
 /**
  * A continuation which is called when this coroutine is resumed.
  *
@@ -21,6 +19,5 @@ public interface ILuaCallback {
      * @return The result of this continuation. Either the result to return to the callee, or another yield.
      * @throws LuaException On an error.
      */
-    @Nonnull
     MethodResult resume(Object[] args) throws LuaException;
 }

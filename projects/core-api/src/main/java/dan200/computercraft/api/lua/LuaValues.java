@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.api.lua;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -25,8 +24,7 @@ public final class LuaValues {
      * @param string The string to encode.
      * @return The encoded string.
      */
-    @Nonnull
-    public static ByteBuffer encode(@Nonnull String string) {
+    public static ByteBuffer encode(String string) {
         var chars = new byte[string.length()];
         for (var i = 0; i < chars.length; i++) {
             var c = string.charAt(i);
@@ -43,7 +41,6 @@ public final class LuaValues {
      * @param value The value to extract the type for.
      * @return This value's numeric type.
      */
-    @Nonnull
     public static String getNumericType(double value) {
         if (Double.isNaN(value)) return "nan";
         if (value == Double.POSITIVE_INFINITY) return "inf";
@@ -58,7 +55,6 @@ public final class LuaValues {
      * @return A string representation of the given value's type, in a similar format to that provided by Lua's
      * {@code type} function.
      */
-    @Nonnull
     public static String getType(@Nullable Object value) {
         if (value == null) return "nil";
         if (value instanceof String) return "string";
@@ -76,8 +72,7 @@ public final class LuaValues {
      * @param actual   The actual value provided for this argument.
      * @return The constructed exception, which should be thrown immediately.
      */
-    @Nonnull
-    public static LuaException badArgumentOf(int index, @Nonnull String expected, @Nullable Object actual) {
+    public static LuaException badArgumentOf(int index, String expected, @Nullable Object actual) {
         return badArgument(index, expected, getType(actual));
     }
 
@@ -89,8 +84,7 @@ public final class LuaValues {
      * @param actual   The provided type for this argument.
      * @return The constructed exception, which should be thrown immediately.
      */
-    @Nonnull
-    public static LuaException badArgument(int index, @Nonnull String expected, @Nonnull String actual) {
+    public static LuaException badArgument(int index, String expected, String actual) {
         return new LuaException("bad argument #" + (index + 1) + " (" + expected + " expected, got " + actual + ")");
     }
 
@@ -102,8 +96,7 @@ public final class LuaValues {
      * @param actual   The provided type for this table item.
      * @return The constructed exception, which should be thrown immediately.
      */
-    @Nonnull
-    public static LuaException badTableItem(int index, @Nonnull String expected, @Nonnull String actual) {
+    public static LuaException badTableItem(int index, String expected, String actual) {
         return new LuaException("table item #" + index + " is not " + expected + " (got " + actual + ")");
     }
 
@@ -115,8 +108,7 @@ public final class LuaValues {
      * @param actual   The provided type for this table item.
      * @return The constructed exception, which should be thrown immediately.
      */
-    @Nonnull
-    public static LuaException badField(String key, @Nonnull String expected, @Nonnull String actual) {
+    public static LuaException badField(String key, String expected, String actual) {
         return new LuaException("field " + key + " is not " + expected + " (got " + actual + ")");
     }
 

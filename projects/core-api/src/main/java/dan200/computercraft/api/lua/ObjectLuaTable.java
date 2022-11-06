@@ -5,7 +5,7 @@
  */
 package dan200.computercraft.api.lua;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -41,24 +41,22 @@ public class ObjectLuaTable implements LuaTable<Object, Object> {
         return map.containsKey(o);
     }
 
+    @Nullable
     @Override
     public Object get(Object o) {
         return map.get(o);
     }
 
-    @Nonnull
     @Override
     public Set<Object> keySet() {
         return map.keySet();
     }
 
-    @Nonnull
     @Override
     public Collection<Object> values() {
         return map.values();
     }
 
-    @Nonnull
     @Override
     public Set<Entry<Object, Object>> entrySet() {
         return map.entrySet();

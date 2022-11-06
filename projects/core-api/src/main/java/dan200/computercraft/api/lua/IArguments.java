@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.api.lua;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -123,7 +122,6 @@ public interface IArguments {
      * @return The argument's value.
      * @throws LuaException If the value is not a string.
      */
-    @Nonnull
     default String getString(int index) throws LuaException {
         var value = get(index);
         if (!(value instanceof String string)) throw LuaValues.badArgumentOf(index, "string", value);
@@ -137,7 +135,6 @@ public interface IArguments {
      * @return The argument's value. This is a <em>read only</em> buffer.
      * @throws LuaException If the value is not a string.
      */
-    @Nonnull
     default ByteBuffer getBytes(int index) throws LuaException {
         return LuaValues.encode(getString(index));
     }
@@ -151,7 +148,6 @@ public interface IArguments {
      * @return The argument's value.
      * @throws LuaException If the value is not a string or not a valid option for this enum.
      */
-    @Nonnull
     default <T extends Enum<T>> T getEnum(int index, Class<T> klass) throws LuaException {
         return LuaValues.checkEnum(index, klass, getString(index));
     }
@@ -163,7 +159,6 @@ public interface IArguments {
      * @return The argument's value.
      * @throws LuaException If the value is not a table.
      */
-    @Nonnull
     default Map<?, ?> getTable(int index) throws LuaException {
         var value = get(index);
         if (!(value instanceof Map)) throw LuaValues.badArgumentOf(index, "table", value);
@@ -182,7 +177,6 @@ public interface IArguments {
      * @return The argument's value.
      * @throws LuaException If the value is not a table.
      */
-    @Nonnull
     default LuaTable<?, ?> getTableUnsafe(int index) throws LuaException {
         return new ObjectLuaTable(getTable(index));
     }
@@ -194,7 +188,6 @@ public interface IArguments {
      * @return The argument's value, or {@link Optional#empty()} if not present.
      * @throws LuaException If the value is not a number.
      */
-    @Nonnull
     default Optional<Double> optDouble(int index) throws LuaException {
         var value = get(index);
         if (value == null) return Optional.empty();
@@ -209,7 +202,6 @@ public interface IArguments {
      * @return The argument's value, or {@link Optional#empty()} if not present.
      * @throws LuaException If the value is not a number.
      */
-    @Nonnull
     default Optional<Integer> optInt(int index) throws LuaException {
         return optLong(index).map(Long::intValue);
     }
@@ -289,7 +281,6 @@ public interface IArguments {
      * @return The argument's value.
      * @throws LuaException If the value is not a string or not a valid option for this enum.
      */
-    @Nonnull
     default <T extends Enum<T>> Optional<T> optEnum(int index, Class<T> klass) throws LuaException {
         var str = optString(index);
         return str.isPresent() ? Optional.of(LuaValues.checkEnum(index, klass, str.get())) : Optional.empty();
@@ -321,7 +312,6 @@ public interface IArguments {
      * @return The argument's value, or {@link Optional#empty()} if not present.
      * @throws LuaException If the value is not a table.
      */
-    @Nonnull
     default Optional<LuaTable<?, ?>> optTableUnsafe(int index) throws LuaException {
         var value = get(index);
         if (value == null) return Optional.empty();

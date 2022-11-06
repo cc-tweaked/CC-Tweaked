@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.api.lua;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -23,5 +22,5 @@ public interface ILuaAPIFactory {
      * @return The created API, or {@code null} if one should not be injected.
      */
     @Nullable
-    ILuaAPI create(@Nonnull IComputerSystem computer);
+    ILuaAPI create(IComputerSystem computer);
 }

@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.api.lua;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
@@ -96,7 +95,7 @@ public interface LuaTable<K, V> extends Map<K, V> {
     }
 
     @Override
-    default void putAll(@Nonnull Map<? extends K, ? extends V> map) {
+    default void putAll(Map<? extends K, ? extends V> map) {
         throw new UnsupportedOperationException("Cannot modify LuaTable");
     }
 

@@ -12,7 +12,6 @@ import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.ILuaTask;
 import dan200.computercraft.api.lua.MethodResult;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
@@ -36,7 +35,7 @@ public interface IComputerAccess {
      * @see IMount
      */
     @Nullable
-    default String mount(@Nonnull String desiredLocation, @Nonnull IMount mount) {
+    default String mount(String desiredLocation, IMount mount) {
         return mount(desiredLocation, mount, getAttachmentName());
     }
 
@@ -55,7 +54,7 @@ public interface IComputerAccess {
      * @see IMount
      */
     @Nullable
-    String mount(@Nonnull String desiredLocation, @Nonnull IMount mount, @Nonnull String driveName);
+    String mount(String desiredLocation, IMount mount, String driveName);
 
     /**
      * Mount a mount onto the computer's file system in a writable mode.
@@ -70,7 +69,7 @@ public interface IComputerAccess {
      * @see IMount
      */
     @Nullable
-    default String mountWritable(@Nonnull String desiredLocation, @Nonnull IWritableMount mount) {
+    default String mountWritable(String desiredLocation, IWritableMount mount) {
         return mountWritable(desiredLocation, mount, getAttachmentName());
     }
 
@@ -87,7 +86,7 @@ public interface IComputerAccess {
      * @see #unmount(String)
      * @see IMount
      */
-    String mountWritable(@Nonnull String desiredLocation, @Nonnull IWritableMount mount, @Nonnull String driveName);
+    String mountWritable(String desiredLocation, IWritableMount mount, String driveName);
 
     /**
      * Unmounts a directory previously mounted onto the computers file system by {@link #mount(String, IMount)}
@@ -137,7 +136,7 @@ public interface IComputerAccess {
      * @throws NotAttachedException If the peripheral has been detached.
      * @see MethodResult#pullEvent(String, ILuaCallback)
      */
-    void queueEvent(@Nonnull String event, @Nullable Object... arguments);
+    void queueEvent(String event, @Nullable Object... arguments);
 
     /**
      * Get a string, unique to the computer, by which the computer refers to this peripheral.
@@ -149,7 +148,6 @@ public interface IComputerAccess {
      * @return A string unique to the computer, but not globally.
      * @throws NotAttachedException If the peripheral has been detached.
      */
-    @Nonnull
     String getAttachmentName();
 
     /**
@@ -162,7 +160,6 @@ public interface IComputerAccess {
      * @see #getAttachmentName()
      * @see #getAvailablePeripheral(String)
      */
-    @Nonnull
     Map<String, IPeripheral> getAvailablePeripherals();
 
     /**
@@ -174,7 +171,7 @@ public interface IComputerAccess {
      * @see #getAvailablePeripherals()
      */
     @Nullable
-    IPeripheral getAvailablePeripheral(@Nonnull String name);
+    IPeripheral getAvailablePeripheral(String name);
 
     /**
      * Get a {@link IWorkMonitor} for tasks your peripheral might execute on the main (server) thread.
@@ -190,6 +187,5 @@ public interface IComputerAccess {
      * @return The work monitor for the main thread, or {@code null} if this computer does not have one.
      * @throws NotAttachedException If the peripheral has been detached.
      */
-    @Nonnull
     IWorkMonitor getMainThreadMonitor();
 }

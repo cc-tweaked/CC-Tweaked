@@ -7,8 +7,6 @@ package dan200.computercraft.api.peripheral;
 
 import dan200.computercraft.api.lua.GenericSource;
 
-import javax.annotation.Nonnull;
-
 /**
  * A {@link GenericSource} which provides methods for a peripheral.
  * <p>
@@ -34,7 +32,6 @@ public interface GenericPeripheral extends GenericSource {
      * @return The type of this peripheral or {@link PeripheralType#untyped()}.
      * @see IPeripheral#getType()
      */
-    @Nonnull
     default PeripheralType getType() {
         return PeripheralType.untyped();
     }

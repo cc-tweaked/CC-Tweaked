@@ -9,6 +9,7 @@ repositories {
 }
 
 dependencies {
+    implementation(libs.errorProne.plugin)
     implementation(libs.kotlin.plugin)
     implementation(libs.spotless)
 }

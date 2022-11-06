@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.api.lua;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 
 final class TaskCallback implements ILuaCallback {
@@ -16,7 +15,6 @@ final class TaskCallback implements ILuaCallback {
         this.task = task;
     }
 
-    @Nonnull
     @Override
     public MethodResult resume(Object[] response) throws LuaException {
         if (response.length < 3 || !(response[1] instanceof Number) || !(response[2] instanceof Boolean)) {

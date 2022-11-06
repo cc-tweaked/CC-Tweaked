@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.api.filesystem;
 
+import javax.annotation.Nullable;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
@@ -48,6 +49,7 @@ record FileAttributes(boolean isDirectory, long size) implements BasicFileAttrib
         return false;
     }
 
+    @Nullable
     @Override
     public Object fileKey() {
         return null;

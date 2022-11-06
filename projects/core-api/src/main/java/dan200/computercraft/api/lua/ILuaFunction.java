@@ -5,8 +5,6 @@
  */
 package dan200.computercraft.api.lua;
 
-import javax.annotation.Nonnull;
-
 /**
  * A function, which can be called from Lua. If you need to return a table of functions, it is recommended to use
  * an object with {@link LuaFunction} methods, or implement {@link IDynamicLuaObject}.
@@ -23,6 +21,5 @@ public interface ILuaFunction {
      * @return The result of calling this function.
      * @throws LuaException Upon Lua errors.
      */
-    @Nonnull
-    MethodResult call(@Nonnull IArguments arguments) throws LuaException;
+    MethodResult call(IArguments arguments) throws LuaException;
 }

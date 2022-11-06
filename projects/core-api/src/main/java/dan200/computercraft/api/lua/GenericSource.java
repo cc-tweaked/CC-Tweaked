@@ -9,8 +9,6 @@ import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
-
 /**
  * A generic source of {@link LuaFunction} functions.
  * <p>
@@ -51,6 +49,5 @@ public interface GenericSource {
      *
      * @return This source's identifier.
      */
-    @Nonnull
     ResourceLocation id();
 }

@@ -17,7 +17,10 @@
     <module name="TreeWalker">
         <!-- Annotations -->
         <module name="AnnotationLocation" />
-        <module name="AnnotationUseStyle" />
+        <module name="AnnotationUseStyle">
+            <!-- We want trailing commas on multiline arrays. -->
+            <property name="trailingArrayComma" value="ignore" />
+        </module>
         <module name="MissingDeprecated" />
         <module name="MissingOverride" />
 
