@@ -32,7 +32,7 @@ import java.util.*;
 import static dan200.computercraft.api.lua.LuaValues.checkFinite;
 
 /**
- * The speaker peirpheral allow your computer to play notes and other sounds.
+ * The speaker peripheral allows your computer to play notes and other sounds.
  * <p>
  * The speaker can play three kinds of sound, in increasing orders of complexity:
  * - {@link #playNote} allows you to play noteblock note.
