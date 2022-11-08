@@ -8,7 +8,6 @@ package dan200.computercraft.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.pocket.ClientPocketComputers;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.core.util.Colour;
@@ -16,10 +15,6 @@ import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import static dan200.computercraft.client.render.ComputerBorderRenderer.*;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
@@ -28,23 +23,10 @@ import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FON
 /**
  * Emulates map rendering for pocket computers.
  */
-@Mod.EventBusSubscriber(modid = ComputerCraft.MOD_ID, value = Dist.CLIENT)
 public final class ItemPocketRenderer extends ItemMapLikeRenderer {
-    private static final ItemPocketRenderer INSTANCE = new ItemPocketRenderer();
+    public static final ItemPocketRenderer INSTANCE = new ItemPocketRenderer();
 
     private ItemPocketRenderer() {
-    }
-
-    @SubscribeEvent
-    public static void onRenderInHand(RenderHandEvent event) {
-        var stack = event.getItemStack();
-        if (!(stack.getItem() instanceof ItemPocketComputer)) return;
-
-        event.setCanceled(true);
-        INSTANCE.renderItemFirstPerson(
-            event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(),
-            event.getHand(), event.getInterpolatedPitch(), event.getEquipProgress(), event.getSwingProgress(), event.getItemStack()
-        );
     }
 
     @Override

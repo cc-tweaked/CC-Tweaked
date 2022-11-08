@@ -10,15 +10,12 @@ import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.network.client.MonitorClientMessage;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.level.ChunkWatchEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-@Mod.EventBusSubscriber(modid = ComputerCraft.MOD_ID)
 public final class MonitorWatcher {
     private static final Queue<TileMonitor> watching = new ArrayDeque<>();
 
@@ -33,26 +30,22 @@ public final class MonitorWatcher {
         watching.add(monitor);
     }
 
-    @SubscribeEvent
-    public static void onWatch(ChunkWatchEvent.Watch event) {
+    public static void onWatch(LevelChunk chunk, ServerPlayer player) {
         // Find all origin monitors who are not already on the queue and send the
         // monitor data to the player.
-        for (var te : event.getChunk().getBlockEntities().values()) {
+        for (var te : chunk.getBlockEntities().values()) {
             if (!(te instanceof TileMonitor monitor)) continue;
 
             var serverMonitor = getMonitor(monitor);
             if (serverMonitor == null || monitor.enqueued) continue;
 
             var state = getState(monitor, serverMonitor);
-            PlatformHelper.get().sendToPlayer(new MonitorClientMessage(monitor.getBlockPos(), state), event.getPlayer());
+            PlatformHelper.get().sendToPlayer(new MonitorClientMessage(monitor.getBlockPos(), state), player);
         }
     }
 
-    @SubscribeEvent
-    public static void onTick(TickEvent.ServerTickEvent event) {
+    public static void onTick() {
         // Find all enqueued monitors and send their contents to all nearby players.
-
-        if (event.phase != TickEvent.Phase.END) return;
 
         var limit = ComputerCraft.monitorBandwidth;
         var obeyLimit = limit > 0;

@@ -5,17 +5,16 @@
  */
 package dan200.computercraft.client.render;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
+import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Direction;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderHighlightEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.EnumSet;
 
@@ -25,23 +24,19 @@ import static net.minecraft.core.Direction.*;
  * Overrides monitor highlighting to only render the outline of the <em>whole</em> monitor, rather than the current
  * block. This means you do not get an intrusive outline on top of the screen.
  */
-@Mod.EventBusSubscriber(modid = ComputerCraft.MOD_ID, value = Dist.CLIENT)
 public final class MonitorHighlightRenderer {
     private MonitorHighlightRenderer() {
     }
 
-    @SubscribeEvent
-    public static void drawHighlight(RenderHighlightEvent.Block event) {
+    public static boolean drawHighlight(PoseStack transformStack, MultiBufferSource bufferSource, Camera camera, BlockHitResult hit) {
         // Preserve normal behaviour when crouching.
-        if (event.getCamera().getEntity().isCrouching()) return;
+        if (camera.getEntity().isCrouching()) return false;
 
-        var world = event.getCamera().getEntity().getCommandSenderWorld();
-        var pos = event.getTarget().getBlockPos();
+        var world = camera.getEntity().getCommandSenderWorld();
+        var pos = hit.getBlockPos();
 
         var tile = world.getBlockEntity(pos);
-        if (!(tile instanceof TileMonitor monitor)) return;
-
-        event.setCanceled(true);
+        if (!(tile instanceof TileMonitor monitor)) return false;
 
         // Determine which sides are part of the external faces of the monitor, and so which need to be rendered.
         var faces = EnumSet.allOf(Direction.class);
@@ -52,13 +47,12 @@ public final class MonitorHighlightRenderer {
         if (monitor.getYIndex() != 0) faces.remove(monitor.getDown().getOpposite());
         if (monitor.getYIndex() != monitor.getHeight() - 1) faces.remove(monitor.getDown());
 
-        var transformStack = event.getPoseStack();
-        var cameraPos = event.getCamera().getPosition();
+        var cameraPos = camera.getPosition();
         transformStack.pushPose();
         transformStack.translate(pos.getX() - cameraPos.x(), pos.getY() - cameraPos.y(), pos.getZ() - cameraPos.z());
 
         // I wish I could think of a better way to do this
-        var buffer = event.getMultiBufferSource().getBuffer(RenderType.lines());
+        var buffer = bufferSource.getBuffer(RenderType.lines());
         var transform = transformStack.last().pose();
         var normal = transformStack.last().normal();
         if (faces.contains(NORTH) || faces.contains(WEST)) line(buffer, transform, normal, 0, 0, 0, UP);
@@ -75,6 +69,7 @@ public final class MonitorHighlightRenderer {
         if (faces.contains(EAST) || faces.contains(UP)) line(buffer, transform, normal, 1, 1, 0, SOUTH);
 
         transformStack.popPose();
+        return true;
     }
 
     private static void line(VertexConsumer buffer, Matrix4f transform, Matrix3f normal, float x, float y, float z, Direction direction) {

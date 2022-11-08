@@ -30,7 +30,7 @@ public abstract class ItemMapLikeRenderer {
      */
     protected abstract void renderItem(PoseStack transform, MultiBufferSource render, ItemStack stack, int light);
 
-    protected void renderItemFirstPerson(PoseStack transform, MultiBufferSource render, int lightTexture, InteractionHand hand, float pitch, float equipProgress, float swingProgress, ItemStack stack) {
+    public void renderItemFirstPerson(PoseStack transform, MultiBufferSource render, int lightTexture, InteractionHand hand, float pitch, float equipProgress, float swingProgress, ItemStack stack) {
         Player player = Minecraft.getInstance().player;
 
         transform.pushPose();

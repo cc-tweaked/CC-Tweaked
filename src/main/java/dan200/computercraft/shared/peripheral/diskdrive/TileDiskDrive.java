@@ -12,13 +12,15 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.MediaProviders;
 import dan200.computercraft.shared.common.TileGeneric;
+import dan200.computercraft.shared.network.client.PlayRecordClientMessage;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.DefaultInventory;
 import dan200.computercraft.shared.util.InventoryUtil;
-import dan200.computercraft.shared.util.RecordUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -29,6 +31,7 @@ import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -408,14 +411,18 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         var contents = getDiskMedia();
         var record = contents != null ? contents.getAudio(diskStack) : null;
         if (record != null) {
-            RecordUtil.playRecord(record, contents.getAudioTitle(diskStack), getLevel(), getBlockPos());
+            playRecord(new PlayRecordClientMessage(getBlockPos(), record, contents.getAudioTitle(diskStack)));
         } else {
-            RecordUtil.playRecord(null, null, getLevel(), getBlockPos());
+            stopRecord();
         }
     }
 
     private void stopRecord() {
-        RecordUtil.playRecord(null, null, getLevel(), getBlockPos());
+        playRecord(new PlayRecordClientMessage(getBlockPos()));
+    }
+
+    private void playRecord(PlayRecordClientMessage message) {
+        PlatformHelper.get().sendToAllAround(message, (ServerLevel) getLevel(), Vec3.atCenterOf(getBlockPos()), 64);
     }
 
     @Override

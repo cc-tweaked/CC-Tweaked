@@ -5,18 +5,22 @@
  */
 package dan200.computercraft.client.sound;
 
+import com.mojang.blaze3d.audio.Channel;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPeripheral;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.sounds.AudioStream;
+import net.minecraft.client.sounds.SoundEngine;
 import org.lwjgl.BufferUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.concurrent.Executor;
 
 class DfpwmStream implements AudioStream {
     private static final int PREC = 10;
@@ -25,6 +29,23 @@ class DfpwmStream implements AudioStream {
     private static final AudioFormat MONO_8 = new AudioFormat(SpeakerPeripheral.SAMPLE_RATE, 8, 1, true, false);
 
     private final Queue<ByteBuffer> buffers = new ArrayDeque<>(2);
+
+    /**
+     * The {@link Channel} which this sound is playing on.
+     *
+     * @see SpeakerInstance#pushAudio(ByteBuf)
+     */
+    @Nullable
+    Channel channel;
+
+    /**
+     * The underlying {@link SoundEngine} executor.
+     *
+     * @see SpeakerInstance#pushAudio(ByteBuf)
+     * @see SoundEngine#executor
+     */
+    @Nullable
+    Executor executor;
 
     private int charge = 0; // q
     private int strength = 0; // s

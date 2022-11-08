@@ -7,6 +7,7 @@ package dan200.computercraft.shared;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.detail.IDetailProvider;
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
@@ -99,6 +100,12 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+/**
+ * Registers ComputerCraft's registry entries and additional objects, such as {@link CauldronInteraction}s and
+ * {@link IDetailProvider}s
+ * <p>
+ * The functions in this class should be called from a loader-specific class.
+ */
 public final class ModRegistry {
     private static final CreativeModeTab mainItemGroup = new CreativeTabMain();
 
@@ -354,6 +361,9 @@ public final class ModRegistry {
         public static final RegistryEntry<ImpostorShapelessRecipe.Serializer> IMPOSTOR_SHAPELESS = REGISTRY.register("impostor_shapeless", ImpostorShapelessRecipe.Serializer::new);
     }
 
+    /**
+     * Register any objects which don't have to be done on the main thread.
+     */
     public static void register() {
         Blocks.REGISTRY.register();
         BlockEntities.REGISTRY.register();
@@ -379,6 +389,9 @@ public final class ModRegistry {
         VanillaDetailRegistries.BLOCK_IN_WORLD.addProvider(BlockData::fill);
     }
 
+    /**
+     * Register any objects which must be done on the main thread.
+     */
     public static void registerMainThread() {
         CauldronInteraction.WATER.put(ModRegistry.Items.TURTLE_NORMAL.get(), ItemTurtle.CAULDRON_INTERACTION);
         CauldronInteraction.WATER.put(ModRegistry.Items.TURTLE_ADVANCED.get(), ItemTurtle.CAULDRON_INTERACTION);

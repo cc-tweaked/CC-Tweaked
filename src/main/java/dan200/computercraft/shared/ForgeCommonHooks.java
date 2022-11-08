@@ -7,7 +7,9 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.computer.blocks.TileComputer;
+import dan200.computercraft.shared.network.client.UpgradesLoadedMessage;
 import dan200.computercraft.shared.peripheral.commandblock.CommandBlockPeripheral;
 import dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive;
 import dan200.computercraft.shared.peripheral.modem.wired.TileCable;
@@ -16,13 +18,20 @@ import dan200.computercraft.shared.peripheral.modem.wireless.TileWirelessModem;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.peripheral.printer.TilePrinter;
 import dan200.computercraft.shared.peripheral.speaker.TileSpeaker;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.util.CapabilityProvider;
 import dan200.computercraft.shared.util.SidedCapabilityProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.*;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.level.ChunkWatchEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -31,8 +40,54 @@ import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import static dan200.computercraft.shared.Capabilities.CAPABILITY_PERIPHERAL;
 import static net.minecraftforge.common.capabilities.ForgeCapabilities.ITEM_HANDLER;
 
+/**
+ * Forge-specific dispatch for {@link CommonHooks}.
+ */
 @Mod.EventBusSubscriber(modid = ComputerCraftAPI.MOD_ID)
 public class ForgeCommonHooks {
+    @SubscribeEvent
+    public static void onServerTick(TickEvent.ServerTickEvent event) {
+        switch (event.phase) {
+            case START -> CommonHooks.onServerTickStart(event.getServer());
+            case END -> CommonHooks.onServerTickEnd();
+        }
+    }
+
+    @SubscribeEvent
+    public static void onServerStarting(ServerStartingEvent event) {
+        CommonHooks.onServerStarting(event.getServer());
+    }
+
+    @SubscribeEvent
+    public static void onServerStopped(ServerStoppedEvent event) {
+        CommonHooks.onServerStopped();
+    }
+
+    @SubscribeEvent
+    public static void onRegisterCommand(RegisterCommandsEvent event) {
+        CommandComputerCraft.register(event.getDispatcher());
+    }
+
+    @SubscribeEvent
+    public static void onChunkWatch(ChunkWatchEvent.Watch event) {
+        CommonHooks.onChunkWatch(event.getChunk(), event.getPlayer());
+    }
+
+    @SubscribeEvent
+    public static void onAddReloadListeners(AddReloadListenerEvent event) {
+        CommonHooks.onDatapackReload((id, listener) -> event.addListener(listener));
+    }
+
+    @SubscribeEvent
+    public static void onDatapackSync(OnDatapackSyncEvent event) {
+        var packet = new UpgradesLoadedMessage();
+        if (event.getPlayer() == null) {
+            PlatformHelper.get().sendToAllPlayers(packet, event.getPlayerList().getServer());
+        } else {
+            PlatformHelper.get().sendToPlayer(packet, event.getPlayer());
+        }
+    }
+
     private static final ResourceLocation PERIPHERAL = new ResourceLocation(ComputerCraftAPI.MOD_ID, "peripheral");
     private static final ResourceLocation WIRED_ELEMENT = new ResourceLocation(ComputerCraftAPI.MOD_ID, "wired_node");
     private static final ResourceLocation INVENTORY = new ResourceLocation(ComputerCraftAPI.MOD_ID, "inventory");
@@ -82,5 +137,21 @@ public class ForgeCommonHooks {
         } else if (ComputerCraft.enableCommandBlock && blockEntity instanceof CommandBlockEntity commandBlock) {
             CapabilityProvider.attach(event, PERIPHERAL, CAPABILITY_PERIPHERAL, () -> new CommandBlockPeripheral(commandBlock));
         }
+    }
+
+    @SubscribeEvent
+    public static void lootLoad(LootTableLoadEvent event) {
+        var pool = CommonHooks.getExtraLootPool(event.getName());
+        if (pool != null) event.getTable().addPool(pool.build());
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onEntitySpawn(EntityJoinLevelEvent event) {
+        if (CommonHooks.onEntitySpawn(event.getEntity())) event.setCanceled(true);
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOW)
+    public static void onLivingDrops(LivingDropsEvent event) {
+        event.getDrops().removeIf(itemEntity -> CommonHooks.onLivingDrop(event.getEntity(), itemEntity.getItem()));
     }
 }

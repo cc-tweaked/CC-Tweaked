@@ -6,16 +6,10 @@
 package dan200.computercraft.shared.util;
 
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 /**
  * A monotonically increasing clock which accounts for the game being paused.
  */
-@Mod.EventBusSubscriber(Dist.CLIENT)
 public final class PauseAwareTimer {
     private static boolean paused;
     private static long pauseTime;
@@ -28,11 +22,7 @@ public final class PauseAwareTimer {
         return (paused ? pauseTime : Util.getNanos()) - pauseOffset;
     }
 
-    @SubscribeEvent
-    public static void tick(TickEvent.RenderTickEvent event) {
-        if (event.phase != TickEvent.Phase.START) return;
-
-        var isPaused = Minecraft.getInstance().isPaused();
+    public static void tick(boolean isPaused) {
         if (isPaused == paused) return;
 
         if (isPaused) {

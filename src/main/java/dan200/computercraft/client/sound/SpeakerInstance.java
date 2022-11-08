@@ -6,6 +6,7 @@
 package dan200.computercraft.client.sound;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -32,9 +33,11 @@ public class SpeakerInstance {
         currentStream.push(buffer);
 
         // If we've got nothing left in the buffer, enqueue an additional one just in case.
-        if (exhausted && sound != null && sound.stream == stream && sound.channel != null) {
-            sound.executor.execute(() -> {
-                if (!sound.channel.stopped()) sound.channel.pumpBuffers(1);
+        if (exhausted && sound != null && sound.stream == stream && stream.channel != null && stream.executor != null) {
+            var actualStream = sound.stream;
+            stream.executor.execute(() -> {
+                var channel = Nullability.assertNonNull(actualStream.channel);
+                if (!channel.stopped()) channel.pumpBuffers(1);
             });
         }
     }

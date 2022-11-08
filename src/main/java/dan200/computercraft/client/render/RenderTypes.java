@@ -14,15 +14,13 @@ import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterShadersEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraft.server.packs.resources.ResourceManager;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
-@Mod.EventBusSubscriber(modid = ComputerCraft.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class RenderTypes {
     public static final int FULL_BRIGHT_LIGHTMAP = (0xF << 4) | (0xF << 20);
 
@@ -62,11 +60,10 @@ public class RenderTypes {
         return GameRenderer.getRendertypeTextShader();
     }
 
-    @SubscribeEvent
-    public static void registerShaders(RegisterShadersEvent event) throws IOException {
-        event.registerShader(
+    public static void registerShaders(ResourceManager resources, BiConsumer<ShaderInstance, Consumer<ShaderInstance>> load) throws IOException {
+        load.accept(
             new MonitorTextureBufferShader(
-                event.getResourceManager(),
+                resources,
                 new ResourceLocation(ComputerCraft.MOD_ID, "monitor_tbo"),
                 MONITOR_TBO.format()
             ),

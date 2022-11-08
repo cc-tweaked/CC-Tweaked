@@ -5,14 +5,10 @@
  */
 package dan200.computercraft.shared.util;
 
-import dan200.computercraft.ComputerCraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -23,7 +19,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>
  * We use this when modems and other peripherals change a block in a different thread.
  */
-@Mod.EventBusSubscriber(modid = ComputerCraft.MOD_ID)
 public final class TickScheduler {
     private TickScheduler() {
     }
@@ -35,10 +30,7 @@ public final class TickScheduler {
         if (world != null && !world.isClientSide && !token.scheduled.getAndSet(true)) toTick.add(token);
     }
 
-    @SubscribeEvent
-    public static void tick(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.START) return;
-
+    public static void tick() {
         Token token;
         while ((token = toTick.poll()) != null) {
             token.scheduled.set(false);

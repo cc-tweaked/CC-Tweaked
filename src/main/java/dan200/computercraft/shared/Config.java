@@ -14,11 +14,8 @@ import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.filter.MarkerFilter;
@@ -28,7 +25,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-@Mod.EventBusSubscriber(modid = ComputerCraft.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class Config {
     private static final int MODEM_MAX_RANGE = 100000;
 
@@ -422,19 +418,9 @@ public final class Config {
         ComputerCraft.uploadNagDelay = uploadNagDelay.get();
     }
 
-    private static void sync(ModConfig config) {
+    public static void sync(ModConfig config) {
         if (!config.getModId().equals(ComputerCraft.MOD_ID)) return;
         if (config.getType() == ModConfig.Type.SERVER) syncServer();
         if (config.getType() == ModConfig.Type.CLIENT) syncClient();
-    }
-
-    @SubscribeEvent
-    public static void sync(ModConfigEvent.Loading event) {
-        sync(event.getConfig());
-    }
-
-    @SubscribeEvent
-    public static void sync(ModConfigEvent.Reloading event) {
-        sync(event.getConfig());
     }
 }

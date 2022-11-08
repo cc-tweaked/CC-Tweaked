@@ -24,6 +24,7 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.NewRegistryEvent;
 import net.minecraftforge.registries.RegistryBuilder;
@@ -113,4 +114,13 @@ public final class ComputerCraft {
         ForgeDetailRegistries.FLUID_STACK.addProvider(FluidData::fill);
     }
 
+    @SubscribeEvent
+    public static void sync(ModConfigEvent.Loading event) {
+        Config.sync(event.getConfig());
+    }
+
+    @SubscribeEvent
+    public static void sync(ModConfigEvent.Reloading event) {
+        Config.sync(event.getConfig());
+    }
 }

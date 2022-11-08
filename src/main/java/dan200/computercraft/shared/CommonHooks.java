@@ -7,57 +7,52 @@ package dan200.computercraft.shared;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.apis.http.NetworkUtils;
-import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.computer.core.ResourceMount;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.computer.metrics.ComputerMBean;
-import dan200.computercraft.shared.network.client.UpgradesLoadedMessage;
 import dan200.computercraft.shared.peripheral.modem.wireless.WirelessNetwork;
-import dan200.computercraft.shared.platform.PlatformHelper;
+import dan200.computercraft.shared.peripheral.monitor.MonitorWatcher;
+import dan200.computercraft.shared.util.DropConsumer;
+import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootTableReference;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraftforge.event.*;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.event.server.ServerStoppedEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.server.ServerLifecycleHooks;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 /**
- * Miscellaneous hooks which are present on the client and server.
+ * Event listeners for server/common code.
  * <p>
- * These should possibly be refactored into separate classes at some point, but are fine here for now.
- *
- * @see dan200.computercraft.client.ClientHooks For client-specific ones.
+ * All event handlers should be defined in this class, and then invoked from a loader-specific event handler. This means
+ * it's much easier to ensure that each hook is called in all loader source sets.
  */
-@Mod.EventBusSubscriber(modid = ComputerCraft.MOD_ID)
 public final class CommonHooks {
     private CommonHooks() {
     }
 
-    @SubscribeEvent
-    public static void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
-            ServerContext.get(ServerLifecycleHooks.getCurrentServer()).tick();
-        }
+    public static void onServerTickStart(MinecraftServer server) {
+        ServerContext.get(server).tick();
+        TickScheduler.tick();
     }
 
-    @SubscribeEvent
-    public static void onRegisterCommand(RegisterCommandsEvent event) {
-        CommandComputerCraft.register(event.getDispatcher());
+    public static void onServerTickEnd() {
+        MonitorWatcher.onTick();
     }
 
-    @SubscribeEvent
-    public static void onServerStarting(ServerStartingEvent event) {
-        var server = event.getServer();
+    public static void onServerStarting(MinecraftServer server) {
         if (server instanceof DedicatedServer dediServer && dediServer.getProperties().enableJmxMonitoring) {
             ComputerMBean.register();
         }
@@ -67,8 +62,7 @@ public final class CommonHooks {
         ComputerMBean.start(server);
     }
 
-    @SubscribeEvent
-    public static void onServerStopped(ServerStoppedEvent event) {
+    public static void onServerStopped() {
         resetState();
     }
 
@@ -76,6 +70,10 @@ public final class CommonHooks {
         ServerContext.close();
         WirelessNetwork.resetNetworks();
         NetworkUtils.reset();
+    }
+
+    public static void onChunkWatch(LevelChunk chunk, ServerPlayer player) {
+        MonitorWatcher.onWatch(chunk, player);
     }
 
     public static final ResourceLocation LOOT_TREASURE_DISK = new ResourceLocation(ComputerCraft.MOD_ID, "treasure_disk");
@@ -93,32 +91,26 @@ public final class CommonHooks {
         BuiltInLootTables.VILLAGE_CARTOGRAPHER
     ));
 
-    @SubscribeEvent
-    public static void lootLoad(LootTableLoadEvent event) {
-        var name = event.getName();
-        if (!name.getNamespace().equals("minecraft") || !TABLES.contains(name)) return;
 
-        event.getTable().addPool(LootPool.lootPool()
+    public static @Nullable LootPool.Builder getExtraLootPool(ResourceLocation lootTable) {
+        if (!lootTable.getNamespace().equals("minecraft") || !TABLES.contains(lootTable)) return null;
+
+        return LootPool.lootPool()
             .add(LootTableReference.lootTableReference(LOOT_TREASURE_DISK))
-            .setRolls(ConstantValue.exactly(1))
-            .name("computercraft_treasure")
-            .build());
+            .setRolls(ConstantValue.exactly(1));
     }
 
-    @SubscribeEvent
-    public static void onAddReloadListeners(AddReloadListenerEvent event) {
-        event.addListener(ResourceMount.RELOAD_LISTENER);
-        event.addListener(TurtleUpgrades.instance());
-        event.addListener(PocketUpgrades.instance());
+    public static void onDatapackReload(BiConsumer<String, PreparableReloadListener> addReload) {
+        addReload.accept("mounts", ResourceMount.RELOAD_LISTENER);
+        addReload.accept("turtle_upgrades", TurtleUpgrades.instance());
+        addReload.accept("pocket_upgrades", PocketUpgrades.instance());
     }
 
-    @SubscribeEvent
-    public static void onDatapackSync(OnDatapackSyncEvent event) {
-        var packet = new UpgradesLoadedMessage();
-        if (event.getPlayer() == null) {
-            PlatformHelper.get().sendToAllPlayers(packet, event.getPlayerList().getServer());
-        } else {
-            PlatformHelper.get().sendToPlayer(packet, event.getPlayer());
-        }
+    public static boolean onEntitySpawn(Entity entity) {
+        return DropConsumer.onEntitySpawn(entity);
+    }
+
+    public static boolean onLivingDrop(Entity entity, ItemStack stack) {
+        return DropConsumer.onLivingDrop(entity, stack);
     }
 }

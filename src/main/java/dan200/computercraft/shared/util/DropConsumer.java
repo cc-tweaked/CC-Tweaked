@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.util;
 
-import dan200.computercraft.ComputerCraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -13,17 +12,11 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.event.entity.living.LivingDropsEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-@Mod.EventBusSubscriber(modid = ComputerCraft.MOD_ID)
 public final class DropConsumer {
     private DropConsumer() {
     }
@@ -72,22 +65,21 @@ public final class DropConsumer {
         if (!remaining.isEmpty()) remainingDrops.add(remaining);
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onEntitySpawn(EntityJoinLevelEvent event) {
+    public static boolean onEntitySpawn(Entity entity) {
         // Capture any nearby item spawns
-        if (dropWorld == event.getLevel() && event.getEntity() instanceof ItemEntity
-            && dropBounds.contains(event.getEntity().position())) {
-            handleDrops(((ItemEntity) event.getEntity()).getItem());
-            event.setCanceled(true);
+        if (dropWorld == entity.getLevel() && entity instanceof ItemEntity
+            && dropBounds.contains(entity.position())) {
+            handleDrops(((ItemEntity) entity).getItem());
+            return true;
         }
+
+        return false;
     }
 
-    @SubscribeEvent(priority = EventPriority.LOW)
-    public static void onLivingDrops(LivingDropsEvent drops) {
-        if (dropEntity == null || drops.getEntity() != dropEntity) return;
+    public static boolean onLivingDrop(Entity entity, ItemStack stack) {
+        if (dropEntity == null || entity != dropEntity) return false;
 
-        for (var drop : drops.getDrops()) handleDrops(drop.getItem());
-        drops.getDrops().clear();
-        drops.setCanceled(true);
+        handleDrops(stack);
+        return true;
     }
 }

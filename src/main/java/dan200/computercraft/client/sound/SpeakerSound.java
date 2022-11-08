@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.client.sound;
 
-import com.mojang.blaze3d.audio.Channel;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.client.resources.sounds.AbstractSoundInstance;
 import net.minecraft.client.resources.sounds.Sound;
@@ -19,11 +18,8 @@ import net.minecraft.world.entity.Entity;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 
 public class SpeakerSound extends AbstractSoundInstance implements TickableSoundInstance {
-    Channel channel;
-    Executor executor;
     DfpwmStream stream;
 
     private Entity entity;
@@ -68,5 +64,9 @@ public class SpeakerSound extends AbstractSoundInstance implements TickableSound
     @Override
     public CompletableFuture<AudioStream> getStream(@Nonnull SoundBufferLibrary soundBuffers, @Nonnull Sound sound, boolean looping) {
         return stream != null ? CompletableFuture.completedFuture(stream) : super.getStream(soundBuffers, sound, looping);
+    }
+
+    public AudioStream getStream() {
+        return stream;
     }
 }
