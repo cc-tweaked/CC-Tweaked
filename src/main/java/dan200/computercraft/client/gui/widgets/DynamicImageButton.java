@@ -11,11 +11,11 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 /**
  * Version of {@link net.minecraft.client.gui.components.ImageButton} which allows changing some properties
@@ -29,7 +29,7 @@ public class DynamicImageButton extends Button {
     private final int yDiffTex;
     private final int textureWidth;
     private final int textureHeight;
-    private final NonNullSupplier<List<Component>> tooltip;
+    private final Supplier<List<Component>> tooltip;
 
     public DynamicImageButton(
         Screen screen, int x, int y, int width, int height, int xTexStart, int yTexStart, int yDiffTex,
@@ -47,7 +47,7 @@ public class DynamicImageButton extends Button {
     public DynamicImageButton(
         Screen screen, int x, int y, int width, int height, IntSupplier xTexStart, int yTexStart, int yDiffTex,
         ResourceLocation texture, int textureWidth, int textureHeight,
-        OnPress onPress, NonNullSupplier<List<Component>> tooltip
+        OnPress onPress, Supplier<List<Component>> tooltip
     ) {
         super(x, y, width, height, Component.empty(), onPress);
         this.screen = screen;

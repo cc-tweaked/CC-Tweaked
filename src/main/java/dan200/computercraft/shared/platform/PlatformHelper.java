@@ -5,10 +5,13 @@
  */
 package dan200.computercraft.shared.platform;
 
+import dan200.computercraft.api.network.wired.IWiredElement;
+import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
@@ -20,6 +23,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -30,6 +34,7 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -146,4 +151,34 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      * @param chunk   The chunk players must be tracking.
      */
     void sendToAllTracking(NetworkMessage<ClientNetworkContext> message, LevelChunk chunk);
+
+    /**
+     * Create a {@link ComponentAccess} for surrounding peripherals.
+     *
+     * @param invalidate The function to call when a neighbouring peripheral potentially changes. This <em>MAY NOT</em>
+     *                   include all changes, and so block updates should still be listened to.
+     * @return The peripheral component access.
+     */
+    ComponentAccess<IPeripheral> createPeripheralAccess(Consumer<Direction> invalidate);
+
+    /**
+     * Create a {@link ComponentAccess} for surrounding wired nodes.
+     *
+     * @param invalidate The function to call when a neighbouring wired node potentially changes. This <em>MAY NOT</em>
+     *                   include all changes, and so block updates should still be listened to.
+     * @return The peripheral component access.
+     */
+    ComponentAccess<IWiredElement> createWiredElementAccess(Consumer<Direction> invalidate);
+
+    /**
+     * Determine if there is a wired element in the given direction. This is equivalent to
+     * {@code createWiredElementAt(x -> {}).get(level, pos, dir) != null}, but is intended for when we don't need the
+     * cache.
+     *
+     * @param level     The current level.
+     * @param pos       The <em>current</em> block's position.
+     * @param direction The direction to check in.
+     * @return Whether there is a wired element in the given direction.
+     */
+    boolean hasWiredElementIn(Level level, BlockPos pos, Direction direction);
 }

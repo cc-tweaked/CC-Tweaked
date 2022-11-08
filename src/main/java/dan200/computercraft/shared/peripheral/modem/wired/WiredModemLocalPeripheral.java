@@ -7,14 +7,15 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.ModRegistry;
-import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.computer.core.ServerContext;
+import dan200.computercraft.shared.platform.ComponentAccess;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,10 +36,10 @@ public final class WiredModemLocalPeripheral {
     private String type;
 
     private IPeripheral peripheral;
-    private final NonNullConsumer<Object> invalidate;
+    private final ComponentAccess<IPeripheral> peripherals;
 
     public WiredModemLocalPeripheral(@Nonnull Runnable invalidate) {
-        this.invalidate = x -> invalidate.run();
+        peripherals = PlatformHelper.get().createPeripheralAccess(x -> invalidate.run());
     }
 
     /**
@@ -126,7 +127,7 @@ public final class WiredModemLocalPeripheral {
         var block = world.getBlockState(offset).getBlock();
         if (block == ModRegistry.Blocks.WIRED_MODEM_FULL.get() || block == ModRegistry.Blocks.CABLE.get()) return null;
 
-        var peripheral = Peripherals.getPeripheral(world, offset, direction.getOpposite(), invalidate);
+        var peripheral = peripherals.get((ServerLevel) world, pos, direction);
         return peripheral instanceof WiredModemPeripheral ? null : peripheral;
     }
 }

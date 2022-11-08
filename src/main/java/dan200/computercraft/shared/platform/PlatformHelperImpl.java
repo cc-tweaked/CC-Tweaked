@@ -7,10 +7,16 @@ package dan200.computercraft.shared.platform;
 
 import com.google.auto.service.AutoService;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.network.wired.IWiredElement;
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.shared.Capabilities;
+import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
+import dan200.computercraft.shared.util.CapabilityUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -24,13 +30,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.extensions.IForgeMenuType;
+import net.minecraftforge.common.util.NonNullConsumer;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.DeferredRegister;
@@ -43,6 +52,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -118,6 +128,24 @@ public class PlatformHelperImpl implements PlatformHelper {
         NetworkHandler.sendToAllTracking(message, chunk);
     }
 
+    @Override
+    public ComponentAccess<IPeripheral> createPeripheralAccess(Consumer<Direction> invalidate) {
+        return new PeripheralAccess(invalidate);
+    }
+
+    @Override
+    public ComponentAccess<IWiredElement> createWiredElementAccess(Consumer<Direction> invalidate) {
+        return new CapabilityAccess<>(Capabilities.CAPABILITY_WIRED_ELEMENT, invalidate);
+    }
+
+    @Override
+    public boolean hasWiredElementIn(Level level, BlockPos pos, Direction direction) {
+        if (!level.isLoaded(pos)) return false;
+
+        var blockEntity = level.getBlockEntity(pos.relative(direction));
+        return blockEntity != null && blockEntity.getCapability(Capabilities.CAPABILITY_WIRED_ELEMENT, direction.getOpposite()).isPresent();
+    }
+
     @Nullable
     @Override
     public CompoundTag getShareTag(ItemStack item) {
@@ -188,6 +216,64 @@ public class PlatformHelperImpl implements PlatformHelper {
         @Override
         public T get() {
             return object.get();
+        }
+    }
+
+    private abstract static class ComponentAccessImpl<T> implements ComponentAccess<T> {
+        private final NonNullConsumer<Object>[] invalidators;
+        private @Nullable Level level;
+        private @Nullable BlockPos pos;
+
+        ComponentAccessImpl(Consumer<Direction> invalidate) {
+            // Generate a cache of invalidation functions so we can guarantee we only ever have one registered per
+            // capability - there's no way to remove these callbacks!
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            var invalidators = this.invalidators = new NonNullConsumer[6];
+            for (var dir : Direction.values()) invalidators[dir.ordinal()] = x -> invalidate.accept(dir);
+        }
+
+        @Nullable
+        protected abstract T get(ServerLevel world, BlockPos pos, Direction side, NonNullConsumer<Object> invalidate);
+
+        @Nullable
+        @Override
+        public T get(ServerLevel level, BlockPos pos, Direction direction) {
+            if (this.level != null && this.level != level) throw new IllegalStateException("Level has changed");
+            if (this.pos != null && this.pos != pos) throw new IllegalStateException("Position has changed");
+
+            this.level = level;
+            this.pos = pos;
+            return get(level, pos.relative(direction), direction.getOpposite(), invalidators[direction.ordinal()]);
+        }
+    }
+
+    private static class PeripheralAccess extends ComponentAccessImpl<IPeripheral> {
+        PeripheralAccess(Consumer<Direction> invalidate) {
+            super(invalidate);
+        }
+
+        @Nullable
+        @Override
+        protected IPeripheral get(ServerLevel world, BlockPos pos, Direction side, NonNullConsumer<Object> invalidate) {
+            return Peripherals.getPeripheral(world, pos, side, invalidate);
+        }
+    }
+
+    private static class CapabilityAccess<T> extends ComponentAccessImpl<T> {
+        private final Capability<T> capability;
+
+        CapabilityAccess(Capability<T> capability, Consumer<Direction> invalidate) {
+            super(invalidate);
+            this.capability = capability;
+        }
+
+        @Nullable
+        @Override
+        protected T get(ServerLevel world, BlockPos pos, Direction side, NonNullConsumer<Object> invalidate) {
+            if (!world.isLoaded(pos)) return null;
+
+            var blockEntity = world.getBlockEntity(pos);
+            return blockEntity != null ? CapabilityUtil.unwrap(blockEntity.getCapability(capability, side), invalidate) : null;
         }
     }
 }

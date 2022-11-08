@@ -6,9 +6,9 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.collect.ImmutableMap;
-import dan200.computercraft.api.ForgeComputerCraftAPI;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.common.BlockGeneric;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.WaterloggableHelpers;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
@@ -76,10 +76,10 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock {
         return state.getValue(BlockCable.CABLE) && state.getValue(BlockCable.MODEM).getFacing() != direction;
     }
 
-    public static boolean doesConnectVisually(BlockState state, BlockGetter world, BlockPos pos, Direction direction) {
+    public static boolean doesConnectVisually(BlockState state, Level level, BlockPos pos, Direction direction) {
         if (!state.getValue(CABLE)) return false;
         if (state.getValue(MODEM).getFacing() == direction) return true;
-        return ForgeComputerCraftAPI.getWiredElementAt(world, pos.relative(direction), direction.getOpposite()).isPresent();
+        return PlatformHelper.get().hasWiredElementIn(level, pos, direction);
     }
 
     @Nonnull
@@ -171,7 +171,7 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock {
             return getFluidState(state).createLegacyBlock();
         }
 
-        return state.setValue(CONNECTIONS.get(side), doesConnectVisually(state, world, pos, side));
+        return world instanceof Level level ? state.setValue(CONNECTIONS.get(side), doesConnectVisually(state, level, pos, side)) : state;
     }
 
     @Override

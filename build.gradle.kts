@@ -111,7 +111,8 @@ minecraft {
             mods.register("cctest") {
                 source(sourceSets["testMod"])
                 source(sourceSets["testFixtures"])
-                // FIXME: We need this for running in-dev but not from Gradle: source(project(":core").sourceSets.testFixtures.get())
+                // FIXME: We need this for running in-dev but not from Gradle:
+                // source(project(":core").sourceSets.testFixtures.get())
             }
         }
 

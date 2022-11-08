@@ -5,25 +5,28 @@
  */
 package dan200.computercraft.shared.computer.blocks;
 
+import com.google.common.base.Strings;
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.shared.BundledRedstone;
-import dan200.computercraft.shared.Peripherals;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ComputerState;
 import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.network.container.ComputerContainerData;
+import dan200.computercraft.shared.platform.ComponentAccess;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.IDAssigner;
 import dan200.computercraft.shared.util.RedstoneUtil;
-import joptsimple.internal.Strings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -32,7 +35,6 @@ import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -51,7 +53,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     private boolean fresh = false;
 
     private int invalidSides = 0;
-    private final NonNullConsumer<Object>[] invalidate;
+    private final ComponentAccess<IPeripheral> peripherals = PlatformHelper.get().createPeripheralAccess(d -> invalidSides |= 1 << d.ordinal());
 
     private LockCode lockCode = LockCode.NO_LOCK;
 
@@ -60,14 +62,6 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
     public TileComputerBase(BlockEntityType<? extends TileGeneric> type, BlockPos pos, BlockState state, ComputerFamily family) {
         super(type, pos, state);
         this.family = family;
-
-        // We cache these so we can guarantee we only ever register one listener for adjacent capabilities.
-        @SuppressWarnings({ "unchecked", "rawtypes" })
-        var invalidate = this.invalidate = new NonNullConsumer[6];
-        for (var direction : Direction.values()) {
-            var mask = 1 << direction.ordinal();
-            invalidate[direction.ordinal()] = o -> invalidSides |= mask;
-        }
     }
 
     protected void unload() {
@@ -231,8 +225,7 @@ public abstract class TileComputerBase extends TileGeneric implements IComputerT
         var localDir = remapToLocalSide(dir);
         if (isPeripheralBlockedOnSide(localDir)) return;
 
-        var offsetSide = dir.getOpposite();
-        var peripheral = Peripherals.getPeripheral(getLevel(), getBlockPos().relative(dir), offsetSide, invalidate[dir.ordinal()]);
+        var peripheral = peripherals.get((ServerLevel) getLevel(), getBlockPos(), dir);
         computer.setPeripheral(localDir, peripheral);
     }
 

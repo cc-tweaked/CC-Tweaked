@@ -6,7 +6,6 @@
 package dan200.computercraft.shared.peripheral.modem.wired;
 
 import com.google.common.base.Objects;
-import dan200.computercraft.api.ForgeComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -14,12 +13,15 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.command.text.ChatHelpers;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
+import dan200.computercraft.shared.platform.ComponentAccess;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.DirectionUtil;
 import dan200.computercraft.shared.util.TickScheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -30,8 +32,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.common.util.NonNullConsumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -99,7 +99,7 @@ public class TileCable extends TileGeneric {
         }
     };
 
-    private final NonNullConsumer<LazyOptional<IWiredElement>> connectedNodeChanged = x -> connectionsChanged();
+    private final ComponentAccess<IWiredElement> connectedElements = PlatformHelper.get().createWiredElementAccess(x -> connectionsChanged());
 
     public TileCable(BlockEntityType<? extends TileCable> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -284,11 +284,10 @@ public class TileCable extends TileGeneric {
             var offset = current.relative(facing);
             if (!world.isLoaded(offset)) continue;
 
-            var element = ForgeComputerCraftAPI.getWiredElementAt(world, offset, facing.getOpposite());
-            if (!element.isPresent()) continue;
+            var element = connectedElements.get((ServerLevel) world, current, facing);
+            if (element == null) continue;
 
-            element.addListener(connectedNodeChanged);
-            var node = element.orElseThrow(NullPointerException::new).getNode();
+            var node = element.getNode();
             if (BlockCable.canConnectIn(state, facing)) {
                 // If we can connect to it then do so
                 this.node.connectTo(node);
