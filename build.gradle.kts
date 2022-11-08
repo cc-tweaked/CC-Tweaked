@@ -1,4 +1,6 @@
 import cc.tweaked.gradle.*
+import groovy.util.Node
+import groovy.util.NodeList
 import net.darkhax.curseforgegradle.TaskPublishCurseForge
 import net.minecraftforge.gradle.common.util.RunConfig
 import org.jetbrains.gradle.ext.compiler
@@ -31,10 +33,6 @@ val mcVersion: String by extra
 val allProjects = listOf(":core-api", ":core", ":forge-api").map { evaluationDependsOn(it) }
 cct {
     allProjects.forEach { externalSources(it) }
-}
-
-java {
-    registerFeature("extraMods") { usingSourceSet(sourceSets.main.get()) }
 }
 
 sourceSets {
@@ -158,10 +156,8 @@ dependencies {
     compileOnly(libs.jetbrainsAnnotations)
     annotationProcessorEverywhere(libs.autoService)
 
-    "extraModsCompileOnly"(fg.deobf("mezz.jei:jei-1.19.2-forge-api:11.3.0.262"))
-    "extraModsCompileOnly"(fg.deobf("mezz.jei:jei-1.19.2-common-api:11.3.0.262"))
-    "extraModsRuntimeOnly"(fg.deobf("mezz.jei:jei-1.19.2-forge:11.3.0.262"))
-    "extraModsCompileOnly"(fg.deobf("maven.modrinth:oculus:1.2.5"))
+    libs.bundles.externalMods.forge.compile.get().map { compileOnly(fg.deobf(it)) }
+    libs.bundles.externalMods.forge.runtime.get().map { runtimeOnly(fg.deobf(it)) }
 
     implementation(project(":core"))
     implementation(commonClasses(project(":forge-api")))
@@ -233,7 +229,7 @@ tasks.shadowJar {
 
     configurations = listOf(project.configurations["shade"])
     relocate("org.squiddev.cobalt", "cc.tweaked.internal.cobalt")
-    relocate("io.netty.handler.codec.http", "cc.tweaked.internal.netty")
+    relocate("io.netty.handler", "cc.tweaked.internal.netty")
     // TODO: minimize(): Would be good to support once our build scripts are stabilised.
 }
 
@@ -334,10 +330,21 @@ githubRelease {
 
 tasks.publish { dependsOn(tasks.githubRelease) }
 
+// Don't publish the slim jar
+for (cfg in listOf(configurations.apiElements, configurations.runtimeElements)) {
+    cfg.configure { artifacts.removeIf { it.classifier == "slim" } }
+}
+
 publishing {
     publications {
         named("maven", MavenPublication::class) {
             fg.component(this)
+            // Remove all dependencies: they're shaded anyway! This is very ugly, but not found a better way :(.
+            pom.withXml {
+                for (node in asNode().get("dependencies") as NodeList) {
+                    asNode().remove(node as Node)
+                }
+            }
         }
     }
 }

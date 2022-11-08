@@ -20,7 +20,7 @@ dependencies {
     compileOnlyApi(libs.checkerFramework)
     compileOnlyApi(libs.jetbrainsAnnotations)
 
-    "docApi"(project(":"))
+    "docApi"(project(":common-api"))
 }
 
 tasks.javadoc {

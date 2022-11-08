@@ -64,11 +64,12 @@ tasks.withType(JavaCompile::class.java).configureEach {
     options.encoding = "UTF-8"
 }
 
-tasks.jar {
-    isReproducibleFileOrder = true
+tasks.withType(AbstractArchiveTask::class.java).configureEach {
     isPreserveFileTimestamps = false
-    archiveClassifier.set("slim")
+    isReproducibleFileOrder = true
+}
 
+tasks.jar {
     manifest {
         attributes(
             "Specification-Title" to "computercraft",

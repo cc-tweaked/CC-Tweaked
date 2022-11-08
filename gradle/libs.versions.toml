@@ -6,6 +6,7 @@ forge = "43.1.1"
 parchment = "2022.10.16"
 parchmentMc = "1.19.2"
 
+# Normal dependencies
 asm = "9.3"
 autoService = "1.0.1"
 checkerFramework = "3.12.0"
@@ -20,6 +21,10 @@ logback = "1.2.11"
 netty = { strictly = "[4.1.77.Final,5.0)", prefer = "4.1.77.Final" }
 nightConfig = "3.6.5"
 slf4j = "1.7.36"
+
+# Minecraft mods
+jei = "11.3.0.262"
+oculus = "1.2.5"
 
 # Testing
 hamcrest = "2.2"
@@ -46,6 +51,7 @@ taskTree = "2.1.0"
 vanillaGradle = "0.2.1-SNAPSHOT"
 
 [libraries]
+# Normal dependencies
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
 autoService = { module = "com.google.auto.service:auto-service", version.ref = "autoService" }
 checkerFramework = { module = "org.checkerframework:checker-qual", version.ref = "checkerFramework" }
@@ -58,6 +64,12 @@ kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", 
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
 netty-http = { module = "io.netty:netty-codec-http", version.ref = "netty" }
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+
+# Minecraft mods
+jei-api = { module = "mezz.jei:jei-1.19.2-common-api", version.ref = "jei" }
+jei-fabric = { module = "mezz.jei:jei-1.19.2-fabric", version.ref = "jei" }
+jei-forge = { module = "mezz.jei:jei-1.19.2-forge", version.ref = "jei" }
+oculus = { module = "maven.modrinth:oculus", version.ref = "oculus" }
 
 # Testing
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
@@ -96,6 +108,11 @@ taskTree = { id = "com.dorongold.task-tree", version.ref = "taskTree" }
 
 [bundles]
 kotlin = ["kotlin-stdlib", "kotlin-coroutines"]
+
+# Minecraft
+externalMods-common = ["jei-api"]
+externalMods-forge-compile = ["oculus", "jei-api"]
+externalMods-forge-runtime = ["jei-forge"]
 
 # Testing
 test = ["junit-jupiter-api", "junit-jupiter-params", "hamcrest", "jqwik-api"]

@@ -15,5 +15,5 @@ rsync -avc -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no -p $SSH_PORT" \
       "$GITHUB_WORKSPACE/projects/web/build/site/" \
       "$SSH_USER@$SSH_HOST:/$DEST"
 rsync -avc -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no -p $SSH_PORT" \
-      "$GITHUB_WORKSPACE/build/docs/javadoc/" \
+      "$GITHUB_WORKSPACE/projects/common-api/build/docs/javadoc/" \
       "$SSH_USER@$SSH_HOST:/$DEST/javadoc"

@@ -34,11 +34,11 @@ import net.minecraft.resources.ResourceLocation;
  *     // ...
  * }
  * }</pre>
+ * <p>
+ * New capabilities or block lookups (those not built into Forge/Fabric) must be explicitly registered using the
+ * loader-specific API.
  *
  * @see dan200.computercraft.api.ComputerCraftAPI#registerGenericSource(GenericSource)
- * @see dan200.computercraft.api.ForgeComputerCraftAPI#registerGenericCapability New capabilities (those not
- * built into Forge) must be explicitly given to the generic peripheral system, as there is no way to enumerate all
- * capabilities.
  */
 public interface GenericSource {
     /**

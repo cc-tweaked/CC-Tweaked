@@ -15,4 +15,7 @@ dependencies {
 
 tasks.javadoc {
     include("dan200/computercraft/api/**/*.java")
+
+    // Include the core-api in our javadoc export. This is wrong, but it means we can export a single javadoc dump.
+    source(project(":core-api").sourceSets.main.map { it.allJava })
 }

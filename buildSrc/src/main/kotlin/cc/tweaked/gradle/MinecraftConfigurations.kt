@@ -95,7 +95,7 @@ class MinecraftConfigurations private constructor(private val project: Project) 
 
         // Configure some tasks to include our additional files.
         project.tasks.named("javadoc", Javadoc::class.java) {
-            source += client.allJava
+            source(client.allJava)
             classpath = main.compileClasspath + main.output + client.compileClasspath + client.output
         }
         // This are already done by Fabric, but we need it for Forge and vanilla. It shouldn't conflict at all.
