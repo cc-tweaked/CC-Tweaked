@@ -10,6 +10,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
+import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -19,7 +20,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
@@ -30,6 +33,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -181,4 +185,35 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      * @return Whether there is a wired element in the given direction.
      */
     boolean hasWiredElementIn(Level level, BlockPos pos, Direction direction);
+
+    /**
+     * Wrap a vanilla Minecraft {@link Container} into a {@link ContainerTransfer}.
+     *
+     * @param container The container to wrap.
+     * @return The container transfer.
+     */
+    ContainerTransfer.Slotted wrapContainer(Container container);
+
+    /**
+     * Get access to a {@link ContainerTransfer} for a given position. This should look up blocks, then fall back to
+     * {@link InventoryUtil#getEntityContainer(ServerLevel, BlockPos, Direction)}
+     *
+     * @param level The current level.
+     * @param pos   The current position.
+     * @param side  The side of the block we're viewing the inventory from. Equivalent to the direction argument for
+     *              {@link WorldlyContainer}.
+     * @return The container, or {@code null} if none exists.
+     */
+    @Nullable
+    ContainerTransfer getContainer(ServerLevel level, BlockPos pos, Direction side);
+
+    /**
+     * Wrap a vanilla Minecraft {@link Container} into Forge's {@link IItemHandlerModifiable}.
+     *
+     * @param container The container to wrap.
+     * @return The item handler.
+     * @deprecated This is only needed for backwards compatibility, and will be removed in 1.19.3.
+     */
+    @Deprecated(forRemoval = true)
+    IItemHandlerModifiable wrapContainerToItemHandler(Container container);
 }

@@ -5,50 +5,32 @@
  */
 package dan200.computercraft.shared.util;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.MapMaker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.ForgeMod;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
+import javax.annotation.Nullable;
+import java.util.function.Predicate;
 
 public final class WorldUtil {
-    @SuppressWarnings("Guava")
     private static final Predicate<Entity> CAN_COLLIDE = x -> x != null && x.isAlive() && x.isPickable();
-
-    private static final Map<Level, Entity> entityCache = new MapMaker().weakKeys().weakValues().makeMap();
-
-    private static synchronized Entity getEntity(Level world) {
-        // TODO: It'd be nice if we could avoid this. Maybe always use the turtle player (if it's available).
-        var entity = entityCache.get(world);
-        if (entity != null) return entity;
-
-        entity = new ItemEntity(EntityType.ITEM, world) {
-            @Nonnull
-            @Override
-            public EntityDimensions getDimensions(@Nonnull Pose pose) {
-                return EntityDimensions.fixed(0, 0);
-            }
-        };
-
-        entity.noPhysics = true;
-        entity.refreshDimensions();
-        entityCache.put(world, entity);
-        return entity;
-    }
 
     public static boolean isLiquidBlock(Level world, BlockPos pos) {
         if (!world.isInWorldBounds(pos)) return false;
@@ -62,66 +44,72 @@ public final class WorldUtil {
         return vec.x >= bb.minX && vec.x <= bb.maxX && vec.y >= bb.minY && vec.y <= bb.maxY && vec.z >= bb.minZ && vec.z <= bb.maxZ;
     }
 
-    public static Pair<Entity, Vec3> rayTraceEntities(Level world, Vec3 vecStart, Vec3 vecDir, double distance) {
-        var vecEnd = vecStart.add(vecDir.x * distance, vecDir.y * distance, vecDir.z * distance);
-
-        // Raycast for blocks
-        var collisionEntity = getEntity(world);
-        collisionEntity.setPos(vecStart.x, vecStart.y, vecStart.z);
-        var context = new ClipContext(vecStart, vecEnd, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, collisionEntity);
-        HitResult result = world.clip(context);
-        if (result != null && result.getType() == HitResult.Type.BLOCK) {
-            distance = vecStart.distanceTo(result.getLocation());
-            vecEnd = vecStart.add(vecDir.x * distance, vecDir.y * distance, vecDir.z * distance);
-        }
-
-        // Check for entities
-        var xStretch = Math.abs(vecDir.x) > 0.25f ? 0.0f : 1.0f;
-        var yStretch = Math.abs(vecDir.y) > 0.25f ? 0.0f : 1.0f;
-        var zStretch = Math.abs(vecDir.z) > 0.25f ? 0.0f : 1.0f;
-        var bigBox = new AABB(
-            Math.min(vecStart.x, vecEnd.x) - 0.375f * xStretch,
-            Math.min(vecStart.y, vecEnd.y) - 0.375f * yStretch,
-            Math.min(vecStart.z, vecEnd.z) - 0.375f * zStretch,
-            Math.max(vecStart.x, vecEnd.x) + 0.375f * xStretch,
-            Math.max(vecStart.y, vecEnd.y) + 0.375f * yStretch,
-            Math.max(vecStart.z, vecEnd.z) + 0.375f * zStretch
-        );
-
-        Entity closest = null;
-        var closestDist = 99.0;
-        var list = world.getEntitiesOfClass(Entity.class, bigBox, CAN_COLLIDE);
-        for (var entity : list) {
-            var littleBox = entity.getBoundingBox();
-            if (littleBox.contains(vecStart)) {
-                closest = entity;
-                closestDist = 0.0f;
-                continue;
-            }
-
-            var littleBoxResult = littleBox.clip(vecStart, vecEnd).orElse(null);
-            if (littleBoxResult != null) {
-                var dist = vecStart.distanceTo(littleBoxResult);
-                if (closest == null || dist <= closestDist) {
-                    closest = entity;
-                    closestDist = dist;
-                }
-            } else if (littleBox.intersects(bigBox)) {
-                if (closest == null) {
-                    closest = entity;
-                    closestDist = distance;
-                }
-            }
-        }
-        if (closest != null && closestDist <= distance) {
-            var closestPos = vecStart.add(vecDir.x * closestDist, vecDir.y * closestDist, vecDir.z * closestDist);
-            return Pair.of(closest, closestPos);
-        }
-        return null;
+    public static HitResult clip(Level world, Vec3 from, Vec3 direction, double distance, @Nullable Entity source) {
+        var to = from.add(direction.x * distance, direction.y * distance, direction.z * distance);
+        return clip(world, from, to, source);
     }
 
-    public static Vec3 getRayStart(LivingEntity entity) {
-        return entity.getEyePosition(1);
+    public static HitResult clip(Level world, Vec3 from, Vec3 to, @Nullable Entity source) {
+        var context = source == null
+            ? new ContextlessClipContext(world, from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE)
+            : new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, source);
+
+        var blockHit = world.clip(context);
+        var distance = blockHit.getType() == HitResult.Type.MISS
+            ? from.distanceToSqr(to) : blockHit.getLocation().distanceToSqr(from);
+        var entityHit = getEntityHitResult(world, from, to, new AABB(from, to).inflate(1), distance, source);
+
+        return entityHit == null ? blockHit : entityHit;
+    }
+
+    /**
+     * Perform a ray trace to the nearest entity. Derived from the various methods in {@link ProjectileUtil}.
+     *
+     * @param level      The current level.
+     * @param from       The start point of the ray trace.
+     * @param to         The end point of the ray trace.
+     * @param bounds     The range the entities should be within.
+     * @param distanceSq The maximum distance an entity can be away from the start vector.
+     * @param source     An optional entity to ignore, which typically will be the entity performing the ray trace.
+     * @return The found entity, or {@code null}.
+     */
+    private static @Nullable EntityHitResult getEntityHitResult(
+        Level level, Vec3 from, Vec3 to, AABB bounds, double distanceSq, @Nullable Entity source
+    ) {
+        // If the distance is empty, we'll never collide anyway!
+        if (distanceSq <= 0) return null;
+
+        var bestDistance = distanceSq;
+        Entity bestEntity = null;
+        Vec3 bestHit = null;
+
+        for (var entity : level.getEntities(source, bounds, WorldUtil.CAN_COLLIDE)) {
+            var aabb = entity.getBoundingBox().inflate(entity.getPickRadius());
+
+            // clip doesn't work when inside the entity. Just assume we've got a perfect match and break.
+            if (aabb.contains(from)) {
+                bestHit = from;
+                bestEntity = entity;
+                break;
+            }
+
+            var clip = aabb.clip(from, to);
+            if (clip.isEmpty()) continue;
+
+            var hit = clip.get();
+            var newDistance = from.distanceToSqr(hit);
+            if (newDistance < bestDistance) {
+                bestEntity = entity;
+                bestHit = hit;
+                bestDistance = newDistance;
+            }
+        }
+
+        return bestEntity == null ? null : new EntityHitResult(bestEntity, bestHit);
+    }
+
+    public static Vec3 getRayStart(Player entity) {
+        return entity.getEyePosition();
     }
 
     public static Vec3 getRayEnd(Player player) {
@@ -167,5 +155,24 @@ public final class WorldUtil {
         );
         item.setDefaultPickUpDelay();
         world.addFreshEntity(item);
+    }
+
+    /**
+     * A custom {@link ClipContext} which allows an empty entity.
+     * <p>
+     * This isn't needed on Forge, but is useful on Fabric.
+     */
+    private static class ContextlessClipContext extends ClipContext {
+        private final Block block;
+
+        ContextlessClipContext(Level level, Vec3 from, Vec3 to, Block block, Fluid fluid) {
+            super(from, to, block, fluid, new ItemEntity(EntityType.ITEM, level));
+            this.block = block;
+        }
+
+        @Override
+        public VoxelShape getBlockShape(BlockState state, BlockGetter levle, BlockPos pos) {
+            return block.get(state, levle, pos, CollisionContext.empty());
+        }
     }
 }

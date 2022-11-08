@@ -31,11 +31,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.eventbus.api.Event.Result;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nonnull;
 
@@ -112,15 +111,14 @@ public class TurtlePlaceCommand implements ITurtleCommand {
         final var world = turtle.getLevel();
         var turtlePos = turtlePlayer.position();
         var rayDir = turtlePlayer.getViewVector(1.0f);
-        var hit = WorldUtil.rayTraceEntities(world, turtlePos, rayDir, 1.5);
-        if (hit == null) return false;
+        var hit = WorldUtil.clip(world, turtlePos, rayDir, 1.5, null);
+        if (!(hit instanceof EntityHitResult entityHit)) return false;
 
         // Start claiming entity drops
-        var hitEntity = hit.getKey();
-        var hitPos = hit.getValue();
+        var hitEntity = entityHit.getEntity();
+        var hitPos = entityHit.getLocation();
 
-        IItemHandler itemHandler = new InvWrapper(turtlePlayer.getInventory());
-        DropConsumer.set(hitEntity, drop -> InventoryUtil.storeItems(drop, itemHandler, 1));
+        DropConsumer.set(hitEntity, drop -> InventoryUtil.storeItemsFromOffset(turtlePlayer.getInventory(), drop, 1));
 
         var placed = doDeployOnEntity(stack, turtlePlayer, hitEntity, hitPos);
 

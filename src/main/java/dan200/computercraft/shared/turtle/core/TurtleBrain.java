@@ -17,6 +17,7 @@ import dan200.computercraft.core.util.Colour;
 import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import dan200.computercraft.shared.computer.core.ServerComputer;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.util.Holiday;
 import dan200.computercraft.shared.util.HolidayUtil;
@@ -38,7 +39,6 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -67,7 +67,6 @@ public class TurtleBrain implements ITurtleAccess {
     private GameProfile owningPlayer;
 
     private final Container inventory = (InventoryDelegate) () -> owner;
-    private final IItemHandlerModifiable inventoryWrapper = new InvWrapper(inventory);
 
     private final Queue<TurtleCommandQueueEntry> commandQueue = new ArrayDeque<>();
     private int commandsIssued = 0;
@@ -387,8 +386,9 @@ public class TurtleBrain implements ITurtleAccess {
 
     @Nonnull
     @Override
+    @Deprecated(forRemoval = true)
     public IItemHandlerModifiable getItemHandler() {
-        return inventoryWrapper;
+        return PlatformHelper.get().wrapContainerToItemHandler(inventory);
     }
 
     @Override

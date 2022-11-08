@@ -10,7 +10,7 @@ parchmentMc = "1.19.2"
 asm = "9.3"
 autoService = "1.0.1"
 checkerFramework = "3.12.0"
-cobalt = { strictly = "[0.5.8,0.6.0)", prefer = "0.5.8" }
+cobalt = "0.5.8"
 fastutil = "8.5.6"
 guava = "31.0.1-jre"
 jetbrainsAnnotations = "23.0.0"
@@ -18,7 +18,7 @@ jsr305 = "3.0.2"
 kotlin = "1.7.10"
 kotlin-coroutines = "1.6.0"
 logback = "1.2.11"
-netty = { strictly = "[4.1.77.Final,5.0)", prefer = "4.1.77.Final" }
+netty = "4.1.77.Final"
 nightConfig = "3.6.5"
 slf4j = "1.7.36"
 

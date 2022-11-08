@@ -10,12 +10,9 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import dan200.computercraft.shared.PocketUpgrades;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
-import dan200.computercraft.shared.util.InventoryUtil;
-import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 
 /**
  * Control the current pocket computer, adding or removing upgrades.
@@ -70,15 +67,7 @@ public class PocketAPI implements ILuaAPI {
         if (newUpgrade == null) return new Object[]{ false, "Cannot find a valid upgrade" };
 
         // Remove the current upgrade
-        if (previousUpgrade != null) {
-            var stack = previousUpgrade.getCraftingItem();
-            if (!stack.isEmpty()) {
-                stack = InventoryUtil.storeItems(stack, new PlayerMainInvWrapper(inventory), inventory.selected);
-                if (!stack.isEmpty()) {
-                    WorldUtil.dropItemStack(stack, player.getCommandSenderWorld(), player.position());
-                }
-            }
-        }
+        if (previousUpgrade != null) storeItem(player, previousUpgrade.getCraftingItem());
 
         // Set the new upgrade
         computer.setUpgrade(newUpgrade);
@@ -104,15 +93,16 @@ public class PocketAPI implements ILuaAPI {
 
         computer.setUpgrade(null);
 
-        var stack = previousUpgrade.getCraftingItem();
-        if (!stack.isEmpty()) {
-            stack = InventoryUtil.storeItems(stack, new PlayerMainInvWrapper(inventory), inventory.selected);
-            if (stack.isEmpty()) {
-                WorldUtil.dropItemStack(stack, player.getCommandSenderWorld(), player.position());
-            }
-        }
+        storeItem(player, previousUpgrade.getCraftingItem());
 
         return new Object[]{ true };
+    }
+
+    private static void storeItem(Player player, ItemStack stack) {
+        if (!stack.isEmpty() && !player.getInventory().add(stack)) {
+            var drop = player.drop(stack, false);
+            if (drop != null) drop.setNoPickUpDelay();
+        }
     }
 
     private static IPocketUpgrade findUpgrade(NonNullList<ItemStack> inv, int start, IPocketUpgrade previous) {

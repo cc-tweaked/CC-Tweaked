@@ -15,6 +15,7 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.container.ContainerData;
 import dan200.computercraft.shared.util.CapabilityUtil;
+import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
@@ -25,7 +26,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.WorldlyContainerHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
@@ -38,9 +41,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.common.util.NonNullConsumer;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistry;
@@ -144,6 +151,38 @@ public class PlatformHelperImpl implements PlatformHelper {
 
         var blockEntity = level.getBlockEntity(pos.relative(direction));
         return blockEntity != null && blockEntity.getCapability(Capabilities.CAPABILITY_WIRED_ELEMENT, direction.getOpposite()).isPresent();
+    }
+
+    @Override
+    public ContainerTransfer.Slotted wrapContainer(Container container) {
+        return new ForgeContainerTransfer(new InvWrapper(container));
+    }
+
+    @Nullable
+    @Override
+    public ContainerTransfer getContainer(ServerLevel level, BlockPos pos, Direction side) {
+        var block = level.getBlockState(pos);
+        if (block.getBlock() instanceof WorldlyContainerHolder holder) {
+            var container = holder.getContainer(block, level, pos);
+            return new ForgeContainerTransfer(new SidedInvWrapper(container, side));
+        }
+
+        var blockEntity = level.getBlockEntity(pos);
+        if (blockEntity != null) {
+            var inventory = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, side);
+            if (inventory.isPresent()) {
+                return new ForgeContainerTransfer(inventory.orElseThrow(NullPointerException::new));
+            }
+        }
+
+        var entity = InventoryUtil.getEntityContainer(level, pos, side);
+        return entity == null ? null : new ForgeContainerTransfer(new InvWrapper(entity));
+    }
+
+    @Override
+    @Deprecated(forRemoval = true)
+    public IItemHandlerModifiable wrapContainerToItemHandler(Container container) {
+        return new InvWrapper(container);
     }
 
     @Nullable

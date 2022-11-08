@@ -28,6 +28,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
@@ -102,13 +103,13 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         // See if there is an entity present
         var turtlePos = turtlePlayer.position();
         var rayDir = turtlePlayer.getViewVector(1.0f);
-        var hit = WorldUtil.rayTraceEntities(world, turtlePos, rayDir, 1.5);
-        if (hit != null) {
+        var hit = WorldUtil.clip(world, turtlePos, rayDir, 1.5, null);
+        if (hit instanceof EntityHitResult entityHit) {
             // Load up the turtle's inventory
             var stackCopy = item.copy();
             turtlePlayer.loadInventory(stackCopy);
 
-            var hitEntity = hit.getKey();
+            var hitEntity = entityHit.getEntity();
 
             // Fire several events to ensure we have permissions.
             if (MinecraftForge.EVENT_BUS.post(new AttackEntityEvent(turtlePlayer, hitEntity)) || !hitEntity.isAttackable()) {

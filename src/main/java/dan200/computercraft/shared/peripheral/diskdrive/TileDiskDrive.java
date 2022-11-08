@@ -15,7 +15,6 @@ import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.network.client.PlayRecordClientMessage;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.util.DefaultInventory;
-import dan200.computercraft.shared.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -209,7 +208,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         }
 
         synchronized (this) {
-            if (InventoryUtil.areItemsStackable(stack, diskStack)) {
+            if (ItemStack.isSameItemSameTags(stack, diskStack)) {
                 diskStack = stack;
                 return;
             }

@@ -21,7 +21,10 @@ import dan200.computercraft.shared.computer.core.ServerComputer;
 import dan200.computercraft.shared.turtle.apis.TurtleAPI;
 import dan200.computercraft.shared.turtle.core.TurtleBrain;
 import dan200.computercraft.shared.turtle.inventory.ContainerTurtle;
-import dan200.computercraft.shared.util.*;
+import dan200.computercraft.shared.util.DefaultInventory;
+import dan200.computercraft.shared.util.DirectionUtil;
+import dan200.computercraft.shared.util.RedstoneUtil;
+import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -360,7 +363,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
     @Override
     public void setItem(int i, @Nonnull ItemStack stack) {
-        if (i >= 0 && i < INVENTORY_SIZE && !InventoryUtil.areItemsEqual(stack, inventory.get(i))) {
+        if (i >= 0 && i < INVENTORY_SIZE && !ItemStack.matches(stack, inventory.get(i))) {
             inventory.set(i, stack);
             onInventoryDefinitelyChanged();
         }

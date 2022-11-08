@@ -19,6 +19,7 @@ import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.network.NetworkMessage;
+import dan200.computercraft.shared.network.client.ClientNetworkContext;
 import dan200.computercraft.shared.network.client.ComputerTerminalClientMessage;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.core.BlockPos;
@@ -133,7 +134,7 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
         ServerContext.get(level.getServer()).registry().remove(instanceID);
     }
 
-    private void sendToAllInteracting(Function<AbstractContainerMenu, NetworkMessage> createPacket) {
+    private void sendToAllInteracting(Function<AbstractContainerMenu, NetworkMessage<ClientNetworkContext>> createPacket) {
         var server = level.getServer();
 
         for (var player : server.getPlayerList().getPlayers()) {

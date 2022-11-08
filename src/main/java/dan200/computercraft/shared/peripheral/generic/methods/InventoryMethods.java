@@ -13,13 +13,13 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.GenericPeripheral;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.PeripheralType;
+import dan200.computercraft.shared.platform.ForgeContainerTransfer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nonnull;
@@ -286,21 +286,10 @@ public class InventoryMethods implements GenericPeripheral {
      * @return The number of items moved.
      */
     private static int moveItem(IItemHandler from, int fromSlot, IItemHandler to, int toSlot, final int limit) {
-        // See how much we can get out of this slot
-        var extracted = from.extractItem(fromSlot, limit, true);
-        if (extracted.isEmpty()) return 0;
+        var fromWrapper = new ForgeContainerTransfer(from).singleSlot(fromSlot);
+        var toWrapper = new ForgeContainerTransfer(to);
+        if (toSlot >= 0) toWrapper = toWrapper.singleSlot(toSlot);
 
-        // Limit the amount to extract
-        var extractCount = Math.min(extracted.getCount(), limit);
-        extracted.setCount(extractCount);
-
-        var remainder = toSlot < 0 ? ItemHandlerHelper.insertItem(to, extracted, false) : to.insertItem(toSlot, extracted, false);
-        var inserted = remainder.isEmpty() ? extractCount : extractCount - remainder.getCount();
-        if (inserted <= 0) return 0;
-
-        // Remove the item from the original inventory. Technically this could fail, but there's little we can do
-        // about that.
-        from.extractItem(fromSlot, inserted, false);
-        return inserted;
+        return Math.max(0, fromWrapper.moveTo(toWrapper, limit));
     }
 }

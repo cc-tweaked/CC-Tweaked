@@ -33,10 +33,10 @@ public class TurtleTransferToCommand implements ITurtleCommand {
         }
 
         // Store stack
-        var remainder = InventoryUtil.storeItems(stack, turtle.getItemHandler(), slot, 1, slot);
+        var remainder = InventoryUtil.storeItemsIntoSlot(turtle.getInventory(), stack, slot);
         if (!remainder.isEmpty()) {
             // Put the remainder back
-            InventoryUtil.storeItems(remainder, turtle.getItemHandler(), turtle.getSelectedSlot(), 1, turtle.getSelectedSlot());
+            InventoryUtil.storeItemsIntoSlot(turtle.getInventory(), remainder, turtle.getSelectedSlot());
         }
 
         // Return true if we moved anything

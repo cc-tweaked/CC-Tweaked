@@ -9,8 +9,12 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
-import dan200.computercraft.shared.util.InventoryUtil;
+import dan200.computercraft.shared.platform.ContainerTransfer;
+import dan200.computercraft.shared.platform.PlatformHelper;
+import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.util.WorldUtil;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.LevelEvent;
 
 import javax.annotation.Nonnull;
 
@@ -35,12 +39,7 @@ public class TurtleDropCommand implements ITurtleCommand {
         // Get world direction from direction
         var direction = this.direction.toWorldDir(turtle);
 
-        // Get things to drop
-        var stack = turtle.getInventory().removeItem(turtle.getSelectedSlot(), quantity);
-        if (stack.isEmpty()) {
-            return TurtleCommandResult.failure("No items to drop");
-        }
-        turtle.getInventory().setChanged();
+        var source = TurtleUtil.getSelectedSlot(turtle);
 
         // Get inventory for thing in front
         var world = turtle.getLevel();
@@ -48,29 +47,33 @@ public class TurtleDropCommand implements ITurtleCommand {
         var newPosition = oldPosition.relative(direction);
         var side = direction.getOpposite();
 
-        var inventory = InventoryUtil.getInventory(world, newPosition, side);
+        var inventory = PlatformHelper.get().getContainer((ServerLevel) world, newPosition, side);
 
+        int transferred;
         if (inventory != null) {
-            // Drop the item into the inventory
-            var remainder = InventoryUtil.storeItems(stack, inventory);
-            if (!remainder.isEmpty()) {
-                // Put the remainder back in the turtle
-                InventoryUtil.storeItems(remainder, turtle.getItemHandler(), turtle.getSelectedSlot());
-            }
+            transferred = source.moveTo(inventory, quantity);
+        } else {
+            var stack = turtle.getInventory().removeItem(turtle.getSelectedSlot(), quantity);
+            if (stack.isEmpty()) {
+                transferred = ContainerTransfer.NO_ITEMS;
+            } else {
+                // Drop the item into the world
+                turtle.getInventory().setChanged();
+                transferred = stack.getCount();
 
-            // Return true if we stored anything
-            if (remainder != stack) {
+                WorldUtil.dropItemStack(stack, world, oldPosition, direction);
+                world.globalLevelEvent(LevelEvent.SOUND_DISPENSER_DISPENSE, newPosition, 0);
+            }
+        }
+
+        switch (transferred) {
+            case ContainerTransfer.NO_SPACE:
+                return TurtleCommandResult.failure("No space for items");
+            case ContainerTransfer.NO_ITEMS:
+                return TurtleCommandResult.failure("No items to drop");
+            default:
                 turtle.playAnimation(TurtleAnimation.WAIT);
                 return TurtleCommandResult.success();
-            } else {
-                return TurtleCommandResult.failure("No space for items");
-            }
-        } else {
-            // Drop the item into the world
-            WorldUtil.dropItemStack(stack, world, oldPosition, direction);
-            world.globalLevelEvent(1000, newPosition, 0);
-            turtle.playAnimation(TurtleAnimation.WAIT);
-            return TurtleCommandResult.success();
         }
     }
 }

@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 /**
  * Sets up the configurations for writing game tests.
  *
@@ -47,7 +45,5 @@ java.registerFeature("testFixtures") {
 
 dependencies {
     add(testFixtures.implementationConfigurationName, main.output)
-
     testImplementation(testFixtures(project))
-    add(testMod.implementationConfigurationName, testFixtures(project))
 }
