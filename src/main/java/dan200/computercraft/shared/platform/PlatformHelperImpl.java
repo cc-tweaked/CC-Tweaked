@@ -32,10 +32,13 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.WorldlyContainerHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -43,11 +46,13 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.common.util.NonNullConsumer;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -59,10 +64,7 @@ import net.minecraftforge.registries.RegistryManager;
 import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -234,6 +236,44 @@ public class PlatformHelperImpl implements PlatformHelper {
             Tags.Items.DYES_RED,
             Tags.Items.DYES_BLACK
         );
+    }
+
+    @Override
+    public int getBurnTime(ItemStack stack) {
+        return ForgeHooks.getBurnTime(stack, null);
+    }
+
+    @Override
+    public Collection<CreativeModeTab> getCreativeTabs(ItemStack stack) {
+        return stack.getItem().getCreativeTabs();
+    }
+
+    @Override
+    public ItemStack getCraftingRemainingItem(ItemStack stack) {
+        return stack.getCraftingRemainingItem();
+    }
+
+    @Override
+    public List<ItemStack> getRecipeRemainingItems(ServerPlayer player, Recipe<CraftingContainer> recipe, CraftingContainer container) {
+        ForgeHooks.setCraftingPlayer(player);
+        var result = recipe.getRemainingItems(container);
+        ForgeHooks.setCraftingPlayer(null);
+        return result;
+    }
+
+    @Override
+    public void onItemCrafted(ServerPlayer player, CraftingContainer container, ItemStack stack) {
+        ForgeEventFactory.firePlayerCraftingEvent(player, stack, container);
+    }
+
+    @Override
+    public boolean onNotifyNeighbour(Level level, BlockPos pos, BlockState block, Direction direction) {
+        return !ForgeEventFactory.onNeighborNotify(level, pos, block, EnumSet.of(direction), false).isCanceled();
+    }
+
+    @Override
+    public double getReachDistance(Player player) {
+        return player.getReachDistance();
     }
 
     private record RegistryWrapperImpl<T>(

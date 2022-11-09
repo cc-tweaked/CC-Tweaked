@@ -7,9 +7,7 @@ package dan200.computercraft.impl;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleRefuelHandler;
-import dan200.computercraft.api.turtle.event.TurtleRefuelEvent;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
 
 import java.util.List;
 import java.util.Objects;
@@ -21,17 +19,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public final class TurtleRefuelHandlers {
     private static final List<TurtleRefuelHandler> handlers = new CopyOnWriteArrayList<>();
-
-    static {
-        // Register a fallback handler for our event.
-        handlers.add((turtle, stack, slot, limit) -> {
-            @SuppressWarnings("removal") var event = new TurtleRefuelEvent(turtle, stack);
-            MinecraftForge.EVENT_BUS.post(event);
-            if (event.getHandler() == null) return OptionalInt.empty();
-            if (limit == 0) return OptionalInt.of(0);
-            return OptionalInt.of(event.getHandler().refuel(turtle, stack, slot, limit));
-        });
-    }
 
     private TurtleRefuelHandlers() {
     }

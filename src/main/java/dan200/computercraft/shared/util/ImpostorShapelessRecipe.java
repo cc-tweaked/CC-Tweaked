@@ -17,9 +17,9 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.crafting.CraftingHelper;
 
 import javax.annotation.Nonnull;
 
@@ -66,8 +66,8 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe {
                 throw new JsonParseException("Too many ingredients for shapeless recipe the max is 9");
             }
 
-            var itemstack = CraftingHelper.getItemStack(GsonHelper.getAsJsonObject(json, "result"), true);
-            return new ImpostorShapelessRecipe(id, s, itemstack, ingredients);
+            var result = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"));
+            return new ImpostorShapelessRecipe(id, s, result, ingredients);
         }
 
         private NonNullList<Ingredient> readIngredients(JsonArray arrays) {

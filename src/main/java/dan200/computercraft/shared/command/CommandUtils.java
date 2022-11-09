@@ -8,10 +8,10 @@ package dan200.computercraft.shared.command;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.common.util.FakePlayer;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -24,9 +24,7 @@ public final class CommandUtils {
 
     public static boolean isPlayer(CommandSourceStack output) {
         var sender = output.getEntity();
-        return sender instanceof ServerPlayer
-            && !(sender instanceof FakePlayer)
-            && ((ServerPlayer) sender).connection != null;
+        return sender instanceof ServerPlayer player && !PlatformHelper.get().isFakePlayer(player);
     }
 
     @SuppressWarnings("unchecked")

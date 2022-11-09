@@ -26,9 +26,13 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -235,4 +239,81 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
      * @return A list of tags.
      */
     List<TagKey<Item>> getDyeTags();
+
+    /**
+     * Get the amount of fuel an item provides.
+     *
+     * @param stack The item to burn.
+     * @return The amount of fuel it provides.
+     */
+    int getBurnTime(ItemStack stack);
+
+    /**
+     * Get the creative tabs this stack belongs to.
+     *
+     * @param stack The current item.
+     * @return The creative tabs the item belongs to.
+     */
+    Collection<CreativeModeTab> getCreativeTabs(ItemStack stack);
+
+    /**
+     * Get the "container" item to be returned after crafting. For instance, crafting with a lava bucket should return
+     * an empty bucket.
+     *
+     * @param stack The original item.
+     * @return The "remainder" item. May be {@link ItemStack#EMPTY}.
+     */
+    ItemStack getCraftingRemainingItem(ItemStack stack);
+
+    /**
+     * A more general version of {@link #getCraftingRemainingItem(ItemStack)} which gets all remaining items for a
+     * recipe.
+     *
+     * @param player    The player performing the crafting.
+     * @param recipe    The recipe currently doing the crafting.
+     * @param container The crafting container.
+     * @return A list of items to return to the player after crafting.
+     */
+    List<ItemStack> getRecipeRemainingItems(ServerPlayer player, Recipe<CraftingContainer> recipe, CraftingContainer container);
+
+    /**
+     * Fire an event after crafting has occurred.
+     *
+     * @param player    The player performing the crafting.
+     * @param container The current crafting container.
+     * @param stack     The resulting stack from crafting.
+     */
+    void onItemCrafted(ServerPlayer player, CraftingContainer container, ItemStack stack);
+
+    /**
+     * Check whether we should notify neighbours in a particular direction.
+     *
+     * @param level     The current level.
+     * @param pos       The position of the current block.
+     * @param block     The block which is performing the notification, should be equal to {@code level.getBlockState(pos)}.
+     * @param direction The direction we're notifying in.
+     * @return {@code true} if neighbours should be notified or {@code false} otherwise.
+     */
+    boolean onNotifyNeighbour(Level level, BlockPos pos, BlockState block, Direction direction);
+
+    /**
+     * Determine if a player is not a real player.
+     *
+     * @param player The player to check.
+     * @return Whether this player is fake.
+     */
+    default boolean isFakePlayer(ServerPlayer player) {
+        // Any subclass of ServerPlayer (i.e. Forge's FakePlayer) is assumed to be a fake.
+        return player.connection == null || player.getClass() != ServerPlayer.class;
+    }
+
+    /**
+     * Get the distance a player can reach.
+     *
+     * @param player The player who is reaching.
+     * @return The distance (in blocks) that a player can reach.
+     */
+    default double getReachDistance(Player player) {
+        return player.isCreative() ? 5 : 4.5;
+    }
 }

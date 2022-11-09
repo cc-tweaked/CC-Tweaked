@@ -6,9 +6,11 @@
 package dan200.computercraft.shared.peripheral.monitor;
 
 import dan200.computercraft.shared.common.BlockGeneric;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.platform.RegistryEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -22,7 +24,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraftforge.common.util.FakePlayer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -90,7 +91,7 @@ public class BlockMonitor extends BlockGeneric {
         var entity = world.getBlockEntity(pos);
         if (entity instanceof TileMonitor monitor && !world.isClientSide) {
             // Defer the block update if we're being placed by another TE. See #691
-            if (livingEntity == null || livingEntity instanceof FakePlayer) {
+            if (livingEntity == null || (livingEntity instanceof ServerPlayer player && PlatformHelper.get().isFakePlayer(player))) {
                 monitor.updateNeighborsDeferred();
                 return;
             }

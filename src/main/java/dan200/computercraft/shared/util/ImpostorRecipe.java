@@ -17,7 +17,6 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.crafting.CraftingHelper;
 
 import javax.annotation.Nonnull;
 
@@ -58,7 +57,7 @@ public final class ImpostorRecipe extends ShapedRecipe {
         public ImpostorRecipe fromJson(@Nonnull ResourceLocation identifier, @Nonnull JsonObject json) {
             var group = GsonHelper.getAsString(json, "group", "");
             var recipe = RecipeSerializer.SHAPED_RECIPE.fromJson(identifier, json);
-            var result = CraftingHelper.getItemStack(GsonHelper.getAsJsonObject(json, "result"), true);
+            var result = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"));
             return new ImpostorRecipe(identifier, group, recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), result);
         }
 
@@ -68,7 +67,7 @@ public final class ImpostorRecipe extends ShapedRecipe {
             var height = buf.readVarInt();
             var group = buf.readUtf(Short.MAX_VALUE);
             var items = NonNullList.withSize(width * height, Ingredient.EMPTY);
-            for (var k = 0; k < items.size(); ++k) items.set(k, Ingredient.fromNetwork(buf));
+            for (var k = 0; k < items.size(); k++) items.set(k, Ingredient.fromNetwork(buf));
             var result = buf.readItem();
             return new ImpostorRecipe(identifier, group, width, height, items, result);
         }

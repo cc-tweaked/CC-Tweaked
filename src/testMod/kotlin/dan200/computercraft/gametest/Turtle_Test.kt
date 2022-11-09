@@ -409,7 +409,7 @@ class Turtle_Test {
             turtle.forward().await().assertArrayEquals(true, message = "Moved turtle forward")
             turtle.back().await().assertArrayEquals(true, message = "Moved turtle forward")
         }
-        thenIdle(1)
+        thenIdle(2) // Should happen immediately, but computers might be slow.
         thenExecute {
             assertEquals(
                 listOf(

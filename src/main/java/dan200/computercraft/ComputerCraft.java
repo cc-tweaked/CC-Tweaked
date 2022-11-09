@@ -12,6 +12,8 @@ import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.pocket.PocketUpgradeSerialiser;
 import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
+import dan200.computercraft.api.turtle.event.TurtleRefuelEvent;
+import dan200.computercraft.impl.TurtleRefuelHandlers;
 import dan200.computercraft.shared.Config;
 import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.peripheral.generic.data.FluidData;
@@ -20,6 +22,7 @@ import dan200.computercraft.shared.peripheral.generic.methods.FluidMethods;
 import dan200.computercraft.shared.peripheral.generic.methods.InventoryMethods;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.platform.NetworkHandler;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -30,6 +33,8 @@ import net.minecraftforge.registries.NewRegistryEvent;
 import net.minecraftforge.registries.RegistryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.OptionalInt;
 
 @Mod(ComputerCraft.MOD_ID)
 @Mod.EventBusSubscriber(modid = ComputerCraft.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -77,8 +82,18 @@ public final class ComputerCraft {
     public ComputerCraft() {
         Config.setup();
         ModRegistry.register();
-    }
 
+        // Register a fallback handler for the turtle refuel event.
+        TurtleRefuelHandlers.register((turtle, stack, slot, limit) -> {
+            @SuppressWarnings("removal") var event = new TurtleRefuelEvent(turtle, stack);
+            MinecraftForge.EVENT_BUS.post(event);
+            if (event.getHandler() == null) return OptionalInt.empty();
+            if (limit == 0) return OptionalInt.of(0);
+            return OptionalInt.of(event.getHandler().refuel(turtle, stack, slot, limit));
+        });
+
+        NetworkHandler.setup();
+    }
 
     @SubscribeEvent
     public static void registerRegistries(NewRegistryEvent event) {
@@ -99,8 +114,6 @@ public final class ComputerCraft {
 
     @SubscribeEvent
     public static void init(FMLCommonSetupEvent event) {
-        NetworkHandler.setup();
-
         event.enqueueWork(ModRegistry::registerMainThread);
 
         ComputerCraftAPI.registerGenericSource(new InventoryMethods());

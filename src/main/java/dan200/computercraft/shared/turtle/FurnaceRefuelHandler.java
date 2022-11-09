@@ -7,8 +7,8 @@ package dan200.computercraft.shared.turtle;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.TurtleRefuelHandler;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.ForgeHooks;
 
 import javax.annotation.Nonnull;
 import java.util.OptionalInt;
@@ -27,7 +27,7 @@ public final class FurnaceRefuelHandler implements TurtleRefuelHandler {
         var stack = turtle.getInventory().removeItem(slot, limit);
         var fuelToGive = fuelPerItem * stack.getCount();
         // Store the replacement item in the inventory
-        var replacementStack = ForgeHooks.getCraftingRemainingItem(stack);
+        var replacementStack = PlatformHelper.get().getCraftingRemainingItem(stack);
         if (!replacementStack.isEmpty()) TurtleUtil.storeItemOrDrop(turtle, replacementStack);
 
         turtle.getInventory().setChanged();
@@ -36,6 +36,6 @@ public final class FurnaceRefuelHandler implements TurtleRefuelHandler {
     }
 
     private static int getFuelPerItem(@Nonnull ItemStack stack) {
-        return (ForgeHooks.getBurnTime(stack, null) * 5) / 100;
+        return (PlatformHelper.get().getBurnTime(stack) * 5) / 100;
     }
 }

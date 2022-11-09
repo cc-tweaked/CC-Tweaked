@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.util;
 
+import dan200.computercraft.shared.platform.PlatformHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -12,9 +13,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DiodeBlock;
 import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.event.ForgeEventFactory;
-
-import java.util.EnumSet;
 
 public final class RedstoneUtil {
     private RedstoneUtil() {
@@ -39,10 +37,17 @@ public final class RedstoneUtil {
             : power;
     }
 
+    /**
+     * Propagate a redstone output to a particular side.
+     *
+     * @param world The current level.
+     * @param pos   The current block's position.
+     * @param side  The direction we're propagating to.
+     * @see DiodeBlock#updateNeighborsInFront(Level, BlockPos, BlockState)
+     */
     public static void propagateRedstoneOutput(Level world, BlockPos pos, Direction side) {
-        // Propagate ordinary output. See BlockRedstoneDiode.notifyNeighbors
         var block = world.getBlockState(pos);
-        if (ForgeEventFactory.onNeighborNotify(world, pos, block, EnumSet.of(side), false).isCanceled()) return;
+        if (!PlatformHelper.get().onNotifyNeighbour(world, pos, block, side)) return;
 
         var neighbourPos = pos.relative(side);
         world.neighborChanged(neighbourPos, block.getBlock(), pos);

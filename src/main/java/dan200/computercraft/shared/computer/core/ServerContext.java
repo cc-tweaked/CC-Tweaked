@@ -19,10 +19,10 @@ import dan200.computercraft.core.lua.ILuaMachine;
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.computer.metrics.GlobalMetrics;
 import dan200.computercraft.shared.util.IDAssigner;
+import net.minecraft.SharedConstants;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelResource;
-import net.minecraftforge.versions.mcp.MCPVersion;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -192,7 +192,8 @@ public final class ServerContext {
         @Nonnull
         @Override
         public String getHostString() {
-            return String.format("ComputerCraft %s (Minecraft %s)", ComputerCraftAPI.getInstalledVersion(), MCPVersion.getMCVersion());
+            var version = SharedConstants.getCurrentVersion().getName();
+            return String.format("ComputerCraft %s (Minecraft %s)", ComputerCraftAPI.getInstalledVersion(), version);
         }
 
         @Nonnull

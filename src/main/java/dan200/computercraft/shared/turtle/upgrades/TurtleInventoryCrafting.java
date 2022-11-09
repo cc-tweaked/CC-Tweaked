@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.api.turtle.ITurtleAccess;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
 import net.minecraft.server.level.ServerLevel;
@@ -15,8 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.event.ForgeEventFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -81,12 +80,9 @@ public class TurtleInventoryCrafting extends CraftingContainer {
             results.add(result);
 
             result.onCraftedBy(world, player, result.getCount());
-            ForgeEventFactory.firePlayerCraftingEvent(player, result, this);
+            PlatformHelper.get().onItemCrafted(player, this, result);
 
-            ForgeHooks.setCraftingPlayer(player);
-            var remainders = recipe.getRemainingItems(this);
-            ForgeHooks.setCraftingPlayer(null);
-
+            var remainders = PlatformHelper.get().getRecipeRemainingItems(player, recipe, this);
             for (var slot = 0; slot < remainders.size(); slot++) {
                 var existing = getItem(slot);
                 var remainder = remainders.get(slot);

@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.peripheral.generic.data;
 
 import com.google.gson.JsonParseException;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.platform.Registries;
 import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.nbt.ListTag;
@@ -99,7 +100,7 @@ public class ItemData {
     private static List<Map<String, Object>> getItemGroups(@Nonnull ItemStack stack) {
         List<Map<String, Object>> groups = new ArrayList<>(1);
 
-        for (var group : stack.getItem().getCreativeTabs()) {
+        for (var group : PlatformHelper.get().getCreativeTabs(stack)) {
             if (group == null) continue;
 
             Map<String, Object> groupData = new HashMap<>(2);
