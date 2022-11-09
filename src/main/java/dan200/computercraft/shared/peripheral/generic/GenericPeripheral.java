@@ -15,7 +15,6 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.platform.Registries;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
@@ -26,7 +25,7 @@ class GenericPeripheral implements IDynamicPeripheral {
     private final BlockEntity tile;
     private final List<SaturatedMethod> methods;
 
-    GenericPeripheral(BlockEntity tile, String name, Set<String> additionalTypes, List<SaturatedMethod> methods) {
+    GenericPeripheral(BlockEntity tile, @Nullable String name, Set<String> additionalTypes, List<SaturatedMethod> methods) {
         var type = Registries.BLOCK_ENTITY_TYPES.getKey(tile.getType());
         this.tile = tile;
         this.type = name != null ? name : type.toString();
@@ -34,7 +33,6 @@ class GenericPeripheral implements IDynamicPeripheral {
         this.methods = methods;
     }
 
-    @Nonnull
     @Override
     public String[] getMethodNames() {
         var names = new String[methods.size()];
@@ -42,19 +40,16 @@ class GenericPeripheral implements IDynamicPeripheral {
         return names;
     }
 
-    @Nonnull
     @Override
-    public MethodResult callMethod(@Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull IArguments arguments) throws LuaException {
+    public MethodResult callMethod(IComputerAccess computer, ILuaContext context, int method, IArguments arguments) throws LuaException {
         return methods.get(method).apply(context, computer, arguments);
     }
 
-    @Nonnull
     @Override
     public String getType() {
         return type;
     }
 
-    @Nonnull
     @Override
     public Set<String> getAdditionalTypes() {
         return additionalTypes;

@@ -14,7 +14,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
@@ -68,15 +67,13 @@ public class ItemToast implements Toast {
         return MARGIN * 2 + LINE_SPACING + message.size() * LINE_SPACING;
     }
 
-    @Nonnull
     @Override
     public Object getToken() {
         return token;
     }
 
-    @Nonnull
     @Override
-    public Visibility render(@Nonnull PoseStack transform, @Nonnull ToastComponent component, long time) {
+    public Visibility render(PoseStack transform, ToastComponent component, long time) {
         if (isNew) {
 
             firstDisplay = time;

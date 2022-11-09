@@ -26,7 +26,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlockPrinter extends BlockGeneric {
@@ -47,14 +46,12 @@ public class BlockPrinter extends BlockGeneric {
         properties.add(FACING, TOP, BOTTOM);
     }
 
-    @Nonnull
     @Override
     @Deprecated
     public BlockState mirror(BlockState state, Mirror mirrorIn) {
         return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
     }
 
-    @Nonnull
     @Override
     @Deprecated
     public BlockState rotate(BlockState state, Rotation rot) {
@@ -68,7 +65,7 @@ public class BlockPrinter extends BlockGeneric {
     }
 
     @Override
-    public void playerDestroy(@Nonnull Level world, @Nonnull Player player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack) {
+    public void playerDestroy(Level world, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity te, ItemStack stack) {
         if (te instanceof Nameable nameable && nameable.hasCustomName()) {
             player.awardStat(Stats.BLOCK_MINED.get(this));
             player.causeFoodExhaustion(0.005F);
@@ -82,7 +79,7 @@ public class BlockPrinter extends BlockGeneric {
     }
 
     @Override
-    public void setPlacedBy(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, ItemStack stack) {
+    public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         if (stack.hasCustomHoverName() && world.getBlockEntity(pos) instanceof TilePrinter printer) {
             printer.customName = stack.getHoverName();
         }

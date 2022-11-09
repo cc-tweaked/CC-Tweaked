@@ -18,8 +18,6 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
-
 public class ContainerPrinter extends AbstractContainerMenu {
     private final Container inventory;
     private final ContainerData properties;
@@ -60,7 +58,7 @@ public class ContainerPrinter extends AbstractContainerMenu {
     }
 
     public ContainerPrinter(int id, Inventory player, TilePrinter printer) {
-        this(id, player, printer, (SingleIntArray) (() -> printer.isPrinting() ? 1 : 0));
+        this(id, player, printer, (SingleIntArray) () -> printer.isPrinting() ? 1 : 0);
     }
 
     public boolean isPrinting() {
@@ -68,13 +66,12 @@ public class ContainerPrinter extends AbstractContainerMenu {
     }
 
     @Override
-    public boolean stillValid(@Nonnull Player player) {
+    public boolean stillValid(Player player) {
         return inventory.stillValid(player);
     }
 
-    @Nonnull
     @Override
-    public ItemStack quickMoveStack(@Nonnull Player player, int index) {
+    public ItemStack quickMoveStack(Player player, int index) {
         var slot = slots.get(index);
         if (slot == null || !slot.hasItem()) return ItemStack.EMPTY;
         var stack = slot.getItem();

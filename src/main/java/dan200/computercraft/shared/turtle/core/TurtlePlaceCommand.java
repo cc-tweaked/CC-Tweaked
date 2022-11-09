@@ -36,7 +36,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.eventbus.api.Event.Result;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class TurtlePlaceCommand implements ITurtleCommand {
     private final InteractDirection direction;
@@ -47,16 +47,14 @@ public class TurtlePlaceCommand implements ITurtleCommand {
         extraArguments = arguments;
     }
 
-    @Nonnull
     @Override
-    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
+    public TurtleCommandResult execute(ITurtleAccess turtle) {
         // Get thing to place
         var stack = turtle.getInventory().getItem(turtle.getSelectedSlot());
         if (stack.isEmpty()) return TurtleCommandResult.failure("No items to place");
 
         // Remember old block
         var direction = this.direction.toWorldDir(turtle);
-        var coordinates = turtle.getPosition().relative(direction);
 
         // Create a fake player, and orient it appropriately
         var playerPosition = turtle.getPosition().relative(direction);
@@ -78,7 +76,7 @@ public class TurtlePlaceCommand implements ITurtleCommand {
         }
     }
 
-    public static boolean deployCopiedItem(@Nonnull ItemStack stack, ITurtleAccess turtle, Direction direction, Object[] extraArguments, ErrorMessage outErrorMessage) {
+    public static boolean deployCopiedItem(ItemStack stack, ITurtleAccess turtle, Direction direction, @Nullable Object[] extraArguments, @Nullable ErrorMessage outErrorMessage) {
         // Create a fake player, and orient it appropriately
         var playerPosition = turtle.getPosition().relative(direction);
         var turtlePlayer = TurtlePlayer.getWithPosition(turtle, playerPosition, direction);
@@ -88,7 +86,10 @@ public class TurtlePlaceCommand implements ITurtleCommand {
         return result;
     }
 
-    private static boolean deploy(@Nonnull ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, Direction direction, Object[] extraArguments, ErrorMessage outErrorMessage) {
+    private static boolean deploy(
+        ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, Direction direction,
+        @Nullable Object[] extraArguments, @Nullable ErrorMessage outErrorMessage
+    ) {
         // Deploy on an entity
         if (deployOnEntity(stack, turtle, turtlePlayer)) return true;
 
@@ -106,7 +107,7 @@ public class TurtlePlaceCommand implements ITurtleCommand {
             || deployOnBlock(stack, turtle, turtlePlayer, position, direction, extraArguments, false, outErrorMessage);
     }
 
-    private static boolean deployOnEntity(@Nonnull ItemStack stack, final ITurtleAccess turtle, TurtlePlayer turtlePlayer) {
+    private static boolean deployOnEntity(ItemStack stack, final ITurtleAccess turtle, TurtlePlayer turtlePlayer) {
         // See if there is an entity present
         final var world = turtle.getLevel();
         var turtlePos = turtlePlayer.position();
@@ -137,7 +138,7 @@ public class TurtlePlaceCommand implements ITurtleCommand {
      * @see net.minecraft.server.network.ServerGamePacketListenerImpl#handleInteract(ServerboundInteractPacket)
      * @see net.minecraft.world.entity.player.Player#interactOn(Entity, InteractionHand)
      */
-    private static boolean doDeployOnEntity(@Nonnull ItemStack stack, TurtlePlayer turtlePlayer, @Nonnull Entity hitEntity, @Nonnull Vec3 hitPos) {
+    private static boolean doDeployOnEntity(ItemStack stack, TurtlePlayer turtlePlayer, Entity hitEntity, Vec3 hitPos) {
         // Placing "onto" a block follows two flows. First we try to interactAt. If that doesn't succeed, then we try to
         // call the normal interact path. Cancelling an interactAt *does not* cancel a normal interact path.
 
@@ -157,8 +158,8 @@ public class TurtlePlaceCommand implements ITurtleCommand {
     }
 
     private static boolean canDeployOnBlock(
-        @Nonnull BlockPlaceContext context, ITurtleAccess turtle, TurtlePlayer player, BlockPos position,
-        Direction side, boolean allowReplaceable, ErrorMessage outErrorMessage
+        BlockPlaceContext context, ITurtleAccess turtle, TurtlePlayer player, BlockPos position,
+        Direction side, boolean allowReplaceable, @Nullable ErrorMessage outErrorMessage
     ) {
         var world = turtle.getLevel();
         if (!world.isInWorldBounds(position) || world.isEmptyBlock(position) ||
@@ -186,8 +187,8 @@ public class TurtlePlaceCommand implements ITurtleCommand {
     }
 
     private static boolean deployOnBlock(
-        @Nonnull ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, BlockPos position, Direction side,
-        Object[] extraArguments, boolean allowReplace, ErrorMessage outErrorMessage
+        ItemStack stack, ITurtleAccess turtle, TurtlePlayer turtlePlayer, BlockPos position, Direction side,
+        @Nullable Object[] extraArguments, boolean allowReplace, @Nullable ErrorMessage outErrorMessage
     ) {
         // Re-orient the fake player
         var playerDir = side.getOpposite();
@@ -238,7 +239,7 @@ public class TurtlePlaceCommand implements ITurtleCommand {
      * @see net.minecraft.server.level.ServerPlayerGameMode#useItemOn  For the original implementation.
      */
     private static InteractionResult doDeployOnBlock(
-        @Nonnull ItemStack stack, TurtlePlayer turtlePlayer, BlockPos position, UseOnContext context, BlockHitResult hit
+        ItemStack stack, TurtlePlayer turtlePlayer, BlockPos position, UseOnContext context, BlockHitResult hit
     ) {
         var event = ForgeHooks.onRightClickBlock(turtlePlayer, InteractionHand.MAIN_HAND, position, hit);
         if (event.isCanceled()) return event.getCancellationResult();
@@ -288,6 +289,7 @@ public class TurtlePlaceCommand implements ITurtleCommand {
     }
 
     private static class ErrorMessage {
+        @Nullable
         String message;
     }
 }

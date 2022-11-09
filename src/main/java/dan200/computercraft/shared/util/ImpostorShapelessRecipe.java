@@ -21,43 +21,37 @@ import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
-
 public final class ImpostorShapelessRecipe extends ShapelessRecipe {
     private final String group;
 
-    private ImpostorShapelessRecipe(@Nonnull ResourceLocation id, @Nonnull String group, @Nonnull ItemStack result, NonNullList<Ingredient> ingredients) {
+    private ImpostorShapelessRecipe(ResourceLocation id, String group, ItemStack result, NonNullList<Ingredient> ingredients) {
         super(id, group, result, ingredients);
         this.group = group;
     }
 
-    @Nonnull
     @Override
     public String getGroup() {
         return group;
     }
 
     @Override
-    public boolean matches(@Nonnull CraftingContainer inv, @Nonnull Level world) {
+    public boolean matches(CraftingContainer inv, Level world) {
         return false;
     }
 
-    @Nonnull
     @Override
-    public ItemStack assemble(@Nonnull CraftingContainer inventory) {
+    public ItemStack assemble(CraftingContainer inventory) {
         return ItemStack.EMPTY;
     }
 
-    @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer() {
         return ModRegistry.RecipeSerializers.IMPOSTOR_SHAPELESS.get();
     }
 
     public static final class Serializer implements RecipeSerializer<ImpostorShapelessRecipe> {
-        @Nonnull
         @Override
-        public ImpostorShapelessRecipe fromJson(@Nonnull ResourceLocation id, @Nonnull JsonObject json) {
+        public ImpostorShapelessRecipe fromJson(ResourceLocation id, JsonObject json) {
             var s = GsonHelper.getAsString(json, "group", "");
             var ingredients = readIngredients(GsonHelper.getAsJsonArray(json, "ingredients"));
 
@@ -81,7 +75,7 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe {
         }
 
         @Override
-        public ImpostorShapelessRecipe fromNetwork(@Nonnull ResourceLocation id, FriendlyByteBuf buffer) {
+        public ImpostorShapelessRecipe fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
             var s = buffer.readUtf(32767);
             var i = buffer.readVarInt();
             var items = NonNullList.withSize(i, Ingredient.EMPTY);
@@ -93,7 +87,7 @@ public final class ImpostorShapelessRecipe extends ShapelessRecipe {
         }
 
         @Override
-        public void toNetwork(@Nonnull FriendlyByteBuf buffer, @Nonnull ImpostorShapelessRecipe recipe) {
+        public void toNetwork(FriendlyByteBuf buffer, ImpostorShapelessRecipe recipe) {
             buffer.writeUtf(recipe.getGroup());
             buffer.writeVarInt(recipe.getIngredients().size());
 

@@ -36,7 +36,7 @@ public class MonitorTextureBufferShader extends ShaderInstance {
     private final int monitorData;
     private int uniformBuffer = 0;
 
-    private final Uniform cursorBlink;
+    private final @Nullable Uniform cursorBlink;
 
     public MonitorTextureBufferShader(ResourceProvider provider, ResourceLocation location, VertexFormat format) throws IOException {
         super(provider, location, format);

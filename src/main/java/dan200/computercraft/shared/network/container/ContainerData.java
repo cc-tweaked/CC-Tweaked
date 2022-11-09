@@ -14,7 +14,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 
-import javax.annotation.Nonnull;
 import java.util.function.Function;
 
 /**
@@ -38,6 +37,6 @@ public interface ContainerData {
     }
 
     interface Factory<C extends AbstractContainerMenu, T extends ContainerData> {
-        C create(int id, @Nonnull Inventory inventory, T data);
+        C create(int id, Inventory inventory, T data);
     }
 }

@@ -1,0 +1,38 @@
+/*
+ * This file is part of ComputerCraft - http://www.computercraft.info
+ * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
+ * Send enquiries to dratcliffe@gmail.com
+ */
+package cc.tweaked.linter
+
+import com.google.common.collect.ImmutableSet
+import com.google.common.collect.ImmutableSetMultimap
+import com.uber.nullaway.LibraryModels
+import com.uber.nullaway.LibraryModels.MethodRef.methodRef
+
+/**
+ * Extends NullAway's model of Minecraft's code with a couple of extra annotations.
+ */
+class MinecraftLibraryModel : LibraryModels {
+    override fun failIfNullParameters(): ImmutableSetMultimap<LibraryModels.MethodRef, Int> = ImmutableSetMultimap.of()
+    override fun explicitlyNullableParameters(): ImmutableSetMultimap<LibraryModels.MethodRef, Int> =
+        ImmutableSetMultimap.of()
+
+    override fun nonNullParameters(): ImmutableSetMultimap<LibraryModels.MethodRef, Int> = ImmutableSetMultimap.of()
+    override fun nullImpliesTrueParameters(): ImmutableSetMultimap<LibraryModels.MethodRef, Int> =
+        ImmutableSetMultimap.of()
+
+    override fun nullImpliesFalseParameters(): ImmutableSetMultimap<LibraryModels.MethodRef, Int> =
+        ImmutableSetMultimap.of()
+
+    override fun nullImpliesNullParameters(): ImmutableSetMultimap<LibraryModels.MethodRef, Int> =
+        ImmutableSetMultimap.of()
+
+    override fun castToNonNullMethods(): ImmutableSetMultimap<LibraryModels.MethodRef, Int> = ImmutableSetMultimap.of()
+    override fun nullableReturns(): ImmutableSet<LibraryModels.MethodRef> = ImmutableSet.of()
+
+    override fun nonNullReturns(): ImmutableSet<LibraryModels.MethodRef> = ImmutableSet.of(
+        // Reasoning about nullability of BlockEntity.getLevel() is awkward. For now, assume it's non-null.
+        methodRef("net.minecraft.world.level.block.entity.BlockEntity", "getLevel()"),
+    )
+}

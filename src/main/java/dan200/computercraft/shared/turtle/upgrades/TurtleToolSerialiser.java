@@ -17,17 +17,14 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 
-import javax.annotation.Nonnull;
-
 public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<TurtleTool> {
     public static final TurtleToolSerialiser INSTANCE = new TurtleToolSerialiser();
 
     private TurtleToolSerialiser() {
     }
 
-    @Nonnull
     @Override
-    public TurtleTool fromJson(@Nonnull ResourceLocation id, @Nonnull JsonObject object) {
+    public TurtleTool fromJson(ResourceLocation id, JsonObject object) {
         var adjective = GsonHelper.getAsString(object, "adjective", IUpgradeBase.getDefaultAdjective(id));
         var toolItem = GsonHelper.getAsItem(object, "item");
         var craftingItem = GsonHelper.getAsItem(object, "craftingItem", toolItem);
@@ -42,9 +39,8 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
         return new TurtleTool(id, adjective, craftingItem, new ItemStack(toolItem), damageMultiplier, breakable);
     }
 
-    @Nonnull
     @Override
-    public TurtleTool fromNetwork(@Nonnull ResourceLocation id, @Nonnull FriendlyByteBuf buffer) {
+    public TurtleTool fromNetwork(ResourceLocation id, FriendlyByteBuf buffer) {
         var adjective = buffer.readUtf();
         var craftingItem = Registries.readId(buffer, Registries.ITEMS);
         var toolItem = buffer.readItem();
@@ -57,7 +53,7 @@ public final class TurtleToolSerialiser implements TurtleUpgradeSerialiser<Turtl
     }
 
     @Override
-    public void toNetwork(@Nonnull FriendlyByteBuf buffer, @Nonnull TurtleTool upgrade) {
+    public void toNetwork(FriendlyByteBuf buffer, TurtleTool upgrade) {
         buffer.writeUtf(upgrade.getUnlocalisedAdjective());
         Registries.writeId(buffer, Registries.ITEMS, upgrade.getCraftingItem().getItem());
         buffer.writeItem(upgrade.item);

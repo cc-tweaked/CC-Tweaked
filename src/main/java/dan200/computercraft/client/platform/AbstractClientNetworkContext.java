@@ -26,6 +26,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
+import javax.annotation.Nullable;
 import java.util.UUID;
 
 /**
@@ -96,7 +97,7 @@ public abstract class AbstractClientNetworkContext implements ClientNetworkConte
     }
 
     @Override
-    public final void handleUploadResult(int containerId, UploadResult result, Component errorMessage) {
+    public final void handleUploadResult(int containerId, UploadResult result, @Nullable Component errorMessage) {
         var minecraft = Minecraft.getInstance();
 
         var screen = OptionScreen.unwrap(minecraft.screen);

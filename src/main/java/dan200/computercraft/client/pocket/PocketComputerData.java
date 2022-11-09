@@ -12,8 +12,6 @@ import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
 import dan200.computercraft.shared.pocket.core.PocketServerComputer;
 
-import javax.annotation.Nonnull;
-
 /**
  * Clientside data about a pocket computer.
  * <p>
@@ -37,7 +35,6 @@ public class PocketComputerData {
         return state != ComputerState.OFF ? lightColour : -1;
     }
 
-    @Nonnull
     public Terminal getTerminal() {
         return terminal;
     }

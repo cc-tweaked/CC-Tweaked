@@ -16,12 +16,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.lwjgl.glfw.GLFW;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 public class NoTermComputerScreen<T extends ContainerComputerBase> extends Screen implements MenuAccess<T> {
     private final T menu;
     private final Terminal terminalData;
-    private WidgetTerminal terminal;
+    private @Nullable WidgetTerminal terminal;
 
     public NoTermComputerScreen(T menu, Inventory player, Component title) {
         super(title);
@@ -29,7 +31,6 @@ public class NoTermComputerScreen<T extends ContainerComputerBase> extends Scree
         terminalData = menu.getTerminal();
     }
 
-    @Nonnull
     @Override
     public T getMenu() {
         return menu;
@@ -62,7 +63,7 @@ public class NoTermComputerScreen<T extends ContainerComputerBase> extends Scree
     @Override
     public final void tick() {
         super.tick();
-        terminal.update();
+        assertNonNull(terminal).update();
     }
 
     @Override
@@ -93,7 +94,7 @@ public class NoTermComputerScreen<T extends ContainerComputerBase> extends Scree
     }
 
     @Override
-    public void render(@Nonnull PoseStack transform, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack transform, int mouseX, int mouseY, float partialTicks) {
         super.render(transform, mouseX, mouseY, partialTicks);
 
         var font = minecraft.font;

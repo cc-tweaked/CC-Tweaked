@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.function.Function;
 
+import static dan200.computercraft.core.util.Nullability.assertNonNull;
+
 public final class NetworkHandler {
     private static final Logger LOG = LoggerFactory.getLogger(NetworkHandler.class);
 
@@ -57,7 +59,7 @@ public final class NetworkHandler {
             @Override
             public <T extends NetworkMessage<ServerNetworkContext>> void registerServerbound(int id, Class<T> type, Function<FriendlyByteBuf, T> decoder) {
                 if (!usedIds.add(id)) throw new IllegalArgumentException("Already have a packet with id " + id);
-                registerMainThread(id, NetworkDirection.PLAY_TO_SERVER, type, decoder, c -> () -> c.getSender());
+                registerMainThread(id, NetworkDirection.PLAY_TO_SERVER, type, decoder, c -> () -> assertNonNull(c.getSender()));
             }
         });
     }

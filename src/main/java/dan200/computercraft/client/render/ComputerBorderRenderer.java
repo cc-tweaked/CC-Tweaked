@@ -14,8 +14,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
-
 public class ComputerBorderRenderer {
     public static final ResourceLocation BACKGROUND_NORMAL = new ResourceLocation(ComputerCraft.MOD_ID, "textures/gui/corners_normal.png");
     public static final ResourceLocation BACKGROUND_ADVANCED = new ResourceLocation(ComputerCraft.MOD_ID, "textures/gui/corners_advanced.png");
@@ -61,8 +59,7 @@ public class ComputerBorderRenderer {
         this.b = b;
     }
 
-    @Nonnull
-    public static ResourceLocation getTexture(@Nonnull ComputerFamily family) {
+    public static ResourceLocation getTexture(ComputerFamily family) {
         return switch (family) {
             case NORMAL -> BACKGROUND_NORMAL;
             case ADVANCED -> BACKGROUND_ADVANCED;

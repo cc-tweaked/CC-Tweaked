@@ -20,7 +20,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -114,29 +113,27 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>> {
 
     public static class Info implements ArgumentTypeInfo<RepeatArgumentType<?, ?>, Template> {
         @Override
-        public void serializeToNetwork(@Nonnull RepeatArgumentType.Template arg, @Nonnull FriendlyByteBuf buf) {
+        public void serializeToNetwork(RepeatArgumentType.Template arg, FriendlyByteBuf buf) {
             buf.writeBoolean(arg.flatten);
             ArgumentUtils.serializeToNetwork(buf, arg.child);
             buf.writeComponent(ArgumentUtils.getMessage(arg.some));
         }
 
-        @Nonnull
         @Override
-        public RepeatArgumentType.Template deserializeFromNetwork(@Nonnull FriendlyByteBuf buf) {
+        public RepeatArgumentType.Template deserializeFromNetwork(FriendlyByteBuf buf) {
             var isList = buf.readBoolean();
             var child = ArgumentUtils.deserialize(buf);
             var message = buf.readComponent();
             return new RepeatArgumentType.Template(this, child, isList, new SimpleCommandExceptionType(message));
         }
 
-        @Nonnull
         @Override
         public RepeatArgumentType.Template unpack(RepeatArgumentType<?, ?> argumentType) {
             return new RepeatArgumentType.Template(this, ArgumentTypeInfos.unpack(argumentType.child), argumentType.flatten, argumentType.some);
         }
 
         @Override
-        public void serializeToJson(@Nonnull RepeatArgumentType.Template arg, @Nonnull JsonObject json) {
+        public void serializeToJson(RepeatArgumentType.Template arg, JsonObject json) {
             json.addProperty("flatten", arg.flatten);
             json.add("child", ArgumentUtils.serializeToJson(arg.child));
             json.addProperty("error", Component.Serializer.toJson(ArgumentUtils.getMessage(arg.some)));
@@ -146,7 +143,6 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>> {
     public record Template(
         Info info, ArgumentTypeInfo.Template<?> child, boolean flatten, SimpleCommandExceptionType some
     ) implements ArgumentTypeInfo.Template<RepeatArgumentType<?, ?>> {
-        @Nonnull
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public RepeatArgumentType<?, ?> instantiate(@NotNull CommandBuildContext commandBuildContext) {
@@ -154,7 +150,6 @@ public final class RepeatArgumentType<T, U> implements ArgumentType<List<T>> {
             return flatten ? RepeatArgumentType.someFlat((ArgumentType) child, some()) : RepeatArgumentType.some(child, some());
         }
 
-        @Nonnull
         @Override
         public ArgumentTypeInfo<RepeatArgumentType<?, ?>, ?> type() {
             return info;

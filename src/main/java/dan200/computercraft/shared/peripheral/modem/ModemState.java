@@ -9,10 +9,11 @@ import dan200.computercraft.api.lua.LuaException;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 
+import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ModemState {
-    private final Runnable onChanged;
+    private final @Nullable Runnable onChanged;
     private final AtomicBoolean changed = new AtomicBoolean(true);
 
     private boolean open = false;

@@ -51,7 +51,7 @@ public interface ClientNetworkContext {
 
     void handleSpeakerStop(UUID source);
 
-    void handleUploadResult(int containerId, UploadResult result, Component errorMessage);
+    void handleUploadResult(int containerId, UploadResult result, @Nullable Component errorMessage);
 
     final class Instance {
         static final @Nullable ClientNetworkContext INSTANCE;

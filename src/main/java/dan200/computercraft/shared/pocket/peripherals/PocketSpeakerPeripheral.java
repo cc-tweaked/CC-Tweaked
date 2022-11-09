@@ -12,18 +12,17 @@ import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class PocketSpeakerPeripheral extends UpgradeSpeakerPeripheral {
     private final IPocketAccess access;
-    private Level level;
+    private @Nullable Level level;
     private Vec3 position = Vec3.ZERO;
 
     public PocketSpeakerPeripheral(IPocketAccess access) {
         this.access = access;
     }
 
-    @Nonnull
     @Override
     public SpeakerPosition getPosition() {
         var entity = access.getEntity();
@@ -31,7 +30,7 @@ public class PocketSpeakerPeripheral extends UpgradeSpeakerPeripheral {
     }
 
     @Override
-    public boolean equals(IPeripheral other) {
+    public boolean equals(@Nullable IPeripheral other) {
         return other instanceof PocketSpeakerPeripheral;
     }
 

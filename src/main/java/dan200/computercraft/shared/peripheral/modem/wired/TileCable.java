@@ -33,7 +33,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 
@@ -41,13 +40,11 @@ public class TileCable extends TileGeneric {
     private static final String NBT_PERIPHERAL_ENABLED = "PeirpheralAccess";
 
     private class CableElement extends WiredModemElement {
-        @Nonnull
         @Override
         public Level getLevel() {
             return TileCable.this.getLevel();
         }
 
-        @Nonnull
         @Override
         public Vec3 getPosition() {
             return Vec3.atCenterOf(getBlockPos());
@@ -80,19 +77,16 @@ public class TileCable extends TileGeneric {
         new ModemState(() -> TickScheduler.schedule(tickToken)),
         cable
     ) {
-        @Nonnull
         @Override
         protected WiredModemLocalPeripheral getLocalPeripheral() {
             return peripheral;
         }
 
-        @Nonnull
         @Override
         public Vec3 getPosition() {
             return Vec3.atCenterOf(getBlockPos().relative(getDirection()));
         }
 
-        @Nonnull
         @Override
         public Object getTarget() {
             return TileCable.this;
@@ -141,7 +135,7 @@ public class TileCable extends TileGeneric {
 
     @Override
     @Deprecated
-    public void setBlockState(@Nonnull BlockState state) {
+    public void setBlockState(BlockState state) {
         var direction = getMaybeDirection();
         super.setBlockState(state);
 
@@ -154,14 +148,13 @@ public class TileCable extends TileGeneric {
         return getBlockState().getValue(BlockCable.MODEM).getFacing();
     }
 
-    @Nonnull
     private Direction getDirection() {
         var direction = getMaybeDirection();
         return direction == null ? Direction.NORTH : direction;
     }
 
     @Override
-    public void onNeighbourChange(@Nonnull BlockPos neighbour) {
+    public void onNeighbourChange(BlockPos neighbour) {
         var dir = getDirection();
         if (neighbour.equals(getBlockPos().relative(dir)) && hasModem() && !getBlockState().canSurvive(getLevel(), getBlockPos())) {
             if (hasCable()) {
@@ -184,7 +177,7 @@ public class TileCable extends TileGeneric {
     }
 
     @Override
-    public void onNeighbourTileEntityChange(@Nonnull BlockPos neighbour) {
+    public void onNeighbourTileEntityChange(BlockPos neighbour) {
         super.onNeighbourTileEntityChange(neighbour);
         if (!level.isClientSide && peripheralAccessAllowed) {
             var facing = getDirection();
@@ -205,7 +198,6 @@ public class TileCable extends TileGeneric {
         }
     }
 
-    @Nonnull
     @Override
     public InteractionResult onActivate(Player player, InteractionHand hand, BlockHitResult hit) {
         if (player.isCrouching() || !player.mayBuild()) return InteractionResult.PASS;
@@ -231,7 +223,7 @@ public class TileCable extends TileGeneric {
     }
 
     @Override
-    public void load(@Nonnull CompoundTag nbt) {
+    public void load(CompoundTag nbt) {
         super.load(nbt);
         peripheralAccessAllowed = nbt.getBoolean(NBT_PERIPHERAL_ENABLED);
         peripheral.read(nbt, "");

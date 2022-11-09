@@ -9,7 +9,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 
 public interface DefaultInventory extends Container {
     @Override
@@ -18,15 +17,15 @@ public interface DefaultInventory extends Container {
     }
 
     @Override
-    default void startOpen(@Nonnull Player player) {
+    default void startOpen(Player player) {
     }
 
     @Override
-    default void stopOpen(@Nonnull Player player) {
+    default void stopOpen(Player player) {
     }
 
     @Override
-    default boolean canPlaceItem(int slot, @Nonnull ItemStack stack) {
+    default boolean canPlaceItem(int slot, ItemStack stack) {
         return true;
     }
 }

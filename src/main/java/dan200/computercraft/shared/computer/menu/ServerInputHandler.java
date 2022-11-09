@@ -11,7 +11,6 @@ import dan200.computercraft.shared.computer.upload.FileUpload;
 import dan200.computercraft.shared.network.server.ComputerServerMessage;
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,7 +28,7 @@ public interface ServerInputHandler extends InputHandler {
      * @param uploadId The unique ID of this upload.
      * @param files    The files to upload.
      */
-    void startUpload(@Nonnull UUID uploadId, @Nonnull List<FileUpload> files);
+    void startUpload(UUID uploadId, List<FileUpload> files);
 
     /**
      * Append more data to partially uploaded files.
@@ -37,7 +36,7 @@ public interface ServerInputHandler extends InputHandler {
      * @param uploadId The unique ID of this upload.
      * @param slices   Additional parts of file data to upload.
      */
-    void continueUpload(@Nonnull UUID uploadId, @Nonnull List<FileSlice> slices);
+    void continueUpload(UUID uploadId, List<FileSlice> slices);
 
     /**
      * Finish off an upload. This either writes the uploaded files or informs the user that files will be overwritten.
@@ -45,5 +44,5 @@ public interface ServerInputHandler extends InputHandler {
      * @param uploader The player uploading files.
      * @param uploadId The unique ID of this upload.
      */
-    void finishUpload(@Nonnull ServerPlayer uploader, @Nonnull UUID uploadId);
+    void finishUpload(ServerPlayer uploader, UUID uploadId);
 }

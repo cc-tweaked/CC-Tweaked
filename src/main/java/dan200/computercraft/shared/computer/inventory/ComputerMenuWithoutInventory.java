@@ -14,7 +14,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import java.util.function.Predicate;
 
 /**
@@ -40,9 +39,8 @@ public class ComputerMenuWithoutInventory extends ContainerComputerBase {
         for (var i = 0; i < 9; i++) addSlot(new InvisibleSlot(player, i));
     }
 
-    @Nonnull
     @Override
-    public ItemStack quickMoveStack(@Nonnull Player player, int slot) {
+    public ItemStack quickMoveStack(Player player, int slot) {
         return ItemStack.EMPTY;
     }
 }

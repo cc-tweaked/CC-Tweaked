@@ -16,7 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class TurtleSpeaker extends AbstractTurtleUpgrade {
     private static class Peripheral extends UpgradeSpeakerPeripheral {
@@ -26,14 +26,13 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade {
             this.turtle = turtle;
         }
 
-        @Nonnull
         @Override
         public SpeakerPosition getPosition() {
             return SpeakerPosition.of(turtle.getLevel(), Vec3.atCenterOf(turtle.getPosition()));
         }
 
         @Override
-        public boolean equals(IPeripheral other) {
+        public boolean equals(@Nullable IPeripheral other) {
             return this == other || (other instanceof Peripheral speaker && turtle == speaker.turtle);
         }
     }
@@ -43,12 +42,12 @@ public class TurtleSpeaker extends AbstractTurtleUpgrade {
     }
 
     @Override
-    public IPeripheral createPeripheral(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side) {
+    public IPeripheral createPeripheral(ITurtleAccess turtle, TurtleSide side) {
         return new TurtleSpeaker.Peripheral(turtle);
     }
 
     @Override
-    public void update(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide turtleSide) {
+    public void update(ITurtleAccess turtle, TurtleSide turtleSide) {
         var peripheral = turtle.getPeripheral(turtleSide);
         if (peripheral instanceof Peripheral speaker) speaker.update();
     }

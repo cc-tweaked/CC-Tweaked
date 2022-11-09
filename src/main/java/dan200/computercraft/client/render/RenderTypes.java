@@ -16,15 +16,16 @@ import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class RenderTypes {
     public static final int FULL_BRIGHT_LIGHTMAP = (0xF << 4) | (0xF << 20);
 
-    private static MonitorTextureBufferShader monitorTboShader;
+    private static @Nullable MonitorTextureBufferShader monitorTboShader;
 
     /**
      * Renders a fullbright terminal.
@@ -49,15 +50,13 @@ public class RenderTypes {
      */
     public static final RenderType PRINTOUT_BACKGROUND = RenderType.text(new ResourceLocation("computercraft", "textures/gui/printout.png"));
 
-    @Nonnull
     static MonitorTextureBufferShader getMonitorTextureBufferShader() {
         if (monitorTboShader == null) throw new NullPointerException("MonitorTboShader has not been registered");
         return monitorTboShader;
     }
 
-    @Nonnull
     static ShaderInstance getTerminalShader() {
-        return GameRenderer.getRendertypeTextShader();
+        return Objects.requireNonNull(GameRenderer.getRendertypeTextShader(), "Text shader has not been registered");
     }
 
     public static void registerShaders(ResourceManager resources, BiConsumer<ShaderInstance, Consumer<ShaderInstance>> load) throws IOException {

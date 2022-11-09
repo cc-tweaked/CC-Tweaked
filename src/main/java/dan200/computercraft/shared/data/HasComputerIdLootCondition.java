@@ -13,7 +13,6 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Set;
 
@@ -33,14 +32,12 @@ public final class HasComputerIdLootCondition implements LootItemCondition {
         return tile instanceof IComputerTile computer && computer.getComputerID() >= 0;
     }
 
-    @Nonnull
     @Override
     public Set<LootContextParam<?>> getReferencedContextParams() {
         return Collections.singleton(LootContextParams.BLOCK_ENTITY);
     }
 
     @Override
-    @Nonnull
     public LootItemConditionType getType() {
         return ModRegistry.LootItemConditionTypes.HAS_ID.get();
     }

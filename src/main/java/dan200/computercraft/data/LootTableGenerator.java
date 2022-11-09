@@ -35,7 +35,6 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePrope
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -47,7 +46,6 @@ class LootTableGenerator extends LootTableProvider {
         super(generator);
     }
 
-    @Nonnull
     @Override
     public List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootContextParamSet>> getTables() {
         return List.of(
@@ -57,7 +55,7 @@ class LootTableGenerator extends LootTableProvider {
     }
 
     @Override
-    protected void validate(Map<ResourceLocation, LootTable> map, @Nonnull ValidationContext validationtracker) {
+    protected void validate(Map<ResourceLocation, LootTable> map, ValidationContext validationtracker) {
         map.forEach((id, table) -> LootTables.validate(validationtracker, id, table));
     }
 

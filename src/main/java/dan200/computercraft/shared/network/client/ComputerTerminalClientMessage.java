@@ -10,7 +10,6 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
-import javax.annotation.Nonnull;
 
 public class ComputerTerminalClientMessage implements NetworkMessage<ClientNetworkContext> {
     private final int containerId;
@@ -21,13 +20,13 @@ public class ComputerTerminalClientMessage implements NetworkMessage<ClientNetwo
         this.terminal = terminal;
     }
 
-    public ComputerTerminalClientMessage(@Nonnull FriendlyByteBuf buf) {
+    public ComputerTerminalClientMessage(FriendlyByteBuf buf) {
         containerId = buf.readVarInt();
         terminal = new TerminalState(buf);
     }
 
     @Override
-    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeVarInt(containerId);
         terminal.write(buf);
     }

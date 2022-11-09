@@ -26,6 +26,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
+import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
@@ -45,8 +46,11 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
     private boolean changedLastFrame;
     private int ticksSincePing;
 
-    public ServerComputer(ServerLevel level, int computerID, String label, ComputerFamily family, int terminalWidth, int terminalHeight) {
+    public ServerComputer(
+        ServerLevel level, BlockPos position, int computerID, @Nullable String label, ComputerFamily family, int terminalWidth, int terminalHeight
+    ) {
         this.level = level;
+        this.position = position;
         this.family = family;
 
         var context = ServerContext.get(level.getServer());
@@ -155,7 +159,7 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
         return computer.getID();
     }
 
-    public String getLabel() {
+    public @Nullable String getLabel() {
         return computer.getLabel();
     }
 
@@ -187,7 +191,7 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
     }
 
     @Override
-    public void queueEvent(String event, Object[] arguments) {
+    public void queueEvent(String event, @Nullable Object[] arguments) {
         // Queue event
         computer.queueEvent(event, arguments);
     }
@@ -212,15 +216,16 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
         computer.addApi(api);
     }
 
-    public void setPeripheral(ComputerSide side, IPeripheral peripheral) {
+    public void setPeripheral(ComputerSide side, @Nullable IPeripheral peripheral) {
         computer.getEnvironment().setPeripheral(side, peripheral);
     }
 
+    @Nullable
     public IPeripheral getPeripheral(ComputerSide side) {
         return computer.getEnvironment().getPeripheral(side);
     }
 
-    public void setLabel(String label) {
+    public void setLabel(@Nullable String label) {
         computer.setLabel(label);
     }
 
@@ -240,7 +245,7 @@ public class ServerComputer implements InputHandler, ComputerEnvironment {
     }
 
     @Override
-    public IWritableMount createRootMount() {
+    public @Nullable IWritableMount createRootMount() {
         return ComputerCraftAPI.createSaveDirMount(level, "computer/" + computer.getID(), ComputerCraft.computerSpaceLimit);
     }
 }

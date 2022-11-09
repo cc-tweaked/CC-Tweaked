@@ -12,11 +12,15 @@ import dan200.computercraft.shared.computer.blocks.IComputerTile;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
+
 public interface ITurtleTile extends IComputerTile {
     int getColour();
 
+    @Nullable
     ResourceLocation getOverlay();
 
+    @Nullable
     ITurtleUpgrade getUpgrade(TurtleSide side);
 
     ITurtleAccess getAccess();

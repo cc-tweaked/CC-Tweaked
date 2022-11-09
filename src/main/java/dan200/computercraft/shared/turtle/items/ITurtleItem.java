@@ -12,15 +12,14 @@ import dan200.computercraft.shared.computer.items.IComputerItem;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public interface ITurtleItem extends IComputerItem, IColouredItem {
     @Nullable
-    ITurtleUpgrade getUpgrade(@Nonnull ItemStack stack, @Nonnull TurtleSide side);
+    ITurtleUpgrade getUpgrade(ItemStack stack, TurtleSide side);
 
-    int getFuelLevel(@Nonnull ItemStack stack);
+    int getFuelLevel(ItemStack stack);
 
     @Nullable
-    ResourceLocation getOverlay(@Nonnull ItemStack stack);
+    ResourceLocation getOverlay(ItemStack stack);
 }

@@ -17,10 +17,11 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Map;
+
+import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 /**
  * Represents a local peripheral exposed on the wired network.
@@ -33,12 +34,12 @@ public final class WiredModemLocalPeripheral {
     private static final String NBT_PERIPHERAL_ID = "PeripheralId";
 
     private int id = -1;
-    private String type;
+    private @Nullable String type;
 
-    private IPeripheral peripheral;
+    private @Nullable IPeripheral peripheral;
     private final ComponentAccess<IPeripheral> peripherals;
 
-    public WiredModemLocalPeripheral(@Nonnull Runnable invalidate) {
+    public WiredModemLocalPeripheral(Runnable invalidate) {
         peripherals = PlatformHelper.get().createPeripheralAccess(x -> invalidate.run());
     }
 
@@ -50,7 +51,7 @@ public final class WiredModemLocalPeripheral {
      * @param direction The direction so search in
      * @return Whether the peripheral changed.
      */
-    public boolean attach(@Nonnull Level world, @Nonnull BlockPos origin, @Nonnull Direction direction) {
+    public boolean attach(Level world, BlockPos origin, Direction direction) {
         var oldPeripheral = peripheral;
         var peripheral = this.peripheral = getPeripheralFrom(world, origin, direction);
 
@@ -65,7 +66,7 @@ public final class WiredModemLocalPeripheral {
                 this.type = type;
             } else if (id < 0 || !type.equals(this.type)) {
                 this.type = type;
-                this.id = ServerContext.get(world.getServer()).getNextId("peripheral." + type);
+                this.id = ServerContext.get(assertNonNull(world.getServer())).getNextId("peripheral." + type);
             }
 
             return oldPeripheral == null || !oldPeripheral.equals(peripheral);
@@ -97,7 +98,7 @@ public final class WiredModemLocalPeripheral {
         return peripheral != null;
     }
 
-    public void extendMap(@Nonnull Map<String, IPeripheral> peripherals) {
+    public void extendMap(Map<String, IPeripheral> peripherals) {
         if (peripheral != null) peripherals.put(type + "_" + id, peripheral);
     }
 
@@ -107,12 +108,12 @@ public final class WiredModemLocalPeripheral {
             : Collections.singletonMap(type + "_" + id, peripheral);
     }
 
-    public void write(@Nonnull CompoundTag tag, @Nonnull String suffix) {
+    public void write(CompoundTag tag, String suffix) {
         if (id >= 0) tag.putInt(NBT_PERIPHERAL_ID + suffix, id);
         if (type != null) tag.putString(NBT_PERIPHERAL_TYPE + suffix, type);
     }
 
-    public void read(@Nonnull CompoundTag tag, @Nonnull String suffix) {
+    public void read(CompoundTag tag, String suffix) {
         id = tag.contains(NBT_PERIPHERAL_ID + suffix, Tag.TAG_ANY_NUMERIC)
             ? tag.getInt(NBT_PERIPHERAL_ID + suffix) : -1;
 

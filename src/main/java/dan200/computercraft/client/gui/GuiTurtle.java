@@ -17,8 +17,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-import javax.annotation.Nonnull;
-
 import static dan200.computercraft.shared.turtle.inventory.ContainerTurtle.*;
 
 public class GuiTurtle extends ComputerScreenBase<ContainerTurtle> {
@@ -44,7 +42,7 @@ public class GuiTurtle extends ComputerScreenBase<ContainerTurtle> {
     }
 
     @Override
-    protected void renderBg(@Nonnull PoseStack transform, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(PoseStack transform, float partialTicks, int mouseX, int mouseY) {
         var advanced = family == ComputerFamily.ADVANCED;
         RenderSystem.setShaderTexture(0, advanced ? BACKGROUND_ADVANCED : BACKGROUND_NORMAL);
         blit(transform, leftPos + ComputerSidebar.WIDTH, topPos, 0, 0, TEX_WIDTH, TEX_HEIGHT);

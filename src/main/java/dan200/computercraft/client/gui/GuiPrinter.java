@@ -13,7 +13,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-import javax.annotation.Nonnull;
 
 public class GuiPrinter extends AbstractContainerScreen<ContainerPrinter> {
     private static final ResourceLocation BACKGROUND = new ResourceLocation("computercraft", "textures/gui/printer.png");
@@ -23,7 +22,7 @@ public class GuiPrinter extends AbstractContainerScreen<ContainerPrinter> {
     }
 
     @Override
-    protected void renderBg(@Nonnull PoseStack transform, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(PoseStack transform, float partialTicks, int mouseX, int mouseY) {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, BACKGROUND);
         blit(transform, leftPos, topPos, 0, 0, imageWidth, imageHeight);
@@ -32,7 +31,7 @@ public class GuiPrinter extends AbstractContainerScreen<ContainerPrinter> {
     }
 
     @Override
-    public void render(@Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
         renderBackground(stack);
         super.render(stack, mouseX, mouseY, partialTicks);
         renderTooltip(stack, mouseX, mouseY);

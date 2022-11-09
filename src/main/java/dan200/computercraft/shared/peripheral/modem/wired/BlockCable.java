@@ -29,7 +29,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.EnumMap;
 
@@ -82,10 +81,9 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock {
         return PlatformHelper.get().hasWiredElementIn(level, pos, direction);
     }
 
-    @Nonnull
     @Override
     @Deprecated
-    public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
         return CableShapes.getShape(state);
     }
 
@@ -127,9 +125,8 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock {
         return super.onDestroyedByPlayer(state, world, pos, player, willHarvest, fluid);
     }
 
-    @Nonnull
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult hit, BlockGetter world, BlockPos pos, Player player) {
+    public ItemStack getCloneItemStack(BlockState state, @Nullable HitResult hit, BlockGetter world, BlockPos pos, Player player) {
         var modem = state.getValue(MODEM).getFacing();
         boolean cable = state.getValue(CABLE);
 
@@ -145,7 +142,7 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock {
     }
 
     @Override
-    public void setPlacedBy(Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, @Nonnull ItemStack stack) {
+    public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         var tile = world.getBlockEntity(pos);
         if (tile instanceof TileCable cable) {
             if (cable.hasCable()) cable.connectionsChanged();
@@ -154,17 +151,15 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock {
         super.setPlacedBy(world, pos, state, placer, stack);
     }
 
-    @Nonnull
     @Override
     @Deprecated
-    public FluidState getFluidState(@Nonnull BlockState state) {
+    public FluidState getFluidState(BlockState state) {
         return WaterloggableHelpers.getFluidState(state);
     }
 
-    @Nonnull
     @Override
     @Deprecated
-    public BlockState updateShape(@Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull LevelAccessor world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos) {
+    public BlockState updateShape(BlockState state, Direction side, BlockState otherState, LevelAccessor world, BlockPos pos, BlockPos otherPos) {
         WaterloggableHelpers.updateShape(state, world, pos);
         // Should never happen, but handle the case where we've no modem or cable.
         if (!state.getValue(CABLE) && state.getValue(MODEM) == CableModemVariant.None) {
@@ -176,7 +171,7 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock {
 
     @Override
     @Deprecated
-    public boolean canSurvive(BlockState state, @Nonnull LevelReader world, @Nonnull BlockPos pos) {
+    public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
         var facing = state.getValue(MODEM).getFacing();
         if (facing == null) return true;
 
@@ -185,7 +180,7 @@ public class BlockCable extends BlockGeneric implements SimpleWaterloggedBlock {
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         var state = defaultBlockState()
             .setValue(WATERLOGGED, getFluidStateForPlacement(context));
 

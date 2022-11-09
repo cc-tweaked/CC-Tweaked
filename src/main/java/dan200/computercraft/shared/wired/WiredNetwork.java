@@ -11,15 +11,14 @@ import dan200.computercraft.api.network.wired.IWiredNetwork;
 import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.peripheral.IPeripheral;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public final class WiredNetwork implements IWiredNetwork {
     final ReadWriteLock lock = new ReentrantReadWriteLock();
-    HashSet<WiredNode> nodes;
-    private HashMap<String, IPeripheral> peripherals = new HashMap<>();
+    Set<WiredNode> nodes;
+    private Map<String, IPeripheral> peripherals = new HashMap<>();
 
     WiredNetwork(WiredNode node) {
         nodes = new HashSet<>(1);
@@ -31,14 +30,14 @@ public final class WiredNetwork implements IWiredNetwork {
     }
 
     @Override
-    public boolean connect(@Nonnull IWiredNode nodeU, @Nonnull IWiredNode nodeV) {
+    public boolean connect(IWiredNode nodeU, IWiredNode nodeV) {
         var wiredU = checkNode(nodeU);
         var wiredV = checkNode(nodeV);
         if (nodeU == nodeV) throw new IllegalArgumentException("Cannot add a connection to oneself.");
 
         lock.writeLock().lock();
         try {
-            if (nodes == null) throw new IllegalStateException("Cannot add a connection to an empty network.");
+            if (nodes.isEmpty()) throw new IllegalStateException("Cannot add a connection to an empty network.");
 
             var hasU = wiredU.network == this;
             var hasV = wiredV.network == this;
@@ -50,19 +49,19 @@ public final class WiredNetwork implements IWiredNetwork {
                 other.lock.writeLock().lock();
                 try {
                     // Cache several properties for iterating over later
-                    Map<String, IPeripheral> otherPeripherals = other.peripherals;
-                    Map<String, IPeripheral> thisPeripherals = otherPeripherals.isEmpty() ? peripherals : new HashMap<>(peripherals);
+                    var otherPeripherals = other.peripherals;
+                    var thisPeripherals = otherPeripherals.isEmpty() ? peripherals : new HashMap<>(peripherals);
 
-                    Collection<WiredNode> thisNodes = otherPeripherals.isEmpty() ? nodes : new ArrayList<>(nodes);
-                    Collection<WiredNode> otherNodes = other.nodes;
+                    var thisNodes = otherPeripherals.isEmpty() ? nodes : new ArrayList<>(nodes);
+                    var otherNodes = other.nodes;
 
                     // Move all nodes across into this network, destroying the original nodes.
                     nodes.addAll(otherNodes);
                     for (var node : otherNodes) node.network = this;
-                    other.nodes = null;
+                    other.nodes = Collections.emptySet();
 
                     // Move all peripherals across,
-                    other.peripherals = null;
+                    other.peripherals = Collections.emptyMap();
                     peripherals.putAll(otherPeripherals);
 
                     if (!thisPeripherals.isEmpty()) {
@@ -91,7 +90,7 @@ public final class WiredNetwork implements IWiredNetwork {
     }
 
     @Override
-    public boolean disconnect(@Nonnull IWiredNode nodeU, @Nonnull IWiredNode nodeV) {
+    public boolean disconnect(IWiredNode nodeU, IWiredNode nodeV) {
         var wiredU = checkNode(nodeU);
         var wiredV = checkNode(nodeV);
         if (nodeU == nodeV) throw new IllegalArgumentException("Cannot remove a connection to oneself.");
@@ -162,13 +161,13 @@ public final class WiredNetwork implements IWiredNetwork {
     }
 
     @Override
-    public boolean remove(@Nonnull IWiredNode node) {
+    public boolean remove(IWiredNode node) {
         var wired = checkNode(node);
 
         lock.writeLock().lock();
         try {
             // If we're the empty graph then just abort: nodes must have _some_ network.
-            if (nodes == null) return false;
+            if (nodes.isEmpty()) return false;
             if (nodes.size() <= 1) return false;
             if (wired.network != this) return false;
 
@@ -250,7 +249,7 @@ public final class WiredNetwork implements IWiredNetwork {
     }
 
     @Override
-    public void updatePeripherals(@Nonnull IWiredNode node, @Nonnull Map<String, IPeripheral> newPeripherals) {
+    public void updatePeripherals(IWiredNode node, Map<String, IPeripheral> newPeripherals) {
         var wired = checkNode(node);
         Objects.requireNonNull(peripherals, "peripherals cannot be null");
 
@@ -361,7 +360,7 @@ public final class WiredNetwork implements IWiredNetwork {
         }
 
         @Override
-        public int compareTo(@Nonnull TransmitPoint o) {
+        public int compareTo(TransmitPoint o) {
             // Objects with the same distance are not the same object, so we must add an additional layer of ordering.
             return distance == o.distance
                 ? Integer.compare(node.hashCode(), o.node.hashCode())

@@ -22,7 +22,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
-import javax.annotation.Nonnull;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,7 +55,7 @@ public class ModelProvider implements DataProvider {
     }
 
     @Override
-    public void run(@Nonnull CachedOutput output) {
+    public void run(CachedOutput output) {
         Map<Block, BlockStateGenerator> blockStates = new HashMap<>();
         Consumer<BlockStateGenerator> addBlockState = generator -> {
             var block = generator.getBlock();
@@ -102,7 +101,6 @@ public class ModelProvider implements DataProvider {
         }
     }
 
-    @Nonnull
     @Override
     public String getName() {
         return "Block State Definitions";

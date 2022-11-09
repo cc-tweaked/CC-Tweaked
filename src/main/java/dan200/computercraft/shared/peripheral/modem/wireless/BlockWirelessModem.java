@@ -29,7 +29,6 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
@@ -52,24 +51,21 @@ public class BlockWirelessModem extends BlockGeneric implements SimpleWaterlogge
         builder.add(FACING, ON, WATERLOGGED);
     }
 
-    @Nonnull
     @Override
     @Deprecated
-    public VoxelShape getShape(BlockState blockState, @Nonnull BlockGetter blockView, @Nonnull BlockPos blockPos, @Nonnull CollisionContext context) {
+    public VoxelShape getShape(BlockState blockState, BlockGetter blockView, BlockPos blockPos, CollisionContext context) {
         return ModemShapes.getBounds(blockState.getValue(FACING));
     }
 
-    @Nonnull
     @Override
     @Deprecated
-    public FluidState getFluidState(@Nonnull BlockState state) {
+    public FluidState getFluidState(BlockState state) {
         return WaterloggableHelpers.getFluidState(state);
     }
 
-    @Nonnull
     @Override
     @Deprecated
-    public BlockState updateShape(@Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull LevelAccessor world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos) {
+    public BlockState updateShape(BlockState state, Direction side, BlockState otherState, LevelAccessor world, BlockPos pos, BlockPos otherPos) {
         WaterloggableHelpers.updateShape(state, world, pos);
         return side == state.getValue(FACING) && !state.canSurvive(world, pos)
             ? state.getFluidState().createLegacyBlock()
@@ -78,7 +74,7 @@ public class BlockWirelessModem extends BlockGeneric implements SimpleWaterlogge
 
     @Override
     @Deprecated
-    public boolean canSurvive(BlockState state, @Nonnull LevelReader world, BlockPos pos) {
+    public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
         var facing = state.getValue(FACING);
         return canSupportCenter(world, pos.relative(facing), facing.getOpposite());
     }
@@ -91,14 +87,12 @@ public class BlockWirelessModem extends BlockGeneric implements SimpleWaterlogge
             .setValue(WATERLOGGED, getFluidStateForPlacement(placement));
     }
 
-    @Nonnull
     @Override
     @Deprecated
     public BlockState mirror(BlockState state, Mirror mirrorIn) {
         return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
     }
 
-    @Nonnull
     @Override
     @Deprecated
     public BlockState rotate(BlockState state, Rotation rot) {

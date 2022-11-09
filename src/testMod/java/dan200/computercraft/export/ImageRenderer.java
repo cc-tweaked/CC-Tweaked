@@ -13,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;
 import org.lwjgl.opengl.GL12;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,7 +28,7 @@ public class ImageRenderer implements AutoCloseable {
     private final TextureTarget framebuffer = new TextureTarget(WIDTH, HEIGHT, true, Minecraft.ON_OSX);
     private final NativeImage image = new NativeImage(WIDTH, HEIGHT, Minecraft.ON_OSX);
 
-    private Matrix4f projectionMatrix;
+    private @Nullable Matrix4f projectionMatrix;
 
     public ImageRenderer() {
         framebuffer.setClearColor(0, 0, 0, 0);
@@ -46,6 +47,7 @@ public class ImageRenderer implements AutoCloseable {
     }
 
     public void clearState() {
+        if (projectionMatrix == null) throw new IllegalStateException("Not currently rendering");
         RenderSystem.setProjectionMatrix(projectionMatrix);
         RenderSystem.getModelViewStack().popPose();
     }

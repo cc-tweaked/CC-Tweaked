@@ -24,6 +24,7 @@ include(":forge-stubs")
 include(":common-api")
 include(":forge-api")
 
+include(":lints")
 include(":web")
 
 for (project in rootProject.children) {

@@ -39,7 +39,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static dan200.computercraft.shared.util.WaterloggableHelpers.WATERLOGGED;
@@ -68,31 +67,27 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Simple
         builder.add(FACING, WATERLOGGED);
     }
 
-    @Nonnull
     @Override
     @Deprecated
     public BlockState mirror(BlockState state, Mirror mirrorIn) {
         return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
     }
 
-    @Nonnull
     @Override
     @Deprecated
     public BlockState rotate(BlockState state, Rotation rot) {
         return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
     }
 
-    @Nonnull
     @Override
     @Deprecated
-    public RenderShape getRenderShape(@Nonnull BlockState state) {
+    public RenderShape getRenderShape(BlockState state) {
         return RenderShape.ENTITYBLOCK_ANIMATED;
     }
 
-    @Nonnull
     @Override
     @Deprecated
-    public VoxelShape getShape(@Nonnull BlockState state, BlockGetter world, @Nonnull BlockPos pos, @Nonnull CollisionContext context) {
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
         var tile = world.getBlockEntity(pos);
         var offset = tile instanceof TileTurtle turtle ? turtle.getRenderOffset(1.0f) : Vec3.ZERO;
         return offset.equals(Vec3.ZERO) ? DEFAULT_SHAPE : DEFAULT_SHAPE.move(offset.x, offset.y, offset.z);
@@ -106,23 +101,21 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Simple
             .setValue(WATERLOGGED, getFluidStateForPlacement(placement));
     }
 
-    @Nonnull
     @Override
     @Deprecated
-    public FluidState getFluidState(@Nonnull BlockState state) {
+    public FluidState getFluidState(BlockState state) {
         return WaterloggableHelpers.getFluidState(state);
     }
 
-    @Nonnull
     @Override
     @Deprecated
-    public BlockState updateShape(@Nonnull BlockState state, @Nonnull Direction side, @Nonnull BlockState otherState, @Nonnull LevelAccessor world, @Nonnull BlockPos pos, @Nonnull BlockPos otherPos) {
+    public BlockState updateShape(BlockState state, Direction side, BlockState otherState, LevelAccessor world, BlockPos pos, BlockPos otherPos) {
         WaterloggableHelpers.updateShape(state, world, pos);
         return state;
     }
 
     @Override
-    public void setPlacedBy(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity entity, @Nonnull ItemStack stack) {
+    public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack) {
         super.setPlacedBy(world, pos, state, entity, stack);
 
         var tile = world.getBlockEntity(pos);
@@ -158,7 +151,6 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Simple
         return super.getExplosionResistance(state, world, pos, explosion);
     }
 
-    @Nonnull
     @Override
     protected ItemStack getItem(TileComputerBase tile) {
         return tile instanceof TileTurtle turtle ? TurtleItemFactory.create(turtle) : ItemStack.EMPTY;
@@ -166,7 +158,7 @@ public class BlockTurtle extends BlockComputerBase<TileTurtle> implements Simple
 
     @Override
     @Nullable
-    public <U extends BlockEntity> BlockEntityTicker<U> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<U> type) {
+    public <U extends BlockEntity> BlockEntityTicker<U> getTicker(Level level, BlockState state, BlockEntityType<U> type) {
         return level.isClientSide ? BaseEntityBlock.createTickerHelper(type, this.type.get(), clientTicker) : super.getTicker(level, state, type);
     }
 }

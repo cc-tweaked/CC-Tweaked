@@ -22,7 +22,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
@@ -37,27 +36,27 @@ public class ItemTreasureDisk extends Item implements IMedia {
     }
 
     @Override
-    public void fillItemCategory(@Nonnull CreativeModeTab group, @Nonnull NonNullList<ItemStack> stacks) {
+    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> stacks) {
     }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level world, @Nonnull List<Component> list, @Nonnull TooltipFlag tooltipOptions) {
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> list, TooltipFlag tooltipOptions) {
         var label = getTitle(stack);
         if (!label.isEmpty()) list.add(Component.literal(label));
     }
 
     @Override
-    public boolean doesSneakBypassUse(@Nonnull ItemStack stack, LevelReader world, BlockPos pos, Player player) {
+    public boolean doesSneakBypassUse(ItemStack stack, LevelReader world, BlockPos pos, Player player) {
         return true;
     }
 
     @Override
-    public String getLabel(@Nonnull ItemStack stack) {
+    public String getLabel(ItemStack stack) {
         return getTitle(stack);
     }
 
     @Override
-    public IMount createDataMount(@Nonnull ItemStack stack, @Nonnull Level world) {
+    public @Nullable IMount createDataMount(ItemStack stack, Level world) {
         var rootTreasure = getTreasureMount();
         if (rootTreasure == null) return null;
 
@@ -93,23 +92,21 @@ public class ItemTreasureDisk extends Item implements IMedia {
         return result;
     }
 
-    private static IMount getTreasureMount() {
+    private static @Nullable IMount getTreasureMount() {
         return ComputerCraftAPI.createResourceMount("computercraft", "lua/treasure");
     }
 
-    @Nonnull
-    private static String getTitle(@Nonnull ItemStack stack) {
+    private static String getTitle(ItemStack stack) {
         var nbt = stack.getTag();
         return nbt != null && nbt.contains(NBT_TITLE) ? nbt.getString(NBT_TITLE) : "'missingno' by how did you get this anyway?";
     }
 
-    @Nonnull
-    private static String getSubPath(@Nonnull ItemStack stack) {
+    private static String getSubPath(ItemStack stack) {
         var nbt = stack.getTag();
         return nbt != null && nbt.contains(NBT_SUB_PATH) ? nbt.getString(NBT_SUB_PATH) : "dan200/alongtimeago";
     }
 
-    public static int getColour(@Nonnull ItemStack stack) {
+    public static int getColour(ItemStack stack) {
         var nbt = stack.getTag();
         return nbt != null && nbt.contains(NBT_COLOUR) ? nbt.getInt(NBT_COLOUR) : Colour.BLUE.getHex();
     }

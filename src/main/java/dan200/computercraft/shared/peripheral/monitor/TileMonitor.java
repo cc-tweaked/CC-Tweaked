@@ -25,7 +25,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
@@ -43,9 +42,9 @@ public class TileMonitor extends TileGeneric {
 
     private final boolean advanced;
 
-    private ServerMonitor serverMonitor;
-    private ClientMonitor clientMonitor;
-    private MonitorPeripheral peripheral;
+    private @Nullable ServerMonitor serverMonitor;
+    private @Nullable ClientMonitor clientMonitor;
+    private @Nullable MonitorPeripheral peripheral;
     private final Set<IComputerAccess> computers = new HashSet<>();
 
     private boolean needsUpdate = false;
@@ -54,6 +53,7 @@ public class TileMonitor extends TileGeneric {
 
     // MonitorWatcher state.
     boolean enqueued;
+    @Nullable
     TerminalState cached;
 
     private int width = 1;
@@ -61,10 +61,10 @@ public class TileMonitor extends TileGeneric {
     private int xIndex = 0;
     private int yIndex = 0;
 
-    private BlockPos bbPos;
-    private BlockState bbState;
+    private @Nullable BlockPos bbPos;
+    private @Nullable BlockState bbState;
     private int bbX, bbY, bbWidth, bbHeight;
-    private AABB boundingBox;
+    private @Nullable AABB boundingBox;
 
     TickScheduler.Token tickToken = new TickScheduler.Token(this);
 
@@ -100,7 +100,6 @@ public class TileMonitor extends TileGeneric {
         if (clientMonitor != null && xIndex == 0 && yIndex == 0) clientMonitor.destroy();
     }
 
-    @Nonnull
     @Override
     public InteractionResult onActivate(Player player, InteractionHand hand, BlockHitResult hit) {
         if (!player.isCrouching() && getFront() == hit.getDirection()) {
@@ -127,7 +126,7 @@ public class TileMonitor extends TileGeneric {
     }
 
     @Override
-    public void load(@Nonnull CompoundTag nbt) {
+    public void load(CompoundTag nbt) {
         super.load(nbt);
 
         xIndex = nbt.getInt(NBT_X);
@@ -210,13 +209,11 @@ public class TileMonitor extends TileGeneric {
 
     // Networking stuff
 
-    @Nonnull
     @Override
     public final ClientboundBlockEntityDataPacket getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
-    @Nonnull
     @Override
     public final CompoundTag getUpdateTag() {
         var nbt = super.getUpdateTag();
@@ -228,7 +225,7 @@ public class TileMonitor extends TileGeneric {
     }
 
     @Override
-    public final void handleUpdateTag(@Nonnull CompoundTag nbt) {
+    public final void handleUpdateTag(CompoundTag nbt) {
         super.handleUpdateTag(nbt);
 
         var oldXIndex = xIndex;
@@ -326,7 +323,6 @@ public class TileMonitor extends TileGeneric {
      * @param y Absolute Y position in monitor coordinates
      * @return The located monitor
      */
-    @Nonnull
     private MonitorState getLoadedMonitor(int x, int y) {
         if (x == xIndex && y == yIndex) return MonitorState.present(this);
         var pos = toWorldPos(x, y);
@@ -531,7 +527,6 @@ public class TileMonitor extends TileGeneric {
         computers.remove(computer);
     }
 
-    @Nonnull
     @Override
     public AABB getRenderBoundingBox() {
         // We attempt to cache the bounding box to save having to do property lookups (and allocations!) on every frame.

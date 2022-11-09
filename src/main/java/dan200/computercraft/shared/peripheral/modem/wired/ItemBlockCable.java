@@ -20,18 +20,18 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static dan200.computercraft.shared.peripheral.modem.wired.BlockCable.*;
 
 public abstract class ItemBlockCable extends BlockItem {
-    private String translationKey;
+    private @Nullable String translationKey;
 
     public ItemBlockCable(BlockCable block, Properties settings) {
         super(block, settings);
     }
 
-    boolean placeAt(Level world, BlockPos pos, BlockState state, Player player) {
+    boolean placeAt(Level world, BlockPos pos, BlockState state, @Nullable Player player) {
         // TODO: Check entity collision.
         if (!state.canSurvive(world, pos)) return false;
 
@@ -53,11 +53,10 @@ public abstract class ItemBlockCable extends BlockItem {
     }
 
     @Override
-    public void fillItemCategory(@Nonnull CreativeModeTab group, @Nonnull NonNullList<ItemStack> list) {
+    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> list) {
         if (allowedIn(group)) list.add(new ItemStack(this));
     }
 
-    @Nonnull
     @Override
     public String getDescriptionId() {
         if (translationKey == null) {
@@ -71,7 +70,6 @@ public abstract class ItemBlockCable extends BlockItem {
             super(block, settings);
         }
 
-        @Nonnull
         @Override
         public InteractionResult place(BlockPlaceContext context) {
             var stack = context.getItemInHand();
@@ -102,7 +100,6 @@ public abstract class ItemBlockCable extends BlockItem {
             super(block, settings);
         }
 
-        @Nonnull
         @Override
         public InteractionResult place(BlockPlaceContext context) {
             var stack = context.getItemInHand();

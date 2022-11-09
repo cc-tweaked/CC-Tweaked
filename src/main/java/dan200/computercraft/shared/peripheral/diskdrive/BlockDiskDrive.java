@@ -29,7 +29,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlockDiskDrive extends BlockGeneric {
@@ -51,14 +50,12 @@ public class BlockDiskDrive extends BlockGeneric {
         properties.add(FACING, STATE);
     }
 
-    @Nonnull
     @Override
     @Deprecated
     public BlockState mirror(BlockState state, Mirror mirrorIn) {
         return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
     }
 
-    @Nonnull
     @Override
     @Deprecated
     public BlockState rotate(BlockState state, Rotation rot) {
@@ -72,7 +69,7 @@ public class BlockDiskDrive extends BlockGeneric {
     }
 
     @Override
-    public void playerDestroy(@Nonnull Level world, @Nonnull Player player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity te, @Nonnull ItemStack stack) {
+    public void playerDestroy(Level world, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity te, ItemStack stack) {
         if (te instanceof Nameable nameable && nameable.hasCustomName()) {
             player.awardStat(Stats.BLOCK_MINED.get(this));
             player.causeFoodExhaustion(0.005F);
@@ -86,7 +83,7 @@ public class BlockDiskDrive extends BlockGeneric {
     }
 
     @Override
-    public void setPlacedBy(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, ItemStack stack) {
+    public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         if (stack.hasCustomHoverName() && world.getBlockEntity(pos) instanceof TileDiskDrive drive) {
             drive.customName = stack.getHoverName();
         }
@@ -94,7 +91,7 @@ public class BlockDiskDrive extends BlockGeneric {
 
     @Override
     @Nullable
-    public <U extends BlockEntity> BlockEntityTicker<U> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<U> type) {
+    public <U extends BlockEntity> BlockEntityTicker<U> getTicker(Level level, BlockState state, BlockEntityType<U> type) {
         return level.isClientSide ? null : BaseEntityBlock.createTickerHelper(type, ModRegistry.BlockEntities.DISK_DRIVE.get(), serverTicker);
     }
 }

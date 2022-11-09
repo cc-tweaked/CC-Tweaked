@@ -46,7 +46,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 
@@ -66,8 +65,8 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     private boolean inventoryChanged = false;
     private TurtleBrain brain = new TurtleBrain(this);
     private MoveState moveState = MoveState.NOT_MOVED;
-    private IPeripheral peripheral;
-    private Runnable onMoved;
+    private @Nullable IPeripheral peripheral;
+    private @Nullable Runnable onMoved;
 
     public TileTurtle(BlockEntityType<? extends TileGeneric> type, BlockPos pos, BlockState state, ComputerFamily family) {
         super(type, pos, state, family);
@@ -80,10 +79,10 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     @Override
     protected ServerComputer createComputer(int id) {
         var computer = new ServerComputer(
-            (ServerLevel) getLevel(), id, label, getFamily(),
-            ComputerCraft.turtleTermWidth, ComputerCraft.turtleTermHeight
+            (ServerLevel) getLevel(), getBlockPos(), id, label,
+            getFamily(), ComputerCraft.turtleTermWidth,
+            ComputerCraft.turtleTermHeight
         );
-        computer.setPosition(getBlockPos());
         computer.addAPI(new TurtleAPI(computer.getAPIEnvironment(), getAccess()));
         brain.setupComputer(computer);
         return computer;
@@ -120,7 +119,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         }
     }
 
-    @Nonnull
     @Override
     public InteractionResult onActivate(Player player, InteractionHand hand, BlockHitResult hit) {
         // Apply dye
@@ -191,12 +189,12 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public void onNeighbourChange(@Nonnull BlockPos neighbour) {
+    public void onNeighbourChange(BlockPos neighbour) {
         if (moveState == MoveState.NOT_MOVED) super.onNeighbourChange(neighbour);
     }
 
     @Override
-    public void onNeighbourTileEntityChange(@Nonnull BlockPos neighbour) {
+    public void onNeighbourTileEntityChange(BlockPos neighbour) {
         if (moveState == MoveState.NOT_MOVED) super.onNeighbourTileEntityChange(neighbour);
     }
 
@@ -210,7 +208,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public void load(@Nonnull CompoundTag nbt) {
+    public void load(CompoundTag nbt) {
         super.load(nbt);
 
         // Read inventory
@@ -231,7 +229,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag nbt) {
+    public void saveAdditional(CompoundTag nbt) {
         // Write inventory
         var nbttaglist = new ListTag();
         for (var i = 0; i < INVENTORY_SIZE; i++) {
@@ -275,7 +273,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     // ITurtleTile
 
     @Override
-    public ITurtleUpgrade getUpgrade(TurtleSide side) {
+    public @Nullable ITurtleUpgrade getUpgrade(TurtleSide side) {
         return brain.getUpgrade(side);
     }
 
@@ -285,7 +283,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public ResourceLocation getOverlay() {
+    public @Nullable ResourceLocation getOverlay() {
         return brain.getOverlay();
     }
 
@@ -329,13 +327,11 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         return true;
     }
 
-    @Nonnull
     @Override
     public ItemStack getItem(int slot) {
         return slot >= 0 && slot < INVENTORY_SIZE ? inventory.get(slot) : ItemStack.EMPTY;
     }
 
-    @Nonnull
     @Override
     public ItemStack removeItemNoUpdate(int slot) {
         var result = getItem(slot);
@@ -343,7 +339,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
         return result;
     }
 
-    @Nonnull
     @Override
     public ItemStack removeItem(int slot, int count) {
         if (count == 0) return ItemStack.EMPTY;
@@ -362,7 +357,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public void setItem(int i, @Nonnull ItemStack stack) {
+    public void setItem(int i, ItemStack stack) {
         if (i >= 0 && i < INVENTORY_SIZE && !ItemStack.matches(stack, inventory.get(i))) {
             inventory.set(i, stack);
             onInventoryDefinitelyChanged();
@@ -396,7 +391,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public boolean stillValid(@Nonnull Player player) {
+    public boolean stillValid(Player player) {
         return isUsable(player);
     }
 
@@ -411,7 +406,6 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
     // Networking stuff
 
-    @Nonnull
     @Override
     public CompoundTag getUpdateTag() {
         var nbt = super.getUpdateTag();
@@ -420,7 +414,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
     }
 
     @Override
-    public void handleUpdateTag(@Nonnull CompoundTag nbt) {
+    public void handleUpdateTag(CompoundTag nbt) {
         super.handleUpdateTag(nbt);
         brain.readDescription(nbt);
     }
@@ -468,7 +462,7 @@ public class TileTurtle extends TileComputerBase implements ITurtleTile, Default
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) {
+    public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
         return ContainerTurtle.ofBrain(id, inventory, brain);
     }
 }

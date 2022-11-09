@@ -11,35 +11,34 @@ import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeriph
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class PocketModemPeripheral extends WirelessModemPeripheral {
-    private Level world = null;
+    private @Nullable Level level = null;
     private Vec3 position = Vec3.ZERO;
 
     public PocketModemPeripheral(boolean advanced) {
         super(new ModemState(), advanced);
     }
 
-    void setLocation(Level world, Vec3 position) {
+    void setLocation(Level level, Vec3 position) {
         this.position = position;
-        this.world = world;
+        this.level = level;
     }
 
-    @Nonnull
     @Override
     public Level getLevel() {
-        return world;
+        if (level == null) throw new IllegalStateException("Using modem before position has been defined");
+        return level;
     }
 
-    @Nonnull
     @Override
     public Vec3 getPosition() {
         return position;
     }
 
     @Override
-    public boolean equals(IPeripheral other) {
+    public boolean equals(@Nullable IPeripheral other) {
         return other instanceof PocketModemPeripheral;
     }
 }

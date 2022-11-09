@@ -19,7 +19,6 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.channels.Channels;
@@ -108,7 +107,7 @@ public final class ResourceMount implements IMount {
         }
     }
 
-    private FileEntry get(String path) {
+    private @Nullable FileEntry get(String path) {
         var lastEntry = root;
         var lastIndex = 0;
 
@@ -150,18 +149,18 @@ public final class ResourceMount implements IMount {
     }
 
     @Override
-    public boolean exists(@Nonnull String path) {
+    public boolean exists(String path) {
         return get(path) != null;
     }
 
     @Override
-    public boolean isDirectory(@Nonnull String path) {
+    public boolean isDirectory(String path) {
         var file = get(path);
         return file != null && file.isDirectory();
     }
 
     @Override
-    public void list(@Nonnull String path, @Nonnull List<String> contents) throws IOException {
+    public void list(String path, List<String> contents) throws IOException {
         var file = get(path);
         if (file == null || !file.isDirectory()) throw new IOException("/" + path + ": Not a directory");
 
@@ -169,7 +168,7 @@ public final class ResourceMount implements IMount {
     }
 
     @Override
-    public long getSize(@Nonnull String path) throws IOException {
+    public long getSize(String path) throws IOException {
         var file = get(path);
         if (file != null) {
             if (file.size != -1) return file.size;
@@ -197,9 +196,8 @@ public final class ResourceMount implements IMount {
         throw new IOException("/" + path + ": No such file");
     }
 
-    @Nonnull
     @Override
-    public ReadableByteChannel openForRead(@Nonnull String path) throws IOException {
+    public ReadableByteChannel openForRead(String path) throws IOException {
         var file = get(path);
         if (file != null && !file.isDirectory()) {
             var contents = CONTENTS_CACHE.getIfPresent(file);
@@ -226,6 +224,7 @@ public final class ResourceMount implements IMount {
 
     private static class FileEntry {
         final ResourceLocation identifier;
+        @Nullable
         Map<String, FileEntry> children;
         long size = -1;
 
@@ -243,13 +242,12 @@ public final class ResourceMount implements IMount {
     }
 
     /**
-     * A {@link PreparableReloadListener} which reloads any associated mounts and correctly updates the resource manager
+     * A {@link SimplePreparableReloadListener} which reloads any associated mounts and correctly updates the resource manager
      * they point to.
      */
     public static final SimplePreparableReloadListener<Void> RELOAD_LISTENER = new SimplePreparableReloadListener<>() {
-        @Nonnull
         @Override
-        protected Void prepare(@Nonnull ResourceManager manager, @Nonnull ProfilerFiller profiler) {
+        protected Void prepare(ResourceManager manager, ProfilerFiller profiler) {
             profiler.push("Reloading ComputerCraft mounts");
             try {
                 for (var mount : MOUNT_CACHE.values()) mount.load(manager);
@@ -261,7 +259,7 @@ public final class ResourceMount implements IMount {
         }
 
         @Override
-        protected void apply(@Nonnull Void result, @Nonnull ResourceManager manager, @Nonnull ProfilerFiller profiler) {
+        protected void apply(Void result, ResourceManager manager, ProfilerFiller profiler) {
         }
     };
 }

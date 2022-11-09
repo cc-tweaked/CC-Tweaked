@@ -10,7 +10,7 @@ import dan200.computercraft.api.lua.LuaTable;
 import dan200.computercraft.shared.util.PauseAwareTimer;
 import net.minecraft.util.Mth;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -38,9 +38,9 @@ class DfpwmState {
     private boolean unplayed = true;
     private long clientEndTime = PauseAwareTimer.getTime();
     private float pendingVolume = 1.0f;
-    private ByteBuffer pendingAudio;
+    private @Nullable ByteBuffer pendingAudio;
 
-    synchronized boolean pushBuffer(LuaTable<?, ?> table, int size, @Nonnull Optional<Double> volume) throws LuaException {
+    synchronized boolean pushBuffer(LuaTable<?, ?> table, int size, Optional<Double> volume) throws LuaException {
         if (pendingAudio != null) return false;
 
         var outSize = size / 8;
@@ -92,6 +92,7 @@ class DfpwmState {
 
     ByteBuffer pullPending(long now) {
         var audio = pendingAudio;
+        if (audio == null) throw new IllegalStateException("Should not pull pending audio yet");
         pendingAudio = null;
         // Compute when we should consider sending the next packet.
         clientEndTime = Math.max(now, clientEndTime) + (audio.remaining() * SECOND * 8 / SAMPLE_RATE);

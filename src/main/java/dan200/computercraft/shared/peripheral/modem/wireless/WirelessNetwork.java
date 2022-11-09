@@ -9,14 +9,15 @@ import dan200.computercraft.api.network.IPacketNetwork;
 import dan200.computercraft.api.network.IPacketReceiver;
 import dan200.computercraft.api.network.Packet;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WirelessNetwork implements IPacketNetwork {
-    private static WirelessNetwork universalNetwork = null;
+    // TODO: Move this to ServerContext.
+    private static @Nullable WirelessNetwork universalNetwork = null;
 
     public static WirelessNetwork getUniversal() {
         if (universalNetwork == null) universalNetwork = new WirelessNetwork();
@@ -30,25 +31,25 @@ public class WirelessNetwork implements IPacketNetwork {
     private final Set<IPacketReceiver> receivers = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     @Override
-    public void addReceiver(@Nonnull IPacketReceiver receiver) {
+    public void addReceiver(IPacketReceiver receiver) {
         Objects.requireNonNull(receiver, "device cannot be null");
         receivers.add(receiver);
     }
 
     @Override
-    public void removeReceiver(@Nonnull IPacketReceiver receiver) {
+    public void removeReceiver(IPacketReceiver receiver) {
         Objects.requireNonNull(receiver, "device cannot be null");
         receivers.remove(receiver);
     }
 
     @Override
-    public void transmitSameDimension(@Nonnull Packet packet, double range) {
+    public void transmitSameDimension(Packet packet, double range) {
         Objects.requireNonNull(packet, "packet cannot be null");
         for (var device : receivers) tryTransmit(device, packet, range, false);
     }
 
     @Override
-    public void transmitInterdimensional(@Nonnull Packet packet) {
+    public void transmitInterdimensional(Packet packet) {
         Objects.requireNonNull(packet, "packet cannot be null");
         for (var device : receivers) tryTransmit(device, packet, 0, true);
     }

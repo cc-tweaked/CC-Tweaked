@@ -21,7 +21,6 @@ import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -145,19 +144,18 @@ public final class ComputersArgumentType implements ArgumentType<ComputersArgume
 
     public static class Info implements ArgumentTypeInfo<ComputersArgumentType, Template> {
         @Override
-        public void serializeToNetwork(@Nonnull ComputersArgumentType.Template arg, @Nonnull FriendlyByteBuf buf) {
+        public void serializeToNetwork(ComputersArgumentType.Template arg, FriendlyByteBuf buf) {
             buf.writeBoolean(arg.requireSome());
         }
 
-        @Nonnull
         @Override
-        public ComputersArgumentType.Template deserializeFromNetwork(@Nonnull FriendlyByteBuf buf) {
+        public ComputersArgumentType.Template deserializeFromNetwork(FriendlyByteBuf buf) {
             var requiresSome = buf.readBoolean();
             return new ComputersArgumentType.Template(this, requiresSome);
         }
 
         @Override
-        public void serializeToJson(@Nonnull ComputersArgumentType.Template arg, @Nonnull JsonObject json) {
+        public void serializeToJson(ComputersArgumentType.Template arg, JsonObject json) {
             json.addProperty("requireSome", arg.requireSome);
         }
 

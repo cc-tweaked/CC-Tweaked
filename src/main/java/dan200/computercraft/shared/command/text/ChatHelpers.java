@@ -12,6 +12,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 
+import javax.annotation.Nullable;
+
 /**
  * Various helpers for building chat messages.
  */
@@ -21,7 +23,7 @@ public final class ChatHelpers {
     private ChatHelpers() {
     }
 
-    public static MutableComponent coloured(String text, ChatFormatting colour) {
+    public static MutableComponent coloured(@Nullable String text, ChatFormatting colour) {
         return Component.literal(text == null ? "" : text).withStyle(colour);
     }
 
@@ -30,15 +32,15 @@ public final class ChatHelpers {
         return component;
     }
 
-    public static MutableComponent text(String text) {
+    public static MutableComponent text(@Nullable String text) {
         return Component.literal(text == null ? "" : text);
     }
 
-    public static MutableComponent translate(String text) {
+    public static MutableComponent translate(@Nullable String text) {
         return Component.translatable(text == null ? "" : text);
     }
 
-    public static MutableComponent translate(String text, Object... args) {
+    public static MutableComponent translate(@Nullable String text, Object... args) {
         return Component.translatable(text == null ? "" : text, args);
     }
 
@@ -50,7 +52,7 @@ public final class ChatHelpers {
         return component;
     }
 
-    public static MutableComponent position(BlockPos pos) {
+    public static MutableComponent position(@Nullable BlockPos pos) {
         if (pos == null) return translate("commands.computercraft.generic.no_position");
         return translate("commands.computercraft.generic.position", pos.getX(), pos.getY(), pos.getZ());
     }

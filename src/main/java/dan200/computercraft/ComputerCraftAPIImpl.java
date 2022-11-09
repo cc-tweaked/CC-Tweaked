@@ -51,7 +51,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,9 +64,9 @@ public final class ComputerCraftAPIImpl implements ComputerCraftAPIForgeService 
     private final DetailRegistry<BlockReference> blockDetails = new DetailRegistryImpl<>(BlockData::fillBasic);
     private final DetailRegistry<FluidStack> fluidStackDetails = new DetailRegistryImpl<>(FluidData::fillBasic);
 
-    private String version;
+    private @Nullable String version;
 
-    public static InputStream getResourceFile(MinecraftServer server, String domain, String subPath) {
+    public static @Nullable InputStream getResourceFile(MinecraftServer server, String domain, String subPath) {
         var manager = server.getResourceManager();
         var resource = manager.getResource(new ResourceLocation(domain, subPath)).orElse(null);
         if (resource == null) return null;
@@ -77,7 +77,6 @@ public final class ComputerCraftAPIImpl implements ComputerCraftAPIForgeService 
         }
     }
 
-    @Nonnull
     @Override
     public String getInstalledVersion() {
         if (version != null) return version;
@@ -87,71 +86,75 @@ public final class ComputerCraftAPIImpl implements ComputerCraftAPIForgeService 
     }
 
     @Override
-    public int createUniqueNumberedSaveDir(@Nonnull Level world, @Nonnull String parentSubPath) {
-        return ServerContext.get(world.getServer()).getNextId(parentSubPath);
+    public int createUniqueNumberedSaveDir(Level world, String parentSubPath) {
+        var server = world.getServer();
+        if (server == null) throw new IllegalArgumentException("Cannot find server from provided level");
+        return ServerContext.get(server).getNextId(parentSubPath);
     }
 
     @Override
-    public IWritableMount createSaveDirMount(@Nonnull Level world, @Nonnull String subPath, long capacity) {
+    public @Nullable IWritableMount createSaveDirMount(Level world, String subPath, long capacity) {
+        var server = world.getServer();
+        if (server == null) throw new IllegalArgumentException("Cannot find server from provided level");
+
         try {
-            return new FileMount(new File(ServerContext.get(world.getServer()).storageDir().toFile(), subPath), capacity);
+            return new FileMount(new File(ServerContext.get(server).storageDir().toFile(), subPath), capacity);
         } catch (Exception e) {
             return null;
         }
     }
 
     @Override
-    public IMount createResourceMount(@Nonnull String domain, @Nonnull String subPath) {
+    public @Nullable IMount createResourceMount(String domain, String subPath) {
         var manager = ServerLifecycleHooks.getCurrentServer().getResourceManager();
         var mount = ResourceMount.get(domain, subPath, manager);
         return mount.exists("") ? mount : null;
     }
 
     @Override
-    public void registerPeripheralProvider(@Nonnull IPeripheralProvider provider) {
+    public void registerPeripheralProvider(IPeripheralProvider provider) {
         Peripherals.register(provider);
     }
 
     @Override
-    public void registerGenericSource(@Nonnull GenericSource source) {
+    public void registerGenericSource(GenericSource source) {
         GenericMethod.register(source);
     }
 
     @Override
-    public void registerGenericCapability(@Nonnull Capability<?> capability) {
+    public void registerGenericCapability(Capability<?> capability) {
         GenericPeripheralProvider.addCapability(capability);
     }
 
     @Override
-    public void registerBundledRedstoneProvider(@Nonnull IBundledRedstoneProvider provider) {
+    public void registerBundledRedstoneProvider(IBundledRedstoneProvider provider) {
         BundledRedstone.register(provider);
     }
 
     @Override
-    public int getBundledRedstoneOutput(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side) {
+    public int getBundledRedstoneOutput(Level world, BlockPos pos, Direction side) {
         return BundledRedstone.getDefaultOutput(world, pos, side);
     }
 
     @Override
-    public void registerMediaProvider(@Nonnull IMediaProvider provider) {
+    public void registerMediaProvider(IMediaProvider provider) {
         MediaProviders.register(provider);
     }
 
-    @Nonnull
     @Override
     public IPacketNetwork getWirelessNetwork() {
         return WirelessNetwork.getUniversal();
     }
 
     @Override
-    public void registerAPIFactory(@Nonnull ILuaAPIFactory factory) {
+    public void registerAPIFactory(ILuaAPIFactory factory) {
         ApiFactories.register(factory);
     }
 
     @Override
     @Deprecated
     @SuppressWarnings("unchecked")
-    public <T> void registerDetailProvider(@Nonnull Class<T> type, @Nonnull IDetailProvider<T> provider) {
+    public <T> void registerDetailProvider(Class<T> type, IDetailProvider<T> provider) {
         if (type == ItemStack.class) {
             itemStackDetails.addProvider((IDetailProvider<ItemStack>) provider);
         } else if (type == BlockReference.class) {
@@ -163,21 +166,19 @@ public final class ComputerCraftAPIImpl implements ComputerCraftAPIForgeService 
         }
     }
 
-    @Nonnull
     @Override
-    public IWiredNode createWiredNodeForElement(@Nonnull IWiredElement element) {
+    public IWiredNode createWiredNodeForElement(IWiredElement element) {
         return new WiredNode(element);
     }
 
-    @Nonnull
     @Override
-    public LazyOptional<IWiredElement> getWiredElementAt(@Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction side) {
+    public LazyOptional<IWiredElement> getWiredElementAt(BlockGetter world, BlockPos pos, Direction side) {
         var tile = world.getBlockEntity(pos);
         return tile == null ? LazyOptional.empty() : tile.getCapability(CAPABILITY_WIRED_ELEMENT, side);
     }
 
     @Override
-    public void registerRefuelHandler(@Nonnull TurtleRefuelHandler handler) {
+    public void registerRefuelHandler(TurtleRefuelHandler handler) {
         TurtleRefuelHandlers.register(handler);
     }
 

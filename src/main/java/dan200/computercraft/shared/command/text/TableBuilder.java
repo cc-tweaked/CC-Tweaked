@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.command.text;
 
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.command.CommandUtils;
 import dan200.computercraft.shared.network.client.ChatTableClientMessage;
 import dan200.computercraft.shared.platform.PlatformHelper;
@@ -12,7 +13,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,22 +20,22 @@ import java.util.List;
 public class TableBuilder {
     private final String id;
     private int columns = -1;
-    private final Component[] headers;
+    private final @Nullable Component[] headers;
     private final ArrayList<Component[]> rows = new ArrayList<>();
     private int additional;
 
-    public TableBuilder(@Nonnull String id, @Nonnull Component... headers) {
+    public TableBuilder(String id, Component... headers) {
         this.id = id;
         this.headers = headers;
         columns = headers.length;
     }
 
-    public TableBuilder(@Nonnull String id) {
+    public TableBuilder(String id) {
         this.id = id;
         headers = null;
     }
 
-    public TableBuilder(@Nonnull String id, @Nonnull String... headers) {
+    public TableBuilder(String id, String... headers) {
         this.id = id;
         this.headers = new Component[headers.length];
         columns = headers.length;
@@ -43,7 +43,7 @@ public class TableBuilder {
         for (var i = 0; i < headers.length; i++) this.headers[i] = ChatHelpers.header(headers[i]);
     }
 
-    public void row(@Nonnull Component... row) {
+    public void row(Component... row) {
         if (columns == -1) columns = row.length;
         if (row.length != columns) throw new IllegalArgumentException("Row is the incorrect length");
         rows.add(row);
@@ -78,7 +78,6 @@ public class TableBuilder {
         return headers;
     }
 
-    @Nonnull
     public List<Component[]> getRows() {
         return rows;
     }
@@ -106,7 +105,8 @@ public class TableBuilder {
     public void display(CommandSourceStack source) {
         if (CommandUtils.isPlayer(source)) {
             trim(18);
-            PlatformHelper.get().sendToPlayer(new ChatTableClientMessage(this), (ServerPlayer) source.getEntity());
+            var player = (ServerPlayer) Nullability.assertNonNull(source.getEntity());
+            PlatformHelper.get().sendToPlayer(new ChatTableClientMessage(this), player);
         } else {
             trim(100);
             new ServerTableFormatter(source).display(this);

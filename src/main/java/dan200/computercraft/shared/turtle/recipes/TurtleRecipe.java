@@ -16,22 +16,18 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
-import javax.annotation.Nonnull;
-
 public final class TurtleRecipe extends ComputerFamilyRecipe {
     public TurtleRecipe(ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family) {
         super(identifier, group, width, height, ingredients, result, family);
     }
 
-    @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer() {
         return ModRegistry.RecipeSerializers.TURTLE.get();
     }
 
-    @Nonnull
     @Override
-    protected ItemStack convert(@Nonnull IComputerItem item, @Nonnull ItemStack stack) {
+    protected ItemStack convert(IComputerItem item, ItemStack stack) {
         var computerID = item.getComputerID(stack);
         var label = item.getLabel(stack);
 

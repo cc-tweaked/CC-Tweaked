@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.shared.peripheral.monitor;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 final class MonitorState {
@@ -13,14 +12,14 @@ final class MonitorState {
     public static final MonitorState MISSING = new MonitorState(State.MISSING, null);
 
     private final State state;
-    private final TileMonitor monitor;
+    private final @Nullable TileMonitor monitor;
 
-    private MonitorState(@Nonnull State state, @Nullable TileMonitor monitor) {
+    private MonitorState(State state, @Nullable TileMonitor monitor) {
         this.state = state;
         this.monitor = monitor;
     }
 
-    public static MonitorState present(@Nonnull TileMonitor monitor) {
+    public static MonitorState present(TileMonitor monitor) {
         return new MonitorState(State.PRESENT, monitor);
     }
 

@@ -13,7 +13,6 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.TermMethods;
 import dan200.computercraft.core.terminal.Terminal;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -47,7 +46,6 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral {
         this.monitor = monitor;
     }
 
-    @Nonnull
     @Override
     public String getType() {
         return "monitor";
@@ -81,28 +79,26 @@ public class MonitorPeripheral extends TermMethods implements IPeripheral {
     }
 
     @Override
-    public void attach(@Nonnull IComputerAccess computer) {
+    public void attach(IComputerAccess computer) {
         monitor.addComputer(computer);
     }
 
     @Override
-    public void detach(@Nonnull IComputerAccess computer) {
+    public void detach(IComputerAccess computer) {
         monitor.removeComputer(computer);
     }
 
     @Override
-    public boolean equals(IPeripheral other) {
+    public boolean equals(@Nullable IPeripheral other) {
         return other instanceof MonitorPeripheral && monitor == ((MonitorPeripheral) other).monitor;
     }
 
-    @Nonnull
     private ServerMonitor getMonitor() throws LuaException {
         var monitor = this.monitor.getCachedServerMonitor();
         if (monitor == null) throw new LuaException("Monitor has been detached");
         return monitor;
     }
 
-    @Nonnull
     @Override
     public Terminal getTerminal() throws LuaException {
         Terminal terminal = getMonitor().getTerminal();

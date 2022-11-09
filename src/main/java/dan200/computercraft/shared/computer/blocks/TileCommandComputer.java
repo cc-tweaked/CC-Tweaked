@@ -21,7 +21,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +41,7 @@ public class TileCommandComputer extends TileComputer {
         }
 
         @Override
-        public void sendSystemMessage(@Nonnull Component textComponent) {
+        public void sendSystemMessage(Component textComponent) {
             output.put(output.size() + 1, textComponent.getString());
         }
 

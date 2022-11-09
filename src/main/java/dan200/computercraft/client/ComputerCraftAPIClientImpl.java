@@ -12,12 +12,11 @@ import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import dan200.computercraft.client.turtle.TurtleUpgradeModellers;
 import dan200.computercraft.impl.client.ComputerCraftAPIClientService;
 
-import javax.annotation.Nonnull;
 
 @AutoService(ComputerCraftAPIClientService.class)
 public final class ComputerCraftAPIClientImpl implements ComputerCraftAPIClientService {
     @Override
-    public <T extends ITurtleUpgrade> void registerTurtleUpgradeModeller(@Nonnull TurtleUpgradeSerialiser<T> serialiser, @Nonnull TurtleUpgradeModeller<T> modeller) {
+    public <T extends ITurtleUpgrade> void registerTurtleUpgradeModeller(TurtleUpgradeSerialiser<T> serialiser, TurtleUpgradeModeller<T> modeller) {
         TurtleUpgradeModellers.register(serialiser, modeller);
     }
 }

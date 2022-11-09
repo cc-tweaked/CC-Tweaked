@@ -24,7 +24,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
@@ -35,8 +34,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem {
         super(settings);
     }
 
-    @Nonnull
-    public static ItemStack createFromIDAndColour(int id, String label, int colour) {
+    public static ItemStack createFromIDAndColour(int id, @Nullable String label, int colour) {
         var stack = new ItemStack(ModRegistry.Items.DISK.get());
         setDiskID(stack, id);
         ModRegistry.Items.DISK.get().setLabel(stack, label);
@@ -45,7 +43,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem {
     }
 
     @Override
-    public void fillItemCategory(@Nonnull CreativeModeTab tabs, @Nonnull NonNullList<ItemStack> list) {
+    public void fillItemCategory(CreativeModeTab tabs, NonNullList<ItemStack> list) {
         if (!allowedIn(tabs)) return;
         for (var colour = 0; colour < 16; colour++) {
             list.add(createFromIDAndColour(-1, null, Colour.VALUES[colour].getHex()));
@@ -53,7 +51,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem {
     }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level world, @Nonnull List<Component> list, TooltipFlag options) {
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> list, TooltipFlag options) {
         if (options.isAdvanced()) {
             var id = getDiskID(stack);
             if (id >= 0) {
@@ -69,12 +67,12 @@ public class ItemDisk extends Item implements IMedia, IColouredItem {
     }
 
     @Override
-    public String getLabel(@Nonnull ItemStack stack) {
+    public @Nullable String getLabel(ItemStack stack) {
         return stack.hasCustomHoverName() ? stack.getHoverName().getString() : null;
     }
 
     @Override
-    public boolean setLabel(@Nonnull ItemStack stack, String label) {
+    public boolean setLabel(ItemStack stack, @Nullable String label) {
         if (label != null) {
             stack.setHoverName(Component.literal(label));
         } else {
@@ -84,7 +82,7 @@ public class ItemDisk extends Item implements IMedia, IColouredItem {
     }
 
     @Override
-    public IMount createDataMount(@Nonnull ItemStack stack, @Nonnull Level world) {
+    public @Nullable IMount createDataMount(ItemStack stack, Level world) {
         var diskID = getDiskID(stack);
         if (diskID < 0) {
             diskID = ComputerCraftAPI.createUniqueNumberedSaveDir(world, "disk");
@@ -93,17 +91,17 @@ public class ItemDisk extends Item implements IMedia, IColouredItem {
         return ComputerCraftAPI.createSaveDirMount(world, "disk/" + diskID, ComputerCraft.floppySpaceLimit);
     }
 
-    public static int getDiskID(@Nonnull ItemStack stack) {
+    public static int getDiskID(ItemStack stack) {
         var nbt = stack.getTag();
         return nbt != null && nbt.contains(NBT_ID) ? nbt.getInt(NBT_ID) : -1;
     }
 
-    private static void setDiskID(@Nonnull ItemStack stack, int id) {
+    private static void setDiskID(ItemStack stack, int id) {
         if (id >= 0) stack.getOrCreateTag().putInt(NBT_ID, id);
     }
 
     @Override
-    public int getColour(@Nonnull ItemStack stack) {
+    public int getColour(ItemStack stack) {
         var colour = IColouredItem.getColourBasic(stack);
         return colour == -1 ? Colour.WHITE.getHex() : colour;
     }

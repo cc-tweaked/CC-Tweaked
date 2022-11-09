@@ -12,7 +12,6 @@ import dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeriph
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class PocketModem extends AbstractPocketUpgrade {
@@ -25,12 +24,12 @@ public class PocketModem extends AbstractPocketUpgrade {
 
     @Nullable
     @Override
-    public IPeripheral createPeripheral(@Nonnull IPocketAccess access) {
+    public IPeripheral createPeripheral(IPocketAccess access) {
         return new PocketModemPeripheral(advanced);
     }
 
     @Override
-    public void update(@Nonnull IPocketAccess access, @Nullable IPeripheral peripheral) {
+    public void update(IPocketAccess access, @Nullable IPeripheral peripheral) {
         if (!(peripheral instanceof PocketModemPeripheral modem)) return;
 
         var entity = access.getEntity();

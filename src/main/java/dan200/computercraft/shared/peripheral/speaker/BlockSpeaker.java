@@ -22,7 +22,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlockSpeaker extends BlockGeneric {
@@ -41,14 +40,12 @@ public class BlockSpeaker extends BlockGeneric {
         properties.add(FACING);
     }
 
-    @Nonnull
     @Override
     @Deprecated
     public BlockState mirror(BlockState state, Mirror mirrorIn) {
         return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
     }
 
-    @Nonnull
     @Override
     @Deprecated
     public BlockState rotate(BlockState state, Rotation rot) {
@@ -63,7 +60,7 @@ public class BlockSpeaker extends BlockGeneric {
 
     @Override
     @Nullable
-    public <U extends BlockEntity> BlockEntityTicker<U> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<U> type) {
+    public <U extends BlockEntity> BlockEntityTicker<U> getTicker(Level level, BlockState state, BlockEntityType<U> type) {
         return level.isClientSide ? null : BaseEntityBlock.createTickerHelper(type, ModRegistry.BlockEntities.SPEAKER.get(), serverTicker);
     }
 }

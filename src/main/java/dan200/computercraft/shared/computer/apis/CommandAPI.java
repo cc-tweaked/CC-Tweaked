@@ -19,9 +19,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 
 /**
@@ -243,9 +243,8 @@ public class CommandAPI implements ILuaAPI {
         return getBlockInfo(level, position);
     }
 
-    @Nonnull
-    private Level getLevel(@Nonnull Optional<String> id) throws LuaException {
-        var currentLevel = computer.getLevel();
+    private Level getLevel(Optional<String> id) throws LuaException {
+        var currentLevel = (ServerLevel) computer.getLevel();
         if (currentLevel == null) throw new LuaException("No world exists");
 
         if (!id.isPresent()) return currentLevel;

@@ -11,7 +11,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
-import javax.annotation.Nonnull;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 /**
@@ -24,13 +23,13 @@ public abstract class ComputerServerMessage implements NetworkMessage<ServerNetw
         containerId = menu.containerId;
     }
 
-    public ComputerServerMessage(@Nonnull FriendlyByteBuf buffer) {
+    public ComputerServerMessage(FriendlyByteBuf buffer) {
         containerId = buffer.readVarInt();
     }
 
     @Override
     @OverridingMethodsMustInvokeSuper
-    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeVarInt(containerId);
     }
 
@@ -42,5 +41,5 @@ public abstract class ComputerServerMessage implements NetworkMessage<ServerNetw
         }
     }
 
-    protected abstract void handle(ServerNetworkContext context, @Nonnull ComputerMenu container);
+    protected abstract void handle(ServerNetworkContext context, ComputerMenu container);
 }

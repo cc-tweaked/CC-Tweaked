@@ -15,7 +15,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.NonNullConsumer;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -29,7 +28,7 @@ public final class Peripherals {
     private Peripherals() {
     }
 
-    public static synchronized void register(@Nonnull IPeripheralProvider provider) {
+    public static synchronized void register(IPeripheralProvider provider) {
         Objects.requireNonNull(provider, "provider cannot be null");
         providers.add(provider);
     }

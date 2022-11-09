@@ -10,8 +10,6 @@ import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
-
 public class TurtleCompareToCommand implements ITurtleCommand {
     private final int slot;
 
@@ -19,9 +17,8 @@ public class TurtleCompareToCommand implements ITurtleCommand {
         this.slot = slot;
     }
 
-    @Nonnull
     @Override
-    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
+    public TurtleCommandResult execute(ITurtleAccess turtle) {
         var selectedStack = turtle.getInventory().getItem(turtle.getSelectedSlot());
         var stack = turtle.getInventory().getItem(slot);
         return ItemStack.isSameItemSameTags(selectedStack, stack)

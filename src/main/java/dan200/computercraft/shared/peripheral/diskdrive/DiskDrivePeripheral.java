@@ -13,7 +13,6 @@ import dan200.computercraft.core.util.StringUtil;
 import dan200.computercraft.shared.MediaProviders;
 import dan200.computercraft.shared.media.items.ItemDisk;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Optional;
 
@@ -42,7 +41,6 @@ public class DiskDrivePeripheral implements IPeripheral {
         this.diskDrive = diskDrive;
     }
 
-    @Nonnull
     @Override
     public String getType() {
         return "drive";
@@ -65,7 +63,7 @@ public class DiskDrivePeripheral implements IPeripheral {
      * @cc.treturn string The label of the disk, or {@code nil} if either no disk is inserted or the disk doesn't have a label.
      */
     @LuaFunction
-    public final Object[] getDiskLabel() {
+    public final @Nullable Object[] getDiskLabel() {
         var stack = diskDrive.getDiskStack();
         var media = MediaProviders.get(stack);
         return media == null ? null : new Object[]{ media.getLabel(stack) };
@@ -177,27 +175,26 @@ public class DiskDrivePeripheral implements IPeripheral {
      * @cc.since 1.4
      */
     @LuaFunction
-    public final Object[] getDiskID() {
+    public final @Nullable Object[] getDiskID() {
         var disk = diskDrive.getDiskStack();
         return disk.getItem() instanceof ItemDisk ? new Object[]{ ItemDisk.getDiskID(disk) } : null;
     }
 
     @Override
-    public void attach(@Nonnull IComputerAccess computer) {
+    public void attach(IComputerAccess computer) {
         diskDrive.mount(computer);
     }
 
     @Override
-    public void detach(@Nonnull IComputerAccess computer) {
+    public void detach(IComputerAccess computer) {
         diskDrive.unmount(computer);
     }
 
     @Override
-    public boolean equals(IPeripheral other) {
+    public boolean equals(@Nullable IPeripheral other) {
         return this == other || other instanceof DiskDrivePeripheral drive && drive.diskDrive == diskDrive;
     }
 
-    @Nonnull
     @Override
     public Object getTarget() {
         return diskDrive;

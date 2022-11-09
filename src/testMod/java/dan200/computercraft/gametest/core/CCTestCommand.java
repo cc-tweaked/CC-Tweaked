@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
+import static dan200.computercraft.core.util.Nullability.assertNonNull;
 import static dan200.computercraft.shared.command.builder.HelpingArgumentBuilder.choice;
 import static net.minecraft.commands.Commands.literal;
 
@@ -61,6 +62,7 @@ class CCTestCommand {
                 if (pos == null) return error(context.getSource(), "No nearby test");
 
                 var structureBlock = (StructureBlockEntity) player.getLevel().getBlockEntity(pos);
+                if (structureBlock == null) return error(context.getSource(), "No nearby structure block");
                 var info = GameTestRegistry.getTestFunction(structureBlock.getStructurePath());
 
                 // Kill the existing armor stand
@@ -72,7 +74,7 @@ class CCTestCommand {
                 var nbt = new CompoundTag();
                 nbt.putBoolean("Marker", true);
                 nbt.putBoolean("Invisible", true);
-                var armorStand = EntityType.ARMOR_STAND.create(player.getLevel());
+                var armorStand = assertNonNull(EntityType.ARMOR_STAND.create(player.getLevel()));
                 armorStand.readAdditionalSaveData(nbt);
                 armorStand.copyPosition(player);
                 armorStand.setCustomName(Component.literal(info.getTestName()));

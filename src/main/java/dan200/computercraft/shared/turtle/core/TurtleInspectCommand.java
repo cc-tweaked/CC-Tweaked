@@ -11,8 +11,6 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 
-import javax.annotation.Nonnull;
-
 public class TurtleInspectCommand implements ITurtleCommand {
     private final InteractDirection direction;
 
@@ -20,9 +18,8 @@ public class TurtleInspectCommand implements ITurtleCommand {
         this.direction = direction;
     }
 
-    @Nonnull
     @Override
-    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
+    public TurtleCommandResult execute(ITurtleAccess turtle) {
         // Get world direction from direction
         var direction = this.direction.toWorldDir(turtle);
 

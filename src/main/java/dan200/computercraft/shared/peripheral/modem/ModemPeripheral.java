@@ -14,7 +14,7 @@ import dan200.computercraft.api.network.Packet;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -84,7 +84,7 @@ import java.util.Set;
  * </div>
  */
 public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPacketReceiver {
-    private IPacketNetwork network;
+    private @Nullable IPacketNetwork network;
     private final Set<IComputerAccess> computers = new HashSet<>(1);
     private final ModemState state;
 
@@ -96,7 +96,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
         return state;
     }
 
-    private synchronized void setNetwork(IPacketNetwork network) {
+    private synchronized void setNetwork(@Nullable IPacketNetwork network) {
         if (this.network == network) return;
 
         // Leave old network
@@ -114,7 +114,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     }
 
     @Override
-    public void receiveSameDimension(@Nonnull Packet packet, double distance) {
+    public void receiveSameDimension(Packet packet, double distance) {
         if (packet.sender() == this || !state.isOpen(packet.channel())) return;
 
         synchronized (computers) {
@@ -126,7 +126,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     }
 
     @Override
-    public void receiveDifferentDimension(@Nonnull Packet packet) {
+    public void receiveDifferentDimension(Packet packet) {
         if (packet.sender() == this || !state.isOpen(packet.channel())) return;
 
         synchronized (computers) {
@@ -139,7 +139,6 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
 
     protected abstract IPacketNetwork getNetwork();
 
-    @Nonnull
     @Override
     public String getType() {
         return "modem";
@@ -250,7 +249,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     }
 
     @Override
-    public synchronized void attach(@Nonnull IComputerAccess computer) {
+    public synchronized void attach(IComputerAccess computer) {
         synchronized (computers) {
             computers.add(computer);
         }
@@ -259,7 +258,7 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
     }
 
     @Override
-    public synchronized void detach(@Nonnull IComputerAccess computer) {
+    public synchronized void detach(IComputerAccess computer) {
         boolean empty;
         synchronized (computers) {
             computers.remove(computer);
@@ -269,7 +268,6 @@ public abstract class ModemPeripheral implements IPeripheral, IPacketSender, IPa
         if (empty) setNetwork(null);
     }
 
-    @Nonnull
     @Override
     public String getSenderID() {
         synchronized (computers) {

@@ -11,14 +11,12 @@ import dan200.computercraft.shared.computer.terminal.TerminalState;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
-
 public class ComputerContainerData implements ContainerData {
     private final ComputerFamily family;
     private final TerminalState terminal;
     private final ItemStack displayStack;
 
-    public ComputerContainerData(ServerComputer computer, @Nonnull ItemStack displayStack) {
+    public ComputerContainerData(ServerComputer computer, ItemStack displayStack) {
         family = computer.getFamily();
         terminal = computer.getTerminalState();
         this.displayStack = displayStack;
@@ -50,7 +48,6 @@ public class ComputerContainerData implements ContainerData {
      *
      * @return The stack associated with this menu.
      */
-    @Nonnull
     public ItemStack displayStack() {
         return displayStack;
     }

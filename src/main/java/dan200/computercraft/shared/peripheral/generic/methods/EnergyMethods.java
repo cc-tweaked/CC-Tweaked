@@ -12,8 +12,6 @@ import dan200.computercraft.api.peripheral.PeripheralType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.energy.IEnergyStorage;
 
-import javax.annotation.Nonnull;
-
 /**
  * Methods for interacting with blocks using Forge's energy storage system.
  * <p>
@@ -28,13 +26,11 @@ import javax.annotation.Nonnull;
  * @cc.since 1.94.0
  */
 public class EnergyMethods implements GenericPeripheral {
-    @Nonnull
     @Override
     public PeripheralType getType() {
         return PeripheralType.ofAdditional("energy_storage");
     }
 
-    @Nonnull
     @Override
     public ResourceLocation id() {
         return new ResourceLocation(ComputerCraft.MOD_ID, "energy");

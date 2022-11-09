@@ -22,11 +22,10 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class TileComputer extends TileComputerBase {
-    private IPeripheral peripheral;
+    private @Nullable IPeripheral peripheral;
 
     public TileComputer(BlockEntityType<? extends TileComputer> type, BlockPos pos, BlockState state, ComputerFamily family) {
         super(type, pos, state, family);
@@ -35,12 +34,11 @@ public class TileComputer extends TileComputerBase {
     @Override
     protected ServerComputer createComputer(int id) {
         var family = getFamily();
-        var computer = new ServerComputer(
-            (ServerLevel) getLevel(), id, label, family,
-            ComputerCraft.computerTermWidth, ComputerCraft.computerTermHeight
+        return new ServerComputer(
+            (ServerLevel) getLevel(), getBlockPos(), id, label,
+            family, ComputerCraft.computerTermWidth,
+            ComputerCraft.computerTermHeight
         );
-        computer.setPosition(getBlockPos());
-        return computer;
     }
 
     protected boolean isUsableByPlayer(Player player) {
@@ -71,7 +69,7 @@ public class TileComputer extends TileComputerBase {
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) {
+    public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
         return new ComputerMenuWithoutInventory(ModRegistry.Menus.COMPUTER.get(), id, inventory, this::isUsableByPlayer, createServerComputer(), getFamily());
     }
 

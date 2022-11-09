@@ -20,7 +20,6 @@ import net.minecraft.world.phys.Vec3;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
@@ -314,19 +313,16 @@ public class NetworkTest {
             this.addPeripheral(id);
         }
 
-        @Nonnull
         @Override
         public Level getLevel() {
             return world;
         }
 
-        @Nonnull
         @Override
         public Vec3 getPosition() {
             return position;
         }
 
-        @Nonnull
         @Override
         public String getSenderID() {
             return id;
@@ -337,14 +333,13 @@ public class NetworkTest {
             return "NetworkElement{" + id + "}";
         }
 
-        @Nonnull
         @Override
         public IWiredNode getNode() {
             return node;
         }
 
         @Override
-        public void networkChanged(@Nonnull IWiredNetworkChange change) {
+        public void networkChanged(IWiredNetworkChange change) {
             remotePeripherals.keySet().removeAll(change.peripheralsRemoved().keySet());
             remotePeripherals.putAll(change.peripheralsAdded());
         }
@@ -355,14 +350,12 @@ public class NetworkTest {
             return this;
         }
 
-        @Nonnull
         public Map<String, IPeripheral> allPeripherals() {
             return remotePeripherals;
         }
     }
 
     private static class NetworkPeripheral implements IPeripheral {
-        @Nonnull
         @Override
         public String getType() {
             return "test";

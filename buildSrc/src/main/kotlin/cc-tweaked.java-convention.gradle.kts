@@ -2,6 +2,8 @@ import cc.tweaked.gradle.CCTweakedPlugin
 import cc.tweaked.gradle.LicenseHeader
 import com.diffplug.gradle.spotless.FormatExtension
 import com.diffplug.spotless.LineEnding
+import net.ltgt.gradle.errorprone.CheckSeverity
+import net.ltgt.gradle.errorprone.errorprone
 import java.nio.charset.StandardCharsets
 
 plugins {
@@ -10,6 +12,7 @@ plugins {
     jacoco
     checkstyle
     id("com.diffplug.spotless")
+    id("net.ltgt.errorprone")
 }
 
 val modVersion: String by extra
@@ -43,6 +46,8 @@ repositories {
             includeGroup("commoble.morered")
             includeGroup("maven.modrinth")
             includeGroup("mezz.jei")
+            // Until https://github.com/SpongePowered/Mixin/pull/593 is merged
+            includeModule("org.spongepowered", "mixin")
         }
     }
 }
@@ -50,6 +55,9 @@ repositories {
 dependencies {
     val libs = project.extensions.getByType<VersionCatalogsExtension>().named("libs")
     checkstyle(libs.findLibrary("checkstyle").get())
+
+    errorprone(libs.findLibrary("errorProne-core").get())
+    errorprone(libs.findLibrary("nullAway").get())
 }
 
 // Configure default JavaCompile tasks with our arguments.
@@ -57,8 +65,35 @@ sourceSets.all {
     tasks.named(compileJavaTaskName, JavaCompile::class.java) {
         // Processing just gives us "No processor claimed any of these annotations", so skip that!
         options.compilerArgs.addAll(listOf("-Xlint", "-Xlint:-processing"))
+
+        options.errorprone {
+            check("InvalidBlockTag", CheckSeverity.OFF) // Broken by @cc.xyz
+            check("InvalidParam", CheckSeverity.OFF) // Broken by records.
+            check("InlineMeSuggester", CheckSeverity.OFF) // Minecraft uses @Deprecated liberally
+            // Too many false positives right now. Maybe we need an indirection for it later on.
+            check("ReferenceEquality", CheckSeverity.OFF)
+            check("UnusedVariable", CheckSeverity.OFF) // Too many false positives with records.
+            check("OperatorPrecedence", CheckSeverity.OFF) // For now.
+            check("AlreadyChecked", CheckSeverity.OFF) // Seems to be broken?
+            check("NonOverridingEquals", CheckSeverity.OFF) // Peripheral.equals makes this hard to avoid
+            check("FutureReturnValueIgnored", CheckSeverity.OFF) // Too many false positives with Netty
+
+            check("NullAway", CheckSeverity.ERROR)
+            option("NullAway:AnnotatedPackages", listOf("dan200.computercraft").joinToString(","))
+            option("NullAway:ExcludedFieldAnnotations", listOf("org.spongepowered.asm.mixin.Shadow").joinToString(","))
+            option("NullAway:CastToNonNullMethod", "dan200.computercraft.core.util.Nullability.assertNonNull")
+            option("NullAway:CheckOptionalEmptiness")
+            option("NullAway:AcknowledgeRestrictiveAnnotations")
+        }
     }
 }
+
+tasks.compileTestJava {
+    options.errorprone {
+        check("NullAway", CheckSeverity.OFF)
+    }
+}
+
 
 tasks.withType(JavaCompile::class.java).configureEach {
     options.encoding = "UTF-8"

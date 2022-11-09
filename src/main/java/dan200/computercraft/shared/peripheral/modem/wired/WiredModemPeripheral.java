@@ -24,7 +24,6 @@ import dan200.computercraft.shared.peripheral.modem.ModemPeripheral;
 import dan200.computercraft.shared.peripheral.modem.ModemState;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,17 +55,14 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         return modem.getNode();
     }
 
-    @Nonnull
     @Override
     public Level getLevel() {
         return modem.getLevel();
     }
 
-    @Nonnull
     protected abstract WiredModemLocalPeripheral getLocalPeripheral();
     //endregion
 
-    @Nonnull
     @Override
     public Set<String> getAdditionalTypes() {
         return Collections.singleton("peripheral_hub");
@@ -89,7 +85,8 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
      */
     @LuaFunction
     public final Collection<String> getNamesRemote(IComputerAccess computer) {
-        return getWrappers(computer).keySet();
+        var wrappers = getWrappers(computer);
+        return wrappers == null ? Collections.emptySet() : wrappers.keySet();
     }
 
     /**
@@ -124,7 +121,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
      * @see PeripheralAPI#getType
      */
     @LuaFunction
-    public final Object[] getTypeRemote(IComputerAccess computer, String name) {
+    public final @Nullable Object[] getTypeRemote(IComputerAccess computer, String name) {
         var wrapper = getWrapper(computer, name);
         return wrapper == null ? null : LuaUtil.consArray(wrapper.getType(), wrapper.getAdditionalTypes());
     }
@@ -145,7 +142,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
      * @see PeripheralAPI#getType
      */
     @LuaFunction
-    public final Object[] hasTypeRemote(IComputerAccess computer, String name, String type) {
+    public final @Nullable Object[] hasTypeRemote(IComputerAccess computer, String name, String type) {
         var wrapper = getWrapper(computer, name);
         return wrapper == null ? null : new Object[]{ wrapper.getType().equals(type) || wrapper.getAdditionalTypes().contains(type) };
     }
@@ -164,7 +161,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
      * @see PeripheralAPI#getMethods
      */
     @LuaFunction
-    public final Object[] getMethodsRemote(IComputerAccess computer, String name) {
+    public final @Nullable Object[] getMethodsRemote(IComputerAccess computer, String name) {
         var wrapper = getWrapper(computer, name);
         if (wrapper == null) return null;
 
@@ -213,13 +210,13 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
      * @cc.since 1.80pr1.7
      */
     @LuaFunction
-    public final Object[] getNameLocal() {
+    public final @Nullable Object[] getNameLocal() {
         var local = getLocalPeripheral().getConnectedName();
         return local == null ? null : new Object[]{ local };
     }
 
     @Override
-    public void attach(@Nonnull IComputerAccess computer) {
+    public void attach(IComputerAccess computer) {
         super.attach(computer);
 
         ConcurrentMap<String, RemotePeripheralWrapper> wrappers;
@@ -236,7 +233,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     }
 
     @Override
-    public void detach(@Nonnull IComputerAccess computer) {
+    public void detach(IComputerAccess computer) {
         Map<String, RemotePeripheralWrapper> wrappers;
         synchronized (peripheralWrappers) {
             wrappers = peripheralWrappers.remove(computer);
@@ -250,7 +247,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     }
 
     @Override
-    public boolean equals(IPeripheral other) {
+    public boolean equals(@Nullable IPeripheral other) {
         if (other instanceof WiredModemPeripheral otherModem) {
             return otherModem.modem == modem;
         }
@@ -258,7 +255,6 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
     }
     //endregion
 
-    @Nonnull
     @Override
     public IWiredNode getNode() {
         return modem.getNode();
@@ -290,13 +286,13 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         }
     }
 
-    private ConcurrentMap<String, RemotePeripheralWrapper> getWrappers(IComputerAccess computer) {
+    private @Nullable ConcurrentMap<String, RemotePeripheralWrapper> getWrappers(IComputerAccess computer) {
         synchronized (peripheralWrappers) {
             return peripheralWrappers.get(computer);
         }
     }
 
-    private RemotePeripheralWrapper getWrapper(IComputerAccess computer, String remoteName) {
+    private @Nullable RemotePeripheralWrapper getWrapper(IComputerAccess computer, String remoteName) {
         var wrappers = getWrappers(computer);
         return wrappers == null ? null : wrappers.get(remoteName);
     }
@@ -367,7 +363,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         // IComputerAccess implementation
 
         @Override
-        public synchronized String mount(@Nonnull String desiredLocation, @Nonnull IMount mount) {
+        public synchronized @Nullable String mount(String desiredLocation, IMount mount) {
             if (!attached) throw new NotAttachedException();
             var mounted = computer.mount(desiredLocation, mount, name);
             mounts.add(mounted);
@@ -375,7 +371,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         }
 
         @Override
-        public synchronized String mount(@Nonnull String desiredLocation, @Nonnull IMount mount, @Nonnull String driveName) {
+        public synchronized @Nullable String mount(String desiredLocation, IMount mount, String driveName) {
             if (!attached) throw new NotAttachedException();
             var mounted = computer.mount(desiredLocation, mount, driveName);
             mounts.add(mounted);
@@ -383,7 +379,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         }
 
         @Override
-        public synchronized String mountWritable(@Nonnull String desiredLocation, @Nonnull IWritableMount mount) {
+        public synchronized @Nullable String mountWritable(String desiredLocation, IWritableMount mount) {
             if (!attached) throw new NotAttachedException();
             var mounted = computer.mountWritable(desiredLocation, mount, name);
             mounts.add(mounted);
@@ -391,7 +387,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         }
 
         @Override
-        public synchronized String mountWritable(@Nonnull String desiredLocation, @Nonnull IWritableMount mount, @Nonnull String driveName) {
+        public synchronized @Nullable String mountWritable(String desiredLocation, IWritableMount mount, String driveName) {
             if (!attached) throw new NotAttachedException();
             var mounted = computer.mountWritable(desiredLocation, mount, driveName);
             mounts.add(mounted);
@@ -399,7 +395,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         }
 
         @Override
-        public synchronized void unmount(String location) {
+        public synchronized void unmount(@Nullable String location) {
             if (!attached) throw new NotAttachedException();
             computer.unmount(location);
             mounts.remove(location);
@@ -412,26 +408,23 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
         }
 
         @Override
-        public void queueEvent(@Nonnull String event, Object... arguments) {
+        public void queueEvent(String event, @Nullable Object... arguments) {
             if (!attached) throw new NotAttachedException();
             computer.queueEvent(event, arguments);
         }
 
-        @Nonnull
         @Override
         public IWorkMonitor getMainThreadMonitor() {
             if (!attached) throw new NotAttachedException();
             return computer.getMainThreadMonitor();
         }
 
-        @Nonnull
         @Override
         public String getAttachmentName() {
             if (!attached) throw new NotAttachedException();
             return name;
         }
 
-        @Nonnull
         @Override
         public Map<String, IPeripheral> getAvailablePeripherals() {
             if (!attached) throw new NotAttachedException();
@@ -442,7 +435,7 @@ public abstract class WiredModemPeripheral extends ModemPeripheral implements IW
 
         @Nullable
         @Override
-        public IPeripheral getAvailablePeripheral(@Nonnull String name) {
+        public IPeripheral getAvailablePeripheral(String name) {
             if (!attached) throw new NotAttachedException();
             synchronized (element.getRemotePeripherals()) {
                 return element.getRemotePeripherals().get(name);

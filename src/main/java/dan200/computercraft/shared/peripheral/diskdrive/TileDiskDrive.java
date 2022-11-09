@@ -32,28 +32,31 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+
+import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 public final class TileDiskDrive extends TileGeneric implements DefaultInventory, Nameable, MenuProvider {
     private static final String NBT_NAME = "CustomName";
     private static final String NBT_ITEM = "Item";
 
     private static class MountInfo {
+        @Nullable
         String mountPath;
     }
 
+    @Nullable
     Component customName;
     private LockCode lockCode = LockCode.NO_LOCK;
 
     private final Map<IComputerAccess, MountInfo> computers = new HashMap<>();
 
-    @Nonnull
     private ItemStack diskStack = ItemStack.EMPTY;
-    private IPeripheral peripheral;
-    private IMount diskMount = null;
+    private @Nullable IPeripheral peripheral;
+    private @Nullable IMount diskMount = null;
 
     private boolean recordQueued = false;
     private boolean recordPlaying = false;
@@ -75,7 +78,6 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         return super.isUsable(player) && BaseContainerBlockEntity.canUnlock(player, lockCode, getDisplayName());
     }
 
-    @Nonnull
     @Override
     public InteractionResult onActivate(Player player, InteractionHand hand, BlockHitResult hit) {
         if (player.isCrouching()) {
@@ -99,7 +101,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     }
 
     @Override
-    public void load(@Nonnull CompoundTag nbt) {
+    public void load(CompoundTag nbt) {
         super.load(nbt);
         customName = nbt.contains(NBT_NAME) ? Component.Serializer.fromJson(nbt.getString(NBT_NAME)) : null;
         if (nbt.contains(NBT_ITEM)) {
@@ -112,7 +114,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag nbt) {
+    public void saveAdditional(CompoundTag nbt) {
         if (customName != null) nbt.putString(NBT_NAME, Component.Serializer.toJson(customName));
 
         if (!diskStack.isEmpty()) {
@@ -166,13 +168,11 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         return diskStack.isEmpty();
     }
 
-    @Nonnull
     @Override
     public ItemStack getItem(int slot) {
         return diskStack;
     }
 
-    @Nonnull
     @Override
     public ItemStack removeItemNoUpdate(int slot) {
         var result = diskStack;
@@ -182,7 +182,6 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         return result;
     }
 
-    @Nonnull
     @Override
     public ItemStack removeItem(int slot, int count) {
         if (diskStack.isEmpty()) return ItemStack.EMPTY;
@@ -199,7 +198,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     }
 
     @Override
-    public void setItem(int slot, @Nonnull ItemStack stack) {
+    public void setItem(int slot, ItemStack stack) {
         if (getLevel().isClientSide) {
             diskStack = stack;
             diskMount = null;
@@ -247,7 +246,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
     }
 
     @Override
-    public boolean stillValid(@Nonnull Player player) {
+    public boolean stillValid(Player player) {
         return isUsable(player);
     }
 
@@ -256,19 +255,19 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         setItem(0, ItemStack.EMPTY);
     }
 
-    @Nonnull
     ItemStack getDiskStack() {
         return getItem(0);
     }
 
-    void setDiskStack(@Nonnull ItemStack stack) {
+    void setDiskStack(ItemStack stack) {
         setItem(0, stack);
     }
 
-    private IMedia getDiskMedia() {
+    private @Nullable IMedia getDiskMedia() {
         return MediaProviders.get(getDiskStack());
     }
 
+    @Nullable
     String getDiskMountPath(IComputerAccess computer) {
         synchronized (this) {
             var info = computers.get(computer);
@@ -317,7 +316,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
     private synchronized void mountDisk(IComputerAccess computer) {
         if (!diskStack.isEmpty()) {
-            var info = computers.get(computer);
+            var info = assertNonNull(computers.get(computer));
             var contents = getDiskMedia();
             if (contents != null) {
                 if (diskMount == null) {
@@ -349,8 +348,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
 
     private synchronized void unmountDisk(IComputerAccess computer) {
         if (!diskStack.isEmpty()) {
-            var info = computers.get(computer);
-            assert info != null;
+            var info = Objects.requireNonNull(computers.get(computer), "No mount info");
             if (info.mountPath != null) {
                 computer.unmount(info.mountPath);
                 info.mountPath = null;
@@ -410,7 +408,7 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         var contents = getDiskMedia();
         var record = contents != null ? contents.getAudio(diskStack) : null;
         if (record != null) {
-            playRecord(new PlayRecordClientMessage(getBlockPos(), record, contents.getAudioTitle(diskStack)));
+            playRecord(new PlayRecordClientMessage(getBlockPos(), record, assertNonNull(contents).getAudioTitle(diskStack)));
         } else {
             stopRecord();
         }
@@ -435,21 +433,18 @@ public final class TileDiskDrive extends TileGeneric implements DefaultInventory
         return customName;
     }
 
-    @Nonnull
     @Override
     public Component getName() {
         return customName != null ? customName : Component.translatable(getBlockState().getBlock().getDescriptionId());
     }
 
-    @Nonnull
     @Override
     public Component getDisplayName() {
         return Nameable.super.getDisplayName();
     }
 
-    @Nonnull
     @Override
-    public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) {
+    public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
         return new ContainerDiskDrive(id, inventory, this);
     }
 

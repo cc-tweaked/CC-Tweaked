@@ -9,12 +9,11 @@ import dan200.computercraft.api.detail.BlockReference;
 import dan200.computercraft.shared.platform.Registries;
 import net.minecraft.world.level.block.state.properties.Property;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
 public class BlockData {
-    public static void fillBasic(@Nonnull Map<? super String, Object> data, @Nonnull BlockReference block) {
+    public static void fillBasic(Map<? super String, Object> data, BlockReference block) {
         var state = block.state();
 
         data.put("name", DataHelpers.getId(Registries.BLOCKS, state.getBlock()));
@@ -27,7 +26,7 @@ public class BlockData {
         data.put("state", stateTable);
     }
 
-    public static void fill(@Nonnull Map<? super String, Object> data, @Nonnull BlockReference block) {
+    public static void fill(Map<? super String, Object> data, BlockReference block) {
         data.put("tags", DataHelpers.getTags(block.state().getTags()));
     }
 

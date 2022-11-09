@@ -25,7 +25,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Predicate;
 
@@ -118,11 +117,11 @@ public final class WorldUtil {
         return getRayStart(player).add(look.x * reach, look.y * reach, look.z * reach);
     }
 
-    public static void dropItemStack(@Nonnull ItemStack stack, Level world, BlockPos pos) {
+    public static void dropItemStack(ItemStack stack, Level world, BlockPos pos) {
         dropItemStack(stack, world, pos, null);
     }
 
-    public static void dropItemStack(@Nonnull ItemStack stack, Level world, BlockPos pos, Direction direction) {
+    public static void dropItemStack(ItemStack stack, Level world, BlockPos pos, @Nullable Direction direction) {
         double xDir;
         double yDir;
         double zDir;
@@ -142,11 +141,11 @@ public final class WorldUtil {
         dropItemStack(stack, world, new Vec3(xPos, yPos, zPos), xDir, yDir, zDir);
     }
 
-    public static void dropItemStack(@Nonnull ItemStack stack, Level world, Vec3 pos) {
+    public static void dropItemStack(ItemStack stack, Level world, Vec3 pos) {
         dropItemStack(stack, world, pos, 0.0, 0.0, 0.0);
     }
 
-    public static void dropItemStack(@Nonnull ItemStack stack, Level world, Vec3 pos, double xDir, double yDir, double zDir) {
+    public static void dropItemStack(ItemStack stack, Level world, Vec3 pos, double xDir, double yDir, double zDir) {
         var item = new ItemEntity(world, pos.x, pos.y, pos.z, stack.copy());
         item.setDeltaMovement(
             xDir * 0.7 + world.getRandom().nextFloat() * 0.2 - 0.1,

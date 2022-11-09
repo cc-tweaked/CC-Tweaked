@@ -5,19 +5,19 @@
  */
 package dan200.computercraft.shared.network.client;
 
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.computer.upload.UploadResult;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class UploadResultMessage implements NetworkMessage<ClientNetworkContext> {
     private final int containerId;
     private final UploadResult result;
-    private final Component errorMessage;
+    private final @Nullable Component errorMessage;
 
     private UploadResultMessage(AbstractContainerMenu container, UploadResult result, @Nullable Component errorMessage) {
         containerId = container.containerId;
@@ -37,17 +37,17 @@ public class UploadResultMessage implements NetworkMessage<ClientNetworkContext>
         return new UploadResultMessage(container, UploadResult.ERROR, errorMessage);
     }
 
-    public UploadResultMessage(@Nonnull FriendlyByteBuf buf) {
+    public UploadResultMessage(FriendlyByteBuf buf) {
         containerId = buf.readVarInt();
         result = buf.readEnum(UploadResult.class);
         errorMessage = result == UploadResult.ERROR ? buf.readComponent() : null;
     }
 
     @Override
-    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeVarInt(containerId);
         buf.writeEnum(result);
-        if (result == UploadResult.ERROR) buf.writeComponent(errorMessage);
+        if (result == UploadResult.ERROR) buf.writeComponent(Nullability.assertNonNull(errorMessage));
     }
 
     @Override

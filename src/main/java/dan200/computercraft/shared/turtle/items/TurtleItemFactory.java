@@ -13,13 +13,12 @@ import dan200.computercraft.shared.turtle.blocks.ITurtleTile;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public final class TurtleItemFactory {
     private TurtleItemFactory() {
     }
 
-    @Nonnull
     public static ItemStack create(ITurtleTile turtle) {
         var access = turtle.getAccess();
 
@@ -30,8 +29,11 @@ public final class TurtleItemFactory {
         );
     }
 
-    @Nonnull
-    public static ItemStack create(int id, String label, int colour, ComputerFamily family, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, int fuelLevel, ResourceLocation overlay) {
+    public static ItemStack create(
+        int id, @Nullable String label, int colour, ComputerFamily family,
+        @Nullable ITurtleUpgrade leftUpgrade, @Nullable ITurtleUpgrade rightUpgrade,
+        int fuelLevel, @Nullable ResourceLocation overlay
+    ) {
         return switch (family) {
             case NORMAL ->
                 ModRegistry.Items.TURTLE_NORMAL.get().create(id, label, colour, leftUpgrade, rightUpgrade, fuelLevel, overlay);

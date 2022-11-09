@@ -16,8 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
-import javax.annotation.Nonnull;
-
 public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe {
     private final ComputerFamily family;
 
@@ -33,9 +31,8 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe {
     public abstract static class Serializer<T extends ComputerFamilyRecipe> implements RecipeSerializer<T> {
         protected abstract T create(ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family);
 
-        @Nonnull
         @Override
-        public T fromJson(@Nonnull ResourceLocation identifier, @Nonnull JsonObject json) {
+        public T fromJson(ResourceLocation identifier, JsonObject json) {
             var group = GsonHelper.getAsString(json, "group", "");
             var family = RecipeUtil.getFamily(json, "family");
 
@@ -45,9 +42,8 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe {
             return create(identifier, group, template.width(), template.height(), template.ingredients(), result, family);
         }
 
-        @Nonnull
         @Override
-        public T fromNetwork(@Nonnull ResourceLocation identifier, @Nonnull FriendlyByteBuf buf) {
+        public T fromNetwork(ResourceLocation identifier, FriendlyByteBuf buf) {
             var width = buf.readVarInt();
             var height = buf.readVarInt();
             var group = buf.readUtf(Short.MAX_VALUE);
@@ -61,7 +57,7 @@ public abstract class ComputerFamilyRecipe extends ComputerConvertRecipe {
         }
 
         @Override
-        public void toNetwork(@Nonnull FriendlyByteBuf buf, @Nonnull T recipe) {
+        public void toNetwork(FriendlyByteBuf buf, T recipe) {
             buf.writeVarInt(recipe.getWidth());
             buf.writeVarInt(recipe.getHeight());
             buf.writeUtf(recipe.getGroup());

@@ -10,7 +10,6 @@ import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
 import java.util.UUID;
 
 /**
@@ -44,7 +43,7 @@ public class SpeakerPlayClientMessage implements NetworkMessage<ClientNetworkCon
     }
 
     @Override
-    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeUUID(source);
         pos.write(buf);
         buf.writeResourceLocation(sound);

@@ -9,7 +9,6 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.OSAPI;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -29,7 +28,6 @@ public class ComputerPeripheral implements IPeripheral {
         this.owner = owner;
     }
 
-    @Nonnull
     @Override
     public String getType() {
         return type;
@@ -111,11 +109,10 @@ public class ComputerPeripheral implements IPeripheral {
     }
 
     @Override
-    public boolean equals(IPeripheral other) {
+    public boolean equals(@Nullable IPeripheral other) {
         return other instanceof ComputerPeripheral computerPeripheral && owner == computerPeripheral.owner;
     }
 
-    @Nonnull
     @Override
     public Object getTarget() {
         return owner;

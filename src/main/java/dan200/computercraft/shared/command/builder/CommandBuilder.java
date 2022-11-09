@@ -14,6 +14,7 @@ import com.mojang.brigadier.tree.CommandNode;
 import dan200.computercraft.shared.command.arguments.RepeatArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,7 +32,7 @@ import static dan200.computercraft.shared.command.builder.HelpingArgumentBuilder
  */
 public class CommandBuilder<S> implements CommandNodeBuilder<S, Command<S>> {
     private final List<ArgumentBuilder<S, ?>> args = new ArrayList<>();
-    private Predicate<S> requires;
+    private @Nullable Predicate<S> requires;
 
     public static CommandBuilder<CommandSourceStack> args() {
         return new CommandBuilder<>();

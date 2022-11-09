@@ -24,7 +24,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelResource;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -180,23 +179,21 @@ public final class ServerContext {
 
     private record Environment(MinecraftServer server) implements GlobalEnvironment {
         @Override
-        public IMount createResourceMount(String domain, String subPath) {
+        public @Nullable IMount createResourceMount(String domain, String subPath) {
             return ComputerCraftAPI.createResourceMount(domain, subPath);
         }
 
         @Override
-        public InputStream createResourceFile(String domain, String subPath) {
+        public @Nullable InputStream createResourceFile(String domain, String subPath) {
             return ComputerCraftAPIImpl.getResourceFile(server, domain, subPath);
         }
 
-        @Nonnull
         @Override
         public String getHostString() {
             var version = SharedConstants.getCurrentVersion().getName();
             return String.format("ComputerCraft %s (Minecraft %s)", ComputerCraftAPI.getInstalledVersion(), version);
         }
 
-        @Nonnull
         @Override
         public String getUserAgent() {
             return ComputerCraft.MOD_ID + "/" + ComputerCraftAPI.getInstalledVersion();

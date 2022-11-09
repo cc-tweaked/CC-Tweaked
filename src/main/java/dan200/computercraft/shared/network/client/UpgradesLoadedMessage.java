@@ -21,7 +21,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -38,13 +37,13 @@ public class UpgradesLoadedMessage implements NetworkMessage<ClientNetworkContex
         pocketUpgrades = PocketUpgrades.instance().getUpgradeWrappers();
     }
 
-    public UpgradesLoadedMessage(@Nonnull FriendlyByteBuf buf) {
+    public UpgradesLoadedMessage(FriendlyByteBuf buf) {
         turtleUpgrades = fromBytes(buf, TurtleUpgradeSerialiser.REGISTRY_ID);
         pocketUpgrades = fromBytes(buf, PocketUpgradeSerialiser.REGISTRY_ID);
     }
 
     private <R extends UpgradeSerialiser<? extends T>, T extends IUpgradeBase> Map<String, UpgradeManager.UpgradeWrapper<R, T>> fromBytes(
-        @Nonnull FriendlyByteBuf buf, ResourceKey<Registry<R>> registryKey
+        FriendlyByteBuf buf, ResourceKey<Registry<R>> registryKey
     ) {
         var registry = PlatformHelper.get().wrap(registryKey);
 
@@ -67,13 +66,13 @@ public class UpgradesLoadedMessage implements NetworkMessage<ClientNetworkContex
     }
 
     @Override
-    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         toBytes(buf, TurtleUpgradeSerialiser.REGISTRY_ID, turtleUpgrades);
         toBytes(buf, PocketUpgradeSerialiser.REGISTRY_ID, pocketUpgrades);
     }
 
     private <R extends UpgradeSerialiser<? extends T>, T extends IUpgradeBase> void toBytes(
-        @Nonnull FriendlyByteBuf buf, ResourceKey<Registry<R>> registryKey, Map<String, UpgradeManager.UpgradeWrapper<R, T>> upgrades
+        FriendlyByteBuf buf, ResourceKey<Registry<R>> registryKey, Map<String, UpgradeManager.UpgradeWrapper<R, T>> upgrades
     ) {
         var registry = PlatformHelper.get().wrap(registryKey);
 

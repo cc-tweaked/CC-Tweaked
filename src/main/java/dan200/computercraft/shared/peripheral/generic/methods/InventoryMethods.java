@@ -22,7 +22,6 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,13 +36,11 @@ import static dan200.computercraft.shared.peripheral.generic.methods.ArgumentHel
  * @cc.since 1.94.0
  */
 public class InventoryMethods implements GenericPeripheral {
-    @Nonnull
     @Override
     public PeripheralType getType() {
         return PeripheralType.ofAdditional("inventory");
     }
 
-    @Nonnull
     @Override
     public ResourceLocation id() {
         return new ResourceLocation(ComputerCraft.MOD_ID, "inventory");

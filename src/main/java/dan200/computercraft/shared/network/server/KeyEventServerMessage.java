@@ -9,7 +9,6 @@ import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
-import javax.annotation.Nonnull;
 
 public class KeyEventServerMessage extends ComputerServerMessage {
     public static final int TYPE_DOWN = 0;
@@ -25,21 +24,21 @@ public class KeyEventServerMessage extends ComputerServerMessage {
         this.key = key;
     }
 
-    public KeyEventServerMessage(@Nonnull FriendlyByteBuf buf) {
+    public KeyEventServerMessage(FriendlyByteBuf buf) {
         super(buf);
         type = buf.readByte();
         key = buf.readVarInt();
     }
 
     @Override
-    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         super.toBytes(buf);
         buf.writeByte(type);
         buf.writeVarInt(key);
     }
 
     @Override
-    protected void handle(ServerNetworkContext context, @Nonnull ComputerMenu container) {
+    protected void handle(ServerNetworkContext context, ComputerMenu container) {
         var input = container.getInput();
         if (type == TYPE_UP) {
             input.keyUp(key);

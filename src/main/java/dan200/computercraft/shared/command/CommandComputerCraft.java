@@ -24,7 +24,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -33,7 +32,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 
@@ -150,10 +149,8 @@ public final class CommandComputerCraft {
                 .arg("computer", oneComputer())
                 .executes(context -> {
                     var computer = getComputerArgument(context, "computer");
-                    Level world = computer.getLevel();
+                    var world = computer.getLevel();
                     var pos = computer.getPosition();
-
-                    if (world == null || pos == null) throw TP_NOT_THERE.create();
 
                     var entity = context.getSource().getEntityOrException();
                     if (!(entity instanceof ServerPlayer player)) throw TP_NOT_PLAYER.create();
@@ -164,7 +161,7 @@ public final class CommandComputerCraft {
                             EnumSet.noneOf(ClientboundPlayerPositionPacket.RelativeArgument.class)
                         );
                     } else {
-                        player.teleportTo((ServerLevel) world,
+                        player.teleportTo(world,
                             pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0
                         );
                     }
@@ -198,15 +195,13 @@ public final class CommandComputerCraft {
                     var player = context.getSource().getPlayerOrException();
                     var computer = getComputerArgument(context, "computer");
                     new ComputerContainerData(computer, ItemStack.EMPTY).open(player, new MenuProvider() {
-                        @Nonnull
                         @Override
                         public Component getDisplayName() {
                             return Component.translatable("gui.computercraft.view_computer");
                         }
 
-                        @Nonnull
                         @Override
-                        public AbstractContainerMenu createMenu(int id, @Nonnull Inventory player, @Nonnull Player entity) {
+                        public AbstractContainerMenu createMenu(int id, Inventory player, Player entity) {
                             return new ContainerViewComputer(id, player, computer);
                         }
                     });
@@ -251,7 +246,7 @@ public final class CommandComputerCraft {
         );
     }
 
-    private static Component linkComputer(CommandSourceStack source, ServerComputer serverComputer, int computerId) {
+    private static Component linkComputer(CommandSourceStack source, @Nullable ServerComputer serverComputer, int computerId) {
         var out = Component.literal("");
 
         // Append the computer instance
@@ -305,7 +300,7 @@ public final class CommandComputerCraft {
         }
     }
 
-    private static Component linkStorage(CommandSourceStack source, int id) {
+    private static @Nullable Component linkStorage(CommandSourceStack source, int id) {
         var file = new File(ServerContext.get(source.getServer()).storageDir().toFile(), "computer/" + id);
         if (!file.isDirectory()) return null;
 
@@ -316,7 +311,6 @@ public final class CommandComputerCraft {
         );
     }
 
-    @Nonnull
     private static BasicComputerMetricsObserver getMetricsInstance(CommandSourceStack source) {
         var entity = source.getEntity();
         return ServerContext.get(source.getServer()).metrics().getMetricsInstance(entity instanceof Player ? entity.getUUID() : SYSTEM_UUID);

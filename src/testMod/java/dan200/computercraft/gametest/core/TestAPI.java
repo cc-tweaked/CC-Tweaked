@@ -14,6 +14,7 @@ import dan200.computercraft.gametest.api.ComputerState;
 import dan200.computercraft.gametest.api.TestExtensionsKt;
 import net.minecraft.gametest.framework.GameTestSequence;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 /**
@@ -25,7 +26,7 @@ import java.util.Optional;
  */
 public class TestAPI extends ComputerState implements ILuaAPI {
     private final IComputerSystem system;
-    private String label;
+    private @Nullable String label;
 
     TestAPI(IComputerSystem system) {
         this.system = system;

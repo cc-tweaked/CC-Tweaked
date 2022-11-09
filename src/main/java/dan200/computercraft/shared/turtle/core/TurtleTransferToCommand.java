@@ -11,8 +11,6 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.util.InventoryUtil;
 
-import javax.annotation.Nonnull;
-
 public class TurtleTransferToCommand implements ITurtleCommand {
     private final int slot;
     private final int quantity;
@@ -22,9 +20,8 @@ public class TurtleTransferToCommand implements ITurtleCommand {
         quantity = limit;
     }
 
-    @Nonnull
     @Override
-    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
+    public TurtleCommandResult execute(ITurtleAccess turtle) {
         // Take stack
         var stack = turtle.getInventory().removeItem(turtle.getSelectedSlot(), quantity);
         if (stack.isEmpty()) {

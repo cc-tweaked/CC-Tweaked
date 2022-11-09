@@ -11,6 +11,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public final class ColourUtils {
@@ -19,7 +20,7 @@ public final class ColourUtils {
     private ColourUtils() {
     }
 
-    public static DyeColor getStackColour(ItemStack stack) {
+    public static @Nullable DyeColor getStackColour(ItemStack stack) {
         if (stack.isEmpty()) return null;
 
         for (var i = 0; i < DYES.size(); i++) {

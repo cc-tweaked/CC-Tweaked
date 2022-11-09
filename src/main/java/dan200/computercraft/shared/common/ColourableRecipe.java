@@ -15,15 +15,13 @@ import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
-
 public final class ColourableRecipe extends CustomRecipe {
     public ColourableRecipe(ResourceLocation id) {
         super(id);
     }
 
     @Override
-    public boolean matches(@Nonnull CraftingContainer inv, @Nonnull Level world) {
+    public boolean matches(CraftingContainer inv, Level world) {
         var hasColourable = false;
         var hasDye = false;
         for (var i = 0; i < inv.getContainerSize(); i++) {
@@ -43,9 +41,8 @@ public final class ColourableRecipe extends CustomRecipe {
         return hasColourable && hasDye;
     }
 
-    @Nonnull
     @Override
-    public ItemStack assemble(@Nonnull CraftingContainer inv) {
+    public ItemStack assemble(CraftingContainer inv) {
         var colourable = ItemStack.EMPTY;
 
         var tracker = new ColourTracker();
@@ -76,7 +73,6 @@ public final class ColourableRecipe extends CustomRecipe {
     }
 
     @Override
-    @Nonnull
     public RecipeSerializer<?> getSerializer() {
         return ModRegistry.RecipeSerializers.DYEABLE_ITEM.get();
     }

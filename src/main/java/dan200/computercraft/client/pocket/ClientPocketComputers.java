@@ -14,8 +14,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
-
 /**
  * Maps {@link ServerComputer#getInstanceID()} to locals {@link PocketComputerData}.
  * <p>
@@ -42,14 +40,12 @@ public final class ClientPocketComputers {
      * @param advanced   Whether this computer has an advanced terminal.
      * @return The pocket computer data.
      */
-    @Nonnull
     public static PocketComputerData get(int instanceId, boolean advanced) {
         var computer = instances.get(instanceId);
         if (computer == null) instances.put(instanceId, computer = new PocketComputerData(advanced));
         return computer;
     }
 
-    @Nonnull
     public static PocketComputerData get(ItemStack stack) {
         var family = stack.getItem() instanceof ItemComputer computer ? computer.getFamily() : ComputerFamily.NORMAL;
         return get(ItemPocketComputer.getInstanceID(stack), family != ComputerFamily.NORMAL);

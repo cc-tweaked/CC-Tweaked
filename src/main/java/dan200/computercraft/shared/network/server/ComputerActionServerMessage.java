@@ -9,7 +9,6 @@ import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
-import javax.annotation.Nonnull;
 
 public class ComputerActionServerMessage extends ComputerServerMessage {
     private final Action action;
@@ -19,19 +18,19 @@ public class ComputerActionServerMessage extends ComputerServerMessage {
         this.action = action;
     }
 
-    public ComputerActionServerMessage(@Nonnull FriendlyByteBuf buf) {
+    public ComputerActionServerMessage(FriendlyByteBuf buf) {
         super(buf);
         action = buf.readEnum(Action.class);
     }
 
     @Override
-    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         super.toBytes(buf);
         buf.writeEnum(action);
     }
 
     @Override
-    protected void handle(ServerNetworkContext context, @Nonnull ComputerMenu container) {
+    protected void handle(ServerNetworkContext context, ComputerMenu container) {
         switch (action) {
             case TURN_ON -> container.getInput().turnOn();
             case REBOOT -> container.getInput().reboot();

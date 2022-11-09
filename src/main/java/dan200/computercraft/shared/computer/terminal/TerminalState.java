@@ -37,7 +37,7 @@ public class TerminalState {
     @Nullable
     private final ByteBuf buffer;
 
-    private ByteBuf compressed;
+    private @Nullable ByteBuf compressed;
 
     public TerminalState(@Nullable NetworkedTerminal terminal) {
         this(terminal, true);

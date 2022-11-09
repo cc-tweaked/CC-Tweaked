@@ -11,8 +11,6 @@ import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.impl.TurtleRefuelHandlers;
 
-import javax.annotation.Nonnull;
-
 public class TurtleRefuelCommand implements ITurtleCommand {
     private final int limit;
 
@@ -20,9 +18,8 @@ public class TurtleRefuelCommand implements ITurtleCommand {
         this.limit = limit;
     }
 
-    @Nonnull
     @Override
-    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
+    public TurtleCommandResult execute(ITurtleAccess turtle) {
         var slot = turtle.getSelectedSlot();
         var stack = turtle.getInventory().getItem(slot);
         if (stack.isEmpty()) return TurtleCommandResult.failure("No items to combust");

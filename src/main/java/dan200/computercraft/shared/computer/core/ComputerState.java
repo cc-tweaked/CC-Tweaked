@@ -7,8 +7,6 @@ package dan200.computercraft.shared.computer.core;
 
 import net.minecraft.util.StringRepresentable;
 
-import javax.annotation.Nonnull;
-
 public enum ComputerState implements StringRepresentable {
     OFF("off", ""),
     ON("on", "_on"),
@@ -22,7 +20,6 @@ public enum ComputerState implements StringRepresentable {
         this.texture = texture;
     }
 
-    @Nonnull
     @Override
     public String getSerializedName() {
         return name;
@@ -33,7 +30,6 @@ public enum ComputerState implements StringRepresentable {
         return name;
     }
 
-    @Nonnull
     public String getTexture() {
         return texture;
     }

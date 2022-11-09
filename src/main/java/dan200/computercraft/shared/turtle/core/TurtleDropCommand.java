@@ -16,8 +16,6 @@ import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.LevelEvent;
 
-import javax.annotation.Nonnull;
-
 public class TurtleDropCommand implements ITurtleCommand {
     private final InteractDirection direction;
     private final int quantity;
@@ -27,9 +25,8 @@ public class TurtleDropCommand implements ITurtleCommand {
         this.quantity = quantity;
     }
 
-    @Nonnull
     @Override
-    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
+    public TurtleCommandResult execute(ITurtleAccess turtle) {
         // Dropping nothing is easy
         if (quantity == 0) {
             turtle.playAnimation(TurtleAnimation.WAIT);

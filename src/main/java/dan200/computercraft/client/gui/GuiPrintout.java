@@ -17,8 +17,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.lwjgl.glfw.GLFW;
 
-import javax.annotation.Nonnull;
-
 import static dan200.computercraft.client.render.PrintoutRenderer.*;
 import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
 
@@ -83,7 +81,7 @@ public class GuiPrintout extends AbstractContainerScreen<ContainerHeldItem> {
     }
 
     @Override
-    protected void renderBg(@Nonnull PoseStack transform, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(PoseStack transform, float partialTicks, int mouseX, int mouseY) {
         // Draw the printout
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.enableDepthTest();
@@ -95,7 +93,7 @@ public class GuiPrintout extends AbstractContainerScreen<ContainerHeldItem> {
     }
 
     @Override
-    public void render(@Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
         // We must take the background further back in order to not overlap with our printed pages.
         setBlitOffset(getBlitOffset() - 1);
         renderBackground(stack);
@@ -105,7 +103,7 @@ public class GuiPrintout extends AbstractContainerScreen<ContainerHeldItem> {
     }
 
     @Override
-    protected void renderLabels(@Nonnull PoseStack transform, int mouseX, int mouseY) {
+    protected void renderLabels(PoseStack transform, int mouseX, int mouseY) {
         // Skip rendering labels.
     }
 }

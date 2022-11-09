@@ -23,7 +23,6 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Predicate;
 
@@ -81,7 +80,6 @@ public final class ContainerTurtle extends ContainerComputerBase {
         return data.get(0);
     }
 
-    @Nonnull
     private ItemStack tryItemMerge(Player player, int slotNum, int firstSlot, int lastSlot, boolean reverse) {
         var slot = slots.get(slotNum);
         var originalStack = ItemStack.EMPTY;
@@ -107,9 +105,8 @@ public final class ContainerTurtle extends ContainerComputerBase {
         return originalStack;
     }
 
-    @Nonnull
     @Override
-    public ItemStack quickMoveStack(@Nonnull Player player, int slotNum) {
+    public ItemStack quickMoveStack(Player player, int slotNum) {
         if (slotNum >= 0 && slotNum < 16) {
             return tryItemMerge(player, slotNum, 16, 52, true);
         } else if (slotNum >= 16) {

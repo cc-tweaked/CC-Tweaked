@@ -26,7 +26,6 @@ import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.util.FakePlayer;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.OptionalInt;
 import java.util.UUID;
@@ -126,13 +125,13 @@ public final class TurtlePlayer extends FakePlayer {
         yHeadRotO = yHeadRot;
     }
 
-    public void loadInventory(@Nonnull ItemStack stack) {
+    public void loadInventory(ItemStack stack) {
         getInventory().clearContent();
         getInventory().selected = 0;
         getInventory().setItem(0, stack);
     }
 
-    public void loadInventory(@Nonnull ITurtleAccess turtle) {
+    public void loadInventory(ITurtleAccess turtle) {
         getInventory().clearContent();
 
         var currentSlot = turtle.getSelectedSlot();
@@ -170,17 +169,16 @@ public final class TurtlePlayer extends FakePlayer {
     }
 
     @Override
-    public float getEyeHeight(@Nonnull Pose pose) {
+    public float getEyeHeight(Pose pose) {
         return 0;
     }
 
     @Override
-    public float getStandingEyeHeight(@Nonnull Pose pose, @Nonnull EntityDimensions size) {
+    public float getStandingEyeHeight(Pose pose, EntityDimensions size) {
         return 0;
     }
 
     //region Code which depends on the connection
-    @Nonnull
     @Override
     public OptionalInt openMenu(@Nullable MenuProvider prover) {
         return OptionalInt.empty();
@@ -195,7 +193,7 @@ public final class TurtlePlayer extends FakePlayer {
     }
 
     @Override
-    public boolean startRiding(@Nonnull Entity entityIn, boolean force) {
+    public boolean startRiding(Entity entityIn, boolean force) {
         return false;
     }
 
@@ -204,15 +202,15 @@ public final class TurtlePlayer extends FakePlayer {
     }
 
     @Override
-    public void openTextEdit(@Nonnull SignBlockEntity signTile) {
+    public void openTextEdit(SignBlockEntity signTile) {
     }
 
     @Override
-    public void openHorseInventory(@Nonnull AbstractHorse horse, @Nonnull Container inventory) {
+    public void openHorseInventory(AbstractHorse horse, Container inventory) {
     }
 
     @Override
-    public void openItemGui(@Nonnull ItemStack stack, @Nonnull InteractionHand hand) {
+    public void openItemGui(ItemStack stack, InteractionHand hand) {
     }
 
     @Override
@@ -220,7 +218,7 @@ public final class TurtlePlayer extends FakePlayer {
     }
 
     @Override
-    protected void onEffectRemoved(@Nonnull MobEffectInstance effect) {
+    protected void onEffectRemoved(MobEffectInstance effect) {
     }
     //endregion
 }

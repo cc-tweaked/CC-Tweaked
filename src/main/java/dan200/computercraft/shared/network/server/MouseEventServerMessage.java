@@ -9,7 +9,6 @@ import dan200.computercraft.shared.computer.menu.ComputerMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
-import javax.annotation.Nonnull;
 
 public class MouseEventServerMessage extends ComputerServerMessage {
     public static final int TYPE_CLICK = 0;
@@ -30,7 +29,7 @@ public class MouseEventServerMessage extends ComputerServerMessage {
         this.y = y;
     }
 
-    public MouseEventServerMessage(@Nonnull FriendlyByteBuf buf) {
+    public MouseEventServerMessage(FriendlyByteBuf buf) {
         super(buf);
         type = buf.readByte();
         arg = buf.readVarInt();
@@ -39,7 +38,7 @@ public class MouseEventServerMessage extends ComputerServerMessage {
     }
 
     @Override
-    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         super.toBytes(buf);
         buf.writeByte(type);
         buf.writeVarInt(arg);
@@ -48,7 +47,7 @@ public class MouseEventServerMessage extends ComputerServerMessage {
     }
 
     @Override
-    protected void handle(ServerNetworkContext context, @Nonnull ComputerMenu container) {
+    protected void handle(ServerNetworkContext context, ComputerMenu container) {
         var input = container.getInput();
         switch (type) {
             case TYPE_CLICK -> input.mouseClick(arg, x, y);

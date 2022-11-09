@@ -14,8 +14,6 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
-
 /**
  * Represents a recipe which converts a computer from one form into another.
  */
@@ -27,11 +25,10 @@ public abstract class ComputerConvertRecipe extends ShapedRecipe {
         this.group = group;
     }
 
-    @Nonnull
-    protected abstract ItemStack convert(@Nonnull IComputerItem item, @Nonnull ItemStack stack);
+    protected abstract ItemStack convert(IComputerItem item, ItemStack stack);
 
     @Override
-    public boolean matches(@Nonnull CraftingContainer inventory, @Nonnull Level world) {
+    public boolean matches(CraftingContainer inventory, Level world) {
         if (!super.matches(inventory, world)) return false;
 
         for (var i = 0; i < inventory.getContainerSize(); i++) {
@@ -41,9 +38,8 @@ public abstract class ComputerConvertRecipe extends ShapedRecipe {
         return false;
     }
 
-    @Nonnull
     @Override
-    public ItemStack assemble(@Nonnull CraftingContainer inventory) {
+    public ItemStack assemble(CraftingContainer inventory) {
         // Find our computer item and convert it.
         for (var i = 0; i < inventory.getContainerSize(); i++) {
             var stack = inventory.getItem(i);
@@ -53,7 +49,6 @@ public abstract class ComputerConvertRecipe extends ShapedRecipe {
         return ItemStack.EMPTY;
     }
 
-    @Nonnull
     @Override
     public String getGroup() {
         return group;

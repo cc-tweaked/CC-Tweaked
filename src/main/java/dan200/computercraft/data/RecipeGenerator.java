@@ -38,7 +38,6 @@ import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 
-import javax.annotation.Nonnull;
 import java.util.Locale;
 import java.util.function.Consumer;
 
@@ -58,7 +57,7 @@ class RecipeGenerator extends RecipeProvider {
     }
 
     @Override
-    protected void buildCraftingRecipes(@Nonnull Consumer<FinishedRecipe> add) {
+    protected void buildCraftingRecipes(Consumer<FinishedRecipe> add) {
         basicRecipes(add);
         diskColours(add);
         pocketUpgrades(add);
@@ -76,7 +75,7 @@ class RecipeGenerator extends RecipeProvider {
      *
      * @param add The callback to add recipes.
      */
-    private void diskColours(@Nonnull Consumer<FinishedRecipe> add) {
+    private void diskColours(Consumer<FinishedRecipe> add) {
         for (var colour : Colour.VALUES) {
             ShapelessRecipeBuilder
                 .shapeless(ModRegistry.Items.DISK.get())
@@ -98,7 +97,7 @@ class RecipeGenerator extends RecipeProvider {
      *
      * @param add The callback to add recipes.
      */
-    private void turtleUpgrades(@Nonnull Consumer<FinishedRecipe> add) {
+    private void turtleUpgrades(Consumer<FinishedRecipe> add) {
         for (var family : ComputerFamily.values()) {
             var base = TurtleItemFactory.create(-1, null, -1, family, null, null, 0, null);
             if (base.isEmpty()) continue;
@@ -130,7 +129,7 @@ class RecipeGenerator extends RecipeProvider {
      *
      * @param add The callback to add recipes.
      */
-    private void pocketUpgrades(@Nonnull Consumer<FinishedRecipe> add) {
+    private void pocketUpgrades(Consumer<FinishedRecipe> add) {
         for (var family : ComputerFamily.values()) {
             var base = PocketComputerItemFactory.create(-1, null, -1, family, null);
             if (base.isEmpty()) continue;
@@ -158,7 +157,7 @@ class RecipeGenerator extends RecipeProvider {
         }
     }
 
-    private void basicRecipes(@Nonnull Consumer<FinishedRecipe> add) {
+    private void basicRecipes(Consumer<FinishedRecipe> add) {
         ShapedRecipeBuilder
             .shaped(ModRegistry.Items.CABLE.get(), 6)
             .pattern(" # ")

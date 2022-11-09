@@ -16,17 +16,18 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
 
 public class SpeakerSound extends AbstractSoundInstance implements TickableSoundInstance {
+    @Nullable
     DfpwmStream stream;
 
-    private Entity entity;
+    private @Nullable Entity entity;
 
     private boolean stopped = false;
 
-    SpeakerSound(ResourceLocation sound, DfpwmStream stream, SpeakerPosition position, float volume, float pitch) {
+    SpeakerSound(ResourceLocation sound, @Nullable DfpwmStream stream, SpeakerPosition position, float volume, float pitch) {
         super(sound, SoundSource.RECORDS, SoundInstance.createUnseededRandom());
         setPosition(position);
         this.stream = stream;
@@ -60,13 +61,12 @@ public class SpeakerSound extends AbstractSoundInstance implements TickableSound
         }
     }
 
-    @Nonnull
     @Override
-    public CompletableFuture<AudioStream> getStream(@Nonnull SoundBufferLibrary soundBuffers, @Nonnull Sound sound, boolean looping) {
+    public CompletableFuture<AudioStream> getStream(SoundBufferLibrary soundBuffers, Sound sound, boolean looping) {
         return stream != null ? CompletableFuture.completedFuture(stream) : super.getStream(soundBuffers, sound, looping);
     }
 
-    public AudioStream getStream() {
+    public @Nullable AudioStream getStream() {
         return stream;
     }
 }

@@ -7,9 +7,9 @@ package dan200.computercraft.shared.util;
 
 import com.google.common.io.BaseEncoding;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.util.Nullability;
 import net.minecraft.nbt.*;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
@@ -27,7 +27,7 @@ public final class NBTUtil {
     private NBTUtil() {
     }
 
-    private static Tag toNBTTag(Object object) {
+    private static @Nullable Tag toNBTTag(@Nullable Object object) {
         if (object == null) return null;
         if (object instanceof Boolean) return ByteTag.valueOf((byte) ((boolean) (Boolean) object ? 1 : 0));
         if (object instanceof Number) return DoubleTag.valueOf(((Number) object).doubleValue());
@@ -51,8 +51,8 @@ public final class NBTUtil {
         return null;
     }
 
-    public static CompoundTag encodeObjects(Object[] objects) {
-        if (objects == null || objects.length <= 0) return null;
+    public static @Nullable CompoundTag encodeObjects(@Nullable Object[] objects) {
+        if (objects == null || objects.length == 0) return null;
 
         var nbt = new CompoundTag();
         nbt.putInt("len", objects.length);
@@ -63,7 +63,7 @@ public final class NBTUtil {
         return nbt;
     }
 
-    private static Object fromNBTTag(Tag tag) {
+    private static @Nullable Object fromNBTTag(@Nullable Tag tag) {
         if (tag == null) return null;
         switch (tag.getId()) {
             case Tag.TAG_BYTE:
@@ -87,7 +87,7 @@ public final class NBTUtil {
         }
     }
 
-    public static Object toLua(Tag tag) {
+    public static @Nullable Object toLua(@Nullable Tag tag) {
         if (tag == null) return null;
 
         switch (tag.getId()) {
@@ -134,7 +134,7 @@ public final class NBTUtil {
         }
     }
 
-    public static Object[] decodeObjects(CompoundTag tag) {
+    public static @Nullable Object[] decodeObjects(CompoundTag tag) {
         var len = tag.getInt("len");
         if (len <= 0) return null;
 
@@ -183,7 +183,7 @@ public final class NBTUtil {
         if (tag instanceof CompoundTag compound) {
             var keys = compound.getAllKeys().toArray(new String[0]);
             Arrays.sort(keys);
-            for (var key : keys) writeTag(output, key, compound.get(key));
+            for (var key : keys) writeTag(output, key, Nullability.assertNonNull(compound.get(key)));
 
             output.writeByte(0);
         } else {
@@ -199,7 +199,7 @@ public final class NBTUtil {
         }
 
         @Override
-        public void write(@Nonnull byte[] b, int off, int len) {
+        public void write(byte[] b, int off, int len) {
             digest.update(b, off, len);
         }
 

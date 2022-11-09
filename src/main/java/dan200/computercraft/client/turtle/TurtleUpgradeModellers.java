@@ -16,7 +16,6 @@ import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.UpgradeManager;
 import net.minecraft.client.Minecraft;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -39,7 +38,7 @@ public final class TurtleUpgradeModellers {
     private TurtleUpgradeModellers() {
     }
 
-    public static <T extends ITurtleUpgrade> void register(@Nonnull TurtleUpgradeSerialiser<T> serialiser, @Nonnull TurtleUpgradeModeller<T> modeller) {
+    public static <T extends ITurtleUpgrade> void register(TurtleUpgradeSerialiser<T> serialiser, TurtleUpgradeModeller<T> modeller) {
         synchronized (turtleModels) {
             if (turtleModels.containsKey(serialiser)) {
                 throw new IllegalStateException("Modeller already registered for serialiser");
@@ -49,7 +48,7 @@ public final class TurtleUpgradeModellers {
         }
     }
 
-    public static TransformedModel getModel(@Nonnull ITurtleUpgrade upgrade, @Nullable ITurtleAccess access, @Nonnull TurtleSide side) {
+    public static TransformedModel getModel(ITurtleUpgrade upgrade, @Nullable ITurtleAccess access, TurtleSide side) {
         @SuppressWarnings("unchecked")
         var modeller = (TurtleUpgradeModeller<ITurtleUpgrade>) modelCache.computeIfAbsent(upgrade, TurtleUpgradeModellers::getModeller);
         return modeller.getModel(upgrade, access, side);

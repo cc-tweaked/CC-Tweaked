@@ -13,8 +13,6 @@ import dan200.computercraft.shared.computer.inventory.ContainerComputerBase;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
-import javax.annotation.Nonnull;
-
 import static dan200.computercraft.client.render.ComputerBorderRenderer.BORDER;
 import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
 
@@ -32,8 +30,9 @@ public final class GuiComputer<T extends ContainerComputerBase> extends Computer
     }
 
     @Override
-    public void renderBg(@Nonnull PoseStack stack, float partialTicks, int mouseX, int mouseY) {
+    public void renderBg(PoseStack stack, float partialTicks, int mouseX, int mouseY) {
         // Draw a border around the terminal
+        var terminal = getTerminal();
         ComputerBorderRenderer.render(
             stack.last().pose(), ComputerBorderRenderer.getTexture(family), terminal.x, terminal.y, getBlitOffset(),
             FULL_BRIGHT_LIGHTMAP, terminal.getWidth(), terminal.getHeight()

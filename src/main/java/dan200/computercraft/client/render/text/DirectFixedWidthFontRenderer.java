@@ -16,7 +16,6 @@ import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
 import org.lwjgl.system.MemoryUtil;
 
-import javax.annotation.Nonnull;
 import java.nio.ByteBuffer;
 
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.*;
@@ -65,7 +64,7 @@ public final class DirectFixedWidthFontRenderer {
     }
 
     private static void drawBackground(
-        @Nonnull QuadEmitter emitter, float x, float y, @Nonnull TextBuffer backgroundColour, @Nonnull Palette palette,
+        QuadEmitter emitter, float x, float y, TextBuffer backgroundColour, Palette palette,
         float leftMarginSize, float rightMarginSize, float height
     ) {
         if (leftMarginSize > 0) {
@@ -96,7 +95,7 @@ public final class DirectFixedWidthFontRenderer {
         }
     }
 
-    public static void drawString(@Nonnull QuadEmitter emitter, float x, float y, @Nonnull TextBuffer text, @Nonnull TextBuffer textColour, @Nonnull Palette palette) {
+    public static void drawString(QuadEmitter emitter, float x, float y, TextBuffer text, TextBuffer textColour, Palette palette) {
         for (var i = 0; i < text.length(); i++) {
             var colour = palette.getRenderColours(getColour(textColour.charAt(i), Colour.BLACK));
 
@@ -107,7 +106,7 @@ public final class DirectFixedWidthFontRenderer {
 
     }
 
-    public static void drawTerminalForeground(@Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal) {
+    public static void drawTerminalForeground(QuadEmitter emitter, float x, float y, Terminal terminal) {
         var palette = terminal.getPalette();
         var height = terminal.getHeight();
 
@@ -122,7 +121,7 @@ public final class DirectFixedWidthFontRenderer {
     }
 
     public static void drawTerminalBackground(
-        @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal,
+        QuadEmitter emitter, float x, float y, Terminal terminal,
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     ) {
         var palette = terminal.getPalette();
@@ -149,7 +148,7 @@ public final class DirectFixedWidthFontRenderer {
         }
     }
 
-    public static void drawCursor(@Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal) {
+    public static void drawCursor(QuadEmitter emitter, float x, float y, Terminal terminal) {
         if (isCursorVisible(terminal)) {
             var colour = terminal.getPalette().getRenderColours(15 - terminal.getTextColour());
             drawChar(emitter, x + terminal.getCursorX() * FONT_WIDTH, y + terminal.getCursorY() * FONT_HEIGHT, '_', colour);

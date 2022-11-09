@@ -17,8 +17,6 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
-
 public final class PrintoutRecipe extends CustomRecipe {
     private final Ingredient leather;
     private final Ingredient string;
@@ -36,20 +34,18 @@ public final class PrintoutRecipe extends CustomRecipe {
         return x >= 3 && y >= 3;
     }
 
-    @Nonnull
     @Override
     public ItemStack getResultItem() {
         return ItemPrintout.createMultipleFromTitleAndText(null, null, null);
     }
 
     @Override
-    public boolean matches(@Nonnull CraftingContainer inventory, @Nonnull Level world) {
+    public boolean matches(CraftingContainer inventory, Level world) {
         return !assemble(inventory).isEmpty();
     }
 
-    @Nonnull
     @Override
-    public ItemStack assemble(@Nonnull CraftingContainer inventory) {
+    public ItemStack assemble(CraftingContainer inventory) {
         // See if we match the recipe, and extract the input disk ID and dye colour
         var numPages = 0;
         var numPrintouts = 0;
@@ -87,6 +83,7 @@ public final class PrintoutRecipe extends CustomRecipe {
 
         // Build some pages with what was passed in
         if (numPages <= ItemPrintout.MAX_PAGES && stringFound && printoutFound && numPrintouts >= (leatherFound ? 1 : 2)) {
+            if (printouts == null) throw new IllegalStateException("Printouts must be non-null");
             var text = new String[numPages * ItemPrintout.LINES_PER_PAGE];
             var colours = new String[numPages * ItemPrintout.LINES_PER_PAGE];
             var line = 0;
@@ -127,7 +124,6 @@ public final class PrintoutRecipe extends CustomRecipe {
         return ItemStack.EMPTY;
     }
 
-    @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer() {
         return ModRegistry.RecipeSerializers.PRINTOUT.get();

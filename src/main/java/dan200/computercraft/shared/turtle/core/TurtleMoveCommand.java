@@ -19,8 +19,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.Nonnull;
-
 public class TurtleMoveCommand implements ITurtleCommand {
     private final MoveDirection direction;
 
@@ -28,9 +26,8 @@ public class TurtleMoveCommand implements ITurtleCommand {
         this.direction = direction;
     }
 
-    @Nonnull
     @Override
-    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
+    public TurtleCommandResult execute(ITurtleAccess turtle) {
         // Get world direction from direction
         var direction = this.direction.toWorldDir(turtle);
 

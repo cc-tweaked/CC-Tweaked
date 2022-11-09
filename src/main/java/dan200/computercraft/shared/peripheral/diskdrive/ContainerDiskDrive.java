@@ -14,8 +14,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
-
 public class ContainerDiskDrive extends AbstractContainerMenu {
     private final Container inventory;
 
@@ -42,13 +40,12 @@ public class ContainerDiskDrive extends AbstractContainerMenu {
     }
 
     @Override
-    public boolean stillValid(@Nonnull Player player) {
+    public boolean stillValid(Player player) {
         return inventory.stillValid(player);
     }
 
-    @Nonnull
     @Override
-    public ItemStack quickMoveStack(@Nonnull Player player, int slotIndex) {
+    public ItemStack quickMoveStack(Player player, int slotIndex) {
         var slot = slots.get(slotIndex);
         if (slot == null || !slot.hasItem()) return ItemStack.EMPTY;
 

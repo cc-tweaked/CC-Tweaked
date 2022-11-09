@@ -17,8 +17,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 public class PocketComputerMenuProvider implements MenuProvider {
     private final ServerComputer computer;
@@ -36,7 +37,6 @@ public class PocketComputerMenuProvider implements MenuProvider {
     }
 
 
-    @Nonnull
     @Override
     public Component getDisplayName() {
         return name;
@@ -44,12 +44,12 @@ public class PocketComputerMenuProvider implements MenuProvider {
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player entity) {
+    public AbstractContainerMenu createMenu(int id, Inventory inventory, Player entity) {
         return new ComputerMenuWithoutInventory(
             isTypingOnly ? ModRegistry.Menus.POCKET_COMPUTER_NO_TERM.get() : ModRegistry.Menus.POCKET_COMPUTER.get(), id, inventory,
             p -> {
                 var stack = p.getItemInHand(hand);
-                return stack.getItem() == item && ItemPocketComputer.getServerComputer(entity.level.getServer(), stack) == computer;
+                return stack.getItem() == item && ItemPocketComputer.getServerComputer(assertNonNull(entity.level.getServer()), stack) == computer;
             },
             computer, item.getFamily()
         );

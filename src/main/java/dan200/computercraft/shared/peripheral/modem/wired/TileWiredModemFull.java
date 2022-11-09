@@ -30,7 +30,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
@@ -63,13 +62,11 @@ public class TileWiredModemFull extends TileGeneric {
             }
         }
 
-        @Nonnull
         @Override
         public Level getLevel() {
             return entity.getLevel();
         }
 
-        @Nonnull
         @Override
         public Vec3 getPosition() {
             return Vec3.atCenterOf(entity.getBlockPos());
@@ -130,12 +127,12 @@ public class TileWiredModemFull extends TileGeneric {
     }
 
     @Override
-    public void onNeighbourChange(@Nonnull BlockPos neighbour) {
+    public void onNeighbourChange(BlockPos neighbour) {
         onNeighbourTileEntityChange(neighbour);
     }
 
     @Override
-    public void onNeighbourTileEntityChange(@Nonnull BlockPos neighbour) {
+    public void onNeighbourTileEntityChange(BlockPos neighbour) {
         if (!level.isClientSide && peripheralAccessAllowed) {
             for (var facing : DirectionUtil.FACINGS) {
                 if (getBlockPos().relative(facing).equals(neighbour)) queueRefreshPeripheral(facing);
@@ -143,12 +140,12 @@ public class TileWiredModemFull extends TileGeneric {
         }
     }
 
-    private void queueRefreshPeripheral(@Nonnull Direction facing) {
+    private void queueRefreshPeripheral(Direction facing) {
         if (invalidSides == 0) TickScheduler.schedule(tickToken);
         invalidSides |= 1 << facing.ordinal();
     }
 
-    private void refreshPeripheral(@Nonnull Direction facing) {
+    private void refreshPeripheral(Direction facing) {
         invalidSides &= ~(1 << facing.ordinal());
         var peripheral = peripherals[facing.ordinal()];
         if (level != null && !isRemoved() && peripheral.attach(level, getBlockPos(), facing)) {
@@ -156,7 +153,6 @@ public class TileWiredModemFull extends TileGeneric {
         }
     }
 
-    @Nonnull
     @Override
     public InteractionResult onActivate(Player player, InteractionHand hand, BlockHitResult hit) {
         if (player.isCrouching() || !player.mayBuild()) return InteractionResult.PASS;
@@ -191,7 +187,7 @@ public class TileWiredModemFull extends TileGeneric {
     }
 
     @Override
-    public void load(@Nonnull CompoundTag nbt) {
+    public void load(CompoundTag nbt) {
         super.load(nbt);
         peripheralAccessAllowed = nbt.getBoolean(NBT_PERIPHERAL_ENABLED);
         for (var i = 0; i < peripherals.length; i++) peripherals[i].read(nbt, Integer.toString(i));
@@ -325,19 +321,16 @@ public class TileWiredModemFull extends TileGeneric {
 
         var localPeripheral = peripherals[side.ordinal()];
         return modems[side.ordinal()] = new WiredModemPeripheral(modemState, element) {
-            @Nonnull
             @Override
             protected WiredModemLocalPeripheral getLocalPeripheral() {
                 return localPeripheral;
             }
 
-            @Nonnull
             @Override
             public Vec3 getPosition() {
                 return Vec3.atCenterOf(getBlockPos().relative(side));
             }
 
-            @Nonnull
             @Override
             public Object getTarget() {
                 return TileWiredModemFull.this;

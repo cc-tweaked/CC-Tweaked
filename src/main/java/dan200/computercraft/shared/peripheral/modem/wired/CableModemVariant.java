@@ -8,7 +8,6 @@ package dan200.computercraft.shared.peripheral.modem.wired;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public enum CableModemVariant implements StringRepresentable {
@@ -41,32 +40,28 @@ public enum CableModemVariant implements StringRepresentable {
     private static final CableModemVariant[] VALUES = values();
 
     private final String name;
-    private final Direction facing;
+    private final @Nullable Direction facing;
 
-    CableModemVariant(String name, Direction facing) {
+    CableModemVariant(String name, @Nullable Direction facing) {
         this.name = name;
         this.facing = facing;
     }
 
-    @Nonnull
     public static CableModemVariant from(Direction facing) {
         return facing == null ? None : VALUES[1 + facing.get3DDataValue()];
     }
 
-    @Nonnull
-    public static CableModemVariant from(Direction facing, boolean modem, boolean peripheral) {
+    public static CableModemVariant from(@Nullable Direction facing, boolean modem, boolean peripheral) {
         var state = (modem ? 1 : 0) + (peripheral ? 2 : 0);
         return facing == null ? None : VALUES[1 + 6 * state + facing.get3DDataValue()];
     }
 
-    @Nonnull
     @Override
     public String getSerializedName() {
         return name;
     }
 
-    @Nullable
-    public Direction getFacing() {
+    public @Nullable Direction getFacing() {
         return facing;
     }
 

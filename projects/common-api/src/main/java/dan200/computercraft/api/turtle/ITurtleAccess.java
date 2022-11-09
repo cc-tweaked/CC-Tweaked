@@ -292,7 +292,7 @@ public interface ITurtleAccess {
      * @return The upgrade-specific data.
      * @see #updateUpgradeNBTData(TurtleSide)
      */
-    CompoundTag getUpgradeNBTData(@Nullable TurtleSide side);
+    CompoundTag getUpgradeNBTData(TurtleSide side);
 
     /**
      * Mark the upgrade-specific data as dirty on a specific side. This is required for the data to be synced to the

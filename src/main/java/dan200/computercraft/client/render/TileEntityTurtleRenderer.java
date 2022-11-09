@@ -30,7 +30,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle> {
@@ -54,14 +54,14 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
         };
     }
 
-    public static ResourceLocation getTurtleOverlayModel(ResourceLocation overlay, boolean christmas) {
+    public static @Nullable ResourceLocation getTurtleOverlayModel(@Nullable ResourceLocation overlay, boolean christmas) {
         if (overlay != null) return overlay;
         if (christmas) return ELF_OVERLAY_MODEL;
         return null;
     }
 
     @Override
-    public void render(@Nonnull TileTurtle turtle, float partialTicks, @Nonnull PoseStack transform, @Nonnull MultiBufferSource buffers, int lightmapCoord, int overlayLight) {
+    public void render(TileTurtle turtle, float partialTicks, PoseStack transform, MultiBufferSource buffers, int lightmapCoord, int overlayLight) {
         // Render the label
         var label = turtle.getLabel();
         var hit = renderer.cameraHitResult;
@@ -119,7 +119,7 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
         transform.popPose();
     }
 
-    private void renderUpgrade(@Nonnull PoseStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, TileTurtle turtle, TurtleSide side, float f) {
+    private void renderUpgrade(PoseStack transform, VertexConsumer renderer, int lightmapCoord, int overlayLight, TileTurtle turtle, TurtleSide side, float f) {
         var upgrade = turtle.getUpgrade(side);
         if (upgrade == null) return;
         transform.pushPose();
@@ -137,12 +137,12 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
         transform.popPose();
     }
 
-    private void renderModel(@Nonnull PoseStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, ResourceLocation modelLocation, int[] tints) {
+    private void renderModel(PoseStack transform, VertexConsumer renderer, int lightmapCoord, int overlayLight, ResourceLocation modelLocation, @Nullable int[] tints) {
         var modelManager = Minecraft.getInstance().getItemRenderer().getItemModelShaper().getModelManager();
         renderModel(transform, renderer, lightmapCoord, overlayLight, modelManager.getModel(modelLocation), tints);
     }
 
-    private void renderModel(@Nonnull PoseStack transform, @Nonnull VertexConsumer renderer, int lightmapCoord, int overlayLight, BakedModel model, int[] tints) {
+    private void renderModel(PoseStack transform, VertexConsumer renderer, int lightmapCoord, int overlayLight, BakedModel model, @Nullable int[] tints) {
         random.setSeed(0);
         renderQuads(transform, renderer, lightmapCoord, overlayLight, model.getQuads(null, null, random), tints);
         for (var facing : DirectionUtil.FACINGS) {
@@ -150,7 +150,7 @@ public class TileEntityTurtleRenderer implements BlockEntityRenderer<TileTurtle>
         }
     }
 
-    private static void renderQuads(@Nonnull PoseStack transform, @Nonnull VertexConsumer buffer, int lightmapCoord, int overlayLight, List<BakedQuad> quads, int[] tints) {
+    private static void renderQuads(PoseStack transform, VertexConsumer buffer, int lightmapCoord, int overlayLight, List<BakedQuad> quads, @Nullable int[] tints) {
         var matrix = transform.last();
 
         for (var bakedquad : quads) {

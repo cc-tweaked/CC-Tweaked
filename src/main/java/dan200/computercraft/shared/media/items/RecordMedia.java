@@ -11,7 +11,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.RecordItem;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * An implementation of IMedia for ItemRecords.
@@ -23,12 +23,12 @@ public final class RecordMedia implements IMedia {
     }
 
     @Override
-    public String getLabel(@Nonnull ItemStack stack) {
+    public @Nullable String getLabel(ItemStack stack) {
         return getAudioTitle(stack);
     }
 
     @Override
-    public String getAudioTitle(@Nonnull ItemStack stack) {
+    public @Nullable String getAudioTitle(ItemStack stack) {
         var item = stack.getItem();
         if (!(item instanceof RecordItem)) return null;
 
@@ -36,7 +36,7 @@ public final class RecordMedia implements IMedia {
     }
 
     @Override
-    public SoundEvent getAudio(@Nonnull ItemStack stack) {
+    public @Nullable SoundEvent getAudio(ItemStack stack) {
         var item = stack.getItem();
         if (!(item instanceof RecordItem)) return null;
 

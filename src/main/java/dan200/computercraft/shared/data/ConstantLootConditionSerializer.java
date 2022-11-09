@@ -12,8 +12,6 @@ import net.minecraft.world.level.storage.loot.Serializer;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
-import javax.annotation.Nonnull;
-
 public final class ConstantLootConditionSerializer<T extends LootItemCondition> implements Serializer<T> {
     private final T instance;
 
@@ -26,12 +24,11 @@ public final class ConstantLootConditionSerializer<T extends LootItemCondition> 
     }
 
     @Override
-    public void serialize(@Nonnull JsonObject json, @Nonnull T object, @Nonnull JsonSerializationContext context) {
+    public void serialize(JsonObject json, T object, JsonSerializationContext context) {
     }
 
-    @Nonnull
     @Override
-    public T deserialize(@Nonnull JsonObject json, @Nonnull JsonDeserializationContext context) {
+    public T deserialize(JsonObject json, JsonDeserializationContext context) {
         return instance;
     }
 }

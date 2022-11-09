@@ -12,7 +12,6 @@ import dan200.computercraft.api.turtle.TurtleUpgradeSerialiser;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 import static dan200.computercraft.shared.ModRegistry.Items;
@@ -24,7 +23,7 @@ class TurtleUpgradeGenerator extends TurtleUpgradeDataProvider {
     }
 
     @Override
-    protected void addUpgrades(@Nonnull Consumer<Upgrade<TurtleUpgradeSerialiser<?>>> addUpgrade) {
+    protected void addUpgrades(Consumer<Upgrade<TurtleUpgradeSerialiser<?>>> addUpgrade) {
         simpleWithCustomItem(id("speaker"), TurtleSerialisers.SPEAKER.get(), Items.SPEAKER.get()).add(addUpgrade);
         simpleWithCustomItem(vanilla("crafting_table"), TurtleSerialisers.WORKBENCH.get(), net.minecraft.world.item.Items.CRAFTING_TABLE).add(addUpgrade);
         simpleWithCustomItem(id("wireless_modem_normal"), TurtleSerialisers.WIRELESS_MODEM_NORMAL.get(), Items.WIRELESS_MODEM_NORMAL.get()).add(addUpgrade);
@@ -37,13 +36,11 @@ class TurtleUpgradeGenerator extends TurtleUpgradeDataProvider {
         tool(vanilla("diamond_sword"), net.minecraft.world.item.Items.DIAMOND_SWORD).breakable(Blocks.TURTLE_SWORD_BREAKABLE).damageMultiplier(9.0f).add(addUpgrade);
     }
 
-    @Nonnull
-    private static ResourceLocation id(@Nonnull String id) {
+    private static ResourceLocation id(String id) {
         return new ResourceLocation(ComputerCraft.MOD_ID, id);
     }
 
-    @Nonnull
-    private static ResourceLocation vanilla(@Nonnull String id) {
+    private static ResourceLocation vanilla(String id) {
         // Naughty, please don't do this. Mostly here for some semblance of backwards compatibility.
         return new ResourceLocation("minecraft", id);
     }

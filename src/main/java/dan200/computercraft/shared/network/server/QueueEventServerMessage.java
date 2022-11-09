@@ -12,7 +12,6 @@ import dan200.computercraft.shared.util.NBTUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -22,15 +21,15 @@ import javax.annotation.Nullable;
  */
 public class QueueEventServerMessage extends ComputerServerMessage {
     private final String event;
-    private final Object[] args;
+    private final @Nullable Object[] args;
 
-    public QueueEventServerMessage(AbstractContainerMenu menu, @Nonnull String event, @Nullable Object[] args) {
+    public QueueEventServerMessage(AbstractContainerMenu menu, String event, @Nullable Object[] args) {
         super(menu);
         this.event = event;
         this.args = args;
     }
 
-    public QueueEventServerMessage(@Nonnull FriendlyByteBuf buf) {
+    public QueueEventServerMessage(FriendlyByteBuf buf) {
         super(buf);
         event = buf.readUtf(Short.MAX_VALUE);
 
@@ -39,14 +38,14 @@ public class QueueEventServerMessage extends ComputerServerMessage {
     }
 
     @Override
-    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         super.toBytes(buf);
         buf.writeUtf(event);
         buf.writeNbt(args == null ? null : NBTUtil.encodeObjects(args));
     }
 
     @Override
-    protected void handle(ServerNetworkContext context, @Nonnull ComputerMenu container) {
+    protected void handle(ServerNetworkContext context, ComputerMenu container) {
         container.getInput().queueEvent(event, args);
     }
 }

@@ -16,7 +16,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.NonNullConsumer;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
@@ -29,7 +28,7 @@ public class GenericPeripheralProvider {
     }
 
     @Nullable
-    public static IPeripheral getPeripheral(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side, NonNullConsumer<Object> invalidate) {
+    public static IPeripheral getPeripheral(Level world, BlockPos pos, Direction side, NonNullConsumer<Object> invalidate) {
         var tile = world.getBlockEntity(pos);
         if (tile == null) return null;
 
@@ -53,10 +52,11 @@ public class GenericPeripheralProvider {
     }
 
     private static class GenericPeripheralBuilder {
-        private String name;
+        private @Nullable String name;
         private final Set<String> additionalTypes = new HashSet<>(0);
         private final ArrayList<SaturatedMethod> methods = new ArrayList<>(0);
 
+        @Nullable
         IPeripheral toPeripheral(BlockEntity tile) {
             if (methods.isEmpty()) return null;
 

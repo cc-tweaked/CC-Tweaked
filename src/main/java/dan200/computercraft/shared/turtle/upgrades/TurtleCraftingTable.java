@@ -13,7 +13,6 @@ import dan200.computercraft.api.turtle.TurtleUpgradeType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 
 public class TurtleCraftingTable extends AbstractTurtleUpgrade {
     public TurtleCraftingTable(ResourceLocation id, ItemStack stack) {
@@ -21,7 +20,7 @@ public class TurtleCraftingTable extends AbstractTurtleUpgrade {
     }
 
     @Override
-    public IPeripheral createPeripheral(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side) {
+    public IPeripheral createPeripheral(ITurtleAccess turtle, TurtleSide side) {
         return new CraftingTablePeripheral(turtle);
     }
 }

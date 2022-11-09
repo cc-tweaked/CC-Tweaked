@@ -14,7 +14,6 @@ import dan200.computercraft.shared.network.container.ComputerContainerData;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
 
 public class ContainerViewComputer extends ComputerMenuWithoutInventory {
     public ContainerViewComputer(int id, Inventory player, ServerComputer computer) {
@@ -25,7 +24,7 @@ public class ContainerViewComputer extends ComputerMenuWithoutInventory {
         super(ModRegistry.Menus.VIEW_COMPUTER.get(), id, player, data);
     }
 
-    private static boolean canInteractWith(@Nonnull ServerComputer computer, @Nonnull Player player) {
+    private static boolean canInteractWith(ServerComputer computer, Player player) {
         // If this computer no longer exists then discard it.
         if (ServerContext.get(computer.getLevel().getServer()).registry().get(computer.getInstanceID()) != computer) {
             return false;

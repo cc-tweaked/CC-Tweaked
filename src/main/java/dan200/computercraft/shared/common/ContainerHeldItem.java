@@ -16,7 +16,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ContainerHeldItem extends AbstractContainerMenu {
@@ -34,19 +33,17 @@ public class ContainerHeldItem extends AbstractContainerMenu {
         return new ContainerHeldItem(ModRegistry.Menus.PRINTOUT.get(), id, inventory.player, data.getHand());
     }
 
-    @Nonnull
     public ItemStack getStack() {
         return stack;
     }
 
-    @Nonnull
     @Override
-    public ItemStack quickMoveStack(@Nonnull Player player, int slot) {
+    public ItemStack quickMoveStack(Player player, int slot) {
         return ItemStack.EMPTY;
     }
 
     @Override
-    public boolean stillValid(@Nonnull Player player) {
+    public boolean stillValid(Player player) {
         if (!player.isAlive()) return false;
 
         var stack = player.getItemInHand(hand);
@@ -64,7 +61,6 @@ public class ContainerHeldItem extends AbstractContainerMenu {
             this.hand = hand;
         }
 
-        @Nonnull
         @Override
         public Component getDisplayName() {
             return name;
@@ -72,7 +68,7 @@ public class ContainerHeldItem extends AbstractContainerMenu {
 
         @Nullable
         @Override
-        public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) {
+        public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
             return new ContainerHeldItem(type, id, player, hand);
         }
     }

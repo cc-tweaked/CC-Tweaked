@@ -10,7 +10,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 
 public class InvisibleSlot extends Slot {
     public InvisibleSlot(Container container, int slot) {
@@ -18,12 +17,12 @@ public class InvisibleSlot extends Slot {
     }
 
     @Override
-    public boolean mayPlace(@Nonnull ItemStack stack) {
+    public boolean mayPlace(ItemStack stack) {
         return false;
     }
 
     @Override
-    public boolean mayPickup(@Nonnull Player player) {
+    public boolean mayPickup(Player player) {
         return false;
     }
 

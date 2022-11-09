@@ -16,7 +16,6 @@ import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
@@ -24,20 +23,19 @@ import java.util.*;
  * Data providers for items.
  */
 public class ItemData {
-    @Nonnull
-    public static <T extends Map<? super String, Object>> T fillBasicSafe(@Nonnull T data, @Nonnull ItemStack stack) {
+    public static <T extends Map<? super String, Object>> T fillBasicSafe(T data, ItemStack stack) {
         data.put("name", DataHelpers.getId(Registries.ITEMS, stack.getItem()));
         data.put("count", stack.getCount());
         return data;
     }
 
-    public static void fillBasic(@Nonnull Map<? super String, Object> data, @Nonnull ItemStack stack) {
+    public static void fillBasic(Map<? super String, Object> data, ItemStack stack) {
         fillBasicSafe(data, stack);
         var hash = NBTUtil.getNBTHash(stack.getTag());
         if (hash != null) data.put("nbt", hash);
     }
 
-    public static void fill(@Nonnull Map<? super String, Object> data, @Nonnull ItemStack stack) {
+    public static void fill(Map<? super String, Object> data, ItemStack stack) {
         data.put("displayName", stack.getHoverName().getString());
         data.put("maxCount", stack.getMaxStackSize());
 
@@ -82,7 +80,7 @@ public class ItemData {
     }
 
     @Nullable
-    private static Component parseTextComponent(@Nonnull Tag x) {
+    private static Component parseTextComponent(Tag x) {
         try {
             return Component.Serializer.fromJson(x.getAsString());
         } catch (JsonParseException e) {
@@ -96,8 +94,7 @@ public class ItemData {
      * @param stack Stack to analyse
      * @return A filled list that contains pairs of item group IDs and their display names.
      */
-    @Nonnull
-    private static List<Map<String, Object>> getItemGroups(@Nonnull ItemStack stack) {
+    private static List<Map<String, Object>> getItemGroups(ItemStack stack) {
         List<Map<String, Object>> groups = new ArrayList<>(1);
 
         for (var group : PlatformHelper.get().getCreativeTabs(stack)) {
@@ -119,8 +116,7 @@ public class ItemData {
      * @param hideFlags An int used as bit field to provide visibility rules.
      * @return A filled list that contain all visible enchantments.
      */
-    @Nonnull
-    private static List<Map<String, Object>> getAllEnchants(@Nonnull ItemStack stack, int hideFlags) {
+    private static List<Map<String, Object>> getAllEnchants(ItemStack stack, int hideFlags) {
         var enchants = new ArrayList<Map<String, Object>>(0);
 
         if (stack.getItem() instanceof EnchantedBookItem && (hideFlags & 32) == 0) {
@@ -146,7 +142,7 @@ public class ItemData {
      * @param enchants    The enchantment map to add it to.
      * @see EnchantmentHelper
      */
-    private static void addEnchantments(@Nonnull ListTag rawEnchants, @Nonnull ArrayList<Map<String, Object>> enchants) {
+    private static void addEnchantments(ListTag rawEnchants, ArrayList<Map<String, Object>> enchants) {
         if (rawEnchants.isEmpty()) return;
 
         enchants.ensureCapacity(enchants.size() + rawEnchants.size());

@@ -10,7 +10,7 @@ import dan200.computercraft.api.media.IMedia;
 import dan200.computercraft.api.media.IMediaProvider;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -21,12 +21,12 @@ public final class MediaProviders {
     private MediaProviders() {
     }
 
-    public static synchronized void register(@Nonnull IMediaProvider provider) {
+    public static synchronized void register(IMediaProvider provider) {
         Objects.requireNonNull(provider, "provider cannot be null");
         providers.add(provider);
     }
 
-    public static IMedia get(@Nonnull ItemStack stack) {
+    public static @Nullable IMedia get(ItemStack stack) {
         if (stack.isEmpty()) return null;
 
         // Try the handlers in order:

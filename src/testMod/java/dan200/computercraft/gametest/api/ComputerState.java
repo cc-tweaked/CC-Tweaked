@@ -9,7 +9,7 @@ import dan200.computercraft.gametest.core.TestAPI;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestSequence;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -27,18 +27,18 @@ public class ComputerState {
     protected static final Map<String, ComputerState> lookup = new ConcurrentHashMap<>();
 
     protected final Set<String> markers = new HashSet<>();
-    protected String error;
+    protected @Nullable String error;
 
-    public boolean isDone(@Nonnull String marker) {
+    public boolean isDone(String marker) {
         return markers.contains(marker);
     }
 
-    public void check(@Nonnull String marker) {
+    public void check(String marker) {
         if (!markers.contains(marker)) throw new IllegalStateException("Not yet at " + marker);
         if (error != null) throw new GameTestAssertException(error);
     }
 
-    public static ComputerState get(String label) {
+    public static @Nullable ComputerState get(String label) {
         return lookup.get(label);
     }
 }

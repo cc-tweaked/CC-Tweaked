@@ -10,7 +10,6 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 
-import javax.annotation.Nonnull;
 
 public class MonitorClientMessage implements NetworkMessage<ClientNetworkContext> {
     private final BlockPos pos;
@@ -21,13 +20,13 @@ public class MonitorClientMessage implements NetworkMessage<ClientNetworkContext
         this.state = state;
     }
 
-    public MonitorClientMessage(@Nonnull FriendlyByteBuf buf) {
+    public MonitorClientMessage(FriendlyByteBuf buf) {
         pos = buf.readBlockPos();
         state = new TerminalState(buf);
     }
 
     @Override
-    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
         state.write(buf);
     }

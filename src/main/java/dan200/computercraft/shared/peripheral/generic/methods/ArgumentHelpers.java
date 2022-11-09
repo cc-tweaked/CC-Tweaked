@@ -10,8 +10,6 @@ import dan200.computercraft.shared.platform.Registries;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
-
 /**
  * A few helpers for working with arguments.
  * <p>
@@ -34,7 +32,6 @@ final class ArgumentHelpers {
         }
     }
 
-    @Nonnull
     public static <T> T getRegistryEntry(String name, String typeName, Registries.RegistryWrapper<T> registry) throws LuaException {
         ResourceLocation id;
         try {
@@ -43,8 +40,10 @@ final class ArgumentHelpers {
             id = null;
         }
 
-        var value = registry.tryGet(id);
-        if (id == null || value == null) throw new LuaException(String.format("Unknown %s '%s'", typeName, name));
+        T value;
+        if (id == null || (value = registry.tryGet(id)) == null) {
+            throw new LuaException(String.format("Unknown %s '%s'", typeName, name));
+        }
 
         return value;
     }

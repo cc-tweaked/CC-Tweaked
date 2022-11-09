@@ -7,14 +7,17 @@ package dan200.computercraft.shared.computer.blocks;
 
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 
+import javax.annotation.Nullable;
+
 public interface IComputerTile {
     int getComputerID();
 
     void setComputerID(int id);
 
+    @Nullable
     String getLabel();
 
-    void setLabel(String label);
+    void setLabel(@Nullable String label);
 
     ComputerFamily getFamily();
 }

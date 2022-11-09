@@ -12,14 +12,16 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 
+import javax.annotation.Nullable;
+
 /**
  * An instance of a speaker, which is either playing a {@link DfpwmStream} stream or a normal sound.
  */
 public class SpeakerInstance {
     public static final ResourceLocation DFPWM_STREAM = new ResourceLocation(ComputerCraft.MOD_ID, "speaker.dfpwm_fake_audio_should_not_be_played");
 
-    private DfpwmStream currentStream;
-    private SpeakerSound sound;
+    private @Nullable DfpwmStream currentStream;
+    private @Nullable SpeakerSound sound;
 
     SpeakerInstance() {
     }
@@ -30,7 +32,7 @@ public class SpeakerInstance {
         var stream = currentStream;
         if (stream == null) stream = currentStream = new DfpwmStream();
         var exhausted = stream.isEmpty();
-        currentStream.push(buffer);
+        stream.push(buffer);
 
         // If we've got nothing left in the buffer, enqueue an additional one just in case.
         if (exhausted && sound != null && sound.stream == stream && stream.channel != null && stream.executor != null) {

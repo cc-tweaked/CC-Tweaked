@@ -16,8 +16,6 @@ import dan200.computercraft.core.terminal.TextBuffer;
 import dan200.computercraft.core.util.Colour;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
-
 import static dan200.computercraft.client.render.RenderTypes.FULL_BRIGHT_LIGHTMAP;
 
 /**
@@ -88,7 +86,7 @@ public final class FixedWidthFontRenderer {
     }
 
     private static void drawBackground(
-        @Nonnull QuadEmitter emitter, float x, float y, @Nonnull TextBuffer backgroundColour, @Nonnull Palette palette,
+        QuadEmitter emitter, float x, float y, TextBuffer backgroundColour, Palette palette,
         float leftMarginSize, float rightMarginSize, float height, int light
     ) {
         if (leftMarginSize > 0) {
@@ -119,7 +117,7 @@ public final class FixedWidthFontRenderer {
         }
     }
 
-    public static void drawString(@Nonnull QuadEmitter emitter, float x, float y, @Nonnull TextBuffer text, @Nonnull TextBuffer textColour, @Nonnull Palette palette, int light) {
+    public static void drawString(QuadEmitter emitter, float x, float y, TextBuffer text, TextBuffer textColour, Palette palette, int light) {
         for (var i = 0; i < text.length(); i++) {
             var colour = palette.getRenderColours(getColour(textColour.charAt(i), Colour.BLACK));
 
@@ -130,7 +128,7 @@ public final class FixedWidthFontRenderer {
 
     }
 
-    public static void drawTerminalForeground(@Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal) {
+    public static void drawTerminalForeground(QuadEmitter emitter, float x, float y, Terminal terminal) {
         var palette = terminal.getPalette();
         var height = terminal.getHeight();
 
@@ -145,7 +143,7 @@ public final class FixedWidthFontRenderer {
     }
 
     public static void drawTerminalBackground(
-        @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal,
+        QuadEmitter emitter, float x, float y, Terminal terminal,
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     ) {
         var palette = terminal.getPalette();
@@ -180,7 +178,7 @@ public final class FixedWidthFontRenderer {
         return cursorX >= 0 && cursorX < terminal.getWidth() && cursorY >= 0 && cursorY < terminal.getHeight();
     }
 
-    public static void drawCursor(@Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal) {
+    public static void drawCursor(QuadEmitter emitter, float x, float y, Terminal terminal) {
         if (isCursorVisible(terminal) && FrameInfo.getGlobalCursorBlink()) {
             var colour = terminal.getPalette().getRenderColours(15 - terminal.getTextColour());
             drawChar(emitter, x + terminal.getCursorX() * FONT_WIDTH, y + terminal.getCursorY() * FONT_HEIGHT, '_', colour, FULL_BRIGHT_LIGHTMAP);
@@ -188,7 +186,7 @@ public final class FixedWidthFontRenderer {
     }
 
     public static void drawTerminal(
-        @Nonnull QuadEmitter emitter, float x, float y, @Nonnull Terminal terminal,
+        QuadEmitter emitter, float x, float y, Terminal terminal,
         float topMarginSize, float bottomMarginSize, float leftMarginSize, float rightMarginSize
     ) {
         drawTerminalBackground(
@@ -208,7 +206,7 @@ public final class FixedWidthFontRenderer {
         emitter.poseMatrix().load(transformBackup);
     }
 
-    public static void drawEmptyTerminal(@Nonnull QuadEmitter emitter, float x, float y, float width, float height) {
+    public static void drawEmptyTerminal(QuadEmitter emitter, float x, float y, float width, float height) {
         drawQuad(emitter, x, y, 0, width, height, BLACK, FULL_BRIGHT_LIGHTMAP);
     }
 

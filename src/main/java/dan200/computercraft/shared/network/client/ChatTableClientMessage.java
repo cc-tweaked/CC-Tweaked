@@ -10,7 +10,6 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
 
 public class ChatTableClientMessage implements NetworkMessage<ClientNetworkContext> {
     private static final int MAX_LEN = 16;
@@ -21,7 +20,7 @@ public class ChatTableClientMessage implements NetworkMessage<ClientNetworkConte
         this.table = table;
     }
 
-    public ChatTableClientMessage(@Nonnull FriendlyByteBuf buf) {
+    public ChatTableClientMessage(FriendlyByteBuf buf) {
         var id = buf.readUtf(MAX_LEN);
         var columns = buf.readVarInt();
         TableBuilder table;
@@ -45,7 +44,7 @@ public class ChatTableClientMessage implements NetworkMessage<ClientNetworkConte
     }
 
     @Override
-    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeUtf(table.getId(), MAX_LEN);
         buf.writeVarInt(table.getColumns());
         buf.writeBoolean(table.getHeaders() != null);

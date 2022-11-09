@@ -8,21 +8,21 @@ package dan200.computercraft.shared.computer.items;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface IComputerItem {
     String NBT_ID = "ComputerId";
 
-    default int getComputerID(@Nonnull ItemStack stack) {
+    default int getComputerID(ItemStack stack) {
         var nbt = stack.getTag();
         return nbt != null && nbt.contains(NBT_ID) ? nbt.getInt(NBT_ID) : -1;
     }
 
-    default String getLabel(@Nonnull ItemStack stack) {
+    default @Nullable String getLabel(ItemStack stack) {
         return stack.hasCustomHoverName() ? stack.getHoverName().getString() : null;
     }
 
     ComputerFamily getFamily();
 
-    ItemStack withFamily(@Nonnull ItemStack stack, @Nonnull ComputerFamily family);
+    ItemStack withFamily(ItemStack stack, ComputerFamily family);
 }

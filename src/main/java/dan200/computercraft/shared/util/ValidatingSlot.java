@@ -9,7 +9,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import java.util.function.Predicate;
 
 public class ValidatingSlot extends Slot {
@@ -21,7 +20,7 @@ public class ValidatingSlot extends Slot {
     }
 
     @Override
-    public boolean mayPlace(@Nonnull ItemStack stack) {
+    public boolean mayPlace(ItemStack stack) {
         return predicate.test(stack);
     }
 }

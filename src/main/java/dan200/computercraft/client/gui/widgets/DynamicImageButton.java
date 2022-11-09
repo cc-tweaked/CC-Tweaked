@@ -12,7 +12,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
@@ -61,7 +60,7 @@ public class DynamicImageButton extends Button {
     }
 
     @Override
-    public void renderButton(@Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks) {
+    public void renderButton(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
         RenderSystem.setShaderTexture(0, texture);
         RenderSystem.disableDepthTest();
 
@@ -74,7 +73,6 @@ public class DynamicImageButton extends Button {
         if (isHovered) renderToolTip(stack, mouseX, mouseY);
     }
 
-    @Nonnull
     @Override
     public Component getMessage() {
         var tooltip = this.tooltip.get();
@@ -82,7 +80,7 @@ public class DynamicImageButton extends Button {
     }
 
     @Override
-    public void renderToolTip(@Nonnull PoseStack stack, int mouseX, int mouseY) {
+    public void renderToolTip(PoseStack stack, int mouseX, int mouseY) {
         var tooltip = this.tooltip.get();
         if (!tooltip.isEmpty()) {
             screen.renderComponentTooltip(stack, tooltip, mouseX, mouseY);

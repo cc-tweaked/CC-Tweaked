@@ -13,11 +13,11 @@ import dan200.computercraft.api.network.wired.IWiredNode;
 import dan200.computercraft.api.network.wired.IWiredSender;
 import dan200.computercraft.api.peripheral.IPeripheral;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 
 public final class WiredNode implements IWiredNode {
-    private Set<IPacketReceiver> receivers;
+    private @Nullable Set<IPacketReceiver> receivers;
 
     final IWiredElement element;
     Map<String, IPeripheral> peripherals = Collections.emptyMap();
@@ -31,13 +31,13 @@ public final class WiredNode implements IWiredNode {
     }
 
     @Override
-    public synchronized void addReceiver(@Nonnull IPacketReceiver receiver) {
+    public synchronized void addReceiver(IPacketReceiver receiver) {
         if (receivers == null) receivers = new HashSet<>();
         receivers.add(receiver);
     }
 
     @Override
-    public synchronized void removeReceiver(@Nonnull IPacketReceiver receiver) {
+    public synchronized void removeReceiver(IPacketReceiver receiver) {
         if (receivers != null) receivers.remove(receiver);
     }
 
@@ -64,7 +64,7 @@ public final class WiredNode implements IWiredNode {
     }
 
     @Override
-    public void transmitSameDimension(@Nonnull Packet packet, double range) {
+    public void transmitSameDimension(Packet packet, double range) {
         Objects.requireNonNull(packet, "packet cannot be null");
         if (!(packet.sender() instanceof IWiredSender) || ((IWiredSender) packet.sender()).getNode() != this) {
             throw new IllegalArgumentException("Sender is not in the network");
@@ -79,7 +79,7 @@ public final class WiredNode implements IWiredNode {
     }
 
     @Override
-    public void transmitInterdimensional(@Nonnull Packet packet) {
+    public void transmitInterdimensional(Packet packet) {
         Objects.requireNonNull(packet, "packet cannot be null");
         if (!(packet.sender() instanceof IWiredSender) || ((IWiredSender) packet.sender()).getNode() != this) {
             throw new IllegalArgumentException("Sender is not in the network");
@@ -93,13 +93,11 @@ public final class WiredNode implements IWiredNode {
         }
     }
 
-    @Nonnull
     @Override
     public IWiredElement getElement() {
         return element;
     }
 
-    @Nonnull
     @Override
     public IWiredNetwork getNetwork() {
         return network;

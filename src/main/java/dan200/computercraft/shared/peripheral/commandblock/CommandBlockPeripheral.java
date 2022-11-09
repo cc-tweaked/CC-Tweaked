@@ -10,7 +10,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.computer.apis.CommandAPI;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * This peripheral allows you to interact with command blocks.
@@ -29,7 +29,6 @@ public class CommandBlockPeripheral implements IPeripheral {
         this.commandBlock = commandBlock;
     }
 
-    @Nonnull
     @Override
     public String getType() {
         return "command";
@@ -71,11 +70,10 @@ public class CommandBlockPeripheral implements IPeripheral {
     }
 
     @Override
-    public boolean equals(IPeripheral other) {
+    public boolean equals(@Nullable IPeripheral other) {
         return other != null && other.getClass() == getClass();
     }
 
-    @Nonnull
     @Override
     public Object getTarget() {
         return commandBlock;

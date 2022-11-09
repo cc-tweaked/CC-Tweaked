@@ -22,7 +22,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlockComputer<T extends TileComputer> extends BlockComputerBase<T> {
@@ -48,21 +47,18 @@ public class BlockComputer<T extends TileComputer> extends BlockComputerBase<T> 
         return defaultBlockState().setValue(FACING, placement.getHorizontalDirection().getOpposite());
     }
 
-    @Nonnull
     @Override
     @Deprecated
     public BlockState mirror(BlockState state, Mirror mirrorIn) {
         return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
     }
 
-    @Nonnull
     @Override
     @Deprecated
     public BlockState rotate(BlockState state, Rotation rot) {
         return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
     }
 
-    @Nonnull
     @Override
     protected ItemStack getItem(TileComputerBase tile) {
         return tile instanceof TileComputer ? ComputerItemFactory.create((TileComputer) tile) : ItemStack.EMPTY;

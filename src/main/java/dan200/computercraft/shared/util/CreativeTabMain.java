@@ -10,14 +10,11 @@ import dan200.computercraft.shared.ModRegistry;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
-
 public class CreativeTabMain extends CreativeModeTab {
     public CreativeTabMain() {
         super(ComputerCraft.MOD_ID);
     }
 
-    @Nonnull
     @Override
     public ItemStack makeIcon() {
         return new ItemStack(ModRegistry.Blocks.COMPUTER_NORMAL.get());

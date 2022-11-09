@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class TurtleModem extends AbstractTurtleUpgrade {
     private static class Peripheral extends WirelessModemPeripheral {
@@ -26,13 +26,11 @@ public class TurtleModem extends AbstractTurtleUpgrade {
             this.turtle = turtle;
         }
 
-        @Nonnull
         @Override
         public Level getLevel() {
             return turtle.getLevel();
         }
 
-        @Nonnull
         @Override
         public Vec3 getPosition() {
             var turtlePos = turtle.getPosition();
@@ -44,7 +42,7 @@ public class TurtleModem extends AbstractTurtleUpgrade {
         }
 
         @Override
-        public boolean equals(IPeripheral other) {
+        public boolean equals(@Nullable IPeripheral other) {
             return this == other || (other instanceof Peripheral modem && modem.turtle == turtle);
         }
     }
@@ -57,18 +55,17 @@ public class TurtleModem extends AbstractTurtleUpgrade {
     }
 
     @Override
-    public IPeripheral createPeripheral(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side) {
+    public IPeripheral createPeripheral(ITurtleAccess turtle, TurtleSide side) {
         return new Peripheral(turtle, advanced);
     }
 
-    @Nonnull
     @Override
-    public TurtleCommandResult useTool(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull Direction dir) {
+    public TurtleCommandResult useTool(ITurtleAccess turtle, TurtleSide side, TurtleVerb verb, Direction dir) {
         return TurtleCommandResult.failure();
     }
 
     @Override
-    public void update(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side) {
+    public void update(ITurtleAccess turtle, TurtleSide side) {
         // Advance the modem
         if (!turtle.getLevel().isClientSide) {
             var peripheral = turtle.getPeripheral(side);

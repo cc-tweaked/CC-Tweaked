@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.chunk.LevelChunk;
 
+import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -72,7 +73,7 @@ public final class MonitorWatcher {
         }
     }
 
-    private static ServerMonitor getMonitor(TileMonitor monitor) {
+    private static @Nullable ServerMonitor getMonitor(TileMonitor monitor) {
         return !monitor.isRemoved() && monitor.getXIndex() == 0 && monitor.getYIndex() == 0 ? monitor.getCachedServerMonitor() : null;
     }
 

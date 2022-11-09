@@ -17,7 +17,6 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -135,21 +134,18 @@ public class TurtleInventoryCrafting extends CraftingContainer {
         return getWidth() * getHeight();
     }
 
-    @Nonnull
     @Override
     public ItemStack getItem(int i) {
         i = modifyIndex(i);
         return turtle.getInventory().getItem(i);
     }
 
-    @Nonnull
     @Override
     public ItemStack removeItemNoUpdate(int i) {
         i = modifyIndex(i);
         return turtle.getInventory().removeItemNoUpdate(i);
     }
 
-    @Nonnull
     @Override
     public ItemStack removeItem(int i, int size) {
         i = modifyIndex(i);
@@ -157,7 +153,7 @@ public class TurtleInventoryCrafting extends CraftingContainer {
     }
 
     @Override
-    public void setItem(int i, @Nonnull ItemStack stack) {
+    public void setItem(int i, ItemStack stack) {
         i = modifyIndex(i);
         turtle.getInventory().setItem(i, stack);
     }
@@ -173,12 +169,12 @@ public class TurtleInventoryCrafting extends CraftingContainer {
     }
 
     @Override
-    public boolean stillValid(@Nonnull Player player) {
+    public boolean stillValid(Player player) {
         return true;
     }
 
     @Override
-    public boolean canPlaceItem(int i, @Nonnull ItemStack stack) {
+    public boolean canPlaceItem(int i, ItemStack stack) {
         i = modifyIndex(i);
         return turtle.getInventory().canPlaceItem(i, stack);
     }

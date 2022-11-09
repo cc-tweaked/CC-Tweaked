@@ -19,6 +19,7 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL31;
 
+import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,14 +29,14 @@ public final class ClientMonitor {
     private final TileMonitor origin;
 
     public long lastRenderFrame = -1;
-    public BlockPos lastRenderPos = null;
+    public @Nullable BlockPos lastRenderPos = null;
 
     public int tboBuffer;
     public int tboTexture;
     public int tboUniform;
-    public DirectVertexBuffer backgroundBuffer;
-    public DirectVertexBuffer foregroundBuffer;
-    private NetworkedTerminal terminal;
+    public @Nullable DirectVertexBuffer backgroundBuffer;
+    public @Nullable DirectVertexBuffer foregroundBuffer;
+    private @Nullable NetworkedTerminal terminal;
     private boolean terminalChanged;
 
     public ClientMonitor(TileMonitor origin) {
@@ -152,7 +153,7 @@ public final class ClientMonitor {
         return changed;
     }
 
-    public Terminal getTerminal() {
+    public @Nullable Terminal getTerminal() {
         return terminal;
     }
 

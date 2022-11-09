@@ -20,8 +20,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.phys.AABB;
 
-import javax.annotation.Nonnull;
-
 public class TurtleSuckCommand implements ITurtleCommand {
     private final InteractDirection direction;
     private final int quantity;
@@ -31,9 +29,8 @@ public class TurtleSuckCommand implements ITurtleCommand {
         this.quantity = quantity;
     }
 
-    @Nonnull
     @Override
-    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
+    public TurtleCommandResult execute(ITurtleAccess turtle) {
         // Sucking nothing is easy
         if (quantity == 0) {
             turtle.playAnimation(TurtleAnimation.WAIT);

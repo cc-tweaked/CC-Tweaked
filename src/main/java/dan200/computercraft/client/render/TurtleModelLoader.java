@@ -19,7 +19,6 @@ import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
 import net.minecraftforge.client.model.geometry.IGeometryLoader;
 import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
 
-import javax.annotation.Nonnull;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,9 +32,8 @@ public final class TurtleModelLoader implements IGeometryLoader<TurtleModelLoade
     private TurtleModelLoader() {
     }
 
-    @Nonnull
     @Override
-    public Unbaked read(@Nonnull JsonObject modelContents, @Nonnull JsonDeserializationContext deserializationContext) {
+    public Unbaked read(JsonObject modelContents, JsonDeserializationContext deserializationContext) {
         var model = new ResourceLocation(GsonHelper.getAsString(modelContents, "model"));
         return new Unbaked(model);
     }
@@ -57,10 +55,13 @@ public final class TurtleModelLoader implements IGeometryLoader<TurtleModelLoade
 
         @Override
         public BakedModel bake(IGeometryBakingContext owner, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState transform, ItemOverrides overrides, ResourceLocation modelLocation) {
-            return new TurtleModel(
-                bakery.bake(family, transform, spriteGetter),
-                bakery.bake(COLOUR_TURTLE_MODEL, transform, spriteGetter)
-            );
+            var mainModel = bakery.bake(family, transform, spriteGetter);
+            if (mainModel == null) throw new NullPointerException(family + " failed to bake");
+
+            var colourModel = bakery.bake(COLOUR_TURTLE_MODEL, transform, spriteGetter);
+            if (colourModel == null) throw new NullPointerException(COLOUR_TURTLE_MODEL + " failed to bake");
+
+            return new TurtleModel(mainModel, colourModel);
         }
     }
 }

@@ -18,7 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class ItemPrintout extends Item {
@@ -45,14 +45,13 @@ public class ItemPrintout extends Item {
     }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, Level world, @Nonnull List<Component> list, @Nonnull TooltipFlag options) {
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> list, TooltipFlag options) {
         var title = getTitle(stack);
         if (title != null && !title.isEmpty()) list.add(Component.literal(title));
     }
 
-    @Nonnull
     @Override
-    public InteractionResultHolder<ItemStack> use(Level world, @Nonnull Player player, @Nonnull InteractionHand hand) {
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
         if (!world.isClientSide) {
             new HeldItemContainerData(hand)
                 .open(player, new ContainerHeldItem.Factory(ModRegistry.Menus.PRINTOUT.get(), player.getItemInHand(hand), hand));
@@ -60,8 +59,7 @@ public class ItemPrintout extends Item {
         return new InteractionResultHolder<>(InteractionResult.SUCCESS, player.getItemInHand(hand));
     }
 
-    @Nonnull
-    private ItemStack createFromTitleAndText(String title, String[] text, String[] colours) {
+    private ItemStack createFromTitleAndText(@Nullable String title, @Nullable String[] text, @Nullable String[] colours) {
         var stack = new ItemStack(this);
 
         // Build NBT
@@ -84,18 +82,15 @@ public class ItemPrintout extends Item {
         return stack;
     }
 
-    @Nonnull
-    public static ItemStack createSingleFromTitleAndText(String title, String[] text, String[] colours) {
+    public static ItemStack createSingleFromTitleAndText(@Nullable String title, @Nullable String[] text, @Nullable String[] colours) {
         return ModRegistry.Items.PRINTED_PAGE.get().createFromTitleAndText(title, text, colours);
     }
 
-    @Nonnull
-    public static ItemStack createMultipleFromTitleAndText(String title, String[] text, String[] colours) {
+    public static ItemStack createMultipleFromTitleAndText(@Nullable String title, @Nullable String[] text, @Nullable String[] colours) {
         return ModRegistry.Items.PRINTED_PAGES.get().createFromTitleAndText(title, text, colours);
     }
 
-    @Nonnull
-    public static ItemStack createBookFromTitleAndText(String title, String[] text, String[] colours) {
+    public static ItemStack createBookFromTitleAndText(@Nullable String title, @Nullable String[] text, @Nullable String[] colours) {
         return ModRegistry.Items.PRINTED_BOOK.get().createFromTitleAndText(title, text, colours);
     }
 
@@ -103,25 +98,25 @@ public class ItemPrintout extends Item {
         return type;
     }
 
-    public static String getTitle(@Nonnull ItemStack stack) {
+    public static String getTitle(ItemStack stack) {
         var nbt = stack.getTag();
-        return nbt != null && nbt.contains(NBT_TITLE) ? nbt.getString(NBT_TITLE) : null;
+        return nbt != null && nbt.contains(NBT_TITLE) ? nbt.getString(NBT_TITLE) : "";
     }
 
-    public static int getPageCount(@Nonnull ItemStack stack) {
+    public static int getPageCount(ItemStack stack) {
         var nbt = stack.getTag();
         return nbt != null && nbt.contains(NBT_PAGES) ? nbt.getInt(NBT_PAGES) : 1;
     }
 
-    public static String[] getText(@Nonnull ItemStack stack) {
+    public static String[] getText(ItemStack stack) {
         return getLines(stack, NBT_LINE_TEXT);
     }
 
-    public static String[] getColours(@Nonnull ItemStack stack) {
+    public static String[] getColours(ItemStack stack) {
         return getLines(stack, NBT_LINE_COLOUR);
     }
 
-    private static String[] getLines(@Nonnull ItemStack stack, String prefix) {
+    private static String[] getLines(ItemStack stack, String prefix) {
         var nbt = stack.getTag();
         var numLines = getPageCount(stack) * LINES_PER_PAGE;
         var lines = new String[numLines];

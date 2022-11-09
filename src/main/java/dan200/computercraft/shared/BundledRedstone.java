@@ -12,7 +12,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -22,12 +21,12 @@ public final class BundledRedstone {
     private BundledRedstone() {
     }
 
-    public static synchronized void register(@Nonnull IBundledRedstoneProvider provider) {
+    public static synchronized void register(IBundledRedstoneProvider provider) {
         Objects.requireNonNull(provider, "provider cannot be null");
         if (!providers.contains(provider)) providers.add(provider);
     }
 
-    public static int getDefaultOutput(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side) {
+    public static int getDefaultOutput(Level world, BlockPos pos, Direction side) {
         return world.isInWorldBounds(pos) ? DefaultBundledRedstoneProvider.getDefaultBundledRedstoneOutput(world, pos, side) : -1;
     }
 

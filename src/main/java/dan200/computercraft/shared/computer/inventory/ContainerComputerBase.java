@@ -22,7 +22,6 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Predicate;
 
@@ -51,15 +50,14 @@ public abstract class ContainerComputerBase extends AbstractContainerMenu implem
         this.computer = computer;
         input = computer == null ? null : new ServerInputState<>(this);
         terminal = containerData == null ? null : containerData.terminal().create();
-        displayStack = containerData == null ? null : containerData.displayStack();
+        displayStack = containerData == null ? ItemStack.EMPTY : containerData.displayStack();
     }
 
     @Override
-    public boolean stillValid(@Nonnull Player player) {
+    public boolean stillValid(Player player) {
         return canUse.test(player);
     }
 
-    @Nonnull
     public ComputerFamily getFamily() {
         return family;
     }
@@ -98,7 +96,7 @@ public abstract class ContainerComputerBase extends AbstractContainerMenu implem
     }
 
     @Override
-    public void removed(@Nonnull Player player) {
+    public void removed(Player player) {
         super.removed(player);
         if (input != null) input.close();
     }
@@ -108,7 +106,6 @@ public abstract class ContainerComputerBase extends AbstractContainerMenu implem
      *
      * @return The current stack.
      */
-    @Nonnull
     public ItemStack getDisplayStack() {
         return displayStack;
     }

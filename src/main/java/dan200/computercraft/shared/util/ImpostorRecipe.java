@@ -18,43 +18,37 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
-
 public final class ImpostorRecipe extends ShapedRecipe {
     private final String group;
 
-    private ImpostorRecipe(@Nonnull ResourceLocation id, @Nonnull String group, int width, int height, NonNullList<Ingredient> ingredients, @Nonnull ItemStack result) {
+    private ImpostorRecipe(ResourceLocation id, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result) {
         super(id, group, width, height, ingredients, result);
         this.group = group;
     }
 
-    @Nonnull
     @Override
     public String getGroup() {
         return group;
     }
 
     @Override
-    public boolean matches(@Nonnull CraftingContainer inv, @Nonnull Level world) {
+    public boolean matches(CraftingContainer inv, Level world) {
         return false;
     }
 
-    @Nonnull
     @Override
-    public ItemStack assemble(@Nonnull CraftingContainer inventory) {
+    public ItemStack assemble(CraftingContainer inventory) {
         return ItemStack.EMPTY;
     }
 
-    @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer() {
         return ModRegistry.RecipeSerializers.IMPOSTOR_SHAPED.get();
     }
 
     public static class Serializer implements RecipeSerializer<ImpostorRecipe> {
-        @Nonnull
         @Override
-        public ImpostorRecipe fromJson(@Nonnull ResourceLocation identifier, @Nonnull JsonObject json) {
+        public ImpostorRecipe fromJson(ResourceLocation identifier, JsonObject json) {
             var group = GsonHelper.getAsString(json, "group", "");
             var recipe = RecipeSerializer.SHAPED_RECIPE.fromJson(identifier, json);
             var result = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(json, "result"));
@@ -62,7 +56,7 @@ public final class ImpostorRecipe extends ShapedRecipe {
         }
 
         @Override
-        public ImpostorRecipe fromNetwork(@Nonnull ResourceLocation identifier, @Nonnull FriendlyByteBuf buf) {
+        public ImpostorRecipe fromNetwork(ResourceLocation identifier, FriendlyByteBuf buf) {
             var width = buf.readVarInt();
             var height = buf.readVarInt();
             var group = buf.readUtf(Short.MAX_VALUE);
@@ -73,7 +67,7 @@ public final class ImpostorRecipe extends ShapedRecipe {
         }
 
         @Override
-        public void toNetwork(@Nonnull FriendlyByteBuf buf, @Nonnull ImpostorRecipe recipe) {
+        public void toNetwork(FriendlyByteBuf buf, ImpostorRecipe recipe) {
             buf.writeVarInt(recipe.getRecipeWidth());
             buf.writeVarInt(recipe.getRecipeHeight());
             buf.writeUtf(recipe.getGroup());

@@ -5,11 +5,11 @@
  */
 package dan200.computercraft.export;
 
+import dan200.computercraft.shared.platform.Registries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
 
@@ -23,7 +23,7 @@ public class JsonDump {
         public int count;
 
         public Recipe(ItemStack output) {
-            this.output = ForgeRegistries.ITEMS.getKey(output.getItem()).toString();
+            this.output = Registries.ITEMS.getKey(output.getItem()).toString();
             count = output.getCount();
         }
 
@@ -38,7 +38,7 @@ public class JsonDump {
                 if (!canonicalItem.contains(item)) continue;
 
                 trackedItems.add(item);
-                inputs[pos] = new String[]{ ForgeRegistries.ITEMS.getKey(item).toString() };
+                inputs[pos] = new String[]{ Registries.ITEMS.getKey(item).toString() };
                 return;
             }
 
@@ -46,7 +46,7 @@ public class JsonDump {
             for (var i = 0; i < items.length; i++) {
                 var item = items[i].getItem();
                 trackedItems.add(item);
-                itemIds[i] = ForgeRegistries.ITEMS.getKey(item).toString();
+                itemIds[i] = Registries.ITEMS.getKey(item).toString();
             }
             Arrays.sort(itemIds);
 

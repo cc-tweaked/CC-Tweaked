@@ -10,19 +10,17 @@ import dan200.computercraft.shared.computer.blocks.TileComputer;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public final class ComputerItemFactory {
     private ComputerItemFactory() {
     }
 
-    @Nonnull
     public static ItemStack create(TileComputer tile) {
         return create(tile.getComputerID(), tile.getLabel(), tile.getFamily());
     }
 
-    @Nonnull
-    public static ItemStack create(int id, String label, ComputerFamily family) {
+    public static ItemStack create(int id, @Nullable String label, ComputerFamily family) {
         return switch (family) {
             case NORMAL -> ModRegistry.Items.COMPUTER_NORMAL.get().create(id, label);
             case ADVANCED -> ModRegistry.Items.COMPUTER_ADVANCED.get().create(id, label);

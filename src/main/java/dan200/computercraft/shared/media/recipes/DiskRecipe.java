@@ -20,8 +20,6 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
-
 public class DiskRecipe extends CustomRecipe {
     private final Ingredient redstone;
 
@@ -31,7 +29,7 @@ public class DiskRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean matches(@Nonnull CraftingContainer inv, @Nonnull Level world) {
+    public boolean matches(CraftingContainer inv, Level world) {
         var paperFound = false;
         var redstoneFound = false;
 
@@ -54,9 +52,8 @@ public class DiskRecipe extends CustomRecipe {
         return redstoneFound && paperFound;
     }
 
-    @Nonnull
     @Override
-    public ItemStack assemble(@Nonnull CraftingContainer inv) {
+    public ItemStack assemble(CraftingContainer inv) {
         var tracker = new ColourTracker();
 
         for (var i = 0; i < inv.getContainerSize(); i++) {
@@ -78,13 +75,11 @@ public class DiskRecipe extends CustomRecipe {
         return x >= 2 && y >= 2;
     }
 
-    @Nonnull
     @Override
     public ItemStack getResultItem() {
         return ItemDisk.createFromIDAndColour(-1, null, Colour.BLUE.getHex());
     }
 
-    @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer() {
         return ModRegistry.RecipeSerializers.DISK.get();

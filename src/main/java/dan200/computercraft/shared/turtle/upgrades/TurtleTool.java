@@ -34,7 +34,6 @@ import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.level.BlockEvent;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static net.minecraft.nbt.Tag.TAG_COMPOUND;
@@ -57,7 +56,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
     }
 
     @Override
-    public boolean isItemSuitable(@Nonnull ItemStack stack) {
+    public boolean isItemSuitable(ItemStack stack) {
         var tag = stack.getTag();
         if (tag == null || tag.isEmpty()) return true;
 
@@ -72,9 +71,8 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         return true;
     }
 
-    @Nonnull
     @Override
-    public TurtleCommandResult useTool(@Nonnull ITurtleAccess turtle, @Nonnull TurtleSide side, @Nonnull TurtleVerb verb, @Nonnull Direction direction) {
+    public TurtleCommandResult useTool(ITurtleAccess turtle, TurtleSide side, TurtleVerb verb, Direction direction) {
         return switch (verb) {
             case ATTACK -> attack(turtle, direction);
             case DIG -> dig(turtle, direction);

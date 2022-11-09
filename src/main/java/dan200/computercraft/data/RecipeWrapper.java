@@ -12,7 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,18 +64,16 @@ final class RecipeWrapper implements Consumer<FinishedRecipe> {
         FinishedRecipe recipe, RecipeSerializer<?> serializer, List<Consumer<JsonObject>> extend
     ) implements FinishedRecipe {
         @Override
-        public void serializeRecipeData(@Nonnull JsonObject jsonObject) {
+        public void serializeRecipeData(JsonObject jsonObject) {
             recipe.serializeRecipeData(jsonObject);
             for (var extender : extend) extender.accept(jsonObject);
         }
 
-        @Nonnull
         @Override
         public ResourceLocation getId() {
             return recipe.getId();
         }
 
-        @Nonnull
         @Override
         public RecipeSerializer<?> getType() {
             return serializer;

@@ -18,7 +18,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
@@ -31,7 +30,7 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level world, @Nonnull List<Component> list, @Nonnull TooltipFlag options) {
+    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> list, TooltipFlag options) {
         if (options.isAdvanced() || getLabel(stack) == null) {
             var id = getComputerID(stack);
             if (id >= 0) {
@@ -42,7 +41,7 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     }
 
     @Override
-    public String getLabel(@Nonnull ItemStack stack) {
+    public @Nullable String getLabel(ItemStack stack) {
         return IComputerItem.super.getLabel(stack);
     }
 
@@ -54,7 +53,7 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     // IMedia implementation
 
     @Override
-    public boolean setLabel(@Nonnull ItemStack stack, String label) {
+    public boolean setLabel(ItemStack stack, @Nullable String label) {
         if (label != null) {
             stack.setHoverName(Component.literal(label));
         } else {
@@ -64,7 +63,7 @@ public abstract class ItemComputerBase extends BlockItem implements IComputerIte
     }
 
     @Override
-    public IMount createDataMount(@Nonnull ItemStack stack, @Nonnull Level world) {
+    public @Nullable IMount createDataMount(ItemStack stack, Level world) {
         var family = getFamily();
         if (family != ComputerFamily.COMMAND) {
             var id = getComputerID(stack);

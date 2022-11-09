@@ -14,6 +14,8 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nullable;
+
 /**
  * Control the current pocket computer, adding or removing upgrades.
  * <p>
@@ -105,7 +107,7 @@ public class PocketAPI implements ILuaAPI {
         }
     }
 
-    private static IPocketUpgrade findUpgrade(NonNullList<ItemStack> inv, int start, IPocketUpgrade previous) {
+    private static @Nullable IPocketUpgrade findUpgrade(NonNullList<ItemStack> inv, int start, @Nullable IPocketUpgrade previous) {
         for (var i = 0; i < inv.size(); i++) {
             var invStack = inv.get((i + start) % inv.size());
             if (!invStack.isEmpty()) {

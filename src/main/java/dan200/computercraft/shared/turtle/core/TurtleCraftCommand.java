@@ -12,8 +12,6 @@ import dan200.computercraft.api.turtle.TurtleCommandResult;
 import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.turtle.upgrades.TurtleInventoryCrafting;
 
-import javax.annotation.Nonnull;
-
 public class TurtleCraftCommand implements ITurtleCommand {
     private final int limit;
 
@@ -21,9 +19,8 @@ public class TurtleCraftCommand implements ITurtleCommand {
         this.limit = limit;
     }
 
-    @Nonnull
     @Override
-    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
+    public TurtleCommandResult execute(ITurtleAccess turtle) {
         // Craft the item
         var crafting = new TurtleInventoryCrafting(turtle);
         var results = crafting.doCrafting(turtle.getLevel(), limit);

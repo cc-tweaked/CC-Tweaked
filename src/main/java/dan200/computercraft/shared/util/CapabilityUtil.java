@@ -11,7 +11,6 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullConsumer;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class CapabilityUtil {
@@ -59,7 +58,6 @@ public final class CapabilityUtil {
      * @param <T>        The type of the underlying capability.
      * @return The extracted capability, if present.
      */
-    @Nonnull
     public static <T> LazyOptional<T> getCapability(ICapabilityProvider provider, Capability<T> capability, Direction side) {
         var cap = provider.getCapability(capability);
         return cap.isPresent() ? cap : provider.getCapability(capability, side);

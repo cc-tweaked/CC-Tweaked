@@ -13,8 +13,6 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.core.asm.NamedMethod;
 import dan200.computercraft.core.asm.PeripheralMethod;
 
-import javax.annotation.Nonnull;
-
 final class SaturatedMethod {
     private final Object target;
     private final String name;
@@ -26,12 +24,10 @@ final class SaturatedMethod {
         this.method = method.getMethod();
     }
 
-    @Nonnull
-    MethodResult apply(@Nonnull ILuaContext context, @Nonnull IComputerAccess computer, @Nonnull IArguments args) throws LuaException {
+    MethodResult apply(ILuaContext context, IComputerAccess computer, IArguments args) throws LuaException {
         return method.apply(target, context, computer, args);
     }
 
-    @Nonnull
     String getName() {
         return name;
     }

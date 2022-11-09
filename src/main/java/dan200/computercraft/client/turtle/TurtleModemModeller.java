@@ -14,8 +14,6 @@ import dan200.computercraft.shared.turtle.upgrades.TurtleModem;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-
 public class TurtleModemModeller implements TurtleUpgradeModeller<TurtleModem> {
     private final ResourceLocation leftOffModel;
     private final ResourceLocation rightOffModel;
@@ -36,9 +34,8 @@ public class TurtleModemModeller implements TurtleUpgradeModeller<TurtleModem> {
         }
     }
 
-    @Nonnull
     @Override
-    public TransformedModel getModel(@Nonnull TurtleModem upgrade, @Nullable ITurtleAccess turtle, @Nonnull TurtleSide side) {
+    public TransformedModel getModel(TurtleModem upgrade, @Nullable ITurtleAccess turtle, TurtleSide side) {
         var active = false;
         if (turtle != null) {
             var turtleNBT = turtle.getUpgradeNBTData(side);

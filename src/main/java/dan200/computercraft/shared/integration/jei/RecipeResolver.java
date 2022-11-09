@@ -16,14 +16,12 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 
 class RecipeResolver implements IRecipeManagerPlugin {
     private final UpgradeRecipeGenerator<CraftingRecipe> resolver = new UpgradeRecipeGenerator<>(x -> x);
 
-    @Nonnull
     @Override
     public <V> List<RecipeType<?>> getRecipeTypes(IFocus<V> focus) {
         var value = focus.getTypedValue().getIngredient();
@@ -41,9 +39,8 @@ class RecipeResolver implements IRecipeManagerPlugin {
         };
     }
 
-    @Nonnull
     @Override
-    public <T, V> List<T> getRecipes(@Nonnull IRecipeCategory<T> recipeCategory, IFocus<V> focus) {
+    public <T, V> List<T> getRecipes(IRecipeCategory<T> recipeCategory, IFocus<V> focus) {
         if (!(focus.getTypedValue().getIngredient() instanceof ItemStack stack) || recipeCategory.getRecipeType() != RecipeTypes.CRAFTING) {
             return Collections.emptyList();
         }
@@ -55,9 +52,8 @@ class RecipeResolver implements IRecipeManagerPlugin {
         };
     }
 
-    @Nonnull
     @Override
-    public <T> List<T> getRecipes(@Nonnull IRecipeCategory<T> recipeCategory) {
+    public <T> List<T> getRecipes(IRecipeCategory<T> recipeCategory) {
         return Collections.emptyList();
     }
 

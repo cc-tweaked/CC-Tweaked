@@ -13,7 +13,6 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Set;
 
@@ -33,14 +32,12 @@ public final class PlayerCreativeLootCondition implements LootItemCondition {
         return entity instanceof Player player && player.getAbilities().instabuild;
     }
 
-    @Nonnull
     @Override
     public Set<LootContextParam<?>> getReferencedContextParams() {
         return Collections.singleton(LootContextParams.THIS_ENTITY);
     }
 
     @Override
-    @Nonnull
     public LootItemConditionType getType() {
         return ModRegistry.LootItemConditionTypes.PLAYER_CREATIVE.get();
     }

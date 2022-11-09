@@ -32,7 +32,6 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public abstract class BlockComputerBase<T extends TileComputerBase> extends BlockGeneric implements IBundledRedstoneBlock {
@@ -50,7 +49,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     @Override
     @Deprecated
-    public void onPlace(@Nonnull BlockState state, @Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState oldState, boolean isMoving) {
+    public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean isMoving) {
         super.onPlace(state, world, pos, oldState, isMoving);
 
         var tile = world.getBlockEntity(pos);
@@ -59,13 +58,13 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     @Override
     @Deprecated
-    public boolean isSignalSource(@Nonnull BlockState state) {
+    public boolean isSignalSource(BlockState state) {
         return true;
     }
 
     @Override
     @Deprecated
-    public int getDirectSignal(@Nonnull BlockState state, BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction incomingSide) {
+    public int getDirectSignal(BlockState state, BlockGetter world, BlockPos pos, Direction incomingSide) {
         var entity = world.getBlockEntity(pos);
         if (!(entity instanceof TileComputerBase computerEntity)) return 0;
 
@@ -76,7 +75,6 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
         return computer.getRedstoneOutput(localSide);
     }
 
-    @Nonnull
     protected abstract ItemStack getItem(TileComputerBase tile);
 
     public ComputerFamily getFamily() {
@@ -85,7 +83,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     @Override
     @Deprecated
-    public int getSignal(@Nonnull BlockState state, @Nonnull BlockGetter world, @Nonnull BlockPos pos, @Nonnull Direction incomingSide) {
+    public int getSignal(BlockState state, BlockGetter world, BlockPos pos, Direction incomingSide) {
         return getDirectSignal(state, world, pos, incomingSide);
     }
 
@@ -106,7 +104,6 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
         return computer.getBundledRedstoneOutput(localSide);
     }
 
-    @Nonnull
     @Override
     public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter world, BlockPos pos, Player player) {
         var tile = world.getBlockEntity(pos);
@@ -119,14 +116,14 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     }
 
     @Override
-    public void playerDestroy(@Nonnull Level world, Player player, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable BlockEntity tile, @Nonnull ItemStack tool) {
+    public void playerDestroy(Level world, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity tile, ItemStack tool) {
         // Don't drop blocks here - see onBlockHarvested.
         player.awardStat(Stats.BLOCK_MINED.get(this));
         player.causeFoodExhaustion(0.005F);
     }
 
     @Override
-    public void playerWillDestroy(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player) {
+    public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
         if (!(world instanceof ServerLevel serverWorld)) return;
 
         // We drop the item here instead of doing it in the harvest method, as we should
@@ -150,7 +147,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
     }
 
     @Override
-    public void setPlacedBy(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, @Nonnull ItemStack stack) {
+    public void setPlacedBy(Level world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(world, pos, state, placer, stack);
 
         var tile = world.getBlockEntity(pos);
@@ -171,7 +168,7 @@ public abstract class BlockComputerBase<T extends TileComputerBase> extends Bloc
 
     @Override
     @Nullable
-    public <U extends BlockEntity> BlockEntityTicker<U> getTicker(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockEntityType<U> type) {
+    public <U extends BlockEntity> BlockEntityTicker<U> getTicker(Level level, BlockState state, BlockEntityType<U> type) {
         return level.isClientSide ? null : BaseEntityBlock.createTickerHelper(type, this.type.get(), serverTicker);
     }
 }

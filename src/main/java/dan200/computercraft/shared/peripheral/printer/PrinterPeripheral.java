@@ -12,7 +12,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.util.StringUtil;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 /**
@@ -32,7 +32,6 @@ public class PrinterPeripheral implements IPeripheral {
         this.printer = printer;
     }
 
-    @Nonnull
     @Override
     public String getType() {
         return "printer";
@@ -135,7 +134,7 @@ public class PrinterPeripheral implements IPeripheral {
     @LuaFunction
     public final void setPageTitle(Optional<String> title) throws LuaException {
         getCurrentPage();
-        printer.setPageTitle(title.map(StringUtil::normaliseLabel).orElse(null));
+        printer.setPageTitle(title.map(StringUtil::normaliseLabel).orElse(""));
     }
 
     /**
@@ -159,17 +158,15 @@ public class PrinterPeripheral implements IPeripheral {
     }
 
     @Override
-    public boolean equals(IPeripheral other) {
+    public boolean equals(@Nullable IPeripheral other) {
         return this == other || (other instanceof PrinterPeripheral otherPrinter && otherPrinter.printer == printer);
     }
 
-    @Nonnull
     @Override
     public Object getTarget() {
         return printer;
     }
 
-    @Nonnull
     private Terminal getCurrentPage() throws LuaException {
         var currentPage = printer.getCurrentPage();
         if (currentPage == null) throw new LuaException("Page not started");

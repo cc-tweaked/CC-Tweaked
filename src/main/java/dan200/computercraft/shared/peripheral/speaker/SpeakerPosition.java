@@ -11,16 +11,15 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.OptionalInt;
 
-public record SpeakerPosition(@Nullable Level level, @Nonnull Vec3 position, @Nullable Entity entity) {
-    public static SpeakerPosition of(@Nullable Level level, @Nonnull Vec3 position) {
+public record SpeakerPosition(@Nullable Level level, Vec3 position, @Nullable Entity entity) {
+    public static SpeakerPosition of(@Nullable Level level, Vec3 position) {
         return new SpeakerPosition(level, position, null);
     }
 
-    public static SpeakerPosition of(@Nonnull Entity entity) {
+    public static SpeakerPosition of(Entity entity) {
         return new SpeakerPosition(entity.level, entity.getEyePosition(1), entity);
     }
 

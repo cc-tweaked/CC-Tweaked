@@ -21,6 +21,7 @@ import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.client.util.DirectBuffers;
 import dan200.computercraft.client.util.DirectVertexBuffer;
+import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.integration.ShaderMod;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
@@ -34,12 +35,13 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.function.Consumer;
 
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_HEIGHT;
 import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FONT_WIDTH;
+import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonitor> {
     /**
@@ -50,13 +52,13 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
     private static final Matrix3f IDENTITY_NORMAL = Util.make(new Matrix3f(), Matrix3f::setIdentity);
 
-    private static ByteBuffer backingBuffer;
+    private static @Nullable ByteBuffer backingBuffer;
 
     public TileEntityMonitorRenderer(BlockEntityRendererProvider.Context context) {
     }
 
     @Override
-    public void render(@Nonnull TileMonitor monitor, float partialTicks, @Nonnull PoseStack transform, @Nonnull MultiBufferSource bufferSource, int lightmapCoord, int overlayLight) {
+    public void render(TileMonitor monitor, float partialTicks, PoseStack transform, MultiBufferSource bufferSource, int lightmapCoord, int overlayLight) {
         // Render from the origin monitor
         var originTerminal = monitor.getClientMonitor();
 
@@ -114,7 +116,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
             var matrix = transform.last().pose();
 
-            renderTerminal(matrix, originTerminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale));
+            renderTerminal(matrix, originTerminal, terminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale));
 
             transform.popPose();
         } else {
@@ -128,8 +130,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
         transform.popPose();
     }
 
-    private static void renderTerminal(Matrix4f matrix, ClientMonitor monitor, float xMargin, float yMargin) {
-        var terminal = monitor.getTerminal();
+    private static void renderTerminal(Matrix4f matrix, ClientMonitor monitor, Terminal terminal, float xMargin, float yMargin) {
         int width = terminal.getWidth(), height = terminal.getHeight();
         int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
 
@@ -167,8 +168,8 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 RenderTypes.MONITOR_TBO.end(buffer, 0, 0, 0);
             }
             case VBO -> {
-                var backgroundBuffer = monitor.backgroundBuffer;
-                var foregroundBuffer = monitor.foregroundBuffer;
+                var backgroundBuffer = assertNonNull(monitor.backgroundBuffer);
+                var foregroundBuffer = assertNonNull(monitor.foregroundBuffer);
                 if (redraw) {
                     var size = DirectFixedWidthFontRenderer.getVertexCount(terminal);
 
@@ -236,7 +237,6 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
         builder.vertex(matrix, x, y, 0).uv(x, y).endVertex();
     }
 
-    @Nonnull
     private static ByteBuffer getBuffer(int capacity) {
 
         var buffer = backingBuffer;

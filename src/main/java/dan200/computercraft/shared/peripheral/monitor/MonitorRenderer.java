@@ -10,8 +10,6 @@ import dan200.computercraft.client.render.TileEntityMonitorRenderer;
 import dan200.computercraft.shared.integration.ShaderMod;
 import org.lwjgl.opengl.GL;
 
-import javax.annotation.Nonnull;
-
 /**
  * The render type to use for monitors.
  *
@@ -43,7 +41,6 @@ public enum MonitorRenderer {
      *
      * @return The current renderer. Will not return {@link MonitorRenderer#BEST}.
      */
-    @Nonnull
     public static MonitorRenderer current() {
         var current = ComputerCraft.monitorRenderer;
         if (current == BEST) current = ComputerCraft.monitorRenderer = best();

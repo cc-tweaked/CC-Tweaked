@@ -25,7 +25,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlockMonitor extends BlockGeneric {
@@ -50,14 +49,12 @@ public class BlockMonitor extends BlockGeneric {
         builder.add(ORIENTATION, FACING, STATE);
     }
 
-    @Nonnull
     @Override
     @Deprecated
     public BlockState mirror(BlockState state, Mirror mirrorIn) {
         return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
     }
 
-    @Nonnull
     @Override
     @Deprecated
     public BlockState rotate(BlockState state, Rotation rot) {
@@ -85,7 +82,7 @@ public class BlockMonitor extends BlockGeneric {
     }
 
     @Override
-    public void setPlacedBy(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull BlockState blockState, @Nullable LivingEntity livingEntity, @Nonnull ItemStack itemStack) {
+    public void setPlacedBy(Level world, BlockPos pos, BlockState blockState, @Nullable LivingEntity livingEntity, ItemStack itemStack) {
         super.setPlacedBy(world, pos, blockState, livingEntity, itemStack);
 
         var entity = world.getBlockEntity(pos);

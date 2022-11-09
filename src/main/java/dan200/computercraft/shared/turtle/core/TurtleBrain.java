@@ -40,7 +40,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -64,7 +63,7 @@ public class TurtleBrain implements ITurtleAccess {
     public static final Predicate<Entity> PUSHABLE_ENTITY = entity -> !entity.isSpectator() && entity.getPistonPushReaction() != PushReaction.IGNORE;
 
     private TileTurtle owner;
-    private GameProfile owningPlayer;
+    private @Nullable GameProfile owningPlayer;
 
     private final Container inventory = (InventoryDelegate) () -> owner;
 
@@ -78,12 +77,13 @@ public class TurtleBrain implements ITurtleAccess {
     private int selectedSlot = 0;
     private int fuelLevel = 0;
     private int colourHex = -1;
-    private ResourceLocation overlay = null;
+    private @Nullable ResourceLocation overlay = null;
 
     private TurtleAnimation animation = TurtleAnimation.NONE;
     private int animationProgress = 0;
     private int lastAnimationProgress = 0;
 
+    @Nullable
     TurtlePlayer cachedPlayer;
 
     public TurtleBrain(TileTurtle turtle) {
@@ -210,7 +210,7 @@ public class TurtleBrain implements ITurtleAccess {
         return nbt;
     }
 
-    private static String getUpgradeId(ITurtleUpgrade upgrade) {
+    private static @Nullable String getUpgradeId(@Nullable ITurtleUpgrade upgrade) {
         return upgrade != null ? upgrade.getUpgradeID().toString() : null;
     }
 
@@ -234,13 +234,11 @@ public class TurtleBrain implements ITurtleAccess {
         nbt.putInt("Animation", animation.ordinal());
     }
 
-    @Nonnull
     @Override
     public Level getLevel() {
         return owner.getLevel();
     }
 
-    @Nonnull
     @Override
     public BlockPos getPosition() {
         return owner.getBlockPos();
@@ -252,7 +250,7 @@ public class TurtleBrain implements ITurtleAccess {
     }
 
     @Override
-    public boolean teleportTo(@Nonnull Level world, @Nonnull BlockPos pos) {
+    public boolean teleportTo(Level world, BlockPos pos) {
         if (world.isClientSide || getLevel().isClientSide) {
             throw new UnsupportedOperationException("Cannot teleport on the client");
         }
@@ -320,7 +318,6 @@ public class TurtleBrain implements ITurtleAccess {
         return false;
     }
 
-    @Nonnull
     @Override
     public Vec3 getVisualPosition(float f) {
         var offset = getRenderOffset(f);
@@ -352,14 +349,13 @@ public class TurtleBrain implements ITurtleAccess {
         return yaw;
     }
 
-    @Nonnull
     @Override
     public Direction getDirection() {
         return owner.getDirection();
     }
 
     @Override
-    public void setDirection(@Nonnull Direction dir) {
+    public void setDirection(Direction dir) {
         owner.setDirection(dir);
     }
 
@@ -378,13 +374,11 @@ public class TurtleBrain implements ITurtleAccess {
         }
     }
 
-    @Nonnull
     @Override
     public Container getInventory() {
         return inventory;
     }
 
-    @Nonnull
     @Override
     @Deprecated(forRemoval = true)
     public IItemHandlerModifiable getItemHandler() {
@@ -438,9 +432,8 @@ public class TurtleBrain implements ITurtleAccess {
         setFuelLevel(getFuelLevel() + addition);
     }
 
-    @Nonnull
     @Override
-    public MethodResult executeCommand(@Nonnull ITurtleCommand command) {
+    public MethodResult executeCommand(ITurtleCommand command) {
         if (getLevel().isClientSide) throw new UnsupportedOperationException("Cannot run commands on the client");
         if (commandQueue.size() > 16) return MethodResult.of(false, "Too many ongoing turtle commands");
 
@@ -450,7 +443,7 @@ public class TurtleBrain implements ITurtleAccess {
     }
 
     @Override
-    public void playAnimation(@Nonnull TurtleAnimation animation) {
+    public void playAnimation(TurtleAnimation animation) {
         if (getLevel().isClientSide) throw new UnsupportedOperationException("Cannot play animations on the client");
 
         this.animation = animation;
@@ -464,7 +457,7 @@ public class TurtleBrain implements ITurtleAccess {
         owner.updateBlock();
     }
 
-    public ResourceLocation getOverlay() {
+    public @Nullable ResourceLocation getOverlay() {
         return overlay;
     }
 
@@ -475,13 +468,13 @@ public class TurtleBrain implements ITurtleAccess {
         }
     }
 
-    public DyeColor getDyeColour() {
+    public @Nullable DyeColor getDyeColour() {
         if (colourHex == -1) return null;
         var colour = Colour.fromHex(colourHex);
         return colour == null ? null : DyeColor.byId(15 - colour.ordinal());
     }
 
-    public void setDyeColour(DyeColor dyeColour) {
+    public void setDyeColour(@Nullable DyeColor dyeColour) {
         var newColour = -1;
         if (dyeColour != null) {
             newColour = Colour.values()[15 - dyeColour.getId()].getHex();
@@ -521,12 +514,12 @@ public class TurtleBrain implements ITurtleAccess {
     }
 
     @Override
-    public ITurtleUpgrade getUpgrade(@Nonnull TurtleSide side) {
+    public @Nullable ITurtleUpgrade getUpgrade(TurtleSide side) {
         return upgrades.get(side);
     }
 
     @Override
-    public void setUpgrade(@Nonnull TurtleSide side, ITurtleUpgrade upgrade) {
+    public void setUpgrade(TurtleSide side, @Nullable ITurtleUpgrade upgrade) {
         if (!setUpgradeDirect(side, upgrade) || owner.getLevel() == null) return;
 
         // This is a separate function to avoid updating the block when reading the NBT. We don't need to do this as
@@ -539,7 +532,7 @@ public class TurtleBrain implements ITurtleAccess {
         owner.updateInputsImmediately();
     }
 
-    private boolean setUpgradeDirect(@Nonnull TurtleSide side, ITurtleUpgrade upgrade) {
+    private boolean setUpgradeDirect(TurtleSide side, @Nullable ITurtleUpgrade upgrade) {
         // Remove old upgrade
         if (upgrades.containsKey(side)) {
             if (upgrades.get(side) == upgrade) return false;
@@ -562,11 +555,10 @@ public class TurtleBrain implements ITurtleAccess {
     }
 
     @Override
-    public IPeripheral getPeripheral(@Nonnull TurtleSide side) {
+    public @Nullable IPeripheral getPeripheral(TurtleSide side) {
         return peripherals.get(side);
     }
 
-    @Nonnull
     @Override
     public CompoundTag getUpgradeNBTData(TurtleSide side) {
         var nbt = upgradeNBTData.get(side);
@@ -575,7 +567,7 @@ public class TurtleBrain implements ITurtleAccess {
     }
 
     @Override
-    public void updateUpgradeNBTData(@Nonnull TurtleSide side) {
+    public void updateUpgradeNBTData(TurtleSide side) {
         owner.updateBlock();
     }
 
@@ -789,7 +781,6 @@ public class TurtleBrain implements ITurtleAccess {
             this.command = command;
         }
 
-        @Nonnull
         @Override
         public MethodResult resume(Object[] response) {
             if (response.length < 3 || !(response[1] instanceof Number id) || !(response[2] instanceof Boolean)) {

@@ -23,12 +23,10 @@ import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 
 @JeiPlugin
 public class JEIComputerCraft implements IModPlugin {
-    @Nonnull
     @Override
     public ResourceLocation getPluginUid() {
         return new ResourceLocation(ComputerCraft.MOD_ID, "jei");

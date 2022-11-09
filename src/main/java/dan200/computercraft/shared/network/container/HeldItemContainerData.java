@@ -9,8 +9,6 @@ import dan200.computercraft.shared.common.ContainerHeldItem;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.InteractionHand;
 
-import javax.annotation.Nonnull;
-
 /**
  * Opens a printout GUI based on the currently held item.
  *
@@ -33,7 +31,6 @@ public class HeldItemContainerData implements ContainerData {
         buf.writeEnum(hand);
     }
 
-    @Nonnull
     public InteractionHand getHand() {
         return hand;
     }

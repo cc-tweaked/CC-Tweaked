@@ -14,20 +14,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
-import javax.annotation.Nonnull;
-
 public final class ComputerUpgradeRecipe extends ComputerFamilyRecipe {
     private ComputerUpgradeRecipe(ResourceLocation identifier, String group, int width, int height, NonNullList<Ingredient> ingredients, ItemStack result, ComputerFamily family) {
         super(identifier, group, width, height, ingredients, result, family);
     }
 
-    @Nonnull
     @Override
-    protected ItemStack convert(@Nonnull IComputerItem item, @Nonnull ItemStack stack) {
+    protected ItemStack convert(IComputerItem item, ItemStack stack) {
         return item.withFamily(stack, getFamily());
     }
 
-    @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer() {
         return ModRegistry.RecipeSerializers.COMPUTER_UPGRADE.get();

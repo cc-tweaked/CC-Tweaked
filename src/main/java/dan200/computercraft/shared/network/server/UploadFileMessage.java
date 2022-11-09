@@ -13,12 +13,14 @@ import io.netty.handler.codec.DecoderException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
+
+import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 public class UploadFileMessage extends ComputerServerMessage {
     public static final int MAX_SIZE = 512 * 1024;
@@ -32,10 +34,11 @@ public class UploadFileMessage extends ComputerServerMessage {
 
     private final UUID uuid;
     final @VisibleForTesting int flag;
-    final @VisibleForTesting List<FileUpload> files;
+    @VisibleForTesting
+    final @Nullable List<FileUpload> files;
     final @VisibleForTesting List<FileSlice> slices;
 
-    UploadFileMessage(AbstractContainerMenu menu, UUID uuid, int flag, List<FileUpload> files, List<FileSlice> slices) {
+    UploadFileMessage(AbstractContainerMenu menu, UUID uuid, int flag, @Nullable List<FileUpload> files, List<FileSlice> slices) {
         super(menu);
         this.uuid = uuid;
         this.flag = flag;
@@ -43,7 +46,7 @@ public class UploadFileMessage extends ComputerServerMessage {
         this.slices = slices;
     }
 
-    public UploadFileMessage(@Nonnull FriendlyByteBuf buf) {
+    public UploadFileMessage(FriendlyByteBuf buf) {
         super(buf);
         uuid = buf.readUUID();
         var flag = this.flag = buf.readByte();
@@ -88,12 +91,13 @@ public class UploadFileMessage extends ComputerServerMessage {
     }
 
     @Override
-    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         super.toBytes(buf);
         buf.writeUUID(uuid);
         buf.writeByte(flag);
 
         if ((flag & FLAG_FIRST) != 0) {
+            var files = assertNonNull(this.files);
             buf.writeVarInt(files.size());
             for (var file : files) {
                 buf.writeUtf(file.getName(), MAX_FILE_NAME);
@@ -154,13 +158,12 @@ public class UploadFileMessage extends ComputerServerMessage {
     }
 
     @Override
-    protected void handle(ServerNetworkContext context, @Nonnull ComputerMenu container) {
+    protected void handle(ServerNetworkContext context, ComputerMenu container) {
         var player = context.getSender();
-        if (player != null) {
-            var input = container.getInput();
-            if ((flag & FLAG_FIRST) != 0) input.startUpload(uuid, files);
-            input.continueUpload(uuid, slices);
-            if ((flag & FLAG_LAST) != 0) input.finishUpload(player, uuid);
-        }
+
+        var input = container.getInput();
+        if ((flag & FLAG_FIRST) != 0) input.startUpload(uuid, assertNonNull(files));
+        input.continueUpload(uuid, slices);
+        if ((flag & FLAG_LAST) != 0) input.finishUpload(player, uuid);
     }
 }

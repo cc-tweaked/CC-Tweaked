@@ -19,7 +19,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
-import javax.annotation.Nonnull;
 import java.util.BitSet;
 
 import static dan200.computercraft.client.render.ComputerBorderRenderer.MARGIN;
@@ -29,8 +28,8 @@ import static dan200.computercraft.client.render.text.FixedWidthFontRenderer.FON
 public class WidgetTerminal extends AbstractWidget {
     private static final float TERMINATE_TIME = 0.5f;
 
-    private final @Nonnull Terminal terminal;
-    private final @Nonnull InputHandler computer;
+    private final Terminal terminal;
+    private final InputHandler computer;
 
     // The positions of the actual terminal
     private final int innerX;
@@ -48,7 +47,7 @@ public class WidgetTerminal extends AbstractWidget {
 
     private final BitSet keysDown = new BitSet(256);
 
-    public WidgetTerminal(@Nonnull Terminal terminal, @Nonnull InputHandler computer, int x, int y) {
+    public WidgetTerminal(Terminal terminal, InputHandler computer, int x, int y) {
         super(x, y, terminal.getWidth() * FONT_WIDTH + MARGIN * 2, terminal.getHeight() * FONT_HEIGHT + MARGIN * 2, Component.empty());
 
         this.terminal = terminal;
@@ -264,7 +263,7 @@ public class WidgetTerminal extends AbstractWidget {
     }
 
     @Override
-    public void render(@Nonnull PoseStack transform, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack transform, int mouseX, int mouseY, float partialTicks) {
         if (!visible) return;
 
         var bufferSource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
@@ -279,7 +278,7 @@ public class WidgetTerminal extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(@Nonnull NarrationElementOutput output) {
+    public void updateNarration(NarrationElementOutput output) {
         // I'm not sure what the right option is here.
     }
 

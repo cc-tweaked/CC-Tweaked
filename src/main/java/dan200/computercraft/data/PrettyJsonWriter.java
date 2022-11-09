@@ -5,7 +5,6 @@
  */
 package dan200.computercraft.data;
 
-import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -243,7 +242,7 @@ public class PrettyJsonWriter extends JsonWriter {
                 }
             } else {
                 // We've run out of room, so write each value on separate lines.
-                var indentStr = Strings.repeat(" ", indent);
+                var indentStr = " ".repeat(indent);
                 writer.append("\n  ").append(indentStr);
 
                 var comma = false;

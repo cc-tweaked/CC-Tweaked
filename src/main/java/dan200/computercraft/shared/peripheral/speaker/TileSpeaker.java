@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.peripheral.speaker;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.common.TileGeneric;
 import dan200.computercraft.shared.network.client.SpeakerStopClientMessage;
 import dan200.computercraft.shared.platform.PlatformHelper;
@@ -14,7 +15,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class TileSpeaker extends TileGeneric {
@@ -33,7 +33,7 @@ public class TileSpeaker extends TileGeneric {
     public void setRemoved() {
         super.setRemoved();
         if (level != null && !level.isClientSide) {
-            PlatformHelper.get().sendToAllPlayers(new SpeakerStopClientMessage(peripheral.getSource()), getLevel().getServer());
+            PlatformHelper.get().sendToAllPlayers(new SpeakerStopClientMessage(peripheral.getSource()), Nullability.assertNonNull(getLevel().getServer()));
         }
     }
 
@@ -48,7 +48,6 @@ public class TileSpeaker extends TileGeneric {
             this.speaker = speaker;
         }
 
-        @Nonnull
         @Override
         public SpeakerPosition getPosition() {
             return SpeakerPosition.of(speaker.getLevel(), Vec3.atCenterOf(speaker.getBlockPos()));

@@ -19,8 +19,6 @@ import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
-
 public final class TurtleUpgradeRecipe extends CustomRecipe {
     public TurtleUpgradeRecipe(ResourceLocation id) {
         super(id);
@@ -31,20 +29,18 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
         return x >= 3 && y >= 1;
     }
 
-    @Nonnull
     @Override
     public ItemStack getResultItem() {
         return TurtleItemFactory.create(-1, null, -1, ComputerFamily.NORMAL, null, null, 0, null);
     }
 
     @Override
-    public boolean matches(@Nonnull CraftingContainer inventory, @Nonnull Level world) {
+    public boolean matches(CraftingContainer inventory, Level world) {
         return !assemble(inventory).isEmpty();
     }
 
-    @Nonnull
     @Override
-    public ItemStack assemble(@Nonnull CraftingContainer inventory) {
+    public ItemStack assemble(CraftingContainer inventory) {
         // Scan the grid for a row containing a turtle and 1 or 2 items
         var leftItem = ItemStack.EMPTY;
         var turtle = ItemStack.EMPTY;
@@ -134,7 +130,6 @@ public final class TurtleUpgradeRecipe extends CustomRecipe {
         return TurtleItemFactory.create(computerID, label, colour, family, upgrades[0], upgrades[1], fuelLevel, overlay);
     }
 
-    @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer() {
         return ModRegistry.RecipeSerializers.TURTLE_UPGRADE.get();

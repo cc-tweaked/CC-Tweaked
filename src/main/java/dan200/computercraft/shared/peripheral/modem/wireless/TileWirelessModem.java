@@ -17,7 +17,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class TileWirelessModem extends TileGeneric {
@@ -29,24 +28,21 @@ public class TileWirelessModem extends TileGeneric {
             this.entity = entity;
         }
 
-        @Nonnull
         @Override
         public Level getLevel() {
             return entity.getLevel();
         }
 
-        @Nonnull
         @Override
         public Vec3 getPosition() {
             return Vec3.atLowerCornerOf(entity.getBlockPos().relative(entity.getDirection()));
         }
 
         @Override
-        public boolean equals(IPeripheral other) {
+        public boolean equals(@Nullable IPeripheral other) {
             return this == other || (other instanceof Peripheral && entity == ((Peripheral) other).entity);
         }
 
-        @Nonnull
         @Override
         public Object getTarget() {
             return entity;
@@ -82,7 +78,7 @@ public class TileWirelessModem extends TileGeneric {
 
     @Override
     @Deprecated
-    public void setBlockState(@Nonnull BlockState state) {
+    public void setBlockState(BlockState state) {
         var direction = getDirection();
         super.setBlockState(state);
         if (getDirection() != direction && modemChanged != null) modemChanged.run();
@@ -93,7 +89,6 @@ public class TileWirelessModem extends TileGeneric {
         if (modem.getModemState().pollChanged()) updateBlockState();
     }
 
-    @Nonnull
     private Direction getDirection() {
         return getBlockState().getValue(BlockWirelessModem.FACING);
     }

@@ -10,14 +10,13 @@ import dan200.computercraft.shared.ModRegistry;
 import dan200.computercraft.shared.computer.core.ComputerFamily;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public final class PocketComputerItemFactory {
     private PocketComputerItemFactory() {
     }
 
-    @Nonnull
-    public static ItemStack create(int id, String label, int colour, ComputerFamily family, IPocketUpgrade upgrade) {
+    public static ItemStack create(int id, @Nullable String label, int colour, ComputerFamily family, @Nullable IPocketUpgrade upgrade) {
         return switch (family) {
             case NORMAL -> ModRegistry.Items.POCKET_COMPUTER_NORMAL.get().create(id, label, colour, upgrade);
             case ADVANCED -> ModRegistry.Items.POCKET_COMPUTER_ADVANCED.get().create(id, label, colour, upgrade);

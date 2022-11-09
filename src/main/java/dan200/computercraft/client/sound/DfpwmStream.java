@@ -12,7 +12,6 @@ import net.minecraft.client.sounds.AudioStream;
 import net.minecraft.client.sounds.SoundEngine;
 import org.lwjgl.BufferUtils;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
@@ -55,7 +54,7 @@ class DfpwmStream implements AudioStream {
     DfpwmStream() {
     }
 
-    void push(@Nonnull ByteBuf input) {
+    void push(ByteBuf input) {
         var readable = input.readableBytes();
         var output = ByteBuffer.allocate(readable * 8).order(ByteOrder.nativeOrder());
 
@@ -101,13 +100,12 @@ class DfpwmStream implements AudioStream {
         }
     }
 
-    @Nonnull
     @Override
     public AudioFormat getFormat() {
         return MONO_8;
     }
 
-    @Nonnull
+    @Nullable
     @Override
     public synchronized ByteBuffer read(int capacity) {
         var result = BufferUtils.createByteBuffer(capacity);

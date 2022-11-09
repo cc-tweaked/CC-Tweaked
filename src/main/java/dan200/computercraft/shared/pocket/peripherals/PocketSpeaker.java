@@ -12,7 +12,6 @@ import dan200.computercraft.shared.peripheral.speaker.UpgradeSpeakerPeripheral;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class PocketSpeaker extends AbstractPocketUpgrade {
@@ -22,12 +21,12 @@ public class PocketSpeaker extends AbstractPocketUpgrade {
 
     @Nullable
     @Override
-    public IPeripheral createPeripheral(@Nonnull IPocketAccess access) {
+    public IPeripheral createPeripheral(IPocketAccess access) {
         return new PocketSpeakerPeripheral(access);
     }
 
     @Override
-    public void update(@Nonnull IPocketAccess access, @Nullable IPeripheral peripheral) {
+    public void update(IPocketAccess access, @Nullable IPeripheral peripheral) {
         if (!(peripheral instanceof PocketSpeakerPeripheral)) return;
         ((PocketSpeakerPeripheral) peripheral).update();
     }

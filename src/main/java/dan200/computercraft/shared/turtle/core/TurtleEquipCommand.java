@@ -10,8 +10,6 @@ import dan200.computercraft.shared.TurtleUpgrades;
 import dan200.computercraft.shared.turtle.TurtleUtil;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
-
 public class TurtleEquipCommand implements ITurtleCommand {
     private final TurtleSide side;
 
@@ -19,9 +17,8 @@ public class TurtleEquipCommand implements ITurtleCommand {
         this.side = side;
     }
 
-    @Nonnull
     @Override
-    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
+    public TurtleCommandResult execute(ITurtleAccess turtle) {
         // Determine the upgrade to equipLeft
         ITurtleUpgrade newUpgrade;
         ItemStack newUpgradeStack;

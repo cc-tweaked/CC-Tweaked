@@ -7,24 +7,22 @@ package dan200.computercraft.shared.turtle.core;
 
 import dan200.computercraft.api.turtle.*;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Locale;
 
 public class TurtleToolCommand implements ITurtleCommand {
     private final TurtleVerb verb;
     private final InteractDirection direction;
-    private final TurtleSide side;
+    private final @Nullable TurtleSide side;
 
-    public TurtleToolCommand(TurtleVerb verb, InteractDirection direction, TurtleSide side) {
+    public TurtleToolCommand(TurtleVerb verb, InteractDirection direction, @Nullable TurtleSide side) {
         this.verb = verb;
         this.direction = direction;
         this.side = side;
     }
 
-    @Nonnull
     @Override
-    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
+    public TurtleCommandResult execute(ITurtleAccess turtle) {
         TurtleCommandResult firstFailure = null;
         for (var side : TurtleSide.values()) {
             if (this.side != null && this.side != side) continue;

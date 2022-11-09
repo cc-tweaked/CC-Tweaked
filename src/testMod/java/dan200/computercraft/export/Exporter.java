@@ -15,12 +15,14 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.shared.platform.Registries;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.*;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.ShapelessRecipe;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,14 +72,14 @@ public class Exporter {
         Set<Item> items = new HashSet<>();
 
         // First find all CC items
-        for (var item : ForgeRegistries.ITEMS) {
-            if (ForgeRegistries.ITEMS.getKey(item).getNamespace().equals(ComputerCraft.MOD_ID)) items.add(item);
+        for (var item : Registries.ITEMS) {
+            if (Registries.ITEMS.getKey(item).getNamespace().equals(ComputerCraft.MOD_ID)) items.add(item);
         }
 
         // Now find all CC recipes.
         for (var recipe : Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(RecipeType.CRAFTING)) {
             var result = recipe.getResultItem();
-            if (!ForgeRegistries.ITEMS.getKey(result.getItem()).getNamespace().equals(ComputerCraft.MOD_ID)) {
+            if (!Registries.ITEMS.getKey(result.getItem()).getNamespace().equals(ComputerCraft.MOD_ID)) {
                 continue;
             }
             if (result.hasTag()) {
@@ -118,7 +120,7 @@ public class Exporter {
         renderer.setupState();
         for (var item : items) {
             var stack = new ItemStack(item);
-            var location = ForgeRegistries.ITEMS.getKey(item);
+            var location = Registries.ITEMS.getKey(item);
 
             dump.itemNames.put(location.toString(), stack.getHoverName().getString());
             renderer.captureRender(itemDir.resolve(location.getNamespace()).resolve(location.getPath() + ".png"),

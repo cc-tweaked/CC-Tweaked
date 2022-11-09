@@ -152,7 +152,9 @@ configurations {
 
 dependencies {
     minecraft("net.minecraftforge:forge:$mcVersion-${libs.versions.forge.get()}")
-    annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
+    annotationProcessor("org.spongepowered:mixin:0.8.5-SQUID:processor")
+
+    errorprone(project(":lints"))
 
     compileOnly(libs.jetbrainsAnnotations)
     annotationProcessorEverywhere(libs.autoService)

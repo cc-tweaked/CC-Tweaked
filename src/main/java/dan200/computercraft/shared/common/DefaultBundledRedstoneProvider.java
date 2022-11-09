@@ -10,11 +10,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
 
 public class DefaultBundledRedstoneProvider implements IBundledRedstoneProvider {
     @Override
-    public int getBundledRedstoneOutput(@Nonnull Level world, @Nonnull BlockPos pos, @Nonnull Direction side) {
+    public int getBundledRedstoneOutput(Level world, BlockPos pos, Direction side) {
         return getDefaultBundledRedstoneOutput(world, pos, side);
     }
 

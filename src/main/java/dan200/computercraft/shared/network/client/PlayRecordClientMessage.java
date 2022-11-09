@@ -11,7 +11,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.sounds.SoundEvent;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.function.BiConsumer;
 
 /**
  * Starts or stops a record on the client, depending on if {@link #soundEvent} is {@code null}.
@@ -22,10 +23,10 @@ import javax.annotation.Nonnull;
  */
 public class PlayRecordClientMessage implements NetworkMessage<ClientNetworkContext> {
     private final BlockPos pos;
-    private final String name;
-    private final SoundEvent soundEvent;
+    private final @Nullable String name;
+    private final @Nullable SoundEvent soundEvent;
 
-    public PlayRecordClientMessage(BlockPos pos, SoundEvent event, String name) {
+    public PlayRecordClientMessage(BlockPos pos, SoundEvent event, @Nullable String name) {
         this.pos = pos;
         this.name = name;
         soundEvent = event;
@@ -39,29 +40,28 @@ public class PlayRecordClientMessage implements NetworkMessage<ClientNetworkCont
 
     public PlayRecordClientMessage(FriendlyByteBuf buf) {
         pos = buf.readBlockPos();
-        if (buf.readBoolean()) {
-            name = buf.readUtf(Short.MAX_VALUE);
-            soundEvent = Registries.readKey(buf, Registries.SOUND_EVENTS);
-        } else {
-            name = null;
-            soundEvent = null;
-        }
+        soundEvent = buf.readBoolean() ? Registries.readKey(buf, Registries.SOUND_EVENTS) : null;
+        name = buf.readBoolean() ? buf.readUtf(Short.MAX_VALUE) : null;
     }
 
     @Override
-    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeBlockPos(pos);
-        if (soundEvent == null) {
-            buf.writeBoolean(false);
-        } else {
-            buf.writeBoolean(true);
-            buf.writeUtf(name);
-            Registries.writeKey(buf, Registries.SOUND_EVENTS, soundEvent);
-        }
+        writeOptional(buf, soundEvent, (b, e) -> Registries.writeKey(b, Registries.SOUND_EVENTS, e));
+        writeOptional(buf, name, FriendlyByteBuf::writeUtf);
     }
 
     @Override
     public void handle(ClientNetworkContext context) {
         context.handlePlayRecord(pos, soundEvent, name);
+    }
+
+    private static <T> void writeOptional(FriendlyByteBuf out, @Nullable T object, BiConsumer<FriendlyByteBuf, T> write) {
+        if (object == null) {
+            out.writeBoolean(false);
+        } else {
+            out.writeBoolean(true);
+            write.accept(out, object);
+        }
     }
 }

@@ -12,6 +12,7 @@ import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.LuaTable;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.core.util.Nullability;
 import dan200.computercraft.shared.network.client.SpeakerAudioClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerMoveClientMessage;
 import dan200.computercraft.shared.network.client.SpeakerPlayClientMessage;
@@ -27,7 +28,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.*;
 
 import static dan200.computercraft.api.lua.LuaValues.checkFinite;
@@ -59,7 +60,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
 
     private long clock = 0;
     private long lastPositionTime;
-    private SpeakerPosition lastPosition;
+    private @Nullable SpeakerPosition lastPosition;
 
     private long lastPlayTime;
 
@@ -67,8 +68,8 @@ public abstract class SpeakerPeripheral implements IPeripheral {
 
     private final Object lock = new Object();
     private boolean shouldStop;
-    private PendingSound pendingSound = null;
-    private DfpwmState dfpwmState;
+    private @Nullable PendingSound pendingSound = null;
+    private @Nullable DfpwmState dfpwmState;
 
     public void update() {
         clock++;
@@ -77,7 +78,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         var level = position.level();
         var pos = position.position();
         if (level == null) return;
-        var server = level.getServer();
+        var server = Nullability.assertNonNull(level.getServer());
 
         synchronized (pendingNotes) {
             for (var sound : pendingNotes) {
@@ -113,7 +114,7 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         // Stop the speaker and nuke the position, so we don't update it again.
         if (shouldStop && lastPosition != null) {
             lastPosition = null;
-            PlatformHelper.get().sendToAllPlayers(new SpeakerStopClientMessage(getSource()), level.getServer());
+            PlatformHelper.get().sendToAllPlayers(new SpeakerStopClientMessage(getSource()), server);
             return;
         }
 
@@ -155,10 +156,8 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         }
     }
 
-    @Nonnull
     public abstract SpeakerPosition getPosition();
 
-    @Nonnull
     public UUID getSource() {
         return source;
     }
@@ -168,7 +167,6 @@ public abstract class SpeakerPeripheral implements IPeripheral {
         return clock - lastPlayTime <= 20 || (state != null && state.isPlaying());
     }
 
-    @Nonnull
     @Override
     public String getType() {
         return "speaker";
@@ -349,14 +347,14 @@ public abstract class SpeakerPeripheral implements IPeripheral {
     }
 
     @Override
-    public void attach(@Nonnull IComputerAccess computer) {
+    public void attach(IComputerAccess computer) {
         synchronized (computers) {
             computers.add(computer);
         }
     }
 
     @Override
-    public void detach(@Nonnull IComputerAccess computer) {
+    public void detach(IComputerAccess computer) {
         synchronized (computers) {
             computers.remove(computer);
         }

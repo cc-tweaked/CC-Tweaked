@@ -9,7 +9,6 @@ import dan200.computercraft.shared.platform.Registries;
 import net.minecraft.core.Holder;
 import net.minecraft.tags.TagKey;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,12 +21,11 @@ public final class DataHelpers {
         return getTags(object.tags());
     }
 
-    @Nonnull
-    public static <T> Map<String, Boolean> getTags(@Nonnull Stream<TagKey<T>> tags) {
+    public static <T> Map<String, Boolean> getTags(Stream<TagKey<T>> tags) {
         return tags.collect(Collectors.toMap(x -> x.location().toString(), x -> true));
     }
 
-    public static <T> String getId(@Nonnull Registries.RegistryWrapper<T> registry, T entry) {
+    public static <T> String getId(Registries.RegistryWrapper<T> registry, T entry) {
         return registry.getKey(entry).toString();
     }
 }

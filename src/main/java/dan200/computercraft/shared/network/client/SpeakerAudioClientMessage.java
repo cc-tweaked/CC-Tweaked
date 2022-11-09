@@ -9,9 +9,11 @@ import dan200.computercraft.shared.network.NetworkMessage;
 import dan200.computercraft.shared.peripheral.speaker.SpeakerPosition;
 import net.minecraft.network.FriendlyByteBuf;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.UUID;
+
+import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 /**
  * Starts a sound on the client.
@@ -23,7 +25,7 @@ import java.util.UUID;
 public class SpeakerAudioClientMessage implements NetworkMessage<ClientNetworkContext> {
     private final UUID source;
     private final SpeakerPosition.Message pos;
-    private final ByteBuffer content;
+    private final @Nullable ByteBuffer content;
     private final float volume;
 
     public SpeakerAudioClientMessage(UUID source, SpeakerPosition pos, float volume, ByteBuffer content) {
@@ -45,11 +47,11 @@ public class SpeakerAudioClientMessage implements NetworkMessage<ClientNetworkCo
     }
 
     @Override
-    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeUUID(source);
         pos.write(buf);
         buf.writeFloat(volume);
-        buf.writeBytes(content.duplicate());
+        buf.writeBytes(assertNonNull(content).duplicate());
     }
 
     @Override

@@ -7,8 +7,6 @@ package dan200.computercraft.shared.peripheral.monitor;
 
 import net.minecraft.util.StringRepresentable;
 
-import javax.annotation.Nonnull;
-
 import static dan200.computercraft.shared.peripheral.monitor.MonitorEdgeState.Flags.*;
 
 public enum MonitorEdgeState implements StringRepresentable {
@@ -57,7 +55,6 @@ public enum MonitorEdgeState implements StringRepresentable {
         return getSerializedName();
     }
 
-    @Nonnull
     @Override
     public String getSerializedName() {
         return name;

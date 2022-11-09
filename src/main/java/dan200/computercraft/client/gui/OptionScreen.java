@@ -15,8 +15,10 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
+
+import static dan200.computercraft.core.util.Nullability.assertNonNull;
 
 public final class OptionScreen extends Screen {
     private static final ResourceLocation BACKGROUND = new ResourceLocation("computercraft", "textures/gui/blank_screen.png");
@@ -32,7 +34,7 @@ public final class OptionScreen extends Screen {
     private int innerWidth;
     private int innerHeight;
 
-    private MultiLineLabel messageRenderer;
+    private @Nullable MultiLineLabel messageRenderer;
     private final Component message;
     private final List<AbstractWidget> buttons;
     private final Runnable exit;
@@ -81,7 +83,7 @@ public final class OptionScreen extends Screen {
     }
 
     @Override
-    public void render(@Nonnull PoseStack transform, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack transform, int mouseX, int mouseY, float partialTicks) {
         renderBackground(transform);
 
         // Render the actual texture.
@@ -93,7 +95,7 @@ public final class OptionScreen extends Screen {
         );
         blit(transform, x, y + innerHeight - PADDING, 0, 256 - PADDING, innerWidth, PADDING);
 
-        messageRenderer.renderLeftAlignedNoShadow(transform, x + PADDING, y + PADDING, FONT_HEIGHT, 0x404040);
+        assertNonNull(messageRenderer).renderLeftAlignedNoShadow(transform, x + PADDING, y + PADDING, FONT_HEIGHT, 0x404040);
         super.render(transform, mouseX, mouseY, partialTicks);
     }
 
@@ -110,7 +112,6 @@ public final class OptionScreen extends Screen {
         for (var widget : buttons) widget.active = false;
     }
 
-    @Nonnull
     public Screen getOriginalScreen() {
         return originalScreen;
     }

@@ -11,7 +11,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import javax.annotation.Nonnull;
 import java.util.Set;
 
 /**
@@ -34,26 +33,23 @@ public interface InventoryDelegate extends Container {
         return getInventory().isEmpty();
     }
 
-    @Nonnull
     @Override
     default ItemStack getItem(int slot) {
         return getInventory().getItem(slot);
     }
 
-    @Nonnull
     @Override
     default ItemStack removeItem(int slot, int count) {
         return getInventory().removeItem(slot, count);
     }
 
-    @Nonnull
     @Override
     default ItemStack removeItemNoUpdate(int slot) {
         return getInventory().removeItemNoUpdate(slot);
     }
 
     @Override
-    default void setItem(int slot, @Nonnull ItemStack stack) {
+    default void setItem(int slot, ItemStack stack) {
         getInventory().setItem(slot, stack);
     }
 
@@ -68,22 +64,22 @@ public interface InventoryDelegate extends Container {
     }
 
     @Override
-    default boolean stillValid(@Nonnull Player player) {
+    default boolean stillValid(Player player) {
         return getInventory().stillValid(player);
     }
 
     @Override
-    default void startOpen(@Nonnull Player player) {
+    default void startOpen(Player player) {
         getInventory().startOpen(player);
     }
 
     @Override
-    default void stopOpen(@Nonnull Player player) {
+    default void stopOpen(Player player) {
         getInventory().stopOpen(player);
     }
 
     @Override
-    default boolean canPlaceItem(int slot, @Nonnull ItemStack stack) {
+    default boolean canPlaceItem(int slot, ItemStack stack) {
         return getInventory().canPlaceItem(slot, stack);
     }
 
@@ -93,12 +89,12 @@ public interface InventoryDelegate extends Container {
     }
 
     @Override
-    default int countItem(@Nonnull Item stack) {
+    default int countItem(Item stack) {
         return getInventory().countItem(stack);
     }
 
     @Override
-    default boolean hasAnyOf(@Nonnull Set<Item> set) {
+    default boolean hasAnyOf(Set<Item> set) {
         return getInventory().hasAnyOf(set);
     }
 }

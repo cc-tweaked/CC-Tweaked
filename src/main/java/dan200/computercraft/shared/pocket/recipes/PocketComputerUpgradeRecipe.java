@@ -18,8 +18,6 @@ import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
-
 public final class PocketComputerUpgradeRecipe extends CustomRecipe {
     public PocketComputerUpgradeRecipe(ResourceLocation identifier) {
         super(identifier);
@@ -30,20 +28,18 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
         return x >= 2 && y >= 2;
     }
 
-    @Nonnull
     @Override
     public ItemStack getResultItem() {
         return PocketComputerItemFactory.create(-1, null, -1, ComputerFamily.NORMAL, null);
     }
 
     @Override
-    public boolean matches(@Nonnull CraftingContainer inventory, @Nonnull Level world) {
+    public boolean matches(CraftingContainer inventory, Level world) {
         return !assemble(inventory).isEmpty();
     }
 
-    @Nonnull
     @Override
-    public ItemStack assemble(@Nonnull CraftingContainer inventory) {
+    public ItemStack assemble(CraftingContainer inventory) {
         // Scan the grid for a pocket computer
         var computer = ItemStack.EMPTY;
         var computerX = -1;
@@ -92,7 +88,6 @@ public final class PocketComputerUpgradeRecipe extends CustomRecipe {
         return PocketComputerItemFactory.create(computerID, label, colour, family, upgrade);
     }
 
-    @Nonnull
     @Override
     public RecipeSerializer<?> getSerializer() {
         return ModRegistry.RecipeSerializers.POCKET_COMPUTER_UPGRADE.get();

@@ -17,6 +17,7 @@ import dan200.computercraft.shared.network.client.PocketComputerDataMessage;
 import dan200.computercraft.shared.network.client.PocketComputerDeletedClientMessage;
 import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -27,29 +28,28 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 
 public class PocketServerComputer extends ServerComputer implements IPocketAccess {
-    private IPocketUpgrade upgrade;
-    private Entity entity;
-    private ItemStack stack;
+    private @Nullable IPocketUpgrade upgrade;
+    private @Nullable Entity entity;
+    private ItemStack stack = ItemStack.EMPTY;
 
     private int lightColour = -1;
     private boolean lightChanged = false;
 
     private final Set<ServerPlayer> tracking = new HashSet<>();
 
-    public PocketServerComputer(ServerLevel world, int computerID, String label, ComputerFamily family) {
-        super(world, computerID, label, family, ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight);
+    public PocketServerComputer(ServerLevel world, BlockPos position, int computerID, @Nullable String label, ComputerFamily family) {
+        super(world, position, computerID, label, family, ComputerCraft.pocketTermWidth, ComputerCraft.pocketTermHeight);
     }
 
     @Nullable
     @Override
     public Entity getEntity() {
         var entity = this.entity;
-        if (entity == null || stack == null || !entity.isAlive()) return null;
+        if (entity == null || stack.isEmpty() || !entity.isAlive()) return null;
 
         if (entity instanceof Player) {
             var inventory = ((Player) entity).getInventory();
@@ -88,7 +88,6 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         lightChanged = true;
     }
 
-    @Nonnull
     @Override
     public CompoundTag getUpgradeNBTData() {
         return ItemPocketComputer.getUpgradeInfo(stack);
@@ -105,13 +104,12 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         setPeripheral(ComputerSide.BACK, peripheral);
     }
 
-    @Nonnull
     @Override
     public Map<ResourceLocation, IPeripheral> getUpgrades() {
         return upgrade == null ? Collections.emptyMap() : Collections.singletonMap(upgrade.getUpgradeID(), getPeripheral(ComputerSide.BACK));
     }
 
-    public IPocketUpgrade getUpgrade() {
+    public @Nullable IPocketUpgrade getUpgrade() {
         return upgrade;
     }
 
@@ -122,7 +120,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
      *
      * @param upgrade The new upgrade to set it to, may be {@code null}.
      */
-    public void setUpgrade(IPocketUpgrade upgrade) {
+    public void setUpgrade(@Nullable IPocketUpgrade upgrade) {
         if (this.upgrade == upgrade) return;
 
         synchronized (this) {
@@ -133,7 +131,7 @@ public class PocketServerComputer extends ServerComputer implements IPocketAcces
         }
     }
 
-    public synchronized void updateValues(Entity entity, @Nonnull ItemStack stack, IPocketUpgrade upgrade) {
+    public synchronized void updateValues(@Nullable Entity entity, ItemStack stack, @Nullable IPocketUpgrade upgrade) {
         if (entity != null) {
             setLevel((ServerLevel) entity.getCommandSenderWorld());
             setPosition(entity.blockPosition());

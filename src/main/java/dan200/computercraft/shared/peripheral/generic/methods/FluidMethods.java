@@ -20,7 +20,6 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,13 +34,11 @@ import static dan200.computercraft.shared.peripheral.generic.methods.ArgumentHel
  * @cc.since 1.94.0
  */
 public class FluidMethods implements GenericPeripheral {
-    @Nonnull
     @Override
     public PeripheralType getType() {
         return PeripheralType.ofAdditional("fluid_storage");
     }
 
-    @Nonnull
     @Override
     public ResourceLocation id() {
         return new ResourceLocation(ComputerCraft.MOD_ID, "fluid");

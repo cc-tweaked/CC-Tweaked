@@ -26,7 +26,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import org.lwjgl.glfw.GLFW;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -37,13 +36,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static dan200.computercraft.core.util.Nullability.assertNonNull;
+
 public abstract class ComputerScreenBase<T extends ContainerComputerBase> extends AbstractContainerScreen<T> {
     private static final Component OK = Component.translatable("gui.ok");
     private static final Component NO_RESPONSE_TITLE = Component.translatable("gui.computercraft.upload.no_response");
     private static final Component NO_RESPONSE_MSG = Component.translatable("gui.computercraft.upload.no_response.msg",
         Component.literal("import").withStyle(ChatFormatting.DARK_GRAY));
 
-    protected WidgetTerminal terminal;
+    protected @Nullable WidgetTerminal terminal;
     protected Terminal terminalData;
     protected final ComputerFamily family;
     protected final InputHandler input;
@@ -64,6 +65,11 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
 
     protected abstract WidgetTerminal createTerminal();
 
+    protected final WidgetTerminal getTerminal() {
+        if (terminal == null) throw new IllegalStateException("Screen has not been initialised yet");
+        return terminal;
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -83,7 +89,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
     @Override
     public void containerTick() {
         super.containerTick();
-        terminal.update();
+        getTerminal().update();
 
         if (uploadNagDeadline != Long.MAX_VALUE && Util.getNanos() >= uploadNagDeadline) {
             new ItemToast(minecraft, displayStack, NO_RESPONSE_TITLE, NO_RESPONSE_MSG, ItemToast.TRANSFER_NO_RESPONSE_TOKEN)
@@ -104,7 +110,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
 
 
     @Override
-    public void render(@Nonnull PoseStack stack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
         renderBackground(stack);
         super.render(stack, mouseX, mouseY, partialTicks);
         renderTooltip(stack, mouseX, mouseY);
@@ -127,12 +133,12 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
 
 
     @Override
-    protected void renderLabels(@Nonnull PoseStack transform, int mouseX, int mouseY) {
+    protected void renderLabels(PoseStack transform, int mouseX, int mouseY) {
         // Skip rendering labels.
     }
 
     @Override
-    public void onFilesDrop(@Nonnull List<Path> files) {
+    public void onFilesDrop(List<Path> files) {
         if (files.isEmpty()) return;
 
         if (!menu.isOn()) {
@@ -193,7 +199,7 @@ public abstract class ComputerScreenBase<T extends ContainerComputerBase> extend
                 }
             }
             case CONSUMED -> uploadNagDeadline = Long.MAX_VALUE;
-            case ERROR -> alert(UploadResult.FAILED_TITLE, message);
+            case ERROR -> alert(UploadResult.FAILED_TITLE, assertNonNull(message));
         }
     }
 

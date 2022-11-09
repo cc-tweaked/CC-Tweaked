@@ -18,8 +18,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-import javax.annotation.Nonnull;
-
 public abstract class TileGeneric extends BlockEntity {
     public TileGeneric(BlockEntityType<? extends TileGeneric> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -35,15 +33,14 @@ public abstract class TileGeneric extends BlockEntity {
         getLevel().sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
     }
 
-    @Nonnull
     public InteractionResult onActivate(Player player, InteractionHand hand, BlockHitResult hit) {
         return InteractionResult.PASS;
     }
 
-    public void onNeighbourChange(@Nonnull BlockPos neighbour) {
+    public void onNeighbourChange(BlockPos neighbour) {
     }
 
-    public void onNeighbourTileEntityChange(@Nonnull BlockPos neighbour) {
+    public void onNeighbourTileEntityChange(BlockPos neighbour) {
     }
 
     protected void blockTick() {
@@ -69,6 +66,6 @@ public abstract class TileGeneric extends BlockEntity {
     }
 
     @Override
-    public void handleUpdateTag(@Nonnull CompoundTag tag) {
+    public void handleUpdateTag(CompoundTag tag) {
     }
 }

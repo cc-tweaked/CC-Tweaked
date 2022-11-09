@@ -7,7 +7,6 @@ package dan200.computercraft.shared.computer.upload;
 
 import dan200.computercraft.ComputerCraft;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
@@ -29,12 +28,10 @@ public class FileUpload {
         this.checksum = checksum;
     }
 
-    @Nonnull
     public String getName() {
         return name;
     }
 
-    @Nonnull
     public ByteBuffer getBytes() {
         return bytes;
     }
@@ -43,7 +40,6 @@ public class FileUpload {
         return length;
     }
 
-    @Nonnull
     public byte[] getChecksum() {
         return checksum;
     }

@@ -8,16 +8,15 @@ package dan200.computercraft.shared.peripheral.generic.data;
 import dan200.computercraft.shared.platform.Registries;
 import net.minecraftforge.fluids.FluidStack;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 
 public class FluidData {
-    public static void fillBasic(@Nonnull Map<? super String, Object> data, @Nonnull FluidStack stack) {
+    public static void fillBasic(Map<? super String, Object> data, FluidStack stack) {
         data.put("name", DataHelpers.getId(Registries.FLUIDS, stack.getFluid()));
         data.put("amount", stack.getAmount());
     }
 
-    public static void fill(@Nonnull Map<? super String, Object> data, @Nonnull FluidStack stack) {
+    public static void fill(Map<? super String, Object> data, FluidStack stack) {
         // FluidStack doesn't have a getTags method, so we need to use the deprecated builtInRegistryHolder.
         @SuppressWarnings("deprecation")
         var holder = stack.getFluid().builtInRegistryHolder();

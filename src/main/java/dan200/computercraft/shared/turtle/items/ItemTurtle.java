@@ -22,7 +22,6 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static dan200.computercraft.shared.turtle.core.TurtleBrain.*;
@@ -32,7 +31,11 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem {
         super(block, settings);
     }
 
-    public ItemStack create(int id, String label, int colour, ITurtleUpgrade leftUpgrade, ITurtleUpgrade rightUpgrade, int fuelLevel, ResourceLocation overlay) {
+    public ItemStack create(
+        int id, @Nullable String label, int colour,
+        @Nullable ITurtleUpgrade leftUpgrade, @Nullable ITurtleUpgrade rightUpgrade,
+        int fuelLevel, @Nullable ResourceLocation overlay
+    ) {
         // Build the stack
         var stack = new ItemStack(this);
         if (label != null) stack.setHoverName(Component.literal(label));
@@ -53,7 +56,7 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem {
     }
 
     @Override
-    public void fillItemCategory(@Nonnull CreativeModeTab group, @Nonnull NonNullList<ItemStack> list) {
+    public void fillItemCategory(CreativeModeTab group, NonNullList<ItemStack> list) {
         if (!allowedIn(group)) return;
 
         list.add(create(-1, null, -1, null, null, 0, null));
@@ -62,9 +65,8 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem {
             .forEach(list::add);
     }
 
-    @Nonnull
     @Override
-    public Component getName(@Nonnull ItemStack stack) {
+    public Component getName(ItemStack stack) {
         var baseString = getDescriptionId(stack);
         var left = getUpgrade(stack, TurtleSide.LEFT);
         var right = getUpgrade(stack, TurtleSide.RIGHT);
@@ -108,7 +110,7 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem {
     }
 
     @Override
-    public ItemStack withFamily(@Nonnull ItemStack stack, @Nonnull ComputerFamily family) {
+    public ItemStack withFamily(ItemStack stack, ComputerFamily family) {
         return TurtleItemFactory.create(
             getComputerID(stack), getLabel(stack),
             getColour(stack), family,
@@ -118,7 +120,7 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem {
     }
 
     @Override
-    public ITurtleUpgrade getUpgrade(@Nonnull ItemStack stack, @Nonnull TurtleSide side) {
+    public @Nullable ITurtleUpgrade getUpgrade(ItemStack stack, TurtleSide side) {
         var tag = stack.getTag();
         if (tag == null) return null;
 
@@ -127,13 +129,13 @@ public class ItemTurtle extends ItemComputerBase implements ITurtleItem {
     }
 
     @Override
-    public ResourceLocation getOverlay(@Nonnull ItemStack stack) {
+    public @Nullable ResourceLocation getOverlay(ItemStack stack) {
         var tag = stack.getTag();
         return tag != null && tag.contains(NBT_OVERLAY) ? new ResourceLocation(tag.getString(NBT_OVERLAY)) : null;
     }
 
     @Override
-    public int getFuelLevel(@Nonnull ItemStack stack) {
+    public int getFuelLevel(ItemStack stack) {
         var tag = stack.getTag();
         return tag != null && tag.contains(NBT_FUEL) ? tag.getInt(NBT_FUEL) : 0;
     }

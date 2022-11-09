@@ -12,8 +12,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 
-import javax.annotation.Nonnull;
-
 public class TurtleCompareCommand implements ITurtleCommand {
     private final InteractDirection direction;
 
@@ -21,9 +19,8 @@ public class TurtleCompareCommand implements ITurtleCommand {
         this.direction = direction;
     }
 
-    @Nonnull
     @Override
-    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
+    public TurtleCommandResult execute(ITurtleAccess turtle) {
         // Get world direction from direction
         var direction = this.direction.toWorldDir(turtle);
 

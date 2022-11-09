@@ -8,7 +8,6 @@ package dan200.computercraft.shared.network.client;
 import dan200.computercraft.shared.network.NetworkMessage;
 import net.minecraft.network.FriendlyByteBuf;
 
-import javax.annotation.Nonnull;
 import java.util.UUID;
 
 /**
@@ -30,7 +29,7 @@ public class SpeakerStopClientMessage implements NetworkMessage<ClientNetworkCon
     }
 
     @Override
-    public void toBytes(@Nonnull FriendlyByteBuf buf) {
+    public void toBytes(FriendlyByteBuf buf) {
         buf.writeUUID(source);
     }
 

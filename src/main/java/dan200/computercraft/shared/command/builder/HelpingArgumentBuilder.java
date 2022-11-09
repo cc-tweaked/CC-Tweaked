@@ -16,10 +16,11 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static dan200.computercraft.core.util.Nullability.assertNonNull;
 import static dan200.computercraft.shared.command.text.ChatHelpers.coloured;
 import static dan200.computercraft.shared.command.text.ChatHelpers.translate;
 
@@ -71,7 +72,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
         return buildImpl(getLiteral().replace('-', '_'), getLiteral());
     }
 
-    private LiteralCommandNode<CommandSourceStack> build(@Nonnull String id, @Nonnull String command) {
+    private LiteralCommandNode<CommandSourceStack> build(String id, String command) {
         return buildImpl(id + "." + getLiteral().replace('-', '_'), command + " " + getLiteral());
     }
 
@@ -120,6 +121,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
     private static final class HelpCommand implements Command<CommandSourceStack> {
         private final String id;
         private final String command;
+        @Nullable
         LiteralCommandNode<CommandSourceStack> node;
 
         private HelpCommand(String id, String command) {
@@ -129,7 +131,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
 
         @Override
         public int run(CommandContext<CommandSourceStack> context) {
-            context.getSource().sendSuccess(getHelp(context, node, id, command), false);
+            context.getSource().sendSuccess(getHelp(context, assertNonNull(node), id, command), false);
             return 0;
         }
     }
@@ -147,7 +149,7 @@ public final class HelpingArgumentBuilder extends LiteralArgumentBuilder<Command
         var dispatcher = context.getSource().getServer().getCommands().getDispatcher();
         CommandNode<CommandSourceStack> temp = new LiteralCommandNode<>("_", null, x -> true, null, null, false);
         temp.addChild(node);
-        var usage = dispatcher.getSmartUsage(temp, context.getSource()).get(node).substring(node.getName().length());
+        var usage = assertNonNull(dispatcher.getSmartUsage(temp, context.getSource()).get(node)).substring(node.getName().length());
 
         var output = Component.literal("")
             .append(coloured("/" + command + usage, HEADER))

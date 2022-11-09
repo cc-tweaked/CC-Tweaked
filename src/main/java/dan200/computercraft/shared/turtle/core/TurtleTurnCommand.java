@@ -10,8 +10,6 @@ import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
 
-import javax.annotation.Nonnull;
-
 public class TurtleTurnCommand implements ITurtleCommand {
     private final TurnDirection direction;
 
@@ -19,9 +17,8 @@ public class TurtleTurnCommand implements ITurtleCommand {
         this.direction = direction;
     }
 
-    @Nonnull
     @Override
-    public TurtleCommandResult execute(@Nonnull ITurtleAccess turtle) {
+    public TurtleCommandResult execute(ITurtleAccess turtle) {
         switch (direction) {
             case LEFT -> {
                 turtle.setDirection(turtle.getDirection().getCounterClockWise());
