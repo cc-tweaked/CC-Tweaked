@@ -5,39 +5,19 @@
  */
 package dan200.computercraft.shared.peripheral.monitor;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import dan200.computercraft.client.util.DirectBuffers;
-import dan200.computercraft.client.util.DirectVertexBuffer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.terminal.NetworkedTerminal;
 import dan200.computercraft.shared.computer.terminal.TerminalState;
-import net.minecraft.core.BlockPos;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL31;
 
 import javax.annotation.Nullable;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.function.Supplier;
 
 public final class ClientMonitor {
-    private static final Set<ClientMonitor> allMonitors = new HashSet<>();
-
     private final TileMonitor origin;
 
-    public long lastRenderFrame = -1;
-    public @Nullable BlockPos lastRenderPos = null;
-
-    public int tboBuffer;
-    public int tboTexture;
-    public int tboUniform;
-    public @Nullable DirectVertexBuffer backgroundBuffer;
-    public @Nullable DirectVertexBuffer foregroundBuffer;
     private @Nullable NetworkedTerminal terminal;
     private boolean terminalChanged;
+    private @Nullable RenderState state;
 
     public ClientMonitor(TileMonitor origin) {
         this.origin = origin;
@@ -48,103 +28,21 @@ public final class ClientMonitor {
     }
 
     /**
-     * Create the appropriate buffer if needed.
+     * Get or create the current render state.
      *
-     * @param renderer The renderer to use. This can be fetched from {@link MonitorRenderer#current()}.
-     * @return If a buffer was created. This will return {@code false} if we already have an appropriate buffer,
-     * or this mode does not require one.
+     * @param create A factory to create the render state.
+     * @param <T>    The current render state. This type parameter should only be inhabited by a single class.
+     * @return This monitor's render state.
      */
-    @OnlyIn(Dist.CLIENT)
-    public boolean createBuffer(MonitorRenderer renderer) {
-        switch (renderer) {
-            case TBO: {
-                if (tboBuffer != 0) return false;
-
-                deleteBuffers();
-
-                tboBuffer = DirectBuffers.createBuffer();
-                DirectBuffers.setEmptyBufferData(GL31.GL_TEXTURE_BUFFER, tboBuffer, GL15.GL_STATIC_DRAW);
-                tboTexture = GlStateManager._genTexture();
-                GL11.glBindTexture(GL31.GL_TEXTURE_BUFFER, tboTexture);
-                GL31.glTexBuffer(GL31.GL_TEXTURE_BUFFER, GL30.GL_R8UI, tboBuffer);
-                GL11.glBindTexture(GL31.GL_TEXTURE_BUFFER, 0);
-
-                tboUniform = DirectBuffers.createBuffer();
-                DirectBuffers.setEmptyBufferData(GL31.GL_UNIFORM_BUFFER, tboUniform, GL15.GL_STATIC_DRAW);
-
-                addMonitor();
-                return true;
-            }
-
-            case VBO:
-                if (backgroundBuffer != null) return false;
-
-                deleteBuffers();
-                backgroundBuffer = new DirectVertexBuffer();
-                foregroundBuffer = new DirectVertexBuffer();
-                addMonitor();
-                return true;
-
-            default:
-                return false;
-        }
+    @SuppressWarnings("unchecked")
+    public <T extends RenderState> T getRenderState(Supplier<T> create) {
+        var state = this.state;
+        return (T) (state != null ? state : (this.state = create.get()));
     }
 
-    private void addMonitor() {
-        synchronized (allMonitors) {
-            allMonitors.add(this);
-        }
-    }
-
-    private void deleteBuffers() {
-
-        if (tboBuffer != 0) {
-            DirectBuffers.deleteBuffer(GL31.GL_TEXTURE_BUFFER, tboBuffer);
-            tboBuffer = 0;
-        }
-
-        if (tboTexture != 0) {
-            GlStateManager._deleteTexture(tboTexture);
-            tboTexture = 0;
-        }
-
-        if (tboUniform != 0) {
-            DirectBuffers.deleteBuffer(GL31.GL_UNIFORM_BUFFER, tboUniform);
-            tboUniform = 0;
-        }
-
-        if (backgroundBuffer != null) {
-            backgroundBuffer.close();
-            backgroundBuffer = null;
-        }
-
-        if (foregroundBuffer != null) {
-            foregroundBuffer.close();
-            foregroundBuffer = null;
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public void destroy() {
-        if (tboBuffer != 0 || backgroundBuffer != null) {
-            synchronized (allMonitors) {
-                allMonitors.remove(this);
-            }
-
-            deleteBuffers();
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public static void destroyAll() {
-        synchronized (allMonitors) {
-            for (var iterator = allMonitors.iterator(); iterator.hasNext(); ) {
-                var monitor = iterator.next();
-                monitor.deleteBuffers();
-
-                iterator.remove();
-            }
-        }
+    void destroy() {
+        if (state != null) state.close();
+        state = null;
     }
 
     public boolean pollTerminalChanged() {
@@ -168,5 +66,16 @@ public final class ClientMonitor {
                 terminalChanged = true;
             }
         }
+    }
+
+    /**
+     * An interface representing the current state of the monitor renderer.
+     * <p>
+     * This interface should only be inhabited by {@link dan200.computercraft.client.render.monitor.MonitorRenderState}:
+     * it exists solely to avoid referencing client-side classes in common code.
+     */
+    public interface RenderState extends AutoCloseable {
+        @Override
+        void close();
     }
 }

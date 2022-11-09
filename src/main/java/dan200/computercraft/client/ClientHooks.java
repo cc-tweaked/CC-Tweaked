@@ -13,12 +13,12 @@ import dan200.computercraft.client.render.CableHighlightRenderer;
 import dan200.computercraft.client.render.ItemPocketRenderer;
 import dan200.computercraft.client.render.ItemPrintoutRenderer;
 import dan200.computercraft.client.render.MonitorHighlightRenderer;
+import dan200.computercraft.client.render.monitor.MonitorRenderState;
 import dan200.computercraft.client.sound.SpeakerManager;
 import dan200.computercraft.shared.CommonHooks;
 import dan200.computercraft.shared.command.CommandComputerCraft;
 import dan200.computercraft.shared.computer.core.ServerContext;
 import dan200.computercraft.shared.media.items.ItemPrintout;
-import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
 import dan200.computercraft.shared.pocket.items.ItemPocketComputer;
 import dan200.computercraft.shared.turtle.blocks.TileTurtle;
@@ -58,7 +58,7 @@ public final class ClientHooks {
     }
 
     public static void onWorldUnload() {
-        ClientMonitor.destroyAll();
+        MonitorRenderState.destroyAll();
         SpeakerManager.reset();
         ClientPocketComputers.reset();
     }

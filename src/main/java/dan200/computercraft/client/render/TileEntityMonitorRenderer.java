@@ -17,6 +17,7 @@ import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.FrameInfo;
+import dan200.computercraft.client.render.monitor.MonitorRenderState;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
 import dan200.computercraft.client.util.DirectBuffers;
@@ -31,6 +32,7 @@ import net.minecraft.Util;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL31;
@@ -64,18 +66,19 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
         if (originTerminal == null) return;
         var origin = originTerminal.getOrigin();
+        var renderState = originTerminal.getRenderState(MonitorRenderState::new);
         var monitorPos = monitor.getBlockPos();
 
         // Ensure each monitor terminal is rendered only once. We allow rendering a specific tile
         // multiple times in a single frame to ensure compatibility with shaders which may run a
         // pass multiple times.
         var renderFrame = FrameInfo.getRenderFrame();
-        if (originTerminal.lastRenderFrame == renderFrame && !monitorPos.equals(originTerminal.lastRenderPos)) {
+        if (renderState.lastRenderFrame == renderFrame && !monitorPos.equals(renderState.lastRenderPos)) {
             return;
         }
 
-        originTerminal.lastRenderFrame = renderFrame;
-        originTerminal.lastRenderPos = monitorPos;
+        renderState.lastRenderFrame = renderFrame;
+        renderState.lastRenderPos = monitorPos;
 
         var originPos = origin.getBlockPos();
 
@@ -116,7 +119,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
             var matrix = transform.last().pose();
 
-            renderTerminal(matrix, originTerminal, terminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale));
+            renderTerminal(matrix, originTerminal, renderState, terminal, (float) (MARGIN / xScale), (float) (MARGIN / yScale));
 
             transform.popPose();
         } else {
@@ -130,34 +133,36 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
         transform.popPose();
     }
 
-    private static void renderTerminal(Matrix4f matrix, ClientMonitor monitor, Terminal terminal, float xMargin, float yMargin) {
+    private static void renderTerminal(
+        Matrix4f matrix, ClientMonitor monitor, MonitorRenderState renderState, Terminal terminal, float xMargin, float yMargin
+    ) {
         int width = terminal.getWidth(), height = terminal.getHeight();
         int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
 
-        var renderType = MonitorRenderer.current();
+        var renderType = currentRenderer();
         var redraw = monitor.pollTerminalChanged();
-        if (monitor.createBuffer(renderType)) redraw = true;
+        if (renderState.createBuffer(renderType)) redraw = true;
 
         switch (renderType) {
             case TBO -> {
                 if (redraw) {
                     var terminalBuffer = getBuffer(width * height * 3);
                     MonitorTextureBufferShader.setTerminalData(terminalBuffer, terminal);
-                    DirectBuffers.setBufferData(GL31.GL_TEXTURE_BUFFER, monitor.tboBuffer, terminalBuffer, GL20.GL_STATIC_DRAW);
+                    DirectBuffers.setBufferData(GL31.GL_TEXTURE_BUFFER, renderState.tboBuffer, terminalBuffer, GL20.GL_STATIC_DRAW);
 
                     var uniformBuffer = getBuffer(MonitorTextureBufferShader.UNIFORM_SIZE);
                     MonitorTextureBufferShader.setUniformData(uniformBuffer, terminal);
-                    DirectBuffers.setBufferData(GL31.GL_UNIFORM_BUFFER, monitor.tboUniform, uniformBuffer, GL20.GL_STATIC_DRAW);
+                    DirectBuffers.setBufferData(GL31.GL_UNIFORM_BUFFER, renderState.tboUniform, uniformBuffer, GL20.GL_STATIC_DRAW);
                 }
 
                 // Nobody knows what they're doing!
                 var active = GlStateManager._getActiveTexture();
                 RenderSystem.activeTexture(MonitorTextureBufferShader.TEXTURE_INDEX);
-                GL11.glBindTexture(GL31.GL_TEXTURE_BUFFER, monitor.tboTexture);
+                GL11.glBindTexture(GL31.GL_TEXTURE_BUFFER, renderState.tboTexture);
                 RenderSystem.activeTexture(active);
 
                 var shader = RenderTypes.getMonitorTextureBufferShader();
-                shader.setupUniform(monitor.tboUniform);
+                shader.setupUniform(renderState.tboUniform);
 
                 var buffer = Tesselator.getInstance().getBuilder();
                 buffer.begin(RenderTypes.MONITOR_TBO.mode(), RenderTypes.MONITOR_TBO.format());
@@ -168,8 +173,8 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
                 RenderTypes.MONITOR_TBO.end(buffer, 0, 0, 0);
             }
             case VBO -> {
-                var backgroundBuffer = assertNonNull(monitor.backgroundBuffer);
-                var foregroundBuffer = assertNonNull(monitor.foregroundBuffer);
+                var backgroundBuffer = assertNonNull(renderState.backgroundBuffer);
+                var foregroundBuffer = assertNonNull(renderState.foregroundBuffer);
                 if (redraw) {
                     var size = DirectFixedWidthFontRenderer.getVertexCount(terminal);
 
@@ -238,7 +243,6 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
     }
 
     private static ByteBuffer getBuffer(int capacity) {
-
         var buffer = backingBuffer;
         if (buffer == null || buffer.capacity() < capacity) {
             buffer = backingBuffer = buffer == null ? MemoryTracker.create(capacity) : MemoryTracker.resize(buffer, capacity);
@@ -251,5 +255,31 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
     @Override
     public int getViewDistance() {
         return ComputerCraft.monitorDistance;
+    }
+
+
+    /**
+     * Get the current renderer to use.
+     *
+     * @return The current renderer. Will not return {@link MonitorRenderer#BEST}.
+     */
+    public static MonitorRenderer currentRenderer() {
+        var current = ComputerCraft.monitorRenderer;
+        if (current == MonitorRenderer.BEST) current = ComputerCraft.monitorRenderer = bestRenderer();
+        return current;
+    }
+
+    private static MonitorRenderer bestRenderer() {
+        if (!GL.getCapabilities().OpenGL31) {
+            ComputerCraft.log.warn("Texture buffers are not supported on your graphics card. Falling back to VBO monitor renderer.");
+            return MonitorRenderer.VBO;
+        }
+
+        if (ShaderMod.INSTANCE.isShaderMod()) {
+            ComputerCraft.log.warn("Optifine is loaded, assuming shaders are being used. Falling back to VBO monitor renderer.");
+            return MonitorRenderer.VBO;
+        }
+
+        return MonitorRenderer.TBO;
     }
 }
