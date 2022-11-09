@@ -3,8 +3,9 @@
  * Copyright Daniel Ratcliffe, 2011-2022. Do not distribute without permission.
  * Send enquiries to dratcliffe@gmail.com
  */
-package dan200.computercraft.shared.integration;
+package dan200.computercraft.client.integration;
 
+import com.google.auto.service.AutoService;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dan200.computercraft.client.render.RenderTypes;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
@@ -13,28 +14,20 @@ import net.irisshaders.iris.api.v0.IrisTextVertexSink;
 import net.minecraftforge.fml.ModList;
 
 import java.nio.ByteBuffer;
+import java.util.Optional;
 import java.util.function.IntFunction;
 
-public class ShaderMod {
-    public static final ShaderMod INSTANCE
-        = ModList.get().isLoaded("oculus") ? new IrisImpl()
-        : new ShaderMod();
-
-    public boolean isShaderMod() {
-        return Optifine.isLoaded();
+/**
+ * A {@link ShaderMod} for Oculus (the Forge Iris port).
+ */
+@AutoService(ShaderMod.Provider.class)
+public class IrisShaderMod implements ShaderMod.Provider {
+    @Override
+    public Optional<ShaderMod> get() {
+        return ModList.get().isLoaded("oculus") ? Optional.of(new Impl()) : Optional.empty();
     }
 
-    public boolean isRenderingShadowPass() {
-        return false;
-    }
-
-    public DirectFixedWidthFontRenderer.QuadEmitter getQuadEmitter(int vertexCount, IntFunction<ByteBuffer> makeBuffer) {
-        return new DirectFixedWidthFontRenderer.ByteBufferEmitter(
-            makeBuffer.apply(RenderTypes.TERMINAL.format().getVertexSize() * vertexCount * 4)
-        );
-    }
-
-    private static final class IrisImpl extends ShaderMod {
+    private static final class Impl extends ShaderMod {
         @Override
         public boolean isRenderingShadowPass() {
             return IrisApi.getInstance().isRenderingShadowPass();

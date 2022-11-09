@@ -519,6 +519,7 @@ public class TileMonitor extends TileGeneric {
     }
 
     public IPeripheral peripheral() {
+        createServerMonitor();
         if (peripheral != null) return peripheral;
         return peripheral = new MonitorPeripheral(this);
     }

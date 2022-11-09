@@ -8,8 +8,6 @@ package dan200.computercraft.impl;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
@@ -32,17 +30,15 @@ public final class Services {
      * @throws IllegalStateException When the service cannot be loaded.
      */
     public static <T> T load(Class<T> klass) {
-        List<T> services = new ArrayList<>(1);
-        for (var provider : ServiceLoader.load(klass)) services.add(provider);
-        switch (services.size()) {
-            case 1:
-                return services.get(0);
-            case 0:
-                throw new IllegalStateException("Cannot find service for " + klass.getName());
-            default:
-                var serviceTypes = services.stream().map(x -> x.getClass().getName()).collect(Collectors.joining(", "));
+        var services = ServiceLoader.load(klass).stream().toList();
+        return switch (services.size()) {
+            case 1 -> services.get(0).get();
+            case 0 -> throw new IllegalStateException("Cannot find service for " + klass.getName());
+            default -> {
+                var serviceTypes = services.stream().map(x -> x.type().getName()).collect(Collectors.joining(", "));
                 throw new IllegalStateException("Multiple services for " + klass.getName() + ": " + serviceTypes);
-        }
+            }
+        };
     }
 
     /**

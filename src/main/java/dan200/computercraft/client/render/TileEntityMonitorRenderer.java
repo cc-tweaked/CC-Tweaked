@@ -16,6 +16,7 @@ import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import dan200.computercraft.client.FrameInfo;
+import dan200.computercraft.client.integration.ShaderMod;
 import dan200.computercraft.client.render.monitor.MonitorRenderState;
 import dan200.computercraft.client.render.text.DirectFixedWidthFontRenderer;
 import dan200.computercraft.client.render.text.FixedWidthFontRenderer;
@@ -23,7 +24,6 @@ import dan200.computercraft.client.util.DirectBuffers;
 import dan200.computercraft.client.util.DirectVertexBuffer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.config.Config;
-import dan200.computercraft.shared.integration.ShaderMod;
 import dan200.computercraft.shared.peripheral.monitor.ClientMonitor;
 import dan200.computercraft.shared.peripheral.monitor.MonitorRenderer;
 import dan200.computercraft.shared.peripheral.monitor.TileMonitor;
@@ -112,7 +112,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
 
         // Draw the contents
         var terminal = originTerminal.getTerminal();
-        if (terminal != null && !ShaderMod.INSTANCE.isRenderingShadowPass()) {
+        if (terminal != null && !ShaderMod.get().isRenderingShadowPass()) {
             // Draw a terminal
             int width = terminal.getWidth(), height = terminal.getHeight();
             int pixelWidth = width * FONT_WIDTH, pixelHeight = height * FONT_HEIGHT;
@@ -233,7 +233,7 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
     }
 
     private static void renderToBuffer(DirectVertexBuffer vbo, int size, Consumer<DirectFixedWidthFontRenderer.QuadEmitter> draw) {
-        var sink = ShaderMod.INSTANCE.getQuadEmitter(size, TileEntityMonitorRenderer::getBuffer);
+        var sink = ShaderMod.get().getQuadEmitter(size, TileEntityMonitorRenderer::getBuffer);
         var buffer = sink.buffer();
 
         draw.accept(sink);
@@ -279,8 +279,8 @@ public class TileEntityMonitorRenderer implements BlockEntityRenderer<TileMonito
             return MonitorRenderer.VBO;
         }
 
-        if (ShaderMod.INSTANCE.isShaderMod()) {
-            LOG.warn("Optifine is loaded, assuming shaders are being used. Falling back to VBO monitor renderer.");
+        if (ShaderMod.get().isShaderMod()) {
+            LOG.warn("A shader mod is loaded, assuming shaders are being used. Falling back to VBO monitor renderer.");
             return MonitorRenderer.VBO;
         }
 
