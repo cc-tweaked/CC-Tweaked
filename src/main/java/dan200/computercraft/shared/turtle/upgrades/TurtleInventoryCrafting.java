@@ -70,7 +70,7 @@ public class TurtleInventoryCrafting extends CraftingContainer {
         // Special case: craft(0) just returns an empty list if crafting was possible
         if (maxCount == 0) return Collections.emptyList();
 
-        var player = TurtlePlayer.get(turtle);
+        var player = TurtlePlayer.get(turtle).player();
 
         var results = new ArrayList<ItemStack>();
         for (var i = 0; i < maxCount && recipe.matches(this, world); i++) {

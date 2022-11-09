@@ -7,8 +7,7 @@ package dan200.computercraft.shared.turtle.upgrades;
 
 import dan200.computercraft.api.ComputerCraftTags;
 import dan200.computercraft.api.turtle.*;
-import dan200.computercraft.shared.TurtlePermissions;
-import dan200.computercraft.shared.config.Config;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.turtle.core.TurtlePlaceCommand;
 import dan200.computercraft.shared.turtle.core.TurtlePlayer;
@@ -17,22 +16,22 @@ import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.GameMasterBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.EntityHitResult;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.ToolActions;
-import net.minecraftforge.event.entity.player.AttackEntityEvent;
-import net.minecraftforge.event.level.BlockEvent;
 
 import javax.annotation.Nullable;
 
@@ -63,8 +62,7 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         // Check we've not got anything vaguely interesting on the item. We allow other mods to add their
         // own NBT, with the understanding such details will be lost to the mist of time.
         if (stack.isDamaged() || stack.isEnchanted() || stack.hasCustomHoverName()) return false;
-        if (tag.contains("AttributeModifiers", TAG_LIST) &&
-            !tag.getList("AttributeModifiers", TAG_COMPOUND).isEmpty()) {
+        if (tag.contains("AttributeModifiers", TAG_LIST) && !tag.getList("AttributeModifiers", TAG_COMPOUND).isEmpty()) {
             return false;
         }
 
@@ -79,11 +77,9 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         };
     }
 
-    protected TurtleCommandResult checkBlockBreakable(BlockState state, Level world, BlockPos pos, TurtlePlayer player) {
-        var block = state.getBlock();
-        if (state.isAir() || block == Blocks.BEDROCK
-            || state.getDestroyProgress(player, world, pos) <= 0
-            || !block.canEntityDestroy(state, world, pos, player)) {
+    protected TurtleCommandResult checkBlockBreakable(Level world, BlockPos pos, TurtlePlayer player) {
+        var state = world.getBlockState(pos);
+        if (state.isAir() || state.getBlock() instanceof GameMasterBlock || state.getDestroyProgress(player.player(), world, pos) <= 0) {
             return UNBREAKABLE;
         }
 
@@ -91,6 +87,16 @@ public class TurtleTool extends AbstractTurtleUpgrade {
             ? TurtleCommandResult.success() : INEFFECTIVE;
     }
 
+    /**
+     * Attack an entity. This is a <em>very</em> cut down version of {@link Player#attack(Entity)}, which doesn't handle
+     * enchantments, knockback, etc... Unfortunately we can't call attack directly as damage calculations are rather
+     * different (and we don't want to play sounds/particles).
+     *
+     * @param turtle    The current turtle.
+     * @param direction The direction we're attacking in.
+     * @return Whether an attack occurred.
+     * @see Player#attack(Entity)
+     */
     private TurtleCommandResult attack(ITurtleAccess turtle, Direction direction) {
         // Create a fake player, and orient it appropriately
         var world = turtle.getLevel();
@@ -99,8 +105,9 @@ public class TurtleTool extends AbstractTurtleUpgrade {
         final var turtlePlayer = TurtlePlayer.getWithPosition(turtle, position, direction);
 
         // See if there is an entity present
-        var turtlePos = turtlePlayer.position();
-        var rayDir = turtlePlayer.getViewVector(1.0f);
+        var player = turtlePlayer.player();
+        var turtlePos = player.position();
+        var rayDir = player.getViewVector(1.0f);
         var hit = WorldUtil.clip(world, turtlePos, rayDir, 1.5, null);
         if (hit instanceof EntityHitResult entityHit) {
             // Load up the turtle's inventory
@@ -109,20 +116,18 @@ public class TurtleTool extends AbstractTurtleUpgrade {
 
             var hitEntity = entityHit.getEntity();
 
-            // Fire several events to ensure we have permissions.
-            if (MinecraftForge.EVENT_BUS.post(new AttackEntityEvent(turtlePlayer, hitEntity)) || !hitEntity.isAttackable()) {
-                return TurtleCommandResult.failure("Nothing to attack here");
-            }
-
             // Start claiming entity drops
             DropConsumer.set(hitEntity, TurtleUtil.dropConsumer(turtle));
 
             // Attack the entity
             var attacked = false;
-            if (!hitEntity.skipAttackInteraction(turtlePlayer)) {
-                var damage = (float) turtlePlayer.getAttributeValue(Attributes.ATTACK_DAMAGE) * damageMulitiplier;
+            var result = PlatformHelper.get().canAttackEntity(player, hitEntity);
+            if (result.consumesAction()) {
+                attacked = true;
+            } else if (result == InteractionResult.PASS && hitEntity.isAttackable() && !hitEntity.skipAttackInteraction(player)) {
+                var damage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE) * damageMulitiplier;
                 if (damage > 0.0f) {
-                    var source = DamageSource.playerAttack(turtlePlayer);
+                    var source = DamageSource.playerAttack(player);
                     if (hitEntity instanceof ArmorStand) {
                         // Special case for armor stands: attack twice to guarantee destroy
                         hitEntity.hurt(source, damage);
@@ -138,78 +143,42 @@ public class TurtleTool extends AbstractTurtleUpgrade {
             TurtleUtil.stopConsuming(turtle);
 
             // Put everything we collected into the turtles inventory, then return
-            if (attacked) {
-                turtlePlayer.getInventory().clearContent();
-                return TurtleCommandResult.success();
-            }
+            player.getInventory().clearContent();
+            if (attacked) return TurtleCommandResult.success();
         }
 
         return TurtleCommandResult.failure("Nothing to attack here");
     }
 
     private TurtleCommandResult dig(ITurtleAccess turtle, Direction direction) {
-        if (item.canPerformAction(ToolActions.SHOVEL_FLATTEN) || item.canPerformAction(ToolActions.HOE_TILL)) {
-            if (TurtlePlaceCommand.deployCopiedItem(item.copy(), turtle, direction, null, null)) {
-                return TurtleCommandResult.success();
-            }
+        if (PlatformHelper.get().hasToolUsage(item) && TurtlePlaceCommand.deployCopiedItem(item.copy(), turtle, direction, null, null)) {
+            return TurtleCommandResult.success();
         }
 
-        // Get ready to dig
-        var world = turtle.getLevel();
+        var level = (ServerLevel) turtle.getLevel();
         var turtlePosition = turtle.getPosition();
 
         var blockPosition = turtlePosition.relative(direction);
-        if (world.isEmptyBlock(blockPosition) || WorldUtil.isLiquidBlock(world, blockPosition)) {
+        if (level.isEmptyBlock(blockPosition) || WorldUtil.isLiquidBlock(level, blockPosition)) {
             return TurtleCommandResult.failure("Nothing to dig here");
         }
-
-        var state = world.getBlockState(blockPosition);
-        var fluidState = world.getFluidState(blockPosition);
 
         var turtlePlayer = TurtlePlayer.getWithPosition(turtle, turtlePosition, direction);
         turtlePlayer.loadInventory(item.copy());
 
-        if (Config.turtlesObeyBlockProtection) {
-            // Check spawn protection
-            if (MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(world, blockPosition, state, turtlePlayer))) {
-                return TurtleCommandResult.failure("Cannot break protected block");
-            }
-
-            if (!TurtlePermissions.isBlockEditable(world, blockPosition, turtlePlayer)) {
-                return TurtleCommandResult.failure("Cannot break protected block");
-            }
-        }
-
         // Check if we can break the block
-        var breakable = checkBlockBreakable(state, world, blockPosition, turtlePlayer);
+        var breakable = checkBlockBreakable(level, blockPosition, turtlePlayer);
         if (!breakable.isSuccess()) return breakable;
 
-        // Consume the items the block drops
-        DropConsumer.set(world, blockPosition, TurtleUtil.dropConsumer(turtle));
-
-        var tile = world.getBlockEntity(blockPosition);
-
-        // Much of this logic comes from PlayerInteractionManager#tryHarvestBlock, so it's a good idea
-        // to consult there before making any changes.
-
-        // Play the destruction sound and particles
-        world.levelEvent(2001, blockPosition, Block.getId(state));
-
-        // Destroy the block
-        var canHarvest = state.canHarvestBlock(world, blockPosition, turtlePlayer);
-        var canBreak = state.onDestroyedByPlayer(world, blockPosition, turtlePlayer, canHarvest, fluidState);
-        if (canBreak) state.getBlock().destroy(world, blockPosition, state);
-        if (canHarvest && canBreak) {
-            state.getBlock().playerDestroy(world, turtlePlayer, blockPosition, state, tile, turtlePlayer.getMainHandItem());
-        }
-
+        DropConsumer.set(level, blockPosition, TurtleUtil.dropConsumer(turtle));
+        var broken = !turtlePlayer.isBlockProtected(level, blockPosition) && turtlePlayer.player().gameMode.destroyBlock(blockPosition);
         TurtleUtil.stopConsuming(turtle);
 
-        return TurtleCommandResult.success();
-
+        // Check spawn protection
+        return broken ? TurtleCommandResult.success() : TurtleCommandResult.failure("Cannot break protected block");
     }
 
-    protected boolean isTriviallyBreakable(BlockGetter reader, BlockPos pos, BlockState state) {
+    private static boolean isTriviallyBreakable(BlockGetter reader, BlockPos pos, BlockState state) {
         return state.is(ComputerCraftTags.Blocks.TURTLE_ALWAYS_BREAKABLE)
             // Allow breaking any "instabreak" block.
             || state.getDestroySpeed(reader, pos) == 0;

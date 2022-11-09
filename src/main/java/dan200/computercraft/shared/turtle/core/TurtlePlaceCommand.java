@@ -5,12 +5,12 @@
  */
 package dan200.computercraft.shared.turtle.core;
 
+import com.google.common.base.Splitter;
 import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
-import dan200.computercraft.shared.TurtlePermissions;
-import dan200.computercraft.shared.config.Config;
+import dan200.computercraft.shared.platform.PlatformHelper;
 import dan200.computercraft.shared.turtle.TurtleUtil;
 import dan200.computercraft.shared.util.DropConsumer;
 import dan200.computercraft.shared.util.InventoryUtil;
@@ -18,12 +18,12 @@ import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ServerboundInteractPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SignItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -33,8 +33,6 @@ import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.eventbus.api.Event.Result;
 
 import javax.annotation.Nullable;
 
@@ -76,13 +74,15 @@ public class TurtlePlaceCommand implements ITurtleCommand {
         }
     }
 
-    public static boolean deployCopiedItem(ItemStack stack, ITurtleAccess turtle, Direction direction, @Nullable Object[] extraArguments, @Nullable ErrorMessage outErrorMessage) {
+    public static boolean deployCopiedItem(
+        ItemStack stack, ITurtleAccess turtle, Direction direction, @Nullable Object[] extraArguments, @Nullable ErrorMessage outErrorMessage
+    ) {
         // Create a fake player, and orient it appropriately
         var playerPosition = turtle.getPosition().relative(direction);
         var turtlePlayer = TurtlePlayer.getWithPosition(turtle, playerPosition, direction);
         turtlePlayer.loadInventory(stack);
         var result = deploy(stack, turtle, turtlePlayer, direction, extraArguments, outErrorMessage);
-        turtlePlayer.getInventory().clearContent();
+        turtlePlayer.player().getInventory().clearContent();
         return result;
     }
 
@@ -91,7 +91,7 @@ public class TurtlePlaceCommand implements ITurtleCommand {
         @Nullable Object[] extraArguments, @Nullable ErrorMessage outErrorMessage
     ) {
         // Deploy on an entity
-        if (deployOnEntity(stack, turtle, turtlePlayer)) return true;
+        if (deployOnEntity(turtle, turtlePlayer)) return true;
 
         var position = turtle.getPosition();
         var newPosition = position.relative(direction);
@@ -107,11 +107,11 @@ public class TurtlePlaceCommand implements ITurtleCommand {
             || deployOnBlock(stack, turtle, turtlePlayer, position, direction, extraArguments, false, outErrorMessage);
     }
 
-    private static boolean deployOnEntity(ItemStack stack, final ITurtleAccess turtle, TurtlePlayer turtlePlayer) {
+    private static boolean deployOnEntity(ITurtleAccess turtle, TurtlePlayer turtlePlayer) {
         // See if there is an entity present
-        final var world = turtle.getLevel();
-        var turtlePos = turtlePlayer.position();
-        var rayDir = turtlePlayer.getViewVector(1.0f);
+        var world = turtle.getLevel();
+        var turtlePos = turtlePlayer.player().position();
+        var rayDir = turtlePlayer.player().getViewVector(1.0f);
         var hit = WorldUtil.clip(world, turtlePos, rayDir, 1.5, null);
         if (!(hit instanceof EntityHitResult entityHit)) return false;
 
@@ -119,49 +119,17 @@ public class TurtlePlaceCommand implements ITurtleCommand {
         var hitEntity = entityHit.getEntity();
         var hitPos = entityHit.getLocation();
 
-        DropConsumer.set(hitEntity, drop -> InventoryUtil.storeItemsFromOffset(turtlePlayer.getInventory(), drop, 1));
-
-        var placed = doDeployOnEntity(stack, turtlePlayer, hitEntity, hitPos);
-
+        DropConsumer.set(hitEntity, drop -> InventoryUtil.storeItemsFromOffset(turtlePlayer.player().getInventory(), drop, 1));
+        var placed = PlatformHelper.get().interactWithEntity(turtlePlayer.player(), hitEntity, hitPos);
         TurtleUtil.stopConsuming(turtle);
         return placed;
-    }
-
-    /**
-     * Place a block onto an entity. For instance, feeding cows.
-     *
-     * @param stack        The stack we're placing.
-     * @param turtlePlayer The player of the turtle we're placing.
-     * @param hitEntity    The entity we're interacting with.
-     * @param hitPos       The position our ray trace hit the entity.
-     * @return If this item was deployed.
-     * @see net.minecraft.server.network.ServerGamePacketListenerImpl#handleInteract(ServerboundInteractPacket)
-     * @see net.minecraft.world.entity.player.Player#interactOn(Entity, InteractionHand)
-     */
-    private static boolean doDeployOnEntity(ItemStack stack, TurtlePlayer turtlePlayer, Entity hitEntity, Vec3 hitPos) {
-        // Placing "onto" a block follows two flows. First we try to interactAt. If that doesn't succeed, then we try to
-        // call the normal interact path. Cancelling an interactAt *does not* cancel a normal interact path.
-
-        var interactAt = ForgeHooks.onInteractEntityAt(turtlePlayer, hitEntity, hitPos, InteractionHand.MAIN_HAND);
-        if (interactAt == null) interactAt = hitEntity.interactAt(turtlePlayer, hitPos, InteractionHand.MAIN_HAND);
-        if (interactAt.consumesAction()) return true;
-
-        var interact = ForgeHooks.onInteractEntity(turtlePlayer, hitEntity, InteractionHand.MAIN_HAND);
-        if (interact != null) return interact.consumesAction();
-
-        if (hitEntity.interact(turtlePlayer, InteractionHand.MAIN_HAND).consumesAction()) return true;
-        if (hitEntity instanceof LivingEntity hitLiving) {
-            return stack.interactLivingEntity(turtlePlayer, hitLiving, InteractionHand.MAIN_HAND).consumesAction();
-        }
-
-        return false;
     }
 
     private static boolean canDeployOnBlock(
         BlockPlaceContext context, ITurtleAccess turtle, TurtlePlayer player, BlockPos position,
         Direction side, boolean allowReplaceable, @Nullable ErrorMessage outErrorMessage
     ) {
-        var world = turtle.getLevel();
+        var world = (ServerLevel) turtle.getLevel();
         if (!world.isInWorldBounds(position) || world.isEmptyBlock(position) ||
             (context.getItemInHand().getItem() instanceof BlockItem && WorldUtil.isLiquidBlock(world, position))) {
             return false;
@@ -172,15 +140,13 @@ public class TurtlePlaceCommand implements ITurtleCommand {
         var replaceable = state.canBeReplaced(context);
         if (!allowReplaceable && replaceable) return false;
 
-        if (Config.turtlesObeyBlockProtection) {
-            // Check spawn protection
-            var editable = replaceable
-                ? TurtlePermissions.isBlockEditable(world, position, player)
-                : TurtlePermissions.isBlockEditable(world, position.relative(side), player);
-            if (!editable) {
-                if (outErrorMessage != null) outErrorMessage.message = "Cannot place in protected area";
-                return false;
-            }
+        // Check spawn protection
+        var isProtected = replaceable
+            ? player.isBlockProtected(world, position)
+            : player.isBlockProtected(world, position.relative(side));
+        if (isProtected) {
+            if (outErrorMessage != null) outErrorMessage.message = "Cannot place in protected area";
+            return false;
         }
 
         return true;
@@ -203,7 +169,7 @@ public class TurtlePlaceCommand implements ITurtleCommand {
 
         // Check if there's something suitable to place onto
         var hit = new BlockHitResult(new Vec3(hitX, hitY, hitZ), side, position, false);
-        var context = new UseOnContext(turtlePlayer, InteractionHand.MAIN_HAND, hit);
+        var context = new UseOnContext(turtlePlayer.player(), InteractionHand.MAIN_HAND, hit);
         if (!canDeployOnBlock(new BlockPlaceContext(context), turtle, turtlePlayer, position, side, allowReplace, outErrorMessage)) {
             return false;
         }
@@ -211,7 +177,7 @@ public class TurtlePlaceCommand implements ITurtleCommand {
         var item = stack.getItem();
         var existingTile = turtle.getLevel().getBlockEntity(position);
 
-        var placed = doDeployOnBlock(stack, turtlePlayer, position, context, hit).consumesAction();
+        var placed = doDeployOnBlock(stack, turtlePlayer, hit).consumesAction();
 
         // Set text on signs
         if (placed && item instanceof SignItem && extraArguments != null && extraArguments.length >= 1 && extraArguments[0] instanceof String message) {
@@ -232,38 +198,19 @@ public class TurtlePlaceCommand implements ITurtleCommand {
      *
      * @param stack        The stack the player is using.
      * @param turtlePlayer The player which represents the turtle
-     * @param position     The block we're deploying against's position.
-     * @param context      The context of this place action.
      * @param hit          Where the block we're placing against was clicked.
      * @return If this item was deployed.
-     * @see net.minecraft.server.level.ServerPlayerGameMode#useItemOn  For the original implementation.
      */
     private static InteractionResult doDeployOnBlock(
-        ItemStack stack, TurtlePlayer turtlePlayer, BlockPos position, UseOnContext context, BlockHitResult hit
+        ItemStack stack, TurtlePlayer turtlePlayer, BlockHitResult hit
     ) {
-        var event = ForgeHooks.onRightClickBlock(turtlePlayer, InteractionHand.MAIN_HAND, position, hit);
-        if (event.isCanceled()) return event.getCancellationResult();
+        var result = PlatformHelper.get().useOn(turtlePlayer.player(), stack, hit);
+        if (result != InteractionResult.PASS) return result;
 
-        if (event.getUseItem() != Result.DENY) {
-            var result = stack.onItemUseFirst(context);
-            if (result != InteractionResult.PASS) return result;
-        }
-
-        if (event.getUseItem() != Result.DENY) {
-            var result = stack.useOn(context);
-            if (result != InteractionResult.PASS) return result;
-        }
-
+        // We special case some items which we allow to place "normally". Yes, this is very ugly.
         var item = stack.getItem();
-        if (item instanceof BucketItem || item instanceof BoatItem || item instanceof PlaceOnWaterBlockItem || item instanceof BottleItem) {
-            var actionResult = ForgeHooks.onItemRightClick(turtlePlayer, InteractionHand.MAIN_HAND);
-            if (actionResult != null && actionResult != InteractionResult.PASS) return actionResult;
-
-            var result = stack.use(context.getLevel(), turtlePlayer, InteractionHand.MAIN_HAND);
-            if (result.getResult().consumesAction() && !ItemStack.matches(stack, result.getObject())) {
-                turtlePlayer.setItemInHand(InteractionHand.MAIN_HAND, result.getObject());
-                return result.getResult();
-            }
+        if (item.getUseDuration(stack) == 0) {
+            return turtlePlayer.player().gameMode.useItem(turtlePlayer.player(), turtlePlayer.player().level, stack, InteractionHand.MAIN_HAND);
         }
 
         return InteractionResult.PASS;
@@ -271,11 +218,11 @@ public class TurtlePlaceCommand implements ITurtleCommand {
 
     private static void setSignText(Level world, BlockEntity tile, String message) {
         var signTile = (SignBlockEntity) tile;
-        var split = message.split("\n");
-        var firstLine = split.length <= 2 ? 1 : 0;
+        var split = Splitter.on('\n').splitToList(message);
+        var firstLine = split.size() <= 2 ? 1 : 0;
         for (var i = 0; i < 4; i++) {
-            if (i >= firstLine && i < firstLine + split.length) {
-                var line = split[i - firstLine];
+            if (i >= firstLine && i < firstLine + split.size()) {
+                var line = split.get(i - firstLine);
                 signTile.setMessage(i, line.length() > 15
                     ? Component.literal(line.substring(0, 15))
                     : Component.literal(line)

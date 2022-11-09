@@ -6,6 +6,7 @@
 package dan200.computercraft.shared.platform;
 
 import com.google.auto.service.AutoService;
+import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -27,9 +28,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.Container;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.WorldlyContainerHolder;
+import net.minecraft.world.*;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -37,6 +37,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
@@ -45,14 +46,17 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.Tags;
+import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.common.util.NonNullConsumer;
 import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -272,8 +276,49 @@ public class PlatformHelperImpl implements PlatformHelper {
     }
 
     @Override
+    public ServerPlayer createFakePlayer(ServerLevel world, GameProfile profile) {
+        return new FakePlayerExt(world, profile);
+    }
+
+    @Override
     public double getReachDistance(Player player) {
         return player.getReachDistance();
+    }
+
+    @Override
+    public boolean hasToolUsage(ItemStack stack) {
+        return stack.canPerformAction(ToolActions.SHOVEL_FLATTEN) || stack.canPerformAction(ToolActions.HOE_TILL);
+    }
+
+    @Override
+    public InteractionResult canAttackEntity(ServerPlayer player, Entity entity) {
+        return ForgeHooks.onPlayerAttackTarget(player, entity) ? InteractionResult.PASS : InteractionResult.SUCCESS;
+    }
+
+    @Override
+    public boolean interactWithEntity(ServerPlayer player, Entity entity, Vec3 hitPos) {
+        // Our behaviour is slightly different here - we call onInteractEntityAt before the interact methods, while
+        // Forge does the call afterwards (on the server, not on the client).
+        var interactAt = ForgeHooks.onInteractEntityAt(player, entity, hitPos, InteractionHand.MAIN_HAND);
+        if (interactAt == null) {
+            interactAt = entity.interactAt(player, hitPos.subtract(entity.position()), InteractionHand.MAIN_HAND);
+        }
+
+        return interactAt.consumesAction() || player.interactOn(entity, InteractionHand.MAIN_HAND).consumesAction();
+    }
+
+    @Override
+    public InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit) {
+        var level = player.level;
+        var pos = hit.getBlockPos();
+        var event = ForgeHooks.onRightClickBlock(player, InteractionHand.MAIN_HAND, pos, hit);
+        if (event.isCanceled()) return event.getCancellationResult();
+
+        var context = new UseOnContext(player, InteractionHand.MAIN_HAND, hit);
+        if (event.getUseItem() == Event.Result.DENY) return InteractionResult.PASS;
+
+        var result = stack.onItemUseFirst(context);
+        return result != InteractionResult.PASS ? result : stack.useOn(context);
     }
 
     private record RegistryWrapperImpl<T>(

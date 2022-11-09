@@ -10,6 +10,9 @@ import dan200.computercraft.api.detail.VanillaDetailRegistries
 import dan200.computercraft.api.lua.ObjectArguments
 import dan200.computercraft.core.apis.PeripheralAPI
 import dan200.computercraft.gametest.api.*
+import dan200.computercraft.gametest.core.TestHooks
+import dan200.computercraft.mixin.gametest.GameTestHelperAccessor
+import dan200.computercraft.mixin.gametest.GameTestInfoAccessor
 import dan200.computercraft.shared.ModRegistry
 import dan200.computercraft.shared.media.items.ItemPrintout
 import dan200.computercraft.shared.peripheral.monitor.BlockMonitor
@@ -396,10 +399,13 @@ class Turtle_Test {
      */
     @GameTest
     fun Peripheral_change(helper: GameTestHelper) = helper.sequence {
+        val testInfo = (helper as GameTestHelperAccessor).testInfo as GameTestInfoAccessor
+
         val events = mutableListOf<Pair<String, String>>()
         thenStartComputer("listen") {
             while (true) {
                 val event = pullEvent()
+                TestHooks.LOG.info("[{}] Got event {} at tick {}", testInfo, event[0], testInfo.`computercraft$getTick`())
                 if (event[0] == "peripheral" || event[0] == "peripheral_detach") {
                     events.add((event[0] as String) to (event[1] as String))
                 }
@@ -408,8 +414,9 @@ class Turtle_Test {
         thenOnComputer("turtle") {
             turtle.forward().await().assertArrayEquals(true, message = "Moved turtle forward")
             turtle.back().await().assertArrayEquals(true, message = "Moved turtle forward")
+            TestHooks.LOG.info("[{}] Finished turtle at {}", testInfo, testInfo.`computercraft$getTick`())
         }
-        thenIdle(2) // Should happen immediately, but computers might be slow.
+        thenIdle(3) // Should happen immediately, but computers might be slow.
         thenExecute {
             assertEquals(
                 listOf(

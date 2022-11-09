@@ -63,7 +63,6 @@ public final class ConfigSpec {
     private static final ConfigValue<Boolean> turtlesNeedFuel;
     private static final ConfigValue<Integer> turtleFuelLimit;
     private static final ConfigValue<Integer> advancedTurtleFuelLimit;
-    private static final ConfigValue<Boolean> turtlesObeyBlockProtection;
     private static final ConfigValue<Boolean> turtlesCanPush;
 
     private static final ConfigValue<Integer> computerTermWidth;
@@ -283,12 +282,6 @@ public final class ConfigSpec {
                 .comment("The fuel limit for Advanced Turtles.")
                 .defineInRange("advanced_fuel_limit", Config.advancedTurtleFuelLimit, 0, Integer.MAX_VALUE);
 
-            turtlesObeyBlockProtection = builder
-                .comment("""
-                    If set to true, Turtles will be unable to build, dig, or enter protected areas
-                    (such as near the server spawn point).""")
-                .define("obey_block_protection", Config.turtlesObeyBlockProtection);
-
             turtlesCanPush = builder
                 .comment("""
                     If set to true, Turtles will push entities out of the way instead of stopping if
@@ -400,7 +393,6 @@ public final class ConfigSpec {
         Config.turtlesNeedFuel = turtlesNeedFuel.get();
         Config.turtleFuelLimit = turtleFuelLimit.get();
         Config.advancedTurtleFuelLimit = advancedTurtleFuelLimit.get();
-        Config.turtlesObeyBlockProtection = turtlesObeyBlockProtection.get();
         Config.turtlesCanPush = turtlesCanPush.get();
 
         // Terminal size

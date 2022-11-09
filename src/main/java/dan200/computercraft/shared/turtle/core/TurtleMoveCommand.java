@@ -9,12 +9,11 @@ import dan200.computercraft.api.turtle.ITurtleAccess;
 import dan200.computercraft.api.turtle.ITurtleCommand;
 import dan200.computercraft.api.turtle.TurtleAnimation;
 import dan200.computercraft.api.turtle.TurtleCommandResult;
-import dan200.computercraft.shared.TurtlePermissions;
 import dan200.computercraft.shared.config.Config;
 import dan200.computercraft.shared.util.WorldUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -32,7 +31,7 @@ public class TurtleMoveCommand implements ITurtleCommand {
         var direction = this.direction.toWorldDir(turtle);
 
         // Check if we can move
-        var oldWorld = turtle.getLevel();
+        var oldWorld = (ServerLevel) turtle.getLevel();
         var oldPosition = turtle.getPosition();
         var newPosition = oldPosition.relative(direction);
 
@@ -97,14 +96,14 @@ public class TurtleMoveCommand implements ITurtleCommand {
         return TurtleCommandResult.success();
     }
 
-    private static TurtleCommandResult canEnter(TurtlePlayer turtlePlayer, Level world, BlockPos position) {
+    private static TurtleCommandResult canEnter(TurtlePlayer turtlePlayer, ServerLevel world, BlockPos position) {
         if (world.isOutsideBuildHeight(position)) {
             return TurtleCommandResult.failure(position.getY() < 0 ? "Too low to move" : "Too high to move");
         }
         if (!world.isInWorldBounds(position)) return TurtleCommandResult.failure("Cannot leave the world");
 
         // Check spawn protection
-        if (Config.turtlesObeyBlockProtection && !TurtlePermissions.isBlockEnterable(world, position, turtlePlayer)) {
+        if (turtlePlayer.isBlockProtected(world, position)) {
             return TurtleCommandResult.failure("Cannot enter protected area");
         }
 

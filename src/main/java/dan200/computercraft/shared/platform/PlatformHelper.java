@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.shared.platform;
 
+import com.mojang.authlib.GameProfile;
 import dan200.computercraft.api.network.wired.IWiredElement;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.shared.network.NetworkMessage;
@@ -20,10 +21,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerPlayerGameMode;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.Container;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.*;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -39,6 +41,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
@@ -297,6 +300,15 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     boolean onNotifyNeighbour(Level level, BlockPos pos, BlockState block, Direction direction);
 
     /**
+     * Create a new fake player.
+     *
+     * @param level   The level the player should be created in.
+     * @param profile The user this player should mimic.
+     * @return The newly constructed fake player.
+     */
+    ServerPlayer createFakePlayer(ServerLevel level, GameProfile profile);
+
+    /**
      * Determine if a player is not a real player.
      *
      * @param player The player to check.
@@ -316,4 +328,55 @@ public interface PlatformHelper extends dan200.computercraft.impl.PlatformHelper
     default double getReachDistance(Player player) {
         return player.isCreative() ? 5 : 4.5;
     }
+
+    /**
+     * Check if this item is a tool and has some secondary usage.
+     * <p>
+     * In practice, this only checks if a tool is a hoe or shovel. We don't want to include things like axes,
+     *
+     * @param stack The stack to check.
+     * @return Whether this tool has a secondary usage.
+     */
+    boolean hasToolUsage(ItemStack stack);
+
+    /**
+     * Check if an entity can be attacked according to platform-specific events.
+     *
+     * @param player The player who is attacking.
+     * @param entity The entity we're attacking.
+     * @return If this entity can be attacked.
+     * @see Player#attack(Entity)
+     */
+    InteractionResult canAttackEntity(ServerPlayer player, Entity entity);
+
+    /**
+     * Interact with an entity, for instance feeding cows.
+     * <p>
+     * Implementations should follow Minecraft behaviour - we try {@link Entity#interactAt(Player, Vec3, InteractionHand)}
+     * and then {@link Player#interactOn(Entity, InteractionHand)}. Loader-specific hooks should also be called.
+     *
+     * @param player The player which is interacting with the entity.
+     * @param entity The entity we're interacting with.
+     * @param hitPos The position our ray trace hit the entity. This is a position in-world, unlike
+     *               {@link Entity#interactAt(Player, Vec3, InteractionHand)} which is relative to the entity.
+     * @return Whether any interaction occurred.
+     * @see Entity#interactAt(Player, Vec3, InteractionHand)
+     * @see Player#interactOn(Entity, InteractionHand)
+     * @see ServerGamePacketListenerImpl#handleInteract
+     */
+    boolean interactWithEntity(ServerPlayer player, Entity entity, Vec3 hitPos);
+
+    /**
+     * Place an item against a block.
+     * <p>
+     * Implementations should largely mirror {@link ServerPlayerGameMode#useItemOn(ServerPlayer, Level, ItemStack, InteractionHand, BlockHitResult)}
+     * (including any loader-specific modifications), except they should skip the call to {@link BlockState#use(Level, Player, InteractionHand, BlockHitResult)}.
+     *
+     * @param player The player which is placing this item.
+     * @param stack  The item to place.
+     * @param hit    The collision with the block we're placing against.
+     * @return Whether any interaction occurred.
+     * @see ServerPlayerGameMode#useItemOn(ServerPlayer, Level, ItemStack, InteractionHand, BlockHitResult)
+     */
+    InteractionResult useOn(ServerPlayer player, ItemStack stack, BlockHitResult hit);
 }

@@ -32,7 +32,6 @@ public final class Config {
     public static boolean turtlesNeedFuel = true;
     public static int turtleFuelLimit = 20000;
     public static int advancedTurtleFuelLimit = 100000;
-    public static boolean turtlesObeyBlockProtection = true;
     public static boolean turtlesCanPush = true;
 
     public static int computerTermWidth = 51;
